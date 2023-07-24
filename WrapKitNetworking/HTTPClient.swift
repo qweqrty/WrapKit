@@ -7,6 +7,6 @@
 
 import Foundation
 
-protocol HTTPCLient {
+public protocol HTTPCLient {
     
 }

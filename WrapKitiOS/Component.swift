@@ -8,11 +8,11 @@
 #if canImport(UIKit)
 import UIKit
 
-class ComponentiOS: UIView {
+public class ComponentiOS: UIView {
     
 }
 #endif
 
-class Component {
+public class Component {
     
 }
