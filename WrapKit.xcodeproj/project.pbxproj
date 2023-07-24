@@ -9,10 +9,10 @@
 /* Begin PBXBuildFile section */
 		C01EF5232A6E5B0B005B93E0 /* WrapKitiOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C01EF51B2A6E5B0B005B93E0 /* WrapKitiOS.framework */; };
 		C01EF5282A6E5B0B005B93E0 /* WrapKitiOSTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C01EF5272A6E5B0B005B93E0 /* WrapKitiOSTests.swift */; };
-		C01EF5292A6E5B0B005B93E0 /* WrapKitiOS.h in Headers */ = {isa = PBXBuildFile; fileRef = C01EF51D2A6E5B0B005B93E0 /* WrapKitiOS.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		C01EF5312A6E6019005B93E0 /* HTTPClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = C01EF5302A6E6019005B93E0 /* HTTPClient.swift */; };
+		C01EF5332A6E6043005B93E0 /* Component.swift in Sources */ = {isa = PBXBuildFile; fileRef = C01EF5322A6E6043005B93E0 /* Component.swift */; };
 		C056E6F72A6D04BB0020AB69 /* WrapKitNetworking.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C056E6EF2A6D04BB0020AB69 /* WrapKitNetworking.framework */; };
 		C056E6FC2A6D04BB0020AB69 /* WrapKitNetworkingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C056E6FB2A6D04BB0020AB69 /* WrapKitNetworkingTests.swift */; };
-		C056E6FD2A6D04BB0020AB69 /* WrapKitNetworking.h in Headers */ = {isa = PBXBuildFile; fileRef = C056E6F12A6D04BB0020AB69 /* WrapKitNetworking.h */; settings = {ATTRIBUTES = (Public, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -34,11 +34,11 @@
 
 /* Begin PBXFileReference section */
 		C01EF51B2A6E5B0B005B93E0 /* WrapKitiOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = WrapKitiOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		C01EF51D2A6E5B0B005B93E0 /* WrapKitiOS.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WrapKitiOS.h; sourceTree = "<group>"; };
 		C01EF5222A6E5B0B005B93E0 /* WrapKitiOSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = WrapKitiOSTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		C01EF5272A6E5B0B005B93E0 /* WrapKitiOSTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WrapKitiOSTests.swift; sourceTree = "<group>"; };
+		C01EF5302A6E6019005B93E0 /* HTTPClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPClient.swift; sourceTree = "<group>"; };
+		C01EF5322A6E6043005B93E0 /* Component.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Component.swift; sourceTree = "<group>"; };
 		C056E6EF2A6D04BB0020AB69 /* WrapKitNetworking.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = WrapKitNetworking.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		C056E6F12A6D04BB0020AB69 /* WrapKitNetworking.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WrapKitNetworking.h; sourceTree = "<group>"; };
 		C056E6F62A6D04BB0020AB69 /* WrapKitNetworkingTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = WrapKitNetworkingTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		C056E6FB2A6D04BB0020AB69 /* WrapKitNetworkingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WrapKitNetworkingTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -80,7 +80,7 @@
 		C01EF51C2A6E5B0B005B93E0 /* WrapKitiOS */ = {
 			isa = PBXGroup;
 			children = (
-				C01EF51D2A6E5B0B005B93E0 /* WrapKitiOS.h */,
+				C01EF5322A6E6043005B93E0 /* Component.swift */,
 			);
 			path = WrapKitiOS;
 			sourceTree = "<group>";
@@ -118,7 +118,7 @@
 		C056E6F02A6D04BB0020AB69 /* WrapKitNetworking */ = {
 			isa = PBXGroup;
 			children = (
-				C056E6F12A6D04BB0020AB69 /* WrapKitNetworking.h */,
+				C01EF5302A6E6019005B93E0 /* HTTPClient.swift */,
 			);
 			path = WrapKitNetworking;
 			sourceTree = "<group>";
@@ -138,7 +138,6 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C01EF5292A6E5B0B005B93E0 /* WrapKitiOS.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -146,7 +145,6 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C056E6FD2A6D04BB0020AB69 /* WrapKitNetworking.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -237,12 +235,14 @@
 				TargetAttributes = {
 					C01EF51A2A6E5B0B005B93E0 = {
 						CreatedOnToolsVersion = 14.3.1;
+						LastSwiftMigration = 1430;
 					};
 					C01EF5212A6E5B0B005B93E0 = {
 						CreatedOnToolsVersion = 14.3.1;
 					};
 					C056E6EE2A6D04BB0020AB69 = {
 						CreatedOnToolsVersion = 14.3.1;
+						LastSwiftMigration = 1430;
 					};
 					C056E6F52A6D04BB0020AB69 = {
 						CreatedOnToolsVersion = 14.3.1;
@@ -306,6 +306,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C01EF5332A6E6043005B93E0 /* Component.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -321,6 +322,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C01EF5312A6E6019005B93E0 /* HTTPClient.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -351,6 +353,7 @@
 		C01EF52A2A6E5B0B005B93E0 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
@@ -379,6 +382,7 @@
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -387,6 +391,7 @@
 		C01EF52B2A6E5B0B005B93E0 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
@@ -423,6 +428,7 @@
 		C01EF52C2A6E5B0B005B93E0 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = K527BQ6P4G;
@@ -441,6 +447,7 @@
 		C01EF52D2A6E5B0B005B93E0 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = K527BQ6P4G;
@@ -583,6 +590,7 @@
 		C056E6FF2A6D04BB0020AB69 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
@@ -610,6 +618,7 @@
 				SKIP_INSTALL = YES;
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos macosx";
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TVOS_DEPLOYMENT_TARGET = 11.0;
@@ -620,6 +629,7 @@
 		C056E7002A6D04BB0020AB69 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
@@ -657,6 +667,7 @@
 		C056E7022A6D04BB0020AB69 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = K527BQ6P4G;
@@ -679,6 +690,7 @@
 		C056E7032A6D04BB0020AB69 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = K527BQ6P4G;
