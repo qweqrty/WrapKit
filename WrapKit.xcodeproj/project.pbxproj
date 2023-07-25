@@ -21,6 +21,9 @@
 		C05160732A6FB17D00E01640 /* XCTestCase+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C05160722A6FB17D00E01640 /* XCTestCase+Extensions.swift */; };
 		C05160772A6FB19B00E01640 /* KeychainTokenStorageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C05160762A6FB19B00E01640 /* KeychainTokenStorageTests.swift */; };
 		C05160792A6FB28300E01640 /* TokenServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C05160782A6FB28300E01640 /* TokenServiceTests.swift */; };
+		C051607D2A6FC75600E01640 /* AuthenticatedHTTPClientDecorator.swift in Sources */ = {isa = PBXBuildFile; fileRef = C051607C2A6FC75600E01640 /* AuthenticatedHTTPClientDecorator.swift */; };
+		C051607F2A6FCEEB00E01640 /* AuthenticatedHTTPClientDecoratorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C051607E2A6FCEEB00E01640 /* AuthenticatedHTTPClientDecoratorTests.swift */; };
+		C05160812A6FD0E700E01640 /* TokenStorageSpy.swift in Sources */ = {isa = PBXBuildFile; fileRef = C05160802A6FD0E700E01640 /* TokenStorageSpy.swift */; };
 		C056E6F72A6D04BB0020AB69 /* WrapKitNetworking.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C056E6EF2A6D04BB0020AB69 /* WrapKitNetworking.framework */; };
 /* End PBXBuildFile section */
 
@@ -56,6 +59,9 @@
 		C05160722A6FB17D00E01640 /* XCTestCase+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "XCTestCase+Extensions.swift"; sourceTree = "<group>"; };
 		C05160762A6FB19B00E01640 /* KeychainTokenStorageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainTokenStorageTests.swift; sourceTree = "<group>"; };
 		C05160782A6FB28300E01640 /* TokenServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenServiceTests.swift; sourceTree = "<group>"; };
+		C051607C2A6FC75600E01640 /* AuthenticatedHTTPClientDecorator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticatedHTTPClientDecorator.swift; sourceTree = "<group>"; };
+		C051607E2A6FCEEB00E01640 /* AuthenticatedHTTPClientDecoratorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticatedHTTPClientDecoratorTests.swift; sourceTree = "<group>"; };
+		C05160802A6FD0E700E01640 /* TokenStorageSpy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenStorageSpy.swift; sourceTree = "<group>"; };
 		C056E6EF2A6D04BB0020AB69 /* WrapKitNetworking.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = WrapKitNetworking.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		C056E6F62A6D04BB0020AB69 /* WrapKitNetworkingTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = WrapKitNetworkingTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -116,6 +122,7 @@
 			children = (
 				C05160692A6FADA100E01640 /* Storage */,
 				C051606D2A6FAE6700E01640 /* TokenService.swift */,
+				C051607C2A6FC75600E01640 /* AuthenticatedHTTPClientDecorator.swift */,
 			);
 			path = WrapKitAuth;
 			sourceTree = "<group>";
@@ -126,6 +133,7 @@
 				C05160742A6FB19000E01640 /* Storage */,
 				C051606F2A6FB15A00E01640 /* Helpers */,
 				C05160782A6FB28300E01640 /* TokenServiceTests.swift */,
+				C051607E2A6FCEEB00E01640 /* AuthenticatedHTTPClientDecoratorTests.swift */,
 			);
 			path = WrapKitAuthTests;
 			sourceTree = "<group>";
@@ -152,6 +160,7 @@
 			children = (
 				C05160702A6FB16500E01640 /* HTTPClientSpy.swift */,
 				C05160722A6FB17D00E01640 /* XCTestCase+Extensions.swift */,
+				C05160802A6FD0E700E01640 /* TokenStorageSpy.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -399,6 +408,7 @@
 			files = (
 				C05160622A6FAAEF00E01640 /* TokenStorage.swift in Sources */,
 				C051606E2A6FAE6700E01640 /* TokenService.swift in Sources */,
+				C051607D2A6FC75600E01640 /* AuthenticatedHTTPClientDecorator.swift in Sources */,
 				C051606C2A6FADB500E01640 /* KeychainTokenStorage.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -410,6 +420,8 @@
 				C05160732A6FB17D00E01640 /* XCTestCase+Extensions.swift in Sources */,
 				C05160772A6FB19B00E01640 /* KeychainTokenStorageTests.swift in Sources */,
 				C05160712A6FB16500E01640 /* HTTPClientSpy.swift in Sources */,
+				C051607F2A6FCEEB00E01640 /* AuthenticatedHTTPClientDecoratorTests.swift in Sources */,
+				C05160812A6FD0E700E01640 /* TokenStorageSpy.swift in Sources */,
 				C05160792A6FB28300E01640 /* TokenServiceTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
