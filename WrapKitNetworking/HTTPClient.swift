@@ -7,6 +7,14 @@
 
 import Foundation
 
-public protocol HTTPCLient {
+public protocol HTTPClientTask {
+    func cancel()
+    func resume()
+}
+
+public protocol HTTPClient {
+    typealias Result = Swift.Result<(data: Data, response: HTTPURLResponse), Error>
     
+    @discardableResult
+    func dispatch(_ request: URLRequest, completion: @escaping (Result) -> Void) -> HTTPClientTask
 }
