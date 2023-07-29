@@ -13,10 +13,12 @@
 		C05160442A6FA03400E01640 /* URLSessionHTTPClientTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C05160432A6FA03400E01640 /* URLSessionHTTPClientTests.swift */; };
 		C05160462A6FA03800E01640 /* URLSessionHTTPClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = C05160452A6FA03800E01640 /* URLSessionHTTPClient.swift */; };
 		C056E6F72A6D04BB0020AB69 /* WrapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C056E6EF2A6D04BB0020AB69 /* WrapKit.framework */; };
+		C0A2C1202A75C61300356499 /* KeychainSwift.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0A2C11F2A75C61300356499 /* KeychainSwift.swift */; };
+		C0A2C1222A75C63100356499 /* KeychainSwiftAccessOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0A2C1212A75C63100356499 /* KeychainSwiftAccessOptions.swift */; };
+		C0A2C1242A75C64500356499 /* KeychainSwiftConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0A2C1232A75C64500356499 /* KeychainSwiftConstants.swift */; };
 		C0B61ACA2A753E70002C0F38 /* AuthenticatedHTTPClientDecorator.swift in Sources */ = {isa = PBXBuildFile; fileRef = C051607C2A6FC75600E01640 /* AuthenticatedHTTPClientDecorator.swift */; };
 		C0B61ACB2A753E70002C0F38 /* TokenService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C051606D2A6FAE6700E01640 /* TokenService.swift */; };
 		C0B61ACC2A753E70002C0F38 /* TokenStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C05160612A6FAAEF00E01640 /* TokenStorage.swift */; };
-		C0B61ACE2A753E86002C0F38 /* KeychainSwift in Frameworks */ = {isa = PBXBuildFile; productRef = C0B61ACD2A753E86002C0F38 /* KeychainSwift */; };
 		C0B61AD52A753E9C002C0F38 /* HTTPClientSpy.swift in Sources */ = {isa = PBXBuildFile; fileRef = C05160702A6FB16500E01640 /* HTTPClientSpy.swift */; };
 		C0B61AD62A753E9C002C0F38 /* TokenStorageSpy.swift in Sources */ = {isa = PBXBuildFile; fileRef = C05160802A6FD0E700E01640 /* TokenStorageSpy.swift */; };
 		C0B61AD82A753E9C002C0F38 /* TokenServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C05160782A6FB28300E01640 /* TokenServiceTests.swift */; };
@@ -52,6 +54,9 @@
 		C05160802A6FD0E700E01640 /* TokenStorageSpy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenStorageSpy.swift; sourceTree = "<group>"; };
 		C056E6EF2A6D04BB0020AB69 /* WrapKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = WrapKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		C056E6F62A6D04BB0020AB69 /* WrapKitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = WrapKitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		C0A2C11F2A75C61300356499 /* KeychainSwift.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = KeychainSwift.swift; path = "../../../../.Trash/WrapKit 04.08.50/WrapKit/Classes/WrapKitAuth/Storage/Keychain/KeychainSwift.swift"; sourceTree = "<group>"; };
+		C0A2C1212A75C63100356499 /* KeychainSwiftAccessOptions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainSwiftAccessOptions.swift; sourceTree = "<group>"; };
+		C0A2C1232A75C64500356499 /* KeychainSwiftConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainSwiftConstants.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -59,7 +64,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C0B61ACE2A753E86002C0F38 /* KeychainSwift in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -156,6 +160,7 @@
 		C056E6C82A6D04A70020AB69 = {
 			isa = PBXGroup;
 			children = (
+				C0A2C11E2A75C5F300356499 /* KeychainSwift */,
 				C056E6F02A6D04BB0020AB69 /* WrapKitNetworking */,
 				C056E6FA2A6D04BB0020AB69 /* WrapKitNetworkingTests */,
 				C051604D2A6FAADF00E01640 /* WrapKitAuth */,
@@ -193,6 +198,16 @@
 			path = WrapKitNetworkingTests;
 			sourceTree = "<group>";
 		};
+		C0A2C11E2A75C5F300356499 /* KeychainSwift */ = {
+			isa = PBXGroup;
+			children = (
+				C0A2C11F2A75C61300356499 /* KeychainSwift.swift */,
+				C0A2C1212A75C63100356499 /* KeychainSwiftAccessOptions.swift */,
+				C0A2C1232A75C64500356499 /* KeychainSwiftConstants.swift */,
+			);
+			path = KeychainSwift;
+			sourceTree = "<group>";
+		};
 		C0B61AC42A753876002C0F38 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -228,7 +243,6 @@
 			);
 			name = WrapKit;
 			packageProductDependencies = (
-				C0B61ACD2A753E86002C0F38 /* KeychainSwift */,
 			);
 			productName = WrapKitNetworking;
 			productReference = C056E6EF2A6D04BB0020AB69 /* WrapKit.framework */;
@@ -281,7 +295,6 @@
 			);
 			mainGroup = C056E6C82A6D04A70020AB69;
 			packageReferences = (
-				C05160662A6FAD7A00E01640 /* XCRemoteSwiftPackageReference "keychain-swift" */,
 			);
 			productRefGroup = C056E6D32A6D04A70020AB69 /* Products */;
 			projectDirPath = "";
@@ -318,7 +331,10 @@
 				C01EF5312A6E6019005B93E0 /* HTTPClient.swift in Sources */,
 				C0B61ADB2A753F10002C0F38 /* KeychainTokenStorage.swift in Sources */,
 				C0B61ACA2A753E70002C0F38 /* AuthenticatedHTTPClientDecorator.swift in Sources */,
+				C0A2C1242A75C64500356499 /* KeychainSwiftConstants.swift in Sources */,
 				C0B61ACC2A753E70002C0F38 /* TokenStorage.swift in Sources */,
+				C0A2C1222A75C63100356499 /* KeychainSwiftAccessOptions.swift in Sources */,
+				C0A2C1202A75C61300356499 /* KeychainSwift.swift in Sources */,
 				C05160462A6FA03800E01640 /* URLSessionHTTPClient.swift in Sources */,
 				C0B61ACB2A753E70002C0F38 /* TokenService.swift in Sources */,
 			);
@@ -628,25 +644,6 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
-
-/* Begin XCRemoteSwiftPackageReference section */
-		C05160662A6FAD7A00E01640 /* XCRemoteSwiftPackageReference "keychain-swift" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/evgenyneu/keychain-swift.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 20.0.0;
-			};
-		};
-/* End XCRemoteSwiftPackageReference section */
-
-/* Begin XCSwiftPackageProductDependency section */
-		C0B61ACD2A753E86002C0F38 /* KeychainSwift */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = C05160662A6FAD7A00E01640 /* XCRemoteSwiftPackageReference "keychain-swift" */;
-			productName = KeychainSwift;
-		};
-/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = C056E6C92A6D04A70020AB69 /* Project object */;
 }

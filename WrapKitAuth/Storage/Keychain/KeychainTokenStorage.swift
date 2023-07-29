@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import KeychainSwift
 
 public class KeychainTokenStorage: TokenStorage {
     private static let AccessTokenKey = "AccessToken"

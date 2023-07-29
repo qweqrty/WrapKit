@@ -15,8 +15,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "C056E6EE2A6D04BB0020AB69"
-               BuildableName = "WrapKitNetworking.framework"
-               BlueprintName = "WrapKitNetworking"
+               BuildableName = "WrapKit.framework"
+               BlueprintName = "WrapKit"
                ReferencedContainer = "container:WrapKit.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -35,8 +35,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "C056E6F52A6D04BB0020AB69"
-               BuildableName = "WrapKitNetworkingTests.xctest"
-               BlueprintName = "WrapKitNetworkingTests"
+               BuildableName = "WrapKitTests.xctest"
+               BlueprintName = "WrapKitTests"
                ReferencedContainer = "container:WrapKit.xcodeproj">
             </BuildableReference>
          </TestableReference>
@@ -63,8 +63,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "C056E6EE2A6D04BB0020AB69"
-            BuildableName = "WrapKitNetworking.framework"
-            BlueprintName = "WrapKitNetworking"
+            BuildableName = "WrapKit.framework"
+            BlueprintName = "WrapKit"
             ReferencedContainer = "container:WrapKit.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
