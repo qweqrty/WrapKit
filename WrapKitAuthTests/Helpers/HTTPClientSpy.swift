@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import WrapKitNetworking
+import WrapKit
 
 class HTTPClientSpy: HTTPClient {
     typealias Result = HTTPClient.Result

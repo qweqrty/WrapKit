@@ -6,8 +6,7 @@
 //
 
 import XCTest
-import WrapKitAuth
-import WrapKitNetworking
+import WrapKit
 
 final class AuthenticatedHTTPClientDecoratorTests: XCTestCase {
     func test_dispatch_enrichesURLRequestWithToken() {

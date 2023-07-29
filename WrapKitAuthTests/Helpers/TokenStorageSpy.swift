@@ -5,7 +5,7 @@
 //  Created by Stas Lee on 25/7/23.
 //
 
-import WrapKitAuth
+import WrapKit
 
 class TokenStorageSpy: TokenStorage {
     private var accessToken: String?

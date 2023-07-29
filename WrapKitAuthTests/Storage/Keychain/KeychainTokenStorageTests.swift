@@ -6,7 +6,7 @@
 //
 
 import XCTest
-import WrapKitAuth
+import WrapKit
 
 final class KeychainTokenStorageTests: XCTestCase {
     func test_tokenStorage_managesTokens() {

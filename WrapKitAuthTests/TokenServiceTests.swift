@@ -6,7 +6,7 @@
 //
 
 import XCTest
-import WrapKitAuth
+import WrapKit
 
 final class TokenServiceTests: XCTestCase {
     func test_getAccessToken_completesWithToken_whenAccessStored() {
