@@ -25,6 +25,8 @@
 		C051607F2A6FCEEB00E01640 /* AuthenticatedHTTPClientDecoratorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C051607E2A6FCEEB00E01640 /* AuthenticatedHTTPClientDecoratorTests.swift */; };
 		C05160812A6FD0E700E01640 /* TokenStorageSpy.swift in Sources */ = {isa = PBXBuildFile; fileRef = C05160802A6FD0E700E01640 /* TokenStorageSpy.swift */; };
 		C056E6F72A6D04BB0020AB69 /* WrapKitNetworking.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C056E6EF2A6D04BB0020AB69 /* WrapKitNetworking.framework */; };
+		C0B61AC52A753876002C0F38 /* WrapKitNetworking.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C056E6EF2A6D04BB0020AB69 /* WrapKitNetworking.framework */; platformFilters = (ios, macos, ); };
+		C0B61AC62A753876002C0F38 /* WrapKitNetworking.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = C056E6EF2A6D04BB0020AB69 /* WrapKitNetworking.framework */; platformFilters = (ios, macos, ); settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -42,7 +44,28 @@
 			remoteGlobalIDString = C056E6EE2A6D04BB0020AB69;
 			remoteInfo = WrapKitNetworking;
 		};
+		C0B61AC72A753876002C0F38 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = C056E6C92A6D04A70020AB69 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C056E6EE2A6D04BB0020AB69;
+			remoteInfo = WrapKitNetworking;
+		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		C0B61AC92A753877002C0F38 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				C0B61AC62A753876002C0F38 /* WrapKitNetworking.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		C01EF5302A6E6019005B93E0 /* HTTPClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPClient.swift; sourceTree = "<group>"; };
@@ -72,6 +95,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				C05160682A6FAD7A00E01640 /* KeychainSwift in Frameworks */,
+				C0B61AC52A753876002C0F38 /* WrapKitNetworking.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -189,6 +213,7 @@
 				C051604D2A6FAADF00E01640 /* WrapKitAuth */,
 				C05160572A6FAAE000E01640 /* WrapKitAuthTests */,
 				C056E6D32A6D04A70020AB69 /* Products */,
+				C0B61AC42A753876002C0F38 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -222,6 +247,13 @@
 			path = WrapKitNetworkingTests;
 			sourceTree = "<group>";
 		};
+		C0B61AC42A753876002C0F38 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -250,10 +282,12 @@
 				C05160482A6FAADF00E01640 /* Sources */,
 				C05160492A6FAADF00E01640 /* Frameworks */,
 				C051604A2A6FAADF00E01640 /* Resources */,
+				C0B61AC92A753877002C0F38 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				C0B61AC82A753876002C0F38 /* PBXTargetDependency */,
 			);
 			name = WrapKitAuth;
 			packageProductDependencies = (
@@ -457,6 +491,15 @@
 			isa = PBXTargetDependency;
 			target = C056E6EE2A6D04BB0020AB69 /* WrapKitNetworking */;
 			targetProxy = C056E6F82A6D04BB0020AB69 /* PBXContainerItemProxy */;
+		};
+		C0B61AC82A753876002C0F38 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			platformFilters = (
+				ios,
+				macos,
+			);
+			target = C056E6EE2A6D04BB0020AB69 /* WrapKitNetworking */;
+			targetProxy = C0B61AC72A753876002C0F38 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
