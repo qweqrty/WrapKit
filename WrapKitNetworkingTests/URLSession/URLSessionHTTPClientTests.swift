@@ -6,7 +6,7 @@
 //
 
 import XCTest
-import WrapKitNetworking
+import WrapKit
 
 class URLSessionHTTPClientTests: XCTestCase {
     
