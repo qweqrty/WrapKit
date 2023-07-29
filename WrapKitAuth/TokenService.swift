@@ -5,7 +5,7 @@
 //  Created by Stas Lee on 25/7/23.
 //
 
-import WrapKitNetworking
+import Foundation
 
 public final class TokenService {
     public typealias Refresh = ((RefreshTokenRequest, ((RefreshTokenResponse?) -> Void)) -> Void)

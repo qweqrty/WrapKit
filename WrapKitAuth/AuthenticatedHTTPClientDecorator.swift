@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import WrapKitNetworking
 
 public class AuthenticatedHTTPClientDecorator: HTTPClient {
     public typealias EnrichRequestWithToken = ((URLRequest, String) -> URLRequest)
