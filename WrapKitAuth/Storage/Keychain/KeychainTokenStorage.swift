@@ -11,7 +11,7 @@ public class KeychainTokenStorage: TokenStorage {
     private static let AccessTokenKey = "AccessToken"
     private static let RefreshTokenKey = "RefreshToken"
     
-    private let keychain = KeychainSwift() // MARK: - Implicit
+    private let keychain = KeychainSwift()
     
     public init() { }
     
