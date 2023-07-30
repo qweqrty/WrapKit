@@ -8,14 +8,14 @@
 
 /* Begin PBXBuildFile section */
 		C01EF5312A6E6019005B93E0 /* HTTPClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = C01EF5302A6E6019005B93E0 /* HTTPClient.swift */; };
+		C0261C312A767D9700BFCF1B /* KeychainSwiftAccessOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0A2C1212A75C63100356499 /* KeychainSwiftAccessOptions.swift */; };
+		C0261C322A767D9700BFCF1B /* KeychainSwiftConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0A2C1232A75C64500356499 /* KeychainSwiftConstants.swift */; };
+		C0261C342A767DC400BFCF1B /* KeychainSwift.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0261C332A767DC400BFCF1B /* KeychainSwift.swift */; };
 		C051603E2A6F9FEF00E01640 /* URLProtocolStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = C051603D2A6F9FEF00E01640 /* URLProtocolStub.swift */; };
 		C05160402A6FA01000E01640 /* XCTestCase+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C051603F2A6FA01000E01640 /* XCTestCase+Extensions.swift */; };
 		C05160442A6FA03400E01640 /* URLSessionHTTPClientTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C05160432A6FA03400E01640 /* URLSessionHTTPClientTests.swift */; };
 		C05160462A6FA03800E01640 /* URLSessionHTTPClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = C05160452A6FA03800E01640 /* URLSessionHTTPClient.swift */; };
 		C056E6F72A6D04BB0020AB69 /* WrapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C056E6EF2A6D04BB0020AB69 /* WrapKit.framework */; };
-		C0A2C1202A75C61300356499 /* KeychainSwift.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0A2C11F2A75C61300356499 /* KeychainSwift.swift */; };
-		C0A2C1222A75C63100356499 /* KeychainSwiftAccessOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0A2C1212A75C63100356499 /* KeychainSwiftAccessOptions.swift */; };
-		C0A2C1242A75C64500356499 /* KeychainSwiftConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0A2C1232A75C64500356499 /* KeychainSwiftConstants.swift */; };
 		C0B61ACA2A753E70002C0F38 /* AuthenticatedHTTPClientDecorator.swift in Sources */ = {isa = PBXBuildFile; fileRef = C051607C2A6FC75600E01640 /* AuthenticatedHTTPClientDecorator.swift */; };
 		C0B61ACB2A753E70002C0F38 /* TokenService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C051606D2A6FAE6700E01640 /* TokenService.swift */; };
 		C0B61ACC2A753E70002C0F38 /* TokenStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C05160612A6FAAEF00E01640 /* TokenStorage.swift */; };
@@ -39,6 +39,7 @@
 
 /* Begin PBXFileReference section */
 		C01EF5302A6E6019005B93E0 /* HTTPClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPClient.swift; sourceTree = "<group>"; };
+		C0261C332A767DC400BFCF1B /* KeychainSwift.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainSwift.swift; sourceTree = "<group>"; };
 		C051603D2A6F9FEF00E01640 /* URLProtocolStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLProtocolStub.swift; sourceTree = "<group>"; };
 		C051603F2A6FA01000E01640 /* XCTestCase+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "XCTestCase+Extensions.swift"; sourceTree = "<group>"; };
 		C05160432A6FA03400E01640 /* URLSessionHTTPClientTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLSessionHTTPClientTests.swift; sourceTree = "<group>"; };
@@ -54,7 +55,6 @@
 		C05160802A6FD0E700E01640 /* TokenStorageSpy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenStorageSpy.swift; sourceTree = "<group>"; };
 		C056E6EF2A6D04BB0020AB69 /* WrapKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = WrapKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		C056E6F62A6D04BB0020AB69 /* WrapKitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = WrapKitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		C0A2C11F2A75C61300356499 /* KeychainSwift.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = KeychainSwift.swift; path = "../../../../.Trash/WrapKit 04.08.50/WrapKit/Classes/WrapKitAuth/Storage/Keychain/KeychainSwift.swift"; sourceTree = "<group>"; };
 		C0A2C1212A75C63100356499 /* KeychainSwiftAccessOptions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainSwiftAccessOptions.swift; sourceTree = "<group>"; };
 		C0A2C1232A75C64500356499 /* KeychainSwiftConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainSwiftConstants.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -201,9 +201,9 @@
 		C0A2C11E2A75C5F300356499 /* KeychainSwift */ = {
 			isa = PBXGroup;
 			children = (
-				C0A2C11F2A75C61300356499 /* KeychainSwift.swift */,
 				C0A2C1212A75C63100356499 /* KeychainSwiftAccessOptions.swift */,
 				C0A2C1232A75C64500356499 /* KeychainSwiftConstants.swift */,
+				C0261C332A767DC400BFCF1B /* KeychainSwift.swift */,
 			);
 			path = KeychainSwift;
 			sourceTree = "<group>";
@@ -331,12 +331,12 @@
 				C01EF5312A6E6019005B93E0 /* HTTPClient.swift in Sources */,
 				C0B61ADB2A753F10002C0F38 /* KeychainTokenStorage.swift in Sources */,
 				C0B61ACA2A753E70002C0F38 /* AuthenticatedHTTPClientDecorator.swift in Sources */,
-				C0A2C1242A75C64500356499 /* KeychainSwiftConstants.swift in Sources */,
+				C0261C322A767D9700BFCF1B /* KeychainSwiftConstants.swift in Sources */,
 				C0B61ACC2A753E70002C0F38 /* TokenStorage.swift in Sources */,
-				C0A2C1222A75C63100356499 /* KeychainSwiftAccessOptions.swift in Sources */,
-				C0A2C1202A75C61300356499 /* KeychainSwift.swift in Sources */,
+				C0261C312A767D9700BFCF1B /* KeychainSwiftAccessOptions.swift in Sources */,
 				C05160462A6FA03800E01640 /* URLSessionHTTPClient.swift in Sources */,
 				C0B61ACB2A753E70002C0F38 /* TokenService.swift in Sources */,
+				C0261C342A767DC400BFCF1B /* KeychainSwift.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
