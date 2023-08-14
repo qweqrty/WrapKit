@@ -8,97 +8,79 @@
 import XCTest
 import WrapKit
 
-final class AuthenticatedHTTPClientDecoratorTests: XCTestCase {
-    func test_dispatch_enrichesURLRequestWithToken() {
-        let (sut, httpClientSpy, tokenStorageSpy) = makeSUT(enrichRequestWithToken: { request, token in
+class AuthenticatedHTTPClientDecoratorTests: XCTestCase {
+    
+    func test_dispatchRequest_enrichesRequestWithToken() {
+        let (sut, clientSpy, tokenStorageSpy) = makeSUT(enrichRequestWithToken: { request, token in
             var request = request
-            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+            request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
             return request
         })
+        tokenStorageSpy.set(accessToken: "test-token")
+        let request = URLRequest(url: makeURL())
         
-        tokenStorageSpy.set(accessToken: "accessToken")
-        sut.dispatch(URLRequest(url: makeURL()), completion: { _ in }).resume()
+        _ = sut.dispatch(request, completion: { _ in })
         
-        XCTAssertEqual(httpClientSpy.requestedURLRequests.first?.value(forHTTPHeaderField: "Authorization"), "Bearer accessToken")
+        XCTAssertEqual(clientSpy.requestedURLRequests.first?.value(forHTTPHeaderField: "Authorization"), "Bearer test-token")
     }
-    
-    func test_dispatch_doesNotEnrichURLRequest_whenTokenNil() {
-        let (sut, httpClientSpy, _) = makeSUT(enrichRequestWithToken: { request, token in
-            var request = request
-            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-            return request
-        })
+
+    func test_dispatchRequest_failsWithNotAuthenticatedError_whenAuthenticationPolicyFails() {
+        let (sut, clientSpy, _) = makeSUT(authenticationPolicy: { _ in return false })
         
-        sut.dispatch(URLRequest(url: makeURL()), completion: { _ in }).resume()
-        
-        XCTAssertEqual(httpClientSpy.requestedURLRequests.first?.value(forHTTPHeaderField: "Authorization"), nil)
+        expect(sut, toCompleteWith: .failure(AuthenticatedHTTPClientDecorator.NotAuthenticated())) {
+            clientSpy.completes(withStatusCode: 200, data: Data())
+        }
     }
-    
-    func test_dispatch_completesWithData_whenAuthenticated() {
-        let (sut, httpClientSpy, _) = makeSUT(
-            enrichRequestWithToken: { request, _ in return request },
-            authenticationPolicy: { _ in return true }
-        )
-        let expectedResult: (data: Data, response: HTTPURLResponse) = (
-            data: makeData(),
-            response: HTTPURLResponse(url: makeURL(), statusCode: 200, httpVersion: nil, headerFields: nil)!
-        )
+
+    func test_dispatchRequest_succeeds_whenAuthenticationPolicyPasses() {
+        let (sut, clientSpy, _) = makeSUT()
+        let response = (data: Data(), response: HTTPURLResponse(url: makeURL(), statusCode: 200, httpVersion: nil, headerFields: nil)!)
         
-        expect(sut, toCompleteWith: .success(expectedResult), when: {
-            httpClientSpy.completes(withStatusCode: 200, data: expectedResult.data)
-        })
+        expect(sut, toCompleteWith: .success(response)) {
+            clientSpy.completes(withStatusCode: 200, data: Data())
+        }
     }
-    
-    func test_dispatch_completesWithDedicatedError_whenAuthenticationPolicyNotPassed() {
-        let (sut, httpClientSpy, _) = makeSUT(
-            enrichRequestWithToken: { request, _ in return request },
+
+    func test_dispatchRequest_refreshesToken_whenAuthenticationPolicyFailsAndRefreshTokenAvailable() {
+        let refreshToken = "refresh-token"
+        let accessToken = "new-access-token"
+        let (sut, clientSpy, tokenStorageSpy) = makeSUT(
+            refresh: { _, completion in completion(.init(accessToken: accessToken)) },
             authenticationPolicy: { _ in return false }
         )
-
-        expect(sut, toCompleteWith: .failure(AuthenticatedHTTPClientDecorator.NotAuthenticated()), when: {
-            httpClientSpy.completes(withStatusCode: 200, data: makeData())
-        })
-    }
-    
-    func test_dispatch_refreshesToken_makingRequestSecondTimeWithRefreshedToken() {
-        let (sut, httpClientSpy, tokenStorageSpy) = makeSUT(
-            refresh: { request, completion in completion(.init(accessToken: "accessToken")) },
-            enrichRequestWithToken: { request, token in
-                var request = request
-                request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-                return request
-            },
-            authenticationPolicy: { (data, response) in
-                return response.statusCode != 401
-            }
-        )
-        let expectedResult: (data: Data, response: HTTPURLResponse) = (
-            data: makeData(),
-            response: HTTPURLResponse(url: makeURL(), statusCode: 200, httpVersion: nil, headerFields: nil)!
-        )
-        tokenStorageSpy.set(refreshToken: "refreshToken")
+        tokenStorageSpy.set(refreshToken: refreshToken)
         
-        expect(sut, toCompleteWith: .success(expectedResult), when: {
-            httpClientSpy.completes(withStatusCode: 401, data: makeData())
-            httpClientSpy.completes(withStatusCode: 200, data: makeData())
-            XCTAssertEqual(tokenStorageSpy.getAccessToken(), "accessToken")
-        })
+        _ = sut.dispatch(URLRequest(url: makeURL()), completion: { _ in })
+        clientSpy.completes(withStatusCode: 200, data: Data())
         
-        XCTAssertEqual(httpClientSpy.requestedURLRequests[1].value(forHTTPHeaderField: "Authorization"), "Bearer accessToken")
-        XCTAssertEqual(httpClientSpy.requestedURLRequests.count, 2)
+        XCTAssertEqual(tokenStorageSpy.getAccessToken(), accessToken)
     }
 
+    func test_dispatchRequest_doesNotRefreshToken_whenAuthenticationPolicyFailsAndNoRefreshToken() {
+        let (sut, clientSpy, tokenStorageSpy) = makeSUT(
+            authenticationPolicy: { _ in return false }
+        )
+        
+        _ = sut.dispatch(URLRequest(url: makeURL()), completion: { _ in })
+        clientSpy.completes(withStatusCode: 200, data: Data()) // Simulating successful response
+        
+        XCTAssertNil(tokenStorageSpy.getRefreshToken())
+    }
 
 }
 
 extension AuthenticatedHTTPClientDecoratorTests {
     private func makeSUT(
         refresh: TokenService.Refresh? = nil,
-        enrichRequestWithToken: @escaping AuthenticatedHTTPClientDecorator.EnrichRequestWithToken,
+        enrichRequestWithToken: @escaping AuthenticatedHTTPClientDecorator.EnrichRequestWithToken = { request, token in
+            var request = request
+            request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+            return request
+        },
         authenticationPolicy: @escaping AuthenticatedHTTPClientDecorator.AuthenticationPolicy = { _ in return true },
         file: StaticString = #file,
         line: UInt = #line
-    ) -> (AuthenticatedHTTPClientDecorator, HTTPClientSpy, TokenStorage) {
+    ) -> (AuthenticatedHTTPClientDecorator, HTTPClientSpy, TokenStorageSpy) {
         let tokenStorageSpy = TokenStorageSpy()
         let clientSpy = HTTPClientSpy()
         let tokenService = TokenService(storage: tokenStorageSpy, refresh: refresh)

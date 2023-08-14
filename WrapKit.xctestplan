@@ -1,0 +1,25 @@
+{
+  "configurations" : [
+    {
+      "id" : "3A082765-828B-4779-AAA7-80A72A82D278",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "testExecutionOrdering" : "random"
+  },
+  "testTargets" : [
+    {
+      "parallelizable" : true,
+      "target" : {
+        "containerPath" : "container:WrapKit.xcodeproj",
+        "identifier" : "C056E6F52A6D04BB0020AB69",
+        "name" : "WrapKitTests"
+      }
+    }
+  ],
+  "version" : 1
+}

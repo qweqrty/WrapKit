@@ -63,6 +63,7 @@ public class AuthenticatedHTTPClientDecorator: HTTPClient {
                     }
                     self?.tokenService.storage.set(accessToken: accessToken)
                     task = self?.dispatch(enrichRequestWithToken(enrichedRequest, accessToken), completion: completion, isRefreshNeeded: false)
+                    task?.resume()
                 }
             default:
                 completion(result)

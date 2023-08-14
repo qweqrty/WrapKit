@@ -8,30 +8,39 @@
 import WrapKit
 
 class TokenStorageSpy: TokenStorage {
-    private var accessToken: String?
-    private var refreshToken: String?
-    
+    var accessToken: String?
+    var refreshToken: String?
+    var setAccessTokenShouldSucceed: Bool
+
+    init(accessToken: String? = nil, refreshToken: String? = nil, setAccessTokenShouldSucceed: Bool = true) {
+        self.accessToken = accessToken
+        self.refreshToken = refreshToken
+        self.setAccessTokenShouldSucceed = setAccessTokenShouldSucceed
+    }
+
     func getAccessToken() -> String? {
         return accessToken
     }
-    
+
     func getRefreshToken() -> String? {
         return refreshToken
     }
     
+    @discardableResult
     func set(accessToken: String) -> Bool {
         self.accessToken = accessToken
-        return true
+        return setAccessTokenShouldSucceed
     }
     
+    @discardableResult
     func set(refreshToken: String) -> Bool {
         self.refreshToken = refreshToken
         return true
     }
-    
+
     func clear() -> Bool {
-        accessToken = nil
-        refreshToken = nil
+        self.accessToken = nil
+        self.refreshToken = nil
         return true
     }
 }

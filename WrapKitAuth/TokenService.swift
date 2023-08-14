@@ -8,9 +8,9 @@
 import Foundation
 
 public final class TokenService {
-    public typealias Refresh = ((RefreshTokenRequest, ((RefreshTokenResponse?) -> Void)) -> Void)
+    public typealias Refresh = ((RefreshTokenRequest, @escaping ((RefreshTokenResponse?) -> Void)) -> Void)
     
-    public struct RefreshTokenRequest {
+    public struct RefreshTokenRequest: Encodable {
         public let refreshToken: String
         
         public init(refreshToken: String) {
@@ -18,7 +18,7 @@ public final class TokenService {
         }
     }
 
-    public struct RefreshTokenResponse {
+    public struct RefreshTokenResponse: Decodable {
         public let accessToken: String
         
         public init(accessToken: String) {
