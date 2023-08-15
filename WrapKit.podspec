@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = "WrapKit"
-  s.version          = "0.1.2"
+  s.version          = "0.1.3"
   s.summary          = "WrapKit is a Swift Cocoa Pods Library"
   s.description      = <<-DESC
 	WrapKit is a DSL to make development easier
@@ -16,7 +16,7 @@ Pod::Spec.new do |s|
   s.ios.deployment_target = '11.0'
   s.osx.deployment_target = '10.13'
 
-  s.source_files          = 'KeychainSwift/**/*.swift', 'WrapKitNetworking/**/*.swift', 'WrapKitAuth/**/*.swift'
+  s.source_files          = 'sources/**/*.swift'
 
   s.swift_version = '5.0'
 
