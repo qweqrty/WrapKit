@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = "WrapKit"
-  s.version          = "0.1.3"
+  s.version          = "0.1.4"
   s.summary          = "WrapKit is a Swift Cocoa Pods Library"
   s.description      = <<-DESC
 	WrapKit is a DSL to make development easier
