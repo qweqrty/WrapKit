@@ -358,6 +358,10 @@
 			isa = PBXGroup;
 			children = (
 				C07DFF2F2A8B174700466533 /* sources */,
+				C05160572A6FAAE000E01640 /* WrapKitAuthTests */,
+				C056E6FA2A6D04BB0020AB69 /* WrapKitNetworkingTests */,
+				C0A8E9142A7D86DF0006FCE4 /* KeychainSwiftTests */,
+				C08CAF1B2A7D90A1004A3FAD /* WrapKitCommonTests */,
 				C0A8E9132A7D863E0006FCE4 /* WrapKit.xctestplan */,
 				C056E6D32A6D04A70020AB69 /* Products */,
 				C0B61AC42A753876002C0F38 /* Frameworks */,
@@ -398,14 +402,10 @@
 				C08AA3A82A7F0DF5002D58D5 /* Assets.xcassets */,
 				C010868A2A7E82DC00C3720A /* WrapKitiOS */,
 				C0261C3D2A76EF2C00BFCF1B /* WrapKitCommon */,
-				C08CAF1B2A7D90A1004A3FAD /* WrapKitCommonTests */,
 				C0261C392A76D03500BFCF1B /* WrapKitPagination */,
 				C0A2C11E2A75C5F300356499 /* KeychainSwift */,
-				C0A8E9142A7D86DF0006FCE4 /* KeychainSwiftTests */,
 				C056E6F02A6D04BB0020AB69 /* WrapKitNetworking */,
-				C056E6FA2A6D04BB0020AB69 /* WrapKitNetworkingTests */,
 				C051604D2A6FAADF00E01640 /* WrapKitAuth */,
-				C05160572A6FAAE000E01640 /* WrapKitAuthTests */,
 			);
 			path = sources;
 			sourceTree = "<group>";
