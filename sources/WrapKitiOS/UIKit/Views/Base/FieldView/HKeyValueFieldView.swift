@@ -5,6 +5,7 @@
 //  Created by Stas Lee on 5/8/23.
 //
 
+#if canImport(UIKit)
 import Foundation
 import UIKit
 
@@ -95,3 +96,4 @@ extension HKeyValueFieldView {
         mainStackView.fillSuperview()
     }
 }
+#endif

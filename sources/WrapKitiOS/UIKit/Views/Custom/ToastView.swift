@@ -123,11 +123,11 @@ open class ToastView: UIView {
         self.translatesAutoresizingMaskIntoConstraints = false
         switch position {
         case .top:
-            self.topAnchor.constraint(equalTo: view.topAnchor, constant: UIApplication.shared.statusBarFrame.size.height).isActive = true
+            self.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20).isActive = true
         case .middle:
             self.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
         case .bottom:
-            self.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -(20 + view.safeAreaInsets.bottom)).isActive = true
+            self.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20).isActive = true
         }
         
         leadingConstraint = self.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: UIScreen.main.bounds.width)

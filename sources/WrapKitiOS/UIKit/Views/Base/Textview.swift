@@ -5,6 +5,7 @@
 //  Created by Stas Lee on 6/8/23.
 //
 
+#if canImport(UIKit)
 import UIKit
 
 open class Textview: UITextView, UITextViewDelegate {
@@ -64,3 +65,4 @@ open class Textview: UITextView, UITextViewDelegate {
         return shouldChangeText?(range, text) ?? true
     }
 }
+#endif

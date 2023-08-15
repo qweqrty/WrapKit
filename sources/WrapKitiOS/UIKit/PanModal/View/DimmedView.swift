@@ -5,7 +5,7 @@
 //  Copyright © 2017 Tiny Speck, Inc. All rights reserved.
 //
 
-#if os(iOS)
+#if canImport(UIKit)
 import UIKit
 
 /**
