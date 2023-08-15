@@ -8,7 +8,7 @@
 import Foundation
 
 public final class MainQueueDispatchDecorator<T> {
-    private(set) public var decoratee: T
+    private(set) var decoratee: T
     
     public init(decoratee: T) {
         self.decoratee = decoratee

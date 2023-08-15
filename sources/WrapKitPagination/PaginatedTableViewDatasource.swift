@@ -16,7 +16,7 @@ open class PaginatedTableViewDatasource<Cell: UITableViewCell & Configurable>: N
     public var hasMore = true
     public var loadNextPage: (() -> Void)?
     
-    private(set) var bottomLoadingView: UIView = {
+    public var bottomLoadingView: UIView = {
         if #available(iOS 13.0, *) {
             let loadingControl = UIActivityIndicatorView(style: .medium)
             loadingControl.hidesWhenStopped = false

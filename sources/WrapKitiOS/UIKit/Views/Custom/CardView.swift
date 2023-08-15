@@ -21,9 +21,9 @@ open class CardView: View {
     public let trailingImageView: ImageView = ImageView(image: UIImage(named: "rightArrow"), tintColor: .black)
     public let bottomSeparatorView = View(backgroundColor: .gray)
     
-    private(set) var leadingImageViewConstraints: AnchoredConstraints?
-    private(set) var vStackViewConstraints: AnchoredConstraints?
-    private(set) var trailingImageViewConstraints: AnchoredConstraints?
+    public var leadingImageViewConstraints: AnchoredConstraints?
+    public var vStackViewConstraints: AnchoredConstraints?
+    public var trailingImageViewConstraints: AnchoredConstraints?
     
     public init() {
         super.init(frame: .zero)

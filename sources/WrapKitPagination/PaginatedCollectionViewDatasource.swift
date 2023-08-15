@@ -18,7 +18,7 @@ open class PaginatedCollectionViewDatasource<Cell: UICollectionViewCell & Config
     public var loadNextPage: (() -> Void)?
     let sizeForItemAt: ((IndexPath) -> CGSize)
     
-    private(set) var loadingView: CollectionReusableView<UIActivityIndicatorView> = CollectionReusableView<UIActivityIndicatorView>()
+    public var loadingView: CollectionReusableView<UIActivityIndicatorView> = CollectionReusableView<UIActivityIndicatorView>()
     public init(
         getItems: @escaping (() -> [Cell.Model]),
         selectAt: ((IndexPath) -> Void)? = nil,

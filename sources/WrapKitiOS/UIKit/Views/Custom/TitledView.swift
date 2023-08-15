@@ -19,7 +19,7 @@ open class TitledView<ContentView: UIView>: View {
     public lazy var closingTitleVFieldView = HKeyValueFieldView()
     public lazy var errorView = Label(font: .systemFont(ofSize: 14), textColor: .red)
     
-    private(set) var stackViewAnchoredConstraints: AnchoredConstraints?
+    public var stackViewAnchoredConstraints: AnchoredConstraints?
 
     public init(
         titleLabel: Label = Label(

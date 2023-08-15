@@ -21,7 +21,7 @@ open class NavigationBar: UIView {
     )
     public lazy var closeButton = makeBackButton(imageName: "closeBtn", isHidden: true)
     
-    private(set) var mainStackViewConstraints: AnchoredConstraints?
+    public var mainStackViewConstraints: AnchoredConstraints?
     
     private let height: CGFloat = 52
     
