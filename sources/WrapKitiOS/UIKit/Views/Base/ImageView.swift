@@ -9,7 +9,7 @@
 import UIKit
 
 open class ImageView: UIImageView {
-    var onPress: (() -> Void)?
+    public var onPress: (() -> Void)?
     
     public var cornerRadius: CGFloat = 0 {
         didSet {

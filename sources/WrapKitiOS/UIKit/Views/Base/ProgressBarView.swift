@@ -9,11 +9,11 @@
 import UIKit
 
 open class ProgressBarView: UIView {
-    let progressView = View(backgroundColor: .green)
+    public let progressView = View(backgroundColor: .green)
     
     private var progressViewAnchoredConstraints: AnchoredConstraints?
     
-    init() {
+    public init() {
         super.init(frame: .zero)
         layer.cornerRadius = 4
         progressView.layer.cornerRadius = 4
@@ -21,11 +21,11 @@ open class ProgressBarView: UIView {
         setupConstraints()
     }
     
-    func applyProgress(width: CGFloat) {
+    public func applyProgress(width: CGFloat) {
         progressViewAnchoredConstraints?.width?.constant = width
     }
     
-    func applyProgress(percentage: CGFloat) {
+    public func applyProgress(percentage: CGFloat) {
         let maxWidth = bounds.width
         let newWidth = maxWidth * (percentage / 100.0)
         progressViewAnchoredConstraints?.width?.constant = newWidth

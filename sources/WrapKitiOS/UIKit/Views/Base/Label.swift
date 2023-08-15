@@ -26,6 +26,7 @@ open class Label: UILabel {
         let onTap: (() -> Void)?
         var range: NSRange?
     }
+    
     public init(
         backgroundColor: UIColor? = .clear,
         isHidden: Bool = false,
