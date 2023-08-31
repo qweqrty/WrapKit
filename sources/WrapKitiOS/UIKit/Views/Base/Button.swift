@@ -40,6 +40,20 @@ open class Button: UIButton {
         }
     }
     
+    public override var isHighlighted: Bool {
+        didSet {
+            if isHighlighted {
+                UIView.animate(withDuration: 0.3) {
+                    self.alpha = 0.7
+                }
+            } else {
+                UIView.animate(withDuration: 0.3) {
+                    self.alpha = 1.0
+                }
+            }
+        }
+    }
+    
     public convenience init(
         image: UIImage? = nil,
         tintColor: UIColor? = nil,
@@ -48,6 +62,7 @@ open class Button: UIButton {
         backgroundColor: UIColor = .clear,
         contentInset: UIEdgeInsets = .zero,
         spacing: CGFloat = 0,
+        contentHorizontalAlignment: UIControl.ContentHorizontalAlignment = .center,
         isHidden: Bool = false,
         isUserInteractionEnabled: Bool = true,
         lineBreakingMode: NSLineBreakMode = .byTruncatingTail,
@@ -55,17 +70,18 @@ open class Button: UIButton {
     ) {
         self.init(type: type)
         addTarget(self, action: #selector(didSelect), for: .touchUpInside)
-        if let image = image { setImage(image, for: .normal) }
         if let tintColor = tintColor { self.tintColor = tintColor }
+        if let image = image { setImage(image, for: .normal) }
         if let textColor = textColor { self.setTitleColor(textColor, for: .normal) }
         if let titleLabelFont = titleLabelFont { self.titleLabel?.font = titleLabelFont }
         
+        self.contentHorizontalAlignment = contentHorizontalAlignment
         self.titleLabel?.lineBreakMode = .byTruncatingTail
         self.isUserInteractionEnabled = isUserInteractionEnabled
         self.spacing = spacing
         self.backgroundColor = backgroundColor
         self.contentEdgeInsets = .init(top: contentInset.top, left: contentInset.left, bottom: contentInset.bottom, right: contentInset.right + spacing)
-        self.titleEdgeInsets = .init(top: 0, left: 0, bottom: 0, right: titleEdgeInsets.right - spacing)
+        self.titleEdgeInsets = .init(top: 0, left: spacing, bottom: 0, right: titleEdgeInsets.right)
         self.isHidden = isHidden
         
     }

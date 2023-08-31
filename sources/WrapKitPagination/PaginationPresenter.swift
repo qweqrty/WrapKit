@@ -16,7 +16,10 @@ public protocol PaginationViewOutput<ViewModel>: AnyObject {
     func display(errorAtSubsequentPage: String)
 }
 
-public protocol PaginationViewInput: AnyObject {
+public protocol PaginationViewInput<Item>: AnyObject {
+    associatedtype Item
+    var items: [Item] { get set }
+
     func refresh()
     func loadNextPage()
 }
@@ -43,16 +46,20 @@ public struct PaginationResponse<Item> {
     public let results: [Item]
 }
 
-public class PaginationPresenter<ServicePaginationRequest: Encodable, ServicePaginationResponse: Decodable, Item: Decodable & ViewModelDTO> {
+open class PaginationPresenter<ServicePaginationRequest: Encodable, ServicePaginationResponse: Decodable, Item: Decodable & ViewModelDTO> {
     private(set) var date: Date
-    private(set) var items: [Item]
+    public var items: [Item] {
+        didSet {
+            view?.display(items: items.map { $0.viewModel }, hasMore: initialPage + (totalPages ?? 1) - 1 >= page)
+        }
+    }
     private(set) var page: Int
     private(set) var totalPages: Int?
 
     private let perPage: Int
     private let service: any Service<ServicePaginationRequest, ServicePaginationResponse> // Expected to be SerialServiceDecorator
     private let mapRequest: ((PaginationRequest) -> ServicePaginationRequest)
-    private let mapResponse: ((ServicePaginationResponse) -> PaginationResponse<Item>)
+    private let mapResponse: ((ServicePaginationResponse) -> PaginationResponse<Item>?)
     private var requests = [HTTPClientTask?]()
     
     let initialPage: Int
@@ -62,7 +69,7 @@ public class PaginationPresenter<ServicePaginationRequest: Encodable, ServicePag
     public init(
         service: any Service<ServicePaginationRequest, ServicePaginationResponse>,
         mapRequest: @escaping ((PaginationRequest) -> ServicePaginationRequest),
-        mapResponse: @escaping ((ServicePaginationResponse) -> PaginationResponse<Item>),
+        mapResponse: @escaping ((ServicePaginationResponse) -> PaginationResponse<Item>?),
         timestamp: Date = Date(),
         initialPage: Int = 1,
         perPage: Int = 10,
@@ -111,7 +118,11 @@ extension PaginationPresenter: PaginationViewInput {
     private func handle(response: Result<ServicePaginationResponse, ServiceError>, backToPage: Int) {
         switch response {
         case .success(let model):
-            let model = mapResponse(model)
+            guard let model = mapResponse(model) else {
+                page = backToPage
+                backToPage == initialPage ? view?.display(errorAtFirstPage: ServiceError.internal.title) : view?.display(errorAtSubsequentPage: ServiceError.internal.title)
+                return
+            }
             items += model.results
             view?.display(items: items.map { $0.viewModel }, hasMore: initialPage + (totalPages ?? 1) - 1 >= page)
             totalPages = model.totalPages

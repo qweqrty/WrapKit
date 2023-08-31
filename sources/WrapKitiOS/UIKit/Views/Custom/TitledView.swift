@@ -10,23 +10,27 @@ import UIKit
 
 open class TitledView<ContentView: UIView>: View {
     public lazy var stackView = StackView(axis: .vertical, spacing: 4)
-    public lazy var titleLabel = Label(
-        font: .systemFont(ofSize: 18),
-        textColor: .black,
-        numberOfLines: 0
+    public lazy var wrappedTitleLabel = WrapperView(
+        contentView: Label(
+            font: .systemFont(ofSize: 18),
+            textColor: .black,
+            numberOfLines: 0
+        )
     )
     public lazy var contentView = ContentView()
-    public lazy var closingTitleVFieldView = HKeyValueFieldView()
-    public lazy var errorView = Label(font: .systemFont(ofSize: 14), textColor: .red)
+    public lazy var closingTitleVFieldView = HKeyValueFieldView(isHidden: true)
+    public lazy var wrappedErrorLabel = WrapperView(contentView: Label(font: .systemFont(ofSize: 14), textColor: .red), isHidden: true)
     
     public var stackViewAnchoredConstraints: AnchoredConstraints?
 
     public init(
-        titleLabel: Label = Label(
-        font: .systemFont(ofSize: 18),
-        textColor: .black,
-        numberOfLines: 0
-    ),
+        wrappedTitleLabel: WrapperView<Label> = WrapperView(
+            contentView: Label(
+                font: .systemFont(ofSize: 18),
+                textColor: .black,
+                numberOfLines: 0
+            )
+        ),
         contentView: ContentView = ContentView(),
         closingTitleVFieldView: HKeyValueFieldView = HKeyValueFieldView(
             keyLabel: Label(
@@ -44,16 +48,18 @@ open class TitledView<ContentView: UIView>: View {
             ),
             spacing: 4,
             contentInsets: .zero,
-            isHidden: false
+            isHidden: true
         ),
+        wrappedErrorLabel: WrapperView<Label> = WrapperView(contentView: Label(font: .systemFont(ofSize: 14), textColor: .red), isHidden: true),
         spacing: CGFloat = 4
     ) {
         super.init(frame: .zero)
 
-        self.titleLabel = titleLabel
+        self.wrappedTitleLabel = wrappedTitleLabel
         self.contentView = contentView
         self.closingTitleVFieldView = closingTitleVFieldView
         self.stackView.spacing = spacing
+        self.wrappedErrorLabel = wrappedErrorLabel
         
         setupSubviews()
         setupConstraints()
@@ -66,26 +72,43 @@ open class TitledView<ContentView: UIView>: View {
         setupConstraints()
     }
     
-    public func applyErrorState() {
-        UIView.animate(withDuration: 0.3) {
-            self.errorView.isHidden = false
-            self.errorView.alpha = 1
-        }
-    }
-    
     public func applyNormalState() {
-        UIView.animate(withDuration: 0.3) {
-            self.errorView.isHidden = true
-            self.errorView.alpha = 0
-        }
+        UIView.performAnimationsInSequence([
+            (0.15, {
+                self.wrappedErrorLabel.isHidden = true
+            }, nil),
+            
+            (0.15, {
+                self.wrappedErrorLabel.alpha = 0
+            }, nil),
+        ], completion: { finished in
+            guard finished else { return }
+            self.wrappedErrorLabel.isHidden = true
+            self.wrappedErrorLabel.alpha = 0
+        })
+    }
+
+    public func applyErrorState() {
+        UIView.performAnimationsInSequence([
+            (0.15, {
+                self.wrappedErrorLabel.isHidden = false
+            }, nil),
+            (0.15, {
+                self.wrappedErrorLabel.alpha = 1
+            }, nil),
+        ], completion: { finished in
+            guard finished else { return }
+            self.wrappedErrorLabel.isHidden = false
+            self.wrappedErrorLabel.alpha = 1
+        })
     }
     
     private func setupSubviews() {
         addSubview(stackView)
-        stackView.addArrangedSubview(titleLabel)
+        stackView.addArrangedSubview(wrappedTitleLabel)
         stackView.addArrangedSubview(contentView)
         stackView.addArrangedSubview(closingTitleVFieldView)
-        stackView.addArrangedSubview(errorView)
+        stackView.addArrangedSubview(wrappedErrorLabel)
     }
     
     private func setupConstraints() {
@@ -97,113 +120,4 @@ open class TitledView<ContentView: UIView>: View {
     }
 }
 
-//extension TitledView where ContentView == WrapperView<Textfield> {
-//    @discardableResult
-//    func validate() -> Bool {
-//        guard contentView.contentView.validate() else {
-//            applyErrorState()
-//            return false
-//        }
-//        applyNormalState()
-//        return true
-//    }
-//
-//    func applyNormalState() {
-//        contentView.contentView.applyNormalState()
-//        UIView.animate(withDuration: 0.3) {
-//            self.errorView.alpha = 0
-//            self.errorView.isHidden = true
-//        } completion: { finished in
-//            guard finished else { return }
-//            self.errorView.isHidden = true
-//            self.errorView.alpha = 0
-//        }
-//    }
-//
-//    func applyErrorState() {
-//        contentView.contentView.applyErrorState()
-//        UIView.animate(withDuration: 0.3) {
-//            self.errorView.alpha = 1
-//            self.errorView.isHidden = false
-//        } completion: { finished in
-//            guard finished else { return }
-//            self.errorView.isHidden = false
-//            self.errorView.alpha = 1
-//        }
-//    }
-//}
-//
-//extension TitledView where ContentView == Textfield {
-//    @discardableResult
-//    func validate() -> Bool {
-//        guard contentView.validate() else {
-//            applyErrorState()
-//            return false
-//        }
-//        applyNormalState()
-//        return true
-//    }
-//
-//    func applyNormalState() {
-//        contentView.applyNormalState()
-//        UIView.animate(withDuration: 0.3) {
-//            self.errorView.alpha = 0
-//            self.errorView.isHidden = true
-//        } completion: { finished in
-//            guard finished else { return }
-//            self.errorView.isHidden = true
-//            self.errorView.alpha = 0
-//        }
-//    }
-//
-//    func applyErrorState() {
-//        contentView.applyErrorState()
-//        UIView.animate(withDuration: 0.3) {
-//            self.errorView.alpha = 1
-//            self.errorView.isHidden = false
-//        } completion: { finished in
-//            guard finished else { return }
-//            self.errorView.isHidden = false
-//            self.errorView.alpha = 1
-//        }
-//    }
-//}
-//
-//extension TitledView where ContentView == InputRangeFilterView {
-//    @discardableResult
-//    func validate() -> Bool {
-//        guard contentView.leftTextField.validate() && contentView.rightTextField.validate() else {
-//            applyErrorState()
-//            return false
-//        }
-//        applyNormalState()
-//        return true
-//    }
-//
-//    func applyNormalState() {
-//        contentView.leftTextField.applyNormalState()
-//        contentView.rightTextField.applyNormalState()
-//        UIView.animate(withDuration: 0.3) {
-//            self.errorView.alpha = 0
-//            self.errorView.isHidden = true
-//        } completion: { finished in
-//            guard finished else { return }
-//            self.errorView.isHidden = true
-//            self.errorView.alpha = 0
-//        }
-//    }
-//
-//    func applyErrorState() {
-//        contentView.leftTextField.applyErrorState()
-//        contentView.rightTextField.applyErrorState()
-//        UIView.animate(withDuration: 0.3) {
-//            self.errorView.alpha = 1
-//            self.errorView.isHidden = false
-//        } completion: { finished in
-//            guard finished else { return }
-//            self.errorView.isHidden = false
-//            self.errorView.alpha = 1
-//        }
-//    }
-//}
 #endif

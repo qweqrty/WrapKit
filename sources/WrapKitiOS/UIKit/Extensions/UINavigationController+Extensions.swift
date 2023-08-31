@@ -13,5 +13,21 @@ public extension UINavigationController {
         guard viewControllers.count > count else { return }
         popToViewController(viewControllers[viewControllers.count - count - 1], animated: animated)
     }
+    
+    func dismissPresentedViewController(animated: Bool) {
+        if let presentedViewController = presentedViewController {
+            presentedViewController.dismiss(animated: animated, completion: nil)
+        }
+    }
+    
+    func popToSpecificViewControllerOrPush(_ viewController: UIViewController, animated: Bool) {
+        dismissPresentedViewController(animated: animated)
+        
+        if viewControllers.contains(viewController) {
+            popToViewController(viewController, animated: animated)
+        } else {
+            pushViewController(viewController, animated: animated)
+        }
+    }
 }
 #endif

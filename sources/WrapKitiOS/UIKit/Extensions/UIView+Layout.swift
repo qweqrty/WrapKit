@@ -83,9 +83,9 @@ public extension UIView {
         guard let superview = superview else { return anchoredConstraints }
         translatesAutoresizingMaskIntoConstraints = false
         anchoredConstraints = anchor(
+            .top(yAxisAnchor, constant: insets.top),
             .leading(superview.leadingAnchor, constant: insets.left),
-            .trailing(superview.trailingAnchor, constant: insets.right),
-            .top(yAxisAnchor, constant: insets.top)
+            .trailing(superview.trailingAnchor, constant: insets.right)
         )
         if isLast {
             anchoredConstraints.bottom = bottomAnchor.constraint(equalTo: superview.safeAreaLayoutGuide.bottomAnchor, constant: -insets.bottom)

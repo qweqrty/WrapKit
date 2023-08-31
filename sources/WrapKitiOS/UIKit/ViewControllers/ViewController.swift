@@ -41,6 +41,10 @@ open class ViewController<ContentView: UIView>: UIViewController {
         )
     }
     
+    deinit {
+        print("\(String(describing: self)) deallocated")
+    }
+    
     required public init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }

@@ -11,15 +11,16 @@ import UIKit
 open class Textview: UITextView, UITextViewDelegate {
     private var padding: UIEdgeInsets
     public lazy var placeholderLabel = Label(font: font!, textColor: .gray)
-    var textDidChange: (() -> Void)?
-    var shouldChangeText: ((NSRange, String) -> Bool)?
+    public var textDidChange: (() -> Void)?
+    public var shouldChangeText: ((NSRange, String) -> Bool)?
     
     public init(
         font: UIFont = .systemFont(ofSize: 16),
         textColor: UIColor = .black,
-        backgroundColor: UIColor = .lightGray,
+        backgroundColor: UIColor = .clear,
         cornerRadius: CGFloat = 10,
         placeholder: String = "",
+        placeholderTextColor: UIColor = .gray,
         borderWidth: CGFloat = 1,
         borderColor: UIColor = .darkGray,
         contentInset: UIEdgeInsets = .init(top: 12, left: 12, bottom: 12, right: 12)
@@ -36,6 +37,8 @@ open class Textview: UITextView, UITextViewDelegate {
         self.layer.cornerRadius = cornerRadius
         self.textContainerInset = contentInset
         self.delegate = self
+        self.placeholderLabel.textColor = placeholderTextColor
+        self.placeholderLabel.font = font
         setupSubviews()
         setupConstraints()
     }
@@ -47,7 +50,7 @@ open class Textview: UITextView, UITextViewDelegate {
     func setupConstraints() {
         placeholderLabel.anchor(
             .top(topAnchor, constant: padding.top),
-            .leading(leadingAnchor, constant: padding.left + 4)
+            .leading(leadingAnchor, constant: padding.left)
         )
     }
     

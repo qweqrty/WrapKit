@@ -17,6 +17,7 @@ public class AuthenticatedHTTPClientDecorator: HTTPClient {
     
     private let decoratee: HTTPClient
     private let tokenService: TokenService
+    private let onNotAuthenticated: (() -> Void)?
     private let enrichRequestWithToken: EnrichRequestWithToken
     private let isAuthenticated: AuthenticationPolicy
     
@@ -26,11 +27,13 @@ public class AuthenticatedHTTPClientDecorator: HTTPClient {
     public init(
         decoratee: HTTPClient,
         tokenService: TokenService,
+        onNotAuthenticated: (() -> Void)? = nil,
         enrichRequestWithToken: @escaping EnrichRequestWithToken,
         isAuthenticated: @escaping AuthenticationPolicy
     ) {
         self.decoratee = decoratee
         self.tokenService = tokenService
+        self.onNotAuthenticated = onNotAuthenticated
         self.enrichRequestWithToken = enrichRequestWithToken
         self.isAuthenticated = isAuthenticated
     }
@@ -53,7 +56,8 @@ public class AuthenticatedHTTPClientDecorator: HTTPClient {
             switch result {
             case .success(let response) where !(self?.isAuthenticated(response) ?? false):
                 guard let refreshToken = self?.tokenService.storage.getRefreshToken(), let refresh = self?.tokenService.refresh, isRefreshNeeded else {
-                    completion(.failure(NotAuthenticated()))
+                    self?.onNotAuthenticated?()
+                    completion(result)
                     return
                 }
                 refresh(.init(refreshToken: refreshToken)) { [completion] response in

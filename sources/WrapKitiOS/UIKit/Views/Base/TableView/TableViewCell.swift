@@ -11,7 +11,7 @@ import UIKit
 open class TableViewCell<ContentView: UIView>: UITableViewCell {
     public let mainContentView = ContentView()
 
-    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+    public override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         self.selectionStyle = .none
         contentView.backgroundColor = .clear

@@ -11,6 +11,13 @@ import UIKit
 open class ScrollableContentView: UIScrollView {
     public let contentView = View()
     
+    public init(contentInset: UIEdgeInsets = .zero) {
+        super.init(frame: .zero)
+        
+        self.contentInset = contentInset
+        initialSetup()
+    }
+    
     public init() {
         super.init(frame: .zero)
         initialSetup()
@@ -37,7 +44,7 @@ extension ScrollableContentView {
         contentView.fillSuperview()
         contentView.anchor(
             .widthTo(widthAnchor, 1),
-            .heightTo(heightAnchor, 1, priority: UILayoutPriority(rawValue: 250))
+            .heightTo(safeAreaLayoutGuide.heightAnchor, 1, priority: UILayoutPriority(rawValue: 250))
         )
     }
 }

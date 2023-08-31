@@ -99,6 +99,9 @@
 		C0B61AD92A753E9C002C0F38 /* AuthenticatedHTTPClientDecoratorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C051607E2A6FCEEB00E01640 /* AuthenticatedHTTPClientDecoratorTests.swift */; };
 		C0B61ADA2A753E9C002C0F38 /* KeychainTokenStorageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C05160762A6FB19B00E01640 /* KeychainTokenStorageTests.swift */; };
 		C0B61ADB2A753F10002C0F38 /* KeychainTokenStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C051606B2A6FADB500E01640 /* KeychainTokenStorage.swift */; };
+		C0BE6EA92A9B9FD500864F53 /* CharacterSet+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0BE6EA82A9B9FD500864F53 /* CharacterSet+Extensions.swift */; };
+		C0BE6EAC2A9BE49400864F53 /* Mask.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0BE6EAB2A9BE49400864F53 /* Mask.swift */; };
+		C0BE6EAF2A9BE4F500864F53 /* MaskedTextfieldDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0BE6EAE2A9BE4F500864F53 /* MaskedTextfieldDelegate.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -206,6 +209,9 @@
 		C0A8E9172A7D87320006FCE4 /* KeychainSwiftTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainSwiftTests.swift; sourceTree = "<group>"; };
 		C0A8E9192A7D87530006FCE4 /* KeychainWithPrefixTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainWithPrefixTests.swift; sourceTree = "<group>"; };
 		C0A8E9212A7D87B00006FCE4 /* AccessGroupTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessGroupTests.swift; sourceTree = "<group>"; };
+		C0BE6EA82A9B9FD500864F53 /* CharacterSet+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CharacterSet+Extensions.swift"; sourceTree = "<group>"; };
+		C0BE6EAB2A9BE49400864F53 /* Mask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Mask.swift; sourceTree = "<group>"; };
+		C0BE6EAE2A9BE4F500864F53 /* MaskedTextfieldDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MaskedTextfieldDelegate.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -248,6 +254,7 @@
 		C0261C3D2A76EF2C00BFCF1B /* WrapKitCommon */ = {
 			isa = PBXGroup;
 			children = (
+				C0BE6EAA2A9BE47700864F53 /* MaskedInput */,
 				C0261C472A78615700BFCF1B /* Service */,
 				C0261C422A785A1900BFCF1B /* DataStructures */,
 				C0261C4B2A78A7E200BFCF1B /* ViewModelDTO.swift */,
@@ -434,6 +441,7 @@
 			isa = PBXGroup;
 			children = (
 				C08AA3252A7E89D2002D58D5 /* UIView+Layout.swift */,
+				C08AA3352A7E8AE0002D58D5 /* UIView+Extensions.swift */,
 				C08AA3272A7E89EE002D58D5 /* NSObject+Extensions.swift */,
 				C08AA3292A7E8A08002D58D5 /* UIStackView+Extensions.swift */,
 				C08AA32B2A7E8A59002D58D5 /* Sequence+Extensions.swift */,
@@ -441,13 +449,13 @@
 				C08AA32F2A7E8A8A002D58D5 /* NSAttrubitedString+Extensions.swift */,
 				C08AA3312A7E8AA7002D58D5 /* NSMutableParagraphStyle+Extensions.swift */,
 				C08AA3332A7E8ACB002D58D5 /* UIViewController+Extensions.swift */,
-				C08AA3352A7E8AE0002D58D5 /* UIView+Extensions.swift */,
 				C08AA3372A7E8AFD002D58D5 /* UINavigationController+Extensions.swift */,
 				C08AA3392A7E8CEB002D58D5 /* UIColor+Extensions.swift */,
 				C08AA33B2A7E8D0B002D58D5 /* Array+Extension.swift */,
 				C08AA33D2A7E8D30002D58D5 /* String+Regex.swift */,
 				C08AA33F2A7E8D75002D58D5 /* String+Extensions.swift */,
 				C08AA3412A7E8DA3002D58D5 /* Double+Extensions.swift */,
+				C0BE6EA82A9B9FD500864F53 /* CharacterSet+Extensions.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -532,6 +540,7 @@
 		C08AA3822A7EBA6C002D58D5 /* Base */ = {
 			isa = PBXGroup;
 			children = (
+				C0BE6EAD2A9BE4E800864F53 /* Textfield */,
 				C08AA39B2A7EC338002D58D5 /* FieldView */,
 				C08AA38D2A7EBBF0002D58D5 /* TableView */,
 				C08AA3862A7EBABF002D58D5 /* CollectionView */,
@@ -645,6 +654,22 @@
 			children = (
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		C0BE6EAA2A9BE47700864F53 /* MaskedInput */ = {
+			isa = PBXGroup;
+			children = (
+				C0BE6EAB2A9BE49400864F53 /* Mask.swift */,
+			);
+			path = MaskedInput;
+			sourceTree = "<group>";
+		};
+		C0BE6EAD2A9BE4E800864F53 /* Textfield */ = {
+			isa = PBXGroup;
+			children = (
+				C0BE6EAE2A9BE4F500864F53 /* MaskedTextfieldDelegate.swift */,
+			);
+			path = Textfield;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -788,6 +813,7 @@
 				C08AA35F2A7E8DED002D58D5 /* UIViewController+PanModalPresenter.swift in Sources */,
 				C08AA3262A7E89D2002D58D5 /* UIView+Layout.swift in Sources */,
 				C08AA3402A7E8D75002D58D5 /* String+Extensions.swift in Sources */,
+				C0BE6EA92A9B9FD500864F53 /* CharacterSet+Extensions.swift in Sources */,
 				C0B61ADB2A753F10002C0F38 /* KeychainTokenStorage.swift in Sources */,
 				C08AA3AF2A7F2361002D58D5 /* ToastView.swift in Sources */,
 				C08AA33A2A7E8CEB002D58D5 /* UIColor+Extensions.swift in Sources */,
@@ -807,6 +833,7 @@
 				C08AA3912A7EBC29002D58D5 /* TableViewCell.swift in Sources */,
 				C08AA3A72A7F015D002D58D5 /* Textview.swift in Sources */,
 				C08AA35C2A7E8DED002D58D5 /* PanModalHeight.swift in Sources */,
+				C0BE6EAF2A9BE4F500864F53 /* MaskedTextfieldDelegate.swift in Sources */,
 				C08AA38A2A7EBAED002D58D5 /* CollectionViewCell.swift in Sources */,
 				C08AA3AB2A7F0E28002D58D5 /* MapView.swift in Sources */,
 				C08AA3A32A7EF41C002D58D5 /* NavigationController.swift in Sources */,
@@ -837,6 +864,7 @@
 				C08AA35D2A7E8DED002D58D5 /* PanModalPresentable+UIViewController.swift in Sources */,
 				C0261C342A767DC400BFCF1B /* KeychainSwift.swift in Sources */,
 				C08AA3802A7EB7DB002D58D5 /* StackVIew.swift in Sources */,
+				C0BE6EAC2A9BE49400864F53 /* Mask.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

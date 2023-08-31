@@ -11,15 +11,15 @@ import UIKit
 open class NavigationBar: UIView {
     public lazy var leadingStackView = StackView(axis: .horizontal, spacing: 12)
     public lazy var centerView = UIView()
-    public lazy var trailingStackView = StackView(axis: .horizontal, spacing: 12)
+    public lazy var trailingStackView = StackView(axis: .horizontal, spacing: 12, isHidden: true)
     public lazy var mainStackView = StackView(axis: .horizontal, spacing: 8)
     
     public lazy var backButton = makeBackButton(imageName: "longBackArrow")
     public lazy var titleViews = VKeyValueFieldView(
-        keyLabel: Label(font: .systemFont(ofSize: 18), textColor: .black, numberOfLines: 1),
+        keyLabel: Label(font: .systemFont(ofSize: 18), textColor: .black, textAlignment: .center, numberOfLines: 1),
         valueLabel: Label(isHidden: true, font: .systemFont(ofSize: 14), textColor: .black, numberOfLines: 1)
     )
-    public lazy var closeButton = makeBackButton(imageName: "closeBtn", isHidden: true)
+    public lazy var closeButton = makeBackButton(imageName: "closeBtn")
     
     public var mainStackViewConstraints: AnchoredConstraints?
     
@@ -55,10 +55,6 @@ open class NavigationBar: UIView {
         trailingStackView.setContentCompressionResistancePriority(.required, for: .horizontal)
         closeButton.setContentCompressionResistancePriority(.required, for: .horizontal)
         titleViews.fillSuperview()
-        titleViews.anchor(
-            .centerX(centerXAnchor),
-            .centerY(centerYAnchor)
-        )
     }
     
     public required init?(coder: NSCoder) {

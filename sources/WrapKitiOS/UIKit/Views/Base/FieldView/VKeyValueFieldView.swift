@@ -10,7 +10,6 @@ import Foundation
 import UIKit
 
 open class VKeyValueFieldView: UIView {
-    public lazy var stackView = StackView(axis: .vertical, spacing: 4)
     public lazy var keyLabel = Label(
         font: .systemFont(ofSize: 11),
         textColor: .black,
@@ -23,17 +22,40 @@ open class VKeyValueFieldView: UIView {
         minimumScaleFactor: 0.5,
         adjustsFontSizeToFitWidth: true
     )
+    public var spacing: CGFloat = 0 {
+        didSet {
+            valueLabelConstraints?.top?.constant = spacing
+            layoutIfNeeded()
+        }
+    }
+    public var contentInsets: UIEdgeInsets = .zero {
+        didSet {
+            keyLabelConstraints?.top?.constant = contentInsets.top
+            keyLabelConstraints?.leading?.constant = contentInsets.left
+            keyLabelConstraints?.trailing?.constant = -contentInsets.right
+            
+            valueLabelConstraints?.top?.constant = contentInsets.top
+            valueLabelConstraints?.leading?.constant = contentInsets.left
+            valueLabelConstraints?.trailing?.constant = -contentInsets.right
+            valueLabelConstraints?.bottom?.constant = -contentInsets.bottom
+            
+            layoutIfNeeded()
+        }
+    }
+    
+    private(set) var keyLabelConstraints: AnchoredConstraints?
+    private(set) var valueLabelConstraints: AnchoredConstraints?
     
     public init(
         keyLabel: Label = Label(
             font: .systemFont(ofSize: 11),
             textColor: .black,
-            numberOfLines: 1
+            numberOfLines: 0
         ),
         valueLabel: Label = Label(
             font: .systemFont(ofSize: 14),
             textColor: .black,
-            numberOfLines: 1,
+            numberOfLines: 0,
             minimumScaleFactor: 0.5,
             adjustsFontSizeToFitWidth: true
         ),
@@ -43,13 +65,32 @@ open class VKeyValueFieldView: UIView {
     ) {
         super.init(frame: .zero)
         
-        self.stackView = StackView(axis: .vertical, spacing: spacing, contentInset: contentInsets)
         self.keyLabel = keyLabel
         self.valueLabel = valueLabel
         self.isHidden = isHidden
+        self.spacing = spacing
+        self.contentInsets = contentInsets
+        self.valueLabel.addObserver(self, forKeyPath: "hidden", options: [.new], context: nil)
         
         setupSubviews()
         setupConstraints()
+    }
+    
+    override open func observeValue(
+        forKeyPath keyPath: String?,
+        of object: Any?,
+        change: [NSKeyValueChangeKey: Any]?,
+        context: UnsafeMutableRawPointer?
+    ) {
+        guard keyPath == "hidden" else { return }
+        UIView.animate(withDuration: 0.3) {
+            self.valueLabelConstraints?.height?.isActive = self.valueLabel.isHidden
+            self.layoutIfNeeded()
+        }
+    }
+    
+    deinit {
+        valueLabel.removeObserver(self, forKeyPath: "hidden")
     }
     
     public override init(frame: CGRect) {
@@ -62,23 +103,100 @@ open class VKeyValueFieldView: UIView {
     public required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-}
-
-extension VKeyValueFieldView {
+    
     func setupSubviews() {
-        addSubview(stackView)
-        stackView.addArrangedSubview(keyLabel)
-        stackView.addArrangedSubview(valueLabel)
+        addSubview(keyLabel)
+        addSubview(valueLabel)
     }
     
     func setupConstraints() {
-        stackView.anchor(
-            .topGreaterThanEqual(topAnchor),
-            .bottomLessThanEqual(bottomAnchor),
-            .leading(leadingAnchor),
-            .trailing(trailingAnchor),
-            .centerY(centerYAnchor)
+        keyLabelConstraints = keyLabel.anchor(
+            .top(topAnchor, constant: contentInsets.top),
+            .leading(leadingAnchor, constant: contentInsets.left),
+            .trailing(trailingAnchor, constant: contentInsets.right)
         )
+        
+        valueLabelConstraints = valueLabel.anchor(
+            .top(keyLabel.bottomAnchor, constant: spacing),
+            .leading(leadingAnchor, constant: contentInsets.left),
+            .trailing(trailingAnchor, constant: contentInsets.right),
+            .bottom(bottomAnchor, constant: contentInsets.bottom),
+            .height(0, priority: .defaultHigh)
+        )
+        valueLabelConstraints?.height?.isActive = false
     }
 }
+
+//open class VKeyValueFieldView: UIView {
+//    public lazy var stackView = StackView(axis: .vertical, spacing: 4)
+//    public lazy var keyLabel = Label(
+//        font: .systemFont(ofSize: 11),
+//        textColor: .black,
+//        numberOfLines: 1
+//    )
+//    public lazy var valueLabel = Label(
+//        font: .systemFont(ofSize: 14),
+//        textColor: .black,
+//        numberOfLines: 1,
+//        minimumScaleFactor: 0.5,
+//        adjustsFontSizeToFitWidth: true
+//    )
+//
+//    public init(
+//        keyLabel: Label = Label(
+//            font: .systemFont(ofSize: 11),
+//            textColor: .black,
+//            numberOfLines: 1
+//        ),
+//        valueLabel: Label = Label(
+//            font: .systemFont(ofSize: 14),
+//            textColor: .black,
+//            numberOfLines: 1,
+//            minimumScaleFactor: 0.5,
+//            adjustsFontSizeToFitWidth: true
+//        ),
+//        spacing: CGFloat = 4,
+//        contentInsets: UIEdgeInsets = .zero,
+//        isHidden: Bool = false
+//    ) {
+//        super.init(frame: .zero)
+//
+//        self.stackView = StackView(axis: .vertical, spacing: spacing, contentInset: contentInsets)
+//        self.keyLabel = keyLabel
+//        self.valueLabel = valueLabel
+//        self.isHidden = isHidden
+//
+//        setupSubviews()
+//        setupConstraints()
+//    }
+//
+//    public override init(frame: CGRect) {
+//        super.init(frame: frame)
+//
+//        setupSubviews()
+//        setupConstraints()
+//    }
+//
+//    public required init?(coder: NSCoder) {
+//        fatalError("init(coder:) has not been implemented")
+//    }
+//}
+//
+//extension VKeyValueFieldView {
+//    func setupSubviews() {
+//        addSubview(stackView)
+//        stackView.addArrangedSubview(keyLabel)
+//        stackView.addArrangedSubview(valueLabel)
+//    }
+//
+//    func setupConstraints() {
+//        stackView.anchor(
+//            .topGreaterThanEqual(topAnchor),
+//            .bottomLessThanEqual(bottomAnchor),
+//            .leading(leadingAnchor),
+//            .trailing(trailingAnchor),
+//            .centerY(centerYAnchor)
+//        )
+//    }
+//}
 #endif

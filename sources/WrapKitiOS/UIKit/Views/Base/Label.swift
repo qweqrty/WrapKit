@@ -53,6 +53,19 @@ open class Label: UILabel {
         self.numberOfLines = numberOfLines
     }
     
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        
+        self.backgroundColor = .clear
+        self.isHidden = false
+        self.translatesAutoresizingMaskIntoConstraints = false
+        self.font = .systemFont(ofSize: 20)
+        self.numberOfLines = 0
+        self.minimumScaleFactor = 0
+        self.adjustsFontSizeToFitWidth = false
+        self.isUserInteractionEnabled = true
+    }
+    
     public override var intrinsicContentSize: CGSize {
         if text == nil || text!.isEmpty {
             return CGSize(width: super.intrinsicContentSize.width, height: 0)
@@ -65,10 +78,6 @@ open class Label: UILabel {
         didSet {
             self.invalidateIntrinsicContentSize()
         }
-    }
-    
-    override init(frame: CGRect) {
-        super.init(frame: frame)
     }
     
     private var links: [Link] = [] {

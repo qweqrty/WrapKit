@@ -19,7 +19,7 @@ public extension UIView {
         let toastView = ToastView(title: title, subtitle: subtitle, image: image, duration: duration)
         toastView.removePastToastIfNeeded(from: self)
         toastView.setPosition(on: self, position: position)
-        toastView.animate(constant: duration, inside: self) { [weak self, weak toastView, duration] _ in
+        toastView.animate(constant: 20, inside: self) { [weak self, weak toastView, duration] _ in
             guard let self = self else { return }
             toastView?.hide(after: duration, for: self)
         }
@@ -44,7 +44,7 @@ open class ToastView: UIView {
         case bottom
     }
     
-    public init(title: String, subtitle: String?, image: UIImage, duration: TimeInterval = 3.0) {
+    public init(title: String, subtitle: String?, image: UIImage?, duration: TimeInterval = 3.0) {
         self.duration = duration
         super.init(frame: .zero)
         self.tag = Self.tag
@@ -59,7 +59,7 @@ open class ToastView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    private func setup(title: String, subtitle: String?, image: UIImage) {
+    private func setup(title: String, subtitle: String?, image: UIImage?) {
         titleViews.keyLabel.text = title
         titleViews.valueLabel.text = subtitle
         titleViews.valueLabel.isHidden = subtitle == nil
@@ -67,6 +67,8 @@ open class ToastView: UIView {
     }
     
     private func setupSubviews() {
+        layer.cornerRadius = 12
+        layer.borderWidth = 1
         addSubview(iconImageView)
         addSubview(titleViews)
     }
@@ -131,6 +133,7 @@ open class ToastView: UIView {
         }
         
         leadingConstraint = self.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: UIScreen.main.bounds.width)
+        leadingConstraint?.isActive = true
         self.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width - 40).isActive = true
         view.layoutIfNeeded()
     }

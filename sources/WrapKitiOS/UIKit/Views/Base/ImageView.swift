@@ -30,27 +30,34 @@ open class ImageView: UIImageView {
         }
     }
     
+    public override var tintColor: UIColor! {
+        didSet {
+            if let image = self.image {
+                self.image = image.withRenderingMode(.alwaysTemplate)
+                super.tintColor = tintColor
+            }
+        }
+    }
+    
     public init(
         image: UIImage? = nil,
         contentMode: UIImageView.ContentMode = .scaleAspectFit,
         cornerRadius: CGFloat = 0,
         borderColor: UIColor = .clear,
         borderWidth: CGFloat = 0,
-        tintColor: UIColor = .black,
+        tintColor: UIColor? = nil,
         isHidden: Bool = false
     ) {
         super.init(image: nil)
         
         if let image = image {
-            if #available(iOS 13.0, *) {
-                self.image = image.withTintColor(tintColor)
-            } else {
-                self.image = image
-            }
+            self.image = image
         }
         self.isHidden = isHidden
         self.contentMode = contentMode
-        self.tintColor = tintColor
+        if let tintColor = tintColor {
+            self.tintColor = tintColor
+        }
         self.borderColor = borderColor
         self.borderWidth = borderWidth
         self.cornerRadius = cornerRadius

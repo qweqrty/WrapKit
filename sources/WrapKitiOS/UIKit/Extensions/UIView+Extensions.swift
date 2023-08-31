@@ -56,5 +56,22 @@ public extension UIView {
         isUserInteractionEnabled = true
         loadingContainerView.removeFromSuperview()
     }
+    
+    static func performAnimationsInSequence(_ animations: [(TimeInterval, () -> Void, ((Bool) -> Void)?)], completion: ((Bool) -> Void)? = nil) {
+        guard !animations.isEmpty else {
+            completion?(true)
+            return
+        }
+        
+        var animations = animations
+        let animation = animations.removeFirst()
+        
+        UIView.animate(withDuration: animation.0, animations: {
+            animation.1()
+        }, completion: { finished in
+            animation.2?(finished)
+            UIView.performAnimationsInSequence(animations, completion: completion)
+        })
+    }
 }
 #endif
