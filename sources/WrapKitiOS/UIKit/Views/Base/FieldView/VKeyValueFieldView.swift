@@ -22,12 +22,13 @@ open class VKeyValueFieldView: UIView {
         minimumScaleFactor: 0.5,
         adjustsFontSizeToFitWidth: true
     )
+    
     public var spacing: CGFloat = 0 {
         didSet {
             valueLabelConstraints?.top?.constant = spacing
-            layoutIfNeeded()
         }
     }
+    
     public var contentInsets: UIEdgeInsets = .zero {
         didSet {
             keyLabelConstraints?.top?.constant = contentInsets.top
@@ -38,8 +39,6 @@ open class VKeyValueFieldView: UIView {
             valueLabelConstraints?.leading?.constant = contentInsets.left
             valueLabelConstraints?.trailing?.constant = -contentInsets.right
             valueLabelConstraints?.bottom?.constant = -contentInsets.bottom
-            
-            layoutIfNeeded()
         }
     }
     
@@ -83,8 +82,9 @@ open class VKeyValueFieldView: UIView {
         context: UnsafeMutableRawPointer?
     ) {
         guard keyPath == "hidden" else { return }
+        print("Dwdw \(valueLabel.isHidden)")
+        valueLabelConstraints?.height?.isActive = valueLabel.isHidden
         UIView.animate(withDuration: 0.3) {
-            self.valueLabelConstraints?.height?.isActive = self.valueLabel.isHidden
             self.layoutIfNeeded()
         }
     }
@@ -121,7 +121,7 @@ open class VKeyValueFieldView: UIView {
             .leading(leadingAnchor, constant: contentInsets.left),
             .trailing(trailingAnchor, constant: contentInsets.right),
             .bottom(bottomAnchor, constant: contentInsets.bottom),
-            .height(0, priority: .defaultHigh)
+            .height(0, priority: .defaultLow)
         )
         valueLabelConstraints?.height?.isActive = false
     }

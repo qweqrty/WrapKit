@@ -38,11 +38,7 @@ public class RemoteService<Request, Response: Decodable>: Service {
         return client.dispatch(urlRequest) { [weak self] result in
             switch result {
             case let .success((data, response)):
-                guard self?.isResponseOk?(data, response) ?? true else {
-                    completion(.failure(.internal))
-                    return
-                }
-                if let model = try? JSONDecoder().decode(Response.self, from: data) {
+                if self?.isResponseOk?(data, response) ?? true, let model = try? JSONDecoder().decode(Response.self, from: data){
                     completion(.success(model))
                 } else if let errorModel = try? JSONDecoder().decode(RemoteError.self, from: data) {
                     completion(.failure(.message(errorModel.message)))

@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		538E4B362AA495CA005BBDB4 /* UIImageView+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 538E4B352AA495CA005BBDB4 /* UIImageView+Extensions.swift */; };
+		538E4B382AA49693005BBDB4 /* UIButton+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 538E4B372AA49693005BBDB4 /* UIButton+Extensions.swift */; };
 		C010868D2A7E840100C3720A /* MainQueueDispatchDecorator.swift in Sources */ = {isa = PBXBuildFile; fileRef = C010868B2A7E83EB00C3720A /* MainQueueDispatchDecorator.swift */; };
 		C01086912A7E876900C3720A /* PaginatedTableViewDatasource.swift in Sources */ = {isa = PBXBuildFile; fileRef = C01086902A7E876900C3720A /* PaginatedTableViewDatasource.swift */; };
 		C01086932A7E881500C3720A /* PaginatedCollectionViewDatasource.swift in Sources */ = {isa = PBXBuildFile; fileRef = C01086922A7E881500C3720A /* PaginatedCollectionViewDatasource.swift */; };
@@ -115,6 +117,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		538E4B352AA495CA005BBDB4 /* UIImageView+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImageView+Extensions.swift"; sourceTree = "<group>"; };
+		538E4B372AA49693005BBDB4 /* UIButton+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIButton+Extensions.swift"; sourceTree = "<group>"; };
 		C010868B2A7E83EB00C3720A /* MainQueueDispatchDecorator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainQueueDispatchDecorator.swift; sourceTree = "<group>"; };
 		C01086902A7E876900C3720A /* PaginatedTableViewDatasource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaginatedTableViewDatasource.swift; sourceTree = "<group>"; };
 		C01086922A7E881500C3720A /* PaginatedCollectionViewDatasource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaginatedCollectionViewDatasource.swift; sourceTree = "<group>"; };
@@ -456,6 +460,8 @@
 				C08AA33F2A7E8D75002D58D5 /* String+Extensions.swift */,
 				C08AA3412A7E8DA3002D58D5 /* Double+Extensions.swift */,
 				C0BE6EA82A9B9FD500864F53 /* CharacterSet+Extensions.swift */,
+				538E4B352AA495CA005BBDB4 /* UIImageView+Extensions.swift */,
+				538E4B372AA49693005BBDB4 /* UIButton+Extensions.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -799,6 +805,7 @@
 				C08AA3632A7E8DED002D58D5 /* PanModalPresentationAnimator.swift in Sources */,
 				C08AA3762A7EA050002D58D5 /* Button.swift in Sources */,
 				C0261C4C2A78A7E200BFCF1B /* ViewModelDTO.swift in Sources */,
+				538E4B382AA49693005BBDB4 /* UIButton+Extensions.swift in Sources */,
 				C08AA3AD2A7F0E4C002D58D5 /* WrapperView.swift in Sources */,
 				C08AA3322A7E8AA7002D58D5 /* NSMutableParagraphStyle+Extensions.swift in Sources */,
 				C08AA3A12A7EC76F002D58D5 /* CardView.swift in Sources */,
@@ -816,6 +823,7 @@
 				C0BE6EA92A9B9FD500864F53 /* CharacterSet+Extensions.swift in Sources */,
 				C0B61ADB2A753F10002C0F38 /* KeychainTokenStorage.swift in Sources */,
 				C08AA3AF2A7F2361002D58D5 /* ToastView.swift in Sources */,
+				538E4B362AA495CA005BBDB4 /* UIImageView+Extensions.swift in Sources */,
 				C08AA33A2A7E8CEB002D58D5 /* UIColor+Extensions.swift in Sources */,
 				C08AA3782A7EA0F0002D58D5 /* ScrollableContentView.swift in Sources */,
 				C08AA3612A7E8DED002D58D5 /* PanModalPresentationDelegate.swift in Sources */,

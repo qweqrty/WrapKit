@@ -47,6 +47,10 @@ open class PaginatedTableViewDatasource<Cell: UITableViewCell & Configurable>: N
         return cell
     }
     
+//    open func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+//        tableView.estimatedRowHeight = cell.frame.height
+//    }
+    
     open func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return UITableView.automaticDimension
     }

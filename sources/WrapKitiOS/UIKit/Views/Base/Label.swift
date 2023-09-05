@@ -31,7 +31,7 @@ open class Label: UILabel {
         backgroundColor: UIColor? = .clear,
         isHidden: Bool = false,
         translatesAutoresizingMaskIntoConstraints: Bool = false,
-        font: UIFont = .systemFont(ofSize: 20),
+        font: UIFont? = nil,
         textColor: UIColor = .darkText,
         textAlignment: NSTextAlignment = .left,
         numberOfLines: Int = 0,
@@ -43,7 +43,7 @@ open class Label: UILabel {
 
         self.isHidden = isHidden
         self.backgroundColor = backgroundColor
-        self.font = font
+        if let font = font { self.font = font }
         self.isUserInteractionEnabled = isUserInteractionEnabled
         self.textAlignment = textAlignment
         self.minimumScaleFactor = minimumScaleFactor
