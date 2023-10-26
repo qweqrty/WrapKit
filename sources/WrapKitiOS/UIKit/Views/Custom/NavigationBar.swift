@@ -54,7 +54,14 @@ open class NavigationBar: UIView {
         )
         trailingStackView.setContentCompressionResistancePriority(.required, for: .horizontal)
         closeButton.setContentCompressionResistancePriority(.required, for: .horizontal)
-        titleViews.fillSuperview()
+        titleViews.anchor(
+            .top(centerView.topAnchor),
+            .bottom(centerView.bottomAnchor),
+            .leadingLessThanEqual(centerView.leadingAnchor),
+            .trailingGreaterThanEqual(centerView.trailingAnchor),
+            .leading(leadingAnchor),
+            .trailing(trailingAnchor)
+        )
     }
     
     public required init?(coder: NSCoder) {

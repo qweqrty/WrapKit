@@ -45,12 +45,8 @@ public class RemoteService<Request, Response: Decodable>: Service {
                 } else {
                     completion(.failure(.internal))
                 }
-            case .failure(let error):
-                if let _ = error as? AuthenticatedHTTPClientDecorator.NotAuthenticated {
-                    completion(.failure(.notAuthorized))
-                } else {
-                    completion(.failure(ServiceError.connectivity))
-                }
+            case .failure:
+                completion(.failure(.connectivity))
             }
         }
     }

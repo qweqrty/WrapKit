@@ -7,6 +7,12 @@
 
 import Foundation
 
+public protocol Service<Request, Response> {
+    associatedtype Request
+    associatedtype Response
+    func make(request: Request, completion: @escaping ((Result<Response, ServiceError>)) -> Void) -> HTTPClientTask?
+}
+
 public enum ServiceError: Error {
     case message(String)
     case `internal`
@@ -27,10 +33,19 @@ public enum ServiceError: Error {
     }
 }
 
-public protocol Service<Request, Response> {
-    associatedtype Request
-    associatedtype Response
-    func make(request: Request, completion: @escaping ((Result<Response, ServiceError>)) -> Void) -> HTTPClientTask?
+extension ServiceError: Equatable {
+    public static func == (lhs: ServiceError, rhs: ServiceError) -> Bool {
+        switch (lhs, rhs) {
+        case (.message(let lhsMessage), .message(let rhsMessage)):
+            return lhsMessage == rhsMessage
+        case (.internal, .internal):
+            return true
+        case (.connectivity, .connectivity):
+            return true
+        case (.notAuthorized, .notAuthorized):
+            return true
+        default:
+            return false
+        }
+    }
 }
-
-

@@ -44,9 +44,6 @@ extension RetryView {
     }
     
     func setupConstraints() {
-        print("Dwdw 1 \(loadingControl.intrinsicContentSize)")
-        print("Dwdw 1 \(loadingControl.frame)")
-        print("Dwdw 1 \(loadingControl.bounds)")
         loadingControl.anchor(
             .centerX(centerXAnchor),
             .centerY(centerYAnchor)

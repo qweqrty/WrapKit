@@ -8,71 +8,91 @@
 import Foundation
 
 public class AuthenticatedHTTPClientDecorator: HTTPClient {
+    private class CompositeHTTPClientTask: HTTPClientTask {
+        var first: HTTPClientTask
+        var second: HTTPClientTask?
+
+        init(first: HTTPClientTask, second: HTTPClientTask? = nil) {
+            self.first = first
+            self.second = second
+        }
+
+        func cancel() {
+            first.cancel()
+            second?.cancel()
+        }
+
+        func resume() {
+            first.resume()
+            second?.resume()
+        }
+    }
+    
     public typealias EnrichRequestWithToken = ((URLRequest, String) -> URLRequest)
     public typealias AuthenticationPolicy = (((Data, HTTPURLResponse)) -> Bool)
     
-    public struct NotAuthenticated: Error {
-        public init() {}
-    }
-    
     private let decoratee: HTTPClient
-    private let tokenService: TokenService
+    private let accessTokenStorage: any Storage<String>
+    private let tokenRefresher: TokenRefresher?
     private let onNotAuthenticated: (() -> Void)?
     private let enrichRequestWithToken: EnrichRequestWithToken
     private let isAuthenticated: AuthenticationPolicy
     
-    private let semaphore = DispatchSemaphore(value: 0)
-    private let queue = DispatchQueue(label: "AuthenticatedHTTPClientDecorator", attributes: .concurrent)
-    
     public init(
         decoratee: HTTPClient,
-        tokenService: TokenService,
+        accessTokenStorage: any Storage<String>,
+        tokenRefresher: TokenRefresher?,
         onNotAuthenticated: (() -> Void)? = nil,
         enrichRequestWithToken: @escaping EnrichRequestWithToken,
         isAuthenticated: @escaping AuthenticationPolicy
     ) {
         self.decoratee = decoratee
-        self.tokenService = tokenService
+        self.accessTokenStorage = accessTokenStorage
+        self.tokenRefresher = tokenRefresher
         self.onNotAuthenticated = onNotAuthenticated
         self.enrichRequestWithToken = enrichRequestWithToken
         self.isAuthenticated = isAuthenticated
     }
-    
+
     public func dispatch(_ request: URLRequest, completion: @escaping (HTTPClient.Result) -> Void) -> HTTPClientTask {
-        var enrichedRequest = request
-        tokenService.getAccessToken { [weak self] accessToken in
-            if let accessToken = accessToken, let enrichRequestWithToken = self?.enrichRequestWithToken {
-                enrichedRequest = enrichRequestWithToken(request, accessToken)
-            }
-            self?.semaphore.signal()
-        }
-        semaphore.wait()
-        return dispatch(enrichedRequest, completion: completion, isRefreshNeeded: true)
+        return dispatch(request, completion: completion, isRetryNeeded: true)
     }
     
-    private func dispatch(_ enrichedRequest: URLRequest, completion: @escaping (HTTPClient.Result) -> Void, isRefreshNeeded: Bool) -> HTTPClientTask {
-        var task: HTTPClientTask?
-        task = decoratee.dispatch(enrichedRequest, completion: { [weak self, completion, isRefreshNeeded] result in
+    private func dispatch(_ request: URLRequest, completion: @escaping (HTTPClient.Result) -> Void, isRetryNeeded: Bool) -> HTTPClientTask {
+        var compositeTask: CompositeHTTPClientTask?
+        let enrichedRequest = enrichRequestWithToken(request, accessTokenStorage.get() ?? "")
+        let firstTask = decoratee.dispatch(enrichedRequest) { [weak self] result in
             switch result {
-            case .success(let response) where !(self?.isAuthenticated(response) ?? false):
-                guard let refreshToken = self?.tokenService.storage.getRefreshToken(), let refresh = self?.tokenService.refresh, isRefreshNeeded else {
-                    self?.onNotAuthenticated?()
-                    completion(result)
-                    return
-                }
-                refresh(.init(refreshToken: refreshToken)) { [completion] response in
-                    guard let accessToken = response?.accessToken, let enrichRequestWithToken = self?.enrichRequestWithToken else  {
-                        completion(.failure(NotAuthenticated()))
-                        return
+            case .success(let (data, response)):
+                if self?.isAuthenticated((data, response)) ?? false {
+                    completion(.success((data, response)))
+                } else if let tokenRefresher = self?.tokenRefresher, isRetryNeeded {
+                    tokenRefresher.refresh { refreshResult in
+                        switch refreshResult {
+                        case .success(let newToken):
+                            self?.accessTokenStorage.set(newToken)
+                            let newTask = self?.dispatch(request, completion: completion, isRetryNeeded: false)
+                            compositeTask?.second = newTask
+                            newTask?.resume()
+                        case .failure:
+                            self?.onNotAuthenticated?()
+                            completion(.failure(ServiceError.notAuthorized))
+                        }
                     }
-                    self?.tokenService.storage.set(accessToken: accessToken)
-                    task = self?.dispatch(enrichRequestWithToken(enrichedRequest, accessToken), completion: completion, isRefreshNeeded: false)
-                    task?.resume()
+                } else {
+                    completion(.success((data, response)))
                 }
-            default:
-                completion(result)
+            case .failure(let error):
+                completion(.failure(error))
             }
-        })
-        return task!
+        }
+        compositeTask = CompositeHTTPClientTask(first: firstTask)
+        return compositeTask!
     }
+
+    private struct DummyHTTPClientTask: HTTPClientTask {
+        func cancel() {}
+        func resume() {}
+    }
+    
 }

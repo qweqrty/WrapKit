@@ -37,7 +37,7 @@ open class ViewController<ContentView: UIView>: UIViewController {
             .top(view.topAnchor),
             .leading(view.leadingAnchor),
             .trailing(view.trailingAnchor),
-            .bottom(view.bottomAnchor)
+            .bottom(view.safeAreaLayoutGuide.bottomAnchor)
         )
     }
     

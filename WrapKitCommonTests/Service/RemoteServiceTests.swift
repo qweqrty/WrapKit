@@ -64,21 +64,6 @@ class RemoteServiceTests: XCTestCase {
         XCTAssertTrue(receivedError?.isConnectivity ?? false)
     }
     
-    func test_makeRequest_completesWithNotAuthorizedErrorWhenNotAuthenticated() {
-        let url = URL(string: "https://example.com")!
-        let (sut, clientSpy) = makeSUT { _ in URLRequest(url: url) }
-
-        var receivedError: ServiceError?
-        _ = sut.make(request: "dummy request") { result in
-            if case let .failure(error) = result {
-                receivedError = error
-            }
-        }
-        clientSpy.completes(with: AuthenticatedHTTPClientDecorator.NotAuthenticated())
-
-        XCTAssertTrue(receivedError?.isNotAuthorized ?? false)
-    }
-    
     func test_makeRequest_completesWithInternalErrorWhenDecodingFails() {
         let url = URL(string: "https://example.com")!
         let (sut, clientSpy) = makeSUT { _ in URLRequest(url: url) }
@@ -142,11 +127,6 @@ extension RemoteServiceTests {
 fileprivate extension ServiceError {
     var isConnectivity: Bool {
         if case .connectivity = self { return true }
-        return false
-    }
-    
-    var isNotAuthorized: Bool {
-        if case .notAuthorized = self { return true }
         return false
     }
     

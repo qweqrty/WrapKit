@@ -21,6 +21,7 @@ class HTTPClientSpy: HTTPClient {
     private var messages: [(requests: URLRequest, completion: (Result) -> Void)] = []
     private(set) var resumedURLs: [URL] = []
     private(set) var cancelledURLs: [URL] = []
+    private(set) var completedResponses: [HTTPClient.Result] = []
     
     var requestedURLs: [URL] {
         return messages.compactMap { $0.requests.url }
@@ -32,14 +33,15 @@ class HTTPClientSpy: HTTPClient {
     
     func dispatch(_ request: URLRequest, completion: @escaping (Result) -> Void) -> HTTPClientTask {
         messages.append((request, completion))
-        return Task { [weak self] in
+        return Task(resumeCallback: { [weak self] in
             self?.resumedURLs.append(request.url!)
-        } cancelCallback: { [weak self] in
-            self?.resumedURLs.append(request.url!)
-        }
+        }, cancelCallback: { [weak self] in
+            self?.cancelledURLs.append(request.url!)
+        })
     }
     
     func completes(with error: Error, at index: Int = 0) {
+        completedResponses.append(.failure(error))
         messages[index].completion(.failure(error))
     }
     
@@ -50,7 +52,8 @@ class HTTPClientSpy: HTTPClient {
             httpVersion: nil,
             headerFields: nil
         )!
-        messages[index].completion(.success((data, response)))
+        let result = HTTPClient.Result.success((data, response))
+        completedResponses.append(result)
+        messages[index].completion(result)
     }
 }
-
