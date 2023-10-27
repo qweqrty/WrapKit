@@ -7,6 +7,7 @@
 
 #if canImport(UIKit)
 import UIKit
+import SwiftUI
 
 open class WrapperView<ContentView: UIView>: View {
     public var padding: UIEdgeInsets = .zero {
@@ -41,6 +42,28 @@ open class WrapperView<ContentView: UIView>: View {
     
     public required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+}
+
+@available(iOS 13.0, *)
+struct WrapperViewRepresentable: UIViewRepresentable {
+    func makeUIView(context: Context) -> WrapperView<UIView> {
+        let view = WrapperView()
+        view.backgroundColor = .red
+        return view
+    }
+    
+    func updateUIView(_ uiView: WrapperView<UIView>, context: Context) {
+        // Leave this empty
+    }
+}
+
+@available(iOS 13.0, *)
+struct WrapperView_Previews: PreviewProvider {
+    static var previews: some SwiftUI.View {
+            WrapperViewRepresentable()
+                .previewDevice(PreviewDevice(rawValue: "iPhone SE (2nd generation)"))
+                .previewDisplayName("iPhone SE (2nd generation)")
     }
 }
 #endif

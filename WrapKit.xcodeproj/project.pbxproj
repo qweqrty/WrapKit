@@ -536,7 +536,6 @@
 			isa = PBXGroup;
 			children = (
 				C0BE6EAD2A9BE4E800864F53 /* Textfield */,
-				C08AA39B2A7EC338002D58D5 /* FieldView */,
 				C08AA38D2A7EBBF0002D58D5 /* TableView */,
 				C08AA3862A7EBABF002D58D5 /* CollectionView */,
 				C08AA3692A7E95C6002D58D5 /* FillStackView.swift */,
@@ -547,7 +546,6 @@
 				C08AA3732A7E9F8B002D58D5 /* ImageView.swift */,
 				C08AA3752A7EA050002D58D5 /* Button.swift */,
 				C08AA3772A7EA0F0002D58D5 /* ScrollableContentView.swift */,
-				C08AA3792A7EB5BD002D58D5 /* ProgressBarView.swift */,
 				C08AA37F2A7EB7DB002D58D5 /* StackVIew.swift */,
 				C08AA3A42A7EF6FD002D58D5 /* Textfield.swift */,
 				C08AA3A62A7F015D002D58D5 /* Textview.swift */,
@@ -558,6 +556,8 @@
 		C08AA3832A7EBA7C002D58D5 /* Custom */ = {
 			isa = PBXGroup;
 			children = (
+				C08AA39B2A7EC338002D58D5 /* FieldView */,
+				C08AA3792A7EB5BD002D58D5 /* ProgressBarView.swift */,
 				C08AA3712A7E9F6E002D58D5 /* NavigationBar.swift */,
 				C08AA3842A7EBA99002D58D5 /* RetryView.swift */,
 				C08AA37D2A7EB620002D58D5 /* TitledView.swift */,
@@ -1031,7 +1031,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
-				DEVELOPMENT_TEAM = K527BQ6P4G;
+				DEVELOPMENT_TEAM = 7VXZD23QK8;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
@@ -1039,7 +1039,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1070,7 +1070,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
-				DEVELOPMENT_TEAM = K527BQ6P4G;
+				DEVELOPMENT_TEAM = 7VXZD23QK8;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
@@ -1078,7 +1078,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

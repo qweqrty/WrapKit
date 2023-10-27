@@ -7,6 +7,7 @@
 
 #if canImport(UIKit)
 import UIKit
+import SwiftUI
 
 open class RetryView: View {
     public let loadingControl: UIActivityIndicatorView
@@ -48,6 +49,32 @@ extension RetryView {
             .centerX(centerXAnchor),
             .centerY(centerYAnchor)
         )
+    }
+}
+
+@available(iOS 13.0, *)
+struct RetryViewRepresentable: UIViewRepresentable {
+    func makeUIView(context: Context) -> RetryView {
+        let view = RetryView(frame: .zero)
+        view.loadingControl.color = .red
+        view.loadingControl.style = .large
+        return view
+    }
+    
+    func updateUIView(_ uiView: RetryView, context: Context) {
+        // Leave this empty
+    }
+}
+
+
+@available(iOS 13.0, *)
+struct RetryView_Previews: PreviewProvider {
+    static var previews: some SwiftUI.View {
+        VStack {
+            RetryViewRepresentable()
+                .previewDevice(PreviewDevice(rawValue: "iPhone SE (2nd generation)"))
+                .previewDisplayName("iPhone SE (2nd generation)")
+        }
     }
 }
 #endif

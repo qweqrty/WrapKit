@@ -7,14 +7,15 @@
 
 #if canImport(UIKit)
 import UIKit
+import SwiftUI
 
 open class MapView<ContentView: UIView>: UIView {
     public let contentView: ContentView
     public let actionsStackView = WrapperView(contentView: StackView(axis: .vertical))
-    public lazy var locationView = makeImageView(UIImage(named: "cursorIc"))
-    public lazy var plusView = makeImageView(UIImage(named: "plusIc"))
+    public lazy var locationView = makeImageView(UIImage(systemName: "location"))
+    public lazy var plusView = makeImageView(UIImage(systemName: "plus"))
     public let separatorView = UIView(backgroundColor: .lightGray)
-    public lazy var minusView = makeImageView(UIImage(named: "minusIc"))
+    public lazy var minusView = makeImageView(UIImage(systemName: "minus"))
     
     public init(mapView: ContentView) {
         self.contentView = mapView
@@ -76,6 +77,29 @@ private extension MapView {
         )
         view.backgroundColor = .white
         return view
+    }
+}
+
+@available(iOS 13.0, *)
+struct MapViewFullRepresentable: UIViewRepresentable {
+    var someView: UIView = .init()
+    func makeUIView(context: Context) -> MapView<UIView> {
+        let view = MapView(mapView: someView)
+        view.backgroundColor = .red
+        return view
+    }
+    
+    func updateUIView(_ uiView: MapView<UIView>, context: Context) {
+        // Leave this empty
+    }
+}
+
+@available(iOS 13.0, *)
+struct MapView_Previews: PreviewProvider {
+    static var previews: some SwiftUI.View {
+            MapViewFullRepresentable()
+                .previewDevice(PreviewDevice(rawValue: "iPhone SE (2nd generation)"))
+                .previewDisplayName("iPhone SE (2nd generation)")
     }
 }
 #endif

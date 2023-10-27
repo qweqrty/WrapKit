@@ -7,6 +7,7 @@
 
 #if canImport(UIKit)
 import UIKit
+import SwiftUI
 
 open class TitledView<ContentView: UIView>: View {
     public lazy var stackView = StackView(axis: .vertical, spacing: 4)
@@ -117,6 +118,108 @@ open class TitledView<ContentView: UIView>: View {
     
     public required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+}
+
+@available(iOS 13.0, *)
+struct TitledViewFullRepresentable: UIViewRepresentable {
+    func makeUIView(context: Context) -> TitledView<UIView> {
+        let view = TitledView()
+        view.backgroundColor = .cyan
+        view.wrappedTitleLabel.contentView.text = "Wrapped Label"
+        view.wrappedErrorLabel.contentView.text = "Wrapped Error"
+        view.wrappedErrorLabel.isHidden = false
+        view.closingTitleVFieldView.keyLabel.text = "Key Label"
+        view.closingTitleVFieldView.valueLabel.text = "Value Label"
+        view.closingTitleVFieldView.isHidden = false
+        view.closingTitleVFieldView.valueLabel.isHidden = false
+        return view
+    }
+    
+    func updateUIView(_ uiView: TitledView<UIView>, context: Context) {
+        // Leave this empty
+    }
+}
+
+struct TitledViewWrappedLabelRepresentable: UIViewRepresentable {
+    func makeUIView(context: Context) -> TitledView<UIView> {
+        let view = TitledView()
+        view.backgroundColor = .green
+        view.wrappedTitleLabel.contentView.text = "Wrapped Label"
+        view.wrappedErrorLabel.isHidden = false
+        view.closingTitleVFieldView.valueLabel.text = "Value Label"
+        view.closingTitleVFieldView.isHidden = false
+        view.closingTitleVFieldView.valueLabel.isHidden = false
+        return view
+    }
+    
+    func updateUIView(_ uiView: TitledView<UIView>, context: Context) {
+        // Leave this empty
+    }
+}
+
+struct TitledViewWrappedErrorRepresentable: UIViewRepresentable {
+    func makeUIView(context: Context) -> TitledView<UIView> {
+        let view = TitledView()
+        view.backgroundColor = .lightGray
+        view.wrappedErrorLabel.contentView.text = "Wrapped Error"
+        view.wrappedErrorLabel.isHidden = false
+        view.closingTitleVFieldView.keyLabel.text = "Key Label"
+        view.closingTitleVFieldView.isHidden = false
+        view.closingTitleVFieldView.valueLabel.isHidden = false
+        return view
+    }
+    
+    func updateUIView(_ uiView: TitledView<UIView>, context: Context) {
+        // Leave this empty
+    }
+}
+
+struct TitledViewValueLabelRepresentable: UIViewRepresentable {
+    func makeUIView(context: Context) -> TitledView<UIView> {
+        let view = TitledView()
+        view.backgroundColor = .yellow
+        view.wrappedErrorLabel.contentView.text = "Wrapped Error"
+        view.wrappedErrorLabel.isHidden = false
+        view.closingTitleVFieldView.valueLabel.text = "Value Label"
+        view.closingTitleVFieldView.isHidden = false
+        view.closingTitleVFieldView.valueLabel.isHidden = false
+        return view
+    }
+    
+    func updateUIView(_ uiView: TitledView<UIView>, context: Context) {
+        // Leave this empty
+    }
+}
+
+@available(iOS 13.0, *)
+struct TitledView_Previews: PreviewProvider {
+    static var previews: some SwiftUI.View {
+        VStack {
+            TitledViewFullRepresentable()
+                .padding(.horizontal)
+                .padding(.top, 20)
+                .previewDevice(PreviewDevice(rawValue: "iPhone SE (2nd generation)"))
+                .previewDisplayName("iPhone SE (2nd generation)")
+
+            TitledViewWrappedLabelRepresentable()
+                .padding(.horizontal)
+                .padding(.top, 20)
+                .previewDevice(PreviewDevice(rawValue: "iPhone 12 Pro Max"))
+                .previewDisplayName("iPhone 12 Pro Max")
+
+            TitledViewWrappedErrorRepresentable()
+                .padding(.horizontal)
+                .padding(.top, 20)
+                .previewDevice(PreviewDevice(rawValue: "iPad Pro (9.7-inch)"))
+                .previewDisplayName("iPad Pro (9.7-inch)")
+            
+            TitledViewValueLabelRepresentable()
+                .padding(.horizontal)
+                .padding(.top, 20)
+                .previewDevice(PreviewDevice(rawValue: "iPad Pro (9.7-inch)"))
+                .previewDisplayName("iPad Pro (9.7-inch)")
+        }
     }
 }
 
