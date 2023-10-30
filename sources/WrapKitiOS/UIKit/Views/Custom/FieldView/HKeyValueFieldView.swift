@@ -144,19 +144,23 @@ struct HKeyValueFieldView_Previews: PreviewProvider {
     static var previews: some SwiftUI.View {
         VStack {
             HKeyValueFieldViewKeyLabelValueLabelRepresentable()
+                .frame(height: 25)
                 .padding()
                 .previewDevice(PreviewDevice(rawValue: "iPhone SE (2nd generation)"))
                 .previewDisplayName("iPhone SE (2nd generation)")
             
             HKeyValueFieldViewKeyLabelRepresentable()
+                .frame(height: 25)
                 .padding()
                 .previewDevice(PreviewDevice(rawValue: "iPhone SE (2nd generation)"))
                 .previewDisplayName("iPhone SE (2nd generation)")
             
             HKeyValueFieldViewValueLabelRepresentable()
+                .frame(height: 25)
                 .padding()
                 .previewDevice(PreviewDevice(rawValue: "iPhone SE (2nd generation)"))
                 .previewDisplayName("iPhone SE (2nd generation)")
+            Spacer()
         }
     }
 }

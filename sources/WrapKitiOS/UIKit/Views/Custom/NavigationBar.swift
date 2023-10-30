@@ -128,16 +128,23 @@ struct NavigationBar_Previews: PreviewProvider {
     static var previews: some SwiftUI.View {
         VStack {
             NavigationBarRepresentable()
+                .frame(height: 20)
+                .padding()
                 .previewDevice(PreviewDevice(rawValue: "iPhone SE (2nd generation)"))
                 .previewDisplayName("iPhone SE (2nd generation)")
             
             NavigationBarKeyLabelValueLabelRepresentable()
+                .frame(height: 40)
+                .padding()
                 .previewDevice(PreviewDevice(rawValue: "iPhone SE (2nd generation)"))
                 .previewDisplayName("iPhone SE (2nd generation)")
             
             NavigationBarKeyLabelRepresentable()
+                .frame(height: 20)
+                .padding()
                 .previewDevice(PreviewDevice(rawValue: "iPhone SE (2nd generation)"))
                 .previewDisplayName("iPhone SE (2nd generation)")
+            Spacer()
         }
     }
 }

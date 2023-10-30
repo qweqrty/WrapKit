@@ -74,6 +74,7 @@ struct ProgressBarView_Previews: PreviewProvider {
     static var previews: some SwiftUI.View {
         VStack {
             ProgressBarViewFullRepresentable()
+                .frame(height: 20)
                 .previewDevice(PreviewDevice(rawValue: "iPhone SE (2nd generation)"))
                 .previewDisplayName("iPhone SE (2nd generation)")
         }

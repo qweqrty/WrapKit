@@ -195,35 +195,41 @@ struct CardView_Previews: PreviewProvider {
     static var previews: some SwiftUI.View {
             VStack {
                 CardViewFullRepresentable()
+                    .frame(height: 80)
                     .padding()
                     .previewDevice(PreviewDevice(rawValue: "iPhone SE (2nd generation)"))
                     .previewDisplayName("iPhone SE (2nd generation)")
                 
                 CardViewWithoutLeadingImageRepresentable()
+                    .frame(height: 80)
                     .padding()
                     .previewDevice(PreviewDevice(rawValue: "iPhone SE (2nd generation)"))
                     .previewDisplayName("iPhone SE (2nd generation)")
                 
                 CardViewTitleViewKeyLabelTrailingImageRepresentable()
+                    .frame(height: 40)
                     .padding()
                     .previewDevice(PreviewDevice(rawValue: "iPhone 12 Pro Max"))
                     .previewDisplayName("iPhone 12 Pro Max")
                 
                 CardViewTitleViewKeyLabelSubtitleRepresentable()
+                    .frame(height: 40)
                     .padding()
                     .previewDevice(PreviewDevice(rawValue: "iPad Pro (9.7-inch)"))
                     .previewDisplayName("iPad Pro (9.7-inch)")
                 
                 CardViewTitleViewValueLabelRepresentable()
+                    .frame(height: 50)
                     .padding()
                     .previewDevice(PreviewDevice(rawValue: "iPhone SE (2nd generation)"))
                     .previewDisplayName("iPhone SE (2nd generation)")
                 
                 CardViewTitleViewValueLabelSubtitleRepresentable()
+                    .frame(height: 50)
                     .padding()
                     .previewDevice(PreviewDevice(rawValue: "iPhone SE (2nd generation)"))
                     .previewDisplayName("iPhone SE (2nd generation)")
-                
+                Spacer()
             }
     }
 }

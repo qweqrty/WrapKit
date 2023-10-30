@@ -198,20 +198,29 @@ struct ToastView_Previews: PreviewProvider {
     static var previews: some SwiftUI.View {
         VStack {
             ToastViewFullRepresentable()
+                .frame(height: 70)
+                .padding()
                 .previewDevice(PreviewDevice(rawValue: "iPhone SE (2nd generation)"))
                 .previewDisplayName("iPhone SE (2nd generation)")
 
             ToastViewKeyRepresentable()
+                .frame(height: 50)
+                .padding()
                 .previewDevice(PreviewDevice(rawValue: "iPhone 12 Pro Max"))
                 .previewDisplayName("iPhone 12 Pro Max")
 
             ToastViewFullValueRepresentable()
+                .frame(height: 50)
+                .padding()
                 .previewDevice(PreviewDevice(rawValue: "iPad Pro (9.7-inch)"))
                 .previewDisplayName("iPad Pro (9.7-inch)")
             
             ToastViewNoImageRepresentable()
+                .frame(height: 70)
+                .padding()
                 .previewDevice(PreviewDevice(rawValue: "iPad Pro (9.7-inch)"))
                 .previewDisplayName("iPad Pro (9.7-inch)")
+            Spacer()
         }
     }
 }

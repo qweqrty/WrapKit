@@ -197,28 +197,33 @@ struct TitledView_Previews: PreviewProvider {
     static var previews: some SwiftUI.View {
         VStack {
             TitledViewFullRepresentable()
+                .frame(height: 80)
                 .padding(.horizontal)
                 .padding(.top, 20)
                 .previewDevice(PreviewDevice(rawValue: "iPhone SE (2nd generation)"))
                 .previewDisplayName("iPhone SE (2nd generation)")
 
             TitledViewWrappedLabelRepresentable()
+                .frame(height: 60)
                 .padding(.horizontal)
                 .padding(.top, 20)
                 .previewDevice(PreviewDevice(rawValue: "iPhone 12 Pro Max"))
                 .previewDisplayName("iPhone 12 Pro Max")
 
             TitledViewWrappedErrorRepresentable()
+                .frame(height: 50)
                 .padding(.horizontal)
                 .padding(.top, 20)
                 .previewDevice(PreviewDevice(rawValue: "iPad Pro (9.7-inch)"))
                 .previewDisplayName("iPad Pro (9.7-inch)")
             
             TitledViewValueLabelRepresentable()
+                .frame(height: 50)
                 .padding(.horizontal)
                 .padding(.top, 20)
                 .previewDevice(PreviewDevice(rawValue: "iPad Pro (9.7-inch)"))
                 .previewDisplayName("iPad Pro (9.7-inch)")
+            Spacer()
         }
     }
 }
