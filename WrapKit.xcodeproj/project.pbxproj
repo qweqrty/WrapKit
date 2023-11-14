@@ -120,6 +120,7 @@
 
 /* Begin PBXFileReference section */
 		531452052AC97E7B0034348F /* StoredServiceDecorator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoredServiceDecorator.swift; sourceTree = "<group>"; };
+		537CD2BF2B035C870045F38C /* WrapKit */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = WrapKit; sourceTree = "<group>"; };
 		538E4B352AA495CA005BBDB4 /* UIImageView+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImageView+Extensions.swift"; sourceTree = "<group>"; };
 		538E4B372AA49693005BBDB4 /* UIButton+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIButton+Extensions.swift"; sourceTree = "<group>"; };
 		53F9F9EB2AB6B76E00110054 /* InMemoryStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InMemoryStorage.swift; sourceTree = "<group>"; };
@@ -241,6 +242,17 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		537CD2C02B03605D0045F38C /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				C05160572A6FAAE000E01640 /* WrapKitAuthTests */,
+				C056E6FA2A6D04BB0020AB69 /* WrapKitNetworkingTests */,
+				C0A8E9142A7D86DF0006FCE4 /* KeychainSwiftTests */,
+				C08CAF1B2A7D90A1004A3FAD /* WrapKitCommonTests */,
+			);
+			path = Tests;
+			sourceTree = "<group>";
+		};
 		53F9F9F02AB6C15500110054 /* Storage */ = {
 			isa = PBXGroup;
 			children = (
@@ -357,11 +369,9 @@
 		C056E6C82A6D04A70020AB69 = {
 			isa = PBXGroup;
 			children = (
-				C07DFF2F2A8B174700466533 /* sources */,
-				C05160572A6FAAE000E01640 /* WrapKitAuthTests */,
-				C056E6FA2A6D04BB0020AB69 /* WrapKitNetworkingTests */,
-				C0A8E9142A7D86DF0006FCE4 /* KeychainSwiftTests */,
-				C08CAF1B2A7D90A1004A3FAD /* WrapKitCommonTests */,
+				537CD2BF2B035C870045F38C /* WrapKit */,
+				537CD2C02B03605D0045F38C /* Tests */,
+				C07DFF2F2A8B174700466533 /* Sources */,
 				C0A8E9132A7D863E0006FCE4 /* WrapKit.xctestplan */,
 				C056E6D32A6D04A70020AB69 /* Products */,
 				C0B61AC42A753876002C0F38 /* Frameworks */,
@@ -396,7 +406,7 @@
 			path = WrapKitNetworkingTests;
 			sourceTree = "<group>";
 		};
-		C07DFF2F2A8B174700466533 /* sources */ = {
+		C07DFF2F2A8B174700466533 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
 				C08AA3A82A7F0DF5002D58D5 /* Assets.xcassets */,
@@ -407,7 +417,7 @@
 				C056E6F02A6D04BB0020AB69 /* WrapKitNetworking */,
 				C051604D2A6FAADF00E01640 /* WrapKitAuth */,
 			);
-			path = sources;
+			path = Sources;
 			sourceTree = "<group>";
 		};
 		C08AA3202A7E8963002D58D5 /* UIKit */ = {
