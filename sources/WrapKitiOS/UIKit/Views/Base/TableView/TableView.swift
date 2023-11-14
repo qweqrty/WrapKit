@@ -9,6 +9,28 @@
 import UIKit
 
 open class TableView: UITableView {
+    private var adjustHeight = false
+    
+    open override var intrinsicContentSize: CGSize {
+        if adjustHeight {
+            layoutIfNeeded()
+            return .init(width: super.intrinsicContentSize.width, height: contentSize.height)
+        } else {
+            return super.intrinsicContentSize
+        }
+    }
+    open override var contentSize: CGSize {
+        didSet {
+            if adjustHeight {
+                invalidateIntrinsicContentSize()
+            }
+        }
+    }
+    open override func reloadData() {
+        super.reloadData()
+        invalidateIntrinsicContentSize()
+    }
+    
     public init(
         style: UITableView.Style = .grouped,
         backgroundColor: UIColor = .clear,
@@ -17,13 +39,15 @@ open class TableView: UITableView {
         cells: [AnyClass] = [],
         contentInset: UIEdgeInsets = .zero,
         refreshControl: UIRefreshControl? = nil,
-        emptyPlaceholderView: UIView? = nil
+        emptyPlaceholderView: UIView? = nil,
+        adjustHeight: Bool = false
     ) {
         super.init(frame: .zero, style: style)
         
         cells.forEach { register($0, forCellReuseIdentifier: String(describing: $0)) }
         separatorStyle = .none
         self.contentInset = contentInset
+        self.adjustHeight = adjustHeight
         self.backgroundColor = backgroundColor
         self.allowsSelection = allowsSelection
         self.allowsMultipleSelectionDuringEditing = allowsMultipleSelectionDuringEditing

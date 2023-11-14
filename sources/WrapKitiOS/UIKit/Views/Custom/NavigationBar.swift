@@ -14,14 +14,15 @@ open class NavigationBar: UIView {
     public lazy var trailingStackView = StackView(axis: .horizontal, spacing: 12, isHidden: true)
     public lazy var mainStackView = StackView(axis: .horizontal, spacing: 8)
     
-    public lazy var backButton = makeBackButton(imageName: "longBackArrow")
+    public lazy var backButton = makeBackButton(imageName: "arrow-left")
     public lazy var titleViews = VKeyValueFieldView(
         keyLabel: Label(font: .systemFont(ofSize: 18), textColor: .black, textAlignment: .center, numberOfLines: 1),
         valueLabel: Label(isHidden: true, font: .systemFont(ofSize: 14), textColor: .black, numberOfLines: 1)
     )
-    public lazy var closeButton = makeBackButton(imageName: "closeBtn")
+    public lazy var closeButton = makeBackButton(imageName: "xmark")
     
     public var mainStackViewConstraints: AnchoredConstraints?
+    public var backButtonConstraints: AnchoredConstraints?
     
     private let height: CGFloat = 52
     
@@ -40,16 +41,17 @@ open class NavigationBar: UIView {
         centerView.addSubview(titleViews)
         trailingStackView.addArrangedSubview(closeButton)
         
-        backButton.anchor(.width(36))
+        backButtonConstraints = backButton.anchor(.width(36))
         closeButton.anchor(.width(36))
     }
     
     private func setupConstraints() {
-        mainStackView.anchor(.height(height))
+        
         mainStackViewConstraints = mainStackView.anchor(
             .top(safeAreaLayoutGuide.topAnchor),
             .leading(leadingAnchor, constant: 12),
             .trailing(trailingAnchor, constant: 12),
+            .height(height),
             .bottom(bottomAnchor)
         )
         trailingStackView.setContentCompressionResistancePriority(.required, for: .horizontal)
@@ -72,7 +74,7 @@ open class NavigationBar: UIView {
 private extension NavigationBar {
     func makeBackButton(imageName: String, isHidden: Bool = false) -> Button {
         let btn = Button(
-            image: UIImage(named: imageName)!,
+            image: UIImage(named: imageName),
             tintColor: .black,
             isHidden: isHidden
         )

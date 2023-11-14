@@ -8,7 +8,7 @@
 #if canImport(UIKit)
 import UIKit
 
-open class PaginatedTableViewDatasource<Cell: UITableViewCell & Configurable>: NSObject, UITableViewDelegate, UITableViewDataSource {
+open class TableViewDatasource<Cell: UITableViewCell & Configurable>: NSObject, UITableViewDelegate, UITableViewDataSource {
     open var getItems: (() -> [Cell.Model]) = { [] }
     open var selectAt: ((IndexPath) -> Void)?
     open var showBottomLoader = false
@@ -46,10 +46,6 @@ open class PaginatedTableViewDatasource<Cell: UITableViewCell & Configurable>: N
         cell.model = getItems()[indexPath.row]
         return cell
     }
-    
-//    open func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-//        tableView.estimatedRowHeight = cell.frame.height
-//    }
     
     open func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return UITableView.automaticDimension

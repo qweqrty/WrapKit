@@ -8,27 +8,17 @@
 #if canImport(UIKit)
 import UIKit
 
-open class PaginatedCollectionViewDatasource<Cell: UICollectionViewCell & Configurable>: NSObject, UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
-    public var getItems: (() -> [Cell.Model])
+open class CollectionViewDatasource<Cell: UICollectionViewCell & Configurable>: NSObject, UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
+    public var getItems: (() -> [Cell.Model]) = { [] }
     public var selectAt: ((IndexPath) -> Void)?
     public var onRetry: (() -> Void)?
     public var showLoader = false
     public var hasMore = true
     public var minimumLineSpacingForSectionAt: ((Int) -> CGFloat) = { _ in 16 }
     public var loadNextPage: (() -> Void)?
-    let sizeForItemAt: ((IndexPath) -> CGSize)
+    public var sizeForItemAt: ((IndexPath) -> CGSize) = { _ in .zero }
     
     public var loadingView: CollectionReusableView<UIActivityIndicatorView> = CollectionReusableView<UIActivityIndicatorView>()
-    public init(
-        getItems: @escaping (() -> [Cell.Model]),
-        selectAt: ((IndexPath) -> Void)? = nil,
-        sizeForItemAt: @escaping ((IndexPath) -> CGSize)
-    ) {
-        self.getItems = getItems
-        self.selectAt = selectAt
-        self.sizeForItemAt = sizeForItemAt
-        super.init()
-    }
 
     open func numberOfSections(in collectionView: UICollectionView) -> Int {
         return 1

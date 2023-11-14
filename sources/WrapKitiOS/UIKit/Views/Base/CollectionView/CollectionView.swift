@@ -9,6 +9,22 @@
 import UIKit
 
 open class CollectionView: UICollectionView {
+    private var adjustHeight = false
+    
+    open override var intrinsicContentSize: CGSize {
+        if adjustHeight {
+            return super.intrinsicContentSize
+        } else {
+            layoutIfNeeded()
+            return CGSize(width: contentSize.width, height: contentSize.height)
+        }
+    }
+    
+    open override func reloadData() {
+        super.reloadData()
+        invalidateIntrinsicContentSize()
+    }
+    
     public init(
         collectionViewFlowLayout: UICollectionViewFlowLayout = UICollectionViewFlowLayout(),
         scrollDirection: UICollectionView.ScrollDirection = .vertical,
@@ -18,7 +34,8 @@ open class CollectionView: UICollectionView {
         isScrollEnabled: Bool = true,
         contentInset: UIEdgeInsets = .zero,
         refreshControl: UIRefreshControl? = nil,
-        emptyPlaceholderView: UIView? = nil) {
+        emptyPlaceholderView: UIView? = nil,
+        adjustHeight: Bool = false) {
         collectionViewFlowLayout.scrollDirection = scrollDirection
         super.init(frame: .zero, collectionViewLayout: collectionViewFlowLayout)
         self.backgroundColor = backgroundColor
@@ -29,6 +46,9 @@ open class CollectionView: UICollectionView {
         self.isScrollEnabled = isScrollEnabled
         self.backgroundView?.isHidden = false
         self.backgroundView?.alpha = 0
+        self.adjustHeight = adjustHeight
+        self.showsHorizontalScrollIndicator = false
+        self.showsVerticalScrollIndicator = false
         cells.forEach { register($0, forCellWithReuseIdentifier: String(describing: $0)) }
     }
     
@@ -39,17 +59,6 @@ open class CollectionView: UICollectionView {
         }
     }
 
-    public override func reloadData() {
-        super.reloadData()
-        guard !self.isScrollEnabled else { return }
-        self.invalidateIntrinsicContentSize()
-    }
-
-    public override var intrinsicContentSize: CGSize {
-        guard !self.isScrollEnabled else { return super.intrinsicContentSize }
-        return contentSize
-    }
-    
     open func changePlaceholder(_ state: Bool) {
         switch state {
         case false:

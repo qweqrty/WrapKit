@@ -10,12 +10,9 @@ import UIKit
 
 open class TitledView<ContentView: UIView>: View {
     public lazy var stackView = StackView(axis: .vertical, spacing: 4)
-    public lazy var wrappedTitleLabel = WrapperView(
-        contentView: Label(
-            font: .systemFont(ofSize: 18),
-            textColor: .black,
-            numberOfLines: 0
-        )
+    public lazy var titlesView = HKeyValueFieldView(
+        keyLabel: Label(),
+        valueLabel: Label()
     )
     public lazy var contentView = ContentView()
     public lazy var closingTitleVFieldView = HKeyValueFieldView(isHidden: true)
@@ -24,12 +21,9 @@ open class TitledView<ContentView: UIView>: View {
     public var stackViewAnchoredConstraints: AnchoredConstraints?
 
     public init(
-        wrappedTitleLabel: WrapperView<Label> = WrapperView(
-            contentView: Label(
-                font: .systemFont(ofSize: 18),
-                textColor: .black,
-                numberOfLines: 0
-            )
+        titlesView: HKeyValueFieldView = HKeyValueFieldView(
+            keyLabel: Label(),
+            valueLabel: Label()
         ),
         contentView: ContentView = ContentView(),
         closingTitleVFieldView: HKeyValueFieldView = HKeyValueFieldView(
@@ -55,7 +49,7 @@ open class TitledView<ContentView: UIView>: View {
     ) {
         super.init(frame: .zero)
 
-        self.wrappedTitleLabel = wrappedTitleLabel
+        self.titlesView = titlesView
         self.contentView = contentView
         self.closingTitleVFieldView = closingTitleVFieldView
         self.stackView.spacing = spacing
@@ -105,7 +99,7 @@ open class TitledView<ContentView: UIView>: View {
     
     private func setupSubviews() {
         addSubview(stackView)
-        stackView.addArrangedSubview(wrappedTitleLabel)
+        stackView.addArrangedSubview(titlesView)
         stackView.addArrangedSubview(contentView)
         stackView.addArrangedSubview(closingTitleVFieldView)
         stackView.addArrangedSubview(wrappedErrorLabel)

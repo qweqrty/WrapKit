@@ -9,6 +9,8 @@
 import UIKit
 
 public extension UIView {
+    static let CAGradientLayerName = "GradientBorderLayer"
+    
     func shake(count: Float? = nil, for duration: TimeInterval? = nil, withTranslation translation: Float? = nil) {
         let defaultRepeatCount: Float = 2.0
         let defaultTotalDuration = 0.15
@@ -22,6 +24,33 @@ public extension UIView {
         animation.autoreverses = true
         animation.byValue = translation ?? defaultTranslation
         layer.add(animation, forKey: "shake")
+    }
+    
+    func gradientBorder(
+        width: CGFloat,
+        colors: [UIColor],
+        startPoint: CGPoint = .init(x: 0.5, y: 0),
+        endPoint: CGPoint = .init(x: 0.5, y: 1),
+        cornerRadius: CGFloat = 0
+    ) {
+        // Remove any existing gradient layers
+        layer.sublayers?.removeAll(where: { $0.name == UIView.CAGradientLayerName })
+        // Gradient layer
+        let gradientLayer = CAGradientLayer()
+        gradientLayer.name = UIView.CAGradientLayerName
+        gradientLayer.frame = bounds
+        gradientLayer.colors = colors.map { $0.cgColor }
+        gradientLayer.startPoint = startPoint
+        gradientLayer.endPoint = endPoint
+        
+        let shapeLayer = CAShapeLayer()
+        shapeLayer.lineWidth = width
+        shapeLayer.path = UIBezierPath(roundedRect: bounds.insetBy(dx: width / 2, dy: width / 2), cornerRadius: cornerRadius).cgPath
+        shapeLayer.fillColor = nil
+        shapeLayer.strokeColor = UIColor.black.cgColor
+        gradientLayer.mask = shapeLayer
+        
+        layer.addSublayer(gradientLayer)
     }
     
     func showLoadingView() {
@@ -73,5 +102,6 @@ public extension UIView {
             UIView.performAnimationsInSequence(animations, completion: completion)
         })
     }
+    
 }
 #endif
