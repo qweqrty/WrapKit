@@ -120,7 +120,6 @@
 
 /* Begin PBXFileReference section */
 		531452052AC97E7B0034348F /* StoredServiceDecorator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoredServiceDecorator.swift; sourceTree = "<group>"; };
-		537CD2BF2B035C870045F38C /* WrapKit */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = WrapKit; sourceTree = "<group>"; };
 		538E4B352AA495CA005BBDB4 /* UIImageView+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImageView+Extensions.swift"; sourceTree = "<group>"; };
 		538E4B372AA49693005BBDB4 /* UIButton+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIButton+Extensions.swift"; sourceTree = "<group>"; };
 		53F9F9EB2AB6B76E00110054 /* InMemoryStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InMemoryStorage.swift; sourceTree = "<group>"; };
@@ -369,7 +368,6 @@
 		C056E6C82A6D04A70020AB69 = {
 			isa = PBXGroup;
 			children = (
-				537CD2BF2B035C870045F38C /* WrapKit */,
 				537CD2C02B03605D0045F38C /* Tests */,
 				C07DFF2F2A8B174700466533 /* Sources */,
 				C0A8E9132A7D863E0006FCE4 /* WrapKit.xctestplan */,
