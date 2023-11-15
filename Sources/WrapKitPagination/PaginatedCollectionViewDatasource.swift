@@ -16,7 +16,6 @@ open class CollectionViewDatasource<Cell: UICollectionViewCell & Configurable>: 
     public var hasMore = true
     public var minimumLineSpacingForSectionAt: ((Int) -> CGFloat) = { _ in 16 }
     public var loadNextPage: (() -> Void)?
-    public var sizeForItemAt: ((IndexPath) -> CGSize) = { _ in .zero }
     
     public var loadingView: CollectionReusableView<UIActivityIndicatorView> = CollectionReusableView<UIActivityIndicatorView>()
 
@@ -36,10 +35,6 @@ open class CollectionViewDatasource<Cell: UICollectionViewCell & Configurable>: 
     
     open func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
         return minimumLineSpacingForSectionAt(section)
-    }
-    
-    open func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return sizeForItemAt(indexPath)
     }
     
     open func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
