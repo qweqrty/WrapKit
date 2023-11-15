@@ -33,12 +33,7 @@ open class ViewController<ContentView: UIView>: UIViewController {
     open override func viewDidLoad() {
         super.viewDidLoad()
         view.addSubview(contentView)
-        contentView.anchor(
-            .top(view.topAnchor),
-            .leading(view.leadingAnchor),
-            .trailing(view.trailingAnchor),
-            .bottom(view.safeAreaLayoutGuide.bottomAnchor)
-        )
+        contentView.fillSuperview()
     }
     
     deinit {
