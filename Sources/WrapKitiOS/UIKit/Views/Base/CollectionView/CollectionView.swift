@@ -37,7 +37,6 @@ open class CollectionView: UICollectionView {
         emptyPlaceholderView: UIView? = nil,
         adjustHeight: Bool = false) {
         collectionViewFlowLayout.scrollDirection = scrollDirection
-        collectionViewFlowLayout.estimatedItemSize = UICollectionViewFlowLayout.automaticSize
         super.init(frame: .zero, collectionViewLayout: collectionViewFlowLayout)
 
         self.backgroundColor = backgroundColor
