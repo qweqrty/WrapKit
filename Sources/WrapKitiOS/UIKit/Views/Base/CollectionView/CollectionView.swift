@@ -13,10 +13,10 @@ open class CollectionView: UICollectionView {
     
     open override var intrinsicContentSize: CGSize {
         if adjustHeight {
-            return super.intrinsicContentSize
-        } else {
             layoutIfNeeded()
             return CGSize(width: contentSize.width, height: contentSize.height)
+        } else {
+            return super.intrinsicContentSize
         }
     }
     
