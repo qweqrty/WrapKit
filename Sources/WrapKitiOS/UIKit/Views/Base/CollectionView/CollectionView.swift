@@ -37,7 +37,7 @@ open class CollectionView: UICollectionView {
     }
     
     public init(
-        collectionViewFlowLayout: UICollectionViewFlowLayout = UICollectionViewFlowLayout(),
+        collectionViewFlowLayout: UICollectionViewLayout = UICollectionViewFlowLayout(),
         scrollDirection: UICollectionView.ScrollDirection = .vertical,
         backgroundColor: UIColor = .clear,
         cells: [AnyClass],
