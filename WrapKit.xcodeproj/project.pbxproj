@@ -80,7 +80,6 @@
 		C08AA38C2A7EBB04002D58D5 /* CollectionReusableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C08AA38B2A7EBB04002D58D5 /* CollectionReusableView.swift */; };
 		C08AA38F2A7EBC05002D58D5 /* TableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C08AA38E2A7EBC05002D58D5 /* TableView.swift */; };
 		C08AA3912A7EBC29002D58D5 /* TableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C08AA3902A7EBC29002D58D5 /* TableViewCell.swift */; };
-		C08AA3932A7EBC43002D58D5 /* AutoSizingTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C08AA3922A7EBC43002D58D5 /* AutoSizingTableView.swift */; };
 		C08AA39D2A7EC34B002D58D5 /* VKeyValueFieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C08AA39C2A7EC34B002D58D5 /* VKeyValueFieldView.swift */; };
 		C08AA39F2A7EC361002D58D5 /* HKeyValueFieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C08AA39E2A7EC361002D58D5 /* HKeyValueFieldView.swift */; };
 		C08AA3A12A7EC76F002D58D5 /* CardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C08AA3A02A7EC76F002D58D5 /* CardView.swift */; };
@@ -197,7 +196,6 @@
 		C08AA38B2A7EBB04002D58D5 /* CollectionReusableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionReusableView.swift; sourceTree = "<group>"; };
 		C08AA38E2A7EBC05002D58D5 /* TableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableView.swift; sourceTree = "<group>"; };
 		C08AA3902A7EBC29002D58D5 /* TableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableViewCell.swift; sourceTree = "<group>"; };
-		C08AA3922A7EBC43002D58D5 /* AutoSizingTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutoSizingTableView.swift; sourceTree = "<group>"; };
 		C08AA39C2A7EC34B002D58D5 /* VKeyValueFieldView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VKeyValueFieldView.swift; sourceTree = "<group>"; };
 		C08AA39E2A7EC361002D58D5 /* HKeyValueFieldView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HKeyValueFieldView.swift; sourceTree = "<group>"; };
 		C08AA3A02A7EC76F002D58D5 /* CardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardView.swift; sourceTree = "<group>"; };
@@ -592,7 +590,6 @@
 			children = (
 				C08AA38E2A7EBC05002D58D5 /* TableView.swift */,
 				C08AA3902A7EBC29002D58D5 /* TableViewCell.swift */,
-				C08AA3922A7EBC43002D58D5 /* AutoSizingTableView.swift */,
 			);
 			path = TableView;
 			sourceTree = "<group>";
@@ -830,7 +827,6 @@
 				C08AA3612A7E8DED002D58D5 /* PanModalPresentationDelegate.swift in Sources */,
 				C08AA37A2A7EB5BD002D58D5 /* ProgressBarView.swift in Sources */,
 				C08AA36C2A7E9E41002D58D5 /* View.swift in Sources */,
-				C08AA3932A7EBC43002D58D5 /* AutoSizingTableView.swift in Sources */,
 				C08AA3742A7E9F8B002D58D5 /* ImageView.swift in Sources */,
 				C08AA3622A7E8DED002D58D5 /* PanModalAnimator.swift in Sources */,
 				C0B61ACA2A753E70002C0F38 /* AuthenticatedHTTPClientDecorator.swift in Sources */,

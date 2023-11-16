@@ -10,6 +10,8 @@ import UIKit
 
 open class TableViewCell<ContentView: UIView>: UITableViewCell {
     public let mainContentView = ContentView()
+    
+    public var mainContentViewConstraints: AnchoredConstraints?
 
     public override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -18,7 +20,12 @@ open class TableViewCell<ContentView: UIView>: UITableViewCell {
         backgroundView = nil
         backgroundColor = .clear
         contentView.addSubview(mainContentView)
-        mainContentView.fillSuperview()
+        mainContentViewConstraints = mainContentView.anchor(
+            .top(contentView.topAnchor),
+            .leading(contentView.leadingAnchor),
+            .trailing(contentView.trailingAnchor),
+            .bottom(contentView.bottomAnchor)
+        )
     }
     
     public required init?(coder: NSCoder) {
