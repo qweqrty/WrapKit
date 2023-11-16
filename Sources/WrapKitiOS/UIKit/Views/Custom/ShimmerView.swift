@@ -13,12 +13,12 @@ open class ShimmerView: UIView {
     open var gradientColorTwo: UIColor = UIColor(white: 0.95, alpha: 0.6)
     private let gradientLayer = CAGradientLayer()
     
-    override init(frame: CGRect) {
+    public override init(frame: CGRect) {
         super.init(frame: frame)
         setupGradientLayer()
     }
     
-    required init?(coder: NSCoder) {
+    public required init?(coder: NSCoder) {
         super.init(coder: coder)
         setupGradientLayer()
     }
@@ -37,7 +37,7 @@ open class ShimmerView: UIView {
         layer.addSublayer(gradientLayer)
     }
     
-    override func layoutSubviews() {
+    open override func layoutSubviews() {
         super.layoutSubviews()
         gradientLayer.frame = self.bounds
     }
@@ -70,4 +70,5 @@ open class ShimmerView: UIView {
         gradientLayer.removeAnimation(forKey: "shimmer")
     }
 }
+
 #endif
