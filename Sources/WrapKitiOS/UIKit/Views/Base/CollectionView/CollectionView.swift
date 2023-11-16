@@ -11,18 +11,29 @@ import UIKit
 open class CollectionView: UICollectionView {
     private var adjustHeight = false
     
-    open override var intrinsicContentSize: CGSize {
-        if adjustHeight {
-            layoutIfNeeded()
-            return CGSize(width: contentSize.width, height: contentSize.height)
-        } else {
-            return super.intrinsicContentSize
-        }
-    }
-    
     open override func reloadData() {
         super.reloadData()
         invalidateIntrinsicContentSize()
+    }
+    
+    open override var contentSize: CGSize {
+        didSet {
+            guard adjustHeight else { return }
+            invalidateIntrinsicContentSize()
+        }
+    }
+
+    open override var intrinsicContentSize: CGSize {
+        guard adjustHeight else { return super.intrinsicContentSize }
+        return contentSize
+    }
+
+    open override func layoutSubviews() {
+        super.layoutSubviews()
+        guard adjustHeight else { return }
+        if !__CGSizeEqualToSize(bounds.size, intrinsicContentSize) {
+            invalidateIntrinsicContentSize()
+        }
     }
     
     public init(
@@ -51,13 +62,6 @@ open class CollectionView: UICollectionView {
         self.showsHorizontalScrollIndicator = false
         self.showsVerticalScrollIndicator = false
         cells.forEach { register($0, forCellWithReuseIdentifier: String(describing: $0)) }
-    }
-    
-    public override var contentSize: CGSize {
-        didSet {
-            guard !isScrollEnabled else { return }
-            invalidateIntrinsicContentSize()
-        }
     }
 
     open func changePlaceholder(_ state: Bool) {
