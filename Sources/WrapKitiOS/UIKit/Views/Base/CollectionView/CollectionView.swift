@@ -51,7 +51,7 @@ open class CollectionView: UICollectionView {
             collectionViewLayout.scrollDirection = scrollDirection
         }
         
-        super.init(frame: .zero, collectionViewLayout: collectionViewFlowLayout)
+        super.init(frame: .zero, collectionViewLayout: collectionViewLayout)
 
         self.backgroundColor = backgroundColor
         self.contentInset = contentInset
