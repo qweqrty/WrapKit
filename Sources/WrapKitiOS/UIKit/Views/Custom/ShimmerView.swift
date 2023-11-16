@@ -8,9 +8,9 @@
 #if canImport(UIKit)
 import UIKit
 
-class ShimmerView: UIView {
-    var gradientColorOne: UIColor = UIColor(white: 0.85, alpha: 0.4)
-    var gradientColorTwo: UIColor = UIColor(white: 0.95, alpha: 0.6)
+open class ShimmerView: UIView {
+    open var gradientColorOne: UIColor = UIColor(white: 0.85, alpha: 0.4)
+    open var gradientColorTwo: UIColor = UIColor(white: 0.95, alpha: 0.6)
     private let gradientLayer = CAGradientLayer()
     
     override init(frame: CGRect) {
@@ -42,7 +42,7 @@ class ShimmerView: UIView {
         gradientLayer.frame = self.bounds
     }
     
-    func startShimmering(withDelay delay: TimeInterval = 2.8) {
+    open func startShimmering(withDelay delay: TimeInterval = 2.8) {
         let animation = CAKeyframeAnimation(keyPath: "locations")
 
         animation.values = [
@@ -66,7 +66,7 @@ class ShimmerView: UIView {
         gradientLayer.add(animation, forKey: "shimmer")
     }
     
-    func stopShimmering() {
+    open func stopShimmering() {
         gradientLayer.removeAnimation(forKey: "shimmer")
     }
 }
