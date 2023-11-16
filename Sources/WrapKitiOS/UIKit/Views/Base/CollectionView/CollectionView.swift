@@ -37,7 +37,7 @@ open class CollectionView: UICollectionView {
     }
     
     public init(
-        collectionViewFlowLayout: UICollectionViewLayout = UICollectionViewFlowLayout(),
+        collectionViewLayout: UICollectionViewLayout = UICollectionViewFlowLayout(),
         scrollDirection: UICollectionView.ScrollDirection = .vertical,
         backgroundColor: UIColor = .clear,
         cells: [AnyClass],
@@ -47,7 +47,10 @@ open class CollectionView: UICollectionView {
         refreshControl: UIRefreshControl? = nil,
         emptyPlaceholderView: UIView? = nil,
         adjustHeight: Bool = false) {
-        collectionViewFlowLayout.scrollDirection = scrollDirection
+        if let collectionViewLayout = collectionViewLayout as? UICollectionViewFlowLayout {
+            collectionViewLayout.scrollDirection = scrollDirection
+        }
+        
         super.init(frame: .zero, collectionViewLayout: collectionViewFlowLayout)
 
         self.backgroundColor = backgroundColor
