@@ -11,7 +11,7 @@ public enum PlaceholderedPresentableModel<PresentableModel> {
     case model(PresentableModel)
     case placeholder
     
-    var isPlaceholder: Bool {
+    public var isPlaceholder: Bool {
         switch self {
         case .model:
             return false
