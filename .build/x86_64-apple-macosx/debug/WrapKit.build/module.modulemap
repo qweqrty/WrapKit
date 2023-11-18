@@ -1,0 +1,4 @@
+module WrapKit {
+    header "/Users/sli/Documents/GitHub/WrapKit/.build/x86_64-apple-macosx/debug/WrapKit.build/WrapKit-Swift.h"
+    requires objc
+}
