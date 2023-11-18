@@ -11,7 +11,7 @@ import WrapKit
 class AuthenticatedHTTPClientDecoratorTests: XCTestCase {
 
     func test_dispatch_withNoAccessToken_completesWithNotAuthorizedError() {
-        let (sut, storage, httpClientSpy, _) = makeSUT()
+        let (sut, storage, httpClientSpy, _) = makeSUT(isAuthenticated: { _ in false })
 
         storage.set(nil)
 
@@ -19,8 +19,8 @@ class AuthenticatedHTTPClientDecoratorTests: XCTestCase {
         sut.dispatch(URLRequest(url: URL(string: "http://test.com")!)) { result in
             receivedResult = result
         }.resume()
-
-        XCTAssertEqual(httpClientSpy.requestedURLs, [])
+        httpClientSpy.completes(withStatusCode: 200, data: Data("data".utf8))
+        XCTAssertEqual(httpClientSpy.requestedURLs, [URL(string: "http://test.com")!])
         switch receivedResult {
         case .failure(let error as ServiceError):
             XCTAssertEqual(error, ServiceError.notAuthorized)
