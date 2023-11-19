@@ -14,34 +14,36 @@ public protocol ResourceViewOutput<ViewModel>: AnyObject {
     func display(error: String)
 }
 
-public protocol ResourceViewInput<Item, Request>: AnyObject where Item: ViewModelDTO, Request: Encodable {
+public protocol ResourceViewInput<Item>: AnyObject where Item: ViewModelDTO {
     associatedtype Item
-    associatedtype Request
     var resourceStorage: any Storage<Item> { get }
 
-    func load(request: Request)
+    func load()
 }
 
 open class ResourcePresenter<Request: Encodable, Response: Decodable & ViewModelDTO> {
     public let resourceStorage: any Storage<Response>
     private let service: any Service<Request, Response>
+    private let mapRequest: (() -> Request)
     
     public weak var view: (any ResourceViewOutput<Response.ViewModel>)?
 
     public init(
         service: any Service<Request, Response>,
+        mapRequest: @escaping (() -> Request),
         resourceStorage: any Storage<Response>
     ) {
         self.service = service
+        self.mapRequest = mapRequest
         self.resourceStorage = resourceStorage
     }
 }
 
 extension ResourcePresenter: ResourceViewInput {
-    public func load(request: Request) {
+    public func load() {
         view?.display(isLoading: true)
-        let task = service.make(request: request) { [weak self] result in
-            view?.display(isLoading: false)
+        let task = service.make(request: mapRequest()) { [weak self] result in
+            self?.view?.display(isLoading: false)
             switch result {
             case .success(let model):
                 self?.view?.display(model: model.viewModel)
