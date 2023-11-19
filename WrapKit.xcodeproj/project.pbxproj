@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		531452062AC97E7B0034348F /* StoredServiceDecorator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 531452052AC97E7B0034348F /* StoredServiceDecorator.swift */; };
+		536DCC952B0A04EE0034512A /* ResourcePresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 536DCC942B0A04EE0034512A /* ResourcePresenter.swift */; };
 		538E4B362AA495CA005BBDB4 /* UIImageView+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 538E4B352AA495CA005BBDB4 /* UIImageView+Extensions.swift */; };
 		538E4B382AA49693005BBDB4 /* UIButton+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 538E4B372AA49693005BBDB4 /* UIButton+Extensions.swift */; };
 		53A137782B06B29800E04C92 /* ShimmerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53A137772B06B29800E04C92 /* ShimmerView.swift */; };
@@ -121,6 +122,7 @@
 
 /* Begin PBXFileReference section */
 		531452052AC97E7B0034348F /* StoredServiceDecorator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoredServiceDecorator.swift; sourceTree = "<group>"; };
+		536DCC942B0A04EE0034512A /* ResourcePresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResourcePresenter.swift; sourceTree = "<group>"; };
 		538E4B352AA495CA005BBDB4 /* UIImageView+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImageView+Extensions.swift"; sourceTree = "<group>"; };
 		538E4B372AA49693005BBDB4 /* UIButton+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIButton+Extensions.swift"; sourceTree = "<group>"; };
 		53A137772B06B29800E04C92 /* ShimmerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShimmerView.swift; sourceTree = "<group>"; };
@@ -243,6 +245,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		536DCC932B0A04D50034512A /* Resource */ = {
+			isa = PBXGroup;
+			children = (
+				536DCC942B0A04EE0034512A /* ResourcePresenter.swift */,
+			);
+			path = Resource;
+			sourceTree = "<group>";
+		};
 		537CD2C02B03605D0045F38C /* Tests */ = {
 			isa = PBXGroup;
 			children = (
@@ -257,6 +267,8 @@
 		53A137792B07133E00E04C92 /* Presentation */ = {
 			isa = PBXGroup;
 			children = (
+				536DCC932B0A04D50034512A /* Resource */,
+				C0261C392A76D03500BFCF1B /* Pagination */,
 				C0261C4B2A78A7E200BFCF1B /* ViewModelDTO.swift */,
 				C08AA31E2A7E8905002D58D5 /* Configurable.swift */,
 				53A1377A2B07135900E04C92 /* PlaceholderedPresentableModel.swift */,
@@ -291,14 +303,14 @@
 			path = WrapKitiOS;
 			sourceTree = "<group>";
 		};
-		C0261C392A76D03500BFCF1B /* WrapKitPagination */ = {
+		C0261C392A76D03500BFCF1B /* Pagination */ = {
 			isa = PBXGroup;
 			children = (
 				C0261C492A7861F200BFCF1B /* PaginationPresenter.swift */,
 				C01086902A7E876900C3720A /* PaginatedTableViewDatasource.swift */,
 				C01086922A7E881500C3720A /* PaginatedCollectionViewDatasource.swift */,
 			);
-			path = WrapKitPagination;
+			path = Pagination;
 			sourceTree = "<group>";
 		};
 		C0261C3D2A76EF2C00BFCF1B /* WrapKitCommon */ = {
@@ -421,7 +433,6 @@
 				C08AA3A82A7F0DF5002D58D5 /* Assets.xcassets */,
 				C010868A2A7E82DC00C3720A /* WrapKitiOS */,
 				C0261C3D2A76EF2C00BFCF1B /* WrapKitCommon */,
-				C0261C392A76D03500BFCF1B /* WrapKitPagination */,
 				C0A2C11E2A75C5F300356499 /* KeychainSwift */,
 				C056E6F02A6D04BB0020AB69 /* WrapKitNetworking */,
 				C051604D2A6FAADF00E01640 /* WrapKitAuth */,
@@ -804,6 +815,7 @@
 				C08AA32C2A7E8A59002D58D5 /* Sequence+Extensions.swift in Sources */,
 				C01086912A7E876900C3720A /* PaginatedTableViewDatasource.swift in Sources */,
 				C08AA3882A7EBAD4002D58D5 /* CollectionView.swift in Sources */,
+				536DCC952B0A04EE0034512A /* ResourcePresenter.swift in Sources */,
 				C08AA33E2A7E8D30002D58D5 /* String+Regex.swift in Sources */,
 				C08AA32E2A7E8A71002D58D5 /* UITapGestureRecognizer+Extensions.swift in Sources */,
 				C010868D2A7E840100C3720A /* MainQueueDispatchDecorator.swift in Sources */,
