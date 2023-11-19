@@ -15,7 +15,7 @@ public struct RemoteError: Codable {
     }
 }
 
-public class RemoteService<Request, Response: Decodable>: Service {
+open class RemoteService<Request, Response: Decodable>: Service {
     private let client: HTTPClient
     private let makeURLRequest: ((Request) -> URLRequest?)
     private let isResponseOk: ((Data, HTTPURLResponse) -> Bool)?
