@@ -14,10 +14,8 @@ public protocol ResourceViewOutput<ViewModel>: AnyObject {
     func display(error: String)
 }
 
-public protocol ResourceViewInput<Item>: AnyObject where Item: ViewModelDTO {
-    associatedtype Item
-    var resourceStorage: any Storage<Item> { get }
-
+public protocol ResourceViewInput: AnyObject {
+    func onViewDidLoad()
     func load()
 }
 
@@ -40,13 +38,21 @@ open class ResourcePresenter<Request: Encodable, Response: Decodable & ViewModel
 }
 
 extension ResourcePresenter: ResourceViewInput {
+    public func onViewDidLoad() {
+        resourceStorage.addObserver(for: self) { [weak self] model in
+            guard let model = model else { return }
+            self?.view?.display(model: model.viewModel)
+        }
+    }
+    
     public func load() {
-        view?.display(isLoading: true)
-        let task = service.make(request: mapRequest()) { [weak self] result in
-            self?.view?.display(isLoading: false)
+        let shouldShowLoader = resourceStorage.get() == nil
+        if shouldShowLoader { view?.display(isLoading: true) }
+        let task = service.make(request: mapRequest()) { [weak self, shouldShowLoader] result in
+            if shouldShowLoader { self?.view?.display(isLoading: false) }
             switch result {
             case .success(let model):
-                self?.view?.display(model: model.viewModel)
+                self?.resourceStorage.set(model)
             case .failure(let error):
                 self?.view?.display(error: error.title)
             }
