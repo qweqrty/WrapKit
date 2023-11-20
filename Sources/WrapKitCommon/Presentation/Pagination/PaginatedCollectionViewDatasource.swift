@@ -11,7 +11,7 @@ import UIKit
 open class CollectionViewDatasource<Cell: UICollectionViewCell & Configurable>: NSObject, UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
     public var getItems: (() -> [Cell.Model]) = { [] }
     public var selectAt: ((IndexPath) -> Void)?
-    public var configureCell: ((UICollectionView, IndexPath) -> UICollectionViewCell)?
+    public var configureCell: ((UICollectionView, IndexPath, Cell.Model) -> UICollectionViewCell)?
     public var onRetry: (() -> Void)?
     public var showLoader = false
     public var hasMore = true
@@ -19,7 +19,7 @@ open class CollectionViewDatasource<Cell: UICollectionViewCell & Configurable>: 
     public var loadNextPage: (() -> Void)?
     public var sizeForItemAt: ((IndexPath) -> CGSize) = { _ in .zero }
     
-    public init(configureCell: ((UICollectionView, IndexPath) -> UICollectionViewCell)? = nil) {
+    public init(configureCell: ((UICollectionView, IndexPath, Cell.Model) -> UICollectionViewCell)? = nil) {
         super.init()
     }
     
@@ -38,9 +38,10 @@ open class CollectionViewDatasource<Cell: UICollectionViewCell & Configurable>: 
     }
     
     open func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        if let configureCell = configureCell { return configureCell(collectionView, indexPath) }
+        let model = getItems()[indexPath.row]
+        if let configureCell = configureCell { return configureCell(collectionView, indexPath, model) }
         let cell: Cell = collectionView.dequeueReusableCell(for: indexPath)
-        cell.model = getItems()[indexPath.row]
+        cell.model = model
         return cell
     }
     

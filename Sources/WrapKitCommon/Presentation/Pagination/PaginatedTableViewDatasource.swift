@@ -12,7 +12,7 @@ open class TableViewDatasource<Cell: UITableViewCell & Configurable>: NSObject, 
     open var getItems: (() -> [Cell.Model]) = { [] }
     open var selectAt: ((IndexPath) -> Void)?
     open var showBottomLoader = false
-    open var configureCell: ((UITableView, IndexPath) -> UITableViewCell)?
+    open var configureCell: ((UITableView, IndexPath, Cell.Model) -> UITableViewCell)?
     open var hasMore = true
     open var loadNextPage: (() -> Void)?
     
@@ -30,7 +30,7 @@ open class TableViewDatasource<Cell: UITableViewCell & Configurable>: NSObject, 
         }
     }()
     
-    public init(configureCell: ((UITableView, IndexPath) -> UITableViewCell)? = nil) {
+    public init(configureCell: ((UITableView, IndexPath, Cell.Model) -> UITableViewCell)? = nil) {
         self.configureCell = configureCell
         super.init()
     }
@@ -44,9 +44,10 @@ open class TableViewDatasource<Cell: UITableViewCell & Configurable>: NSObject, 
     }
     
     open func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        if let configureCell = configureCell { return configureCell(tableView, indexPath) }
+        let model = getItems()[indexPath.row]
+        if let configureCell = configureCell { return configureCell(tableView, indexPath, model) }
         let cell: Cell = tableView.dequeueReusableCell(for: indexPath)
-        cell.model = getItems()[indexPath.row]
+        cell.model = model
         return cell
     }
     
