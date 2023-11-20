@@ -19,7 +19,7 @@ open class CollectionViewDatasource<Cell: UICollectionViewCell & Configurable>: 
     public var loadNextPage: (() -> Void)?
     public var sizeForItemAt: ((IndexPath) -> CGSize) = { _ in .zero }
     
-    init(configureCell: ((UICollectionView, IndexPath) -> UICollectionViewCell)? = nil) {
+    public init(configureCell: ((UICollectionView, IndexPath) -> UICollectionViewCell)? = nil) {
         super.init()
     }
     
