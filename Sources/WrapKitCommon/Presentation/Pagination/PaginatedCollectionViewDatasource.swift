@@ -11,12 +11,17 @@ import UIKit
 open class CollectionViewDatasource<Cell: UICollectionViewCell & Configurable>: NSObject, UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
     public var getItems: (() -> [Cell.Model]) = { [] }
     public var selectAt: ((IndexPath) -> Void)?
+    public var configureCell: ((UICollectionView, IndexPath) -> UICollectionViewCell)?
     public var onRetry: (() -> Void)?
     public var showLoader = false
     public var hasMore = true
     public var minimumLineSpacingForSectionAt: ((Int) -> CGFloat) = { _ in 0 }
     public var loadNextPage: (() -> Void)?
     public var sizeForItemAt: ((IndexPath) -> CGSize) = { _ in .zero }
+    
+    init(configureCell: ((UICollectionView, IndexPath) -> UICollectionViewCell)? = nil) {
+        super.init()
+    }
     
     public var loadingView: CollectionReusableView<UIActivityIndicatorView> = CollectionReusableView<UIActivityIndicatorView>()
 
@@ -33,6 +38,7 @@ open class CollectionViewDatasource<Cell: UICollectionViewCell & Configurable>: 
     }
     
     open func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        if let configureCell = configureCell { return configureCell(collectionView, indexPath) }
         let cell: Cell = collectionView.dequeueReusableCell(for: indexPath)
         cell.model = getItems()[indexPath.row]
         return cell

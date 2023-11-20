@@ -12,6 +12,7 @@ open class TableViewDatasource<Cell: UITableViewCell & Configurable>: NSObject, 
     open var getItems: (() -> [Cell.Model]) = { [] }
     open var selectAt: ((IndexPath) -> Void)?
     open var showBottomLoader = false
+    open var configureCell: ((UITableView, IndexPath) -> UITableViewCell)?
     open var hasMore = true
     open var loadNextPage: (() -> Void)?
     
@@ -29,7 +30,8 @@ open class TableViewDatasource<Cell: UITableViewCell & Configurable>: NSObject, 
         }
     }()
     
-    public override init() {
+    public init(configureCell: ((UITableView, IndexPath) -> UITableViewCell)? = nil) {
+        self.configureCell = configureCell
         super.init()
     }
     
@@ -42,6 +44,7 @@ open class TableViewDatasource<Cell: UITableViewCell & Configurable>: NSObject, 
     }
     
     open func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        if let configureCell = configureCell { return configureCell(tableView, indexPath) }
         let cell: Cell = tableView.dequeueReusableCell(for: indexPath)
         cell.model = getItems()[indexPath.row]
         return cell
