@@ -20,6 +20,7 @@ open class CollectionViewDatasource<Cell: UICollectionViewCell & Configurable>: 
     public var sizeForItemAt: ((IndexPath) -> CGSize) = { _ in .zero }
     
     public init(configureCell: ((UICollectionView, IndexPath, Cell.Model) -> UICollectionViewCell)? = nil) {
+        self.configureCell = configureCell
         super.init()
     }
     
