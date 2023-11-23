@@ -7,9 +7,9 @@
 
 import Foundation
 
-public protocol ResourceViewOutput<ViewModel>: AnyObject {
-    associatedtype ViewModel
-    func display(model: ViewModel)
+public protocol ResourceViewOutput<PresentableModel>: AnyObject {
+    associatedtype PresentableModel
+    func display(model: PresentableModel)
     func display(isLoading: Bool)
     func display(error: String)
 }
@@ -19,20 +19,23 @@ public protocol ResourceViewInput: AnyObject {
     func load()
 }
 
-open class ResourcePresenter<Request: Encodable, Response: Decodable & ViewModelDTO> {
+open class ResourcePresenter<Request: Encodable, Response: Decodable, PresentableModel> {
     public let resourceStorage: any Storage<Response>
     private let service: any Service<Request, Response>
     private let mapRequest: (() -> Request)
+    private let mapResponse: ((Response) -> PresentableModel)
     
-    public weak var view: (any ResourceViewOutput<Response.ViewModel>)?
+    public weak var view: (any ResourceViewOutput<PresentableModel>)?
 
     public init(
         service: any Service<Request, Response>,
         mapRequest: @escaping (() -> Request),
-        resourceStorage: any Storage<Response>
+        resourceStorage: any Storage<Response>,
+        mapResponse: @escaping ((Response) -> PresentableModel)
     ) {
         self.service = service
         self.mapRequest = mapRequest
+        self.mapResponse = mapResponse
         self.resourceStorage = resourceStorage
     }
 }
@@ -40,8 +43,9 @@ open class ResourcePresenter<Request: Encodable, Response: Decodable & ViewModel
 extension ResourcePresenter: ResourceViewInput {
     public func onViewDidLoad() {
         resourceStorage.addObserver(for: self) { [weak self] model in
+            guard let self = self else { return }
             guard let model = model else { return }
-            self?.view?.display(model: model.viewModel)
+            self.view?.display(model: self.mapResponse(model))
         }
     }
     
