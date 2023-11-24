@@ -7,9 +7,9 @@
 
 import Foundation
 
-struct Resource<Request, Response> {
-    let storage: any Storage<Response>
-    let service: any WrapKit.Service<Request, Response>
+public struct Resource<Request, Response> {
+    public let storage: any Storage<Response>
+    public let service: any WrapKit.Service<Request, Response>
 }
 
 public protocol ResourceViewOutput<PresentableModel>: AnyObject {
