@@ -7,6 +7,11 @@
 
 import Foundation
 
+struct Resource<Request, Response> {
+    let storage: any Storage<Response>
+    let service: any WrapKit.Service<Request, Response>
+}
+
 public protocol ResourceViewOutput<PresentableModel>: AnyObject {
     associatedtype PresentableModel
     func display(model: PresentableModel)
