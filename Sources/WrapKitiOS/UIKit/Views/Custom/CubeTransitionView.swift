@@ -30,7 +30,7 @@ public class CubeTransitionView: UIView {
     public var gestureSpeedForPageFlipping: CGFloat = 0
     public var gestureDistanceForPageFlipping: CGFloat = 0
     
-    private(set) var currentIndex: Int = 0
+    private(set) public var currentIndex: Int = 0
     private var leftView: UIView
     private var rightView: UIView
     private var _width: CGFloat = 0
