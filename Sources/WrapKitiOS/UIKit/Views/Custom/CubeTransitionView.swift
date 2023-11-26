@@ -199,17 +199,14 @@ public class CubeTransitionView: UIView {
         self.removeSubviews()
     }
     
-    func subview(forIndex:Int) -> UIView {
-        let view = delegate?.pageView(atIndex: forIndex)
-        if let tView = view {
-            let x = CGFloat(forIndex) * _width
-            tView.frame = CGRect(x: x, y: 0, width: width, height: height)
-            self.addSubview(tView)
-            subviewCache[forIndex] = tView
-            return tView
-        }
-        
-        return UIView.init()
+    func subview(forIndex: Int) -> UIView {
+        guard let delegate = delegate, forIndex >= 0 && forIndex < delegate.numberofPages() else { return UIView() }
+        let view = delegate.pageView(atIndex: forIndex)
+        let x = CGFloat(forIndex) * _width
+        view.frame = CGRect(x: x, y: 0, width: width, height: height)
+        addSubview(view)
+        subviewCache[forIndex] = view
+        return tView
     }
     
     func removeSubviews() {
