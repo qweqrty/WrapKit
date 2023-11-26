@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		531452062AC97E7B0034348F /* StoredServiceDecorator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 531452052AC97E7B0034348F /* StoredServiceDecorator.swift */; };
 		536DCC952B0A04EE0034512A /* ResourcePresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 536DCC942B0A04EE0034512A /* ResourcePresenter.swift */; };
+		538A108E2B13CF410092570D /* CubeTransitionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 538A108D2B13CF410092570D /* CubeTransitionView.swift */; };
 		538E4B362AA495CA005BBDB4 /* UIImageView+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 538E4B352AA495CA005BBDB4 /* UIImageView+Extensions.swift */; };
 		538E4B382AA49693005BBDB4 /* UIButton+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 538E4B372AA49693005BBDB4 /* UIButton+Extensions.swift */; };
 		53A137782B06B29800E04C92 /* ShimmerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53A137772B06B29800E04C92 /* ShimmerView.swift */; };
@@ -123,6 +124,7 @@
 /* Begin PBXFileReference section */
 		531452052AC97E7B0034348F /* StoredServiceDecorator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoredServiceDecorator.swift; sourceTree = "<group>"; };
 		536DCC942B0A04EE0034512A /* ResourcePresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResourcePresenter.swift; sourceTree = "<group>"; };
+		538A108D2B13CF410092570D /* CubeTransitionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CubeTransitionView.swift; sourceTree = "<group>"; };
 		538E4B352AA495CA005BBDB4 /* UIImageView+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImageView+Extensions.swift"; sourceTree = "<group>"; };
 		538E4B372AA49693005BBDB4 /* UIButton+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIButton+Extensions.swift"; sourceTree = "<group>"; };
 		53A137772B06B29800E04C92 /* ShimmerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShimmerView.swift; sourceTree = "<group>"; };
@@ -596,6 +598,7 @@
 				C08AA3AC2A7F0E4C002D58D5 /* WrapperView.swift */,
 				C08AA3AE2A7F2361002D58D5 /* ToastView.swift */,
 				53A137772B06B29800E04C92 /* ShimmerView.swift */,
+				538A108D2B13CF410092570D /* CubeTransitionView.swift */,
 			);
 			path = Custom;
 			sourceTree = "<group>";
@@ -866,6 +869,7 @@
 				C08AA3A72A7F015D002D58D5 /* Textview.swift in Sources */,
 				C08AA35C2A7E8DED002D58D5 /* PanModalHeight.swift in Sources */,
 				C0BE6EAF2A9BE4F500864F53 /* MaskedTextfieldDelegate.swift in Sources */,
+				538A108E2B13CF410092570D /* CubeTransitionView.swift in Sources */,
 				C08AA38A2A7EBAED002D58D5 /* CollectionViewCell.swift in Sources */,
 				C08AA3AB2A7F0E28002D58D5 /* MapView.swift in Sources */,
 				C08AA3A32A7EF41C002D58D5 /* NavigationController.swift in Sources */,
