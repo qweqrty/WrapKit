@@ -25,13 +25,16 @@ open class ProgressBarView: UIView {
         progressViewAnchoredConstraints?.width?.constant = width
     }
     
-    public func applyProgress(percentage: CGFloat) {
+    public func applyProgress(percentage: CGFloat, animated: Bool = true) {
         let maxWidth = bounds.width
         let newWidth = maxWidth * (percentage / 100.0)
         progressViewAnchoredConstraints?.width?.constant = newWidth
-        UIView.animate(withDuration: 0.3) {
-            self.layoutIfNeeded()
-        }
+        
+        if animated {
+            UIView.animate(withDuration: 0.3) {
+                self.layoutIfNeeded()
+            }
+        } else { layoutIfNeeded() }
     }
     
     public required init?(coder: NSCoder) {
