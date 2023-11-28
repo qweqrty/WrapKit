@@ -92,6 +92,7 @@ public class CubeTransitionView: UIView {
         preDirection = Direction.undetermined
         
         let gestureRecognizer:UIPanGestureRecognizer = UIPanGestureRecognizer.init(target: self, action: #selector(handlePanGesture))
+        gestureRecognizer.delegate = self
         self.addGestureRecognizer(gestureRecognizer)
     }
     
@@ -378,6 +379,18 @@ public class CubeTransitionView: UIView {
     func dealloc () {
         displayLink .remove(from: RunLoop.current, forMode: .default)
         displayLink .invalidate()
+    }
+}
+
+extension CubeTransitionView: UIGestureRecognizerDelegate {
+    public override func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+        guard let panGesture = gestureRecognizer as? UIPanGestureRecognizer else {
+            return false
+        }
+        
+        let translation = panGesture.translation(in: self)
+        // Check if the gesture is more horizontal than vertical
+        return abs(translation.x) > abs(translation.y)
     }
 }
 #endif
