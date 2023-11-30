@@ -9,11 +9,17 @@
 import UIKit
 
 open class CubeView: UIScrollView, UIScrollViewDelegate {
-    private(set) public var currentIndex: Int = 0
+    public var currentView: UIView? {
+        guard let currentIndex else { return nil }
+        return childViews.item(at: currentIndex)
+    }
     
-    fileprivate let maxAngle: CGFloat = 60.0
-    fileprivate var childViews = [UIView]()
-    fileprivate lazy var stackView = StackView(axis: .horizontal)
+    private(set) public var currentIndex: Int?
+    private(set) public var childViews = [UIView]()
+    
+    private var lastContentOffset: CGPoint = .zero
+    private lazy var stackView = StackView(axis: .horizontal)
+    private let maxAngle: CGFloat = 60.0
     
     open override func awakeFromNib() {
         super.awakeFromNib()
@@ -59,10 +65,14 @@ open class CubeView: UIScrollView, UIScrollViewDelegate {
         
         let frame = CGRect(x: CGFloat(index) * width, y: 0, width: width, height: height)
         scrollRectToVisible(frame, animated: animated)
+        lastContentOffset = frame.origin
     }
     
     // MARK: Scroll view delegate
     open func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        let isScrollingHorizontally = abs(scrollView.contentOffset.x - lastContentOffset.x) > abs(scrollView.contentOffset.y - lastContentOffset.y)
+        guard isScrollingHorizontally else { return }
+        lastContentOffset = scrollView.contentOffset
         transformViewsInScrollView(scrollView)
     }
     
