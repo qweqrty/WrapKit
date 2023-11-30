@@ -6,391 +6,208 @@
 //
 
 #if canImport(UIKit)
-import UIKit
-
-public enum Direction: Int {
-    case undetermined = 0, left, right, bottomUp, topDown
-}
-
-public protocol CubeTransitionViewDelegate: NSObject {
-    func pageView(atIndex: Int) -> UIView
-    func numberofPages() -> Int
-    func pageDidChanged(index: Int, direction: Direction)
-}
-
-let kCompletionDuration: CFTimeInterval = 0.25
-
-public class CubeTransitionView: UIView {
-    public weak var delegate: CubeTransitionViewDelegate?
-    public var offsetCachedPageNumber: Int = 0
-    
-    public var pageFlipAnimationDuration: CFTimeInterval = 0
-    public var pageResetAnmationDuration: CFTimeInterval = 0
-    
-    public var gestureSpeedForPageFlipping: CGFloat = 0
-    public var gestureDistanceForPageFlipping: CGFloat = 0
-    
+open class CubeView: UIScrollView, UIScrollViewDelegate {
     private(set) public var currentIndex: Int = 0
-    private var leftView: UIView
-    private var rightView: UIView
-    private var _width: CGFloat = 0
-    private var _height: CGFloat = 0
-    private var maxRotateAngleForView: CGFloat = 0
-    private var translationXWhenGestureEnded: CGFloat = 0
-    private var continuousDistance: CGFloat = 0
-    private var displayLink: CADisplayLink
-    private var timestampWhenGestureEnded: CFTimeInterval = 0
-    private var subviewCache: Dictionary = [Int: UIView]()
-    private var isAnimationOn: Bool = false
-    private var shouldChangePage: Bool = false
     
-    private var preDirection: Direction = .undetermined
-    private var direction: Direction = .undetermined
+    fileprivate let maxAngle: CGFloat = 60.0
+    fileprivate var childViews = [UIView]()
+    fileprivate lazy var stackView = StackView(axis: .horizontal)
+    
+    open override func awakeFromNib() {
+        super.awakeFromNib()
+        configureScrollView()
+    }
     
     public override init(frame: CGRect) {
-        _width = frame.width
-        _height = frame.height
-        maxRotateAngleForView = CGFloat(Double.pi / 3)
-        offsetCachedPageNumber = 1
-        leftView = UIView.init()
-        rightView = UIView.init()
-        displayLink = CADisplayLink.init()
-        
         super.init(frame: frame)
-        self.initDisplayLink()
-        self.initGesture()
-        self.initTransform()
+        configureScrollView()
     }
     
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+    public required init?(coder aDecoder: NSCoder) {
+        super.init(coder: aDecoder)
     }
     
-    private func initDisplayLink() {
-        pageFlipAnimationDuration = kCompletionDuration
-        pageResetAnmationDuration = kCompletionDuration
-        
-        displayLink = CADisplayLink.init(target: self, selector: #selector(updateTransfromAfterGestureEnded))
-        displayLink.isPaused = true
-        displayLink.add(to: RunLoop.current, forMode: .default)
-        isAnimationOn = false
-    }
-    
-    private func initTransform () {
-        var perspective: CATransform3D = CATransform3DIdentity
-        let screenWidth = UIScreen.main.bounds.size.width
-        perspective.m34 = -1.0 / (screenWidth * 2.0)
-        self.layer.sublayerTransform = perspective
-    }
-    
-    private func initGesture () {
-        if gestureDistanceForPageFlipping == 0 {
-            gestureDistanceForPageFlipping = _width / 2
-        }
-        gestureSpeedForPageFlipping = _width
-        
-        preDirection = Direction.undetermined
-        
-        let gestureRecognizer:UIPanGestureRecognizer = UIPanGestureRecognizer.init(target: self, action: #selector(handlePanGesture))
-        gestureRecognizer.delegate = self
-        self.addGestureRecognizer(gestureRecognizer)
-    }
-    
-    @objc func handlePanGesture(_gestureRecognizer: UIPanGestureRecognizer) {
-        if (isAnimationOn) { return }
-        
-        let translation = _gestureRecognizer.translation(in: self)
-        
-        self.determineDirection(fromTranslation:translation)
-        
-        // slide finger on the screen left and right
-        if (self.isDirectionChanged()) {
-            self.resetAnimatedSubViews()
-        }
-        
-        if self.shouldDetermineAnimatedView(gestureRecognizer: _gestureRecognizer) {
-            self.determineAnimatedSubViews()
-        }
-        preDirection = direction
-        
-        if (self.isDirectionChanged()) {
-            return
-        }
-        
-        if (!self.isHorizontalPanGesture()) {
-            return
-        }
-        
-        
-        if (_gestureRecognizer.state == .ended) {
-            let velocity = _gestureRecognizer.velocity(in: self)
-            self .onGestureEnded(translation: translation, velocity: velocity)
-            return
-        }
-        
-        
-        self.animtedViewsBy(translation: translation)
-    }
-    
-    func shouldDetermineAnimatedView(gestureRecognizer: UIPanGestureRecognizer) -> Bool {
-        // Determine animated view when gesture changed because when swifting fast and the
-        // previous animation going on, the UIGestureRecognizerStateBegan touch event
-        // could be dismissed. 500 is a migic number from experiment.
-        let velocity = gestureRecognizer.velocity(in: self)
-        let isFastMoving = gestureRecognizer.state == .changed && abs(velocity.x) > 500
-        return preDirection != direction || gestureRecognizer.state == .began || isFastMoving
-    }
-    
-    func determineDirection(fromTranslation: CGPoint)
-    {
-        if (fromTranslation.x == 0 && fromTranslation.y == 0) {
-            direction = Direction.undetermined
-            return
-        }
-        
-        let tanValue: CGFloat = fromTranslation.x != 0 ? fromTranslation.y / fromTranslation.x : CGFloat.greatestFiniteMagnitude
-        
-        if (tanValue > -1 && tanValue < 1) {
-            direction = fromTranslation.x > 0 ? .left : .right
-        } else {
-            direction = fromTranslation.y > 0 ? .topDown : .bottomUp
-        }
-    }
-    
-    func isHorizontalPanGesture() -> Bool {
-        return direction == .left || direction == .right
-    }
-    
-    func isDirectionChanged() -> Bool {
-        return preDirection != .undetermined && preDirection != direction
-    }
-    
-    func determineAnimatedSubViews() {
-        var leftIdx = currentIndex - 1
-        var rightIdx = currentIndex + 1
-        if (direction == .left) {
-            // Scroll to the left side
-            rightIdx = currentIndex
-            leftView = self.animatedSubview(index:leftIdx)
-            rightView = self.animatedSubview(index: rightIdx)
-        } else if (direction == .right) {
-            // Scroll to the right Side
-            leftIdx = currentIndex
-            leftView = self.animatedSubview(index:leftIdx)
-            rightView = self.animatedSubview(index: rightIdx)
-        }
-    }
-    
-    func animatedSubview(index: Int) -> UIView {
-        let view = subviewCache[index]
-        
-        if let tView = view {
-            return tView
-        }
-        
-        return self.subview(forIndex:index)
-    }
-    
-    func maintainCacheSize() {
-        let maxIndex = max((delegate?.numberofPages() ?? 1) - 1 - offsetCachedPageNumber, 1)
-        if (currentIndex < offsetCachedPageNumber || currentIndex >= maxIndex) {
-            return
-        }
-        
-        self.removeSubviews()
-    }
-    
-    func subview(forIndex: Int) -> UIView {
-        guard let delegate = delegate, forIndex >= 0 && forIndex < delegate.numberofPages() else { return UIView() }
-        let view = delegate.pageView(atIndex: forIndex)
-        let x = CGFloat(forIndex) * _width
-        view.frame = CGRect(x: x, y: 0, width: _width, height: _height)
-        addSubview(view)
-        subviewCache[forIndex] = view
-        return view
-    }
-    
-    func removeSubviews() {
-        var removeIndex: Int = Int.max
-        if (direction == .left) {
-            removeIndex = currentIndex + offsetCachedPageNumber + 1
-        } else if (direction == .right) {
-            removeIndex = currentIndex - offsetCachedPageNumber - 1
-        }
-        
-        let view = subviewCache[removeIndex]
-        if let tView = view {
-            tView.removeFromSuperview()
-            subviewCache.removeValue(forKey: removeIndex)
-        }
-    }
-    
-    public func reloadData() {
-        _ = self.subview(forIndex: 0)
-    }
-    
-    func determineIndexBy(translation: CGPoint, velocity:CGPoint) {
-        shouldChangePage = false
-        if (self.isScrollingToLeftInFirstView(translation: translation)) {
-            return
-        }
-        
-        if (self.isScrollingToRightInLastView(translation: translation)) {
-            return
-        }
-        
-        shouldChangePage = abs(translation.x) > gestureDistanceForPageFlipping || abs(velocity.x)  > gestureSpeedForPageFlipping
-        
-        if (shouldChangePage) {
-            let idx = translation.x > 0 ? currentIndex - 1 : currentIndex + 1
-            let maxIndex = (delegate?.numberofPages() ?? Int.max)
-            currentIndex = min(max(idx, 0), maxIndex - 1)
-        }
-    }
-    
-    func isScrollingToLeftInFirstView(translation: CGPoint) -> Bool {
-        return translation.x > 0 && currentIndex == 0
-    }
-    
-    func isScrollingToRightInLastView(translation: CGPoint) -> Bool {
-        let maxIndex = (delegate?.numberofPages() ?? Int.max)
-        return translation.x < 0 && currentIndex == maxIndex - 1
-    }
-    
-    func onGestureEnded(translation:CGPoint, velocity:CGPoint) {
-        translationXWhenGestureEnded = translation.x
-        
-        self.determineIndexBy(translation: translation, velocity: velocity)
-        self.setContinousDistanceAfterGestureEnded(tx: translation.x)
-        
-        // Continue animation
-        timestampWhenGestureEnded = CACurrentMediaTime()
-        displayLink.isPaused = false
-        isAnimationOn = true
-    }
-    
-    func setContinousDistanceAfterGestureEnded(tx: CGFloat) {
-        if (shouldChangePage) {
-            // The left distance to complete the animation
-            continuousDistance = tx > 0 ? _width - tx : -_width - tx
-        } else {
-            // Go back the original position
-            continuousDistance = -tx
-        }
-    }
-    
-    @objc func updateTransfromAfterGestureEnded() {
-        if (self.shouldAnimationEnded()) {
-            self.animationEnded()
-            return
-        }
-        
-        let currentTx = self.transationXFromInterpolation()
-        self.animtedViewsBy(translation: CGPoint.init(x: currentTx, y: 0))
-    }
-    
-    func shouldAnimationEnded () -> Bool {
-        let duration = shouldChangePage ? pageFlipAnimationDuration : pageResetAnmationDuration
-        return displayLink.timestamp - timestampWhenGestureEnded > duration && isAnimationOn
-    }
-    
-    func animationEnded () {
-        // Animation stop
-        displayLink.isPaused = true
-        self.updateBoundsAndTransform()
-        
-        if shouldChangePage {
-            delegate?.pageDidChanged(index: currentIndex, direction: direction)
-        }
-        self.maintainCacheSize()
-        
-        self.resetAnimatedSubViews()
-        isAnimationOn = false
-    }
-    
-    // Linear interpolation
-    func transationXFromInterpolation() -> CGFloat {
-        if (shouldChangePage) {
-            let timeSlot = CGFloat(displayLink.timestamp - timestampWhenGestureEnded)
-            return continuousDistance * timeSlot / CGFloat(pageFlipAnimationDuration) + translationXWhenGestureEnded
-        } else {
-            let timeSlot = displayLink.timestamp - timestampWhenGestureEnded
-            return translationXWhenGestureEnded * CGFloat( 1 - timeSlot/pageResetAnmationDuration)
-        }
-    }
-    
-    func updateBoundsAndTransform() {
-        // Change the bounds of the CubeTransitionView
-        let bounds = self.bounds
-        
-        var originX = bounds.minX
-        if (shouldChangePage) {
-            if (direction == .left) {
-                originX = bounds.origin.x - _width
-            } else if (direction == .right){
-                originX = bounds.origin.x + _width
-            }
-        }
-        
-        self.bounds = CGRect(x: originX, y: bounds.origin.y, width: bounds.size.width, height: bounds.size.height)
-    }
-    
-    func resetAnimatedSubViews() {
-        leftView.layer.transform = CATransform3DIdentity
-        rightView.layer.transform = CATransform3DIdentity
-    }
-    
-    func animtedViewsBy(translation: CGPoint) {
-        let k = translation.x / _width
-        if (translation.x > 0) {
-            // Scroll to the left side
-            // 0 -> -angle
-            let r2 =  k *  maxRotateAngleForView
-            // -angle -> 0
-            let r =  r2 - maxRotateAngleForView
-            let gap1 = _width / 2.0 * (1-cos(r))
-            let gap2 = _width / 2.0 * (1-cos(r2))
+    open func addChildViews(_ views: [UIView]) {
+        for view in views {
+            view.layer.masksToBounds = true
+            stackView.addArrangedSubview(view)
             
-            leftView.layer.transform = self.transformFrom(rotate:r, translateX:translation.x + gap1, translateZ:sin(r) * _width/2)
-            rightView.layer.transform = self.transformFrom(rotate:r2, translateX:translation.x - gap2, translateZ:-sin(r2) * _width/2)
-        } else if (translation.x < 0) {
-            // scroll right: from 0 --> - M_PI/4
-            let r =  k * maxRotateAngleForView
-            let gapWidth1 = _width / 2.0 * (1-cos(r))
+            addConstraint(NSLayoutConstraint(
+                item: view,
+                attribute: NSLayoutConstraint.Attribute.width,
+                relatedBy: NSLayoutConstraint.Relation.equal,
+                toItem: self,
+                attribute: NSLayoutConstraint.Attribute.width,
+                multiplier: 1,
+                constant: 0)
+            )
             
-            // sin(r) < 0
-            leftView.layer.transform = self.transformFrom(rotate:r, translateX:translation.x + gapWidth1, translateZ:sin(r) * _width / 2)
-            
-            // The angle between the two views should be fixed
-            // Angle -> 0
-            let r2 = (maxRotateAngleForView + r)
-            let gapWidth2 = _width / 2.0 * (1-cos(r2))
-            // sin(r2) > 0
-            rightView.layer.transform = self.transformFrom(rotate:r2, translateX:translation.x - gapWidth2, translateZ:-sin(r2) * _width / 2)
+            childViews.append(view)
         }
     }
     
-    func transformFrom(rotate: CGFloat, translateX: CGFloat, translateZ: CGFloat) -> CATransform3D
-    {
-        let tranform = CATransform3DTranslate(CATransform3DIdentity, translateX, 0, translateZ)
-        return CATransform3DRotate(tranform, rotate, 0, 1, 0)
+    open func addChildView(_ view: UIView) {
+        addChildViews([view])
     }
     
-    func dealloc () {
-        displayLink .remove(from: RunLoop.current, forMode: .default)
-        displayLink .invalidate()
-    }
-}
-
-extension CubeTransitionView: UIGestureRecognizerDelegate {
-    public override func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
-        guard let panGesture = gestureRecognizer as? UIPanGestureRecognizer else {
-            return false
-        }
+    open func scrollToViewAtIndex(_ index: Int, animated: Bool) {
+        guard index >= 0 && index < childViews.count else { return }
+        let width = frame.size.width
+        let height = frame.size.height
         
-        let translation = panGesture.translation(in: self)
-        // Check if the gesture is more horizontal than vertical
-        return abs(translation.x) > abs(translation.y)
+        let frame = CGRect(x: CGFloat(index) * width, y: 0, width: width, height: height)
+        scrollRectToVisible(frame, animated: animated)
+    }
+    
+    // MARK: Scroll view delegate
+    open func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        transformViewsInScrollView(scrollView)
+    }
+    
+    open func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+        let pageWidth = scrollView.frame.size.width
+        currentIndex = Int(scrollView.contentOffset.x / pageWidth)
+    }
+    
+    // MARK: Private methods
+    
+    fileprivate func configureScrollView() {
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        showsHorizontalScrollIndicator = false
+        showsVerticalScrollIndicator = false
+        isPagingEnabled = true
+        bounces = true
+        delegate = self
+        
+        // Add layout constraints
+        
+        addSubview(stackView)
+        
+        addConstraint(NSLayoutConstraint(
+            item: stackView,
+            attribute: NSLayoutConstraint.Attribute.leading,
+            relatedBy: NSLayoutConstraint.Relation.equal,
+            toItem: self,
+            attribute: NSLayoutConstraint.Attribute.leading,
+            multiplier: 1,
+            constant: 0)
+        )
+        
+        addConstraint(NSLayoutConstraint(
+            item: stackView,
+            attribute: NSLayoutConstraint.Attribute.top,
+            relatedBy: NSLayoutConstraint.Relation.equal,
+            toItem: self,
+            attribute: NSLayoutConstraint.Attribute.top,
+            multiplier: 1,
+            constant: 0)
+        )
+        
+        addConstraint(NSLayoutConstraint(
+            item: stackView,
+            attribute: NSLayoutConstraint.Attribute.height,
+            relatedBy: NSLayoutConstraint.Relation.equal,
+            toItem: self,
+            attribute: NSLayoutConstraint.Attribute.height,
+            multiplier: 1,
+            constant: 0)
+        )
+        
+        addConstraint(NSLayoutConstraint(
+            item: stackView,
+            attribute: NSLayoutConstraint.Attribute.centerY,
+            relatedBy: NSLayoutConstraint.Relation.equal,
+            toItem: self,
+            attribute: NSLayoutConstraint.Attribute.centerY,
+            multiplier: 1,
+            constant: 0)
+        )
+        
+        addConstraint(NSLayoutConstraint(
+            item: self,
+            attribute: NSLayoutConstraint.Attribute.trailing,
+            relatedBy: NSLayoutConstraint.Relation.equal,
+            toItem: stackView,
+            attribute: NSLayoutConstraint.Attribute.trailing,
+            multiplier: 1,
+            constant: 0)
+        )
+        
+        addConstraint(NSLayoutConstraint(
+            item: self,
+            attribute: NSLayoutConstraint.Attribute.bottom,
+            relatedBy: NSLayoutConstraint.Relation.equal,
+            toItem: stackView,
+            attribute: NSLayoutConstraint.Attribute.bottom,
+            multiplier: 1,
+            constant: 0)
+        )
+    }
+    
+    fileprivate func transformViewsInScrollView(_ scrollView: UIScrollView) {
+        let xOffset = scrollView.contentOffset.x
+        let svWidth = scrollView.frame.width
+        var deg = maxAngle / bounds.size.width * xOffset
+        
+        for index in 0 ..< childViews.count {
+            let view = childViews[index]
+            
+            deg = index == 0 ? deg : deg - maxAngle
+            let rad = deg * CGFloat(Double.pi / 180)
+            
+            var transform = CATransform3DIdentity
+            transform.m34 = 1 / 500
+            transform = CATransform3DRotate(transform, rad, 0, 1, 0)
+            
+            view.layer.transform = transform
+            
+            let x = xOffset / svWidth > CGFloat(index) ? 1.0 : 0.0
+            setAnchorPoint(CGPoint(x: x, y: 0.5), forView: view)
+            
+            applyShadowForView(view, index: index)
+        }
+    }
+    
+    fileprivate func applyShadowForView(_ view: UIView, index: Int) {
+        let w = self.frame.size.width
+        let h = self.frame.size.height
+        
+        let r1 = frameFor(origin: contentOffset, size: self.frame.size)
+        let r2 = frameFor(origin: CGPoint(x: CGFloat(index)*w, y: 0),
+                          size: CGSize(width: w, height: h))
+        
+        // Only show shadow on right-hand side
+        if r1.origin.x <= r2.origin.x {
+            
+            let intersection = r1.intersection(r2)
+            let intArea = intersection.size.width*intersection.size.height
+            let union = r1.union(r2)
+            let unionArea = union.size.width*union.size.height
+            
+            view.layer.opacity = Float(intArea / unionArea)
+        }
+    }
+    
+    fileprivate func setAnchorPoint(_ anchorPoint: CGPoint, forView view: UIView) {
+        var newPoint = CGPoint(x: view.bounds.size.width * anchorPoint.x, y: view.bounds.size.height * anchorPoint.y)
+        var oldPoint = CGPoint(x: view.bounds.size.width * view.layer.anchorPoint.x, y: view.bounds.size.height * view.layer.anchorPoint.y)
+        
+        newPoint = newPoint.applying(view.transform)
+        oldPoint = oldPoint.applying(view.transform)
+        
+        var position = view.layer.position
+        position.x -= oldPoint.x
+        position.x += newPoint.x
+        
+        position.y -= oldPoint.y
+        position.y += newPoint.y
+        
+        view.layer.position = position
+        view.layer.anchorPoint = anchorPoint
+    }
+    
+    fileprivate func frameFor(origin: CGPoint, size: CGSize) -> CGRect {
+        return CGRect(x: origin.x, y: origin.y, width: size.width, height: size.height)
     }
 }
 #endif
