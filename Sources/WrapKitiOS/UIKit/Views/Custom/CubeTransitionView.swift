@@ -6,6 +6,8 @@
 //
 
 #if canImport(UIKit)
+import UIKit
+
 open class CubeView: UIScrollView, UIScrollViewDelegate {
     private(set) public var currentIndex: Int = 0
     
