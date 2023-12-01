@@ -9,12 +9,18 @@
 import UIKit
 
 open class CubeView: UIScrollView, UIScrollViewDelegate {
+    public var didChangeCurrentIndex: (() -> Void)?
+    
     public var currentView: UIView? {
         guard let currentIndex else { return nil }
         return childViews.item(at: currentIndex)
     }
     
-    private(set) public var currentIndex: Int?
+    private(set) public var currentIndex: Int? {
+        didSet {
+            didChangeCurrentIndex?()
+        }
+    }
     private(set) public var childViews = [UIView]()
     
     private var lastContentOffset: CGPoint = .zero
