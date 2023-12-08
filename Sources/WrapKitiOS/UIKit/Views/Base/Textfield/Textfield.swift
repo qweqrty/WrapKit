@@ -49,7 +49,7 @@ open class Textfield: UITextField {
             attributedPlaceholder = NSAttributedString(
                 string: placeholder ?? "",
                 attributes:[
-                    NSAttributedString.Key.foregroundColor: UIColor.lightGray
+                    NSAttributedString.Key.foregroundColor: placeholderColor
                 ]
             )
         }
@@ -82,12 +82,27 @@ open class Textfield: UITextField {
         }
     }
     
-    public var selectedBorderColor = UIColor.gray
-    public var selectedBackgroundColor = UIColor.lightGray
-    public var deselectedBorderColor = UIColor.lightGray
-    public var deselectedBackgroundColor = UIColor.white
-    public var errorBorderColor = UIColor.red
-    public var errorBackgroundColor = UIColor.red.withAlphaComponent(0.4)
+    public var selectedBorderColor = UIColor.gray {
+        didSet { updateTextFieldAppearance() }
+    }
+    public var selectedBackgroundColor = UIColor.lightGray {
+        didSet { updateTextFieldAppearance() }
+    }
+    public var deselectedBorderColor = UIColor.lightGray {
+        didSet { updateTextFieldAppearance() }
+    }
+    public var deselectedBackgroundColor = UIColor.white {
+        didSet { updateTextFieldAppearance() }
+    }
+    public var errorBorderColor = UIColor.red {
+        didSet { updateTextFieldAppearance() }
+    }
+    public var errorBackgroundColor = UIColor.red.withAlphaComponent(0.4) {
+        didSet { updateTextFieldAppearance() }
+    }
+    public var placeholderColor = UIColor.lightGray {
+        didSet { updatePlaceholder() }
+    }
     
     public init(
         font: UIFont? = .systemFont(ofSize: 16),
@@ -142,6 +157,24 @@ open class Textfield: UITextField {
             guard let self = self else { return }
             self.didChangeText.forEach { $0(self.text) }
         })
+    }
+    
+    private func updateTextFieldAppearance() {
+        if isFirstResponder || validationRule != nil {
+            layer.borderColor = selectedBorderColor.cgColor
+            backgroundColor = selectedBackgroundColor
+        } else {
+            layer.borderColor = deselectedBorderColor.cgColor
+            backgroundColor = deselectedBackgroundColor
+        }
+    }
+
+    private func updatePlaceholder() {
+        guard let placeholder = placeholder else { return }
+        attributedPlaceholder = NSAttributedString(
+            string: placeholder,
+            attributes: [NSAttributedString.Key.foregroundColor: placeholderColor]
+        )
     }
     
     override open func textRect(forBounds bounds: CGRect) -> CGRect {
