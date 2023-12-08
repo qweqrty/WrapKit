@@ -49,7 +49,7 @@ open class Textfield: UITextField {
             attributedPlaceholder = NSAttributedString(
                 string: placeholder ?? "",
                 attributes:[
-                    NSAttributedString.Key.foregroundColor: UIColor.lightGray.cgColor
+                    NSAttributedString.Key.foregroundColor: UIColor.lightGray
                 ]
             )
         }
