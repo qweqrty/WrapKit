@@ -30,54 +30,10 @@ public final class URLSessionHTTPClient: HTTPClient {
     }
     
     public func dispatch(_ request: URLRequest, completion: @escaping (Result) -> Void) -> HTTPClientTask {
-        print("\n - - - - - - - - - - OUTGOING - - - - - - - - - - \n")
-        defer { print("\n - - - - - - - - - -  END - - - - - - - - - - \n") }
-        let urlAsString = request.url?.absoluteString ?? ""
-        let urlComponents = URLComponents(string: urlAsString)
-        let method = request.httpMethod != nil ? "\(request.httpMethod ?? "")" : ""
-        let path = "\(urlComponents?.path ?? "")"
-        let query = "\(urlComponents?.query ?? "")"
-        let host = "\(urlComponents?.host ?? "")"
-        var output = """
-        \(urlAsString) \n\n
-        \(method) \(path)?\(query) HTTP/1.1 \n
-        HOST: \(host)\n
-        """
-        for (key,value) in request.allHTTPHeaderFields ?? [:] {
-           output += "\(key): \(value) \n"
-        }
-        if let body = request.httpBody {
-           output += "\n \(String(data: body, encoding: .utf8) ?? "")"
-        }
-        print(output)
-        let task = session.dataTask(with: request) { data, response, error in
-            print("\n - - - - - - - - - - INCOMMING - - - - - - - - - - \n")
-            defer { print("\n - - - - - - - - - -  END - - - - - - - - - - \n") }
-            let urlString = response?.url?.absoluteString
-            let components = NSURLComponents(string: urlString ?? "")
-            let path = "\(components?.path ?? "")"
-            let query = "\(components?.query ?? "")"
-            var output = ""
-            if let urlString = urlString {
-               output += "\(urlString)"
-               output += "\n\n"
-            }
-            if let statusCode =  (response as? HTTPURLResponse)?.statusCode {
-               output += "HTTP \(statusCode) \(path)?\(query)\n"
-            }
-            if let host = components?.host {
-               output += "Host: \(host)\n"
-            }
-            for (key, value) in (response as? HTTPURLResponse)?.allHeaderFields ?? [:] {
-               output += "\(key): \(value)\n"
-            }
-            if let body = data {
-               output += "\n\(String(data: body, encoding: .utf8) ?? "")\n"
-            }
-            if error != nil {
-               output += "\nError: \(error!.localizedDescription)\n"
-            }
-            print(output)
+        printRequest(request)
+        
+        let task = session.dataTask(with: request) { [weak self] data, response, error in
+            self?.printResponse(response, data: data, error: error)
             completion(Result {
                 if let error = error {
                     throw error
@@ -91,5 +47,33 @@ public final class URLSessionHTTPClient: HTTPClient {
         
         return URLSessionTaskWrapper(wrapped: task)
     }
-}
 
+    private func printRequest(_ request: URLRequest) {
+        let urlString = request.url?.absoluteString ?? "N/A"
+        let method = request.httpMethod ?? "N/A"
+        let headers = request.allHTTPHeaderFields ?? [:]
+        let body = String(data: request.httpBody ?? Data(), encoding: .utf8) ?? "N/A"
+
+        var requestLog = "📤 Outgoing Request: \(urlString)"
+        requestLog += "\nMethod: \(method)"
+        requestLog += "\nHeaders: \(headers)"
+        requestLog += "\nBody: \(body)"
+        print(requestLog)
+    }
+
+    private func printResponse(_ response: URLResponse?, data: Data?, error: Error?) {
+        let urlString = response?.url?.absoluteString ?? "N/A"
+        let statusCode = (response as? HTTPURLResponse)?.statusCode.description ?? "N/A"
+        let headers = (response as? HTTPURLResponse)?.allHeaderFields as? [String: Any] ?? [:]
+        let body = String(data: data ?? Data(), encoding: .utf8) ?? "N/A"
+        
+        var responseLog = "📥 Incoming Response: \(urlString)"
+        responseLog += "\nStatus Code: \(statusCode)"
+        responseLog += "\nHeaders: \(headers)"
+        responseLog += "\nBody: \(body)"
+        if let error = error {
+            responseLog += "\nError: \(error.localizedDescription)"
+        }
+        print(responseLog)
+    }
+}

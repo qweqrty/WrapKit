@@ -62,7 +62,7 @@ public class AuthenticatedHTTPClientDecorator: HTTPClient {
         var compositeTask: CompositeHTTPClientTask?
         let token = accessTokenStorage.get()
         let enrichedRequest = enrichRequestWithToken(request, token ?? "")
-        let firstTask = decoratee.dispatch(enrichedRequest) { [weak self, token] result in
+        let firstTask = decoratee.dispatch(enrichedRequest) { [weak self] result in
             switch result {
             case .success(let (data, response)):
                 if self?.isAuthenticated((data, response)) ?? false {
