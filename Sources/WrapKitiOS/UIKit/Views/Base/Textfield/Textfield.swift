@@ -82,27 +82,15 @@ open class Textfield: UITextField {
         }
     }
     
-    public var selectedBorderColor = UIColor.gray {
-        didSet { updateTextFieldAppearance() }
-    }
-    public var selectedBackgroundColor = UIColor.lightGray {
-        didSet { updateTextFieldAppearance() }
-    }
-    public var deselectedBorderColor = UIColor.lightGray {
-        didSet { updateTextFieldAppearance() }
-    }
-    public var deselectedBackgroundColor = UIColor.white {
-        didSet { updateTextFieldAppearance() }
-    }
-    public var errorBorderColor = UIColor.red {
-        didSet { updateTextFieldAppearance() }
-    }
-    public var errorBackgroundColor = UIColor.red.withAlphaComponent(0.4) {
-        didSet { updateTextFieldAppearance() }
-    }
-    public var placeholderColor = UIColor.lightGray {
-        didSet { updatePlaceholder() }
-    }
+    public var selectedBorderColor = UIColor.gray { didSet { updateTextFieldAppearance() } }
+    public var selectedBackgroundColor = UIColor.lightGray { didSet { updateTextFieldAppearance() } }
+    public var deselectedBorderColor = UIColor.lightGray { didSet { updateTextFieldAppearance() } }
+    public var deselectedBackgroundColor = UIColor.white { didSet { updateTextFieldAppearance() } }
+    public var errorBorderColor = UIColor.red { didSet { updateTextFieldAppearance() } }
+    public var errorBackgroundColor = UIColor.red.withAlphaComponent(0.4) { didSet { updateTextFieldAppearance() } }
+    public var placeholderColor = UIColor.lightGray { didSet { updatePlaceholder() } }
+    public var idleBorderWidth: CGFloat
+    public var selectedBorderWidth: CGFloat
     
     public init(
         font: UIFont? = .systemFont(ofSize: 16),
@@ -110,6 +98,7 @@ open class Textfield: UITextField {
         backgroundColor: UIColor? = nil,
         cornerRadius: CGFloat = 10,
         borderWidth: CGFloat = 0.5,
+        selectedBorderWidth: CGFloat = 1.5,
         borderColor: UIColor? = nil,
         padding: UIEdgeInsets = .init(top: 10, left: 12, bottom: 10, right: 12),
         nextTextfield: UIResponder? = nil,
@@ -119,13 +108,15 @@ open class Textfield: UITextField {
     ) {
         self.padding = padding
         self.nextTextfield = nextTextfield
+        self.idleBorderWidth = borderWidth
+        self.selectedBorderWidth = selectedBorderWidth
         super.init(frame: .zero)
 
         self.autocorrectionType = .no
         if let font = font { self.font = font }
         self.textColor = textColor
         self.backgroundColor = backgroundColor ?? deselectedBackgroundColor
-        self.layer.borderWidth = borderWidth
+        self.layer.borderWidth = idleBorderWidth
         self.layer.cornerRadius = cornerRadius
         self.layer.borderColor = borderColor?.cgColor ?? deselectedBorderColor.cgColor
         self.autocapitalizationType = .none
@@ -215,7 +206,7 @@ open class Textfield: UITextField {
         if validationRule == nil {
             UIView.animate(withDuration: 0.3) {
                 self.layer.borderColor = self.selectedBorderColor.cgColor
-                self.layer.borderWidth = 1.5
+                self.layer.borderWidth = self.selectedBorderWidth
                 self.backgroundColor = self.selectedBackgroundColor
             }
         }
@@ -236,7 +227,7 @@ open class Textfield: UITextField {
         if validationRule == nil {
             UIView.animate(withDuration: 0.3) {
                 self.layer.borderColor = self.deselectedBorderColor.cgColor
-                self.layer.borderWidth = 0.5
+                self.layer.borderWidth = self.idleBorderWidth
                 self.backgroundColor = self.deselectedBackgroundColor
             }
         }
@@ -266,6 +257,8 @@ open class Textfield: UITextField {
     
     public required init?(coder aDecoder: NSCoder) {
         padding = .zero
+        idleBorderWidth = 0.5
+        selectedBorderWidth = 1.5
         super.init(coder: aDecoder)
     }
     
