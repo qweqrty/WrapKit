@@ -84,22 +84,23 @@ open class Textfield: UITextField {
     
     public var selectedBorderColor = UIColor.gray { didSet { updateTextFieldAppearance() } }
     public var selectedBackgroundColor = UIColor.lightGray { didSet { updateTextFieldAppearance() } }
-    public var deselectedBorderColor = UIColor.lightGray { didSet { updateTextFieldAppearance() } }
-    public var deselectedBackgroundColor = UIColor.white { didSet { updateTextFieldAppearance() } }
     public var errorBorderColor = UIColor.red { didSet { updateTextFieldAppearance() } }
     public var errorBackgroundColor = UIColor.red.withAlphaComponent(0.4) { didSet { updateTextFieldAppearance() } }
     public var placeholderColor = UIColor.lightGray { didSet { updatePlaceholder() } }
+
+    public var deselectedBorderColor: UIColor
+    public var deselectedBackgroundColor: UIColor
     public var idleBorderWidth: CGFloat
     public var selectedBorderWidth: CGFloat
     
     public init(
         font: UIFont? = .systemFont(ofSize: 16),
         textColor: UIColor = .black,
-        backgroundColor: UIColor? = nil,
+        backgroundColor: UIColor = .clear,
         cornerRadius: CGFloat = 10,
         borderWidth: CGFloat = 0.5,
         selectedBorderWidth: CGFloat = 1.5,
-        borderColor: UIColor? = nil,
+        borderColor: UIColor = .clear,
         padding: UIEdgeInsets = .init(top: 10, left: 12, bottom: 10, right: 12),
         nextTextfield: UIResponder? = nil,
         leadingView: UIView? = nil,
@@ -110,15 +111,17 @@ open class Textfield: UITextField {
         self.nextTextfield = nextTextfield
         self.idleBorderWidth = borderWidth
         self.selectedBorderWidth = selectedBorderWidth
+        self.deselectedBackgroundColor = backgroundColor
+        self.deselectedBorderColor = borderColor
         super.init(frame: .zero)
 
         self.autocorrectionType = .no
         if let font = font { self.font = font }
         self.textColor = textColor
-        self.backgroundColor = backgroundColor ?? deselectedBackgroundColor
+        self.backgroundColor = deselectedBackgroundColor
         self.layer.borderWidth = idleBorderWidth
         self.layer.cornerRadius = cornerRadius
-        self.layer.borderColor = borderColor?.cgColor ?? deselectedBorderColor.cgColor
+        self.layer.borderColor = deselectedBorderColor.cgColor
         self.autocapitalizationType = .none
         returnKeyType = nextTextfield == nil ? .done : .next
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(didTapTextfield))
@@ -259,6 +262,8 @@ open class Textfield: UITextField {
         padding = .zero
         idleBorderWidth = 0.5
         selectedBorderWidth = 1.5
+        deselectedBorderColor = .clear
+        deselectedBackgroundColor = .clear
         super.init(coder: aDecoder)
     }
     
