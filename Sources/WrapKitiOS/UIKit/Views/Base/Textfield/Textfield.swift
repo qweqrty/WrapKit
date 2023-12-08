@@ -8,7 +8,7 @@
 #if canImport(UIKit)
 import UIKit
 
-class Textfield: UITextField {
+open class Textfield: UITextField {
     public var padding: UIEdgeInsets = .zero
     public var clearButtonEdgeInsets = UIEdgeInsets(top: 0, left: -8, bottom: 0, right: 8)
     
@@ -44,7 +44,7 @@ class Textfield: UITextField {
         return isValid
     }
     
-    override var placeholder: String? {
+    open override var placeholder: String? {
         didSet {
             attributedPlaceholder = NSAttributedString(
                 string: placeholder ?? "",
@@ -55,27 +55,27 @@ class Textfield: UITextField {
         }
     }
     
-    override func rightViewRect(forBounds bounds: CGRect) -> CGRect {
+    open override func rightViewRect(forBounds bounds: CGRect) -> CGRect {
         guard let view = rightView else { return super.rightViewRect(forBounds: bounds) }
         var textRect = super.rightViewRect(forBounds: bounds)
         textRect.origin.x -= view.frame.width / 2
         return textRect
     }
     
-    override func leftViewRect(forBounds bounds: CGRect) -> CGRect {
+    open override func leftViewRect(forBounds bounds: CGRect) -> CGRect {
         var textRect = super.leftViewRect(forBounds: bounds)
         textRect.origin.x += padding.left
         return textRect
     }
     
-    override var rightView: UIView? {
+    open override var rightView: UIView? {
         didSet {
             guard rightView != nil else { return }
             rightViewMode = .always
         }
     }
     
-    override var leftView: UIView? {
+    open override var leftView: UIView? {
         didSet {
             guard leftView != nil else { return }
             leftViewMode = .always
@@ -199,7 +199,7 @@ class Textfield: UITextField {
         return success
     }
     
-    override func resignFirstResponder() -> Bool {
+    open override func resignFirstResponder() -> Bool {
         if validationRule == nil {
             UIView.animate(withDuration: 0.3) {
                 self.layer.borderColor = self.deselectedBorderColor.cgColor
