@@ -12,6 +12,7 @@
 		538A108E2B13CF410092570D /* CubeTransitionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 538A108D2B13CF410092570D /* CubeTransitionView.swift */; };
 		538E4B362AA495CA005BBDB4 /* UIImageView+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 538E4B352AA495CA005BBDB4 /* UIImageView+Extensions.swift */; };
 		538E4B382AA49693005BBDB4 /* UIButton+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 538E4B372AA49693005BBDB4 /* UIButton+Extensions.swift */; };
+		539ACDFC2B22FF28007A257F /* Textfield.swift in Sources */ = {isa = PBXBuildFile; fileRef = 539ACDFB2B22FF28007A257F /* Textfield.swift */; };
 		53A137782B06B29800E04C92 /* ShimmerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53A137772B06B29800E04C92 /* ShimmerView.swift */; };
 		53A1377B2B07135900E04C92 /* PlaceholderedPresentableModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53A1377A2B07135900E04C92 /* PlaceholderedPresentableModel.swift */; };
 		53F9F9EC2AB6B76E00110054 /* InMemoryStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53F9F9EB2AB6B76E00110054 /* InMemoryStorage.swift */; };
@@ -88,7 +89,6 @@
 		C08AA39F2A7EC361002D58D5 /* HKeyValueFieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C08AA39E2A7EC361002D58D5 /* HKeyValueFieldView.swift */; };
 		C08AA3A12A7EC76F002D58D5 /* CardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C08AA3A02A7EC76F002D58D5 /* CardView.swift */; };
 		C08AA3A32A7EF41C002D58D5 /* NavigationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C08AA3A22A7EF41C002D58D5 /* NavigationController.swift */; };
-		C08AA3A52A7EF6FD002D58D5 /* Textfield.swift in Sources */ = {isa = PBXBuildFile; fileRef = C08AA3A42A7EF6FD002D58D5 /* Textfield.swift */; };
 		C08AA3A72A7F015D002D58D5 /* Textview.swift in Sources */ = {isa = PBXBuildFile; fileRef = C08AA3A62A7F015D002D58D5 /* Textview.swift */; };
 		C08AA3A92A7F0DF5002D58D5 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C08AA3A82A7F0DF5002D58D5 /* Assets.xcassets */; };
 		C08AA3AB2A7F0E28002D58D5 /* MapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C08AA3AA2A7F0E28002D58D5 /* MapView.swift */; };
@@ -127,6 +127,7 @@
 		538A108D2B13CF410092570D /* CubeTransitionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CubeTransitionView.swift; sourceTree = "<group>"; };
 		538E4B352AA495CA005BBDB4 /* UIImageView+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImageView+Extensions.swift"; sourceTree = "<group>"; };
 		538E4B372AA49693005BBDB4 /* UIButton+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIButton+Extensions.swift"; sourceTree = "<group>"; };
+		539ACDFB2B22FF28007A257F /* Textfield.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Textfield.swift; sourceTree = "<group>"; };
 		53A137772B06B29800E04C92 /* ShimmerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShimmerView.swift; sourceTree = "<group>"; };
 		53A1377A2B07135900E04C92 /* PlaceholderedPresentableModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceholderedPresentableModel.swift; sourceTree = "<group>"; };
 		53F9F9EB2AB6B76E00110054 /* InMemoryStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InMemoryStorage.swift; sourceTree = "<group>"; };
@@ -208,7 +209,6 @@
 		C08AA39E2A7EC361002D58D5 /* HKeyValueFieldView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HKeyValueFieldView.swift; sourceTree = "<group>"; };
 		C08AA3A02A7EC76F002D58D5 /* CardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardView.swift; sourceTree = "<group>"; };
 		C08AA3A22A7EF41C002D58D5 /* NavigationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationController.swift; sourceTree = "<group>"; };
-		C08AA3A42A7EF6FD002D58D5 /* Textfield.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Textfield.swift; sourceTree = "<group>"; };
 		C08AA3A62A7F015D002D58D5 /* Textview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Textview.swift; sourceTree = "<group>"; };
 		C08AA3A82A7F0DF5002D58D5 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		C08AA3AA2A7F0E28002D58D5 /* MapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapView.swift; sourceTree = "<group>"; };
@@ -581,7 +581,6 @@
 				C08AA3772A7EA0F0002D58D5 /* ScrollableContentView.swift */,
 				C08AA3792A7EB5BD002D58D5 /* ProgressBarView.swift */,
 				C08AA37F2A7EB7DB002D58D5 /* StackVIew.swift */,
-				C08AA3A42A7EF6FD002D58D5 /* Textfield.swift */,
 				C08AA3A62A7F015D002D58D5 /* Textview.swift */,
 			);
 			path = Base;
@@ -697,6 +696,7 @@
 			isa = PBXGroup;
 			children = (
 				C0BE6EAE2A9BE4F500864F53 /* MaskedTextfieldDelegate.swift */,
+				539ACDFB2B22FF28007A257F /* Textfield.swift */,
 			);
 			path = Textfield;
 			sourceTree = "<group>";
@@ -844,6 +844,7 @@
 				C08AA3282A7E89EE002D58D5 /* NSObject+Extensions.swift in Sources */,
 				C08AA32A2A7E8A08002D58D5 /* UIStackView+Extensions.swift in Sources */,
 				C08AA38F2A7EBC05002D58D5 /* TableView.swift in Sources */,
+				539ACDFC2B22FF28007A257F /* Textfield.swift in Sources */,
 				C08AA35F2A7E8DED002D58D5 /* UIViewController+PanModalPresenter.swift in Sources */,
 				C08AA3262A7E89D2002D58D5 /* UIView+Layout.swift in Sources */,
 				53F9F9EC2AB6B76E00110054 /* InMemoryStorage.swift in Sources */,
@@ -893,7 +894,6 @@
 				C08AA3342A7E8ACB002D58D5 /* UIViewController+Extensions.swift in Sources */,
 				C0261C462A7860FD00BFCF1B /* RemoteService.swift in Sources */,
 				C08AA31F2A7E8905002D58D5 /* Configurable.swift in Sources */,
-				C08AA3A52A7EF6FD002D58D5 /* Textfield.swift in Sources */,
 				53F9F9F22AB6C15E00110054 /* Storage.swift in Sources */,
 				C08AA37C2A7EB5E8002D58D5 /* ScrollableHStackView.swift in Sources */,
 				C08AA35D2A7E8DED002D58D5 /* PanModalPresentable+UIViewController.swift in Sources */,
