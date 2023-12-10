@@ -11,12 +11,12 @@ open class RemoteService<Request, Response: Decodable>: Service {
     public typealias ResponseHandler = ((_ data: Data, _ response: HTTPURLResponse, _ completion: @escaping ((Result<Response, ServiceError>)) -> Void) -> Void)
      
     private let client: HTTPClient
-    private let makeURLRequest: ((Request) -> URLRequest?)
+    private let makeURLRequest: ((Request) -> (URLRequest?))
     private let responseHandler: ResponseHandler?
     
     public init(
         client: HTTPClient,
-        makeURLRequest: @escaping ((Request) -> URLRequest?),
+        makeURLRequest: @escaping ((Request) -> (URLRequest?)),
         responseHandler: ResponseHandler?
     ) {
         self.client = client
