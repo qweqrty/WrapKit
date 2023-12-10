@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		531452062AC97E7B0034348F /* StoredServiceDecorator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 531452052AC97E7B0034348F /* StoredServiceDecorator.swift */; };
+		535CDB292B25AF6700F70534 /* CompositeService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 535CDB282B25AF6700F70534 /* CompositeService.swift */; };
 		536DCC952B0A04EE0034512A /* ResourcePresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 536DCC942B0A04EE0034512A /* ResourcePresenter.swift */; };
 		538A108E2B13CF410092570D /* CubeTransitionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 538A108D2B13CF410092570D /* CubeTransitionView.swift */; };
 		538E4B362AA495CA005BBDB4 /* UIImageView+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 538E4B352AA495CA005BBDB4 /* UIImageView+Extensions.swift */; };
@@ -123,6 +124,7 @@
 
 /* Begin PBXFileReference section */
 		531452052AC97E7B0034348F /* StoredServiceDecorator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoredServiceDecorator.swift; sourceTree = "<group>"; };
+		535CDB282B25AF6700F70534 /* CompositeService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompositeService.swift; sourceTree = "<group>"; };
 		536DCC942B0A04EE0034512A /* ResourcePresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResourcePresenter.swift; sourceTree = "<group>"; };
 		538A108D2B13CF410092570D /* CubeTransitionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CubeTransitionView.swift; sourceTree = "<group>"; };
 		538E4B352AA495CA005BBDB4 /* UIImageView+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImageView+Extensions.swift"; sourceTree = "<group>"; };
@@ -343,6 +345,7 @@
 				C0261C3E2A76EF3700BFCF1B /* Service.swift */,
 				C0261C402A773D6600BFCF1B /* SerialServiceDecorator.swift */,
 				C0261C452A7860FD00BFCF1B /* RemoteService.swift */,
+				535CDB282B25AF6700F70534 /* CompositeService.swift */,
 			);
 			path = Service;
 			sourceTree = "<group>";
@@ -830,6 +833,7 @@
 				C01086932A7E881500C3720A /* PaginatedCollectionViewDatasource.swift in Sources */,
 				C08AA3632A7E8DED002D58D5 /* PanModalPresentationAnimator.swift in Sources */,
 				C08AA3762A7EA050002D58D5 /* Button.swift in Sources */,
+				535CDB292B25AF6700F70534 /* CompositeService.swift in Sources */,
 				53A137782B06B29800E04C92 /* ShimmerView.swift in Sources */,
 				C0261C4C2A78A7E200BFCF1B /* ViewModelDTO.swift in Sources */,
 				538E4B382AA49693005BBDB4 /* UIButton+Extensions.swift in Sources */,

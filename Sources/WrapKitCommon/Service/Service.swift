@@ -32,20 +32,3 @@ public enum ServiceError: Error {
         }
     }
 }
-
-extension ServiceError: Equatable {
-    public static func == (lhs: ServiceError, rhs: ServiceError) -> Bool {
-        switch (lhs, rhs) {
-        case (.message(let lhsMessage), .message(let rhsMessage)):
-            return lhsMessage == rhsMessage
-        case (.internal, .internal):
-            return true
-        case (.connectivity, .connectivity):
-            return true
-        case (.notAuthorized, .notAuthorized):
-            return true
-        default:
-            return false
-        }
-    }
-}
