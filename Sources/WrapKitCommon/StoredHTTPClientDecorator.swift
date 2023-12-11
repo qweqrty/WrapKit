@@ -12,7 +12,7 @@ public class StoredHTTPClientDecorator<Model>: HTTPClient {
     private let storage: any Storage<Model>
     private let enrichRequest: ((URLRequest, Model?) -> URLRequest)
     
-    init(
+    public init(
         decoratee: HTTPClient,
         storage: any Storage<Model>,
         enrichRequest: @escaping ((URLRequest, Model?) -> URLRequest)
