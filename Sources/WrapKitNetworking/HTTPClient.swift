@@ -18,10 +18,3 @@ public protocol HTTPClient {
     @discardableResult
     func dispatch(_ request: URLRequest, completion: @escaping (Result) -> Void) -> HTTPClientTask
 }
-
-public extension String {
-    static let post = "POST"
-    static let put = "PUT"
-    static let get = "GET"
-    static let delete = "DELETE"
-}

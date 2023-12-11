@@ -6,7 +6,7 @@
 //
 
 import Foundation
-
+        
 open class RemoteService<Request, Response: Decodable>: Service {
     public typealias ResponseHandler = ((_ data: Data, _ response: HTTPURLResponse, _ completion: @escaping ((Result<Response, ServiceError>)) -> Void) -> Void)
      
