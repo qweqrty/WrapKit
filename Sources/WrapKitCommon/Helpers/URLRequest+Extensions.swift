@@ -15,6 +15,8 @@ public extension URLRequest {
 }
 
 public extension String {
+    var asUrl: URL? { URL(string: self) }
+    
     func toDate(dateFormat: String) -> Date? {
         let formatter = DateFormatter()
         formatter.dateFormat = dateFormat
