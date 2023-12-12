@@ -33,8 +33,16 @@ open class RemoteService<Request, Response: Decodable>: Service {
             switch result {
             case let .success(response):
                 self?.responseHandler?(response.data, response.response, completion)
-            case .failure:
-                completion(.failure(.connectivity))
+            case .failure(let error):
+                if let error = error as NSError? {
+                    if error.domain == NSURLErrorDomain && error.code == NSURLErrorNotConnectedToInternet {
+                        completion(.failure(.connectivity))
+                    } else {
+                        completion(.failure(.internal))
+                    }
+                    return
+                }
+                
             }
         }
     }
