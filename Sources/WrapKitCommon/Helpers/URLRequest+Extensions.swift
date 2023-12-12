@@ -12,6 +12,21 @@ public extension URLRequest {
         self.init(url: url)
         self.httpMethod = method
     }
+    
+    mutating func appendQueryItem(key: String, value: String?) {
+        guard let url = self.url else { return }
+        var urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: false)
+        
+        let queryItem = URLQueryItem(name: key, value: value)
+        
+        if urlComponents?.queryItems != nil {
+            urlComponents?.queryItems?.append(queryItem)
+        } else {
+            urlComponents?.queryItems = [queryItem]
+        }
+
+        self.url = urlComponents?.url
+    }
 }
 
 public extension String {
