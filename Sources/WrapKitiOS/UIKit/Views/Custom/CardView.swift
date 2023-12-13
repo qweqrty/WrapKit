@@ -67,10 +67,10 @@ extension CardView {
         )
         
         vStackViewConstraints = vStackView.anchor(
-            .leading(leadingAnchor, constant: 12),
-            .top(topAnchor, constant: 12),
-            .trailing(trailingAnchor, constant: 12),
-            .bottom(bottomAnchor, constant: 12)
+            .leading(leadingAnchor, constant: 8),
+            .top(topAnchor, constant: 8),
+            .trailing(trailingAnchor, constant: 8),
+            .bottom(bottomAnchor, constant: 8)
         )
         
         trailingImageViewConstraints = trailingImageView.anchor(.width(6.25))
