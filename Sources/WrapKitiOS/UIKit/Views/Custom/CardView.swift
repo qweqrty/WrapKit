@@ -9,7 +9,7 @@
 import UIKit
 
 open class CardView: View {
-    public let vStackView = StackView(axis: .vertical)
+    public let vStackView = StackView(axis: .vertical, contentInset: .init(top: 0, left: 8, bottom: 0, right: 8))
     public let hStackView = StackView(axis: .horizontal, spacing: 14)
     public let leadingImageView = ImageView(tintColor: .black)
     public let titleViews = VKeyValueFieldView(
@@ -22,7 +22,6 @@ open class CardView: View {
     public let bottomSeparatorView = View(backgroundColor: .gray)
     
     public var leadingImageViewConstraints: AnchoredConstraints?
-    public var vStackViewConstraints: AnchoredConstraints?
     public var trailingImageViewConstraints: AnchoredConstraints?
     
     public init() {
@@ -66,10 +65,10 @@ extension CardView {
             .width(16)
         )
         
-        vStackViewConstraints = vStackView.anchor(
-            .leading(leadingAnchor, constant: 8),
+        vStackView.anchor(
+            .leading(leadingAnchor),
             .top(topAnchor),
-            .trailing(trailingAnchor, constant: 8),
+            .trailing(trailingAnchor),
             .bottom(bottomAnchor)
         )
         
