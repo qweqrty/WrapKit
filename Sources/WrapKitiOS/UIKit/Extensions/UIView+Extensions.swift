@@ -26,6 +26,25 @@ public extension UIView {
         layer.add(animation, forKey: "shake")
     }
     
+    func dropShadow(
+        shadowColor: UIColor,
+        shadowOpacity: Float = 0.07,
+        shadowOffset: CGSize = CGSize(width: 0, height: 2),
+        shadowRadius: CGFloat = 4,
+        scale: Bool = true,
+        shouldRasterize: Bool = false
+    ) {
+        layer.masksToBounds = false
+        layer.shadowColor = shadowColor.cgColor
+        layer.shadowOpacity = shadowOpacity
+        layer.shadowOffset = shadowOffset
+        layer.shadowRadius = shadowRadius
+        
+        layer.shadowPath = UIBezierPath(rect: bounds).cgPath
+        layer.shouldRasterize = false
+        layer.rasterizationScale = scale ? UIScreen.main.scale : 1
+    }
+    
     func gradientBorder(
         width: CGFloat,
         colors: [UIColor],
