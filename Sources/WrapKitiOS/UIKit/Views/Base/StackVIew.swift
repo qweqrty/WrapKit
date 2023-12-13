@@ -16,6 +16,7 @@ open class StackView: UIStackView {
         axis: NSLayoutConstraint.Axis = .horizontal,
         spacing: CGFloat = 0,
         contentInset: UIEdgeInsets = .zero,
+        clipToBounds: Bool = false,
         isHidden: Bool = false
     ) {
         super.init(frame: .zero)
@@ -24,6 +25,7 @@ open class StackView: UIStackView {
         self.axis = axis
         self.alignment = alignment
         self.spacing = spacing
+        self.clipsToBounds = clipToBounds
         self.layoutMargins = contentInset
         self.isLayoutMarginsRelativeArrangement = true
         self.isUserInteractionEnabled = true

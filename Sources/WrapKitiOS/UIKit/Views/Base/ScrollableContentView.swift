@@ -35,6 +35,7 @@ extension ScrollableContentView {
     }
     
     private func setupUI() {
+        clipsToBounds = false
         keyboardDismissMode = .onDrag
         showsVerticalScrollIndicator = false
         addSubview(contentView)
