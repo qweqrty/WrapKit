@@ -20,16 +20,14 @@ public class InMemoryStorage<Model>: Storage {
         return model
     }
     
-    @discardableResult
-    public func set(_ model: Model?) -> Bool {
+    public func set(model: Model?, completion: ((Bool) -> Void)?) {
         self.model = model
-        return true
+        completion?(true)
     }
     
-    @discardableResult
-    public func clear() -> Bool {
+    public func clear(completion: ((Bool) -> Void)?) {
         model = nil
-        return true
+        completion?(true)
     }
     
     class ObserverWrapper {

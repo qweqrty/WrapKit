@@ -66,7 +66,7 @@ extension ResourcePresenter: ResourceViewInput {
             if shouldShowLoader { self?.view?.display(isLoading: false) }
             switch result {
             case .success(let model):
-                self?.resourceStorage.set(model)
+                self?.resourceStorage.set(model: model, completion: nil)
             case .failure(let error):
                 self?.view?.display(error: error.title)
             }

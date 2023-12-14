@@ -15,9 +15,7 @@ public protocol Storage<Model> {
     
     func get() -> Model?
     
-    @discardableResult
-    func set(_ model: Model?) -> Bool
+    func set(model: Model?, completion: ((Bool) -> Void)?)
     
-    @discardableResult
-    func clear() -> Bool
+    func clear(completion: ((Bool) -> Void)?)
 }

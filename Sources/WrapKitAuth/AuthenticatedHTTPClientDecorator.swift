@@ -71,7 +71,7 @@ public class AuthenticatedHTTPClientDecorator: HTTPClient {
                     tokenRefresher.refresh { refreshResult in
                         switch refreshResult {
                         case .success(let newToken):
-                            self?.accessTokenStorage.set(newToken)
+                            self?.accessTokenStorage.set(model: newToken, completion: nil)
                             let newTask = self?.dispatch(request, completion: completion, isRetryNeeded: false)
                             compositeTask?.second = newTask
                             newTask?.resume()

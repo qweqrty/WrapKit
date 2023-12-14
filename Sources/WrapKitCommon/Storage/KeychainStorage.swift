@@ -25,35 +25,37 @@ public class KeychainStorage: Storage {
     private let key: String
     private let keychain: Keychain
     private var observers = [ObserverWrapper]()
-
+    private var model: Model? {
+        didSet {
+            notifyObservers()
+        }
+    }
+    
     public init(key: String, keychain: Keychain) {
         self.key = key
         self.keychain = keychain
     }
     
-    public func get() -> Model? {
-        let value = keychain.get(key)
-        guard let value = value else { return nil }
-        return value.isEmpty ? nil : value
+    public func get() -> String? {
+        return model
     }
     
-    @discardableResult
-    public func set(_ model: Model?) -> Bool {
+    public func set(model: String?, completion: ((Bool) -> Void)?) {
         let isSuccess = keychain.set(model ?? "", forKey: key)
         if isSuccess {
-            notifyObservers()
+            self.model = model
         }
-        return isSuccess
+        completion?(isSuccess)
     }
-
-    @discardableResult
-    public func clear() -> Bool {
+    
+    public func clear(completion: ((Bool) -> Void)?) {
         let isSuccess = keychain.delete(key)
         if isSuccess {
-            notifyObservers()
+            model = nil
         }
-        return isSuccess
+        completion?(isSuccess)
     }
+
     
     class ObserverWrapper {
         weak var client: AnyObject?
