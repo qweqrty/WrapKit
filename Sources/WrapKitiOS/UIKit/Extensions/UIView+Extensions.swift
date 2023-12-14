@@ -11,6 +11,16 @@ import UIKit
 public extension UIView {
     static let CAGradientLayerName = "GradientBorderLayer"
     
+    @IBInspectable var cornerRadius: CGFloat {
+        get {
+            return layer.cornerRadius
+        }
+        set {
+            layer.cornerRadius = newValue
+            layer.masksToBounds = newValue > 0
+        }
+    }
+    
     func shake(count: Float? = nil, for duration: TimeInterval? = nil, withTranslation translation: Float? = nil) {
         let defaultRepeatCount: Float = 2.0
         let defaultTotalDuration = 0.15
