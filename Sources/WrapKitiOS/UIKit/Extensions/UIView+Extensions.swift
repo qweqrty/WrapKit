@@ -82,9 +82,9 @@ public extension UIView {
         layer.addSublayer(gradientLayer)
     }
     
-    func showLoadingView() {
+    func showLoadingView(backgroundColor: UIColor) {
         let loadingContainerView: UIView = {
-            let view = UIView(backgroundColor: (backgroundColor ?? .white).overlayColor)
+            let view = UIView(backgroundColor: backgroundColor)
             view.tag = 345635463546
             addSubview(view)
             view.layer.cornerRadius = layer.cornerRadius
