@@ -190,11 +190,10 @@ extension VKeyValueFieldView {
 
     func setupConstraints() {
         stackView.anchor(
-            .topGreaterThanEqual(topAnchor),
-            .bottomLessThanEqual(bottomAnchor),
+            .top(topAnchor),
+            .bottom(bottomAnchor),
             .leading(leadingAnchor),
-            .trailing(trailingAnchor),
-            .centerY(centerYAnchor)
+            .trailing(trailingAnchor)
         )
     }
 }
