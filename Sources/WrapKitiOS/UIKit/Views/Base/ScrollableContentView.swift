@@ -45,9 +45,8 @@ extension ScrollableContentView {
         contentViewConstraints = contentView.anchor(
             .top(topAnchor),
             .leading(leadingAnchor),
-            .leading(trailingAnchor),
+            .trailing(trailingAnchor),
             .bottom(bottomAnchor),
-            .widthTo(widthAnchor, 1),
             .heightTo(safeAreaLayoutGuide.heightAnchor, 1, priority: UILayoutPriority(rawValue: 250))
         )
     }
