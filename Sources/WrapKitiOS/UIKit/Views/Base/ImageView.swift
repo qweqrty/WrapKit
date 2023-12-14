@@ -11,13 +11,6 @@ import UIKit
 open class ImageView: UIImageView {
     public var onPress: (() -> Void)?
     
-    public var cornerRadius: CGFloat = 0 {
-        didSet {
-            layer.cornerRadius = cornerRadius
-            layer.masksToBounds = cornerRadius > 0
-        }
-    }
-    
     public var borderColor: UIColor = .clear {
         didSet {
             layer.borderColor = borderColor.cgColor
