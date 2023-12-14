@@ -10,6 +10,7 @@
 		531452062AC97E7B0034348F /* StoredServiceDecorator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 531452052AC97E7B0034348F /* StoredServiceDecorator.swift */; };
 		53336D532B2ADC1B0084D722 /* RealmStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53336D522B2ADC1B0084D722 /* RealmStorage.swift */; };
 		53336D562B2ADDD30084D722 /* RealmSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 53336D552B2ADDD30084D722 /* RealmSwift */; };
+		53336D5D2B2B21D60084D722 /* Realm in Frameworks */ = {isa = PBXBuildFile; productRef = 53336D5C2B2B21D60084D722 /* Realm */; };
 		535CDB292B25AF6700F70534 /* CompositeService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 535CDB282B25AF6700F70534 /* CompositeService.swift */; };
 		536DCC952B0A04EE0034512A /* ResourcePresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 536DCC942B0A04EE0034512A /* ResourcePresenter.swift */; };
 		538A108E2B13CF410092570D /* CubeTransitionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 538A108D2B13CF410092570D /* CubeTransitionView.swift */; };
@@ -242,6 +243,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				53336D5D2B2B21D60084D722 /* Realm in Frameworks */,
 				53336D562B2ADDD30084D722 /* RealmSwift in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -752,6 +754,7 @@
 			name = WrapKit;
 			packageProductDependencies = (
 				53336D552B2ADDD30084D722 /* RealmSwift */,
+				53336D5C2B2B21D60084D722 /* Realm */,
 			);
 			productName = WrapKitNetworking;
 			productReference = C056E6EF2A6D04BB0020AB69 /* WrapKit.framework */;
@@ -1259,6 +1262,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 53336D542B2ADDBE0084D722 /* XCRemoteSwiftPackageReference "realm-swift" */;
 			productName = RealmSwift;
+		};
+		53336D5C2B2B21D60084D722 /* Realm */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 53336D542B2ADDBE0084D722 /* XCRemoteSwiftPackageReference "realm-swift" */;
+			productName = Realm;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
