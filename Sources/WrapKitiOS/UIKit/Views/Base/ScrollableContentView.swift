@@ -10,6 +10,7 @@ import UIKit
 
 open class ScrollableContentView: UIScrollView {
     public let contentView = View()
+    private(set) var contentViewConstraints: AnchoredConstraints?
     
     public init(contentInset: UIEdgeInsets = .zero) {
         super.init(frame: .zero)
@@ -35,15 +36,17 @@ extension ScrollableContentView {
     }
     
     private func setupUI() {
-        clipsToBounds = false
         keyboardDismissMode = .onDrag
         showsVerticalScrollIndicator = false
         addSubview(contentView)
     }
     
     private func setupConstraints() {
-        contentView.fillSuperview()
-        contentView.anchor(
+        contentViewConstraints = contentView.anchor(
+            .top(topAnchor),
+            .leading(leadingAnchor),
+            .leading(trailingAnchor),
+            .bottom(bottomAnchor),
             .widthTo(widthAnchor, 1),
             .heightTo(safeAreaLayoutGuide.heightAnchor, 1, priority: UILayoutPriority(rawValue: 250))
         )
