@@ -10,7 +10,7 @@ import UIKit
 
 open class ScrollableContentView: UIScrollView {
     public let contentView = View()
-    private(set) var contentViewConstraints: AnchoredConstraints?
+    public private(set) var contentViewConstraints: AnchoredConstraints?
     
     public init(contentInset: UIEdgeInsets = .zero) {
         super.init(frame: .zero)
