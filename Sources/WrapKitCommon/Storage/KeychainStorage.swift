@@ -37,7 +37,7 @@ public class KeychainStorage: Storage {
     }
     
     public func get() -> String? {
-        return model
+        return keychain.get(key)
     }
     
     public func set(model: String?, completion: ((Bool) -> Void)?) {
