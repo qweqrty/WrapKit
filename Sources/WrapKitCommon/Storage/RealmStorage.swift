@@ -28,7 +28,9 @@ public class RealmStorage<Object: RealmSwift.Object & ViewModelDTO, Model: Objec
         realmQueue.async {
             let realm = try! Realm()
             let result = realm.objects(Object.self).first?.viewModel
-            self.model = result
+            DispatchQueue.main.async {
+                self.model = result
+            }
         }
     }
     
