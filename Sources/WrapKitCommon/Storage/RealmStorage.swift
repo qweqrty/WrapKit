@@ -5,6 +5,7 @@
 //  Created by Stanislav Li on 14/12/23.
 //
 
+#if canImport(RealmSwift)
 import Foundation
 import RealmSwift
 
@@ -100,3 +101,5 @@ public class RealmStorage<Object: RealmSwift.Object & ViewModelDTO, Model: Objec
         }
     }
 }
+
+#endif
