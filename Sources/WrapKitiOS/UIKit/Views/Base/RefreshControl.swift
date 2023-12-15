@@ -9,11 +9,18 @@
 import UIKit
 
 open class RefreshControl: UIRefreshControl {
+    public var onRefresh: (() -> Void)?
+    
     public init(tintColor: UIColor, zPosition: CGFloat = 0) {
         super.init()
         
         self.tintColor = tintColor
         self.layer.zPosition = zPosition
+        addTarget(self, action: #selector(didRefresh), for: .valueChanged)
+    }
+    
+    @objc private func didRefresh() {
+        onRefresh?()
     }
     
     public required init?(coder: NSCoder) {
