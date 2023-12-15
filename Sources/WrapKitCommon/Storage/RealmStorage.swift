@@ -24,7 +24,7 @@ public class RealmStorage<Object: RealmSwift.Object & ViewModelDTO, Model: Objec
         }
     }
     
-    init() {
+    public init() {
         realmQueue.async {
             let realm = try! Realm()
             let result = realm.objects(Object.self).first?.viewModel
