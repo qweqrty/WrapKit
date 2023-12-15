@@ -13,6 +13,7 @@
 		53336D5D2B2B21D60084D722 /* Realm in Frameworks */ = {isa = PBXBuildFile; productRef = 53336D5C2B2B21D60084D722 /* Realm */; };
 		535CDB292B25AF6700F70534 /* CompositeService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 535CDB282B25AF6700F70534 /* CompositeService.swift */; };
 		536DCC952B0A04EE0034512A /* ResourcePresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 536DCC942B0A04EE0034512A /* ResourcePresenter.swift */; };
+		537540722B2C0E3300C41CF7 /* UserDefaultsStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 537540712B2C0E3300C41CF7 /* UserDefaultsStorage.swift */; };
 		538A108E2B13CF410092570D /* CubeTransitionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 538A108D2B13CF410092570D /* CubeTransitionView.swift */; };
 		538E4B362AA495CA005BBDB4 /* UIImageView+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 538E4B352AA495CA005BBDB4 /* UIImageView+Extensions.swift */; };
 		538E4B382AA49693005BBDB4 /* UIButton+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 538E4B372AA49693005BBDB4 /* UIButton+Extensions.swift */; };
@@ -132,6 +133,7 @@
 		53336D522B2ADC1B0084D722 /* RealmStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealmStorage.swift; sourceTree = "<group>"; };
 		535CDB282B25AF6700F70534 /* CompositeService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompositeService.swift; sourceTree = "<group>"; };
 		536DCC942B0A04EE0034512A /* ResourcePresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResourcePresenter.swift; sourceTree = "<group>"; };
+		537540712B2C0E3300C41CF7 /* UserDefaultsStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultsStorage.swift; sourceTree = "<group>"; };
 		538A108D2B13CF410092570D /* CubeTransitionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CubeTransitionView.swift; sourceTree = "<group>"; };
 		538E4B352AA495CA005BBDB4 /* UIImageView+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImageView+Extensions.swift"; sourceTree = "<group>"; };
 		538E4B372AA49693005BBDB4 /* UIButton+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIButton+Extensions.swift"; sourceTree = "<group>"; };
@@ -303,6 +305,7 @@
 			isa = PBXGroup;
 			children = (
 				C051606B2A6FADB500E01640 /* KeychainStorage.swift */,
+				537540712B2C0E3300C41CF7 /* UserDefaultsStorage.swift */,
 				53F9F9EB2AB6B76E00110054 /* InMemoryStorage.swift */,
 				53F9F9F12AB6C15E00110054 /* Storage.swift */,
 				53336D522B2ADC1B0084D722 /* RealmStorage.swift */,
@@ -864,6 +867,7 @@
 				C08AA3AD2A7F0E4C002D58D5 /* WrapperView.swift in Sources */,
 				C08AA3322A7E8AA7002D58D5 /* NSMutableParagraphStyle+Extensions.swift in Sources */,
 				53B5D4262B26E6AC00E2651E /* URLRequest+Extensions.swift in Sources */,
+				537540722B2C0E3300C41CF7 /* UserDefaultsStorage.swift in Sources */,
 				C08AA3A12A7EC76F002D58D5 /* CardView.swift in Sources */,
 				C08AA3852A7EBA99002D58D5 /* RetryView.swift in Sources */,
 				C08AA3592A7E8DED002D58D5 /* PanModalPresentable+Defaults.swift in Sources */,

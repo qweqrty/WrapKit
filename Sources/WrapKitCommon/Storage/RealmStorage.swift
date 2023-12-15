@@ -49,8 +49,10 @@ public class RealmStorage<Object: RealmSwift.Object & ViewModelDTO, Model: Objec
                 try realm.write {
                     if let model = model {
                         realm.add(model.object, update: .modified)
+                        self.model = model
                     } else {
                         realm.delete(realm.objects(Object.self))
+                        self.model = nil
                     }
                     DispatchQueue.main.async {
                         completion?(true)
@@ -71,6 +73,7 @@ public class RealmStorage<Object: RealmSwift.Object & ViewModelDTO, Model: Objec
                 let realm = try Realm()
                 try realm.write {
                     realm.delete(realm.objects(Object.self))
+                    self.model = nil
                     DispatchQueue.main.async {
                         completion?(true)
                     }
