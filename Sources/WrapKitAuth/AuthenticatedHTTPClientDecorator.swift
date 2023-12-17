@@ -81,6 +81,7 @@ public class AuthenticatedHTTPClientDecorator: HTTPClient {
                         }
                     }
                 } else {
+                    self?.accessTokenStorage.clear(completion: nil)
                     completion(.success((data, response)))
                 }
             case .failure(let error):
