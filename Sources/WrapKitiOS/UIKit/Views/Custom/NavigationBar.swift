@@ -23,6 +23,7 @@ open class NavigationBar: UIView {
     
     public var mainStackViewConstraints: AnchoredConstraints?
     public var backButtonConstraints: AnchoredConstraints?
+    public var closeButtonConstraints: AnchoredConstraints?
     
     private let height: CGFloat = 52
     
@@ -42,7 +43,7 @@ open class NavigationBar: UIView {
         trailingStackView.addArrangedSubview(closeButton)
         
         backButtonConstraints = backButton.anchor(.width(36))
-        closeButton.anchor(.width(36))
+        closeButtonConstraints = closeButton.anchor(.width(36))
     }
     
     private func setupConstraints() {
