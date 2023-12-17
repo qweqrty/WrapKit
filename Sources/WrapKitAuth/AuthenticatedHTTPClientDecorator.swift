@@ -76,15 +76,19 @@ public class AuthenticatedHTTPClientDecorator: HTTPClient {
                             compositeTask?.second = newTask
                             newTask?.resume()
                         case .failure:
+                            self?.accessTokenStorage.clear(completion: nil)
                             self?.onNotAuthenticated?()
                             completion(.failure(ServiceError.notAuthorized))
                         }
                     }
                 } else {
                     self?.accessTokenStorage.clear(completion: nil)
+                    self?.onNotAuthenticated?()
                     completion(.success((data, response)))
                 }
             case .failure(let error):
+                self?.accessTokenStorage.clear(completion: nil)
+                self?.onNotAuthenticated?()
                 completion(.failure(error))
             }
         }

@@ -45,7 +45,6 @@ public class TokenRefresherImpl<RefreshRequest, RefreshResponse>: TokenRefresher
         }
         
         guard let refreshToken = refreshTokenStorage.get() else {
-            refreshTokenStorage.clear(completion: nil)
             completion(.failure(.notAuthorized))
             completeAll(with: .failure(.notAuthorized))
             return
@@ -61,6 +60,7 @@ public class TokenRefresherImpl<RefreshRequest, RefreshResponse>: TokenRefresher
                 completion(.success(newToken))
                 self.completeAll(with: .success(newToken))
             case .failure(let error):
+                refreshTokenStorage.clear(completion: nil)
                 completion(.failure(error))
                 self.completeAll(with: .failure(error))
             }
