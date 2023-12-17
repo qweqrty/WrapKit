@@ -56,7 +56,7 @@ public class ThreeCompositeService<S1: Service, S2: Service, S3: Service>: Servi
 
 public class TwoCompositeService<S1: Service, S2: Service>: Service {
     public typealias Request = (S1.Request, S2.Request)
-    public typealias Response = (S1.Response?, S2.Response?)
+    public typealias Response = (S1.Response, S2.Response)
 
     private let service1: S1
     private let service2: S2
@@ -66,28 +66,36 @@ public class TwoCompositeService<S1: Service, S2: Service>: Service {
         self.service2 = service2
     }
 
-    public func make(request: (S1.Request, S2.Request), completion: @escaping (Result<(S1.Response?, S2.Response?), ServiceError>) -> Void) -> HTTPClientTask? {
-        var response1: S1.Response?
-        var response2: S2.Response?
+    public func make(request: (S1.Request, S2.Request), completion: @escaping (Result<(S1.Response, S2.Response), ServiceError>) -> Void) -> HTTPClientTask? {
+        var response1: Result<S1.Response, ServiceError>?
+        var response2: Result<S2.Response, ServiceError>?
 
         let group = DispatchGroup()
 
         group.enter()
         service1.make(request: request.0) { result in
-            response1 = try? result.get()
+            response1 = result
             group.leave()
         }?.resume()
 
         group.enter()
         service2.make(request: request.1) { result in
-            response2 = try? result.get()
+            response2 = result
             group.leave()
         }?.resume()
 
         group.notify(queue: .main) {
-            completion(.success((response1, response2)))
+            switch (response1, response2) {
+            case let (.success(res1), .success(res2)):
+                completion(.success((res1, res2)))
+            case let (.failure(error), _),
+                 let (_, .failure(error)):
+                completion(.failure(error))
+            default:
+                completion(.failure(.internal))
+            }
         }
 
-        return nil
+        return nil // Or return an actual task if your services support cancellation
     }
 }
