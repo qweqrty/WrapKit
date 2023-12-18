@@ -18,4 +18,8 @@ public extension Double {
         let intDiv = Double(Int(self / nearest))
         return intDiv * nearest
     }
+    
+    func asString(withDecimalPlaces count: Int) -> String {
+        return String(format: "%.\(count)f", self)
+    }
 }
