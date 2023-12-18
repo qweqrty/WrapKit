@@ -14,7 +14,9 @@ public class UserDefaultsStorage<Model: Codable>: Storage {
 
     private var model: Model? {
         didSet {
-            notifyObservers()
+            DispatchQueue.main.async {
+                self.notifyObservers()
+            }
         }
     }
     
