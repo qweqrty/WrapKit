@@ -8,10 +8,10 @@
 #if canImport(UIKit)
 import UIKit
 
-open class CollectionViewDatasource<Cell: UICollectionViewCell & Configurable>: NSObject, UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
-    public var getItems: (() -> [Cell.Model]) = { [] }
+open class CollectionViewDatasource<Cell: UICollectionViewCell, Model>: NSObject, UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
+    public var getItems: (() -> [Model]) = { [] }
     public var selectAt: ((IndexPath) -> Void)?
-    public var configureCell: ((UICollectionView, IndexPath, Cell.Model) -> UICollectionViewCell)?
+    public var configureCell: ((UICollectionView, IndexPath, Model) -> UICollectionViewCell)?
     public var onRetry: (() -> Void)?
     public var showLoader = false
     public var hasMore = true
@@ -19,7 +19,7 @@ open class CollectionViewDatasource<Cell: UICollectionViewCell & Configurable>: 
     public var loadNextPage: (() -> Void)?
     public var sizeForItemAt: ((IndexPath) -> CGSize) = { _ in .zero }
     
-    public init(configureCell: ((UICollectionView, IndexPath, Cell.Model) -> UICollectionViewCell)? = nil) {
+    public init(configureCell: ((UICollectionView, IndexPath, Model) -> UICollectionViewCell)? = nil) {
         self.configureCell = configureCell
         super.init()
     }
@@ -41,9 +41,7 @@ open class CollectionViewDatasource<Cell: UICollectionViewCell & Configurable>: 
     open func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let model = getItems()[indexPath.row]
         if let configureCell = configureCell { return configureCell(collectionView, indexPath, model) }
-        let cell: Cell = collectionView.dequeueReusableCell(for: indexPath)
-        cell.model = model
-        return cell
+        return UICollectionViewCell()
     }
     
     open func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {

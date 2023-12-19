@@ -8,11 +8,11 @@
 #if canImport(UIKit)
 import UIKit
 
-open class TableViewDatasource<Cell: UITableViewCell & Configurable>: NSObject, UITableViewDelegate, UITableViewDataSource {
-    open var getItems: (() -> [Cell.Model]) = { [] }
+open class TableViewDatasource<Cell: UITableViewCell, Model>: NSObject, UITableViewDelegate, UITableViewDataSource {
+    open var getItems: (() -> [Model]) = { [] }
     open var selectAt: ((IndexPath) -> Void)?
     open var showBottomLoader = false
-    open var configureCell: ((UITableView, IndexPath, Cell.Model) -> UITableViewCell)?
+    open var configureCell: ((UITableView, IndexPath, Model) -> UITableViewCell)?
     open var hasMore = true
     open var loadNextPage: (() -> Void)?
     
@@ -30,7 +30,7 @@ open class TableViewDatasource<Cell: UITableViewCell & Configurable>: NSObject, 
         }
     }()
     
-    public init(configureCell: ((UITableView, IndexPath, Cell.Model) -> UITableViewCell)? = nil) {
+    public init(configureCell: ((UITableView, IndexPath, Model) -> UITableViewCell)? = nil) {
         self.configureCell = configureCell
         super.init()
     }
@@ -46,9 +46,7 @@ open class TableViewDatasource<Cell: UITableViewCell & Configurable>: NSObject, 
     open func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let model = getItems()[indexPath.row]
         if let configureCell = configureCell { return configureCell(tableView, indexPath, model) }
-        let cell: Cell = tableView.dequeueReusableCell(for: indexPath)
-        cell.model = model
-        return cell
+        return UITableViewCell()
     }
     
     open func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {

@@ -45,7 +45,6 @@
 		C05160442A6FA03400E01640 /* URLSessionHTTPClientTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C05160432A6FA03400E01640 /* URLSessionHTTPClientTests.swift */; };
 		C05160462A6FA03800E01640 /* URLSessionHTTPClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = C05160452A6FA03800E01640 /* URLSessionHTTPClient.swift */; };
 		C056E6F72A6D04BB0020AB69 /* WrapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C056E6EF2A6D04BB0020AB69 /* WrapKit.framework */; };
-		C08AA31F2A7E8905002D58D5 /* Configurable.swift in Sources */ = {isa = PBXBuildFile; fileRef = C08AA31E2A7E8905002D58D5 /* Configurable.swift */; };
 		C08AA3232A7E8986002D58D5 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C08AA3222A7E8986002D58D5 /* ViewController.swift */; };
 		C08AA3262A7E89D2002D58D5 /* UIView+Layout.swift in Sources */ = {isa = PBXBuildFile; fileRef = C08AA3252A7E89D2002D58D5 /* UIView+Layout.swift */; };
 		C08AA3282A7E89EE002D58D5 /* NSObject+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C08AA3272A7E89EE002D58D5 /* NSObject+Extensions.swift */; };
@@ -170,7 +169,6 @@
 		C051607E2A6FCEEB00E01640 /* AuthenticatedHTTPClientDecoratorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticatedHTTPClientDecoratorTests.swift; sourceTree = "<group>"; };
 		C056E6EF2A6D04BB0020AB69 /* WrapKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = WrapKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		C056E6F62A6D04BB0020AB69 /* WrapKitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = WrapKitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		C08AA31E2A7E8905002D58D5 /* Configurable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Configurable.swift; sourceTree = "<group>"; };
 		C08AA3222A7E8986002D58D5 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		C08AA3252A7E89D2002D58D5 /* UIView+Layout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+Layout.swift"; sourceTree = "<group>"; };
 		C08AA3272A7E89EE002D58D5 /* NSObject+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSObject+Extensions.swift"; sourceTree = "<group>"; };
@@ -286,7 +284,6 @@
 				536DCC932B0A04D50034512A /* Resource */,
 				C0261C392A76D03500BFCF1B /* Pagination */,
 				C0261C4B2A78A7E200BFCF1B /* ViewModelDTO.swift */,
-				C08AA31E2A7E8905002D58D5 /* Configurable.swift */,
 				53A1377A2B07135900E04C92 /* PlaceholderedPresentableModel.swift */,
 			);
 			path = Presentation;
@@ -928,7 +925,6 @@
 				C0261C3F2A76EF3700BFCF1B /* Service.swift in Sources */,
 				C08AA3342A7E8ACB002D58D5 /* UIViewController+Extensions.swift in Sources */,
 				C0261C462A7860FD00BFCF1B /* RemoteService.swift in Sources */,
-				C08AA31F2A7E8905002D58D5 /* Configurable.swift in Sources */,
 				53F9F9F22AB6C15E00110054 /* Storage.swift in Sources */,
 				C08AA37C2A7EB5E8002D58D5 /* ScrollableHStackView.swift in Sources */,
 				C08AA35D2A7E8DED002D58D5 /* PanModalPresentable+UIViewController.swift in Sources */,
