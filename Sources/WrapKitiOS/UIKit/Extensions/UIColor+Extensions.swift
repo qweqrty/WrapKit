@@ -56,5 +56,13 @@ public extension UIColor {
         return contrastingColors.randomElement() ?? .black
     }
     
+    static var random: UIColor {
+        let red = CGFloat(arc4random_uniform(256)) / 255
+        let green = CGFloat(arc4random_uniform(256)) / 255
+        let blue = CGFloat(arc4random_uniform(256)) / 255
+        return UIColor(red: red, green: green, blue: blue, alpha: 1.0)
+    }
+
+    
 }
 #endif
