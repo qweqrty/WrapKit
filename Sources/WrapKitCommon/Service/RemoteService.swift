@@ -8,7 +8,7 @@
 import Foundation
         
 open class RemoteService<Request, Response: Decodable>: Service {
-    public typealias ResponseHandler = ((_ data: Data, _ response: HTTPURLResponse, _ completion: @escaping ((Result<Response, ServiceError>)) -> Void) -> Void)
+    public typealias ResponseHandler = ((_ request: Request, _ data: Data, _ response: HTTPURLResponse, _ completion: @escaping ((Result<Response, ServiceError>)) -> Void) -> Void)
      
     private let client: HTTPClient
     private let makeURLRequest: ((Request) -> URLRequest?)
@@ -32,7 +32,7 @@ open class RemoteService<Request, Response: Decodable>: Service {
         return client.dispatch(urlRequest) { [weak self] result in
             switch result {
             case let .success(response):
-                self?.responseHandler?(response.data, response.response, completion)
+                self?.responseHandler?(request, response.data, response.response, completion)
             case .failure(let error):
                 if let error = error as NSError? {
                     if error.domain == NSURLErrorDomain && error.code == NSURLErrorNotConnectedToInternet {
