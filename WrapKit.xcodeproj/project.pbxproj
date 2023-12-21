@@ -27,6 +27,7 @@
 		53F9F9EF2AB6B84600110054 /* InMemoryStorageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53F9F9ED2AB6B7BC00110054 /* InMemoryStorageTests.swift */; };
 		53F9F9F22AB6C15E00110054 /* Storage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53F9F9F12AB6C15E00110054 /* Storage.swift */; };
 		53F9F9FC2AB8E77900110054 /* TokenRefresher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53F9F9FB2AB8E77900110054 /* TokenRefresher.swift */; };
+		C0103DE72B34AD6D0005FCDB /* Array+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0103DE62B34AD6D0005FCDB /* Array+Extensions.swift */; };
 		C010868D2A7E840100C3720A /* MainQueueDispatchDecorator.swift in Sources */ = {isa = PBXBuildFile; fileRef = C010868B2A7E83EB00C3720A /* MainQueueDispatchDecorator.swift */; };
 		C01086912A7E876900C3720A /* PaginatedTableViewDatasource.swift in Sources */ = {isa = PBXBuildFile; fileRef = C01086902A7E876900C3720A /* PaginatedTableViewDatasource.swift */; };
 		C01086932A7E881500C3720A /* PaginatedCollectionViewDatasource.swift in Sources */ = {isa = PBXBuildFile; fileRef = C01086922A7E881500C3720A /* PaginatedCollectionViewDatasource.swift */; };
@@ -146,6 +147,7 @@
 		53F9F9ED2AB6B7BC00110054 /* InMemoryStorageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InMemoryStorageTests.swift; sourceTree = "<group>"; };
 		53F9F9F12AB6C15E00110054 /* Storage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Storage.swift; sourceTree = "<group>"; };
 		53F9F9FB2AB8E77900110054 /* TokenRefresher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenRefresher.swift; sourceTree = "<group>"; };
+		C0103DE62B34AD6D0005FCDB /* Array+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+Extensions.swift"; sourceTree = "<group>"; };
 		C010868B2A7E83EB00C3720A /* MainQueueDispatchDecorator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainQueueDispatchDecorator.swift; sourceTree = "<group>"; };
 		C01086902A7E876900C3720A /* PaginatedTableViewDatasource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaginatedTableViewDatasource.swift; sourceTree = "<group>"; };
 		C01086922A7E881500C3720A /* PaginatedCollectionViewDatasource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaginatedCollectionViewDatasource.swift; sourceTree = "<group>"; };
@@ -294,6 +296,7 @@
 			children = (
 				53B5D4252B26E6AC00E2651E /* URLRequest+Extensions.swift */,
 				53B5D4272B26E6D000E2651E /* String+Extensions.swift */,
+				C0103DE62B34AD6D0005FCDB /* Array+Extensions.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -929,6 +932,7 @@
 				C08AA37C2A7EB5E8002D58D5 /* ScrollableHStackView.swift in Sources */,
 				C08AA35D2A7E8DED002D58D5 /* PanModalPresentable+UIViewController.swift in Sources */,
 				53A1377B2B07135900E04C92 /* PlaceholderedPresentableModel.swift in Sources */,
+				C0103DE72B34AD6D0005FCDB /* Array+Extensions.swift in Sources */,
 				C0261C342A767DC400BFCF1B /* KeychainSwift.swift in Sources */,
 				C08AA3802A7EB7DB002D58D5 /* StackVIew.swift in Sources */,
 				C0BE6EAC2A9BE49400864F53 /* Mask.swift in Sources */,
