@@ -10,8 +10,6 @@ import UIKit
 
 // MARK: image.leading = superview.leading
 open class Button: UIButton {
-    @objc private func didSelect() { onPress?() }
-    
     public var onPress: (() -> Void)?
     public var spacing: CGFloat = 0 {
         didSet {
@@ -46,6 +44,7 @@ open class Button: UIButton {
                 UIView.animate(withDuration: 0.3) {
                     self.alpha = 0.7
                 }
+                onPress?()
             } else {
                 UIView.animate(withDuration: 0.3) {
                     self.alpha = 1.0
@@ -69,7 +68,6 @@ open class Button: UIButton {
         type: UIButton.ButtonType = .system
     ) {
         self.init(type: type)
-        addTarget(self, action: #selector(didSelect), for: .touchUpInside)
         if let tintColor = tintColor { self.tintColor = tintColor }
         if let image = image { setImage(image, for: .normal) }
         if let textColor = textColor { self.setTitleColor(textColor, for: .normal) }
