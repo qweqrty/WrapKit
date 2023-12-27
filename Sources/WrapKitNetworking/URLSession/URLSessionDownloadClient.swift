@@ -8,7 +8,7 @@
 import Foundation
 
 public final class URLSessionDownloadClient: NSObject, HTTPDownloadClient {
-    private let session: URLSession
+    private var session: URLSession
     private var completionHandlers: [URLSessionTask: (DownloadResult) -> Void] = [:]
     private var progressHandlers: [URLSessionDownloadTask: (Double) -> Void] = [:]
     private var resumeData: [URLSessionDownloadTask: Data] = [:]
@@ -26,9 +26,15 @@ public final class URLSessionDownloadClient: NSObject, HTTPDownloadClient {
         }
     }
     
-    public init(session: URLSession = .shared) {
-        self.session = session
+    public init(session: URLSession?) {
+        self.session = .shared
         super.init()
+        
+        if let session = session {
+            self.session = session
+        } else {
+            self.session = URLSession(configuration: .default, delegate: self, delegateQueue: nil)
+        }
     }
 
     public func download(_ request: URLRequest, progress: @escaping (Double) -> Void, completion: @escaping (DownloadResult) -> Void) -> HTTPClientTask {
