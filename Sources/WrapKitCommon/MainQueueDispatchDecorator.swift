@@ -29,3 +29,11 @@ extension MainQueueDispatchDecorator: HTTPClient where T == HTTPClient {
         }
     }
 }
+
+extension MainQueueDispatchDecorator: HTTPDownloadClient where T == HTTPDownloadClient {
+    public func download(_ request: URLRequest, progress: @escaping (Double) -> Void, completion: @escaping (DownloadResult) -> Void) -> HTTPClientTask {
+        decoratee.download(request, progress: progress) { [weak self] response in
+            self?.dispatch { completion(response) }
+        }
+    }
+}

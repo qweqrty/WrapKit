@@ -7,36 +7,67 @@
 
 import Foundation
 
-open class DownloadService {
-    public typealias DownloadCompletionHandler = (Result<URL, ServiceError>) -> Void
-    public typealias DownloadProgressHandler = (Double) -> Void
-    public typealias MakeDownloadRequest = (URL) -> URLRequest?
+public final class URLSessionDownloadClient: NSObject, HTTPDownloadClient {
+    private let session: URLSession
+    private var completionHandlers: [URLSessionTask: (DownloadResult) -> Void] = [:]
+    private var progressHandlers: [URLSessionDownloadTask: (Double) -> Void] = [:]
+    private var resumeData: [URLSessionDownloadTask: Data] = [:]
 
-    private let downloadClient: HTTPDownloadClient
-    private let makeDownloadRequest: MakeDownloadRequest
-
-    public init(downloadClient: HTTPDownloadClient, makeDownloadRequest: @escaping MakeDownloadRequest) {
-        self.downloadClient = downloadClient
-        self.makeDownloadRequest = makeDownloadRequest
+    private struct URLSessionTaskWrapper: HTTPClientTask {
+        let wrapped: URLSessionDownloadTask
+        let cancelHandler: ((Data?) -> Void)
+        
+        func resume() {
+            wrapped.resume()
+        }
+        
+        func cancel() {
+            wrapped.cancel(byProducingResumeData: cancelHandler)
+        }
+    }
+    
+    public init(session: URLSession = .shared) {
+        self.session = session
+        super.init()
     }
 
-    public func download(from url: URL, progress: @escaping DownloadProgressHandler, completion: @escaping DownloadCompletionHandler) -> HTTPClientTask? {
-        guard let urlRequest = makeDownloadRequest(url) else {
-            completion(.failure(.internal))
-            return nil
-        }
+    public func download(_ request: URLRequest, progress: @escaping (Double) -> Void, completion: @escaping (DownloadResult) -> Void) -> HTTPClientTask {
+        let downloadTask = session.downloadTask(with: request)
 
-        return downloadClient.download(urlRequest, progress: progress, completion: { result in
-            switch result {
-            case .success(let fileURL):
-                completion(.success(fileURL))
-            case .failure(let error):
-                if (error as NSError).code == NSURLErrorNotConnectedToInternet {
-                    completion(.failure(.connectivity))
-                } else {
-                    completion(.failure(.internal))
-                }
-            }
+        let taskWrapper = URLSessionTaskWrapper(wrapped: downloadTask, cancelHandler: { [weak self] resumeData in
+            self?.storeResumeData(resumeData, for: downloadTask)
         })
+
+        progressHandlers[downloadTask] = progress
+        completionHandlers[downloadTask] = completion
+        return taskWrapper
+    }
+    
+    private func storeResumeData(_ data: Data?, for task: URLSessionDownloadTask) {
+        if let data = data {
+            resumeData[task] = data
+        } else {
+            resumeData.removeValue(forKey: task)
+        }
+    }
+}
+
+
+extension URLSessionDownloadClient: URLSessionDownloadDelegate {
+    public func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo location: URL) {
+        completionHandlers[downloadTask]?(.success(location))
+        completionHandlers.removeValue(forKey: downloadTask)
+    }
+
+    public func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
+        if let error = error, let downloadTask = task as? URLSessionDownloadTask {
+            completionHandlers[downloadTask]?(.failure(error))
+            completionHandlers.removeValue(forKey: downloadTask)
+        }
+    }
+
+    public func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didWriteData bytesWritten: Int64, totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64) {
+        let progress = Double(totalBytesWritten) / Double(totalBytesExpectedToWrite)
+        progressHandlers[downloadTask]?(progress)
     }
 }

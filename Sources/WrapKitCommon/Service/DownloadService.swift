@@ -7,54 +7,48 @@
 
 import Foundation
 
-//public struct DownloadRequest {
-//    public let url: URL
-//    public let onProgress: ((Double) -> Void)?
-//}
-//
-//open class DownloadService: NSObject, Service, URLSessionDownloadDelegate {
-//    public typealias Request = DownloadRequest
-//    public typealias Response = URL  // Location of the downloaded file
-//
-//    private var session: URLSession
-//    private var activeDownloads: [URL: DownloadTask] = [:]
-//
-//    public init(session: URLSession = URLSession(configuration: .default)) {
-//        self.session = session
-//        super.init()
-//        self.session = URLSession(configuration: .default, delegate: self, delegateQueue: OperationQueue())
-//    }
-//
-//    public func make(request: DownloadRequest, completion: @escaping ((Result<URL, ServiceError>)) -> Void) -> HTTPClientTask? {
-//        let downloadTask = session.downloadTask(with: request.url)
-//        let taskWrapper = DownloadTask(task: downloadTask)
-//        taskWrapper.onProgress = request.onProgress
-//
-//        downloadTask.resume()
-//        activeDownloads[request.url] = taskWrapper
-//        return taskWrapper
-//    }
-//
-//    // URLSessionDownloadDelegate methods...
-//
-//    public func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo location: URL) {
-//        guard let url = downloadTask.originalRequest?.url else { return }
-//        DispatchQueue.main.async {
-//            self.activeDownloads[url]?.onProgress = nil
-//            completion(.success(location))
-//            self.activeDownloads.removeValue(forKey: url)
-//        }
-//    }
-//
-//    public func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didWriteData bytesWritten: Int64, totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64) {
-//        guard let url = downloadTask.originalRequest?.url,
-//              let download = activeDownloads[url] else { return }
-//
-//        let progress = Double(totalBytesWritten) / Double(totalBytesExpectedToWrite)
-//        DispatchQueue.main.async {
-//            download.updateProgress(progress: progress)
-//        }
-//    }
-//
-//    // Implement error handling similar to the RemoteService
-//}
+public struct DownloadRequest {
+    public let url: URL
+    public let progressHandler: ((Double) -> Void)?
+
+    public init(url: URL, progressHandler: ((Double) -> Void)? = nil) {
+        self.url = url
+        self.progressHandler = progressHandler
+    }
+}
+
+open class DownloadService: Service {
+    public typealias Request = DownloadRequest
+    public typealias Response = URL
+    private let downloadClient: HTTPDownloadClient
+    private let makeDownloadRequest: (DownloadRequest) -> URLRequest?
+    
+    public init(downloadClient: HTTPDownloadClient, makeDownloadRequest: @escaping (DownloadRequest) -> URLRequest?) {
+        self.downloadClient = downloadClient
+        self.makeDownloadRequest = makeDownloadRequest
+    }
+    
+    public func make(request: DownloadRequest, completion: @escaping ((Result<Response, ServiceError>)) -> Void) -> HTTPClientTask? {
+        guard let urlRequest = makeDownloadRequest(request) else {
+            completion(.failure(.internal))
+            return nil
+        }
+        
+        let task = downloadClient.download(urlRequest, progress: { progress in
+            request.progressHandler?(progress)
+        }, completion: { result in
+            switch result {
+            case .success(let fileURL):
+                completion(.success(fileURL))
+            case .failure(let error):
+                if (error as NSError).code == NSURLErrorNotConnectedToInternet {
+                    completion(.failure(.connectivity))
+                } else {
+                    completion(.failure(.internal))
+                }
+            }
+        })
+        
+        return task
+    }
+}
