@@ -11,6 +11,8 @@
 		53336D532B2ADC1B0084D722 /* RealmStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53336D522B2ADC1B0084D722 /* RealmStorage.swift */; };
 		53336D562B2ADDD30084D722 /* RealmSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 53336D552B2ADDD30084D722 /* RealmSwift */; };
 		53336D5D2B2B21D60084D722 /* Realm in Frameworks */ = {isa = PBXBuildFile; productRef = 53336D5C2B2B21D60084D722 /* Realm */; };
+		53567E622B3BE82500A058F1 /* DownloadService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53567E612B3BE82500A058F1 /* DownloadService.swift */; };
+		53567E642B3BEE0C00A058F1 /* URLSessionDownloadClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53567E632B3BEE0C00A058F1 /* URLSessionDownloadClient.swift */; };
 		535CDB292B25AF6700F70534 /* CompositeService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 535CDB282B25AF6700F70534 /* CompositeService.swift */; };
 		536DCC952B0A04EE0034512A /* ResourcePresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 536DCC942B0A04EE0034512A /* ResourcePresenter.swift */; };
 		537540722B2C0E3300C41CF7 /* UserDefaultsStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 537540712B2C0E3300C41CF7 /* UserDefaultsStorage.swift */; };
@@ -131,6 +133,8 @@
 /* Begin PBXFileReference section */
 		531452052AC97E7B0034348F /* StoredServiceDecorator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoredServiceDecorator.swift; sourceTree = "<group>"; };
 		53336D522B2ADC1B0084D722 /* RealmStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealmStorage.swift; sourceTree = "<group>"; };
+		53567E612B3BE82500A058F1 /* DownloadService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadService.swift; sourceTree = "<group>"; };
+		53567E632B3BEE0C00A058F1 /* URLSessionDownloadClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLSessionDownloadClient.swift; sourceTree = "<group>"; };
 		535CDB282B25AF6700F70534 /* CompositeService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompositeService.swift; sourceTree = "<group>"; };
 		536DCC942B0A04EE0034512A /* ResourcePresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResourcePresenter.swift; sourceTree = "<group>"; };
 		537540712B2C0E3300C41CF7 /* UserDefaultsStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultsStorage.swift; sourceTree = "<group>"; };
@@ -371,6 +375,7 @@
 				C0261C402A773D6600BFCF1B /* SerialServiceDecorator.swift */,
 				C0261C452A7860FD00BFCF1B /* RemoteService.swift */,
 				535CDB282B25AF6700F70534 /* CompositeService.swift */,
+				53567E612B3BE82500A058F1 /* DownloadService.swift */,
 			);
 			path = Service;
 			sourceTree = "<group>";
@@ -379,6 +384,7 @@
 			isa = PBXGroup;
 			children = (
 				C05160452A6FA03800E01640 /* URLSessionHTTPClient.swift */,
+				53567E632B3BEE0C00A058F1 /* URLSessionDownloadClient.swift */,
 			);
 			path = URLSession;
 			sourceTree = "<group>";
@@ -854,6 +860,7 @@
 				C010868D2A7E840100C3720A /* MainQueueDispatchDecorator.swift in Sources */,
 				53F9F9FC2AB8E77900110054 /* TokenRefresher.swift in Sources */,
 				C08AA35B2A7E8DED002D58D5 /* PanModalPresentable+LayoutHelpers.swift in Sources */,
+				53567E622B3BE82500A058F1 /* DownloadService.swift in Sources */,
 				C08AA3662A7E8DED002D58D5 /* DimmedView.swift in Sources */,
 				531452062AC97E7B0034348F /* StoredServiceDecorator.swift in Sources */,
 				C01EF5312A6E6019005B93E0 /* HTTPClient.swift in Sources */,
@@ -930,6 +937,7 @@
 				C0261C462A7860FD00BFCF1B /* RemoteService.swift in Sources */,
 				53F9F9F22AB6C15E00110054 /* Storage.swift in Sources */,
 				C08AA37C2A7EB5E8002D58D5 /* ScrollableHStackView.swift in Sources */,
+				53567E642B3BEE0C00A058F1 /* URLSessionDownloadClient.swift in Sources */,
 				C08AA35D2A7E8DED002D58D5 /* PanModalPresentable+UIViewController.swift in Sources */,
 				53A1377B2B07135900E04C92 /* PlaceholderedPresentableModel.swift in Sources */,
 				C0103DE72B34AD6D0005FCDB /* Array+Extensions.swift in Sources */,

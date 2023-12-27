@@ -18,3 +18,10 @@ public protocol HTTPClient {
     @discardableResult
     func dispatch(_ request: URLRequest, completion: @escaping (Result) -> Void) -> HTTPClientTask
 }
+
+public protocol HTTPDownloadClient {
+    typealias DownloadResult = Swift.Result<URL, Error>
+
+    @discardableResult
+    func download(_ request: URLRequest, progress: @escaping (Double) -> Void, completion: @escaping (DownloadResult) -> Void) -> HTTPClientTask
+}
