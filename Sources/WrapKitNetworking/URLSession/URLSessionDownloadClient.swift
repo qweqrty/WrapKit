@@ -26,7 +26,7 @@ public final class URLSessionDownloadClient: NSObject, HTTPDownloadClient {
         }
     }
     
-    public init(session: URLSession?) {
+    public init(session: URLSession? = nil) {
         self.session = .shared
         super.init()
         
