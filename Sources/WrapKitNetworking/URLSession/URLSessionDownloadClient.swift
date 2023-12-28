@@ -11,9 +11,9 @@ public final class URLSessionDownloadClient: NSObject, HTTPDownloadClient {
     private let directoryURL: URL
     private let fileManager: FileManager
     private var session: URLSession
-    private var completionHandlers: [URLSessionTask: (DownloadResult) -> Void] = [:]
-    private var progressHandlers: [URLSessionDownloadTask: (Double) -> Void] = [:]
-    private var resumeData: [URLSessionDownloadTask: Data] = [:]
+    private var completionHandlers: [URLRequest: (DownloadResult) -> Void] = [:]
+    private var progressHandlers: [URLRequest: (Double) -> Void] = [:]
+    private var resumeData: [URLRequest: Data] = [:]
     
     private struct URLSessionTaskWrapper: HTTPClientTask {
         let wrapped: URLSessionDownloadTask
@@ -45,19 +45,19 @@ public final class URLSessionDownloadClient: NSObject, HTTPDownloadClient {
         let downloadTask = session.downloadTask(with: request)
 
         let taskWrapper = URLSessionTaskWrapper(wrapped: downloadTask, cancelHandler: { [weak self] resumeData in
-            self?.storeResumeData(resumeData, for: downloadTask)
+            self?.storeResumeData(resumeData, for: request)
         })
 
-        progressHandlers[downloadTask] = progress
-        completionHandlers[downloadTask] = completion
+        progressHandlers[request] = progress
+        completionHandlers[request] = completion
         return taskWrapper
     }
     
-    private func storeResumeData(_ data: Data?, for task: URLSessionDownloadTask) {
+    private func storeResumeData(_ data: Data?, for request: URLRequest) {
         if let data = data {
-            resumeData[task] = data
+            resumeData[request] = data
         } else {
-            resumeData.removeValue(forKey: task)
+            resumeData.removeValue(forKey: request)
         }
     }
 }
@@ -65,30 +65,30 @@ public final class URLSessionDownloadClient: NSObject, HTTPDownloadClient {
 
 extension URLSessionDownloadClient: URLSessionDownloadDelegate {
     public func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo location: URL) {
-
-         
+        guard let request = downloadTask.currentRequest else  { return }
          do {
              let permanentURL = directoryURL.appendingPathComponent(location.lastPathComponent)
              if fileManager.fileExists(atPath: permanentURL.path) {
                  try fileManager.removeItem(at: permanentURL)
              }
              try fileManager.moveItem(at: location, to: permanentURL)
-             completionHandlers[downloadTask]?(.success(permanentURL))
+             completionHandlers[request]?(.success(permanentURL))
          } catch {
-             completionHandlers[downloadTask]?(.failure(ServiceError.internal))
+             completionHandlers[request]?(.failure(ServiceError.internal))
          }
-        completionHandlers.removeValue(forKey: downloadTask)
+        completionHandlers.removeValue(forKey: request)
     }
 
     public func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
-        if let error = error, let downloadTask = task as? URLSessionDownloadTask {
-            completionHandlers[downloadTask]?(.failure(error))
-            completionHandlers.removeValue(forKey: downloadTask)
-        }
+        guard let request = task.currentRequest else  { return }
+        guard let error = error else  { return }
+        completionHandlers[request]?(.failure(error))
+        completionHandlers.removeValue(forKey: request)
     }
 
     public func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didWriteData bytesWritten: Int64, totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64) {
+        guard let request = downloadTask.currentRequest else  { return }
         let progress = Double(totalBytesWritten) / Double(totalBytesExpectedToWrite)
-        progressHandlers[downloadTask]?(progress)
+        progressHandlers[request]?(progress)
     }
 }
