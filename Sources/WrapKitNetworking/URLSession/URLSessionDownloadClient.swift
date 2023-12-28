@@ -8,11 +8,13 @@
 import Foundation
 
 public final class URLSessionDownloadClient: NSObject, HTTPDownloadClient {
+    private let directoryURL: URL
+    private let fileManager: FileManager
     private var session: URLSession
     private var completionHandlers: [URLSessionTask: (DownloadResult) -> Void] = [:]
     private var progressHandlers: [URLSessionDownloadTask: (Double) -> Void] = [:]
     private var resumeData: [URLSessionDownloadTask: Data] = [:]
-
+    
     private struct URLSessionTaskWrapper: HTTPClientTask {
         let wrapped: URLSessionDownloadTask
         let cancelHandler: ((Data?) -> Void)
@@ -26,10 +28,12 @@ public final class URLSessionDownloadClient: NSObject, HTTPDownloadClient {
         }
     }
     
-    public init(session: URLSession? = nil) {
+    public init(session: URLSession? = nil, directoryURL: URL, fileManager: FileManager = .default) {
         self.session = .shared
+        self.directoryURL = directoryURL
+        self.fileManager = fileManager
         super.init()
-        
+
         if let session = session {
             self.session = session
         } else {
@@ -61,7 +65,18 @@ public final class URLSessionDownloadClient: NSObject, HTTPDownloadClient {
 
 extension URLSessionDownloadClient: URLSessionDownloadDelegate {
     public func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo location: URL) {
-        completionHandlers[downloadTask]?(.success(location))
+
+         
+         do {
+             let permanentURL = directoryURL.appendingPathComponent(location.lastPathComponent)
+             if fileManager.fileExists(atPath: permanentURL.path) {
+                 try fileManager.removeItem(at: permanentURL)
+             }
+             try fileManager.moveItem(at: location, to: permanentURL)
+             completionHandlers[downloadTask]?(.success(permanentURL))
+         } catch {
+             completionHandlers[downloadTask]?(.failure(ServiceError.internal))
+         }
         completionHandlers.removeValue(forKey: downloadTask)
     }
 
