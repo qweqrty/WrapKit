@@ -66,8 +66,9 @@ public final class URLSessionDownloadClient: NSObject, HTTPDownloadClient {
 extension URLSessionDownloadClient: URLSessionDownloadDelegate {
     public func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo location: URL) {
         guard let request = downloadTask.originalRequest else  { return }
+        guard let fileName = request.url?.lastPathComponent else { return }
          do {
-             let permanentURL = directoryURL.appendingPathComponent(location.lastPathComponent)
+             let permanentURL = directoryURL.appendingPathComponent(fileName)
              if fileManager.fileExists(atPath: permanentURL.path) {
                  try fileManager.removeItem(at: permanentURL)
              }
