@@ -65,7 +65,7 @@ public final class URLSessionDownloadClient: NSObject, HTTPDownloadClient {
 
 extension URLSessionDownloadClient: URLSessionDownloadDelegate {
     public func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo location: URL) {
-        guard let request = downloadTask.currentRequest else  { return }
+        guard let request = downloadTask.originalRequest else  { return }
          do {
              let permanentURL = directoryURL.appendingPathComponent(location.lastPathComponent)
              if fileManager.fileExists(atPath: permanentURL.path) {
@@ -80,14 +80,14 @@ extension URLSessionDownloadClient: URLSessionDownloadDelegate {
     }
 
     public func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
-        guard let request = task.currentRequest else  { return }
+        guard let request = task.originalRequest else  { return }
         guard let error = error else  { return }
         completionHandlers[request]?(.failure(error))
         completionHandlers.removeValue(forKey: request)
     }
 
     public func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didWriteData bytesWritten: Int64, totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64) {
-        guard let request = downloadTask.currentRequest else  { return }
+        guard let request = downloadTask.originalRequest else  { return }
         let progress = Double(totalBytesWritten) / Double(totalBytesExpectedToWrite)
         progressHandlers[request]?(progress)
     }
