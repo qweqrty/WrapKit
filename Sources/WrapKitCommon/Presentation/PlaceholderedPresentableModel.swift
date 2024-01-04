@@ -19,4 +19,13 @@ public enum PlaceholderedPresentableModel<PresentableModel> {
             return true
         }
     }
+    
+    public var model: PresentableModel? {
+        switch self {
+        case .model(let model):
+            return model
+        default:
+            return nil
+        }
+    }
 }
