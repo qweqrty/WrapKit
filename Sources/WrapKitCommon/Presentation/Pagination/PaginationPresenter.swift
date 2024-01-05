@@ -46,11 +46,11 @@ public struct PaginationResponse<Item> {
     public let results: [Item]
 }
 
-open class PaginationPresenter<ServicePaginationRequest: Encodable, ServicePaginationResponse: Decodable, Item: Decodable & ViewModelDTO> {
+open class PaginationPresenter<ServicePaginationRequest: Encodable, ServicePaginationResponse: Decodable, Item: Decodable, PresentableItem> {
     private(set) var date: Date
     public var items: [Item] {
         didSet {
-            view?.display(items: items.map { $0.viewModel }, hasMore: initialPage + (totalPages ?? 1) - 1 >= page)
+            view?.display(items: items.map { mapPresentable($0) }, hasMore: initialPage + (totalPages ?? 1) - 1 >= page)
         }
     }
     private(set) var page: Int
@@ -60,16 +60,18 @@ open class PaginationPresenter<ServicePaginationRequest: Encodable, ServicePagin
     private let service: any Service<ServicePaginationRequest, ServicePaginationResponse> // Expected to be SerialServiceDecorator
     private let mapRequest: ((PaginationRequest) -> ServicePaginationRequest)
     private let mapResponse: ((ServicePaginationResponse) -> PaginationResponse<Item>?)
+    private let mapPresentable: ((Item) -> PresentableItem)
     private var requests = [HTTPClientTask?]()
     
     let initialPage: Int
 
-    public weak var view: (any PaginationViewOutput<Item.ViewModel>)?
+    public weak var view: (any PaginationViewOutput<PresentableItem>)?
 
     public init(
         service: any Service<ServicePaginationRequest, ServicePaginationResponse>,
         mapRequest: @escaping ((PaginationRequest) -> ServicePaginationRequest),
         mapResponse: @escaping ((ServicePaginationResponse) -> PaginationResponse<Item>?),
+        mapPresentable: @escaping ((Item) -> PresentableItem),
         timestamp: Date = Date(),
         initialPage: Int = 1,
         perPage: Int = 10,
@@ -83,6 +85,7 @@ open class PaginationPresenter<ServicePaginationRequest: Encodable, ServicePagin
         self.items = initialItems
         self.mapRequest = mapRequest
         self.mapResponse = mapResponse
+        self.mapPresentable = mapPresentable
     }
 }
 
@@ -124,7 +127,7 @@ extension PaginationPresenter: PaginationViewInput {
                 return
             }
             items += model.results
-            view?.display(items: items.map { $0.viewModel }, hasMore: initialPage + (totalPages ?? 1) - 1 >= page)
+            view?.display(items: items.map { mapPresentable($0) }, hasMore: initialPage + (totalPages ?? 1) - 1 >= page)
             totalPages = model.totalPages
         case .failure(let error):
             page = backToPage
