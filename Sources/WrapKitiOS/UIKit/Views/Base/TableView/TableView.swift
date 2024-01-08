@@ -65,8 +65,8 @@ open class TableView: UITableView {
     
     open func changePlaceholder(_ state: Bool) {
         guard let backgroundView = backgroundView else { return }
-        switch (state, backgroundView.alpha == 0) {
-        case (false, false):
+        switch state {
+        case false:
             self.backgroundView?.alpha = 0
         default:
             UIView.animate(
