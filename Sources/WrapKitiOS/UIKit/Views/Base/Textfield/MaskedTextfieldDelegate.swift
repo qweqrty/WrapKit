@@ -25,24 +25,27 @@ public class MaskedTextFieldDelegate: NSObject, UITextFieldDelegate {
         self.wrappedLabel.padding = textfieldPadding
     }
     
-    public func textFieldDidChangeSelection(_ textField: UITextField) {
-        guard let text = textField.text else { return }
-        guard text.isEmpty else { return }
-        inputText = mask.apply(to: "").input
-        textFieldDidBeginEditing(textField)
+    public func configureMaskViewIfNeeded(in textfield: UITextField) {
+        if wrappedLabel.superview != textfield {
+            wrappedLabel.removeFromSuperview()
+            textfield.addSubview(wrappedLabel)
+            wrappedLabel.anchor(
+                .top(textfield.topAnchor),
+                .leading(textfield.leadingAnchor),
+                .trailing(textfield.trailingAnchor),
+                .bottom(textfield.bottomAnchor)
+            )
+        }
+        let maskedText = mask.apply(to: inputText)
+        self.inputText = maskedText.input
+        wrappedLabel.contentView.attributedText = .combined(
+            .init(maskedText.input, font: textfield.font ?? .systemFont(ofSize: 17), color: .clear, textAlignment: .left),
+            .init(maskedText.maskToInput, font: textfield.font ?? .systemFont(ofSize: 17), color: maskTextColor, textAlignment: .left)
+        )
     }
 
     public func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-        if wrappedLabel.superview != textField {
-            wrappedLabel.removeFromSuperview()
-            textField.addSubview(wrappedLabel)
-            wrappedLabel.anchor(
-                .top(textField.topAnchor),
-                .leading(textField.leadingAnchor),
-                .trailing(textField.trailingAnchor),
-                .bottom(textField.bottomAnchor)
-            )
-        }
+        configureMaskViewIfNeeded(in: textField)
         let (input, mask) = string.isEmpty ? mask.removeCharacters(from: inputText, in: range) : mask.apply(to: inputText + string)
 
         inputText = input
@@ -57,16 +60,7 @@ public class MaskedTextFieldDelegate: NSObject, UITextFieldDelegate {
     }
 
     public func textFieldDidBeginEditing(_ textField: UITextField) {
-        if wrappedLabel.superview != textField {
-            wrappedLabel.removeFromSuperview()
-            textField.addSubview(wrappedLabel)
-            wrappedLabel.anchor(
-                .top(textField.topAnchor),
-                .leading(textField.leadingAnchor),
-                .trailing(textField.trailingAnchor),
-                .bottom(textField.bottomAnchor)
-            )
-        }
+        configureMaskViewIfNeeded(in: textField)
         let maskedText = mask.apply(to: inputText)
         self.inputText = maskedText.input
         textField.text = maskedText.input
