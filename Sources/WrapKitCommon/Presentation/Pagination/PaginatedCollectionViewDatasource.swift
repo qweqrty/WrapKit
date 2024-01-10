@@ -18,6 +18,7 @@ open class CollectionViewDatasource<Cell: UICollectionViewCell, Model>: NSObject
     public var minimumLineSpacingForSectionAt: ((Int) -> CGFloat) = { _ in 0 }
     public var loadNextPage: (() -> Void)?
     public var sizeForItemAt: ((IndexPath) -> CGSize) = { _ in .zero }
+    public var didScrollTo: ((IndexPath) -> Void)?
     
     public init(configureCell: ((UICollectionView, IndexPath, Model) -> UICollectionViewCell)? = nil) {
         self.configureCell = configureCell
@@ -71,6 +72,11 @@ open class CollectionViewDatasource<Cell: UICollectionViewCell, Model>: NSObject
     }
     
     open func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        let visibleRect = CGRect(origin: scrollView.contentOffset, size: scrollView.bounds.size)
+        let visiblePoint = CGPoint(x: visibleRect.midX, y: visibleRect.midY)
+        guard let indexPath = (scrollView as? UICollectionView)?.indexPathForItem(at: visiblePoint) else { return }
+        didScrollTo?(indexPath)
+        
         guard scrollView.isDragging else { return }
         guard hasMore else { return }
         guard let scrollDirection = ((scrollView as? UICollectionView)?.collectionViewLayout as? UICollectionViewFlowLayout)?.scrollDirection else { return }
