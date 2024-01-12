@@ -7,16 +7,16 @@
 
 import Foundation
 
-protocol WebViewOutput: AnyObject {
+public protocol WebViewOutput: AnyObject {
     func display(url: URL)
 }
 
-protocol WebViewInput {
+public protocol WebViewInput {
     func viewDidLoad()
     func onBackButtonTap()
 }
 
-class WebViewPresenter {
+open class WebViewPresenter {
     weak var view: WebViewOutput?
     var navigateToBack: (() -> Void)?
     private var url: URL
@@ -27,11 +27,11 @@ class WebViewPresenter {
 }
 
 extension WebViewPresenter: WebViewInput {
-    func viewDidLoad() {
+    public func viewDidLoad() {
         view?.display(url: url)
     }
     
-    func onBackButtonTap() {
+    public func onBackButtonTap() {
         navigateToBack?()
     }
 }

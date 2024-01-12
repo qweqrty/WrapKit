@@ -10,17 +10,17 @@ import Foundation
 import UIKit
 import WebKit
 
-class WebViewContentView: UIView {
-    lazy var closeButton = makeButton()
-    lazy var webView = makeWebView()
+open class WebViewContentView: UIView {
+    public lazy var closeButton = makeButton()
+    public lazy var webView = makeWebView()
     
-    override init(frame: CGRect) {
+    public override init(frame: CGRect) {
         super.init(frame: frame)
         setupViews()
         setupConstraints()
     }
     
-    required init?(coder: NSCoder) {
+    public required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 }

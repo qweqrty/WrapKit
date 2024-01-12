@@ -9,31 +9,31 @@
 import Foundation
 import UIKit
 
-class WebViewVC: ViewController<WebViewContentView> {
+open class WebViewVC: ViewController<WebViewContentView> {
     private let presenter: WebViewInput
     
-    init(contentView: WebViewContentView, presenter: WebViewInput) {
+    public init(contentView: WebViewContentView, presenter: WebViewInput) {
         self.presenter = presenter
         super.init(contentView: contentView)
     }
     
-    override func viewDidLoad() {
+    public override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
         presenter.viewDidLoad()
     }
     
-    func setupUI() {
+    public func setupUI() {
         contentView.closeButton.onPress = presenter.onBackButtonTap
     }
     
-    required init?(coder: NSCoder) {
+    public required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 }
 
 extension WebViewVC: WebViewOutput {
-    func display(url: URL) {
+    public func display(url: URL) {
         contentView.webView.load(URLRequest(url: url))
     }
     
