@@ -44,6 +44,9 @@
 		C0261C462A7860FD00BFCF1B /* RemoteService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0261C452A7860FD00BFCF1B /* RemoteService.swift */; };
 		C0261C4A2A7861F200BFCF1B /* PaginationPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0261C492A7861F200BFCF1B /* PaginationPresenter.swift */; };
 		C0261C4C2A78A7E200BFCF1B /* ViewModelDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0261C4B2A78A7E200BFCF1B /* ViewModelDTO.swift */; };
+		C04C41D62B518998009BC481 /* WebViewVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = C04C41D52B518998009BC481 /* WebViewVC.swift */; };
+		C04C41D82B51899F009BC481 /* WebViewContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C04C41D72B51899F009BC481 /* WebViewContentView.swift */; };
+		C04C41DA2B5189A9009BC481 /* WebViewPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C04C41D92B5189A9009BC481 /* WebViewPresenter.swift */; };
 		C051603E2A6F9FEF00E01640 /* URLProtocolStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = C051603D2A6F9FEF00E01640 /* URLProtocolStub.swift */; };
 		C05160402A6FA01000E01640 /* XCTestCase+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C051603F2A6FA01000E01640 /* XCTestCase+Extensions.swift */; };
 		C05160442A6FA03400E01640 /* URLSessionHTTPClientTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C05160432A6FA03400E01640 /* URLSessionHTTPClientTests.swift */; };
@@ -165,6 +168,9 @@
 		C0261C452A7860FD00BFCF1B /* RemoteService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteService.swift; sourceTree = "<group>"; };
 		C0261C492A7861F200BFCF1B /* PaginationPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaginationPresenter.swift; sourceTree = "<group>"; };
 		C0261C4B2A78A7E200BFCF1B /* ViewModelDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewModelDTO.swift; sourceTree = "<group>"; };
+		C04C41D52B518998009BC481 /* WebViewVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebViewVC.swift; sourceTree = "<group>"; };
+		C04C41D72B51899F009BC481 /* WebViewContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebViewContentView.swift; sourceTree = "<group>"; };
+		C04C41D92B5189A9009BC481 /* WebViewPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebViewPresenter.swift; sourceTree = "<group>"; };
 		C051603D2A6F9FEF00E01640 /* URLProtocolStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLProtocolStub.swift; sourceTree = "<group>"; };
 		C051603F2A6FA01000E01640 /* XCTestCase+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "XCTestCase+Extensions.swift"; sourceTree = "<group>"; };
 		C05160432A6FA03400E01640 /* URLSessionHTTPClientTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLSessionHTTPClientTests.swift; sourceTree = "<group>"; };
@@ -383,6 +389,24 @@
 			path = Service;
 			sourceTree = "<group>";
 		};
+		C04C41D32B518975009BC481 /* Screens */ = {
+			isa = PBXGroup;
+			children = (
+				C04C41D42B518986009BC481 /* WebView */,
+			);
+			path = Screens;
+			sourceTree = "<group>";
+		};
+		C04C41D42B518986009BC481 /* WebView */ = {
+			isa = PBXGroup;
+			children = (
+				C04C41D52B518998009BC481 /* WebViewVC.swift */,
+				C04C41D72B51899F009BC481 /* WebViewContentView.swift */,
+				C04C41D92B5189A9009BC481 /* WebViewPresenter.swift */,
+			);
+			path = WebView;
+			sourceTree = "<group>";
+		};
 		C05160412A6FA02100E01640 /* URLSession */ = {
 			isa = PBXGroup;
 			children = (
@@ -482,6 +506,7 @@
 		C08AA3202A7E8963002D58D5 /* UIKit */ = {
 			isa = PBXGroup;
 			children = (
+				C04C41D32B518975009BC481 /* Screens */,
 				C08AA3682A7E95B8002D58D5 /* Views */,
 				C08AA3432A7E8DED002D58D5 /* PanModal */,
 				C08AA3242A7E89C1002D58D5 /* Extensions */,
@@ -856,6 +881,7 @@
 			files = (
 				C08AA32C2A7E8A59002D58D5 /* Sequence+Extensions.swift in Sources */,
 				C01086912A7E876900C3720A /* PaginatedTableViewDatasource.swift in Sources */,
+				C04C41D82B51899F009BC481 /* WebViewContentView.swift in Sources */,
 				C08AA3882A7EBAD4002D58D5 /* CollectionView.swift in Sources */,
 				536DCC952B0A04EE0034512A /* ResourcePresenter.swift in Sources */,
 				C08AA33E2A7E8D30002D58D5 /* String+Regex.swift in Sources */,
@@ -886,8 +912,10 @@
 				C08AA36E2A7E9E65002D58D5 /* Label.swift in Sources */,
 				C08AA3282A7E89EE002D58D5 /* NSObject+Extensions.swift in Sources */,
 				C08AA32A2A7E8A08002D58D5 /* UIStackView+Extensions.swift in Sources */,
+				C04C41D62B518998009BC481 /* WebViewVC.swift in Sources */,
 				C08AA38F2A7EBC05002D58D5 /* TableView.swift in Sources */,
 				539ACDFC2B22FF28007A257F /* Textfield.swift in Sources */,
+				C04C41DA2B5189A9009BC481 /* WebViewPresenter.swift in Sources */,
 				53B5D4282B26E6D000E2651E /* String+Extensions.swift in Sources */,
 				C08AA35F2A7E8DED002D58D5 /* UIViewController+PanModalPresenter.swift in Sources */,
 				C08AA3262A7E89D2002D58D5 /* UIView+Layout.swift in Sources */,
