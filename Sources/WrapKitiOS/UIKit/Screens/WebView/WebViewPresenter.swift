@@ -17,8 +17,8 @@ public protocol WebViewInput {
 }
 
 open class WebViewPresenter {
-    weak var view: WebViewOutput?
-    var navigateToBack: (() -> Void)?
+    public weak var view: WebViewOutput?
+    public var navigateToBack: (() -> Void)?
     private var url: URL
     
     public init(url: URL) {
