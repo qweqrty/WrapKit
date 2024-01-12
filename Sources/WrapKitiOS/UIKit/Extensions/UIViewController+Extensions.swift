@@ -9,6 +9,21 @@
 import UIKit
 
 public extension UIViewController {
+    var window: UIView? {
+        if #available(iOS 13.0, *) {
+            if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+               let window = windowScene.windows.first(where: { $0.isKeyWindow }) {
+                return window
+            }
+        } else {
+            if let appDelegate = UIApplication.shared.delegate, let window = appDelegate.window {
+                return window
+            }
+        }
+        return nil
+    }
+    
+        
     func showDefaultPrompt(title: String?, text: String, cancelText: String, yesText: String, completion: @escaping (() -> Void)) {
         let alert = UIAlertController(
             title: title,
