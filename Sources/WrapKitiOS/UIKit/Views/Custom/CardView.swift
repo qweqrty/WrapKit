@@ -83,7 +83,7 @@ extension CardView {
         )
         leadingImageViewConstraints = leadingImageView.anchor(
             .width(16),
-            .height(16)
+            .height(16, priority: .defaultHigh)
         )
         
         vStackView.anchor(
@@ -95,7 +95,7 @@ extension CardView {
         
         trailingImageViewConstraints = trailingImageView.anchor(
             .width(6.25),
-            .height(10)
+            .height(10, priority: .defaultHigh)
         )
         bottomSeparatorView.anchor(.height(1))
     }
