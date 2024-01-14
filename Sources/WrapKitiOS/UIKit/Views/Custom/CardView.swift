@@ -68,16 +68,16 @@ extension CardView {
         leadingImageView.anchor(
             .topGreaterThanEqual(leadingImageWrapperView.topAnchor),
             .bottomLessThanEqual(leadingImageWrapperView.bottomAnchor),
-            .leadingGreaterThanEqual(leadingImageWrapperView.leadingAnchor),
-            .trailingLessThanEqual(leadingImageWrapperView.trailingAnchor),
+            .leading(leadingImageWrapperView.leadingAnchor),
+            .trailing(leadingImageWrapperView.trailingAnchor),
             .centerX(leadingImageWrapperView.centerXAnchor),
             .centerY(leadingImageWrapperView.centerYAnchor)
         )
         trailingImageView.anchor(
             .topGreaterThanEqual(trailingImageWrapperView.topAnchor),
             .bottomLessThanEqual(trailingImageWrapperView.bottomAnchor),
-            .leadingGreaterThanEqual(trailingImageWrapperView.leadingAnchor),
-            .trailingLessThanEqual(trailingImageWrapperView.trailingAnchor),
+            .leading(trailingImageWrapperView.leadingAnchor),
+            .trailing(trailingImageWrapperView.trailingAnchor),
             .centerX(trailingImageWrapperView.centerXAnchor),
             .centerY(trailingImageWrapperView.centerYAnchor)
         )
