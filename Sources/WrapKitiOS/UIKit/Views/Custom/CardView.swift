@@ -11,6 +11,7 @@ import UIKit
 open class CardView: View {
     public let vStackView = StackView(axis: .vertical, contentInset: .init(top: 0, left: 8, bottom: 0, right: 8))
     public let hStackView = StackView(axis: .horizontal, spacing: 14)
+    public let leadingImageWrapperView = UIView()
     public let leadingImageView = ImageView(tintColor: .black)
     public let titleViews = VKeyValueFieldView(
         keyLabel: Label(font: .systemFont(ofSize: 16), textColor: .black),
@@ -18,6 +19,7 @@ open class CardView: View {
         spacing: 0
     )
     public let subtitleLabel = Label(font: .systemFont(ofSize: 16), textColor: .gray, numberOfLines: 1)
+    public let trailingImageWrapperView = UIView()
     public let trailingImageView: ImageView = ImageView(image: UIImage(named: "rightArrow"), tintColor: .black)
     public let bottomSeparatorView = View(backgroundColor: .gray)
     
@@ -54,15 +56,34 @@ extension CardView {
         addSubviews(vStackView)
         vStackView.addArrangedSubview(hStackView)
         vStackView.addArrangedSubview(bottomSeparatorView)
-        hStackView.addArrangedSubview(leadingImageView)
+        hStackView.addArrangedSubview(leadingImageWrapperView)
         hStackView.addArrangedSubview(titleViews)
         hStackView.addArrangedSubview(subtitleLabel)
-        hStackView.addArrangedSubview(trailingImageView)
+        hStackView.addArrangedSubview(trailingImageWrapperView)
+        leadingImageWrapperView.addSubview(leadingImageView)
+        trailingImageWrapperView.addSubview(trailingImageView)
     }
     
     func setupConstraints() {
+        leadingImageView.anchor(
+            .topGreaterThanEqual(leadingImageWrapperView.topAnchor),
+            .bottomLessThanEqual(leadingImageWrapperView.bottomAnchor),
+            .leadingGreaterThanEqual(leadingImageWrapperView.leadingAnchor),
+            .trailingLessThanEqual(leadingImageWrapperView.trailingAnchor),
+            .centerX(leadingImageWrapperView.centerXAnchor),
+            .centerY(leadingImageWrapperView.centerYAnchor)
+        )
+        trailingImageView.anchor(
+            .topGreaterThanEqual(trailingImageWrapperView.topAnchor),
+            .bottomLessThanEqual(trailingImageWrapperView.bottomAnchor),
+            .leadingGreaterThanEqual(trailingImageWrapperView.leadingAnchor),
+            .trailingLessThanEqual(trailingImageWrapperView.trailingAnchor),
+            .centerX(trailingImageWrapperView.centerXAnchor),
+            .centerY(trailingImageWrapperView.centerYAnchor)
+        )
         leadingImageViewConstraints = leadingImageView.anchor(
-            .width(16)
+            .width(16),
+            .height(16)
         )
         
         vStackView.anchor(
@@ -72,7 +93,10 @@ extension CardView {
             .bottom(bottomAnchor)
         )
         
-        trailingImageViewConstraints = trailingImageView.anchor(.width(6.25))
+        trailingImageViewConstraints = trailingImageView.anchor(
+            .width(6.25),
+            .height(10)
+        )
         bottomSeparatorView.anchor(.height(1))
     }
 }
