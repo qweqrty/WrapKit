@@ -47,6 +47,7 @@
 		C04C41D62B518998009BC481 /* WebViewVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = C04C41D52B518998009BC481 /* WebViewVC.swift */; };
 		C04C41D82B51899F009BC481 /* WebViewContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C04C41D72B51899F009BC481 /* WebViewContentView.swift */; };
 		C04C41DA2B5189A9009BC481 /* WebViewPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C04C41D92B5189A9009BC481 /* WebViewPresenter.swift */; };
+		C05048CB2B53FE9600DDB361 /* MockService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C05048CA2B53FE9600DDB361 /* MockService.swift */; };
 		C051603E2A6F9FEF00E01640 /* URLProtocolStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = C051603D2A6F9FEF00E01640 /* URLProtocolStub.swift */; };
 		C05160402A6FA01000E01640 /* XCTestCase+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C051603F2A6FA01000E01640 /* XCTestCase+Extensions.swift */; };
 		C05160442A6FA03400E01640 /* URLSessionHTTPClientTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C05160432A6FA03400E01640 /* URLSessionHTTPClientTests.swift */; };
@@ -171,6 +172,7 @@
 		C04C41D52B518998009BC481 /* WebViewVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebViewVC.swift; sourceTree = "<group>"; };
 		C04C41D72B51899F009BC481 /* WebViewContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebViewContentView.swift; sourceTree = "<group>"; };
 		C04C41D92B5189A9009BC481 /* WebViewPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebViewPresenter.swift; sourceTree = "<group>"; };
+		C05048CA2B53FE9600DDB361 /* MockService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockService.swift; sourceTree = "<group>"; };
 		C051603D2A6F9FEF00E01640 /* URLProtocolStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLProtocolStub.swift; sourceTree = "<group>"; };
 		C051603F2A6FA01000E01640 /* XCTestCase+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "XCTestCase+Extensions.swift"; sourceTree = "<group>"; };
 		C05160432A6FA03400E01640 /* URLSessionHTTPClientTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLSessionHTTPClientTests.swift; sourceTree = "<group>"; };
@@ -385,6 +387,7 @@
 				C0261C452A7860FD00BFCF1B /* RemoteService.swift */,
 				535CDB282B25AF6700F70534 /* CompositeService.swift */,
 				53567E612B3BE82500A058F1 /* DownloadService.swift */,
+				C05048CA2B53FE9600DDB361 /* MockService.swift */,
 			);
 			path = Service;
 			sourceTree = "<group>";
@@ -930,6 +933,7 @@
 				C08AA3612A7E8DED002D58D5 /* PanModalPresentationDelegate.swift in Sources */,
 				C08AA37A2A7EB5BD002D58D5 /* ProgressBarView.swift in Sources */,
 				C08AA36C2A7E9E41002D58D5 /* View.swift in Sources */,
+				C05048CB2B53FE9600DDB361 /* MockService.swift in Sources */,
 				C08AA3742A7E9F8B002D58D5 /* ImageView.swift in Sources */,
 				53336D532B2ADC1B0084D722 /* RealmStorage.swift in Sources */,
 				C08AA3622A7E8DED002D58D5 /* PanModalAnimator.swift in Sources */,
