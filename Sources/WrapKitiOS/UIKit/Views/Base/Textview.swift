@@ -50,7 +50,7 @@ open class Textview: UITextView, UITextViewDelegate {
     func setupConstraints() {
         placeholderLabel.anchor(
             .top(topAnchor, constant: padding.top),
-            .leading(leadingAnchor, constant: padding.left)
+            .leading(leadingAnchor, constant: padding.left + 4)
         )
     }
     
