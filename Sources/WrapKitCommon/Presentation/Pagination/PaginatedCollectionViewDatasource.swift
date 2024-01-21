@@ -17,7 +17,7 @@ open class CollectionViewDatasource<Cell: UICollectionViewCell, Model>: NSObject
     public var hasMore = true
     public var minimumLineSpacingForSectionAt: ((Int) -> CGFloat) = { _ in 0 }
     public var loadNextPage: (() -> Void)?
-    public var sizeForItemAt: ((IndexPath) -> CGSize) = { _ in .zero }
+    public var sizeForItemAt: ((IndexPath) -> CGSize)?
     public var didScrollTo: ((IndexPath) -> Void)?
     
     public init(configureCell: ((UICollectionView, IndexPath, Model) -> UICollectionViewCell)? = nil) {
@@ -36,7 +36,13 @@ open class CollectionViewDatasource<Cell: UICollectionViewCell, Model>: NSObject
     }
     
     open func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return sizeForItemAt(indexPath)
+        if let sizeForItemAt = sizeForItemAt {
+            return sizeForItemAt(indexPath)
+        } else if let layout = collectionViewLayout as? UICollectionViewFlowLayout {
+            return layout.itemSize
+        } else {
+            return UICollectionViewFlowLayout.automaticSize
+        }
     }
     
     open func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
