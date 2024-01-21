@@ -11,11 +11,9 @@ import UIKit
 open class SwitchControl: UISwitch {
     public var onPress: (() -> Void)?
     
-    public init(tintColor: UIColor, onTintColor: UIColor? = nil) {
+    public init() {
         super.init(frame: .zero)
-        
-        self.tintColor = tintColor
-        self.onTintColor = onTintColor
+
         addTarget(self, action: #selector(didPress), for: .valueChanged)
     }
     
