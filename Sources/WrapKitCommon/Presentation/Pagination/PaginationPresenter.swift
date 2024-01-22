@@ -46,7 +46,7 @@ public struct PaginationResponse<Item> {
     public let results: [Item]
 }
 
-open class PaginationPresenter<ServicePaginationRequest: Encodable, ServicePaginationResponse: Decodable, Item: Decodable, PresentableItem> {
+open class PaginationPresenter<ServicePaginationRequest, ServicePaginationResponse, Item, PresentableItem> {
     private(set) var date: Date
     public var items: [Item] {
         didSet {
