@@ -56,9 +56,9 @@ open class PaginationPresenter<ServicePaginationRequest, ServicePaginationRespon
     private(set) var page: Int
     private(set) var totalPages: Int?
 
+    public var mapRequest: ((PaginationRequest) -> ServicePaginationRequest)
     private let perPage: Int
     private let service: any Service<ServicePaginationRequest, ServicePaginationResponse> // Expected to be SerialServiceDecorator
-    private let mapRequest: ((PaginationRequest) -> ServicePaginationRequest)
     private let mapResponse: ((ServicePaginationResponse) -> PaginationResponse<Item>?)
     private let mapPresentable: ((Item) -> PresentableItem)
     private var requests = [HTTPClientTask?]()
