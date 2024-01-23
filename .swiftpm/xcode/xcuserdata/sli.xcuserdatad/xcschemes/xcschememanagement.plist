@@ -31,5 +31,18 @@
 			<integer>0</integer>
 		</dict>
 	</dict>
+	<key>SuppressBuildableAutocreation</key>
+	<dict>
+		<key>WrapKit</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>WrapKitTests</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+	</dict>
 </dict>
 </plist>

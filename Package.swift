@@ -10,7 +10,7 @@ let package = Package(
             type: .static,
             targets: ["WrapKit"]),
     ],
-    dependencies: [.package(url: "https://github.com/realm/realm-swift.git", from: "10.44.0")],
+    dependencies: [.package(url: "https://github.com/realm/realm-swift.git", exact: "10.44.0")],
     targets: [
         .target(
             name: "WrapKit",
