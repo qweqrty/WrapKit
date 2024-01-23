@@ -46,7 +46,7 @@ public struct PaginationResponse<Item> {
     public let results: [Item]
 }
 
-open class PaginationPresenter<ServicePaginationRequest: Encodable, ServicePaginationResponse: Decodable, Item: Decodable, PresentableItem> {
+open class PaginationPresenter<ServicePaginationRequest, ServicePaginationResponse, Item, PresentableItem> {
     private(set) var date: Date
     public var items: [Item] {
         didSet {
@@ -56,9 +56,9 @@ open class PaginationPresenter<ServicePaginationRequest: Encodable, ServicePagin
     private(set) var page: Int
     private(set) var totalPages: Int?
 
+    public var mapRequest: ((PaginationRequest) -> ServicePaginationRequest?)
     private let perPage: Int
     private let service: any Service<ServicePaginationRequest, ServicePaginationResponse> // Expected to be SerialServiceDecorator
-    private let mapRequest: ((PaginationRequest) -> ServicePaginationRequest)
     private let mapResponse: ((ServicePaginationResponse) -> PaginationResponse<Item>?)
     private let mapPresentable: ((Item) -> PresentableItem)
     private var requests = [HTTPClientTask?]()
@@ -69,7 +69,7 @@ open class PaginationPresenter<ServicePaginationRequest: Encodable, ServicePagin
 
     public init(
         service: any Service<ServicePaginationRequest, ServicePaginationResponse>,
-        mapRequest: @escaping ((PaginationRequest) -> ServicePaginationRequest),
+        mapRequest: @escaping ((PaginationRequest) -> ServicePaginationRequest?),
         mapResponse: @escaping ((ServicePaginationResponse) -> PaginationResponse<Item>?),
         mapPresentable: @escaping ((Item) -> PresentableItem),
         timestamp: Date = Date(),
@@ -91,6 +91,7 @@ open class PaginationPresenter<ServicePaginationRequest: Encodable, ServicePagin
 
 extension PaginationPresenter: PaginationViewInput {
     public func refresh() {
+        guard let request = mapRequest(.init(page: initialPage, date: Date(), perPage: perPage)) else { return }
         date = Date()
         page = initialPage
         items = []
@@ -98,7 +99,7 @@ extension PaginationPresenter: PaginationViewInput {
         requests.removeAll()
         view?.display(isLoadingSubsequentPage: false)
         view?.display(isLoadingFirstPage: true)
-        let task = service.make(request: mapRequest(.init(page: page, date: date, perPage: perPage))) { [weak self, initialPage] result in
+        let task = service.make(request: request) { [weak self, initialPage] result in
             self?.view?.display(isLoadingFirstPage: false)
             self?.handle(response: result, backToPage: initialPage)
         }
@@ -108,9 +109,10 @@ extension PaginationPresenter: PaginationViewInput {
 
     public func loadNextPage() {
         guard initialPage + (totalPages ?? 0) - 1 >= page else { return }
+        guard let request = mapRequest(.init(page: page + 1, date: date, perPage: perPage)) else { return }
         view?.display(isLoadingSubsequentPage: true)
         page += 1
-        let task = service.make(request: mapRequest(.init(page: page, date: date, perPage: perPage))) { [weak self, page] result in
+        let task = service.make(request: request) { [weak self, page] result in
             self?.view?.display(isLoadingSubsequentPage: false)
             self?.handle(response: result, backToPage: page - 1)
         }
