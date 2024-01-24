@@ -101,7 +101,7 @@ extension PaginationPresenter: PaginationViewInput {
         view?.display(isLoadingFirstPage: true)
         let task = service.make(request: request) { [weak self, initialPage] result in
             self?.view?.display(isLoadingFirstPage: false)
-            self?.handle(response: result, backToPage: initialPage)
+            self?.handle(response: result, backToPage: initialPage - 1)
         }
         requests.append(task)
         task?.resume()
@@ -127,6 +127,11 @@ extension PaginationPresenter: PaginationViewInput {
                 page = backToPage
                 backToPage == initialPage ? view?.display(errorAtFirstPage: ServiceError.internal.title) : view?.display(errorAtSubsequentPage: ServiceError.internal.title)
                 return
+            }
+            if backToPage == initialPage - 1 {
+                items = model.results
+            } else {
+                items += model.results
             }
             items += model.results
             view?.display(items: items.map { mapPresentable($0) }, hasMore: initialPage + (totalPages ?? 1) - 1 >= page)
