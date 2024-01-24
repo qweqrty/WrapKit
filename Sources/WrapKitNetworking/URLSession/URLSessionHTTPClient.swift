@@ -34,6 +34,9 @@ public final class URLSessionHTTPClient: HTTPClient {
         
         let task = session.dataTask(with: request) { [weak self] data, response, error in
             self?.printResponse(response, data: data, error: error)
+
+            guard (error as? URLError)?.code != .cancelled else { return }
+
             completion(Result {
                 if let error = error {
                     throw error
