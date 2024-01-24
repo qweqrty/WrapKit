@@ -127,7 +127,7 @@ extension PaginationPresenter: PaginationViewInput {
             totalPages = model.totalPages
         case .failure(let error):
             page = backToPage
-            backToPage == initialPage ? view?.display(errorAtFirstPage: error.title) : view?.display(errorAtSubsequentPage: error.title)
+            backToPage == initialPage - 1 ? view?.display(errorAtFirstPage: error.title) : view?.display(errorAtSubsequentPage: error.title)
         }
     }
 }
