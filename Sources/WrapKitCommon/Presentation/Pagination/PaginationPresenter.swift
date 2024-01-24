@@ -16,10 +16,7 @@ public protocol PaginationViewOutput<ViewModel>: AnyObject {
     func display(errorAtSubsequentPage: String)
 }
 
-public protocol PaginationViewInput<Item>: AnyObject {
-    associatedtype Item
-    var items: [Item] { get set }
-
+public protocol PaginationViewInput: AnyObject {
     func refresh()
     func loadNextPage()
 }
@@ -48,11 +45,7 @@ public struct PaginationResponse<Item> {
 
 open class PaginationPresenter<ServicePaginationRequest, ServicePaginationResponse, Item, PresentableItem> {
     private(set) var date: Date
-    public var items: [Item] {
-        didSet {
-            view?.display(items: items.map { mapPresentable($0) }, hasMore: initialPage + (totalPages ?? 1) - 1 >= page)
-        }
-    }
+    private var items = [Item]()
     private(set) var page: Int
     private(set) var totalPages: Int?
 
@@ -74,15 +67,13 @@ open class PaginationPresenter<ServicePaginationRequest, ServicePaginationRespon
         mapPresentable: @escaping ((Item) -> PresentableItem),
         timestamp: Date = Date(),
         initialPage: Int = 1,
-        perPage: Int = 10,
-        initialItems: [Item] = []
+        perPage: Int = 10
     ) {
         self.service = service
         self.date = timestamp
         self.initialPage = initialPage
         self.page = initialPage
         self.perPage = perPage
-        self.items = initialItems
         self.mapRequest = mapRequest
         self.mapResponse = mapResponse
         self.mapPresentable = mapPresentable
@@ -94,7 +85,6 @@ extension PaginationPresenter: PaginationViewInput {
         guard let request = mapRequest(.init(page: initialPage, date: Date(), perPage: perPage)) else { return }
         date = Date()
         page = initialPage
-        items = []
         requests.forEach { $0?.cancel() }
         requests.removeAll()
         view?.display(isLoadingSubsequentPage: false)
@@ -133,7 +123,6 @@ extension PaginationPresenter: PaginationViewInput {
             } else {
                 items += model.results
             }
-            items += model.results
             view?.display(items: items.map { mapPresentable($0) }, hasMore: initialPage + (totalPages ?? 1) - 1 >= page)
             totalPages = model.totalPages
         case .failure(let error):
