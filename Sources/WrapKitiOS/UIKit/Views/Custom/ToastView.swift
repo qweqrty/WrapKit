@@ -108,7 +108,7 @@ open class ToastView: UIView {
         case .middle:
             centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
         case .bottom:
-            bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20).isActive = true
+            bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -15).isActive = true
         }
         
         leadingConstraint = leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: UIScreen.main.bounds.width)
