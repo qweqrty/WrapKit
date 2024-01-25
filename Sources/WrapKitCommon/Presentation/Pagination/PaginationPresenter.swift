@@ -12,8 +12,8 @@ public protocol PaginationViewOutput<ViewModel>: AnyObject {
     func display(items: [ViewModel], hasMore: Bool)
     func display(isLoadingFirstPage: Bool)
     func display(isLoadingSubsequentPage: Bool)
-    func display(errorAtFirstPage: String)
-    func display(errorAtSubsequentPage: String)
+    func display(errorAtFirstPage: String?)
+    func display(errorAtSubsequentPage: String?)
 }
 
 public protocol PaginationViewInput: AnyObject {

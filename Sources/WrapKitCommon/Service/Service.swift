@@ -18,9 +18,12 @@ public enum ServiceError: Error {
     case `internal`
     case connectivity
     case notAuthorized
+    case toBeIgnored
     
-    public var title: String {
+    public var title: String? {
         switch self {
+        case .toBeIgnored:
+            return nil
         case .message(let title):
             return title
         case .internal:

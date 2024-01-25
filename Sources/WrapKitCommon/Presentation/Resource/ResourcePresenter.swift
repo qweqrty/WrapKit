@@ -21,7 +21,7 @@ public protocol ResourceViewOutput<PresentableModel>: AnyObject {
     associatedtype PresentableModel
     func display(model: PresentableModel)
     func display(isLoading: Bool)
-    func display(error: String)
+    func display(error: String?)
 }
 
 public protocol ResourceViewInput: AnyObject {

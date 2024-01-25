@@ -34,7 +34,9 @@ open class RemoteService<Request, Response: Decodable>: Service {
             case let .success(response):
                 self?.responseHandler?(request, response.data, response.response, completion)
             case .failure(let error):
-                if let error = error as NSError? {
+                if (error as? URLError)?.code == .cancelled {
+                    completion(.failure(.toBeIgnored))
+                } else if let error = error as NSError? {
                     if error.domain == NSURLErrorDomain && error.code == NSURLErrorNotConnectedToInternet {
                         completion(.failure(.connectivity))
                     } else {
