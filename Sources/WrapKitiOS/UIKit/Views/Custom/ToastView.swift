@@ -22,7 +22,7 @@ open class ToastView: UIView {
     public enum Position {
         case top
         case middle
-        case bottom
+        case bottom(additionalBottomPadding: CGFloat = 0)
     }
     
     public init(duration: TimeInterval = 3.0) {
@@ -107,8 +107,8 @@ open class ToastView: UIView {
             topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20).isActive = true
         case .middle:
             centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
-        case .bottom:
-            bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -15).isActive = true
+        case .bottom(let additionalBottomPadding):
+            bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -15 - additionalBottomPadding).isActive = true
         }
         
         leadingConstraint = leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: UIScreen.main.bounds.width)
