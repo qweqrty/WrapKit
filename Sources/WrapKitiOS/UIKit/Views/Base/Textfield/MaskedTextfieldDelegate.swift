@@ -38,6 +38,7 @@ public class MaskedTextFieldDelegate: NSObject, UITextFieldDelegate {
         }
         let maskedText = mask.apply(to: inputText)
         self.inputText = maskedText.input
+        textfield.text = maskedText.input
         wrappedLabel.contentView.attributedText = .combined(
             .init(maskedText.input, font: textfield.font ?? .systemFont(ofSize: 17), color: .clear, textAlignment: .left),
             .init(maskedText.maskToInput, font: textfield.font ?? .systemFont(ofSize: 17), color: maskTextColor, textAlignment: .left)
