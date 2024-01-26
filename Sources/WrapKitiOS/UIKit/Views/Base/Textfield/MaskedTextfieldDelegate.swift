@@ -13,7 +13,7 @@ public class MaskedTextFieldDelegate: NSObject, UITextFieldDelegate {
     private let maskTextColor: UIColor
     private let wrappedLabel = WrapperView(contentView: Label(), isUserInteractionEnabled: false)
     
-    public private(set) lazy var inputText: String = mask.apply(to: "").input
+    public lazy var inputText: String = mask.apply(to: "").input
 
     public init(
         mask: Masking,
