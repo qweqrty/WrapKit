@@ -13,6 +13,7 @@ open class CardView: View {
     public let hStackView = StackView(axis: .horizontal, spacing: 14)
     public let leadingImageWrapperView = UIView()
     public let leadingImageView = ImageView(tintColor: .black)
+    public let titleViewsWrapperView = UIView()
     public let titleViews = VKeyValueFieldView(
         keyLabel: Label(font: .systemFont(ofSize: 16), textColor: .black),
         valueLabel: Label(isHidden: true, font: .systemFont(ofSize: 16), textColor: .black),
@@ -57,14 +58,22 @@ extension CardView {
         vStackView.addArrangedSubview(hStackView)
         vStackView.addArrangedSubview(bottomSeparatorView)
         hStackView.addArrangedSubview(leadingImageWrapperView)
-        hStackView.addArrangedSubview(titleViews)
+        hStackView.addArrangedSubview(titleViewsWrapperView)
         hStackView.addArrangedSubview(subtitleLabel)
         hStackView.addArrangedSubview(trailingImageWrapperView)
         leadingImageWrapperView.addSubview(leadingImageView)
         trailingImageWrapperView.addSubview(trailingImageView)
+        titleViewsWrapperView.addSubview(titleViews)
     }
     
     func setupConstraints() {
+        titleViews.anchor(
+            .topGreaterThanEqual(titleViewsWrapperView.topAnchor),
+            .bottomLessThanEqual(titleViewsWrapperView.bottomAnchor),
+            .leading(titleViewsWrapperView.leadingAnchor),
+            .trailing(titleViewsWrapperView.trailingAnchor),
+            .centerY(titleViewsWrapperView.centerYAnchor)
+        )
         leadingImageView.anchor(
             .topGreaterThanEqual(leadingImageWrapperView.topAnchor),
             .bottomLessThanEqual(leadingImageWrapperView.bottomAnchor),
