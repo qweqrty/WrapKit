@@ -74,7 +74,7 @@ extension CardView {
             .trailing(titleViewsWrapperView.trailingAnchor),
             .centerY(titleViewsWrapperView.centerYAnchor)
         )
-        leadingImageView.anchor(
+        leadingImageViewConstraints = leadingImageView.anchor(
             .topGreaterThanEqual(leadingImageWrapperView.topAnchor),
             .bottomLessThanEqual(leadingImageWrapperView.bottomAnchor),
             .top(leadingImageWrapperView.topAnchor, priority: .defaultHigh),
@@ -82,9 +82,11 @@ extension CardView {
             .leading(leadingImageWrapperView.leadingAnchor),
             .trailing(leadingImageWrapperView.trailingAnchor),
             .centerX(leadingImageWrapperView.centerXAnchor),
-            .centerY(leadingImageWrapperView.centerYAnchor)
+            .centerY(leadingImageWrapperView.centerYAnchor),
+            .width(16),
+            .height(16, priority: .defaultHigh)
         )
-        trailingImageView.anchor(
+        trailingImageViewConstraints = trailingImageView.anchor(
             .topGreaterThanEqual(trailingImageWrapperView.topAnchor),
             .bottomLessThanEqual(trailingImageWrapperView.bottomAnchor),
             .top(trailingImageWrapperView.topAnchor, priority: .defaultHigh),
@@ -92,11 +94,9 @@ extension CardView {
             .leading(trailingImageWrapperView.leadingAnchor),
             .trailing(trailingImageWrapperView.trailingAnchor),
             .centerX(trailingImageWrapperView.centerXAnchor),
-            .centerY(trailingImageWrapperView.centerYAnchor)
-        )
-        leadingImageViewConstraints = leadingImageView.anchor(
-            .width(16),
-            .height(16, priority: .defaultHigh)
+            .centerY(trailingImageWrapperView.centerYAnchor),
+            .width(6.25),
+            .height(10, priority: .defaultHigh)
         )
         
         vStackView.anchor(
@@ -104,11 +104,6 @@ extension CardView {
             .top(topAnchor),
             .trailing(trailingAnchor),
             .bottom(bottomAnchor)
-        )
-        
-        trailingImageViewConstraints = trailingImageView.anchor(
-            .width(6.25),
-            .height(10, priority: .defaultHigh)
         )
         bottomSeparatorView.anchor(.height(1))
     }
