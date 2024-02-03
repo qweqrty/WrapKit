@@ -102,6 +102,6 @@ fileprivate extension URLRequest {
         
         cURL += method + url + header + data
         
-        return "📤 curl: " + cURL
+        return "📤: " + cURL
     }
 }
