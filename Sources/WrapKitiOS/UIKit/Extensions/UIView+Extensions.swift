@@ -11,6 +11,12 @@ import UIKit
 public extension UIView {
     static let CAGradientLayerName = "GradientBorderLayer"
     
+    convenience init(isHidden: Bool) {
+        self.init()
+        
+        self.isHidden = isHidden
+    }
+    
     @IBInspectable var cornerRadius: CGFloat {
         get {
             return layer.cornerRadius
