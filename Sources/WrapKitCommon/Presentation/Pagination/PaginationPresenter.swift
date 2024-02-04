@@ -16,7 +16,11 @@ public protocol PaginationViewOutput<ViewModel>: AnyObject {
     func display(errorAtSubsequentPage: String?)
 }
 
-public protocol PaginationViewInput: AnyObject {
+public protocol PaginationViewInput<RemoteItem>: AnyObject {
+    associatedtype RemoteItem
+    
+    var items: [RemoteItem] { get set }
+    
     func refresh()
     func loadNextPage()
 }
@@ -45,7 +49,7 @@ public struct PaginationResponse<Item> {
 
 open class PaginationPresenter<ServicePaginationRequest, ServicePaginationResponse, Item, PresentableItem> {
     private(set) var date: Date
-    private var items = [Item]()
+    public var items = [Item]()
     private(set) var page: Int
     private(set) var totalPages: Int?
 
