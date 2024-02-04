@@ -12,7 +12,7 @@ open class View: UIView {
     public var onPress: (() -> Void)?
     public var onLongPress: (() -> Void)?
     
-    private let longPressThreshold: TimeInterval = 1.5
+    private let longPressThreshold: TimeInterval = 1
     private var pressStartTime: Date?
     private var longPressTimer: Timer?
     
