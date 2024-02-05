@@ -45,6 +45,15 @@ open class CollectionViewDatasource<Cell: UICollectionViewCell, Model>: NSObject
         }
     }
     
+    open func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+        let itemCount = getItems().count
+        let thresholdIndex = itemCount - 1
+        
+        if indexPath.row == thresholdIndex, hasMore {
+            loadNextPage?()
+        }
+    }
+    
     open func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let model = getItems()[indexPath.row]
         if let configureCell = configureCell { return configureCell(collectionView, indexPath, model) }
@@ -82,18 +91,6 @@ open class CollectionViewDatasource<Cell: UICollectionViewCell, Model>: NSObject
         let visiblePoint = CGPoint(x: visibleRect.midX, y: visibleRect.midY)
         guard let indexPath = (scrollView as? UICollectionView)?.indexPathForItem(at: visiblePoint) else { return }
         didScrollTo?(indexPath)
-        
-        guard scrollView.isDragging else { return }
-        guard hasMore else { return }
-        guard let scrollDirection = ((scrollView as? UICollectionView)?.collectionViewLayout as? UICollectionViewFlowLayout)?.scrollDirection else { return }
-        let isHorizontalDirection = scrollDirection == .horizontal
-        let contentOffset = isHorizontalDirection ? scrollView.contentOffset.x : scrollView.contentOffset.y
-        let contentSize = isHorizontalDirection ? scrollView.contentSize.width : scrollView.contentSize.height
-        let frameSize = isHorizontalDirection ? scrollView.bounds.size.width : scrollView.bounds.size.height
-        
-        if contentOffset > contentSize - frameSize * 4.5/5 {
-            loadNextPage?()
-        }
     }
 }
 #endif
