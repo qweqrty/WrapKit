@@ -13,6 +13,8 @@ public extension String {
     static let nameRegex = "^[\\p{L}\\p{M}\\s'-]+$"
     static let emailRegex = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
     static let nonSymbolicRegex = "^[^\\W_]*$"
+    static let nonSymbolicRegexWithWhiteSpaces = "^[\\w\\s]*$"
+
     static func lengthRegex(from min: Int, to max: Int) -> String {
         return "^.{\(min),\(max)}$"
     }
