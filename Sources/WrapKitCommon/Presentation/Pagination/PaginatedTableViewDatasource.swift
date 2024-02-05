@@ -49,6 +49,13 @@ open class TableViewDatasource<Cell: UITableViewCell, Model>: NSObject, UITableV
         return UITableViewCell()
     }
     
+    open func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        let lastItemIndex = getItems().count - 1
+        if indexPath.row == lastItemIndex && hasMore {
+            loadNextPage?()
+        }
+    }
+    
     open func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return UITableView.automaticDimension
     }
@@ -77,16 +84,6 @@ open class TableViewDatasource<Cell: UITableViewCell, Model>: NSObject, UITableV
     open func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
         guard showBottomLoader else { return .leastNonzeroMagnitude }
         return bottomLoadingView.intrinsicContentSize.height * 1.5
-    }
-    
-    open func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        guard scrollView.isDragging else { return }
-        guard hasMore else { return }
-        let offsetY = scrollView.contentOffset.y
-        let contentHeight = scrollView.contentSize.height
-        if offsetY > contentHeight - scrollView.frame.height * 4/5 {
-            loadNextPage?()
-        }
     }
 }
 #endif
