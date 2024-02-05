@@ -43,6 +43,11 @@ public struct PaginationResponse<Item> {
         self.results = results
     }
     
+    public init(totalItemsCount: Int, perPage: Int, results: [Item]) {
+        self.totalPages = perPage == 0 ? 0 : (totalItemsCount + perPage - 1) / perPage
+        self.results = results
+    }
+    
     public let totalPages: Int
     public let results: [Item]
 }
@@ -135,3 +140,4 @@ extension PaginationPresenter: PaginationViewInput {
         }
     }
 }
+
