@@ -35,7 +35,7 @@ class RemoteServiceTests: XCTestCase {
     func test_makeRequest_completesWithSuccess() {
         let url = URL(string: "https://example.com")!
         let (sut, clientSpy) = makeSUT { _ in URLRequest(url: url) }
-        let expectedResponse = RemoteError(message: "Success")
+        let expectedResponse = ServiceError(message: "Success")
         let jsonData = try! JSONEncoder().encode(expectedResponse)
         
         var receivedResponse: RemoteError?
@@ -113,9 +113,9 @@ extension RemoteServiceTests {
     private func makeSUT(
         makeURLRequest: @escaping ((String) -> URLRequest?),
         isResponseOk: ((Data, HTTPURLResponse) -> Bool)? = nil
-    ) -> (RemoteService<String, RemoteError>, HTTPClientSpy) {
+    ) -> (RemoteService<String, ServiceError>, HTTPClientSpy) {
         let spy = HTTPClientSpy()
-        let sut = RemoteService<String, RemoteError>(
+        let sut = RemoteService<String, ServiceError>(
             client: spy,
             makeURLRequest: makeURLRequest,
             isResponseOk: isResponseOk

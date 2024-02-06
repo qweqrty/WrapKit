@@ -13,7 +13,7 @@ class TokenRefresherImplTests: XCTestCase {
     func test_refresh_whenTokenIsMissing_completesWithNotAuthorizedError() {
         let (sut, storage, _) = makeSUT()
 
-        storage.set(nil)
+        storage.set(model: nil, completion: nil)
 
         let exp = expectation(description: "Wait for completion")
         var receivedError: ServiceError?
@@ -32,7 +32,7 @@ class TokenRefresherImplTests: XCTestCase {
     func test_refresh_whenTokenIsPresent_andServiceSucceeds_completesWithNewToken() {
         let (sut, storage, service) = makeSUT()
 
-        storage.set("old_token")
+        storage.set(model: "old_token", completion: nil)
 
         let exp = expectation(description: "Wait for completion")
         var receivedToken: String?
@@ -53,7 +53,7 @@ class TokenRefresherImplTests: XCTestCase {
     func test_refresh_whenTokenIsPresent_andServiceFails_completesWithError() {
         let (sut, storage, service) = makeSUT()
 
-        storage.set("old_token")
+        storage.set(model: "old_token", completion: nil)
 
         let exp = expectation(description: "Wait for completion")
         var receivedError: ServiceError?
@@ -74,7 +74,7 @@ class TokenRefresherImplTests: XCTestCase {
     func test_refresh_multipleCalls_whenTokenIsMissing_allCompleteWithNotAuthorizedError() {
         let (sut, storage, _) = makeSUT()
 
-        storage.set(nil)
+        storage.set(model: nil, completion: nil)
 
         let exp = expectation(description: "Wait for completion")
         exp.expectedFulfillmentCount = 2
@@ -105,7 +105,7 @@ class TokenRefresherImplTests: XCTestCase {
     func test_refresh_multipleCalls_whenTokenIsPresent_allCompleteWithNewToken() {
         let (sut, storage, service) = makeSUT()
 
-        storage.set("old_token")
+        storage.set(model: "old_token", completion: nil)
 
         let exp = expectation(description: "Wait for completion")
         exp.expectedFulfillmentCount = 2
@@ -138,7 +138,7 @@ class TokenRefresherImplTests: XCTestCase {
     func test_refresh_whenTokenIsPresent_andServiceFailsWithConnectivity_completesWithError() {
         let (sut, storage, service) = makeSUT()
 
-        storage.set("old_token")
+        storage.set(model: "old_token", completion: nil)
 
         let exp = expectation(description: "Wait for completion")
         var receivedError: ServiceError?
@@ -160,7 +160,7 @@ class TokenRefresherImplTests: XCTestCase {
     func test_refresh_orderOfExecution() {
         let (sut, storage, service) = makeSUT()
         
-        storage.set("old_token")
+        storage.set(model: "old_token", completion: nil)
         
         let exp1 = expectation(description: "Wait for first refresh completion")
         let exp2 = expectation(description: "Wait for second refresh completion")

@@ -20,4 +20,11 @@ public extension Encodable {
 
         return urlEncodedComponents.joined(separator: "&")
     }
+    
+    func toURLFormEncodedString(withRootKey rootKey: String, withAllowedCharacters allowedCharacters: CharacterSet = .urlQueryAllowed) -> Data? {
+        guard let jsonData = try? JSONEncoder().encode(self) else { return nil }
+        guard let jsonString = String(data: jsonData, encoding: .utf8) else { return nil }
+        guard let encodedJsonString = jsonString.addingPercentEncoding(withAllowedCharacters: allowedCharacters) else { return nil }
+        return "\(rootKey)=\(encodedJsonString)".data(using: .utf8)
+    }
 }

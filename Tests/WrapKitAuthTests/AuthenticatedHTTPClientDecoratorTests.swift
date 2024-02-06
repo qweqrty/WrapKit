@@ -13,7 +13,7 @@ class AuthenticatedHTTPClientDecoratorTests: XCTestCase {
     func test_dispatch_withNoAccessToken_completesWithNotAuthorizedError() {
         let (sut, storage, httpClientSpy, _) = makeSUT(isAuthenticated: { _ in false })
 
-        storage.set(nil)
+        storage.set(model: nil, completion: nil)
 
         var receivedResult: HTTPClient.Result?
         sut.dispatch(URLRequest(url: URL(string: "http://test.com")!)) { result in
@@ -32,7 +32,7 @@ class AuthenticatedHTTPClientDecoratorTests: XCTestCase {
     func test_dispatch_withAccessTokenAndAuthenticatedResponse_completesSuccessfully() {
         let (sut, storage, httpClientSpy, _) = makeSUT(isAuthenticated: { _ in true })
 
-        storage.set("valid_token")
+        storage.set(model: "valid_token", completion: nil)
 
         var receivedResult: HTTPClient.Result?
         sut.dispatch(URLRequest(url: URL(string: "http://test.com")!)) { result in
@@ -55,7 +55,7 @@ class AuthenticatedHTTPClientDecoratorTests: XCTestCase {
             return response.statusCode == 200
         })
 
-        storage.set("valid_token")
+        storage.set(model: "valid_token", completion: nil)
         var receivedResult: HTTPClient.Result?
 
         let exp = expectation(description: "Wait for completion")
@@ -83,7 +83,7 @@ class AuthenticatedHTTPClientDecoratorTests: XCTestCase {
     func test_dispatch_withAccessTokenAndUnauthenticatedResponseAndTokenRefresherFailure_completesWithNotAuthorized() {
         let (sut, storage, httpClientSpy, tokenRefresherSpy) = makeSUT(isAuthenticated: { _ in false })
 
-        storage.set("valid_token")
+        storage.set(model: "valid_token", completion: nil)
 
         var receivedResult: HTTPClient.Result?
         sut.dispatch(URLRequest(url: URL(string: "http://test.com")!)) { result in
@@ -104,7 +104,7 @@ class AuthenticatedHTTPClientDecoratorTests: XCTestCase {
     func test_dispatch_withAccessTokenAndTwoUnauthenticatedResponses_doesNotRetryTwice() {
         let (sut, storage, httpClientSpy, tokenRefresherSpy) = makeSUT(isAuthenticated: { _ in false })
 
-        storage.set("valid_token")
+        storage.set(model:"valid_token", completion: nil)
 
         var receivedResult: HTTPClient.Result?
         sut.dispatch(URLRequest(url: URL(string: "http://test.com")!)) { result in
@@ -127,7 +127,7 @@ class AuthenticatedHTTPClientDecoratorTests: XCTestCase {
     func test_dispatch_withAccessTokenAndUnauthenticatedResponseWithNoTokenRefresher_doesNotRetry() {
         let (sut, storage, httpClientSpy, _) = makeSUT(tokenRefresher: nil, isAuthenticated: { _ in false })
 
-        storage.set("valid_token")
+        storage.set(model: "valid_token", completion: nil)
 
         var receivedResult: HTTPClient.Result?
         sut.dispatch(URLRequest(url: URL(string: "http://test.com")!)) { result in
@@ -172,7 +172,7 @@ class AuthenticatedHTTPClientDecoratorTests: XCTestCase {
     func test_dispatch_withTokenRefreshed_storesNewToken() {
         let (sut, storage, httpClientSpy, tokenRefresherSpy) = makeSUT(isAuthenticated: { _ in false })
 
-        storage.set("valid_token")
+        storage.set(model: "valid_token", completion: nil)
         
         sut.dispatch(URLRequest(url: URL(string: "http://test.com")!)) { _ in }.resume()
         httpClientSpy.completes(withStatusCode: 401, data: Data("data".utf8))

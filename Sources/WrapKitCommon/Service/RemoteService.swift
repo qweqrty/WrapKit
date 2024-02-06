@@ -7,7 +7,7 @@
 
 import Foundation
         
-open class RemoteService<Request, Response: Decodable>: Service {
+open class RemoteService<Request, Response>: Service {
     public typealias ResponseHandler = ((_ request: Request, _ data: Data, _ response: HTTPURLResponse, _ completion: @escaping ((Result<Response, ServiceError>)) -> Void) -> Void)
      
     private let client: HTTPClient
