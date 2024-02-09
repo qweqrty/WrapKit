@@ -6,8 +6,12 @@ let package = Package(
     name: "WrapKit",
     products: [
         .library(
-            name: "WrapKit",
+            name: "WrapKitStatic",
             type: .static,
+            targets: ["WrapKit"]),
+        .library(
+            name: "WrapKitDynamic",
+            type: .dynamic,
             targets: ["WrapKit"]),
     ],
     dependencies: [.package(url: "https://github.com/realm/realm-swift.git", exact: "10.44.0")],
