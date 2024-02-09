@@ -9,14 +9,14 @@
 			<key>isShown</key>
 			<false/>
 			<key>orderHint</key>
-			<integer>5</integer>
+			<integer>4</integer>
 		</dict>
 		<key>GettingStarted (Playground) 2.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>
 			<key>orderHint</key>
-			<integer>6</integer>
+			<integer>5</integer>
 		</dict>
 		<key>GettingStarted (Playground) 3.xcscheme</key>
 		<dict>
@@ -44,7 +44,7 @@
 			<key>isShown</key>
 			<false/>
 			<key>orderHint</key>
-			<integer>4</integer>
+			<integer>3</integer>
 		</dict>
 		<key>WrapKit-Package.xcscheme_^#shared#^_</key>
 		<dict>
@@ -70,6 +70,16 @@
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
 		<key>WrapKit</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>WrapKitDynamic</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>WrapKitStatic</key>
 		<dict>
 			<key>primary</key>
 			<true/>
