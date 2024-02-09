@@ -14,7 +14,7 @@ let package = Package(
             type: .dynamic,
             targets: ["WrapKit"]),
     ],
-    dependencies: [.package(url: "https://github.com/realm/realm-swift.git", from: "10.44.0")],
+    dependencies: [.package(url: "https://github.com/realm/realm-swift.git", exact: "10.46.0")],
     targets: [
         .target(
             name: "WrapKit",
