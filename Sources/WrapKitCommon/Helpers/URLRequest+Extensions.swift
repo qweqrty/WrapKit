@@ -34,7 +34,17 @@ public extension URLRequest {
 }
 
 public extension String {
-    var asUrl: URL? { URL(string: self) }
+    var asUrl: URL? {
+        if let url = URL(string: self) {
+            return url
+        } else {
+            if let urlEscapedString = addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
+               let escapedURL = URL(string: urlEscapedString) {
+                return escapedURL
+            }
+        }
+        return nil
+    }
     
     func toDate(dateFormat: String) -> Date? {
         let formatter = DateFormatter()
