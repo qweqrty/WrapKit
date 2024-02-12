@@ -13,6 +13,7 @@ open class TableViewDatasource<Cell: UITableViewCell, Model>: NSObject, UITableV
     open var selectAt: ((IndexPath) -> Void)?
     open var showBottomLoader = false
     open var configureCell: ((UITableView, IndexPath, Model) -> UITableViewCell)?
+    open var heightForRowAt: ((UITableView, IndexPath) -> CGFloat) = { _, _  in UITableView.automaticDimension }
     open var hasMore = true
     open var loadNextPage: (() -> Void)?
     
@@ -57,7 +58,7 @@ open class TableViewDatasource<Cell: UITableViewCell, Model>: NSObject, UITableV
     }
     
     open func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return UITableView.automaticDimension
+        return heightForRowAt(tableView, indexPath)
     }
     
     open func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
