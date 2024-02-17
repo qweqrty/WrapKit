@@ -16,10 +16,10 @@ public protocol PaginationViewOutput<ViewModel>: AnyObject {
     func display(errorAtSubsequentPage: String?)
 }
 
-public protocol PaginationViewInput<RemoteItem>: AnyObject {
-    associatedtype RemoteItem
+public protocol PaginationViewInput<PresentableItemModel>: AnyObject {
+    associatedtype PresentableItemModel
     
-    var items: [RemoteItem] { get set }
+    var presentableItemsStorage: any Storage<[PresentableItemModel]> { get }
     
     func refresh()
     func loadNextPage()
@@ -53,8 +53,9 @@ public struct PaginationResponse<Item> {
 }
 
 open class PaginationPresenter<ServicePaginationRequest, ServicePaginationResponse, Item, PresentableItem> {
+    public let presentableItemsStorage: any Storage<[PresentableItem]>
+
     private(set) var date: Date
-    public var items = [Item]()
     private(set) var page: Int
     private(set) var totalPages: Int?
 
@@ -74,6 +75,7 @@ open class PaginationPresenter<ServicePaginationRequest, ServicePaginationRespon
         mapRequest: @escaping ((PaginationRequest) -> ServicePaginationRequest?),
         mapResponse: @escaping ((ServicePaginationResponse) -> PaginationResponse<Item>?),
         mapPresentable: @escaping ((Item) -> PresentableItem),
+        presentableItemsStorage: any Storage<[PresentableItem]>,
         timestamp: Date = Date(),
         initialPage: Int = 1,
         perPage: Int = 10
@@ -82,6 +84,7 @@ open class PaginationPresenter<ServicePaginationRequest, ServicePaginationRespon
         self.date = timestamp
         self.initialPage = initialPage
         self.page = initialPage
+        self.presentableItemsStorage = presentableItemsStorage
         self.perPage = perPage
         self.mapRequest = mapRequest
         self.mapResponse = mapResponse
@@ -128,11 +131,14 @@ extension PaginationPresenter: PaginationViewInput {
                 return
             }
             if backToPage == initialPage - 1 {
-                items = model.results
+                let items = model.results.map { mapPresentable($0) }
+                presentableItemsStorage.set(model: items, completion: nil)
+                view?.display(items: items, hasMore: initialPage + (totalPages ?? 1) - 1 >= page)
             } else {
-                items += model.results
+                let items = (presentableItemsStorage.get() ?? []) + model.results.map { mapPresentable($0) }
+                presentableItemsStorage.set(model: items, completion: nil)
+                view?.display(items: items, hasMore: initialPage + (totalPages ?? 1) - 1 >= page)
             }
-            view?.display(items: items.map { mapPresentable($0) }, hasMore: initialPage + (totalPages ?? 1) - 1 >= page)
             totalPages = model.totalPages
         case .failure(let error):
             page = backToPage
