@@ -14,14 +14,11 @@ let package = Package(
             type: .dynamic,
             targets: ["WrapKit"]),
     ],
-    dependencies: [.package(url: "https://github.com/realm/realm-swift.git", from: "10.44.0")],
+    dependencies: [],
     targets: [
         .target(
             name: "WrapKit",
-            dependencies: [
-                .product(name: "Realm", package: "realm-swift"),
-                .product(name: "RealmSwift", package: "realm-swift")
-            ],
+            dependencies: [],
             path: "Sources"
         ),
         .testTarget(
