@@ -37,7 +37,7 @@ open class ViewController<ContentView: UIView>: UIViewController {
     }
     
     deinit {
-        print("\(String(describing: self)) deallocated")
+        print("\(String(describing: self)) has been deallocated")
     }
     
     required public init?(coder: NSCoder) {
