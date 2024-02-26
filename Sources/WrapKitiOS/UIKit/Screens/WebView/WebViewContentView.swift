@@ -11,7 +11,7 @@ import UIKit
 import WebKit
 
 open class WebViewContentView: UIView {
-    public lazy var closeButton = makeButton()
+    public lazy var navigationBar = makeNavigationBar()
     public lazy var webView = makeWebView()
     
     public override init(frame: CGRect) {
@@ -27,17 +27,18 @@ open class WebViewContentView: UIView {
 
 private extension WebViewContentView {
     func setupViews() {
-        addSubviews(closeButton, webView)
+        addSubviews(navigationBar, webView)
     }
     
     func setupConstraints() {
-        closeButton.anchor(
-            .top(safeAreaLayoutGuide.topAnchor),
-            .trailing(trailingAnchor, constant: 14)
+        navigationBar.anchor(
+            .top(topAnchor),
+            .leading(leadingAnchor),
+            .trailing(trailingAnchor)
         )
         
         webView.anchor(
-            .top(closeButton.bottomAnchor, constant: 8),
+            .top(navigationBar.bottomAnchor, constant: 8),
             .bottom(bottomAnchor),
             .leading(leadingAnchor),
             .trailing(trailingAnchor)
@@ -46,8 +47,9 @@ private extension WebViewContentView {
 }
 
 private extension WebViewContentView {
-    func makeButton() -> Button {
-        return Button()
+    func makeNavigationBar() -> NavigationBar {
+        let navigationBar = NavigationBar()
+        return navigationBar
     }
     
     func makeWebView() -> WKWebView {

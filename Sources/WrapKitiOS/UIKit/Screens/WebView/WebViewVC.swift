@@ -24,7 +24,7 @@ open class WebViewVC: ViewController<WebViewContentView> {
     }
     
     public func setupUI() {
-        contentView.closeButton.onPress = presenter.onBackButtonTap
+        contentView.navigationBar.backButton.onPress = presenter.onBackButtonTap
     }
     
     public required init?(coder: NSCoder) {
