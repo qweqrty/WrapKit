@@ -8,7 +8,7 @@
 #if canImport(UIKit)
 import UIKit
 
-open class TableViewDatasource<Cell: UITableViewCell, Model>: NSObject, UITableViewDelegate, UITableViewDataSource {
+open class TableViewDatasource<Model>: NSObject, UITableViewDelegate, UITableViewDataSource {
     open var getItems: (() -> [Model]) = { [] }
     open var selectAt: ((IndexPath) -> Void)?
     open var showBottomLoader = false

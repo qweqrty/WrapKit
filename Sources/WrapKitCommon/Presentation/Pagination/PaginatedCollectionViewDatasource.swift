@@ -8,7 +8,7 @@
 #if canImport(UIKit)
 import UIKit
 
-open class CollectionViewDatasource<Cell: UICollectionViewCell, Model>: NSObject, UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
+open class CollectionViewDatasource<Model>: NSObject, UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
     public var getItems: (() -> [Model]) = { [] }
     public var selectAt: ((IndexPath) -> Void)?
     public var configureCell: ((UICollectionView, IndexPath, Model) -> UICollectionViewCell)?
