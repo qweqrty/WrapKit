@@ -98,6 +98,9 @@ public extension UIView {
     }
     
     func showLoadingView(_ loadingView: UIView? = nil, backgroundColor: UIColor, contentInset: UIEdgeInsets = .zero, size: CGSize? = nil) {
+        if let previousLoadingContainerView = viewWithTag(345635463546) {
+            previousLoadingContainerView.removeFromSuperview()
+        }
         let loadingContainerView: UIView = {
             let view = UIView(backgroundColor: backgroundColor)
             view.tag = 345635463546
