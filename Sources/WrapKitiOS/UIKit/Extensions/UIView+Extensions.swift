@@ -97,7 +97,7 @@ public extension UIView {
         layer.addSublayer(gradientLayer)
     }
     
-    func showLoadingView(backgroundColor: UIColor) {
+    func showLoadingView(_ view: UIView? = nil, backgroundColor: UIColor, contentInset: UIEdgeInsets = .zero, size: CGSize? = nil) {
         let loadingContainerView: UIView = {
             let view = UIView(backgroundColor: backgroundColor)
             view.tag = 345635463546
@@ -107,27 +107,37 @@ public extension UIView {
             return view
         }()
         clipsToBounds = true
-        let loadingView: UIActivityIndicatorView = {
-            if #available(iOS 13.0, *) {
-                let view = UIActivityIndicatorView(style: .medium)
-                loadingContainerView.addSubview(view)
-                view.centerInSuperview()
-                return view
-            } else {
-                let view = UIActivityIndicatorView(style: .white)
-                loadingContainerView.addSubview(view)
-                view.centerInSuperview()
-                return view
-            }
-        }()
+        let loadingView = view ?? makeDefaultLoadingView()
+        loadingContainerView.addSubview(loadingView)
+        loadingView.anchor(
+            .centerX(loadingContainerView.centerXAnchor, constant: contentInset.left - contentInset.right),
+            .centerY(loadingContainerView.centerYAnchor, constant: contentInset.top - contentInset.bottom)
+        )
+        if let size = size {
+            loadingView.constrainHeight(size.height)
+            loadingView.constrainWidth(size.width)
+        }
         isUserInteractionEnabled = false
-        loadingView.startAnimating()
     }
     
     func hideLoadingView() {
         guard let loadingContainerView = viewWithTag(345635463546) else { return }
         isUserInteractionEnabled = true
         loadingContainerView.removeFromSuperview()
+    }
+    
+    private func makeDefaultLoadingView() -> UIView {
+        let loadingView: UIActivityIndicatorView = {
+            if #available(iOS 13.0, *) {
+                let view = UIActivityIndicatorView(style: .medium)
+                return view
+            } else {
+                let view = UIActivityIndicatorView(style: .white)
+                return view
+            }
+        }()
+        loadingView.startAnimating()
+        return loadingView
     }
     
     static func performAnimationsInSequence(_ animations: [(TimeInterval, () -> Void, ((Bool) -> Void)?)], completion: ((Bool) -> Void)? = nil) {
