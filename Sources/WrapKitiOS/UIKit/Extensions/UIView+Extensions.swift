@@ -97,7 +97,7 @@ public extension UIView {
         layer.addSublayer(gradientLayer)
     }
     
-    func showLoadingView(_ view: UIView? = nil, backgroundColor: UIColor, contentInset: UIEdgeInsets = .zero, size: CGSize? = nil) {
+    func showLoadingView(_ loadingView: UIView? = nil, backgroundColor: UIColor, contentInset: UIEdgeInsets = .zero, size: CGSize? = nil) {
         let loadingContainerView: UIView = {
             let view = UIView(backgroundColor: backgroundColor)
             view.tag = 345635463546
@@ -107,7 +107,7 @@ public extension UIView {
             return view
         }()
         clipsToBounds = true
-        let loadingView = view ?? makeDefaultLoadingView()
+        let loadingView = loadingView ?? makeDefaultLoadingView()
         loadingContainerView.addSubview(loadingView)
         loadingView.anchor(
             .centerX(loadingContainerView.centerXAnchor, constant: contentInset.left - contentInset.right),
