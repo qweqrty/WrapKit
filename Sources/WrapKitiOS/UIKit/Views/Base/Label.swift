@@ -123,11 +123,8 @@ open class Label: UILabel {
 public extension Label {
     @discardableResult
     func append(_ attributedTexts: Link...) -> Self {
-        self.links = (links + attributedTexts).withPreviousAndNext.map { (prev, current, _) -> Link in
-            var currentWithRange = current
-            let prevRange: NSRange = prev?.range ?? .init(location: 0, length: 0)
-            currentWithRange.range = .init(location: prevRange.length + prevRange.location, length: current.text.count)
-            return currentWithRange
+        attributedTexts.forEach { link in
+            self.links.append(contentsOf: link)
         }
         return self
     }
