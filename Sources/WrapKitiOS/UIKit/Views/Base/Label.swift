@@ -124,7 +124,7 @@ public extension Label {
     @discardableResult
     func append(_ attributedTexts: Link...) -> Self {
         attributedTexts.forEach { link in
-            self.links.append(contentsOf: link)
+            self.links.append(link)
         }
         return self
     }
