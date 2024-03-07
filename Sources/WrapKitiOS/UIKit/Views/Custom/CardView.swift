@@ -31,20 +31,22 @@ open class CardView: View {
         super.init(frame: .zero)
         setupSubviews()
         setupConstraints()
-        
-        subtitleLabel.setContentHuggingPriority(.required, for: .horizontal)
-        titleViews.keyLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
-        titleViews.keyLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
+        setupPriorities()
     }
     
     public override init(frame: CGRect) {
         super.init(frame: frame)
         setupSubviews()
         setupConstraints()
-        
+        setupPriorities()
+    }
+    
+    private func setupPriorities() {
         subtitleLabel.setContentHuggingPriority(.required, for: .horizontal)
         titleViews.keyLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
         titleViews.keyLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
+        titleViews.keyLabel.setContentCompressionResistancePriority(.required, for: .vertical)
+        titleViews.valueLabel.setContentCompressionResistancePriority(.required, for: .vertical)
     }
     
     public required init?(coder: NSCoder) {
