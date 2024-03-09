@@ -35,7 +35,7 @@ public enum Anchor {
     case top(_ top: NSLayoutYAxisAnchor, constant: CGFloat = 0, priority: UILayoutPriority = .required)
     case topLessThanEqual(_ top: NSLayoutYAxisAnchor, constant: CGFloat = 0, priority: UILayoutPriority = .required)
     case topGreaterThanEqual(_ top: NSLayoutYAxisAnchor, constant: CGFloat = 0)
-    case centerY(_ top: NSLayoutYAxisAnchor, constant: CGFloat = 0)
+    case centerY(_ top: NSLayoutYAxisAnchor, constant: CGFloat = 0, priority: UILayoutPriority = .required)
     case heightToWidth(_ multiplier: CGFloat, priority: UILayoutPriority = .required)
     case heightGreaterThanConstant(_ constant: CGFloat = 0)
     case heightLessThanConstant(_ constant: CGFloat = 0)
@@ -110,8 +110,9 @@ public extension UIView {
                 anchoredConstraints.widthGreaterThanConstant = widthAnchor.constraint(greaterThanOrEqualToConstant: constant)
             case .centerX(let anchor, let constant):
                 anchoredConstraints.centerX = centerXAnchor.constraint(equalTo: anchor, constant: constant)
-            case .centerY(let anchor, let constant):
+            case .centerY(let anchor, let constant, let priority):
                 anchoredConstraints.centerY = centerYAnchor.constraint(equalTo: anchor, constant: constant)
+                anchoredConstraints.centerY?.priority = priority
             case .top(let anchor, let constant, let priority):
                 anchoredConstraints.top = topAnchor.constraint(equalTo: anchor, constant: constant)
                 anchoredConstraints.top?.priority = priority
@@ -122,7 +123,7 @@ public extension UIView {
                 anchoredConstraints.topGreaterThanEqual = topAnchor.constraint(greaterThanOrEqualTo: anchor, constant: constant)
             case .leading(let anchor, let constant, let priority):
                 anchoredConstraints.leading = leadingAnchor.constraint(equalTo: anchor, constant: constant)
-                anchoredConstraints.bottom?.priority = priority
+                anchoredConstraints.leading?.priority = priority
             case .leadingGreaterThanEqual(let anchor, let constant):
                 anchoredConstraints.leading = leadingAnchor.constraint(greaterThanOrEqualTo: anchor, constant: constant)
             case .leadingLessThanEqual(let anchor, let constant):
@@ -208,8 +209,9 @@ public extension UIView {
                 anchoredConstraints.widthGreaterThanConstant = widthAnchor.constraint(greaterThanOrEqualToConstant: constant)
             case .centerX(let anchor, let constant):
                 anchoredConstraints.centerX = centerXAnchor.constraint(equalTo: anchor, constant: constant)
-            case .centerY(let anchor, let constant):
+            case .centerY(let anchor, let constant, let priority):
                 anchoredConstraints.centerY = centerYAnchor.constraint(equalTo: anchor, constant: constant)
+                anchoredConstraints.centerY?.priority = priority
             case .top(let anchor, let constant, let priority):
                 anchoredConstraints.top = topAnchor.constraint(equalTo: anchor, constant: constant)
                 anchoredConstraints.top?.priority = priority
@@ -220,7 +222,7 @@ public extension UIView {
                 anchoredConstraints.topGreaterThanEqual = topAnchor.constraint(greaterThanOrEqualTo: anchor, constant: constant)
             case .leading(let anchor, let constant, let priority):
                 anchoredConstraints.leading = leadingAnchor.constraint(equalTo: anchor, constant: constant)
-                anchoredConstraints.bottom?.priority = priority
+                anchoredConstraints.leading?.priority = priority
             case .leadingGreaterThanEqual(let anchor, let constant):
                 anchoredConstraints.leading = leadingAnchor.constraint(greaterThanOrEqualTo: anchor, constant: constant)
             case .leadingLessThanEqual(let anchor, let constant):
