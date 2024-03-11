@@ -14,11 +14,15 @@ let package = Package(
             type: .dynamic,
             targets: ["WrapKit"]),
     ],
-    dependencies: [],
+    dependencies: [
+        .package(url: "https://github.com/realm/realm-cocoa", from: "10.14.0")
+    ],
     targets: [
         .target(
             name: "WrapKit",
-            dependencies: [],
+            dependencies: [
+                .product(name: "RealmSwift", package: "realm-cocoa")
+            ],
             path: "Sources"
         ),
         .testTarget(
