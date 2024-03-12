@@ -19,6 +19,7 @@ open class CollectionViewDatasource<Model>: NSObject, UICollectionViewDelegateFl
     public var loadNextPage: (() -> Void)?
     public var sizeForItemAt: ((IndexPath) -> CGSize)?
     public var didScrollTo: ((IndexPath) -> Void)?
+    public var didScrollViewDidScroll: ((UIScrollView) -> Void)?
     
     public init(configureCell: ((UICollectionView, IndexPath, Model) -> UICollectionViewCell)? = nil) {
         self.configureCell = configureCell
@@ -87,6 +88,7 @@ open class CollectionViewDatasource<Model>: NSObject, UICollectionViewDelegateFl
     }
     
     open func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        didScrollViewDidScroll?(scrollView)
         let visibleRect = CGRect(origin: scrollView.contentOffset, size: scrollView.bounds.size)
         let visiblePoint = CGPoint(x: visibleRect.midX, y: visibleRect.midY)
         guard let indexPath = (scrollView as? UICollectionView)?.indexPathForItem(at: visiblePoint) else { return }
