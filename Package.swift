@@ -28,7 +28,7 @@ let package = Package(
             dependencies: [
                 "WrapKit",
                 .product(name: "Realm", package: "realm-cocoa"),
-                .product(name: "RealmSwift", package: "realm-cocoa"), // If AnotherLibrary uses RealmSwift
+                .product(name: "RealmSwift", package: "realm-cocoa"),
             ],
             path: "WrapKitRealm/Sources"
         ),
