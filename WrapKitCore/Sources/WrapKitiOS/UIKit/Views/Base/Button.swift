@@ -41,12 +41,12 @@ open class Button: UIButton {
     public override var isHighlighted: Bool {
         didSet {
             if isHighlighted {
-                UIView.animate(withDuration: 0.3) {
+                UIView.animate(withDuration: 0.3, delay: .leastNonzeroMagnitude, options: .allowUserInteraction) {
                     self.alpha = 0.7
                 }
                 onPress?()
             } else {
-                UIView.animate(withDuration: 0.3) {
+                UIView.animate(withDuration: 0.3, delay: .leastNonzeroMagnitude, options: .allowUserInteraction) {
                     self.alpha = 1.0
                 }
             }
