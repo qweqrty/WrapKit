@@ -21,7 +21,7 @@ class KeychainStorageTests: XCTestCase {
     func test_set_storesValue() {
         let (sut, mockKeychain) = makeSUT()
         
-        sut.set("new-value")
+        sut.set(model: "new-value", completion: nil)
         
         XCTAssertEqual(mockKeychain.store["test-key"], "new-value")
     }
@@ -30,7 +30,7 @@ class KeychainStorageTests: XCTestCase {
         let (sut, mockKeychain) = makeSUT()
         mockKeychain.store["test-key"] = "value-to-be-cleared"
         
-        sut.clear()
+        sut.clear(completion: nil)
         
         XCTAssertNil(mockKeychain.store["test-key"])
     }

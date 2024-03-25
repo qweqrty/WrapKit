@@ -27,6 +27,7 @@
 		53F9F9EF2AB6B84600110054 /* InMemoryStorageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53F9F9ED2AB6B7BC00110054 /* InMemoryStorageTests.swift */; };
 		53F9F9F22AB6C15E00110054 /* Storage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53F9F9F12AB6C15E00110054 /* Storage.swift */; };
 		53F9F9FC2AB8E77900110054 /* TokenRefresher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53F9F9FB2AB8E77900110054 /* TokenRefresher.swift */; };
+		94516EB82BB1343800E3EB6C /* ButtonTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94516EB72BB1343800E3EB6C /* ButtonTests.swift */; };
 		C0103DE72B34AD6D0005FCDB /* Array+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0103DE62B34AD6D0005FCDB /* Array+Extensions.swift */; };
 		C010868D2A7E840100C3720A /* MainQueueDispatchDecorator.swift in Sources */ = {isa = PBXBuildFile; fileRef = C010868B2A7E83EB00C3720A /* MainQueueDispatchDecorator.swift */; };
 		C01086912A7E876900C3720A /* PaginatedTableViewDatasource.swift in Sources */ = {isa = PBXBuildFile; fileRef = C01086902A7E876900C3720A /* PaginatedTableViewDatasource.swift */; };
@@ -166,6 +167,7 @@
 		53F9F9ED2AB6B7BC00110054 /* InMemoryStorageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InMemoryStorageTests.swift; sourceTree = "<group>"; };
 		53F9F9F12AB6C15E00110054 /* Storage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Storage.swift; sourceTree = "<group>"; };
 		53F9F9FB2AB8E77900110054 /* TokenRefresher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenRefresher.swift; sourceTree = "<group>"; };
+		94516EB72BB1343800E3EB6C /* ButtonTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonTests.swift; sourceTree = "<group>"; };
 		C0103DE62B34AD6D0005FCDB /* Array+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+Extensions.swift"; sourceTree = "<group>"; };
 		C010868B2A7E83EB00C3720A /* MainQueueDispatchDecorator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainQueueDispatchDecorator.swift; sourceTree = "<group>"; };
 		C01086902A7E876900C3720A /* PaginatedTableViewDatasource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaginatedTableViewDatasource.swift; sourceTree = "<group>"; };
@@ -315,6 +317,7 @@
 		537CD2C02B03605D0045F38C /* Tests */ = {
 			isa = PBXGroup;
 			children = (
+				94516EB52BB133E200E3EB6C /* WrapKitiOStests */,
 				C05160572A6FAAE000E01640 /* WrapKitAuthTests */,
 				C056E6FA2A6D04BB0020AB69 /* WrapKitNetworkingTests */,
 				C0A8E9142A7D86DF0006FCE4 /* KeychainSwiftTests */,
@@ -363,6 +366,22 @@
 				53F9F9ED2AB6B7BC00110054 /* InMemoryStorageTests.swift */,
 			);
 			path = Storages;
+			sourceTree = "<group>";
+		};
+		94516EB52BB133E200E3EB6C /* WrapKitiOStests */ = {
+			isa = PBXGroup;
+			children = (
+				94516EB62BB1341000E3EB6C /* UIKitTests */,
+			);
+			path = WrapKitiOStests;
+			sourceTree = "<group>";
+		};
+		94516EB62BB1341000E3EB6C /* UIKitTests */ = {
+			isa = PBXGroup;
+			children = (
+				94516EB72BB1343800E3EB6C /* ButtonTests.swift */,
+			);
+			path = UIKitTests;
 			sourceTree = "<group>";
 		};
 		C010868A2A7E82DC00C3720A /* WrapKitiOS */ = {
@@ -1132,6 +1151,7 @@
 				C08CAF232A7D92BD004A3FAD /* RemoteServiceTests.swift in Sources */,
 				C0B61AD92A753E9C002C0F38 /* AuthenticatedHTTPClientDecoratorTests.swift in Sources */,
 				C0A8E91A2A7D87530006FCE4 /* KeychainWithPrefixTests.swift in Sources */,
+				94516EB82BB1343800E3EB6C /* ButtonTests.swift in Sources */,
 				C051603E2A6F9FEF00E01640 /* URLProtocolStub.swift in Sources */,
 				C08CAF1E2A7D90D9004A3FAD /* QueueTests.swift in Sources */,
 			);
@@ -1300,7 +1320,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
-				DEVELOPMENT_TEAM = K527BQ6P4G;
+				DEVELOPMENT_TEAM = "";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
@@ -1339,7 +1359,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
-				DEVELOPMENT_TEAM = K527BQ6P4G;
+				DEVELOPMENT_TEAM = "";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
@@ -1376,7 +1396,7 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = K527BQ6P4G;
+				DEVELOPMENT_TEAM = "";
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
@@ -1399,7 +1419,7 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = K527BQ6P4G;
+				DEVELOPMENT_TEAM = "";
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.13;

@@ -49,10 +49,8 @@ private extension WebViewContentView {
 private extension WebViewContentView {
     func makeNavigationBar() -> NavigationBar {
         let navigationBar = NavigationBar()
-        navigationBar.backgroundColor = Colors.Dynamic.Background.primary.color
-        navigationBar.titleViews.keyLabel.textColor = Colors.Dynamic.Text.primary.color
         navigationBar.titleViews.keyLabel.font = .systemFont(ofSize: 18, weight: .semibold)
-        navigationBar.backButton.setImage(Images.icChevronLeft.image, for: .normal)
+        navigationBar.backButton.setImage(UIImage(resource: ImageResource.icChevronLeft), for: .normal)
         return navigationBar
     }
     
