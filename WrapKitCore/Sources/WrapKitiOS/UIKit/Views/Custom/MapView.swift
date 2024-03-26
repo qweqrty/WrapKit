@@ -16,6 +16,8 @@ open class MapView<ContentView: UIView>: UIView {
     public let separatorView = UIView(backgroundColor: .lightGray)
     public lazy var minusView = makeImageView(UIImage(named: "minusIc"))
     
+    public private(set) var actionsStackViewConstraints: AnchoredConstraints?
+    
     public init(mapView: ContentView) {
         self.contentView = mapView
         super.init(frame: .zero)
@@ -56,7 +58,7 @@ extension MapView {
             .leading(actionsStackView.leadingAnchor)
         )
         
-        actionsStackView.anchor(
+        actionsStackViewConstraints = actionsStackView.anchor(
             .width(36),
             .trailing(contentView.trailingAnchor, constant: 12),
             .bottom(contentView.bottomAnchor, constant: 12)
