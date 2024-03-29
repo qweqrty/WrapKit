@@ -21,7 +21,7 @@ class InMemoryStorageTests: XCTestCase {
         let sut = makeSUT()
         
         let newValue = "NewValue"
-        _ = sut.set(newValue)
+        sut.set(model: newValue, completion: nil)
         
         XCTAssertEqual(sut.get(), newValue)
     }
@@ -29,7 +29,7 @@ class InMemoryStorageTests: XCTestCase {
     func test_clear_resetsModelValue() {
         let sut = makeSUT(model: "InitialValue")
         
-        _ = sut.clear()
+        sut.clear(completion: nil)
         
         XCTAssertNil(sut.get())
     }
@@ -45,7 +45,7 @@ class InMemoryStorageTests: XCTestCase {
         }
         
         let newValue = "NewValue"
-        _ = sut.set(newValue)
+        sut.set(model: newValue, completion: nil)
         
         XCTAssertEqual(receivedValue, newValue)
     }
@@ -59,12 +59,12 @@ class InMemoryStorageTests: XCTestCase {
             sut.addObserver(for: temporaryClient) { model in
                 receivedValue = model
             }
-            _ = sut.set("FirstChange")
+            sut.set(model: "FirstChange", completion: nil)
         }
         
         XCTAssertEqual(receivedValue, "FirstChange")
         
-        _ = sut.set("SecondChange")
+        sut.set(model: "SecondChange", completion: nil)
         XCTAssertEqual(receivedValue, "FirstChange") // It shouldn't change since the observer was removed.
     }
     

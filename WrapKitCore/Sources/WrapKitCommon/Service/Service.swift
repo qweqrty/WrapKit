@@ -13,7 +13,7 @@ public protocol Service<Request, Response> {
     func make(request: Request, completion: @escaping ((Result<Response, ServiceError>)) -> Void) -> HTTPClientTask?
 }
 
-public enum ServiceError: Error {
+public enum ServiceError: Encodable, Error, Equatable {
     case message(String)
     case `internal`
     case connectivity
