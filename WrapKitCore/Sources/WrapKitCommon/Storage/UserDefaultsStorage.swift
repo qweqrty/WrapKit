@@ -43,8 +43,7 @@ public class UserDefaultsStorage<Model: Codable>: Storage {
         notificationQueue.async {
             do {
                 if let model = model {
-                    let data = try JSONEncoder().encode(model)
-                    UserDefaults.standard.set(data, forKey: self.key)
+                    UserDefaults.standard.set(model, forKey: self.key)
                 } else {
                     UserDefaults.standard.removeObject(forKey: self.key)
                 }
