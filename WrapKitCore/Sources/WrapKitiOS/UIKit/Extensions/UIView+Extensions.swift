@@ -59,15 +59,18 @@ public extension UIView {
         scale: Bool = true,
         shouldRasterize: Bool = false
     ) {
-        layer.masksToBounds = false
-        layer.shadowColor = shadowColor.cgColor
-        layer.shadowOpacity = shadowOpacity
-        layer.shadowOffset = shadowOffset
-        layer.shadowRadius = shadowRadius
+        DispatchQueue.main.async {
+            self.layer.masksToBounds = false
+            self.layer.shadowColor = shadowColor.cgColor
+            self.layer.shadowOpacity = shadowOpacity
+            self.layer.shadowOffset = shadowOffset
+            self.layer.shadowRadius = shadowRadius
+            
+            self.layer.shadowPath = UIBezierPath(rect: self.bounds).cgPath
+            self.layer.shouldRasterize = false
+            self.layer.rasterizationScale = scale ? UIScreen.main.scale : 1
+        }
         
-        layer.shadowPath = UIBezierPath(rect: bounds).cgPath
-        layer.shouldRasterize = false
-        layer.rasterizationScale = scale ? UIScreen.main.scale : 1
     }
     
     func gradientBorder(
