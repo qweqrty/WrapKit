@@ -41,21 +41,14 @@ public class UserDefaultsStorage<Model: Codable>: Storage {
     
     public func set(model: Model?, completion: ((Bool) -> Void)?) {
         notificationQueue.async {
-            do {
-                if let model = model {
-                    UserDefaults.standard.set(model, forKey: self.key)
-                } else {
-                    UserDefaults.standard.removeObject(forKey: self.key)
-                }
-                DispatchQueue.main.async {
-                    self.model = model
-                    completion?(true)
-                }
-            } catch {
-                print("Error saving to UserDefaults: \(error)")
-                DispatchQueue.main.async {
-                    completion?(false)
-                }
+            if let model = model {
+                UserDefaults.standard.set(model, forKey: self.key)
+            } else {
+                UserDefaults.standard.removeObject(forKey: self.key)
+            }
+            DispatchQueue.main.async {
+                self.model = model
+                completion?(true)
             }
         }
     }

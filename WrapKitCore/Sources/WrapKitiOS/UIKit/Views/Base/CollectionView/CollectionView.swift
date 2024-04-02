@@ -12,8 +12,10 @@ open class CollectionView: UICollectionView {
     private var adjustHeight = false
     
     open override func reloadData() {
-        super.reloadData()
-        invalidateIntrinsicContentSize()
+        DispatchQueue.main.async {
+            super.reloadData()
+            self.invalidateIntrinsicContentSize()
+        }
     }
     
     open override var contentSize: CGSize {
