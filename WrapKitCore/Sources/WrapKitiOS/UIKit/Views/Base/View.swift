@@ -81,4 +81,21 @@ open class View: UIView {
         longPressTimer = nil
     }
 }
+
+public extension UIView {
+    func with(backgroundColor: UIColor) -> Self {
+        self.backgroundColor = backgroundColor
+        return self
+    }
+    
+    func with(isHidden: Bool) -> Self {
+        self.isHidden = isHidden
+        return self
+    }
+    
+    func with(translatesAutoresizingMaskIntoConstraints: Bool) -> Self {
+        self.translatesAutoresizingMaskIntoConstraints = translatesAutoresizingMaskIntoConstraints
+        return self
+    }
+}
 #endif

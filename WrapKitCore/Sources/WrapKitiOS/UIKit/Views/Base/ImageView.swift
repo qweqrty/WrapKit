@@ -120,5 +120,36 @@ open class ImageView: UIImageView {
         }
     }
 }
+public extension UIImageView {
+    func with(contentMode: UIImageView.ContentMode) -> Self {
+        self.contentMode = contentMode
+        return self
+    }
+    
+    func with(cornerRadius: CGFloat) -> Self {
+        self.layer.cornerRadius = cornerRadius
+        return self
+    }
+    
+    func with(borderColor: CGColor) -> Self {
+        self.layer.borderColor = borderColor
+        return self
+    }
+    
+    func with(borderWidth: CGFloat) -> Self {
+        self.layer.borderWidth = borderWidth
+        return self
+    }
+    
+    func with(tintColor: UIColor) -> Self {
+        self.tintColor = tintColor
+        return self
+    }
+    
+    func with(isHidden: Bool) -> Self {
+        self.isHidden = isHidden
+        return self
+    }
+}
 
 #endif

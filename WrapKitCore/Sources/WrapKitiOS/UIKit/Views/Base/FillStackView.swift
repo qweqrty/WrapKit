@@ -131,4 +131,16 @@ extension UIView {
         return constraints.first(where: { $0.firstAttribute == .height && $0.secondItem == nil })
     }
 }
+
+public extension FillStackView {
+    func with(spacing: CGFloat) -> Self {
+        self.spacing = spacing
+        return self
+    }
+    
+    func with(axis: NSLayoutConstraint.Axis) -> Self {
+        self.axis = axis
+        return self
+    }
+}
 #endif

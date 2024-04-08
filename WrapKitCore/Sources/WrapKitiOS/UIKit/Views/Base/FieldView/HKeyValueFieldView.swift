@@ -96,4 +96,26 @@ extension HKeyValueFieldView {
         mainStackView.fillSuperview()
     }
 }
+
+public extension HKeyValueFieldView {
+    func with(isHidden: Bool) -> Self {
+        self.isHidden = isHidden
+        return self
+    }
+    
+    func with(contentInsert: UIEdgeInsets) -> Self {
+        self.mainStackView.layoutMargins = contentInsert
+        return self
+    }
+    
+    func with(spacing: CGFloat) -> Self {
+        self.mainStackView.spacing = spacing
+        return self
+    }
+    
+    func with(backgroundColor: UIColor) -> Self {
+        self.backgroundColor = backgroundColor
+        return self
+    }
+}
 #endif

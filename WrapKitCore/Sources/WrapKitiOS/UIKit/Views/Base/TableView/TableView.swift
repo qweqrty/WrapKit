@@ -94,4 +94,31 @@ public extension UITableView {
         register(cellType, forCellReuseIdentifier: cellType.reuseIdentifier)
     }
 }
+
+public extension TableView {
+    func with(adjustHeight: Bool) -> Self {
+        self.adjustHeight = adjustHeight
+        return self
+    }
+    
+    func with(contentInsert: UIEdgeInsets) -> Self {
+        self.contentInset = contentInsert
+        return self
+    }
+    
+    func with(allowsMultipleSelectionDuringEditing: Bool) -> Self {
+        self.allowsMultipleSelectionDuringEditing = allowsMultipleSelectionDuringEditing
+        return self
+    }
+    
+    func with(allowsSelection: Bool) -> Self {
+        self.allowsSelection = allowsSelection
+        return self
+    }
+    
+    func with(backgroundColor: UIColor) -> Self {
+        self.backgroundColor = backgroundColor
+        return self
+    }
+}
 #endif

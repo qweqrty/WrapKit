@@ -46,4 +46,11 @@ extension ScrollableHStackView {
         )
     }
 }
+
+public extension ScrollableHStackView {
+    func with(spacing: CGFloat) -> Self {
+        self.contentView.spacing = spacing
+        return self
+    }
+}
 #endif

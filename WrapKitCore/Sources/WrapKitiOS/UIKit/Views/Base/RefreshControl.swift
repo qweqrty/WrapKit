@@ -27,4 +27,16 @@ open class RefreshControl: UIRefreshControl {
         fatalError("init(coder:) has not been implemented")
     }
 }
+public extension UIRefreshControl {
+    func with(tintColor: UIColor) -> Self {
+        self.tintColor = tintColor
+        return self
+    }
+    
+    func with(zPosition: CGFloat) -> Self {
+        self.layer.zPosition = zPosition
+        return self
+    }
+}
+
 #endif

@@ -59,4 +59,46 @@ open class StackView: UIStackView {
         fatalError("init(coder:) has not been implemented")
     }
 }
+
+public extension UIStackView {
+    func with(backgroundColor: UIColor) -> Self {
+        self.backgroundColor = backgroundColor
+        return self
+    }
+    
+    func with(distribution: UIStackView.Distribution) -> Self {
+        self.distribution = distribution
+        return self
+    }
+    
+    func with(alignment: UIStackView.Alignment) -> Self {
+        self.alignment = alignment
+        return self
+    }
+    
+    func with(axis: NSLayoutConstraint.Axis) -> Self {
+        self.axis = axis
+        return self
+    }
+    
+    func with(spacing: CGFloat) -> Self {
+        self.spacing = spacing
+        return self
+    }
+    
+    func with(contentInset: UIEdgeInsets) -> Self {
+        self.layoutMargins = contentInset
+        return self
+    }
+    
+    func with(clipsToBounds: Bool) -> Self {
+        self.clipsToBounds = clipsToBounds
+        return self
+    }
+    
+    func with(isHidden: Bool) -> Self {
+        self.isHidden = isHidden
+        return self
+    }
+}
 #endif

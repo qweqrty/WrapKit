@@ -272,4 +272,51 @@ open class Textfield: UITextField {
         return bounds.inset(by: clearButtonEdgeInsets)
     }
 }
+
+public extension Textfield {
+    func with(font: UIFont) -> Self {
+        self.font = font
+        return self
+    }
+    
+    func with(textColor: UIColor) -> Self {
+        self.textColor = textColor
+        return self
+    }
+    
+    func with(backgroundColor: UIColor) -> Self {
+        self.backgroundColor = backgroundColor
+        return self
+    }
+    
+    func with(cornerRadius: CGFloat) ->  Self {
+        self.layer.cornerRadius = cornerRadius
+        return self
+    }
+    
+    func with(borderWidth: CGFloat) -> Self {
+        self.layer.borderWidth = borderWidth
+        return self
+    }
+    
+    func with(selectedBorderWidth: CGFloat) -> Self {
+        self.selectedBorderWidth = selectedBorderWidth
+        return self
+    }
+    
+    func with(borderColor: UIColor) -> Self {
+        self.deselectedBorderColor = borderColor
+        return self
+    }
+    
+    func with(padding: UIEdgeInsets) -> Self {
+        self.padding = padding
+        return self
+    }
+    
+    func with(nextTextfield: UIResponder) -> Self {
+        self.nextTextfield = nextTextfield
+        return self
+    }
+}
 #endif

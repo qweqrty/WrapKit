@@ -105,4 +105,53 @@ public extension UICollectionView {
         return view
     }
 }
+
+public extension CollectionView {
+    func with(scrollDirection: UICollectionView.ScrollDirection) -> Self {
+        if let collectionViewLayout = collectionViewLayout as? UICollectionViewFlowLayout {
+            collectionViewLayout.scrollDirection = scrollDirection
+        }
+        return self
+    }
+    
+    func with(collectionViewLayout: UICollectionViewLayout) -> Self {
+        self.collectionViewLayout = collectionViewLayout
+        return self
+    }
+    
+    func with(adjustHeight: Bool) -> Self {
+        self.adjustHeight = adjustHeight
+        return self
+    }
+    
+    func with(isScrollEnabled: Bool) -> Self {
+        self.isScrollEnabled = isScrollEnabled
+        return self
+    }
+    
+    func with(emptyPlaceholderView: UIView) -> Self {
+        self.backgroundView = emptyPlaceholderView
+        return self
+    }
+    
+    func with(isPagingEnabled: Bool) -> Self {
+        self.isPagingEnabled = isPagingEnabled
+        return self
+    }
+    
+    func with(refreshControl: UIRefreshControl) -> Self {
+        self.refreshControl = refreshControl
+        return self
+    }
+    
+    func with(contentInsert: UIEdgeInsets) -> Self {
+        self.contentInset = contentInsert
+        return self
+    }
+    
+    func with(backgroundColor: UIColor) -> Self {
+        self.backgroundColor = backgroundColor
+        return self
+    }
+}
 #endif

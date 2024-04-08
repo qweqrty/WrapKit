@@ -197,4 +197,20 @@ extension VKeyValueFieldView {
         )
     }
 }
+public extension VKeyValueFieldView {
+    func with(contentInsert: UIEdgeInsets) -> Self {
+        self.stackView.layoutMargins = contentInsert
+        return self
+    }
+    
+    func with(isHidden: Bool) -> Self {
+        self.isHidden = isHidden
+        return self
+    }
+    
+    func with(spacing: CGFloat) -> Self {
+        self.stackView.spacing = spacing
+        return self
+    }
+}
 #endif

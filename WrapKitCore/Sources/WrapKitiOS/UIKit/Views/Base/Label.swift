@@ -134,4 +134,56 @@ public extension Label {
         self.attributedText = nil
     }
 }
+
+public extension UILabel {
+    func with(backgroundColor: UIColor) -> Self {
+        self.backgroundColor = backgroundColor
+        return self
+    }
+    
+    func with(isHidden: Bool) -> Self {
+        self.isHidden = isHidden
+        return self
+    }
+    
+    func with(translatesAutoresizingMaskIntoConstraints: Bool) -> Self {
+        self.translatesAutoresizingMaskIntoConstraints = translatesAutoresizingMaskIntoConstraints
+        return self
+    }
+    
+    func with(font: UIFont) -> Self {
+        self.font = font
+        return self
+    }
+    
+    func with(textColor: UIColor) -> Self {
+        self.textColor = textColor
+        return self
+    }
+    
+    func with(textAlignment: NSTextAlignment) -> Self {
+        self.textAlignment = textAlignment
+        return self
+    }
+    
+    func with(numberOfLines: Int) -> Self {
+        self.numberOfLines = numberOfLines
+        return self
+    }
+    
+    func with(minimumScaleFactor: CGFloat) -> Self {
+        self.minimumScaleFactor = minimumScaleFactor
+        return self
+    }
+    
+    func with(adjustsFontSizeToFitWidth: Bool) -> Self {
+        self.adjustsFontSizeToFitWidth = adjustsFontSizeToFitWidth
+        return self
+    }
+    
+    func with(isUserInteractionEnabled: Bool) -> Self {
+        self.isUserInteractionEnabled = isUserInteractionEnabled
+        return self
+    }
+}
 #endif

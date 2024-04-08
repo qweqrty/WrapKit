@@ -48,4 +48,11 @@ extension ScrollableContentView {
         )
     }
 }
+
+public extension UIScrollView {
+    func with(contentInsert: UIEdgeInsets) -> Self {
+        self.contentInset = contentInsert
+        return self
+    }
+}
 #endif

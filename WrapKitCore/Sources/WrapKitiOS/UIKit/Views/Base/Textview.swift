@@ -39,6 +39,7 @@ open class Textview: UITextView, UITextViewDelegate {
         self.delegate = self
         self.placeholderLabel.textColor = placeholderTextColor
         self.placeholderLabel.font = font
+        self.placeholderLabel.text = placeholder
         setupSubviews()
         setupConstraints()
     }
@@ -66,6 +67,53 @@ open class Textview: UITextView, UITextViewDelegate {
     
     public func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
         return shouldChangeText?(range, text) ?? true
+    }
+}
+
+public extension Textview {
+    func with(font: UIFont) -> Self {
+        self.font = font
+        return self
+    }
+    
+    func with(textColor: UIColor) -> Self {
+        self.textColor = textColor
+        return self
+    }
+    
+    func with(backgroundColor: UIColor) -> Self {
+        self.backgroundColor = backgroundColor
+        return self
+    }
+    
+    func with(cornerRadius: CGFloat) ->  Self {
+        self.layer.cornerRadius = cornerRadius
+        return self
+    }
+    
+    func with(borderWidth: CGFloat) -> Self {
+        self.layer.borderWidth = borderWidth
+        return self
+    }
+    
+    func with(contentInset: UIEdgeInsets) -> Self {
+        self.padding = contentInset
+        return self
+    }
+    
+    func with(placeholder: String) -> Self {
+        self.placeholderLabel.text = placeholder
+        return self
+    }
+    
+    func with(placeholderTextColor: UIColor) -> Self {
+        self.placeholderLabel.textColor = placeholderTextColor
+        return self
+    }
+    
+    func with(borderColor: UIColor) -> Self {
+        self.layer.borderColor = borderColor.cgColor
+        return self
     }
 }
 #endif

@@ -83,5 +83,47 @@ open class Button: UIButton {
         self.isHidden = isHidden
         
     }
+    
+}
+public extension Button {
+    func with(spacing: CGFloat) -> Self {
+        self.spacing = spacing
+        return self
+    }
+    
+    func with(tintColor: UIColor) -> Self {
+        self.tintColor = tintColor
+        return self
+    }
+    
+    func with(titleLabelFont: UIFont) -> Self {
+        self.titleLabel?.font = titleLabelFont
+        return self
+    }
+    
+    func with(backgroundColor: UIColor) -> Self {
+        self.backgroundColor = backgroundColor
+        return self
+    }
+    
+    func with(contentInset: UIEdgeInsets) -> Self {
+        self.contentEdgeInsets = contentInset
+        return self
+    }
+    
+    func with(contentHorizontalAlignment: UIControl.ContentHorizontalAlignment) -> Self {
+        self.contentHorizontalAlignment = contentHorizontalAlignment
+        return self
+    }
+    
+    func with(isHidden: Bool) -> Self {
+        self.isHidden = isHidden
+        return self
+    }
+    
+    func with(isUserInteractionEnabled: Bool) -> Self {
+        self.isUserInteractionEnabled = isUserInteractionEnabled
+        return self
+    }
 }
 #endif
