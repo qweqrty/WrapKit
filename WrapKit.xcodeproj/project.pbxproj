@@ -127,6 +127,7 @@
 		C43847CE2BA2B26E00E3D8EA /* RealmStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C43847CD2BA2B26E00E3D8EA /* RealmStorage.swift */; };
 		C43847D02BA2B29500E3D8EA /* Realm in Frameworks */ = {isa = PBXBuildFile; productRef = C43847CF2BA2B29500E3D8EA /* Realm */; };
 		C43847D22BA2B29500E3D8EA /* RealmSwift in Frameworks */ = {isa = PBXBuildFile; productRef = C43847D12BA2B29500E3D8EA /* RealmSwift */; };
+		C4E3BD602BBEC389001F2F8C /* UserDefaultsStorageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4E3BD5F2BBEC389001F2F8C /* UserDefaultsStorageTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -268,6 +269,7 @@
 		C43847BF2BA2B25700E3D8EA /* WrapKitRealmTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = WrapKitRealmTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		C43847C42BA2B25700E3D8EA /* WrapKitRealmTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WrapKitRealmTests.swift; sourceTree = "<group>"; };
 		C43847CD2BA2B26E00E3D8EA /* RealmStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealmStorage.swift; sourceTree = "<group>"; };
+		C4E3BD5F2BBEC389001F2F8C /* UserDefaultsStorageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultsStorageTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -364,6 +366,7 @@
 			children = (
 				C05160762A6FB19B00E01640 /* KeychainStorageTests.swift */,
 				53F9F9ED2AB6B7BC00110054 /* InMemoryStorageTests.swift */,
+				C4E3BD5F2BBEC389001F2F8C /* UserDefaultsStorageTests.swift */,
 			);
 			path = Storages;
 			sourceTree = "<group>";
@@ -1147,6 +1150,7 @@
 				C0A8E9222A7D87B00006FCE4 /* AccessGroupTests.swift in Sources */,
 				C05160442A6FA03400E01640 /* URLSessionHTTPClientTests.swift in Sources */,
 				53F9F9EF2AB6B84600110054 /* InMemoryStorageTests.swift in Sources */,
+				C4E3BD602BBEC389001F2F8C /* UserDefaultsStorageTests.swift in Sources */,
 				C0B61AD82A753E9C002C0F38 /* TokenRefresherTests.swift in Sources */,
 				C08CAF232A7D92BD004A3FAD /* RemoteServiceTests.swift in Sources */,
 				C0B61AD92A753E9C002C0F38 /* AuthenticatedHTTPClientDecoratorTests.swift in Sources */,

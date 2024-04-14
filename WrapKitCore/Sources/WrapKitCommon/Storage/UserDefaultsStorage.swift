@@ -11,6 +11,8 @@ public class UserDefaultsStorage<Model: Codable>: Storage {
     private let notificationQueue = DispatchQueue(label: "com.userdefaults.storage.notificationQueue")
     private var observers = [ObserverWrapper]()
     private let key: String
+    private let setLogic: ((UserDefaults, Model?) -> Void)
+    private let getLogic: ((UserDefaults) -> Model?)
 
     private var model: Model? {
         didSet {
@@ -20,14 +22,21 @@ public class UserDefaultsStorage<Model: Codable>: Storage {
         }
     }
     
-    public init(key: String) {
+    private let userDefaults: UserDefaults
+
+    public init(
+        userDefaults: UserDefaults = .standard,
+        key: String,
+        getLogic: @escaping ((UserDefaults) -> Model?),
+        setLogic: @escaping ((UserDefaults, Model?) -> Void)
+    ) {
         self.key = key
-        if let data = UserDefaults.standard.data(forKey: key) {
-            self.model = try? JSONDecoder().decode(Model.self, from: data)
-        }
+        self.userDefaults = userDefaults
+        self.getLogic = getLogic
+        self.setLogic = setLogic
+        self.model = getLogic(userDefaults)
     }
-    
-    public func addObserver(for client: AnyObject, observer: @escaping Observer) {
+    public func addObserver(for client: AnyObject, observer: @escaping UserDefaultsStorage.Observer) {
         notificationQueue.async {
             let wrapper = ObserverWrapper(client: client, observer: observer)
             self.observers.append(wrapper)
@@ -41,14 +50,17 @@ public class UserDefaultsStorage<Model: Codable>: Storage {
     
     public func set(model: Model?, completion: ((Bool) -> Void)?) {
         notificationQueue.async {
-            if let model = model {
-                UserDefaults.standard.set(model, forKey: self.key)
-            } else {
-                UserDefaults.standard.removeObject(forKey: self.key)
-            }
-            DispatchQueue.main.async {
-                self.model = model
-                completion?(true)
+            do {
+                if let model = model {
+                    self.setLogic(self.userDefaults, model)
+                } else {
+                    self.userDefaults.removeObject(forKey: self.key)
+                }
+                DispatchQueue.main.async {
+                    self.userDefaults.synchronize()
+                    self.model = model
+                    completion?(true)
+                }
             }
         }
     }
