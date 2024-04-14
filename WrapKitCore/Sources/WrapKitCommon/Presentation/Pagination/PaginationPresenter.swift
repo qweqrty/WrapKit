@@ -60,7 +60,7 @@ open class PaginationPresenter<ServicePaginationRequest, ServicePaginationRespon
     private(set) var totalPages: Int?
 
     public var mapRequest: ((PaginationRequest) -> ServicePaginationRequest?)
-    private let perPage: Int
+    private var perPage: Int
     private let service: any Service<ServicePaginationRequest, ServicePaginationResponse> // Expected to be SerialServiceDecorator
     private let mapResponse: ((ServicePaginationResponse) -> PaginationResponse<Item>?)
     private let mapPresentable: ((Item) -> PresentableItem)
@@ -94,6 +94,7 @@ open class PaginationPresenter<ServicePaginationRequest, ServicePaginationRespon
 
 extension PaginationPresenter: PaginationViewInput {
     public func refresh() {
+        perPage = max(remoteItemsStorage.get()?.count ?? 0, perPage)
         guard let request = mapRequest(.init(page: initialPage, date: Date(), perPage: perPage)) else { return }
         date = Date()
         page = initialPage
@@ -147,4 +148,3 @@ extension PaginationPresenter: PaginationViewInput {
         }
     }
 }
-

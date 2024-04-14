@@ -4,7 +4,7 @@
 //
 //  Created by Улан Бейшенкулов on 25/3/24.
 //
-
+#if canImport(UIKit)
 import XCTest
 import WrapKit
 import UIKit
@@ -49,3 +49,4 @@ class ButtonTests: XCTestCase {
         return sut
     }
 }
+#endif

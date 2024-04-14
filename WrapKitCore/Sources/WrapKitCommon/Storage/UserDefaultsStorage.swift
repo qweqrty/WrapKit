@@ -11,6 +11,8 @@ public class UserDefaultsStorage<Model: Codable>: Storage {
     private let notificationQueue = DispatchQueue(label: "com.userdefaults.storage.notificationQueue")
     private var observers = [ObserverWrapper]()
     private let key: String
+    private let setLogic: ((UserDefaults, Model?) -> Void)
+    private let getLogic: ((UserDefaults) -> Model?)
 
     private var model: Model? {
         didSet {
@@ -20,14 +22,21 @@ public class UserDefaultsStorage<Model: Codable>: Storage {
         }
     }
     
-    public init(key: String) {
+    private let userDefaults: UserDefaults
+
+    public init(
+        userDefaults: UserDefaults = .standard,
+        key: String,
+        getLogic: @escaping ((UserDefaults) -> Model?),
+        setLogic: @escaping ((UserDefaults, Model?) -> Void)
+    ) {
         self.key = key
-        if let data = UserDefaults.standard.data(forKey: key) {
-            self.model = try? JSONDecoder().decode(Model.self, from: data)
-        }
+        self.userDefaults = userDefaults
+        self.getLogic = getLogic
+        self.setLogic = setLogic
+        self.model = getLogic(userDefaults)
     }
-    
-    public func addObserver(for client: AnyObject, observer: @escaping Observer) {
+    public func addObserver(for client: AnyObject, observer: @escaping UserDefaultsStorage.Observer) {
         notificationQueue.async {
             let wrapper = ObserverWrapper(client: client, observer: observer)
             self.observers.append(wrapper)
@@ -43,19 +52,14 @@ public class UserDefaultsStorage<Model: Codable>: Storage {
         notificationQueue.async {
             do {
                 if let model = model {
-                    let data = try JSONEncoder().encode(model)
-                    UserDefaults.standard.set(data, forKey: self.key)
+                    self.setLogic(self.userDefaults, model)
                 } else {
-                    UserDefaults.standard.removeObject(forKey: self.key)
+                    self.userDefaults.removeObject(forKey: self.key)
                 }
                 DispatchQueue.main.async {
+                    self.userDefaults.synchronize()
                     self.model = model
                     completion?(true)
-                }
-            } catch {
-                print("Error saving to UserDefaults: \(error)")
-                DispatchQueue.main.async {
-                    completion?(false)
                 }
             }
         }
