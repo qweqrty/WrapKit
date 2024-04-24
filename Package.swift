@@ -8,11 +8,18 @@ let package = Package(
         .library(
             name: "WrapKitStatic",
             type: .static,
-            targets: ["WrapKit"]),
+            targets: ["WrapKit"]
+        ),
+        .library(
+            name: "WrapKitDynamic",
+            type: .dynamic,
+            targets: ["WrapKit"]
+        ),
         .library(
             name: "WrapKitRealm",
             type: .static,
-            targets: ["WrapKitRealm"]),
+            targets: ["WrapKitRealm"]
+        ),
     ],
     dependencies: [
         .package(url: "https://github.com/realm/realm-cocoa", from: "10.14.0")
@@ -34,7 +41,7 @@ let package = Package(
         ),
         .testTarget(
             name: "WrapKitRealmTests",
-            dependencies: ["WrapKit"],
+            dependencies: ["WrapKit", "WrapKitRealm"],
             path: "WrapKitRealm/Tests"
         ),
         .testTarget(
