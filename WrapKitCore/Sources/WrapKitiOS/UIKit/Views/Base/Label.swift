@@ -33,7 +33,7 @@ open class Label: UILabel {
         translatesAutoresizingMaskIntoConstraints: Bool = false,
         font: UIFont? = nil,
         textColor: UIColor = .darkText,
-        textAlignment: NSTextAlignment = .left,
+        textAlignment: NSTextAlignment = .natural,
         numberOfLines: Int = 0,
         minimumScaleFactor: CGFloat = 0,
         adjustsFontSizeToFitWidth: Bool = false,

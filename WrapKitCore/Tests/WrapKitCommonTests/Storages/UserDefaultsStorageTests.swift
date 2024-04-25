@@ -11,7 +11,7 @@ import WrapKit
 class UserDefaultsStorageTests: XCTestCase {
     
     var storage: UserDefaultsStorage<[String]>!
-    let testKey = "AppleLanguages"
+    let testKey = "test"
     var userDefaults: UserDefaults!
 
     override func setUpWithError() throws {
@@ -19,7 +19,16 @@ class UserDefaultsStorageTests: XCTestCase {
         // Use a volatile domain to prevent polluting the actual user defaults.
         userDefaults = UserDefaults(suiteName: #file)
         userDefaults.removePersistentDomain(forName: #file)
-        storage = UserDefaultsStorage<[String]>(key: testKey, userDefaults: userDefaults)
+        storage = UserDefaultsStorage<[String]>(
+            userDefaults: userDefaults,
+            key: testKey,
+            getLogic: { [testKey] userDefaults in
+                userDefaults.stringArray(forKey: testKey)
+            },
+            setLogic: { [testKey] userDefaults, object in
+                userDefaults.set(object, forKey: testKey)
+            }
+        )
     }
 
     override func tearDownWithError() throws {
