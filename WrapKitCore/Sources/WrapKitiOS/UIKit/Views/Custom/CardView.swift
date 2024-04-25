@@ -21,9 +21,10 @@ open class CardView: View {
     )
     public let subtitleLabel = Label(font: .systemFont(ofSize: 16), textColor: .gray, numberOfLines: 1)
     public let trailingImageWrapperView = UIView()
-    public let trailingImageView: ImageView = ImageView(image: UIImage(named: "rightArrow"), tintColor: .black)
+    public let trailingImageView = ImageView(image: UIImage(named: "rightArrow"), tintColor: .black)
     public let bottomSeparatorView = View(backgroundColor: .gray)
     
+    public var titlesViewConstraints: AnchoredConstraints?
     public var leadingImageViewConstraints: AnchoredConstraints?
     public var trailingImageViewConstraints: AnchoredConstraints?
     
@@ -69,7 +70,7 @@ extension CardView {
     }
     
     func setupConstraints() {
-        titleViews.anchor(
+        titlesViewConstraints = titleViews.anchor(
             .topGreaterThanEqual(titleViewsWrapperView.topAnchor),
             .bottomLessThanEqual(titleViewsWrapperView.bottomAnchor),
             .leading(titleViewsWrapperView.leadingAnchor),
