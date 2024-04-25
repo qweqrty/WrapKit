@@ -8,7 +8,7 @@
 import Foundation
 
 public class UserDefaultsStorage<Model: Codable>: Storage {
-    private let notificationQueue = DispatchQueue(label: "com.userdefaults.storage.notificationQueue")
+    private let dispatchQueue: DispatchQueue
     private var observers = [ObserverWrapper]()
     private let key: String
     private let setLogic: ((UserDefaults, Model?) -> Void)
@@ -25,6 +25,7 @@ public class UserDefaultsStorage<Model: Codable>: Storage {
     private let userDefaults: UserDefaults
 
     public init(
+        queue: DispatchQueue = DispatchQueue(label: "com.userdefaults.storage.notificationQueue"),
         userDefaults: UserDefaults = .standard,
         key: String,
         getLogic: @escaping ((UserDefaults) -> Model?),
@@ -35,9 +36,10 @@ public class UserDefaultsStorage<Model: Codable>: Storage {
         self.getLogic = getLogic
         self.setLogic = setLogic
         self.model = getLogic(userDefaults)
+        self.dispatchQueue = queue
     }
     public func addObserver(for client: AnyObject, observer: @escaping UserDefaultsStorage.Observer) {
-        notificationQueue.async {
+        dispatchQueue.async {
             let wrapper = ObserverWrapper(client: client, observer: observer)
             self.observers.append(wrapper)
             observer(self.model)
@@ -49,18 +51,16 @@ public class UserDefaultsStorage<Model: Codable>: Storage {
     }
     
     public func set(model: Model?, completion: ((Bool) -> Void)?) {
-        notificationQueue.async {
+        dispatchQueue.async {
             do {
                 if let model = model {
                     self.setLogic(self.userDefaults, model)
                 } else {
                     self.userDefaults.removeObject(forKey: self.key)
                 }
-                DispatchQueue.main.async {
-                    self.userDefaults.synchronize()
-                    self.model = model
-                    completion?(true)
-                }
+                self.userDefaults.synchronize()
+                self.model = model
+                completion?(true)
             }
         }
     }
@@ -70,7 +70,7 @@ public class UserDefaultsStorage<Model: Codable>: Storage {
     }
     
     private func notifyObservers() {
-        notificationQueue.async {
+        dispatchQueue.async {
             self.observers = self.observers.filter { $0.client != nil }
             let model = self.get()
             for observerWrapper in self.observers {
