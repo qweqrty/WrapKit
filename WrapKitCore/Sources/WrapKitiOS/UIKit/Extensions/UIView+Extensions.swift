@@ -51,6 +51,11 @@ public extension UIView {
         layer.add(animation, forKey: "shake")
     }
     
+    func updateSemanticAttributes(isRTL: Bool) {
+        semanticContentAttribute = isRTL ? .forceRightToLeft : .forceLeftToRight
+        subviews.forEach { $0.updateSemanticAttributes(isRTL: isRTL) }
+    }
+    
     func dropShadow(
         shadowColor: UIColor,
         shadowOpacity: Float = 0.07,
