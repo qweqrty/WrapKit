@@ -13,28 +13,13 @@ open class Button: UIButton {
     public var onPress: (() -> Void)?
     public var spacing: CGFloat = 0 {
         didSet {
-            contentEdgeInsets.right = contentEdgeInsets.right + spacing
-            titleEdgeInsets.right = titleEdgeInsets.right - spacing
+            updateSpacings()
         }
     }
     
-    public override var contentEdgeInsets: UIEdgeInsets {
-        get { return super.contentEdgeInsets }
-        set {
-            var newValue = newValue
-            newValue.right = newValue.right + spacing
-            super.contentEdgeInsets = newValue
-        }
-    }
-    
-    public override var titleEdgeInsets: UIEdgeInsets {
-        get {
-            return super.titleEdgeInsets
-        }
-        set {
-            var newValue = newValue
-            newValue.right = newValue.right - spacing
-            super.titleEdgeInsets = newValue
+    public var contentInset: UIEdgeInsets = .zero {
+        didSet {
+            updateSpacings()
         }
     }
     
@@ -50,6 +35,23 @@ open class Button: UIButton {
                     self.alpha = 1.0
                 }
             }
+        }
+    }
+    
+    private func updateSpacings() {
+        let isRTL = UIView.userInterfaceLayoutDirection(for: self.semanticContentAttribute) == .rightToLeft
+        if isRTL {
+            contentEdgeInsets = .init(top: contentInset.top, left: contentInset.left + spacing * 2, bottom: contentInset.bottom, right: contentInset.right)
+            titleEdgeInsets = .init(top: 0, left: -spacing, bottom: 0, right: spacing)
+        } else {
+            contentEdgeInsets = .init(top: contentInset.top, left: contentInset.left, bottom: contentInset.bottom, right: contentInset.right + spacing * 2)
+            titleEdgeInsets = .init(top: 0, left: spacing, bottom: 0, right: -spacing)
+        }
+    }
+    
+    open override var semanticContentAttribute: UISemanticContentAttribute {
+        didSet {
+            updateSpacings()
         }
     }
     
@@ -78,10 +80,9 @@ open class Button: UIButton {
         self.isUserInteractionEnabled = isUserInteractionEnabled
         self.spacing = spacing
         self.backgroundColor = backgroundColor
-        self.contentEdgeInsets = .init(top: contentInset.top, left: contentInset.left, bottom: contentInset.bottom, right: contentInset.right + spacing)
-        self.titleEdgeInsets = .init(top: 0, left: spacing, bottom: 0, right: titleEdgeInsets.right)
+        self.contentInset = contentInset
         self.isHidden = isHidden
-        
+        updateSpacings()
     }
 }
 #endif
