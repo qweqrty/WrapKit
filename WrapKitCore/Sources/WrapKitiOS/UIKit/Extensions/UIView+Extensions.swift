@@ -53,7 +53,16 @@ public extension UIView {
     
     func updateSemanticAttributes(isRTL: Bool) {
         semanticContentAttribute = isRTL ? .forceRightToLeft : .forceLeftToRight
-        subviews.forEach { $0.updateSemanticAttributes(isRTL: isRTL) }
+
+        subviews.forEach { subview in
+            if let stackView = subview as? UIStackView {
+                stackView.arrangedSubviews.forEach { arrangedSubview in
+                    arrangedSubview.updateSemanticAttributes(isRTL: isRTL)
+                }
+            } else {
+                subview.updateSemanticAttributes(isRTL: isRTL)
+            }
+        }
     }
     
     func dropShadow(
