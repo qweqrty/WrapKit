@@ -55,12 +55,11 @@ public extension UIView {
         semanticContentAttribute = isRTL ? .forceRightToLeft : .forceLeftToRight
 
         subviews.forEach { subview in
+            subview.updateSemanticAttributes(isRTL: isRTL)
             if let stackView = subview as? UIStackView {
                 stackView.arrangedSubviews.forEach { arrangedSubview in
                     arrangedSubview.updateSemanticAttributes(isRTL: isRTL)
                 }
-            } else {
-                subview.updateSemanticAttributes(isRTL: isRTL)
             }
         }
     }
