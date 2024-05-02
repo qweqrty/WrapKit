@@ -56,8 +56,8 @@ open class CollectionViewDatasource<Model>: NSObject, UICollectionViewDelegateFl
     }
     
     open func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let model = getItems()[indexPath.row]
-        if let configureCell = configureCell { return configureCell(collectionView, indexPath, model) }
+        let model = getItems().item(at: indexPath.row)
+        if let configureCell = configureCell, let model = model { return configureCell(collectionView, indexPath, model) }
         return UICollectionViewCell()
     }
     

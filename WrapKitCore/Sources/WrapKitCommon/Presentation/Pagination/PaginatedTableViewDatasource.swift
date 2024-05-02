@@ -45,8 +45,8 @@ open class TableViewDatasource<Model>: NSObject, UITableViewDelegate, UITableVie
     }
     
     open func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let model = getItems()[indexPath.row]
-        if let configureCell = configureCell { return configureCell(tableView, indexPath, model) }
+        let model = getItems().item(at: indexPath.row)
+        if let configureCell = configureCell, let model = model { return configureCell(tableView, indexPath, model) }
         return UITableViewCell()
     }
     
