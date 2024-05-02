@@ -39,10 +39,18 @@ public class MaskedTextFieldDelegate: NSObject, UITextFieldDelegate {
         let maskedText = mask.apply(to: inputText)
         self.inputText = maskedText.input
         textfield.text = maskedText.input
-        wrappedLabel.contentView.attributedText = .combined(
-            .init(maskedText.input, font: textfield.font ?? .systemFont(ofSize: 17), color: .clear, textAlignment: .left),
-            .init(maskedText.maskToInput, font: textfield.font ?? .systemFont(ofSize: 17), color: maskTextColor, textAlignment: .left)
-        )
+        if textfield.semanticContentAttribute == .forceRightToLeft {
+            wrappedLabel.contentView.attributedText = .combined(
+                .init(maskedText.maskToInput, font: textfield.font ?? .systemFont(ofSize: 17), color: maskTextColor, textAlignment: .natural),
+                .init(maskedText.input, font: textfield.font ?? .systemFont(ofSize: 17), color: .clear, textAlignment: .natural)
+            )
+        } else {
+            wrappedLabel.contentView.attributedText = .combined(
+                .init(maskedText.input, font: textfield.font ?? .systemFont(ofSize: 17), color: .clear, textAlignment: .natural),
+                .init(maskedText.maskToInput, font: textfield.font ?? .systemFont(ofSize: 17), color: maskTextColor, textAlignment: .natural)
+            )
+        }
+        
     }
 
     public func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
@@ -51,10 +59,18 @@ public class MaskedTextFieldDelegate: NSObject, UITextFieldDelegate {
 
         inputText = input
         textField.text = input
-        wrappedLabel.contentView.attributedText = .combined(
-            .init(input, font: textField.font ?? .systemFont(ofSize: 17), color: .clear, textAlignment: .left),
-            .init(mask, font: textField.font ?? .systemFont(ofSize: 17), color: maskTextColor, textAlignment: .left)
-        )
+        
+        if textField.semanticContentAttribute == .forceRightToLeft {
+            wrappedLabel.contentView.attributedText = .combined(
+                .init(mask, font: textField.font ?? .systemFont(ofSize: 17), color: maskTextColor, textAlignment: .natural),
+                .init(input, font: textField.font ?? .systemFont(ofSize: 17), color: .clear, textAlignment: .natural)
+            )
+        } else {
+            wrappedLabel.contentView.attributedText = .combined(
+                .init(input, font: textField.font ?? .systemFont(ofSize: 17), color: .clear, textAlignment: .natural),
+                .init(mask, font: textField.font ?? .systemFont(ofSize: 17), color: maskTextColor, textAlignment: .natural)
+            )
+        }
         textField.sendActions(for: .editingChanged)
 
         return false
@@ -65,10 +81,18 @@ public class MaskedTextFieldDelegate: NSObject, UITextFieldDelegate {
         let maskedText = mask.apply(to: inputText)
         self.inputText = maskedText.input
         textField.text = maskedText.input
-        wrappedLabel.contentView.attributedText = .combined(
-            .init(maskedText.input, font: textField.font ?? .systemFont(ofSize: 17), color: .clear, textAlignment: .left),
-            .init(maskedText.maskToInput, font: textField.font ?? .systemFont(ofSize: 17), color: maskTextColor, textAlignment: .left)
-        )
+
+        if textField.semanticContentAttribute == .forceRightToLeft {
+            wrappedLabel.contentView.attributedText = .combined(
+                .init(maskedText.maskToInput, font: textField.font ?? .systemFont(ofSize: 17), color: maskTextColor, textAlignment: .natural),
+                .init(maskedText.input, font: textField.font ?? .systemFont(ofSize: 17), color: .clear, textAlignment: .natural)
+            )
+        } else {
+            wrappedLabel.contentView.attributedText = .combined(
+                .init(maskedText.input, font: textField.font ?? .systemFont(ofSize: 17), color: .clear, textAlignment: .natural),
+                .init(maskedText.maskToInput, font: textField.font ?? .systemFont(ofSize: 17), color: maskTextColor, textAlignment: .natural)
+            )
+        }
         textField.sendActions(for: .editingChanged)
     }
 }
