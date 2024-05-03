@@ -14,6 +14,14 @@ open class Textview: UITextView, UITextViewDelegate {
     public var textDidChange: (() -> Void)?
     public var shouldChangeText: ((NSRange, String) -> Bool)?
     
+    open override var semanticContentAttribute: UISemanticContentAttribute {
+        didSet {
+            if textAlignment != .center {
+                textAlignment = semanticContentAttribute == .forceRightToLeft ? .right : .left
+            }
+        }
+    }
+    
     public init(
         font: UIFont = .systemFont(ofSize: 16),
         textColor: UIColor = .black,
