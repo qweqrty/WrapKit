@@ -10,19 +10,21 @@ import UIKit
 
 open class Label: UILabel {
     public struct Link {
-        public init(text: String, color: UIColor, font: UIFont, underlineStyle: NSUnderlineStyle? = nil, onTap: (() -> Void)? = nil) {
+        public init(text: String, color: UIColor, font: UIFont, underlineStyle: NSUnderlineStyle? = nil, textAlignment: NSTextAlignment? = nil, onTap: (() -> Void)? = nil) {
             self.text = text
             self.color = color
             self.font = font
             self.onTap = onTap
             self.range = nil
             self.underlineStyle = underlineStyle
+            self.textAlignment = textAlignment
         }
         
         let text: String
         let color: UIColor
         let underlineStyle: NSUnderlineStyle?
         let font: UIFont
+        let textAlignment: NSTextAlignment?
         let onTap: (() -> Void)?
         var range: NSRange?
     }
@@ -96,7 +98,7 @@ open class Label: UILabel {
             let combinedAttributedString = NSMutableAttributedString()
             
             for (index, (prev, current, _)) in links.withPreviousAndNext.enumerated() {
-                combinedAttributedString.append(NSAttributedString(current.text, font: current.font, color: current.color, lineSpacing: 4, textAlignment: textAlignment))
+                combinedAttributedString.append(NSAttributedString(current.text, font: current.font, color: current.color, lineSpacing: 4, textAlignment: current.textAlignment ?? textAlignment))
                 let prevRange = prev?.range ?? .init(location: 0, length: 0)
                 links[index].range = NSRange(location: prevRange.location + prevRange.length, length: current.text.count)
             }
