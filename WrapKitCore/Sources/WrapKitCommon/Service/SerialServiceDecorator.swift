@@ -35,8 +35,6 @@ public class SerialServiceDecorator<Request, Response: Decodable>: Service {
                 }
             } else if let index = self?.pendingCompletions.elements.firstIndex(where: { $0.id == completionId }) {
                 self?.pendingCompletions.elements[index].result = response
-            } else {
-                fatalError()
             }
         }
         
