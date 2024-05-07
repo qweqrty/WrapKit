@@ -10,7 +10,16 @@ import UIKit
 
 open class Label: UILabel {
     public struct Link {
-        public init(text: String, color: UIColor, font: UIFont, underlineStyle: NSUnderlineStyle? = nil, textAlignment: NSTextAlignment? = nil, onTap: (() -> Void)? = nil) {
+        public init(
+            text: String,
+            color: UIColor,
+            font: UIFont,
+            underlineStyle: NSUnderlineStyle? = nil,
+            textAlignment: NSTextAlignment? = nil,
+            trailingImage: UIImage? = nil,
+            trailingImageBounds: CGRect = .zero,
+            onTap: (() -> Void)? = nil
+        ) {
             self.text = text
             self.color = color
             self.font = font
@@ -18,6 +27,8 @@ open class Label: UILabel {
             self.range = nil
             self.underlineStyle = underlineStyle
             self.textAlignment = textAlignment
+            self.trailingImage = trailingImage
+            self.trailingImageBounds = trailingImageBounds
         }
         
         let text: String
@@ -25,6 +36,8 @@ open class Label: UILabel {
         let underlineStyle: NSUnderlineStyle?
         let font: UIFont
         let textAlignment: NSTextAlignment?
+        let trailingImage: UIImage?
+        let trailingImageBounds: CGRect
         let onTap: (() -> Void)?
         var range: NSRange?
     }
@@ -98,7 +111,7 @@ open class Label: UILabel {
             let combinedAttributedString = NSMutableAttributedString()
             
             for (index, (prev, current, _)) in links.withPreviousAndNext.enumerated() {
-                combinedAttributedString.append(NSAttributedString(current.text, font: current.font, color: current.color, lineSpacing: 4, textAlignment: current.textAlignment ?? textAlignment))
+                combinedAttributedString.append(NSAttributedString(current.text, font: current.font, color: current.color, lineSpacing: 4, textAlignment: current.textAlignment ?? textAlignment, trailingImage: current.trailingImage, trailingImageBounds: current.trailingImageBounds))
                 let prevRange = prev?.range ?? .init(location: 0, length: 0)
                 links[index].range = NSRange(location: prevRange.location + prevRange.length, length: current.text.count)
             }
