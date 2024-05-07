@@ -16,6 +16,8 @@ open class Label: UILabel {
             font: UIFont,
             underlineStyle: NSUnderlineStyle? = nil,
             textAlignment: NSTextAlignment? = nil,
+            leadingImage: UIImage? = nil,
+            leadingImageBounds: CGRect = .zero,
             trailingImage: UIImage? = nil,
             trailingImageBounds: CGRect = .zero,
             onTap: (() -> Void)? = nil
@@ -27,6 +29,8 @@ open class Label: UILabel {
             self.range = nil
             self.underlineStyle = underlineStyle
             self.textAlignment = textAlignment
+            self.leadingImage = leadingImage
+            self.leadingImageBounds = leadingImageBounds
             self.trailingImage = trailingImage
             self.trailingImageBounds = trailingImageBounds
         }
@@ -36,6 +40,8 @@ open class Label: UILabel {
         let underlineStyle: NSUnderlineStyle?
         let font: UIFont
         let textAlignment: NSTextAlignment?
+        let leadingImage: UIImage?
+        let leadingImageBounds: CGRect
         let trailingImage: UIImage?
         let trailingImageBounds: CGRect
         let onTap: (() -> Void)?
@@ -111,7 +117,19 @@ open class Label: UILabel {
             let combinedAttributedString = NSMutableAttributedString()
             
             for (index, (prev, current, _)) in links.withPreviousAndNext.enumerated() {
-                combinedAttributedString.append(NSAttributedString(current.text, font: current.font, color: current.color, lineSpacing: 4, textAlignment: current.textAlignment ?? textAlignment, trailingImage: current.trailingImage, trailingImageBounds: current.trailingImageBounds))
+                combinedAttributedString.append(
+                    NSAttributedString(
+                        current.text,
+                        font: current.font,
+                        color: current.color,
+                        lineSpacing: 4,
+                        textAlignment: current.textAlignment ?? textAlignment,
+                        leadingImage: current.leadingImage,
+                        leadingImageBounds: current.leadingImageBounds,
+                        trailingImage: current.trailingImage,
+                        trailingImageBounds: current.trailingImageBounds
+                    )
+                )
                 let prevRange = prev?.range ?? .init(location: 0, length: 0)
                 links[index].range = NSRange(location: prevRange.location + prevRange.length, length: current.text.count)
             }

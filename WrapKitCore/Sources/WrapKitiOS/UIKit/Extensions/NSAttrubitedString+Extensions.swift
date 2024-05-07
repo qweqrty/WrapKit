@@ -15,6 +15,8 @@ public extension NSAttributedString {
                      lineSpacing: CGFloat = 0,
                      underlineStyle: NSUnderlineStyle? = nil,
                      textAlignment: NSTextAlignment,
+                     leadingImage: UIImage? = nil,
+                     leadingImageBounds: CGRect = .zero,
                      trailingImage: UIImage? = nil,
                      trailingImageBounds: CGRect = .zero) {
         
@@ -31,8 +33,21 @@ public extension NSAttributedString {
         if let underline = underlineStyle {
             attributes[.underlineStyle] = underline.rawValue
         }
+        
+        let attributedString = NSMutableAttributedString(string: "", attributes: attributes)
+        
+        if let image = leadingImage {
+            let attachment = NSTextAttachment()
+            attachment.image = image
+            attachment.bounds = trailingImageBounds == .zero ? CGRect(x: 0, y: 0, width: image.size.width, height: image.size.height) : trailingImageBounds
 
-        let attributedString = NSMutableAttributedString(string: text, attributes: attributes)
+            let attachmentString = NSAttributedString(attachment: attachment)
+            attributedString.append(attachmentString)
+            attributedString.append(NSAttributedString(string: " "))
+        }
+
+        let mainString = NSMutableAttributedString(string: text, attributes: attributes)
+        attributedString.append(mainString)
         
         if let image = trailingImage {
             let attachment = NSTextAttachment()
