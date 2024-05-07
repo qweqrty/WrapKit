@@ -27,10 +27,8 @@ open class TableView: UITableView {
         }
     }
     open override func reloadData() {
-        DispatchQueue.main.async {
-            super.reloadData()
-            self.invalidateIntrinsicContentSize()
-        }
+        super.reloadData()
+        self.invalidateIntrinsicContentSize()
     }
     
     public init(
