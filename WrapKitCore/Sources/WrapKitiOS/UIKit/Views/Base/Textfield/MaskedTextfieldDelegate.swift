@@ -39,7 +39,7 @@ public class MaskedTextFieldDelegate: NSObject, UITextFieldDelegate {
         let maskedText = mask.apply(to: inputText)
         self.inputText = maskedText.input
         textfield.text = maskedText.input
-        if textfield.semanticContentAttribute == .forceRightToLeft {
+        if UIApplication.shared.userInterfaceLayoutDirection == .rightToLeft {
             wrappedLabel.contentView.attributedText = .combined(
                 .init(maskedText.maskToInput, font: textfield.font ?? .systemFont(ofSize: 17), color: maskTextColor, textAlignment: .right),
                 .init(maskedText.input, font: textfield.font ?? .systemFont(ofSize: 17), color: .clear, textAlignment: .right)
@@ -60,7 +60,7 @@ public class MaskedTextFieldDelegate: NSObject, UITextFieldDelegate {
         inputText = input
         textField.text = input
         
-        if textField.semanticContentAttribute == .forceRightToLeft {
+        if UIApplication.shared.userInterfaceLayoutDirection == .rightToLeft {
             wrappedLabel.contentView.attributedText = .combined(
                 .init(mask, font: textField.font ?? .systemFont(ofSize: 17), color: maskTextColor, textAlignment: .right),
                 .init(input, font: textField.font ?? .systemFont(ofSize: 17), color: .clear, textAlignment: .right)
@@ -82,7 +82,7 @@ public class MaskedTextFieldDelegate: NSObject, UITextFieldDelegate {
         self.inputText = maskedText.input
         textField.text = maskedText.input
 
-        if textField.semanticContentAttribute == .forceRightToLeft {
+        if UIApplication.shared.userInterfaceLayoutDirection == .rightToLeft {
             wrappedLabel.contentView.attributedText = .combined(
                 .init(maskedText.maskToInput, font: textField.font ?? .systemFont(ofSize: 17), color: maskTextColor, textAlignment: .right),
                 .init(maskedText.input, font: textField.font ?? .systemFont(ofSize: 17), color: .clear, textAlignment: .right)
@@ -96,4 +96,5 @@ public class MaskedTextFieldDelegate: NSObject, UITextFieldDelegate {
         textField.sendActions(for: .editingChanged)
     }
 }
+
 #endif
