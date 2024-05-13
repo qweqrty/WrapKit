@@ -28,12 +28,25 @@ public extension UIView {
     }
     
     func round(corners: UIRectCorner, radius: CGFloat) {
-        let path = UIBezierPath(roundedRect: bounds,
-                                byRoundingCorners: corners,
-                                cornerRadii: CGSize(width: radius, height: radius))
+        let path = UIBezierPath(
+            roundedRect: self.bounds,
+            byRoundingCorners: corners,
+            cornerRadii: CGSize(width: radius, height: radius)
+        )
+        
         let mask = CAShapeLayer()
         mask.path = path.cgPath
-        layer.mask = mask
+        self.layer.mask = mask
+        
+        let backgroundLayer = CAShapeLayer()
+        backgroundLayer.path = path.cgPath
+        backgroundLayer.fillColor = backgroundColor?.cgColor
+        
+        if let oldLayer = self.layer.sublayers?.first(where: { $0 is CAShapeLayer && $0 != mask }) {
+            oldLayer.removeFromSuperlayer()
+        }
+        
+        self.layer.insertSublayer(backgroundLayer, at: 0)
     }
     
     func shake(count: Float? = nil, for duration: TimeInterval? = nil, withTranslation translation: Float? = nil) {
