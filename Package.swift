@@ -8,6 +8,10 @@ let package = Package(
         .library(
             name: "WrapKitStatic",
             type: .static,
+            targets: ["WrapKit"]),
+        .library(
+            name: "WrapKitDynamic",
+            type: .dynamic,
             targets: ["WrapKit"])
     ],
     targets: [
