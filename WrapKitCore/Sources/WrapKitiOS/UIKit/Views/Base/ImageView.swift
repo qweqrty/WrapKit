@@ -11,18 +11,6 @@ import UIKit
 open class ImageView: UIImageView {
     public var onPress: (() -> Void)?
     
-    public var borderColor: UIColor = .clear {
-        didSet {
-            layer.borderColor = borderColor.cgColor
-        }
-    }
-    
-    public var borderWidth: CGFloat = 0 {
-        didSet {
-            layer.borderWidth = borderWidth
-        }
-    }
-    
     public override var tintColor: UIColor! {
         didSet {
             if let image = self.image {
@@ -51,12 +39,25 @@ open class ImageView: UIImageView {
         if let tintColor = tintColor {
             self.tintColor = tintColor
         }
-        self.borderColor = borderColor
-        self.borderWidth = borderWidth
         self.cornerRadius = cornerRadius
         self.isUserInteractionEnabled = true
-        translatesAutoresizingMaskIntoConstraints = false
+        addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(onTap)))
     }
+  
+  public required init?(coder: NSCoder) {
+    fatalError("init(coder:) has not been implemented")
+  }
+  
+  @objc private func onTap() {
+      self.alpha = 1.0
+      UIView.animate(withDuration: 0.4, delay: 0.0, options: .allowUserInteraction, animations: {
+        self.alpha = 0.5
+      }, completion: { finished in
+        guard finished else { return }
+        self.alpha = 1.0
+      })
+    onPress?()
+  }
     
     override public func layoutSubviews() {
         super.layoutSubviews()
@@ -67,58 +68,5 @@ open class ImageView: UIImageView {
         super.init(frame: frame)
         self.contentMode = .scaleAspectFit
     }
-    
-    public required init?(coder aDecoder: NSCoder) {
-        super.init(coder: aDecoder)
-    }
-    
-    private lazy var completionAnimation: ((Bool) -> Void) = { [weak self] finished in
-        guard finished else { return }
-        self?.isUserInteractionEnabled = true
-        self?.onPress?()
-    }
-
-    open override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        guard onPress != nil else {
-            super.touchesBegan(touches, with: event)
-            return
-        }
-        isUserInteractionEnabled = false
-        DispatchQueue.main.async {
-            self.alpha = 1.0
-            UIView.animate(withDuration: 0.2, delay: 0.0, options: .curveLinear, animations: {
-                self.alpha = 0.5
-            }, completion: self.completionAnimation)
-        }
-    }
-
-    public override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        guard onPress != nil else {
-            super.touchesEnded(touches, with: event)
-            return
-        }
-        isUserInteractionEnabled = false
-        DispatchQueue.main.async {
-            self.alpha = 0.5
-            UIView.animate(withDuration: 0.2, delay: 0.0, options: .curveLinear, animations: {
-                self.alpha = 1.0
-            }, completion: self.completionAnimation)
-        }
-    }
-
-    public override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
-        guard onPress != nil else {
-            super.touchesCancelled(touches, with: event)
-            return
-        }
-        isUserInteractionEnabled = false
-        DispatchQueue.main.async {
-            self.alpha = 0.5
-            UIView.animate(withDuration: 0.2, delay: 0.0, options: .curveLinear, animations: {
-                self.alpha = 1.0
-            }, completion: self.completionAnimation)
-        }
-    }
 }
-
 #endif
