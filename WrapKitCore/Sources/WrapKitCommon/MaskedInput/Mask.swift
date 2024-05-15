@@ -9,8 +9,10 @@ import Foundation
 
 public protocol Masking {
     init(format: [MaskedCharacter])
+    var format: [MaskedCharacter] { get }
     func apply(to text: String) -> (input: String, maskToInput: String)
     func removeCharacters(from text: String, in range: NSRange) -> (input: String, maskToInput: String)
+    func extractUserInput(from text: String) -> String  // Only characters associated with specifiers
 }
 
 public enum MaskedCharacter {
@@ -28,7 +30,7 @@ public enum MaskedCharacter {
 }
 
 public struct Mask: Masking {
-    private let format: [MaskedCharacter]
+    public let format: [MaskedCharacter]
     
     public init(format: [MaskedCharacter]) {
         self.format = format
@@ -39,7 +41,7 @@ public struct Mask: Masking {
         
         var input = ""
         var textIterator = text.startIndex
-
+        
         for (offset, maskedCharacter) in format.enumerated() {
             guard textIterator < text.endIndex else {
                 let literals = format.getLiterals(startingFrom: offset)
@@ -47,7 +49,7 @@ public struct Mask: Masking {
                 return (input, format[literals.endIndex...].map { $0.mask }.joined())
             }
             let currentCharacter = text[textIterator]
-
+            
             switch maskedCharacter {
             case .specifier(_, let allowedCharacters):
                 if allowedCharacters.contains(currentCharacter) {
@@ -61,7 +63,6 @@ public struct Mask: Masking {
                 textIterator = character == currentCharacter ? text.index(after: textIterator) : textIterator
             }
         }
-        
         return (input, "")
     }
     
@@ -78,7 +79,7 @@ public struct Mask: Masking {
         var removeCount = 0
         var index = text.count - 1
         while index >= 0 {
-            if format.indices.contains(index), case .literal = format[index] {
+            if format.indices.contains(index), case .literal = format.item(at: index) {
                 removeCount += 1
             } else {
                 break
@@ -86,7 +87,30 @@ public struct Mask: Masking {
             index -= 1
         }
         let input = String(text.dropLast(removeCount))
-        return (input, format[input.count...].map { $0.mask }.joined())
+        if input.isEmpty {
+            return apply(to: text)
+        } else {
+            return (input, format[input.count...].map { $0.mask }.joined())
+        }
+    }
+    
+    public func extractUserInput(from text: String) -> String {
+        var result = ""
+        for (index, character) in text.enumerated() {
+            if !isLiteralCharacter(at: index) {
+                result += String(character)
+            }
+        }
+        return result
+    }
+    
+    public func isLiteralCharacter(at index: Int) -> Bool {
+        switch format.item(at: index) {
+        case .literal:
+            return true
+        default:
+            return false
+        }
     }
 }
 

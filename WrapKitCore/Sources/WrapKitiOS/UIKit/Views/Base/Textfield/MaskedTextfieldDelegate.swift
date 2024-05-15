@@ -9,92 +9,71 @@
 import UIKit
 
 public class MaskedTextFieldDelegate: NSObject, UITextFieldDelegate {
-    private let mask: Masking
+    public let mask: Masking
+    private let textColor: UIColor
     private let maskTextColor: UIColor
-    private let wrappedLabel = WrapperView(contentView: Label(), isUserInteractionEnabled: false)
     
+    public var userInputText: String { mask.extractUserInput(from: inputText) }
     public lazy var inputText: String = mask.apply(to: "").input
-
+    
     public init(
         mask: Masking,
-        maskTextColor: UIColor,
-        textfieldPadding: UIEdgeInsets
+        textColor: UIColor,
+        maskTextColor: UIColor
     ) {
         self.mask = mask
+        self.textColor = textColor
         self.maskTextColor = maskTextColor
-        self.wrappedLabel.padding = textfieldPadding
     }
     
-    public func configureMaskViewIfNeeded(in textfield: UITextField) {
-        if wrappedLabel.superview != textfield {
-            wrappedLabel.removeFromSuperview()
-            textfield.addSubview(wrappedLabel)
-            wrappedLabel.anchor(
-                .top(textfield.topAnchor),
-                .leading(textfield.leadingAnchor),
-                .trailing(textfield.trailingAnchor),
-                .bottom(textfield.bottomAnchor)
-            )
-        }
-        let maskedText = mask.apply(to: inputText)
-        self.inputText = maskedText.input
-        textfield.text = maskedText.input
-        if UIApplication.shared.userInterfaceLayoutDirection == .rightToLeft {
-            wrappedLabel.contentView.attributedText = .combined(
-                .init(maskedText.maskToInput, font: textfield.font ?? .systemFont(ofSize: 17), color: maskTextColor, textAlignment: .right),
-                .init(maskedText.input, font: textfield.font ?? .systemFont(ofSize: 17), color: .clear, textAlignment: .right)
-            )
-        } else {
-            wrappedLabel.contentView.attributedText = .combined(
-                .init(maskedText.input, font: textfield.font ?? .systemFont(ofSize: 17), color: .clear, textAlignment: .left),
-                .init(maskedText.maskToInput, font: textfield.font ?? .systemFont(ofSize: 17), color: maskTextColor, textAlignment: .left)
-            )
-        }
+    public func applyTo(_ textField: UITextField) {
+        textField.delegate = self
+        let mask = mask.apply(to: inputText)
         
+        self.inputText = mask.input
+        textField.text = mask.maskToInput
+        
+        textField.attributedText = .combined(
+            .init(mask.input, font: textField.font ?? .systemFont(ofSize: 17), color: textColor, textAlignment: textField.textAlignment),
+            .init(mask.maskToInput, font: textField.font ?? .systemFont(ofSize: 17), color: maskTextColor, textAlignment: textField.textAlignment)
+        )
     }
-
+    
     public func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-        configureMaskViewIfNeeded(in: textField)
-        let (input, mask) = string.isEmpty ? mask.removeCharacters(from: inputText, in: range) : mask.apply(to: inputText + string)
-
-        inputText = input
-        textField.text = input
-        
-        if UIApplication.shared.userInterfaceLayoutDirection == .rightToLeft {
-            wrappedLabel.contentView.attributedText = .combined(
-                .init(mask, font: textField.font ?? .systemFont(ofSize: 17), color: maskTextColor, textAlignment: .right),
-                .init(input, font: textField.font ?? .systemFont(ofSize: 17), color: .clear, textAlignment: .right)
-            )
-        } else {
-            wrappedLabel.contentView.attributedText = .combined(
-                .init(input, font: textField.font ?? .systemFont(ofSize: 17), color: .clear, textAlignment: .left),
-                .init(mask, font: textField.font ?? .systemFont(ofSize: 17), color: maskTextColor, textAlignment: .left)
-            )
-        }
-        textField.sendActions(for: .editingChanged)
-
+        setupMask(
+            in: textField,
+            mask: string.isEmpty ? mask.removeCharacters(from: inputText, in: range) : mask.apply(to: inputText + string)
+        )
         return false
     }
-
+    
     public func textFieldDidBeginEditing(_ textField: UITextField) {
-        configureMaskViewIfNeeded(in: textField)
-        let maskedText = mask.apply(to: inputText)
-        self.inputText = maskedText.input
-        textField.text = maskedText.input
-
-        if UIApplication.shared.userInterfaceLayoutDirection == .rightToLeft {
-            wrappedLabel.contentView.attributedText = .combined(
-                .init(maskedText.maskToInput, font: textField.font ?? .systemFont(ofSize: 17), color: maskTextColor, textAlignment: .right),
-                .init(maskedText.input, font: textField.font ?? .systemFont(ofSize: 17), color: .clear, textAlignment: .right)
-            )
-        } else {
-            wrappedLabel.contentView.attributedText = .combined(
-                .init(maskedText.input, font: textField.font ?? .systemFont(ofSize: 17), color: .clear, textAlignment: .left),
-                .init(maskedText.maskToInput, font: textField.font ?? .systemFont(ofSize: 17), color: maskTextColor, textAlignment: .left)
-            )
-        }
+        setupMask(in: textField, mask: mask.apply(to: inputText))
+    }
+    
+    private func setupMask(
+        in textField: UITextField,
+        mask: (input: String, maskToInput: String)
+    ) {
+        self.inputText = mask.input
+        textField.text = mask.maskToInput
+        
+        textField.attributedText = .combined(
+            .init(mask.input, font: textField.font ?? .systemFont(ofSize: 17), color: textColor, textAlignment: textField.textAlignment),
+            .init(mask.maskToInput, font: textField.font ?? .systemFont(ofSize: 17), color: maskTextColor, textAlignment: textField.textAlignment)
+        )
+        
         textField.sendActions(for: .editingChanged)
     }
-}
-
-#endif
+    
+    public func textFieldDidChangeSelection(_ textField: UITextField) {
+        guard let selectedRange = textField.selectedTextRange else { return }
+        
+        let endOfInputIndex = min(inputText.count, textField.text?.count ?? 0)
+        if let endOfInputPosition = textField.position(from: textField.beginningOfDocument, offset: endOfInputIndex) {
+            if textField.offset(from: textField.beginningOfDocument, to: selectedRange.start) > endOfInputIndex {
+                textField.selectedTextRange = textField.textRange(from: endOfInputPosition, to: endOfInputPosition)
+            }
+        }
+    }
+}#endif
