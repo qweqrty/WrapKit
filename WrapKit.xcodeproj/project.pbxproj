@@ -127,6 +127,8 @@
 		C43847CE2BA2B26E00E3D8EA /* RealmStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C43847CD2BA2B26E00E3D8EA /* RealmStorage.swift */; };
 		C43847D02BA2B29500E3D8EA /* Realm in Frameworks */ = {isa = PBXBuildFile; productRef = C43847CF2BA2B29500E3D8EA /* Realm */; };
 		C43847D22BA2B29500E3D8EA /* RealmSwift in Frameworks */ = {isa = PBXBuildFile; productRef = C43847D12BA2B29500E3D8EA /* RealmSwift */; };
+		C4BBD6632BF47EB3009B654D /* PickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4BBD6622BF47EB3009B654D /* PickerView.swift */; };
+		C4BBD6652BF47EF8009B654D /* DatePickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4BBD6642BF47EF8009B654D /* DatePickerView.swift */; };
 		C4E3BD602BBEC389001F2F8C /* UserDefaultsStorageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4E3BD5F2BBEC389001F2F8C /* UserDefaultsStorageTests.swift */; };
 /* End PBXBuildFile section */
 
@@ -269,6 +271,8 @@
 		C43847BF2BA2B25700E3D8EA /* WrapKitRealmTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = WrapKitRealmTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		C43847C42BA2B25700E3D8EA /* WrapKitRealmTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WrapKitRealmTests.swift; sourceTree = "<group>"; };
 		C43847CD2BA2B26E00E3D8EA /* RealmStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealmStorage.swift; sourceTree = "<group>"; };
+		C4BBD6622BF47EB3009B654D /* PickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PickerView.swift; sourceTree = "<group>"; };
+		C4BBD6642BF47EF8009B654D /* DatePickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatePickerView.swift; sourceTree = "<group>"; };
 		C4E3BD5F2BBEC389001F2F8C /* UserDefaultsStorageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultsStorageTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -699,6 +703,8 @@
 				C08AA37F2A7EB7DB002D58D5 /* StackVIew.swift */,
 				C08AA3A62A7F015D002D58D5 /* Textview.swift */,
 				C06CC6962B5D3BDA00AE2F8D /* SwitchControl.swift */,
+				C4BBD6622BF47EB3009B654D /* PickerView.swift */,
+				C4BBD6642BF47EF8009B654D /* DatePickerView.swift */,
 			);
 			path = Base;
 			sourceTree = "<group>";
@@ -1063,6 +1069,7 @@
 				53B5D4262B26E6AC00E2651E /* URLRequest+Extensions.swift in Sources */,
 				537540722B2C0E3300C41CF7 /* UserDefaultsStorage.swift in Sources */,
 				C08AA3A12A7EC76F002D58D5 /* CardView.swift in Sources */,
+				C4BBD6652BF47EF8009B654D /* DatePickerView.swift in Sources */,
 				C08AA3852A7EBA99002D58D5 /* RetryView.swift in Sources */,
 				C08AA3592A7E8DED002D58D5 /* PanModalPresentable+Defaults.swift in Sources */,
 				C06CC6972B5D3BDA00AE2F8D /* SwitchControl.swift in Sources */,
@@ -1075,6 +1082,7 @@
 				C08AA38F2A7EBC05002D58D5 /* TableView.swift in Sources */,
 				539ACDFC2B22FF28007A257F /* Textfield.swift in Sources */,
 				C04C41DA2B5189A9009BC481 /* WebViewPresenter.swift in Sources */,
+				C4BBD6632BF47EB3009B654D /* PickerView.swift in Sources */,
 				53B5D4282B26E6D000E2651E /* String+Extensions.swift in Sources */,
 				C08AA35F2A7E8DED002D58D5 /* UIViewController+PanModalPresenter.swift in Sources */,
 				C08AA3262A7E89D2002D58D5 /* UIView+Layout.swift in Sources */,
