@@ -22,6 +22,13 @@ public class TimerPresenter: TimerInput {
     private var backgroundStartTime: Date?
     public weak var view: TimerOutput?
     
+    public init(timer: DispatchSourceTimer? = nil, secondsRemained: Int? = nil, backgroundStartTime: Date? = nil, view: TimerOutput? = nil) {
+        self.timer = timer
+        self.secondsRemained = secondsRemained
+        self.backgroundStartTime = backgroundStartTime
+        self.view = view
+    }
+    
     public func start(seconds: Int) {
         stop()
         
