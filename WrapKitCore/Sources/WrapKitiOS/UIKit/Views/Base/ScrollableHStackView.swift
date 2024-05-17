@@ -18,9 +18,24 @@ open class ScrollableHStackView: UIScrollView {
         initialSetup()
     }
     
+    public override var semanticContentAttribute: UISemanticContentAttribute {
+        didSet {
+            adjustForRTL()
+        }
+    }
     public required init?(coder: NSCoder) {
         self.contentView = StackView(axis: .horizontal)
         super.init(coder: coder)
+    }
+    
+    private func adjustForRTL() {
+        if semanticContentAttribute == .forceRightToLeft {
+            transform = CGAffineTransform(scaleX: -1, y: 1)
+            contentView.transform = CGAffineTransform(scaleX: -1, y: 1)
+        } else {
+            transform = .identity
+            contentView.transform = .identity
+        }
     }
 }
 
