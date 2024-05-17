@@ -124,6 +124,7 @@
 		C0BE6EAF2A9BE4F500864F53 /* MaskedTextfieldDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0BE6EAE2A9BE4F500864F53 /* MaskedTextfieldDelegate.swift */; };
 		C41949852BF74049002FFFAD /* TimerPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C41949842BF74049002FFFAD /* TimerPresenter.swift */; };
 		C41949882BF74B59002FFFAD /* AppLifecycleInputs.swift in Sources */ = {isa = PBXBuildFile; fileRef = C41949872BF74B59002FFFAD /* AppLifecycleInputs.swift */; };
+		C419498A2BF74C7B002FFFAD /* Int+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C41949892BF74C7B002FFFAD /* Int+Extensions.swift */; };
 		C43847C02BA2B25700E3D8EA /* WrapKitRealm.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C43847B82BA2B25700E3D8EA /* WrapKitRealm.framework */; };
 		C43847C52BA2B25700E3D8EA /* WrapKitRealmTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C43847C42BA2B25700E3D8EA /* WrapKitRealmTests.swift */; };
 		C43847CE2BA2B26E00E3D8EA /* RealmStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C43847CD2BA2B26E00E3D8EA /* RealmStorage.swift */; };
@@ -271,6 +272,7 @@
 		C0BE6EAE2A9BE4F500864F53 /* MaskedTextfieldDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MaskedTextfieldDelegate.swift; sourceTree = "<group>"; };
 		C41949842BF74049002FFFAD /* TimerPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimerPresenter.swift; sourceTree = "<group>"; };
 		C41949872BF74B59002FFFAD /* AppLifecycleInputs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLifecycleInputs.swift; sourceTree = "<group>"; };
+		C41949892BF74C7B002FFFAD /* Int+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Int+Extensions.swift"; sourceTree = "<group>"; };
 		C43847B82BA2B25700E3D8EA /* WrapKitRealm.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = WrapKitRealm.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		C43847BF2BA2B25700E3D8EA /* WrapKitRealmTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = WrapKitRealmTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		C43847C42BA2B25700E3D8EA /* WrapKitRealmTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WrapKitRealmTests.swift; sourceTree = "<group>"; };
@@ -356,6 +358,7 @@
 				53B5D4272B26E6D000E2651E /* String+Extensions.swift */,
 				C0103DE62B34AD6D0005FCDB /* Array+Extensions.swift */,
 				533656322B3D984100D42773 /* Encodable+Extensions.swift */,
+				C41949892BF74C7B002FFFAD /* Int+Extensions.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -1117,6 +1120,7 @@
 				538E4B362AA495CA005BBDB4 /* UIImageView+Extensions.swift in Sources */,
 				C08AA33A2A7E8CEB002D58D5 /* UIColor+Extensions.swift in Sources */,
 				C08AA3782A7EA0F0002D58D5 /* ScrollableContentView.swift in Sources */,
+				C419498A2BF74C7B002FFFAD /* Int+Extensions.swift in Sources */,
 				C08AA3612A7E8DED002D58D5 /* PanModalPresentationDelegate.swift in Sources */,
 				C08AA37A2A7EB5BD002D58D5 /* ProgressBarView.swift in Sources */,
 				C08AA36C2A7E9E41002D58D5 /* View.swift in Sources */,
