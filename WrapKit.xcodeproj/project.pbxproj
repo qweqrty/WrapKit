@@ -122,6 +122,8 @@
 		C0BE6EA92A9B9FD500864F53 /* CharacterSet+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0BE6EA82A9B9FD500864F53 /* CharacterSet+Extensions.swift */; };
 		C0BE6EAC2A9BE49400864F53 /* Mask.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0BE6EAB2A9BE49400864F53 /* Mask.swift */; };
 		C0BE6EAF2A9BE4F500864F53 /* MaskedTextfieldDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0BE6EAE2A9BE4F500864F53 /* MaskedTextfieldDelegate.swift */; };
+		C41949852BF74049002FFFAD /* TimerPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C41949842BF74049002FFFAD /* TimerPresenter.swift */; };
+		C41949882BF74B59002FFFAD /* AppLifecycleInputs.swift in Sources */ = {isa = PBXBuildFile; fileRef = C41949872BF74B59002FFFAD /* AppLifecycleInputs.swift */; };
 		C43847C02BA2B25700E3D8EA /* WrapKitRealm.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C43847B82BA2B25700E3D8EA /* WrapKitRealm.framework */; };
 		C43847C52BA2B25700E3D8EA /* WrapKitRealmTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C43847C42BA2B25700E3D8EA /* WrapKitRealmTests.swift */; };
 		C43847CE2BA2B26E00E3D8EA /* RealmStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C43847CD2BA2B26E00E3D8EA /* RealmStorage.swift */; };
@@ -267,6 +269,8 @@
 		C0BE6EA82A9B9FD500864F53 /* CharacterSet+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CharacterSet+Extensions.swift"; sourceTree = "<group>"; };
 		C0BE6EAB2A9BE49400864F53 /* Mask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Mask.swift; sourceTree = "<group>"; };
 		C0BE6EAE2A9BE4F500864F53 /* MaskedTextfieldDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MaskedTextfieldDelegate.swift; sourceTree = "<group>"; };
+		C41949842BF74049002FFFAD /* TimerPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimerPresenter.swift; sourceTree = "<group>"; };
+		C41949872BF74B59002FFFAD /* AppLifecycleInputs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLifecycleInputs.swift; sourceTree = "<group>"; };
 		C43847B82BA2B25700E3D8EA /* WrapKitRealm.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = WrapKitRealm.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		C43847BF2BA2B25700E3D8EA /* WrapKitRealmTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = WrapKitRealmTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		C43847C42BA2B25700E3D8EA /* WrapKitRealmTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WrapKitRealmTests.swift; sourceTree = "<group>"; };
@@ -335,6 +339,8 @@
 		53A137792B07133E00E04C92 /* Presentation */ = {
 			isa = PBXGroup;
 			children = (
+				C41949862BF74B4E002FFFAD /* AppLifecycle */,
+				C41949832BF74041002FFFAD /* Timer */,
 				536DCC932B0A04D50034512A /* Resource */,
 				C0261C392A76D03500BFCF1B /* Pagination */,
 				C0261C4B2A78A7E200BFCF1B /* ViewModelDTO.swift */,
@@ -824,6 +830,22 @@
 			path = Textfield;
 			sourceTree = "<group>";
 		};
+		C41949832BF74041002FFFAD /* Timer */ = {
+			isa = PBXGroup;
+			children = (
+				C41949842BF74049002FFFAD /* TimerPresenter.swift */,
+			);
+			path = Timer;
+			sourceTree = "<group>";
+		};
+		C41949862BF74B4E002FFFAD /* AppLifecycle */ = {
+			isa = PBXGroup;
+			children = (
+				C41949872BF74B59002FFFAD /* AppLifecycleInputs.swift */,
+			);
+			path = AppLifecycle;
+			sourceTree = "<group>";
+		};
 		C43847B22BA2B04300E3D8EA /* WrapKitCore */ = {
 			isa = PBXGroup;
 			children = (
@@ -1052,6 +1074,7 @@
 				C08AA32E2A7E8A71002D58D5 /* UITapGestureRecognizer+Extensions.swift in Sources */,
 				C010868D2A7E840100C3720A /* MainQueueDispatchDecorator.swift in Sources */,
 				53F9F9FC2AB8E77900110054 /* TokenRefresher.swift in Sources */,
+				C41949852BF74049002FFFAD /* TimerPresenter.swift in Sources */,
 				C08AA35B2A7E8DED002D58D5 /* PanModalPresentable+LayoutHelpers.swift in Sources */,
 				53567E622B3BE82500A058F1 /* DownloadService.swift in Sources */,
 				C08AA3662A7E8DED002D58D5 /* DimmedView.swift in Sources */,
@@ -1112,6 +1135,7 @@
 				C0BE6EAF2A9BE4F500864F53 /* MaskedTextfieldDelegate.swift in Sources */,
 				538A108E2B13CF410092570D /* CubeTransitionView.swift in Sources */,
 				C08AA38A2A7EBAED002D58D5 /* CollectionViewCell.swift in Sources */,
+				C41949882BF74B59002FFFAD /* AppLifecycleInputs.swift in Sources */,
 				C08AA3AB2A7F0E28002D58D5 /* MapView.swift in Sources */,
 				C08AA3A32A7EF41C002D58D5 /* NavigationController.swift in Sources */,
 				C08AA3702A7E9E9E002D58D5 /* RefreshControl.swift in Sources */,
