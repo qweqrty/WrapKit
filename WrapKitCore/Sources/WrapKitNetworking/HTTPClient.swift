@@ -7,6 +7,27 @@
 
 import Foundation
 
+public class CompositeHTTPClientTask: HTTPClientTask {
+    private var tasks: [HTTPClientTask]
+
+    public init(tasks: [HTTPClientTask] = []) {
+        self.tasks = tasks
+    }
+
+    public func add(_ task: HTTPClientTask) {
+        tasks.append(task)
+    }
+
+    public func resume() {
+        tasks.forEach { $0.resume() }
+    }
+
+    public func cancel() {
+        tasks.forEach { $0.cancel() }
+    }
+}
+
+
 public protocol HTTPClientTask {
     func cancel()
     func resume()

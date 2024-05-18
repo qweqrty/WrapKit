@@ -9,7 +9,11 @@
 import UIKit
 
 open class ImageView: UIImageView {
-    public var onPress: (() -> Void)?
+    public var onPress: (() -> Void)? {
+        didSet {
+            isUserInteractionEnabled = onPress != nil
+        }
+    }
     
     public override var tintColor: UIColor! {
         didSet {
@@ -40,7 +44,6 @@ open class ImageView: UIImageView {
             self.tintColor = tintColor
         }
         self.cornerRadius = cornerRadius
-        self.isUserInteractionEnabled = true
         addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(onTap)))
     }
   
@@ -53,7 +56,6 @@ open class ImageView: UIImageView {
       UIView.animate(withDuration: 0.4, delay: 0.0, options: .allowUserInteraction, animations: {
         self.alpha = 0.5
       }, completion: { finished in
-        guard finished else { return }
         self.alpha = 1.0
       })
     onPress?()

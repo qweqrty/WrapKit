@@ -16,6 +16,10 @@ public extension String {
 }
 
 public extension String {
+    
+}
+
+public extension String {
     var asHtmlAttributedString: NSAttributedString? {
         guard let data = data(using: .utf8) else { return nil }
                 

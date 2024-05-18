@@ -9,7 +9,7 @@ import Foundation
 
 public class ThreeCompositeService<S1: Service, S2: Service, S3: Service>: Service {
     public typealias Request = (S1.Request, S2.Request, S3.Request)
-    public typealias Response = (S1.Response?, S2.Response?, S3.Response?)
+    public typealias Response = (S1.Response, S2.Response, S3.Response)
 
     private let service1: S1
     private let service2: S2
@@ -21,38 +21,64 @@ public class ThreeCompositeService<S1: Service, S2: Service, S3: Service>: Servi
         self.service3 = service3
     }
 
-    public func make(request: (S1.Request, S2.Request, S3.Request), completion: @escaping (Result<(S1.Response?, S2.Response?, S3.Response?), ServiceError>) -> Void) -> HTTPClientTask? {
-        var response1: S1.Response?
-        var response2: S2.Response?
-        var response3: S3.Response?
+    public func make(request: (S1.Request, S2.Request, S3.Request), completion: @escaping (Result<(S1.Response, S2.Response, S3.Response), ServiceError>) -> Void) -> HTTPClientTask? {
+        var response1: Result<S1.Response, ServiceError>?
+        var response2: Result<S2.Response, ServiceError>?
+        var response3: Result<S3.Response, ServiceError>?
 
         let group = DispatchGroup()
 
-        group.enter()
-        service1.make(request: request.0) { result in
-            response1 = try? result.get()
-            group.leave()
-        }?.resume()
+        var tasks: [HTTPClientTask] = []
 
         group.enter()
-        service2.make(request: request.1) { result in
-            response2 = try? result.get()
+        if let task1 = service1.make(request: request.0, completion: { result in
+            response1 = result
             group.leave()
-        }?.resume()
-
-        group.enter()
-        service3.make(request: request.2) { result in
-            response3 = try? result.get()
+        }) {
+            tasks.append(task1)
+        } else {
             group.leave()
-        }?.resume()
-
-        group.notify(queue: .main) {
-            completion(.success((response1, response2, response3)))
         }
 
-        return nil
+        group.enter()
+        if let task2 = service2.make(request: request.1, completion: { result in
+            response2 = result
+            group.leave()
+        }) {
+            tasks.append(task2)
+        } else {
+            group.leave()
+        }
+
+        group.enter()
+        if let task3 = service3.make(request: request.2, completion: { result in
+            response3 = result
+            group.leave()
+        }) {
+            tasks.append(task3)
+        } else {
+            group.leave()
+        }
+
+        group.notify(queue: .main) {
+            switch (response1, response2, response3) {
+            case let (.success(res1), .success(res2), .success(res3)):
+                completion(.success((res1, res2, res3)))
+            case let (.failure(error), _, _):
+                completion(.failure(error))
+            case let (_, .failure(error), _):
+                completion(.failure(error))
+            case let (_, _, .failure(error)):
+                completion(.failure(error))
+            default:
+                completion(.failure(.internal))
+            }
+        }
+
+        return CompositeHTTPClientTask(tasks: tasks)
     }
 }
+
 
 public class TwoCompositeService<S1: Service, S2: Service>: Service {
     public typealias Request = (S1.Request, S2.Request)
@@ -71,31 +97,42 @@ public class TwoCompositeService<S1: Service, S2: Service>: Service {
         var response2: Result<S2.Response, ServiceError>?
 
         let group = DispatchGroup()
+        let compositeTask = CompositeHTTPClientTask()
 
         group.enter()
-        service1.make(request: request.0) { result in
+        if let task1 = service1.make(request: request.0, completion: { result in
             response1 = result
             group.leave()
-        }?.resume()
+        }) {
+            compositeTask.add(task1)
+        } else {
+            group.leave()
+        }
 
         group.enter()
-        service2.make(request: request.1) { result in
+        if let task2 = service2.make(request: request.1, completion: { result in
             response2 = result
             group.leave()
-        }?.resume()
+        }) {
+            compositeTask.add(task2)
+        } else {
+            group.leave()
+        }
 
         group.notify(queue: .main) {
             switch (response1, response2) {
             case let (.success(res1), .success(res2)):
                 completion(.success((res1, res2)))
-            case let (.failure(error), _),
-                 let (_, .failure(error)):
+            case let (.failure(error), _):
+                completion(.failure(error))
+            case let (_, .failure(error)):
                 completion(.failure(error))
             default:
                 completion(.failure(.internal))
             }
         }
 
-        return nil // Or return an actual task if your services support cancellation
+        compositeTask.resume()
+        return compositeTask
     }
 }

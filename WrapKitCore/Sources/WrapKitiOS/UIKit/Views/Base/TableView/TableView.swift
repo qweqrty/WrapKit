@@ -62,21 +62,6 @@ open class TableView: UITableView {
     public required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
     }
-    
-    open func changePlaceholder(_ state: Bool) {
-        guard let backgroundView = backgroundView else { return }
-        switch state {
-        case false:
-            self.backgroundView?.alpha = 0
-        default:
-            UIView.animate(
-                withDuration: 0.2,
-                animations: {
-                    self.backgroundView?.alpha = 1
-                }
-            )
-        }
-    }
 }
 
 public extension UITableView {

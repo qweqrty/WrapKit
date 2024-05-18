@@ -130,6 +130,7 @@
 		C43847CE2BA2B26E00E3D8EA /* RealmStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C43847CD2BA2B26E00E3D8EA /* RealmStorage.swift */; };
 		C43847D02BA2B29500E3D8EA /* Realm in Frameworks */ = {isa = PBXBuildFile; productRef = C43847CF2BA2B29500E3D8EA /* Realm */; };
 		C43847D22BA2B29500E3D8EA /* RealmSwift in Frameworks */ = {isa = PBXBuildFile; productRef = C43847D12BA2B29500E3D8EA /* RealmSwift */; };
+		C4B8207B2BF8A2C50001F45F /* HTTPClientDecorator.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4B8207A2BF8A2C50001F45F /* HTTPClientDecorator.swift */; };
 		C4BBD6632BF47EB3009B654D /* PickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4BBD6622BF47EB3009B654D /* PickerView.swift */; };
 		C4BBD6652BF47EF8009B654D /* DatePickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4BBD6642BF47EF8009B654D /* DatePickerView.swift */; };
 		C4E3BD602BBEC389001F2F8C /* UserDefaultsStorageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4E3BD5F2BBEC389001F2F8C /* UserDefaultsStorageTests.swift */; };
@@ -277,6 +278,7 @@
 		C43847BF2BA2B25700E3D8EA /* WrapKitRealmTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = WrapKitRealmTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		C43847C42BA2B25700E3D8EA /* WrapKitRealmTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WrapKitRealmTests.swift; sourceTree = "<group>"; };
 		C43847CD2BA2B26E00E3D8EA /* RealmStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealmStorage.swift; sourceTree = "<group>"; };
+		C4B8207A2BF8A2C50001F45F /* HTTPClientDecorator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPClientDecorator.swift; sourceTree = "<group>"; };
 		C4BBD6622BF47EB3009B654D /* PickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PickerView.swift; sourceTree = "<group>"; };
 		C4BBD6642BF47EF8009B654D /* DatePickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatePickerView.swift; sourceTree = "<group>"; };
 		C4E3BD5F2BBEC389001F2F8C /* UserDefaultsStorageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultsStorageTests.swift; sourceTree = "<group>"; };
@@ -421,15 +423,13 @@
 		C0261C3D2A76EF2C00BFCF1B /* WrapKitCommon */ = {
 			isa = PBXGroup;
 			children = (
+				C4B820792BF8A2B80001F45F /* HTTPClient */,
 				53B5D4242B26E69D00E2651E /* Helpers */,
 				53A137792B07133E00E04C92 /* Presentation */,
 				53F9F9F02AB6C15500110054 /* Storage */,
 				C0BE6EAA2A9BE47700864F53 /* MaskedInput */,
 				C0261C472A78615700BFCF1B /* Service */,
 				C0261C422A785A1900BFCF1B /* DataStructures */,
-				C010868B2A7E83EB00C3720A /* MainQueueDispatchDecorator.swift */,
-				531452052AC97E7B0034348F /* StoredServiceDecorator.swift */,
-				53D395F02B272F150016F698 /* StoredHTTPClientDecorator.swift */,
 			);
 			path = WrapKitCommon;
 			sourceTree = "<group>";
@@ -445,6 +445,8 @@
 		C0261C472A78615700BFCF1B /* Service */ = {
 			isa = PBXGroup;
 			children = (
+				C010868B2A7E83EB00C3720A /* MainQueueDispatchDecorator.swift */,
+				531452052AC97E7B0034348F /* StoredServiceDecorator.swift */,
 				C0261C3E2A76EF3700BFCF1B /* Service.swift */,
 				C0261C402A773D6600BFCF1B /* SerialServiceDecorator.swift */,
 				C0261C452A7860FD00BFCF1B /* RemoteService.swift */,
@@ -883,6 +885,15 @@
 			path = Tests;
 			sourceTree = "<group>";
 		};
+		C4B820792BF8A2B80001F45F /* HTTPClient */ = {
+			isa = PBXGroup;
+			children = (
+				53D395F02B272F150016F698 /* StoredHTTPClientDecorator.swift */,
+				C4B8207A2BF8A2C50001F45F /* HTTPClientDecorator.swift */,
+			);
+			path = HTTPClient;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -1106,6 +1117,7 @@
 				C08AA32A2A7E8A08002D58D5 /* UIStackView+Extensions.swift in Sources */,
 				C04C41D62B518998009BC481 /* WebViewVC.swift in Sources */,
 				C08AA38F2A7EBC05002D58D5 /* TableView.swift in Sources */,
+				C4B8207B2BF8A2C50001F45F /* HTTPClientDecorator.swift in Sources */,
 				539ACDFC2B22FF28007A257F /* Textfield.swift in Sources */,
 				C04C41DA2B5189A9009BC481 /* WebViewPresenter.swift in Sources */,
 				C4BBD6632BF47EB3009B654D /* PickerView.swift in Sources */,

@@ -8,26 +8,6 @@
 import Foundation
 
 public class AuthenticatedHTTPClientDecorator: HTTPClient {
-    private class CompositeHTTPClientTask: HTTPClientTask {
-        var first: HTTPClientTask
-        var second: HTTPClientTask?
-
-        init(first: HTTPClientTask, second: HTTPClientTask? = nil) {
-            self.first = first
-            self.second = second
-        }
-
-        func cancel() {
-            first.cancel()
-            second?.cancel()
-        }
-
-        func resume() {
-            first.resume()
-            second?.resume()
-        }
-    }
-    
     public typealias EnrichRequestWithToken = ((URLRequest, String) -> URLRequest)
     public typealias AuthenticationPolicy = (((Data, HTTPURLResponse)) -> Bool)
     
@@ -59,9 +39,15 @@ public class AuthenticatedHTTPClientDecorator: HTTPClient {
     }
     
     private func dispatch(_ request: URLRequest, completion: @escaping (HTTPClient.Result) -> Void, isRetryNeeded: Bool) -> HTTPClientTask {
-        var compositeTask: CompositeHTTPClientTask?
-        let token = accessTokenStorage.get()
-        let enrichedRequest = enrichRequestWithToken(request, token ?? "")
+        let compositeTask = CompositeHTTPClientTask()
+
+        guard let token = accessTokenStorage.get() else {
+            onNotAuthenticated?()
+            completion(.failure(ServiceError.notAuthorized))
+            return compositeTask
+        }
+
+        let enrichedRequest = enrichRequestWithToken(request, token)
         let firstTask = decoratee.dispatch(enrichedRequest) { [weak self] result in
             switch result {
             case .success(let (data, response)):
@@ -73,8 +59,10 @@ public class AuthenticatedHTTPClientDecorator: HTTPClient {
                         case .success(let newToken):
                             self?.accessTokenStorage.set(model: newToken, completion: nil)
                             let newTask = self?.dispatch(request, completion: completion, isRetryNeeded: false)
-                            compositeTask?.second = newTask
-                            newTask?.resume()
+                            if let newTask = newTask {
+                                compositeTask.add(newTask)
+                                newTask.resume()
+                            }
                         case .failure:
                             self?.accessTokenStorage.clear(completion: nil)
                             self?.onNotAuthenticated?()
@@ -84,19 +72,15 @@ public class AuthenticatedHTTPClientDecorator: HTTPClient {
                 } else {
                     self?.accessTokenStorage.clear(completion: nil)
                     self?.onNotAuthenticated?()
-                    completion(.success((data, response)))
+                    completion(.failure(ServiceError.notAuthorized))
                 }
             case .failure(let error):
                 completion(.failure(error))
             }
         }
-        compositeTask = CompositeHTTPClientTask(first: firstTask)
-        return compositeTask!
-    }
 
-    private struct DummyHTTPClientTask: HTTPClientTask {
-        func cancel() {}
-        func resume() {}
+        compositeTask.add(firstTask)
+        firstTask.resume()
+        return compositeTask
     }
-    
 }
