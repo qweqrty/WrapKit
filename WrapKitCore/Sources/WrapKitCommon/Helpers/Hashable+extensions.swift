@@ -7,9 +7,9 @@
 
 import Foundation
 
-protocol HashableWithReflection: Hashable {}
+public protocol HashableWithReflection: Hashable {}
 
-extension HashableWithReflection {
+public extension HashableWithReflection {
     func hash(into hasher: inout Hasher) {
         let mirror = Mirror(reflecting: self)
         for child in mirror.children {
