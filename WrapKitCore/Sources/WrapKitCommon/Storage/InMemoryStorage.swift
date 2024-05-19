@@ -7,7 +7,7 @@
 
 import Foundation
 
-public class InMemoryStorage<Model>: Storage {
+public class InMemoryStorage<Model: Hashable>: Storage, Hashable {
     public typealias Observer = ((Model?) -> Void)
     
     private var model: Model? {
@@ -58,5 +58,14 @@ public class InMemoryStorage<Model>: Storage {
             observerWrapper.observer(model)
         }
     }
+    
+    // Conformance to Equatable
+    public static func == (lhs: InMemoryStorage<Model>, rhs: InMemoryStorage<Model>) -> Bool {
+        return lhs.model == rhs.model
+    }
+    
+    // Conformance to Hashable
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(model)
+    }
 }
-

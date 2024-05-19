@@ -19,7 +19,7 @@ extension KeychainSwift: Keychain {
     }
 }
 
-public class KeychainStorage: Storage {
+public class KeychainStorage: Storage, Hashable {
     public typealias Model = String
     
     private let key: String
@@ -56,7 +56,6 @@ public class KeychainStorage: Storage {
         completion?(isSuccess)
     }
 
-    
     class ObserverWrapper {
         weak var client: AnyObject?
         let observer: Observer
@@ -78,5 +77,15 @@ public class KeychainStorage: Storage {
         for observerWrapper in observers {
             observerWrapper.observer(keychain.get(key))
         }
+    }
+    
+    // Conformance to Equatable
+    public static func == (lhs: KeychainStorage, rhs: KeychainStorage) -> Bool {
+        return lhs.key == rhs.key
+    }
+    
+    // Conformance to Hashable
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(key)
     }
 }

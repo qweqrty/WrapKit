@@ -7,7 +7,7 @@
 
 import Foundation
 
-public class UserDefaultsStorage<Model: Codable>: Storage {
+public class UserDefaultsStorage<Model: Codable>: Storage, Hashable {
     private let dispatchQueue: DispatchQueue
     private var observers = [ObserverWrapper]()
     private let key: String
@@ -38,6 +38,7 @@ public class UserDefaultsStorage<Model: Codable>: Storage {
         self.model = getLogic(userDefaults)
         self.dispatchQueue = queue
     }
+    
     public func addObserver(for client: AnyObject, observer: @escaping UserDefaultsStorage.Observer) {
         dispatchQueue.async {
             let wrapper = ObserverWrapper(client: client, observer: observer)
@@ -52,16 +53,14 @@ public class UserDefaultsStorage<Model: Codable>: Storage {
     
     public func set(model: Model?, completion: ((Bool) -> Void)?) {
         dispatchQueue.async {
-            do {
-                if let model = model {
-                    self.setLogic(self.userDefaults, model)
-                } else {
-                    self.userDefaults.removeObject(forKey: self.key)
-                }
-                self.userDefaults.synchronize()
-                self.model = model
-                completion?(true)
+            if let model = model {
+                self.setLogic(self.userDefaults, model)
+            } else {
+                self.userDefaults.removeObject(forKey: self.key)
             }
+            self.userDefaults.synchronize()
+            self.model = model
+            completion?(true)
         }
     }
 
@@ -87,5 +86,15 @@ public class UserDefaultsStorage<Model: Codable>: Storage {
             self.client = client
             self.observer = observer
         }
+    }
+    
+    // Conformance to Equatable
+    public static func == (lhs: UserDefaultsStorage, rhs: UserDefaultsStorage) -> Bool {
+        return lhs.key == rhs.key
+    }
+    
+    // Conformance to Hashable
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(key)
     }
 }
