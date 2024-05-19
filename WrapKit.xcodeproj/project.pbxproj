@@ -131,6 +131,8 @@
 		C43847CE2BA2B26E00E3D8EA /* RealmStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C43847CD2BA2B26E00E3D8EA /* RealmStorage.swift */; };
 		C43847D02BA2B29500E3D8EA /* Realm in Frameworks */ = {isa = PBXBuildFile; productRef = C43847CF2BA2B29500E3D8EA /* Realm */; };
 		C43847D22BA2B29500E3D8EA /* RealmSwift in Frameworks */ = {isa = PBXBuildFile; productRef = C43847D12BA2B29500E3D8EA /* RealmSwift */; };
+		C46158542BFA8D7F00B817B2 /* DiffableCollectionViewDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = C46158532BFA8D7F00B817B2 /* DiffableCollectionViewDataSource.swift */; };
+		C46158562BFA8DE900B817B2 /* DIffableTableViewDatasource.swift in Sources */ = {isa = PBXBuildFile; fileRef = C46158552BFA8DE900B817B2 /* DIffableTableViewDatasource.swift */; };
 		C4B8207B2BF8A2C50001F45F /* HTTPClientDecorator.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4B8207A2BF8A2C50001F45F /* HTTPClientDecorator.swift */; };
 		C4BBD6632BF47EB3009B654D /* PickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4BBD6622BF47EB3009B654D /* PickerView.swift */; };
 		C4BBD6652BF47EF8009B654D /* DatePickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4BBD6642BF47EF8009B654D /* DatePickerView.swift */; };
@@ -280,6 +282,8 @@
 		C43847BF2BA2B25700E3D8EA /* WrapKitRealmTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = WrapKitRealmTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		C43847C42BA2B25700E3D8EA /* WrapKitRealmTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WrapKitRealmTests.swift; sourceTree = "<group>"; };
 		C43847CD2BA2B26E00E3D8EA /* RealmStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealmStorage.swift; sourceTree = "<group>"; };
+		C46158532BFA8D7F00B817B2 /* DiffableCollectionViewDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiffableCollectionViewDataSource.swift; sourceTree = "<group>"; };
+		C46158552BFA8DE900B817B2 /* DIffableTableViewDatasource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DIffableTableViewDatasource.swift; sourceTree = "<group>"; };
 		C4B8207A2BF8A2C50001F45F /* HTTPClientDecorator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPClientDecorator.swift; sourceTree = "<group>"; };
 		C4BBD6622BF47EB3009B654D /* PickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PickerView.swift; sourceTree = "<group>"; };
 		C4BBD6642BF47EF8009B654D /* DatePickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatePickerView.swift; sourceTree = "<group>"; };
@@ -579,6 +583,7 @@
 		C08AA3202A7E8963002D58D5 /* UIKit */ = {
 			isa = PBXGroup;
 			children = (
+				C46158522BFA8D7100B817B2 /* Classes */,
 				C04C41D32B518975009BC481 /* Screens */,
 				C08AA3682A7E95B8002D58D5 /* Views */,
 				C08AA3432A7E8DED002D58D5 /* PanModal */,
@@ -888,6 +893,15 @@
 			path = Tests;
 			sourceTree = "<group>";
 		};
+		C46158522BFA8D7100B817B2 /* Classes */ = {
+			isa = PBXGroup;
+			children = (
+				C46158532BFA8D7F00B817B2 /* DiffableCollectionViewDataSource.swift */,
+				C46158552BFA8DE900B817B2 /* DIffableTableViewDatasource.swift */,
+			);
+			path = Classes;
+			sourceTree = "<group>";
+		};
 		C4B820792BF8A2B80001F45F /* HTTPClient */ = {
 			isa = PBXGroup;
 			children = (
@@ -1166,6 +1180,7 @@
 				C08AA3602A7E8DED002D58D5 /* PanModalPresenter.swift in Sources */,
 				C08AA3652A7E8DED002D58D5 /* PanContainerView.swift in Sources */,
 				C08AA3302A7E8A8A002D58D5 /* NSAttrubitedString+Extensions.swift in Sources */,
+				C46158542BFA8D7F00B817B2 /* DiffableCollectionViewDataSource.swift in Sources */,
 				C08AA3642A7E8DED002D58D5 /* PanModalPresentationController.swift in Sources */,
 				C05160462A6FA03800E01640 /* URLSessionHTTPClient.swift in Sources */,
 				C0261C4A2A7861F200BFCF1B /* PaginationPresenter.swift in Sources */,
@@ -1179,6 +1194,7 @@
 				53F9F9F22AB6C15E00110054 /* Storage.swift in Sources */,
 				C08AA37C2A7EB5E8002D58D5 /* ScrollableHStackView.swift in Sources */,
 				53567E642B3BEE0C00A058F1 /* URLSessionDownloadClient.swift in Sources */,
+				C46158562BFA8DE900B817B2 /* DIffableTableViewDatasource.swift in Sources */,
 				C08AA35D2A7E8DED002D58D5 /* PanModalPresentable+UIViewController.swift in Sources */,
 				53A1377B2B07135900E04C92 /* PlaceholderedPresentableModel.swift in Sources */,
 				C0103DE72B34AD6D0005FCDB /* Array+Extensions.swift in Sources */,
