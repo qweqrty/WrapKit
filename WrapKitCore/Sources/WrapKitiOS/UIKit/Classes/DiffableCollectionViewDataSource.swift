@@ -15,6 +15,7 @@ public class DiffableCollectionViewDataSource<Model: Hashable>: NSObject, UIColl
         case footer(UUID)
     }
     
+    public var didSelectAt: ((IndexPath) -> Void)?
     public var configureCell: ((UICollectionView, IndexPath, Model) -> UICollectionViewCell)?
     public var configureSupplementaryView: ((UICollectionView, String, IndexPath) -> UICollectionReusableView)?
     public var onRetry: (() -> Void)?
@@ -97,7 +98,7 @@ public class DiffableCollectionViewDataSource<Model: Hashable>: NSObject, UIColl
     }
     
     public func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        // handle selection if needed
+        didSelectAt?(indexPath)
     }
     
     public func scrollViewDidScroll(_ scrollView: UIScrollView) {

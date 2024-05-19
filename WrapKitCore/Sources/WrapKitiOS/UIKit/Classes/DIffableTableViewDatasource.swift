@@ -15,6 +15,7 @@ public class DiffableTableViewDataSource<Model: Hashable>: NSObject, UITableView
         case footer(UUID)
     }
     
+    public var didSelectAt: ((IndexPath) -> Void)?
     public var configureCell: ((UITableView, IndexPath, Model) -> UITableViewCell)?
     public var configureFooter: (() -> UITableViewCell)?
     public var onRetry: (() -> Void)?
@@ -86,9 +87,12 @@ public class DiffableTableViewDataSource<Model: Hashable>: NSObject, UITableView
         }
     }
     
+    public func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        didSelectAt?(indexPath)
+    }
+    
     public func scrollViewDidScroll(_ scrollView: UIScrollView) {
         didScrollViewDidScroll?(scrollView)
     }
 }
-
 #endif
