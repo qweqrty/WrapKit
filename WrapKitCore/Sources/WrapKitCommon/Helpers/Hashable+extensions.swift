@@ -7,33 +7,41 @@
 
 import Foundation
 
-public protocol HashableWithReflection: Hashable {
-    var createdAt: Date { get }
-}
+protocol HashableWithReflection: Hashable {}
 
-public extension HashableWithReflection {
-    var createdAt: Date {
-        return Date()
-    }
-
+extension HashableWithReflection {
     func hash(into hasher: inout Hasher) {
-        hasher.combine(createdAt)
-        
         let mirror = Mirror(reflecting: self)
         for child in mirror.children {
             if let value = child.value as? AnyHashable {
                 hasher.combine(value)
-            } else if let value = child.value as? CustomHashable {
-                value.customHash(into: &hasher)
+            } else {
+                hasher.combine(String(describing: child.value))
             }
         }
     }
 
     static func == (lhs: Self, rhs: Self) -> Bool {
-        return lhs.hashValue == rhs.hashValue
-    }
-}
+        let lhsMirror = Mirror(reflecting: lhs)
+        let rhsMirror = Mirror(reflecting: rhs)
 
-public protocol CustomHashable {
-    func customHash(into hasher: inout Hasher)
+        guard lhsMirror.children.count == rhsMirror.children.count else { return false }
+
+        for (lhsChild, rhsChild) in zip(lhsMirror.children, rhsMirror.children) {
+            if let lhsValue = lhsChild.value as? AnyHashable,
+               let rhsValue = rhsChild.value as? AnyHashable {
+                if lhsValue != rhsValue {
+                    return false
+                }
+            } else {
+                let lhsDescription = String(describing: lhsChild.value)
+                let rhsDescription = String(describing: rhsChild.value)
+                if lhsDescription != rhsDescription {
+                    return false
+                }
+            }
+        }
+
+        return true
+    }
 }
