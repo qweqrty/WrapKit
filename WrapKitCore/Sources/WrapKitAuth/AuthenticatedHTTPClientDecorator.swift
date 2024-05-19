@@ -39,15 +39,9 @@ public class AuthenticatedHTTPClientDecorator: HTTPClient {
     }
     
     private func dispatch(_ request: URLRequest, completion: @escaping (HTTPClient.Result) -> Void, isRetryNeeded: Bool) -> HTTPClientTask {
-        let compositeTask = CompositeHTTPClientTask()
-
-        guard let token = accessTokenStorage.get() else {
-            onNotAuthenticated?()
-            completion(.failure(ServiceError.notAuthorized))
-            return compositeTask
-        }
-
-        let enrichedRequest = enrichRequestWithToken(request, token)
+        let compositeTask = CompositeHTTPClientTask(tasks: [])
+        let token = accessTokenStorage.get()
+        let enrichedRequest = enrichRequestWithToken(request, token ?? "")
         let firstTask = decoratee.dispatch(enrichedRequest) { [weak self] result in
             switch result {
             case .success(let (data, response)):
@@ -58,11 +52,9 @@ public class AuthenticatedHTTPClientDecorator: HTTPClient {
                         switch refreshResult {
                         case .success(let newToken):
                             self?.accessTokenStorage.set(model: newToken, completion: nil)
-                            let newTask = self?.dispatch(request, completion: completion, isRetryNeeded: false)
-                            if let newTask = newTask {
-                                compositeTask.add(newTask)
-                                newTask.resume()
-                            }
+                            guard let newTask = self?.dispatch(request, completion: completion, isRetryNeeded: false) else { return }
+                            compositeTask.add(newTask)
+                            newTask.resume()
                         case .failure:
                             self?.accessTokenStorage.clear(completion: nil)
                             self?.onNotAuthenticated?()
@@ -72,15 +64,13 @@ public class AuthenticatedHTTPClientDecorator: HTTPClient {
                 } else {
                     self?.accessTokenStorage.clear(completion: nil)
                     self?.onNotAuthenticated?()
-                    completion(.failure(ServiceError.notAuthorized))
+                    completion(.success((data, response)))
                 }
             case .failure(let error):
                 completion(.failure(error))
             }
         }
-
         compositeTask.add(firstTask)
-        firstTask.resume()
         return compositeTask
     }
 }
