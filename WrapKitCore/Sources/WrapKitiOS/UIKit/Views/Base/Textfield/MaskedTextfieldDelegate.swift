@@ -28,6 +28,7 @@ public class MaskedTextFieldDelegate: NSObject, UITextFieldDelegate {
     
     public func applyTo(_ textField: UITextField) {
         textField.delegate = self
+        textField.keyboardType = mask.keyboardType()
         let mask = mask.apply(to: inputText)
         
         self.inputText = mask.input
