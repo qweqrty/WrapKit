@@ -9,7 +9,7 @@ import Foundation
 
 public extension Mask {
   enum Registrator {
-    static let phoneNumber = Mask(
+    public static let phoneNumber = Mask(
       format: [
         .literal("+"),
         .literal("9"),
@@ -30,15 +30,15 @@ public extension Mask {
       ]
     )
     
-    static let otp = Mask(
+    public static let otp = Mask(
       format: (0..<6).map { _ in .specifier(placeholder: "X", allowedCharacters: .decimalDigits) }
     )
     
-    static let icc = Mask(
+    public static let icc = Mask(
       format: (0..<18).map { _ in .specifier(placeholder: "X", allowedCharacters: .decimalDigits) }
     )
     
-    static let passportNumber = Mask(
+    public static let passportNumber = Mask(
       format: [
         .specifier(placeholder: "I", allowedCharacters: .letters),
         .specifier(placeholder: "D", allowedCharacters: .letters),
@@ -52,7 +52,7 @@ public extension Mask {
       ]
     )
     
-    static let date = Mask(
+    public static let date = Mask(
       format: [
         .specifier(placeholder: "d", allowedCharacters: .decimalDigits),
         .specifier(placeholder: "d", allowedCharacters: .decimalDigits),
