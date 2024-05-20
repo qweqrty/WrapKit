@@ -77,6 +77,22 @@ public class DiffableTableViewDataSource<Model: Hashable>: NSObject, UITableView
     public func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return heightForRowAt?(indexPath) ?? UITableView.automaticDimension
     }
+  
+  open func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+      return UIView()
+  }
+
+  open func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+      return .leastNonzeroMagnitude
+  }
+
+  open func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
+      return UIView()
+  }
+
+  open func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
+    return .leastNonzeroMagnitude
+  }
     
     public func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         let itemCount = tableView.numberOfRows(inSection: 0)
@@ -95,4 +111,5 @@ public class DiffableTableViewDataSource<Model: Hashable>: NSObject, UITableView
         didScrollViewDidScroll?(scrollView)
     }
 }
+
 #endif
