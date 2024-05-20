@@ -72,14 +72,6 @@ public class DiffableCollectionViewDataSource<Model: Hashable>: NSObject, UIColl
         dataSource.apply(snapshot, animatingDifferences: true)
     }
     
-    public func getSnapshot() -> NSDiffableDataSourceSnapshot<Int, CollectionItem> {
-        return dataSource.snapshot()
-    }
-    
-    public func applySnapshot(_ snapshot: NSDiffableDataSourceSnapshot<Int, CollectionItem>, animatingDifferences: Bool = true) {
-        dataSource.apply(snapshot, animatingDifferences: animatingDifferences)
-    }
-    
     public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         return sizeForItemAt?(indexPath) ?? (collectionViewLayout as? UICollectionViewFlowLayout)?.itemSize ?? UICollectionViewFlowLayout.automaticSize
     }

@@ -47,7 +47,7 @@ public class DiffableTableViewDataSource<Model: Hashable>: NSObject, UITableView
                 return self?.configureCell?(tableView, indexPath, model) ?? UITableViewCell()
             }
         }
-        
+        dataSource.defaultRowAnimation = .fade
         tableView.dataSource = dataSource
         tableView.delegate = self
     }
@@ -56,7 +56,7 @@ public class DiffableTableViewDataSource<Model: Hashable>: NSObject, UITableView
         var snapshot = NSDiffableDataSourceSnapshot<Int, TableItem>()
         snapshot.appendSections([0])
         snapshot.appendItems(dataSource.snapshot().itemIdentifiers(inSection: 0), toSection: 0)
-        dataSource.apply(snapshot, animatingDifferences: true)
+        dataSource.apply(snapshot, animatingDifferences: false)
     }
     
     public func updateItems(_ items: [Model]) {
@@ -66,33 +66,25 @@ public class DiffableTableViewDataSource<Model: Hashable>: NSObject, UITableView
         dataSource.apply(snapshot, animatingDifferences: true)
     }
     
-    public func getSnapshot() -> NSDiffableDataSourceSnapshot<Int, TableItem> {
-        return dataSource.snapshot()
-    }
-    
-    public func applySnapshot(_ snapshot: NSDiffableDataSourceSnapshot<Int, TableItem>, animatingDifferences: Bool = true) {
-        dataSource.apply(snapshot, animatingDifferences: animatingDifferences)
-    }
-    
     public func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return heightForRowAt?(indexPath) ?? UITableView.automaticDimension
     }
-  
-  open func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-      return UIView()
-  }
-
-  open func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-      return .leastNonzeroMagnitude
-  }
-
-  open func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
-      return UIView()
-  }
-
-  open func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
-    return .leastNonzeroMagnitude
-  }
+    
+    open func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        return UIView()
+    }
+    
+    open func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        return .leastNonzeroMagnitude
+    }
+    
+    open func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
+        return UIView()
+    }
+    
+    open func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
+        return .leastNonzeroMagnitude
+    }
     
     public func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         let itemCount = tableView.numberOfRows(inSection: 0)

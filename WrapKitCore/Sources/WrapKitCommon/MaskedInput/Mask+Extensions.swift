@@ -35,7 +35,7 @@ public extension Mask {
     )
     
     public static let icc = Mask(
-      format: (0..<18).map { _ in .specifier(placeholder: "X", allowedCharacters: .decimalDigits) }
+      format: (0..<14).map { _ in .specifier(placeholder: "X", allowedCharacters: .decimalDigits) }
     )
     
     public static let passportNumber = Mask(
