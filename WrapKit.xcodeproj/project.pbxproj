@@ -133,6 +133,7 @@
 		C43847D22BA2B29500E3D8EA /* RealmSwift in Frameworks */ = {isa = PBXBuildFile; productRef = C43847D12BA2B29500E3D8EA /* RealmSwift */; };
 		C46158542BFA8D7F00B817B2 /* DiffableCollectionViewDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = C46158532BFA8D7F00B817B2 /* DiffableCollectionViewDataSource.swift */; };
 		C46158562BFA8DE900B817B2 /* DIffableTableViewDatasource.swift in Sources */ = {isa = PBXBuildFile; fileRef = C46158552BFA8DE900B817B2 /* DIffableTableViewDatasource.swift */; };
+		C46158612BFB6D0200B817B2 /* Mask+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C46158602BFB6D0200B817B2 /* Mask+Extensions.swift */; };
 		C4B8207B2BF8A2C50001F45F /* HTTPClientDecorator.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4B8207A2BF8A2C50001F45F /* HTTPClientDecorator.swift */; };
 		C4BBD6632BF47EB3009B654D /* PickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4BBD6622BF47EB3009B654D /* PickerView.swift */; };
 		C4BBD6652BF47EF8009B654D /* DatePickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4BBD6642BF47EF8009B654D /* DatePickerView.swift */; };
@@ -284,6 +285,7 @@
 		C43847CD2BA2B26E00E3D8EA /* RealmStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealmStorage.swift; sourceTree = "<group>"; };
 		C46158532BFA8D7F00B817B2 /* DiffableCollectionViewDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiffableCollectionViewDataSource.swift; sourceTree = "<group>"; };
 		C46158552BFA8DE900B817B2 /* DIffableTableViewDatasource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DIffableTableViewDatasource.swift; sourceTree = "<group>"; };
+		C46158602BFB6D0200B817B2 /* Mask+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Mask+Extensions.swift"; sourceTree = "<group>"; };
 		C4B8207A2BF8A2C50001F45F /* HTTPClientDecorator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPClientDecorator.swift; sourceTree = "<group>"; };
 		C4BBD6622BF47EB3009B654D /* PickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PickerView.swift; sourceTree = "<group>"; };
 		C4BBD6642BF47EF8009B654D /* DatePickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatePickerView.swift; sourceTree = "<group>"; };
@@ -830,6 +832,7 @@
 			isa = PBXGroup;
 			children = (
 				C0BE6EAB2A9BE49400864F53 /* Mask.swift */,
+				C46158602BFB6D0200B817B2 /* Mask+Extensions.swift */,
 			);
 			path = MaskedInput;
 			sourceTree = "<group>";
@@ -1187,6 +1190,7 @@
 				C08AA33C2A7E8D0B002D58D5 /* Array+Extension.swift in Sources */,
 				C0261C412A773D6600BFCF1B /* SerialServiceDecorator.swift in Sources */,
 				C08AA36A2A7E95C6002D58D5 /* FillStackView.swift in Sources */,
+				C46158612BFB6D0200B817B2 /* Mask+Extensions.swift in Sources */,
 				C08AA3362A7E8AE0002D58D5 /* UIView+Extensions.swift in Sources */,
 				C0261C3F2A76EF3700BFCF1B /* Service.swift in Sources */,
 				C08AA3342A7E8ACB002D58D5 /* UIViewController+Extensions.swift in Sources */,
