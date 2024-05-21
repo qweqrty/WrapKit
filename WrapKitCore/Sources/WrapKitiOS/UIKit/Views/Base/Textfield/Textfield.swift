@@ -27,7 +27,7 @@ open class Textfield: UITextField {
     private let debounceInterval: TimeInterval = 0.3
     
     @discardableResult
-    func validate() -> Bool {
+    public func validate() -> Bool {
         guard let validationRule = validationRule else {
             return true
         }
