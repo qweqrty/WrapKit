@@ -19,6 +19,8 @@ open class Textfield: UITextField {
     public var onPress: (() -> Void)?
     public var validationRule: ((String?) -> Bool)?
     public var nextTextfield: UIResponder? = nil { didSet { returnKeyType = nextTextfield == nil ? .done : .next } }
+    public var onBecomeFirstResponder: (() -> Void)?
+    public var onResignFirstResponder: (() -> Void)?
 
     public var didChangeText = [((String?) -> Void)]()
     private var debounceTimer: Timer?
@@ -213,6 +215,7 @@ open class Textfield: UITextField {
                 self.backgroundColor = self.selectedBackgroundColor
             }
         }
+        onBecomeFirstResponder?()
         
         if clearButtonTapped {
             clearButtonTapped = false
@@ -234,7 +237,7 @@ open class Textfield: UITextField {
                 self.backgroundColor = self.deselectedBackgroundColor
             }
         }
-        
+        onResignFirstResponder?()
         return super.resignFirstResponder()
     }
     
