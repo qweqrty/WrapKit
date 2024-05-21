@@ -33,12 +33,12 @@ open class Textfield: UITextField {
         }
         let isValid = validationRule(text)
         if isValid {
-            UIView.animate(withDuration: 0.3) {
+            UIView.animate(withDuration: 0.3, delay: .leastNonzeroMagnitude, options: [.allowUserInteraction]) {
                 self.backgroundColor = self.selectedBackgroundColor
                 self.layer.borderColor = self.selectedBorderColor.cgColor
             }
         } else {
-            UIView.animate(withDuration: 0.3) {
+            UIView.animate(withDuration: 0.3, delay: .leastNonzeroMagnitude, options: [.allowUserInteraction]) {
                 self.layer.borderColor = self.errorBorderColor.cgColor
                 self.backgroundColor = self.errorBackgroundColor
             }
@@ -209,7 +209,7 @@ open class Textfield: UITextField {
     @discardableResult
     override open func becomeFirstResponder() -> Bool {
         if validationRule == nil {
-            UIView.animate(withDuration: 0.3) {
+            UIView.animate(withDuration: 0.3, delay: .leastNonzeroMagnitude, options: [.allowUserInteraction]) {
                 self.layer.borderColor = self.selectedBorderColor.cgColor
                 self.layer.borderWidth = self.selectedBorderWidth
                 self.backgroundColor = self.selectedBackgroundColor
@@ -231,7 +231,7 @@ open class Textfield: UITextField {
     
     open override func resignFirstResponder() -> Bool {
         if validationRule == nil {
-            UIView.animate(withDuration: 0.3) {
+            UIView.animate(withDuration: 0.3, delay: .leastNonzeroMagnitude, options: [.allowUserInteraction]) {
                 self.layer.borderColor = self.deselectedBorderColor.cgColor
                 self.layer.borderWidth = self.idleBorderWidth
                 self.backgroundColor = self.deselectedBackgroundColor
