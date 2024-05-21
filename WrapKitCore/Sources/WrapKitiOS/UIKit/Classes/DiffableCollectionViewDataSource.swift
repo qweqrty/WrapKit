@@ -59,9 +59,13 @@ public class DiffableCollectionViewDataSource<Model: Hashable>: NSObject, UIColl
     }
     
     private func updateSnapshot() {
+        let numberOfSections = dataSource.snapshot().numberOfSections
         var snapshot = NSDiffableDataSourceSnapshot<Int, CollectionItem>()
         snapshot.appendSections([0])
-        snapshot.appendItems(dataSource.snapshot().itemIdentifiers(inSection: 0), toSection: 0)
+        if numberOfSections > 0 {
+            snapshot.appendItems(dataSource.snapshot().itemIdentifiers(inSection: 0), toSection: 0)
+        }
+        
         dataSource.apply(snapshot, animatingDifferences: true)
     }
     

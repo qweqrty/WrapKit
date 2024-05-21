@@ -53,9 +53,12 @@ public class DiffableTableViewDataSource<Model: Hashable>: NSObject, UITableView
     }
     
     private func updateSnapshot() {
+        let numberOfSections = dataSource.snapshot().numberOfSections
         var snapshot = NSDiffableDataSourceSnapshot<Int, TableItem>()
         snapshot.appendSections([0])
-        snapshot.appendItems(dataSource.snapshot().itemIdentifiers(inSection: 0), toSection: 0)
+        if numberOfSections > 0 {
+            snapshot.appendItems(dataSource.snapshot().itemIdentifiers(inSection: 0), toSection: 0)
+        }
         dataSource.apply(snapshot, animatingDifferences: false)
     }
     
