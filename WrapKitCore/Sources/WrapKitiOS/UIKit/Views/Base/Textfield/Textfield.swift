@@ -215,7 +215,6 @@ open class Textfield: UITextField {
                 self.backgroundColor = self.selectedBackgroundColor
             }
         }
-        onBecomeFirstResponder?()
         
         if clearButtonTapped {
             clearButtonTapped = false
@@ -225,6 +224,9 @@ open class Textfield: UITextField {
         if isSecureTextEntry, let text = self.text {
             self.text?.removeAll()
             insertText(text)
+        }
+        if success {
+            onBecomeFirstResponder?()
         }
         return success
     }
@@ -237,8 +239,11 @@ open class Textfield: UITextField {
                 self.backgroundColor = self.deselectedBackgroundColor
             }
         }
-        onResignFirstResponder?()
-        return super.resignFirstResponder()
+        let success = super.resignFirstResponder()
+        if success {
+            onResignFirstResponder?()
+        }
+        return success
     }
     
     override open var isSecureTextEntry: Bool {
