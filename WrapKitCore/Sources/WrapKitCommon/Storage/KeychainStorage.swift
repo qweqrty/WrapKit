@@ -41,11 +41,15 @@ public class KeychainStorage: Storage, Hashable {
     }
     
     public func set(model: String?, completion: ((Bool) -> Void)?) {
-        let isSuccess = keychain.set(model ?? "", forKey: key)
-        if isSuccess {
-            self.model = model
+        if let model {
+            let isSuccess = keychain.set(model, forKey: key)
+            if isSuccess {
+                self.model = model
+            }
+            completion?(isSuccess)
+        } else {
+            clear(completion: completion)
         }
-        completion?(isSuccess)
     }
     
     public func clear(completion: ((Bool) -> Void)?) {
