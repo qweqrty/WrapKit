@@ -24,7 +24,14 @@ public extension UIViewController {
     }
     
         
-    func showDefaultPrompt(title: String?, text: String, cancelText: String, yesText: String, completion: @escaping (() -> Void)) {
+    func showDefaultPrompt(
+        title: String?,
+        text: String,
+        cancelText: String,
+        yesText: String,
+        onCancelCompletion: @escaping (() -> Void),
+        onYesCompletion: @escaping (() -> Void)
+    ) {
         let alert = UIAlertController(
             title: title,
             message: text,
@@ -34,8 +41,9 @@ public extension UIViewController {
             UIAlertAction(
                 title: cancelText,
                 style: .default,
-                handler: { [weak alert] (_) in
+                handler: { [weak alert, onCancelCompletion] (_) in
                     alert?.dismiss(animated: true)
+                    onCancelCompletion()
                 }
             )
         )
@@ -43,8 +51,8 @@ public extension UIViewController {
             UIAlertAction(
                 title: yesText,
                 style: .default,
-                handler: { [completion] (_) in
-                    completion()
+                handler: { [onYesCompletion] (_) in
+                    onYesCompletion()
                 }
             )
         )
