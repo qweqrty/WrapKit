@@ -43,5 +43,9 @@ open class ViewController<ContentView: UIView>: UIViewController {
     required public init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    
+    public func navigateToBack() {
+        navigationController?.popViewController(animated: true)
+    }
 }
 #endif
