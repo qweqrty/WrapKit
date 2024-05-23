@@ -18,9 +18,19 @@ open class ImageView: UIImageView {
     public override var tintColor: UIColor! {
         didSet {
             if let image = self.image {
-                self.image = image.withRenderingMode(.alwaysTemplate)
+                if #available(iOS 13.0, *) {
+                    self.image = image.withTintColor(tintColor)
+                }
                 super.tintColor = tintColor
             }
+        }
+    }
+    
+    open override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        
+        if #available(iOS 13.0, *), let image = self.image, image.renderingMode == .alwaysTemplate {
+            self.image = self.image?.withTintColor(tintColor)
         }
     }
     
