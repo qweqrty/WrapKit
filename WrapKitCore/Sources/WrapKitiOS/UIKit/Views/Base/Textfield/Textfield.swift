@@ -55,7 +55,6 @@ open class Textfield: UITextField {
     public var padding: UIEdgeInsets = .zero
     public var clearButtonEdgeInsets = UIEdgeInsets(top: 0, left: -8, bottom: 0, right: 8)
     
-    public var clearButtonTapped = false
     public var isTextSelectionDisabled = false
     public var isEditable = true
     
@@ -198,11 +197,6 @@ open class Textfield: UITextField {
     @discardableResult
     override open func becomeFirstResponder() -> Bool {
         updateAppearence()
-        
-        if clearButtonTapped {
-            clearButtonTapped = false
-            return false
-        }
         let success = super.becomeFirstResponder()
         if isSecureTextEntry, let text = self.text {
             self.text?.removeAll()
