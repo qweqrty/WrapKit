@@ -280,6 +280,12 @@ open class Textfield: UITextField {
             .width(leadingView.intrinsicContentSize.width)
         )
     }
+    
+    open override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        
+        updateAppearence()
+    }
 }
 
 public extension Textfield {
