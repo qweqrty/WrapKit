@@ -24,11 +24,11 @@ public class CommonLoadingiOSAdapter: CommonLoadingOutput {
     }
     
     public func display(isLoading: Bool) {
-        onView.showLoadingView(
+        isLoading ? onView.showLoadingView(
             loadingView,
             backgroundColor: .clear,
             size: size
-        )
+        ) : onView.hideLoadingView()
     }
 }
 #endif
