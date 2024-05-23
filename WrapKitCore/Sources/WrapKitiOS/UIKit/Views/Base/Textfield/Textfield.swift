@@ -16,9 +16,9 @@ open class Textfield: UITextField {
             self.text = text
         }
         
-        let color: UIColor
-        let font: UIFont
-        var text: String?
+        public let color: UIColor
+        public let font: UIFont
+        public var text: String?
     }
     
     public struct Appearance {
@@ -39,14 +39,13 @@ open class Textfield: UITextField {
                 self.deselectedBackgroundColor = deselectedBackgroundColor
             }
             
-            var textColor: UIColor
-            
-            var selectedBorderColor: UIColor
-            var selectedBackgroundColor: UIColor
-            var errorBorderColor: UIColor
-            var errorBackgroundColor: UIColor
-            var deselectedBorderColor: UIColor
-            var deselectedBackgroundColor: UIColor
+            public var textColor: UIColor
+            public var selectedBorderColor: UIColor
+            public var selectedBackgroundColor: UIColor
+            public var errorBorderColor: UIColor
+            public var errorBackgroundColor: UIColor
+            public var deselectedBorderColor: UIColor
+            public var deselectedBackgroundColor: UIColor
         }
         public struct Border {
             public init(idleBorderWidth: CGFloat, selectedBorderWidth: CGFloat) {
@@ -54,13 +53,13 @@ open class Textfield: UITextField {
                 self.selectedBorderWidth = selectedBorderWidth
             }
             
-            var idleBorderWidth: CGFloat
-            var selectedBorderWidth: CGFloat
+            public var idleBorderWidth: CGFloat
+            public var selectedBorderWidth: CGFloat
         }
         
-        var colors: Colors
-        var font: UIFont
-        var border: Border?
+        public var colors: Colors
+        public var font: UIFont
+        public var border: Border?
     }
     
     private var leadingStackView = StackView()
@@ -105,6 +104,8 @@ open class Textfield: UITextField {
     }
     
     private func updateAppearence() {
+        textColor = appearence.colors.textColor
+        font = appearence.font
         let isValid = validationRule?(text) ?? true
         let isFirstResponder = isFirstResponder
         let appearence = appearence
