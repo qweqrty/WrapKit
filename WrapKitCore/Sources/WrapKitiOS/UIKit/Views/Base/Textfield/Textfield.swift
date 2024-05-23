@@ -142,6 +142,7 @@ open class Textfield: UITextField {
         setupTrailingView()
         didChangeText.append { [weak self] _ in self?.validate() }
         
+        addSubviews(leadingStackView, trailingStackView)
         leadingStackView.anchor(
             .top(topAnchor, constant: padding.top),
             .leading(leadingAnchor, constant: padding.left),
