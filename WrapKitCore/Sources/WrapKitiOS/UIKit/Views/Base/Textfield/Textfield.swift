@@ -65,13 +65,13 @@ open class Textfield: UITextField {
     private var leadingStackView = StackView()
     private var trailingStackView = StackView()
     
-    private var leadingView: UIView? {
+    public var leadingView: UIView? {
         didSet {
             leadingStackView.removeAllArrangedSubviews()
             setupLeadingView()
         }
     }
-    private var trailingView: UIView? {
+    public var trailingView: UIView? {
         didSet {
             trailingStackView.removeAllArrangedSubviews()
             setupTrailingView()
