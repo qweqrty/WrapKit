@@ -10,13 +10,35 @@ import UIKit
 
 open class Textfield: UITextField {
     public struct Placeholder {
+        public init(color: UIColor, font: UIFont, text: String? = nil) {
+            self.color = color
+            self.font = font
+            self.text = text
+        }
+        
         let color: UIColor
         let font: UIFont
         var text: String?
     }
     
     public struct Appearance {
+        public init(colors: Textfield.Appearance.Colors, font: UIFont, border: Textfield.Appearance.Border? = nil) {
+            self.colors = colors
+            self.font = font
+            self.border = border
+        }
+        
         public struct Colors {
+            public init(textColor: UIColor, selectedBorderColor: UIColor, selectedBackgroundColor: UIColor, errorBorderColor: UIColor, errorBackgroundColor: UIColor, deselectedBorderColor: UIColor, deselectedBackgroundColor: UIColor) {
+                self.textColor = textColor
+                self.selectedBorderColor = selectedBorderColor
+                self.selectedBackgroundColor = selectedBackgroundColor
+                self.errorBorderColor = errorBorderColor
+                self.errorBackgroundColor = errorBackgroundColor
+                self.deselectedBorderColor = deselectedBorderColor
+                self.deselectedBackgroundColor = deselectedBackgroundColor
+            }
+            
             var textColor: UIColor
             
             var selectedBorderColor: UIColor
@@ -27,6 +49,11 @@ open class Textfield: UITextField {
             var deselectedBackgroundColor: UIColor
         }
         public struct Border {
+            public init(idleBorderWidth: CGFloat, selectedBorderWidth: CGFloat) {
+                self.idleBorderWidth = idleBorderWidth
+                self.selectedBorderWidth = selectedBorderWidth
+            }
+            
             var idleBorderWidth: CGFloat
             var selectedBorderWidth: CGFloat
         }
@@ -47,7 +74,7 @@ open class Textfield: UITextField {
     }
     private var trailingView: UIView? {
         didSet {
-            trailingView?.removeFromSuperview()
+            trailingStackView.removeAllArrangedSubviews()
             setupTrailingView()
         }
     }
