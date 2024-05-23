@@ -8,78 +8,84 @@
 #if canImport(UIKit)
 import UIKit
 
-public class MaskedTextFieldDelegate: NSObject, UITextFieldDelegate {
-  public let mask: Masking
-  private let textColor: UIColor
-  private let maskTextColor: UIColor
-  
-  public var userInputText: String { mask.extractUserInput(from: inputText) }
-  public lazy var inputText: String = mask.apply(to: "").input
-  
-  public init(
-    mask: Masking,
-    textColor: UIColor,
-    maskTextColor: UIColor
-  ) {
-    self.mask = mask
-    self.textColor = textColor
-    self.maskTextColor = maskTextColor
-  }
-  
-  public func applyTo(_ textField: Textfield) {
-    textField.delegate = self
-    textField.keyboardType = mask.keyboardType()
-    let mask = mask.apply(to: inputText)
-    let updateText: (() -> Void) = { [weak self] in
-      guard let self = self else { return }
-      self.setupMask(in: textField, mask: self.mask.apply(to: self.inputText))
+public class MaskedTextfieldDelegate: NSObject, UITextFieldDelegate {
+    public struct Format {
+        let mask: Masking
+        let maskedTextColor: UIColor
     }
-    textField.onBecomeFirstResponder = updateText
-    textField.onResignFirstResponder = updateText
-    
-    setupMask(in: textField, mask: mask)
-  }
-  
-  public func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-    setupMask(
-      in: textField,
-      mask: string.isEmpty ? mask.removeCharacters(from: inputText, in: range) : mask.apply(to: inputText + string)
-    )
-    return false
-  }
-  
-  public func textFieldDidBeginEditing(_ textField: UITextField) {
-    setupMask(in: textField, mask: mask.apply(to: inputText))
-  }
-  
-  private func setupMask(
-    in textField: UITextField,
-    mask: (input: String, maskToInput: String)
-  ) {
-    self.inputText = mask.input
-    textField.text = mask.maskToInput
-    
-    if mask.input.isEmpty && !(textField.placeholder?.isEmpty ?? true) && !textField.isFirstResponder {
-      textField.attributedText = nil
-    } else {
-      textField.attributedText = .combined(
-        .init(mask.input, font: textField.font ?? .systemFont(ofSize: 17), color: textColor, textAlignment: textField.textAlignment),
-        .init(mask.maskToInput, font: textField.font ?? .systemFont(ofSize: 17), color: maskTextColor, textAlignment: textField.textAlignment)
-      )
+    private let textfield: Textfield
+    private var format: Format {
+        didSet {
+            setupMask(mask: format.mask.applied(to: fullText))
+        }
     }
     
-    textField.sendActions(for: .editingChanged)
-  }
-  
-  public func textFieldDidChangeSelection(_ textField: UITextField) {
-    guard let selectedRange = textField.selectedTextRange else { return }
-    
-    let endOfInputIndex = min(inputText.count, textField.text?.count ?? 0)
-    if let endOfInputPosition = textField.position(from: textField.beginningOfDocument, offset: endOfInputIndex) {
-      if textField.offset(from: textField.beginningOfDocument, to: selectedRange.start) > endOfInputIndex {
-        textField.selectedTextRange = textField.textRange(from: endOfInputPosition, to: endOfInputPosition)
-      }
+    public var onlySpecifiersIfMaskedText: String { format.mask.extractUserInput(from: fullText) }
+    public lazy var fullText: String = format.mask.applied(to: "").input {
+        didSet {
+            setupMask(mask: format.mask.applied(to: fullText))
+        }
     }
-  }
+    
+    public init(
+        textfield: Textfield,
+        format: Format
+    ) {
+        self.textfield = textfield
+        self.format = format
+    }
+    
+    @discardableResult
+    public func applied() -> Self {
+        self.textfield.delegate = self
+        textfield.keyboardType = format.mask.keyboardType()
+        let mask = format.mask.applied(to: fullText)
+        let updateTextIfMasked: (() -> Void) = { [weak self] in
+            guard let self = self else { return }
+            let mask = self.format.mask
+            self.setupMask(mask: mask.applied(to: self.fullText))
+        }
+        textfield.onBecomeFirstResponder = updateTextIfMasked
+        textfield.onResignFirstResponder = updateTextIfMasked
+        
+        setupMask(mask: mask)
+        return self
+    }
+    
+    public func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        setupMask(mask: string.isEmpty ? format.mask.removeCharacters(from: fullText, in: range) : format.mask.applied(to: fullText + string))
+        return false
+    }
+    
+    public func textFieldDidBeginEditing(_ textField: UITextField) {
+        setupMask(mask: format.mask.applied(to: fullText))
+    }
+    
+    private func setupMask(mask: (input: String, maskToInput: String)) {
+        self.fullText = mask.input
+        self.textfield.text = mask.maskToInput
+        
+        if mask.input.isEmpty && !(textfield.placeholder?.isEmpty ?? true) && !textfield.isFirstResponder {
+            textfield.attributedText = nil
+        } else {
+            textfield.attributedText = .combined(
+                .init(mask.input, font: textfield.font ?? .systemFont(ofSize: 17), color: textfield.textColor ?? .clear, textAlignment: textfield.textAlignment),
+                .init(mask.maskToInput, font: textfield.font ?? .systemFont(ofSize: 17), color: format.maskedTextColor, textAlignment: textfield.textAlignment)
+            )
+        }
+        
+        textfield.sendActions(for: .editingChanged)
+    }
+    
+    public func textFieldDidChangeSelection(_ textField: UITextField) {
+        guard let selectedRange = textField.selectedTextRange else { return }
+        
+        let endOfInputIndex = min(fullText.count, textField.text?.count ?? 0)
+        if let endOfInputPosition = textField.position(from: textField.beginningOfDocument, offset: endOfInputIndex) {
+            if textField.offset(from: textField.beginningOfDocument, to: selectedRange.start) > endOfInputIndex {
+                textField.selectedTextRange = textField.textRange(from: endOfInputPosition, to: endOfInputPosition)
+            }
+        }
+    }
 }
 #endif

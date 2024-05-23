@@ -9,6 +9,49 @@
 import UIKit
 
 open class Textfield: UITextField {
+    public struct Placeholder {
+        let color: UIColor
+        let font: UIFont
+        var text: String?
+    }
+    
+    public struct Appearance {
+        public struct Colors {
+            var textColor: UIColor
+            
+            var selectedBorderColor: UIColor
+            var selectedBackgroundColor: UIColor
+            var errorBorderColor: UIColor
+            var errorBackgroundColor: UIColor
+            var deselectedBorderColor: UIColor
+            var deselectedBackgroundColor: UIColor
+        }
+        public struct Border {
+            var idleBorderWidth: CGFloat
+            var selectedBorderWidth: CGFloat
+        }
+        
+        var colors: Colors
+        var font: UIFont
+        var border: Border?
+    }
+    
+    private var leadingStackView = StackView()
+    private var trailingStackView = StackView()
+    
+    private var leadingView: UIView? {
+        didSet {
+            leadingStackView.removeAllArrangedSubviews()
+            setupLeadingView()
+        }
+    }
+    private var trailingView: UIView? {
+        didSet {
+            trailingView?.removeFromSuperview()
+            setupTrailingView()
+        }
+    }
+    
     public var padding: UIEdgeInsets = .zero
     public var clearButtonEdgeInsets = UIEdgeInsets(top: 0, left: -8, bottom: 0, right: 8)
     
@@ -24,85 +67,46 @@ open class Textfield: UITextField {
 
     public var didChangeText = [((String?) -> Void)]()
     private var debounceTimer: Timer?
-    private let debounceInterval: TimeInterval = 0.3
+    private let debounceInterval: TimeInterval = 0.2
     
     @discardableResult
     public func validate() -> Bool {
         guard let validationRule = validationRule else {
             return true
         }
-        let isValid = validationRule(text)
-        if isValid {
-            UIView.animate(withDuration: 0.3, delay: .leastNonzeroMagnitude, options: [.allowUserInteraction]) {
-                self.backgroundColor = self.selectedBackgroundColor
-                self.layer.borderColor = self.selectedBorderColor.cgColor
+        updateAppearence()
+        return validationRule(text)
+    }
+    
+    private func updateAppearence() {
+        let isValid = validationRule?(text) ?? true
+        let isFirstResponder = isFirstResponder
+        let appearence = appearence
+        UIView.animate(withDuration: 0.1, delay: .leastNonzeroMagnitude, options: [.allowUserInteraction]) {
+            if isValid {
+                self.backgroundColor = isFirstResponder ? appearence.colors.selectedBackgroundColor : appearence.colors.deselectedBackgroundColor
+                self.layer.borderColor = isFirstResponder ? appearence.colors.selectedBorderColor.cgColor : appearence.colors.deselectedBorderColor.cgColor
+            } else {
+                self.backgroundColor = appearence.colors.errorBackgroundColor
+                self.layer.borderColor = appearence.colors.errorBorderColor.cgColor
             }
-        } else {
-            UIView.animate(withDuration: 0.3, delay: .leastNonzeroMagnitude, options: [.allowUserInteraction]) {
-                self.layer.borderColor = self.errorBorderColor.cgColor
-                self.backgroundColor = self.errorBackgroundColor
-            }
+            self.layer.borderWidth = (isFirstResponder ? appearence.border?.selectedBorderWidth : appearence.border?.idleBorderWidth) ?? 0
         }
-        return isValid
     }
     
     open override var placeholder: String? {
         didSet {
-            attributedPlaceholder = NSAttributedString(
-                string: placeholder ?? "",
-                attributes:[
-                    NSAttributedString.Key.foregroundColor: placeholderColor
-                ]
-            )
+            updatePlaceholder()
         }
     }
     
-    open override func rightViewRect(forBounds bounds: CGRect) -> CGRect {
-        guard let view = rightView else { return super.rightViewRect(forBounds: bounds) }
-        var textRect = super.rightViewRect(forBounds: bounds)
-        textRect.origin.x -= view.frame.width / 2
-        return textRect
-    }
-    
-    open override func leftViewRect(forBounds bounds: CGRect) -> CGRect {
-        var textRect = super.leftViewRect(forBounds: bounds)
-        textRect.origin.x += padding.left
-        return textRect
-    }
-    
-    open override var rightView: UIView? {
-        didSet {
-            guard rightView != nil else { return }
-            rightViewMode = .always
-        }
-    }
-    
-    open override var leftView: UIView? {
-        didSet {
-            guard leftView != nil else { return }
-            leftViewMode = .always
-        }
-    }
-    
-    public var selectedBorderColor = UIColor.gray { didSet { updateTextFieldAppearance() } }
-    public var selectedBackgroundColor = UIColor.lightGray { didSet { updateTextFieldAppearance() } }
-    public var errorBorderColor = UIColor.red { didSet { updateTextFieldAppearance() } }
-    public var errorBackgroundColor = UIColor.red.withAlphaComponent(0.4) { didSet { updateTextFieldAppearance() } }
-    public var placeholderColor = UIColor.lightGray { didSet { updatePlaceholder() } }
-
-    public var deselectedBorderColor: UIColor
-    public var deselectedBackgroundColor: UIColor
-    public var idleBorderWidth: CGFloat
-    public var selectedBorderWidth: CGFloat
+    public var appearence: Appearance { didSet { updateAppearence() }}
+    public var customizedPlaceholder: Placeholder? { didSet { updatePlaceholder() }}
     
     public init(
-        font: UIFont? = .systemFont(ofSize: 16),
-        textColor: UIColor = .black,
-        backgroundColor: UIColor = .clear,
         cornerRadius: CGFloat = 10,
-        borderWidth: CGFloat = 0.5,
-        selectedBorderWidth: CGFloat = 1.5,
-        borderColor: UIColor = .clear,
+        appearence: Appearance,
+        placeholder: Placeholder?,
         padding: UIEdgeInsets = .init(top: 10, left: 12, bottom: 10, right: 12),
         nextTextfield: UIResponder? = nil,
         leadingView: UIView? = nil,
@@ -111,33 +115,40 @@ open class Textfield: UITextField {
     ) {
         self.padding = padding
         self.nextTextfield = nextTextfield
-        self.idleBorderWidth = borderWidth
-        self.selectedBorderWidth = selectedBorderWidth
-        self.deselectedBackgroundColor = backgroundColor
-        self.deselectedBorderColor = borderColor
+        self.appearence = appearence
+        self.customizedPlaceholder = placeholder
         super.init(frame: .zero)
 
         self.autocorrectionType = .no
-        if let font = font { self.font = font }
-        self.textColor = textColor
-        self.backgroundColor = deselectedBackgroundColor
-        self.layer.borderWidth = idleBorderWidth
-        self.layer.cornerRadius = cornerRadius
-        self.layer.borderColor = deselectedBorderColor.cgColor
+        self.font = appearence.font
         self.autocapitalizationType = .none
         returnKeyType = nextTextfield == nil ? .done : .next
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(didTapTextfield))
         addGestureRecognizer(tapGesture)
         addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
         
-        if let leadingView = leadingView {
-            leftViewMode = .always
-            leftView = leadingView
-        } else if let trailingView = trailingView {
-            rightViewMode = .always
-            rightView = trailingView
-        }
+        self.leadingView = leadingView
+        self.trailingView = trailingView
+        setupLeadingView()
+        setupTrailingView()
         didChangeText.append { [weak self] _ in self?.validate() }
+        updateAppearence()
+        
+        leadingStackView.anchor(
+            .top(topAnchor, constant: padding.top),
+            .leading(leadingAnchor, constant: padding.left),
+            .bottom(bottomAnchor, constant: padding.bottom)
+        )
+        
+        trailingStackView.anchor(
+            .top(topAnchor, constant: padding.top),
+            .trailing(trailingAnchor, constant: padding.right),
+            .bottom(bottomAnchor, constant: padding.bottom)
+        )
+    }
+    
+    required public init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
     
     @objc private func didTapTextfield() {
@@ -151,70 +162,42 @@ open class Textfield: UITextField {
         debounceTimer?.invalidate()
         debounceTimer = Timer.scheduledTimer(withTimeInterval: debounceInterval, repeats: false, block: { [weak self] _ in
             guard let self = self else { return }
-            self.didChangeText.forEach { $0(self.text) }
+            self.didChangeText.forEach {
+                if let delegate = self.delegate as? MaskedTextfieldDelegate {
+                    $0(delegate.fullText)
+                } else {
+                    $0(self.text)
+                }
+            }
         })
     }
     
-    private func updateTextFieldAppearance() {
-        if isFirstResponder || validationRule != nil {
-            layer.borderColor = selectedBorderColor.cgColor
-            backgroundColor = selectedBackgroundColor
-        } else {
-            layer.borderColor = deselectedBorderColor.cgColor
-            backgroundColor = deselectedBackgroundColor
-        }
-    }
-
     private func updatePlaceholder() {
-        guard let placeholder = placeholder else { return }
+        guard let customizedPlaceholder = customizedPlaceholder else { return }
         attributedPlaceholder = NSAttributedString(
-            string: placeholder,
-            attributes: [NSAttributedString.Key.foregroundColor: placeholderColor]
+            string: customizedPlaceholder.text ?? "",
+            attributes: [
+                NSAttributedString.Key.foregroundColor: customizedPlaceholder.color,
+                NSAttributedString.Key.font: customizedPlaceholder.font
+            ]
         )
     }
     
     override open func textRect(forBounds bounds: CGRect) -> CGRect {
-        var padding = padding
-        if let leftView = leftView {
-            padding.left += leftView.frame.width + 6.67
-        }
-        if let rightView = rightView {
-            padding.right += rightView.frame.width + 6.67
-        }
-        return bounds.inset(by: padding)
+        return textArea(for: bounds)
     }
     
     override open func placeholderRect(forBounds bounds: CGRect) -> CGRect {
-        var padding = padding
-        if let leftView = leftView {
-            padding.left += leftView.frame.width + 6.67
-        }
-        if let rightView = rightView {
-            padding.right += rightView.frame.width + 6.67
-        }
-        return bounds.inset(by: padding)
+        return textArea(for: bounds)
     }
     
     override open func editingRect(forBounds bounds: CGRect) -> CGRect {
-        var padding = padding
-        if let leftView = leftView {
-            padding.left += leftView.frame.width + 6.67
-        }
-        if let rightView = rightView {
-            padding.right += rightView.frame.width + 6.67
-        }
-        return bounds.inset(by: padding)
+        return textArea(for: bounds)
     }
     
     @discardableResult
     override open func becomeFirstResponder() -> Bool {
-        if validationRule == nil {
-            UIView.animate(withDuration: 0.3, delay: .leastNonzeroMagnitude, options: [.allowUserInteraction]) {
-                self.layer.borderColor = self.selectedBorderColor.cgColor
-                self.layer.borderWidth = self.selectedBorderWidth
-                self.backgroundColor = self.selectedBackgroundColor
-            }
-        }
+        updateAppearence()
         
         if clearButtonTapped {
             clearButtonTapped = false
@@ -225,25 +208,12 @@ open class Textfield: UITextField {
             self.text?.removeAll()
             insertText(text)
         }
-        if success {
-            onBecomeFirstResponder?()
-        }
         return success
     }
     
     open override func resignFirstResponder() -> Bool {
-        if validationRule == nil {
-            UIView.animate(withDuration: 0.3, delay: .leastNonzeroMagnitude, options: [.allowUserInteraction]) {
-                self.layer.borderColor = self.deselectedBorderColor.cgColor
-                self.layer.borderWidth = self.idleBorderWidth
-                self.backgroundColor = self.deselectedBackgroundColor
-            }
-        }
-        let success = super.resignFirstResponder()
-        if success {
-            onResignFirstResponder?()
-        }
-        return success
+        updateAppearence()
+        return super.resignFirstResponder()
     }
     
     override open var isSecureTextEntry: Bool {
@@ -266,18 +236,44 @@ open class Textfield: UITextField {
         return isTextSelectionDisabled ? false : super.canPerformAction(action, withSender: sender)
     }
     
-    public required init?(coder aDecoder: NSCoder) {
-        padding = .zero
-        idleBorderWidth = 0.5
-        selectedBorderWidth = 1.5
-        deselectedBorderColor = .clear
-        deselectedBackgroundColor = .clear
-        super.init(coder: aDecoder)
-    }
-    
     open override func clearButtonRect(forBounds bounds: CGRect) -> CGRect {
         let bounds = super.clearButtonRect(forBounds: bounds)
         return bounds.inset(by: clearButtonEdgeInsets)
+    }
+    
+    private func textArea(for bounds: CGRect) -> CGRect {
+        var padding = padding
+        if let leftView = leadingView, !leftView.isHidden {
+            if UIView.userInterfaceLayoutDirection(for: semanticContentAttribute) == .rightToLeft {
+                padding.right += leftView.intrinsicContentSize.width + 6.67
+            } else {
+                padding.left += leftView.intrinsicContentSize.width + 6.67
+            }
+        }
+        if let rightView = trailingView, !rightView.isHidden {
+            if UIView.userInterfaceLayoutDirection(for: semanticContentAttribute) == .rightToLeft {
+                padding.left += rightView.intrinsicContentSize.width + 6.67
+            } else {
+                padding.right += rightView.intrinsicContentSize.width + 6.67
+            }
+        }
+        return bounds.inset(by: padding)
+    }
+    
+    func setupTrailingView() {
+        guard let trailingView = trailingView else { return }
+        trailingStackView.addArrangedSubview(trailingView)
+        trailingView.anchor(
+            .width(trailingView.intrinsicContentSize.width)
+        )
+    }
+    
+    func setupLeadingView() {
+        guard let leadingView = leadingView else { return }
+        leadingStackView.addArrangedSubview(leadingView)
+        leadingView.anchor(
+            .width(leadingView.intrinsicContentSize.width)
+        )
     }
 }
 #endif
