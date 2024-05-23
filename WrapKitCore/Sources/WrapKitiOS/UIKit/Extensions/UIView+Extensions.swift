@@ -126,7 +126,7 @@ public extension UIView {
         layer.addSublayer(gradientLayer)
     }
     
-    func showLoadingView(_ loadingView: UIView? = nil, backgroundColor: UIColor, contentInset: UIEdgeInsets = .zero, size: CGSize? = nil) {
+    func showLoadingView(_ loadingView: UIView? = nil, backgroundColor: UIColor = .clear, contentInset: UIEdgeInsets = .zero, size: CGSize? = nil) {
         if let previousLoadingContainerView = viewWithTag(345635463546) {
             previousLoadingContainerView.removeFromSuperview()
         }
