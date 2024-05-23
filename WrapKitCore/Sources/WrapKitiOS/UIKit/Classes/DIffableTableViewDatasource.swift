@@ -29,7 +29,7 @@ public class DiffableTableViewDataSource<Model: Hashable>: NSObject, UITableView
     public var didScrollViewDidScroll: ((UIScrollView) -> Void)?
     
     private weak var tableView: UITableView?
-    private var dataSource: UITableViewDiffableDataSource<Int, TableItem>!
+    public var dataSource: UITableViewDiffableDataSource<Int, TableItem>!
     
     public init(tableView: UITableView, configureCell: @escaping (UITableView, IndexPath, Model) -> UITableViewCell) {
         super.init()

@@ -31,7 +31,7 @@ public class DiffableCollectionViewDataSource<Model: Hashable>: NSObject, UIColl
     public var didScrollViewDidScroll: ((UIScrollView) -> Void)?
     
     private weak var collectionView: UICollectionView?
-    private var dataSource: UICollectionViewDiffableDataSource<Int, CollectionItem>!
+    public var dataSource: UICollectionViewDiffableDataSource<Int, CollectionItem>!
     
     public init(collectionView: UICollectionView, configureCell: @escaping (UICollectionView, IndexPath, Model) -> UICollectionViewCell) {
         super.init()
