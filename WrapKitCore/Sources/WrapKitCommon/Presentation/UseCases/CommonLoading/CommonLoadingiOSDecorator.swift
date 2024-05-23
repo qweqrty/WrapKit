@@ -8,7 +8,7 @@
 #if canImport(UIKit)
 import UIKit
 
-class CommonLoadingiOSAdapter: CommonLoadingOutput {
+public class CommonLoadingiOSAdapter: CommonLoadingOutput {
     private let view: UIView
     private let style: NVActivityIndicatorType
     private let tintColor: UIColor
@@ -26,7 +26,7 @@ class CommonLoadingiOSAdapter: CommonLoadingOutput {
         self.size = size
     }
     
-    func display(isLoading: Bool) {
+    public func display(isLoading: Bool) {
         view.showLoadingView(
             NVActivityIndicatorView(
                 frame: .zero,
