@@ -39,6 +39,15 @@ open class Button: UIButton {
         }
     }
     
+    open override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        
+        if #available(iOS 13.0, *), let image = image(for: .normal), image.renderingMode == .alwaysTemplate {
+            self.setImage(image.withTintColor(tintColor), for: .normal)
+        }
+        self.tintColor = tintColor
+    }
+    
     public convenience init(
         image: UIImage? = nil,
         tintColor: UIColor? = nil,
