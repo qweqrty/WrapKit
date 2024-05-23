@@ -9,8 +9,9 @@ public var loadingView: CommonLoadingOutput?
 ## Assign the output to the view:
 
 ```swift
-presenter.loadingView = CommonLoadingiOSAdapter.defaultLoader(
+presenter.loadingView = CommonLoadingiOSAdapter.NVActivityLoader(
     onView: contentView,
+    type: NVActivityIndicatorType = .circleStrokeSpin, // by default
     loadingViewColor: .white,
     wrapperViewColor: .black.withAlphaComponent(0.4)
 )
