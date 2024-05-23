@@ -184,7 +184,7 @@ open class Textfield: UITextField {
     private func updatePlaceholder() {
         guard let customizedPlaceholder = customizedPlaceholder else { return }
         attributedPlaceholder = NSAttributedString(
-            string: customizedPlaceholder.text ?? "",
+            string: customizedPlaceholder.text ?? placeholder ?? "",
             attributes: [
                 NSAttributedString.Key.foregroundColor: customizedPlaceholder.color,
                 NSAttributedString.Key.font: customizedPlaceholder.font
