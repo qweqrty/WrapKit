@@ -96,11 +96,9 @@ open class Textfield: UITextField {
     
     @discardableResult
     public func validate() -> Bool {
-        guard let validationRule = validationRule else {
-            return true
-        }
+        let text = (delegate as? MaskedTextfieldDelegate)?.fullText ?? text
         updateAppearence()
-        return validationRule(text)
+        return validationRule?(text) ?? true
     }
     
     open override var placeholder: String? {
@@ -303,6 +301,7 @@ public extension Textfield {
     private func updateAppearence() {
         textColor = appearence.colors.textColor
         font = appearence.font
+        let text = (delegate as? MaskedTextfieldDelegate)?.fullText ?? text
         let isValid = validationRule?(text) ?? true
         let isFirstResponder = isFirstResponder
         let appearence = appearence
