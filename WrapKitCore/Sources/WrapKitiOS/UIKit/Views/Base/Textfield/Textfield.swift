@@ -206,18 +206,20 @@ open class Textfield: UITextField {
     
     @discardableResult
     override open func becomeFirstResponder() -> Bool {
-        updateAppearence()
         let success = super.becomeFirstResponder()
+        
         if isSecureTextEntry, let text = self.text {
             self.text?.removeAll()
             insertText(text)
         }
+        updateAppearence()
         return success
     }
     
     open override func resignFirstResponder() -> Bool {
+        let result = super.resignFirstResponder()
         updateAppearence()
-        return super.resignFirstResponder()
+        return result
     }
     
     override open var isSecureTextEntry: Bool {
