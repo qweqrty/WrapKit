@@ -281,7 +281,7 @@ open class Textfield: UITextField {
     }
 }
 
-extension Textfield {
+public extension Textfield {
     func applyNormalState() {
         backgroundColor = isFirstResponder ? appearence.colors.selectedBackgroundColor : appearence.colors.deselectedBackgroundColor
         layer.borderColor = isFirstResponder ? appearence.colors.selectedBorderColor.cgColor : appearence.colors.deselectedBorderColor.cgColor
