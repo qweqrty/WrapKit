@@ -15,7 +15,7 @@ public class DiffableTableViewDataSource<Model: Hashable>: NSObject, UITableView
         case footer(UUID)
     }
     
-    public var didSelectAt: ((IndexPath) -> Void)?
+    public var didSelectAt: ((IndexPath, Model) -> Void)?
     public var configureCell: ((UITableView, IndexPath, Model) -> UITableViewCell)?
     public var configureFooter: (() -> UITableViewCell)?
     public var onRetry: (() -> Void)?
@@ -29,7 +29,8 @@ public class DiffableTableViewDataSource<Model: Hashable>: NSObject, UITableView
     public var didScrollViewDidScroll: ((UIScrollView) -> Void)?
     
     private weak var tableView: UITableView?
-    public var dataSource: UITableViewDiffableDataSource<Int, TableItem>!
+    private var dataSource: UITableViewDiffableDataSource<Int, TableItem>!
+    private var items = [Model]()
     
     public init(tableView: UITableView, configureCell: @escaping (UITableView, IndexPath, Model) -> UITableViewCell) {
         super.init()
@@ -99,7 +100,8 @@ public class DiffableTableViewDataSource<Model: Hashable>: NSObject, UITableView
     }
     
     public func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        didSelectAt?(indexPath)
+        guard let selectedModel = items.item(at: indexPath.row) else { return }
+        didSelectAt?(indexPath, selectedModel)
     }
     
     public func scrollViewDidScroll(_ scrollView: UIScrollView) {

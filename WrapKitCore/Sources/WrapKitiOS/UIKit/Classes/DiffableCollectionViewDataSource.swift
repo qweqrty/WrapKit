@@ -15,7 +15,7 @@ public class DiffableCollectionViewDataSource<Model: Hashable>: NSObject, UIColl
         case footer(UUID)
     }
     
-    public var didSelectAt: ((IndexPath) -> Void)?
+    public var didSelectAt: ((IndexPath, Model) -> Void)?
     public var configureCell: ((UICollectionView, IndexPath, Model) -> UICollectionViewCell)?
     public var configureSupplementaryView: ((UICollectionView, String, IndexPath) -> UICollectionReusableView)?
     public var onRetry: (() -> Void)?
@@ -31,7 +31,9 @@ public class DiffableCollectionViewDataSource<Model: Hashable>: NSObject, UIColl
     public var didScrollViewDidScroll: ((UIScrollView) -> Void)?
     
     private weak var collectionView: UICollectionView?
-    public var dataSource: UICollectionViewDiffableDataSource<Int, CollectionItem>!
+    private var items = [Model]()
+    
+    private var dataSource: UICollectionViewDiffableDataSource<Int, CollectionItem>!
     
     public init(collectionView: UICollectionView, configureCell: @escaping (UICollectionView, IndexPath, Model) -> UICollectionViewCell) {
         super.init()
@@ -70,6 +72,7 @@ public class DiffableCollectionViewDataSource<Model: Hashable>: NSObject, UIColl
     }
     
     public func updateItems(_ items: [Model]) {
+        self.items = items
         var snapshot = NSDiffableDataSourceSnapshot<Int, CollectionItem>()
         snapshot.appendSections([0])
         snapshot.appendItems(items.map { .model($0) }, toSection: 0)
@@ -94,7 +97,8 @@ public class DiffableCollectionViewDataSource<Model: Hashable>: NSObject, UIColl
     }
     
     public func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        didSelectAt?(indexPath)
+        guard let selectedModel = items.item(at: indexPath.row) else { return }
+        didSelectAt?(indexPath, selectedModel)
     }
     
     public func scrollViewDidScroll(_ scrollView: UIScrollView) {
