@@ -9,32 +9,25 @@
 import UIKit
 
 public class CommonLoadingiOSAdapter: CommonLoadingOutput {
-    private let view: UIView
-    private let style: NVActivityIndicatorType
-    private let tintColor: UIColor
+    private let onView: UIView
+    private let loadingView: UIView
     private let size: CGSize
-
+    
     public init(
-        view: UIView,
-        style: NVActivityIndicatorType = .circleStrokeSpin,
-        tintColor: UIColor,
+        onView: UIView,
+        loadingView: UIView,
         size: CGSize
     ) {
-        self.view = view
-        self.style = style
-        self.tintColor = tintColor
+        self.onView = onView
+        self.loadingView = loadingView
         self.size = size
     }
     
     public func display(isLoading: Bool) {
-        view.showLoadingView(
-            NVActivityIndicatorView(
-                frame: .zero,
-                type: style,
-                color: tintColor
-            ),
+        onView.showLoadingView(
+            loadingView,
             backgroundColor: .clear,
-            size: .init(width: 20, height: 20)
+            size: size
         )
     }
 }
