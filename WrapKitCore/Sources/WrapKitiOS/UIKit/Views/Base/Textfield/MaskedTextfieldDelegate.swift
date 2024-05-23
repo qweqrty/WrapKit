@@ -12,6 +12,11 @@ public class MaskedTextfieldDelegate: NSObject, UITextFieldDelegate {
     public struct Format {
         let mask: Masking
         let maskedTextColor: UIColor
+        
+        public init(mask: Masking, maskedTextColor: UIColor) {
+            self.mask = mask
+            self.maskedTextColor = maskedTextColor
+        }
     }
     private let textfield: Textfield
     private var format: Format {
