@@ -128,6 +128,7 @@ open class Textfield: UITextField {
         self.customizedPlaceholder = placeholder
         super.init(frame: .zero)
 
+        self.cornerRadius = cornerRadius
         self.autocorrectionType = .no
         self.font = appearence.font
         self.autocapitalizationType = .none
