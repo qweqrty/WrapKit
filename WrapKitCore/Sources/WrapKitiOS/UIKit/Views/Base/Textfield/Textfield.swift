@@ -103,24 +103,6 @@ open class Textfield: UITextField {
         return validationRule(text)
     }
     
-    private func updateAppearence() {
-        textColor = appearence.colors.textColor
-        font = appearence.font
-        let isValid = validationRule?(text) ?? true
-        let isFirstResponder = isFirstResponder
-        let appearence = appearence
-        UIView.animate(withDuration: 0.1, delay: .leastNonzeroMagnitude, options: [.allowUserInteraction]) {
-            if isValid {
-                self.backgroundColor = isFirstResponder ? appearence.colors.selectedBackgroundColor : appearence.colors.deselectedBackgroundColor
-                self.layer.borderColor = isFirstResponder ? appearence.colors.selectedBorderColor.cgColor : appearence.colors.deselectedBorderColor.cgColor
-            } else {
-                self.backgroundColor = appearence.colors.errorBackgroundColor
-                self.layer.borderColor = appearence.colors.errorBorderColor.cgColor
-            }
-            self.layer.borderWidth = (isFirstResponder ? appearence.border?.selectedBorderWidth : appearence.border?.idleBorderWidth) ?? 0
-        }
-    }
-    
     open override var placeholder: String? {
         didSet {
             updatePlaceholder()
@@ -159,7 +141,6 @@ open class Textfield: UITextField {
         setupLeadingView()
         setupTrailingView()
         didChangeText.append { [weak self] _ in self?.validate() }
-        updateAppearence()
         
         leadingStackView.anchor(
             .top(topAnchor, constant: padding.top),
@@ -172,6 +153,7 @@ open class Textfield: UITextField {
             .trailing(trailingAnchor, constant: padding.right),
             .bottom(bottomAnchor, constant: padding.bottom)
         )
+        updateAppearence()
     }
     
     required public init?(coder: NSCoder) {
@@ -296,6 +278,36 @@ open class Textfield: UITextField {
         leadingView.anchor(
             .width(leadingView.intrinsicContentSize.width)
         )
+    }
+}
+
+extension Textfield {
+    func applyNormalState() {
+        backgroundColor = isFirstResponder ? appearence.colors.selectedBackgroundColor : appearence.colors.deselectedBackgroundColor
+        layer.borderColor = isFirstResponder ? appearence.colors.selectedBorderColor.cgColor : appearence.colors.deselectedBorderColor.cgColor
+    }
+    
+    func applyErrorState() {
+        backgroundColor = appearence.colors.errorBackgroundColor
+        layer.borderColor = appearence.colors.errorBorderColor.cgColor
+    }
+    
+    private func updateAppearence() {
+        textColor = appearence.colors.textColor
+        font = appearence.font
+        let isValid = validationRule?(text) ?? true
+        let isFirstResponder = isFirstResponder
+        let appearence = appearence
+        UIView.animate(withDuration: 0.1, delay: .leastNonzeroMagnitude, options: [.allowUserInteraction]) {
+            if isValid {
+                self.backgroundColor = isFirstResponder ? appearence.colors.selectedBackgroundColor : appearence.colors.deselectedBackgroundColor
+                self.layer.borderColor = isFirstResponder ? appearence.colors.selectedBorderColor.cgColor : appearence.colors.deselectedBorderColor.cgColor
+            } else {
+                self.backgroundColor = appearence.colors.errorBackgroundColor
+                self.layer.borderColor = appearence.colors.errorBorderColor.cgColor
+            }
+            self.layer.borderWidth = (isFirstResponder ? appearence.border?.selectedBorderWidth : appearence.border?.idleBorderWidth) ?? 0
+        }
     }
 }
 #endif
