@@ -84,12 +84,20 @@ public class MaskedTextfieldDelegate: NSObject, UITextFieldDelegate {
     }
     
     public func textFieldDidChangeSelection(_ textField: UITextField) {
+        guard let textField = textField as? Textfield else { return }
         guard let selectedRange = textField.selectedTextRange else { return }
+
+        // Get the length of the text that represents the user's direct input, without mask characters
+        let userInputLength = format.mask.extractUserInput(from: fullText).count
         
-        let endOfInputIndex = min(fullText.count, textField.text?.count ?? 0)
-        if let endOfInputPosition = textField.position(from: textField.beginningOfDocument, offset: endOfInputIndex) {
-            if textField.offset(from: textField.beginningOfDocument, to: selectedRange.start) > endOfInputIndex {
-                textField.selectedTextRange = textField.textRange(from: endOfInputPosition, to: endOfInputPosition)
+        // Calculate the correct position for the caret: it should not exceed the length of the user input
+        let caretPosition = min(textField.text?.count ?? 0, userInputLength)
+
+        // Find the position in the text field corresponding to the end of the user input
+        if let newPosition = textField.position(from: textField.beginningOfDocument, offset: caretPosition) {
+            // Adjust the selected text range only if the current caret position is beyond the allowed position
+            if textField.offset(from: textField.beginningOfDocument, to: selectedRange.start) > caretPosition {
+                textField.selectedTextRange = textField.textRange(from: newPosition, to: newPosition)
             }
         }
     }
