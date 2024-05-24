@@ -69,7 +69,6 @@ public class MaskedTextfieldDelegate: NSObject, UITextFieldDelegate {
     
     private func setupMask(mask: (input: String, maskToInput: String)) {
         self.fullText = mask.input
-        self.textfield.text = mask.maskToInput
         
         if mask.input.isEmpty && !(textfield.placeholder?.isEmpty ?? true) && !textfield.isFirstResponder {
             textfield.attributedText = nil
