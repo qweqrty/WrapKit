@@ -74,7 +74,7 @@ public class MaskedTextfieldDelegate: NSObject, UITextFieldDelegate {
             textfield.attributedText = nil
         } else {
             textfield.attributedText = .combined(
-                .init(mask.input, font: textfield.font ?? .systemFont(ofSize: 17), color: textfield.textColor ?? .clear, textAlignment: textfield.textAlignment),
+                .init(mask.input, font: textfield.font ?? .systemFont(ofSize: 17), color: textfield.appearence.colors.textColor, textAlignment: textfield.textAlignment),
                 .init(mask.maskToInput, font: textfield.font ?? .systemFont(ofSize: 17), color: format.maskedTextColor, textAlignment: textfield.textAlignment)
             )
         }
