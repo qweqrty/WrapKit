@@ -28,6 +28,7 @@ public class MaskedTextfieldDelegate: NSObject, UITextFieldDelegate {
     public var onlySpecifiersIfMaskedText: String { format.mask.extractUserInput(from: fullText) }
     public lazy var fullText: String = format.mask.applied(to: "").input {
         didSet {
+            guard oldValue != fullText else { return }
             setupMask(mask: format.mask.applied(to: fullText))
         }
     }
