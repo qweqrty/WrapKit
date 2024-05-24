@@ -128,7 +128,7 @@ open class Textfield: UITextField {
 
         self.cornerRadius = cornerRadius
         self.autocorrectionType = .no
-        self.font = appearence.font
+        self.textColor = appearence.colors.textColor
         self.autocapitalizationType = .none
         returnKeyType = nextTextfield == nil ? .done : .next
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(didTapTextfield))
@@ -301,7 +301,6 @@ public extension Textfield {
     }
     
     private func updateAppearence() {
-        textColor = appearence.colors.textColor
         font = appearence.font
         let text = (delegate as? MaskedTextfieldDelegate)?.fullText ?? text
         let isValid = validationRule?(text) ?? true
