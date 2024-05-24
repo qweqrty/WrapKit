@@ -16,8 +16,8 @@ open class Textfield: UITextField {
             self.text = text
         }
         
-        public let color: UIColor
-        public let font: UIFont
+        public var color: UIColor
+        public var font: UIFont
         public var text: String?
     }
     
