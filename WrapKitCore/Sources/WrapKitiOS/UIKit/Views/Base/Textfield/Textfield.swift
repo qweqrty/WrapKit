@@ -9,6 +9,11 @@
 import UIKit
 
 open class Textfield: UITextField {
+    public enum TrailingViewStyle {
+        case clear(trailingView: View)
+        case custom(trailingView: UIView)
+    }
+    
     public struct Placeholder {
         public init(color: UIColor, font: UIFont, text: String? = nil) {
             self.color = color
@@ -89,7 +94,7 @@ open class Textfield: UITextField {
     public var nextTextfield: UIResponder? = nil { didSet { returnKeyType = nextTextfield == nil ? .done : .next } }
     public var onBecomeFirstResponder: (() -> Void)?
     public var onResignFirstResponder: (() -> Void)?
-
+    
     public var didChangeText = [((String?) -> Void)]()
     private var debounceTimer: Timer?
     private let debounceInterval: TimeInterval = 0.2
@@ -107,17 +112,27 @@ open class Textfield: UITextField {
         }
     }
     
+    open override var text: String? {
+        didSet {
+            if let delegate = delegate as? MaskedTextfieldDelegate {
+                delegate.fullText = text ?? ""
+            }
+        }
+    }
+    
     public var appearence: Appearance { didSet { updateAppearence() }}
     public var customizedPlaceholder: Placeholder? { didSet { updatePlaceholder() }}
     
     public init(
         cornerRadius: CGFloat = 10,
+        textAlignment: NSTextAlignment = .natural,
         appearence: Appearance,
         placeholder: Placeholder?,
         padding: UIEdgeInsets = .init(top: 10, left: 12, bottom: 10, right: 12),
         nextTextfield: UIResponder? = nil,
         leadingView: UIView? = nil,
-        trailingView: UIView? = nil,
+        trailingView: TrailingViewStyle? = nil,
+        inputView: UIView? = nil,
         autocapitalizationType: UITextAutocapitalizationType = .none
     ) {
         self.padding = padding
@@ -130,13 +145,13 @@ open class Textfield: UITextField {
         self.autocorrectionType = .no
         self.textColor = appearence.colors.textColor
         self.autocapitalizationType = .none
+        self.inputView = inputView
         returnKeyType = nextTextfield == nil ? .done : .next
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(didTapTextfield))
         addGestureRecognizer(tapGesture)
         addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
         
         self.leadingView = leadingView
-        self.trailingView = trailingView
         setupLeadingView()
         setupTrailingView()
         didChangeText.append { [weak self] _ in self?.validate() }
@@ -154,6 +169,20 @@ open class Textfield: UITextField {
             .bottom(bottomAnchor, constant: padding.bottom)
         )
         updateAppearence()
+        
+        switch trailingView {
+        case .custom(let trailingView):
+            self.trailingView = trailingView
+        case .clear(let trailingView):
+            self.onPress = { [weak self] in self?.text = "" }
+            self.didChangeText.append { [weak self] text in
+                self?.trailingView?.isHidden = (text?.isEmpty ?? true)
+            }
+            self.trailingView = trailingView
+            trailingView.isHidden = text?.isEmpty ?? true
+        default:
+            break
+        }
     }
     
     required public init?(coder: NSCoder) {
