@@ -70,8 +70,8 @@ public extension UIView {
         views.forEach { addSubview($0) }
     }
     
-    func wrappedInUIView(padding: UIEdgeInsets = .zero) -> UIView {
-        let view = UIView()
+    func wrappedInView(padding: UIEdgeInsets = .zero) -> View {
+        let view = View()
         view.addSubview(self)
         fillSuperview(padding: padding)
         return view
