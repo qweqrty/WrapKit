@@ -88,6 +88,7 @@ open class Textfield: UITextField {
     
     public var isTextSelectionDisabled = false
     public var isEditable = true
+    public weak var maskedDelegate: MaskedTextfieldDelegate? { delegate as? MaskedTextfieldDelegate }
     
     public var onPress: (() -> Void)?
     public var validationRule: ((String?) -> Bool)?
