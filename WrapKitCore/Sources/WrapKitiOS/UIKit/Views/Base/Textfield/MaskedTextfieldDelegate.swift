@@ -18,12 +18,13 @@ public class MaskedTextfieldDelegate: NSObject, UITextFieldDelegate {
             self.maskedTextColor = maskedTextColor
         }
     }
-    private let textfield: Textfield
     private var format: Format {
         didSet {
             setupMask(mask: format.mask.applied(to: fullText))
         }
     }
+    
+    private var textfield: Textfield?
     
     public var onlySpecifiersIfMaskedText: String { format.mask.extractUserInput(from: fullText) }
     public lazy var fullText: String = format.mask.applied(to: "").input {
@@ -33,17 +34,13 @@ public class MaskedTextfieldDelegate: NSObject, UITextFieldDelegate {
         }
     }
     
-    public init(
-        textfield: Textfield,
-        format: Format
-    ) {
-        self.textfield = textfield
+    public init(format: Format) {
         self.format = format
     }
     
     @discardableResult
-    public func applied() -> Self {
-        self.textfield.delegate = self
+    public func applyTo(textfield: Textfield) -> Self {
+        textfield.delegate = self
         textfield.keyboardType = format.mask.keyboardType()
         let mask = format.mask.applied(to: fullText)
         let updateTextIfMasked: (() -> Void) = { [weak self] in
@@ -68,6 +65,7 @@ public class MaskedTextfieldDelegate: NSObject, UITextFieldDelegate {
     }
     
     private func setupMask(mask: (input: String, maskToInput: String)) {
+        guard let textfield = textfield else { return }
         self.fullText = mask.input
         
         if mask.input.isEmpty && !(textfield.placeholder?.isEmpty ?? true) && !textfield.isFirstResponder {

@@ -133,7 +133,8 @@ open class Textfield: UITextField {
         leadingView: UIView? = nil,
         trailingView: TrailingViewStyle? = nil,
         inputView: UIView? = nil,
-        autocapitalizationType: UITextAutocapitalizationType = .none
+        autocapitalizationType: UITextAutocapitalizationType = .none,
+        delegate: MaskedTextfieldDelegate? = nil
     ) {
         self.padding = padding
         self.nextTextfield = nextTextfield
@@ -146,6 +147,7 @@ open class Textfield: UITextField {
         self.textColor = appearence.colors.textColor
         self.autocapitalizationType = .none
         self.inputView = inputView
+        delegate?.applyTo(textfield: self)
         returnKeyType = nextTextfield == nil ? .done : .next
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(didTapTextfield))
         addGestureRecognizer(tapGesture)
