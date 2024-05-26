@@ -84,35 +84,37 @@ public class MaskedTextfieldDelegate: NSObject, UITextFieldDelegate {
     public func textFieldDidChangeSelection(_ textField: UITextField) {
         guard let textField = textField as? Textfield, let selectedRange = textField.selectedTextRange else { return }
 
-        let maskLength = format.mask.format.count
-        let userInputLength = format.mask.extractUserInput(from: fullText).count
+        let currentPosition = textField.offset(from: textField.beginningOfDocument, to: selectedRange.start)
         
-        let caretPosition = min(textField.text?.count ?? 0, userInputLength)
+        let validLength = min(fullText.count, format.mask.format.count)
 
-        if fullText.count < maskLength {
-            if let newPosition = findNextValidPosition(textField: textField, from: caretPosition) {
-                if textField.offset(from: textField.beginningOfDocument, to: selectedRange.start) > caretPosition {
-                    textField.selectedTextRange = textField.textRange(from: newPosition, to: newPosition)
-                }
+        if currentPosition > validLength || (currentPosition < validLength && format.mask.isLiteralCharacter(at: currentPosition)) {
+            // Adjust the caret to the nearest valid position that is not a literal.
+            if let newPosition = adjustPositionAvoidingLiterals(textField: textField, from: currentPosition, direction: currentPosition > validLength ? -1 : 1) {
+                textField.selectedTextRange = textField.textRange(from: newPosition, to: newPosition)
             }
         }
     }
 
-    private func findNextValidPosition(textField: Textfield, from position: Int) -> UITextPosition? {
-        let text = textField.text ?? ""
-        var currentPosition = position
+    private func adjustPositionAvoidingLiterals(textField: Textfield, from position: Int, direction: Int) -> UITextPosition? {
+        var newPosition = position
+        let step = direction > 0 ? 1 : -1
 
-        while currentPosition < text.count {
-            let characterIndex = text.index(text.startIndex, offsetBy: currentPosition)
-            if format.mask.isLiteralCharacter(at: currentPosition) {
-                currentPosition += 1
-            } else {
-                return textField.position(from: textField.beginningOfDocument, offset: currentPosition)
+        while newPosition >= 0 && newPosition < format.mask.format.count {
+            if !format.mask.isLiteralCharacter(at: newPosition) {
+                break
             }
+            newPosition += step
         }
 
-        return textField.position(from: textField.beginningOfDocument, offset: position)
+        // Check if we have moved out of bounds, if so adjust back to a valid position
+        if newPosition < 0 || newPosition >= format.mask.format.count {
+            newPosition = max(0, min(newPosition, format.mask.format.count - 1))
+        }
+
+        return textField.position(from: textField.beginningOfDocument, offset: newPosition)
     }
+
 
 }
 #endif
