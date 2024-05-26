@@ -77,44 +77,11 @@ public class MaskedTextfieldDelegate: NSObject, UITextFieldDelegate {
                 .init(mask.maskToInput, font: textfield.font ?? .systemFont(ofSize: 17), color: format.maskedTextColor, textAlignment: textfield.textAlignment)
             )
         }
-        
+        let newPosition = textfield.position(from: textfield.beginningOfDocument, offset: mask.input.count) ?? textfield.beginningOfDocument
+        textfield.selectedTextRange = textfield.textRange(from: newPosition, to: newPosition)
         textfield.sendActions(for: .editingChanged)
     }
-    
-    public func textFieldDidChangeSelection(_ textField: UITextField) {
-        guard let textField = textField as? Textfield, let selectedRange = textField.selectedTextRange else { return }
-
-        let currentPosition = textField.offset(from: textField.beginningOfDocument, to: selectedRange.start)
-        
-        let validLength = min(fullText.count, format.mask.format.count)
-
-        if currentPosition > validLength || (currentPosition < validLength && format.mask.isLiteralCharacter(at: currentPosition)) {
-            // Adjust the caret to the nearest valid position that is not a literal.
-            if let newPosition = adjustPositionAvoidingLiterals(textField: textField, from: currentPosition, direction: currentPosition > validLength ? -1 : 1) {
-                textField.selectedTextRange = textField.textRange(from: newPosition, to: newPosition)
-            }
-        }
-    }
-
-    private func adjustPositionAvoidingLiterals(textField: Textfield, from position: Int, direction: Int) -> UITextPosition? {
-        var newPosition = position
-        let step = direction > 0 ? 1 : -1
-
-        while newPosition >= 0 && newPosition < format.mask.format.count {
-            if !format.mask.isLiteralCharacter(at: newPosition) {
-                break
-            }
-            newPosition += step
-        }
-
-        // Check if we have moved out of bounds, if so adjust back to a valid position
-        if newPosition < 0 || newPosition >= format.mask.format.count {
-            newPosition = max(0, min(newPosition, format.mask.format.count - 1))
-        }
-
-        return textField.position(from: textField.beginningOfDocument, offset: newPosition)
-    }
-
 
 }
+
 #endif
