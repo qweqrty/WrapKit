@@ -184,7 +184,8 @@ open class Textfield: UITextField {
         case .clear(let trailingView):
             self.onPress = { [weak self] in self?.text = "" }
             self.didChangeText.append { [weak self] text in
-                self?.trailingView?.isHidden = (text?.isEmpty ?? true)
+                let text = self?.maskedTextfieldDelegate?.onlySpecifiersIfMaskedText ?? text ?? ""
+                self?.trailingView?.isHidden = text.isEmpty
             }
             self.trailingView = trailingView
             trailingView.isHidden = text?.isEmpty ?? true
@@ -308,17 +309,11 @@ open class Textfield: UITextField {
     func setupTrailingView() {
         guard let trailingView = trailingView else { return }
         trailingStackView.addArrangedSubview(trailingView)
-        trailingView.anchor(
-            .width(trailingView.intrinsicContentSize.width)
-        )
     }
     
     func setupLeadingView() {
         guard let leadingView = leadingView else { return }
         leadingStackView.addArrangedSubview(leadingView)
-        leadingView.anchor(
-            .width(leadingView.intrinsicContentSize.width)
-        )
     }
     
     open override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
