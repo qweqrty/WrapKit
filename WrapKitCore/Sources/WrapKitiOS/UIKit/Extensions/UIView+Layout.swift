@@ -83,12 +83,12 @@ public extension UIView {
         let view = View()
         view.addSubviews(self)
         anchor(
-            .topGreaterThanEqual(topAnchor),
-            .leadingGreaterThanEqual(leadingAnchor),
-            .bottomLessThanEqual(bottomAnchor),
-            .trailingLessThanEqual(trailingAnchor),
-            .centerX(centerXAnchor),
-            .centerY(centerYAnchor)
+            .topGreaterThanEqual(view.topAnchor),
+            .leadingGreaterThanEqual(view.leadingAnchor),
+            .bottomLessThanEqual(view.bottomAnchor),
+            .trailingLessThanEqual(view.trailingAnchor),
+            .centerX(view.centerXAnchor),
+            .centerY(view.centerYAnchor)
         )
         return view
     }
