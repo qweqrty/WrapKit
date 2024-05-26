@@ -67,18 +67,15 @@ open class Textfield: UITextField {
         public var border: Border?
     }
     
-    private var leadingStackView = StackView()
-    private var trailingStackView = StackView()
-    
     public var leadingView: UIView? {
         didSet {
-            leadingStackView.removeAllArrangedSubviews()
+            oldValue?.removeFromSuperview()
             setupLeadingView()
         }
     }
     public var trailingView: UIView? {
         didSet {
-            trailingStackView.removeAllArrangedSubviews()
+            oldValue?.removeFromSuperview()
             setupTrailingView()
         }
     }
@@ -163,19 +160,6 @@ open class Textfield: UITextField {
         
         self.leadingView = leadingView
         didChangeText.append { [weak self] _ in self?.validate() }
-        
-        addSubviews(leadingStackView, trailingStackView)
-        leadingStackView.anchor(
-            .top(topAnchor, constant: padding.top),
-            .leading(leadingAnchor, constant: padding.left),
-            .bottom(bottomAnchor, constant: padding.bottom)
-        )
-        
-        trailingStackView.anchor(
-            .top(topAnchor, constant: padding.top),
-            .trailing(trailingAnchor, constant: padding.right),
-            .bottom(bottomAnchor, constant: padding.bottom)
-        )
         updateAppearence()
         
         switch trailingView {
@@ -188,7 +172,7 @@ open class Textfield: UITextField {
                 self?.trailingView?.isHidden = text.isEmpty
             }
             self.trailingView = trailingView
-            trailingView.isHidden = text?.isEmpty ?? true
+            trailingView.isHidden = true
         default:
             break
         }
@@ -308,12 +292,24 @@ open class Textfield: UITextField {
     
     func setupTrailingView() {
         guard let trailingView = trailingView else { return }
-        trailingStackView.addArrangedSubview(trailingView)
+        addSubview(trailingView)
+        trailingView.anchor(
+            .topGreaterThanEqual(topAnchor),
+            .trailing(trailingAnchor, constant: padding.right),
+            .centerY(centerYAnchor),
+            .bottomLessThanEqual(bottomAnchor)
+        )
     }
     
     func setupLeadingView() {
         guard let leadingView = leadingView else { return }
-        leadingStackView.addArrangedSubview(leadingView)
+        addSubview(leadingView)
+        leadingView.anchor(
+            .topGreaterThanEqual(topAnchor),
+            .leading(leadingAnchor, constant: padding.left),
+            .centerY(centerYAnchor),
+            .bottomLessThanEqual(bottomAnchor)
+        )
     }
     
     open override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
