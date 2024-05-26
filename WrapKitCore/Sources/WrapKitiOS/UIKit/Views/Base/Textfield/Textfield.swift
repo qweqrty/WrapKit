@@ -162,8 +162,6 @@ open class Textfield: UITextField {
         addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
         
         self.leadingView = leadingView
-        setupLeadingView()
-        setupTrailingView()
         didChangeText.append { [weak self] _ in self?.validate() }
         
         addSubviews(leadingStackView, trailingStackView)
@@ -193,6 +191,8 @@ open class Textfield: UITextField {
         default:
             break
         }
+        setupLeadingView()
+        setupTrailingView()
     }
     
     required public init?(coder: NSCoder) {
