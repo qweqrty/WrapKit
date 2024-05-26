@@ -40,6 +40,7 @@ public class MaskedTextfieldDelegate: NSObject, UITextFieldDelegate {
     
     @discardableResult
     public func applyTo(textfield: Textfield) -> Self {
+        self.textfield = textfield
         textfield.delegate = self
         textfield.keyboardType = format.mask.keyboardType()
         let mask = format.mask.applied(to: fullText)
