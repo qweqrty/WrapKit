@@ -88,7 +88,6 @@ open class Textfield: UITextField {
     
     public var isTextSelectionDisabled = false
     public var isEditable = true
-    public weak var maskedDelegate: MaskedTextfieldDelegate? { delegate as? MaskedTextfieldDelegate }
     
     public var onPress: (() -> Void)?
     public var validationRule: ((String?) -> Bool)?
@@ -121,6 +120,12 @@ open class Textfield: UITextField {
         }
     }
     
+    public var maskedTextfieldDelegate: MaskedTextfieldDelegate? {
+        didSet {
+            maskedTextfieldDelegate?.applyTo(textfield: self)
+        }
+    }
+    
     public var appearence: Appearance { didSet { updateAppearence() }}
     public var customizedPlaceholder: Placeholder? { didSet { updatePlaceholder() }}
     
@@ -148,6 +153,7 @@ open class Textfield: UITextField {
         self.textColor = appearence.colors.textColor
         self.autocapitalizationType = .none
         self.inputView = inputView
+        maskedTextfieldDelegate = delegate
         delegate?.applyTo(textfield: self)
         returnKeyType = nextTextfield == nil ? .done : .next
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(didTapTextfield))
