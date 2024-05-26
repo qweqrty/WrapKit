@@ -85,19 +85,27 @@ public class MaskedTextfieldDelegate: NSObject, UITextFieldDelegate {
         guard let textField = textField as? Textfield else { return }
         guard let selectedRange = textField.selectedTextRange else { return }
 
+        // Calculate the total length of the mask including literals and specifiers
+        let maskLength = format.mask.format.count
         // Get the length of the text that represents the user's direct input, without mask characters
         let userInputLength = format.mask.extractUserInput(from: fullText).count
         
-        // Calculate the correct position for the caret: it should not exceed the length of the user input
+        // Calculate the correct position for the caret: it should not exceed the length of the user input or the total mask length
         let caretPosition = min(textField.text?.count ?? 0, userInputLength)
-
-        // Find the position in the text field corresponding to the end of the user input
-        if let newPosition = textField.position(from: textField.beginningOfDocument, offset: caretPosition) {
-            // Adjust the selected text range only if the current caret position is beyond the allowed position
-            if textField.offset(from: textField.beginningOfDocument, to: selectedRange.start) > caretPosition {
-                textField.selectedTextRange = textField.textRange(from: newPosition, to: newPosition)
+        
+        if fullText.count < maskLength {
+            // If the full text is shorter than the mask length, restrict caret positioning within the user input length
+            if let newPosition = textField.position(from: textField.beginningOfDocument, offset: caretPosition) {
+                if textField.offset(from: textField.beginningOfDocument, to: selectedRange.start) > caretPosition {
+                    textField.selectedTextRange = textField.textRange(from: newPosition, to: newPosition)
+                }
             }
+        } else {
+            // If the full text meets or exceeds the mask length, allow normal behavior
+            // This will handle cases where text editing and selection beyond the initial mask are required
+            return
         }
     }
+
 }
 #endif
