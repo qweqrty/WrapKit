@@ -13,6 +13,7 @@ public protocol Masking {
     func applied(to text: String) -> (input: String, maskToInput: String)
     func removeCharacters(from text: String, in range: NSRange) -> (input: String, maskToInput: String)
     func extractUserInput(from text: String) -> String  // Only characters associated with specifiers
+    func isLiteralCharacter(at index: Int) -> Bool
 }
 
 public enum MaskedCharacter {
@@ -72,7 +73,7 @@ public struct Mask: Masking {
         }
         
         let start = text.index(text.startIndex, offsetBy: range.location)
-        let end = text.index(start, offsetBy: range.length)
+        let end = text.index(start, offsetBy: min(range.length, text.distance(from: start, to: text.endIndex)))
         var text = text
         text.removeSubrange(start..<end)
         text = applied(to: text).input
