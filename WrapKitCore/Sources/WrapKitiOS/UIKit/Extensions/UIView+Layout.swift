@@ -77,6 +77,22 @@ public extension UIView {
         return view
     }
     
+    func centeredInView(width: CGFloat? = nil, height: CGFloat? = nil) -> View {
+        if let width { self.constrainWidth(width) }
+        if let height { self.constrainHeight(height) }
+        let view = View()
+        view.addSubviews(self)
+        anchor(
+            .topGreaterThanEqual(topAnchor),
+            .leadingGreaterThanEqual(leadingAnchor),
+            .bottomLessThanEqual(bottomAnchor),
+            .trailingLessThanEqual(trailingAnchor),
+            .centerX(centerXAnchor),
+            .centerY(centerYAnchor)
+        )
+        return view
+    }
+    
     @discardableResult
     func nextTo(_ yAxisAnchor: NSLayoutYAxisAnchor, insets: UIEdgeInsets = .zero, isLast: Bool = false) -> AnchoredConstraints {
         var anchoredConstraints = AnchoredConstraints()
