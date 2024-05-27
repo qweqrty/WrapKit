@@ -135,7 +135,7 @@
 		C46158562BFA8DE900B817B2 /* DIffableTableViewDatasource.swift in Sources */ = {isa = PBXBuildFile; fileRef = C46158552BFA8DE900B817B2 /* DIffableTableViewDatasource.swift */; };
 		C46158632BFB794C00B817B2 /* KeyboardType+Mask.swift in Sources */ = {isa = PBXBuildFile; fileRef = C46158622BFB794C00B817B2 /* KeyboardType+Mask.swift */; };
 		C4A437032BFF32F300A30089 /* CommonLoadingOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4A437022BFF32F300A30089 /* CommonLoadingOutput.swift */; };
-		C4A437052BFF357400A30089 /* CommonLoadingiOSDecorator.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4A437042BFF357400A30089 /* CommonLoadingiOSDecorator.swift */; };
+		C4A437052BFF357400A30089 /* CommonLoadingiOSAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4A437042BFF357400A30089 /* CommonLoadingiOSAdapter.swift */; };
 		C4A437312BFF36B100A30089 /* NVActivityIndicatorPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4A437082BFF36B100A30089 /* NVActivityIndicatorPresenter.swift */; };
 		C4A437322BFF36B100A30089 /* NVActivityIndicatorViewable.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4A437092BFF36B100A30089 /* NVActivityIndicatorViewable.swift */; };
 		C4A437332BFF36B100A30089 /* NVActivityIndicatorAnimationDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4A4370B2BFF36B100A30089 /* NVActivityIndicatorAnimationDelegate.swift */; };
@@ -179,6 +179,8 @@
 		C4BBD6632BF47EB3009B654D /* PickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4BBD6622BF47EB3009B654D /* PickerView.swift */; };
 		C4BBD6652BF47EF8009B654D /* DatePickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4BBD6642BF47EF8009B654D /* DatePickerView.swift */; };
 		C4E3BD602BBEC389001F2F8C /* UserDefaultsStorageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4E3BD5F2BBEC389001F2F8C /* UserDefaultsStorageTests.swift */; };
+		C4EE13B12C045FC500AE915D /* CommonToastOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4EE13B02C045FC500AE915D /* CommonToastOutput.swift */; };
+		C4EE13B32C045FEE00AE915D /* CommonToastiOSAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4EE13B22C045FEE00AE915D /* CommonToastiOSAdapter.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -328,7 +330,7 @@
 		C46158552BFA8DE900B817B2 /* DIffableTableViewDatasource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DIffableTableViewDatasource.swift; sourceTree = "<group>"; };
 		C46158622BFB794C00B817B2 /* KeyboardType+Mask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "KeyboardType+Mask.swift"; sourceTree = "<group>"; };
 		C4A437022BFF32F300A30089 /* CommonLoadingOutput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonLoadingOutput.swift; sourceTree = "<group>"; };
-		C4A437042BFF357400A30089 /* CommonLoadingiOSDecorator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonLoadingiOSDecorator.swift; sourceTree = "<group>"; };
+		C4A437042BFF357400A30089 /* CommonLoadingiOSAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonLoadingiOSAdapter.swift; sourceTree = "<group>"; };
 		C4A437082BFF36B100A30089 /* NVActivityIndicatorPresenter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NVActivityIndicatorPresenter.swift; sourceTree = "<group>"; };
 		C4A437092BFF36B100A30089 /* NVActivityIndicatorViewable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NVActivityIndicatorViewable.swift; sourceTree = "<group>"; };
 		C4A4370B2BFF36B100A30089 /* NVActivityIndicatorAnimationDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NVActivityIndicatorAnimationDelegate.swift; sourceTree = "<group>"; };
@@ -372,6 +374,8 @@
 		C4BBD6622BF47EB3009B654D /* PickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PickerView.swift; sourceTree = "<group>"; };
 		C4BBD6642BF47EF8009B654D /* DatePickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatePickerView.swift; sourceTree = "<group>"; };
 		C4E3BD5F2BBEC389001F2F8C /* UserDefaultsStorageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultsStorageTests.swift; sourceTree = "<group>"; };
+		C4EE13B02C045FC500AE915D /* CommonToastOutput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonToastOutput.swift; sourceTree = "<group>"; };
+		C4EE13B22C045FEE00AE915D /* CommonToastiOSAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonToastiOSAdapter.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -989,6 +993,7 @@
 		C4A437002BFF32C300A30089 /* UseCases */ = {
 			isa = PBXGroup;
 			children = (
+				C4EE13AF2C045FB300AE915D /* CommonToast */,
 				C4A437012BFF32CF00A30089 /* CommonLoading */,
 				C41949862BF74B4E002FFFAD /* AppLifecycle */,
 				C41949832BF74041002FFFAD /* Timer */,
@@ -1001,7 +1006,7 @@
 			children = (
 				C4A437062BFF366E00A30089 /* NSActivityIndicatorView */,
 				C4A437022BFF32F300A30089 /* CommonLoadingOutput.swift */,
-				C4A437042BFF357400A30089 /* CommonLoadingiOSDecorator.swift */,
+				C4A437042BFF357400A30089 /* CommonLoadingiOSAdapter.swift */,
 			);
 			path = CommonLoading;
 			sourceTree = "<group>";
@@ -1083,6 +1088,15 @@
 				C4B8207A2BF8A2C50001F45F /* HTTPClientDecorator.swift */,
 			);
 			path = HTTPClient;
+			sourceTree = "<group>";
+		};
+		C4EE13AF2C045FB300AE915D /* CommonToast */ = {
+			isa = PBXGroup;
+			children = (
+				C4EE13B02C045FC500AE915D /* CommonToastOutput.swift */,
+				C4EE13B22C045FEE00AE915D /* CommonToastiOSAdapter.swift */,
+			);
+			path = CommonToast;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -1302,7 +1316,7 @@
 				C4A4374F2BFF36B100A30089 /* NVActivityIndicatorAnimationBallScaleRippleMultiple.swift in Sources */,
 				53B5D4262B26E6AC00E2651E /* URLRequest+Extensions.swift in Sources */,
 				537540722B2C0E3300C41CF7 /* UserDefaultsStorage.swift in Sources */,
-				C4A437052BFF357400A30089 /* CommonLoadingiOSDecorator.swift in Sources */,
+				C4A437052BFF357400A30089 /* CommonLoadingiOSAdapter.swift in Sources */,
 				C08AA3A12A7EC76F002D58D5 /* CardView.swift in Sources */,
 				C4BBD6652BF47EF8009B654D /* DatePickerView.swift in Sources */,
 				C08AA3852A7EBA99002D58D5 /* RetryView.swift in Sources */,
@@ -1327,6 +1341,7 @@
 				C4A4374D2BFF36B100A30089 /* NVActivityIndicatorAnimationBallScaleMultiple.swift in Sources */,
 				C04C41DA2B5189A9009BC481 /* WebViewPresenter.swift in Sources */,
 				C4BBD6632BF47EB3009B654D /* PickerView.swift in Sources */,
+				C4EE13B32C045FEE00AE915D /* CommonToastiOSAdapter.swift in Sources */,
 				53B5D4282B26E6D000E2651E /* String+Extensions.swift in Sources */,
 				C4A437332BFF36B100A30089 /* NVActivityIndicatorAnimationDelegate.swift in Sources */,
 				C08AA35F2A7E8DED002D58D5 /* UIViewController+PanModalPresenter.swift in Sources */,
@@ -1365,6 +1380,7 @@
 				C0261C442A785A2A00BFCF1B /* Queue.swift in Sources */,
 				C4A437462BFF36B100A30089 /* NVActivityIndicatorAnimationBallRotateChase.swift in Sources */,
 				C08AA3912A7EBC29002D58D5 /* TableViewCell.swift in Sources */,
+				C4EE13B12C045FC500AE915D /* CommonToastOutput.swift in Sources */,
 				C08AA3A72A7F015D002D58D5 /* Textview.swift in Sources */,
 				C08AA35C2A7E8DED002D58D5 /* PanModalHeight.swift in Sources */,
 				C0BE6EAF2A9BE4F500864F53 /* MaskedTextfieldDelegate.swift in Sources */,
