@@ -9,7 +9,7 @@ public var toastView: CommonToastOutput?
 ## Assign the output to the view:
 
 ```swift
-presenter.loadingView = CommonToastiOSAdapter.init(
+presenter.toastView = CommonToastiOSAdapter.init(
     onView: view, // usually your view controller's view
     toastViewBuilder: { commonToast in
       // you are able to specify particular toastView based on type of commonToast
