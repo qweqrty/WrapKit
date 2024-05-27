@@ -10,12 +10,12 @@ import UIKit
 
 public class CommonToastiOSAdapter: CommonToastOutput {
     private let onView: UIView
-    private let toastViewBuilder: ((CommmonToast) -> ToastView)?
+    private let toastViewBuilder: ((CommonToast) -> ToastView)?
     private let position: ToastView.Position
     
     public init(
         onView: UIView,
-        toastViewBuilder: ((CommmonToast) -> ToastView)?,
+        toastViewBuilder: ((CommonToast) -> ToastView)?,
         position: ToastView.Position
     ) {
         self.onView = onView
@@ -23,7 +23,7 @@ public class CommonToastiOSAdapter: CommonToastOutput {
         self.position = position
     }
     
-    public func display(_ toast: CommmonToast) {
+    public func display(_ toast: CommonToast) {
         guard let toastView = toastViewBuilder?(toast) else { return }
         toastView.removePastToastIfNeeded(from: onView)
         toastView.setPosition(on: onView, position: position)

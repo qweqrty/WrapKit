@@ -7,7 +7,7 @@
 
 import Foundation
 
-public enum CommmonToast {
+public enum CommonToast {
     public struct Toast {
         public let title: String
         public let subtitle: String?
@@ -34,5 +34,5 @@ public enum CommmonToast {
 }
 
 public protocol CommonToastOutput: AnyObject {
-    func display(_ toast: CommmonToast)
+    func display(_ toast: CommonToast)
 }
