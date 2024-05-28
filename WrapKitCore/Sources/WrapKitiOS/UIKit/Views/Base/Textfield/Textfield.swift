@@ -231,7 +231,7 @@ open class Textfield: UITextField {
     @discardableResult
     override open func becomeFirstResponder() -> Bool {
         let success = super.becomeFirstResponder()
-        
+        if success { onBecomeFirstResponder?() }
         if isSecureTextEntry, let text = self.text {
             self.text?.removeAll()
             insertText(text)
@@ -242,6 +242,7 @@ open class Textfield: UITextField {
     
     open override func resignFirstResponder() -> Bool {
         let result = super.resignFirstResponder()
+        if result { onResignFirstResponder?() }
         updateAppearence()
         return result
     }

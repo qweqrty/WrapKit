@@ -29,8 +29,19 @@ public class MaskedTextfieldDelegate: NSObject, UITextFieldDelegate {
     public var onlySpecifiersIfMaskedText: String { format.mask.extractUserInput(from: fullText) }
     public lazy var fullText: String = format.mask.applied(to: "").input {
         didSet {
-            guard oldValue != fullText else { return }
-            setupMask(mask: format.mask.applied(to: fullText))
+            guard let textfield = textfield else { return }
+            let mask = format.mask.applied(to: fullText)
+            if mask.input.isEmpty && !(textfield.placeholder?.isEmpty ?? true) && !textfield.isFirstResponder {
+                textfield.attributedText = nil
+            } else {
+                textfield.attributedText = .combined(
+                    .init(mask.input, font: textfield.font ?? .systemFont(ofSize: 17), color: textfield.appearence.colors.textColor, textAlignment: textfield.textAlignment),
+                    .init(mask.maskToInput, font: textfield.font ?? .systemFont(ofSize: 17), color: format.maskedTextColor, textAlignment: textfield.textAlignment)
+                )
+            }
+            let newPosition = textfield.position(from: textfield.beginningOfDocument, offset: mask.input.count) ?? textfield.beginningOfDocument
+            textfield.selectedTextRange = textfield.textRange(from: newPosition, to: newPosition)
+            textfield.sendActions(for: .editingChanged)
         }
     }
     
@@ -66,22 +77,8 @@ public class MaskedTextfieldDelegate: NSObject, UITextFieldDelegate {
     }
     
     private func setupMask(mask: (input: String, maskToInput: String)) {
-        guard let textfield = textfield else { return }
         self.fullText = mask.input
-        
-        if mask.input.isEmpty && !(textfield.placeholder?.isEmpty ?? true) && !textfield.isFirstResponder {
-            textfield.attributedText = nil
-        } else {
-            textfield.attributedText = .combined(
-                .init(mask.input, font: textfield.font ?? .systemFont(ofSize: 17), color: textfield.appearence.colors.textColor, textAlignment: textfield.textAlignment),
-                .init(mask.maskToInput, font: textfield.font ?? .systemFont(ofSize: 17), color: format.maskedTextColor, textAlignment: textfield.textAlignment)
-            )
-        }
-        let newPosition = textfield.position(from: textfield.beginningOfDocument, offset: mask.input.count) ?? textfield.beginningOfDocument
-        textfield.selectedTextRange = textfield.textRange(from: newPosition, to: newPosition)
-        textfield.sendActions(for: .editingChanged)
     }
-
 }
 
 #endif
