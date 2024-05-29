@@ -276,16 +276,16 @@ open class Textfield: UITextField {
         var padding = padding
         if let leftView = leadingView, !leftView.isHidden {
             if UIView.userInterfaceLayoutDirection(for: semanticContentAttribute) == .rightToLeft {
-                padding.right += leftView.intrinsicContentSize.width + 6.67
+                padding.right += leftView.frame.width + 6.67
             } else {
-                padding.left += leftView.intrinsicContentSize.width + 6.67
+                padding.left += leftView.frame.width + 6.67
             }
         }
         if let rightView = trailingView, !rightView.isHidden {
             if UIView.userInterfaceLayoutDirection(for: semanticContentAttribute) == .rightToLeft {
-                padding.left += rightView.intrinsicContentSize.width + 6.67
+                padding.left += rightView.frame.width + 6.67
             } else {
-                padding.right += rightView.intrinsicContentSize.width + 6.67
+                padding.right += rightView.frame.width + 6.67
             }
         }
         return bounds.inset(by: padding)
