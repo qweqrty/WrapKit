@@ -72,12 +72,7 @@ public struct Mask: Masking {
             return (text, format[max(text.count - 1, 0)...].map { $0.mask }.joined())
         }
         
-        let start = text.index(text.startIndex, offsetBy: range.location)
-        let end = text.index(start, offsetBy: min(range.length, text.distance(from: start, to: text.endIndex)))
-        var text = text
-        text.removeSubrange(start..<end)
-        text = applied(to: text).input
-        var removeCount = 0
+        var removeCount = range.length
         var index = text.count - 1
         while index >= 0 {
             if format.indices.contains(index), case .literal = format.item(at: index) {

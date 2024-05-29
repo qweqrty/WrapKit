@@ -166,7 +166,7 @@ open class Textfield: UITextField {
         case .custom(let trailingView):
             self.trailingView = trailingView
         case .clear(let trailingView):
-            self.onPress = { [weak self] in self?.text = "" }
+            trailingView.onPress = { [weak self] in self?.text = "" }
             self.didChangeText.append { [weak self] text in
                 let text = self?.maskedTextfieldDelegate?.onlySpecifiersIfMaskedText ?? text ?? ""
                 self?.trailingView?.isHidden = text.isEmpty
