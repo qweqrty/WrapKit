@@ -83,11 +83,7 @@ public struct Mask: Masking {
             index -= 1
         }
         let input = String(text.dropLast(removeCount))
-        if input.isEmpty {
-            return applied(to: text)
-        } else {
-            return (input, format[input.count...].map { $0.mask }.joined())
-        }
+        return (input, format[input.count...].map { $0.mask }.joined())
     }
     
     public func extractUserInput(from text: String) -> String {

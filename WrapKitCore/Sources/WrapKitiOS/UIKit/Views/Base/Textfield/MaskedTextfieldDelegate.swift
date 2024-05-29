@@ -24,6 +24,7 @@ public class MaskedTextfieldDelegate: NSObject, UITextFieldDelegate {
         }
     }
     
+    public var backspacePressClearsText: Bool
     private var textfield: Textfield?
     
     public var onlySpecifiersIfMaskedText: String { format.mask.extractUserInput(from: fullText) }
@@ -45,8 +46,12 @@ public class MaskedTextfieldDelegate: NSObject, UITextFieldDelegate {
         }
     }
     
-    public init(format: Format) {
+    public init(
+        format: Format,
+        backspacePressClearsText: Bool = false
+    ) {
         self.format = format
+        self.backspacePressClearsText = backspacePressClearsText
     }
     
     @discardableResult
@@ -68,7 +73,11 @@ public class MaskedTextfieldDelegate: NSObject, UITextFieldDelegate {
     }
     
     public func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-        setupMask(mask: string.isEmpty ? format.mask.removeCharacters(from: fullText, in: range) : format.mask.applied(to: fullText + string))
+        if string.isEmpty && backspacePressClearsText {
+            textField.text = ""
+        } else {
+            setupMask(mask: string.isEmpty ? format.mask.removeCharacters(from: fullText, in: range) : format.mask.applied(to: fullText + string))
+        }
         return false
     }
     
