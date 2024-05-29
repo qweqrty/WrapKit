@@ -10,7 +10,7 @@ import UIKit
 
 open class Textfield: UITextField {
     public enum TrailingViewStyle {
-        case clear(trailingView: View)
+        case clear(trailingView: ImageView)
         case custom(trailingView: UIView)
     }
     
@@ -155,7 +155,7 @@ open class Textfield: UITextField {
         delegate?.applyTo(textfield: self)
         returnKeyType = nextTextfield == nil ? .done : .next
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(didTapTextfield))
-        addGestureRecognizer(tapGesture)
+        self.textInputView.addGestureRecognizer(tapGesture)
         addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
         
         self.leadingView = leadingView
@@ -186,9 +186,6 @@ open class Textfield: UITextField {
     
     @objc private func didTapTextfield() {
         onPress?()
-        if canBecomeFirstResponder {
-            becomeFirstResponder()
-        }
     }
     
     @objc private func textFieldDidChange() {

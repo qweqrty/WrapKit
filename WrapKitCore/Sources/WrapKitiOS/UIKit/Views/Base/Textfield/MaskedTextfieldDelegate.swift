@@ -40,8 +40,8 @@ public class MaskedTextfieldDelegate: NSObject, UITextFieldDelegate {
                 )
             }
             let newPosition = textfield.position(from: textfield.beginningOfDocument, offset: mask.input.count) ?? textfield.beginningOfDocument
-            textfield.selectedTextRange = textfield.textRange(from: newPosition, to: newPosition)
             textfield.sendActions(for: .editingChanged)
+            textfield.selectedTextRange = textfield.textRange(from: newPosition, to: newPosition)
         }
     }
     
@@ -79,6 +79,21 @@ public class MaskedTextfieldDelegate: NSObject, UITextFieldDelegate {
     private func setupMask(mask: (input: String, maskToInput: String)) {
         self.fullText = mask.input
     }
+    
+    public func textFieldDidChangeSelection(_ textField: UITextField) {
+        guard let selectedTextRange = textField.selectedTextRange else { return }
+        
+        let endOffset = textField.offset(from: textField.beginningOfDocument, to: selectedTextRange.end)
+        
+        let fullTextCount = fullText.count
+        
+        if endOffset > fullTextCount {
+            let mask = format.mask.applied(to: fullText)
+            let newPosition = textField.position(from: textField.beginningOfDocument, offset: mask.input.count) ?? textField.beginningOfDocument
+            textField.selectedTextRange = textField.textRange(from: newPosition, to: newPosition)
+        }
+    }
+
 }
 
 #endif
