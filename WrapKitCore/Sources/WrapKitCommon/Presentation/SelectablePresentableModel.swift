@@ -11,7 +11,7 @@ public struct SelectablePresentableModel<Model> {
     public var isSelected: Bool
     public var model: Model
     
-    init(
+    public init(
         isSelected: Bool = false,
         model: Model
     ) {
