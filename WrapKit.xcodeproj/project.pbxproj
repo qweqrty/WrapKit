@@ -134,6 +134,7 @@
 		C46158542BFA8D7F00B817B2 /* DiffableCollectionViewDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = C46158532BFA8D7F00B817B2 /* DiffableCollectionViewDataSource.swift */; };
 		C46158562BFA8DE900B817B2 /* DIffableTableViewDatasource.swift in Sources */ = {isa = PBXBuildFile; fileRef = C46158552BFA8DE900B817B2 /* DIffableTableViewDatasource.swift */; };
 		C46158632BFB794C00B817B2 /* KeyboardType+Mask.swift in Sources */ = {isa = PBXBuildFile; fileRef = C46158622BFB794C00B817B2 /* KeyboardType+Mask.swift */; };
+		C49F49562C0D7F7F00EB9AE0 /* SelectablePresentableModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C49F49552C0D7F7F00EB9AE0 /* SelectablePresentableModel.swift */; };
 		C4A437032BFF32F300A30089 /* CommonLoadingOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4A437022BFF32F300A30089 /* CommonLoadingOutput.swift */; };
 		C4A437052BFF357400A30089 /* CommonLoadingiOSAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4A437042BFF357400A30089 /* CommonLoadingiOSAdapter.swift */; };
 		C4A437312BFF36B100A30089 /* NVActivityIndicatorPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4A437082BFF36B100A30089 /* NVActivityIndicatorPresenter.swift */; };
@@ -329,6 +330,7 @@
 		C46158532BFA8D7F00B817B2 /* DiffableCollectionViewDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiffableCollectionViewDataSource.swift; sourceTree = "<group>"; };
 		C46158552BFA8DE900B817B2 /* DIffableTableViewDatasource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DIffableTableViewDatasource.swift; sourceTree = "<group>"; };
 		C46158622BFB794C00B817B2 /* KeyboardType+Mask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "KeyboardType+Mask.swift"; sourceTree = "<group>"; };
+		C49F49552C0D7F7F00EB9AE0 /* SelectablePresentableModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectablePresentableModel.swift; sourceTree = "<group>"; };
 		C4A437022BFF32F300A30089 /* CommonLoadingOutput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonLoadingOutput.swift; sourceTree = "<group>"; };
 		C4A437042BFF357400A30089 /* CommonLoadingiOSAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonLoadingiOSAdapter.swift; sourceTree = "<group>"; };
 		C4A437082BFF36B100A30089 /* NVActivityIndicatorPresenter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NVActivityIndicatorPresenter.swift; sourceTree = "<group>"; };
@@ -442,6 +444,7 @@
 				C0261C392A76D03500BFCF1B /* Pagination */,
 				C0261C4B2A78A7E200BFCF1B /* ViewModelDTO.swift */,
 				53A1377A2B07135900E04C92 /* PlaceholderedPresentableModel.swift */,
+				C49F49552C0D7F7F00EB9AE0 /* SelectablePresentableModel.swift */,
 			);
 			path = Presentation;
 			sourceTree = "<group>";
@@ -1387,6 +1390,7 @@
 				C4A4374A2BFF36B100A30089 /* NVActivityIndicatorAnimationAudioEqualizer.swift in Sources */,
 				538A108E2B13CF410092570D /* CubeTransitionView.swift in Sources */,
 				C08AA38A2A7EBAED002D58D5 /* CollectionViewCell.swift in Sources */,
+				C49F49562C0D7F7F00EB9AE0 /* SelectablePresentableModel.swift in Sources */,
 				C41949882BF74B59002FFFAD /* AppLifecycleInputs.swift in Sources */,
 				C08AA3AB2A7F0E28002D58D5 /* MapView.swift in Sources */,
 				C08AA3A32A7EF41C002D58D5 /* NavigationController.swift in Sources */,
