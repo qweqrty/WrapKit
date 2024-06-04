@@ -101,6 +101,7 @@ public class DiffableTableViewDataSource<Model: Hashable>: NSObject, UITableView
     }
     
     public func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
         guard let selectedModel = items.item(at: indexPath.row) else { return }
         didSelectAt?(indexPath, selectedModel)
     }

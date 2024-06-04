@@ -97,6 +97,7 @@ public class DiffableCollectionViewDataSource<Model: Hashable>: NSObject, UIColl
     }
     
     public func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        collectionView.deselectItem(at: indexPath, animated: true)
         guard let selectedModel = items.item(at: indexPath.row) else { return }
         didSelectAt?(indexPath, selectedModel)
     }
