@@ -64,6 +64,7 @@ public class DiffableTableViewDataSource<Model: Hashable>: NSObject, UITableView
     }
     
     public func updateItems(_ items: [Model]) {
+        self.items = items
         var snapshot = NSDiffableDataSourceSnapshot<Int, TableItem>()
         snapshot.appendSections([0])
         snapshot.appendItems(items.map { .model($0) }, toSection: 0)
