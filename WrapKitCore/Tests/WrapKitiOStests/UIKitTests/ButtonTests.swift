@@ -19,7 +19,7 @@ class ButtonTests: XCTestCase {
         }
         
         DispatchQueue.main.async {
-            sut.sendActions(for: .touchUpInside)
+            sut.sendActions(for: .touchDown)
         }
         
         waitForExpectations(timeout: 1) { error in
@@ -38,7 +38,7 @@ class ButtonTests: XCTestCase {
         }
 
         DispatchQueue.main.async {
-            sut.sendActions(for: .touchUpInside)
+            sut.sendActions(for: .touchDown)
         }
 
         XCTAssertTrue(onPressCalled, "Button onPress closure was not called")

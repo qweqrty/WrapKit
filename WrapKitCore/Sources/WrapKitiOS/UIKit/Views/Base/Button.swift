@@ -66,7 +66,7 @@ open class Button: UIButton {
         self.backgroundColor = backgroundColor
         self.contentInset = contentInset
         self.isHidden = isHidden
-        self.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(onTap)))
+        self.addTarget(self, action: #selector(onTap), for: .touchDown)
         updateSpacings()
     }
     

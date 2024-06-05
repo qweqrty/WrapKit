@@ -40,13 +40,15 @@ public class DiffableCollectionViewDataSource<Model: Hashable>: NSObject, UIColl
         self.collectionView = collectionView
         self.configureCell = configureCell
         setupDataSource(for: collectionView)
+        collectionView.register(CollectionViewCell<UIView>.self, forCellWithReuseIdentifier: CollectionViewCell<UIView>.reuseIdentifier)
     }
     
     private func setupDataSource(for collectionView: UICollectionView) {
         dataSource = UICollectionViewDiffableDataSource<Int, CollectionItem>(collectionView: collectionView) { [weak self] collectionView, indexPath, item in
             switch item {
             case .footer:
-                return nil
+                let cell: CollectionViewCell<UIView> = collectionView.dequeueReusableCell(for: indexPath)
+                return cell
             case .model(let model):
                 return self?.configureCell?(collectionView, indexPath, model) ?? UICollectionViewCell()
             }
@@ -61,22 +63,24 @@ public class DiffableCollectionViewDataSource<Model: Hashable>: NSObject, UIColl
     }
     
     private func updateSnapshot() {
-        let numberOfSections = dataSource.snapshot().numberOfSections
-        var snapshot = NSDiffableDataSourceSnapshot<Int, CollectionItem>()
-        snapshot.appendSections([0])
-        if numberOfSections > 0 {
-            snapshot.appendItems(dataSource.snapshot().itemIdentifiers(inSection: 0), toSection: 0)
+        DispatchQueue.global(qos: .userInitiated).async {
+            var snapshot = NSDiffableDataSourceSnapshot<Int, CollectionItem>()
+            snapshot.appendSections([0])
+            snapshot.appendItems(self.items.map { .model($0) }, toSection: 0)
+            if self.showLoader {
+                snapshot.appendItems([.footer(UUID())], toSection: 0)
+            }
+            DispatchQueue.main.async {
+                self.dataSource.apply(snapshot, animatingDifferences: true)
+            }
         }
-        
-        dataSource.apply(snapshot, animatingDifferences: true)
     }
     
     public func updateItems(_ items: [Model]) {
-        self.items = items
-        var snapshot = NSDiffableDataSourceSnapshot<Int, CollectionItem>()
-        snapshot.appendSections([0])
-        snapshot.appendItems(items.map { .model($0) }, toSection: 0)
-        dataSource.apply(snapshot, animatingDifferences: true)
+        DispatchQueue.global(qos: .userInitiated).async {
+            self.items = items
+            self.updateSnapshot()
+        }
     }
     
     public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
@@ -110,5 +114,4 @@ public class DiffableCollectionViewDataSource<Model: Hashable>: NSObject, UIColl
         didScrollTo?(indexPath)
     }
 }
-
 #endif
