@@ -318,14 +318,20 @@ open class Textfield: UITextField {
 }
 
 public extension Textfield {
-    func applyNormalState() {
-        backgroundColor = isFirstResponder ? appearence.colors.selectedBackgroundColor : appearence.colors.deselectedBackgroundColor
-        layer.borderColor = isFirstResponder ? appearence.colors.selectedBorderColor.cgColor : appearence.colors.deselectedBorderColor.cgColor
-    }
-    
-    func applyErrorState() {
-        backgroundColor = appearence.colors.errorBackgroundColor
-        layer.borderColor = appearence.colors.errorBorderColor.cgColor
+    func updateAppearence(isValid: Bool) {
+        font = appearence.font
+        let isFirstResponder = isFirstResponder
+        let appearence = appearence
+        UIView.animate(withDuration: 0.1, delay: .leastNonzeroMagnitude, options: [.allowUserInteraction]) {
+            if isValid {
+                self.backgroundColor = isFirstResponder ? appearence.colors.selectedBackgroundColor : appearence.colors.deselectedBackgroundColor
+                self.layer.borderColor = isFirstResponder ? appearence.colors.selectedBorderColor.cgColor : appearence.colors.deselectedBorderColor.cgColor
+            } else {
+                self.backgroundColor = appearence.colors.errorBackgroundColor
+                self.layer.borderColor = appearence.colors.errorBorderColor.cgColor
+            }
+            self.layer.borderWidth = (isFirstResponder ? appearence.border?.selectedBorderWidth : appearence.border?.idleBorderWidth) ?? 0
+        }
     }
     
     private func updateAppearence() {
