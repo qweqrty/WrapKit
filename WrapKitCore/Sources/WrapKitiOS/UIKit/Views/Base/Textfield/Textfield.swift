@@ -99,7 +99,7 @@ open class Textfield: UITextField {
     @discardableResult
     public func validate() -> Bool {
         let text = (delegate as? MaskedTextfieldDelegate)?.fullText ?? text
-        updateAppearence()
+        updateAppearance()
         return validationRule?(text) ?? true
     }
     
@@ -123,13 +123,13 @@ open class Textfield: UITextField {
         }
     }
     
-    public var appearence: Appearance { didSet { updateAppearence() }}
+    public var appearance: Appearance { didSet { updateAppearance() }}
     public var customizedPlaceholder: Placeholder? { didSet { updatePlaceholder() }}
     
     public init(
         cornerRadius: CGFloat = 10,
         textAlignment: NSTextAlignment = .natural,
-        appearence: Appearance,
+        appearance: Appearance,
         placeholder: Placeholder?,
         padding: UIEdgeInsets = .init(top: 10, left: 12, bottom: 10, right: 12),
         nextTextfield: UIResponder? = nil,
@@ -141,14 +141,14 @@ open class Textfield: UITextField {
     ) {
         self.padding = padding
         self.nextTextfield = nextTextfield
-        self.appearence = appearence
+        self.appearance = appearance
         self.customizedPlaceholder = placeholder
         super.init(frame: .zero)
 
         self.textAlignment = textAlignment
         self.cornerRadius = cornerRadius
         self.autocorrectionType = .no
-        self.textColor = appearence.colors.textColor
+        self.textColor = appearance.colors.textColor
         self.autocapitalizationType = .none
         self.inputView = inputView
         maskedTextfieldDelegate = delegate
@@ -160,7 +160,7 @@ open class Textfield: UITextField {
         
         self.leadingView = leadingView
         didChangeText.append { [weak self] _ in self?.validate() }
-        updateAppearence()
+        updateAppearance()
         
         switch trailingView {
         case .custom(let trailingView):
@@ -233,14 +233,14 @@ open class Textfield: UITextField {
             self.text?.removeAll()
             insertText(text)
         }
-        updateAppearence()
+        updateAppearance()
         return success
     }
     
     open override func resignFirstResponder() -> Bool {
         let result = super.resignFirstResponder()
         if result { onResignFirstResponder?() }
-        updateAppearence()
+        updateAppearance()
         return result
     }
     
@@ -313,42 +313,42 @@ open class Textfield: UITextField {
     open override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         super.traitCollectionDidChange(previousTraitCollection)
         
-        updateAppearence()
+        updateAppearance()
     }
 }
 
 public extension Textfield {
-    func updateAppearence(isValid: Bool) {
-        font = appearence.font
+    func updateAppearance(isValid: Bool) {
+        font = appearance.font
         let isFirstResponder = isFirstResponder
-        let appearence = appearence
+        let appearance = appearance
         UIView.animate(withDuration: 0.1, delay: .leastNonzeroMagnitude, options: [.allowUserInteraction]) {
             if isValid {
-                self.backgroundColor = isFirstResponder ? appearence.colors.selectedBackgroundColor : appearence.colors.deselectedBackgroundColor
-                self.layer.borderColor = isFirstResponder ? appearence.colors.selectedBorderColor.cgColor : appearence.colors.deselectedBorderColor.cgColor
+                self.backgroundColor = isFirstResponder ? appearance.colors.selectedBackgroundColor : appearance.colors.deselectedBackgroundColor
+                self.layer.borderColor = isFirstResponder ? appearance.colors.selectedBorderColor.cgColor : appearance.colors.deselectedBorderColor.cgColor
             } else {
-                self.backgroundColor = appearence.colors.errorBackgroundColor
-                self.layer.borderColor = appearence.colors.errorBorderColor.cgColor
+                self.backgroundColor = appearance.colors.errorBackgroundColor
+                self.layer.borderColor = appearance.colors.errorBorderColor.cgColor
             }
-            self.layer.borderWidth = (isFirstResponder ? appearence.border?.selectedBorderWidth : appearence.border?.idleBorderWidth) ?? 0
+            self.layer.borderWidth = (isFirstResponder ? appearance.border?.selectedBorderWidth : appearance.border?.idleBorderWidth) ?? 0
         }
     }
     
-    private func updateAppearence() {
-        font = appearence.font
+    private func updateAppearance() {
+        font = appearance.font
         let text = (delegate as? MaskedTextfieldDelegate)?.fullText ?? text
         let isValid = validationRule?(text) ?? true
         let isFirstResponder = isFirstResponder
-        let appearence = appearence
+        let appearance = appearance
         UIView.animate(withDuration: 0.1, delay: .leastNonzeroMagnitude, options: [.allowUserInteraction]) {
             if isValid {
-                self.backgroundColor = isFirstResponder ? appearence.colors.selectedBackgroundColor : appearence.colors.deselectedBackgroundColor
-                self.layer.borderColor = isFirstResponder ? appearence.colors.selectedBorderColor.cgColor : appearence.colors.deselectedBorderColor.cgColor
+                self.backgroundColor = isFirstResponder ? appearance.colors.selectedBackgroundColor : appearance.colors.deselectedBackgroundColor
+                self.layer.borderColor = isFirstResponder ? appearance.colors.selectedBorderColor.cgColor : appearance.colors.deselectedBorderColor.cgColor
             } else {
-                self.backgroundColor = appearence.colors.errorBackgroundColor
-                self.layer.borderColor = appearence.colors.errorBorderColor.cgColor
+                self.backgroundColor = appearance.colors.errorBackgroundColor
+                self.layer.borderColor = appearance.colors.errorBorderColor.cgColor
             }
-            self.layer.borderWidth = (isFirstResponder ? appearence.border?.selectedBorderWidth : appearence.border?.idleBorderWidth) ?? 0
+            self.layer.borderWidth = (isFirstResponder ? appearance.border?.selectedBorderWidth : appearance.border?.idleBorderWidth) ?? 0
         }
     }
 }
