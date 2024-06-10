@@ -180,6 +180,17 @@ open class Textfield: UITextField {
         setupTrailingView()
     }
     
+    override open func point(inside point: CGPoint, with event: UIEvent?) -> Bool {
+         if let trailingView = trailingView, trailingView.frame.contains(point) {
+             endEditing(true)
+             return true
+         } else if let leadingView = leadingView, leadingView.frame.contains(point) {
+             endEditing(true)
+             return true
+         }
+         return super.point(inside: point, with: event)
+     }
+    
     required public init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
