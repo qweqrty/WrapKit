@@ -67,9 +67,6 @@ public class DiffableCollectionViewDataSource<Model: Hashable>: NSObject, UIColl
             var snapshot = NSDiffableDataSourceSnapshot<Int, CollectionItem>()
             snapshot.appendSections([0])
             snapshot.appendItems(self.items.map { .model($0) }, toSection: 0)
-            if self.showLoader {
-                snapshot.appendItems([.footer(UUID())], toSection: 0)
-            }
             DispatchQueue.main.async {
                 self.dataSource.apply(snapshot, animatingDifferences: true)
             }
