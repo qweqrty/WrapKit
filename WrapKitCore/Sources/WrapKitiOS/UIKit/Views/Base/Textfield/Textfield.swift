@@ -10,8 +10,8 @@ import UIKit
 
 open class Textfield: UITextField {
     public enum TrailingViewStyle {
-        case clear(trailingView: ImageView)
-        case custom(trailingView: UIView)
+        case clear(trailingView: View)
+        case custom(trailingView: View)
     }
     
     public struct Placeholder {
@@ -67,13 +67,13 @@ open class Textfield: UITextField {
         public var border: Border?
     }
     
-    public var leadingView: UIView? {
+    public var leadingView: View? {
         didSet {
             oldValue?.removeFromSuperview()
             setupLeadingView()
         }
     }
-    public var trailingView: UIView? {
+    public var trailingView: View? {
         didSet {
             oldValue?.removeFromSuperview()
             setupTrailingView()
@@ -133,9 +133,9 @@ open class Textfield: UITextField {
         placeholder: Placeholder?,
         padding: UIEdgeInsets = .init(top: 10, left: 12, bottom: 10, right: 12),
         nextTextfield: UIResponder? = nil,
-        leadingView: UIView? = nil,
+        leadingView: View? = nil,
         trailingView: TrailingViewStyle? = nil,
-        inputView: UIView? = nil,
+        inputView: View? = nil,
         autocapitalizationType: UITextAutocapitalizationType = .none,
         delegate: MaskedTextfieldDelegate? = nil
     ) {
@@ -185,10 +185,10 @@ open class Textfield: UITextField {
     
     override open func point(inside point: CGPoint, with event: UIEvent?) -> Bool {
          if let trailingView = trailingView, trailingView.frame.contains(point) {
-             endEditing(true)
+             trailingView.onPress?()
              return true
          } else if let leadingView = leadingView, leadingView.frame.contains(point) {
-             endEditing(true)
+             leadingView.onPress?()
              return true
          }
          return super.point(inside: point, with: event)
