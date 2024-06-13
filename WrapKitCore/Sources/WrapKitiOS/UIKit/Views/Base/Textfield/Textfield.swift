@@ -93,8 +93,6 @@ open class Textfield: UITextField {
     public var onResignFirstResponder: (() -> Void)?
     
     public var didChangeText = [((String?) -> Void)]()
-    private var debounceTimer: Timer?
-    private let debounceInterval: TimeInterval = 0.2
     
     @discardableResult
     public func validate() -> Bool {
@@ -203,17 +201,13 @@ open class Textfield: UITextField {
     }
     
     @objc private func textFieldDidChange() {
-        debounceTimer?.invalidate()
-        debounceTimer = Timer.scheduledTimer(withTimeInterval: debounceInterval, repeats: false, block: { [weak self] _ in
-            guard let self = self else { return }
-            self.didChangeText.forEach {
-                if let delegate = self.delegate as? MaskedTextfieldDelegate {
-                    $0(delegate.fullText)
-                } else {
-                    $0(self.text)
-                }
+        didChangeText.forEach {
+            if let delegate = self.delegate as? MaskedTextfieldDelegate {
+                $0(delegate.fullText)
+            } else {
+                $0(self.text)
             }
-        })
+        }
     }
     
     private func updatePlaceholder() {
