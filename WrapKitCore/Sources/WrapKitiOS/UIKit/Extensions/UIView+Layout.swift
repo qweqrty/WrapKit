@@ -77,6 +77,12 @@ public extension UIView {
         return view
     }
     
+    func wrapped(in view: UIView, padding: UIEdgeInsets = .zero) -> UIView {
+        view.addSubview(self)
+        fillSuperview(padding: padding)
+        return view
+    }
+    
     func centeredInView(width: CGFloat? = nil, height: CGFloat? = nil) -> View {
         if let width { self.constrainWidth(width) }
         if let height { self.constrainHeight(height) }
