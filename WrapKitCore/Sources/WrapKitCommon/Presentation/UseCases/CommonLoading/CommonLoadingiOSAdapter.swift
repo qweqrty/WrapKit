@@ -40,7 +40,7 @@ public class CommonLoadingiOSAdapter: CommonLoadingOutput {
         didSet {
             isLoading ? onView.showLoadingView(
                 loadingView,
-                backgroundColor: .clear,
+                backgroundColor: backgroundColor,
                 size: size
             ) : onView.hideLoadingView()
         }
@@ -49,15 +49,18 @@ public class CommonLoadingiOSAdapter: CommonLoadingOutput {
     private let onView: UIView
     private let loadingView: UIView
     private let size: CGSize
+    private let backgroundColor: UIColor
     
     public init(
         onView: UIView,
         loadingView: UIView,
+        backgroundColor: UIColor = .clear,
         size: CGSize
     ) {
         self.onView = onView
         self.loadingView = loadingView
         self.size = size
+        self.backgroundColor = backgroundColor
     }
 }
 #endif
