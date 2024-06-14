@@ -84,7 +84,13 @@ open class Textfield: UITextField {
     public var clearButtonEdgeInsets = UIEdgeInsets(top: 0, left: -8, bottom: 0, right: 8)
     
     public var isTextSelectionDisabled = false
-    public var isEditable = true
+    public var isEditable = true {
+        didSet {
+            if !isEditable {
+                _  = resignFirstResponder()
+            }
+        }
+    }
     
     public var onPress: (() -> Void)?
     public var validationRule: ((String?) -> Bool)?
@@ -152,8 +158,6 @@ open class Textfield: UITextField {
         maskedTextfieldDelegate = delegate
         delegate?.applyTo(textfield: self)
         returnKeyType = nextTextfield == nil ? .done : .next
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(didTapTextfield))
-        self.textInputView.addGestureRecognizer(tapGesture)
         addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
         
         self.leadingView = leadingView
@@ -189,6 +193,7 @@ open class Textfield: UITextField {
              leadingView.onPress?()
              return true
          }
+        onPress?()
          return super.point(inside: point, with: event)
      }
     
@@ -235,6 +240,7 @@ open class Textfield: UITextField {
     
     @discardableResult
     override open func becomeFirstResponder() -> Bool {
+        guard isEditable else { return false }
         let success = super.becomeFirstResponder()
         if success { onBecomeFirstResponder?() }
         if isSecureTextEntry, let text = self.text {
@@ -244,6 +250,10 @@ open class Textfield: UITextField {
         updateAppearance()
         return success
     }
+    
+    override open var canBecomeFirstResponder: Bool {
+         return isEditable
+     }
     
     open override func resignFirstResponder() -> Bool {
         let result = super.resignFirstResponder()
