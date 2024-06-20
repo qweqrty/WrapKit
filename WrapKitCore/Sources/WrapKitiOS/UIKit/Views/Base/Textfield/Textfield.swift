@@ -139,7 +139,7 @@ open class Textfield: UITextField {
         nextTextfield: UIResponder? = nil,
         leadingView: View? = nil,
         trailingView: TrailingViewStyle? = nil,
-        inputView: View? = nil,
+        inputView: UIView? = nil,
         autocapitalizationType: UITextAutocapitalizationType = .none,
         delegate: MaskedTextfieldDelegate? = nil
     ) {
