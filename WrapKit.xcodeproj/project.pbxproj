@@ -27,6 +27,15 @@
 		53F9F9EF2AB6B84600110054 /* InMemoryStorageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53F9F9ED2AB6B7BC00110054 /* InMemoryStorageTests.swift */; };
 		53F9F9F22AB6C15E00110054 /* Storage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53F9F9F12AB6C15E00110054 /* Storage.swift */; };
 		53F9F9FC2AB8E77900110054 /* TokenRefresher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53F9F9FB2AB8E77900110054 /* TokenRefresher.swift */; };
+		8CF657B22C352FB800FDFFF2 /* SelectionPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CF657B12C352FB800FDFFF2 /* SelectionPresenter.swift */; };
+		8CF657B42C352FDC00FDFFF2 /* SelectionPresenterModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CF657B32C352FDC00FDFFF2 /* SelectionPresenterModel.swift */; };
+		8CF657B62C352FF200FDFFF2 /* SelectionVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CF657B52C352FF200FDFFF2 /* SelectionVC.swift */; };
+		8CF657B92C35301F00FDFFF2 /* SelectionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CF657B82C35301F00FDFFF2 /* SelectionCell.swift */; };
+		8CF657BB2C35302600FDFFF2 /* SelectionCellContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CF657BA2C35302600FDFFF2 /* SelectionCellContentView.swift */; };
+		8CF657BD2C35305200FDFFF2 /* SelectionContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CF657BC2C35305200FDFFF2 /* SelectionContentView.swift */; };
+		8CF657BF2C35306C00FDFFF2 /* SelectionFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CF657BE2C35306C00FDFFF2 /* SelectionFactory.swift */; };
+		8CF657C12C35308500FDFFF2 /* SelectionFlowiOS.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CF657C02C35308500FDFFF2 /* SelectionFlowiOS.swift */; };
+		8CF657C32C35310800FDFFF2 /* SelectionFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CF657C22C35310800FDFFF2 /* SelectionFlow.swift */; };
 		94516EB82BB1343800E3EB6C /* ButtonTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94516EB72BB1343800E3EB6C /* ButtonTests.swift */; };
 		C0103DE72B34AD6D0005FCDB /* Array+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0103DE62B34AD6D0005FCDB /* Array+Extensions.swift */; };
 		C010868D2A7E840100C3720A /* MainQueueDispatchDecorator.swift in Sources */ = {isa = PBXBuildFile; fileRef = C010868B2A7E83EB00C3720A /* MainQueueDispatchDecorator.swift */; };
@@ -224,6 +233,15 @@
 		53F9F9ED2AB6B7BC00110054 /* InMemoryStorageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InMemoryStorageTests.swift; sourceTree = "<group>"; };
 		53F9F9F12AB6C15E00110054 /* Storage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Storage.swift; sourceTree = "<group>"; };
 		53F9F9FB2AB8E77900110054 /* TokenRefresher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenRefresher.swift; sourceTree = "<group>"; };
+		8CF657B12C352FB800FDFFF2 /* SelectionPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectionPresenter.swift; sourceTree = "<group>"; };
+		8CF657B32C352FDC00FDFFF2 /* SelectionPresenterModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectionPresenterModel.swift; sourceTree = "<group>"; };
+		8CF657B52C352FF200FDFFF2 /* SelectionVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectionVC.swift; sourceTree = "<group>"; };
+		8CF657B82C35301F00FDFFF2 /* SelectionCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectionCell.swift; sourceTree = "<group>"; };
+		8CF657BA2C35302600FDFFF2 /* SelectionCellContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectionCellContentView.swift; sourceTree = "<group>"; };
+		8CF657BC2C35305200FDFFF2 /* SelectionContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectionContentView.swift; sourceTree = "<group>"; };
+		8CF657BE2C35306C00FDFFF2 /* SelectionFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectionFactory.swift; sourceTree = "<group>"; };
+		8CF657C02C35308500FDFFF2 /* SelectionFlowiOS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectionFlowiOS.swift; sourceTree = "<group>"; };
+		8CF657C22C35310800FDFFF2 /* SelectionFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectionFlow.swift; sourceTree = "<group>"; };
 		94516EB72BB1343800E3EB6C /* ButtonTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonTests.swift; sourceTree = "<group>"; };
 		C0103DE62B34AD6D0005FCDB /* Array+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+Extensions.swift"; sourceTree = "<group>"; };
 		C010868B2A7E83EB00C3720A /* MainQueueDispatchDecorator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainQueueDispatchDecorator.swift; sourceTree = "<group>"; };
@@ -487,6 +505,30 @@
 			path = Storages;
 			sourceTree = "<group>";
 		};
+		8CF657B02C352F9B00FDFFF2 /* Selection */ = {
+			isa = PBXGroup;
+			children = (
+				8CF657B72C35301200FDFFF2 /* Cell */,
+				8CF657B12C352FB800FDFFF2 /* SelectionPresenter.swift */,
+				8CF657B32C352FDC00FDFFF2 /* SelectionPresenterModel.swift */,
+				8CF657B52C352FF200FDFFF2 /* SelectionVC.swift */,
+				8CF657BC2C35305200FDFFF2 /* SelectionContentView.swift */,
+				8CF657BE2C35306C00FDFFF2 /* SelectionFactory.swift */,
+				8CF657C02C35308500FDFFF2 /* SelectionFlowiOS.swift */,
+				8CF657C22C35310800FDFFF2 /* SelectionFlow.swift */,
+			);
+			path = Selection;
+			sourceTree = "<group>";
+		};
+		8CF657B72C35301200FDFFF2 /* Cell */ = {
+			isa = PBXGroup;
+			children = (
+				8CF657B82C35301F00FDFFF2 /* SelectionCell.swift */,
+				8CF657BA2C35302600FDFFF2 /* SelectionCellContentView.swift */,
+			);
+			path = Cell;
+			sourceTree = "<group>";
+		};
 		94516EB52BB133E200E3EB6C /* WrapKitiOStests */ = {
 			isa = PBXGroup;
 			children = (
@@ -562,6 +604,7 @@
 		C04C41D32B518975009BC481 /* Screens */ = {
 			isa = PBXGroup;
 			children = (
+				8CF657B02C352F9B00FDFFF2 /* Selection */,
 				C04C41D42B518986009BC481 /* WebView */,
 			);
 			path = Screens;
@@ -1306,7 +1349,9 @@
 				C4A437532BFF36B100A30089 /* NVActivityIndicatorAnimationBallSpinFadeLoader.swift in Sources */,
 				C08AA3882A7EBAD4002D58D5 /* CollectionView.swift in Sources */,
 				536DCC952B0A04EE0034512A /* ResourcePresenter.swift in Sources */,
+				8CF657C12C35308500FDFFF2 /* SelectionFlowiOS.swift in Sources */,
 				C08AA33E2A7E8D30002D58D5 /* String+Regex.swift in Sources */,
+				8CF657BD2C35305200FDFFF2 /* SelectionContentView.swift in Sources */,
 				C08AA32E2A7E8A71002D58D5 /* UITapGestureRecognizer+Extensions.swift in Sources */,
 				C4A4374E2BFF36B100A30089 /* NVActivityIndicatorAnimationLineScale.swift in Sources */,
 				C4A437342BFF36B100A30089 /* NVActivityIndicatorShape.swift in Sources */,
@@ -1316,6 +1361,8 @@
 				C41949852BF74049002FFFAD /* TimerPresenter.swift in Sources */,
 				C08AA35B2A7E8DED002D58D5 /* PanModalPresentable+LayoutHelpers.swift in Sources */,
 				53567E622B3BE82500A058F1 /* DownloadService.swift in Sources */,
+				8CF657C32C35310800FDFFF2 /* SelectionFlow.swift in Sources */,
+				8CF657B62C352FF200FDFFF2 /* SelectionVC.swift in Sources */,
 				C08AA3662A7E8DED002D58D5 /* DimmedView.swift in Sources */,
 				531452062AC97E7B0034348F /* StoredServiceDecorator.swift in Sources */,
 				C01EF5312A6E6019005B93E0 /* HTTPClient.swift in Sources */,
@@ -1327,6 +1374,8 @@
 				C0261C4C2A78A7E200BFCF1B /* ViewModelDTO.swift in Sources */,
 				C4A437362BFF36B100A30089 /* NVActivityIndicatorAnimationBallRotate.swift in Sources */,
 				538E4B382AA49693005BBDB4 /* UIButton+Extensions.swift in Sources */,
+				8CF657BF2C35306C00FDFFF2 /* SelectionFactory.swift in Sources */,
+				8CF657B22C352FB800FDFFF2 /* SelectionPresenter.swift in Sources */,
 				C08AA3AD2A7F0E4C002D58D5 /* WrapperView.swift in Sources */,
 				C08AA3322A7E8AA7002D58D5 /* NSMutableParagraphStyle+Extensions.swift in Sources */,
 				C4A4374F2BFF36B100A30089 /* NVActivityIndicatorAnimationBallScaleRippleMultiple.swift in Sources */,
@@ -1349,7 +1398,9 @@
 				C04C41D62B518998009BC481 /* WebViewVC.swift in Sources */,
 				C08AA38F2A7EBC05002D58D5 /* TableView.swift in Sources */,
 				C4A437522BFF36B100A30089 /* NVActivityIndicatorAnimationCubeTransition.swift in Sources */,
+				8CF657BB2C35302600FDFFF2 /* SelectionCellContentView.swift in Sources */,
 				C4B8207B2BF8A2C50001F45F /* HTTPClientDecorator.swift in Sources */,
+				8CF657B92C35301F00FDFFF2 /* SelectionCell.swift in Sources */,
 				C4A437412BFF36B100A30089 /* NVActivityIndicatorAnimationBallBeat.swift in Sources */,
 				C46158632BFB794C00B817B2 /* KeyboardType+Mask.swift in Sources */,
 				C4A437322BFF36B100A30089 /* NVActivityIndicatorViewable.swift in Sources */,
@@ -1430,6 +1481,7 @@
 				C4A4374C2BFF36B100A30089 /* NVActivityIndicatorAnimationBallGridBeat.swift in Sources */,
 				C4A4373A2BFF36B100A30089 /* NVActivityIndicatorAnimationBallTrianglePath.swift in Sources */,
 				C46158542BFA8D7F00B817B2 /* DiffableCollectionViewDataSource.swift in Sources */,
+				8CF657B42C352FDC00FDFFF2 /* SelectionPresenterModel.swift in Sources */,
 				C08AA3642A7E8DED002D58D5 /* PanModalPresentationController.swift in Sources */,
 				C05160462A6FA03800E01640 /* URLSessionHTTPClient.swift in Sources */,
 				C4A437372BFF36B100A30089 /* NVActivityIndicatorAnimationBallGridPulse.swift in Sources */,
