@@ -7,7 +7,7 @@
 
 import UIKit
 
-class SelectionCellContentView: View {
+public class SelectionCellContentView: View {
     lazy var titleLabel = makeTitleLabel()
     lazy var trailingLabel = makeTrailingLabel()
     lazy var trailingStackView = makeTrailingStackView()
@@ -20,20 +20,20 @@ class SelectionCellContentView: View {
     
     private(set) var leadingImageViewConstraints: AnchoredConstraints?
     
-    init() {
+    public init() {
         super.init(frame: .zero)
         setupSubviews()
         setupConstraints()
         titleLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
     }
     
-    override init(frame: CGRect) {
+    public override init(frame: CGRect) {
         super.init(frame: frame)
         setupSubviews()
         setupConstraints()
     }
     
-    required init?(coder: NSCoder) {
+    public required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 }
