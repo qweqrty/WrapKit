@@ -15,7 +15,7 @@ public class SelectionFlowiOS: SelectionFlow {
     private weak var navigationController: UINavigationController?
     private let factory: ISelectionFactory
     
-    init(
+    public init(
         model: Model,
         navigationController: UINavigationController?,
         factory: ISelectionFactory
