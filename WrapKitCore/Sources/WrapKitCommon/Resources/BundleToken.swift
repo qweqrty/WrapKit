@@ -10,6 +10,7 @@ import Foundation
 public final class BundleToken {
     public static let bundle: Bundle = {
 #if SWIFT_PACKAGE
+        print("dwdw \(Bundle.module.bundlePath)")
         return Bundle.module
 #else
         return Bundle(for: BundleToken.self)
