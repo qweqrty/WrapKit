@@ -9,19 +9,19 @@ import Foundation
 import UIKit
 
 public class SelectionContentView: UIView {
-    lazy var scrollableView = ScrollableContentView()
-    lazy var lineView = View(backgroundColor: UIColor.lightGray)
-    lazy var navigationBar = makeNavigationBar()
-    lazy var tableView = makeTableView()
-    lazy var searchBar = makeSearchBar()
+    public lazy var scrollableView = ScrollableContentView()
+    public lazy var lineView = View(backgroundColor: UIColor.lightGray)
+    public lazy var navigationBar = makeNavigationBar()
+    public lazy var tableView = makeTableView()
+    public lazy var searchBar = makeSearchBar()
     
-    lazy var stackView = StackView(axis: .horizontal, spacing: 12)
-    lazy var resetButton = makeActionButton(isReset: true)
-    lazy var selectButton = makeActionButton(isReset: false)
-    lazy var spacerView = UIView()
+    public lazy var stackView = StackView(axis: .horizontal, spacing: 12)
+    public lazy var resetButton = makeActionButton(isReset: true)
+    public lazy var selectButton = makeActionButton(isReset: false)
+    public lazy var spacerView = UIView()
     
-    var searchBarConstraints: AnchoredConstraints?
-    var tableViewConstraints: AnchoredConstraints?
+    public var searchBarConstraints: AnchoredConstraints?
+    public var tableViewConstraints: AnchoredConstraints?
     
     public init() {
         super.init(frame: .zero)

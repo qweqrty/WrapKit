@@ -27,11 +27,11 @@ public protocol SelectionInput {
 
 public class SelectionPresenter {
     private let flow: SelectionFlow
-    weak var view: SelectionOutput?
+    public weak var view: SelectionOutput?
     
-    let title: String?
+    public let title: String?
     public let isMultipleSelectionEnabled: Bool
-    var items: [SelectionType.SelectionCellPresentableModel] {
+    public var items: [SelectionType.SelectionCellPresentableModel] {
         didSet {
             view?.display(shouldShowSearchBar: items.count > shouldShowSearchBarThresholdCount)
             onSearch(searchText)

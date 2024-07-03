@@ -8,7 +8,7 @@
 import UIKit
 
 public class SelectionCell: TableViewCell<SelectionCellContentView> {
-    var model: SelectionType.SelectionCellPresentableModel? {
+    public var model: SelectionType.SelectionCellPresentableModel? {
         didSet {
             guard let model = model else { return }
             mainContentView.titleLabel.text = model.title

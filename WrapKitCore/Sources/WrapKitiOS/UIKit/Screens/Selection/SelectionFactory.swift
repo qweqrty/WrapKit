@@ -36,4 +36,6 @@ public class SelectionFactory: ISelectionFactory {
         presenter.view = vc
         return vc
     }
+    
+    public init() {}
 }

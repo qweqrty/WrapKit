@@ -9,10 +9,10 @@ import Foundation
 import UIKit
 
 public class SearchBar: View {
-    let stackView = StackView(axis: .horizontal)
-    let leftView: Button
-    let textfield: Textfield
-    let rightView: Button
+    public let stackView = StackView(axis: .horizontal)
+    public let leftView: Button
+    public let textfield: Textfield
+    public let rightView: Button
     
     public init(
         leftView: Button = Button(isHidden: true),
