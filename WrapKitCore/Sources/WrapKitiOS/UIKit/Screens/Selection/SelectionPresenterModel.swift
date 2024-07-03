@@ -12,6 +12,18 @@ public struct SelectionPresenterModel {
     let isMultipleSelectionEnabled: Bool
     let items: [SelectionType.SelectionCellPresentableModel]
     let callback: ((SelectionType?) -> Void)?
+    
+    public init(
+        title: String?,
+        isMultipleSelectionEnabled: Bool,
+        items: [SelectionType.SelectionCellPresentableModel],
+        callback: ((SelectionType?) -> Void)?
+    ) {
+        self.title = title
+        self.isMultipleSelectionEnabled = isMultipleSelectionEnabled
+        self.items = items
+        self.callback = callback
+    }
 }
 
 public enum SelectionType {

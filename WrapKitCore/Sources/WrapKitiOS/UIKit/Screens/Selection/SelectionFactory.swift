@@ -6,7 +6,6 @@
 //
 
 import UIKit
-import WrapKit
 
 public protocol ISelectionFactory {
     func resolveSelection(

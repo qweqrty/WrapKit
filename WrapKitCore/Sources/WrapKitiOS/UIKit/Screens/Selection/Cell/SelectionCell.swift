@@ -7,7 +7,7 @@
 
 import UIKit
 
-class SelectionCell: TableViewCell<SelectionCellContentView> {
+public class SelectionCell: TableViewCell<SelectionCellContentView> {
     var model: SelectionType.SelectionCellPresentableModel? {
         didSet {
             guard let model = model else { return }
@@ -30,7 +30,7 @@ class SelectionCell: TableViewCell<SelectionCellContentView> {
         }
     }
     
-    override func prepareForReuse() {
+    public override func prepareForReuse() {
         super.prepareForReuse()
         mainContentView.trailingImageView.image = nil
         mainContentView.leadingImageView.image = nil
