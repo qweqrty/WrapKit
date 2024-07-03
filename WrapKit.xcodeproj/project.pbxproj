@@ -181,6 +181,9 @@
 		C4E3BD602BBEC389001F2F8C /* UserDefaultsStorageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4E3BD5F2BBEC389001F2F8C /* UserDefaultsStorageTests.swift */; };
 		C4EE13B12C045FC500AE915D /* CommonToastOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4EE13B02C045FC500AE915D /* CommonToastOutput.swift */; };
 		C4EE13B32C045FEE00AE915D /* CommonToastiOSAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4EE13B22C045FEE00AE915D /* CommonToastiOSAdapter.swift */; };
+		C4F4ED272C350B5D00D6C375 /* AssetColorTypeAlias.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4F4ED262C350B5D00D6C375 /* AssetColorTypeAlias.swift */; };
+		C4F4ED292C350B6900D6C375 /* AssetImageTypeAlias.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4F4ED282C350B6900D6C375 /* AssetImageTypeAlias.swift */; };
+		C4F4ED2B2C350C1300D6C375 /* BundleToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4F4ED2A2C350C1300D6C375 /* BundleToken.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -378,6 +381,9 @@
 		C4E3BD5F2BBEC389001F2F8C /* UserDefaultsStorageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultsStorageTests.swift; sourceTree = "<group>"; };
 		C4EE13B02C045FC500AE915D /* CommonToastOutput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonToastOutput.swift; sourceTree = "<group>"; };
 		C4EE13B22C045FEE00AE915D /* CommonToastiOSAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonToastiOSAdapter.swift; sourceTree = "<group>"; };
+		C4F4ED262C350B5D00D6C375 /* AssetColorTypeAlias.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetColorTypeAlias.swift; sourceTree = "<group>"; };
+		C4F4ED282C350B6900D6C375 /* AssetImageTypeAlias.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetImageTypeAlias.swift; sourceTree = "<group>"; };
+		C4F4ED2A2C350C1300D6C375 /* BundleToken.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BundleToken.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -518,6 +524,7 @@
 		C0261C3D2A76EF2C00BFCF1B /* WrapKitCommon */ = {
 			isa = PBXGroup;
 			children = (
+				C4F4ED252C350B4100D6C375 /* Resources */,
 				C4B820792BF8A2B80001F45F /* HTTPClient */,
 				53B5D4242B26E69D00E2651E /* Helpers */,
 				53A137792B07133E00E04C92 /* Presentation */,
@@ -1101,6 +1108,16 @@
 			path = CommonToast;
 			sourceTree = "<group>";
 		};
+		C4F4ED252C350B4100D6C375 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				C4F4ED262C350B5D00D6C375 /* AssetColorTypeAlias.swift */,
+				C4F4ED282C350B6900D6C375 /* AssetImageTypeAlias.swift */,
+				C4F4ED2A2C350C1300D6C375 /* BundleToken.swift */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -1338,6 +1355,7 @@
 				C4A437322BFF36B100A30089 /* NVActivityIndicatorViewable.swift in Sources */,
 				539ACDFC2B22FF28007A257F /* Textfield.swift in Sources */,
 				C4A4374D2BFF36B100A30089 /* NVActivityIndicatorAnimationBallScaleMultiple.swift in Sources */,
+				C4F4ED2B2C350C1300D6C375 /* BundleToken.swift in Sources */,
 				C04C41DA2B5189A9009BC481 /* WebViewPresenter.swift in Sources */,
 				C4BBD6632BF47EB3009B654D /* PickerView.swift in Sources */,
 				C4EE13B32C045FEE00AE915D /* CommonToastiOSAdapter.swift in Sources */,
@@ -1403,9 +1421,11 @@
 				C08AA3652A7E8DED002D58D5 /* PanContainerView.swift in Sources */,
 				C4A437032BFF32F300A30089 /* CommonLoadingOutput.swift in Sources */,
 				C4A4373D2BFF36B100A30089 /* NVActivityIndicatorAnimationLineSpinFadeLoader.swift in Sources */,
+				C4F4ED292C350B6900D6C375 /* AssetImageTypeAlias.swift in Sources */,
 				C4A437552BFF36B100A30089 /* NVActivityIndicatorAnimationLineScalePulseOutRapid.swift in Sources */,
 				C08AA3302A7E8A8A002D58D5 /* NSAttrubitedString+Extensions.swift in Sources */,
 				C4A4373C2BFF36B100A30089 /* NVActivityIndicatorAnimationLineScalePulseOut.swift in Sources */,
+				C4F4ED272C350B5D00D6C375 /* AssetColorTypeAlias.swift in Sources */,
 				C4A437482BFF36B100A30089 /* NVActivityIndicatorAnimationBlank.swift in Sources */,
 				C4A4374C2BFF36B100A30089 /* NVActivityIndicatorAnimationBallGridBeat.swift in Sources */,
 				C4A4373A2BFF36B100A30089 /* NVActivityIndicatorAnimationBallTrianglePath.swift in Sources */,
