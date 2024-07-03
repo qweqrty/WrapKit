@@ -22,7 +22,7 @@ public enum SelectionType {
         var isSelected: Bool
         let trailingTitle: String?
         let icon: String?
-        init(
+        public init(
             id: String,
             title: String,
             circleColor: String? = nil,

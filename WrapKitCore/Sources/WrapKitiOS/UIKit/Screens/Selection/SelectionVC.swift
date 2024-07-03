@@ -9,7 +9,7 @@ import Foundation
 import UIKit
 import BottomSheet
 
-class SelectionVC: ViewController<SelectionContentView> {
+open class SelectionVC: ViewController<SelectionContentView> {
     private let presenter: SelectionInput
     private lazy var datasource = TableViewDatasource<SelectionType.SelectionCellPresentableModel>(configureCell: { [weak self] tableView, indexPath, model in
         let cell: SelectionCell = tableView.dequeueReusableCell(for: indexPath)
@@ -21,12 +21,12 @@ class SelectionVC: ViewController<SelectionContentView> {
         return cell
     })
     
-    init(contentView: SelectionContentView, presenter: SelectionInput) {
+    public init(contentView: SelectionContentView, presenter: SelectionInput) {
         self.presenter = presenter
         super.init(contentView: contentView)
     }
     
-    override func viewDidLoad() {
+    public override func viewDidLoad() {
         super.viewDidLoad()
         
         setupTitles()
@@ -50,7 +50,7 @@ class SelectionVC: ViewController<SelectionContentView> {
         contentView.stackView.isHidden = !presenter.isMultipleSelectionEnabled
     }
     
-    override func viewDidLayoutSubviews() {
+    public override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         
         let calculatedHeight = contentView.tableView.contentSize.height +
@@ -84,13 +84,13 @@ class SelectionVC: ViewController<SelectionContentView> {
         }
     }
     
-    required init?(coder: NSCoder) {
+    public required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 }
 
 extension SelectionVC: SelectionOutput {
-    func display(canReset: Bool) {
+    public func display(canReset: Bool) {
         if canReset {
             contentView.resetButton.setTitleColor(UIColor.black, for: .normal)
             contentView.resetButton.layer.borderColor = UIColor.gray.cgColor
@@ -100,25 +100,25 @@ extension SelectionVC: SelectionOutput {
         }
     }
     
-    func display(shouldShowSearchBar: Bool) {
+    public func display(shouldShowSearchBar: Bool) {
         contentView.searchBar.isHidden = !shouldShowSearchBar
         contentView.searchBarConstraints?.height?.constant = shouldShowSearchBar ? 44 : 0
         contentView.searchBarConstraints?.top?.constant = shouldShowSearchBar ? 8 : 0
         contentView.tableViewConstraints?.top?.constant = shouldShowSearchBar ? 16 : 8
     }
     
-    func display(items: [SelectionType.SelectionCellPresentableModel]) {
+    public func display(items: [SelectionType.SelectionCellPresentableModel]) {
         datasource.getItems = { items }
         let selectedItemsCount = items.filter { $0.isSelected }.count
         contentView.selectButton.setTitle("\("select")\(selectedItemsCount == 0 ? "" : " (\(selectedItemsCount))")", for: .normal)
         contentView.tableView.reloadData()
     }
     
-    func display(title: String?) {
+    public func display(title: String?) {
         contentView.navigationBar.titleViews.keyLabel.text = title
     }
 }
 
 extension SelectionVC: ScrollableBottomSheetPresentedController {
-    var scrollView: UIScrollView? { contentView.tableView }
+    public var scrollView: UIScrollView? { contentView.tableView }
 }

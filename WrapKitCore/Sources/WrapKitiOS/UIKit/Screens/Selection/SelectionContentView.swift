@@ -8,7 +8,7 @@
 import Foundation
 import UIKit
 
-class SelectionContentView: UIView {
+public class SelectionContentView: UIView {
     lazy var scrollableView = ScrollableContentView()
     lazy var lineView = View(backgroundColor: UIColor.lightGray)
     lazy var navigationBar = makeNavigationBar()
@@ -23,7 +23,7 @@ class SelectionContentView: UIView {
     var searchBarConstraints: AnchoredConstraints?
     var tableViewConstraints: AnchoredConstraints?
     
-    init() {
+    public init() {
         super.init(frame: .zero)
         setupSubviews()
         setupConstraints()
@@ -145,52 +145,5 @@ private extension SelectionContentView {
             tintColor: UIColor.darkGray
         ))
         return searchBar
-    }
-}
-import Foundation
-import UIKit
-
-public class SearchBar: View {
-    let stackView = StackView(axis: .horizontal)
-    let leftView: Button
-    let textfield: Textfield
-    let rightView: Button
-    
-    init(
-        leftView: Button = Button(isHidden: true),
-        textfield: Textfield,
-        rightView: Button = Button(isHidden: true),
-        spacing: CGFloat = 8
-    ) {
-        self.leftView = leftView
-        self.textfield = textfield
-        self.rightView = rightView
-        self.stackView.spacing = spacing
-        
-        super.init(frame: .zero)
-
-        setupSubviews()
-        setupConstraints()
-        textfield.backgroundColor = UIColor.white
-        textfield.appearance.colors.deselectedBackgroundColor = UIColor.white
-    }
-    
-    func setupSubviews() {
-        addSubview(stackView)
-        
-        stackView.addArrangedSubview(leftView)
-        stackView.addArrangedSubview(textfield)
-        stackView.addArrangedSubview(rightView)
-        
-        leftView.setContentCompressionResistancePriority(.required, for: .horizontal)
-        rightView.setContentCompressionResistancePriority(.required, for: .horizontal)
-    }
-    
-    func setupConstraints() {
-        stackView.fillSuperview()
-    }
-    
-    public required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
     }
 }

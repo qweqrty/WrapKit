@@ -7,14 +7,14 @@
 
 import Foundation
 
-protocol SelectionOutput: AnyObject {
+public protocol SelectionOutput: AnyObject {
     func display(items: [SelectionType.SelectionCellPresentableModel])
     func display(title: String?)
     func display(shouldShowSearchBar: Bool)
     func display(canReset: Bool)
 }
 
-protocol SelectionInput {
+public protocol SelectionInput {
     var isMultipleSelectionEnabled: Bool { get }
     
     func viewDidLoad()
@@ -25,12 +25,12 @@ protocol SelectionInput {
     func onTapClose()
 }
 
-class SelectionPresenter {
+public class SelectionPresenter {
     private let flow: SelectionFlow
     weak var view: SelectionOutput?
     
     let title: String?
-    let isMultipleSelectionEnabled: Bool
+    public let isMultipleSelectionEnabled: Bool
     var items: [SelectionType.SelectionCellPresentableModel] {
         didSet {
             view?.display(shouldShowSearchBar: items.count > shouldShowSearchBarThresholdCount)
@@ -42,7 +42,7 @@ class SelectionPresenter {
     private var searchText = ""
     private let shouldShowSearchBarThresholdCount = 15
     
-    init(
+    public init(
         title: String?,
         isMultipleSelectionEnabled: Bool,
         items: [SelectionType.SelectionCellPresentableModel],
@@ -60,17 +60,17 @@ class SelectionPresenter {
 }
 
 extension SelectionPresenter: SelectionInput {
-    func onTapClose() {
+    public func onTapClose() {
         flow.close(with: nil)
     }
     
-    func viewDidLoad() {
+    public func viewDidLoad() {
         onSearch(searchText)
         view?.display(title: title)
         view?.display(shouldShowSearchBar: items.count > shouldShowSearchBarThresholdCount)
     }
     
-    func onTapFinishSelection() {
+    public func onTapFinishSelection() {
         if isMultipleSelectionEnabled {
             flow.close(with: .multipleSelection(selectedItems))
         } else if let selectedItem = selectedItems.first {
@@ -81,18 +81,18 @@ extension SelectionPresenter: SelectionInput {
         }
     }
     
-    func onTapReset() {
+    public func onTapReset() {
         self.items = initialSelectedItems
         onSearch(searchText)
     }
     
-    func onSearch(_ text: String?) {
+    public func onSearch(_ text: String?) {
         searchText = text ?? ""
         view?.display(items: itemsToPresent)
         view?.display(canReset: initialSelectedItems != items)
     }
     
-    func onSelect(at index: Int) {
+    public func onSelect(at index: Int) {
         guard let selectedItem = itemsToPresent.item(at: index) else { return }
         guard let selectedItemIndex = self.items.firstIndex(where: { $0.id == selectedItem.id }) else { return }
 
