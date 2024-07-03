@@ -8,7 +8,7 @@
 import Foundation
 
 public final class BundleToken {
-    static let bundle: Bundle = {
+    public static let bundle: Bundle = {
 #if SWIFT_PACKAGE
         return Bundle.module
 #else
