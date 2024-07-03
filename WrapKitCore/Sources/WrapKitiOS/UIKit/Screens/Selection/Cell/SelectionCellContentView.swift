@@ -8,17 +8,17 @@
 import UIKit
 
 public class SelectionCellContentView: View {
-    lazy var titleLabel = makeTitleLabel()
-    lazy var trailingLabel = makeTrailingLabel()
-    lazy var trailingStackView = makeTrailingStackView()
-    let leadingImageContainerView = View(isHidden: true)
-    let leadingImageView = ImageView()
-    let trailingImageContainerView = View(isHidden: true)
-    let trailingImageView = ImageView()
-    let leadingStackView = StackView(axis: .horizontal, spacing: 8)
-    let lineView = View(backgroundColor: .gray)
+    public lazy var titleLabel = makeTitleLabel()
+    public lazy var trailingLabel = makeTrailingLabel()
+    public lazy var trailingStackView = makeTrailingStackView()
+    public let leadingImageContainerView = View(isHidden: true)
+    public let leadingImageView = ImageView()
+    public let trailingImageContainerView = View(isHidden: true)
+    public let trailingImageView = ImageView()
+    public let leadingStackView = StackView(axis: .horizontal, spacing: 8)
+    public let lineView = View(backgroundColor: .gray)
     
-    private(set) var leadingImageViewConstraints: AnchoredConstraints?
+    private(set) public var leadingImageViewConstraints: AnchoredConstraints?
     
     public init() {
         super.init(frame: .zero)

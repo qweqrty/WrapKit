@@ -8,10 +8,10 @@
 import Foundation
 
 public struct SelectionPresenterModel {
-    let title: String?
-    let isMultipleSelectionEnabled: Bool
-    let items: [SelectionType.SelectionCellPresentableModel]
-    let callback: ((SelectionType?) -> Void)?
+    public let title: String?
+    public let isMultipleSelectionEnabled: Bool
+    public let items: [SelectionType.SelectionCellPresentableModel]
+    public let callback: ((SelectionType?) -> Void)?
     
     public init(
         title: String?,
@@ -28,12 +28,12 @@ public struct SelectionPresenterModel {
 
 public enum SelectionType {
     public struct SelectionCellPresentableModel: HashableWithReflection {
-        let id: String
-        let title: String
-        let circleColor: String?
-        var isSelected: Bool
-        let trailingTitle: String?
-        let icon: String?
+        public let id: String
+        public let title: String
+        public let circleColor: String?
+        public var isSelected: Bool
+        public let trailingTitle: String?
+        public let icon: String?
         public init(
             id: String,
             title: String,
