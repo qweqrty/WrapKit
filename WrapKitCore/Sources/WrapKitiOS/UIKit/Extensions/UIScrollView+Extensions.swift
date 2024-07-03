@@ -5,6 +5,7 @@
 //  Created by Stanislav Li on 14/6/24.
 //
 
+#if canImport(UIKit)
 import UIKit
 
 public extension UIScrollView {
@@ -39,4 +40,4 @@ public extension UIScrollView {
         self.setContentOffset(offset, animated: animated)
     }
 }
-
+#endif

@@ -38,10 +38,8 @@ public final class ColorAsset {
 #if os(iOS) || os(tvOS)
     @available(iOS 11.0, tvOS 11.0, *)
     public func color(compatibleWith traitCollection: UITraitCollection) -> Color {
-        let bundle = BundleToken.bundle
-        guard let color = Color(named: name, in: bundle, compatibleWith: traitCollection) else {
-            fatalError("Unable to load color asset named \(name).")
-        }
+        guard let color = Bundle.allBundles.compactMap({ Color(named: name, in: $0, compatibleWith: traitCollection) }).first
+        else { fatalError("Unable to load color asset named \(name).") }
         return color
     }
 #endif
@@ -49,7 +47,12 @@ public final class ColorAsset {
 #if canImport(SwiftUI)
     @available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
     public func swiftUIColor() -> SwiftUI.Color {
-        SwiftUI.Color(asset: self)
+        for bundle in Bundle.allBundles {
+            if let _ = ColorAsset.Color(asset: self) {
+                return SwiftUI.Color(name, bundle: bundle)
+            }
+        }
+        return SwiftUI.Color(name)
     }
 #endif
     
@@ -61,23 +64,24 @@ public final class ColorAsset {
 public extension ColorAsset.Color {
     @available(iOS 11.0, tvOS 11.0, watchOS 4.0, macOS 10.13, *)
     convenience init?(asset: ColorAsset) {
-        let bundle = BundleToken.bundle
+        for bundle in Bundle.allBundles {
 #if os(iOS) || os(tvOS)
-        self.init(named: asset.name, in: bundle, compatibleWith: nil)
+            if ColorAsset.Color(named: asset.name, in: bundle, compatibleWith: nil) != nil {
+                self.init(named: asset.name, in: bundle, compatibleWith: nil)
+                return
+            }
 #elseif os(macOS)
-        self.init(named: NSColor.Name(asset.name), bundle: bundle)
+            if ColorAsset.Color(named: NSColor.Name(asset.name), bundle: bundle) != nil {
+                self.init(named: NSColor.Name(asset.name), bundle: bundle)
+                return
+            }
 #elseif os(watchOS)
-        self.init(named: asset.name)
+            if ColorAsset.Color(named: asset.name) != nil {
+                self.init(named: asset.name)
+                return
+            }
 #endif
+        }
+        return nil
     }
 }
-
-#if canImport(SwiftUI)
-@available(iOS 13.0, tvOS 13.0, watchOS 6.0, macOS 10.15, *)
-public extension SwiftUI.Color {
-    init(asset: ColorAsset) {
-        let bundle = BundleToken.bundle
-        self.init(asset.name, bundle: bundle)
-    }
-}
-#endif
