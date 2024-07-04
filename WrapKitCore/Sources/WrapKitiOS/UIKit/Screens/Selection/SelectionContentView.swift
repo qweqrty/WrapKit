@@ -141,7 +141,7 @@ private extension SelectionContentView {
             )
         )
         searchBar.textfield.leadingView = WrapperView(contentView: ImageView(
-            image: UIImage(named: "plusIc")!,
+            image: UIImage(named: "plusIc"),
             tintColor: UIColor.darkGray
         ))
         return searchBar

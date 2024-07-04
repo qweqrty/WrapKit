@@ -13,7 +13,7 @@ public class SelectionCell: TableViewCell<SelectionCellContentView> {
             guard let model = model else { return }
             mainContentView.titleLabel.text = model.title
             mainContentView.trailingLabel.text = model.trailingTitle
-            mainContentView.trailingImageView.image = model.isSelected ? UIImage(named: "plusIc")! : UIImage(named: "minusIc")!
+            mainContentView.trailingImageView.image = model.isSelected ? UIImage(named: "plusIc") : UIImage(named: "minusIc")
             
             if let color = model.circleColor, let color = UIColor(hexaRGB: color, alpha: 1) {
                 mainContentView.leadingImageView.layer.cornerRadius = 10
