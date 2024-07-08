@@ -50,7 +50,7 @@ private extension WebViewContentView {
     func makeNavigationBar() -> NavigationBar {
         let navigationBar = NavigationBar()
         navigationBar.titleViews.keyLabel.font = .systemFont(ofSize: 18, weight: .semibold)
-        navigationBar.backButton.setImage(UIImage(named: "icChevronLeft"), for: .normal)
+        navigationBar.leadingCardView.leadingImageView.image = UIImage(named: "icChevronLeft")
         return navigationBar
     }
     

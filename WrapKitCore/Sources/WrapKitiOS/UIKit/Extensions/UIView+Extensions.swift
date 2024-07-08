@@ -78,6 +78,7 @@ public extension UIView {
     }
     
     func dropShadow(
+        path: CGPath? = nil,
         shadowColor: UIColor,
         shadowOpacity: Float = 0.07,
         shadowOffset: CGSize = CGSize(width: 0, height: 2),
@@ -92,7 +93,7 @@ public extension UIView {
             self.layer.shadowOffset = shadowOffset
             self.layer.shadowRadius = shadowRadius
             
-            self.layer.shadowPath = UIBezierPath(rect: self.bounds).cgPath
+            self.layer.shadowPath = path ?? UIBezierPath(rect: self.bounds).cgPath
             self.layer.shouldRasterize = false
             self.layer.rasterizationScale = scale ? UIScreen.main.scale : 1
         }
@@ -126,7 +127,7 @@ public extension UIView {
         layer.addSublayer(gradientLayer)
     }
     
-    func showLoadingView(_ loadingView: UIView? = nil, backgroundColor: UIColor, contentInset: UIEdgeInsets = .zero, size: CGSize? = nil) {
+    func showLoadingView(_ loadingView: UIView? = nil, backgroundColor: UIColor = .clear, contentInset: UIEdgeInsets = .zero, size: CGSize? = nil) {
         if let previousLoadingContainerView = viewWithTag(345635463546) {
             previousLoadingContainerView.removeFromSuperview()
         }

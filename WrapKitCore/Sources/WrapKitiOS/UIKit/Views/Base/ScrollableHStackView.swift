@@ -28,6 +28,12 @@ open class ScrollableHStackView: UIScrollView {
         super.init(coder: coder)
     }
     
+    open override func layoutSubviews() {
+        super.layoutSubviews()
+        
+        semanticContentAttribute = UIApplication.shared.userInterfaceLayoutDirection == .rightToLeft ? .forceRightToLeft : .forceLeftToRight
+    }
+    
     private func adjustForRTL() {
         if semanticContentAttribute == .forceRightToLeft {
             transform = CGAffineTransform(scaleX: -1, y: 1)

@@ -10,9 +10,10 @@ import Foundation
 public protocol Masking {
     init(format: [MaskedCharacter])
     var format: [MaskedCharacter] { get }
-    func apply(to text: String) -> (input: String, maskToInput: String)
+    func applied(to text: String) -> (input: String, maskToInput: String)
     func removeCharacters(from text: String, in range: NSRange) -> (input: String, maskToInput: String)
     func extractUserInput(from text: String) -> String  // Only characters associated with specifiers
+    func isLiteralCharacter(at index: Int) -> Bool
 }
 
 public enum MaskedCharacter {
@@ -36,7 +37,7 @@ public struct Mask: Masking {
         self.format = format
     }
     
-    public func apply(to text: String) -> (input: String, maskToInput: String) {
+    public func applied(to text: String) -> (input: String, maskToInput: String) {
         let text = text.prefix(format.count)
         
         var input = ""
@@ -71,12 +72,7 @@ public struct Mask: Masking {
             return (text, format[max(text.count - 1, 0)...].map { $0.mask }.joined())
         }
         
-        let start = text.index(text.startIndex, offsetBy: range.location)
-        let end = text.index(start, offsetBy: range.length)
-        var text = text
-        text.removeSubrange(start..<end)
-        text = apply(to: text).input
-        var removeCount = 0
+        var removeCount = range.length
         var index = text.count - 1
         while index >= 0 {
             if format.indices.contains(index), case .literal = format.item(at: index) {
@@ -87,11 +83,7 @@ public struct Mask: Masking {
             index -= 1
         }
         let input = String(text.dropLast(removeCount))
-        if input.isEmpty {
-            return apply(to: text)
-        } else {
-            return (input, format[input.count...].map { $0.mask }.joined())
-        }
+        return (input, format[input.count...].map { $0.mask }.joined())
     }
     
     public func extractUserInput(from text: String) -> String {

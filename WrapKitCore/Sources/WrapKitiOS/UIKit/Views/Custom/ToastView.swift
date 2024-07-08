@@ -14,6 +14,7 @@ open class ToastView: UIView {
         keyLabel: Label(font: .systemFont(ofSize: 16), textColor: .black),
         valueLabel: Label(font: .systemFont(ofSize: 14), textColor: .gray)
     )
+    public let trailingButton = Button(textColor: .black)
     public let duration: TimeInterval
     public var leadingConstraint: NSLayoutConstraint?
     
@@ -33,17 +34,11 @@ open class ToastView: UIView {
         setupConstraints()
         setSwipe()
         setTapGesture()
+        trailingButton.setContentHuggingPriority(.required, for: .horizontal)
     }
     
     public required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
-    }
-    
-    public func setup(title: String, subtitle: String?, image: UIImage?) {
-        titleViews.keyLabel.text = title
-        titleViews.valueLabel.text = subtitle
-        titleViews.valueLabel.isHidden = subtitle == nil
-        iconImageView.image = image
     }
     
     private func setupSubviews() {
@@ -51,6 +46,7 @@ open class ToastView: UIView {
         layer.borderWidth = 1
         addSubview(iconImageView)
         addSubview(titleViews)
+        addSubview(trailingButton)
     }
     
     private func setupConstraints() {
@@ -63,8 +59,13 @@ open class ToastView: UIView {
         titleViews.anchor(
             .top(topAnchor, constant: 16),
             .leading(iconImageView.trailingAnchor, constant: 16),
-            .trailing(trailingAnchor, constant: 20),
+            .trailing(trailingButton.leadingAnchor, constant: 2),
             .bottom(bottomAnchor, constant: 16)
+        )
+        
+        trailingButton.anchor(
+            .centerY(centerYAnchor),
+            .trailing(trailingAnchor, constant: 16)
         )
     }
     

@@ -9,14 +9,28 @@
 import UIKit
 
 open class ImageView: UIImageView {
-    public var onPress: (() -> Void)?
+    public var onPress: (() -> Void)? {
+        didSet {
+            isUserInteractionEnabled = onPress != nil
+        }
+    }
     
     public override var tintColor: UIColor! {
         didSet {
             if let image = self.image {
-                self.image = image.withRenderingMode(.alwaysTemplate)
+                if #available(iOS 13.0, *) {
+                    self.image = image.withTintColor(tintColor)
+                }
                 super.tintColor = tintColor
             }
+        }
+    }
+    
+    open override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        
+        if #available(iOS 13.0, *), let image = self.image, image.renderingMode == .alwaysTemplate {
+            self.image = self.image?.withTintColor(tintColor)
         }
     }
     
@@ -27,7 +41,8 @@ open class ImageView: UIImageView {
         borderColor: UIColor = .clear,
         borderWidth: CGFloat = 0,
         tintColor: UIColor? = nil,
-        isHidden: Bool = false
+        isHidden: Bool = false,
+        isUserInteractionEnabled: Bool = false
     ) {
         super.init(image: nil)
         
@@ -40,7 +55,7 @@ open class ImageView: UIImageView {
             self.tintColor = tintColor
         }
         self.cornerRadius = cornerRadius
-        self.isUserInteractionEnabled = true
+        self.isUserInteractionEnabled = isUserInteractionEnabled
         addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(onTap)))
     }
   
@@ -53,7 +68,6 @@ open class ImageView: UIImageView {
       UIView.animate(withDuration: 0.4, delay: 0.0, options: .allowUserInteraction, animations: {
         self.alpha = 0.5
       }, completion: { finished in
-        guard finished else { return }
         self.alpha = 1.0
       })
     onPress?()

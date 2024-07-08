@@ -7,7 +7,7 @@
 
 import Foundation
 
-public protocol Storage<Model> {
+public protocol Storage<Model>: Hashable {
     associatedtype Model
     typealias Observer = ((Model?) -> Void)
     

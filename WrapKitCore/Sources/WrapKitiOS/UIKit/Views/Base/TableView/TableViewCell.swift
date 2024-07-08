@@ -9,11 +9,12 @@
 import UIKit
 
 open class TableViewCell<ContentView: UIView>: UITableViewCell {
-    public let mainContentView = ContentView()
+    public let mainContentView: ContentView
     
     public var mainContentViewConstraints: AnchoredConstraints?
 
     public override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        self.mainContentView = ContentView()
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         self.selectionStyle = .none
         contentView.backgroundColor = .clear
@@ -29,6 +30,7 @@ open class TableViewCell<ContentView: UIView>: UITableViewCell {
     }
     
     public required init?(coder: NSCoder) {
+        self.mainContentView = ContentView()
         super.init(coder: coder)
     }
 }

@@ -76,8 +76,12 @@ open class View: UIView {
             self.alpha = 1.0
         }
         
+        if let timer = longPressTimer, timer.isValid {
+            timer.invalidate()
+            onPress?()
+        }
+        
         pressStartTime = nil
-        longPressTimer?.invalidate()
         longPressTimer = nil
     }
 }

@@ -9,18 +9,28 @@
 import UIKit
 
 open class ShimmerView: UIView {
-    open var gradientColorOne: UIColor = UIColor(white: 0.85, alpha: 0.4)
-    open var gradientColorTwo: UIColor = UIColor(white: 0.95, alpha: 0.6)
+    open var gradientColorOne: UIColor = UIColor(white: 0.85, alpha: 0.4) {
+        didSet {
+            setupGradientLayer()
+        }
+    }
+    open var gradientColorTwo: UIColor = UIColor(white: 0.95, alpha: 0.6) {
+        didSet {
+            setupGradientLayer()
+        }
+    }
     private let gradientLayer = CAGradientLayer()
     
     public override init(frame: CGRect) {
         super.init(frame: frame)
         setupGradientLayer()
+        layer.addSublayer(gradientLayer)
     }
     
     public required init?(coder: NSCoder) {
         super.init(coder: coder)
         setupGradientLayer()
+        layer.addSublayer(gradientLayer)
     }
 
     private func setupGradientLayer() {
@@ -34,7 +44,6 @@ open class ShimmerView: UIView {
         ]
 
         gradientLayer.locations = [0.0, 0.5, 1.0]
-        layer.addSublayer(gradientLayer)
     }
     
     open override func layoutSubviews() {

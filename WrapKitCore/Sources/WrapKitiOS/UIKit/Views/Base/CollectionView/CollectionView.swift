@@ -67,20 +67,6 @@ open class CollectionView: UICollectionView {
         cells.forEach { register($0, forCellWithReuseIdentifier: String(describing: $0)) }
     }
 
-    open func changePlaceholder(_ state: Bool) {
-        switch state {
-        case false:
-            self.backgroundView?.alpha = 0
-        default:
-            UIView.animate(
-                withDuration: 0.2,
-                animations: {
-                    self.backgroundView?.alpha = 1
-                }
-            )
-        }
-    }
-
     public required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
     }

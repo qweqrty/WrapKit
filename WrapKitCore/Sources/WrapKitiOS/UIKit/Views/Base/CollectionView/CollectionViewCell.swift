@@ -9,11 +9,12 @@
 import UIKit
 
 open class CollectionViewCell<ContentView: UIView>: UICollectionViewCell {
-    public let mainContentView = ContentView()
+    public let mainContentView: ContentView
     
     public var mainContentViewConstraints: AnchoredConstraints?
 
     public override init(frame: CGRect) {
+        self.mainContentView = ContentView()
         super.init(frame: frame)
         contentView.backgroundColor = .clear
         backgroundView = nil

@@ -70,10 +70,32 @@ public extension UIView {
         views.forEach { addSubview($0) }
     }
     
-    func wrappedInUIView(padding: UIEdgeInsets = .zero) -> UIView {
-        let view = UIView()
+    func wrappedInView(padding: UIEdgeInsets = .zero) -> View {
+        let view = View()
         view.addSubview(self)
         fillSuperview(padding: padding)
+        return view
+    }
+    
+    func wrapped(in view: UIView, padding: UIEdgeInsets = .zero) -> UIView {
+        view.addSubview(self)
+        fillSuperview(padding: padding)
+        return view
+    }
+    
+    func centeredInView(width: CGFloat? = nil, height: CGFloat? = nil) -> View {
+        if let width { self.constrainWidth(width) }
+        if let height { self.constrainHeight(height) }
+        let view = View()
+        view.addSubviews(self)
+        anchor(
+            .topGreaterThanEqual(view.topAnchor),
+            .leadingGreaterThanEqual(view.leadingAnchor),
+            .bottomLessThanEqual(view.bottomAnchor),
+            .trailingLessThanEqual(view.trailingAnchor),
+            .centerX(view.centerXAnchor),
+            .centerY(view.centerYAnchor)
+        )
         return view
     }
     

@@ -8,7 +8,6 @@
 #if canImport(UIKit)
 import UIKit
 
-// MARK: image.leading = superview.leading
 open class Button: UIButton {
     public var onPress: (() -> Void)?
     public var spacing: CGFloat = 0 {
@@ -20,21 +19,6 @@ open class Button: UIButton {
     public var contentInset: UIEdgeInsets = .zero {
         didSet {
             updateSpacings()
-        }
-    }
-    
-    public override var isHighlighted: Bool {
-        didSet {
-            if isHighlighted {
-                UIView.animate(withDuration: 0.3, delay: .leastNonzeroMagnitude, options: .allowUserInteraction) {
-                    self.alpha = 0.7
-                }
-                onPress?()
-            } else {
-                UIView.animate(withDuration: 0.3, delay: .leastNonzeroMagnitude, options: .allowUserInteraction) {
-                    self.alpha = 1.0
-                }
-            }
         }
     }
     
@@ -82,7 +66,12 @@ open class Button: UIButton {
         self.backgroundColor = backgroundColor
         self.contentInset = contentInset
         self.isHidden = isHidden
+        self.addTarget(self, action: #selector(onTap), for: .touchUpInside)
         updateSpacings()
+    }
+    
+    @objc private func onTap() {
+        onPress?()
     }
 }
 #endif
