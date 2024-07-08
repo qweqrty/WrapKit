@@ -11,21 +11,21 @@ import UIKit
 open class NavigationBar: UIView {
     public lazy var leadingStackView = StackView(axis: .horizontal, spacing: 12)
     public lazy var centerView = UIView()
+    public lazy var centerTitledImageView = makeTitledLogoView()
+    
     public lazy var trailingStackView = StackView(axis: .horizontal, spacing: 12, isHidden: true)
     public lazy var mainStackView = StackView(axis: .horizontal, spacing: 8)
     
-    public lazy var backButton = makeBackButton(imageName: "arrow-left")
+    public lazy var leadingCardView = makeLeadingCardView()
     public lazy var titleViews = VKeyValueFieldView(
         keyLabel: Label(font: .systemFont(ofSize: 18), textColor: .black, textAlignment: .center, numberOfLines: 1),
         valueLabel: Label(isHidden: true, font: .systemFont(ofSize: 14), textColor: .black, numberOfLines: 1)
     )
-    public lazy var closeButton = makeBackButton(imageName: "xmark")
+    public lazy var primeTrailingImageView = ImageView(isHidden: true)
+    public lazy var secondaryTrailingImageView = ImageView(isHidden: true)
+    public lazy var tertiaryTrailingImageView = ImageView(isHidden: true)
     
     public var mainStackViewConstraints: AnchoredConstraints?
-    public var backButtonConstraints: AnchoredConstraints?
-    public var closeButtonConstraints: AnchoredConstraints?
-    
-    private let height: CGFloat = 52
     
     public override init(frame: CGRect) {
         super.init(frame: frame)
@@ -38,25 +38,24 @@ open class NavigationBar: UIView {
         mainStackView.addArrangedSubview(leadingStackView)
         mainStackView.addArrangedSubview(centerView)
         mainStackView.addArrangedSubview(trailingStackView)
-        leadingStackView.addArrangedSubview(backButton)
+        leadingStackView.addArrangedSubview(leadingCardView)
         centerView.addSubview(titleViews)
-        trailingStackView.addArrangedSubview(closeButton)
-        
-        backButtonConstraints = backButton.anchor(.width(36))
-        closeButtonConstraints = closeButton.anchor(.width(36))
+        centerView.addSubview(centerTitledImageView)
+        trailingStackView.addArrangedSubview(primeTrailingImageView)
+        trailingStackView.addArrangedSubview(secondaryTrailingImageView)
+        trailingStackView.addArrangedSubview(tertiaryTrailingImageView)
     }
     
     private func setupConstraints() {
-        
         mainStackViewConstraints = mainStackView.anchor(
             .top(safeAreaLayoutGuide.topAnchor),
             .leading(leadingAnchor, constant: 12),
             .trailing(trailingAnchor, constant: 12),
-            .height(height),
+            .height(52),
             .bottom(bottomAnchor)
         )
         trailingStackView.setContentCompressionResistancePriority(.required, for: .horizontal)
-        closeButton.setContentCompressionResistancePriority(.required, for: .horizontal)
+        primeTrailingImageView.setContentCompressionResistancePriority(.required, for: .horizontal)
         titleViews.anchor(
             .top(centerView.topAnchor),
             .bottom(centerView.bottomAnchor),
@@ -64,6 +63,12 @@ open class NavigationBar: UIView {
             .trailingGreaterThanEqual(centerView.trailingAnchor),
             .leading(leadingAnchor),
             .trailing(trailingAnchor)
+        )
+        
+        centerTitledImageView.anchor(
+            .top(topAnchor),
+            .bottom(bottomAnchor),
+            .centerX(centerXAnchor)
         )
     }
     
@@ -73,13 +78,24 @@ open class NavigationBar: UIView {
 }
 
 private extension NavigationBar {
-    func makeBackButton(imageName: String, isHidden: Bool = false) -> Button {
-        let btn = Button(
-            image: UIImage(named: imageName),
-            tintColor: .black,
-            isHidden: isHidden
-        )
-        return btn
+    func makeLeadingCardView() -> CardView {
+        let view = CardView()
+        view.vStackView.layoutMargins = .zero
+        view.hStackView.spacing = 8
+        view.bottomSeparatorView.isHidden = true
+        view.trailingImageWrapperView.isHidden = true
+        view.subtitleLabel.isHidden = true
+        return view
+    }
+    
+    func makeTitledLogoView() -> TitledView<ImageView> {
+        let view = TitledView(contentView: ImageView())
+        view.isHidden = true
+        view.closingTitleVFieldView.setContentCompressionResistancePriority(.required, for: .horizontal)
+        view.closingTitleVFieldView.keyLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
+        view.closingTitleVFieldView.keyLabel.textAlignment = .center
+        view.closingTitleVFieldView.isHidden = false
+        return view
     }
 }
 #endif
