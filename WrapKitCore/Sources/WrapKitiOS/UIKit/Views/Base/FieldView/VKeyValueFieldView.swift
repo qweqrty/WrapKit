@@ -168,6 +168,8 @@ open class VKeyValueFieldView: UIView {
         self.keyLabel = keyLabel
         self.valueLabel = valueLabel
         self.isHidden = isHidden
+        keyShimmerView.isHidden = true
+        valueShimmerView.isHidden = true
 
         setupSubviews()
         setupConstraints()

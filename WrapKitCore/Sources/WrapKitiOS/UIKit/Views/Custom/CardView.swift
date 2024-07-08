@@ -59,6 +59,7 @@ open class CardView: View {
         titleViews.valueLabel.setContentCompressionResistancePriority(.required, for: .vertical)
         switchControl.setContentCompressionResistancePriority(.required, for: .horizontal)
         switchControl.setContentCompressionResistancePriority(.required, for: .vertical)
+        leadingShimmerView.isHidden = true
     }
     
     public required init?(coder: NSCoder) {
@@ -66,11 +67,13 @@ open class CardView: View {
     }
     
     public func runShimmer(showLeadingImageShimmer: Bool, showKeyLabelShimmer: Bool, showValueLabelShimmer: Bool) {
+        leadingShimmerView.isHidden = false
         leadingShimmerView.startShimmering()
         titleViews.runShimmer(showKeyShimmer: showKeyLabelShimmer, showValueShimmer: showValueLabelShimmer)
     }
     
     public func stopShimmer() {
+        leadingShimmerView.isHidden = true
         leadingShimmerView.stopShimmering()
         titleViews.stopShimmer()
     }
@@ -88,6 +91,7 @@ extension CardView {
         hStackView.addArrangedSubview(switchWrapperView)
         
         leadingImageWrapperView.addSubview(leadingImageView)
+        leadingImageWrapperView.addSubview(leadingShimmerView)
         trailingImageWrapperView.addSubview(trailingImageView)
         titleViewsWrapperView.addSubview(titleViews)
         switchWrapperView.addSubview(switchControl)
@@ -101,6 +105,8 @@ extension CardView {
             .trailing(titleViewsWrapperView.trailingAnchor),
             .centerY(titleViewsWrapperView.centerYAnchor)
         )
+        
+        leadingShimmerView.fillSuperview()
         
         leadingImageViewConstraints = leadingImageView.anchor(
             .topGreaterThanEqual(leadingImageWrapperView.topAnchor),
