@@ -205,6 +205,8 @@ extension VKeyValueFieldView {
         addSubview(stackView)
         stackView.addArrangedSubview(keyLabel)
         stackView.addArrangedSubview(valueLabel)
+        stackView.addArrangedSubview(keyShimmerView)
+        stackView.addArrangedSubview(valueShimmerView)
     }
 
     func setupConstraints() {
