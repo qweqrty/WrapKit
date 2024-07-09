@@ -63,10 +63,7 @@ public enum SelectionType {
 }
 
 public struct SelectionConfiguration {
-    public let searchTitle: String
-    public let resetTitle: String
-    public let selectTitle: String
-    
+    public let texts: Texts
     public let cell: Cell
     public let content: Content
     public let resetButton: ActionButton
@@ -75,9 +72,7 @@ public struct SelectionConfiguration {
     public let resetButtonColors: ResetButtonColors
     
     public init(
-        searchTitle: String,
-        resetTitle: String,
-        selectTitle: String,
+        texts: Texts,
         cell: Cell,
         content: Content,
         resetButton: ActionButton,
@@ -85,15 +80,32 @@ public struct SelectionConfiguration {
         searchBar: SearchBar,
         resetButtonColors: ResetButtonColors
     ) {
-        self.searchTitle = searchTitle
-        self.resetTitle = resetTitle
-        self.selectTitle = selectTitle
+        self.texts = texts
         self.cell = cell
         self.content = content
         self.resetButton = resetButton
         self.searchButton = searchButton
         self.searchBar = searchBar
         self.resetButtonColors = resetButtonColors
+    }
+    
+    public struct Texts {
+        public let searchTitle: String
+        public let resetTitle: String
+        public let selectTitle: String
+        public let selectedCountTitle: String
+        
+        public init(
+            searchTitle: String,
+            resetTitle: String,
+            selectTitle: String,
+            selectedCountTitle: String
+        ) {
+            self.searchTitle = searchTitle
+            self.resetTitle = resetTitle
+            self.selectTitle = selectTitle
+            self.selectedCountTitle = selectedCountTitle
+        }
     }
     
     public struct Cell {
@@ -189,19 +201,25 @@ public struct SelectionConfiguration {
     public struct ResetButtonColors {
         public let activeTitleColor: Color
         public let activeBorderColor: Color
+        public let activeBackgroundColor: Color
         public let inactiveTitleColor: Color
         public let inactiveBorderColor: Color
+        public let inactiveBackgroundColor: Color
         
         public init(
             activeTitleColor: Color,
             activeBorderColor: Color,
+            activeBackgroundColor: Color,
             inactiveTitleColor: Color,
-            inactiveBorderColor: Color
+            inactiveBorderColor: Color,
+            inactiveBackgroundColor: Color
         ) {
             self.activeTitleColor = activeTitleColor
             self.activeBorderColor = activeBorderColor
+            self.activeBackgroundColor = activeBackgroundColor
             self.inactiveTitleColor = inactiveTitleColor
             self.inactiveBorderColor = inactiveBorderColor
+            self.inactiveBackgroundColor = inactiveBackgroundColor
         }
     }
 }
