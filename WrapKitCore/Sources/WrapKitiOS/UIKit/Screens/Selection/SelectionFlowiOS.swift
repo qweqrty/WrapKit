@@ -26,7 +26,7 @@ public class SelectionFlowiOS: SelectionFlow {
         self.factory = factory
     }
     
-    public func showSelection(shadowBackgroundColor: Color) {
+    public func showSelection() {
         let vc = factory.resolveSelection(
             title: model.title,
             isMultipleSelectionEnabled: model.isMultipleSelectionEnabled,
@@ -40,7 +40,7 @@ public class SelectionFlowiOS: SelectionFlow {
             configuration: .init(
                 cornerRadius: 16,
                 pullBarConfiguration: .hidden,
-                shadowConfiguration: shadowBackgroundColor
+                shadowConfiguration: .init(backgroundColor: model.configuration.content.shadowBackgroundColor)
             )
         )
     }

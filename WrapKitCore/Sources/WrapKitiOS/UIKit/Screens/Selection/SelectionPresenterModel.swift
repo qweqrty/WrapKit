@@ -148,18 +148,22 @@ public struct SelectionConfiguration {
         public var navBarFont: Font
         public var navBarTextColor: Color
         
+        public let shadowBackgroundColor: Color
+        
         public init(
             lineColor: Color,
             backgroundColor: Color,
             backButtonImage: Image,
             navBarFont: Font,
-            navBarTextColor: Color
+            navBarTextColor: Color,
+            shadowBackgroundColor: Color
         ) {
             self.lineColor = lineColor
             self.backgroundColor = backgroundColor
             self.backButtonImage = backButtonImage
             self.navBarFont = navBarFont
             self.navBarTextColor = navBarTextColor
+            self.shadowBackgroundColor = shadowBackgroundColor
         }
     }
     
