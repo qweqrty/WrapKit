@@ -5,6 +5,7 @@
 //  Created by Daniiar Erkinov on 3/7/24.
 //
 
+#if canImport(UIKit)
 import Foundation
 import UIKit
 import BottomSheet
@@ -13,12 +14,12 @@ public class SelectionFlowiOS: SelectionFlow {
     public let model: Model
     
     private weak var navigationController: UINavigationController?
-    private let factory: ISelectionFactory
+    private let factory: any ISelectionFactory<UIViewController>
     
     public init(
         model: Model,
         navigationController: UINavigationController?,
-        factory: ISelectionFactory
+        factory: any ISelectionFactory<UIViewController>
     ) {
         self.model = model
         self.navigationController = navigationController
@@ -66,3 +67,4 @@ public class SelectionFlowiOS: SelectionFlow {
         }
     }
 }
+#endif

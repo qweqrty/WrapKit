@@ -1,10 +1,11 @@
 //
-//  File.swift
-//  
+//  SearchBar.swift
+//
 //
 //  Created by Daniiar Erkinov on 3/7/24.
 //
 
+#if canImport(UIKit)
 import Foundation
 import UIKit
 
@@ -52,3 +53,4 @@ public class SearchBar: View {
         fatalError("init(coder:) has not been implemented")
     }
 }
+#endif

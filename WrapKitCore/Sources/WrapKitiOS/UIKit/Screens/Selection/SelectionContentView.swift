@@ -5,6 +5,7 @@
 //  Created by Daniiar Erkinov on 3/7/24.
 //
 
+#if canImport(UIKit)
 import Foundation
 import UIKit
 
@@ -98,7 +99,7 @@ private extension SelectionContentView {
         let navigationBar = NavigationBar()
         navigationBar.titleViews.keyLabel.font = config.content.navBarFont
         navigationBar.titleViews.keyLabel.textColor = config.content.navBarTextColor
-        navigationBar.backButton.setImage(config.content.backButtonImage, for: .normal)
+        navigationBar.leadingCardView.leadingImageView.image = config.content.backButtonImage
         navigationBar.titleViews.stackView.layoutMargins = .init(top: 0, left: 12, bottom: 0, right: 12)
         navigationBar.leadingStackView.isHidden = true
         navigationBar.trailingStackView.isHidden = false
@@ -120,8 +121,7 @@ private extension SelectionContentView {
     func makeSearchBar() -> SearchBar {
         let searchBar = SearchBar(
             textfield: Textfield(
-                appearance: config.searchBar.textfieldAppearence,
-                placeholder: nil
+                appearance: config.searchBar.textfieldAppearence
             )
         )
         searchBar.textfield.leadingView = WrapperView(contentView: ImageView(
@@ -131,3 +131,4 @@ private extension SelectionContentView {
         return searchBar
     }
 }
+#endif

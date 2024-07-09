@@ -5,6 +5,7 @@
 //  Created by Daniiar Erkinov on 3/7/24.
 //
 
+#if canImport(UIKit)
 import Foundation
 import UIKit
 import BottomSheet
@@ -39,7 +40,7 @@ open class SelectionVC: ViewController<SelectionContentView> {
     }
     
     private func setupUI() {
-        contentView.navigationBar.closeButton.onPress = presenter.onTapClose
+        contentView.navigationBar.primeTrailingImageView.onPress = presenter.onTapClose
         contentView.resetButton.onPress = presenter.onTapReset
         contentView.selectButton.onPress = presenter.onTapFinishSelection
         contentView.tableView.delegate = datasource
@@ -126,3 +127,4 @@ extension SelectionVC: SelectionOutput {
 extension SelectionVC: ScrollableBottomSheetPresentedController {
     public var scrollView: UIScrollView? { contentView.tableView }
 }
+#endif

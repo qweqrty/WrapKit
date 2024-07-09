@@ -48,6 +48,11 @@
 	</dict>
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
+		<key>WrapKit</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
 		<key>WrapKitDynamic</key>
 		<dict>
 			<key>primary</key>

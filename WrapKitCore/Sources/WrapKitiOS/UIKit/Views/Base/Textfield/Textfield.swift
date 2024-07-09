@@ -5,6 +5,69 @@
 //  Created by Stanislav Li on 8/12/23.
 //
 
+import Foundation
+
+public struct TextfieldAppearance {
+    public init(colors: TextfieldAppearance.Colors, font: Font, border: TextfieldAppearance.Border? = nil) {
+        self.colors = colors
+        self.font = font
+        self.border = border
+    }
+    
+    public struct Colors {
+        public init(
+            textColor: Color,
+            selectedBorderColor: Color,
+            selectedBackgroundColor: Color,
+            errorBorderColor: Color,
+            errorBackgroundColor: Color,
+            deselectedBorderColor: Color,
+            deselectedBackgroundColor: Color
+        ) {
+            self.textColor = textColor
+            self.selectedBorderColor = selectedBorderColor
+            self.selectedBackgroundColor = selectedBackgroundColor
+            self.errorBorderColor = errorBorderColor
+            self.errorBackgroundColor = errorBackgroundColor
+            self.deselectedBorderColor = deselectedBorderColor
+            self.deselectedBackgroundColor = deselectedBackgroundColor
+        }
+        
+        public var textColor: Color
+        public var selectedBorderColor: Color
+        public var selectedBackgroundColor: Color
+        public var errorBorderColor: Color
+        public var errorBackgroundColor: Color
+        public var deselectedBorderColor: Color
+        public var deselectedBackgroundColor: Color
+    }
+    public struct Border {
+        public init(idleBorderWidth: CGFloat, selectedBorderWidth: CGFloat) {
+            self.idleBorderWidth = idleBorderWidth
+            self.selectedBorderWidth = selectedBorderWidth
+        }
+        
+        public var idleBorderWidth: CGFloat
+        public var selectedBorderWidth: CGFloat
+    }
+    public struct Placeholder {
+        public init(color: Color, font: Font, text: String? = nil) {
+            self.color = color
+            self.font = font
+            self.text = text
+        }
+        
+        public var color: Color
+        public var font: Font
+        public var text: String?
+    }
+    
+    public var colors: Colors
+    public var font: Font
+    public var border: Border?
+    public var placeholder: Placeholder?
+}
+
 #if canImport(UIKit)
 import UIKit
 
@@ -12,59 +75,6 @@ open class Textfield: UITextField {
     public enum TrailingViewStyle {
         case clear(trailingView: View)
         case custom(trailingView: View)
-    }
-    
-    public struct Placeholder {
-        public init(color: UIColor, font: UIFont, text: String? = nil) {
-            self.color = color
-            self.font = font
-            self.text = text
-        }
-        
-        public var color: UIColor
-        public var font: UIFont
-        public var text: String?
-    }
-    
-    public struct Appearance {
-        public init(colors: Textfield.Appearance.Colors, font: UIFont, border: Textfield.Appearance.Border? = nil) {
-            self.colors = colors
-            self.font = font
-            self.border = border
-        }
-        
-        public struct Colors {
-            public init(textColor: UIColor, selectedBorderColor: UIColor, selectedBackgroundColor: UIColor, errorBorderColor: UIColor, errorBackgroundColor: UIColor, deselectedBorderColor: UIColor, deselectedBackgroundColor: UIColor) {
-                self.textColor = textColor
-                self.selectedBorderColor = selectedBorderColor
-                self.selectedBackgroundColor = selectedBackgroundColor
-                self.errorBorderColor = errorBorderColor
-                self.errorBackgroundColor = errorBackgroundColor
-                self.deselectedBorderColor = deselectedBorderColor
-                self.deselectedBackgroundColor = deselectedBackgroundColor
-            }
-            
-            public var textColor: UIColor
-            public var selectedBorderColor: UIColor
-            public var selectedBackgroundColor: UIColor
-            public var errorBorderColor: UIColor
-            public var errorBackgroundColor: UIColor
-            public var deselectedBorderColor: UIColor
-            public var deselectedBackgroundColor: UIColor
-        }
-        public struct Border {
-            public init(idleBorderWidth: CGFloat, selectedBorderWidth: CGFloat) {
-                self.idleBorderWidth = idleBorderWidth
-                self.selectedBorderWidth = selectedBorderWidth
-            }
-            
-            public var idleBorderWidth: CGFloat
-            public var selectedBorderWidth: CGFloat
-        }
-        
-        public var colors: Colors
-        public var font: UIFont
-        public var border: Border?
     }
     
     public var leadingView: View? {
@@ -127,14 +137,12 @@ open class Textfield: UITextField {
         }
     }
     
-    public var appearance: Appearance { didSet { updateAppearance() }}
-    public var customizedPlaceholder: Placeholder? { didSet { updatePlaceholder() }}
+    public var appearance: TextfieldAppearance { didSet { updateAppearance() }}
     
     public init(
         cornerRadius: CGFloat = 10,
         textAlignment: NSTextAlignment = .natural,
-        appearance: Appearance,
-        placeholder: Placeholder?,
+        appearance: TextfieldAppearance,
         padding: UIEdgeInsets = .init(top: 10, left: 12, bottom: 10, right: 12),
         nextTextfield: UIResponder? = nil,
         leadingView: View? = nil,
@@ -146,7 +154,6 @@ open class Textfield: UITextField {
         self.padding = padding
         self.nextTextfield = nextTextfield
         self.appearance = appearance
-        self.customizedPlaceholder = placeholder
         super.init(frame: .zero)
 
         self.textAlignment = textAlignment
@@ -216,7 +223,7 @@ open class Textfield: UITextField {
     }
     
     private func updatePlaceholder() {
-        guard let customizedPlaceholder = customizedPlaceholder else { return }
+        guard let customizedPlaceholder = appearance.placeholder else { return }
         attributedPlaceholder = NSAttributedString(
             string: customizedPlaceholder.text ?? placeholder ?? "",
             attributes: [
@@ -353,6 +360,7 @@ public extension Textfield {
     }
     
     private func updateAppearance() {
+        updatePlaceholder()
         font = appearance.font
         let text = (delegate as? MaskedTextfieldDelegate)?.fullText ?? text
         let isValid = validationRule?(text) ?? true

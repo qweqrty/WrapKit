@@ -5,6 +5,7 @@
 //  Created by Daniiar Erkinov on 3/7/24.
 //
 
+#if canImport(UIKit)
 import UIKit
 
 public class SelectionCell: TableViewCell<SelectionCellContentView> {
@@ -42,3 +43,4 @@ public class SelectionCell: TableViewCell<SelectionCellContentView> {
         mainContentView.leadingImageView.image = nil
     }
 }
+#endif

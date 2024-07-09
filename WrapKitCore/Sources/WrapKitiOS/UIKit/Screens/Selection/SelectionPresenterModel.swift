@@ -61,3 +61,143 @@ public enum SelectionType {
     case singleSelection(SelectionCellPresentableModel)
     case multipleSelection([SelectionCellPresentableModel])
 }
+
+public struct SelectionConfiguration {
+    public let searchTitle: String
+    public let resetTitle: String
+    public let selectTitle: String
+    
+    public let cell: Cell
+    public let content: Content
+    public let resetButton: ActionButton
+    public let searchButton: ActionButton
+    public let searchBar: SearchBar
+    public let resetButtonColors: ResetButtonColors
+    
+    public init(
+        searchTitle: String,
+        resetTitle: String,
+        selectTitle: String,
+        cell: Cell,
+        content: Content,
+        resetButton: ActionButton,
+        searchButton: ActionButton,
+        searchBar: SearchBar,
+        resetButtonColors: ResetButtonColors
+    ) {
+        self.searchTitle = searchTitle
+        self.resetTitle = resetTitle
+        self.selectTitle = selectTitle
+        self.cell = cell
+        self.content = content
+        self.resetButton = resetButton
+        self.searchButton = searchButton
+        self.searchBar = searchBar
+        self.resetButtonColors = resetButtonColors
+    }
+    
+    public struct Cell {
+        public var titleFont: Font
+        public var trailingFont: Font
+        public var titleColor: Color
+        public var trailingColor: Color
+        public var selectedImage: Image
+        public var notSelectedImage: Image
+        public var lineColor: Color
+        
+        public init(
+            titleFont: Font,
+            trailingFont: Font,
+            titleColor: Color,
+            trailingColor: Color,
+            selectedImage: Image,
+            notSelectedImage: Image,
+            lineColor: Color
+        ) {
+            self.titleFont = titleFont
+            self.trailingFont = trailingFont
+            self.titleColor = titleColor
+            self.trailingColor = trailingColor
+            self.selectedImage = selectedImage
+            self.notSelectedImage = notSelectedImage
+            self.lineColor = lineColor
+        }
+    }
+    
+    public struct SearchBar {
+        public var textfieldAppearence: TextfieldAppearance
+        public var searchImage: Image
+        public var tintColor: Color
+        
+        public init(
+            textfieldAppearence: TextfieldAppearance,
+            searchImage: Image,
+            tintColor: Color
+        ) {
+            self.textfieldAppearence = textfieldAppearence
+            self.searchImage = searchImage
+            self.tintColor = tintColor
+        }
+    }
+    
+    public struct Content {
+        public var lineColor: Color
+        public var backgroundColor: Color
+        
+        public var backButtonImage: Image
+        public var navBarFont: Font
+        public var navBarTextColor: Color
+        
+        public init(
+            lineColor: Color,
+            backgroundColor: Color,
+            backButtonImage: Image,
+            navBarFont: Font,
+            navBarTextColor: Color
+        ) {
+            self.lineColor = lineColor
+            self.backgroundColor = backgroundColor
+            self.backButtonImage = backButtonImage
+            self.navBarFont = navBarFont
+            self.navBarTextColor = navBarTextColor
+        }
+    }
+    
+    public struct ActionButton {
+        public var labelFont: Font
+        public var textColor: Color
+        public var backgroundColor: Color
+        public var borderColor: Color
+        
+        public init(
+            labelFont: Font,
+            textColor: Color,
+            backgroundColor: Color,
+            borderColor: Color
+        ) {
+            self.labelFont = labelFont
+            self.textColor = textColor
+            self.backgroundColor = backgroundColor
+            self.borderColor = borderColor
+        }
+    }
+    
+    public struct ResetButtonColors {
+        public let activeTitleColor: Color
+        public let activeBorderColor: Color
+        public let inactiveTitleColor: Color
+        public let inactiveBorderColor: Color
+        
+        public init(
+            activeTitleColor: Color,
+            activeBorderColor: Color,
+            inactiveTitleColor: Color,
+            inactiveBorderColor: Color
+        ) {
+            self.activeTitleColor = activeTitleColor
+            self.activeBorderColor = activeBorderColor
+            self.inactiveTitleColor = inactiveTitleColor
+            self.inactiveBorderColor = inactiveBorderColor
+        }
+    }
+}

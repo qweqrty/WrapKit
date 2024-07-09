@@ -20,12 +20,12 @@ let package = Package(
     targets: [
         .target(
             name: "WrapKit",
-            dependencies: [.product(name: "BottomSheet", package: "BottomSheet")],
+            dependencies: [.product(name: "BottomSheet", package: "BottomSheet", condition: .when(platforms: [.iOS]))],
             path: "WrapKitCore/Sources"
         ),
         .testTarget(
             name: "WrapKitTests",
-            dependencies: ["WrapKit", .product(name: "BottomSheet", package: "BottomSheet")],
+            dependencies: ["WrapKit", .product(name: "BottomSheet", package: "BottomSheet", condition: .when(platforms: [.iOS]))],
             path: "WrapKitCore/Tests"
         ),
     ]
