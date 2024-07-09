@@ -14,7 +14,7 @@ open class CardView: View {
     
     public let leadingImageWrapperView = UIView()
     public let leadingImageView = ImageView(tintColor: .black)
-    public let leadingShimmerView = ShimmerView()
+    
     public let titleViewsWrapperView = UIView()
     public let titleViews = VKeyValueFieldView(
         keyLabel: Label(font: .systemFont(ofSize: 16), textColor: .black),
@@ -59,23 +59,10 @@ open class CardView: View {
         titleViews.valueLabel.setContentCompressionResistancePriority(.required, for: .vertical)
         switchControl.setContentCompressionResistancePriority(.required, for: .horizontal)
         switchControl.setContentCompressionResistancePriority(.required, for: .vertical)
-        leadingShimmerView.isHidden = true
     }
     
     public required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
-    }
-    
-    public func runShimmer(showLeadingImageShimmer: Bool, showKeyLabelShimmer: Bool, showValueLabelShimmer: Bool) {
-        leadingShimmerView.isHidden = false
-        leadingShimmerView.startShimmering()
-        titleViews.runShimmer(showKeyShimmer: showKeyLabelShimmer, showValueShimmer: showValueLabelShimmer)
-    }
-    
-    public func stopShimmer() {
-        leadingShimmerView.isHidden = true
-        leadingShimmerView.stopShimmering()
-        titleViews.stopShimmer()
     }
 }
 
@@ -91,7 +78,6 @@ extension CardView {
         hStackView.addArrangedSubview(switchWrapperView)
         
         leadingImageWrapperView.addSubview(leadingImageView)
-        leadingImageWrapperView.addSubview(leadingShimmerView)
         trailingImageWrapperView.addSubview(trailingImageView)
         titleViewsWrapperView.addSubview(titleViews)
         switchWrapperView.addSubview(switchControl)
@@ -105,8 +91,6 @@ extension CardView {
             .trailing(titleViewsWrapperView.trailingAnchor),
             .centerY(titleViewsWrapperView.centerYAnchor)
         )
-        
-        leadingShimmerView.fillSuperview()
         
         leadingImageViewConstraints = leadingImageView.anchor(
             .topGreaterThanEqual(leadingImageWrapperView.topAnchor),
