@@ -14,15 +14,18 @@ let package = Package(
             type: .dynamic,
             targets: ["WrapKit"])
     ],
+    dependencies: [
+        .package(url: "https://github.com/joomcode/BottomSheet", from: "2.0.0")
+    ],
     targets: [
         .target(
             name: "WrapKit",
-            dependencies: [],
+            dependencies: [.product(name: "BottomSheet", package: "BottomSheet", condition: .when(platforms: [.iOS]))],
             path: "WrapKitCore/Sources"
         ),
         .testTarget(
             name: "WrapKitTests",
-            dependencies: ["WrapKit"],
+            dependencies: ["WrapKit", .product(name: "BottomSheet", package: "BottomSheet", condition: .when(platforms: [.iOS]))],
             path: "WrapKitCore/Tests"
         ),
     ]
