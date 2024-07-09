@@ -11,7 +11,8 @@ public protocol SelectionOutput: AnyObject {
     func display(items: [SelectionType.SelectionCellPresentableModel])
     func display(title: String?)
     func display(shouldShowSearchBar: Bool)
-    func display(canReset: Bool)
+    func display(canReset: Bool, resetButtonColors: SelectionConfiguration.ResetButtonColors)
+    func apply(configuration: SelectionConfiguration)
 }
 
 public protocol SelectionInput {
@@ -42,17 +43,21 @@ public class SelectionPresenter {
     private var searchText = ""
     private let shouldShowSearchBarThresholdCount = 15
     
+    private let configuration: SelectionConfiguration
+    
     public init(
         title: String?,
         isMultipleSelectionEnabled: Bool,
         items: [SelectionType.SelectionCellPresentableModel],
-        flow: SelectionFlow
+        flow: SelectionFlow,
+        configuration: SelectionConfiguration
     ) {
         self.title = title
         self.isMultipleSelectionEnabled = isMultipleSelectionEnabled
         self.initialSelectedItems = items
         self.items = items
         self.flow = flow
+        self.configuration = configuration
     }
     
     private var itemsToPresent: [SelectionType.SelectionCellPresentableModel] { searchText.isEmpty ? items : items.filter({ ($0.title ).lowercased().contains(searchText.lowercased()) }) }
@@ -89,7 +94,10 @@ extension SelectionPresenter: SelectionInput {
     public func onSearch(_ text: String?) {
         searchText = text ?? ""
         view?.display(items: itemsToPresent)
-        view?.display(canReset: initialSelectedItems != items)
+        view?.display(
+            canReset: initialSelectedItems != items,
+            resetButtonColors: configuration.resetButtonColors
+        )
     }
     
     public func onSelect(at index: Int) {

@@ -35,9 +35,7 @@ open class SelectionVC: ViewController<SelectionContentView> {
     }
     
     private func setupTitles() {
-        contentView.searchBar.textfield.placeholder = "Search"
-        contentView.resetButton.setTitle("Reset", for: .normal)
-        contentView.selectButton.setTitle("Select", for: .normal)
+        
     }
     
     private func setupUI() {
@@ -61,7 +59,7 @@ open class SelectionVC: ViewController<SelectionContentView> {
         contentView.stackView.frame.height +
         (contentView.tableViewConstraints?.top?.constant ?? 0)
         
-        let bottomViewHeight = contentView.stackView.bounds.height + 24 + 24//CGFloat.safeBottomAreaHeight
+        let bottomViewHeight = contentView.stackView.bounds.height + 24 + view.safeAreaInsets.bottom
         
         if presenter.isMultipleSelectionEnabled {
             if ((window?.bounds.height ?? 0) - contentView.stackView.bounds.height) > calculatedHeight {
@@ -90,13 +88,13 @@ open class SelectionVC: ViewController<SelectionContentView> {
 }
 
 extension SelectionVC: SelectionOutput {
-    public func display(canReset: Bool) {
+    public func display(canReset: Bool, resetButtonColors: SelectionConfiguration.ResetButtonColors) {
         if canReset {
-            contentView.resetButton.setTitleColor(UIColor.black, for: .normal)
-            contentView.resetButton.layer.borderColor = UIColor.gray.cgColor
+            contentView.resetButton.setTitleColor(resetButtonColors.activeTitleColor, for: .normal)
+            contentView.resetButton.layer.borderColor = resetButtonColors.activeBorderColor.cgColor
         } else {
-            contentView.resetButton.setTitleColor(UIColor.gray, for: .normal)
-            contentView.resetButton.layer.borderColor = UIColor.lightGray.cgColor
+            contentView.resetButton.setTitleColor(resetButtonColors.inactiveTitleColor, for: .normal)
+            contentView.resetButton.layer.borderColor = resetButtonColors.inactiveBorderColor.cgColor
         }
     }
     
@@ -116,6 +114,12 @@ extension SelectionVC: SelectionOutput {
     
     public func display(title: String?) {
         contentView.navigationBar.titleViews.keyLabel.text = title
+    }
+    
+    public func apply(configuration: SelectionConfiguration) {
+        contentView.searchBar.textfield.placeholder = configuration.searchTitle
+        contentView.resetButton.setTitle(configuration.resetTitle, for: .normal)
+        contentView.selectButton.setTitle(configuration.selectTitle, for: .normal)
     }
 }
 

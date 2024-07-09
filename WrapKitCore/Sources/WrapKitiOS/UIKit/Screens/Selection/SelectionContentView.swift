@@ -10,7 +10,7 @@ import UIKit
 
 public class SelectionContentView: UIView {
     public lazy var scrollableView = ScrollableContentView()
-    public lazy var lineView = View(backgroundColor: UIColor.lightGray)
+    public lazy var lineView = View(backgroundColor: config.content.lineColor)
     public lazy var navigationBar = makeNavigationBar()
     public lazy var tableView = makeTableView()
     public lazy var searchBar = makeSearchBar()
@@ -23,11 +23,14 @@ public class SelectionContentView: UIView {
     public var searchBarConstraints: AnchoredConstraints?
     public var tableViewConstraints: AnchoredConstraints?
     
-    public init() {
+    public let config: SelectionConfiguration
+    
+    public init(config: SelectionConfiguration) {
+        self.config = config
         super.init(frame: .zero)
         setupSubviews()
         setupConstraints()
-        backgroundColor = UIColor.white
+        backgroundColor = config.content.backgroundColor
     }
     
     required init?(coder: NSCoder) {
@@ -68,7 +71,7 @@ extension SelectionContentView {
         stackView.anchor(
             .leading(leadingAnchor, constant: 12),
             .trailing(trailingAnchor, constant: 12),
-            .bottom(bottomAnchor, constant: 24 + 24)//CGFloat.safeBottomAreaHeight)
+            .bottom(bottomAnchor, constant: 24 + safeAreaInsets.bottom)
         )
         tableViewConstraints = tableView.anchor(
             .top(searchBar.bottomAnchor, constant: 16),
@@ -92,32 +95,24 @@ private extension SelectionContentView {
     }
     
     func makeNavigationBar() -> NavigationBar {
-//        let view = NavigationBar()
-//        view.titleViews.keyLabel.font = .systemFont(ofSize: 16)
-//        view.titleViews.keyLabel.textColor = UIColor.black.color
-//        view.titleViews.stackView.layoutMargins = .init(top: 0, left: 12, bottom: 0, right: 12)
-//        view.leadingStackView.isHidden = true
-//        view.trailingStackView.isHidden = false
-//        return view
         let navigationBar = NavigationBar()
-        navigationBar.titleViews.keyLabel.font = .systemFont(ofSize: 18, weight: .semibold)
-        navigationBar.backButton.setImage(UIImage(named: "icChevronLeft"), for: .normal)
+        navigationBar.titleViews.keyLabel.font = config.content.navBarFont
+        navigationBar.titleViews.keyLabel.textColor = config.content.navBarTextColor
+        navigationBar.backButton.setImage(config.content.backButtonImage, for: .normal)
+        navigationBar.titleViews.stackView.layoutMargins = .init(top: 0, left: 12, bottom: 0, right: 12)
+        navigationBar.leadingStackView.isHidden = true
+        navigationBar.trailingStackView.isHidden = false
         return navigationBar
-    }
-    
-    func makeButton(imageName: String) -> Button {
-        let btn = Button(image: UIImage(named: imageName)!, tintColor: .black)
-        return btn
     }
     
     func makeActionButton(isReset: Bool) -> Button {
         let button = Button(
-            textColor: isReset ? UIColor.black : UIColor.lightText,
-            titleLabelFont: .systemFont(ofSize: 16),
-            backgroundColor: isReset ? UIColor.darkGray : UIColor.white
+            textColor: isReset ? config.resetButton.textColor : config.searchButton.textColor,
+            titleLabelFont: config.resetButton.labelFont,
+            backgroundColor: isReset ? config.resetButton.backgroundColor : config.searchButton.backgroundColor
         )
         button.layer.cornerRadius = 16
-        button.layer.borderColor = isReset ? UIColor.lightGray.cgColor : UIColor.clear.cgColor
+        button.layer.borderColor = isReset ? config.resetButton.borderColor.cgColor : config.searchButton.borderColor.cgColor
         button.layer.borderWidth = isReset ? 1 : 0
         return button
     }
@@ -125,24 +120,13 @@ private extension SelectionContentView {
     func makeSearchBar() -> SearchBar {
         let searchBar = SearchBar(
             textfield: Textfield(
-                appearance: .init(
-                    colors: .init(
-                        textColor: .black,
-                        selectedBorderColor: .black,
-                        selectedBackgroundColor: .black,
-                        errorBorderColor: .black,
-                        errorBackgroundColor: .black,
-                        deselectedBorderColor: .black,
-                        deselectedBackgroundColor: .black
-                    ),
-                    font: .systemFont(ofSize: 16)
-                ),
+                appearance: config.searchBar.textfieldAppearence,
                 placeholder: nil
             )
         )
         searchBar.textfield.leadingView = WrapperView(contentView: ImageView(
-            image: UIImage(named: "plusIc"),
-            tintColor: UIColor.darkGray
+            image: config.searchBar.searchImage,
+            tintColor: config.searchBar.tintColor
         ))
         return searchBar
     }
