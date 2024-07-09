@@ -8,10 +8,16 @@
 import Foundation
 
 public struct TextfieldAppearance {
-    public init(colors: TextfieldAppearance.Colors, font: Font, border: TextfieldAppearance.Border? = nil) {
+    public init(
+        colors: TextfieldAppearance.Colors,
+        font: Font,
+        border: TextfieldAppearance.Border? = nil,
+        placeholder: TextfieldAppearance.Placeholder?
+    ) {
         self.colors = colors
         self.font = font
         self.border = border
+        self.placeholder = placeholder
     }
     
     public struct Colors {
