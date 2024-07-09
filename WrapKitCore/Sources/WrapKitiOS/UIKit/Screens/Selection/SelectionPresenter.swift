@@ -73,6 +73,7 @@ extension SelectionPresenter: SelectionInput {
         onSearch(searchText)
         view?.display(title: title)
         view?.display(shouldShowSearchBar: items.count > shouldShowSearchBarThresholdCount)
+        view?.apply(configuration: configuration)
     }
     
     public func onTapFinishSelection() {
