@@ -12,7 +12,7 @@ public struct TextfieldAppearance {
         colors: TextfieldAppearance.Colors,
         font: Font,
         border: TextfieldAppearance.Border? = nil,
-        placeholder: TextfieldAppearance.Placeholder?
+        placeholder: TextfieldAppearance.Placeholder? = nil
     ) {
         self.colors = colors
         self.font = font

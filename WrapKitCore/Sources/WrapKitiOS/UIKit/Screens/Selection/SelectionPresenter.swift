@@ -8,7 +8,7 @@
 import Foundation
 
 public protocol SelectionOutput: AnyObject {
-    func display(items: [SelectionType.SelectionCellPresentableModel])
+    func display(items: [SelectionType.SelectionCellPresentableModel], selectedCountTitle: String)
     func display(title: String?)
     func display(shouldShowSearchBar: Bool)
     func display(canReset: Bool, resetButtonColors: SelectionConfiguration.ResetButtonColors)
@@ -73,6 +73,7 @@ extension SelectionPresenter: SelectionInput {
         onSearch(searchText)
         view?.display(title: title)
         view?.display(shouldShowSearchBar: items.count > shouldShowSearchBarThresholdCount)
+        view?.apply(configuration: configuration)
     }
     
     public func onTapFinishSelection() {
@@ -93,7 +94,7 @@ extension SelectionPresenter: SelectionInput {
     
     public func onSearch(_ text: String?) {
         searchText = text ?? ""
-        view?.display(items: itemsToPresent)
+        view?.display(items: itemsToPresent, selectedCountTitle: configuration.texts.selectedCountTitle)
         view?.display(
             canReset: initialSelectedItems != items,
             resetButtonColors: configuration.resetButtonColors

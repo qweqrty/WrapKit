@@ -40,23 +40,8 @@ public class SelectionFlowiOS: SelectionFlow {
             configuration: .init(
                 cornerRadius: 16,
                 pullBarConfiguration: .hidden,
-                shadowConfiguration: .init(backgroundColor: UIColor.white)
+                shadowConfiguration: .init(backgroundColor: model.configuration.content.shadowBackgroundColor)
             )
-        )
-    }
-    
-    public func showSelection(with configuration: BottomSheetConfiguration) {
-        let vc = factory.resolveSelection(
-            title: model.title,
-            isMultipleSelectionEnabled: model.isMultipleSelectionEnabled,
-            items: model.items,
-            flow: self,
-            configuration: model.configuration
-        )
-        
-        navigationController?.presentBottomSheet(
-            viewController: vc,
-            configuration: configuration
         )
     }
     

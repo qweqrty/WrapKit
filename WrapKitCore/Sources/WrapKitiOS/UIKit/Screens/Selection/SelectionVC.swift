@@ -93,9 +93,11 @@ extension SelectionVC: SelectionOutput {
         if canReset {
             contentView.resetButton.setTitleColor(resetButtonColors.activeTitleColor, for: .normal)
             contentView.resetButton.layer.borderColor = resetButtonColors.activeBorderColor.cgColor
+            contentView.resetButton.backgroundColor = resetButtonColors.activeBackgroundColor
         } else {
             contentView.resetButton.setTitleColor(resetButtonColors.inactiveTitleColor, for: .normal)
             contentView.resetButton.layer.borderColor = resetButtonColors.inactiveBorderColor.cgColor
+            contentView.resetButton.backgroundColor = resetButtonColors.inactiveBackgroundColor
         }
     }
     
@@ -106,10 +108,10 @@ extension SelectionVC: SelectionOutput {
         contentView.tableViewConstraints?.top?.constant = shouldShowSearchBar ? 16 : 8
     }
     
-    public func display(items: [SelectionType.SelectionCellPresentableModel]) {
+    public func display(items: [SelectionType.SelectionCellPresentableModel], selectedCountTitle: String) {
         datasource.getItems = { items }
         let selectedItemsCount = items.filter { $0.isSelected }.count
-        contentView.selectButton.setTitle("\("select")\(selectedItemsCount == 0 ? "" : " (\(selectedItemsCount))")", for: .normal)
+        contentView.selectButton.setTitle("\(selectedCountTitle)\(selectedItemsCount == 0 ? "" : " (\(selectedItemsCount))")", for: .normal)
         contentView.tableView.reloadData()
     }
     
@@ -118,9 +120,9 @@ extension SelectionVC: SelectionOutput {
     }
     
     public func apply(configuration: SelectionConfiguration) {
-        contentView.searchBar.textfield.placeholder = configuration.searchTitle
-        contentView.resetButton.setTitle(configuration.resetTitle, for: .normal)
-        contentView.selectButton.setTitle(configuration.selectTitle, for: .normal)
+        contentView.searchBar.textfield.placeholder = configuration.texts.searchTitle
+        contentView.resetButton.setTitle(configuration.texts.resetTitle, for: .normal)
+        contentView.selectButton.setTitle(configuration.texts.selectTitle, for: .normal)
     }
 }
 
