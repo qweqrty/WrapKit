@@ -9,12 +9,13 @@
 import UIKit
 
 open class ToastView: UIView {
-    public let iconImageView = ImageView()
-    public let titleViews = VKeyValueFieldView(
-        keyLabel: Label(font: .systemFont(ofSize: 16), textColor: .black),
-        valueLabel: Label(font: .systemFont(ofSize: 14), textColor: .gray)
-    )
-    public let trailingButton = Button(textColor: .black)
+    public lazy var cardView = {
+       let view = CardView()
+        view.leadingImageViewConstraints?.width?.constant = 32
+        view.leadingImageViewConstraints?.height?.constant = 32
+        view.bottomSeparatorView.isHidden = true
+        return view
+    }()
     public let duration: TimeInterval
     public var leadingConstraint: NSLayoutConstraint?
     
@@ -34,7 +35,6 @@ open class ToastView: UIView {
         setupConstraints()
         setSwipe()
         setTapGesture()
-        trailingButton.setContentHuggingPriority(.required, for: .horizontal)
     }
     
     public required init?(coder: NSCoder) {
@@ -44,29 +44,11 @@ open class ToastView: UIView {
     private func setupSubviews() {
         layer.cornerRadius = 12
         layer.borderWidth = 1
-        addSubview(iconImageView)
-        addSubview(titleViews)
-        addSubview(trailingButton)
+        addSubview(cardView)
     }
     
     private func setupConstraints() {
-        iconImageView.anchor(
-            .centerY(titleViews.centerYAnchor),
-            .width(32),
-            .leading(leadingAnchor, constant: 16)
-        )
-
-        titleViews.anchor(
-            .top(topAnchor, constant: 16),
-            .leading(iconImageView.trailingAnchor, constant: 16),
-            .trailing(trailingButton.leadingAnchor, constant: 2),
-            .bottom(bottomAnchor, constant: 16)
-        )
-        
-        trailingButton.anchor(
-            .centerY(centerYAnchor),
-            .trailing(trailingAnchor, constant: 16)
-        )
+        cardView.fillSuperview(padding: .init(top: 16, left: 16, bottom: 16, right: 16))
     }
     
     public func removePastToastIfNeeded(from view: UIView) {

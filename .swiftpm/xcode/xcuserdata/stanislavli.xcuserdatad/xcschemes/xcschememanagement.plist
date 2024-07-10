@@ -65,7 +65,7 @@
 			<key>isShown</key>
 			<false/>
 			<key>orderHint</key>
-			<integer>4</integer>
+			<integer>3</integer>
 		</dict>
 		<key>WrapKit-Package.xcscheme_^#shared#^_</key>
 		<dict>
@@ -85,7 +85,7 @@
 		<key>WrapKitRealm.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>3</integer>
+			<integer>4</integer>
 		</dict>
 		<key>WrapKitStatic.xcscheme_^#shared#^_</key>
 		<dict>
