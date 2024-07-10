@@ -30,6 +30,17 @@ extension MainQueueDispatchDecorator: HTTPClient where T == HTTPClient {
     }
 }
 
+extension MainQueueDispatchDecorator: CommonLoadingOutput where T == CommonLoadingOutput {
+    public var isLoading: Bool {
+        get {
+            return decoratee.isLoading
+        }
+        set {
+            dispatch { [weak self] in self?.decoratee.isLoading = newValue }
+        }
+    }
+}
+
 extension MainQueueDispatchDecorator: HTTPDownloadClient where T == HTTPDownloadClient {
     public func download(_ request: URLRequest, progress: @escaping (Double) -> Void, completion: @escaping (DownloadResult) -> Void) -> HTTPClientTask {
         decoratee.download(request, progress: { [weak self] result in
