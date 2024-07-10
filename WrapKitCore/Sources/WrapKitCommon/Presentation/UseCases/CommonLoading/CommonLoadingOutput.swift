@@ -8,5 +8,7 @@
 import Foundation
 
 public protocol CommonLoadingOutput: AnyObject {
-    var isLoading: Bool { get set }
+    var isLoading: Bool { get }
+    
+    func display(isLoading: Bool)
 }

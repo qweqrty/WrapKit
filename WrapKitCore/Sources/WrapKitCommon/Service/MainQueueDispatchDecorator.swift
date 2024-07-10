@@ -31,12 +31,16 @@ extension MainQueueDispatchDecorator: HTTPClient where T == HTTPClient {
 }
 
 extension MainQueueDispatchDecorator: CommonLoadingOutput where T == CommonLoadingOutput {
+    public func display(isLoading: Bool) {
+        dispatch { [weak self] in
+            self?.decoratee.display(isLoading: isLoading)
+        }
+        
+    }
+    
     public var isLoading: Bool {
         get {
             return decoratee.isLoading
-        }
-        set {
-            dispatch { [weak self] in self?.decoratee.isLoading = newValue }
         }
     }
 }
