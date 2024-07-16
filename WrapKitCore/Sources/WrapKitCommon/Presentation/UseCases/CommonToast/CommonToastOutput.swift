@@ -28,9 +28,15 @@ public enum CommonToast {
     }
     
     public struct CustomToast {
-        let common: Toast
-        let leadingImage: Image?
-        let trailingTitle: String?
+        public let common: Toast
+        public let leadingImage: Image?
+        public let trailingTitle: String?
+        
+        public init(common: Toast, leadingImage: Image?, trailingTitle: String?) {
+            self.common = common
+            self.leadingImage = leadingImage
+            self.trailingTitle = trailingTitle
+        }
     }
     
     case error(Toast)
