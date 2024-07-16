@@ -29,8 +29,7 @@ public enum CommonToast {
     
     public struct CustomToast {
         let common: Toast
-        let leadingImage: Image
-        let trailingImage: Image
+        let leadingImage: Image?
         let trailingTitle: String?
     }
     
