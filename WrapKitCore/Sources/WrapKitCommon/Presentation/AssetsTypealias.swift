@@ -28,3 +28,8 @@ public typealias SwiftUIImage = SwiftUI.Image
 public typealias SwiftUIFont = SwiftUI.Font
 
 #endif
+
+public enum ImageEnum {
+    case asset(Image)
+    case url(String)
+}

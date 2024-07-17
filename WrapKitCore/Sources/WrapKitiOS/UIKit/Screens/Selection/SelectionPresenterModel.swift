@@ -36,7 +36,7 @@ public enum SelectionType {
         public let circleColor: String?
         public var isSelected: Bool
         public let trailingTitle: String?
-        public let icon: String?
+        public let leadingImage: ImageEnum?
         public let configuration: SelectionConfiguration.Cell
         
         public init(
@@ -45,14 +45,14 @@ public enum SelectionType {
             circleColor: String? = nil,
             isSelected: Bool = false,
             trailingTitle: String? = nil,
-            icon: String? = nil,
+            leadingImage: ImageEnum? = nil,
             configuration: SelectionConfiguration.Cell
         ) {
             self.id = id
             self.title = title
             self.circleColor = circleColor
             self.isSelected = isSelected
-            self.icon = icon
+            self.leadingImage = leadingImage
             self.trailingTitle = trailingTitle
             self.configuration = configuration
         }

@@ -7,6 +7,7 @@
 
 #if canImport(UIKit)
 import UIKit
+import Kingfisher
 
 public class SelectionCell: TableViewCell<SelectionCellContentView> {
     public var model: SelectionType.SelectionCellPresentableModel? {
@@ -15,18 +16,20 @@ public class SelectionCell: TableViewCell<SelectionCellContentView> {
             mainContentView.titleLabel.text = model.title
             mainContentView.trailingLabel.text = model.trailingTitle
             mainContentView.trailingImageView.image = model.isSelected ? model.configuration.selectedImage : model.configuration.notSelectedImage
+            mainContentView.leadingImageContainerView.isHidden = model.leadingImage == nil
             
             if let color = model.circleColor, let color = UIColor(hexaRGB: color, alpha: 1) {
                 mainContentView.leadingImageView.layer.cornerRadius = 10
                 mainContentView.leadingImageContainerView.isHidden = false
                 mainContentView.leadingImageView.backgroundColor = color
             }
-            if let iconUrl = model.icon {
-                mainContentView.leadingImageContainerView.isHidden = false
-                mainContentView.leadingImageContainerView.backgroundColor = .clear
-                mainContentView.leadingImageViewConstraints?.height?.constant = 24
-                mainContentView.leadingImageViewConstraints?.width?.constant = 24
-//                mainContentView.leadingImageView.kf.setImage(with: iconUrl.asUrl)
+            switch model.leadingImage {
+            case .asset(let image):
+                mainContentView.leadingImageView.image = image
+            case .url(let urlString):
+                mainContentView.leadingImageView.kf.setImage(with: urlString.asUrl)
+            default:
+                break
             }
             
             mainContentView.lineView.backgroundColor = model.configuration.lineColor
