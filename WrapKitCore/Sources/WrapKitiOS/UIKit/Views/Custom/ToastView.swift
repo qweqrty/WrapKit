@@ -17,6 +17,7 @@ open class ToastView: UIView {
         return view
     }()
     public let duration: TimeInterval
+    public private(set) var cardViewConstraints: AnchoredConstraints?
     public var leadingConstraint: NSLayoutConstraint?
     
     static let tag = 228
@@ -48,7 +49,7 @@ open class ToastView: UIView {
     }
     
     private func setupConstraints() {
-        cardView.fillSuperview(padding: .init(top: 16, left: 16, bottom: 16, right: 16))
+        cardViewConstraints = cardView.fillSuperview(padding: .init(top: 16, left: 16, bottom: 16, right: 16))
     }
     
     public func removePastToastIfNeeded(from view: UIView) {
