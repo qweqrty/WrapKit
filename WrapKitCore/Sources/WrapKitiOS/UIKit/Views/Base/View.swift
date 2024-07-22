@@ -12,9 +12,17 @@ open class View: UIView {
     public var onPress: (() -> Void)?
     public var onLongPress: (() -> Void)?
     
-    private let longPressThreshold: TimeInterval = 1
-    private var pressStartTime: Date?
-    private var longPressTimer: Timer?
+    lazy var tapGestureRecognizer: UITapGestureRecognizer = {
+        let recognizer = UITapGestureRecognizer(target: self, action: #selector(didTap))
+        recognizer.numberOfTapsRequired = 1
+        return recognizer
+    }()
+    
+    lazy var longPressRecognizer: UILongPressGestureRecognizer = {
+        let recognizer = UILongPressGestureRecognizer(target: self, action: #selector(didTap))
+        recognizer.minimumPressDuration = 1
+        return recognizer
+    }()
     
     public init(
         backgroundColor: UIColor? = nil,
@@ -26,63 +34,28 @@ open class View: UIView {
         self.isHidden = isHidden
         self.backgroundColor = backgroundColor
         self.translatesAutoresizingMaskIntoConstraints = translatesAutoresizingMaskIntoConstraints
+        addGestureRecognizer(tapGestureRecognizer)
+        addGestureRecognizer(longPressRecognizer)
     }
     
     public override init(frame: CGRect) {
         super.init(frame: frame)
+        addGestureRecognizer(tapGestureRecognizer)
+        addGestureRecognizer(longPressRecognizer)
     }
     
     public required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
+        addGestureRecognizer(tapGestureRecognizer)
+        addGestureRecognizer(longPressRecognizer)
     }
     
-    override open func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        super.touchesBegan(touches, with: event)
-        guard onLongPress != nil || onPress != nil else { return }
-        self.alpha = 0.5
-        
-        pressStartTime = Date()
-        
-        // Schedule the long press action
-        longPressTimer = Timer.scheduledTimer(withTimeInterval: longPressThreshold, repeats: false, block: { [weak self] _ in
-            self?.onLongPress?()
-            self?.longPressTimer?.invalidate()
-            self?.longPressTimer = nil
-        })
+    @objc private func didTap() {
+        onPress?()
     }
     
-    override open func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        super.touchesEnded(touches, with: event)
-        guard onLongPress != nil || onPress != nil else { return }
-        
-        UIView.animate(withDuration: 0.3) {
-            self.alpha = 1.0
-        }
-        
-        if let timer = longPressTimer, timer.isValid {
-            timer.invalidate()
-            onPress?()
-        }
-        
-        pressStartTime = nil
-        longPressTimer = nil
-    }
-    
-    override open func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
-        super.touchesCancelled(touches, with: event)
-        guard onLongPress != nil || onPress != nil else { return }
-        
-        UIView.animate(withDuration: 0.3) {
-            self.alpha = 1.0
-        }
-        
-        if let timer = longPressTimer, timer.isValid {
-            timer.invalidate()
-            onPress?()
-        }
-        
-        pressStartTime = nil
-        longPressTimer = nil
+    @objc private func didLongPress() {
+        onLongPress?()
     }
 }
 #endif
