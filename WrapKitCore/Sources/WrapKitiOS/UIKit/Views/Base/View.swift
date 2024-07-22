@@ -57,5 +57,29 @@ open class View: UIView {
     @objc private func didLongPress() {
         onLongPress?()
     }
+    
+    override open func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        super.touchesBegan(touches, with: event)
+        guard onLongPress != nil || onPress != nil else { return }
+        self.alpha = 0.5
+    }
+    
+    override open func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        super.touchesEnded(touches, with: event)
+        guard onLongPress != nil || onPress != nil else { return }
+        
+        UIView.animate(withDuration: 0.3) {
+            self.alpha = 1.0
+        }
+    }
+    
+    override open func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
+        super.touchesCancelled(touches, with: event)
+        guard onLongPress != nil || onPress != nil else { return }
+        
+        UIView.animate(withDuration: 0.3) {
+            self.alpha = 1.0
+        }
+    }
 }
 #endif
