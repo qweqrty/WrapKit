@@ -15,12 +15,14 @@ open class View: UIView {
     lazy var tapGestureRecognizer: UITapGestureRecognizer = {
         let recognizer = UITapGestureRecognizer(target: self, action: #selector(didTap))
         recognizer.numberOfTapsRequired = 1
+        recognizer.cancelsTouchesInView = false
         return recognizer
     }()
     
     lazy var longPressRecognizer: UILongPressGestureRecognizer = {
         let recognizer = UILongPressGestureRecognizer(target: self, action: #selector(didTap))
         recognizer.minimumPressDuration = 1
+        recognizer.cancelsTouchesInView = false
         return recognizer
     }()
     
