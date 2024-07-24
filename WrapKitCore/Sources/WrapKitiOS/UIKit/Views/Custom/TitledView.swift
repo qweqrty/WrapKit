@@ -16,7 +16,11 @@ open class TitledView<ContentView: UIView>: View {
     )
     public lazy var contentView = ContentView()
     public lazy var closingTitleVFieldView = HKeyValueFieldView(isHidden: true)
-    public lazy var wrappedErrorLabel = WrapperView(contentView: Label(font: .systemFont(ofSize: 14), textColor: .red), isHidden: true)
+    public lazy var wrappedErrorLabel = WrapperView(
+        contentView: Label(font: .systemFont(ofSize: 14), textColor: .red), 
+        isHidden: true,
+        contentViewConstraints: { $0.fillSuperview() }
+    )
     
     public var stackViewAnchoredConstraints: AnchoredConstraints?
 
@@ -44,7 +48,11 @@ open class TitledView<ContentView: UIView>: View {
             contentInsets: .zero,
             isHidden: true
         ),
-        wrappedErrorLabel: WrapperView<Label> = WrapperView(contentView: Label(font: .systemFont(ofSize: 14), textColor: .red), isHidden: true),
+        wrappedErrorLabel: WrapperView<Label> = WrapperView(
+            contentView: Label(font: .systemFont(ofSize: 14), textColor: .red), 
+            isHidden: true,
+            contentViewConstraints: { $0.fillSuperview() }
+        ),
         spacing: CGFloat = 4
     ) {
         super.init(frame: .zero)

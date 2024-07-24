@@ -21,14 +21,21 @@ open class WrapperView<ContentView: UIView>: View {
     
     public var contentViewConstraints: AnchoredConstraints?
     
-    public init(contentView: ContentView = ContentView(), backgroundColor: UIColor = .clear, padding: UIEdgeInsets = .zero, isHidden: Bool = false, isUserInteractionEnabled: Bool = true) {
+    public init(
+        contentView: ContentView = ContentView(),
+        backgroundColor: UIColor = .clear,
+        padding: UIEdgeInsets = .zero,
+        isHidden: Bool = false,
+        isUserInteractionEnabled: Bool = true,
+        contentViewConstraints: ((ContentView) -> AnchoredConstraints)
+    ) {
         self.contentView = contentView
         super.init(frame: .zero)
         addSubview(contentView)
         self.padding = padding
         self.isUserInteractionEnabled = isUserInteractionEnabled
         self.backgroundColor = backgroundColor
-        contentViewConstraints = contentView.fillSuperview(padding: self.padding)
+        self.contentViewConstraints = contentViewConstraints(contentView)
         self.isHidden = isHidden
     }
     

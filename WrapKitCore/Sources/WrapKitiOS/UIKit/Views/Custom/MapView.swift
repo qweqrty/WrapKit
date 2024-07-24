@@ -10,7 +10,10 @@ import UIKit
 
 open class MapView<ContentView: UIView>: UIView {
     public let contentView: ContentView
-    public let actionsStackView = WrapperView(contentView: StackView(axis: .vertical))
+    public let actionsStackView = WrapperView(
+        contentView: StackView(axis: .vertical),
+        contentViewConstraints: { $0.fillSuperview() }
+    )
     public lazy var locationView = makeImageView(UIImage(named: "cursorIc"))
     public lazy var plusView = makeImageView(UIImage(named: "plusIc"))
     public let separatorView = UIView(backgroundColor: .lightGray)
