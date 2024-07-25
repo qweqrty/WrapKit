@@ -12,7 +12,9 @@ open class MapView<ContentView: UIView>: UIView {
     public let contentView: ContentView
     public let actionsStackView = WrapperView(
         contentView: StackView(axis: .vertical),
-        contentViewConstraints: { $0.fillSuperview() }
+        contentViewConstraints: { contentView, wrapperView in
+            contentView.fillSuperview()
+        }
     )
     public lazy var locationView = makeImageView(UIImage(named: "cursorIc"))
     public lazy var plusView = makeImageView(UIImage(named: "plusIc"))

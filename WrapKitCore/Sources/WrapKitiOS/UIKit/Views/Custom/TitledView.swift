@@ -19,7 +19,9 @@ open class TitledView<ContentView: UIView>: View {
     public lazy var wrappedErrorLabel = WrapperView(
         contentView: Label(font: .systemFont(ofSize: 14), textColor: .red), 
         isHidden: true,
-        contentViewConstraints: { $0.fillSuperview() }
+        contentViewConstraints: { contentView, wrapperView in
+            contentView.fillSuperview()
+        }
     )
     
     public var stackViewAnchoredConstraints: AnchoredConstraints?
@@ -51,7 +53,9 @@ open class TitledView<ContentView: UIView>: View {
         wrappedErrorLabel: WrapperView<Label> = WrapperView(
             contentView: Label(font: .systemFont(ofSize: 14), textColor: .red), 
             isHidden: true,
-            contentViewConstraints: { $0.fillSuperview() }
+            contentViewConstraints: { contentView, wrapperView in
+                contentView.fillSuperview()
+            }
         ),
         spacing: CGFloat = 4
     ) {

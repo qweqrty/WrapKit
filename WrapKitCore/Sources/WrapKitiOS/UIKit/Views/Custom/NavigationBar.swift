@@ -21,9 +21,9 @@ open class NavigationBar: UIView {
         keyLabel: Label(font: .systemFont(ofSize: 18), textColor: .black, textAlignment: .center, numberOfLines: 1),
         valueLabel: Label(isHidden: true, font: .systemFont(ofSize: 14), textColor: .black, numberOfLines: 1)
     )
-    public lazy var primeTrailingImageView = ImageView(isHidden: true)
-    public lazy var secondaryTrailingImageView = ImageView(isHidden: true)
-    public lazy var tertiaryTrailingImageView = ImageView(isHidden: true)
+    public lazy var primeTrailingImageWrapperView = makeWrappedImageView()
+    public lazy var secondaryTrailingImageWrapperView = makeWrappedImageView()
+    public lazy var tertiaryTrailingImageWrapperView = makeWrappedImageView()
     
     public var mainStackViewConstraints: AnchoredConstraints?
     
@@ -41,9 +41,9 @@ open class NavigationBar: UIView {
         leadingStackView.addArrangedSubview(leadingCardView)
         centerView.addSubview(titleViews)
         centerView.addSubview(centerTitledImageView)
-        trailingStackView.addArrangedSubview(primeTrailingImageView)
-        trailingStackView.addArrangedSubview(secondaryTrailingImageView)
-        trailingStackView.addArrangedSubview(tertiaryTrailingImageView)
+        trailingStackView.addArrangedSubview(primeTrailingImageWrapperView)
+        trailingStackView.addArrangedSubview(secondaryTrailingImageWrapperView)
+        trailingStackView.addArrangedSubview(tertiaryTrailingImageWrapperView)
     }
     
     private func setupConstraints() {
@@ -55,7 +55,7 @@ open class NavigationBar: UIView {
             .bottom(bottomAnchor)
         )
         trailingStackView.setContentCompressionResistancePriority(.required, for: .horizontal)
-        primeTrailingImageView.setContentCompressionResistancePriority(.required, for: .horizontal)
+        
         titleViews.anchor(
             .top(centerView.topAnchor),
             .bottom(centerView.bottomAnchor),
@@ -96,6 +96,22 @@ private extension NavigationBar {
         view.closingTitleVFieldView.keyLabel.textAlignment = .center
         view.closingTitleVFieldView.isHidden = false
         return view
+    }
+    
+    func makeWrappedImageView() -> WrapperView<ImageView> {
+        return WrapperView(
+            contentView: ImageView(),
+            isHidden: true, 
+            contentViewConstraints: {
+                $0.anchor(
+                    .topGreaterThanEqual($1.topAnchor),
+                    .leading($1.leadingAnchor),
+                    .trailing($1.trailingAnchor),
+                    .bottomLessThanEqual($1.bottomAnchor),
+                    .centerY($1.centerYAnchor)
+                )
+            }
+        )
     }
 }
 #endif

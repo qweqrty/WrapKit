@@ -24,7 +24,9 @@ public extension CommonLoadingOutput where Self == CommonLoadingiOSAdapter {
             ),
             backgroundColor: wrapperViewColor,
             padding: .init(top: 25, left: 25, bottom: 25, right: 25),
-            contentViewConstraints: { $0.fillSuperview() }
+            contentViewConstraints: { contentView, wrapperView in
+                contentView.fillSuperview()
+            }
         )
         loadingView.cornerRadius = 12
         loadingView.contentView.startAnimating()

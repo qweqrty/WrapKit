@@ -27,7 +27,7 @@ open class WrapperView<ContentView: UIView>: View {
         padding: UIEdgeInsets = .zero,
         isHidden: Bool = false,
         isUserInteractionEnabled: Bool = true,
-        contentViewConstraints: ((ContentView) -> AnchoredConstraints)
+        contentViewConstraints: ((ContentView, UIView) -> AnchoredConstraints)
     ) {
         self.contentView = contentView
         super.init(frame: .zero)
@@ -35,7 +35,7 @@ open class WrapperView<ContentView: UIView>: View {
         self.padding = padding
         self.isUserInteractionEnabled = isUserInteractionEnabled
         self.backgroundColor = backgroundColor
-        self.contentViewConstraints = contentViewConstraints(contentView)
+        self.contentViewConstraints = contentViewConstraints(contentView, self)
         self.isHidden = isHidden
     }
     

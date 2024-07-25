@@ -129,7 +129,9 @@ private extension SelectionContentView {
                 image: config.searchBar.searchImage,
                 tintColor: config.searchBar.tintColor
             ),
-            contentViewConstraints: { $0.fillSuperview() }
+            contentViewConstraints: { contentView, wrapperView in
+                contentView.fillSuperview()
+            }
         )
         return searchBar
     }
