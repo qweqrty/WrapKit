@@ -9,14 +9,6 @@
 import UIKit
 
 open class WrapperView<ContentView: UIView>: View {
-    public var padding: UIEdgeInsets = .zero {
-        didSet {
-            contentViewConstraints?.top?.constant = padding.top
-            contentViewConstraints?.leading?.constant = padding.left
-            contentViewConstraints?.trailing?.constant = -padding.right
-            contentViewConstraints?.bottom?.constant = -padding.bottom
-        }
-    }
     public let contentView: ContentView
     
     public var contentViewConstraints: AnchoredConstraints?
@@ -32,7 +24,6 @@ open class WrapperView<ContentView: UIView>: View {
         self.contentView = contentView
         super.init(frame: .zero)
         addSubview(contentView)
-        self.padding = padding
         self.isUserInteractionEnabled = isUserInteractionEnabled
         self.backgroundColor = backgroundColor
         self.contentViewConstraints = contentViewConstraints(contentView, self)
