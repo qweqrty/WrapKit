@@ -16,7 +16,6 @@ open class WrapperView<ContentView: UIView>: View {
     public init(
         contentView: ContentView = ContentView(),
         backgroundColor: UIColor = .clear,
-        padding: UIEdgeInsets = .zero,
         isHidden: Bool = false,
         isUserInteractionEnabled: Bool = true,
         contentViewConstraints: ((ContentView, UIView) -> AnchoredConstraints)
@@ -34,7 +33,7 @@ open class WrapperView<ContentView: UIView>: View {
         contentView = ContentView()
         super.init(frame: frame)
         addSubview(contentView)
-        contentViewConstraints = contentView.fillSuperview(padding: self.padding)
+        contentViewConstraints = contentView.fillSuperview()
     }
     
     public required init?(coder: NSCoder) {
