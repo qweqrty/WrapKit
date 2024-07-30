@@ -8,14 +8,14 @@
 import Foundation
 
 public struct SelectablePresentableModel<Model> {
-    public var isSelected: Bool
+    public var isSelected: InMemoryStorage<Bool>
     public var model: Model
     
     public init(
         isSelected: Bool = false,
         model: Model
     ) {
-        self.isSelected = isSelected
+        self.isSelected = InMemoryStorage(model: isSelected)
         self.model = model
     }
 }
