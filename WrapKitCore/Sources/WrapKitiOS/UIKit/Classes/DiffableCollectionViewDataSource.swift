@@ -63,20 +63,21 @@ public class DiffableCollectionViewDataSource<Model: Hashable>: NSObject, UIColl
     }
     
     private func updateSnapshot() {
-        DispatchQueue.global(qos: .userInitiated).async {
+        DispatchQueue.main.async {
             var snapshot = NSDiffableDataSourceSnapshot<Int, CollectionItem>()
             snapshot.appendSections([0])
             snapshot.appendItems(self.items.map { .model($0) }, toSection: 0)
-            DispatchQueue.main.async {
-                self.dataSource.apply(snapshot, animatingDifferences: true)
-            }
+            self.dataSource.apply(snapshot, animatingDifferences: true)
         }
     }
     
     public func updateItems(_ items: [Model]) {
         DispatchQueue.global(qos: .userInitiated).async {
-            self.items = items
-            self.updateSnapshot()
+            let uniqueItems = items.uniqued
+            DispatchQueue.main.async {
+                self.items = uniqueItems
+                self.updateSnapshot()
+            }
         }
     }
     

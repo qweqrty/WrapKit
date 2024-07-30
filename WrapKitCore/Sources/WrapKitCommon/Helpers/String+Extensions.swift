@@ -15,8 +15,11 @@ public extension String {
     static let delete = "DELETE"
 }
 
-public extension String {
-    
+public extension Optional where Wrapped == String {
+    var isEmpty: Bool {
+        guard let self else { return true }
+        return self.isEmpty
+    }
 }
 
 public extension String {

@@ -54,21 +54,28 @@ public class DiffableTableViewDataSource<Model: Hashable>: NSObject, UITableView
     }
     
     private func updateSnapshot() {
-        let numberOfSections = dataSource.snapshot().numberOfSections
-        var snapshot = NSDiffableDataSourceSnapshot<Int, TableItem>()
-        snapshot.appendSections([0])
-        if numberOfSections > 0 {
-            snapshot.appendItems(dataSource.snapshot().itemIdentifiers(inSection: 0), toSection: 0)
+        DispatchQueue.main.async {
+            let numberOfSections = self.dataSource.snapshot().numberOfSections
+            var snapshot = NSDiffableDataSourceSnapshot<Int, TableItem>()
+            snapshot.appendSections([0])
+            if numberOfSections > 0 {
+                snapshot.appendItems(self.dataSource.snapshot().itemIdentifiers(inSection: 0), toSection: 0)
+            }
+            self.dataSource.apply(snapshot, animatingDifferences: false)
         }
-        dataSource.apply(snapshot, animatingDifferences: false)
     }
     
     public func updateItems(_ items: [Model]) {
-        self.items = items
-        var snapshot = NSDiffableDataSourceSnapshot<Int, TableItem>()
-        snapshot.appendSections([0])
-        snapshot.appendItems(items.map { .model($0) }, toSection: 0)
-        dataSource.apply(snapshot, animatingDifferences: true)
+        DispatchQueue.global(qos: .userInitiated).async {
+            let uniqueItems = items.uniqued
+            DispatchQueue.main.async {
+                self.items = uniqueItems
+                var snapshot = NSDiffableDataSourceSnapshot<Int, TableItem>()
+                snapshot.appendSections([0])
+                snapshot.appendItems(uniqueItems.map { .model($0) }, toSection: 0)
+                self.dataSource.apply(snapshot, animatingDifferences: true)
+            }
+        }
     }
     
     public func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
@@ -110,5 +117,4 @@ public class DiffableTableViewDataSource<Model: Hashable>: NSObject, UITableView
         didScrollViewDidScroll?(scrollView)
     }
 }
-
 #endif
