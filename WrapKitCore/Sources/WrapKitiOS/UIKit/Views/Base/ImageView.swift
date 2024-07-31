@@ -58,20 +58,38 @@ open class ImageView: UIImageView {
         self.isUserInteractionEnabled = isUserInteractionEnabled
         addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(onTap)))
     }
-  
-  public required init?(coder: NSCoder) {
-    fatalError("init(coder:) has not been implemented")
-  }
-  
-  @objc private func onTap() {
-      self.alpha = 1.0
-      UIView.animate(withDuration: 0.4, delay: 0.0, options: .allowUserInteraction, animations: {
+    
+    public required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    @objc private func onTap() {
+        onPress?()
+    }
+    
+    override open func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        super.touchesBegan(touches, with: event)
+        guard onPress != nil else { return }
         self.alpha = 0.5
-      }, completion: { finished in
-        self.alpha = 1.0
-      })
-    onPress?()
-  }
+    }
+    
+    override open func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        super.touchesEnded(touches, with: event)
+        guard onPress != nil else { return }
+        
+        UIView.animate(withDuration: 0.3) {
+            self.alpha = 1.0
+        }
+    }
+    
+    override open func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
+        super.touchesCancelled(touches, with: event)
+        guard onPress != nil else { return }
+        
+        UIView.animate(withDuration: 0.3) {
+            self.alpha = 1.0
+        }
+    }
     
     override public func layoutSubviews() {
         super.layoutSubviews()

@@ -51,18 +51,18 @@ public class AuthenticatedHTTPClientDecorator: HTTPClient {
                     tokenRefresher.refresh { refreshResult in
                         switch refreshResult {
                         case .success(let newToken):
-                            self?.accessTokenStorage.set(model: newToken, completion: nil)
+                            _ = self?.accessTokenStorage.set(model: newToken)
                             guard let newTask = self?.dispatch(request, completion: completion, isRetryNeeded: false) else { return }
                             compositeTask.add(newTask)
                             newTask.resume()
                         case .failure:
-                            self?.accessTokenStorage.clear(completion: nil)
+                            _ = self?.accessTokenStorage.set(model: nil)
                             self?.onNotAuthenticated?()
                             completion(.failure(ServiceError.notAuthorized))
                         }
                     }
                 } else {
-                    self?.accessTokenStorage.clear(completion: nil)
+                    _ = self?.accessTokenStorage.set(model: nil)
                     self?.onNotAuthenticated?()
                     completion(.success((data, response)))
                 }

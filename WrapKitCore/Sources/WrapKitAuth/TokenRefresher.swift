@@ -60,7 +60,7 @@ public class TokenRefresherImpl<RefreshRequest, RefreshResponse>: TokenRefresher
                 completion(.success(newToken))
                 self.completeAll(with: .success(newToken))
             case .failure(let error):
-                refreshTokenStorage.clear(completion: nil)
+                _ = refreshTokenStorage.set(model: nil)
                 completion(.failure(error))
                 self.completeAll(with: .failure(error))
             }

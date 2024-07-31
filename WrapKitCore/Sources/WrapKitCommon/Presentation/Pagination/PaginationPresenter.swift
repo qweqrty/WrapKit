@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Combine
 
 public protocol PaginationViewOutput<PresentableItem>: AnyObject {
     associatedtype PresentableItem
@@ -40,6 +41,7 @@ public struct PaginationRequest {
 
 open class PaginationPresenter<ServicePaginationRequest, ServicePaginationResponse, RemoteItem, PresentableModel> {
     public let remoteItemsStorage: any Storage<[RemoteItem]>
+    private var subscriptions = Set<AnyCancellable>()
 
     private(set) var date: Date
     private(set) var page: Int
@@ -118,11 +120,11 @@ extension PaginationPresenter: PaginationViewInput {
             let totalPages = mapToTotalPages(model)
             let remoteItems = mapFromResponseToRemoteItems(model)
             if backToPage == initialPage - 1 {
-                remoteItemsStorage.set(model: remoteItems, completion: nil)
+                _ = remoteItemsStorage.set(model: remoteItems)
                 view?.display(model: remoteItems.map { mapFromRemoteItemToPresentable($0) }, hasMore: initialPage + totalPages - 1 >= page)
             } else {
                 let previousItems = remoteItemsStorage.get() ?? []
-                remoteItemsStorage.set(model: previousItems + remoteItems, completion: nil)
+                _ = remoteItemsStorage.set(model: previousItems + remoteItems)
                 view?.display(
                     model: (previousItems + remoteItems).map { mapFromRemoteItemToPresentable($0) },
                     hasMore: initialPage + totalPages - 1 >= page
