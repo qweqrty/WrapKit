@@ -6,8 +6,15 @@
 //
 
 import Foundation
+import Combine
 
 public class InMemoryStorage<Model: Hashable>: Storage, Hashable {
+    private let subject = CurrentValueSubject<Model?, Never>(nil)
+    
+    public var publisher: AnyPublisher<Model?, Never> {
+        return subject.eraseToAnyPublisher()
+    }
+    
     public typealias Observer = ((Model?) -> Void)
     
     private var model: Model? {
@@ -20,15 +27,10 @@ public class InMemoryStorage<Model: Hashable>: Storage, Hashable {
         return model
     }
     
-    public func set(model: Model?, completion: ((Bool) -> Void)?) {
-        self.model = model
-        completion?(true)
-    }
-    
-    public func clear(completion: ((Bool) -> Void)?) {
-        model = nil
-        completion?(true)
-    }
+    public func set(model: Model?) -> AnyPublisher<Bool, Never> {
+         self.model = model
+         return Just(true).eraseToAnyPublisher()
+     }
     
     class ObserverWrapper {
         weak var client: AnyObject?

@@ -20,7 +20,7 @@ public class StoredServiceDecorator<Request, Response>: Service {
         decoratee.make(request: request) { [weak self] result in
             switch result {
             case .success(let response):
-                self?.storage.set(model: response, completion: nil)
+                _ = self?.storage.set(model: response)
             default: break
             }
             completion(result)

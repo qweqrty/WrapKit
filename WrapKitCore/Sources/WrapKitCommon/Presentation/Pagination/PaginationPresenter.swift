@@ -118,11 +118,11 @@ extension PaginationPresenter: PaginationViewInput {
             let totalPages = mapToTotalPages(model)
             let remoteItems = mapFromResponseToRemoteItems(model)
             if backToPage == initialPage - 1 {
-                remoteItemsStorage.set(model: remoteItems, completion: nil)
+                _ = remoteItemsStorage.set(model: remoteItems)
                 view?.display(model: remoteItems.map { mapFromRemoteItemToPresentable($0) }, hasMore: initialPage + totalPages - 1 >= page)
             } else {
                 let previousItems = remoteItemsStorage.get() ?? []
-                remoteItemsStorage.set(model: previousItems + remoteItems, completion: nil)
+                _ = remoteItemsStorage.set(model: previousItems + remoteItems)
                 view?.display(
                     model: (previousItems + remoteItems).map { mapFromRemoteItemToPresentable($0) },
                     hasMore: initialPage + totalPages - 1 >= page
