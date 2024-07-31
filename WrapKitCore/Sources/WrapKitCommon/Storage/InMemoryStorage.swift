@@ -48,12 +48,6 @@ public class InMemoryStorage<Model: Hashable>: Storage, Hashable {
         self.model = model
     }
     
-    public func addObserver(for client: AnyObject, observer: @escaping Observer) {
-        let wrapper = ObserverWrapper(client: client, observer: observer)
-        wrapper.observer(model)
-        observers.append(wrapper)
-    }
-    
     private func notifyObservers() {
         observers = observers.filter { $0.client != nil }
         for observerWrapper in observers {
