@@ -28,9 +28,4 @@ public class InMemoryStorage<Model>: Storage & HashableWithReflection {
         subject.send(model)
         return Just(true).eraseToAnyPublisher()
     }
-
-    public func clear() -> AnyPublisher<Bool, Never> {
-        subject.send(nil)
-        return Just(true).eraseToAnyPublisher()
-    }
 }
