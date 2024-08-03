@@ -14,5 +14,7 @@ public protocol Storage<Model>: Hashable {
     var publisher: AnyPublisher<Model?, Never> { get }
     
     func get() -> Model?
+    
+    @discardableResult
     func set(model: Model?) -> AnyPublisher<Bool, Never>
 }
