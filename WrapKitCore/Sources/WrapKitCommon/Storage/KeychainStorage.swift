@@ -54,9 +54,12 @@ public class KeychainStorage: Storage {
     
     public func set(model: Model?) -> AnyPublisher<Bool, Never> {
         return Future<Bool, Never> { [weak self] promise in
+            let currentQueue = OperationQueue.current?.underlyingQueue ?? DispatchQueue.main
             self?.dispatchQueue.async {
                 guard let self = self else {
-                    promise(.success(false))
+                    currentQueue.async {
+                        promise(.success(false))
+                    }
                     return
                 }
                 if let model = model {
@@ -64,13 +67,17 @@ public class KeychainStorage: Storage {
                     if isSuccess {
                         self.subject.send(model)
                     }
-                    promise(.success(isSuccess))
+                    currentQueue.async {
+                        promise(.success(isSuccess))
+                    }
                 } else {
                     let isSuccess = self.keychain.delete(self.key)
                     if isSuccess {
                         self.subject.send(nil)
                     }
-                    promise(.success(isSuccess))
+                    currentQueue.async {
+                        promise(.success(isSuccess))
+                    }
                 }
             }
         }
