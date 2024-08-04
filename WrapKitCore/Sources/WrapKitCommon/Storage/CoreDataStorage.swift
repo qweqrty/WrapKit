@@ -18,7 +18,7 @@ public protocol CoreDataConvertible {
     static func deleteCache(in context: NSManagedObjectContext) throws
 }
 
-extension CoreDataConvertible where Self: NSManagedObject {
+public extension CoreDataConvertible where Self: NSManagedObject {
     static func find(in context: NSManagedObjectContext) throws -> Self? {
         let request = NSFetchRequest<Self>(entityName: entity().name!)
         request.returnsObjectsAsFaults = false
