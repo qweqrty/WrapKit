@@ -66,7 +66,7 @@ public class CoreDataStorage<Model, CoreDataModel: NSManagedObject & CoreDataCon
     public init?(storeURL: URL, entityName: String) {
         self.entityName = entityName
         
-        guard let model = NSManagedObjectModel.with(name: entityName, in: Bundle(for: Self.self)) else {
+        guard let model = NSManagedObjectModel.with(name: entityName, in: Bundle(for: CoreDataModel.self)) else {
             return nil
         }
         
