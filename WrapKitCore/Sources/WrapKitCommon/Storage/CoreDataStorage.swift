@@ -14,19 +14,21 @@ public protocol CoreDataConvertible {
     func toDomainModel() -> DomainModel
     static func fromDomainModel(_ model: DomainModel, context: NSManagedObjectContext) -> Self
     
-    static func find(in context: NSManagedObjectContext) throws -> Self?
+    static func find(in context: NSManagedObjectContext) throws -> [Self]
     static func deleteCache(in context: NSManagedObjectContext) throws
 }
 
 public extension CoreDataConvertible where Self: NSManagedObject {
-    static func find(in context: NSManagedObjectContext) throws -> Self? {
+    static func find(in context: NSManagedObjectContext) throws -> [Self] {
         let request = NSFetchRequest<Self>(entityName: entity().name!)
         request.returnsObjectsAsFaults = false
-        return try context.fetch(request).first
+        return try context.fetch(request)
     }
     
     static func deleteCache(in context: NSManagedObjectContext) throws {
-        try find(in: context).map(context.delete).map(context.save)
+        let existingRecords = try find(in: context)
+        existingRecords.forEach { context.delete($0) }
+        try context.save()
     }
 }
 
@@ -79,7 +81,7 @@ public class CoreDataStorage<Model, CoreDataModel: NSManagedObject & CoreDataCon
         
         context.perform {
             do {
-                if let coreDataModel = try CoreDataModel.find(in: self.context) {
+                if let coreDataModel = try CoreDataModel.find(in: self.context).first {
                     let model = coreDataModel.toDomainModel()
                     self.subject.send(model)
                 }
@@ -93,11 +95,11 @@ public class CoreDataStorage<Model, CoreDataModel: NSManagedObject & CoreDataCon
         var model: Model?
         context.performAndWait {
             do {
-                if let coreDataModel = try CoreDataModel.find(in: self.context) {
+                if let coreDataModel = try CoreDataModel.find(in: self.context).first {
                     model = coreDataModel.toDomainModel()
                 }
             } catch {
-                print("Failed to fetch data: \(error)")
+                
             }
         }
         return model
@@ -108,9 +110,8 @@ public class CoreDataStorage<Model, CoreDataModel: NSManagedObject & CoreDataCon
         Future<Bool, Never> { promise in
             self.context.perform {
                 do {
-                    if let existingModel = try CoreDataModel.find(in: self.context) {
-                        self.context.delete(existingModel)
-                    }
+                    // Delete all existing records
+                    try CoreDataModel.deleteCache(in: self.context)
 
                     if let model = model {
                         _ = CoreDataModel.fromDomainModel(model, context: self.context)
