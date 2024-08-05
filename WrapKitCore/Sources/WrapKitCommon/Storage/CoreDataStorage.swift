@@ -108,10 +108,12 @@ public class CoreDataStorage<Model, CoreDataModel: NSManagedObject & CoreDataCon
         Future<Bool, Never> { promise in
             self.context.perform {
                 do {
+                    if let existingModel = try CoreDataModel.find(in: self.context) {
+                        self.context.delete(existingModel)
+                    }
+
                     if let model = model {
                         _ = CoreDataModel.fromDomainModel(model, context: self.context)
-                    } else {
-                        try CoreDataModel.deleteCache(in: self.context)
                     }
                     try self.context.save()
                     self.subject.send(model)
