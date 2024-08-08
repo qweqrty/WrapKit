@@ -29,6 +29,7 @@ open class StackView: UIStackView {
         self.layoutMargins = contentInset
         self.isLayoutMarginsRelativeArrangement = true
         self.isUserInteractionEnabled = true
+        self.insetsLayoutMarginsFromSafeArea = false
         // there's no need to add subview to set background color in the first place if it's .clear
         if backgroundColor != .clear {
             self.backgroundColor = backgroundColor
@@ -39,6 +40,7 @@ open class StackView: UIStackView {
         super.init(frame: frame)
         self.isUserInteractionEnabled = true
         self.isLayoutMarginsRelativeArrangement = true
+        self.insetsLayoutMarginsFromSafeArea = false
         self.distribution = .fill
         self.alignment = .fill
         self.axis = .horizontal
