@@ -21,12 +21,14 @@ let package = Package(
             targets: ["WrapKit"])
     ],
     dependencies: [
+        .package(url: "https://github.com/joomcode/BottomSheet", from: "2.0.5"),
         .package(url: "https://github.com/onevcat/Kingfisher.git", from: "7.12.0")
     ],
     targets: [
         .target(
             name: "WrapKit",
             dependencies: [
+                .product(name: "BottomSheet", package: "BottomSheet", condition: .when(platforms: [.iOS])),
                 .product(name: "Kingfisher", package: "Kingfisher", condition: .when(platforms: [.iOS]))
             ],
             path: "WrapKitCore/Sources"
@@ -35,6 +37,7 @@ let package = Package(
             name: "WrapKitTests",
             dependencies: [
                 "WrapKit",
+                .product(name: "BottomSheet", package: "BottomSheet", condition: .when(platforms: [.iOS])),
                 .product(name: "Kingfisher", package: "Kingfisher", condition: .when(platforms: [.iOS]))
             ],
             path: "WrapKitCore/Tests"
