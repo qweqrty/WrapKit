@@ -28,7 +28,6 @@ let package = Package(
         .target(
             name: "WrapKit",
             dependencies: [
-                .product(name: "BottomSheet", package: "BottomSheet", condition: .when(platforms: [.iOS])),
                 .product(name: "Kingfisher", package: "Kingfisher", condition: .when(platforms: [.iOS]))
             ],
             path: "WrapKitCore/Sources"

@@ -18,6 +18,8 @@ public protocol ISelectionFactory<Controller> {
 }
 
 #if canImport(UIKit)
+#if canImport(BottomSheet)
+#if canImport(BottomSheetUtils)
 import UIKit
 
 public class SelectionFactoryiOS: ISelectionFactory {
@@ -45,4 +47,6 @@ public class SelectionFactoryiOS: ISelectionFactory {
     
     public init() {}
 }
+#endif
+#endif
 #endif

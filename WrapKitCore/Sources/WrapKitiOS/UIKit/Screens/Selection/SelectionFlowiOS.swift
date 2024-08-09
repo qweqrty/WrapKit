@@ -6,6 +6,8 @@
 //
 
 #if canImport(UIKit)
+#if canImport(BottomSheet)
+#if canImport(BottomSheetUtils)
 import Foundation
 import UIKit
 import BottomSheet
@@ -52,4 +54,6 @@ public class SelectionFlowiOS: SelectionFlow {
         }
     }
 }
+#endif
+#endif
 #endif
