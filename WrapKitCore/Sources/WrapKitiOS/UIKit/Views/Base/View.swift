@@ -9,8 +9,18 @@
 import UIKit
 
 open class View: UIView {
-    public var onPress: (() -> Void)?
-    public var onLongPress: (() -> Void)?
+    public var onPress: (() -> Void)? {
+        didSet {
+            removeGestureRecognizer(tapGestureRecognizer)
+            addGestureRecognizer(tapGestureRecognizer)
+        }
+    }
+    public var onLongPress: (() -> Void)? {
+        didSet {
+            removeGestureRecognizer(longPressRecognizer)
+            addGestureRecognizer(longPressRecognizer)
+        }
+    }
     
     lazy var tapGestureRecognizer: UITapGestureRecognizer = {
         let recognizer = UITapGestureRecognizer(target: self, action: #selector(didTap))
@@ -36,20 +46,14 @@ open class View: UIView {
         self.isHidden = isHidden
         self.backgroundColor = backgroundColor
         self.translatesAutoresizingMaskIntoConstraints = translatesAutoresizingMaskIntoConstraints
-        addGestureRecognizer(tapGestureRecognizer)
-        addGestureRecognizer(longPressRecognizer)
     }
     
     public override init(frame: CGRect) {
         super.init(frame: frame)
-        addGestureRecognizer(tapGestureRecognizer)
-        addGestureRecognizer(longPressRecognizer)
     }
     
     public required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
-        addGestureRecognizer(tapGestureRecognizer)
-        addGestureRecognizer(longPressRecognizer)
     }
     
     @objc private func didTap() {
