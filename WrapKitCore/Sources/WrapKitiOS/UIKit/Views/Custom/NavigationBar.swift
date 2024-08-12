@@ -13,7 +13,7 @@ open class NavigationBar: UIView {
     public lazy var centerView = UIView()
     public lazy var centerTitledImageView = makeTitledLogoView()
     
-    public lazy var trailingStackView = StackView(axis: .horizontal, spacing: 12, isHidden: true)
+    public lazy var trailingStackView = StackView(axis: .horizontal, spacing: 12)
     public lazy var mainStackView = StackView(axis: .horizontal, spacing: 8)
     
     public lazy var leadingCardView = makeLeadingCardView()
@@ -31,8 +31,6 @@ open class NavigationBar: UIView {
         super.init(frame: frame)
         setupSubviews()
         setupConstraints()
-        
-        centerView.clipsToBounds = true
     }
     
     private func setupSubviews() {
@@ -41,8 +39,10 @@ open class NavigationBar: UIView {
         mainStackView.addArrangedSubview(centerView)
         mainStackView.addArrangedSubview(trailingStackView)
         leadingStackView.addArrangedSubview(leadingCardView)
+        leadingStackView.addArrangedSubviews(UIView())
         centerView.addSubview(titleViews)
         centerView.addSubview(centerTitledImageView)
+        trailingStackView.addArrangedSubviews(UIView())
         trailingStackView.addArrangedSubview(primeTrailingImageWrapperView)
         trailingStackView.addArrangedSubview(secondaryTrailingImageWrapperView)
         trailingStackView.addArrangedSubview(tertiaryTrailingImageWrapperView)
@@ -57,15 +57,12 @@ open class NavigationBar: UIView {
             .bottom(bottomAnchor)
         )
         trailingStackView.setContentCompressionResistancePriority(.required, for: .horizontal)
-        
-        titleViews.anchor(
-            .top(centerView.topAnchor),
-            .bottom(centerView.bottomAnchor),
-            .leadingLessThanEqual(centerView.leadingAnchor),
-            .trailingGreaterThanEqual(centerView.trailingAnchor),
-            .leading(leadingAnchor),
-            .trailing(trailingAnchor)
+        leadingStackView.anchor(
+            .widthTo(trailingStackView.widthAnchor, 1)
         )
+        
+        
+        titleViews.fillSuperview()
         
         centerTitledImageView.anchor(
             .top(topAnchor),
@@ -103,7 +100,7 @@ private extension NavigationBar {
     func makeWrappedImageView() -> WrapperView<ImageView> {
         return WrapperView(
             contentView: ImageView(),
-            isHidden: true, 
+            isHidden: true,
             contentViewConstraints: {
                 $0.anchor(
                     .topGreaterThanEqual($1.topAnchor),
