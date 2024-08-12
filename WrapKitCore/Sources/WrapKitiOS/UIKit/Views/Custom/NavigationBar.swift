@@ -9,10 +9,13 @@
 import UIKit
 
 open class NavigationBar: UIView {
+    public lazy var leadingStackWrapperView = UIView()
     public lazy var leadingStackView = StackView(axis: .horizontal, spacing: 12)
+    
     public lazy var centerView = UIView()
     public lazy var centerTitledImageView = makeTitledLogoView()
     
+    public lazy var trailingStackWrapperView = UIView()
     public lazy var trailingStackView = StackView(axis: .horizontal, spacing: 12)
     public lazy var mainStackView = StackView(axis: .horizontal, spacing: 8)
     
@@ -35,20 +38,35 @@ open class NavigationBar: UIView {
     
     private func setupSubviews() {
         addSubviews(mainStackView)
-        mainStackView.addArrangedSubview(leadingStackView)
+        leadingStackWrapperView.addSubview(leadingStackView)
+        trailingStackWrapperView.addSubview(trailingStackView)
+        
+        mainStackView.addArrangedSubview(leadingStackWrapperView)
         mainStackView.addArrangedSubview(centerView)
-        mainStackView.addArrangedSubview(trailingStackView)
+        mainStackView.addArrangedSubview(trailingStackWrapperView)
         leadingStackView.addArrangedSubview(leadingCardView)
-        leadingStackView.addArrangedSubviews(UIView())
         centerView.addSubview(titleViews)
         centerView.addSubview(centerTitledImageView)
-        trailingStackView.addArrangedSubviews(UIView())
         trailingStackView.addArrangedSubview(primeTrailingImageWrapperView)
         trailingStackView.addArrangedSubview(secondaryTrailingImageWrapperView)
         trailingStackView.addArrangedSubview(tertiaryTrailingImageWrapperView)
     }
     
     private func setupConstraints() {
+        leadingStackView.anchor(
+            .top(leadingStackWrapperView.topAnchor),
+            .leading(leadingStackWrapperView.leadingAnchor),
+            .trailingLessThanEqual(leadingStackWrapperView.trailingAnchor),
+            .bottom(leadingStackWrapperView.bottomAnchor)
+        )
+        
+        trailingStackView.anchor(
+            .top(trailingStackWrapperView.topAnchor),
+            .leadingGreaterThanEqual(trailingStackWrapperView.leadingAnchor),
+            .trailing(trailingStackWrapperView.trailingAnchor),
+            .bottom(trailingStackWrapperView.bottomAnchor)
+        )
+        
         mainStackViewConstraints = mainStackView.anchor(
             .top(safeAreaLayoutGuide.topAnchor),
             .leading(leadingAnchor, constant: 12),
@@ -56,11 +74,9 @@ open class NavigationBar: UIView {
             .height(52),
             .bottom(bottomAnchor)
         )
-        trailingStackView.setContentCompressionResistancePriority(.required, for: .horizontal)
-        leadingStackView.anchor(
-            .widthTo(trailingStackView.widthAnchor, 1)
-        )
+        trailingStackWrapperView.setContentCompressionResistancePriority(.required, for: .horizontal)
         
+        leadingStackWrapperView.anchor(.widthTo(trailingStackWrapperView.widthAnchor, 1))
         
         titleViews.fillSuperview()
         
