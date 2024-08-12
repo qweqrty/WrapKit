@@ -31,6 +31,8 @@ open class NavigationBar: UIView {
         super.init(frame: frame)
         setupSubviews()
         setupConstraints()
+        
+        centerView.clipsToBounds = true
     }
     
     private func setupSubviews() {
