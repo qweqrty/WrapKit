@@ -8,13 +8,13 @@
 #if canImport(UIKit)
 import UIKit
 
+public enum CollectionItem<Model: Hashable>: Hashable {
+    case model(Model)
+    case footer(UUID)
+}
+
 @available(iOS 13.0, *)
-public class DiffableCollectionViewDataSource<Model: Hashable>: NSObject, UICollectionViewDelegateFlowLayout {
-    public enum CollectionItem: Hashable {
-        case model(Model)
-        case footer(UUID)
-    }
-    
+public class DiffableCollectionViewDataSource<Model: Hashable>: UICollectionViewDiffableDataSource<Int, CollectionItem<Model>>, UICollectionViewDelegateFlowLayout {
     public var didSelectAt: ((IndexPath, Model) -> Void)?
     public var configureCell: ((UICollectionView, IndexPath, Model) -> UICollectionViewCell)?
     public var configureSupplementaryView: ((UICollectionView, String, IndexPath) -> UICollectionReusableView)?
@@ -29,45 +29,39 @@ public class DiffableCollectionViewDataSource<Model: Hashable>: NSObject, UIColl
     public var sizeForItemAt: ((IndexPath) -> CGSize)?
     public var didScrollTo: ((IndexPath) -> Void)?
     public var didScrollViewDidScroll: ((UIScrollView) -> Void)?
-    
+    public var didMoveItem: ((_ atIndexPath: IndexPath, _ toIndexPath: IndexPath) -> Void)?
+
     private weak var collectionView: UICollectionView?
     private var items = [Model]()
     
-    private var dataSource: UICollectionViewDiffableDataSource<Int, CollectionItem>!
-    
     public init(collectionView: UICollectionView, configureCell: @escaping (UICollectionView, IndexPath, Model) -> UICollectionViewCell) {
-        super.init()
-        self.collectionView = collectionView
-        self.configureCell = configureCell
-        setupDataSource(for: collectionView)
-        collectionView.register(CollectionViewCell<UIView>.self, forCellWithReuseIdentifier: CollectionViewCell<UIView>.reuseIdentifier)
-    }
-    
-    private func setupDataSource(for collectionView: UICollectionView) {
-        dataSource = UICollectionViewDiffableDataSource<Int, CollectionItem>(collectionView: collectionView) { [weak self] collectionView, indexPath, item in
+        super.init(collectionView: collectionView, cellProvider: { collectionView, indexPath, item in
             switch item {
             case .footer:
                 let cell: CollectionViewCell<UIView> = collectionView.dequeueReusableCell(for: indexPath)
                 return cell
             case .model(let model):
-                return self?.configureCell?(collectionView, indexPath, model) ?? UICollectionViewCell()
+                return configureCell(collectionView, indexPath, model)
             }
-        }
-        
-        dataSource.supplementaryViewProvider = { [weak self] collectionView, kind, indexPath in
+        })
+        supplementaryViewProvider = { [weak self] collectionView, kind, indexPath in
             return self?.configureSupplementaryView?(collectionView, kind, indexPath) ?? UICollectionReusableView()
         }
         
-        collectionView.dataSource = dataSource
+        self.collectionView = collectionView
+        self.configureCell = configureCell
+        collectionView.register(CollectionViewCell<UIView>.self, forCellWithReuseIdentifier: CollectionViewCell<UIView>.reuseIdentifier)
+        
+        collectionView.dataSource = self
         collectionView.delegate = self
     }
     
     private func updateSnapshot() {
         DispatchQueue.main.async {
-            var snapshot = NSDiffableDataSourceSnapshot<Int, CollectionItem>()
+            var snapshot = NSDiffableDataSourceSnapshot<Int, CollectionItem<Model>>()
             snapshot.appendSections([0])
             snapshot.appendItems(self.items.map { .model($0) }, toSection: 0)
-            self.dataSource.apply(snapshot, animatingDifferences: true)
+            self.apply(snapshot, animatingDifferences: true)
         }
     }
     
@@ -110,6 +104,12 @@ public class DiffableCollectionViewDataSource<Model: Hashable>: NSObject, UIColl
         let visiblePoint = CGPoint(x: visibleRect.midX, y: visibleRect.midY)
         guard let indexPath = (scrollView as? UICollectionView)?.indexPathForItem(at: visiblePoint) else { return }
         didScrollTo?(indexPath)
+    }
+    
+    public override func collectionView(_ collectionView: UICollectionView, moveItemAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
+        super.collectionView(collectionView, moveItemAt: sourceIndexPath, to: destinationIndexPath)
+        
+        didMoveItem?(sourceIndexPath, destinationIndexPath)
     }
 }
 #endif
