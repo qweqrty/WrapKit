@@ -30,7 +30,7 @@ open class View: UIView {
     }()
     
     lazy var longPressRecognizer: UILongPressGestureRecognizer = {
-        let recognizer = UILongPressGestureRecognizer(target: self, action: #selector(didTap))
+        let recognizer = UILongPressGestureRecognizer(target: self, action: #selector(didLongPress))
         recognizer.minimumPressDuration = 1
         recognizer.cancelsTouchesInView = false
         return recognizer
