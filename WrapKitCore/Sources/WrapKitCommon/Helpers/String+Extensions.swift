@@ -36,10 +36,10 @@ public extension String {
         )
     }
     
-    func numberFormatted(numberStyle: NumberFormatter.Style) -> String {
+    func numberFormatted(numberStyle: NumberFormatter.Style, groupingSeparator: String?) -> String {
         let formatter = NumberFormatter()
         formatter.numberStyle = numberStyle
-        formatter.groupingSeparator = Locale.current.groupingSeparator
+        formatter.groupingSeparator = groupingSeparator ?? Locale.current.groupingSeparator
         formatter.locale = Locale.current
         let number = NSNumber(value: Double(self.replacingOccurrences(of: formatter.groupingSeparator, with: "")) ?? 0)
         return formatter.string(from: number) ?? ""
