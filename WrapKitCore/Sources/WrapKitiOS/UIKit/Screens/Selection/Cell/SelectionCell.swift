@@ -8,15 +8,23 @@
 #if canImport(UIKit)
 import UIKit
 import Kingfisher
+import Combine
 
 public class SelectionCell: TableViewCell<SelectionCellContentView> {
+    private var cancellables = Set<AnyCancellable>()
+
     public var model: SelectionType.SelectionCellPresentableModel? {
         didSet {
             guard let model = model else { return }
             mainContentView.titleLabel.text = model.title
             mainContentView.trailingLabel.text = model.trailingTitle
-            mainContentView.trailingImageView.image = model.isSelected ? model.configuration.selectedImage : model.configuration.notSelectedImage
-            mainContentView.leadingImageContainerView.isHidden = model.leadingImage == nil
+            model.isSelected
+                .publisher
+                .sink { [weak self] isSelected in
+                    let isSelected = isSelected ?? false
+                    self?.mainContentView.trailingImageView.image = isSelected ? model.configuration.selectedImage : model.configuration.notSelectedImage
+                }
+                .store(in: &cancellables)
             
             if let color = model.circleColor, let color = UIColor(hexaRGB: color, alpha: 1) {
                 mainContentView.leadingImageView.layer.cornerRadius = 10
@@ -44,6 +52,8 @@ public class SelectionCell: TableViewCell<SelectionCellContentView> {
         super.prepareForReuse()
         mainContentView.trailingImageView.image = nil
         mainContentView.leadingImageView.image = nil
+        
+        cancellables.removeAll()
     }
 }
 #endif

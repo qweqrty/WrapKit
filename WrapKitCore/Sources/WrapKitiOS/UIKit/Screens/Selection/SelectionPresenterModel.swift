@@ -34,7 +34,7 @@ public enum SelectionType {
         public let id: String
         public let title: String
         public let circleColor: String?
-        public var isSelected: Bool
+        public let isSelected: any Storage<Bool>
         public let trailingTitle: String?
         public let leadingImage: ImageEnum?
         public let configuration: SelectionConfiguration.Cell
@@ -51,7 +51,7 @@ public enum SelectionType {
             self.id = id
             self.title = title
             self.circleColor = circleColor
-            self.isSelected = isSelected
+            self.isSelected = InMemoryStorage<Bool>(model: isSelected)
             self.leadingImage = leadingImage
             self.trailingTitle = trailingTitle
             self.configuration = configuration

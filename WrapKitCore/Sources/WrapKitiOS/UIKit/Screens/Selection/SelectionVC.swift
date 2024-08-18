@@ -16,9 +16,6 @@ open class SelectionVC: ViewController<SelectionContentView> {
         let cell: SelectionCell = tableView.dequeueReusableCell(for: indexPath)
         cell.model = model
         cell.mainContentView.trailingImageContainerView.isHidden = !(self?.presenter.isMultipleSelectionEnabled ?? false) == true
-        cell.mainContentView.onPress = { [indexPath] in
-            self?.presenter.onSelect(at: indexPath.row)
-        }
         return cell
     })
     
@@ -40,6 +37,9 @@ open class SelectionVC: ViewController<SelectionContentView> {
     }
     
     private func setupUI() {
+        datasource.selectAt = { [weak self] indexPath in
+            self?.presenter.onSelect(at: indexPath.row)
+        }
         contentView.navigationBar.primeTrailingImageWrapperView.onPress = presenter.onTapClose
         contentView.resetButton.onPress = presenter.onTapReset
         contentView.selectButton.onPress = presenter.onTapFinishSelection
@@ -110,7 +110,7 @@ extension SelectionVC: SelectionOutput {
     
     public func display(items: [SelectionType.SelectionCellPresentableModel], selectedCountTitle: String) {
         datasource.getItems = { items }
-        let selectedItemsCount = items.filter { $0.isSelected }.count
+        let selectedItemsCount = items.filter { $0.isSelected.get() == true }.count
         contentView.selectButton.setTitle("\(selectedCountTitle)\(selectedItemsCount == 0 ? "" : " (\(selectedItemsCount))")", for: .normal)
         contentView.tableView.reloadData()
     }

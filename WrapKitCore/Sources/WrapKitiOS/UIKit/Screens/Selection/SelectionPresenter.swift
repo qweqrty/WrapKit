@@ -61,7 +61,6 @@ public class SelectionPresenter {
     }
     
     private var itemsToPresent: [SelectionType.SelectionCellPresentableModel] { searchText.isEmpty ? items : items.filter({ ($0.title ).lowercased().contains(searchText.lowercased()) }) }
-    private var selectedItems: [SelectionType.SelectionCellPresentableModel] { itemsToPresent.filter { $0.isSelected } }
 }
 
 extension SelectionPresenter: SelectionInput {
@@ -77,10 +76,10 @@ extension SelectionPresenter: SelectionInput {
     }
     
     public func onTapFinishSelection() {
+        let selectedItems = items.filter { $0.isSelected.get() == true }
         if isMultipleSelectionEnabled {
             flow.close(with: .multipleSelection(selectedItems))
         } else if let selectedItem = selectedItems.first {
-            let selectedIndexes = items.enumerated().filter { $0.element.isSelected }.map { $0.offset }
             flow.close(with: .singleSelection(selectedItem))
         } else {
             flow.close(with: nil)
@@ -104,18 +103,17 @@ extension SelectionPresenter: SelectionInput {
     public func onSelect(at index: Int) {
         guard let selectedItem = itemsToPresent.item(at: index) else { return }
         guard let selectedItemIndex = self.items.firstIndex(where: { $0.id == selectedItem.id }) else { return }
-
-        let isSelected = selectedItem.isSelected
-        items[selectedItemIndex].isSelected = !isSelected
+        
+        let isSelected = selectedItem.isSelected.get() == true
+        _ = items[selectedItemIndex].isSelected.set(model: !isSelected)
         
         onSearch(searchText)
         
         if !self.isMultipleSelectionEnabled {
             items.enumerated().forEach {
-                items[$0.offset].isSelected = $0.element.id == selectedItem.id
+                _ = items[$0.offset].isSelected.set(model: $0.element.id == selectedItem.id)
             }
             self.onTapFinishSelection()
         }
-        
     }
 }
