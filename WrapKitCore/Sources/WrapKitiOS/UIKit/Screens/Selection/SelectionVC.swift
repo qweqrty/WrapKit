@@ -52,7 +52,7 @@ open class SelectionVC: ViewController<SelectionContentView> {
     public override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         
-        let calculatedHeight = contentView.tableView.contentSize.height +
+        let calculatedHeight = !contentView.searchBar.isHidden ? contentView.frame.height : contentView.tableView.contentSize.height +
         contentView.navigationBar.frame.height +
         contentView.lineView.frame.height +
         (contentView.searchBarConstraints?.height?.constant ?? 0) +
