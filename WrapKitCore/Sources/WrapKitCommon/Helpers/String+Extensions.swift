@@ -36,6 +36,15 @@ public extension String {
         )
     }
     
+    func numberFormatted(numberStyle: NumberFormatter.Style) -> String {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = numberStyle
+        formatter.groupingSeparator = Locale.current.groupingSeparator
+        formatter.locale = Locale.current
+        let number = NSNumber(value: Double(self.replacingOccurrences(of: formatter.groupingSeparator, with: "")) ?? 0)
+        return formatter.string(from: number) ?? ""
+    }
+    
     func asDate(withFormat format: String) -> Date? {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = format
