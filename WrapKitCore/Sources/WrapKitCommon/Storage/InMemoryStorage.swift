@@ -8,7 +8,7 @@
 import Foundation
 import Combine
 
-public class InMemoryStorage<Model>: Storage & HashableWithReflection {
+public class InMemoryStorage<Model: Hashable>: Storage, Hashable {
     public typealias Model = Model
 
     private let subject: CurrentValueSubject<Model?, Never>
@@ -27,5 +27,14 @@ public class InMemoryStorage<Model>: Storage & HashableWithReflection {
     public func set(model: Model?) -> AnyPublisher<Bool, Never> {
         subject.send(model)
         return Just(true).eraseToAnyPublisher()
+    }
+    
+    // Hashable
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(subject.value)
+    }
+
+    public static func == (lhs: InMemoryStorage<Model>, rhs: InMemoryStorage<Model>) -> Bool {
+        return lhs.subject.value == rhs.subject.value
     }
 }
