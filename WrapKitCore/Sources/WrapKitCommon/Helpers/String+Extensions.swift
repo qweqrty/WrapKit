@@ -41,7 +41,8 @@ public extension String {
         formatter.numberStyle = numberStyle
         formatter.groupingSeparator = groupingSeparator ?? Locale.current.groupingSeparator
         formatter.locale = Locale.current
-        let number = NSNumber(value: Double(self.replacingOccurrences(of: formatter.groupingSeparator, with: "")) ?? 0)
+        guard let digits = Double(self.replacingOccurrences(of: formatter.groupingSeparator, with: "")) else { return "" }
+        let number = NSNumber(value: digits)
         return formatter.string(from: number) ?? ""
     }
     
