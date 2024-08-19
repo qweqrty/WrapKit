@@ -37,6 +37,7 @@ public enum SelectionType {
         public let isSelected: any Storage<Bool>
         public let trailingTitle: String?
         public let leadingImage: ImageEnum?
+        public let onPress: (() -> Void)?
         public let configuration: SelectionConfiguration.Cell
         
         public init(
@@ -46,6 +47,7 @@ public enum SelectionType {
             isSelected: Bool = false,
             trailingTitle: String? = nil,
             leadingImage: ImageEnum? = nil,
+            onPress: (() -> Void)? = nil,
             configuration: SelectionConfiguration.Cell
         ) {
             self.id = id
@@ -54,6 +56,7 @@ public enum SelectionType {
             self.isSelected = InMemoryStorage<Bool>(model: isSelected)
             self.leadingImage = leadingImage
             self.trailingTitle = trailingTitle
+            self.onPress = onPress
             self.configuration = configuration
         }
     }

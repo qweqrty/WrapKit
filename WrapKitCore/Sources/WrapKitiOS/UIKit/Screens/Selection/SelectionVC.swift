@@ -27,13 +27,8 @@ open class SelectionVC: ViewController<SelectionContentView> {
     public override func viewDidLoad() {
         super.viewDidLoad()
         
-        setupTitles()
         setupUI()
         presenter.viewDidLoad()
-    }
-    
-    private func setupTitles() {
-        
     }
     
     private func setupUI() {
