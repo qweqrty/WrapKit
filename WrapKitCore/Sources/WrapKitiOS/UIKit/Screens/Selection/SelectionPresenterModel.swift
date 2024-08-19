@@ -64,7 +64,6 @@ public enum SelectionType {
 
 public struct SelectionConfiguration {
     public let texts: Texts
-    public let cell: Cell
     public let content: Content
     public let resetButton: ActionButton
     public let searchButton: ActionButton
@@ -73,7 +72,6 @@ public struct SelectionConfiguration {
     
     public init(
         texts: Texts,
-        cell: Cell,
         content: Content,
         resetButton: ActionButton,
         searchButton: ActionButton,
@@ -81,7 +79,6 @@ public struct SelectionConfiguration {
         resetButtonColors: ResetButtonColors
     ) {
         self.texts = texts
-        self.cell = cell
         self.content = content
         self.resetButton = resetButton
         self.searchButton = searchButton
