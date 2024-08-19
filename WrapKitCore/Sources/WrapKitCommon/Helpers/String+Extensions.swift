@@ -36,12 +36,13 @@ public extension String {
         )
     }
     
-    func numberFormatted(numberStyle: NumberFormatter.Style, groupingSeparator: String?) -> String {
+    func numberFormatted(numberStyle: NumberFormatter.Style, groupingSeparator: String?, maxDigits: Int = 12) -> String {
         let formatter = NumberFormatter()
         formatter.numberStyle = numberStyle
         formatter.groupingSeparator = groupingSeparator ?? Locale.current.groupingSeparator
         formatter.locale = Locale.current
-        guard let digits = Double(self.replacingOccurrences(of: formatter.groupingSeparator, with: "")) else { return "" }
+        
+        guard let digits = Double(self.replacingOccurrences(of: formatter.groupingSeparator, with: "").prefix(maxDigits)) else { return "" }
         let number = NSNumber(value: digits)
         return formatter.string(from: number) ?? ""
     }

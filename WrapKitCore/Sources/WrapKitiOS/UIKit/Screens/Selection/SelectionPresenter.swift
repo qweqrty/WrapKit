@@ -103,6 +103,7 @@ extension SelectionPresenter: SelectionInput {
     public func onSelect(at index: Int) {
         guard let selectedItem = itemsToPresent.item(at: index) else { return }
         guard let selectedItemIndex = self.items.firstIndex(where: { $0.id == selectedItem.id }) else { return }
+        selectedItem.onPress?()
         
         let isSelected = selectedItem.isSelected.get() == true
         _ = items[selectedItemIndex].isSelected.set(model: !isSelected)
