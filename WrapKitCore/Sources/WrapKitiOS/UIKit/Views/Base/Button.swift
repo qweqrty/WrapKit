@@ -9,7 +9,12 @@
 import UIKit
 
 open class Button: UIButton {
-    public var onPress: (() -> Void)?
+    public var onPress: (() -> Void)? {
+        didSet {
+            removeTarget(self, action: #selector(onTap), for: .touchUpInside)
+            addTarget(self, action: #selector(onTap), for: .touchUpInside)
+        }
+    }
     public var spacing: CGFloat = 0 {
         didSet {
             updateSpacings()
@@ -66,7 +71,7 @@ open class Button: UIButton {
         self.backgroundColor = backgroundColor
         self.contentInset = contentInset
         self.isHidden = isHidden
-        self.addTarget(self, action: #selector(onTap), for: .touchUpInside)
+        
         updateSpacings()
     }
     
