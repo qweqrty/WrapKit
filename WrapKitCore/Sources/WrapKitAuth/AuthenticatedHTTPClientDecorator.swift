@@ -6,10 +6,13 @@
 //
 
 import Foundation
+import Combine
 
 public class AuthenticatedHTTPClientDecorator: HTTPClient {
     public typealias EnrichRequestWithToken = ((URLRequest, String) -> URLRequest)
     public typealias AuthenticationPolicy = (((Data, HTTPURLResponse)) -> Bool)
+    
+    private var cancellables = Set<AnyCancellable>()
     
     private let decoratee: HTTPClient
     private let accessTokenStorage: any Storage<String>
@@ -43,27 +46,30 @@ public class AuthenticatedHTTPClientDecorator: HTTPClient {
         let token = accessTokenStorage.get()
         let enrichedRequest = enrichRequestWithToken(request, token ?? "")
         let firstTask = decoratee.dispatch(enrichedRequest) { [weak self] result in
+            guard let self = self else { return }
             switch result {
             case .success(let (data, response)):
-                if self?.isAuthenticated((data, response)) ?? false {
+                if self.isAuthenticated((data, response)) {
                     completion(.success((data, response)))
-                } else if let tokenRefresher = self?.tokenRefresher, isRetryNeeded {
+                } else if let tokenRefresher = self.tokenRefresher, isRetryNeeded {
                     tokenRefresher.refresh { refreshResult in
                         switch refreshResult {
                         case .success(let newToken):
-                            _ = self?.accessTokenStorage.set(model: newToken)
-                            guard let newTask = self?.dispatch(request, completion: completion, isRetryNeeded: false) else { return }
-                            compositeTask.add(newTask)
-                            newTask.resume()
+                            self.accessTokenStorage.set(model: newToken)
+                                .sink { model in
+                                    let newTask = self.dispatch(request, completion: completion, isRetryNeeded: false)
+                                    compositeTask.add(newTask)
+                                    newTask.resume()
+                                }.store(in: &self.cancellables)
                         case .failure:
-                            _ = self?.accessTokenStorage.set(model: nil)
-                            self?.onNotAuthenticated?()
+                            _ = self.accessTokenStorage.set(model: nil)
+                            self.onNotAuthenticated?()
                             completion(.failure(ServiceError.notAuthorized))
                         }
                     }
                 } else {
-                    _ = self?.accessTokenStorage.set(model: nil)
-                    self?.onNotAuthenticated?()
+                    _ = self.accessTokenStorage.set(model: nil)
+                    self.onNotAuthenticated?()
                     completion(.success((data, response)))
                 }
             case .failure(let error):
