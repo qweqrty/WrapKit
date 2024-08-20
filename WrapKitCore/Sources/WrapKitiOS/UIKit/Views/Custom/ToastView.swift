@@ -7,6 +7,7 @@
 
 #if canImport(UIKit)
 import UIKit
+import SwiftUI
 
 open class ToastView: UIView {
     public lazy var cardView = {
@@ -118,6 +119,93 @@ open class ToastView: UIView {
                 guard finished else { return }
                 self.removeFromSuperview()
             }
+        }
+    }
+}
+
+@available(iOS 13.0, *)
+struct ToastViewFullRepresentable: UIViewRepresentable {
+    func makeUIView(context: Context) -> ToastView {
+        let view = ToastView()
+        view.cardView.leadingImageView.image = UIImage(systemName: "globe.desk")
+        view.cardView.titleViews.keyLabel.text = "Key Label"
+        view.cardView.titleViews.valueLabel.text = "Value Label"
+        return view
+    }
+
+    func updateUIView(_ uiView: ToastView, context: Context) {
+        // Leave this empty
+    }
+}
+
+struct ToastViewKeyRepresentable: UIViewRepresentable {
+    func makeUIView(context: Context) -> ToastView {
+        let view = ToastView()
+        view.cardView.leadingImageView.image = UIImage(systemName: "globe.desk")
+        view.cardView.titleViews.keyLabel.text = "Key Label"
+        return view
+    }
+
+    func updateUIView(_ uiView: ToastView, context: Context) {
+        // Leave this empty
+    }
+}
+
+struct ToastViewFullValueRepresentable: UIViewRepresentable {
+    func makeUIView(context: Context) -> ToastView {
+        let view = ToastView()
+        view.cardView.leadingImageView.image = UIImage(systemName: "globe.desk")
+        view.cardView.titleViews.valueLabel.text = "Value Label"
+        return view
+    }
+
+    func updateUIView(_ uiView: ToastView, context: Context) {
+        // Leave this empty
+    }
+}
+
+struct ToastViewNoImageRepresentable: UIViewRepresentable {
+    func makeUIView(context: Context) -> ToastView {
+        let view = ToastView()
+        view.cardView.leadingImageWrapperView.isHidden = true
+        view.cardView.titleViews.keyLabel.text = "Key Label"
+        view.cardView.titleViews.valueLabel.text = "Value Label"
+        return view
+    }
+
+    func updateUIView(_ uiView: ToastView, context: Context) {
+        // Leave this empty
+    }
+}
+
+@available(iOS 13.0, *)
+struct ToastView_Previews: PreviewProvider {
+    static var previews: some SwiftUI.View {
+        VStack {
+            ToastViewFullRepresentable()
+                .frame(height: 70)
+                .padding()
+                .previewDevice(PreviewDevice(rawValue: "iPhone SE (2nd generation)"))
+                .previewDisplayName("iPhone SE (2nd generation)")
+
+            ToastViewKeyRepresentable()
+                .frame(height: 50)
+                .padding()
+                .previewDevice(PreviewDevice(rawValue: "iPhone 12 Pro Max"))
+                .previewDisplayName("iPhone 12 Pro Max")
+
+            ToastViewFullValueRepresentable()
+                .frame(height: 50)
+                .padding()
+                .previewDevice(PreviewDevice(rawValue: "iPad Pro (9.7-inch)"))
+                .previewDisplayName("iPad Pro (9.7-inch)")
+
+            ToastViewNoImageRepresentable()
+                .frame(height: 70)
+                .padding()
+                .previewDevice(PreviewDevice(rawValue: "iPad Pro (9.7-inch)"))
+                .previewDisplayName("iPad Pro (9.7-inch)")
+            Spacer()
         }
     }
 }

@@ -6,8 +6,8 @@
 //
 
 #if canImport(UIKit)
-import Foundation
 import UIKit
+import SwiftUI
 
 open class HKeyValueFieldView: View {
     public let mainView = View(backgroundColor: .clear)
@@ -94,6 +94,73 @@ extension HKeyValueFieldView {
     func setupConstraints() {
         mainView.fillSuperview()
         mainStackView.fillSuperview()
+    }
+}
+
+@available(iOS 13.0, *)
+struct HKeyValueFieldViewKeyLabelValueLabelRepresentable: UIViewRepresentable {
+    func makeUIView(context: Context) -> HKeyValueFieldView {
+        let view = HKeyValueFieldView()
+        view.mainView.backgroundColor = .cyan
+        view.keyLabel.text = "Key Label"
+        view.valueLabel.text = "Value Label"
+        return view
+    }
+
+    func updateUIView(_ uiView: HKeyValueFieldView, context: Context) {
+        // Leave this empty
+    }
+}
+
+struct HKeyValueFieldViewKeyLabelRepresentable: UIViewRepresentable {
+    func makeUIView(context: Context) -> HKeyValueFieldView {
+        let view = HKeyValueFieldView()
+        view.mainView.backgroundColor = .yellow
+        view.keyLabel.text = "Key Label"
+        return view
+    }
+
+    func updateUIView(_ uiView: HKeyValueFieldView, context: Context) {
+        // Leave this empty
+    }
+}
+
+struct HKeyValueFieldViewValueLabelRepresentable: UIViewRepresentable {
+    func makeUIView(context: Context) -> HKeyValueFieldView {
+        let view = HKeyValueFieldView()
+        view.mainView.backgroundColor = .green
+        view.valueLabel.text = "Value Label"
+        return view
+    }
+
+    func updateUIView(_ uiView: HKeyValueFieldView, context: Context) {
+        // Leave this empty
+    }
+}
+
+@available(iOS 13.0, *)
+struct HKeyValueFieldView_Previews: PreviewProvider {
+    static var previews: some SwiftUI.View {
+        VStack {
+            HKeyValueFieldViewKeyLabelValueLabelRepresentable()
+                .frame(height: 25)
+                .padding()
+                .previewDevice(PreviewDevice(rawValue: "iPhone SE (2nd generation)"))
+                .previewDisplayName("iPhone SE (2nd generation)")
+
+            HKeyValueFieldViewKeyLabelRepresentable()
+                .frame(height: 25)
+                .padding()
+                .previewDevice(PreviewDevice(rawValue: "iPhone SE (2nd generation)"))
+                .previewDisplayName("iPhone SE (2nd generation)")
+
+            HKeyValueFieldViewValueLabelRepresentable()
+                .frame(height: 25)
+                .padding()
+                .previewDevice(PreviewDevice(rawValue: "iPhone SE (2nd generation)"))
+                .previewDisplayName("iPhone SE (2nd generation)")
+            Spacer()
+        }
     }
 }
 #endif

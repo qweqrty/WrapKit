@@ -7,6 +7,7 @@
 
 #if canImport(UIKit)
 import UIKit
+import SwiftUI
 
 open class WrapperView<ContentView: UIView>: View {
     public let contentView: ContentView
@@ -38,6 +39,33 @@ open class WrapperView<ContentView: UIView>: View {
     
     public required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+}
+
+@available(iOS 13.0, *)
+struct WrapperViewRepresentable: UIViewRepresentable {
+    func makeUIView(context: Context) -> WrapperView<UIView> {
+        let view = WrapperView(
+            contentView: UIView(),
+            contentViewConstraints: { contentView, superView in
+                contentView.fillSuperview(padding: .init(top: 20, left: 20, bottom: 20, right: 20))
+            }
+        )
+        view.contentView.backgroundColor = .red
+        return view
+    }
+
+    func updateUIView(_ uiView: WrapperView<UIView>, context: Context) {
+        // Leave this empty
+    }
+}
+
+@available(iOS 13.0, *)
+struct WrapperView_Previews: PreviewProvider {
+    static var previews: some SwiftUI.View {
+            WrapperViewRepresentable()
+                .previewDevice(PreviewDevice(rawValue: "iPhone SE (2nd generation)"))
+                .previewDisplayName("iPhone SE (2nd generation)")
     }
 }
 #endif

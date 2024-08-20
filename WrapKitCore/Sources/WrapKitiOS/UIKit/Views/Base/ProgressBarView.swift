@@ -7,6 +7,7 @@
 
 #if canImport(UIKit)
 import UIKit
+import SwiftUI
 
 open class ProgressBarView: UIView {
     public let progressView = View(backgroundColor: .green)
@@ -55,6 +56,31 @@ extension ProgressBarView {
             .bottom(bottomAnchor),
             .width(0)
         )
+    }
+}
+
+@available(iOS 13.0, *)
+struct ProgressBarViewFullRepresentable: UIViewRepresentable {
+    func makeUIView(context: Context) -> ProgressBarView {
+        let view = ProgressBarView()
+        view.applyProgress(width: 340)
+        return view
+    }
+
+    func updateUIView(_ uiView: ProgressBarView, context: Context) {
+        // Leave this empty
+    }
+}
+
+@available(iOS 13.0, *)
+struct ProgressBarView_Previews: PreviewProvider {
+    static var previews: some SwiftUI.View {
+        VStack {
+            ProgressBarViewFullRepresentable()
+                .frame(height: 20)
+                .previewDevice(PreviewDevice(rawValue: "iPhone SE (2nd generation)"))
+                .previewDisplayName("iPhone SE (2nd generation)")
+        }
     }
 }
 #endif

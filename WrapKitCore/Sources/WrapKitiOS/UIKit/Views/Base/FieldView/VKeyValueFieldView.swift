@@ -6,8 +6,8 @@
 //
 
 #if canImport(UIKit)
-import Foundation
 import UIKit
+import SwiftUI
 
 //open class VKeyValueFieldView: UIView {
 //    public lazy var keyLabel = Label(
@@ -195,6 +195,75 @@ extension VKeyValueFieldView {
             .leading(leadingAnchor),
             .trailing(trailingAnchor)
         )
+    }
+}
+
+@available(iOS 13.0, *)
+struct VKeyValueFieldViewKeyLabelValueLabelRepresentable: UIViewRepresentable {
+    func makeUIView(context: Context) -> VKeyValueFieldView {
+        let view = VKeyValueFieldView()
+        view.backgroundColor = .cyan
+        view.keyLabel.text = "Key Label"
+        view.valueLabel.text = "Value Label"
+        return view
+    }
+
+    func updateUIView(_ uiView: VKeyValueFieldView, context: Context) {
+        // Leave this empty
+    }
+}
+
+struct VKeyValueFieldViewKeyLabelRepresentable: UIViewRepresentable {
+    func makeUIView(context: Context) -> VKeyValueFieldView {
+        let view = VKeyValueFieldView()
+        view.backgroundColor = .yellow
+        view.keyLabel.text = "Key Label"
+        view.valueLabel.isHidden = true
+        return view
+    }
+
+    func updateUIView(_ uiView: VKeyValueFieldView, context: Context) {
+        // Leave this empty
+    }
+}
+
+struct VKeyValueFieldViewValueLabelRepresentable: UIViewRepresentable {
+    func makeUIView(context: Context) -> VKeyValueFieldView {
+        let view = VKeyValueFieldView()
+        view.backgroundColor = .green
+        view.keyLabel.isHidden = true
+        view.valueLabel.text = "Value Label"
+        return view
+    }
+
+    func updateUIView(_ uiView: VKeyValueFieldView, context: Context) {
+        // Leave this empty
+    }
+}
+
+@available(iOS 13.0, *)
+struct VKeyValueFieldView_Previews: PreviewProvider {
+    static var previews: some SwiftUI.View {
+        VStack {
+            VKeyValueFieldViewKeyLabelValueLabelRepresentable()
+                .frame(height: 35)
+                .padding()
+                .previewDevice(PreviewDevice(rawValue: "iPhone SE (2nd generation)"))
+                .previewDisplayName("iPhone SE (2nd generation)")
+
+            VKeyValueFieldViewKeyLabelRepresentable()
+                .frame(height: 25)
+                .padding()
+                .previewDevice(PreviewDevice(rawValue: "iPhone SE (2nd generation)"))
+                .previewDisplayName("iPhone SE (2nd generation)")
+
+            VKeyValueFieldViewValueLabelRepresentable()
+                .frame(height: 25)
+                .padding()
+                .previewDevice(PreviewDevice(rawValue: "iPhone SE (2nd generation)"))
+                .previewDisplayName("iPhone SE (2nd generation)")
+            Spacer()
+        }
     }
 }
 #endif
