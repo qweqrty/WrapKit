@@ -1,0 +1,18 @@
+# Ignore Xcode User Data
+*.xcuserdata
+*.xcuserdatad
+*.xcuserstate
+
+# Ignore Xcode specific folders
+*.xcworkspace
+*.xcproject
+
+# Ignore Swift Package Manager files
+.swiftpm/xcode/package.xcworkspace/xcuserdata/
+
+# Ignore macOS specific files
+.DS_Store
+
+# Ignore build artifacts
+build/
+DerivedData/

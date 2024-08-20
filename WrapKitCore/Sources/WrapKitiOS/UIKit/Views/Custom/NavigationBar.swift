@@ -74,9 +74,10 @@ open class NavigationBar: UIView {
             .height(52),
             .bottom(bottomAnchor)
         )
+
         trailingStackWrapperView.setContentCompressionResistancePriority(.required, for: .horizontal)
-        
-        leadingStackWrapperView.anchor(.widthTo(trailingStackWrapperView.widthAnchor, 1))
+        leadingStackWrapperView.setContentCompressionResistancePriority(.required, for: .horizontal)
+        leadingStackWrapperView.anchor(.widthTo(trailingStackWrapperView.widthAnchor, 1, priority: .defaultLow))
         
         titleViews.fillSuperview()
         
