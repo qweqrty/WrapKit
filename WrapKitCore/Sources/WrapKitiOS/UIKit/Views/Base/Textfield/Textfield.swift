@@ -199,23 +199,22 @@ open class Textfield: UITextField {
     }
     
     override open func point(inside point: CGPoint, with event: UIEvent?) -> Bool {
-         if let trailingView = trailingView, trailingView.frame.contains(point) {
-             trailingView.onPress?()
-             return true
-         } else if let leadingView = leadingView, leadingView.frame.contains(point) {
-             leadingView.onPress?()
-             return true
-         }
-        onPress?()
-         return super.point(inside: point, with: event)
-     }
+        if let trailingView = trailingView, trailingView.frame.contains(point) {
+            trailingView.onPress?()
+            return true
+        } else if let leadingView = leadingView, leadingView.frame.contains(point) {
+            leadingView.onPress?()
+            return true
+        }
+        let isTouchInside = super.point(inside: point, with: event)
+        if isTouchInside {
+            onPress?()
+        }
+        return isTouchInside
+    }
     
     required public init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
-    }
-    
-    @objc private func didTapTextfield() {
-        onPress?()
     }
     
     @objc private func textFieldDidChange() {
