@@ -35,16 +35,16 @@ open class Label: UILabel {
             self.trailingImageBounds = trailingImageBounds
         }
         
-        let text: String
-        let color: UIColor
-        let underlineStyle: NSUnderlineStyle?
-        let font: UIFont
-        let textAlignment: NSTextAlignment?
-        let leadingImage: UIImage?
-        let leadingImageBounds: CGRect
-        let trailingImage: UIImage?
-        let trailingImageBounds: CGRect
-        let onTap: (() -> Void)?
+        public let text: String
+        public let color: UIColor
+        public let underlineStyle: NSUnderlineStyle?
+        public let font: UIFont
+        public let textAlignment: NSTextAlignment?
+        public let leadingImage: UIImage?
+        public let leadingImageBounds: CGRect
+        public let trailingImage: UIImage?
+        public let trailingImageBounds: CGRect
+        public let onTap: (() -> Void)?
         var range: NSRange?
     }
     
