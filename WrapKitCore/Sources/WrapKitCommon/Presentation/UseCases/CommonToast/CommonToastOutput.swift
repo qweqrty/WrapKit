@@ -8,9 +8,18 @@
 import Foundation
 
 public enum CommonToast {
-    public enum Position {
+    public enum Position: Equatable {
         case top
-        case bottom
+        case bottom(additionalBottomPadding: CGFloat = 0)
+        
+        var spacing: CGFloat {
+            switch self {
+            case .top:
+                return 0
+            case .bottom(let bottomSpacing):
+                return bottomSpacing
+            }
+        }
     }
     
     public struct Toast {

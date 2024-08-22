@@ -21,7 +21,7 @@ open class ToastView: UIView {
     private var showConstant: CGFloat = 0
     private let spacing: CGFloat = 8
     public let duration: TimeInterval
-    private let position: Position
+    private let position: CommonToast.Position
     private lazy var panGesture = UIPanGestureRecognizer(target: self, action: #selector(handlePanGesture))
     private var hideTimer: Timer?
     private var remainingTime: TimeInterval = 0
@@ -30,21 +30,7 @@ open class ToastView: UIView {
     public var leadingConstraint: NSLayoutConstraint?
     public var bottomConstraint: NSLayoutConstraint?
 
-    public enum Position: Equatable {
-        case top
-        case bottom(additionalBottomPadding: CGFloat = 0)
-        
-        var spacing: CGFloat {
-            switch self {
-            case .top:
-                return 0
-            case .bottom(let bottomSpacing):
-                return bottomSpacing
-            }
-        }
-    }
-
-    public init(duration: TimeInterval = 3.0, position: Position) {
+    public init(duration: TimeInterval = 3.0, position: CommonToast.Position) {
         self.duration = duration
         self.position = position
         self.remainingTime = duration
