@@ -25,6 +25,7 @@ open class ToastView: UIView {
     private lazy var panGesture = UIPanGestureRecognizer(target: self, action: #selector(handlePanGesture))
     private var hideTimer: Timer?
     private var remainingTime: TimeInterval = 0
+    private var shadowColor: UIColor?
     public var onDismiss: (() -> Void)?
 
     public var leadingConstraint: NSLayoutConstraint?
@@ -69,6 +70,14 @@ open class ToastView: UIView {
         layer.borderWidth = 1
         layer.zPosition = 100
         addSubview(cardView)
+    }
+    
+    open override func layoutSubviews() {
+        super.layoutSubviews()
+        
+        if let shadowColor {
+            dropShadow(shadowColor: shadowColor)
+        }
     }
 
     private func setupConstraints() {

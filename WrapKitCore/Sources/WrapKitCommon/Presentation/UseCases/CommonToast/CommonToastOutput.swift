@@ -26,6 +26,7 @@ public enum CommonToast {
         public let keyTitle: String
         public let valueTitle: String?
         public let position: Position
+        public let shadowColor: Color?
         public let duration: TimeInterval
         public let onPress: (() -> Void)?
         
@@ -33,12 +34,14 @@ public enum CommonToast {
             keyTitle: String,
             valueTitle: String? = nil,
             position: Position,
+            shadowColor: Color? = nil,
             duration: TimeInterval = 3.0,
             onPress: (() -> Void)? = nil
         ) {
             self.keyTitle = keyTitle
             self.valueTitle = valueTitle
             self.position = position
+            self.shadowColor = shadowColor
             self.duration = duration
             self.onPress = onPress
         }
