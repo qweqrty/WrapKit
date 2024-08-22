@@ -133,6 +133,12 @@ open class ToastView: UIView {
 
     public func show() {
         guard let window = UIApplication.window else { return }
+        switch position {
+        case .bottom:
+            UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+        default:
+            break
+        }
         
         window.addSubview(self)
         translatesAutoresizingMaskIntoConstraints = false
