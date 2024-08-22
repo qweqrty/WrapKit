@@ -8,20 +8,28 @@
 import Foundation
 
 public enum CommonToast {
+    public enum Position {
+        case top
+        case bottom
+    }
+    
     public struct Toast {
-        public let title: String
-        public let subtitle: String?
+        public let keyTitle: String
+        public let valueTitle: String?
+        public let position: Position
         public let duration: TimeInterval
         public let onPress: (() -> Void)?
         
         public init(
-            title: String,
-            subtitle: String? = nil,
+            keyTitle: String,
+            valueTitle: String? = nil,
+            position: Position,
             duration: TimeInterval = 3.0,
             onPress: (() -> Void)? = nil
         ) {
-            self.title = title
-            self.subtitle = subtitle
+            self.keyTitle = keyTitle
+            self.valueTitle = valueTitle
+            self.position = position
             self.duration = duration
             self.onPress = onPress
         }
@@ -29,10 +37,10 @@ public enum CommonToast {
     
     public struct CustomToast {
         public let common: Toast
-        public let leadingImage: Image?
+        public let leadingImage: ImageEnum?
         public let trailingTitle: String?
         
-        public init(common: Toast, leadingImage: Image?, trailingTitle: String?) {
+        public init(common: Toast, leadingImage: ImageEnum?, trailingTitle: String?) {
             self.common = common
             self.leadingImage = leadingImage
             self.trailingTitle = trailingTitle

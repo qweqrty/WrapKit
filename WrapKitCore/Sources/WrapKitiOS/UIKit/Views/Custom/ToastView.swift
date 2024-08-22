@@ -7,206 +7,220 @@
 
 #if canImport(UIKit)
 import UIKit
-import SwiftUI
 
 open class ToastView: UIView {
     public lazy var cardView = {
-       let view = CardView()
+        let view = CardView()
         view.leadingImageViewConstraints?.width?.constant = 32
         view.leadingImageViewConstraints?.height?.constant = 32
+        view.trailingImageView.image = nil
         view.bottomSeparatorView.isHidden = true
         return view
     }()
+    
+    private var showConstant: CGFloat = 0
+    private let spacing: CGFloat = 8
     public let duration: TimeInterval
-    public private(set) var cardViewConstraints: AnchoredConstraints?
+    private let position: Position
+    private lazy var panGesture = UIPanGestureRecognizer(target: self, action: #selector(handlePanGesture))
+    private var hideTimer: Timer?
+    private var remainingTime: TimeInterval = 0
+    public var onDismiss: (() -> Void)?
+
     public var leadingConstraint: NSLayoutConstraint?
-    
-    static let tag = 228
-    
-    public enum Position {
+    public var bottomConstraint: NSLayoutConstraint?
+
+    public enum Position: Equatable {
         case top
-        case middle
         case bottom(additionalBottomPadding: CGFloat = 0)
+        
+        var spacing: CGFloat {
+            switch self {
+            case .top:
+                return 0
+            case .bottom(let bottomSpacing):
+                return bottomSpacing
+            }
+        }
     }
-    
-    public init(duration: TimeInterval = 3.0) {
+
+    public init(duration: TimeInterval = 3.0, position: Position) {
         self.duration = duration
+        self.position = position
+        self.remainingTime = duration
         super.init(frame: .zero)
-        self.tag = Self.tag
         setupSubviews()
         setupConstraints()
         setSwipe()
         setTapGesture()
+        setupObservers()
     }
-    
+
     public required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
+    private func setupObservers() {
+        NotificationCenter.default.addObserver(self, selector: #selector(didEnterBackground), name: UIApplication.didEnterBackgroundNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(willEnterForeground), name: UIApplication.willEnterForegroundNotification, object: nil)
+    }
+
+    @objc private func didEnterBackground() {
+        pauseHideTimer()
+        self.layer.removeAllAnimations()
+    }
+
+    @objc private func willEnterForeground() {
+        resumeHideTimer()
+    }
+
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+
     private func setupSubviews() {
         layer.cornerRadius = 12
         layer.borderWidth = 1
+        layer.zPosition = 100
         addSubview(cardView)
     }
-    
+
     private func setupConstraints() {
-        cardViewConstraints = cardView.fillSuperview(padding: .init(top: 16, left: 16, bottom: 16, right: 16))
+        cardView.fillSuperview()
     }
-    
-    public func removePastToastIfNeeded(from view: UIView) {
-        view.viewWithTag(Self.tag)?.removeFromSuperview()
-    }
-    
+
     private func setSwipe() {
-        let swipeRight = UISwipeGestureRecognizer(target: self, action: #selector(didSwiped))
-        swipeRight.direction = .right
-        addGestureRecognizer(swipeRight)
+        panGesture.delegate = self
+        panGesture.cancelsTouchesInView = true
+        addGestureRecognizer(panGesture)
     }
-    
+
     private func setTapGesture() {
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(didTap))
         tapGesture.numberOfTouchesRequired = 1
         addGestureRecognizer(tapGesture)
     }
-    
-    @objc
-    private func didTap(gesture: UITapGestureRecognizer) {
-        guard let toastSuperView = superview else { return }
-        hide(after: 0, for: toastSuperView)
+
+    @objc private func didTap(gesture: UITapGestureRecognizer) {
+        hide(after: 0)
     }
-    
-    @objc
-    private func didSwiped(gesture: UISwipeGestureRecognizer) {
-        guard let toastSuperView = superview else { return }
+
+    @objc private func handlePanGesture(gesture: UIPanGestureRecognizer) {
+        let panOffset = gesture.translation(in: self).y
         
-        if gesture.direction == .right {
-            hide(after: 0, for: toastSuperView)
+        switch gesture.state {
+        case .began:
+            pauseHideTimer()
+        case .changed:
+            bottomConstraint?.constant = position == .top ? min(showConstant + panOffset, showConstant) : max(showConstant + panOffset, showConstant)
+            layoutIfNeeded()
+        case .ended, .cancelled, .failed:
+            resumeHideTimer()
+            let bottomConstant = bottomConstraint?.constant ?? 0
+            UIView.animate(withDuration: 0.2, delay: .zero, options: [.curveEaseInOut, .allowUserInteraction]) {
+                if (bottomConstant) > (self.showConstant / 1.5) {
+                    self.bottomConstraint?.constant = 0
+                    self.hide(after: 0)
+                } else {
+                    self.bottomConstraint?.constant = self.showConstant
+                }
+                self.layoutIfNeeded()
+                self.superview?.layoutIfNeeded()
+            }
+        default:
+            break
         }
     }
-    
-    public func setPosition(on view: UIView, position: Position) {
-        view.addSubview(self)
+
+    public func show() {
+        guard let window = UIApplication.window else { return }
+        
+        window.addSubview(self)
         translatesAutoresizingMaskIntoConstraints = false
         switch position {
         case .top:
-            topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20).isActive = true
-        case .middle:
-            centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
-        case .bottom(let additionalBottomPadding):
-            bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -15 - additionalBottomPadding).isActive = true
+            bottomConstraint = bottomAnchor.constraint(equalTo: window.topAnchor, constant: 0)
+            bottomConstraint?.isActive = true
+        case .bottom:
+            bottomConstraint = topAnchor.constraint(equalTo: window.bottomAnchor, constant: 0)
+            bottomConstraint?.isActive = true
         }
-        
-        leadingConstraint = leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: UIScreen.main.bounds.width)
-        leadingConstraint?.isActive = true
-        widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width - 40).isActive = true
-        view.layoutIfNeeded()
-    }
-    
-    public func animate(constant: CGFloat, inside view: UIView, completion: @escaping (Bool) -> Void) {
+        centerXAnchor.constraint(equalTo: window.centerXAnchor).isActive = true
+        widthAnchor.constraint(equalTo: window.widthAnchor, constant: -spacing * 2).isActive = true
+        window.bringSubviewToFront(self)
+
+        layoutIfNeeded()
+        window.layoutIfNeeded()
+
+        switch position {
+        case .top:
+            showConstant = 20 + safeAreaInsets.top + frame.height
+        case .bottom(let additionalBottomPadding):
+            showConstant = -frame.height - 24 - safeAreaInsets.bottom - additionalBottomPadding
+        }
         UIView.animate(
-            withDuration: 0.5,
+            withDuration: 0.15,
+            delay: 0,
+            options: [.curveEaseInOut, .allowUserInteraction],
             animations: {
-                self.leadingConstraint?.constant = constant
-                view.layoutIfNeeded()
+                self.alpha = 1
+                self.bottomConstraint?.constant = self.showConstant
+                self.layoutIfNeeded()
+                self.superview?.layoutIfNeeded()
             },
-            completion: completion
+            completion: { [weak self] finished in
+                guard finished else { return }
+                self?.alpha = 1
+                self?.startHideTimer()
+            }
         )
     }
-    
-    public func hide(after duration: Double, for view: UIView) {
-        DispatchQueue.main.asyncAfter(deadline: .now() + duration) {
-            self.animate(constant: UIScreen.main.bounds.width, inside: view) { finished in
-                guard finished else { return }
-                self.removeFromSuperview()
-            }
+
+    private func startHideTimer() {
+        hideTimer = Timer.scheduledTimer(withTimeInterval: remainingTime, repeats: false) { [weak self] _ in
+            self?.hide(after: 0)
+        }
+    }
+
+    private func pauseHideTimer() {
+        if let hideTimer = hideTimer, hideTimer.isValid {
+            remainingTime = hideTimer.fireDate.timeIntervalSinceNow
+            hideTimer.invalidate()
+        }
+    }
+
+    private func resumeHideTimer() {
+        startHideTimer()
+    }
+
+    public func hide(after duration: Double) {
+        hideTimer?.invalidate()
+        hideTimer = Timer.scheduledTimer(withTimeInterval: duration, repeats: false) { [weak self] _ in
+            self?.panGesture.isEnabled = false
+            UIView.animate(
+                withDuration: 0.15,
+                delay: 0,
+                options: [.curveEaseInOut, .allowUserInteraction],
+                animations: {
+                    self?.alpha = 0
+                    self?.bottomConstraint?.constant = 0
+                    self?.layoutIfNeeded()
+                    self?.superview?.layoutIfNeeded()
+                },
+                completion: { [weak self] finished in
+                    guard finished else { return }
+                    self?.removeFromSuperview()
+                    self?.onDismiss?()
+                }
+            )
         }
     }
 }
 
-@available(iOS 13.0, *)
-struct ToastViewFullRepresentable: UIViewRepresentable {
-    func makeUIView(context: Context) -> ToastView {
-        let view = ToastView()
-        view.cardView.leadingImageView.image = UIImage(systemName: "globe.desk")
-        view.cardView.titleViews.keyLabel.text = "Key Label"
-        view.cardView.titleViews.valueLabel.text = "Value Label"
-        return view
-    }
-
-    func updateUIView(_ uiView: ToastView, context: Context) {
-        // Leave this empty
+extension ToastView: UIGestureRecognizerDelegate {
+    public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        return false
     }
 }
 
-struct ToastViewKeyRepresentable: UIViewRepresentable {
-    func makeUIView(context: Context) -> ToastView {
-        let view = ToastView()
-        view.cardView.leadingImageView.image = UIImage(systemName: "globe.desk")
-        view.cardView.titleViews.keyLabel.text = "Key Label"
-        return view
-    }
-
-    func updateUIView(_ uiView: ToastView, context: Context) {
-        // Leave this empty
-    }
-}
-
-struct ToastViewFullValueRepresentable: UIViewRepresentable {
-    func makeUIView(context: Context) -> ToastView {
-        let view = ToastView()
-        view.cardView.leadingImageView.image = UIImage(systemName: "globe.desk")
-        view.cardView.titleViews.valueLabel.text = "Value Label"
-        return view
-    }
-
-    func updateUIView(_ uiView: ToastView, context: Context) {
-        // Leave this empty
-    }
-}
-
-struct ToastViewNoImageRepresentable: UIViewRepresentable {
-    func makeUIView(context: Context) -> ToastView {
-        let view = ToastView()
-        view.cardView.leadingImageWrapperView.isHidden = true
-        view.cardView.titleViews.keyLabel.text = "Key Label"
-        view.cardView.titleViews.valueLabel.text = "Value Label"
-        return view
-    }
-
-    func updateUIView(_ uiView: ToastView, context: Context) {
-        // Leave this empty
-    }
-}
-
-@available(iOS 13.0, *)
-struct ToastView_Previews: PreviewProvider {
-    static var previews: some SwiftUI.View {
-        VStack {
-            ToastViewFullRepresentable()
-                .frame(height: 70)
-                .padding()
-                .previewDevice(PreviewDevice(rawValue: "iPhone SE (2nd generation)"))
-                .previewDisplayName("iPhone SE (2nd generation)")
-
-            ToastViewKeyRepresentable()
-                .frame(height: 50)
-                .padding()
-                .previewDevice(PreviewDevice(rawValue: "iPhone 12 Pro Max"))
-                .previewDisplayName("iPhone 12 Pro Max")
-
-            ToastViewFullValueRepresentable()
-                .frame(height: 50)
-                .padding()
-                .previewDevice(PreviewDevice(rawValue: "iPad Pro (9.7-inch)"))
-                .previewDisplayName("iPad Pro (9.7-inch)")
-
-            ToastViewNoImageRepresentable()
-                .frame(height: 70)
-                .padding()
-                .previewDevice(PreviewDevice(rawValue: "iPad Pro (9.7-inch)"))
-                .previewDisplayName("iPad Pro (9.7-inch)")
-            Spacer()
-        }
-    }
-}
 #endif

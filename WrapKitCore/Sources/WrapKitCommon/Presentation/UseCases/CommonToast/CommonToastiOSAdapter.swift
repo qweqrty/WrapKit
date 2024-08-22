@@ -1,5 +1,5 @@
 //
-//  CommonToastiOSDecorator.swift
+//  CommonToastiOSAdapter.swift
 //  WrapKit
 //
 //  Created by Stanislav Li on 27/5/24.
@@ -9,28 +9,32 @@
 import UIKit
 
 public class CommonToastiOSAdapter: CommonToastOutput {
-    private let onView: UIView
-    private let toastViewBuilder: ((CommonToast) -> ToastView)?
-    private let position: ToastView.Position
+    private var queue: [ToastView] = []
+    private var isDisplaying = false
     
-    public init(
-        onView: UIView,
-        toastViewBuilder: ((CommonToast) -> ToastView)?,
-        position: ToastView.Position
-    ) {
-        self.onView = onView
+    private let toastViewBuilder: ((CommonToast) -> ToastView?)?
+    
+    public init(toastViewBuilder: ((CommonToast) -> ToastView?)?) {
         self.toastViewBuilder = toastViewBuilder
-        self.position = position
     }
     
     public func display(_ toast: CommonToast) {
         guard let toastView = toastViewBuilder?(toast) else { return }
-        toastView.removePastToastIfNeeded(from: onView)
-        toastView.setPosition(on: onView, position: position)
-        toastView.animate(constant: 20, inside: onView) { [weak self, weak toastView] _ in
-            guard let self = self else { return }
-            toastView?.hide(after: toast.duration, for: self.onView)
+        queue.append(toastView)
+        showNextToast()
+    }
+
+    private func showNextToast() {
+        guard !isDisplaying, let nextToast = queue.first else { return }
+        isDisplaying = true
+        queue.removeFirst()
+        
+        nextToast.onDismiss = { [weak self] in
+            self?.isDisplaying = false
+            self?.showNextToast()
         }
+        
+        nextToast.show()
     }
 }
 #endif
