@@ -12,6 +12,7 @@ open class Button: UIButton {
     public var onPress: (() -> Void)? {
         didSet {
             removeTarget(self, action: #selector(onTap), for: .touchUpInside)
+            guard onPress != nil else { return }
             addTarget(self, action: #selector(onTap), for: .touchUpInside)
         }
     }

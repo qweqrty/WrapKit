@@ -12,12 +12,14 @@ open class View: UIView {
     public var onPress: (() -> Void)? {
         didSet {
             removeGestureRecognizer(tapGestureRecognizer)
+            guard onPress != nil else { return }
             addGestureRecognizer(tapGestureRecognizer)
         }
     }
     public var onLongPress: (() -> Void)? {
         didSet {
             removeGestureRecognizer(longPressRecognizer)
+            guard onLongPress != nil else { return }
             addGestureRecognizer(longPressRecognizer)
         }
     }

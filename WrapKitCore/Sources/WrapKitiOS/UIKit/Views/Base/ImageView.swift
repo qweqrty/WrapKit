@@ -12,8 +12,13 @@ open class ImageView: UIImageView {
     public var onPress: (() -> Void)? {
         didSet {
             isUserInteractionEnabled = onPress != nil
+            removeGestureRecognizer(tapGesture)
+            guard onPress != nil else { return }
+            addGestureRecognizer(tapGesture)
         }
     }
+    
+    private lazy var tapGesture = UITapGestureRecognizer(target: self, action: #selector(onTap))
     
     public override var tintColor: UIColor! {
         didSet {
@@ -56,7 +61,6 @@ open class ImageView: UIImageView {
         }
         self.cornerRadius = cornerRadius
         self.isUserInteractionEnabled = isUserInteractionEnabled
-        addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(onTap)))
     }
   
   public required init?(coder: NSCoder) {
