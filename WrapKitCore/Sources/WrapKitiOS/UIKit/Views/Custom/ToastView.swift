@@ -52,6 +52,7 @@ open class ToastView: UIView {
     }
     
     private func setupObservers() {
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIApplication.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(didEnterBackground), name: UIApplication.didEnterBackgroundNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(willEnterForeground), name: UIApplication.willEnterForegroundNotification, object: nil)
     }
@@ -63,6 +64,11 @@ open class ToastView: UIView {
 
     @objc private func willEnterForeground() {
         resumeHideTimer()
+    }
+    
+    @objc private func keyboardWillShow() {
+        guard position == .bottom() else { return }
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }
 
     deinit {
