@@ -19,6 +19,8 @@ open class ToastView: UIView {
     }()
     
     private var showConstant: CGFloat = 0
+    private var keyboardHeight: CGFloat = 0
+
     private let spacing: CGFloat = 8
     public let duration: TimeInterval
     private let position: CommonToast.Position
@@ -52,7 +54,8 @@ open class ToastView: UIView {
     }
     
     private func setupObservers() {
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIApplication.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(didEnterBackground), name: UIApplication.didEnterBackgroundNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(willEnterForeground), name: UIApplication.willEnterForegroundNotification, object: nil)
     }
@@ -66,9 +69,39 @@ open class ToastView: UIView {
         resumeHideTimer()
     }
     
-    @objc private func keyboardWillShow() {
-        guard position == .bottom() else { return }
-        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+    @objc private func keyboardWillShow(_ notification: Notification) {
+        guard let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else { return }
+        
+        keyboardHeight = keyboardFrame.height
+        
+        switch position {
+        case .top:
+            break
+        case .bottom(let additionalBottomPadding):
+            adjustForKeyboardVisibility(additionalBottomPadding: additionalBottomPadding)
+        }
+    }
+
+    @objc private func keyboardWillHide(_ notification: Notification) {
+        keyboardHeight = 0
+        
+        switch position {
+        case .top:
+            break
+        case .bottom(let additionalBottomPadding):
+            adjustForKeyboardVisibility(additionalBottomPadding: additionalBottomPadding)
+        }
+    }
+    
+    private func adjustForKeyboardVisibility(additionalBottomPadding: CGFloat) {
+        guard let bottomConstraint = bottomConstraint else { return }
+        
+        let newBottomConstant = -frame.height - additionalBottomPadding - safeAreaInsets.bottom - keyboardHeight - 24
+        
+        UIView.animate(withDuration: 0.3, animations: {
+            bottomConstraint.constant = newBottomConstant
+            self.layoutIfNeeded()
+        })
     }
 
     deinit {
@@ -80,6 +113,7 @@ open class ToastView: UIView {
         layer.borderWidth = 1
         layer.zPosition = 100
         addSubview(cardView)
+        alpha = 0
     }
     
     open override func layoutSubviews() {
@@ -139,13 +173,6 @@ open class ToastView: UIView {
 
     public func show() {
         guard let window = UIApplication.window else { return }
-        switch position {
-        case .bottom:
-            UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
-        default:
-            break
-        }
-        
         window.addSubview(self)
         translatesAutoresizingMaskIntoConstraints = false
         switch position {
@@ -167,7 +194,7 @@ open class ToastView: UIView {
         case .top:
             showConstant = 20 + safeAreaInsets.top + frame.height
         case .bottom(let additionalBottomPadding):
-            showConstant = -frame.height - 24 - safeAreaInsets.bottom - additionalBottomPadding
+            showConstant = -frame.height - 24 - safeAreaInsets.bottom - additionalBottomPadding - keyboardHeight
         }
         UIView.animate(
             withDuration: 0.15,
@@ -230,7 +257,7 @@ open class ToastView: UIView {
 
 extension ToastView: UIGestureRecognizerDelegate {
     public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
-        return false
+        return true
     }
 }
 
