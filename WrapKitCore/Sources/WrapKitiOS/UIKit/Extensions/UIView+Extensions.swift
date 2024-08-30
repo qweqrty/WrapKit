@@ -66,7 +66,7 @@ public extension UIView {
     
     func updateSemanticAttributes(isRTL: Bool) {
         semanticContentAttribute = isRTL ? .forceRightToLeft : .forceLeftToRight
-
+        
         subviews.forEach { subview in
             subview.updateSemanticAttributes(isRTL: isRTL)
             if let stackView = subview as? UIStackView {
@@ -190,5 +190,72 @@ public extension UIView {
         })
     }
     
+    static let shimmerViewTag = 647364
+    
+    func showShimmer(
+        _ shimmerView: ShimmerView? = nil,
+        heightMultiplier: CGFloat? = nil,
+        widthMultiplier: CGFloat? = nil
+    ) {
+        let bgColor = firstNonClearBackgroundColor ?? .clear
+        let emptyView = UIView(backgroundColor: bgColor)
+        let shimmerView = shimmerView ?? ShimmerView(backgroundColor: .lightGray)
+        shimmerView.cornerRadius = 8
+        shimmerView.startShimmering()
+        
+        emptyView.tag = Self.shimmerViewTag
+        addSubview(emptyView)
+        emptyView.fillSuperview()
+        
+        emptyView.addSubview(shimmerView)
+        
+        if let heightMultiplier, let widthMultiplier {
+            shimmerView.cornerRadius = 4
+            shimmerView.anchor(
+                .leading(leadingAnchor),
+                .centerY(centerYAnchor),
+                .widthTo(widthAnchor, widthMultiplier),
+                .heightTo(heightAnchor, heightMultiplier)
+            )
+        }
+        
+        if let heightMultiplier, widthMultiplier == nil {
+            shimmerView.cornerRadius = 4
+            shimmerView.anchor(
+                .leading(leadingAnchor),
+                .trailing(trailingAnchor, constant: 12),
+                .centerY(centerYAnchor),
+                .heightTo(heightAnchor, heightMultiplier)
+            )
+        }
+        
+        if let widthMultiplier, heightMultiplier == nil {
+            shimmerView.cornerRadius = 4
+            shimmerView.anchor(
+                .leading(leadingAnchor),
+                .centerY(centerYAnchor),
+                .widthTo(widthAnchor, widthMultiplier)
+            )
+        }
+        
+        if heightMultiplier == nil && widthMultiplier == nil {
+            shimmerView.fillSuperview()
+        }
+    }
+    
+    func hideShimmer() {
+        viewWithTag(Self.shimmerViewTag)?.removeFromSuperview()
+    }
+    
+    var firstNonClearBackgroundColor: UIColor? {
+        var currentView: UIView? = self
+        while let view = currentView {
+            if let bgColor = view.backgroundColor, bgColor != .clear {
+                return bgColor
+            }
+            currentView = view.superview
+        }
+        return nil
+    }
 }
 #endif
