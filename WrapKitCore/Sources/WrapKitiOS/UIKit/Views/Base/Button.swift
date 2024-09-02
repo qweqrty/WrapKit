@@ -27,6 +27,10 @@ open class Button: UIButton {
             updateSpacings()
         }
     }
+    public var textColor: UIColor?
+    public var textBackgroundColor: UIColor?
+    private var pressedTextColor: UIColor?
+    private var pressedBackgroundColor: UIColor?
     
     private func updateSpacings() {
         let isRTL = UIView.userInterfaceLayoutDirection(for: self.semanticContentAttribute) == .rightToLeft
@@ -51,6 +55,8 @@ open class Button: UIButton {
         textColor: UIColor? = nil,
         titleLabelFont: UIFont? = nil,
         backgroundColor: UIColor = .clear,
+        pressedTextColor: UIColor? = nil,
+        pressedBacgroundColor: UIColor? = nil,
         contentInset: UIEdgeInsets = .zero,
         spacing: CGFloat = 0,
         contentHorizontalAlignment: UIControl.ContentHorizontalAlignment = .center,
@@ -64,7 +70,8 @@ open class Button: UIButton {
         if let image = image { setImage(image, for: .normal) }
         if let textColor = textColor { self.setTitleColor(textColor, for: .normal) }
         if let titleLabelFont = titleLabelFont { self.titleLabel?.font = titleLabelFont }
-        
+        self.textColor = textColor
+        self.textBackgroundColor = backgroundColor
         self.contentHorizontalAlignment = contentHorizontalAlignment
         self.titleLabel?.lineBreakMode = .byTruncatingTail
         self.isUserInteractionEnabled = isUserInteractionEnabled
@@ -72,12 +79,29 @@ open class Button: UIButton {
         self.backgroundColor = backgroundColor
         self.contentInset = contentInset
         self.isHidden = isHidden
-        
+        self.pressedTextColor = pressedTextColor
+        self.pressedBackgroundColor = pressedBacgroundColor
         updateSpacings()
     }
     
     @objc private func onTap() {
         onPress?()
+    }
+    
+    open override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 0.4, initialSpringVelocity: 6, options: .allowUserInteraction) { [weak self] in
+            self?.backgroundColor = self?.pressedBackgroundColor
+            self?.setTitleColor(self?.pressedTextColor, for: .normal)
+        }
+        super.touchesBegan(touches, with: event)
+    }
+    
+    open override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 0.4, initialSpringVelocity: 6, options: .allowUserInteraction) { [weak self] in
+            self?.backgroundColor = self?.textBackgroundColor
+            self?.setTitleColor(self?.textColor, for: .normal)
+        }
+        super.touchesEnded(touches, with: event)
     }
 }
 #endif
