@@ -23,7 +23,7 @@ public class SelectionCell: TableViewCell<SelectionCellContentView> {
                 .sink { [weak self] isSelected in
                     let isSelected = isSelected ?? false
                     let image = isSelected ? model.configuration.selectedImage : model.configuration.notSelectedImage
-                    self?.mainContentView.titleLabel.textColor = isSelected ? model.configuration.titleColor : (model.configuration.selectedTitleColor ?? model.configuration.titleColor)
+                    self?.mainContentView.titleLabel.textColor = isSelected ? (model.configuration.selectedTitleColor ?? model.configuration.titleColor) : model.configuration.titleColor
                     self?.mainContentView.trailingImageView.image = image
                     self?.mainContentView.trailingImageContainerView.isHidden = image == nil
                 }
@@ -44,7 +44,6 @@ public class SelectionCell: TableViewCell<SelectionCellContentView> {
             }
             
             mainContentView.lineView.backgroundColor = model.configuration.lineColor
-            mainContentView.titleLabel.textColor = model.configuration.titleColor
             mainContentView.trailingLabel.textColor = model.configuration.trailingColor
             mainContentView.titleLabel.font = model.configuration.titleFont
             mainContentView.trailingLabel.font = model.configuration.trailingFont

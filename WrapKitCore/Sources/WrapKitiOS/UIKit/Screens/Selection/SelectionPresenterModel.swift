@@ -124,8 +124,8 @@ public struct SelectionConfiguration {
             titleColor: Color,
             selectedTitleColor: Color? = nil,
             trailingColor: Color,
-            selectedImage: Image?,
-            notSelectedImage: Image?,
+            selectedImage: Image? = nil,
+            notSelectedImage: Image? = nil,
             lineColor: Color
         ) {
             self.titleFont = titleFont
@@ -168,7 +168,7 @@ public struct SelectionConfiguration {
         public init(
             lineColor: Color,
             backgroundColor: Color,
-            backButtonImage: Image?,
+            backButtonImage: Image? = nil,
             navBarFont: Font,
             navBarTextColor: Color,
             shadowBackgroundColor: Color
