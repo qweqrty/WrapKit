@@ -29,8 +29,8 @@ open class Button: UIButton {
     }
     public var textColor: UIColor?
     public var textBackgroundColor: UIColor?
-    private var pressedTextColor: UIColor?
-    private var pressedBackgroundColor: UIColor?
+    public var pressedTextColor: UIColor?
+    public var pressedBackgroundColor: UIColor?
     
     private func updateSpacings() {
         let isRTL = UIView.userInterfaceLayoutDirection(for: self.semanticContentAttribute) == .rightToLeft
@@ -94,6 +94,14 @@ open class Button: UIButton {
             self?.setTitleColor(self?.pressedTextColor, for: .normal)
         }
         super.touchesBegan(touches, with: event)
+    }
+    
+    open override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
+        UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 0.4, initialSpringVelocity: 6, options: .allowUserInteraction) { [weak self] in
+            self?.backgroundColor = self?.textBackgroundColor
+            self?.setTitleColor(self?.textColor, for: .normal)
+        }
+        super.touchesCancelled(touches, with: event)
     }
     
     open override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
