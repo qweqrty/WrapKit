@@ -10,7 +10,6 @@ import Foundation
 import UIKit
 
 public class SelectionContentView: UIView {
-    public lazy var scrollableView = ScrollableContentView()
     public lazy var lineView = View(backgroundColor: config.content.lineColor)
     public lazy var navigationBar = makeNavigationBar()
     public lazy var tableView = makeTableView()
@@ -99,10 +98,16 @@ private extension SelectionContentView {
         let navigationBar = NavigationBar()
         navigationBar.titleViews.keyLabel.font = config.content.navBarFont
         navigationBar.titleViews.keyLabel.textColor = config.content.navBarTextColor
-        navigationBar.leadingCardView.leadingImageView.image = config.content.backButtonImage
+        navigationBar.leadingCardView.titleViews.keyLabel.font = config.content.navBarFont
+        navigationBar.leadingCardView.titleViews.keyLabel.textColor = config.content.navBarTextColor
+        navigationBar.leadingCardView.leadingImageWrapperView.isHidden = true
+        navigationBar.primeTrailingImageWrapperView.contentView.image = config.content.backButtonImage
+        navigationBar.primeTrailingImageWrapperView.isHidden = config.content.backButtonImage == nil
+        navigationBar.primeTrailingImageWrapperView.contentView.anchor(.width(config.content.backButtonImage?.size.width ?? 24))
         navigationBar.titleViews.stackView.layoutMargins = .init(top: 0, left: 12, bottom: 0, right: 12)
-        navigationBar.leadingStackView.isHidden = true
-        navigationBar.trailingStackView.isHidden = false
+        
+        navigationBar.titleViews.isHidden = config.content.backButtonImage != nil
+        navigationBar.leadingCardView.isHidden = config.content.backButtonImage == nil
         return navigationBar
     }
     

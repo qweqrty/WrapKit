@@ -15,7 +15,6 @@ open class SelectionVC: ViewController<SelectionContentView> {
     private lazy var datasource = TableViewDatasource<SelectionType.SelectionCellPresentableModel>(configureCell: { [weak self] tableView, indexPath, model in
         let cell: SelectionCell = tableView.dequeueReusableCell(for: indexPath)
         cell.model = model
-        cell.mainContentView.trailingImageContainerView.isHidden = !(self?.presenter.isMultipleSelectionEnabled ?? false) == true
         return cell
     })
     
@@ -112,6 +111,7 @@ extension SelectionVC: SelectionOutput {
     
     public func display(title: String?) {
         contentView.navigationBar.titleViews.keyLabel.text = title
+        contentView.navigationBar.leadingCardView.titleViews.keyLabel.text = title
     }
     
     public func apply(configuration: SelectionConfiguration) {

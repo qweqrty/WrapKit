@@ -112,23 +112,26 @@ public struct SelectionConfiguration {
         public var titleFont: Font
         public var trailingFont: Font
         public var titleColor: Color
+        public var selectedTitleColor: Color?
         public var trailingColor: Color
-        public var selectedImage: Image
-        public var notSelectedImage: Image
+        public var selectedImage: Image?
+        public var notSelectedImage: Image?
         public var lineColor: Color
         
         public init(
             titleFont: Font,
             trailingFont: Font,
             titleColor: Color,
+            selectedTitleColor: Color? = nil,
             trailingColor: Color,
-            selectedImage: Image,
-            notSelectedImage: Image,
+            selectedImage: Image?,
+            notSelectedImage: Image?,
             lineColor: Color
         ) {
             self.titleFont = titleFont
             self.trailingFont = trailingFont
             self.titleColor = titleColor
+            self.selectedTitleColor = selectedTitleColor
             self.trailingColor = trailingColor
             self.selectedImage = selectedImage
             self.notSelectedImage = notSelectedImage
@@ -156,7 +159,7 @@ public struct SelectionConfiguration {
         public var lineColor: Color
         public var backgroundColor: Color
         
-        public var backButtonImage: Image
+        public var backButtonImage: Image?
         public var navBarFont: Font
         public var navBarTextColor: Color
         
@@ -165,7 +168,7 @@ public struct SelectionConfiguration {
         public init(
             lineColor: Color,
             backgroundColor: Color,
-            backButtonImage: Image,
+            backButtonImage: Image?,
             navBarFont: Font,
             navBarTextColor: Color,
             shadowBackgroundColor: Color

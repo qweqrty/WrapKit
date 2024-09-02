@@ -22,7 +22,10 @@ public class SelectionCell: TableViewCell<SelectionCellContentView> {
                 .publisher
                 .sink { [weak self] isSelected in
                     let isSelected = isSelected ?? false
-                    self?.mainContentView.trailingImageView.image = isSelected ? model.configuration.selectedImage : model.configuration.notSelectedImage
+                    let image = isSelected ? model.configuration.selectedImage : model.configuration.notSelectedImage
+                    self?.mainContentView.titleLabel.textColor = isSelected ? model.configuration.titleColor : (model.configuration.selectedTitleColor ?? model.configuration.titleColor)
+                    self?.mainContentView.trailingImageView.image = image
+                    self?.mainContentView.trailingImageContainerView.isHidden = image == nil
                 }
                 .store(in: &cancellables)
             
