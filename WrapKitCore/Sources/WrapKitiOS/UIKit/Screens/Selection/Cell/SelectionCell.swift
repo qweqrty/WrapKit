@@ -28,10 +28,9 @@ public class SelectionCell: TableViewCell<SelectionCellContentView> {
                     self?.mainContentView.trailingImageContainerView.isHidden = image == nil
                 }
                 .store(in: &cancellables)
-            
+            mainContentView.leadingImageContainerView.isHidden = model.leadingImage == nil
             if let color = model.circleColor, let color = UIColor(hexaRGB: color, alpha: 1) {
                 mainContentView.leadingImageView.layer.cornerRadius = 10
-                mainContentView.leadingImageContainerView.isHidden = false
                 mainContentView.leadingImageView.backgroundColor = color
             }
             switch model.leadingImage {
