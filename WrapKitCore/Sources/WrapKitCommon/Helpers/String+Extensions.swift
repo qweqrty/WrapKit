@@ -36,6 +36,14 @@ public extension String {
         )
     }
     
+    func asDate(withFormat format: String) -> Date? {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = format
+        return dateFormatter.date(from: self)
+    }
+}
+
+public extension String {
     func numberFormatted(numberStyle: NumberFormatter.Style, groupingSeparator: String?, maxDigits: Int = 12) -> String {
         let formatter = NumberFormatter()
         formatter.numberStyle = numberStyle
@@ -47,9 +55,11 @@ public extension String {
         return formatter.string(from: number) ?? ""
     }
     
-    func asDate(withFormat format: String) -> Date? {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = format
-        return dateFormatter.date(from: self)
+    func toIntFromFormatted(groupingSeparator: String? = nil) -> Int? {
+        let formatter = NumberFormatter()
+        formatter.groupingSeparator = groupingSeparator ?? Locale.current.groupingSeparator
+        
+        let cleanString = self.replacingOccurrences(of: formatter.groupingSeparator, with: "")
+        return Int(cleanString)
     }
 }
