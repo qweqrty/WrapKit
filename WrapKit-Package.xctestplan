@@ -4,11 +4,12 @@
       "id" : "5D7AD832-634F-431F-A222-25EA6953B045",
       "name" : "Configuration",
       "options" : {
-
+        "testExecutionOrdering" : "random"
       }
     }
   ],
   "defaultOptions" : {
+    "testExecutionOrdering" : "random",
     "threadSanitizerEnabled" : true
   },
   "testTargets" : [
