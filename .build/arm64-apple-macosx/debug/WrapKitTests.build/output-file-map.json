@@ -1,0 +1,107 @@
+{
+  "": {
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKitTests.build/master.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Tests/Helpers/XCTestCase+Extensions.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKitTests.build/Helpers/XCTestCase+Extensions.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKitTests.build/Helpers/XCTestCase+Extensions.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKitTests.build/Helpers/XCTestCase+Extensions~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKitTests.build/Helpers/XCTestCase+Extensions.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Tests/KeychainSwiftTests/AccessGroupTests.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKitTests.build/KeychainSwiftTests/AccessGroupTests.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKitTests.build/KeychainSwiftTests/AccessGroupTests.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKitTests.build/KeychainSwiftTests/AccessGroupTests~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKitTests.build/KeychainSwiftTests/AccessGroupTests.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Tests/KeychainSwiftTests/KeychainSwiftTests.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKitTests.build/KeychainSwiftTests/KeychainSwiftTests.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKitTests.build/KeychainSwiftTests/KeychainSwiftTests.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKitTests.build/KeychainSwiftTests/KeychainSwiftTests~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKitTests.build/KeychainSwiftTests/KeychainSwiftTests.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Tests/KeychainSwiftTests/KeychainWithPrefixTests.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKitTests.build/KeychainSwiftTests/KeychainWithPrefixTests.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKitTests.build/KeychainSwiftTests/KeychainWithPrefixTests.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKitTests.build/KeychainSwiftTests/KeychainWithPrefixTests~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKitTests.build/KeychainSwiftTests/KeychainWithPrefixTests.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Tests/KeychainSwiftTests/SynchronizableTests.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKitTests.build/KeychainSwiftTests/SynchronizableTests.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKitTests.build/KeychainSwiftTests/SynchronizableTests.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKitTests.build/KeychainSwiftTests/SynchronizableTests~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKitTests.build/KeychainSwiftTests/SynchronizableTests.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Tests/WrapKitAuthTests/AuthenticatedHTTPClientDecoratorTests.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKitTests.build/WrapKitAuthTests/AuthenticatedHTTPClientDecoratorTests.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKitTests.build/WrapKitAuthTests/AuthenticatedHTTPClientDecoratorTests.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKitTests.build/WrapKitAuthTests/AuthenticatedHTTPClientDecoratorTests~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKitTests.build/WrapKitAuthTests/AuthenticatedHTTPClientDecoratorTests.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Tests/WrapKitAuthTests/Helpers/HTTPClientSpy.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKitTests.build/WrapKitAuthTests/Helpers/HTTPClientSpy.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKitTests.build/WrapKitAuthTests/Helpers/HTTPClientSpy.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKitTests.build/WrapKitAuthTests/Helpers/HTTPClientSpy~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKitTests.build/WrapKitAuthTests/Helpers/HTTPClientSpy.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Tests/WrapKitAuthTests/TokenRefresherTests.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKitTests.build/WrapKitAuthTests/TokenRefresherTests.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKitTests.build/WrapKitAuthTests/TokenRefresherTests.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKitTests.build/WrapKitAuthTests/TokenRefresherTests~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKitTests.build/WrapKitAuthTests/TokenRefresherTests.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Tests/WrapKitCommonTests/DataStructures/QueueTests.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKitTests.build/WrapKitCommonTests/DataStructures/QueueTests.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKitTests.build/WrapKitCommonTests/DataStructures/QueueTests.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKitTests.build/WrapKitCommonTests/DataStructures/QueueTests~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKitTests.build/WrapKitCommonTests/DataStructures/QueueTests.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Tests/WrapKitCommonTests/Service/RemoteServiceTests.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKitTests.build/WrapKitCommonTests/Service/RemoteServiceTests.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKitTests.build/WrapKitCommonTests/Service/RemoteServiceTests.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKitTests.build/WrapKitCommonTests/Service/RemoteServiceTests~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKitTests.build/WrapKitCommonTests/Service/RemoteServiceTests.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Tests/WrapKitCommonTests/Storages/InMemoryStorageTests.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKitTests.build/WrapKitCommonTests/Storages/InMemoryStorageTests.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKitTests.build/WrapKitCommonTests/Storages/InMemoryStorageTests.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKitTests.build/WrapKitCommonTests/Storages/InMemoryStorageTests~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKitTests.build/WrapKitCommonTests/Storages/InMemoryStorageTests.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Tests/WrapKitCommonTests/Storages/KeychainStorageTests.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKitTests.build/WrapKitCommonTests/Storages/KeychainStorageTests.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKitTests.build/WrapKitCommonTests/Storages/KeychainStorageTests.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKitTests.build/WrapKitCommonTests/Storages/KeychainStorageTests~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKitTests.build/WrapKitCommonTests/Storages/KeychainStorageTests.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Tests/WrapKitCommonTests/Storages/UserDefaultsStorageTests.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKitTests.build/WrapKitCommonTests/Storages/UserDefaultsStorageTests.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKitTests.build/WrapKitCommonTests/Storages/UserDefaultsStorageTests.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKitTests.build/WrapKitCommonTests/Storages/UserDefaultsStorageTests~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKitTests.build/WrapKitCommonTests/Storages/UserDefaultsStorageTests.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Tests/WrapKitNetworkingTests/URLProtocolStub.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKitTests.build/WrapKitNetworkingTests/URLProtocolStub.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKitTests.build/WrapKitNetworkingTests/URLProtocolStub.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKitTests.build/WrapKitNetworkingTests/URLProtocolStub~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKitTests.build/WrapKitNetworkingTests/URLProtocolStub.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Tests/WrapKitNetworkingTests/URLSession/URLSessionHTTPClientTests.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKitTests.build/WrapKitNetworkingTests/URLSession/URLSessionHTTPClientTests.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKitTests.build/WrapKitNetworkingTests/URLSession/URLSessionHTTPClientTests.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKitTests.build/WrapKitNetworkingTests/URLSession/URLSessionHTTPClientTests~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKitTests.build/WrapKitNetworkingTests/URLSession/URLSessionHTTPClientTests.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Tests/WrapKitNetworkingTests/XCTestCase+Extensions.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKitTests.build/WrapKitNetworkingTests/XCTestCase+Extensions.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKitTests.build/WrapKitNetworkingTests/XCTestCase+Extensions.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKitTests.build/WrapKitNetworkingTests/XCTestCase+Extensions~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKitTests.build/WrapKitNetworkingTests/XCTestCase+Extensions.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Tests/WrapKitiOStests/UIKitTests/ButtonTests.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKitTests.build/WrapKitiOStests/UIKitTests/ButtonTests.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKitTests.build/WrapKitiOStests/UIKitTests/ButtonTests.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKitTests.build/WrapKitiOStests/UIKitTests/ButtonTests~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKitTests.build/WrapKitiOStests/UIKitTests/ButtonTests.swiftdeps"
+  }
+}

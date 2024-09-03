@@ -31,16 +31,14 @@ let package = Package(
                 .product(name: "BottomSheet", package: "BottomSheet", condition: .when(platforms: [.iOS])),
                 .product(name: "Kingfisher", package: "Kingfisher", condition: .when(platforms: [.iOS]))
             ],
-            path: "WrapKitCore/Sources"
+            path: "Sources"
         ),
         .testTarget(
             name: "WrapKitTests",
             dependencies: [
-                "WrapKit",
-                .product(name: "BottomSheet", package: "BottomSheet", condition: .when(platforms: [.iOS])),
-                .product(name: "Kingfisher", package: "Kingfisher", condition: .when(platforms: [.iOS]))
+                "WrapKit"
             ],
-            path: "WrapKitCore/Tests"
+            path: "Tests"
         ),
     ]
 )

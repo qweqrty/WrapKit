@@ -4,7 +4,40 @@
 
     ],
     "dependencies" : [
-
+      {
+        "basedOn" : null,
+        "packageRef" : {
+          "identity" : "bottomsheet",
+          "kind" : "remoteSourceControl",
+          "location" : "https://github.com/joomcode/BottomSheet",
+          "name" : "BottomSheet"
+        },
+        "state" : {
+          "checkoutState" : {
+            "revision" : "15ab2cf96b757b72b09a6515f667685ff55924e1",
+            "version" : "2.0.5"
+          },
+          "name" : "sourceControlCheckout"
+        },
+        "subpath" : "BottomSheet"
+      },
+      {
+        "basedOn" : null,
+        "packageRef" : {
+          "identity" : "kingfisher",
+          "kind" : "remoteSourceControl",
+          "location" : "https://github.com/onevcat/Kingfisher.git",
+          "name" : "Kingfisher"
+        },
+        "state" : {
+          "checkoutState" : {
+            "revision" : "2ef543ee21d63734e1c004ad6c870255e8716c50",
+            "version" : "7.12.0"
+          },
+          "name" : "sourceControlCheckout"
+        },
+        "subpath" : "Kingfisher"
+      }
     ]
   },
   "version" : 6

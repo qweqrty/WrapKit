@@ -1,0 +1,24 @@
+{
+  "configurations" : [
+    {
+      "id" : "5D7AD832-634F-431F-A222-25EA6953B045",
+      "name" : "Configuration",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "threadSanitizerEnabled" : true
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "WrapKitTests",
+        "name" : "WrapKitTests"
+      }
+    }
+  ],
+  "version" : 1
+}

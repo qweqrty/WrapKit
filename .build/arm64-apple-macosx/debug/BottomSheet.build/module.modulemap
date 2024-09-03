@@ -1,0 +1,4 @@
+module BottomSheet {
+    header "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/BottomSheet.build/BottomSheet-Swift.h"
+    requires objc
+}

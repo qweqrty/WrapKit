@@ -1,0 +1,1013 @@
+{
+  "": {
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/master.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/KeychainSwift/KeychainSwift.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/KeychainSwift/KeychainSwift.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/KeychainSwift/KeychainSwift.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/KeychainSwift/KeychainSwift~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/KeychainSwift/KeychainSwift.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/KeychainSwift/KeychainSwiftAccessOptions.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/KeychainSwift/KeychainSwiftAccessOptions.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/KeychainSwift/KeychainSwiftAccessOptions.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/KeychainSwift/KeychainSwiftAccessOptions~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/KeychainSwift/KeychainSwiftAccessOptions.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/KeychainSwift/KeychainSwiftConstants.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/KeychainSwift/KeychainSwiftConstants.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/KeychainSwift/KeychainSwiftConstants.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/KeychainSwift/KeychainSwiftConstants~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/KeychainSwift/KeychainSwiftConstants.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitAuth/AuthenticatedHTTPClientDecorator.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitAuth/AuthenticatedHTTPClientDecorator.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitAuth/AuthenticatedHTTPClientDecorator.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitAuth/AuthenticatedHTTPClientDecorator~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitAuth/AuthenticatedHTTPClientDecorator.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitAuth/TokenRefresher.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitAuth/TokenRefresher.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitAuth/TokenRefresher.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitAuth/TokenRefresher~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitAuth/TokenRefresher.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitCommon/DataStructures/Queue.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/DataStructures/Queue.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/DataStructures/Queue.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/DataStructures/Queue~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/DataStructures/Queue.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitCommon/HTTPClient/EncrichHTTPClientDecorator.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/HTTPClient/EncrichHTTPClientDecorator.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/HTTPClient/EncrichHTTPClientDecorator.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/HTTPClient/EncrichHTTPClientDecorator~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/HTTPClient/EncrichHTTPClientDecorator.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitCommon/HTTPClient/HTTPClientCancelOngoingRequestsDecorator.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/HTTPClient/HTTPClientCancelOngoingRequestsDecorator.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/HTTPClient/HTTPClientCancelOngoingRequestsDecorator.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/HTTPClient/HTTPClientCancelOngoingRequestsDecorator~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/HTTPClient/HTTPClientCancelOngoingRequestsDecorator.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitCommon/HTTPClient/HTTPClientCompletionDecorator.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/HTTPClient/HTTPClientCompletionDecorator.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/HTTPClient/HTTPClientCompletionDecorator.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/HTTPClient/HTTPClientCompletionDecorator~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/HTTPClient/HTTPClientCompletionDecorator.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitCommon/HTTPClient/StoredHTTPClientDecorator.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/HTTPClient/StoredHTTPClientDecorator.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/HTTPClient/StoredHTTPClientDecorator.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/HTTPClient/StoredHTTPClientDecorator~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/HTTPClient/StoredHTTPClientDecorator.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitCommon/Helpers/Array+Extensions.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Helpers/Array+Extensions.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Helpers/Array+Extensions.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Helpers/Array+Extensions~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Helpers/Array+Extensions.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitCommon/Helpers/CustomOperator/OptionalOperators.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Helpers/CustomOperator/OptionalOperators.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Helpers/CustomOperator/OptionalOperators.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Helpers/CustomOperator/OptionalOperators~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Helpers/CustomOperator/OptionalOperators.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitCommon/Helpers/Encodable+Extensions.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Helpers/Encodable+Extensions.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Helpers/Encodable+Extensions.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Helpers/Encodable+Extensions~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Helpers/Encodable+Extensions.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitCommon/Helpers/Hashable+extensions.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Helpers/Hashable+extensions.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Helpers/Hashable+extensions.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Helpers/Hashable+extensions~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Helpers/Hashable+extensions.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitCommon/Helpers/Int+Extensions.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Helpers/Int+Extensions.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Helpers/Int+Extensions.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Helpers/Int+Extensions~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Helpers/Int+Extensions.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitCommon/Helpers/String+Extensions.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Helpers/String+Extensions.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Helpers/String+Extensions.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Helpers/String+Extensions~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Helpers/String+Extensions.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitCommon/Helpers/URLRequest+Extensions.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Helpers/URLRequest+Extensions.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Helpers/URLRequest+Extensions.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Helpers/URLRequest+Extensions~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Helpers/URLRequest+Extensions.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitCommon/MaskedInput/KeyboardType+Mask.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/MaskedInput/KeyboardType+Mask.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/MaskedInput/KeyboardType+Mask.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/MaskedInput/KeyboardType+Mask~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/MaskedInput/KeyboardType+Mask.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitCommon/MaskedInput/Mask.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/MaskedInput/Mask.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/MaskedInput/Mask.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/MaskedInput/Mask~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/MaskedInput/Mask.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitCommon/Presentation/AssetsTypealias.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/AssetsTypealias.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/AssetsTypealias.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/AssetsTypealias~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/AssetsTypealias.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitCommon/Presentation/Pagination/PaginatedCollectionViewDatasource.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/Pagination/PaginatedCollectionViewDatasource.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/Pagination/PaginatedCollectionViewDatasource.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/Pagination/PaginatedCollectionViewDatasource~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/Pagination/PaginatedCollectionViewDatasource.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitCommon/Presentation/Pagination/PaginatedTableViewDatasource.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/Pagination/PaginatedTableViewDatasource.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/Pagination/PaginatedTableViewDatasource.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/Pagination/PaginatedTableViewDatasource~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/Pagination/PaginatedTableViewDatasource.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitCommon/Presentation/Pagination/PaginationPresenter.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/Pagination/PaginationPresenter.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/Pagination/PaginationPresenter.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/Pagination/PaginationPresenter~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/Pagination/PaginationPresenter.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitCommon/Presentation/PlaceholderedPresentableModel.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/PlaceholderedPresentableModel.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/PlaceholderedPresentableModel.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/PlaceholderedPresentableModel~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/PlaceholderedPresentableModel.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitCommon/Presentation/Resource/ResourcePresenter.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/Resource/ResourcePresenter.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/Resource/ResourcePresenter.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/Resource/ResourcePresenter~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/Resource/ResourcePresenter.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitCommon/Presentation/SelectablePresentableModel.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/SelectablePresentableModel.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/SelectablePresentableModel.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/SelectablePresentableModel~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/SelectablePresentableModel.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitCommon/Presentation/UseCases/AppLifecycle/AppLifecycleInputs.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/AppLifecycle/AppLifecycleInputs.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/AppLifecycle/AppLifecycleInputs.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/AppLifecycle/AppLifecycleInputs~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/AppLifecycle/AppLifecycleInputs.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitCommon/Presentation/UseCases/CommonLoading/CommonLoadingOutput.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/CommonLoadingOutput.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/CommonLoadingOutput.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/CommonLoadingOutput~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/CommonLoadingOutput.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitCommon/Presentation/UseCases/CommonLoading/CommonLoadingiOSAdapter.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/CommonLoadingiOSAdapter.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/CommonLoadingiOSAdapter.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/CommonLoadingiOSAdapter~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/CommonLoadingiOSAdapter.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationAudioEqualizer.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationAudioEqualizer.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationAudioEqualizer.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationAudioEqualizer~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationAudioEqualizer.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallBeat.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallBeat.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallBeat.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallBeat~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallBeat.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallClipRotate.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallClipRotate.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallClipRotate.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallClipRotate~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallClipRotate.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallClipRotateMultiple.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallClipRotateMultiple.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallClipRotateMultiple.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallClipRotateMultiple~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallClipRotateMultiple.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallClipRotatePulse.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallClipRotatePulse.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallClipRotatePulse.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallClipRotatePulse~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallClipRotatePulse.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallDoubleBounce.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallDoubleBounce.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallDoubleBounce.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallDoubleBounce~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallDoubleBounce.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallGridBeat.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallGridBeat.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallGridBeat.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallGridBeat~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallGridBeat.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallGridPulse.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallGridPulse.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallGridPulse.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallGridPulse~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallGridPulse.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallPulse.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallPulse.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallPulse.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallPulse~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallPulse.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallPulseRise.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallPulseRise.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallPulseRise.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallPulseRise~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallPulseRise.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallPulseSync.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallPulseSync.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallPulseSync.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallPulseSync~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallPulseSync.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallRotate.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallRotate.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallRotate.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallRotate~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallRotate.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallRotateChase.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallRotateChase.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallRotateChase.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallRotateChase~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallRotateChase.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallScale.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallScale.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallScale.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallScale~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallScale.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallScaleMultiple.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallScaleMultiple.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallScaleMultiple.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallScaleMultiple~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallScaleMultiple.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallScaleRipple.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallScaleRipple.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallScaleRipple.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallScaleRipple~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallScaleRipple.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallScaleRippleMultiple.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallScaleRippleMultiple.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallScaleRippleMultiple.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallScaleRippleMultiple~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallScaleRippleMultiple.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallSpinFadeLoader.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallSpinFadeLoader.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallSpinFadeLoader.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallSpinFadeLoader~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallSpinFadeLoader.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallTrianglePath.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallTrianglePath.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallTrianglePath.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallTrianglePath~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallTrianglePath.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallZigZag.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallZigZag.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallZigZag.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallZigZag~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallZigZag.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallZigZagDeflect.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallZigZagDeflect.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallZigZagDeflect.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallZigZagDeflect~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBallZigZagDeflect.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBlank.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBlank.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBlank.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBlank~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationBlank.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationCircleStrokeSpin.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationCircleStrokeSpin.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationCircleStrokeSpin.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationCircleStrokeSpin~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationCircleStrokeSpin.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationCubeTransition.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationCubeTransition.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationCubeTransition.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationCubeTransition~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationCubeTransition.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationLineScale.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationLineScale.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationLineScale.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationLineScale~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationLineScale.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationLineScaleParty.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationLineScaleParty.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationLineScaleParty.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationLineScaleParty~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationLineScaleParty.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationLineScalePulseOut.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationLineScalePulseOut.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationLineScalePulseOut.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationLineScalePulseOut~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationLineScalePulseOut.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationLineScalePulseOutRapid.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationLineScalePulseOutRapid.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationLineScalePulseOutRapid.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationLineScalePulseOutRapid~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationLineScalePulseOutRapid.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationLineSpinFadeLoader.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationLineSpinFadeLoader.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationLineSpinFadeLoader.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationLineSpinFadeLoader~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationLineSpinFadeLoader.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationOrbit.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationOrbit.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationOrbit.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationOrbit~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationOrbit.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationPacman.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationPacman.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationPacman.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationPacman~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationPacman.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationSemiCircleSpin.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationSemiCircleSpin.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationSemiCircleSpin.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationSemiCircleSpin~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationSemiCircleSpin.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationSquareSpin.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationSquareSpin.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationSquareSpin.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationSquareSpin~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationSquareSpin.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationTriangleSkewSpin.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationTriangleSkewSpin.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationTriangleSkewSpin.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationTriangleSkewSpin~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/Animations/NVActivityIndicatorAnimationTriangleSkewSpin.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/NVActivityIndicatorAnimationDelegate.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/NVActivityIndicatorAnimationDelegate.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/NVActivityIndicatorAnimationDelegate.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/NVActivityIndicatorAnimationDelegate~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/NVActivityIndicatorAnimationDelegate.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/NVActivityIndicatorShape.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/NVActivityIndicatorShape.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/NVActivityIndicatorShape.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/NVActivityIndicatorShape~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/NVActivityIndicatorShape.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/NVActivityIndicatorView.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/NVActivityIndicatorView.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/NVActivityIndicatorView.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/NVActivityIndicatorView~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Base/NVActivityIndicatorView.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Extended/NVActivityIndicatorPresenter.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Extended/NVActivityIndicatorPresenter.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Extended/NVActivityIndicatorPresenter.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Extended/NVActivityIndicatorPresenter~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Extended/NVActivityIndicatorPresenter.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Extended/NVActivityIndicatorViewable.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Extended/NVActivityIndicatorViewable.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Extended/NVActivityIndicatorViewable.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Extended/NVActivityIndicatorViewable~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonLoading/NSActivityIndicatorView/Extended/NVActivityIndicatorViewable.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitCommon/Presentation/UseCases/CommonToast/CommonToastOutput.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonToast/CommonToastOutput.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonToast/CommonToastOutput.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonToast/CommonToastOutput~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonToast/CommonToastOutput.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitCommon/Presentation/UseCases/CommonToast/CommonToastiOSAdapter.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonToast/CommonToastiOSAdapter.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonToast/CommonToastiOSAdapter.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonToast/CommonToastiOSAdapter~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/CommonToast/CommonToastiOSAdapter.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitCommon/Presentation/UseCases/Timer/TimerPresenter.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/Timer/TimerPresenter.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/Timer/TimerPresenter.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/Timer/TimerPresenter~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/UseCases/Timer/TimerPresenter.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitCommon/Presentation/ViewModelDTO.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/ViewModelDTO.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/ViewModelDTO.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/ViewModelDTO~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Presentation/ViewModelDTO.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitCommon/Service/CompositeService.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Service/CompositeService.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Service/CompositeService.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Service/CompositeService~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Service/CompositeService.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitCommon/Service/DownloadService.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Service/DownloadService.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Service/DownloadService.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Service/DownloadService~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Service/DownloadService.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitCommon/Service/MainQueueDispatchDecorator.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Service/MainQueueDispatchDecorator.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Service/MainQueueDispatchDecorator.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Service/MainQueueDispatchDecorator~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Service/MainQueueDispatchDecorator.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitCommon/Service/MockService.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Service/MockService.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Service/MockService.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Service/MockService~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Service/MockService.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitCommon/Service/RemoteService.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Service/RemoteService.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Service/RemoteService.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Service/RemoteService~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Service/RemoteService.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitCommon/Service/SerialServiceDecorator.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Service/SerialServiceDecorator.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Service/SerialServiceDecorator.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Service/SerialServiceDecorator~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Service/SerialServiceDecorator.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitCommon/Service/Service.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Service/Service.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Service/Service.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Service/Service~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Service/Service.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitCommon/Service/StoredServiceDecorator.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Service/StoredServiceDecorator.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Service/StoredServiceDecorator.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Service/StoredServiceDecorator~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Service/StoredServiceDecorator.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitCommon/Storage/CoreDataStorage.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Storage/CoreDataStorage.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Storage/CoreDataStorage.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Storage/CoreDataStorage~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Storage/CoreDataStorage.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitCommon/Storage/InMemoryStorage.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Storage/InMemoryStorage.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Storage/InMemoryStorage.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Storage/InMemoryStorage~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Storage/InMemoryStorage.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitCommon/Storage/KeychainStorage.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Storage/KeychainStorage.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Storage/KeychainStorage.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Storage/KeychainStorage~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Storage/KeychainStorage.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitCommon/Storage/Storage.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Storage/Storage.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Storage/Storage.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Storage/Storage~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Storage/Storage.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitCommon/Storage/UserDefaultsStorage.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Storage/UserDefaultsStorage.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Storage/UserDefaultsStorage.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Storage/UserDefaultsStorage~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitCommon/Storage/UserDefaultsStorage.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitNetworking/HTTPClient.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitNetworking/HTTPClient.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitNetworking/HTTPClient.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitNetworking/HTTPClient~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitNetworking/HTTPClient.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitNetworking/URLSession/URLSessionDownloadClient.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitNetworking/URLSession/URLSessionDownloadClient.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitNetworking/URLSession/URLSessionDownloadClient.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitNetworking/URLSession/URLSessionDownloadClient~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitNetworking/URLSession/URLSessionDownloadClient.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitNetworking/URLSession/URLSessionHTTPClient.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitNetworking/URLSession/URLSessionHTTPClient.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitNetworking/URLSession/URLSessionHTTPClient.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitNetworking/URLSession/URLSessionHTTPClient~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitNetworking/URLSession/URLSessionHTTPClient.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitiOS/UIKit/Classes/DIffableTableViewDatasource.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Classes/DIffableTableViewDatasource.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Classes/DIffableTableViewDatasource.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Classes/DIffableTableViewDatasource~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Classes/DIffableTableViewDatasource.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitiOS/UIKit/Classes/DiffableCollectionViewDataSource.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Classes/DiffableCollectionViewDataSource.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Classes/DiffableCollectionViewDataSource.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Classes/DiffableCollectionViewDataSource~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Classes/DiffableCollectionViewDataSource.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitiOS/UIKit/Extensions/Array+Extension.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Extensions/Array+Extension.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Extensions/Array+Extension.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Extensions/Array+Extension~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Extensions/Array+Extension.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitiOS/UIKit/Extensions/CharacterSet+Extensions.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Extensions/CharacterSet+Extensions.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Extensions/CharacterSet+Extensions.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Extensions/CharacterSet+Extensions~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Extensions/CharacterSet+Extensions.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitiOS/UIKit/Extensions/Double+Extensions.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Extensions/Double+Extensions.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Extensions/Double+Extensions.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Extensions/Double+Extensions~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Extensions/Double+Extensions.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitiOS/UIKit/Extensions/NSAttrubitedString+Extensions.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Extensions/NSAttrubitedString+Extensions.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Extensions/NSAttrubitedString+Extensions.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Extensions/NSAttrubitedString+Extensions~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Extensions/NSAttrubitedString+Extensions.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitiOS/UIKit/Extensions/NSMutableParagraphStyle+Extensions.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Extensions/NSMutableParagraphStyle+Extensions.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Extensions/NSMutableParagraphStyle+Extensions.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Extensions/NSMutableParagraphStyle+Extensions~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Extensions/NSMutableParagraphStyle+Extensions.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitiOS/UIKit/Extensions/NSObject+Extensions.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Extensions/NSObject+Extensions.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Extensions/NSObject+Extensions.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Extensions/NSObject+Extensions~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Extensions/NSObject+Extensions.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitiOS/UIKit/Extensions/Sequence+Extensions.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Extensions/Sequence+Extensions.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Extensions/Sequence+Extensions.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Extensions/Sequence+Extensions~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Extensions/Sequence+Extensions.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitiOS/UIKit/Extensions/String+Regex.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Extensions/String+Regex.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Extensions/String+Regex.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Extensions/String+Regex~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Extensions/String+Regex.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitiOS/UIKit/Extensions/UIApplication+extensions.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Extensions/UIApplication+extensions.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Extensions/UIApplication+extensions.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Extensions/UIApplication+extensions~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Extensions/UIApplication+extensions.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitiOS/UIKit/Extensions/UIButton+Extensions.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Extensions/UIButton+Extensions.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Extensions/UIButton+Extensions.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Extensions/UIButton+Extensions~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Extensions/UIButton+Extensions.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitiOS/UIKit/Extensions/UIColor+Extensions.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Extensions/UIColor+Extensions.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Extensions/UIColor+Extensions.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Extensions/UIColor+Extensions~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Extensions/UIColor+Extensions.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitiOS/UIKit/Extensions/UIImageView+Extensions.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Extensions/UIImageView+Extensions.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Extensions/UIImageView+Extensions.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Extensions/UIImageView+Extensions~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Extensions/UIImageView+Extensions.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitiOS/UIKit/Extensions/UINavigationController+Extensions.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Extensions/UINavigationController+Extensions.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Extensions/UINavigationController+Extensions.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Extensions/UINavigationController+Extensions~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Extensions/UINavigationController+Extensions.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitiOS/UIKit/Extensions/UIScrollView+Extensions.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Extensions/UIScrollView+Extensions.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Extensions/UIScrollView+Extensions.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Extensions/UIScrollView+Extensions~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Extensions/UIScrollView+Extensions.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitiOS/UIKit/Extensions/UIStackView+Extensions.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Extensions/UIStackView+Extensions.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Extensions/UIStackView+Extensions.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Extensions/UIStackView+Extensions~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Extensions/UIStackView+Extensions.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitiOS/UIKit/Extensions/UITapGestureRecognizer+Extensions.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Extensions/UITapGestureRecognizer+Extensions.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Extensions/UITapGestureRecognizer+Extensions.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Extensions/UITapGestureRecognizer+Extensions~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Extensions/UITapGestureRecognizer+Extensions.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitiOS/UIKit/Extensions/UIView+Extensions.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Extensions/UIView+Extensions.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Extensions/UIView+Extensions.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Extensions/UIView+Extensions~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Extensions/UIView+Extensions.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitiOS/UIKit/Extensions/UIView+Layout.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Extensions/UIView+Layout.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Extensions/UIView+Layout.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Extensions/UIView+Layout~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Extensions/UIView+Layout.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitiOS/UIKit/Extensions/UIViewController+Extensions.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Extensions/UIViewController+Extensions.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Extensions/UIViewController+Extensions.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Extensions/UIViewController+Extensions~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Extensions/UIViewController+Extensions.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitiOS/UIKit/PanModal/Animator/PanModalAnimator.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/PanModal/Animator/PanModalAnimator.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/PanModal/Animator/PanModalAnimator.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/PanModal/Animator/PanModalAnimator~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/PanModal/Animator/PanModalAnimator.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitiOS/UIKit/PanModal/Animator/PanModalPresentationAnimator.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/PanModal/Animator/PanModalPresentationAnimator.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/PanModal/Animator/PanModalPresentationAnimator.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/PanModal/Animator/PanModalPresentationAnimator~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/PanModal/Animator/PanModalPresentationAnimator.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitiOS/UIKit/PanModal/Controller/PanModalPresentationController.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/PanModal/Controller/PanModalPresentationController.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/PanModal/Controller/PanModalPresentationController.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/PanModal/Controller/PanModalPresentationController~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/PanModal/Controller/PanModalPresentationController.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitiOS/UIKit/PanModal/Delegate/PanModalPresentationDelegate.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/PanModal/Delegate/PanModalPresentationDelegate.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/PanModal/Delegate/PanModalPresentationDelegate.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/PanModal/Delegate/PanModalPresentationDelegate~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/PanModal/Delegate/PanModalPresentationDelegate.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitiOS/UIKit/PanModal/Presentable/PanModalHeight.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/PanModal/Presentable/PanModalHeight.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/PanModal/Presentable/PanModalHeight.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/PanModal/Presentable/PanModalHeight~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/PanModal/Presentable/PanModalHeight.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitiOS/UIKit/PanModal/Presentable/PanModalPresentable+Defaults.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/PanModal/Presentable/PanModalPresentable+Defaults.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/PanModal/Presentable/PanModalPresentable+Defaults.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/PanModal/Presentable/PanModalPresentable+Defaults~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/PanModal/Presentable/PanModalPresentable+Defaults.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitiOS/UIKit/PanModal/Presentable/PanModalPresentable+LayoutHelpers.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/PanModal/Presentable/PanModalPresentable+LayoutHelpers.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/PanModal/Presentable/PanModalPresentable+LayoutHelpers.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/PanModal/Presentable/PanModalPresentable+LayoutHelpers~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/PanModal/Presentable/PanModalPresentable+LayoutHelpers.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitiOS/UIKit/PanModal/Presentable/PanModalPresentable+UIViewController.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/PanModal/Presentable/PanModalPresentable+UIViewController.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/PanModal/Presentable/PanModalPresentable+UIViewController.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/PanModal/Presentable/PanModalPresentable+UIViewController~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/PanModal/Presentable/PanModalPresentable+UIViewController.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitiOS/UIKit/PanModal/Presentable/PanModalPresentable.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/PanModal/Presentable/PanModalPresentable.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/PanModal/Presentable/PanModalPresentable.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/PanModal/Presentable/PanModalPresentable~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/PanModal/Presentable/PanModalPresentable.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitiOS/UIKit/PanModal/Presenter/PanModalPresenter.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/PanModal/Presenter/PanModalPresenter.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/PanModal/Presenter/PanModalPresenter.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/PanModal/Presenter/PanModalPresenter~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/PanModal/Presenter/PanModalPresenter.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitiOS/UIKit/PanModal/Presenter/UIViewController+PanModalPresenter.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/PanModal/Presenter/UIViewController+PanModalPresenter.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/PanModal/Presenter/UIViewController+PanModalPresenter.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/PanModal/Presenter/UIViewController+PanModalPresenter~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/PanModal/Presenter/UIViewController+PanModalPresenter.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitiOS/UIKit/PanModal/View/DimmedView.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/PanModal/View/DimmedView.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/PanModal/View/DimmedView.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/PanModal/View/DimmedView~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/PanModal/View/DimmedView.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitiOS/UIKit/PanModal/View/PanContainerView.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/PanModal/View/PanContainerView.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/PanModal/View/PanContainerView.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/PanModal/View/PanContainerView~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/PanModal/View/PanContainerView.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitiOS/UIKit/Screens/Selection/Cell/SelectionCell.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Screens/Selection/Cell/SelectionCell.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Screens/Selection/Cell/SelectionCell.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Screens/Selection/Cell/SelectionCell~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Screens/Selection/Cell/SelectionCell.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitiOS/UIKit/Screens/Selection/Cell/SelectionCellContentView.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Screens/Selection/Cell/SelectionCellContentView.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Screens/Selection/Cell/SelectionCellContentView.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Screens/Selection/Cell/SelectionCellContentView~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Screens/Selection/Cell/SelectionCellContentView.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitiOS/UIKit/Screens/Selection/SelectionContentView.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Screens/Selection/SelectionContentView.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Screens/Selection/SelectionContentView.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Screens/Selection/SelectionContentView~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Screens/Selection/SelectionContentView.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitiOS/UIKit/Screens/Selection/SelectionFactory.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Screens/Selection/SelectionFactory.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Screens/Selection/SelectionFactory.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Screens/Selection/SelectionFactory~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Screens/Selection/SelectionFactory.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitiOS/UIKit/Screens/Selection/SelectionFlow.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Screens/Selection/SelectionFlow.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Screens/Selection/SelectionFlow.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Screens/Selection/SelectionFlow~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Screens/Selection/SelectionFlow.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitiOS/UIKit/Screens/Selection/SelectionFlowiOS.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Screens/Selection/SelectionFlowiOS.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Screens/Selection/SelectionFlowiOS.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Screens/Selection/SelectionFlowiOS~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Screens/Selection/SelectionFlowiOS.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitiOS/UIKit/Screens/Selection/SelectionPresenter.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Screens/Selection/SelectionPresenter.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Screens/Selection/SelectionPresenter.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Screens/Selection/SelectionPresenter~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Screens/Selection/SelectionPresenter.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitiOS/UIKit/Screens/Selection/SelectionPresenterModel.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Screens/Selection/SelectionPresenterModel.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Screens/Selection/SelectionPresenterModel.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Screens/Selection/SelectionPresenterModel~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Screens/Selection/SelectionPresenterModel.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitiOS/UIKit/Screens/Selection/SelectionVC.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Screens/Selection/SelectionVC.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Screens/Selection/SelectionVC.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Screens/Selection/SelectionVC~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Screens/Selection/SelectionVC.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitiOS/UIKit/Screens/WebView/WebViewContentView.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Screens/WebView/WebViewContentView.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Screens/WebView/WebViewContentView.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Screens/WebView/WebViewContentView~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Screens/WebView/WebViewContentView.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitiOS/UIKit/Screens/WebView/WebViewPresenter.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Screens/WebView/WebViewPresenter.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Screens/WebView/WebViewPresenter.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Screens/WebView/WebViewPresenter~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Screens/WebView/WebViewPresenter.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitiOS/UIKit/Screens/WebView/WebViewVC.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Screens/WebView/WebViewVC.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Screens/WebView/WebViewVC.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Screens/WebView/WebViewVC~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Screens/WebView/WebViewVC.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitiOS/UIKit/ViewControllers/NavigationController.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/ViewControllers/NavigationController.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/ViewControllers/NavigationController.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/ViewControllers/NavigationController~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/ViewControllers/NavigationController.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitiOS/UIKit/ViewControllers/ViewController.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/ViewControllers/ViewController.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/ViewControllers/ViewController.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/ViewControllers/ViewController~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/ViewControllers/ViewController.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitiOS/UIKit/Views/Base/Button.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/Button.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/Button.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/Button~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/Button.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitiOS/UIKit/Views/Base/CollectionView/CollectionReusableView.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/CollectionView/CollectionReusableView.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/CollectionView/CollectionReusableView.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/CollectionView/CollectionReusableView~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/CollectionView/CollectionReusableView.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitiOS/UIKit/Views/Base/CollectionView/CollectionView.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/CollectionView/CollectionView.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/CollectionView/CollectionView.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/CollectionView/CollectionView~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/CollectionView/CollectionView.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitiOS/UIKit/Views/Base/CollectionView/CollectionViewCell.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/CollectionView/CollectionViewCell.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/CollectionView/CollectionViewCell.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/CollectionView/CollectionViewCell~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/CollectionView/CollectionViewCell.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitiOS/UIKit/Views/Base/DatePickerView.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/DatePickerView.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/DatePickerView.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/DatePickerView~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/DatePickerView.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitiOS/UIKit/Views/Base/FieldView/HKeyValueFieldView.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/FieldView/HKeyValueFieldView.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/FieldView/HKeyValueFieldView.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/FieldView/HKeyValueFieldView~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/FieldView/HKeyValueFieldView.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitiOS/UIKit/Views/Base/FieldView/VKeyValueFieldView.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/FieldView/VKeyValueFieldView.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/FieldView/VKeyValueFieldView.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/FieldView/VKeyValueFieldView~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/FieldView/VKeyValueFieldView.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitiOS/UIKit/Views/Base/FillStackView.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/FillStackView.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/FillStackView.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/FillStackView~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/FillStackView.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitiOS/UIKit/Views/Base/ImageView.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/ImageView.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/ImageView.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/ImageView~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/ImageView.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitiOS/UIKit/Views/Base/Label.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/Label.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/Label.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/Label~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/Label.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitiOS/UIKit/Views/Base/PickerView.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/PickerView.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/PickerView.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/PickerView~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/PickerView.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitiOS/UIKit/Views/Base/ProgressBarView.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/ProgressBarView.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/ProgressBarView.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/ProgressBarView~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/ProgressBarView.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitiOS/UIKit/Views/Base/RefreshControl.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/RefreshControl.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/RefreshControl.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/RefreshControl~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/RefreshControl.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitiOS/UIKit/Views/Base/ScrollableContentView.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/ScrollableContentView.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/ScrollableContentView.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/ScrollableContentView~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/ScrollableContentView.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitiOS/UIKit/Views/Base/ScrollableHStackView.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/ScrollableHStackView.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/ScrollableHStackView.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/ScrollableHStackView~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/ScrollableHStackView.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitiOS/UIKit/Views/Base/StackVIew.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/StackVIew.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/StackVIew.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/StackVIew~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/StackVIew.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitiOS/UIKit/Views/Base/SwitchControl.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/SwitchControl.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/SwitchControl.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/SwitchControl~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/SwitchControl.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitiOS/UIKit/Views/Base/TableView/TableView.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/TableView/TableView.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/TableView/TableView.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/TableView/TableView~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/TableView/TableView.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitiOS/UIKit/Views/Base/TableView/TableViewCell.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/TableView/TableViewCell.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/TableView/TableViewCell.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/TableView/TableViewCell~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/TableView/TableViewCell.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitiOS/UIKit/Views/Base/Textfield/MaskedTextfieldDelegate.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/Textfield/MaskedTextfieldDelegate.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/Textfield/MaskedTextfieldDelegate.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/Textfield/MaskedTextfieldDelegate~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/Textfield/MaskedTextfieldDelegate.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitiOS/UIKit/Views/Base/Textfield/Textfield.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/Textfield/Textfield.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/Textfield/Textfield.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/Textfield/Textfield~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/Textfield/Textfield.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitiOS/UIKit/Views/Base/Textview.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/Textview.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/Textview.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/Textview~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/Textview.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitiOS/UIKit/Views/Base/View.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/View.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/View.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/View~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Base/View.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitiOS/UIKit/Views/Custom/CardView.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Custom/CardView.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Custom/CardView.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Custom/CardView~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Custom/CardView.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitiOS/UIKit/Views/Custom/CubeTransitionView.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Custom/CubeTransitionView.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Custom/CubeTransitionView.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Custom/CubeTransitionView~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Custom/CubeTransitionView.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitiOS/UIKit/Views/Custom/MapView.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Custom/MapView.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Custom/MapView.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Custom/MapView~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Custom/MapView.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitiOS/UIKit/Views/Custom/NavigationBar.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Custom/NavigationBar.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Custom/NavigationBar.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Custom/NavigationBar~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Custom/NavigationBar.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitiOS/UIKit/Views/Custom/SearchBar.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Custom/SearchBar.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Custom/SearchBar.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Custom/SearchBar~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Custom/SearchBar.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitiOS/UIKit/Views/Custom/ShimmerView.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Custom/ShimmerView.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Custom/ShimmerView.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Custom/ShimmerView~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Custom/ShimmerView.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitiOS/UIKit/Views/Custom/TitledView.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Custom/TitledView.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Custom/TitledView.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Custom/TitledView~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Custom/TitledView.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitiOS/UIKit/Views/Custom/ToastView.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Custom/ToastView.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Custom/ToastView.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Custom/ToastView~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Custom/ToastView.swiftdeps"
+  },
+  "/Users/stanislavli/Work/WrapKit/Sources/WrapKitiOS/UIKit/Views/Custom/WrapperView.swift": {
+    "dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Custom/WrapperView.d",
+    "object": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Custom/WrapperView.swift.o",
+    "swiftmodule": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Custom/WrapperView~partial.swiftmodule",
+    "swift-dependencies": "/Users/stanislavli/Work/WrapKit/.build/arm64-apple-macosx/debug/WrapKit.build/WrapKitiOS/UIKit/Views/Custom/WrapperView.swiftdeps"
+  }
+}
