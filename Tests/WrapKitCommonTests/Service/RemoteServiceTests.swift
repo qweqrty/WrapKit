@@ -9,110 +9,172 @@ import XCTest
 import WrapKit
 
 class RemoteServiceTests: XCTestCase {
-    func test_makeRequest_dispatchesURLRequest() {
-        let url = URL(string: "https://example.com")!
-        let expectedRequest = URLRequest(url: url)
-        let (sut, clientSpy) = makeSUT { _ in expectedRequest }
-        
-        _ = sut.make(request: "dummy request") { _ in }
-        
-        XCTAssertEqual(clientSpy.requestedURLs, [url])
-    }
-    
-    func test_makeRequest_completesWithErrorWhenURLRequestIsNil() {
-        let (sut, _) = makeSUT { _ in nil }
-        
-        var receivedError: ServiceError?
-        _ = sut.make(request: "dummy request") { result in
-            if case let .failure(error) = result {
-                receivedError = error
-            }
+    func test_makeRequestWithValidURLRequestAndSuccessfulResponse_completesWithParsedResponse() {
+        let expectedResponse = "test_response"
+        let responseData = Data(expectedResponse.utf8)
+        let responseHandler: (String, Data, HTTPURLResponse, @escaping ((Result<String, ServiceError>)) -> Void) -> Void = { _, data, _, completion in
+            completion(.success(String(data: data, encoding: .utf8)!))
         }
-        
-        XCTAssertNotNil(receivedError)
-    }
-    
-//    func test_makeRequest_completesWithSuccess() {
-//        let url = URL(string: "https://example.com")!
-//        let (sut, clientSpy) = makeSUT { _ in URLRequest(url: url) }
-//        let expectedResponse = ServiceError(message: "Success")
-//        let jsonData = try! JSONEncoder().encode(expectedResponse)
-//        
-//        var receivedResponse: RemoteError?
-//        _ = sut.make(request: "dummy request") { result in
-//            if case let .success(response) = result {
-//                receivedResponse = response
-//            }
-//        }
-//        clientSpy.completes(withStatusCode: 200, data: jsonData)
-//        
-//        XCTAssertEqual(receivedResponse?.message, expectedResponse.message)
-//    }
 
-//    func test_makeRequest_completesWithConnectivityErrorWhenClientFails() {
-//        let url = URL(string: "https://example.com")!
-//        let (sut, clientSpy) = makeSUT { _ in URLRequest(url: url) }
-//
-//        var receivedError: ServiceError?
-//        _ = sut.make(request: "dummy request") { result in
-//            if case let .failure(error) = result {
-//                receivedError = error
-//            }
-//        }
-//        clientSpy.completes(with: NSError(domain: "connectivity", code: 0, userInfo: nil))
-//
-//        XCTAssertTrue(receivedError?.isConnectivity ?? false)
-//    }
-    
-//    func test_makeRequest_completesWithInternalErrorWhenDecodingFails() {
-//        let url = URL(string: "https://example.com")!
-//        let (sut, clientSpy) = makeSUT { _ in URLRequest(url: url) }
-//
-//        var receivedError: ServiceError?
-//        _ = sut.make(request: "dummy request") { result in
-//            if case let .failure(error) = result {
-//                receivedError = error
-//            }
-//        }
-//        clientSpy.completes(withStatusCode: 200, data: Data()) // Data not decodable
-//
-//        XCTAssertTrue(receivedError?.isInternal ?? false)
-//    }
-    
-//    func test_makeRequest_completesWithInternalErrorWhenResponseIsNotOK() {
-//        let url = URL(string: "https://example.com")!
-//        let (sut, clientSpy) = makeSUT { _ in URLRequest(url: url) } isResponseOk: { _, response in
-//            return response.statusCode == 200
-//        }
-//
-//        var receivedError: ServiceError?
-//        _ = sut.make(request: "dummy request") { result in
-//            if case let .failure(error) = result {
-//                receivedError = error
-//            }
-//        }
-//        clientSpy.completes(withStatusCode: 400, data: Data())
-//
-//        XCTAssertTrue(receivedError?.isInternal ?? false)
-//    }
-    
-//    func test_makeRequest_callsCompletionBlockOnlyOnce() {
-//        let url = URL(string: "https://example.com")!
-//        let (sut, clientSpy) = makeSUT { _ in URLRequest(url: url) }
-//
-//        var completionCallCount = 0
-//        _ = sut.make(request: "dummy request") { _ in
-//            completionCallCount += 1
-//        }
-//        clientSpy.completes(withStatusCode: 200, data: Data())
-//        XCTAssertEqual(completionCallCount, 1)
-//    }
+        let (sut, clientSpy) = makeSUT(
+            makeURLRequest: { _ in URLRequest(url: URL(string: "http://test.com")!) },
+            responseHandler: responseHandler
+        )
+
+        var receivedResult: Result<String, ServiceError>?
+        sut.make(request: "test_request") { result in
+            receivedResult = result
+        }?.resume()
+
+        clientSpy.completes(withStatusCode: 200, data: responseData)
+
+        switch receivedResult {
+        case .success(let response):
+            XCTAssertEqual(response, expectedResponse)
+        default:
+            XCTFail("Expected '.success', got \(String(describing: receivedResult)) instead")
+        }
+    }
+
+    func test_makeRequestWithInvalidURLRequest_completesWithInternalError() {
+        let (sut, _) = makeSUT(makeURLRequest: { _ in nil })
+
+        var receivedResult: Result<String, ServiceError>?
+        _ = sut.make(request: "invalid_request") { result in
+            receivedResult = result
+        }
+
+        switch receivedResult {
+        case .failure(let error):
+            XCTAssertTrue(error.isInternal)
+        default:
+            XCTFail("Expected '.failure(.internal)', got \(String(describing: receivedResult)) instead")
+        }
+    }
+
+    func test_makeRequestWithClientFailure_completesWithConnectivityError() {
+        let (sut, clientSpy) = makeSUT(makeURLRequest: { _ in URLRequest(url: URL(string: "http://test.com")!) })
+
+        var receivedResult: Result<String, ServiceError>?
+        sut.make(request: "test_request") { result in
+            receivedResult = result
+        }?.resume()
+
+        clientSpy.completes(with: URLError(.notConnectedToInternet))
+
+        switch receivedResult {
+        case .failure(let error):
+            XCTAssertTrue(error.isConnectivity)
+        default:
+            XCTFail("Expected '.failure(.connectivity)', got \(String(describing: receivedResult)) instead")
+        }
+    }
+
+    func test_makeRequestWithClientCancelledError_completesWithToBeIgnoredError() {
+        let (sut, clientSpy) = makeSUT(makeURLRequest: { _ in URLRequest(url: URL(string: "http://test.com")!) })
+
+        var receivedResult: Result<String, ServiceError>?
+        sut.make(request: "test_request") { result in
+            receivedResult = result
+        }?.resume()
+
+        clientSpy.completes(with: URLError(.cancelled))
+
+        switch receivedResult {
+        case .failure(let error):
+            XCTAssertEqual(error, .toBeIgnored)
+        default:
+            XCTFail("Expected '.failure(.toBeIgnored)', got \(String(describing: receivedResult)) instead")
+        }
+    }
+
+    func test_makeRequestWithUnexpectedError_completesWithInternalError() {
+        let (sut, clientSpy) = makeSUT(makeURLRequest: { _ in URLRequest(url: URL(string: "http://test.com")!) })
+
+        var receivedResult: Result<String, ServiceError>?
+        sut.make(request: "test_request") { result in
+            receivedResult = result
+        }?.resume()
+
+        clientSpy.completes(with: NSError(domain: "Test", code: 999, userInfo: nil))
+
+        switch receivedResult {
+        case .failure(let error):
+            XCTAssertTrue(error.isInternal)
+        default:
+            XCTFail("Expected '.failure(.internal)', got \(String(describing: receivedResult)) instead")
+        }
+    }
+
+    func test_makeRequestWithUnexpectedResponseCode_completesWithInternalError() {
+        let (sut, clientSpy) = makeSUT(makeURLRequest: { _ in URLRequest(url: URL(string: "http://test.com")!) })
+
+        var receivedResult: Result<String, ServiceError>?
+        sut.make(request: "test_request") { result in
+            receivedResult = result
+        }?.resume()
+
+        clientSpy.completes(withStatusCode: 500, data: Data())
+
+        switch receivedResult {
+        case .failure(let error):
+            XCTAssertTrue(error.isInternal)
+        default:
+            XCTFail("Expected '.failure(.internal)', got \(String(describing: receivedResult)) instead")
+        }
+    }
+
+    func test_makeRequestWithoutResponseHandler_completesSuccessfully() {
+        let (sut, clientSpy) = makeSUT(makeURLRequest: { _ in URLRequest(url: URL(string: "http://test.com")!) })
+
+        var receivedResult: Result<String, ServiceError>?
+        sut.make(request: "test_request") { result in
+            receivedResult = result
+        }?.resume()
+
+        clientSpy.completes(withStatusCode: 200, data: Data("test_response".utf8))
+
+        switch receivedResult {
+        case .success(let response):
+            XCTAssertEqual(response, "test_response")
+        default:
+            XCTFail("Expected '.success', got \(String(describing: receivedResult)) instead")
+        }
+    }
+
+    func test_makeRequestWithResponseHandler_completesSuccessfully() {
+        let responseHandler: (String, Data, HTTPURLResponse, @escaping ((Result<String, ServiceError>)) -> Void) -> Void = { _, data, _, completion in
+            completion(.success(String(data: data, encoding: .utf8)!))
+        }
+
+        let (sut, clientSpy) = makeSUT(
+            makeURLRequest: { _ in URLRequest(url: URL(string: "http://test.com")!) },
+            responseHandler: responseHandler
+        )
+
+        var receivedResult: Result<String, ServiceError>?
+        sut.make(request: "test_request") { result in
+            receivedResult = result
+        }?.resume()
+
+        clientSpy.completes(withStatusCode: 200, data: Data("test_response".utf8))
+
+        switch receivedResult {
+        case .success(let response):
+            XCTAssertEqual(response, "test_response")
+        default:
+            XCTFail("Expected '.success', got \(String(describing: receivedResult)) instead")
+        }
+    }
 }
 
 extension RemoteServiceTests {
     private func makeSUT(
         makeURLRequest: @escaping ((String) -> URLRequest?),
-        responseHandler: ((String, Data, HTTPURLResponse, @escaping ((Result<String, ServiceError>)) -> Void) -> Void)? = nil)
+        responseHandler: ((String, Data, HTTPURLResponse, @escaping ((Result<String, ServiceError>)) -> Void) -> Void)? = nil,
+        file: StaticString = #file,
+        line: UInt = #line
+    )
     -> (RemoteService<String, String>, HTTPClientSpy) {
         let spy = HTTPClientSpy()
         let sut = RemoteService<String, String>(
@@ -120,6 +182,9 @@ extension RemoteServiceTests {
             makeURLRequest: makeURLRequest,
             responseHandler: responseHandler
         )
+        
+        checkForMemoryLeaks(sut, file: file, line: line)
+        checkForMemoryLeaks(spy, file: file, line: line)
         return (sut, spy)
     }
 }
