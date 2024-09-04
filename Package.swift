@@ -38,7 +38,10 @@ let package = Package(
         .testTarget(
             name: "WrapKitTests",
             dependencies: [
-                "WrapKit"
+                "WrapKit",
+                .product(name: "BottomSheet", package: "BottomSheet", condition: .when(platforms: [.iOS])),
+                .product(name: "Pulsator", package: "Pulsator", condition: .when(platforms: [.iOS])),
+                .product(name: "Kingfisher", package: "Kingfisher", condition: .when(platforms: [.iOS]))
             ],
             path: "Tests/WrapKitTests"
         ),
