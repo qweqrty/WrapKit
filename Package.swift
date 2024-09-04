@@ -30,7 +30,7 @@ let package = Package(
             name: "WrapKit",
             dependencies: [
                 .product(name: "BottomSheet", package: "BottomSheet", condition: .when(platforms: [.iOS])),
-                .product(name: "Pulsator", package: "Pulsator", condition: .when(platforms: [.iOS, .macOS])),
+                .product(name: "Pulsator", package: "Pulsator", condition: .when(platforms: [.iOS])),
                 .product(name: "Kingfisher", package: "Kingfisher", condition: .when(platforms: [.iOS]))
             ],
             path: "Sources"
