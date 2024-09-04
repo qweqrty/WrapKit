@@ -22,7 +22,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/joomcode/BottomSheet", from: "2.0.5"),
-        .package(url: "https://github.com/shu223/Pulsator", .upToNextMajor(from: "0.6.3")),
+        .package(url: "https://github.com/shu223/Pulsator", from: "0.6.3"),
         .package(url: "https://github.com/onevcat/Kingfisher.git", from: "7.12.0")
     ],
     targets: [
