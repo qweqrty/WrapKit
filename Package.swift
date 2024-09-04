@@ -33,14 +33,14 @@ let package = Package(
                 .product(name: "Pulsator", package: "Pulsator", condition: .when(platforms: [.iOS])),
                 .product(name: "Kingfisher", package: "Kingfisher", condition: .when(platforms: [.iOS]))
             ],
-            path: "Sources"
+            path: "Sources/WrapKit"
         ),
         .testTarget(
             name: "WrapKitTests",
             dependencies: [
                 "WrapKit"
             ],
-            path: "Tests"
+            path: "Tests/WrapKitTests"
         ),
     ]
 )
