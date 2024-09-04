@@ -11,6 +11,7 @@ import Pulsator
 
 public enum PressAnimation {
     case pulse(Color)
+    case shrink
 }
 
 open class Button: UIButton {
@@ -109,6 +110,12 @@ open class Button: UIButton {
             break
         }
         UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 0.4, initialSpringVelocity: 6, options: .allowUserInteraction) { [weak self] in
+            switch self?.pressAnimation {
+            case .shrink:
+                self?.transform = CGAffineTransform(scaleX: 0.95, y: 0.95)
+            default:
+                break
+            }
             self?.backgroundColor = self?.pressedBackgroundColor
             self?.setTitleColor(self?.pressedTextColor, for: .normal)
         }
@@ -122,10 +129,10 @@ open class Button: UIButton {
         default:
             break
         }
-        UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 0.4, initialSpringVelocity: 6, options: .allowUserInteraction) { [weak self] in
-            self?.backgroundColor = self?.textBackgroundColor
-            self?.setTitleColor(self?.textColor, for: .normal)
-        }
+        self.transform = CGAffineTransform(scaleX: 1, y: 1)
+        self.backgroundColor = textBackgroundColor
+        self.setTitleColor(textColor, for: .normal)
+        
         super.touchesCancelled(touches, with: event)
     }
     
@@ -137,6 +144,7 @@ open class Button: UIButton {
             break
         }
         UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 0.4, initialSpringVelocity: 6, options: .allowUserInteraction) { [weak self] in
+            self?.transform = CGAffineTransform(scaleX: 1, y: 1)
             self?.backgroundColor = self?.textBackgroundColor
             self?.setTitleColor(self?.textColor, for: .normal)
         }
