@@ -7,10 +7,10 @@
 
 #if canImport(UIKit)
 import UIKit
-import Pulsator
+//import Pulsator
 
 public enum PressAnimation: HashableWithReflection {
-    case pulse(Color)
+//    case pulse(Color)
     case shrink
 }
 
@@ -34,7 +34,7 @@ open class Button: UIButton {
         }
     }
     
-    private lazy var pulsator = makePulsator()
+//    private lazy var pulsator = makePulsator()
     
     public var textColor: UIColor?
     public var textBackgroundColor: UIColor?
@@ -102,11 +102,11 @@ open class Button: UIButton {
         layoutIfNeeded()
         pressAnimations.forEach {
             switch $0 {
-            case .pulse(let color):
-                pulsator.backgroundColor = color.cgColor
-                pulsator.radius = max(frame.width, frame.height)
-                pulsator.position = touches.first?.location(in: self) ?? .zero
-                pulsator.start()
+//            case .pulse(let color):
+//                pulsator.backgroundColor = color.cgColor
+//                pulsator.radius = max(frame.width, frame.height)
+//                pulsator.position = touches.first?.location(in: self) ?? .zero
+//                pulsator.start()
             default:
                 break
             }
@@ -130,8 +130,8 @@ open class Button: UIButton {
     open override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
         pressAnimations.forEach {
             switch $0 {
-            case .pulse:
-                pulsator.stop()
+//            case .pulse:
+//                pulsator.stop()
             default:
                 break
             }
@@ -147,8 +147,8 @@ open class Button: UIButton {
     open override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         pressAnimations.forEach {
             switch $0 {
-            case .pulse:
-                pulsator.stop()
+//            case .pulse:
+//                pulsator.stop()
             default:
                 break
             }
@@ -163,13 +163,13 @@ open class Button: UIButton {
 }
 
 extension Button {
-    func makePulsator() -> Pulsator {
-        let pulsator = Pulsator()
-        pulsator.numPulse = 3
-        pulsator.keyTimeForHalfOpacity = 0.4
-        layer.addSublayer(pulsator)
-        return pulsator
-    }
+//    func makePulsator() -> Pulsator {
+//        let pulsator = Pulsator()
+//        pulsator.numPulse = 3
+//        pulsator.keyTimeForHalfOpacity = 0.4
+//        layer.addSublayer(pulsator)
+//        return pulsator
+//    }
 }
 
 #endif
