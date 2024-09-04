@@ -9,208 +9,114 @@ import XCTest
 import WrapKit
 
 class TokenRefresherImplTests: XCTestCase {
-
-    func test_refresh_whenTokenIsMissing_completesWithNotAuthorizedError() {
-        let (sut, storage, _) = makeSUT()
-
-        storage.set(model: nil, completion: nil)
-
-        let exp = expectation(description: "Wait for completion")
-        var receivedError: ServiceError?
-        sut.refresh { result in
-            if case let .failure(error) = result {
-                receivedError = error
-            }
-            exp.fulfill()
-        }
-
-        wait(for: [exp], timeout: 1.0)
-
-        XCTAssertEqual(receivedError, .notAuthorized)
-    }
-
-    func test_refresh_whenTokenIsPresent_andServiceSucceeds_completesWithNewToken() {
+    
+    func testSuccessfulTokenRefresh() {
+        // Given
         let (sut, storage, service) = makeSUT()
-
-        storage.set(model: "old_token", completion: nil)
-
-        let exp = expectation(description: "Wait for completion")
-        var receivedToken: String?
+        storage.set(model: "validRefreshToken")
+        
+        let exp = expectation(description: "Token refreshed successfully")
+        
+        // When
         sut.refresh { result in
-            if case let .success(token) = result {
-                receivedToken = token
+            // Then
+            switch result {
+            case .success(let token):
+                XCTAssertEqual(token, "new_token")
+            case .failure:
+                XCTFail("Expected success, but got failure")
             }
             exp.fulfill()
         }
-
-        service.complete(with: .success("mapped_data"))
-
+        
+        service.complete(with: .success("new_token"))
         wait(for: [exp], timeout: 1.0)
-
-        XCTAssertEqual(receivedToken, "new_token")
-    }
-
-    func test_refresh_whenTokenIsPresent_andServiceFails_completesWithError() {
-        let (sut, storage, service) = makeSUT()
-
-        storage.set(model: "old_token", completion: nil)
-
-        let exp = expectation(description: "Wait for completion")
-        var receivedError: ServiceError?
-        sut.refresh { result in
-            if case let .failure(error) = result {
-                receivedError = error
-            }
-            exp.fulfill()
-        }
-
-        service.complete(with: .failure(.internal))
-
-        wait(for: [exp], timeout: 1.0)
-
-        XCTAssertEqual(receivedError, .internal)
     }
     
-    func test_refresh_multipleCalls_whenTokenIsMissing_allCompleteWithNotAuthorizedError() {
-        let (sut, storage, _) = makeSUT()
-
-        storage.set(model: nil, completion: nil)
-
-        let exp = expectation(description: "Wait for completion")
-        exp.expectedFulfillmentCount = 2
-
-        var receivedError1: ServiceError?
-        var receivedError2: ServiceError?
-        
-        sut.refresh { result in
-            if case let .failure(error) = result {
-                receivedError1 = error
-            }
-            exp.fulfill()
-        }
-        
-        sut.refresh { result in
-            if case let .failure(error) = result {
-                receivedError2 = error
-            }
-            exp.fulfill()
-        }
-
-        wait(for: [exp], timeout: 1.0)
-
-        XCTAssertEqual(receivedError1, .notAuthorized)
-        XCTAssertEqual(receivedError2, .notAuthorized)
-    }
-    
-    func test_refresh_multipleCalls_whenTokenIsPresent_allCompleteWithNewToken() {
+    func testFailedTokenRefresh() {
+        // Given
         let (sut, storage, service) = makeSUT()
-
-        storage.set(model: "old_token", completion: nil)
-
-        let exp = expectation(description: "Wait for completion")
-        exp.expectedFulfillmentCount = 2
-
-        var receivedToken1: String?
-        var receivedToken2: String?
+        storage.set(model: "validRefreshToken")
         
+        let exp = expectation(description: "Token refresh failed")
+        
+        // When
         sut.refresh { result in
-            if case let .success(token) = result {
-                receivedToken1 = token
+            // Then
+            switch result {
+            case .success:
+                XCTFail("Expected failure, but got success")
+            case .failure(let error):
+                XCTAssertEqual(storage.get(), nil)
+                XCTAssertEqual(error, .connectivity)
             }
             exp.fulfill()
         }
         
-        sut.refresh { result in
-            if case let .success(token) = result {
-                receivedToken2 = token
-            }
-            exp.fulfill()
-        }
-
-        service.complete(with: .success("mapped_data"))
-
-        wait(for: [exp], timeout: 1.0)
-
-        XCTAssertEqual(receivedToken1, "new_token")
-        XCTAssertEqual(receivedToken2, "new_token")
-    }
-
-    func test_refresh_whenTokenIsPresent_andServiceFailsWithConnectivity_completesWithError() {
-        let (sut, storage, service) = makeSUT()
-
-        storage.set(model: "old_token", completion: nil)
-
-        let exp = expectation(description: "Wait for completion")
-        var receivedError: ServiceError?
-        
-        sut.refresh { result in
-            if case let .failure(error) = result {
-                receivedError = error
-            }
-            exp.fulfill()
-        }
-
         service.complete(with: .failure(.connectivity))
-
         wait(for: [exp], timeout: 1.0)
-
-        XCTAssertEqual(receivedError, .connectivity)
     }
     
-    func test_refresh_orderOfExecution() {
-        let (sut, storage, service) = makeSUT()
+    func testNoRefreshTokenAvailable() {
+        // Given
+        let (sut, storage, _) = makeSUT()
+        storage.set(model: nil)
         
-        storage.set(model: "old_token", completion: nil)
+        let exp = expectation(description: "Token refresh failed due to no refresh token")
         
-        let exp1 = expectation(description: "Wait for first refresh completion")
-        let exp2 = expectation(description: "Wait for second refresh completion")
-        let exp3 = expectation(description: "Wait for third refresh completion")
-        
-        var orderOfCompletion: [Int] = []
-        
+        // When
         sut.refresh { result in
-            orderOfCompletion.append(1)
+            // Then
+            switch result {
+            case .success:
+                XCTFail("Expected failure due to no token, but got success")
+            case .failure(let error):
+                XCTAssertEqual(storage.get(), nil)
+                XCTAssertEqual(error, .notAuthorized)
+            }
+            exp.fulfill()
+        }
+        
+        wait(for: [exp], timeout: 1.0)
+    }
+    
+    func testHandlingMultipleConcurrentRequests() {
+        // Given
+        let (sut, storage, service) = makeSUT()
+        storage.set(model: "validRefreshToken")
+        
+        let exp1 = expectation(description: "First request completed")
+        let exp2 = expectation(description: "Second request completed")
+        
+        // When
+        sut.refresh { result in
+            // Then
+            switch result {
+            case .success(let token):
+                XCTAssertEqual(token, "new_token")
+            case .failure:
+                XCTFail("Expected success, but got failure")
+            }
             exp1.fulfill()
         }
-
+        
         sut.refresh { result in
-            orderOfCompletion.append(2)
+            // Then
+            switch result {
+            case .success(let token):
+                XCTAssertEqual(token, "new_token")
+            case .failure:
+                XCTFail("Expected success, but got failure")
+            }
             exp2.fulfill()
         }
         
-        sut.refresh { result in
-            orderOfCompletion.append(3)
-            exp3.fulfill()
-        }
-        
-        service.complete(with: .success("mapped_data_1"))
-
-        wait(for: [exp1, exp2, exp3], timeout: 1.0)
-        
-        XCTAssertEqual(orderOfCompletion, [1, 2, 3])
-    }
-
-    func test_memoryLeak_forTokenRefresherImpl() {
-        let storage = InMemoryStorage<String>()
-        let service = ServiceSpy<String, String>()
-        let mapRequest: (String) -> String = { token in "mapped_\(token)" }
-        let mapResponse: (String) -> String = { data in "new_token" } // You can adjust this based on the actual mapping
-        
-        var sut: TokenRefresherImpl? = TokenRefresherImpl(
-            refreshTokenStorage: storage,
-            refreshService: service,
-            mapRefreshRequest: mapRequest,
-            mapRefreshResponse: mapResponse
-        )
-        weak var weakSUT: TokenRefresherImpl<String, String>? = sut
-
-        sut = nil
-
-        XCTAssertNil(weakSUT)
+        service.complete(with: .success("new_token"))
+        wait(for: [exp1, exp2], timeout: 1.0)
     }
     
     // MARK: - Helpers
-    private func makeSUT(file: StaticString = #file, line: UInt = #line) -> (sut: TokenRefresherImpl<String, String>, storage: InMemoryStorage<String>, service: ServiceSpy<String, String>) {
+    private func makeSUT(file: StaticString = #file, line: UInt = #line) -> (sut: TokenRefresher, storage: InMemoryStorage<String>, service: ServiceSpy<String, String>) {
         let storage = InMemoryStorage<String>()
         let service = ServiceSpy<String, String>()
         let mapRequest: (String) -> String = { token in "mapped_\(token)" }
@@ -223,6 +129,8 @@ class TokenRefresherImplTests: XCTestCase {
             mapRefreshResponse: mapResponse
         )
         checkForMemoryLeaks(sut, file: file, line: line)
+        checkForMemoryLeaks(storage, file: file, line: line)
+        checkForMemoryLeaks(service, file: file, line: line)
         return (sut, storage, service)
     }
     

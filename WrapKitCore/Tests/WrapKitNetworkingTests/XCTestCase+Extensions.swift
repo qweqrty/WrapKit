@@ -5,7 +5,20 @@
 //  Created by Stas Lee on 25/7/23.
 //
 
+import Combine
 import XCTest
+
+// Thread-safe container for cancellables
+class ThreadSafeBag {
+    private var lock = NSLock()
+    private var cancellables = Set<AnyCancellable>()
+    
+    func store(_ cancellable: AnyCancellable) {
+        lock.lock()
+        defer { lock.unlock() }
+        cancellables.insert(cancellable)
+    }
+}
 
 extension XCTestCase {
     func makeURL(_ string: String = "https://some-given-url.com", file: StaticString = #file, line: UInt = #line) -> URL {
@@ -27,5 +40,24 @@ extension XCTestCase {
         addTeardownBlock { [weak instance] in
             XCTAssertNil(instance, "Instance should have been deallocated. Potential memory leak.", file: file, line: line)
         }
+    }
+}
+
+
+extension XCTestCase {
+    func assert<Output: Equatable>(
+        publisher: AnyPublisher<Output, Never>,
+        emits expectedValue: Output,
+        file: StaticString = #file,
+        line: UInt = #line
+    ) {
+        let exp = expectation(description: "Value should be set")
+        var bag = Set<AnyCancellable>()
+        publisher.sink { value in
+            XCTAssertEqual(value, expectedValue, file: file, line: line)
+            exp.fulfill()
+        }
+        .store(in: &bag)
+        wait(for: [exp], timeout: 0.5)
     }
 }

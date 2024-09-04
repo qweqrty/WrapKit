@@ -1,0 +1,25 @@
+{
+  "configurations" : [
+    {
+      "id" : "FA4E9DFB-A542-44B7-BE11-D56F656EBB16",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "testExecutionOrdering" : "random",
+    "threadSanitizerEnabled" : true
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "WrapKitTests",
+        "name" : "WrapKitTests"
+      }
+    }
+  ],
+  "version" : 1
+}

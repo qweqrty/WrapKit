@@ -35,7 +35,7 @@ public class KeychainStorage: Storage {
     public init(
         key: String,
         keychain: Keychain,
-        queue: DispatchQueue = DispatchQueue(label: "com.keychain.storage.notificationQueue")
+        queue: DispatchQueue = DispatchQueue(label: "com.keychain.storage.serialQueue")
     ) {
         self.key = key
         self.keychain = keychain
@@ -49,36 +49,39 @@ public class KeychainStorage: Storage {
     }
     
     public func get() -> Model? {
-        return subject.value
+        if Thread.isMainThread {
+            return subject.value
+        } else {
+            return dispatchQueue.sync {
+                return subject.value
+            }
+        }
     }
     
+    @discardableResult
     public func set(model: Model?) -> AnyPublisher<Bool, Never> {
         return Future<Bool, Never> { [weak self] promise in
-            let currentQueue = OperationQueue.current?.underlyingQueue ?? DispatchQueue.main
             self?.dispatchQueue.async {
                 guard let self = self else {
-                    currentQueue.async {
-                        promise(.success(false))
-                    }
+                    promise(.success(false))
                     return
                 }
+                
+                let isSuccess: Bool
+                
                 if let model = model {
-                    let isSuccess = self.keychain.set(model, forKey: self.key)
+                    isSuccess = self.keychain.set(model, forKey: self.key)
                     if isSuccess {
                         self.subject.send(model)
                     }
-                    currentQueue.async {
-                        promise(.success(isSuccess))
-                    }
                 } else {
-                    let isSuccess = self.keychain.delete(self.key)
+                    isSuccess = self.keychain.delete(self.key)
                     if isSuccess {
                         self.subject.send(nil)
                     }
-                    currentQueue.async {
-                        promise(.success(isSuccess))
-                    }
                 }
+                
+                promise(.success(isSuccess))
             }
         }
         .eraseToAnyPublisher()
