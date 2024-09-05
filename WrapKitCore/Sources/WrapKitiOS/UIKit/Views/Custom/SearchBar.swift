@@ -30,8 +30,6 @@ public class SearchBar: View {
 
         setupSubviews()
         setupConstraints()
-        textfield.backgroundColor = UIColor.white
-        textfield.appearance.colors.deselectedBackgroundColor = UIColor.white
     }
     
     func setupSubviews() {
