@@ -31,7 +31,12 @@ open class CardView: View {
     public let switchWrapperView = UIView(isHidden: true)
     public lazy var switchControl = SwitchControl()
     
-    public let bottomSeparatorView = View(backgroundColor: .gray)
+    public let bottomSeparatorView = WrapperView(
+        contentView: View(backgroundColor: .gray),
+        contentViewConstraints: { contentView, superView in
+            contentView.fillSuperview()
+        }
+    )
     
     public var titlesViewConstraints: AnchoredConstraints?
     public var leadingImageViewConstraints: AnchoredConstraints?
