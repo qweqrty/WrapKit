@@ -14,6 +14,8 @@ public protocol Masking {
     func removeCharacters(from text: String, in range: NSRange) -> (input: String, maskToInput: String)
     func extractUserInput(from text: String) -> String  // Only characters associated with specifiers
     func isLiteralCharacter(at index: Int) -> Bool
+    func maxSpecifiersLength() -> Int
+    func removeLiterals(from text: String) -> String
 }
 
 public enum MaskedCharacter {
@@ -125,4 +127,42 @@ extension Array where Element == MaskedCharacter {
     }
 }
 
-
+public extension Mask {
+    func maxSpecifiersLength() -> Int {
+        return format.filter {
+            switch $0 {
+            case .specifier:
+                return true
+            case .literal:
+                return false
+            }
+        }.count
+    }
+    
+    func removeLiterals(from text: String) -> String {
+        var result = ""
+        var textIterator = text.startIndex
+        
+        for maskedCharacter in format {
+            guard textIterator < text.endIndex else { break }
+            let currentCharacter = text[textIterator]
+            
+            switch maskedCharacter {
+            case .literal(let literalChar):
+                if currentCharacter == literalChar {
+                    textIterator = text.index(after: textIterator)
+                }
+            case .specifier:
+                result.append(currentCharacter)
+                textIterator = text.index(after: textIterator)
+            }
+        }
+        
+        while textIterator < text.endIndex {
+            result.append(text[textIterator])
+            textIterator = text.index(after: textIterator)
+        }
+        
+        return result
+    }
+}
