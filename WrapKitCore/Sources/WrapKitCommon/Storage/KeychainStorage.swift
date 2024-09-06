@@ -49,13 +49,7 @@ public class KeychainStorage: Storage {
     }
     
     public func get() -> Model? {
-        if Thread.isMainThread {
-            return subject.value
-        } else {
-            return dispatchQueue.sync {
-                return subject.value
-            }
-        }
+        subject.value
     }
     
     @discardableResult
