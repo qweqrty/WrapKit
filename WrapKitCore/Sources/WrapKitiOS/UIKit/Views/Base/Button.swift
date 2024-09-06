@@ -121,8 +121,8 @@ open class Button: UIButton {
                     break
                 }
             }
-            self?.backgroundColor = self?.pressedBackgroundColor
-            self?.setTitleColor(self?.pressedTextColor, for: .normal)
+            self?.backgroundColor = self?.pressedBackgroundColor ?? self?.textBackgroundColor
+            self?.setTitleColor(self?.pressedTextColor ?? self?.textColor, for: .normal)
         }
         super.touchesBegan(touches, with: event)
     }
