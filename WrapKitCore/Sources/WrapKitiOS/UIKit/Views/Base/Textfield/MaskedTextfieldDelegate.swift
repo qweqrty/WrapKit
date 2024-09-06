@@ -72,7 +72,6 @@ public class MaskedTextfieldDelegate: NSObject, UITextFieldDelegate {
     }
     
     public func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-        textField.sendActions(for: .editingChanged)
         if string.isEmpty && backspacePressClearsText {
             textField.text = ""
         } else {
@@ -82,6 +81,7 @@ public class MaskedTextfieldDelegate: NSObject, UITextFieldDelegate {
                 setupMask(mask: string.isEmpty ? format.mask.removeCharacters(from: fullText, in: range) : format.mask.applied(to: fullText + string))
             }
         }
+        textField.sendActions(for: .editingChanged)
         return false
     }
     
