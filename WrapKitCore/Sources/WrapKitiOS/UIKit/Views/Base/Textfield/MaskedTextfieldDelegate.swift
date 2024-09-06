@@ -41,7 +41,6 @@ public class MaskedTextfieldDelegate: NSObject, UITextFieldDelegate {
                 )
             }
             let newPosition = textfield.position(from: textfield.beginningOfDocument, offset: mask.input.count) ?? textfield.beginningOfDocument
-            textfield.sendActions(for: .editingChanged)
             textfield.selectedTextRange = textfield.textRange(from: newPosition, to: newPosition)
         }
     }
