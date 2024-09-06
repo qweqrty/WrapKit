@@ -14,7 +14,7 @@ public protocol Masking {
     func removeCharacters(from text: String, in range: NSRange) -> (input: String, maskToInput: String)
     func extractUserInput(from text: String) -> String  // Only characters associated with specifiers
     func isLiteralCharacter(at index: Int) -> Bool
-    func maxAllowedLength() -> Int
+    func maxSpecifiersLength() -> Int
     func removeLiterals(from text: String) -> String
 }
 
@@ -128,7 +128,7 @@ extension Array where Element == MaskedCharacter {
 }
 
 public extension Mask {
-    func maxAllowedLength() -> Int {
+    func maxSpecifiersLength() -> Int {
         return format.filter {
             switch $0 {
             case .specifier:

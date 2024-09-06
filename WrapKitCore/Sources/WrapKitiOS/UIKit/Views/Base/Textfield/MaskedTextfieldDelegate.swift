@@ -77,7 +77,7 @@ public class MaskedTextfieldDelegate: NSObject, UITextFieldDelegate {
             textField.text = ""
         } else {
             if string.count > 1 {
-                copyPaste(with: fullText + string)
+                onPaste(fullText + string)
             } else {
                 setupMask(mask: string.isEmpty ? format.mask.removeCharacters(from: fullText, in: range) : format.mask.applied(to: fullText + string))
             }
@@ -85,10 +85,10 @@ public class MaskedTextfieldDelegate: NSObject, UITextFieldDelegate {
         return false
     }
     
-    private func copyPaste(with text: String) {
+    private func onPaste(_ text: String) {
         guard let textfield = textfield else { return }
 
-        let maxLength = format.mask.maxAllowedLength()
+        let maxLength = format.mask.maxSpecifiersLength()
         let specifiers = format.mask.removeLiterals(from: text.replacingOccurrences(of: " ", with: ""))
         let newText = specifiers.count > maxLength ? String(specifiers.prefix(maxLength)) : specifiers
         let maskedText = format.mask.applied(to: newText)
