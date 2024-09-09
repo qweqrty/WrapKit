@@ -32,6 +32,7 @@ public class SelectionPresenter {
     
     public let title: String?
     public let isMultipleSelectionEnabled: Bool
+    public let originalItems: [SelectionType.SelectionCellPresentableModel]
     public var items: [SelectionType.SelectionCellPresentableModel] {
         didSet {
             view?.display(shouldShowSearchBar: items.count > shouldShowSearchBarThresholdCount)
@@ -53,7 +54,19 @@ public class SelectionPresenter {
     ) {
         self.title = title
         self.isMultipleSelectionEnabled = isMultipleSelectionEnabled
-        self.items = items
+        self.originalItems = items
+        self.items = items.map {
+            SelectionType.SelectionCellPresentableModel(
+                id: $0.id,
+                title: $0.title,
+                circleColor: $0.circleColor,
+                isSelected: $0.isSelected.get() ?? false,
+                trailingTitle: $0.trailingTitle,
+                leadingImage: $0.leadingImage,
+                onPress: $0.onPress,
+                configuration: $0.configuration
+            )
+        }
         self.flow = flow
         self.configuration = configuration
     }
@@ -74,7 +87,8 @@ extension SelectionPresenter: SelectionInput {
     }
     
     public func onTapFinishSelection() {
-        let selectedItems = items.filter { $0.isSelected.get() == true }
+        originalItems.forEach { $0.isSelected.set(model: items.filter { $0.isSelected.get() == true }.map { $0.id }.contains($0.id)) }
+        let selectedItems = originalItems.filter { $0.isSelected.get() == true }
         if isMultipleSelectionEnabled {
             flow.close(with: .multipleSelection(selectedItems))
         } else if let selectedItem = selectedItems.first {
