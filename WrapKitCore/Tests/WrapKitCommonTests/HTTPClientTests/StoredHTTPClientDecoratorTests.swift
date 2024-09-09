@@ -16,7 +16,7 @@ class StoredHTTPClientDecoratorTests: XCTestCase {
             return enrichedRequest
         }
         
-        storage.model = nil
+        storage.set(model: nil)
         _ = sut.dispatch(originalRequest) { _ in }
         XCTAssertEqual(clientSpy.requestedURLs, [enrichedURL])
     }
@@ -34,7 +34,7 @@ class StoredHTTPClientDecoratorTests: XCTestCase {
             return enrichedRequest
         }
         
-        storage.model = storedModel
+        storage.set(model: storedModel)
         _ = sut.dispatch(originalRequest) { _ in }
         XCTAssertEqual(clientSpy.requestedURLs, [enrichedURL])
     }
@@ -79,9 +79,9 @@ extension StoredHTTPClientDecoratorTests {
         enrichRequest: @escaping ((URLRequest, String?) -> URLRequest) = { request, _ in request },
         file: StaticString = #file,
         line: UInt = #line
-    ) -> (StoredHTTPClientDecorator<String>, HTTPClientSpy, StorageMock<String>) {
+    ) -> (StoredHTTPClientDecorator<String>, HTTPClientSpy, InMemoryStorage<String>) {
         let clientSpy = HTTPClientSpy()
-        let storage = StorageMock<String>()
+        let storage = InMemoryStorage<String>()
         let sut = StoredHTTPClientDecorator(
             decoratee: clientSpy,
             storage: storage,
@@ -91,31 +91,5 @@ extension StoredHTTPClientDecoratorTests {
         checkForMemoryLeaks(clientSpy, file: file, line: line)
         checkForMemoryLeaks(storage, file: file, line: line)
         return (sut, clientSpy, storage)
-    }
-}
-
-class StorageMock<Model: Hashable>: Storage {
-    var model: Model?
-
-    var publisher: AnyPublisher<Model?, Never> {
-        return Just(model).eraseToAnyPublisher()
-    }
-
-    func get() -> Model? {
-        return model
-    }
-
-    @discardableResult
-    func set(model: Model?) -> AnyPublisher<Bool, Never> {
-        self.model = model
-        return Just(true).eraseToAnyPublisher()
-    }
-
-    static func == (lhs: StorageMock<Model>, rhs: StorageMock<Model>) -> Bool {
-        return lhs.model == rhs.model
-    }
-
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(model)
     }
 }
