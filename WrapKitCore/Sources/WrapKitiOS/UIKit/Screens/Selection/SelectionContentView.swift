@@ -120,6 +120,7 @@ private extension SelectionContentView {
         button.layer.cornerRadius = 16
         button.layer.borderColor = isReset ? config.resetButton.borderColor.cgColor : config.searchButton.borderColor.cgColor
         button.layer.borderWidth = isReset ? 1 : 0
+        button.isUserInteractionEnabled = false
         return button
     }
     

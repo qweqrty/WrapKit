@@ -24,6 +24,7 @@ public class InMemoryStorage<Model: Hashable>: Storage, Hashable {
         return subject.value
     }
 
+    @discardableResult
     public func set(model: Model?) -> AnyPublisher<Bool, Never> {
         subject.send(model)
         return Just(true).eraseToAnyPublisher()

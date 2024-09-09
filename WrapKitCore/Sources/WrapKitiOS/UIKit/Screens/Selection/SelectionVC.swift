@@ -97,6 +97,7 @@ extension SelectionVC: SelectionOutput {
             contentView.resetButton.layer.borderColor = presenter.configuration.resetButtonColors.inactiveBorderColor.cgColor
             contentView.resetButton.backgroundColor = presenter.configuration.resetButtonColors.inactiveBackgroundColor
         }
+        contentView.resetButton.isUserInteractionEnabled = canReset
     }
     
     public func display(shouldShowSearchBar: Bool) {

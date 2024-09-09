@@ -54,7 +54,7 @@ public class SelectionPresenter {
     ) {
         self.title = title
         self.isMultipleSelectionEnabled = isMultipleSelectionEnabled
-        self.initialSelectedItems = items
+        self.initialSelectedItems = items.filter { $0.isSelected.get() == true }
         self.items = items
         self.flow = flow
         self.configuration = configuration
@@ -86,7 +86,9 @@ extension SelectionPresenter: SelectionInput {
     }
     
     public func onTapReset() {
-        self.items = initialSelectedItems
+        self.items.forEach {
+            $0.isSelected.set(model: initialSelectedItems.contains($0))
+        }
         view?.display(canReset: false)
         onSearch(searchText)
     }
@@ -94,7 +96,7 @@ extension SelectionPresenter: SelectionInput {
     public func onSearch(_ text: String?) {
         searchText = text ?? ""
         view?.display(items: itemsToPresent, selectedCountTitle: configuration.texts.selectedCountTitle)
-        view?.display(canReset: initialSelectedItems != items)
+        view?.display(canReset: initialSelectedItems != items.filter { $0.isSelected.get() == true })
     }
     
     public func onSelect(at index: Int) {
@@ -103,16 +105,16 @@ extension SelectionPresenter: SelectionInput {
         selectedItem.onPress?()
         
         let isSelected = selectedItem.isSelected.get() == true
-        _ = items[selectedItemIndex].isSelected.set(model: !isSelected)
+        items[selectedItemIndex].isSelected.set(model: !isSelected)
         
         onSearch(searchText)
         
         if !self.isMultipleSelectionEnabled {
             items.enumerated().forEach {
-                _ = items[$0.offset].isSelected.set(model: $0.element.id == selectedItem.id)
+                items[$0.offset].isSelected.set(model: $0.element.id == selectedItem.id)
             }
             self.onTapFinishSelection()
         }
-        view?.display(canReset: initialSelectedItems != items)
+        view?.display(canReset: initialSelectedItems != items.filter { $0.isSelected.get() == true })
     }
 }
