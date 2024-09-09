@@ -44,6 +44,7 @@ public class UserDefaultsStorage<Model: Codable & Hashable>: Storage {
         return subject.value
     }
     
+    @discardableResult
     public func set(model: Model?) -> AnyPublisher<Bool, Never> {
         return Future<Bool, Never> { [weak self] promise in
             self?.dispatchQueue.async {
