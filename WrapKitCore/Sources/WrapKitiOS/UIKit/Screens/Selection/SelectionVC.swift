@@ -12,11 +12,14 @@ import BottomSheet
 
 open class SelectionVC: ViewController<SelectionContentView> {
     private let presenter: SelectionInput
-    private lazy var datasource = TableViewDatasource<SelectionType.SelectionCellPresentableModel>(configureCell: { [weak self] tableView, indexPath, model in
-        let cell: SelectionCell = tableView.dequeueReusableCell(for: indexPath)
-        cell.model = model
-        return cell
-    })
+    private lazy var datasource = DiffableTableViewDataSource<SelectionType.SelectionCellPresentableModel>(
+        tableView: contentView.tableView,
+        configureCell: { [weak self] tableView, indexPath, model in
+            let cell: SelectionCell = tableView.dequeueReusableCell(for: indexPath)
+            cell.model = model
+            return cell
+        }
+    )
     
     public init(contentView: SelectionContentView, presenter: SelectionInput) {
         self.presenter = presenter
@@ -35,14 +38,12 @@ open class SelectionVC: ViewController<SelectionContentView> {
         contentView.resetButton.setTitle(presenter.configuration.texts.resetTitle, for: .normal)
         contentView.selectButton.setTitle(presenter.configuration.texts.selectTitle, for: .normal)
         
-        datasource.selectAt = { [weak self] indexPath in
+        datasource.didSelectAt = { [weak self] indexPath, _ in
             self?.presenter.onSelect(at: indexPath.row)
         }
         contentView.navigationBar.primeTrailingImageWrapperView.onPress = presenter.onTapClose
         contentView.resetButton.onPress = presenter.onTapReset
         contentView.selectButton.onPress = presenter.onTapFinishSelection
-        contentView.tableView.delegate = datasource
-        contentView.tableView.dataSource = datasource
         contentView.searchBar.textfield.didChangeText.append(presenter.onSearch)
         contentView.stackView.isHidden = !presenter.isMultipleSelectionEnabled
     }
@@ -97,6 +98,7 @@ extension SelectionVC: SelectionOutput {
             contentView.resetButton.layer.borderColor = presenter.configuration.resetButtonColors.inactiveBorderColor.cgColor
             contentView.resetButton.backgroundColor = presenter.configuration.resetButtonColors.inactiveBackgroundColor
         }
+        contentView.resetButton.isUserInteractionEnabled = canReset
     }
     
     public func display(shouldShowSearchBar: Bool) {
@@ -107,10 +109,9 @@ extension SelectionVC: SelectionOutput {
     }
     
     public func display(items: [SelectionType.SelectionCellPresentableModel], selectedCountTitle: String) {
-        datasource.getItems = { items }
+        datasource.updateItems(items)
         let selectedItemsCount = items.filter { $0.isSelected.get() == true }.count
         contentView.selectButton.setTitle("\(selectedCountTitle)\(selectedItemsCount == 0 ? "" : " (\(selectedItemsCount))")", for: .normal)
-        contentView.tableView.reloadData()
     }
     
     public func display(title: String?) {
