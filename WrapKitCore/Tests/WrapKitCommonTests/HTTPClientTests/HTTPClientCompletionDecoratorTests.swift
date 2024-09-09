@@ -86,9 +86,15 @@ class HTTPClientCompletionDecoratorTests: XCTestCase {
 // MARK: - Helper Methods
 
 extension HTTPClientCompletionDecoratorTests {
-    private func makeSUT(completion: @escaping ((HTTPClient.Result) -> Void) = { _ in }) -> (HTTPClientCompletionDecorator, HTTPClientSpy) {
+    private func makeSUT(
+        completion: @escaping ((HTTPClient.Result) -> Void) = { _ in },
+        file: StaticString = #file,
+        line: UInt = #line
+    ) -> (HTTPClientCompletionDecorator, HTTPClientSpy) {
         let spy = HTTPClientSpy()
         let sut = HTTPClientCompletionDecorator(decoratee: spy, completion: completion)
+        checkForMemoryLeaks(sut, file: file, line: line)
+        checkForMemoryLeaks(spy, file: file, line: line)
         return (sut, spy)
     }
 }

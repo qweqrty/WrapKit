@@ -65,13 +65,17 @@ class EncrichHTTPClientDecoratorTests: XCTestCase {
 
 extension EncrichHTTPClientDecoratorTests {
     private func makeSUT(
-        enrichRequest: @escaping ((URLRequest) -> URLRequest)
+        enrichRequest: @escaping ((URLRequest) -> URLRequest),
+        file: StaticString = #file,
+        line: UInt = #line
     ) -> (EncrichHTTPClientDecorator, HTTPClientSpy) {
         let spy = HTTPClientSpy()
         let sut = EncrichHTTPClientDecorator(
             decoratee: spy,
             enrichRequest: enrichRequest
         )
+        checkForMemoryLeaks(sut, file: file, line: line)
+        checkForMemoryLeaks(spy, file: file, line: line)
         return (sut, spy)
     }
 }

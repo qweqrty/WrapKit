@@ -76,7 +76,9 @@ class StoredHTTPClientDecoratorTests: XCTestCase {
 
 extension StoredHTTPClientDecoratorTests {
     private func makeSUT(
-        enrichRequest: @escaping ((URLRequest, String?) -> URLRequest) = { request, _ in request }
+        enrichRequest: @escaping ((URLRequest, String?) -> URLRequest) = { request, _ in request },
+        file: StaticString = #file,
+        line: UInt = #line
     ) -> (StoredHTTPClientDecorator<String>, HTTPClientSpy, StorageMock<String>) {
         let clientSpy = HTTPClientSpy()
         let storage = StorageMock<String>()
@@ -85,6 +87,9 @@ extension StoredHTTPClientDecoratorTests {
             storage: storage,
             enrichRequest: enrichRequest
         )
+        checkForMemoryLeaks(sut, file: file, line: line)
+        checkForMemoryLeaks(clientSpy, file: file, line: line)
+        checkForMemoryLeaks(storage, file: file, line: line)
         return (sut, clientSpy, storage)
     }
 }

@@ -79,13 +79,17 @@ class HTTPClientCancelOngoingRequestsDecoratorTests: XCTestCase {
 
 extension HTTPClientCancelOngoingRequestsDecoratorTests {
     private func makeSUT(
-        shouldCancel: @escaping ((HTTPClient.Result) -> Bool)
+        shouldCancel: @escaping ((HTTPClient.Result) -> Bool),
+        file: StaticString = #file,
+        line: UInt = #line
     ) -> (HTTPClientCancelOngoingRequestsDecorator, HTTPClientSpy) {
         let spy = HTTPClientSpy()
         let sut = HTTPClientCancelOngoingRequestsDecorator(
             decoratee: spy,
             shouldCancelRequestsOn: shouldCancel
         )
+        checkForMemoryLeaks(sut, file: file, line: line)
+        checkForMemoryLeaks(spy, file: file, line: line)
         return (sut, spy)
     }
 }
