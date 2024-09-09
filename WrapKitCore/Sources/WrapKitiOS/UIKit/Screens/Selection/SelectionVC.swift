@@ -31,6 +31,10 @@ open class SelectionVC: ViewController<SelectionContentView> {
     }
     
     private func setupUI() {
+        contentView.searchBar.textfield.placeholder = presenter.configuration.texts.searchTitle
+        contentView.resetButton.setTitle(presenter.configuration.texts.resetTitle, for: .normal)
+        contentView.selectButton.setTitle(presenter.configuration.texts.selectTitle, for: .normal)
+        
         datasource.selectAt = { [weak self] indexPath in
             self?.presenter.onSelect(at: indexPath.row)
         }
@@ -83,15 +87,15 @@ open class SelectionVC: ViewController<SelectionContentView> {
 }
 
 extension SelectionVC: SelectionOutput {
-    public func display(canReset: Bool, resetButtonColors: SelectionConfiguration.ResetButtonColors) {
+    public func display(canReset: Bool) {
         if canReset {
-            contentView.resetButton.setTitleColor(resetButtonColors.activeTitleColor, for: .normal)
-            contentView.resetButton.layer.borderColor = resetButtonColors.activeBorderColor.cgColor
-            contentView.resetButton.backgroundColor = resetButtonColors.activeBackgroundColor
+            contentView.resetButton.setTitleColor(presenter.configuration.resetButtonColors.activeTitleColor, for: .normal)
+            contentView.resetButton.layer.borderColor = presenter.configuration.resetButtonColors.activeBorderColor.cgColor
+            contentView.resetButton.backgroundColor = presenter.configuration.resetButtonColors.activeBackgroundColor
         } else {
-            contentView.resetButton.setTitleColor(resetButtonColors.inactiveTitleColor, for: .normal)
-            contentView.resetButton.layer.borderColor = resetButtonColors.inactiveBorderColor.cgColor
-            contentView.resetButton.backgroundColor = resetButtonColors.inactiveBackgroundColor
+            contentView.resetButton.setTitleColor(presenter.configuration.resetButtonColors.inactiveTitleColor, for: .normal)
+            contentView.resetButton.layer.borderColor = presenter.configuration.resetButtonColors.inactiveBorderColor.cgColor
+            contentView.resetButton.backgroundColor = presenter.configuration.resetButtonColors.inactiveBackgroundColor
         }
     }
     
@@ -112,12 +116,6 @@ extension SelectionVC: SelectionOutput {
     public func display(title: String?) {
         contentView.navigationBar.titleViews.keyLabel.text = title
         contentView.navigationBar.leadingCardView.titleViews.keyLabel.text = title
-    }
-    
-    public func apply(configuration: SelectionConfiguration) {
-        contentView.searchBar.textfield.placeholder = configuration.texts.searchTitle
-        contentView.resetButton.setTitle(configuration.texts.resetTitle, for: .normal)
-        contentView.selectButton.setTitle(configuration.texts.selectTitle, for: .normal)
     }
 }
 

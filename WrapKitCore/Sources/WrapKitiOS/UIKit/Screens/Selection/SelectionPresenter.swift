@@ -11,12 +11,12 @@ public protocol SelectionOutput: AnyObject {
     func display(items: [SelectionType.SelectionCellPresentableModel], selectedCountTitle: String)
     func display(title: String?)
     func display(shouldShowSearchBar: Bool)
-    func display(canReset: Bool, resetButtonColors: SelectionConfiguration.ResetButtonColors)
-    func apply(configuration: SelectionConfiguration)
+    func display(canReset: Bool)
 }
 
 public protocol SelectionInput {
     var isMultipleSelectionEnabled: Bool { get }
+    var configuration: SelectionConfiguration { get }
     
     func viewDidLoad()
     func onSearch(_ text: String?)
@@ -43,7 +43,7 @@ public class SelectionPresenter {
     private var searchText = ""
     private let shouldShowSearchBarThresholdCount = 15
     
-    private let configuration: SelectionConfiguration
+    public let configuration: SelectionConfiguration
     
     public init(
         title: String?,
@@ -72,7 +72,6 @@ extension SelectionPresenter: SelectionInput {
         onSearch(searchText)
         view?.display(title: title)
         view?.display(shouldShowSearchBar: items.count > shouldShowSearchBarThresholdCount)
-        view?.apply(configuration: configuration)
     }
     
     public func onTapFinishSelection() {
@@ -88,16 +87,14 @@ extension SelectionPresenter: SelectionInput {
     
     public func onTapReset() {
         self.items = initialSelectedItems
+        view?.display(canReset: false)
         onSearch(searchText)
     }
     
     public func onSearch(_ text: String?) {
         searchText = text ?? ""
         view?.display(items: itemsToPresent, selectedCountTitle: configuration.texts.selectedCountTitle)
-        view?.display(
-            canReset: initialSelectedItems != items,
-            resetButtonColors: configuration.resetButtonColors
-        )
+        view?.display(canReset: initialSelectedItems != items)
     }
     
     public func onSelect(at index: Int) {
@@ -116,5 +113,6 @@ extension SelectionPresenter: SelectionInput {
             }
             self.onTapFinishSelection()
         }
+        view?.display(canReset: initialSelectedItems != items)
     }
 }
