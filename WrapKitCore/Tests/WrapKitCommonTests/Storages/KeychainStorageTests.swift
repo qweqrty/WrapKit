@@ -8,6 +8,7 @@
 import Combine
 import XCTest
 import WrapKit
+import WrapKitTestUtils
 
 class KeychainStorageTests: XCTestCase {
     private static let key = "test-key"

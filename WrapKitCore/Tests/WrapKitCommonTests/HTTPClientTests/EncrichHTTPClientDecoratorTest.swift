@@ -1,6 +1,7 @@
 import XCTest
 import Foundation
 import WrapKit
+import WrapKitTestUtils
 
 class EncrichHTTPClientDecoratorTests: XCTestCase {
     

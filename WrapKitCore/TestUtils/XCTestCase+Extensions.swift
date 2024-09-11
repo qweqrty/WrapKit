@@ -1,19 +1,7 @@
 import Combine
 import XCTest
 
-// Thread-safe container for cancellables
-class ThreadSafeBag {
-    private var lock = NSLock()
-    private var cancellables = Set<AnyCancellable>()
-    
-    func store(_ cancellable: AnyCancellable) {
-        lock.lock()
-        defer { lock.unlock() }
-        cancellables.insert(cancellable)
-    }
-}
-
-extension XCTestCase {
+public extension XCTestCase {
     func makeURL(_ string: String = "https://some-given-url.com", file: StaticString = #file, line: UInt = #line) -> URL {
         guard let url = URL(string: string) else {
             preconditionFailure("Could not create URL for \(string)", file: file, line: line)
@@ -36,8 +24,24 @@ extension XCTestCase {
     }
 }
 
+// Thread-safe container for cancellables
+public class ThreadSafeBag {
+    private var lock: NSLock
+    private var cancellables: Set<AnyCancellable>
+    
+    public init(lock: NSLock = NSLock(), cancellables: Set<AnyCancellable> = Set<AnyCancellable>()) {
+        self.lock = lock
+        self.cancellables = cancellables
+    }
+    
+    public func store(_ cancellable: AnyCancellable) {
+        lock.lock()
+        defer { lock.unlock() }
+        cancellables.insert(cancellable)
+    }
+}
 
-extension XCTestCase {
+public extension XCTestCase {
     func assert<Output: Equatable>(
         publisher: AnyPublisher<Output, Never>,
         emits expectedValue: Output,
