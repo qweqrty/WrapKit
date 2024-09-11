@@ -18,7 +18,11 @@ let package = Package(
         .library(
             name: "WrapKitDynamic",
             type: .dynamic,
-            targets: ["WrapKit"])
+            targets: ["WrapKit"]),
+        .library(
+            name: "WrapKitTestUtils",
+            type: .dynamic,
+            targets: ["WrapKitTestUtils"])
     ],
     dependencies: [
         .package(url: "https://github.com/joomcode/BottomSheet", from: "2.0.5"),
@@ -35,10 +39,16 @@ let package = Package(
             ],
             path: "WrapKitCore/Sources"
         ),
+        .target(
+            name: "WrapKitTestUtils",
+            dependencies: [],
+            path: "WrapKitCore/TestUtils"
+        ),
         .testTarget(
             name: "WrapKitTests",
             dependencies: [
                 "WrapKit",
+                "WrapKitTestUtils",
                 .product(name: "BottomSheet", package: "BottomSheet", condition: .when(platforms: [.iOS])),
                 .product(name: "Kingfisher", package: "Kingfisher", condition: .when(platforms: [.iOS])),
                 .product(name: "Pulsator", package: "Pulsator", condition: .when(platforms: [.iOS]))

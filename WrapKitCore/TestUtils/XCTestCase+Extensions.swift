@@ -1,10 +1,3 @@
-//
-//  XCTestCase+Extensions.swift
-//  WrapKitNetworkingTests
-//
-//  Created by Stas Lee on 25/7/23.
-//
-
 import Combine
 import XCTest
 
