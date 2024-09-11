@@ -47,18 +47,23 @@ public class UserDefaultsStorage<Model: Codable & Hashable>: Storage {
     @discardableResult
     public func set(model: Model?) -> AnyPublisher<Bool, Never> {
         return Future<Bool, Never> { [weak self] promise in
-            self?.dispatchQueue.async {
-                guard let self = self else {
-                    promise(.success(false))
-                    return
+            if Thread.isMainThread {
+                self?.handleSet(model: model, promise: promise)
+            } else {
+                self?.dispatchQueue.async {
+                    self?.handleSet(model: model, promise: promise)
                 }
-                self.setLogic(self.userDefaults, model)
-                self.userDefaults.synchronize()
-                self.subject.send(model)
-                promise(.success(true))
             }
         }
         .eraseToAnyPublisher()
+    }
+
+    private func handleSet(model: Model?, promise: @escaping (Result<Bool, Never>) -> Void) {
+        setLogic(userDefaults, model)
+        userDefaults.synchronize()
+        
+        subject.send(model)
+        promise(.success(true))
     }
     
     // Conformance to Equatable

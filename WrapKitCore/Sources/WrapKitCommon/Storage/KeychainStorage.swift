@@ -55,30 +55,33 @@ public class KeychainStorage: Storage {
     @discardableResult
     public func set(model: Model?) -> AnyPublisher<Bool, Never> {
         return Future<Bool, Never> { [weak self] promise in
-            self?.dispatchQueue.async {
-                guard let self = self else {
-                    promise(.success(false))
-                    return
+            if Thread.isMainThread {
+                self?.handleModelSetting(model: model, promise: promise)
+            } else {
+                self?.dispatchQueue.async {
+                    self?.handleModelSetting(model: model, promise: promise)
                 }
-                
-                let isSuccess: Bool
-                
-                if let model = model {
-                    isSuccess = self.keychain.set(model, forKey: self.key)
-                    if isSuccess {
-                        self.subject.send(model)
-                    }
-                } else {
-                    isSuccess = self.keychain.delete(self.key)
-                    if isSuccess {
-                        self.subject.send(nil)
-                    }
-                }
-                
-                promise(.success(isSuccess))
             }
         }
         .eraseToAnyPublisher()
+    }
+
+    private func handleModelSetting(model: Model?, promise: @escaping (Result<Bool, Never>) -> Void) {
+        let isSuccess: Bool
+        
+        if let model = model {
+            isSuccess = self.keychain.set(model, forKey: self.key)
+            if isSuccess {
+                self.subject.send(model)
+            }
+        } else {
+            isSuccess = self.keychain.delete(self.key)
+            if isSuccess {
+                self.subject.send(nil)
+            }
+        }
+        
+        promise(.success(isSuccess))
     }
     
     // Conformance to Equatable
