@@ -39,7 +39,7 @@ public extension NSAttributedString {
         if let image = leadingImage {
             let attachment = NSTextAttachment()
             attachment.image = image
-            attachment.bounds = trailingImageBounds == .zero ? CGRect(x: 0, y: 0, width: image.size.width, height: image.size.height) : trailingImageBounds
+            attachment.bounds = leadingImageBounds == .zero ? CGRect(x: 0, y: 0, width: image.size.width, height: image.size.height) : leadingImageBounds
 
             let attachmentString = NSAttributedString(attachment: attachment)
             attributedString.append(attachmentString)
