@@ -28,7 +28,8 @@ public struct TextfieldAppearance {
             errorBorderColor: Color,
             errorBackgroundColor: Color,
             deselectedBorderColor: Color,
-            deselectedBackgroundColor: Color
+            deselectedBackgroundColor: Color,
+            disabledTextColor: Color? = nil
         ) {
             self.textColor = textColor
             self.selectedBorderColor = selectedBorderColor
@@ -37,6 +38,7 @@ public struct TextfieldAppearance {
             self.errorBackgroundColor = errorBackgroundColor
             self.deselectedBorderColor = deselectedBorderColor
             self.deselectedBackgroundColor = deselectedBackgroundColor
+            self.disabledTextColor = disabledTextColor
         }
         
         public var textColor: Color
@@ -46,6 +48,7 @@ public struct TextfieldAppearance {
         public var errorBackgroundColor: Color
         public var deselectedBorderColor: Color
         public var deselectedBackgroundColor: Color
+        public var disabledTextColor: Color?
     }
     public struct Border {
         public init(idleBorderWidth: CGFloat, selectedBorderWidth: CGFloat) {
@@ -57,13 +60,15 @@ public struct TextfieldAppearance {
         public var selectedBorderWidth: CGFloat
     }
     public struct Placeholder {
-        public init(color: Color, font: Font, text: String? = nil) {
+        public init(color: Color, disabledColor: Color? = nil, font: Font, text: String? = nil) {
             self.color = color
+            self.disabledColor = disabledColor
             self.font = font
             self.text = text
         }
         
         public var color: Color
+        public var disabledColor: Color?
         public var font: Font
         public var text: String?
     }
@@ -213,6 +218,13 @@ open class Textfield: UITextField {
         return isTouchInside
     }
     
+    open override var isUserInteractionEnabled: Bool {
+        didSet {
+            textColor = isUserInteractionEnabled ? appearance.colors.textColor : appearance.colors.disabledTextColor ?? appearance.colors.textColor
+            updatePlaceholder()
+        }
+    }
+    
     required public init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -232,7 +244,7 @@ open class Textfield: UITextField {
         attributedPlaceholder = NSAttributedString(
             string: customizedPlaceholder.text ?? placeholder ?? "",
             attributes: [
-                NSAttributedString.Key.foregroundColor: customizedPlaceholder.color,
+                NSAttributedString.Key.foregroundColor: isUserInteractionEnabled ? customizedPlaceholder.color : (customizedPlaceholder.disabledColor ?? customizedPlaceholder.color),
                 NSAttributedString.Key.font: customizedPlaceholder.font
             ]
         )
