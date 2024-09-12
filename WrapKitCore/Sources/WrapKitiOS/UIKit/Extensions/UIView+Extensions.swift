@@ -209,6 +209,8 @@ public extension UIView {
         
         emptyView.addSubview(shimmerView)
         
+        shimmerView.alpha = 0
+        
         if let heightMultiplier, let widthMultiplier {
             shimmerView.cornerRadius = 4
             shimmerView.anchor(
@@ -241,10 +243,28 @@ public extension UIView {
         if heightMultiplier == nil && widthMultiplier == nil {
             shimmerView.fillSuperview()
         }
+        
+        UIView.animate(
+            withDuration: 0.5,
+            delay: 0,
+            options: [.curveEaseInOut],
+            animations: {
+            shimmerView.alpha = 1
+        }, completion: nil)
     }
     
+    
     func hideShimmer() {
-        viewWithTag(Self.shimmerViewTag)?.removeFromSuperview()
+        guard let shimmerView = viewWithTag(Self.shimmerViewTag) else { return }
+        UIView.animate(
+            withDuration: 0.5,
+            delay: 0,
+            options: [.curveEaseInOut],
+            animations: {
+            shimmerView.alpha = 0
+        }, completion: { _ in
+            shimmerView.removeFromSuperview()
+        })
     }
     
     var firstNonClearBackgroundColor: UIColor? {
