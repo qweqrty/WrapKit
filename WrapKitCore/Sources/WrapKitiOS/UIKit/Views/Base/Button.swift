@@ -7,10 +7,8 @@
 
 #if canImport(UIKit)
 import UIKit
-import Pulsator
 
 public enum PressAnimation: HashableWithReflection {
-    case pulse(Color)
     case shrink
 }
 
@@ -33,8 +31,6 @@ open class Button: UIButton {
             updateSpacings()
         }
     }
-    
-    private lazy var pulsator = makePulsator()
     
     public var textColor: UIColor?
     public var textBackgroundColor: UIColor?
@@ -100,17 +96,6 @@ open class Button: UIButton {
     
     open override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         layoutIfNeeded()
-        pressAnimations.forEach {
-            switch $0 {
-            case .pulse(let color):
-                pulsator.backgroundColor = color.cgColor
-                pulsator.radius = max(frame.width, frame.height)
-                pulsator.position = touches.first?.location(in: self) ?? .zero
-                pulsator.start()
-            default:
-                break
-            }
-        }
         
         UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 0.4, initialSpringVelocity: 6, options: .allowUserInteraction) { [weak self] in
             self?.pressAnimations.forEach {
@@ -128,15 +113,6 @@ open class Button: UIButton {
     }
     
     open override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
-        pressAnimations.forEach {
-            switch $0 {
-            case .pulse:
-                pulsator.stop()
-            default:
-                break
-            }
-        }
-        
         self.transform = CGAffineTransform(scaleX: 1, y: 1)
         self.backgroundColor = textBackgroundColor
         self.setTitleColor(textColor, for: .normal)
@@ -145,14 +121,6 @@ open class Button: UIButton {
     }
     
     open override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        pressAnimations.forEach {
-            switch $0 {
-            case .pulse:
-                pulsator.stop()
-            default:
-                break
-            }
-        }
         UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 0.4, initialSpringVelocity: 6, options: .allowUserInteraction) { [weak self] in
             self?.transform = CGAffineTransform(scaleX: 1, y: 1)
             self?.backgroundColor = self?.textBackgroundColor
@@ -161,15 +129,4 @@ open class Button: UIButton {
         super.touchesEnded(touches, with: event)
     }
 }
-
-extension Button {
-    func makePulsator() -> Pulsator {
-        let pulsator = Pulsator()
-        pulsator.numPulse = 3
-        pulsator.keyTimeForHalfOpacity = 0.4
-        layer.addSublayer(pulsator)
-        return pulsator
-    }
-}
-
 #endif
