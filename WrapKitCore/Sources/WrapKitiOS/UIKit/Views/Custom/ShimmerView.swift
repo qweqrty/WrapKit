@@ -21,41 +21,10 @@ extension UIView {
             objc_setAssociatedObject(self, &AssociatedKeys.shimmerView, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
     }
-    
-    func showShimmer(gradientColorOne: UIColor = UIColor(white: 0.85, alpha: 0.4),
-                     gradientColorTwo: UIColor = UIColor(white: 0.95, alpha: 0.6),
-                     withDelay delay: TimeInterval = 2.8,
-                     shimmerFrame: CGRect? = nil) {
-        stopShimmer()
-        
-        let shimmer = ShimmerView(frame: shimmerFrame ?? bounds)
-        shimmer.gradientColorOne = gradientColorOne
-        shimmer.gradientColorTwo = gradientColorTwo
-        shimmer.startShimmering(withDelay: delay)
-        
-        addSubview(shimmer)
-        shimmerView = shimmer
-        
-        if shimmerFrame == nil {
-            shimmer.translatesAutoresizingMaskIntoConstraints = false
-            NSLayoutConstraint.activate([
-                shimmer.leadingAnchor.constraint(equalTo: leadingAnchor),
-                shimmer.trailingAnchor.constraint(equalTo: trailingAnchor),
-                shimmer.topAnchor.constraint(equalTo: topAnchor),
-                shimmer.bottomAnchor.constraint(equalTo: bottomAnchor)
-            ])
-        }
-    }
-    
-    func stopShimmer() {
-        shimmerView?.stopShimmering()
-        shimmerView?.removeFromSuperview()
-        shimmerView = nil
-    }
 }
 
 open class ShimmerView: UIView {
-    open var gradientColorOne: UIColor = UIColor(white: 0.85, alpha: 0.4) {
+    open var gradientColorOne: UIColor = .clear {
         didSet {
             setupGradientLayer()
         }

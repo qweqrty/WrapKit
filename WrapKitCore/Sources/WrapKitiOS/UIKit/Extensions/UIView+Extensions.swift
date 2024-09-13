@@ -197,10 +197,9 @@ public extension UIView {
         heightMultiplier: CGFloat? = nil,
         widthMultiplier: CGFloat? = nil
     ) {
-        let bgColor = firstNonClearBackgroundColor ?? .clear
+        let bgColor = shimmerView == nil ? .clear : (firstNonClearBackgroundColor ?? .clear)
         let emptyView = UIView(backgroundColor: bgColor)
-        let shimmerView = shimmerView ?? ShimmerView(backgroundColor: .lightGray)
-        shimmerView.cornerRadius = 8
+        let shimmerView = shimmerView ?? ShimmerView(backgroundColor: .clear, cornerRadius: 4)
         shimmerView.startShimmering()
         
         emptyView.tag = Self.shimmerViewTag
@@ -212,7 +211,6 @@ public extension UIView {
         shimmerView.alpha = 0
         
         if let heightMultiplier, let widthMultiplier {
-            shimmerView.cornerRadius = 4
             shimmerView.anchor(
                 .leading(leadingAnchor),
                 .centerY(centerYAnchor),
@@ -222,7 +220,6 @@ public extension UIView {
         }
         
         if let heightMultiplier, widthMultiplier == nil {
-            shimmerView.cornerRadius = 4
             shimmerView.anchor(
                 .leading(leadingAnchor),
                 .trailing(trailingAnchor, constant: 12),
@@ -232,7 +229,6 @@ public extension UIView {
         }
         
         if let widthMultiplier, heightMultiplier == nil {
-            shimmerView.cornerRadius = 4
             shimmerView.anchor(
                 .leading(leadingAnchor),
                 .centerY(centerYAnchor),
@@ -245,9 +241,9 @@ public extension UIView {
         }
         
         UIView.animate(
-            withDuration: 0.5,
+            withDuration: 0.2,
             delay: 0,
-            options: [.curveEaseInOut],
+            options: [.curveEaseInOut, .allowUserInteraction],
             animations: {
             shimmerView.alpha = 1
         }, completion: nil)
@@ -257,9 +253,9 @@ public extension UIView {
     func hideShimmer() {
         guard let shimmerView = viewWithTag(Self.shimmerViewTag) else { return }
         UIView.animate(
-            withDuration: 0.5,
+            withDuration: 0.2,
             delay: 0,
-            options: [.curveEaseInOut],
+            options: [.curveEaseInOut, .allowUserInteraction],
             animations: {
             shimmerView.alpha = 0
         }, completion: { _ in
