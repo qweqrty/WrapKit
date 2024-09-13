@@ -61,7 +61,7 @@ public enum Anchor {
 // Reference Video: https://youtu.be/iqpAP7s3b-8
 @available(iOS 11.0, tvOS 11.0, *)
 public extension UIView {
-    convenience init(backgroundColor: UIColor = .clear) {
+    convenience init(backgroundColor: UIColor = .clear, cornerRadius: CGFloat = 0) {
         self.init(frame: .zero)
         self.backgroundColor = backgroundColor
     }
