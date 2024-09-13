@@ -199,8 +199,7 @@ public extension UIView {
     ) {
         let bgColor = firstNonClearBackgroundColor ?? .clear
         let emptyView = UIView(backgroundColor: bgColor)
-        let shimmerView = shimmerView ?? ShimmerView(backgroundColor: .lightGray)
-        shimmerView.cornerRadius = 8
+        let shimmerView = shimmerView ?? ShimmerView(backgroundColor: .clear, cornerRadius: 8)
         shimmerView.startShimmering()
         
         emptyView.tag = Self.shimmerViewTag
