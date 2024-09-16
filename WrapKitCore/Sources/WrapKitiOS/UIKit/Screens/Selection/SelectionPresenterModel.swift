@@ -12,20 +12,17 @@ public struct SelectionPresenterModel {
     public let isMultipleSelectionEnabled: Bool
     public let items: [SelectionType.SelectionCellPresentableModel]
     public let callback: ((SelectionType?) -> Void)?
-    public let configuration: SelectionConfiguration
     
     public init(
         title: String?,
         isMultipleSelectionEnabled: Bool,
         items: [SelectionType.SelectionCellPresentableModel],
-        callback: ((SelectionType?) -> Void)?,
-        configuration: SelectionConfiguration
+        callback: ((SelectionType?) -> Void)?
     ) {
         self.title = title
         self.isMultipleSelectionEnabled = isMultipleSelectionEnabled
         self.items = items
         self.callback = callback
-        self.configuration = configuration
     }
 }
 
@@ -158,7 +155,7 @@ public struct SelectionConfiguration {
     public struct Content {
         public var lineColor: Color
         public var backgroundColor: Color
-        
+        public var refreshColor: Color
         public var backButtonImage: Image?
         public var navBarFont: Font
         public var navBarTextColor: Color
@@ -168,6 +165,7 @@ public struct SelectionConfiguration {
         public init(
             lineColor: Color,
             backgroundColor: Color,
+            refreshColor: Color,
             backButtonImage: Image? = nil,
             navBarFont: Font,
             navBarTextColor: Color,
@@ -175,6 +173,7 @@ public struct SelectionConfiguration {
         ) {
             self.lineColor = lineColor
             self.backgroundColor = backgroundColor
+            self.refreshColor = refreshColor
             self.backButtonImage = backButtonImage
             self.navBarFont = navBarFont
             self.navBarTextColor = navBarTextColor

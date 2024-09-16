@@ -45,6 +45,31 @@ public class SelectionFlowiOS: SelectionFlow {
         )
     }
     
+    public func showServicedSelection<Request, Response>(
+        service: any Service<Request, Response>,
+        request: @escaping (() -> Request),
+        response: @escaping ((Result<Response, ServiceError>) -> [SelectionType.SelectionCellPresentableModel])
+    ) {
+        let vc = factory.resolveServicedSelection(
+            title: model.title,
+            service: service,
+            isMultipleSelectionEnabled: model.isMultipleSelectionEnabled,
+            items: model.items,
+            flow: self,
+            configuration: model.configuration,
+            request: request,
+            response: response)
+        
+        navigationController?.presentBottomSheet(
+            viewController: vc,
+            configuration: .init(
+                cornerRadius: 16,
+                pullBarConfiguration: .hidden,
+                shadowConfiguration: .init(backgroundColor: model.configuration.content.shadowBackgroundColor)
+            )
+        )
+    }
+    
     public func close(with result: SelectionType?) {
         model.callback?(result)
         DispatchQueue.main.async {

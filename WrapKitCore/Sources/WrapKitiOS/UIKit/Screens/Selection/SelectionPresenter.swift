@@ -24,15 +24,15 @@ public protocol SelectionInput {
     func onTapFinishSelection()
     func onTapReset()
     func onTapClose()
+    func isNeedToShowSearch(_ isNeedToShowSearch: Bool)
 }
 
 public class SelectionPresenter {
     private let flow: SelectionFlow
     public weak var view: SelectionOutput?
     
-    public let title: String?
-    public let isMultipleSelectionEnabled: Bool
-    public let originalItems: [SelectionType.SelectionCellPresentableModel]
+    private let model: SelectionPresenterModel
+    public var isMultipleSelectionEnabled: Bool { model.isMultipleSelectionEnabled }
     public var items: [SelectionType.SelectionCellPresentableModel] {
         didSet {
             view?.display(shouldShowSearchBar: items.count > shouldShowSearchBarThresholdCount)
@@ -46,28 +46,13 @@ public class SelectionPresenter {
     public let configuration: SelectionConfiguration
     
     public init(
-        title: String?,
-        isMultipleSelectionEnabled: Bool,
-        items: [SelectionType.SelectionCellPresentableModel],
         flow: SelectionFlow,
+        model: SelectionPresenterModel,
         configuration: SelectionConfiguration
     ) {
-        self.title = title
-        self.isMultipleSelectionEnabled = isMultipleSelectionEnabled
-        self.originalItems = items
-        self.items = items.map {
-            SelectionType.SelectionCellPresentableModel(
-                id: $0.id,
-                title: $0.title,
-                circleColor: $0.circleColor,
-                isSelected: $0.isSelected.get() ?? false,
-                trailingTitle: $0.trailingTitle,
-                leadingImage: $0.leadingImage,
-                onPress: $0.onPress,
-                configuration: $0.configuration
-            )
-        }
         self.flow = flow
+        self.model = model
+        self.items = model.items
         self.configuration = configuration
     }
     
@@ -76,24 +61,28 @@ public class SelectionPresenter {
 
 extension SelectionPresenter: SelectionInput {
     public func onTapClose() {
+        model.callback?(nil)
         flow.close(with: nil)
     }
     
     public func viewDidLoad() {
         onSearch(searchText)
-        view?.display(title: title)
+        view?.display(title: model.title)
         view?.display(shouldShowSearchBar: items.count > shouldShowSearchBarThresholdCount)
         view?.display(canReset: items.contains(where: { $0.isSelected.get() == true }))
+        view?.display(items: itemsToPresent, selectedCountTitle: configuration.texts.selectedCountTitle)
     }
     
     public func onTapFinishSelection() {
-        originalItems.forEach { $0.isSelected.set(model: items.filter { $0.isSelected.get() == true }.map { $0.id }.contains($0.id)) }
-        let selectedItems = originalItems.filter { $0.isSelected.get() == true }
+        let selectedItems = items.filter { $0.isSelected.get() == true }
         if isMultipleSelectionEnabled {
+            model.callback?(.multipleSelection(selectedItems))
             flow.close(with: .multipleSelection(selectedItems))
         } else if let selectedItem = selectedItems.first {
+            model.callback?(.singleSelection(selectedItem))
             flow.close(with: .singleSelection(selectedItem))
         } else {
+            model.callback?(nil)
             flow.close(with: nil)
         }
     }
@@ -127,5 +116,9 @@ extension SelectionPresenter: SelectionInput {
             self.onTapFinishSelection()
         }
         view?.display(canReset: items.contains(where: { $0.isSelected.get() == true }))
+    }
+    
+    public func isNeedToShowSearch(_ isNeedToShowSearch: Bool) {
+        view?.display(shouldShowSearchBar: isNeedToShowSearch)
     }
 }

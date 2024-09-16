@@ -13,5 +13,10 @@ public protocol SelectionFlow: AnyObject {
     var model: SelectionPresenterModel { get }
     
     func showSelection()
+    func showServicedSelection<Request, Response>(
+        service: any Service<Request, Response>,
+        request: @escaping (() -> Request),
+        response: @escaping ((Result<Response, ServiceError>) -> [SelectionType.SelectionCellPresentableModel])
+    )
     func close(with result: SelectionType?)
 }

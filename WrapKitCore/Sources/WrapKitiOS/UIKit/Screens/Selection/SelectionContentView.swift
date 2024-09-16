@@ -10,6 +10,8 @@ import Foundation
 import UIKit
 
 public class SelectionContentView: UIView {
+    static let searchBarHeight: CGFloat = 44
+    
     public lazy var lineView = View(backgroundColor: config.content.lineColor)
     public lazy var navigationBar = makeNavigationBar()
     public lazy var tableView = makeTableView()
@@ -19,6 +21,7 @@ public class SelectionContentView: UIView {
     public lazy var resetButton = makeActionButton(isReset: true)
     public lazy var selectButton = makeActionButton(isReset: false)
     public lazy var spacerView = UIView()
+    public lazy var refreshControl = RefreshControl(tintColor: config.content.refreshColor)
     
     public var searchBarConstraints: AnchoredConstraints?
     public var tableViewConstraints: AnchoredConstraints?
@@ -66,7 +69,7 @@ extension SelectionContentView {
             .top(navigationBar.bottomAnchor, constant: 8),
             .leading(leadingAnchor, constant: 12),
             .trailing(trailingAnchor, constant: 12),
-            .height(44)
+            .height(Self.searchBarHeight)
         )
         stackView.anchor(
             .leading(leadingAnchor, constant: 12),
