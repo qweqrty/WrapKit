@@ -6,7 +6,6 @@
 //
 
 #if canImport(UIKit)
-import UIKit
 
 @available(iOS 13.0, *)
 public class DiffableTableViewDataSource<Model: Hashable>: NSObject, UITableViewDelegate {
@@ -27,6 +26,8 @@ public class DiffableTableViewDataSource<Model: Hashable>: NSObject, UITableView
     public var loadNextPage: (() -> Void)?
     public var heightForRowAt: ((IndexPath) -> CGFloat)?
     public var didScrollViewDidScroll: ((UIScrollView) -> Void)?
+    public var didScrollViewDidEndDragging: ((UIScrollView, Bool) -> Void)?
+    public var didScrollViewDidEndDecelerating: ((UIScrollView) -> Void)?
     
     private weak var tableView: UITableView?
     private var dataSource: UITableViewDiffableDataSource<Int, TableItem>!
@@ -115,6 +116,14 @@ public class DiffableTableViewDataSource<Model: Hashable>: NSObject, UITableView
     
     public func scrollViewDidScroll(_ scrollView: UIScrollView) {
         didScrollViewDidScroll?(scrollView)
+    }
+    
+    public func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+        didScrollViewDidEndDragging?(scrollView, decelerate)
+    }
+    
+    public func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+        didScrollViewDidEndDecelerating?(scrollView)
     }
 }
 #endif

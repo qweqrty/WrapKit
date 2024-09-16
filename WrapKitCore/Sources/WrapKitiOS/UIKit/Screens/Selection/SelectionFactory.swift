@@ -4,27 +4,19 @@
 //
 //  Created by Daniiar Erkinov on 3/7/24.
 //
-
 public protocol ISelectionFactory<Controller> {
     associatedtype Controller
     
     func resolveSelection(
-        title: String?,
-        isMultipleSelectionEnabled: Bool,
-        items: [SelectionType.SelectionCellPresentableModel],
+        configuration: SelectionFlow.Model,
         flow: SelectionFlow,
-        configuration: SelectionConfiguration
+        model: SelectionPresenterModel
     ) -> Controller
     
-    func resolveServicedSelection<Request, Response>(
-        title: String?,
-        service: any Service<Request, Response>,
-        isMultipleSelectionEnabled: Bool,
-        items: [SelectionType.SelectionCellPresentableModel],
+    func resolveSelection<Request, Response>(
+        configuration: SelectionFlow.Model,
         flow: SelectionFlow,
-        configuration: SelectionConfiguration,
-        request: @escaping (() -> Request),
-        response: @escaping ((Result<Response, ServiceError>) -> [SelectionType.SelectionCellPresentableModel])
+        model: ServicedSelectionModel<Request, Response>
     ) -> Controller
 }
 
@@ -35,17 +27,13 @@ import UIKit
 
 public class SelectionFactoryiOS: ISelectionFactory {
     public func resolveSelection(
-        title: String?,
-        isMultipleSelectionEnabled: Bool,
-        items: [SelectionType.SelectionCellPresentableModel],
+        configuration: SelectionFlow.Model,
         flow: SelectionFlow,
-        configuration: SelectionConfiguration
+        model: SelectionPresenterModel
     ) -> UIViewController {
         let presenter = SelectionPresenter(
-            title: title,
-            isMultipleSelectionEnabled: isMultipleSelectionEnabled,
-            items: items,
             flow: flow,
+            model: model,
             configuration: configuration
         )
         let vc = SelectionVC(
@@ -56,37 +44,36 @@ public class SelectionFactoryiOS: ISelectionFactory {
         return vc
     }
     
-    public func resolveServicedSelection<Request, Response>(
-        title: String?,
-        service: any Service<Request, Response>,
-        isMultipleSelectionEnabled: Bool,
-        items: [SelectionType.SelectionCellPresentableModel],
+    
+    public func resolveSelection<Request, Response>(
+        configuration: SelectionFlow.Model,
         flow: SelectionFlow,
-        configuration: SelectionConfiguration,
-        request: @escaping (() -> Request),
-        response: @escaping ((Result<Response, ServiceError>) -> [SelectionType.SelectionCellPresentableModel])
+        model: ServicedSelectionModel<Request, Response>
     ) -> UIViewController {
         let presenter = SelectionPresenter(
-            title: title,
-            isMultipleSelectionEnabled: isMultipleSelectionEnabled,
-            items: items,
             flow: flow,
+            model: model.model,
             configuration: configuration
         )
         
         let servicePresenter = SelectionServiceDecorator(
             decoratee: presenter,
-            service: service,
-            makeRequest: request,
-            makeResponse: response
+            storage: model.storage,
+            service: model.service,
+            makeRequest: model.request,
+            makeResponse: model.response
         )
         
-        let vc = SelectionVCDecorator(
-            decoratee: SelectionVC(contentView: .init(config: configuration),
-                                   presenter: servicePresenter),
-            servicePresenter: servicePresenter)
+        let vc = SelectionVC(contentView: .init(config: configuration),
+                             presenter: servicePresenter)
+        
+        let decoratedVC = SelectionVCDecorator(
+            decoratee: vc,
+            servicePresenter: servicePresenter
+        )
+        
         presenter.view = vc
-        servicePresenter.view = vc
+        servicePresenter.view = decoratedVC
         return vc
     }
     
