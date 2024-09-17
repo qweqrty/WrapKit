@@ -51,8 +51,8 @@ public class AuthenticatedHTTPClientDecorator: HTTPClient {
             case .success(let (data, response)):
                 if self.isAuthenticated((data, response)) {
                     completion(.success((data, response)))
-                } else if isRetryNeeded {
-                    self.tokenRefresher?.refresh { [weak self] refreshResult in
+                } else if isRetryNeeded, let tokenRefresher {
+                    tokenRefresher.refresh { [weak self] refreshResult in
                         guard let self = self else { return }
                         switch refreshResult {
                         case .success(let newToken):
