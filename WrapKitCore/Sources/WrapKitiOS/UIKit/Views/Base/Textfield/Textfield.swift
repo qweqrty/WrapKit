@@ -188,6 +188,7 @@ open class Textfield: UITextField {
         case .clear(let trailingView):
             trailingView.onPress = { [weak self] in
                 self?.text = ""
+                self?.sendActions(for: .editingChanged)
                 trailingView.isHidden = true
             }
             self.didChangeText.append { [weak self] text in
