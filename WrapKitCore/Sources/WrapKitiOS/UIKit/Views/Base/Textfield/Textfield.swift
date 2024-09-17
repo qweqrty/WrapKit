@@ -101,9 +101,11 @@ open class Textfield: UITextField {
         }
     }
     
+    private var isValidState = true
+    
     public var padding: UIEdgeInsets = .zero
     public var clearButtonEdgeInsets = UIEdgeInsets(top: 0, left: -8, bottom: 0, right: 8)
-    
+
     public var isTextSelectionDisabled = false
     public var isEditable = true {
         didSet {
@@ -114,19 +116,11 @@ open class Textfield: UITextField {
     }
     
     public var onPress: (() -> Void)?
-    public var validationRule: ((String?) -> Bool)?
     public var nextTextfield: UIResponder? = nil { didSet { returnKeyType = nextTextfield == nil ? .done : .next } }
     public var onBecomeFirstResponder: (() -> Void)?
     public var onResignFirstResponder: (() -> Void)?
     
     public var didChangeText = [((String?) -> Void)]()
-    
-    @discardableResult
-    public func validate() -> Bool {
-        let text = (delegate as? MaskedTextfieldDelegate)?.fullText ?? text
-        updateAppearance()
-        return validationRule?(text) ?? true
-    }
     
     open override var placeholder: String? {
         didSet {
@@ -179,7 +173,6 @@ open class Textfield: UITextField {
         addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
         
         self.leadingView = leadingView
-        didChangeText.append { [weak self] _ in self?.validate() }
         updateAppearance()
         
         switch trailingView {
@@ -362,6 +355,7 @@ open class Textfield: UITextField {
 
 public extension Textfield {
     func updateAppearance(isValid: Bool) {
+        self.isValidState = isValid
         font = appearance.font
         let isFirstResponder = isFirstResponder
         let appearance = appearance
@@ -381,7 +375,7 @@ public extension Textfield {
         updatePlaceholder()
         font = appearance.font
         let text = (delegate as? MaskedTextfieldDelegate)?.fullText ?? text
-        let isValid = validationRule?(text) ?? true
+        let isValid = isValidState
         let isFirstResponder = isFirstResponder
         let appearance = appearance
         UIView.animate(withDuration: 0.1, delay: .leastNonzeroMagnitude, options: [.allowUserInteraction]) {
