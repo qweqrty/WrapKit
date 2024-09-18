@@ -85,6 +85,11 @@ open class Textview: UITextView, UITextViewDelegate {
             ]
         )
     }
+    
+    open override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        updateAppearance()
+    }
 }
 
 public extension Textview {
