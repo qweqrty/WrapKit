@@ -77,13 +77,8 @@ open class Textview: UITextView, UITextViewDelegate {
     
     private func updatePlaceholder() {
         guard let customizedPlaceholder = appearance.placeholder else { return }
-        attributedText = NSAttributedString(
-            string: customizedPlaceholder.text ?? placeholderLabel.text ?? "",
-            attributes: [
-                NSAttributedString.Key.foregroundColor: isUserInteractionEnabled ? customizedPlaceholder.color : (customizedPlaceholder.disabledColor ?? customizedPlaceholder.color),
-                NSAttributedString.Key.font: customizedPlaceholder.font
-            ]
-        )
+        placeholderLabel.textColor = customizedPlaceholder.color
+        placeholderLabel.font = customizedPlaceholder.font
     }
     
     open override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
