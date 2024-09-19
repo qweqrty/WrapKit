@@ -29,7 +29,8 @@ public struct TextfieldAppearance {
             errorBackgroundColor: Color,
             deselectedBorderColor: Color,
             deselectedBackgroundColor: Color,
-            disabledTextColor: Color? = nil
+            disabledTextColor: Color,
+            disabledBackgroundColor: Color
         ) {
             self.textColor = textColor
             self.selectedBorderColor = selectedBorderColor
@@ -39,6 +40,7 @@ public struct TextfieldAppearance {
             self.deselectedBorderColor = deselectedBorderColor
             self.deselectedBackgroundColor = deselectedBackgroundColor
             self.disabledTextColor = disabledTextColor
+            self.disabledBackgroundColor = disabledBackgroundColor
         }
         
         public var textColor: Color
@@ -48,7 +50,8 @@ public struct TextfieldAppearance {
         public var errorBackgroundColor: Color
         public var deselectedBorderColor: Color
         public var deselectedBackgroundColor: Color
-        public var disabledTextColor: Color?
+        public var disabledTextColor: Color
+        public var disabledBackgroundColor: Color
     }
     public struct Border {
         public init(idleBorderWidth: CGFloat, selectedBorderWidth: CGFloat) {
@@ -214,7 +217,8 @@ open class Textfield: UITextField {
     
     open override var isUserInteractionEnabled: Bool {
         didSet {
-            textColor = isUserInteractionEnabled ? appearance.colors.textColor : appearance.colors.disabledTextColor ?? appearance.colors.textColor
+            textColor = isUserInteractionEnabled ? appearance.colors.textColor : appearance.colors.disabledTextColor
+            backgroundColor = isUserInteractionEnabled ? appearance.colors.deselectedBackgroundColor : appearance.colors.disabledBackgroundColor
             updatePlaceholder()
         }
     }
