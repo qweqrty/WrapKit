@@ -28,7 +28,6 @@ open class Textview: UITextView, UITextViewDelegate {
     public init(
         appearance: TextfieldAppearance,
         cornerRadius: CGFloat = 10,
-        borderWidth: CGFloat = 1,
         contentInset: UIEdgeInsets = .init(top: 12, left: 12, bottom: 12, right: 12)
     ) {
         self.padding = contentInset
@@ -40,7 +39,7 @@ open class Textview: UITextView, UITextViewDelegate {
         self.backgroundColor = appearance.colors.deselectedBackgroundColor
         self.contentMode = contentMode
         self.layer.borderColor = appearance.colors.deselectedBorderColor.cgColor
-        self.layer.borderWidth = borderWidth
+        self.layer.borderWidth = appearance.border?.idleBorderWidth ?? 0
         self.layer.cornerRadius = cornerRadius
         self.textContainerInset = contentInset
         self.delegate = self
