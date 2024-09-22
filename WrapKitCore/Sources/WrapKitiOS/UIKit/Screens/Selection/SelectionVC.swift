@@ -78,6 +78,9 @@ open class SelectionVC: ViewController<SelectionContentView> {
                 height: calculatedHeight
             )
         }
+        
+        setNeedsLayout()
+        layoutIfNeeded()
     }
     
     public required init?(coder: NSCoder) {
