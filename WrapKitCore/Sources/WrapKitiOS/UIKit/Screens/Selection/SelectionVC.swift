@@ -48,7 +48,9 @@ open class SelectionVC: ViewController<SelectionContentView> {
         contentView.stackView.isHidden = !presenter.isMultipleSelectionEnabled
     }
     
-    private func updatePreferredContentSize() {
+    public override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        guard !isBeingDismissed else { return }
         let calculatedHeight = !contentView.searchBar.isHidden ? contentView.frame.height : contentView.tableView.contentSize.height +
         contentView.navigationBar.frame.height +
         contentView.lineView.frame.height +
@@ -110,7 +112,6 @@ extension SelectionVC: SelectionOutput {
         datasource.updateItems(items)
         let selectedItemsCount = items.filter { $0.isSelected.get() == true }.count
         contentView.selectButton.setTitle("\(selectedCountTitle)\(selectedItemsCount == 0 ? "" : " (\(selectedItemsCount))")", for: .normal)
-        updatePreferredContentSize()
     }
     
     public func display(title: String?) {
