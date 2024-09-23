@@ -29,22 +29,24 @@ open class View: UIView {
     open override func layoutSubviews() {
         super.layoutSubviews()
         
-        gradientBorderLayer.frame = CGRect(
-            origin: CGPoint.zero,
-            size: CGSize(
-                width: frame.width,
-                height: frame.height
+        DispatchQueue.main.async {
+            self.gradientBorderLayer.frame = CGRect(
+                origin: CGPoint.zero,
+                size: CGSize(
+                    width: self.frame.width,
+                    height: self.frame.height
+                )
             )
-        )
-        (gradientBorderLayer.mask as? CAShapeLayer)?.path = UIBezierPath(
-            roundedRect: CGRect(
-                x: 0,
-                y: 0,
-                width: frame.width,
-                height: frame.height
-            ),
-            cornerRadius: cornerRadius
-        ).cgPath
+            (self.gradientBorderLayer.mask as? CAShapeLayer)?.path = UIBezierPath(
+                roundedRect: CGRect(
+                    x: 0,
+                    y: 0,
+                    width: self.frame.width,
+                    height: self.frame.height
+                ),
+                cornerRadius: self.cornerRadius
+            ).cgPath
+        }
     }
 
     public var onPress: (() -> Void)? {
