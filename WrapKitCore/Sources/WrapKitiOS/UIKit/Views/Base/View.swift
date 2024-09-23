@@ -32,16 +32,16 @@ open class View: UIView {
         gradientBorderLayer.frame = CGRect(
             origin: CGPoint.zero,
             size: CGSize(
-                width: frame.width,
-                height: frame.height
+                width: bounds.width,
+                height: bounds.height
             )
         )
         (gradientBorderLayer.mask as? CAShapeLayer)?.path = UIBezierPath(
             roundedRect: CGRect(
                 x: 0,
                 y: 0,
-                width: frame.width,
-                height: frame.height
+                width: bounds.width,
+                height: bounds.height
             ),
             cornerRadius: cornerRadius
         ).cgPath
