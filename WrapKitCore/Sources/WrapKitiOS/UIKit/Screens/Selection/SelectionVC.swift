@@ -6,6 +6,8 @@
 //
 
 #if canImport(UIKit)
+#if canImport(BottomSheet)
+#if canImport(BottomSheetUtils)
 import Foundation
 import UIKit
 import BottomSheet
@@ -123,4 +125,6 @@ extension SelectionVC: SelectionOutput {
 extension SelectionVC: ScrollableBottomSheetPresentedController {
     public var scrollView: UIScrollView? { contentView.tableView }
 }
+#endif
+#endif
 #endif
