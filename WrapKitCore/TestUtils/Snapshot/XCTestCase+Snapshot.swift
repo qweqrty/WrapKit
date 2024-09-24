@@ -1,4 +1,5 @@
 #if canImport(UIKit)
+#if canImport(XCTest)
 import UIKit
 import XCTest
 
@@ -55,4 +56,5 @@ public extension XCTestCase {
         return data
     }
 }
+#endif
 #endif
