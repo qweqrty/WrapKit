@@ -110,9 +110,9 @@ open class Textfield: UITextField {
     public var clearButtonEdgeInsets = UIEdgeInsets(top: 0, left: -8, bottom: 0, right: 8)
 
     public var isTextSelectionDisabled = false
-    public var isEditable = true {
+    public var isEnabledForEditing = true {
         didSet {
-            if !isEditable {
+            if !isEnabledForEditing {
                 _  = resignFirstResponder()
             }
         }
@@ -262,7 +262,7 @@ open class Textfield: UITextField {
     
     @discardableResult
     override open func becomeFirstResponder() -> Bool {
-        guard isEditable else { return false }
+        guard isEnabledForEditing else { return false }
         let success = super.becomeFirstResponder()
         if success { onBecomeFirstResponder?() }
         if isSecureTextEntry, let text = self.text {
@@ -274,7 +274,7 @@ open class Textfield: UITextField {
     }
     
     override open var canBecomeFirstResponder: Bool {
-         return isEditable
+         return isEnabledForEditing
      }
     
     open override func resignFirstResponder() -> Bool {
