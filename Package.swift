@@ -12,11 +12,7 @@ let package = Package(
     ],
     products: [
         .library(
-            name: "WrapKitStatic",
-            type: .static,
-            targets: ["WrapKit"]),
-        .library(
-            name: "WrapKitDynamic",
+            name: "WrapKit",
             type: .dynamic,
             targets: ["WrapKit"]),
         .library(
