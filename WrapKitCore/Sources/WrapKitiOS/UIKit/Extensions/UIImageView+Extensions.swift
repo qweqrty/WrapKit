@@ -40,7 +40,7 @@ public extension UIImageView {
             addSubview(viewWhileLoading)
             viewWhileLoading.fillSuperview()
         }
-        KingfisherManager.shared.retrieveImage(with: url) { [weak self, weak viewWhileLoading, url] result in
+        KingfisherManager.shared.retrieveImage(with: url, options: [.callbackQueue(.mainCurrentOrAsync)]) { [weak self, weak viewWhileLoading, url] result in
             viewWhileLoading?.removeFromSuperview()
             switch result {
             case .success(let image):
