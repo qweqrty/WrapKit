@@ -25,9 +25,6 @@ public extension XCTestCase {
         switch similarity {
         case 99.99...100:
             return
-        case 99.90...99.99:
-            XCTFail("⚠️ Warning: Similarity is below than 99.99%, be sure that it is cause of version ios", file: #file, line: #line)
-            return
         default:
             let temporarySnapshotURL = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
                 .appendingPathComponent(snapshotURL.lastPathComponent)
