@@ -118,14 +118,8 @@ private extension NavigationBar {
         return WrapperView(
             contentView: ImageView(),
             isHidden: true,
-            contentViewConstraints: {
-                $0.anchor(
-                    .topGreaterThanEqual($1.topAnchor),
-                    .leading($1.leadingAnchor),
-                    .trailing($1.trailingAnchor),
-                    .bottomLessThanEqual($1.bottomAnchor),
-                    .centerY($1.centerYAnchor)
-                )
+            contentViewConstraints: { contentView, _ in
+                contentView.centerInSuperview()
             }
         )
     }
