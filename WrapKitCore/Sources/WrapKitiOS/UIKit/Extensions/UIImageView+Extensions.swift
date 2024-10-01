@@ -26,7 +26,10 @@ public extension UIImageView {
             guard let string else { return }
             guard let url = URL(string: string) else { return }
             loadImage(url, viewWhileLoading: viewWhileLoading, fallbackView: fallbackView)
-        default:
+        case .data(let data):
+            guard let data else { return }
+            animatedSet(UIImage(data: data))
+        case .none:
             break
         }
     }
@@ -53,6 +56,7 @@ public extension UIImageView {
         fallbackView.removeFromSuperview()
         addSubview(fallbackView)
         fallbackView.fillSuperview()
+        fallbackView.animations.insert(.shrink)
         fallbackView.onPress = { [weak self] in
             self?.loadImage(url, viewWhileLoading: viewWhileLoading, fallbackView: fallbackView)
         }
