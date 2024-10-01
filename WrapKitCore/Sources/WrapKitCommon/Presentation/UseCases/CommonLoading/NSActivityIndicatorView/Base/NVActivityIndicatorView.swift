@@ -543,6 +543,13 @@ public final class NVActivityIndicatorView: UIView {
     func getTypeName() -> String {
         return String(describing: type)
     }
+    
+    public override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        
+        stopAnimating()
+        startAnimating()
+    }
 
     // MARK: Privates
 
