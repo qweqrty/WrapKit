@@ -47,6 +47,7 @@ open class PaginationPresenter<ServicePaginationRequest, ServicePaginationRespon
 
     public var mapRequest: ((PaginationRequest) -> ServicePaginationRequest?)
     private var perPage: Int
+    private let initialPerPage: Int
     private let service: any Service<ServicePaginationRequest, ServicePaginationResponse> // Expected to be SerialServiceDecorator
     private let mapToTotalPages: ((ServicePaginationResponse) -> Int)
     private let mapFromResponseToRemoteItems: ((ServicePaginationResponse) -> [RemoteItem])
@@ -74,6 +75,7 @@ open class PaginationPresenter<ServicePaginationRequest, ServicePaginationRespon
         self.page = initialPage
         self.remoteItemsStorage = remoteItemsStorage
         self.perPage = perPage
+        self.initialPerPage = perPage
         self.mapRequest = mapRequest
         self.mapToTotalPages = mapToTotalPages
         self.mapFromResponseToRemoteItems  = mapFromResponseToRemoteItems
@@ -83,7 +85,7 @@ open class PaginationPresenter<ServicePaginationRequest, ServicePaginationRespon
 
 extension PaginationPresenter: PaginationViewInput {
     public func refresh() {
-        perPage = max(remoteItemsStorage.get()?.count ?? 0, perPage)
+        perPage = max(remoteItemsStorage.get()?.count ?? 0, initialPerPage)
         guard let request = mapRequest(.init(page: initialPage, date: Date(), perPage: perPage)) else { return }
         date = Date()
         page = initialPage
@@ -93,6 +95,7 @@ extension PaginationPresenter: PaginationViewInput {
         view?.display(isLoadingFirstPage: true)
         let task = service.make(request: request) { [weak self, initialPage] result in
             self?.view?.display(isLoadingFirstPage: false)
+            self?.perPage = self?.initialPage ?? 10
             self?.handle(response: result, backToPage: initialPage - 1)
         }
         requests.append(task)
