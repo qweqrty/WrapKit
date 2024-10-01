@@ -30,6 +30,7 @@ public typealias SwiftUIFont = SwiftUI.Font
 #endif
 
 public enum ImageEnum {
-    case asset(Image)
-    case url(String)
+    case asset(Image?)
+    case url(url: URL?)
+    case urlString(string: String)
 }

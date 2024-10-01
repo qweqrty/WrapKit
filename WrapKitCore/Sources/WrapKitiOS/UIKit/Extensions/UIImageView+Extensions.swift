@@ -19,7 +19,10 @@ public extension UIImageView {
         switch image {
         case .asset(let image):
             animatedSet(image)
-        case .url(let string):
+        case .url(let url):
+            guard let url else { return }
+            loadImage(url, viewWhileLoading: viewWhileLoading, fallbackView: fallbackView)
+        case .urlString(let string):
             guard let url = URL(string: string) else { return }
             loadImage(url, viewWhileLoading: viewWhileLoading, fallbackView: fallbackView)
         default:
@@ -58,7 +61,7 @@ public extension UIImageView {
         UIView.transition(
             with: self,
             duration: 0.3,
-            options: .transitionCrossDissolve,
+            options: [.transitionCrossDissolve, .allowUserInteraction],
             animations: { [weak self] in
                 self?.image = image
             },
