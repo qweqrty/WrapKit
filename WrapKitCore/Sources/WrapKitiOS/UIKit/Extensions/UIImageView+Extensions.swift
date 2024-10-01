@@ -53,6 +53,7 @@ public extension UIImageView {
         fallbackView.removeFromSuperview()
         addSubview(fallbackView)
         fallbackView.fillSuperview()
+        fallbackView.animations.insert(.shrink)
         fallbackView.onPress = { [weak self] in
             self?.loadImage(url, viewWhileLoading: viewWhileLoading, fallbackView: fallbackView)
         }
