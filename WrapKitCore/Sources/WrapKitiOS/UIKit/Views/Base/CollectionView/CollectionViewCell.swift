@@ -31,5 +31,37 @@ open class CollectionViewCell<ContentView: UIView>: UICollectionViewCell {
     public required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    
+    // Override hitTest to check for views with `onPress` closure
+    open override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
+        // Check if any subview of mainContentView has `onPress` closure
+        if let pressableView = checkForPressableView(in: mainContentView, at: point) {
+            return pressableView
+        }
+        
+        // If no pressable view is found, return default hitTest
+        return super.hitTest(point, with: event)
+    }
+
+    // Recursively check if any view (or its subviews) has `onPress` closure
+    private func checkForPressableView(in view: UIView, at point: CGPoint) -> UIView? {
+        // Convert the point to the view's coordinate space
+        let convertedPoint = view.convert(point, from: self)
+
+        // Check if the point is inside the view and if it has `onPress`
+        if let pressableView = view as? View, pressableView.onPress != nil, pressableView.point(inside: convertedPoint, with: nil) {
+            return pressableView
+        } else if let pressableView = view as? ImageView, pressableView.onPress != nil, pressableView.point(inside: convertedPoint, with: nil) {
+            return pressableView
+        }
+
+        for subview in view.subviews {
+            if let pressableSubview = checkForPressableView(in: subview, at: convertedPoint) {
+                return pressableSubview
+            }
+        }
+
+        return nil
+    }
 }
 #endif
