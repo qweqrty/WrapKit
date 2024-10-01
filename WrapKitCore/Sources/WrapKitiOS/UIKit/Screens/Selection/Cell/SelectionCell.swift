@@ -24,7 +24,7 @@ public class SelectionCell: TableViewCell<SelectionCellContentView> {
                     let isSelected = isSelected ?? false
                     let image = isSelected ? model.configuration.selectedImage : model.configuration.notSelectedImage
                     self?.mainContentView.titleLabel.textColor = isSelected ? (model.configuration.selectedTitleColor ?? model.configuration.titleColor) : model.configuration.titleColor
-                    self?.mainContentView.trailingImageView.image = image
+                    self?.mainContentView.trailingImageView.setImage(image: image)
                     self?.mainContentView.trailingImageContainerView.isHidden = image == nil
                 }
                 .store(in: &cancellables)
@@ -33,14 +33,7 @@ public class SelectionCell: TableViewCell<SelectionCellContentView> {
                 mainContentView.leadingImageView.layer.cornerRadius = 10
                 mainContentView.leadingImageView.backgroundColor = color
             }
-            switch model.leadingImage {
-            case .asset(let image):
-                mainContentView.leadingImageView.image = image
-            case .url(let urlString):
-                mainContentView.leadingImageView.kf.setImage(with: urlString.asUrl)
-            default:
-                break
-            }
+            mainContentView.leadingImageView.setImage(image: model.leadingImage)
             
             mainContentView.lineView.backgroundColor = model.configuration.lineColor
             mainContentView.trailingLabel.textColor = model.configuration.trailingColor

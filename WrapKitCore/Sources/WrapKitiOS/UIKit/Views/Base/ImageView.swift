@@ -24,7 +24,7 @@ open class ImageView: UIImageView {
         didSet {
             if let image = self.image {
                 if #available(iOS 13.0, *) {
-                    self.image = image.withTintColor(tintColor)
+                    self.setImage(image: .asset(image.withTintColor(tintColor)))
                 }
                 super.tintColor = tintColor
             }
@@ -35,7 +35,7 @@ open class ImageView: UIImageView {
         super.traitCollectionDidChange(previousTraitCollection)
         
         if #available(iOS 13.0, *), let image = self.image, image.renderingMode == .alwaysTemplate {
-            self.image = self.image?.withTintColor(tintColor)
+            setImage(image: .asset(self.image?.withTintColor(tintColor))) 
         }
     }
     
@@ -50,10 +50,7 @@ open class ImageView: UIImageView {
         isUserInteractionEnabled: Bool = false
     ) {
         super.init(image: nil)
-        
-        if let image = image {
-            self.image = image
-        }
+        setImage(image: .asset(image))
         self.isHidden = isHidden
         self.contentMode = contentMode
         if let tintColor = tintColor {
