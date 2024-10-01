@@ -52,7 +52,7 @@ public extension UIImageView {
         guard let fallbackView = fallbackView else { return }
         fallbackView.removeFromSuperview()
         addSubview(fallbackView)
-        fallbackView.centerInSuperview()
+        fallbackView.fillSuperview()
         fallbackView.onPress = { [weak self] in
             self?.loadImage(url, viewWhileLoading: viewWhileLoading, fallbackView: fallbackView)
         }
