@@ -34,13 +34,19 @@ open class CollectionViewCell<ContentView: UIView>: UICollectionViewCell {
     
     // Override hitTest to check for views with `onPress` closure
     open override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
-        // Check if any subview of mainContentView has `onPress` closure
-        if let pressableView = checkForPressableView(in: mainContentView, at: point) {
-            return pressableView
+        // First, check if the mainContentView itself has an `onPress` closure
+        let convertedPoint = mainContentView.convert(point, from: self)
+        if let mainPressableView = (mainContentView as? View),
+            mainPressableView.onPress != nil,
+           mainContentView.point(inside: convertedPoint, with: event) {
+            return mainContentView
+        } else if let mainPressableView = (mainContentView as? ImageView),
+                    mainPressableView.onPress != nil,
+                  mainContentView.point(inside: convertedPoint, with: event) {
+            return mainContentView
         }
         
-        // If no pressable view is found, return default hitTest
-        return super.hitTest(point, with: event)
+        return checkForPressableView(in: mainContentView, at: point) ?? super.hitTest(point, with: event)
     }
 
     // Recursively check if any view (or its subviews) has `onPress` closure
