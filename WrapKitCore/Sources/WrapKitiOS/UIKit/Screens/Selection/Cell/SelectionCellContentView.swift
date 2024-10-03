@@ -104,6 +104,7 @@ extension SelectionCellContentView {
         )
         
         trailingStackView.anchor(
+            .leading(leadingStackView.trailingAnchor, constant: 4),
             .centerY(leadingStackView.centerYAnchor),
             .trailing(trailingAnchor)
         )
