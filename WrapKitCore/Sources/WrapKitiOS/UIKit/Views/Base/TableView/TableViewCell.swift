@@ -32,40 +32,6 @@ open class TableViewCell<ContentView: UIView>: UITableViewCell {
         self.mainContentView = ContentView()
         super.init(coder: coder)
     }
-
-    // Override hitTest to check for views with `onPress` closure
-    open override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
-        let convertedPoint = mainContentView.convert(point, from: self)
-        if let mainPressableView = (mainContentView as? View),
-            mainPressableView.onPress != nil,
-           mainContentView.point(inside: convertedPoint, with: event) {
-            return mainContentView
-        } else if let mainPressableView = (mainContentView as? ImageView),
-                    mainPressableView.onPress != nil,
-                  mainContentView.point(inside: convertedPoint, with: event) {
-            return mainContentView
-        }
-        
-        return checkForPressableView(in: mainContentView, at: point) ?? super.hitTest(point, with: event)
-    }
-
-    private func checkForPressableView(in view: UIView, at point: CGPoint) -> UIView? {
-        let convertedPoint = view.convert(point, from: self)
-
-        if let pressableView = view as? View, pressableView.onPress != nil, pressableView.point(inside: convertedPoint, with: nil) {
-            return pressableView
-        } else if let pressableView = view as? ImageView, pressableView.onPress != nil, pressableView.point(inside: convertedPoint, with: nil) {
-            return pressableView
-        }
-
-        for subview in view.subviews {
-            if let pressableSubview = checkForPressableView(in: subview, at: convertedPoint) {
-                return pressableSubview
-            }
-        }
-
-        return nil
-    }
 }
 
 #endif
