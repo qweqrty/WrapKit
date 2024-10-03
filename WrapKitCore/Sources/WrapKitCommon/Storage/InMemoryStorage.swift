@@ -13,7 +13,9 @@ public class InMemoryStorage<Model: Hashable>: Storage, Hashable {
 
     private let subject: CurrentValueSubject<Model?, Never>
     public var publisher: AnyPublisher<Model?, Never> {
-        subject.eraseToAnyPublisher()
+        subject
+            .receive(on: DispatchQueue.main)
+            .eraseToAnyPublisher()
     }
 
     public init(model: Model? = nil) {

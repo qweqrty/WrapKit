@@ -62,7 +62,9 @@ public class CoreDataStorage<Model, CoreDataModel: NSManagedObject & CoreDataCon
     private var cancellables: Set<AnyCancellable> = []
 
     public var publisher: AnyPublisher<Model?, Never> {
-        return subject.eraseToAnyPublisher()
+        subject
+            .receive(on: DispatchQueue.main)
+            .eraseToAnyPublisher()
     }
     
     public init?(storeURL: URL, entityName: String) {

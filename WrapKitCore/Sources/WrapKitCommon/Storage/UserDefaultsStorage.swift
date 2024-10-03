@@ -17,7 +17,9 @@ public class UserDefaultsStorage<Model: Codable & Hashable>: Storage {
     private let dispatchQueue: DispatchQueue
     
     public var publisher: AnyPublisher<Model?, Never> {
-        subject.eraseToAnyPublisher()
+        subject
+            .receive(on: DispatchQueue.main)
+            .eraseToAnyPublisher()
     }
     
     public init(
