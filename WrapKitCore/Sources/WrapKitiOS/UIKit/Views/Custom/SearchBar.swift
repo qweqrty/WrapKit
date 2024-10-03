@@ -39,7 +39,11 @@ public class SearchBar: View {
         stackView.addArrangedSubview(textfield)
         stackView.addArrangedSubview(rightView)
         
+        leftView.setContentHuggingPriority(.required, for: .horizontal)
+        rightView.setContentHuggingPriority(.required, for: .horizontal)
+        
         leftView.setContentCompressionResistancePriority(.required, for: .horizontal)
+        textfield.setContentCompressionResistancePriority(.required, for: .horizontal)
         rightView.setContentCompressionResistancePriority(.required, for: .horizontal)
     }
     
