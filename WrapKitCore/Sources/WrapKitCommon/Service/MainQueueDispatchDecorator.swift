@@ -22,6 +22,60 @@ public final class MainQueueDispatchDecorator<T> {
     }
 }
 
+extension MainQueueDispatchDecorator: SelectionFlow where T == SelectionFlow {
+    public var model: SelectionPresenterModel { decoratee.model }
+    
+    public func showSelection() {
+        dispatch { [weak self] in
+            self?.decoratee.showSelection()
+        }
+    }
+    
+    public func close(with result: SelectionType?) {
+        dispatch { [weak self, result] in
+            self?.decoratee.close(with: result)
+        }
+    }
+}
+
+extension SelectionFlow {
+    public var mainQueueDispatched: SelectionFlow {
+        MainQueueDispatchDecorator(decoratee: self)
+    }
+}
+
+extension MainQueueDispatchDecorator: SelectionOutput where T == SelectionOutput {
+    public func display(items: [SelectionType.SelectionCellPresentableModel], selectedCountTitle: String) {
+        dispatch { [weak self] in
+            self?.decoratee.display(items: items, selectedCountTitle: selectedCountTitle)
+        }
+    }
+    
+    public func display(title: String?) {
+        dispatch { [weak self] in
+            self?.decoratee.display(title: title)
+        }
+    }
+    
+    public func display(shouldShowSearchBar: Bool) {
+        dispatch { [weak self] in
+            self?.decoratee.display(shouldShowSearchBar: shouldShowSearchBar)
+        }
+    }
+    
+    public func display(canReset: Bool) {
+        dispatch { [weak self] in
+            self?.decoratee.display(canReset: canReset)
+        }
+    }
+}
+
+extension SelectionOutput {
+    public var mainQueueDispatched: SelectionOutput {
+        MainQueueDispatchDecorator(decoratee: self)
+    }
+}
+
 extension MainQueueDispatchDecorator: HTTPClient where T == HTTPClient {
     public func dispatch(_ request: URLRequest, completion: @escaping (Swift.Result<(data: Data, response: HTTPURLResponse), Error>) -> Void) -> HTTPClientTask {
         decoratee.dispatch(request) { [weak self] response in
