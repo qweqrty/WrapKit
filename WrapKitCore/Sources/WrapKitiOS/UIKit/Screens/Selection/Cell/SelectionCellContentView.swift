@@ -25,7 +25,9 @@ public class SelectionCellContentView: View {
         super.init(frame: .zero)
         setupSubviews()
         setupConstraints()
-        titleLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        
+        trailingLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
+        trailingLabel.setContentHuggingPriority(.required, for: .horizontal)
     }
     
     public override init(frame: CGRect) {
@@ -62,7 +64,8 @@ extension SelectionCellContentView {
         let trailingLabel = Label(
             font: .systemFont(ofSize: 16),
             textColor: UIColor.gray,
-            textAlignment: .center
+            textAlignment: .center,
+            numberOfLines: 1
         )
         return trailingLabel
     }
