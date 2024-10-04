@@ -41,7 +41,7 @@ public class SelectionFactoryiOS: ISelectionFactory {
             contentView: .init(config: configuration),
             presenter: presenter
         )
-        presenter.view = vc
+        presenter.view = vc.mainQueueDispatched
         return vc
     }
     
