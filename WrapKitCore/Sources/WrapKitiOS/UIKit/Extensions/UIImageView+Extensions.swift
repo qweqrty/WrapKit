@@ -4,7 +4,7 @@ import Kingfisher
 
 public extension ImageView {
     func setImage(
-        image: ImageEnum?,
+        _ image: ImageEnum?,
         animation: UIView.AnimationOptions = .transitionCrossDissolve
     ) {
         switch image {
