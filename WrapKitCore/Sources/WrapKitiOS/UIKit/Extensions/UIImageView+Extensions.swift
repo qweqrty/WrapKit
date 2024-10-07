@@ -11,7 +11,7 @@ import Kingfisher
 
 public extension UIImageView {
     func setImage(
-        image: ImageEnum?,
+        _ image: ImageEnum?,
         animation: UIView.AnimationOptions = .transitionCrossDissolve,
         viewWhileLoading: UIView? = nil,
         fallbackView: View? = nil
