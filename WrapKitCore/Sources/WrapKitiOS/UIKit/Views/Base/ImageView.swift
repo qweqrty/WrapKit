@@ -50,6 +50,9 @@ open class ImageView: UIImageView {
         }
     }
     
+    public var fallbackView: View?
+    public var viewWhileLoadingView: View?
+    
     open override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         super.traitCollectionDidChange(previousTraitCollection)
         
