@@ -50,6 +50,25 @@ open class ImageView: UIImageView {
         }
     }
     
+    public var viewWhileLoadingView: View? {
+        didSet {
+            viewWhileLoadingView?.removeFromSuperview()
+            guard let viewWhileLoadingView else { return }
+            addSubview(viewWhileLoadingView)
+            viewWhileLoadingView.fillSuperview()
+            viewWhileLoadingView.isHidden = true
+        }
+    }
+    public var fallbackView: View? {
+        didSet {
+            fallbackView?.removeFromSuperview()
+            guard let fallbackView else { return }
+            addSubview(fallbackView)
+            fallbackView.fillSuperview()
+            fallbackView.isHidden = true
+        }
+    }
+    
     open override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         super.traitCollectionDidChange(previousTraitCollection)
         

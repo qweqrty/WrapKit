@@ -1,31 +1,22 @@
-//
-//  UIImageView+Extensions.swift
-//  WrapKit
-//
-//  Created by Станислав Ли on 3/9/23.
-//
-
 #if canImport(UIKit)
 import UIKit
 import Kingfisher
 
-public extension UIImageView {
+public extension ImageView {
     func setImage(
-        _ image: ImageEnum?,
-        animation: UIView.AnimationOptions = .transitionCrossDissolve,
-        viewWhileLoading: UIView? = nil,
-        fallbackView: View? = nil
+        image: ImageEnum?,
+        animation: UIView.AnimationOptions = .transitionCrossDissolve
     ) {
         switch image {
         case .asset(let image):
             animatedSet(image)
         case .url(let url):
             guard let url else { return }
-            loadImage(url, viewWhileLoading: viewWhileLoading, fallbackView: fallbackView)
+            loadImage(url)
         case .urlString(let string):
             guard let string else { return }
             guard let url = URL(string: string) else { return }
-            loadImage(url, viewWhileLoading: viewWhileLoading, fallbackView: fallbackView)
+            loadImage(url)
         case .data(let data):
             guard let data else { return }
             animatedSet(UIImage(data: data))
@@ -34,31 +25,29 @@ public extension UIImageView {
         }
     }
     
-    private func loadImage(_ url: URL, viewWhileLoading: UIView?, fallbackView: View?) {
-        fallbackView?.removeFromSuperview()
-        if let viewWhileLoading {
-            addSubview(viewWhileLoading)
-            viewWhileLoading.fillSuperview()
+    private func loadImage(_ url: URL) {
+        if let fallbackView {
+            fallbackView.isHidden = true
         }
-        KingfisherManager.shared.retrieveImage(with: url, options: [.callbackQueue(.mainCurrentOrAsync)]) { [weak self, weak viewWhileLoading, url] result in
-            viewWhileLoading?.removeFromSuperview()
+        viewWhileLoadingView?.isHidden = false
+        KingfisherManager.shared.retrieveImage(with: url, options: [.callbackQueue(.mainCurrentOrAsync)]) { [weak self, weak viewWhileLoadingView, url] result in
+            viewWhileLoadingView?.isHidden = true
+
             switch result {
             case .success(let image):
                 self?.animatedSet(image.image)
             case .failure:
-                self?.addFallbackView(url, viewWhileLoading: viewWhileLoading, fallbackView: fallbackView)
+                self?.showFallbackView(url)
             }
         }
     }
     
-    private func addFallbackView(_ url: URL, viewWhileLoading: UIView?, fallbackView: View?) {
-        guard let fallbackView = fallbackView else { return }
-        fallbackView.removeFromSuperview()
-        addSubview(fallbackView)
-        fallbackView.fillSuperview()
+    private func showFallbackView(_ url: URL) {
+        guard let fallbackView else { return }
+        fallbackView.isHidden = false
         fallbackView.animations.insert(.shrink)
         fallbackView.onPress = { [weak self] in
-            self?.loadImage(url, viewWhileLoading: viewWhileLoading, fallbackView: fallbackView)
+            self?.loadImage(url)
         }
     }
     
