@@ -96,11 +96,6 @@ open class ImageView: UIImageView {
         self.cornerRadius = cornerRadius
     }
     
-    public override init(image: UIImage?) {
-        super.init(image: nil)
-        setImage(.asset(image))
-    }
-    
     public override init(frame: CGRect) {
         super.init(frame: .zero)
         setImage(.asset(nil))
