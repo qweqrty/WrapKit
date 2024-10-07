@@ -37,12 +37,12 @@ public extension ImageView {
             case .success(let image):
                 self?.animatedSet(image.image)
             case .failure:
-                self?.addFallbackView(url)
+                self?.showFallbackView(url)
             }
         }
     }
     
-    private func addFallbackView(_ url: URL) {
+    private func showFallbackView(_ url: URL) {
         guard let fallbackView else { return }
         fallbackView.isHidden = false
         fallbackView.animations.insert(.shrink)
