@@ -101,7 +101,7 @@ private extension SelectionContentView {
         navigationBar.leadingCardView.titleViews.keyLabel.font = config.content.navBarFont
         navigationBar.leadingCardView.titleViews.keyLabel.textColor = config.content.navBarTextColor
         navigationBar.leadingCardView.leadingImageWrapperView.isHidden = true
-        navigationBar.primeTrailingImageWrapperView.contentView.setImage(image: config.content.backButtonImage)
+        navigationBar.primeTrailingImageWrapperView.contentView.setImage(config.content.backButtonImage)
         navigationBar.primeTrailingImageWrapperView.isHidden = config.content.backButtonImage == nil
         if case let .asset(image) = config.content.backButtonImage {
             navigationBar.primeTrailingImageWrapperView.contentView.anchor(.width(image?.size.width ?? 24))

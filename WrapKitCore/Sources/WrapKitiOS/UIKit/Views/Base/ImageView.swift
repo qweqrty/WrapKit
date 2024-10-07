@@ -43,7 +43,7 @@ open class ImageView: UIImageView {
         didSet {
             if let image = self.image {
                 if #available(iOS 13.0, *) {
-                    self.setImage(image: .asset(image.withTintColor(tintColor)))
+                    self.setImage(.asset(image.withTintColor(tintColor)))
                 }
                 super.tintColor = tintColor
             }
@@ -73,7 +73,7 @@ open class ImageView: UIImageView {
         super.traitCollectionDidChange(previousTraitCollection)
         
         if #available(iOS 13.0, *), let image = self.image, image.renderingMode == .alwaysTemplate {
-            setImage(image: .asset(self.image?.withTintColor(tintColor)))
+            setImage(.asset(self.image?.withTintColor(tintColor)))
         }
     }
     
@@ -87,7 +87,7 @@ open class ImageView: UIImageView {
         isHidden: Bool = false
     ) {
         super.init(image: nil)
-        setImage(image: .asset(image))
+        setImage(.asset(image))
         self.isHidden = isHidden
         self.contentMode = contentMode
         if let tintColor = tintColor {
@@ -98,12 +98,12 @@ open class ImageView: UIImageView {
     
     public override init(image: UIImage?) {
         super.init(image: nil)
-        setImage(image: .asset(image))
+        setImage(.asset(image))
     }
     
     public override init(frame: CGRect) {
         super.init(frame: .zero)
-        setImage(image: .asset(nil))
+        setImage(.asset(nil))
     }
     
     public required init?(coder: NSCoder) {
