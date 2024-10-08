@@ -94,6 +94,7 @@ open class ImageView: UIImageView {
             self.tintColor = tintColor
         }
         self.cornerRadius = cornerRadius
+        self.isUserInteractionEnabled = true
     }
     
     public override init(frame: CGRect) {
