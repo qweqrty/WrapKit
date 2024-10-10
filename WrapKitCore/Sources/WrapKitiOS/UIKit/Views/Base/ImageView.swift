@@ -95,6 +95,7 @@ open class ImageView: UIImageView {
         }
         self.cornerRadius = cornerRadius
         self.isUserInteractionEnabled = true
+        self.clipsToBounds = true
     }
     
     public override init(frame: CGRect) {

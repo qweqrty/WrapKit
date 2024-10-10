@@ -1,5 +1,4 @@
 import Foundation
-import UIKit
 
 #if canImport(AVFoundation)
 import AVFoundation
@@ -89,18 +88,6 @@ public final class AppPermissions {
         permissionCallback(false)
         #endif
     }
-
-    // iOS 14+ Function to present the limited photo picker if the user has given limited access
-    @available(iOS 14, *)
-    private static func presentLimitedLibraryPickerIfNeeded() {
-        guard let viewController = UIApplication.shared.windows.first?.rootViewController else {
-            return
-        }
-
-        // Present the limited library picker to allow the user to modify their selection
-        PHPhotoLibrary.shared().presentLimitedLibraryPicker(from: viewController)
-    }
-
 
     // MARK: - Location Permission
     public static func requestLocationAccess(status: CLAuthorizationStatus, permissionCallback: @escaping ((Bool) -> Void)) {
