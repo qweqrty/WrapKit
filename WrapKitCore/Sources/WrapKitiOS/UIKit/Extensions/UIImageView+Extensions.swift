@@ -5,18 +5,19 @@ import Kingfisher
 public extension ImageView {
     func setImage(
         _ image: ImageEnum?,
-        animation: UIView.AnimationOptions = .transitionCrossDissolve
+        animation: UIView.AnimationOptions = .transitionCrossDissolve,
+        kingfisherOptions: KingfisherOptionsInfo = []
     ) {
         switch image {
         case .asset(let image):
             animatedSet(image)
         case .url(let url):
             guard let url else { return }
-            loadImage(url)
+            loadImage(url, kingfisherOptions: kingfisherOptions)
         case .urlString(let string):
             guard let string else { return }
             guard let url = URL(string: string) else { return }
-            loadImage(url)
+            loadImage(url, kingfisherOptions: kingfisherOptions)
         case .data(let data):
             guard let data else { return }
             animatedSet(UIImage(data: data))
@@ -25,12 +26,12 @@ public extension ImageView {
         }
     }
     
-    private func loadImage(_ url: URL) {
+    private func loadImage(_ url: URL, kingfisherOptions: KingfisherOptionsInfo) {
         if let fallbackView {
             fallbackView.isHidden = true
         }
         viewWhileLoadingView?.isHidden = false
-        KingfisherManager.shared.retrieveImage(with: url, options: [.callbackQueue(.mainCurrentOrAsync)]) { [weak self, weak viewWhileLoadingView, url] result in
+        KingfisherManager.shared.retrieveImage(with: url, options: [.callbackQueue(.mainCurrentOrAsync)] + kingfisherOptions) { [weak self, weak viewWhileLoadingView, url] result in
             viewWhileLoadingView?.isHidden = true
 
             switch result {
@@ -42,12 +43,12 @@ public extension ImageView {
         }
     }
     
-    private func showFallbackView(_ url: URL) {
+    private func showFallbackView(_ url: URL, kingfisherOptions: KingfisherOptionsInfo = []) {
         guard let fallbackView else { return }
         fallbackView.isHidden = false
         fallbackView.animations.insert(.shrink)
         fallbackView.onPress = { [weak self] in
-            self?.loadImage(url)
+            self?.loadImage(url, kingfisherOptions: kingfisherOptions)
         }
     }
     
