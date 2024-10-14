@@ -6,6 +6,8 @@
 //
 
 #if canImport(UIKit)
+#if canImport(BottomSheet)
+#if canImport(BottomSheetUtils)
 import Foundation
 import UIKit
 import BottomSheet
@@ -42,7 +44,7 @@ open class SelectionVC: ViewController<SelectionContentView> {
     
     public override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        
+        guard !isBeingDismissed else { return }
         let calculatedHeight = !contentView.searchBar.isHidden ? contentView.frame.height : contentView.tableView.contentSize.height +
         contentView.navigationBar.frame.height +
         contentView.lineView.frame.height +
@@ -133,10 +135,6 @@ extension SelectionVC: SelectionOutput {
     }
 }
 
-extension SelectionVC: SelectionServiceDecoratorOutput {
-    
-}
-
 extension SelectionVC {
     func makeDatasource() -> DiffableTableViewDataSource<SelectionType.SelectionCellPresentableModel> {
         let datasource = DiffableTableViewDataSource<SelectionType.SelectionCellPresentableModel>(
@@ -180,4 +178,6 @@ extension SelectionVC {
 extension SelectionVC: ScrollableBottomSheetPresentedController {
     public var scrollView: UIScrollView? { contentView.tableView }
 }
+#endif
+#endif
 #endif

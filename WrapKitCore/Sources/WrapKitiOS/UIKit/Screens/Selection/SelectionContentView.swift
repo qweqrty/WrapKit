@@ -104,7 +104,7 @@ private extension SelectionContentView {
         navigationBar.leadingCardView.titleViews.keyLabel.font = config.content.navBarFont
         navigationBar.leadingCardView.titleViews.keyLabel.textColor = config.content.navBarTextColor
         navigationBar.leadingCardView.leadingImageWrapperView.isHidden = true
-        navigationBar.primeTrailingImageWrapperView.contentView.image = config.content.backButtonImage
+        navigationBar.primeTrailingImageWrapperView.contentView.setImage(.asset(config.content.backButtonImage))
         navigationBar.primeTrailingImageWrapperView.isHidden = config.content.backButtonImage == nil
         navigationBar.primeTrailingImageWrapperView.contentView.anchor(.width(config.content.backButtonImage?.size.width ?? 24))
         navigationBar.titleViews.stackView.layoutMargins = .init(top: 0, left: 12, bottom: 0, right: 12)

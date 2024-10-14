@@ -8,7 +8,7 @@
 import Foundation
 
 public protocol SelectionServiceDecoratorOutput: AnyObject {
-    
+    func display(isLoading: Bool)
 }
 
 public protocol SelectionServiceDecoratorInput {
@@ -46,8 +46,10 @@ public class SelectionServiceDecorator<Request, Response>: SelectionInput {
     }
     
     public func viewDidLoad() {
+        view?.display(isLoading: true)
         service.make(request: makeRequest()) { [weak self] result in
-            self?.decoratee.items = self?.makeResponse(result) ?? [.init(id: "132", title: "Lol", configuration: .nurSelectionCell)]
+            self?.view?.display(isLoading: false)
+            self?.decoratee.items = self?.makeResponse(result) ?? []
         }?.resume()
         decoratee.viewDidLoad()
     }
@@ -79,7 +81,9 @@ public class SelectionServiceDecorator<Request, Response>: SelectionInput {
 
 extension SelectionServiceDecorator: SelectionServiceDecoratorInput {
     public func onRefresh() {
+        view?.display(isLoading: true)
         service.make(request: makeRequest()) { [weak self] result in
+            self?.view?.display(isLoading: false)
             self?.decoratee.items = self?.makeResponse(result) ?? []
         }?.resume()
     }

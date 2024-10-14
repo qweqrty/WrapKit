@@ -111,8 +111,8 @@ public struct SelectionConfiguration {
         public var titleColor: Color
         public var selectedTitleColor: Color?
         public var trailingColor: Color
-        public var selectedImage: Image?
-        public var notSelectedImage: Image?
+        public var selectedImage: ImageEnum?
+        public var notSelectedImage: ImageEnum?
         public var lineColor: Color
         
         public init(
@@ -121,8 +121,8 @@ public struct SelectionConfiguration {
             titleColor: Color,
             selectedTitleColor: Color? = nil,
             trailingColor: Color,
-            selectedImage: Image? = nil,
-            notSelectedImage: Image? = nil,
+            selectedImage: ImageEnum? = nil,
+            notSelectedImage: ImageEnum? = nil,
             lineColor: Color
         ) {
             self.titleFont = titleFont

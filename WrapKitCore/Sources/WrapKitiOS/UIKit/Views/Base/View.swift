@@ -11,6 +11,7 @@ import UIKit
 open class View: UIView {
     public enum Animation: HashableWithReflection {
         case gradientBorder([Color])
+        case shrink
     }
     
     public var animations: Set<Animation> = [] { didSet { applyAnimations() } }
@@ -22,29 +23,10 @@ open class View: UIView {
             switch $0 {
             case .gradientBorder(let colors):
                 startGradientBorderAnimation(with: colors)
+            default:
+                break
             }
         }
-    }
-
-    open override func layoutSubviews() {
-        super.layoutSubviews()
-        
-        gradientBorderLayer.frame = CGRect(
-            origin: CGPoint.zero,
-            size: CGSize(
-                width: frame.width,
-                height: frame.height
-            )
-        )
-        (gradientBorderLayer.mask as? CAShapeLayer)?.path = UIBezierPath(
-            roundedRect: CGRect(
-                x: 0,
-                y: 0,
-                width: frame.width,
-                height: frame.height
-            ),
-            cornerRadius: cornerRadius
-        ).cgPath
     }
 
     public var onPress: (() -> Void)? {
@@ -106,25 +88,43 @@ open class View: UIView {
     }
 
     override open func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        layoutIfNeeded()
+        
+        UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 0.4, initialSpringVelocity: 6, options: .allowUserInteraction) { [weak self] in
+            self?.animations.forEach {
+                switch $0 {
+                case .shrink:
+                    self?.transform = CGAffineTransform(scaleX: 0.95, y: 0.95)
+                default:
+                    break
+                }
+            }
+        }
         super.touchesBegan(touches, with: event)
         guard onLongPress != nil || onPress != nil else { return }
         self.alpha = 0.5
     }
 
     override open func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 0.4, initialSpringVelocity: 6, options: .allowUserInteraction) { [weak self] in
+            self?.transform = CGAffineTransform(scaleX: 1, y: 1)
+        }
         super.touchesEnded(touches, with: event)
         guard onLongPress != nil || onPress != nil else { return }
 
-        UIView.animate(withDuration: 0.3) {
+        UIView.animate(withDuration: 0.3, delay: 0, options: [.allowUserInteraction]) {
             self.alpha = 1.0
         }
     }
 
     override open func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
+        UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 0.4, initialSpringVelocity: 6, options: .allowUserInteraction) { [weak self] in
+            self?.transform = CGAffineTransform(scaleX: 1, y: 1)
+        }
         super.touchesCancelled(touches, with: event)
         guard onLongPress != nil || onPress != nil else { return }
 
-        UIView.animate(withDuration: 0.3) {
+        UIView.animate(withDuration: 0.3, delay: 0, options: [.allowUserInteraction]) {
             self.alpha = 1.0
         }
     }
@@ -161,6 +161,23 @@ extension View: CAAnimationDelegate {
         colorsAnimation.delegate = self
         
         gradientBorderLayer.add(colorsAnimation, forKey: "gradientBorderAnimation")
+        
+        gradientBorderLayer.frame = CGRect(
+            origin: CGPoint.zero,
+            size: CGSize(
+                width: frame.width,
+                height: frame.height
+            )
+        )
+        (gradientBorderLayer.mask as? CAShapeLayer)?.path = UIBezierPath(
+            roundedRect: CGRect(
+                x: 0,
+                y: 0,
+                width: frame.width,
+                height: frame.height
+            ),
+            cornerRadius: cornerRadius
+        ).cgPath
     }
 
     private func stopGradientBorderAnimation() {

@@ -10,7 +10,6 @@ import UIKit
 
 open class TableViewCell<ContentView: UIView>: UITableViewCell {
     public let mainContentView: ContentView
-    
     public var mainContentViewConstraints: AnchoredConstraints?
 
     public override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -34,4 +33,5 @@ open class TableViewCell<ContentView: UIView>: UITableViewCell {
         super.init(coder: coder)
     }
 }
+
 #endif

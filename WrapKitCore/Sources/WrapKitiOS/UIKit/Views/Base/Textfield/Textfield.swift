@@ -29,7 +29,8 @@ public struct TextfieldAppearance {
             errorBackgroundColor: Color,
             deselectedBorderColor: Color,
             deselectedBackgroundColor: Color,
-            disabledTextColor: Color? = nil
+            disabledTextColor: Color,
+            disabledBackgroundColor: Color
         ) {
             self.textColor = textColor
             self.selectedBorderColor = selectedBorderColor
@@ -39,6 +40,7 @@ public struct TextfieldAppearance {
             self.deselectedBorderColor = deselectedBorderColor
             self.deselectedBackgroundColor = deselectedBackgroundColor
             self.disabledTextColor = disabledTextColor
+            self.disabledBackgroundColor = disabledBackgroundColor
         }
         
         public var textColor: Color
@@ -48,7 +50,8 @@ public struct TextfieldAppearance {
         public var errorBackgroundColor: Color
         public var deselectedBorderColor: Color
         public var deselectedBackgroundColor: Color
-        public var disabledTextColor: Color?
+        public var disabledTextColor: Color
+        public var disabledBackgroundColor: Color
     }
     public struct Border {
         public init(idleBorderWidth: CGFloat, selectedBorderWidth: CGFloat) {
@@ -101,32 +104,26 @@ open class Textfield: UITextField {
         }
     }
     
+    private var isValidState = true
+    
     public var padding: UIEdgeInsets = .zero
     public var clearButtonEdgeInsets = UIEdgeInsets(top: 0, left: -8, bottom: 0, right: 8)
-    
+
     public var isTextSelectionDisabled = false
-    public var isEditable = true {
+    public var isEnabledForEditing = true {
         didSet {
-            if !isEditable {
+            if !isEnabledForEditing {
                 _  = resignFirstResponder()
             }
         }
     }
     
     public var onPress: (() -> Void)?
-    public var validationRule: ((String?) -> Bool)?
     public var nextTextfield: UIResponder? = nil { didSet { returnKeyType = nextTextfield == nil ? .done : .next } }
     public var onBecomeFirstResponder: (() -> Void)?
     public var onResignFirstResponder: (() -> Void)?
     
     public var didChangeText = [((String?) -> Void)]()
-    
-    @discardableResult
-    public func validate() -> Bool {
-        let text = (delegate as? MaskedTextfieldDelegate)?.fullText ?? text
-        updateAppearance()
-        return validationRule?(text) ?? true
-    }
     
     open override var placeholder: String? {
         didSet {
@@ -179,7 +176,6 @@ open class Textfield: UITextField {
         addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
         
         self.leadingView = leadingView
-        didChangeText.append { [weak self] _ in self?.validate() }
         updateAppearance()
         
         switch trailingView {
@@ -188,6 +184,7 @@ open class Textfield: UITextField {
         case .clear(let trailingView):
             trailingView.onPress = { [weak self] in
                 self?.text = ""
+                self?.sendActions(for: .editingChanged)
                 trailingView.isHidden = true
             }
             self.didChangeText.append { [weak self] text in
@@ -220,7 +217,8 @@ open class Textfield: UITextField {
     
     open override var isUserInteractionEnabled: Bool {
         didSet {
-            textColor = isUserInteractionEnabled ? appearance.colors.textColor : appearance.colors.disabledTextColor ?? appearance.colors.textColor
+            textColor = isUserInteractionEnabled ? appearance.colors.textColor : appearance.colors.disabledTextColor
+            backgroundColor = isUserInteractionEnabled ? appearance.colors.deselectedBackgroundColor : appearance.colors.disabledBackgroundColor
             updatePlaceholder()
         }
     }
@@ -264,7 +262,7 @@ open class Textfield: UITextField {
     
     @discardableResult
     override open func becomeFirstResponder() -> Bool {
-        guard isEditable else { return false }
+        guard isEnabledForEditing else { return false }
         let success = super.becomeFirstResponder()
         if success { onBecomeFirstResponder?() }
         if isSecureTextEntry, let text = self.text {
@@ -276,7 +274,7 @@ open class Textfield: UITextField {
     }
     
     override open var canBecomeFirstResponder: Bool {
-         return isEditable
+         return isEnabledForEditing
      }
     
     open override func resignFirstResponder() -> Bool {
@@ -361,6 +359,7 @@ open class Textfield: UITextField {
 
 public extension Textfield {
     func updateAppearance(isValid: Bool) {
+        self.isValidState = isValid
         font = appearance.font
         let isFirstResponder = isFirstResponder
         let appearance = appearance
@@ -380,7 +379,7 @@ public extension Textfield {
         updatePlaceholder()
         font = appearance.font
         let text = (delegate as? MaskedTextfieldDelegate)?.fullText ?? text
-        let isValid = validationRule?(text) ?? true
+        let isValid = isValidState
         let isFirstResponder = isFirstResponder
         let appearance = appearance
         UIView.animate(withDuration: 0.1, delay: .leastNonzeroMagnitude, options: [.allowUserInteraction]) {

@@ -206,6 +206,8 @@ open class ToastView: UIView {
                 guard finished else { return }
                 self?.alpha = 1
                 self?.startHideTimer()
+                self?.layoutIfNeeded()
+                self?.superview?.layoutIfNeeded()
             }
         )
     }

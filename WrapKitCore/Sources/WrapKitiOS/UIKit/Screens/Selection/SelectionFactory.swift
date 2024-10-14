@@ -32,7 +32,7 @@ public class SelectionFactoryiOS: ISelectionFactory {
         model: SelectionPresenterModel
     ) -> UIViewController {
         let presenter = SelectionPresenter(
-            flow: flow,
+            flow: flow.mainQueueDispatched,
             model: model,
             configuration: configuration
         )
@@ -40,7 +40,7 @@ public class SelectionFactoryiOS: ISelectionFactory {
             contentView: .init(config: configuration),
             presenter: presenter
         )
-        presenter.view = vc
+        presenter.view = vc.mainQueueDispatched
         return vc
     }
     
@@ -51,7 +51,7 @@ public class SelectionFactoryiOS: ISelectionFactory {
         model: ServicedSelectionModel<Request, Response>
     ) -> UIViewController {
         let presenter = SelectionPresenter(
-            flow: flow,
+            flow: flow.mainQueueDispatched,
             model: model.model,
             configuration: configuration
         )

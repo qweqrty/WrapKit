@@ -247,7 +247,10 @@ public extension UIView {
             options: [.curveEaseInOut, .allowUserInteraction],
             animations: {
             shimmerView.alpha = 1
-        }, completion: nil)
+            }, completion: { finished in
+                guard finished else { return }
+                shimmerView.alpha = 1
+            })
     }
     
     

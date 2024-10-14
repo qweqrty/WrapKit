@@ -29,7 +29,7 @@ public protocol SelectionInput {
 
 public class SelectionPresenter {
     private let flow: SelectionFlow
-    public weak var view: SelectionOutput?
+    public var view: SelectionOutput?
     
     private let model: SelectionPresenterModel
     public var isMultipleSelectionEnabled: Bool { model.isMultipleSelectionEnabled }
@@ -66,11 +66,9 @@ extension SelectionPresenter: SelectionInput {
     }
     
     public func viewDidLoad() {
-        onSearch(searchText)
-        view?.display(title: model.title)
         view?.display(shouldShowSearchBar: items.count > shouldShowSearchBarThresholdCount)
-        view?.display(canReset: items.contains(where: { $0.isSelected.get() == true }))
-        view?.display(items: itemsToPresent, selectedCountTitle: configuration.texts.selectedCountTitle)
+        view?.display(title: model.title)
+        onSearch(searchText)
     }
     
     public func onTapFinishSelection() {

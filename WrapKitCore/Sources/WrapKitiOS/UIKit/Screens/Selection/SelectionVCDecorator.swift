@@ -33,6 +33,8 @@ public class SelectionVCDecorator: ViewController<SelectionContentView> {
 }
 
 extension SelectionVCDecorator: SelectionServiceDecoratorOutput {
-    
+    public func display(isLoading: Bool) {
+        isLoading ? contentView.refreshControl.beginRefreshing() : contentView.refreshControl.endRefreshing()
+    }
 }
 #endif
