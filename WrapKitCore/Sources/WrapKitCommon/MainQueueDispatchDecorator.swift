@@ -76,6 +76,20 @@ extension SelectionOutput {
     }
 }
 
+extension MainQueueDispatchDecorator: CommonToastOutput where T == CommonToastOutput {
+    public func display(_ toast: CommonToast) {
+        dispatch { [weak self] in
+            self?.decoratee.display(toast)
+        }
+    }
+}
+
+extension CommonToastOutput {
+    public var mainQueueDispatched: CommonToastOutput {
+        MainQueueDispatchDecorator(decoratee: self)
+    }
+}
+
 extension MainQueueDispatchDecorator: HTTPClient where T == HTTPClient {
     public func dispatch(_ request: URLRequest, completion: @escaping (Swift.Result<(data: Data, response: HTTPURLResponse), Error>) -> Void) -> HTTPClientTask {
         decoratee.dispatch(request) { [weak self] response in
