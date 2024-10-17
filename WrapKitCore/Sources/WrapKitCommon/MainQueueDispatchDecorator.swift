@@ -85,6 +85,10 @@ extension MainQueueDispatchDecorator: HTTPClient where T == HTTPClient {
 }
 
 extension MainQueueDispatchDecorator: CommonLoadingOutput where T == CommonLoadingOutput {
+    public var mainQueueDispatched: CommonLoadingOutput {
+        MainQueueDispatchDecorator(decoratee: self)
+    }
+    
     public func display(isLoading: Bool) {
         dispatch { [weak self] in
             self?.decoratee.display(isLoading: isLoading)
