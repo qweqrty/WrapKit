@@ -15,12 +15,6 @@ public final class WeakRefVirtualProxy<T: AnyObject> {
     }
 }
 
-extension CommonLoadingOutput {
-    public var weakReferenced: CommonLoadingOutput {
-        return WeakRefVirtualProxy(self)
-    }
-}
-
 extension WeakRefVirtualProxy: CommonLoadingOutput where T: CommonLoadingOutput {
     public var isLoading: Bool { object?.isLoading == true }
     
