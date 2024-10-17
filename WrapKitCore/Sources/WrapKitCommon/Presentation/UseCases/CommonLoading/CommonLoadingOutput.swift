@@ -12,3 +12,25 @@ public protocol CommonLoadingOutput: AnyObject {
     
     func display(isLoading: Bool)
 }
+
+extension CommonLoadingOutput {
+    public var weakReferenced: CommonLoadingOutput {
+        return WeakRefVirtualProxy(self)
+    }
+}
+
+extension WeakRefVirtualProxy: CommonLoadingOutput where T: CommonLoadingOutput {
+    public var isLoading: Bool { object?.isLoading == true }
+    
+    public func display(isLoading: Bool) {
+        object?.display(isLoading: isLoading)
+    }
+}
+
+public final class WeakRefVirtualProxy<T: AnyObject> {
+    private weak var object: T?
+    
+    public init(_ object: T) {
+        self.object = object
+    }
+}
