@@ -94,9 +94,10 @@ extension PaginationPresenter: PaginationViewInput {
         view?.display(isLoadingSubsequentPage: false)
         view?.display(isLoadingFirstPage: true)
         let task = service.make(request: request) { [weak self, initialPage] result in
-            self?.view?.display(isLoadingFirstPage: false)
-            self?.perPage = self?.initialPage ?? 10
-            self?.handle(response: result, backToPage: initialPage - 1)
+            guard let self = self else { return }
+            self.view?.display(isLoadingFirstPage: false)
+            self.perPage = self.perPage
+            self.handle(response: result, backToPage: initialPage - 1)
         }
         requests.append(task)
         task?.resume()
