@@ -205,10 +205,8 @@ open class Textfield: UITextField {
     
     override open func point(inside point: CGPoint, with event: UIEvent?) -> Bool {
         if let trailingView = trailingView, trailingView.frame.contains(point) {
-            trailingView.onPress?()
             return true
         } else if let leadingView = leadingView, leadingView.frame.contains(point) {
-            leadingView.onPress?()
             return true
         }
         let isTouchInside = super.point(inside: point, with: event)
