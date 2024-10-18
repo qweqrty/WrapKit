@@ -74,6 +74,10 @@ extension SelectionOutput {
     public var mainQueueDispatched: SelectionOutput {
         MainQueueDispatchDecorator(decoratee: self)
     }
+    
+    public var weakReferenced: SelectionOutput {
+        return WeakRefVirtualProxy(self)
+    }
 }
 
 extension MainQueueDispatchDecorator: CommonToastOutput where T == CommonToastOutput {

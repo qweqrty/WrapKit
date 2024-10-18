@@ -34,14 +34,17 @@ public class SelectionFactoryiOS: ISelectionFactory {
             title: title,
             isMultipleSelectionEnabled: isMultipleSelectionEnabled,
             items: items,
-            flow: flow,
+            flow: flow.mainQueueDispatched,
             configuration: configuration
         )
         let vc = SelectionVC(
             contentView: .init(config: configuration),
             presenter: presenter
         )
-        presenter.view = vc.mainQueueDispatched
+        presenter.view = vc
+            .weakReferenced
+            .mainQueueDispatched
+        
         return vc
     }
     
