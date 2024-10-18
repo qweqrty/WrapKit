@@ -107,6 +107,7 @@ open class Textfield: UITextField {
     private var isValidState = true
     
     public var padding: UIEdgeInsets = .zero
+    public var midPadding: CGFloat = 0
     public var clearButtonEdgeInsets = UIEdgeInsets(top: 0, left: -8, bottom: 0, right: 8)
 
     public var isTextSelectionDisabled = false
@@ -151,6 +152,7 @@ open class Textfield: UITextField {
         cornerRadius: CGFloat = 10,
         textAlignment: NSTextAlignment = .natural,
         appearance: TextfieldAppearance,
+        midPadding: CGFloat = 6.67,
         padding: UIEdgeInsets = .init(top: 10, left: 12, bottom: 10, right: 12),
         nextTextfield: UIResponder? = nil,
         leadingView: View? = nil,
@@ -159,6 +161,7 @@ open class Textfield: UITextField {
         autocapitalizationType: UITextAutocapitalizationType = .none,
         delegate: MaskedTextfieldDelegate? = nil
     ) {
+        self.midPadding = midPadding
         self.padding = padding
         self.nextTextfield = nextTextfield
         self.appearance = appearance
@@ -313,16 +316,16 @@ open class Textfield: UITextField {
         var padding = padding
         if let leftView = leadingView, !leftView.isHidden {
             if UIView.userInterfaceLayoutDirection(for: semanticContentAttribute) == .rightToLeft {
-                padding.right += leftView.frame.width + 6.67
+                padding.right += leftView.frame.width + midPadding
             } else {
-                padding.left += leftView.frame.width + 6.67
+                padding.left += leftView.frame.width + midPadding
             }
         }
         if let rightView = trailingView, !rightView.isHidden {
             if UIView.userInterfaceLayoutDirection(for: semanticContentAttribute) == .rightToLeft {
-                padding.left += rightView.frame.width + 6.67
+                padding.left += rightView.frame.width + midPadding
             } else {
-                padding.right += rightView.frame.width + 6.67
+                padding.right += rightView.frame.width + midPadding
             }
         }
         return bounds.inset(by: padding)
