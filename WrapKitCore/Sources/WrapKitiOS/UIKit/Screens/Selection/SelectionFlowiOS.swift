@@ -13,28 +13,26 @@ import UIKit
 import BottomSheet
 
 public class SelectionFlowiOS: SelectionFlow {
-    public let model: Model
+    public let configuration: Model
     
     private weak var navigationController: UINavigationController?
     private let factory: any ISelectionFactory<UIViewController>
     
     public init(
-        model: Model,
+        configuration: Model,
         navigationController: UINavigationController?,
         factory: any ISelectionFactory<UIViewController>
     ) {
-        self.model = model
+        self.configuration = configuration
         self.navigationController = navigationController
         self.factory = factory
     }
     
-    public func showSelection() {
+    public func showSelection(model: SelectionPresenterModel) {
         let vc = factory.resolveSelection(
-            title: model.title,
-            isMultipleSelectionEnabled: model.isMultipleSelectionEnabled,
-            items: model.items,
+            configuration: configuration,
             flow: self,
-            configuration: model.configuration
+            model: model
         )
         
         navigationController?.presentBottomSheet(
@@ -42,18 +40,33 @@ public class SelectionFlowiOS: SelectionFlow {
             configuration: .init(
                 cornerRadius: 16,
                 pullBarConfiguration: .hidden,
-                shadowConfiguration: .init(backgroundColor: model.configuration.content.shadowBackgroundColor)
+                shadowConfiguration: .init(backgroundColor: configuration.content.shadowBackgroundColor)
+            )
+        )
+    }
+    
+    public func showSelection<Request, Response>(model: ServicedSelectionModel<Request, Response>) {
+        let vc = factory.resolveSelection(
+            configuration: configuration,
+            flow: self,
+            model: model
+        )
+        
+        navigationController?.presentBottomSheet(
+            viewController: vc,
+            configuration: .init(
+                cornerRadius: 16,
+                pullBarConfiguration: .hidden,
+                shadowConfiguration: .init(backgroundColor: configuration.content.shadowBackgroundColor)
             )
         )
     }
     
     public func close(with result: SelectionType?) {
-        model.callback?(result)
-        DispatchQueue.main.async {
-            self.navigationController?.presentedViewController?.dismiss(animated: true)
-        }
+        navigationController?.presentedViewController?.dismiss(animated: true)
     }
 }
+
 #endif
 #endif
 #endif

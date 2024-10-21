@@ -7,11 +7,32 @@
 
 import Foundation
 
+public struct ServicedSelectionModel<Request, Response> {
+    public let model: SelectionPresenterModel
+    public let service: any Service<Request, Response>
+    public let storage: any Storage
+    public let request: (() -> Request)
+    public let response: ((Result<Response, ServiceError>) -> [SelectionType.SelectionCellPresentableModel])
+    
+    public init(
+        model: SelectionPresenterModel,
+        service: any Service<Request, Response>,
+        storage: any Storage,
+        request: @escaping () -> Request,
+        response: @escaping (Result<Response, ServiceError>) -> [SelectionType.SelectionCellPresentableModel]
+    ) {
+        self.model = model
+        self.service = service
+        self.storage = storage
+        self.request = request
+        self.response = response
+    }
+}
+
 public protocol SelectionFlow: AnyObject {
-    typealias Model = SelectionPresenterModel
+    typealias Model = SelectionConfiguration
     
-    var model: SelectionPresenterModel { get }
-    
-    func showSelection()
+    func showSelection(model: SelectionPresenterModel)
+    func showSelection<Request, Response>(model: ServicedSelectionModel<Request, Response>)
     func close(with result: SelectionType?)
 }

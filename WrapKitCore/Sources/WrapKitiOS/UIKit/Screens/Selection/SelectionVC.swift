@@ -13,15 +13,10 @@ import UIKit
 import BottomSheet
 
 open class SelectionVC: ViewController<SelectionContentView> {
-    private let presenter: SelectionInput
-    private lazy var datasource = DiffableTableViewDataSource<SelectionType.SelectionCellPresentableModel>(
-        tableView: contentView.tableView,
-        configureCell: { [weak self] tableView, indexPath, model in
-            let cell: SelectionCell = tableView.dequeueReusableCell(for: indexPath)
-            cell.model = model
-            return cell
-        }
-    )
+    public let presenter: SelectionInput
+    
+    private lazy var datasource = makeDatasource()
+    private var currentContentYOffset: CGFloat = 0
     
     public init(contentView: SelectionContentView, presenter: SelectionInput) {
         self.presenter = presenter
@@ -40,9 +35,6 @@ open class SelectionVC: ViewController<SelectionContentView> {
         contentView.resetButton.setTitle(presenter.configuration.texts.resetTitle, for: .normal)
         contentView.selectButton.setTitle(presenter.configuration.texts.selectTitle, for: .normal)
         
-        datasource.didSelectAt = { [weak self] indexPath, _ in
-            self?.presenter.onSelect(at: indexPath.row)
-        }
         contentView.navigationBar.primeTrailingImageWrapperView.onPress = presenter.onTapClose
         contentView.resetButton.onPress = presenter.onTapReset
         contentView.selectButton.onPress = presenter.onTapFinishSelection
@@ -105,7 +97,7 @@ extension SelectionVC: SelectionOutput {
     
     public func display(shouldShowSearchBar: Bool) {
         contentView.searchBar.isHidden = !shouldShowSearchBar
-        contentView.searchBarConstraints?.height?.constant = shouldShowSearchBar ? 44 : 0
+        contentView.searchBarConstraints?.height?.constant = shouldShowSearchBar ? SelectionContentView.searchBarHeight : 0
         contentView.searchBarConstraints?.top?.constant = shouldShowSearchBar ? 8 : 0
         contentView.tableViewConstraints?.top?.constant = shouldShowSearchBar ? 16 : 8
     }
@@ -119,6 +111,67 @@ extension SelectionVC: SelectionOutput {
     public func display(title: String?) {
         contentView.navigationBar.titleViews.keyLabel.text = title
         contentView.navigationBar.leadingCardView.titleViews.keyLabel.text = title
+    }
+    
+    private func updateSearchBarHeight(to height: CGFloat) {
+        guard self.contentView.searchBarConstraints?.height?.constant != height else { return }
+        self.contentView.searchBarConstraints?.height?.constant = height
+        UIView.animate(withDuration: 0.1) {
+            self.contentView.layoutIfNeeded()
+        }
+    }
+    
+    private func fixSearchBarHeight(scrollView: UIScrollView) {
+        let currentOffset = scrollView.contentOffset.y
+        if currentOffset <= 0 {
+            self.contentView.searchBarConstraints?.height?.constant = 44
+        } else {
+            self.contentView.searchBarConstraints?.height?.constant = 0
+        }
+
+        UIView.animate(withDuration: 0.1) {
+            self.contentView.layoutIfNeeded()
+        }
+    }
+}
+
+extension SelectionVC {
+    func makeDatasource() -> DiffableTableViewDataSource<SelectionType.SelectionCellPresentableModel> {
+        let datasource = DiffableTableViewDataSource<SelectionType.SelectionCellPresentableModel>(
+            tableView: contentView.tableView,
+            configureCell: { tableView, indexPath, model in
+                let cell: SelectionCell = tableView.dequeueReusableCell(for: indexPath)
+                cell.model = model
+                return cell
+            }
+        )
+        
+        datasource.didScrollViewDidScroll = { [weak self] scrollView in
+            guard let self = self, !self.contentView.searchBar.isHidden else { return }
+            let currentOffsetY = scrollView.contentOffset.y
+            let delta = currentOffsetY - self.currentContentYOffset
+
+            let isAtTop = currentOffsetY <= 0
+            let isAtBottom = currentOffsetY >= (scrollView.contentSize.height - scrollView.frame.size.height - 10)
+            let targetHeight: CGFloat = (delta > 0 && !isAtTop) || isAtBottom ? 0 : 44
+
+            self.updateSearchBarHeight(to: targetHeight)
+            self.currentContentYOffset = currentOffsetY
+        }
+
+        datasource.didScrollViewDidEndDragging = { [weak self] scrollView, willDecelerate in
+            guard let self = self else { return }
+            if !willDecelerate {
+                self.fixSearchBarHeight(scrollView: scrollView)
+            }
+        }
+
+        datasource.didScrollViewDidEndDecelerating = { [weak self] scrollView in
+            guard let self = self else { return }
+            self.fixSearchBarHeight(scrollView: scrollView)
+        }
+
+        return datasource
     }
 }
 

@@ -4,16 +4,19 @@
 //
 //  Created by Daniiar Erkinov on 3/7/24.
 //
-
 public protocol ISelectionFactory<Controller> {
     associatedtype Controller
     
     func resolveSelection(
-        title: String?,
-        isMultipleSelectionEnabled: Bool,
-        items: [SelectionType.SelectionCellPresentableModel],
+        configuration: SelectionFlow.Model,
         flow: SelectionFlow,
-        configuration: SelectionConfiguration
+        model: SelectionPresenterModel
+    ) -> Controller
+    
+    func resolveSelection<Request, Response>(
+        configuration: SelectionFlow.Model,
+        flow: SelectionFlow,
+        model: ServicedSelectionModel<Request, Response>
     ) -> Controller
 }
 
@@ -24,17 +27,13 @@ import UIKit
 
 public class SelectionFactoryiOS: ISelectionFactory {
     public func resolveSelection(
-        title: String?,
-        isMultipleSelectionEnabled: Bool,
-        items: [SelectionType.SelectionCellPresentableModel],
+        configuration: SelectionFlow.Model,
         flow: SelectionFlow,
-        configuration: SelectionConfiguration
+        model: SelectionPresenterModel
     ) -> UIViewController {
         let presenter = SelectionPresenter(
-            title: title,
-            isMultipleSelectionEnabled: isMultipleSelectionEnabled,
-            items: items,
             flow: flow.mainQueueDispatched,
+            model: model,
             configuration: configuration
         )
         let vc = SelectionVC(
@@ -42,6 +41,47 @@ public class SelectionFactoryiOS: ISelectionFactory {
             presenter: presenter
         )
         presenter.view = vc
+            .weakReferenced
+            .mainQueueDispatched
+        
+        return vc
+    }
+    
+    
+    public func resolveSelection<Request, Response>(
+        configuration: SelectionFlow.Model,
+        flow: SelectionFlow,
+        model: ServicedSelectionModel<Request, Response>
+    ) -> UIViewController {
+        let presenter = SelectionPresenter(
+            flow: flow.mainQueueDispatched,
+            model: model.model,
+            configuration: configuration
+        )
+        
+        let servicePresenter = SelectionServiceDecorator(
+            decoratee: presenter,
+            storage: model.storage,
+            service: model.service,
+            makeRequest: model.request,
+            makeResponse: model.response
+        )
+        
+        let vc = SelectionVC(
+            contentView: .init(config: configuration),
+            presenter: servicePresenter
+        )
+        
+        let decoratedVC = SelectionVCDecorator(
+            decoratee: vc,
+            servicePresenter: servicePresenter
+        )
+        
+        presenter.view = vc
+            .weakReferenced
+            .mainQueueDispatched
+        
+        servicePresenter.view = decoratedVC
             .weakReferenced
             .mainQueueDispatched
         

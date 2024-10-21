@@ -1,11 +1,12 @@
 //
-//  SelectionCellContentView.swift
+//  SelectionContentView.swift
 //  WrapKit
 //
 //  Created by Daniiar Erkinov on 3/7/24.
 //
 
 #if canImport(UIKit)
+import Foundation
 import UIKit
 
 public class SelectionCellContentView: View {
@@ -55,7 +56,7 @@ extension SelectionCellContentView {
         let titleLabel = Label(
             font: .systemFont(ofSize: 16),
             textColor: UIColor.black,
-            numberOfLines: 1
+            numberOfLines: 0
         )
         return titleLabel
     }
@@ -103,7 +104,8 @@ extension SelectionCellContentView {
         
         leadingStackView.anchor(
             .top(topAnchor),
-            .leading(leadingAnchor)
+            .leading(leadingAnchor),
+            .trailing(trailingStackView.leadingAnchor, constant: 8)
         )
         
         trailingStackView.anchor(
