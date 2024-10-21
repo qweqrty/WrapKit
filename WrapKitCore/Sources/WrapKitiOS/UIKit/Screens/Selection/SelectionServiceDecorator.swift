@@ -7,10 +7,6 @@
 
 import Foundation
 
-public protocol SelectionServiceDecoratorOutput: AnyObject {
-    func display(isLoading: Bool)
-}
-
 public protocol SelectionServiceDecoratorInput {
     func onRefresh()
     func viewDidLoad()
@@ -29,7 +25,7 @@ public class SelectionServiceDecorator<Request, Response>: SelectionInput {
     private let service: SelectionService
     private let makeRequest: (() -> Request)
     private let makeResponse: ((Result<Response, ServiceError>) -> [SelectionType.SelectionCellPresentableModel])
-    public weak var view: SelectionServiceDecoratorOutput?
+    public var view: CommonLoadingOutput?
     
     init(
         decoratee: SelectionPresenter,

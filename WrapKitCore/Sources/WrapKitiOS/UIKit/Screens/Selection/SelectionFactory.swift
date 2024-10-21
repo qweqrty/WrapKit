@@ -67,8 +67,10 @@ public class SelectionFactoryiOS: ISelectionFactory {
             makeResponse: model.response
         )
         
-        let vc = SelectionVC(contentView: .init(config: configuration),
-                             presenter: servicePresenter)
+        let vc = SelectionVC(
+            contentView: .init(config: configuration),
+            presenter: servicePresenter
+        )
         
         let decoratedVC = SelectionVCDecorator(
             decoratee: vc,
@@ -76,7 +78,13 @@ public class SelectionFactoryiOS: ISelectionFactory {
         )
         
         presenter.view = vc
+            .weakReferenced
+            .mainQueueDispatched
+        
         servicePresenter.view = decoratedVC
+            .weakReferenced
+            .mainQueueDispatched
+        
         return vc
     }
     

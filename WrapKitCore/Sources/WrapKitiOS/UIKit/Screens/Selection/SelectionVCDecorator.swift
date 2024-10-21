@@ -12,6 +12,8 @@ import UIKit
 public class SelectionVCDecorator: ViewController<SelectionContentView> {
     private let decoratee: SelectionVC
     private let servicePresenter: SelectionServiceDecoratorInput
+    
+    public var isLoading = false
 
     public init(decoratee: SelectionVC, servicePresenter: SelectionServiceDecoratorInput) {
         self.decoratee = decoratee
@@ -32,8 +34,9 @@ public class SelectionVCDecorator: ViewController<SelectionContentView> {
     }
 }
 
-extension SelectionVCDecorator: SelectionServiceDecoratorOutput {
+extension SelectionVCDecorator: CommonLoadingOutput {
     public func display(isLoading: Bool) {
+        self.isLoading = isLoading
         isLoading ? contentView.refreshControl.beginRefreshing() : contentView.refreshControl.endRefreshing()
     }
 }
