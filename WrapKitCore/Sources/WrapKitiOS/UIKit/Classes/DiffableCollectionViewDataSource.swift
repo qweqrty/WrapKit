@@ -100,11 +100,24 @@ public class DiffableCollectionViewDataSource<Model: Hashable>: UICollectionView
     
     public func scrollViewDidScroll(_ scrollView: UIScrollView) {
         didScrollViewDidScroll?(scrollView)
+
         let visibleRect = CGRect(origin: scrollView.contentOffset, size: scrollView.bounds.size)
         let visiblePoint = CGPoint(x: visibleRect.midX, y: visibleRect.midY)
         guard let indexPath = (scrollView as? UICollectionView)?.indexPathForItem(at: visiblePoint) else { return }
+        
         didScrollTo?(indexPath)
+
+        guard scrollView.isDragging else { return }
+        let position = scrollView.contentOffset.y
+        let contentHeight = scrollView.contentSize.height
+        let scrollViewHeight = scrollView.frame.size.height
+
+        // Load the next page when the user is near the bottom of the collection view
+        if position > contentHeight - scrollViewHeight * 2 && showLoader {
+            loadNextPage?()
+        }
     }
+
     
     public override func collectionView(_ collectionView: UICollectionView, moveItemAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
         super.collectionView(collectionView, moveItemAt: sourceIndexPath, to: destinationIndexPath)

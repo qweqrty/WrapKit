@@ -114,6 +114,7 @@ public struct SelectionConfiguration {
         public var selectedImage: ImageEnum?
         public var notSelectedImage: ImageEnum?
         public var lineColor: Color
+        public var keyLabelNumberOfLines: Int
         
         public init(
             titleFont: Font,
@@ -123,7 +124,8 @@ public struct SelectionConfiguration {
             trailingColor: Color,
             selectedImage: ImageEnum? = nil,
             notSelectedImage: ImageEnum? = nil,
-            lineColor: Color
+            lineColor: Color,
+            keyLabelNumberOfLines: Int = 1
         ) {
             self.titleFont = titleFont
             self.trailingFont = trailingFont
@@ -133,6 +135,7 @@ public struct SelectionConfiguration {
             self.selectedImage = selectedImage
             self.notSelectedImage = notSelectedImage
             self.lineColor = lineColor
+            self.keyLabelNumberOfLines = keyLabelNumberOfLines
         }
     }
     

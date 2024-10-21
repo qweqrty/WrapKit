@@ -100,15 +100,6 @@ public class DiffableTableViewDataSource<Model: Hashable>: NSObject, UITableView
         return .leastNonzeroMagnitude
     }
     
-    public func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        let itemCount = tableView.numberOfRows(inSection: 0)
-        let thresholdIndex = itemCount - 1
-        
-        if indexPath.row == thresholdIndex, showLoader {
-            loadNextPage?()
-        }
-    }
-    
     public func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         guard let selectedModel = items.item(at: indexPath.row) else { return }
@@ -117,6 +108,17 @@ public class DiffableTableViewDataSource<Model: Hashable>: NSObject, UITableView
     
     public func scrollViewDidScroll(_ scrollView: UIScrollView) {
         didScrollViewDidScroll?(scrollView)
+
+        guard scrollView.isDragging else { return }
+
+        let position = scrollView.contentOffset.y
+        let contentHeight = scrollView.contentSize.height
+        let scrollViewHeight = scrollView.frame.size.height
+
+        // Load the next page when the user is near the bottom of the table view
+        if position > contentHeight - scrollViewHeight * 2 && showLoader {
+            loadNextPage?()
+        }
     }
     
     public func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
@@ -126,5 +128,6 @@ public class DiffableTableViewDataSource<Model: Hashable>: NSObject, UITableView
     public func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
         didScrollViewDidEndDecelerating?(scrollView)
     }
+
 }
 #endif

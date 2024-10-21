@@ -40,7 +40,10 @@ public class SelectionFactoryiOS: ISelectionFactory {
             contentView: .init(config: configuration),
             presenter: presenter
         )
-        presenter.view = vc.mainQueueDispatched
+        presenter.view = vc
+            .weakReferenced
+            .mainQueueDispatched
+        
         return vc
     }
     

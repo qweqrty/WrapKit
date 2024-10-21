@@ -34,7 +34,7 @@ public class SelectionCell: TableViewCell<SelectionCellContentView> {
                 mainContentView.leadingImageView.backgroundColor = color
             }
             mainContentView.leadingImageView.setImage(model.leadingImage)
-            
+            mainContentView.titleLabel.numberOfLines = model.configuration.keyLabelNumberOfLines
             mainContentView.lineView.backgroundColor = model.configuration.lineColor
             mainContentView.trailingLabel.textColor = model.configuration.trailingColor
             mainContentView.titleLabel.font = model.configuration.titleFont

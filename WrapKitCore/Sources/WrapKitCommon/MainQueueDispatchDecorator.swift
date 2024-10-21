@@ -78,6 +78,24 @@ extension SelectionOutput {
     public var mainQueueDispatched: SelectionOutput {
         MainQueueDispatchDecorator(decoratee: self)
     }
+    
+    public var weakReferenced: SelectionOutput {
+        return WeakRefVirtualProxy(self)
+    }
+}
+
+extension MainQueueDispatchDecorator: CommonToastOutput where T == CommonToastOutput {
+    public func display(_ toast: CommonToast) {
+        dispatch { [weak self] in
+            self?.decoratee.display(toast)
+        }
+    }
+}
+
+extension CommonToastOutput {
+    public var mainQueueDispatched: CommonToastOutput {
+        MainQueueDispatchDecorator(decoratee: self)
+    }
 }
 
 extension MainQueueDispatchDecorator: HTTPClient where T == HTTPClient {

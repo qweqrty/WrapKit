@@ -12,3 +12,13 @@ public protocol CommonLoadingOutput: AnyObject {
     
     func display(isLoading: Bool)
 }
+
+extension CommonLoadingOutput {
+    public var weakReferenced: CommonLoadingOutput {
+        return WeakRefVirtualProxy(self)
+    }
+    
+    public var mainQueueDispatched: CommonLoadingOutput {
+        MainQueueDispatchDecorator(decoratee: self)
+    }
+}
