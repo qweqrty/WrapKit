@@ -4,18 +4,76 @@
 //
 //  Created by Gulzat Zheenbek kyzy on 22/10/24.
 //
+
 #if canImport(UIKit)
+import UIKit
+public typealias UnderlineStyle = NSUnderlineStyle
+public typealias TextAlignment = NSTextAlignment
+
+#elseif canImport(AppKit)
+import AppKit
+public typealias UnderlineStyle = NSUnderlineStyle
+public typealias TextAlignment = NSTextAlignment
+
+#elseif canImport(WatchKit)
+import WatchKit
+public typealias UnderlineStyle = NSUnderlineStyle
+public typealias TextAlignment = NSTextAlignment
+
+#elseif canImport(SwiftUI)
+import SwiftUI
+public typealias UnderlineStyle = UnderlineStyleWrapper // Custom type for SwiftUI
+public typealias TextAlignment = TextAlignmentWrapper // Custom type for SwiftUI
+
+public struct UnderlineStyleWrapper {
+    public var style: NSUnderlineStyle?
+
+    public init(style: NSUnderlineStyle? = nil) {
+        self.style = style
+    }
+    
+    // Apply underline in SwiftUI
+    public func apply(to text: Text) -> Text {
+        if let style = style, style.contains(.single) {
+            return text.underline(true)
+        }
+        return text
+    }
+}
+
+public struct TextAlignmentWrapper {
+    public var alignment: TextAlignment?
+
+    public init(alignment: TextAlignment? = nil) {
+        self.alignment = alignment
+    }
+    
+    // Convert TextAlignment to SwiftUI equivalent
+    public func alignmentForSwiftUI() -> Alignment {
+        switch alignment {
+        case .leading:
+            return .leading
+        case .center:
+            return .center
+        case .trailing:
+            return .trailing
+        default:
+            return .leading
+        }
+    }
+}
+#endif
 
 public struct TextAttributes {
     public init(
         text: String,
-        color: UIColor,
-        font: UIFont,
-        underlineStyle: NSUnderlineStyle? = nil,
-        textAlignment: NSTextAlignment? = nil,
-        leadingImage: UIImage? = nil,
+        color: Color,
+        font: Font,
+        underlineStyle: UnderlineStyle? = nil,
+        textAlignment: TextAlignment? = nil,
+        leadingImage: Image? = nil,
         leadingImageBounds: CGRect = .zero,
-        trailingImage: UIImage? = nil,
+        trailingImage: Image? = nil,
         trailingImageBounds: CGRect = .zero,
         onTap: (() -> Void)? = nil
     ) {
@@ -31,17 +89,16 @@ public struct TextAttributes {
         self.trailingImage = trailingImage
         self.trailingImageBounds = trailingImageBounds
     }
-    
+
     public let text: String
-    public let color: UIColor
-    public let underlineStyle: NSUnderlineStyle?
-    public let font: UIFont
-    public let textAlignment: NSTextAlignment?
-    public let leadingImage: UIImage?
+    public let color: Color
+    public let underlineStyle: UnderlineStyle?
+    public let font: Font
+    public let textAlignment: TextAlignment?
+    public let leadingImage: Image?
     public let leadingImageBounds: CGRect
-    public let trailingImage: UIImage?
+    public let trailingImage: Image?
     public let trailingImageBounds: CGRect
     public let onTap: (() -> Void)?
     var range: NSRange?
 }
-#endif
