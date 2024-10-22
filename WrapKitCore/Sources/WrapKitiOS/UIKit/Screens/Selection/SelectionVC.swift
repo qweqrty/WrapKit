@@ -6,13 +6,9 @@
 //
 
 #if canImport(UIKit)
-#if canImport(BottomSheet)
-#if canImport(BottomSheetUtils)
-import Foundation
 import UIKit
-import BottomSheet
 
-open class SelectionVC: ViewController<SelectionContentView> {
+open class SelectionVC: BottomSheetController<SelectionContentView> {
     public let presenter: SelectionInput
     
     private lazy var datasource = makeDatasource()
@@ -40,40 +36,6 @@ open class SelectionVC: ViewController<SelectionContentView> {
         contentView.selectButton.onPress = presenter.onTapFinishSelection
         contentView.searchBar.textfield.didChangeText.append(presenter.onSearch)
         contentView.stackView.isHidden = !presenter.isMultipleSelectionEnabled
-    }
-    
-    public override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        guard !isBeingDismissed else { return }
-        let calculatedHeight = !contentView.searchBar.isHidden ? contentView.frame.height : contentView.tableView.contentSize.height +
-        contentView.navigationBar.frame.height +
-        contentView.lineView.frame.height +
-        (contentView.searchBarConstraints?.height?.constant ?? 0) +
-        (contentView.searchBarConstraints?.top?.constant ?? 0) +
-        contentView.stackView.frame.height +
-        (contentView.tableViewConstraints?.top?.constant ?? 0)
-        
-        let bottomViewHeight = contentView.stackView.bounds.height + 24 + view.safeAreaInsets.bottom
-        
-        if presenter.isMultipleSelectionEnabled {
-            if ((window?.bounds.height ?? 0) - contentView.stackView.bounds.height) > calculatedHeight {
-                preferredContentSize = CGSize(
-                    width: (window?.bounds.width ?? 0),
-                    height: calculatedHeight + contentView.stackView.bounds.height
-                )
-            } else {
-                preferredContentSize = CGSize(
-                    width: (window?.bounds.width ?? 0),
-                    height: calculatedHeight
-                )
-                contentView.tableView.contentInset = .init(top: 0, left: 0, bottom: bottomViewHeight, right: 0)
-            }
-        } else {
-            preferredContentSize = CGSize(
-                width: (window?.bounds.width ?? 0),
-                height: calculatedHeight
-            )
-        }
     }
     
     public required init?(coder: NSCoder) {
@@ -112,27 +74,6 @@ extension SelectionVC: SelectionOutput {
         contentView.navigationBar.titleViews.keyLabel.text = title
         contentView.navigationBar.leadingCardView.titleViews.keyLabel.text = title
     }
-    
-    private func updateSearchBarHeight(to height: CGFloat) {
-        guard self.contentView.searchBarConstraints?.height?.constant != height else { return }
-        self.contentView.searchBarConstraints?.height?.constant = height
-        UIView.animate(withDuration: 0.1) {
-            self.contentView.layoutIfNeeded()
-        }
-    }
-    
-    private func fixSearchBarHeight(scrollView: UIScrollView) {
-        let currentOffset = scrollView.contentOffset.y
-        if currentOffset <= 0 {
-            self.contentView.searchBarConstraints?.height?.constant = 44
-        } else {
-            self.contentView.searchBarConstraints?.height?.constant = 0
-        }
-
-        UIView.animate(withDuration: 0.1) {
-            self.contentView.layoutIfNeeded()
-        }
-    }
 }
 
 extension SelectionVC {
@@ -147,37 +88,48 @@ extension SelectionVC {
         )
         
         datasource.didScrollViewDidScroll = { [weak self] scrollView in
-            guard let self = self, !self.contentView.searchBar.isHidden else { return }
-            let currentOffsetY = scrollView.contentOffset.y
-            let delta = currentOffsetY - self.currentContentYOffset
-
-            let isAtTop = currentOffsetY <= 0
-            let isAtBottom = currentOffsetY >= (scrollView.contentSize.height - scrollView.frame.size.height - 10)
-            let targetHeight: CGFloat = (delta > 0 && !isAtTop) || isAtBottom ? 0 : 44
-
-            self.updateSearchBarHeight(to: targetHeight)
-            self.currentContentYOffset = currentOffsetY
+            guard let self = self, !self.contentView.searchBar.isHidden, scrollView.isDragging, self.contentView.searchBar.textfield.text.isEmpty, scrollView.contentOffset.y > 0 else { return }
+            
+            let offset = scrollView.contentOffset.y - self.currentContentYOffset
+            let height = self.contentView.searchBarConstraints?.height?.constant ?? 0
+            let newHeight = offset >= 0 ? max(0, height - offset) : min(SelectionContentView.searchBarHeight, height - offset)
+            
+            self.contentView.searchBarConstraints?.height?.constant = newHeight
+            
+            let alpha = newHeight / SelectionContentView.searchBarHeight
+            self.contentView.searchBar.alpha = alpha
+            
+            if height != newHeight {
+                scrollView.contentOffset.y = self.currentContentYOffset
+            }
+            self.currentContentYOffset = scrollView.contentOffset.y
         }
-
-        datasource.didScrollViewDidEndDragging = { [weak self] scrollView, willDecelerate in
-            guard let self = self else { return }
-            if !willDecelerate {
-                self.fixSearchBarHeight(scrollView: scrollView)
+        
+        datasource.didScrollViewDidEndDragging = { [weak self] scrollView, _ in
+            guard let self = self, !self.contentView.searchBar.isHidden else { return }
+            let height = self.contentView.searchBarConstraints?.height?.constant ?? 0
+            let newHeight = height >= (SelectionContentView.searchBarHeight / 2) || !self.contentView.searchBar.textfield.text.isEmpty || scrollView.contentOffset.y <= 0 ? SelectionContentView.searchBarHeight : 0
+            
+            UIView.animate(withDuration: 0.1, delay: 0, options: .allowUserInteraction) {
+                self.contentView.searchBarConstraints?.height?.constant = newHeight
+                self.contentView.searchBar.alpha = newHeight / SelectionContentView.searchBarHeight
+                self.view.layoutIfNeeded()
             }
         }
-
+        
         datasource.didScrollViewDidEndDecelerating = { [weak self] scrollView in
-            guard let self = self else { return }
-            self.fixSearchBarHeight(scrollView: scrollView)
+            guard let self = self, !self.contentView.searchBar.isHidden else { return }
+            let height = self.contentView.searchBarConstraints?.height?.constant ?? 0
+            let newHeight = height >= (SelectionContentView.searchBarHeight / 2) || !self.contentView.searchBar.textfield.text.isEmpty || scrollView.contentOffset.y <= 0 ? SelectionContentView.searchBarHeight : 0
+            
+            UIView.animate(withDuration: 0.1, delay: 0, options: .allowUserInteraction) {
+                self.contentView.searchBarConstraints?.height?.constant = newHeight
+                self.contentView.searchBar.alpha = newHeight / SelectionContentView.searchBarHeight
+                self.view.layoutIfNeeded()
+            }
         }
 
         return datasource
     }
 }
-
-extension SelectionVC: ScrollableBottomSheetPresentedController {
-    public var scrollView: UIScrollView? { contentView.tableView }
-}
-#endif
-#endif
 #endif

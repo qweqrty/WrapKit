@@ -36,6 +36,12 @@ public class SelectionContentView: UIView {
         backgroundColor = config.content.backgroundColor
     }
     
+    public override func layoutSubviews() {
+        super.layoutSubviews()
+        
+        round(corners: [.topLeft, .topRight], radius: 12)
+    }
+    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -83,9 +89,7 @@ extension SelectionContentView {
         )
         spacerView.anchor(
             .top(tableView.bottomAnchor),
-            .bottom(bottomAnchor),
-            .leading(leadingAnchor),
-            .trailing(trailingAnchor)
+            .bottom(bottomAnchor)
         )
     }
 }

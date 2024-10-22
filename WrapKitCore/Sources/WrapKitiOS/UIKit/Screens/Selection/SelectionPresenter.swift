@@ -28,6 +28,7 @@ public protocol SelectionInput {
 }
 
 public class SelectionPresenter {
+    public static let shouldShowSearchBarThresholdCount = 15
     private let flow: SelectionFlow
     public var view: SelectionOutput?
     
@@ -35,13 +36,12 @@ public class SelectionPresenter {
     public var isMultipleSelectionEnabled: Bool { model.isMultipleSelectionEnabled }
     public var items: [SelectionType.SelectionCellPresentableModel] {
         didSet {
-            view?.display(shouldShowSearchBar: items.count > shouldShowSearchBarThresholdCount)
+            view?.display(shouldShowSearchBar: items.count > Self.shouldShowSearchBarThresholdCount)
             onSearch(searchText)
         }
     }
     
     private var searchText = ""
-    private let shouldShowSearchBarThresholdCount = 15
     
     public let configuration: SelectionConfiguration
     
@@ -66,7 +66,7 @@ extension SelectionPresenter: SelectionInput {
     }
     
     public func viewDidLoad() {
-        view?.display(shouldShowSearchBar: items.count > shouldShowSearchBarThresholdCount)
+        view?.display(shouldShowSearchBar: items.count > Self.shouldShowSearchBarThresholdCount)
         view?.display(title: model.title)
         onSearch(searchText)
     }

@@ -21,8 +21,6 @@ public protocol ISelectionFactory<Controller> {
 }
 
 #if canImport(UIKit)
-#if canImport(BottomSheet)
-#if canImport(BottomSheetUtils)
 import UIKit
 
 public class SelectionFactoryiOS: ISelectionFactory {
@@ -44,6 +42,7 @@ public class SelectionFactoryiOS: ISelectionFactory {
             .weakReferenced
             .mainQueueDispatched
         
+        vc.preferredSheetSizing = model.items.count > SelectionPresenter.shouldShowSearchBarThresholdCount ? .fill : .fit
         return vc
     }
     
@@ -59,7 +58,7 @@ public class SelectionFactoryiOS: ISelectionFactory {
             configuration: configuration
         )
         
-        let servicePresenter = SelectionServiceDecorator(
+        let servicePresenter = SelectionServiceProxy(
             decoratee: presenter,
             storage: model.storage,
             service: model.service,
@@ -67,13 +66,8 @@ public class SelectionFactoryiOS: ISelectionFactory {
             makeResponse: model.response
         )
         
-        let vc = SelectionVC(
+        let vc = SelectionServiceVC(
             contentView: .init(config: configuration),
-            presenter: servicePresenter
-        )
-        
-        let decoratedVC = SelectionVCDecorator(
-            decoratee: vc,
             servicePresenter: servicePresenter
         )
         
@@ -81,15 +75,14 @@ public class SelectionFactoryiOS: ISelectionFactory {
             .weakReferenced
             .mainQueueDispatched
         
-        servicePresenter.view = decoratedVC
+        servicePresenter.view = vc
             .weakReferenced
             .mainQueueDispatched
         
+        vc.preferredSheetSizing = .fill
         return vc
     }
     
     public init() {}
 }
-#endif
-#endif
 #endif

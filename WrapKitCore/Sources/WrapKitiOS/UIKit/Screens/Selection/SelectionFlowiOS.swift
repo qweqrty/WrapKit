@@ -6,11 +6,8 @@
 //
 
 #if canImport(UIKit)
-#if canImport(BottomSheet)
-#if canImport(BottomSheetUtils)
 import Foundation
 import UIKit
-import BottomSheet
 
 public class SelectionFlowiOS: SelectionFlow {
     public let configuration: Model
@@ -35,14 +32,7 @@ public class SelectionFlowiOS: SelectionFlow {
             model: model
         )
         
-        navigationController?.presentBottomSheet(
-            viewController: vc,
-            configuration: .init(
-                cornerRadius: 16,
-                pullBarConfiguration: .hidden,
-                shadowConfiguration: .init(backgroundColor: configuration.content.shadowBackgroundColor)
-            )
-        )
+        navigationController?.present(vc, animated: true)
     }
     
     public func showSelection<Request, Response>(model: ServicedSelectionModel<Request, Response>) {
@@ -51,15 +41,7 @@ public class SelectionFlowiOS: SelectionFlow {
             flow: self,
             model: model
         )
-        
-        navigationController?.presentBottomSheet(
-            viewController: vc,
-            configuration: .init(
-                cornerRadius: 16,
-                pullBarConfiguration: .hidden,
-                shadowConfiguration: .init(backgroundColor: configuration.content.shadowBackgroundColor)
-            )
-        )
+        navigationController?.present(vc, animated: true)
     }
     
     public func close(with result: SelectionType?) {
@@ -67,6 +49,4 @@ public class SelectionFlowiOS: SelectionFlow {
     }
 }
 
-#endif
-#endif
 #endif

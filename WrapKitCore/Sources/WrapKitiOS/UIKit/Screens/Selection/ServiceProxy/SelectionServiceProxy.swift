@@ -1,5 +1,5 @@
 //
-//  SelectionServiceDecoratorOutput.swift
+//  SelectionServiceProxyOutput.swift
 //  WrapKit
 //
 //  Created by Ulan Beishenkulov on 10/9/24.
@@ -7,13 +7,13 @@
 
 import Foundation
 
-public protocol SelectionServiceDecoratorInput {
+public protocol SelectionServiceInput {
     func onRefresh()
     func viewDidLoad()
     func isNeedToShowSearch(_ isNeedToShowSearch: Bool)
 }
 
-public class SelectionServiceDecorator<Request, Response>: SelectionInput {
+public class SelectionServiceProxy<Request, Response>: SelectionInput {
     typealias SelectionService = (any Service<Request, Response>)
     
     public var isMultipleSelectionEnabled: Bool  { decoratee.isMultipleSelectionEnabled }
@@ -75,7 +75,7 @@ public class SelectionServiceDecorator<Request, Response>: SelectionInput {
     }
 }
 
-extension SelectionServiceDecorator: SelectionServiceDecoratorInput {
+extension SelectionServiceProxy: SelectionServiceInput {
     public func onRefresh() {
         view?.display(isLoading: true)
         service.make(request: makeRequest()) { [weak self] result in

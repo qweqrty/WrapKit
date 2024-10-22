@@ -8,3 +8,4 @@ public func ??=<T, U>(optional: T?, transform: (T) -> U?) -> U? {
     }
     return transform(value)
 }
+

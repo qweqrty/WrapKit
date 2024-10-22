@@ -9,24 +9,21 @@
 import Foundation
 import UIKit
 
-public class SelectionVCDecorator: ViewController<SelectionContentView> {
-    private let decoratee: SelectionVC
-    private let servicePresenter: SelectionServiceDecoratorInput
+public class SelectionServiceVC: SelectionVC {
+    private let servicePresenter: SelectionServiceInput
     
     public var isLoading = false
-
-    public init(decoratee: SelectionVC, servicePresenter: SelectionServiceDecoratorInput) {
-        self.decoratee = decoratee
+    
+    public init(contentView: SelectionContentView, servicePresenter: SelectionServiceInput & SelectionInput) {
         self.servicePresenter = servicePresenter
-        super.init(contentView: decoratee.contentView)
+        super.init(contentView: contentView, presenter: servicePresenter)
     }
 
     public override func viewDidLoad() {
         super.viewDidLoad()
         
         contentView.tableView.refreshControl = contentView.refreshControl
-        decoratee.contentView.refreshControl.onRefresh = servicePresenter.onRefresh
-        decoratee.viewDidLoad()
+        contentView.refreshControl.onRefresh = servicePresenter.onRefresh
     }
     
     public required init?(coder: NSCoder) {
@@ -34,7 +31,7 @@ public class SelectionVCDecorator: ViewController<SelectionContentView> {
     }
 }
 
-extension SelectionVCDecorator: CommonLoadingOutput {
+extension SelectionServiceVC: CommonLoadingOutput {
     public func display(isLoading: Bool) {
         self.isLoading = isLoading
         isLoading ? contentView.refreshControl.beginRefreshing() : contentView.refreshControl.endRefreshing()
