@@ -9,45 +9,7 @@
 import UIKit
 
 open class Label: UILabel {
-    public struct Link {
-        public init(
-            text: String,
-            color: UIColor,
-            font: UIFont,
-            underlineStyle: NSUnderlineStyle? = nil,
-            textAlignment: NSTextAlignment? = nil,
-            leadingImage: UIImage? = nil,
-            leadingImageBounds: CGRect = .zero,
-            trailingImage: UIImage? = nil,
-            trailingImageBounds: CGRect = .zero,
-            onTap: (() -> Void)? = nil
-        ) {
-            self.text = text
-            self.color = color
-            self.font = font
-            self.onTap = onTap
-            self.range = nil
-            self.underlineStyle = underlineStyle
-            self.textAlignment = textAlignment
-            self.leadingImage = leadingImage
-            self.leadingImageBounds = leadingImageBounds
-            self.trailingImage = trailingImage
-            self.trailingImageBounds = trailingImageBounds
-        }
-        
-        public let text: String
-        public let color: UIColor
-        public let underlineStyle: NSUnderlineStyle?
-        public let font: UIFont
-        public let textAlignment: NSTextAlignment?
-        public let leadingImage: UIImage?
-        public let leadingImageBounds: CGRect
-        public let trailingImage: UIImage?
-        public let trailingImageBounds: CGRect
-        public let onTap: (() -> Void)?
-        var range: NSRange?
-    }
-    
+   
     public init(
         backgroundColor: UIColor? = .clear,
         isHidden: Bool = false,
@@ -101,28 +63,29 @@ open class Label: UILabel {
         }
     }
     
-    private var links: [Link] = [] {
+    private var attributes: [TextAttributes] = [] {
         didSet {
-            guard !links.isEmpty else {
+            guard !attributes.isEmpty else {
                 attributedText = nil
-                if let attributedTextTapGesture = gestureRecognizers?.first(where: { $0.name == String(describing: Link.self) }) {
+                if let attributedTextTapGesture = gestureRecognizers?.first(where: { $0.name == String(describing: TextAttributes.self) }) {
                     removeGestureRecognizer(attributedTextTapGesture)
                 }
                 return
             }
             let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleTap(gesture:)))
-            tapGestureRecognizer.name = String(describing: Link.self)
+            tapGestureRecognizer.name = String(describing: TextAttributes.self)
             addGestureRecognizer(tapGestureRecognizer)
             
             let combinedAttributedString = NSMutableAttributedString()
             
-            for (index, (prev, current, _)) in links.withPreviousAndNext.enumerated() {
+            for (index, (prev, current, _)) in attributes.withPreviousAndNext.enumerated() {
                 combinedAttributedString.append(
                     NSAttributedString(
                         current.text,
                         font: current.font,
                         color: current.color,
                         lineSpacing: 4,
+                        underlineStyle: current.underlineStyle ?? [],
                         textAlignment: current.textAlignment ?? textAlignment,
                         leadingImage: current.leadingImage,
                         leadingImageBounds: current.leadingImageBounds,
@@ -131,7 +94,7 @@ open class Label: UILabel {
                     )
                 )
                 let prevRange = prev?.range ?? .init(location: 0, length: 0)
-                links[index].range = NSRange(location: prevRange.location + prevRange.length, length: current.text.count)
+                attributes[index].range = NSRange(location: prevRange.location + prevRange.length, length: current.text.count)
             }
             attributedText = combinedAttributedString
         }
@@ -143,10 +106,10 @@ open class Label: UILabel {
     
     @objc
     private func handleTap(gesture: UITapGestureRecognizer) {
-        for link in links {
-            guard let range = link.range else { continue }
+        for attribute in attributes {
+            guard let range = attribute.range else { continue }
             if gesture.didTapAttributedTextInLabel(label: self, inRange: range) {
-                link.onTap?()
+                attribute.onTap?()
                 return
             }
         }
@@ -155,15 +118,15 @@ open class Label: UILabel {
 
 public extension Label {
     @discardableResult
-    func append(_ attributedTexts: Link...) -> Self {
-        attributedTexts.forEach { link in
-            self.links.append(link)
+    func append(_ attributedTexts: TextAttributes...) -> Self {
+        attributedTexts.forEach { attribute in
+            self.attributes.append(attribute)
         }
         return self
     }
     
-    func removeLinks() {
-        self.links.removeAll()
+    func removeAttributes() {
+        self.attributes.removeAll()
         self.attributedText = nil
     }
 }
