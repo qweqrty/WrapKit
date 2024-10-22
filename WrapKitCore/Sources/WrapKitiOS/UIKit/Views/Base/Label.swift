@@ -9,7 +9,7 @@
 import UIKit
 
 open class Label: UILabel {
-    public struct Link {
+    public struct TextAttributes {
         public init(
             text: String,
             color: UIColor,
@@ -101,22 +101,22 @@ open class Label: UILabel {
         }
     }
     
-    private var links: [Link] = [] {
+    private var attributes: [TextAttributes] = [] {
         didSet {
-            guard !links.isEmpty else {
+            guard !attributes.isEmpty else {
                 attributedText = nil
-                if let attributedTextTapGesture = gestureRecognizers?.first(where: { $0.name == String(describing: Link.self) }) {
+                if let attributedTextTapGesture = gestureRecognizers?.first(where: { $0.name == String(describing: TextAttributes.self) }) {
                     removeGestureRecognizer(attributedTextTapGesture)
                 }
                 return
             }
             let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleTap(gesture:)))
-            tapGestureRecognizer.name = String(describing: Link.self)
+            tapGestureRecognizer.name = String(describing: TextAttributes.self)
             addGestureRecognizer(tapGestureRecognizer)
             
             let combinedAttributedString = NSMutableAttributedString()
             
-            for (index, (prev, current, _)) in links.withPreviousAndNext.enumerated() {
+            for (index, (prev, current, _)) in attributes.withPreviousAndNext.enumerated() {
                 combinedAttributedString.append(
                     NSAttributedString(
                         current.text,
@@ -132,7 +132,7 @@ open class Label: UILabel {
                     )
                 )
                 let prevRange = prev?.range ?? .init(location: 0, length: 0)
-                links[index].range = NSRange(location: prevRange.location + prevRange.length, length: current.text.count)
+                attributes[index].range = NSRange(location: prevRange.location + prevRange.length, length: current.text.count)
             }
             attributedText = combinedAttributedString
         }
@@ -144,10 +144,10 @@ open class Label: UILabel {
     
     @objc
     private func handleTap(gesture: UITapGestureRecognizer) {
-        for link in links {
-            guard let range = link.range else { continue }
+        for attribute in attributes {
+            guard let range = attribute.range else { continue }
             if gesture.didTapAttributedTextInLabel(label: self, inRange: range) {
-                link.onTap?()
+                attribute.onTap?()
                 return
             }
         }
@@ -156,15 +156,15 @@ open class Label: UILabel {
 
 public extension Label {
     @discardableResult
-    func append(_ attributedTexts: Link...) -> Self {
-        attributedTexts.forEach { link in
-            self.links.append(link)
+    func append(_ attributedTexts: TextAttributes...) -> Self {
+        attributedTexts.forEach { attribute in
+            self.attributes.append(attribute)
         }
         return self
     }
     
-    func removeLinks() {
-        self.links.removeAll()
+    func removeAttributes() {
+        self.attributes.removeAll()
         self.attributedText = nil
     }
 }
