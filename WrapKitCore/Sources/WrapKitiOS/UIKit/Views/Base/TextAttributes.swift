@@ -5,7 +5,6 @@
 //  Created by Gulzat Zheenbek kyzy on 22/10/24.
 //
 #if canImport(UIKit)
-import UIKit
 
 public struct TextAttributes {
     public init(
