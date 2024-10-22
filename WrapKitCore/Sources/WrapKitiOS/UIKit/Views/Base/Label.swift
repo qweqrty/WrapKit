@@ -123,6 +123,7 @@ open class Label: UILabel {
                         font: current.font,
                         color: current.color,
                         lineSpacing: 4,
+                        underlineStyle: current.underlineStyle ?? [],
                         textAlignment: current.textAlignment ?? textAlignment,
                         leadingImage: current.leadingImage,
                         leadingImageBounds: current.leadingImageBounds,
