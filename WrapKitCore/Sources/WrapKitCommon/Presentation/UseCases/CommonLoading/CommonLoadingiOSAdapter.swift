@@ -40,16 +40,16 @@ public extension CommonLoadingOutput where Self == CommonLoadingiOSAdapter {
 public class CommonLoadingiOSAdapter: CommonLoadingOutput {
     public func display(isLoading: Bool) {
         self.isLoading = isLoading
-        isLoading ? onView.showLoadingView(
+        isLoading ? onView?.showLoadingView(
             loadingView,
             backgroundColor: backgroundColor,
             size: size
-        ) : onView.hideLoadingView()
+        ) : onView?.hideLoadingView()
     }
     
     public private(set) var isLoading: Bool = false
     
-    private let onView: UIView
+    private weak var onView: UIView?
     private let loadingView: UIView
     private let size: CGSize
     private let backgroundColor: UIColor
