@@ -87,6 +87,10 @@ extension SelectionVC {
             }
         )
         
+        datasource.didSelectAt = { [weak self] indexPath, model in
+            self?.presenter.onSelect(at: indexPath.row)
+        }
+        
         datasource.didScrollViewDidScroll = { [weak self] scrollView in
             guard let self = self, !self.contentView.searchBar.isHidden, scrollView.isDragging, self.contentView.searchBar.textfield.text.isEmpty, scrollView.contentOffset.y > 0 else { return }
             

@@ -20,8 +20,8 @@ public typealias TextAlignment = NSTextAlignment
 public struct TextAttributes {
     public init(
         text: String,
-        color: Color?,
-        font: Font?,
+        color: Color? = nil,
+        font: Font? = nil,
         underlineStyle: UnderlineStyle? = nil,
         textAlignment: TextAlignment? = nil,
         leadingImage: Image? = nil,
