@@ -82,8 +82,8 @@ open class Label: UILabel {
                 combinedAttributedString.append(
                     NSAttributedString(
                         current.text,
-                        font: current.font,
-                        color: current.color,
+                        font: current.font ?? font,
+                        color: current.color ?? textColor,
                         lineSpacing: 4,
                         underlineStyle: current.underlineStyle ?? [],
                         textAlignment: current.textAlignment ?? textAlignment,
