@@ -10,6 +10,8 @@ import Foundation
 import UIKit
 
 public class SelectionContentView: UIView {
+    static let searchBarHeight: CGFloat = 44
+    
     public lazy var lineView = View(backgroundColor: config.content.lineColor)
     public lazy var navigationBar = makeNavigationBar()
     public lazy var tableView = makeTableView()
@@ -19,6 +21,7 @@ public class SelectionContentView: UIView {
     public lazy var resetButton = makeActionButton(isReset: true)
     public lazy var selectButton = makeActionButton(isReset: false)
     public lazy var spacerView = UIView()
+    public lazy var refreshControl = RefreshControl(tintColor: config.content.refreshColor)
     
     public var searchBarConstraints: AnchoredConstraints?
     public var tableViewConstraints: AnchoredConstraints?
@@ -31,6 +34,12 @@ public class SelectionContentView: UIView {
         setupSubviews()
         setupConstraints()
         backgroundColor = config.content.backgroundColor
+    }
+    
+    public override func layoutSubviews() {
+        super.layoutSubviews()
+        
+        round(corners: [.topLeft, .topRight], radius: 12)
     }
     
     required init?(coder: NSCoder) {
@@ -66,7 +75,7 @@ extension SelectionContentView {
             .top(navigationBar.bottomAnchor, constant: 8),
             .leading(leadingAnchor, constant: 12),
             .trailing(trailingAnchor, constant: 12),
-            .height(44)
+            .height(Self.searchBarHeight)
         )
         stackView.anchor(
             .leading(leadingAnchor, constant: 12),
@@ -80,9 +89,7 @@ extension SelectionContentView {
         )
         spacerView.anchor(
             .top(tableView.bottomAnchor),
-            .bottom(bottomAnchor),
-            .leading(leadingAnchor),
-            .trailing(trailingAnchor)
+            .bottom(bottomAnchor)
         )
     }
 }
@@ -101,11 +108,9 @@ private extension SelectionContentView {
         navigationBar.leadingCardView.titleViews.keyLabel.font = config.content.navBarFont
         navigationBar.leadingCardView.titleViews.keyLabel.textColor = config.content.navBarTextColor
         navigationBar.leadingCardView.leadingImageWrapperView.isHidden = true
-        navigationBar.primeTrailingImageWrapperView.contentView.setImage(config.content.backButtonImage)
+        navigationBar.primeTrailingImageWrapperView.contentView.setImage(.asset(config.content.backButtonImage))
         navigationBar.primeTrailingImageWrapperView.isHidden = config.content.backButtonImage == nil
-        if case let .asset(image) = config.content.backButtonImage {
-            navigationBar.primeTrailingImageWrapperView.contentView.anchor(.width(image?.size.width ?? 24))
-        }
+        navigationBar.primeTrailingImageWrapperView.contentView.anchor(.width(config.content.backButtonImage?.size.width ?? 24))
         navigationBar.titleViews.stackView.layoutMargins = .init(top: 0, left: 12, bottom: 0, right: 12)
         
         navigationBar.titleViews.isHidden = config.content.backButtonImage != nil

@@ -27,6 +27,8 @@ public class DiffableTableViewDataSource<Model: Hashable>: NSObject, UITableView
     public var loadNextPage: (() -> Void)?
     public var heightForRowAt: ((IndexPath) -> CGFloat)?
     public var didScrollViewDidScroll: ((UIScrollView) -> Void)?
+    public var didScrollViewDidEndDragging: ((UIScrollView, Bool) -> Void)?
+    public var didScrollViewDidEndDecelerating: ((UIScrollView) -> Void)?
     
     private weak var tableView: UITableView?
     private var dataSource: UITableViewDiffableDataSource<Int, TableItem>!
@@ -117,6 +119,14 @@ public class DiffableTableViewDataSource<Model: Hashable>: NSObject, UITableView
         if position > contentHeight - scrollViewHeight * 2 && showLoader {
             loadNextPage?()
         }
+    }
+    
+    public func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+        didScrollViewDidEndDragging?(scrollView, decelerate)
+    }
+    
+    public func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+        didScrollViewDidEndDecelerating?(scrollView)
     }
 
 }

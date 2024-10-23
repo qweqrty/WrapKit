@@ -23,11 +23,15 @@ public final class MainQueueDispatchDecorator<T> {
 }
 
 extension MainQueueDispatchDecorator: SelectionFlow where T == SelectionFlow {
-    public var model: SelectionPresenterModel { decoratee.model }
-    
-    public func showSelection() {
+    public func showSelection(model: SelectionPresenterModel) {
         dispatch { [weak self] in
-            self?.decoratee.showSelection()
+            self?.decoratee.showSelection(model: model)
+        }
+    }
+    
+    public func showSelection<Request, Response>(model: ServicedSelectionModel<Request, Response>) {
+        dispatch { [weak self] in
+            self?.decoratee.showSelection(model: model)
         }
     }
     
