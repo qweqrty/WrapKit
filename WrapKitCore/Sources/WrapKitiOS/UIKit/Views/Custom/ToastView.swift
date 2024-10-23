@@ -19,7 +19,7 @@ open class ToastView: UIView {
     }()
     
     private var showConstant: CGFloat = 0
-    private var keyboardHeight: CGFloat = 0
+    public var keyboardHeight: CGFloat = 0
 
     private let spacing: CGFloat = 8
     public let duration: TimeInterval
@@ -50,8 +50,6 @@ open class ToastView: UIView {
     }
     
     private func setupObservers() {
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(didEnterBackground), name: UIApplication.didEnterBackgroundNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(willEnterForeground), name: UIApplication.willEnterForegroundNotification, object: nil)
     }
@@ -66,10 +64,6 @@ open class ToastView: UIView {
     }
     
     @objc private func keyboardWillShow(_ notification: Notification) {
-        guard let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else { return }
-        
-        keyboardHeight = keyboardFrame.height
-        
         switch position {
         case .top:
             break
@@ -79,8 +73,6 @@ open class ToastView: UIView {
     }
 
     @objc private func keyboardWillHide(_ notification: Notification) {
-        keyboardHeight = 0
-        
         switch position {
         case .top:
             break
