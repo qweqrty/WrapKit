@@ -9,6 +9,51 @@
 import UIKit
 import SwiftUI
 
+public struct CardViewPresentableModel: HashableWithReflection {
+    public struct Image {
+        public let image: ImageEnum
+        public let size: CGSize
+        
+        public init(image: ImageEnum, size: CGSize) {
+            self.image = image
+            self.size = size
+        }
+    }
+    
+    public struct Title {
+        public let text: String
+        public let color: Color?
+        
+        public init(text: String, color: Color? = nil) {
+            self.text = text
+            self.color = color
+        }
+    }
+    
+    public let title: Title?
+    public let leadingImage: Image?
+    public let trailingImage: Image?
+    public let subTitle: Title?
+    public let valueTitle: [TextAttributes]
+    public let separatorColor: Color?
+    
+    public init(
+        title: Title? = nil,
+        leadingImage: Image? = nil,
+        trailingImage: Image? = nil,
+        subTitle: Title? = nil,
+        valueTitle: TextAttributes...,
+        separatorColor: Color? = nil
+    ) {
+        self.title = title
+        self.leadingImage = leadingImage
+        self.trailingImage = trailingImage
+        self.subTitle = subTitle
+        self.valueTitle = valueTitle
+        self.separatorColor = separatorColor
+    }
+}
+
 open class CardView: View {
     public let vStackView = StackView(axis: .vertical, contentInset: .init(top: 0, left: 8, bottom: 0, right: 8))
     public let hStackView = StackView(axis: .horizontal, spacing: 14)
