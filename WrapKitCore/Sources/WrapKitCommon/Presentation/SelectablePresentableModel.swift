@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct SelectablePresentableModel<Model> {
+public struct SelectablePresentableModel<Model>: HashableWithReflection {
     public var isSelected: InMemoryStorage<Bool>
     public var model: Model
     
