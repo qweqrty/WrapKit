@@ -28,11 +28,11 @@ public struct CardViewPresentableModel: HashableWithReflection {
     public let separatorColor: Color?
     
     public init(
-        title: TextAttributes...,
+        title: [TextAttributes] = [],
         leadingImage: Image? = nil,
         trailingImage: Image? = nil,
-        subTitle: TextAttributes...,
-        valueTitle: TextAttributes...,
+        subTitle: [TextAttributes] = [],
+        valueTitle: [TextAttributes] = [],
         separatorColor: Color? = nil
     ) {
         self.title = title

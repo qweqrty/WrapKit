@@ -92,22 +92,31 @@ extension SelectionVC {
         }
         
         datasource.didScrollViewDidScroll = { [weak self] scrollView in
-            guard let self = self, !self.contentView.searchBar.isHidden, scrollView.isDragging, self.contentView.searchBar.textfield.text.isEmpty, scrollView.contentOffset.y > 0 else { return }
+            guard let self = self, !self.contentView.searchBar.isHidden,
+                  scrollView.isDragging, scrollView.contentOffset.y > 0,
+                  self.contentView.searchBar.textfield.text?.isEmpty == true else { return }
             
+            // Prevent unnecessary updates at the bottom of the scroll view
+            let isNearBottom = scrollView.contentOffset.y >= (scrollView.contentSize.height - scrollView.frame.size.height)
+            guard !isNearBottom else { return }
+
+            // Calculate the new height and offset based on scroll behavior
             let offset = scrollView.contentOffset.y - self.currentContentYOffset
             let height = self.contentView.searchBarConstraints?.height?.constant ?? 0
             let newHeight = offset >= 0 ? max(0, height - offset) : min(SelectionContentView.searchBarHeight, height - offset)
             
+            // Update searchBar height and alpha smoothly
             self.contentView.searchBarConstraints?.height?.constant = newHeight
+            self.contentView.searchBar.alpha = newHeight / SelectionContentView.searchBarHeight
             
-            let alpha = newHeight / SelectionContentView.searchBarHeight
-            self.contentView.searchBar.alpha = alpha
-            
+            // Prevent unnecessary re-calculations
             if height != newHeight {
                 scrollView.contentOffset.y = self.currentContentYOffset
             }
+            
             self.currentContentYOffset = scrollView.contentOffset.y
         }
+
         
         datasource.didScrollViewDidEndDragging = { [weak self] scrollView, _ in
             guard let self = self, !self.contentView.searchBar.isHidden else { return }
