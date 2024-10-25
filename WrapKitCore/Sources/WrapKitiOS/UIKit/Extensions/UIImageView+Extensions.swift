@@ -8,21 +8,23 @@ public extension ImageView {
         animation: UIView.AnimationOptions = .transitionCrossDissolve,
         kingfisherOptions: KingfisherOptionsInfo = []
     ) {
-        switch image {
-        case .asset(let image):
-            animatedSet(image)
-        case .url(let url):
-            guard let url else { return }
-            loadImage(url, kingfisherOptions: kingfisherOptions)
-        case .urlString(let string):
-            guard let string else { return }
-            guard let url = URL(string: string) else { return }
-            loadImage(url, kingfisherOptions: kingfisherOptions)
-        case .data(let data):
-            guard let data else { return }
-            animatedSet(UIImage(data: data))
-        case .none:
-            break
+        DispatchQueue.main.async { [weak self] in
+            switch image {
+            case .asset(let image):
+                self?.animatedSet(image)
+            case .url(let url):
+                guard let url else { return }
+                self?.loadImage(url, kingfisherOptions: kingfisherOptions)
+            case .urlString(let string):
+                guard let string else { return }
+                guard let url = URL(string: string) else { return }
+                self?.loadImage(url, kingfisherOptions: kingfisherOptions)
+            case .data(let data):
+                guard let data else { return }
+                self?.animatedSet(UIImage(data: data))
+            case .none:
+                break
+            }
         }
     }
     
