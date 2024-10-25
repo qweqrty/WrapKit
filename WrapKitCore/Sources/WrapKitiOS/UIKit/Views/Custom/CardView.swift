@@ -20,28 +20,18 @@ public struct CardViewPresentableModel: HashableWithReflection {
         }
     }
     
-    public struct Title {
-        public let text: String
-        public let color: Color?
-        
-        public init(text: String, color: Color? = nil) {
-            self.text = text
-            self.color = color
-        }
-    }
-    
-    public let title: Title?
+    public let title: [TextAttributes]
     public let leadingImage: Image?
     public let trailingImage: Image?
-    public let subTitle: Title?
+    public let subTitle: [TextAttributes]
     public let valueTitle: [TextAttributes]
     public let separatorColor: Color?
     
     public init(
-        title: Title? = nil,
+        title: TextAttributes...,
         leadingImage: Image? = nil,
         trailingImage: Image? = nil,
-        subTitle: Title? = nil,
+        subTitle: TextAttributes...,
         valueTitle: TextAttributes...,
         separatorColor: Color? = nil
     ) {
@@ -51,6 +41,49 @@ public struct CardViewPresentableModel: HashableWithReflection {
         self.subTitle = subTitle
         self.valueTitle = valueTitle
         self.separatorColor = separatorColor
+    }
+}
+
+public protocol CardViewOutput: AnyObject {
+    func display(model: CardViewPresentableModel)
+}
+
+extension CardView: CardViewOutput {
+    public func display(model: CardViewPresentableModel) {
+        // Key title
+        titleViews.keyLabel.isHidden = model.title.isEmpty
+        titleViews.keyLabel.removeAttributes()
+        model.title.forEach { titleViews.keyLabel.append($0) }
+        // Value title
+        titleViews.valueLabel.removeAttributes()
+        titleViews.valueLabel.isHidden = model.valueTitle.isEmpty
+        model.valueTitle.forEach { attribute in
+            titleViews.valueLabel.append(attribute)
+        }
+        
+        // Subtitle
+        subtitleLabel.isHidden = model.subTitle.isEmpty
+        subtitleLabel.removeAttributes()
+        model.valueTitle.forEach { attribute in
+            subtitleLabel.append(attribute)
+        }
+        
+        // LeadingImage
+        leadingImageWrapperView.isHidden = model.leadingImage == nil
+        leadingImageViewConstraints?.width?.constant = model.leadingImage?.size.width ?? 0
+        leadingImageViewConstraints?.height?.constant = model.leadingImage?.size.height ?? 0
+        
+        leadingImageView.setImage(model.leadingImage?.image)
+        
+        // TrailingImage
+        trailingImageWrapperView.isHidden = model.trailingImage == nil
+        trailingImageViewConstraints?.width?.constant = model.trailingImage?.size.width ?? 0
+        trailingImageViewConstraints?.height?.constant = model.trailingImage?.size.height ?? 0
+        trailingImageView.setImage(model.trailingImage?.image)
+        
+        // bottomSeparatorView
+        bottomSeparatorView.contentView.backgroundColor = model.separatorColor
+        bottomSeparatorView.isHidden = model.separatorColor == nil
     }
 }
 
