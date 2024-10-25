@@ -56,7 +56,7 @@ public class DiffableCollectionViewDataSource<Model: Hashable>: UICollectionView
             let uniqueItems = items.uniqued
             DispatchQueue.main.async { [weak self] in
                 var snapshot = NSDiffableDataSourceSnapshot<Int, CollectionItem<Model>>()
-                snapshot.appendSections(uniqueItems.enumerated().map { $0.offset })
+                snapshot.appendSections([section])
                 snapshot.appendItems(uniqueItems.map { .model($0) }, toSection: section)
                 self?.apply(snapshot, animatingDifferences: true)
             }

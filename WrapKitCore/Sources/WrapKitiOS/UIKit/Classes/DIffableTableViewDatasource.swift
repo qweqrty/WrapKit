@@ -53,8 +53,8 @@ public class DiffableTableViewDataSource<Model: Hashable>: NSObject, UITableView
             let uniqueItems = items.uniqued
             DispatchQueue.main.async { [weak self] in
                 var snapshot = NSDiffableDataSourceSnapshot<Int, TableItem>()
-                snapshot.appendSections(uniqueItems.enumerated().map { $0.offset })
-                snapshot.appendItems(uniqueItems.map { .model($0) }, toSection: 0)
+                snapshot.appendSections([section])
+                snapshot.appendItems(uniqueItems.map { .model($0) }, toSection: section)
                 self?.dataSource.apply(snapshot, animatingDifferences: true)
             }
         }
