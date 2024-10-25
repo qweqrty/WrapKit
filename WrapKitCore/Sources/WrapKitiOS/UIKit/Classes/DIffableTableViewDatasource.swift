@@ -23,7 +23,6 @@ public class DiffableTableViewDataSource<Model: Hashable>: NSObject, UITableView
     
     private weak var tableView: UITableView?
     private var dataSource: UITableViewDiffableDataSource<Int, TableItem>!
-    private var snapshot = NSDiffableDataSourceSnapshot<Int, TableItem>()
     
     // MARK: - Initializer
     public init(tableView: UITableView, configureCell: @escaping (UITableView, IndexPath, Model) -> UITableViewCell) {
@@ -50,28 +49,28 @@ public class DiffableTableViewDataSource<Model: Hashable>: NSObject, UITableView
     
     // MARK: - Snapshot Management
     public func updateItems(_ items: [Model], at section: Int = 0) {
-        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+        DispatchQueue.global(qos: .userInitiated).async {
             let uniqueItems = items.uniqued
-            self?.applySnapshot(with: uniqueItems, at: section)
+            DispatchQueue.main.async { [weak self] in
+                var snapshot = NSDiffableDataSourceSnapshot<Int, TableItem>()
+                snapshot.appendSections(uniqueItems.enumerated().map { $0.offset })
+                snapshot.appendItems(uniqueItems.map { .model($0) }, toSection: 0)
+                self?.dataSource.apply(snapshot, animatingDifferences: true)
+            }
         }
     }
     
-    private func applySnapshot(with items: [Model], at section: Int) {
-        DispatchQueue.main.async { [weak self] in
-            guard let self = self else { return }
-            
-            // Check if the section already exists in the snapshot
-            if !self.snapshot.sectionIdentifiers.contains(section) {
-                self.snapshot.appendSections([section])
+    public func updateItems(_ items: [[Model]]) {
+        DispatchQueue.global(qos: .userInitiated).async {
+            let uniqueItems = items.uniqued
+            DispatchQueue.main.async { [weak self] in
+                var snapshot = NSDiffableDataSourceSnapshot<Int, TableItem>()
+                snapshot.appendSections(uniqueItems.enumerated().map { $0.offset })
+                uniqueItems.enumerated().forEach {
+                    snapshot.appendItems($0.element.uniqued.map { .model($0) }, toSection: $0.offset)
+                }
+                self?.dataSource.apply(snapshot, animatingDifferences: true)
             }
-            
-            // Remove any previous items in the section before adding new ones
-            self.snapshot.deleteItems(self.snapshot.itemIdentifiers(inSection: section))
-            
-            // Append new items to the section
-            self.snapshot.appendItems(items.map { .model($0) }, toSection: section)
-            
-            self.dataSource.apply(self.snapshot, animatingDifferences: true)
         }
     }
     
@@ -82,7 +81,7 @@ public class DiffableTableViewDataSource<Model: Hashable>: NSObject, UITableView
     
     public func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        guard case .model(let selectedModel) = snapshot.itemIdentifiers(inSection: indexPath.section).item(at: indexPath.row) else { return }
+        guard case .model(let selectedModel) = dataSource.snapshot().itemIdentifiers(inSection: indexPath.section).item(at: indexPath.row) else { return }
         didSelectAt?(indexPath, selectedModel)
     }
     
