@@ -19,20 +19,16 @@ public class DiffableCollectionViewDataSource<Model: Hashable>: UICollectionView
     public var configureCell: ((UICollectionView, IndexPath, Model) -> UICollectionViewCell)?
     public var configureSupplementaryView: ((UICollectionView, String, IndexPath) -> UICollectionReusableView)?
     public var onRetry: (() -> Void)?
-    public var showLoader = false {
-        didSet {
-            updateSnapshot()
-        }
-    }
+    public var showLoader = false
     public var minimumLineSpacingForSectionAt: ((Int) -> CGFloat) = { _ in 0 }
     public var loadNextPage: (() -> Void)?
     public var sizeForItemAt: ((IndexPath) -> CGSize)?
     public var didScrollTo: ((IndexPath) -> Void)?
     public var didScrollViewDidScroll: ((UIScrollView) -> Void)?
     public var didMoveItem: ((_ atIndexPath: IndexPath, _ toIndexPath: IndexPath) -> Void)?
+    public var snapshot = NSDiffableDataSourceSnapshot<Int, CollectionItem<Model>>()
 
     private weak var collectionView: UICollectionView?
-    private var items = [Model]()
     
     public init(collectionView: UICollectionView, configureCell: @escaping (UICollectionView, IndexPath, Model) -> UICollectionViewCell) {
         super.init(collectionView: collectionView, cellProvider: { collectionView, indexPath, item in
@@ -56,22 +52,30 @@ public class DiffableCollectionViewDataSource<Model: Hashable>: UICollectionView
         collectionView.delegate = self
     }
     
-    private func updateSnapshot() {
-        DispatchQueue.main.async {
-            var snapshot = NSDiffableDataSourceSnapshot<Int, CollectionItem<Model>>()
-            snapshot.appendSections([0])
-            snapshot.appendItems(self.items.map { .model($0) }, toSection: 0)
-            self.apply(snapshot, animatingDifferences: true)
+    private func updateSnapshot(items: [Model], at section: Int) {
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            
+            // Check if the section already exists in the snapshot
+            if !self.snapshot.sectionIdentifiers.contains(section) {
+                self.snapshot.appendSections([section])
+            }
+            
+            // Remove any previous items in the section before adding new ones
+            self.snapshot.deleteItems(self.snapshot.itemIdentifiers(inSection: section))
+            
+            // Append new items to the section
+            self.snapshot.appendItems(items.map { .model($0) }, toSection: section)
+            
+            self.apply(self.snapshot, animatingDifferences: true)
         }
     }
+
     
-    public func updateItems(_ items: [Model]) {
-        DispatchQueue.global(qos: .userInitiated).async {
+    public func updateItems(_ items: [Model], at section: Int = 0) {
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
             let uniqueItems = items.uniqued
-            DispatchQueue.main.async {
-                self.items = uniqueItems
-                self.updateSnapshot()
-            }
+            self?.updateSnapshot(items: uniqueItems, at: section)
         }
     }
     
@@ -94,8 +98,10 @@ public class DiffableCollectionViewDataSource<Model: Hashable>: UICollectionView
     
     public func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         collectionView.deselectItem(at: indexPath, animated: true)
-        guard let selectedModel = items.item(at: indexPath.row) else { return }
-        didSelectAt?(indexPath, selectedModel)
+        
+        if case .model(let selectedModel) = snapshot.itemIdentifiers(inSection: indexPath.section).item(at: indexPath.row) {
+            didSelectAt?(indexPath, selectedModel)
+        }
     }
     
     public func scrollViewDidScroll(_ scrollView: UIScrollView) {
