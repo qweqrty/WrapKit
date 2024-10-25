@@ -34,6 +34,7 @@ open class Label: UILabel {
         self.translatesAutoresizingMaskIntoConstraints = translatesAutoresizingMaskIntoConstraints
         self.textColor = textColor
         self.numberOfLines = numberOfLines
+        addGestureRecognizer(tapGestureRecognizer)
     }
     
     override init(frame: CGRect) {
@@ -47,7 +48,14 @@ open class Label: UILabel {
         self.minimumScaleFactor = 0
         self.adjustsFontSizeToFitWidth = false
         self.isUserInteractionEnabled = true
+        addGestureRecognizer(tapGestureRecognizer)
     }
+    
+    private lazy var tapGestureRecognizer: UITapGestureRecognizer = {
+        let gesture = UITapGestureRecognizer(target: self, action: #selector(handleTap(gesture:)))
+        gesture.name = String(describing: TextAttributes.self)
+        return gesture
+    }()
     
     public override var intrinsicContentSize: CGSize {
         if text == nil || text!.isEmpty {
@@ -72,9 +80,6 @@ open class Label: UILabel {
                 }
                 return
             }
-            let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleTap(gesture:)))
-            tapGestureRecognizer.name = String(describing: TextAttributes.self)
-            addGestureRecognizer(tapGestureRecognizer)
             
             let combinedAttributedString = NSMutableAttributedString()
             
@@ -102,6 +107,24 @@ open class Label: UILabel {
     
     public required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
+    }
+    
+    public override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
+        // Convert touch point to attributed text coordinates
+        guard let attributedText = attributedText, let labelText = text else { return super.hitTest(point, with: event) }
+        let textRange = NSRange(location: 0, length: labelText.utf16.count)
+        
+        // Check if the touch is on any attribute with `onTap`
+        for attribute in attributes {
+            guard let range = attribute.range else { continue }
+            
+            if tapGestureRecognizer.didTapAttributedTextInLabel(label: self, inRange: range), attribute.onTap != nil {
+                return self  // Forward touch to self to handle `onTap`
+            }
+        }
+        
+        // If no tappable attribute, pass the touch to the next responder
+        return nil
     }
     
     @objc
