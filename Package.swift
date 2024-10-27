@@ -22,14 +22,16 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/onevcat/Kingfisher.git", from: "7.12.0"),
-        .package(url: "https://github.com/marmelroy/PhoneNumberKit", from: "4.0.0")
+        .package(url: "https://github.com/marmelroy/PhoneNumberKit", from: "4.0.0"),
+        .package(url: "https://github.com/funky-monkey/IsoCountryCodes", from: "1.0.2")
     ],
     targets: [
         .target(
             name: "WrapKit",
             dependencies: [
                 .product(name: "Kingfisher", package: "Kingfisher", condition: .when(platforms: [.iOS])),
-                .product(name: "PhoneNumberKit", package: "PhoneNumberKit")
+                .product(name: "PhoneNumberKit", package: "PhoneNumberKit"),
+                .product(name: "IsoCountryCodes", package: "IsoCountryCodes")
             ],
             path: "WrapKitCore/Sources"
         ),
@@ -45,7 +47,9 @@ let package = Package(
                 "WrapKit",
                 "WrapKitTestUtils",
                 .product(name: "Kingfisher", package: "Kingfisher", condition: .when(platforms: [.iOS])),
-                .product(name: "PhoneNumberKit", package: "PhoneNumberKit")
+                .product(name: "PhoneNumberKit", package: "PhoneNumberKit"),
+                .product(name: "IsoCountryCodes", package: "IsoCountryCodes")
+                
             ],
             path: "WrapKitCore/Tests"
         ),
