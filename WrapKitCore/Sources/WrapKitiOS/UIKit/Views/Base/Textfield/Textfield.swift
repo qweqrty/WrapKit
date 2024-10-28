@@ -25,6 +25,7 @@ public struct TextfieldAppearance {
             textColor: Color,
             selectedBorderColor: Color,
             selectedBackgroundColor: Color,
+            selectedErrorBorderColor: Color,
             errorBorderColor: Color,
             errorBackgroundColor: Color,
             deselectedBorderColor: Color,
@@ -35,6 +36,7 @@ public struct TextfieldAppearance {
             self.textColor = textColor
             self.selectedBorderColor = selectedBorderColor
             self.selectedBackgroundColor = selectedBackgroundColor
+            self.selectedErrorBorderColor = selectedErrorBorderColor
             self.errorBorderColor = errorBorderColor
             self.errorBackgroundColor = errorBackgroundColor
             self.deselectedBorderColor = deselectedBorderColor
@@ -47,6 +49,7 @@ public struct TextfieldAppearance {
         public var selectedBorderColor: Color
         public var selectedBackgroundColor: Color
         public var errorBorderColor: Color
+        public var selectedErrorBorderColor: Color
         public var errorBackgroundColor: Color
         public var deselectedBorderColor: Color
         public var deselectedBackgroundColor: Color
@@ -123,6 +126,7 @@ open class Textfield: UITextField {
     public var nextTextfield: UIResponder? = nil { didSet { returnKeyType = nextTextfield == nil ? .done : .next } }
     public var onBecomeFirstResponder: (() -> Void)?
     public var onResignFirstResponder: (() -> Void)?
+    public var onTapBackspace: (() -> Void)?
     
     public var didChangeText = [((String?) -> Void)]()
     
@@ -216,6 +220,12 @@ open class Textfield: UITextField {
         return isTouchInside
     }
     
+    open override func deleteBackward() {
+        super.deleteBackward()
+        
+        onTapBackspace?()
+    }
+    
     open override var isUserInteractionEnabled: Bool {
         didSet {
             textColor = isUserInteractionEnabled ? appearance.colors.textColor : appearance.colors.disabledTextColor
@@ -238,7 +248,7 @@ open class Textfield: UITextField {
         }
     }
     
-    private func updatePlaceholder() {
+    public func updatePlaceholder() {
         guard let customizedPlaceholder = appearance.placeholder else { return }
         attributedPlaceholder = NSAttributedString(
             string: customizedPlaceholder.text ?? placeholder ?? "",
@@ -370,13 +380,13 @@ public extension Textfield {
                 self.layer.borderColor = isFirstResponder ? appearance.colors.selectedBorderColor.cgColor : appearance.colors.deselectedBorderColor.cgColor
             } else {
                 self.backgroundColor = appearance.colors.errorBackgroundColor
-                self.layer.borderColor = appearance.colors.errorBorderColor.cgColor
+                self.layer.borderColor = isFirstResponder ? appearance.colors.selectedErrorBorderColor.cgColor : appearance.colors.errorBorderColor.cgColor
             }
             self.layer.borderWidth = (isFirstResponder ? appearance.border?.selectedBorderWidth : appearance.border?.idleBorderWidth) ?? 0
         }
     }
     
-    private func updateAppearance() {
+    func updateAppearance() {
         updatePlaceholder()
         font = appearance.font
         let text = (delegate as? MaskedTextfieldDelegate)?.fullText ?? text
@@ -389,7 +399,7 @@ public extension Textfield {
                 self.layer.borderColor = isFirstResponder ? appearance.colors.selectedBorderColor.cgColor : appearance.colors.deselectedBorderColor.cgColor
             } else {
                 self.backgroundColor = appearance.colors.errorBackgroundColor
-                self.layer.borderColor = appearance.colors.errorBorderColor.cgColor
+                self.layer.borderColor = isFirstResponder ? appearance.colors.selectedErrorBorderColor.cgColor : appearance.colors.errorBorderColor.cgColor
             }
             self.layer.borderWidth = (isFirstResponder ? appearance.border?.selectedBorderWidth : appearance.border?.idleBorderWidth) ?? 0
         }
