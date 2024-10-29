@@ -21,6 +21,27 @@ public extension Encodable {
         return urlEncodedComponents.joined(separator: "&")
     }
     
+    /// Converts the Encodable object to URL-encoded `Data` for `application/x-www-form-urlencoded` requests.
+    func asUrlEncodedData() -> Data? {
+        // Encode the object into dictionary format using JSONEncoder
+        guard let jsonData = try? JSONEncoder().encode(self),
+              let dictionary = try? JSONSerialization.jsonObject(with: jsonData) as? [String: Any] else {
+            return nil
+        }
+        
+        // Map each key-value pair into "key=value" and join with "&"
+        let parameterArray = dictionary.compactMap { (key, value) -> String? in
+            guard let escapedKey = key.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
+                  let escapedValue = "\(value)".addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) else {
+                return nil
+            }
+            return "\(escapedKey)=\(escapedValue)"
+        }
+        
+        let urlEncodedString = parameterArray.joined(separator: "&")
+        return urlEncodedString.data(using: .utf8)
+    }
+    
     func toURLFormEncodedString(withRootKey rootKey: String? = nil, withAllowedCharacters allowedCharacters: CharacterSet = .urlQueryAllowed) -> Data? {
         guard let jsonData = try? JSONEncoder().encode(self) else { return nil }
         guard let jsonString = String(data: jsonData, encoding: .utf8) else { return nil }
