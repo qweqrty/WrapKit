@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Combine
 
 public protocol PaginationViewOutput<PresentableItem>: AnyObject {
     associatedtype PresentableItem
@@ -52,7 +53,7 @@ open class PaginationPresenter<ServicePaginationRequest, ServicePaginationRespon
     private let mapToTotalPages: ((ServicePaginationResponse) -> Int)
     private let mapFromResponseToRemoteItems: ((ServicePaginationResponse) -> [RemoteItem])
     private let mapFromRemoteItemToPresentable: ((RemoteItem) -> PresentableModel)
-    private var requests = [HTTPClientTask?]()
+    private var cancellables = Set<AnyCancellable>()
     
     let initialPage: Int
 
@@ -89,18 +90,25 @@ extension PaginationPresenter: PaginationViewInput {
         guard let request = mapRequest(.init(page: initialPage, date: Date(), perPage: perPage)) else { return }
         date = Date()
         page = initialPage
-        requests.forEach { $0?.cancel() }
-        requests.removeAll()
+        cancellables.forEach { $0.cancel() }
+        cancellables.removeAll()
+        
         view?.display(isLoadingSubsequentPage: false)
         view?.display(isLoadingFirstPage: true)
-        let task = service.make(request: request) { [weak self, initialPage] result in
-            guard let self = self else { return }
-            self.view?.display(isLoadingFirstPage: false)
-            self.perPage = self.perPage
-            self.handle(response: result, backToPage: initialPage - 1)
-        }
-        requests.append(task)
-        task?.resume()
+        service.make(request: request)
+            .sink(receiveCompletion: { [weak self] result in
+                self?.view?.display(isLoadingFirstPage: false)
+                guard let self = self else { return }
+                guard case .failure(let error) = result else { return }
+                self.perPage = self.initialPerPage
+                self.handle(response: .failure(error), backToPage: self.initialPage - 1)
+            }, receiveValue: { [weak self, initialPage] data in
+                self?.view?.display(isLoadingFirstPage: false)
+                guard let self = self else { return }
+                self.perPage = self.initialPerPage
+                self.handle(response: .success(data), backToPage: initialPage - 1)
+            })
+            .store(in: &cancellables)
     }
 
     public func loadNextPage() {
@@ -108,12 +116,18 @@ extension PaginationPresenter: PaginationViewInput {
         guard let request = mapRequest(.init(page: page + 1, date: date, perPage: perPage)) else { return }
         view?.display(isLoadingSubsequentPage: true)
         page += 1
-        let task = service.make(request: request) { [weak self, page] result in
-            self?.view?.display(isLoadingSubsequentPage: false)
-            self?.handle(response: result, backToPage: page - 1)
-        }
-        requests.append(task)
-        task?.resume()
+        service.make(request: request)
+            .sink(receiveCompletion: { [weak self] result in
+                self?.view?.display(isLoadingSubsequentPage: false)
+                guard case .failure(let error) = result else { return }
+                guard let self = self else { return }
+                self.handle(response: .failure(error), backToPage: self.page - 1)
+            }, receiveValue: { [weak self] data in
+                self?.view?.display(isLoadingSubsequentPage: false)
+                guard let self = self else { return }
+                self.handle(response: .success(data), backToPage: self.page - 1)
+            })
+            .store(in: &cancellables)
     }
     
     private func handle(response: Result<ServicePaginationResponse, ServiceError>, backToPage: Int) {
@@ -122,11 +136,11 @@ extension PaginationPresenter: PaginationViewInput {
             let totalPages = mapToTotalPages(model)
             let remoteItems = mapFromResponseToRemoteItems(model)
             if backToPage == initialPage - 1 {
-                _ = remoteItemsStorage.set(model: remoteItems)
+                remoteItemsStorage.set(model: remoteItems)
                 view?.display(model: remoteItems.map { mapFromRemoteItemToPresentable($0) }, hasMore: initialPage + totalPages - 1 >= page)
             } else {
                 let previousItems = remoteItemsStorage.get() ?? []
-                _ = remoteItemsStorage.set(model: previousItems + remoteItems)
+                remoteItemsStorage.set(model: previousItems + remoteItems)
                 view?.display(
                     model: (previousItems + remoteItems).map { mapFromRemoteItemToPresentable($0) },
                     hasMore: initialPage + totalPages - 1 >= page

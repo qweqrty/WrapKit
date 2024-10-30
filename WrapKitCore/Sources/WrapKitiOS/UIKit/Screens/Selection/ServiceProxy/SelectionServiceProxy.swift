@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Combine
 
 public protocol SelectionServiceInput {
     func onRefresh()
@@ -26,8 +27,9 @@ public class SelectionServiceProxy<Request, Response>: SelectionInput {
     private let makeRequest: (() -> Request)
     private let makeResponse: ((Result<Response, ServiceError>) -> [SelectionType.SelectionCellPresentableModel])
     public var view: CommonLoadingOutput?
+    private var cancellables = Set<AnyCancellable>()
     
-    init(
+    public init(
         decoratee: SelectionPresenter,
         storage: any Storage,
         service: any Service<Request, Response>,
@@ -43,10 +45,17 @@ public class SelectionServiceProxy<Request, Response>: SelectionInput {
     
     public func viewDidLoad() {
         view?.display(isLoading: true)
-        service.make(request: makeRequest()) { [weak self] result in
-            self?.view?.display(isLoading: false)
-            self?.decoratee.items = self?.makeResponse(result) ?? []
-        }?.resume()
+        service.make(request: makeRequest())
+            .sink(receiveCompletion: { [weak self] result in
+                self?.view?.display(isLoading: false)
+                guard case .failure(let error) = result else { return }
+                self?.decoratee.items = self?.makeResponse(.failure(error)) ?? []
+            }, receiveValue: { [weak self] data in
+                self?.view?.display(isLoading: false)
+                self?.decoratee.items = self?.makeResponse(.success(data)) ?? []
+            })
+            .store(in: &cancellables)
+        
         decoratee.viewDidLoad()
     }
     
@@ -78,9 +87,15 @@ public class SelectionServiceProxy<Request, Response>: SelectionInput {
 extension SelectionServiceProxy: SelectionServiceInput {
     public func onRefresh() {
         view?.display(isLoading: true)
-        service.make(request: makeRequest()) { [weak self] result in
-            self?.view?.display(isLoading: false)
-            self?.decoratee.items = self?.makeResponse(result) ?? []
-        }?.resume()
+        service.make(request: makeRequest()) 
+            .sink(receiveCompletion: { [weak self] result in
+                self?.view?.display(isLoading: false)
+                guard case .failure(let error) = result else { return }
+                self?.decoratee.items = self?.makeResponse(.failure(error)) ?? []
+            }, receiveValue: { [weak self] data in
+                self?.view?.display(isLoading: false)
+                self?.decoratee.items = self?.makeResponse(.success(data)) ?? []
+            })
+            .store(in: &cancellables)
     }
 }

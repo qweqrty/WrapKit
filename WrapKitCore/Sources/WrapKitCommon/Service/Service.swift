@@ -6,11 +6,12 @@
 //
 
 import Foundation
+import Combine
 
 public protocol Service<Request, Response> {
     associatedtype Request
     associatedtype Response
-    func make(request: Request, completion: @escaping ((Result<Response, ServiceError>)) -> Void) -> HTTPClientTask?
+    func make(request: Request) -> AnyPublisher<Response, ServiceError>
 }
 
 public enum ServiceError: Encodable, Error, Equatable {

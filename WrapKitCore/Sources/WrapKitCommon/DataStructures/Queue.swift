@@ -16,6 +16,7 @@ public struct Queue<T> {
         elements.append(value)
     }
     
+    @discardableResult
     public mutating func dequeue() -> T? {
         guard !elements.isEmpty else {
             return nil

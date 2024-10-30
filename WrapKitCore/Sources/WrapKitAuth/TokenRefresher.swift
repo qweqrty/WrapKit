@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Combine
 
 public protocol TokenRefresher {
     func refresh(completion: @escaping (Result<String, ServiceError>) -> Void)
@@ -20,6 +21,7 @@ public class TokenRefresherImpl<RefreshRequest, RefreshResponse>: TokenRefresher
     private var isAuthenticating = false
     private var authenticationLock = DispatchQueue(label: "com.tokenRefresher.lock")
     private var pendingCompletions: [(Result<String, ServiceError>) -> Void] = []
+    private var cancellables = Set<AnyCancellable>()
     
     public init(
         refreshTokenStorage: any Storage<String>,
@@ -52,19 +54,18 @@ public class TokenRefresherImpl<RefreshRequest, RefreshResponse>: TokenRefresher
 
         let refreshRequest = mapRefreshRequest(refreshToken)
         
-        refreshService.make(request: refreshRequest) { [weak self] response in
-            guard let self = self else { return }
-            switch response {
-            case .success(let data):
-                let newToken = self.mapRefreshResponse(data)
-                completion(.success(newToken))
-                self.completeAll(with: .success(newToken))
-            case .failure(let error):
-                _ = refreshTokenStorage.set(model: nil)
+        refreshService.make(request: refreshRequest)
+            .sink(receiveCompletion: { [weak self] result in
+                guard case .failure(let error) = result else { return }
+                self?.refreshTokenStorage.set(model: nil)
                 completion(.failure(error))
-                self.completeAll(with: .failure(error))
-            }
-        }?.resume()
+                self?.completeAll(with: .failure(error))
+            }, receiveValue: { [weak self] data in
+                guard let newToken = self?.mapRefreshResponse(data) else { return }
+                completion(.success(newToken))
+                self?.completeAll(with: .success(newToken))
+            })
+            .store(in: &cancellables)
     }
     
     private func completeAll(with result: Result<String, ServiceError>) {
