@@ -109,9 +109,10 @@ extension SelectionPresenter: SelectionInput {
             items.enumerated().forEach {
                 items[$0.offset].isSelected.set(model: $0.element.id == selectedItem.id)
             }
-            self.onTapFinishSelection()
+            onTapFinishSelection()
+        } else {
+            onSearch(searchText)
         }
-        onSearch(searchText)
     }
     
     public func isNeedToShowSearch(_ isNeedToShowSearch: Bool) {
