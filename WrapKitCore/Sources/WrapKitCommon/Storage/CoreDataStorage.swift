@@ -128,6 +128,11 @@ public class CoreDataStorage<Model, CoreDataModel: NSManagedObject & CoreDataCon
         }
         .eraseToAnyPublisher()
     }
+    
+    @discardableResult
+    public func clear() -> AnyPublisher<Bool, Never> {
+        set(model: nil)
+    }
 
     public static func == (lhs: CoreDataStorage, rhs: CoreDataStorage) -> Bool {
         return lhs.entityName == rhs.entityName

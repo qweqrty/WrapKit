@@ -32,6 +32,11 @@ public class InMemoryStorage<Model: Hashable>: Storage, Hashable {
         return Just(true).eraseToAnyPublisher()
     }
     
+    @discardableResult
+    public func clear() -> AnyPublisher<Bool, Never> {
+        set(model: nil)
+    }
+    
     // Hashable
     public func hash(into hasher: inout Hasher) {
         hasher.combine(subject.value)

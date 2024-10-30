@@ -59,6 +59,11 @@ public class UserDefaultsStorage<Model: Codable & Hashable>: Storage {
         }
         .eraseToAnyPublisher()
     }
+    
+    @discardableResult
+    public func clear() -> AnyPublisher<Bool, Never> {
+        set(model: nil)
+    }
 
     private func handleSet(model: Model?, promise: @escaping (Result<Bool, Never>) -> Void) {
         setLogic(userDefaults, model)

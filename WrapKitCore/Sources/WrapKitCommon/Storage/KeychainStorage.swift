@@ -67,6 +67,11 @@ public class KeychainStorage: Storage {
         }
         .eraseToAnyPublisher()
     }
+    
+    @discardableResult
+    public func clear() -> AnyPublisher<Bool, Never> {
+        set(model: nil)
+    }
 
     private func handleModelSetting(model: Model?, promise: @escaping (Result<Bool, Never>) -> Void) {
         let isSuccess: Bool
