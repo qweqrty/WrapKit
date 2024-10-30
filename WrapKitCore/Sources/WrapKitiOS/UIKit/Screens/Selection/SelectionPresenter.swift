@@ -105,15 +105,13 @@ extension SelectionPresenter: SelectionInput {
         let isSelected = selectedItem.isSelected.get() == true
         items[selectedItemIndex].isSelected.set(model: !isSelected)
         
-        onSearch(searchText)
-        
         if !self.isMultipleSelectionEnabled {
             items.enumerated().forEach {
                 items[$0.offset].isSelected.set(model: $0.element.id == selectedItem.id)
             }
             self.onTapFinishSelection()
         }
-        view?.display(canReset: items.contains(where: { $0.isSelected.get() == true }))
+        onSearch(searchText)
     }
     
     public func isNeedToShowSearch(_ isNeedToShowSearch: Bool) {

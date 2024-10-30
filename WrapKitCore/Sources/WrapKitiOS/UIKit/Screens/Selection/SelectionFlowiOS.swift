@@ -45,7 +45,9 @@ public class SelectionFlowiOS: SelectionFlow {
     }
     
     public func close(with result: SelectionType?) {
-        navigationController?.presentedViewController?.dismiss(animated: true)
+        DispatchQueue.main.async { [weak self] in
+            self?.navigationController?.presentedViewController?.dismiss(animated: true)
+        }
     }
 }
 
