@@ -25,6 +25,7 @@ public class SelectionServiceProxy<Request, Response>: SelectionInput {
     private let service: SelectionService
     private let makeRequest: (() -> Request)
     private let makeResponse: ((Result<Response, ServiceError>) -> [SelectionType.SelectionCellPresentableModel])
+    private let commonToastOuput = CommonToastiOSAdapter(toastViewBuilder: nil)
     public var view: CommonLoadingOutput?
     
     init(
@@ -44,8 +45,14 @@ public class SelectionServiceProxy<Request, Response>: SelectionInput {
     public func viewDidLoad() {
         view?.display(isLoading: true)
         service.make(request: makeRequest()) { [weak self] result in
-            self?.view?.display(isLoading: false)
-            self?.decoratee.items = self?.makeResponse(result) ?? []
+            switch result {
+            case .success(let success):
+                self?.view?.display(isLoading: false)
+                self?.decoratee.items = ShimmeredCellModel.model(self?.makeResponse(result) ?? [])
+            case .failure(let failure):
+                guard let title = failure.title else { return }
+                self?.commonToastOuput.display(.error(.init(keyTitle: title, position: .top)))
+            }
         }?.resume()
         decoratee.viewDidLoad()
     }
@@ -80,7 +87,7 @@ extension SelectionServiceProxy: SelectionServiceInput {
         view?.display(isLoading: true)
         service.make(request: makeRequest()) { [weak self] result in
             self?.view?.display(isLoading: false)
-            self?.decoratee.items = self?.makeResponse(result) ?? []
+            self?.decoratee.items = ShimmeredCellModel.model(self?.makeResponse(result) ?? [])
         }?.resume()
     }
 }

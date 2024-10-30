@@ -16,6 +16,7 @@ public class SelectionContentView: UIView {
     public lazy var navigationBar = makeNavigationBar()
     public lazy var tableView = makeTableView()
     public lazy var searchBar = makeSearchBar()
+    public lazy var shimmerView = ShimmerView()
     
     public lazy var stackView = StackView(axis: .horizontal, spacing: 12)
     public lazy var resetButton = makeActionButton(isReset: true)
