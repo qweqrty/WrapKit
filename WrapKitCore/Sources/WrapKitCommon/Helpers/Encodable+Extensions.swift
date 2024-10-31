@@ -10,14 +10,23 @@ import Foundation
 public extension Encodable {
     func urlEncodedString() -> String? {
         let mirror = Mirror(reflecting: self)
-
+        
         let urlEncodedComponents = mirror.children.compactMap { child -> String? in
             guard let label = child.label else { return nil }
-            let value = "\(child.value)"
+            // Safely unwrap optionals to avoid "Optional(...)" in the output
+            let value: String
+            if let unwrapped = child.value as? String {
+                value = unwrapped
+            } else if let unwrapped = child.value as? CustomStringConvertible {
+                value = unwrapped.description
+            } else {
+                return nil
+            }
+            
             let encodedValue = value.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
             return "\(label)=\(encodedValue)"
         }
-
+        
         return urlEncodedComponents.joined(separator: "&")
     }
     
