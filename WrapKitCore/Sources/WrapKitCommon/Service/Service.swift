@@ -36,3 +36,18 @@ public enum ServiceError: Encodable, Error, Equatable {
         }
     }
 }
+
+public extension AnyPublisher where Failure == ServiceError {
+    @discardableResult
+    func onSuccess(_ action: @escaping (Output) -> Void) -> AnyPublisher<Output, ServiceError> {
+        return handleEvents(receiveOutput: action).eraseToAnyPublisher()
+    }
+    @discardableResult
+    func onError(_ action: @escaping (ServiceError) -> Void) -> AnyPublisher<Output, ServiceError> {
+        return handleEvents(receiveCompletion: { completion in
+            if case .failure(let error) = completion {
+                action(error)
+            }
+        }).eraseToAnyPublisher()
+    }
+}
