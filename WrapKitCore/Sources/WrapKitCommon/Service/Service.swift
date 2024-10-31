@@ -37,32 +37,30 @@ public enum ServiceError: Encodable, Error, Equatable {
     }
 }
 
-import Combine
-
-public extension AnyPublisher where Failure == ServiceError {
-
+// MARK: - Service abstraction helper
+public extension AnyPublisher {
     // MARK: - Zip Two Publishers
     static func zip<T, U>(
-        _ first: AnyPublisher<T, ServiceError>,
-        _ second: AnyPublisher<U, ServiceError>
-    ) -> AnyPublisher<(T, U), ServiceError> {
+        _ first: AnyPublisher<T, Failure>,
+        _ second: AnyPublisher<U, Failure>
+    ) -> AnyPublisher<(T, U), Failure> {
         first.zip(second)
             .eraseToAnyPublisher()
     }
 
     // MARK: - Combine Latest Two Publishers
     static func combineLatest<T, U>(
-        _ first: AnyPublisher<T, ServiceError>,
-        _ second: AnyPublisher<U, ServiceError>
-    ) -> AnyPublisher<(T, U), ServiceError> {
+        _ first: AnyPublisher<T, Failure>,
+        _ second: AnyPublisher<U, Failure>
+    ) -> AnyPublisher<(T, U), Failure> {
         first.combineLatest(second)
             .eraseToAnyPublisher()
     }
     
     // MARK: - Sequential Requests
     func chain<T>(
-        with nextRequest: @escaping (Output) -> AnyPublisher<T, ServiceError>
-    ) -> AnyPublisher<T, ServiceError> {
+        with nextRequest: @escaping (Output) -> AnyPublisher<T, Failure>
+    ) -> AnyPublisher<T, Failure> {
         self.flatMap { response in
             nextRequest(response)
         }
@@ -70,20 +68,20 @@ public extension AnyPublisher where Failure == ServiceError {
     }
     
     // MARK: - Retry Mechanism
-    func retryOnFailure(_ retries: Int) -> AnyPublisher<Output, ServiceError> {
+    func retryOnFailure(_ retries: Int) -> AnyPublisher<Output, Failure> {
         self.retry(retries)
             .eraseToAnyPublisher()
     }
     
     // MARK: - Fallback to Another Publisher if Fails
-    func fallback(to fallbackPublisher: AnyPublisher<Output, ServiceError>) -> AnyPublisher<Output, ServiceError> {
+    func fallback(to fallbackPublisher: AnyPublisher<Output, Failure>) -> AnyPublisher<Output, Failure> {
         self.catch { _ in fallbackPublisher }
             .eraseToAnyPublisher()
     }
     
     // MARK: - Custom Handling Extensions with Optional Actions
     @discardableResult
-    func onSuccess(_ action: ((Output) -> Void)?) -> AnyPublisher<Output, ServiceError> {
+    func onSuccess(_ action: ((Output) -> Void)?) -> AnyPublisher<Output, Failure> {
         if let action = action {
             return self.handleEvents(receiveOutput: action).eraseToAnyPublisher()
         } else {
@@ -92,7 +90,7 @@ public extension AnyPublisher where Failure == ServiceError {
     }
 
     @discardableResult
-    func onError(_ action: ((ServiceError) -> Void)?) -> AnyPublisher<Output, ServiceError> {
+    func onError(_ action: ((Failure) -> Void)?) -> AnyPublisher<Output, Failure> {
         if let action = action {
             return self.handleEvents(receiveCompletion: { completion in
                 if case .failure(let error) = completion {
@@ -105,7 +103,7 @@ public extension AnyPublisher where Failure == ServiceError {
     }
 
     @discardableResult
-    func onCancel(_ action: (() -> Void)?) -> AnyPublisher<Output, ServiceError> {
+    func onCancel(_ action: (() -> Void)?) -> AnyPublisher<Output, Failure> {
         if let action = action {
             return self.handleEvents(receiveCancel: action).eraseToAnyPublisher()
         } else {
@@ -114,7 +112,7 @@ public extension AnyPublisher where Failure == ServiceError {
     }
 
     @discardableResult
-    func onCompletion(_ action: (() -> Void)?) -> AnyPublisher<Output, ServiceError> {
+    func onCompletion(_ action: (() -> Void)?) -> AnyPublisher<Output, Failure> {
         if let action = action {
             return self.handleEvents(receiveCompletion: { _ in action() }, receiveCancel: action).eraseToAnyPublisher()
         } else {
@@ -123,11 +121,9 @@ public extension AnyPublisher where Failure == ServiceError {
     }
     
     @discardableResult
-    func subscribe(storeIn cancellables: inout Set<AnyCancellable>?) -> AnyPublisher<Output, ServiceError> {
-        if cancellables != nil {
-            self.sink(receiveCompletion: { _ in }, receiveValue: { _ in })
-                .store(in: &cancellables!)
-        }
+    func subscribe(storeIn cancellables: inout Set<AnyCancellable>) -> AnyPublisher<Output, Failure> {
+        self.sink(receiveCompletion: { _ in }, receiveValue: { _ in })
+            .store(in: &cancellables)
         return self
     }
 }
