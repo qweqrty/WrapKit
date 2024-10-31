@@ -37,47 +37,81 @@ public enum ServiceError: Encodable, Error, Equatable {
     }
 }
 
+import Combine
+
 public extension AnyPublisher where Failure == ServiceError {
     
-    @discardableResult
-    func onSuccess(_ action: ((Output) -> Void)?) -> AnyPublisher<Output, ServiceError> {
-        return self.handleEvents(receiveOutput: action).eraseToAnyPublisher()
+    // MARK: - Zip Two Publishers
+    static func zip<T, U>(
+        _ first: AnyPublisher<T, ServiceError>,
+        _ second: AnyPublisher<U, ServiceError>
+    ) -> AnyPublisher<(T, U), ServiceError> {
+        first.zip(second)
+            .eraseToAnyPublisher()
+    }
+
+    // MARK: - Combine Latest Two Publishers
+    static func combineLatest<T, U>(
+        _ first: AnyPublisher<T, ServiceError>,
+        _ second: AnyPublisher<U, ServiceError>
+    ) -> AnyPublisher<(T, U), ServiceError> {
+        first.combineLatest(second)
+            .eraseToAnyPublisher()
     }
     
+    // MARK: - Sequential Requests
+    func chain<T>(
+        with nextRequest: @escaping (Output) -> AnyPublisher<T, ServiceError>
+    ) -> AnyPublisher<T, ServiceError> {
+        self.flatMap { response in
+            nextRequest(response)
+        }
+        .eraseToAnyPublisher()
+    }
+    
+    // MARK: - Retry Mechanism
+    func retryOnFailure(_ retries: Int) -> AnyPublisher<Output, ServiceError> {
+        self.retry(retries)
+            .eraseToAnyPublisher()
+    }
+    
+    // MARK: - Fallback to Another Publisher if Fails
+    func fallback(to fallbackPublisher: AnyPublisher<Output, ServiceError>) -> AnyPublisher<Output, ServiceError> {
+        self.catch { _ in fallbackPublisher }
+            .eraseToAnyPublisher()
+    }
+    
+    // MARK: - Custom Handling Extensions
     @discardableResult
-    func onError(_ action: ((ServiceError) -> Void)?) -> AnyPublisher<Output, ServiceError> {
-        return self.handleEvents(receiveCompletion: { completion in
+    func onSuccess(_ action: @escaping (Output) -> Void) -> AnyPublisher<Output, ServiceError> {
+        self.handleEvents(receiveOutput: action).eraseToAnyPublisher()
+    }
+
+    @discardableResult
+    func onError(_ action: @escaping (ServiceError) -> Void) -> AnyPublisher<Output, ServiceError> {
+        self.handleEvents(receiveCompletion: { completion in
             if case .failure(let error) = completion {
-                action?(error)
+                action(error)
             }
         }).eraseToAnyPublisher()
     }
-    
+
     @discardableResult
-    func onCancel(_ action: (() -> Void)?) -> AnyPublisher<Output, ServiceError> {
-        return self.handleEvents(receiveCancel: action).eraseToAnyPublisher()
+    func onCancel(_ action: @escaping () -> Void) -> AnyPublisher<Output, ServiceError> {
+        self.handleEvents(receiveCancel: action).eraseToAnyPublisher()
+    }
+
+    @discardableResult
+    func onCompletion(_ action: @escaping () -> Void) -> AnyPublisher<Output, ServiceError> {
+        self.handleEvents(receiveCompletion: { _ in action() }, receiveCancel: action).eraseToAnyPublisher()
     }
     
     @discardableResult
-    func onCompletion(_ action: (() -> Void)?) -> AnyPublisher<Output, ServiceError> {
-        return self.handleEvents(receiveCompletion: { _ in action?() }, receiveCancel: action).eraseToAnyPublisher()
-    }
-    
-    @discardableResult
-    func subscribe(storeIn cancellables: inout Set<AnyCancellable>?) -> AnyPublisher<Output, Failure> {
+    func subscribe(storeIn cancellables: inout Set<AnyCancellable>?) -> AnyPublisher<Output, ServiceError> {
         if cancellables != nil {
-            self
-                .sink(receiveCompletion: { _ in }, receiveValue: { _ in })
+            self.sink(receiveCompletion: { _ in }, receiveValue: { _ in })
                 .store(in: &cancellables!)
         }
         return self
-    }
-}
-public extension AnyPublisher where Failure == ServiceError {
-    @discardableResult
-    func onSuccess(saveTo storage: any Storage<Output>) -> AnyPublisher<Output, ServiceError> {
-        return handleEvents(receiveOutput: { response in
-            storage.set(model: response)
-        }).eraseToAnyPublisher()
     }
 }
