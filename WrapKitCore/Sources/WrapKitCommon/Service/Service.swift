@@ -123,11 +123,9 @@ public extension AnyPublisher where Failure == ServiceError {
     }
     
     @discardableResult
-    func subscribe(storeIn cancellables: inout Set<AnyCancellable>?) -> AnyPublisher<Output, ServiceError> {
-        if cancellables != nil {
-            self.sink(receiveCompletion: { _ in }, receiveValue: { _ in })
-                .store(in: &cancellables!)
-        }
+    func subscribe(storeIn cancellables: inout Set<AnyCancellable>) -> AnyPublisher<Output, ServiceError> {
+        self.sink(receiveCompletion: { _ in }, receiveValue: { _ in })
+            .store(in: &cancellables)
         return self
     }
 }
