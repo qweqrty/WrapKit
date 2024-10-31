@@ -46,15 +46,18 @@ public class SelectionServiceProxy<Request, Response>: SelectionInput {
     public func viewDidLoad() {
         view?.display(isLoading: true)
         service.make(request: makeRequest())
-            .sink(receiveCompletion: { [weak self] result in
-                self?.view?.display(isLoading: false)
-                guard case .failure(let error) = result else { return }
-                self?.decoratee.items = self?.makeResponse(.failure(error)) ?? []
-            }, receiveValue: { [weak self] data in
-                self?.view?.display(isLoading: false)
-                self?.decoratee.items = self?.makeResponse(.success(data)) ?? []
-            })
-            .store(in: &cancellables)
+            .handle(
+                onSuccess: { [weak self] response in
+                    self?.decoratee.items = self?.makeResponse(.success(response)) ?? []
+                },
+                onError: { [weak self] error in
+                    self?.decoratee.items = self?.makeResponse(.failure(error)) ?? []
+                },
+                onCompletion: { [weak self] in
+                    self?.view?.display(isLoading: false)
+                }
+            )
+            .subscribe(storeIn: &cancellables)
         
         decoratee.viewDidLoad()
     }
@@ -87,15 +90,18 @@ public class SelectionServiceProxy<Request, Response>: SelectionInput {
 extension SelectionServiceProxy: SelectionServiceInput {
     public func onRefresh() {
         view?.display(isLoading: true)
-        service.make(request: makeRequest()) 
-            .sink(receiveCompletion: { [weak self] result in
-                self?.view?.display(isLoading: false)
-                guard case .failure(let error) = result else { return }
-                self?.decoratee.items = self?.makeResponse(.failure(error)) ?? []
-            }, receiveValue: { [weak self] data in
-                self?.view?.display(isLoading: false)
-                self?.decoratee.items = self?.makeResponse(.success(data)) ?? []
-            })
-            .store(in: &cancellables)
+        service.make(request: makeRequest())
+            .handle(
+                onSuccess: { [weak self] response in
+                    self?.decoratee.items = self?.makeResponse(.success(response)) ?? []
+                },
+                onError: { [weak self] error in
+                    self?.decoratee.items = self?.makeResponse(.failure(error)) ?? []
+                },
+                onCompletion: { [weak self] in
+                    self?.view?.display(isLoading: false)
+                }
+            )
+            .subscribe(storeIn: &cancellables)
     }
 }
