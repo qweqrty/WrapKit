@@ -53,17 +53,19 @@ public class TokenRefresherImpl<RefreshRequest, RefreshResponse>: TokenRefresher
         let refreshRequest = mapRefreshRequest(refreshToken)
         
         refreshService.make(request: refreshRequest)
-            .sink(receiveCompletion: { [weak self] result in
-                guard case .failure(let error) = result else { return }
-                self?.refreshTokenStorage.set(model: nil)
-                completion(.failure(error))
-                self?.completeAll(with: .failure(error))
-            }, receiveValue: { [weak self] data in
-                guard let newToken = self?.mapRefreshResponse(data) else { return }
-                completion(.success(newToken))
-                self?.completeAll(with: .success(newToken))
-            })
-            .store(in: &cancellables)
+            .handle(
+                onSuccess: { [weak self] response in
+                    guard let newToken = self?.mapRefreshResponse(response) else { return }
+                    completion(.success(newToken))
+                    self?.completeAll(with: .success(newToken))
+                },
+                onError: { [weak self] error in
+                    self?.refreshTokenStorage.set(model: nil)
+                    completion(.failure(error))
+                    self?.completeAll(with: .failure(error))
+                }
+            )
+            .subscribe(storeIn: &cancellables)
     }
     
     private func completeAll(with result: Result<String, ServiceError>) {

@@ -41,11 +41,11 @@ public struct PaginationRequest {
 
 open class PaginationPresenter<ServicePaginationRequest, ServicePaginationResponse, RemoteItem, PresentableModel> {
     public let remoteItemsStorage: any Storage<[RemoteItem]>
-
+    
     private(set) var date: Date
     private(set) var page: Int
     private(set) var totalPages: Int?
-
+    
     public var mapRequest: ((PaginationRequest) -> ServicePaginationRequest?)
     private var perPage: Int
     private let initialPerPage: Int
@@ -56,9 +56,9 @@ open class PaginationPresenter<ServicePaginationRequest, ServicePaginationRespon
     private var cancellables = Set<AnyCancellable>()
     
     let initialPage: Int
-
+    
     public weak var view: (any PaginationViewOutput<PresentableModel>)?
-
+    
     public init(
         service: any Service<ServicePaginationRequest, ServicePaginationResponse>,
         mapRequest: @escaping ((PaginationRequest) -> ServicePaginationRequest?),
@@ -96,38 +96,44 @@ extension PaginationPresenter: PaginationViewInput {
         view?.display(isLoadingSubsequentPage: false)
         view?.display(isLoadingFirstPage: true)
         service.make(request: request)
-            .sink(receiveCompletion: { [weak self] result in
-                self?.view?.display(isLoadingFirstPage: false)
-                guard let self = self else { return }
-                guard case .failure(let error) = result else { return }
-                self.perPage = self.initialPerPage
-                self.handle(response: .failure(error), backToPage: self.initialPage - 1)
-            }, receiveValue: { [weak self, initialPage] data in
-                self?.view?.display(isLoadingFirstPage: false)
-                guard let self = self else { return }
-                self.perPage = self.initialPerPage
-                self.handle(response: .success(data), backToPage: initialPage - 1)
-            })
-            .store(in: &cancellables)
+            .handle(
+                onSuccess: { [weak self] response in
+                    guard let self = self else { return }
+                    self.perPage = self.initialPerPage
+                    self.handle(response: .success(response), backToPage: initialPage - 1)
+                },
+                onError: { [weak self] error in
+                    guard let self = self else { return }
+                    self.perPage = self.initialPerPage
+                    self.handle(response: .failure(error), backToPage: self.initialPage - 1)
+                },
+                onCompletion: { [weak self] in
+                    self?.view?.display(isLoadingFirstPage: false)
+                }
+            )
+            .subscribe(storeIn: &cancellables)
     }
-
+    
     public func loadNextPage() {
         guard initialPage + (totalPages ?? 0) - 1 >= page else { return }
         guard let request = mapRequest(.init(page: page + 1, date: date, perPage: perPage)) else { return }
         view?.display(isLoadingSubsequentPage: true)
         page += 1
         service.make(request: request)
-            .sink(receiveCompletion: { [weak self] result in
-                self?.view?.display(isLoadingSubsequentPage: false)
-                guard case .failure(let error) = result else { return }
-                guard let self = self else { return }
-                self.handle(response: .failure(error), backToPage: self.page - 1)
-            }, receiveValue: { [weak self] data in
-                self?.view?.display(isLoadingSubsequentPage: false)
-                guard let self = self else { return }
-                self.handle(response: .success(data), backToPage: self.page - 1)
-            })
-            .store(in: &cancellables)
+            .handle(
+                onSuccess: { [weak self] response in
+                    guard let self = self else { return }
+                    self.handle(response: .success(response), backToPage: self.page - 1)
+                },
+                onError: { [weak self] error in
+                    guard let self = self else { return }
+                    self.handle(response: .failure(error), backToPage: self.page - 1)
+                },
+                onCompletion: { [weak self] in
+                    self?.view?.display(isLoadingSubsequentPage: false)
+                }
+            )
+            .subscribe(storeIn: &cancellables)
     }
     
     private func handle(response: Result<ServicePaginationResponse, ServiceError>, backToPage: Int) {

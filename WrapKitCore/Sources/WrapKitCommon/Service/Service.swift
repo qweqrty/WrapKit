@@ -78,47 +78,40 @@ public extension AnyPublisher {
         self.catch { _ in fallbackPublisher }
             .eraseToAnyPublisher()
     }
-    
-    // MARK: - Custom Handling Extensions with Optional Actions
-    @discardableResult
-    func onSuccess(_ action: ((Output) -> Void)?) -> AnyPublisher<Output, Failure> {
-        if let action = action {
-            return self.handleEvents(receiveOutput: action).eraseToAnyPublisher()
-        } else {
-            return self.eraseToAnyPublisher()
-        }
-    }
 
+    /// Handles various events of the publisher.
+    ///
+    /// - Parameters:
+    ///   - onSuccess: Closure called upon successful emission of an output.
+    ///   - onError: Closure called upon failure with an error.
+    ///   - onCancel: Closure called when the publisher is cancelled.
+    ///   - onCompletion: Closure called upon completion, regardless of success or failure.
+    /// - Returns: A publisher with the specified event handlers attached.
     @discardableResult
-    func onError(_ action: ((Failure) -> Void)?) -> AnyPublisher<Output, Failure> {
-        if let action = action {
-            return self.handleEvents(receiveCompletion: { completion in
+    func handle(
+        onSuccess: ((Output) -> Void)? = nil,
+        onError: ((Failure) -> Void)? = nil,
+        onCancel: (() -> Void)? = nil,
+        onCompletion: (() -> Void)? = nil
+    ) -> AnyPublisher<Output, Failure> {
+        self.handleEvents(
+            receiveOutput: { output in
+                onSuccess?(output)
+            },
+            receiveCompletion: { completion in
                 if case .failure(let error) = completion {
-                    action(error)
+                    onError?(error)
                 }
-            }).eraseToAnyPublisher()
-        } else {
-            return self.eraseToAnyPublisher()
-        }
+                onCompletion?()
+            },
+            receiveCancel: {
+                onCancel?()
+                onCompletion?()
+            }
+        )
+        .eraseToAnyPublisher()
     }
 
-    @discardableResult
-    func onCancel(_ action: (() -> Void)?) -> AnyPublisher<Output, Failure> {
-        if let action = action {
-            return self.handleEvents(receiveCancel: action).eraseToAnyPublisher()
-        } else {
-            return self.eraseToAnyPublisher()
-        }
-    }
-
-    @discardableResult
-    func onCompletion(_ action: (() -> Void)?) -> AnyPublisher<Output, Failure> {
-        if let action = action {
-            return self.handleEvents(receiveCompletion: { _ in action() }, receiveCancel: action).eraseToAnyPublisher()
-        } else {
-            return self.eraseToAnyPublisher()
-        }
-    }
     
     @discardableResult
     func subscribe(storeIn cancellables: inout Set<AnyCancellable>) -> AnyPublisher<Output, Failure> {

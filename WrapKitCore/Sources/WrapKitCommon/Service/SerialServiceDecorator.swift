@@ -37,30 +37,29 @@ public class SerialServiceDecorator<Request, Response>: Service {
         guard let (request, currentSubject) = pendingRequests.head else { return }
         
         // Make the request on the decoratee
-        currentTask = decoratee.make(request: request).sink(
-            receiveCompletion: { [weak self] completion in
-                guard let self = self else { return }
-                
-                // Send completion to the current subject and dequeue
-                switch completion {
-                case .failure(let error):
+        currentTask = decoratee.make(request: request)
+            .handle(
+                onSuccess: { [weak self] response in
+                    self?.pendingRequests.dequeue()
+                    
+                    // Process the next request in the queue, if available
+                    if !(self?.pendingRequests.elements.isEmpty == true) {
+                        self?.processNextRequest()
+                    }
+                },
+                onError: { error in
                     currentSubject.send(completion: .failure(error))
-                case .finished:
+                },
+                onCompletion: { [weak self] in
                     currentSubject.send(completion: .finished)
+                    self?.pendingRequests.dequeue()
+                    
+                    // Process the next request in the queue, if available
+                    if !(self?.pendingRequests.elements.isEmpty == true) {
+                        self?.processNextRequest()
+                    }
                 }
-                
-                // Remove the completed request from the queue
-                self.pendingRequests.dequeue()
-                
-                // Process the next request in the queue, if available
-                if !self.pendingRequests.elements.isEmpty {
-                    self.processNextRequest()
-                }
-            },
-            receiveValue: { value in
-                // Forward the response to the current subject
-                currentSubject.send(value)
-            }
-        )
+            )
+            .sink(receiveCompletion: { _ in }, receiveValue: { _ in })
     }
 }
