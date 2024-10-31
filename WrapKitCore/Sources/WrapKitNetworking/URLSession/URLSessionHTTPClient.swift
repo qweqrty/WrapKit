@@ -1,10 +1,3 @@
-//
-//  URLSessionHTTPClient.swift
-//  WrapKitNetworking
-//
-//  Created by Stas Lee on 25/7/23.
-//
-
 import Foundation
 
 public final class URLSessionHTTPClient: HTTPClient {
@@ -12,6 +5,7 @@ public final class URLSessionHTTPClient: HTTPClient {
     public struct UnexpectedValuesRepresentation: Error {}
 
     private let session: URLSession
+    static let maxCharactersToPrintForCancelled: Int = 40  // Only for cancelled requests
     
     private struct URLSessionTaskWrapper: HTTPClientTask {
         let wrapped: URLSessionTask
@@ -37,6 +31,9 @@ public final class URLSessionHTTPClient: HTTPClient {
 
             completion(Result {
                 if let error = error {
+                    if (error as? URLError)?.code == .cancelled {
+                        self?.printCancelled(request)
+                    }
                     throw error
                 } else if let data = data, let response = response as? HTTPURLResponse {
                     return (data, response)
@@ -47,6 +44,19 @@ public final class URLSessionHTTPClient: HTTPClient {
         }
         
         return URLSessionTaskWrapper(wrapped: task)
+    }
+    
+    private func printCancelled(_ request: URLRequest) {
+        let urlString = request.url?.absoluteString.truncatedForCancelled() ?? "N/A"
+        let method = request.httpMethod ?? "N/A"
+        let headers = request.allHTTPHeaderFields?.mapValues { $0.truncatedForCancelled() } ?? [:]
+        let body = String(data: request.httpBody ?? Data(), encoding: .utf8)?.truncatedForCancelled() ?? "N/A"
+
+        var requestLog = "📤 Cancelled Request: \(urlString)"
+        requestLog += "\nMethod: \(method)"
+        requestLog += "\nHeaders: \(headers)"
+        requestLog += "\nBody: \(body)"
+        print(requestLog)
     }
 
     private func printRequest(_ request: URLRequest) {
@@ -91,17 +101,25 @@ fileprivate extension URLRequest {
         var data: String = ""
         
         if let httpHeaders = self.allHTTPHeaderFields, httpHeaders.keys.count > 0 {
-            for (key,value) in httpHeaders {
+            for (key, value) in httpHeaders {
                 header += (pretty ? "--header " : "-H ") + "\'\(key): \(value)\' \(newLine)"
             }
         }
         
-        if let bodyData = self.httpBody, let bodyString = String(data: bodyData, encoding: .utf8),  !bodyString.isEmpty {
+        if let bodyData = self.httpBody, let bodyString = String(data: bodyData, encoding: .utf8), !bodyString.isEmpty {
             data = "--data '\(bodyString)'"
         }
         
         cURL += method + url + header + data
         
         return "📤: " + cURL
+    }
+}
+
+// Truncate extension only for cancelled requests
+fileprivate extension String {
+    func truncatedForCancelled() -> String {
+        let maxCharacters = URLSessionHTTPClient.maxCharactersToPrintForCancelled
+        return count > maxCharacters ? prefix(maxCharacters) + "..." : self
     }
 }

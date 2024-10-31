@@ -19,12 +19,12 @@ public enum ServiceError: Encodable, Error, Equatable {
     case `internal`
     case connectivity
     case notAuthorized
-    case toBeIgnored
+    case cancelled
     
-    public var title: String? {
+    public var title: String {
         switch self {
-        case .toBeIgnored:
-            return nil
+        case .cancelled:
+            return "Network request has been successfully cancelled"
         case .message(let title):
             return title
         case .internal:
