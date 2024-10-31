@@ -40,27 +40,27 @@ public enum ServiceError: Encodable, Error, Equatable {
 public extension AnyPublisher where Failure == ServiceError {
     
     @discardableResult
-    func onSuccess(_ action: @escaping (Output) -> Void) -> AnyPublisher<Output, ServiceError> {
+    func onSuccess(_ action: ((Output) -> Void)?) -> AnyPublisher<Output, ServiceError> {
         return self.handleEvents(receiveOutput: action).eraseToAnyPublisher()
     }
     
     @discardableResult
-    func onError(_ action: @escaping (ServiceError) -> Void) -> AnyPublisher<Output, ServiceError> {
+    func onError(_ action: ((ServiceError) -> Void)?) -> AnyPublisher<Output, ServiceError> {
         return self.handleEvents(receiveCompletion: { completion in
             if case .failure(let error) = completion {
-                action(error)
+                action?(error)
             }
         }).eraseToAnyPublisher()
     }
     
     @discardableResult
-    func onCancel(_ action: @escaping () -> Void) -> AnyPublisher<Output, ServiceError> {
+    func onCancel(_ action: (() -> Void)?) -> AnyPublisher<Output, ServiceError> {
         return self.handleEvents(receiveCancel: action).eraseToAnyPublisher()
     }
     
     @discardableResult
-    func onCompletion(_ action: @escaping () -> Void) -> AnyPublisher<Output, ServiceError> {
-        return self.handleEvents(receiveCompletion: { _ in action() }, receiveCancel: action).eraseToAnyPublisher()
+    func onCompletion(_ action: (() -> Void)?) -> AnyPublisher<Output, ServiceError> {
+        return self.handleEvents(receiveCompletion: { _ in action?() }, receiveCancel: action).eraseToAnyPublisher()
     }
     
     @discardableResult
