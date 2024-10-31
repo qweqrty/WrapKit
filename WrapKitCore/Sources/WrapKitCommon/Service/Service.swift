@@ -40,7 +40,7 @@ public enum ServiceError: Encodable, Error, Equatable {
 import Combine
 
 public extension AnyPublisher where Failure == ServiceError {
-    
+
     // MARK: - Zip Two Publishers
     static func zip<T, U>(
         _ first: AnyPublisher<T, ServiceError>,
@@ -81,29 +81,45 @@ public extension AnyPublisher where Failure == ServiceError {
             .eraseToAnyPublisher()
     }
     
-    // MARK: - Custom Handling Extensions
+    // MARK: - Custom Handling Extensions with Optional Actions
     @discardableResult
-    func onSuccess(_ action: @escaping (Output) -> Void) -> AnyPublisher<Output, ServiceError> {
-        self.handleEvents(receiveOutput: action).eraseToAnyPublisher()
+    func onSuccess(_ action: ((Output) -> Void)?) -> AnyPublisher<Output, ServiceError> {
+        if let action = action {
+            return self.handleEvents(receiveOutput: action).eraseToAnyPublisher()
+        } else {
+            return self.eraseToAnyPublisher()
+        }
     }
 
     @discardableResult
-    func onError(_ action: @escaping (ServiceError) -> Void) -> AnyPublisher<Output, ServiceError> {
-        self.handleEvents(receiveCompletion: { completion in
-            if case .failure(let error) = completion {
-                action(error)
-            }
-        }).eraseToAnyPublisher()
+    func onError(_ action: ((ServiceError) -> Void)?) -> AnyPublisher<Output, ServiceError> {
+        if let action = action {
+            return self.handleEvents(receiveCompletion: { completion in
+                if case .failure(let error) = completion {
+                    action(error)
+                }
+            }).eraseToAnyPublisher()
+        } else {
+            return self.eraseToAnyPublisher()
+        }
     }
 
     @discardableResult
-    func onCancel(_ action: @escaping () -> Void) -> AnyPublisher<Output, ServiceError> {
-        self.handleEvents(receiveCancel: action).eraseToAnyPublisher()
+    func onCancel(_ action: (() -> Void)?) -> AnyPublisher<Output, ServiceError> {
+        if let action = action {
+            return self.handleEvents(receiveCancel: action).eraseToAnyPublisher()
+        } else {
+            return self.eraseToAnyPublisher()
+        }
     }
 
     @discardableResult
-    func onCompletion(_ action: @escaping () -> Void) -> AnyPublisher<Output, ServiceError> {
-        self.handleEvents(receiveCompletion: { _ in action() }, receiveCancel: action).eraseToAnyPublisher()
+    func onCompletion(_ action: (() -> Void)?) -> AnyPublisher<Output, ServiceError> {
+        if let action = action {
+            return self.handleEvents(receiveCompletion: { _ in action() }, receiveCancel: action).eraseToAnyPublisher()
+        } else {
+            return self.eraseToAnyPublisher()
+        }
     }
     
     @discardableResult
