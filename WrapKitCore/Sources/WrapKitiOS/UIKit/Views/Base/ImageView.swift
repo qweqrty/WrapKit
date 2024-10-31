@@ -84,8 +84,7 @@ open class ImageView: UIImageView {
         tintColor: UIColor? = nil,
         isHidden: Bool = false
     ) {
-        super.init(image: nil)
-        setImage(.asset(image))
+        super.init(image: image)
         self.isHidden = isHidden
         self.contentMode = contentMode
         if let tintColor = tintColor {
@@ -98,7 +97,6 @@ open class ImageView: UIImageView {
     
     public override init(frame: CGRect) {
         super.init(frame: .zero)
-        setImage(.asset(nil))
     }
     
     public required init?(coder: NSCoder) {
