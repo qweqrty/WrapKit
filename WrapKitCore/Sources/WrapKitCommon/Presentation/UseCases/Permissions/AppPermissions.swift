@@ -136,26 +136,30 @@ public final class AppPermissions {
     // MARK: - Tracking Permission (iOS 14+)
     @available(iOS 14, *)
     public static func requestTrackingAccess(permissionCallback: @escaping ((Bool) -> Void)) {
-        #if canImport(AppTrackingTransparency)
-        ATTrackingManager.requestTrackingAuthorization { status in
-            switch status {
-            case .authorized:
-                DispatchQueue.main.async {
-                    permissionCallback(true)
-                }
-            case .notDetermined, .restricted, .denied:
-                DispatchQueue.main.async {
-                    permissionCallback(false)
-                }
-            @unknown default:
-                DispatchQueue.main.async {
-                    permissionCallback(false)
+        if #available(macOS 11.0, *) {
+#if canImport(AppTrackingTransparency)
+            ATTrackingManager.requestTrackingAuthorization { status in
+                switch status {
+                case .authorized:
+                    DispatchQueue.main.async {
+                        permissionCallback(true)
+                    }
+                case .notDetermined, .restricted, .denied:
+                    DispatchQueue.main.async {
+                        permissionCallback(false)
+                    }
+                @unknown default:
+                    DispatchQueue.main.async {
+                        permissionCallback(false)
+                    }
                 }
             }
+#else
+            permissionCallback(false)
+#endif
+        } else {
+            // Fallback on earlier versions
         }
-        #else
-        permissionCallback(false)
-        #endif
     }
 
     // MARK: - Notification Permission
@@ -226,21 +230,25 @@ public final class AppPermissions {
 
     // MARK: - HealthKit Permission
     public static func requestHealthKitAccess(permissionCallback: @escaping ((Bool) -> Void)) {
-        #if canImport(HealthKit)
-        if HKHealthStore.isHealthDataAvailable() {
-            let healthStore = HKHealthStore()
-            let readTypes = Set([HKObjectType.quantityType(forIdentifier: .heartRate)!])
-
-            healthStore.requestAuthorization(toShare: nil, read: readTypes) { success, _ in
-                DispatchQueue.main.async {
-                    permissionCallback(success)
+        if #available(macOS 13.0, *) {
+#if canImport(HealthKit)
+            if HKHealthStore.isHealthDataAvailable() {
+                let healthStore = HKHealthStore()
+                let readTypes = Set([HKObjectType.quantityType(forIdentifier: .heartRate)!])
+                
+                healthStore.requestAuthorization(toShare: nil, read: readTypes) { success, _ in
+                    DispatchQueue.main.async {
+                        permissionCallback(success)
+                    }
                 }
+            } else {
+                permissionCallback(false)
             }
-        } else {
+#else
             permissionCallback(false)
+#endif
+        } else {
+            // Fallback on earlier versions
         }
-        #else
-        permissionCallback(false)
-        #endif
     }
 }

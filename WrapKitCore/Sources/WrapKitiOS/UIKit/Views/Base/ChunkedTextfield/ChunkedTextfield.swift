@@ -5,6 +5,7 @@ public protocol ChunkedTextFieldOutput: AnyObject {
     func display(isValid: Bool)
 }
 
+#if canImport(UIKit)
 extension ChunkedTextField: ChunkedTextFieldOutput {
     public func display(text: String?) {
         let text = String((text ?? "").prefix(count))
@@ -18,7 +19,7 @@ extension ChunkedTextField: ChunkedTextFieldOutput {
     }
 }
 
-#if canImport(UIKit)
+
 public class ChunkedTextField: View {
     private static let maxCharactersPerTextfield = 1
     private static let characterSet = CharacterSet.decimalDigits

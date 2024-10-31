@@ -38,7 +38,7 @@ public enum ServiceError: Encodable, Error, Equatable {
 }
 
 public extension AnyPublisher where Failure == ServiceError {
-    
+
     @discardableResult
     func onSuccess(_ action: @escaping (Output) -> Void) -> AnyPublisher<Output, ServiceError> {
         return self.handleEvents(receiveOutput: action).eraseToAnyPublisher()
@@ -54,8 +54,14 @@ public extension AnyPublisher where Failure == ServiceError {
     }
     
     @discardableResult
+    func onCancel(_ action: @escaping () -> Void) -> AnyPublisher<Output, ServiceError> {
+        return self.handleEvents(receiveCancel: action).eraseToAnyPublisher()
+    }
+    
+    @discardableResult
     func subscribe(storeIn cancellables: inout Set<AnyCancellable>) -> AnyPublisher<Output, Failure> {
-        sink(receiveCompletion: { _ in }, receiveValue: { _ in })
+        self
+            .sink(receiveCompletion: { _ in }, receiveValue: { _ in })
             .store(in: &cancellables)
         return self
     }
