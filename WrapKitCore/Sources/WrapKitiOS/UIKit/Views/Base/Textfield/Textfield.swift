@@ -208,7 +208,7 @@ open class Textfield: UITextField {
         setupTrailingView()
     }
     
-    override open func point(inside point: CGPoint, with event: UIEvent?) -> Bool {
+    open override func point(inside point: CGPoint, with event: UIEvent?) -> Bool {
         if let trailingView = trailingView, trailingView.frame.contains(point) {
             return true
         } else if let leadingView = leadingView, leadingView.frame.contains(point) {
@@ -235,7 +235,7 @@ open class Textfield: UITextField {
         }
     }
     
-    required public init?(coder: NSCoder) {
+    public required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
@@ -260,25 +260,25 @@ open class Textfield: UITextField {
         )
     }
     
-    override open func textRect(forBounds bounds: CGRect) -> CGRect {
+    open override func textRect(forBounds bounds: CGRect) -> CGRect {
         return textArea(for: bounds)
     }
     
-    override open func placeholderRect(forBounds bounds: CGRect) -> CGRect {
+    open override func placeholderRect(forBounds bounds: CGRect) -> CGRect {
         return textArea(for: bounds)
     }
     
-    override open func editingRect(forBounds bounds: CGRect) -> CGRect {
+    open override func editingRect(forBounds bounds: CGRect) -> CGRect {
         return textArea(for: bounds)
     }
     
-    override open func paste(_ sender: Any?) {
+    open override func paste(_ sender: Any?) {
         super.paste(sender)
         onPaste?(UIPasteboard.general.string)
     }
     
     @discardableResult
-    override open func becomeFirstResponder() -> Bool {
+    open override func becomeFirstResponder() -> Bool {
         guard isEnabledForEditing else { return false }
         let success = super.becomeFirstResponder()
         if success { onBecomeFirstResponder?() }
@@ -290,7 +290,7 @@ open class Textfield: UITextField {
         return success
     }
     
-    override open var canBecomeFirstResponder: Bool {
+    open override var canBecomeFirstResponder: Bool {
          return isEnabledForEditing
      }
     
@@ -301,7 +301,7 @@ open class Textfield: UITextField {
         return result
     }
     
-    override open var isSecureTextEntry: Bool {
+    open override var isSecureTextEntry: Bool {
         didSet {
             if isFirstResponder {
                 _ = becomeFirstResponder()
@@ -309,15 +309,15 @@ open class Textfield: UITextField {
         }
     }
     
-    override open func caretRect(for position: UITextPosition) -> CGRect {
+    open override func caretRect(for position: UITextPosition) -> CGRect {
         return isTextSelectionDisabled ? .zero : super.caretRect(for: position)
     }
     
-    override open func selectionRects(for range: UITextRange) -> [UITextSelectionRect] {
+    open override func selectionRects(for range: UITextRange) -> [UITextSelectionRect] {
         return isTextSelectionDisabled ? [] : super.selectionRects(for: range)
     }
     
-    override open func canPerformAction(_ action: Selector, withSender sender: Any?) -> Bool {
+    open override func canPerformAction(_ action: Selector, withSender sender: Any?) -> Bool {
         return isTextSelectionDisabled ? false : super.canPerformAction(action, withSender: sender)
     }
     
