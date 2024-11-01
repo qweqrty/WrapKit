@@ -74,6 +74,21 @@ private extension ChunkedTextField {
     func setupConstraints() {
         stackView.fillSuperview()
     }
+    
+    func handlePaste(pastedText: String, startingFrom startIndex: Int) {
+        var currentIndex = startIndex
+        for character in pastedText {
+            if currentIndex < textfields.count {
+                textfields[currentIndex].text = String(character)
+                currentIndex += 1
+            } else {
+                break
+            }
+        }
+        
+        let allFieldsText = textfields.compactMap { $0.text }.joined()
+        didChangeText.forEach { $0(allFieldsText) }
+    }
 }
 
 private extension ChunkedTextField {
@@ -83,6 +98,7 @@ private extension ChunkedTextField {
             textfield.keyboardType = .numberPad
             textfield.tintColor = .clear
             textfield.textContentType = .oneTimeCode
+            
             textfield.didChangeText.append { [weak self, weak textfield] text in
                 let text = text?.filter { Self.characterSet.contains($0) }
                 if let nextTextfield = self?.textfields.item(at: offset + 1), (text?.count ?? 0) >= Self.maxCharactersPerTextfield {
@@ -99,6 +115,11 @@ private extension ChunkedTextField {
                 }.joined()
                 self?.didChangeText.forEach { $0(allFieldsText) }
             }
+            
+            textfield.onPaste = { [weak self] pastedText in
+                self?.handlePaste(pastedText: pastedText, startingFrom: offset)
+            }
+            
             textfield.onTapBackspace = { [weak self, weak textfield] in
                 if let prevTextfield = self?.textfields.item(at: offset - 1), (textfield?.text ?? "").isEmpty {
                     prevTextfield.becomeFirstResponder()
