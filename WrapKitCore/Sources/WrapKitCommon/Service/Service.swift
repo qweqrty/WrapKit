@@ -78,39 +78,39 @@ public extension AnyPublisher {
         self.catch { _ in fallbackPublisher }
             .eraseToAnyPublisher()
     }
-
-    /// Handles various events of the publisher.
-    ///
-    /// - Parameters:
-    ///   - onSuccess: Closure called upon successful emission of an output.
-    ///   - onError: Closure called upon failure with an error.
-    ///   - onCancel: Closure called when the publisher is cancelled.
-    ///   - onCompletion: Closure called upon completion, regardless of success or failure.
-    /// - Returns: A publisher with the specified event handlers attached.
-    @discardableResult
-    func handle(
-        onSuccess: ((Output) -> Void)? = nil,
-        onError: ((Failure) -> Void)? = nil,
-        onCancel: (() -> Void)? = nil,
-        onCompletion: (() -> Void)? = nil
-    ) -> AnyPublisher<Output, Failure> {
-        self.handleEvents(
-            receiveOutput: { output in
-                onSuccess?(output)
-            },
-            receiveCompletion: { completion in
-                if case .failure(let error) = completion {
-                    onError?(error)
+    
+        /// Handles various events of the publisher.
+        ///
+        /// - Parameters:
+        ///   - onSuccess: Closure called upon successful emission of an output.
+        ///   - onError: Closure called upon failure with an error.
+        ///   - onCancel: Closure called when the publisher is cancelled.
+        ///   - onCompletion: Closure called upon completion, regardless of success or failure.
+        /// - Returns: A publisher with the specified event handlers attached.
+        @discardableResult
+        func handle(
+            onSuccess: ((Output) -> Void)? = nil,
+            onError: ((Failure) -> Void)? = nil,
+            onCancel: (() -> Void)? = nil,
+            onCompletion: (() -> Void)? = nil
+        ) -> AnyPublisher<Output, Failure> {
+            self.handleEvents(
+                receiveOutput: { output in
+                    onSuccess?(output)
+                },
+                receiveCompletion: { completion in
+                    if case .failure(let error) = completion {
+                        onError?(error)
+                    }
+                    onCompletion?()
+                },
+                receiveCancel: {
+                    onCancel?()
+                    onCompletion?()
                 }
-                onCompletion?()
-            },
-            receiveCancel: {
-                onCancel?()
-                onCompletion?()
-            }
-        )
-        .eraseToAnyPublisher()
-    }
+            )
+            .eraseToAnyPublisher()
+        }
 
     
     @discardableResult

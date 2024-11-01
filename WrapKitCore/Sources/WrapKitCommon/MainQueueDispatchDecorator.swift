@@ -48,6 +48,24 @@ extension SelectionFlow {
     }
 }
 
+extension MainQueueDispatchDecorator: AlertOutput where T == AlertOutput {
+    public func showDefaultPrompt(title: String?, text: String, cancelText: String, yesText: String, onCancelCompletion: (() -> Void)?, onYesCompletion: (() -> Void)?) {
+        dispatch { [weak self] in
+            self?.decoratee.showDefaultPrompt(title: title, text: text, cancelText: cancelText, yesText: yesText, onCancelCompletion: onCancelCompletion, onYesCompletion: onYesCompletion)
+        }
+    }
+}
+
+extension AlertOutput {
+    public var mainQueueDispatched: AlertOutput {
+        MainQueueDispatchDecorator(decoratee: self)
+    }
+    
+    public var weakReferenced: AlertOutput {
+        return WeakRefVirtualProxy(self)
+    }
+}
+
 extension MainQueueDispatchDecorator: SelectionOutput where T == SelectionOutput {
     public func display(items: [SelectionType.SelectionCellPresentableModel], selectedCountTitle: String) {
         dispatch { [weak self] in
