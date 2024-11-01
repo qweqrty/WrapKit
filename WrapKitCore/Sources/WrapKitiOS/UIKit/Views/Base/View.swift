@@ -12,6 +12,7 @@ open class View: UIView {
     public enum Animation: HashableWithReflection {
         case gradientBorder([Color])
         case shrink
+        case alphaTouch
     }
     
     public var animations: Set<Animation> = [] { didSet { applyAnimations() } }
@@ -99,7 +100,7 @@ open class View: UIView {
             }
         }
         super.touchesBegan(touches, with: event)
-        guard onLongPress != nil || onPress != nil else { return }
+        guard onLongPress != nil || onPress != nil || animations.contains(.alphaTouch) else { return }
         self.alpha = 0.5
     }
 
@@ -108,7 +109,7 @@ open class View: UIView {
             self?.transform = CGAffineTransform(scaleX: 1, y: 1)
         }
         super.touchesEnded(touches, with: event)
-        guard onLongPress != nil || onPress != nil else { return }
+        guard onLongPress != nil || onPress != nil || animations.contains(.alphaTouch) else { return }
 
         UIView.animate(withDuration: 0.3, delay: 0, options: [.allowUserInteraction]) {
             self.alpha = 1.0
@@ -120,7 +121,7 @@ open class View: UIView {
             self?.transform = CGAffineTransform(scaleX: 1, y: 1)
         }
         super.touchesCancelled(touches, with: event)
-        guard onLongPress != nil || onPress != nil else { return }
+        guard onLongPress != nil || onPress != nil || animations.contains(.alphaTouch) else { return }
 
         UIView.animate(withDuration: 0.3, delay: 0, options: [.allowUserInteraction]) {
             self.alpha = 1.0
