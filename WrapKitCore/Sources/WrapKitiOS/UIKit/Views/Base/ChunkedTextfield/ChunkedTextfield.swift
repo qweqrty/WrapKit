@@ -75,15 +75,22 @@ private extension ChunkedTextField {
         stackView.fillSuperview()
     }
     
-    func handlePaste(pastedText: String, startingFrom startIndex: Int) {
-        var currentIndex = startIndex
-        for character in pastedText {
-            if currentIndex < textfields.count {
-                textfields[currentIndex].text = String(character)
-                currentIndex += 1
-            } else {
-                break
-            }
+    func handlePaste(pastedText: String?, startingFrom startIndex: Int) {
+        guard let pastedText = pastedText, startIndex < textfields.count else { return }
+        
+        var remainingCharacters = pastedText[...]
+        
+        for currentIndex in startIndex..<textfields.count {
+            guard !remainingCharacters.isEmpty else { break }
+            guard let currentTextField = textfields.item(at: currentIndex) else { break }
+            
+            let currentText = currentTextField.text ?? ""
+            let availableSpace = Self.maxCharactersPerTextfield - currentText.count
+            guard availableSpace > 0 else { continue }
+            
+            let charactersToInsert = remainingCharacters.prefix(availableSpace)
+            currentTextField.text = currentText + charactersToInsert
+            remainingCharacters = remainingCharacters.dropFirst(charactersToInsert.count)
         }
         
         let allFieldsText = textfields.compactMap { $0.text }.joined()

@@ -123,7 +123,7 @@ open class Textfield: UITextField {
     }
     
     public var onPress: (() -> Void)?
-    public var onPaste: ((String) -> Void)?
+    public var onPaste: ((String?) -> Void)?
     public var nextTextfield: UIResponder? = nil { didSet { returnKeyType = nextTextfield == nil ? .done : .next } }
     public var onBecomeFirstResponder: (() -> Void)?
     public var onResignFirstResponder: (() -> Void)?
@@ -273,11 +273,8 @@ open class Textfield: UITextField {
     }
     
     override open func paste(_ sender: Any?) {
-        if let pastedText = UIPasteboard.general.string {
-            onPaste?(pastedText)
-        } else {
-            super.paste(sender)
-        }
+        super.paste(sender)
+        onPaste?(UIPasteboard.general.string)
     }
     
     @discardableResult
