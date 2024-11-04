@@ -5,9 +5,9 @@
 //  Created by Stas Lee on 6/8/23.
 //
 
-#if canImport(UIKit)
-import UIKit
-import SwiftUI
+public protocol CardViewOutput: AnyObject {
+    func display(model: CardViewPresentableModel)
+}
 
 public struct CardViewPresentableModel: HashableWithReflection {
     public struct Image {
@@ -44,9 +44,9 @@ public struct CardViewPresentableModel: HashableWithReflection {
     }
 }
 
-public protocol CardViewOutput: AnyObject {
-    func display(model: CardViewPresentableModel)
-}
+#if canImport(UIKit)
+import UIKit
+import SwiftUI
 
 extension CardView: CardViewOutput {
     public func display(model: CardViewPresentableModel) {

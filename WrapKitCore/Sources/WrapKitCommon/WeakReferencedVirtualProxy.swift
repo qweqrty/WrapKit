@@ -29,6 +29,19 @@ extension WeakRefVirtualProxy: TimerOutput where T: TimerOutput {
     }
 }
 
+
+extension CardViewOutput {
+    public var weakReferenced: CardViewOutput {
+        return WeakRefVirtualProxy(self)
+    }
+}
+
+extension WeakRefVirtualProxy: CardViewOutput where T: CardViewOutput {
+    public func display(model: CardViewPresentableModel) {
+        object?.display(model: model)
+    }
+}
+
 extension WeakRefVirtualProxy: AlertOutput where T: AlertOutput {
     public func showAlert(text: String, okText: String) {
         object?.showAlert(text: text, okText: okText)

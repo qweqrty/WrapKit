@@ -48,6 +48,19 @@ extension SelectionFlow {
     }
 }
 
+extension MainQueueDispatchDecorator: CardViewOutput where T == CardViewOutput {
+    public func display(model: CardViewPresentableModel) {
+        dispatch { [weak self] in
+            self?.decoratee.display(model: model)
+        }
+    }
+}
+
+extension CardViewOutput {
+    public var mainQueueDispatched: CardViewOutput {
+        MainQueueDispatchDecorator(decoratee: self)
+    }
+}
 
 extension MainQueueDispatchDecorator: TimerOutput where T == TimerOutput {
     public func display(secondsRemaining: Int?) {
