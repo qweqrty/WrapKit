@@ -48,6 +48,15 @@ extension SelectionFlow {
     }
 }
 
+
+extension MainQueueDispatchDecorator: TimerOutput where T == TimerOutput {
+    public func display(secondsRemaining: Int?) {
+        dispatch { [weak self] in
+            self?.decoratee.display(secondsRemaining: secondsRemaining)
+        }
+    }
+}
+
 extension MainQueueDispatchDecorator: AlertOutput where T == AlertOutput {
     public func showAlert(text: String, okText: String) {
         dispatch { [weak self] in

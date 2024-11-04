@@ -23,6 +23,12 @@ extension WeakRefVirtualProxy: CommonLoadingOutput where T: CommonLoadingOutput 
     }
 }
 
+extension WeakRefVirtualProxy: TimerOutput where T: TimerOutput {
+    public func display(secondsRemaining: Int?) {
+        object?.display(secondsRemaining: secondsRemaining)
+    }
+}
+
 extension WeakRefVirtualProxy: AlertOutput where T: AlertOutput {
     public func showAlert(text: String, okText: String) {
         object?.showAlert(text: text, okText: okText)
