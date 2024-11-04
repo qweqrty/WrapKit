@@ -75,9 +75,6 @@ open class Label: UILabel {
         didSet {
             guard !attributes.isEmpty else {
                 attributedText = nil
-                if let attributedTextTapGesture = gestureRecognizers?.first(where: { $0.name == String(describing: TextAttributes.self) }) {
-                    removeGestureRecognizer(attributedTextTapGesture)
-                }
                 return
             }
             
