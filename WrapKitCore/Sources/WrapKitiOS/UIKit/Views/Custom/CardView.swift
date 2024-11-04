@@ -5,6 +5,8 @@
 //  Created by Stas Lee on 6/8/23.
 //
 
+import Foundation
+
 public protocol CardViewOutput: AnyObject {
     func display(model: CardViewPresentableModel)
 }
