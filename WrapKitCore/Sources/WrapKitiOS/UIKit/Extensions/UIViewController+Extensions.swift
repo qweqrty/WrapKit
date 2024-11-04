@@ -14,12 +14,32 @@ public protocol AlertOutput: AnyObject {
         onCancelCompletion: (() -> Void)?,
         onYesCompletion: (() -> Void)?
     )
+    
+    func showAlert(
+        text: String,
+        okText: String
+    )
 }
 
 #if canImport(UIKit)
 import UIKit
 
 extension UIViewController: AlertOutput {
+    public func showAlert(text: String, okText: String) {
+        let alert = UIAlertController(
+            title: nil,
+            message: text,
+            preferredStyle: .alert
+        )
+        alert.addAction(
+            UIAlertAction(
+                title: okText,
+                style: .default
+            )
+        )
+        present(alert, animated: true, completion: nil)
+    }
+    
     public func showDefaultPrompt(
         title: String?,
         text: String,
@@ -37,8 +57,7 @@ extension UIViewController: AlertOutput {
             UIAlertAction(
                 title: cancelText,
                 style: .default,
-                handler: { [weak alert, onCancelCompletion] (_) in
-                    alert?.dismiss(animated: true)
+                handler: { [onCancelCompletion] (_) in
                     onCancelCompletion?()
                 }
             )
