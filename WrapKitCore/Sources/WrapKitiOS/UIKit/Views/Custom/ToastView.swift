@@ -41,7 +41,6 @@ open class ToastView: UIView {
         setupSubviews()
         setupConstraints()
         setSwipe()
-        setTapGesture()
         setupObservers()
     }
 
@@ -122,34 +121,38 @@ open class ToastView: UIView {
         addGestureRecognizer(panGesture)
     }
 
-    private func setTapGesture() {
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(didTap))
-        tapGesture.numberOfTouchesRequired = 1
-        addGestureRecognizer(tapGesture)
-    }
-
-    @objc private func didTap(gesture: UITapGestureRecognizer) {
-        hide(after: 0)
-    }
-
     @objc private func handlePanGesture(gesture: UIPanGestureRecognizer) {
         let panOffset = gesture.translation(in: self).y
-        
+        let initialAlpha: CGFloat = 1.0
+        let velocity = gesture.velocity(in: self).y
+        let velocityThreshold: CGFloat = 500
+
         switch gesture.state {
         case .began:
             pauseHideTimer()
         case .changed:
-            bottomConstraint?.constant = position == .top ? min(showConstant + panOffset, showConstant) : max(showConstant + panOffset, showConstant)
+            bottomConstraint?.constant = position == .top
+                ? min(showConstant + panOffset, showConstant)
+                : max(showConstant + panOffset, showConstant)
             layoutIfNeeded()
+
+            if case .bottom(_) = position, panOffset > 0 {
+                let maxDistance = frame.height
+                let distanceMoved = abs(panOffset)
+                let newAlpha = max(1.0 - (distanceMoved / maxDistance), 0.0)
+                self.alpha = newAlpha
+            }
         case .ended, .cancelled, .failed:
             resumeHideTimer()
-            let bottomConstant = bottomConstraint?.constant ?? 0
+            let shouldDismiss = velocity > velocityThreshold || bottomConstraint?.constant ?? 0 > (showConstant / 1.5)
             UIView.animate(withDuration: 0.2, delay: .zero, options: [.curveEaseInOut, .allowUserInteraction]) {
-                if (bottomConstant) > (self.showConstant / 1.5) {
+                if shouldDismiss {
                     self.bottomConstraint?.constant = 0
+                    self.alpha = 0
                     self.hide(after: 0)
                 } else {
                     self.bottomConstraint?.constant = self.showConstant
+                    self.alpha = initialAlpha // Restore to full opacity
                 }
                 self.layoutIfNeeded()
                 self.superview?.layoutIfNeeded()
