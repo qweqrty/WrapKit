@@ -1,10 +1,3 @@
-//
-//  ToastView.swift
-//  WrapKit
-//
-//  Created by Stas Lee on 6/8/23.
-//
-
 #if canImport(UIKit)
 import UIKit
 
@@ -51,6 +44,8 @@ open class ToastView: UIView {
     private func setupObservers() {
         NotificationCenter.default.addObserver(self, selector: #selector(didEnterBackground), name: UIApplication.didEnterBackgroundNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(willEnterForeground), name: UIApplication.willEnterForegroundNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(_:)), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide(_:)), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
 
     @objc private func didEnterBackground() {
@@ -67,7 +62,10 @@ open class ToastView: UIView {
         case .top:
             break
         case .bottom(let additionalBottomPadding):
-            adjustForKeyboardVisibility(additionalBottomPadding: additionalBottomPadding)
+            if let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect {
+                keyboardHeight = keyboardFrame.height
+                adjustForKeyboardVisibility(additionalBottomPadding: additionalBottomPadding)
+            }
         }
     }
 
@@ -76,6 +74,7 @@ open class ToastView: UIView {
         case .top:
             break
         case .bottom(let additionalBottomPadding):
+            keyboardHeight = 0
             adjustForKeyboardVisibility(additionalBottomPadding: additionalBottomPadding)
         }
     }
@@ -163,7 +162,7 @@ open class ToastView: UIView {
     }
 
     public func show() {
-        guard let window = UIApplication.window else { return }
+        guard let window = UIApplication.shared.windows.first else { return }
         window.addSubview(self)
         translatesAutoresizingMaskIntoConstraints = false
         switch position {
