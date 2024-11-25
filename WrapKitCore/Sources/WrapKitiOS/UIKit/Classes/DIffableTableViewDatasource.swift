@@ -110,7 +110,7 @@ public class DiffableTableViewDataSource<Model: Hashable>: NSObject, UITableView
     }
     
     // MARK: - Header/Footer Views
-    public func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+    open func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         return viewForHeaderInSection?(section) ?? UIView()
     }
     
