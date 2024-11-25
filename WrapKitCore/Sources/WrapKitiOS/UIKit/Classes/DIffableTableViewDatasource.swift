@@ -13,6 +13,8 @@ public class DiffableTableViewDataSource<Model: Hashable>: NSObject, UITableView
     public var didSelectAt: ((IndexPath, Model) -> Void)?
     public var configureCell: ((UITableView, IndexPath, Model) -> UITableViewCell)?
     public var configureFooter: (() -> UITableViewCell)?
+    public var viewForHeaderInSection: ((Int) -> View)?
+    public var heightForHeaderInSection: ((Int) -> CGFloat)?
     public var onRetry: (() -> Void)?
     public var showLoader = false
     public var loadNextPage: (() -> Void)?
@@ -109,11 +111,11 @@ public class DiffableTableViewDataSource<Model: Hashable>: NSObject, UITableView
     
     // MARK: - Header/Footer Views
     open func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        return UIView()
+        return viewForHeaderInSection?(section) ?? UIView()
     }
     
     open func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        return .leastNonzeroMagnitude
+        return heightForHeaderInSection?(section) ?? .leastNonzeroMagnitude
     }
     
     open func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
