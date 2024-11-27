@@ -114,9 +114,9 @@ private extension NavigationBar {
         return view
     }
     
-    func makeWrappedImageView() -> WrapperView<ImageView> {
+    func makeWrappedImageView() -> WrapperView<Button> {
         return WrapperView(
-            contentView: ImageView(),
+            contentView: Button(),
             isHidden: true,
             contentViewConstraints: {
                 $0.anchor(

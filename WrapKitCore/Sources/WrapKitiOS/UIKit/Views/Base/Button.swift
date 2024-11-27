@@ -94,6 +94,16 @@ open class Button: UIButton {
         onPress?()
     }
     
+    open override func point(inside point: CGPoint, with event: UIEvent?) -> Bool {
+        let hasTargetActions = allTargets.contains { target in
+            actions(forTarget: target, forControlEvent: .touchUpInside) != nil
+        }
+        if !hasTargetActions {
+            return false
+        }
+        return super.point(inside: point, with: event)
+    }
+    
     open override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         layoutIfNeeded()
         
