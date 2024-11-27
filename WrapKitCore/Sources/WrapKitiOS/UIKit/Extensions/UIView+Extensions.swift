@@ -256,15 +256,7 @@ public extension UIView {
     
     func hideShimmer() {
         guard let shimmerView = viewWithTag(Self.shimmerViewTag) else { return }
-        UIView.animate(
-            withDuration: 0.2,
-            delay: 0,
-            options: [.curveEaseInOut, .allowUserInteraction],
-            animations: {
-            shimmerView.alpha = 0
-        }, completion: { _ in
-            shimmerView.removeFromSuperview()
-        })
+        shimmerView.removeFromSuperview()
     }
     
     var firstNonClearBackgroundColor: UIColor? {
