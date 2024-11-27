@@ -104,6 +104,8 @@ open class Button: UIButton {
                 return false
             }
             return super.point(inside: point, with: event)
+        } else if !hasTargetActions {
+            return false
         }
         return super.point(inside: point, with: event)
     }
