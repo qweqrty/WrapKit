@@ -98,7 +98,13 @@ open class Button: UIButton {
         let hasTargetActions = allTargets.contains { target in
             actions(forTarget: target, forControlEvent: .touchUpInside) != nil
         }
-        if !hasTargetActions {
+        if #available(iOS 14.0, *) {
+            let hasMenu = menu != nil
+            if !hasMenu && !hasTargetActions {
+                return false
+            }
+            return super.point(inside: point, with: event)
+        } else if !hasTargetActions {
             return false
         }
         return super.point(inside: point, with: event)
