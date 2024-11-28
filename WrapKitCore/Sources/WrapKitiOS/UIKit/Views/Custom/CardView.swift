@@ -25,6 +25,7 @@ public struct CardViewPresentableModel: HashableWithReflection {
     public let title: [TextAttributes]
     public let leadingImage: Image?
     public let trailingImage: Image?
+    public let secondaryTrailingImage: Image?
     public let subTitle: [TextAttributes]
     public let valueTitle: [TextAttributes]
     public let separatorColor: Color?
@@ -33,6 +34,7 @@ public struct CardViewPresentableModel: HashableWithReflection {
         title: [TextAttributes] = [],
         leadingImage: Image? = nil,
         trailingImage: Image? = nil,
+        secondaryTrailingImage: Image? = nil,
         subTitle: [TextAttributes] = [],
         valueTitle: [TextAttributes] = [],
         separatorColor: Color? = nil
@@ -40,6 +42,7 @@ public struct CardViewPresentableModel: HashableWithReflection {
         self.title = title
         self.leadingImage = leadingImage
         self.trailingImage = trailingImage
+        self.secondaryTrailingImage = secondaryTrailingImage
         self.subTitle = subTitle
         self.valueTitle = valueTitle
         self.separatorColor = separatorColor
@@ -83,6 +86,12 @@ extension CardView: CardViewOutput {
         trailingImageViewConstraints?.height?.constant = model.trailingImage?.size.height ?? 0
         trailingImageView.setImage(model.trailingImage?.image)
         
+        // SecondaryTrailingImage
+        secondaryTrailingImageWrapperView.isHidden = model.trailingImage == nil
+        secondaryTrailingImageViewConstraints?.width?.constant = model.trailingImage?.size.width ?? 0
+        secondaryTrailingImageViewConstraints?.height?.constant = model.trailingImage?.size.height ?? 0
+        secondaryTrailingImageView.setImage(model.secondaryTrailingImage?.image)
+        
         // bottomSeparatorView
         bottomSeparatorView.contentView.backgroundColor = model.separatorColor
         bottomSeparatorView.isHidden = model.separatorColor == nil
@@ -108,6 +117,9 @@ open class CardView: View {
     public let trailingImageWrapperView = UIView()
     public let trailingImageView = ImageView(image: UIImage(named: "rightArrow"), tintColor: .black)
     
+    public let secondaryTrailingImageWrapperView = UIView(isHidden: true)
+    public let secondaryTrailingImageView = ImageView()
+    
     public let switchWrapperView = UIView(isHidden: true)
     public lazy var switchControl = SwitchControl()
     
@@ -121,6 +133,7 @@ open class CardView: View {
     public var titlesViewConstraints: AnchoredConstraints?
     public var leadingImageViewConstraints: AnchoredConstraints?
     public var trailingImageViewConstraints: AnchoredConstraints?
+    public var secondaryTrailingImageViewConstraints: AnchoredConstraints?
     public var switchControlConstraints: AnchoredConstraints?
     
     public init() {
@@ -160,11 +173,13 @@ extension CardView {
         hStackView.addArrangedSubview(leadingImageWrapperView)
         hStackView.addArrangedSubview(titleViewsWrapperView)
         hStackView.addArrangedSubview(subtitleLabel)
+        hStackView.addArrangedSubview(secondaryTrailingImageWrapperView)
         hStackView.addArrangedSubview(trailingImageWrapperView)
         hStackView.addArrangedSubview(switchWrapperView)
         
         leadingImageWrapperView.addSubview(leadingImageView)
         trailingImageWrapperView.addSubview(trailingImageView)
+        secondaryTrailingImageWrapperView.addSubview(secondaryTrailingImageView)
         titleViewsWrapperView.addSubview(titleViews)
         switchWrapperView.addSubview(switchControl)
     }
@@ -189,6 +204,19 @@ extension CardView {
             .centerY(leadingImageWrapperView.centerYAnchor),
             .width(16),
             .height(16, priority: .defaultHigh)
+        )
+        
+        secondaryTrailingImageViewConstraints = secondaryTrailingImageView.anchor(
+            .topGreaterThanEqual(secondaryTrailingImageWrapperView.topAnchor),
+            .bottomLessThanEqual(secondaryTrailingImageWrapperView.bottomAnchor),
+            .top(secondaryTrailingImageWrapperView.topAnchor, priority: .defaultHigh),
+            .bottom(secondaryTrailingImageWrapperView.bottomAnchor, priority: .defaultHigh),
+            .leading(secondaryTrailingImageWrapperView.leadingAnchor),
+            .trailing(secondaryTrailingImageWrapperView.trailingAnchor),
+            .centerX(secondaryTrailingImageWrapperView.centerXAnchor),
+            .centerY(secondaryTrailingImageWrapperView.centerYAnchor),
+            .width(6.25),
+            .height(10, priority: .defaultHigh)
         )
         
         trailingImageViewConstraints = trailingImageView.anchor(
