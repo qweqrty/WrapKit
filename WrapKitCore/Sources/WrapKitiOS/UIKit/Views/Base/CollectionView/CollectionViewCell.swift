@@ -7,11 +7,13 @@
 
 #if canImport(UIKit)
 import UIKit
+import Combine
 
 open class CollectionViewCell<ContentView: UIView>: UICollectionViewCell {
     public let mainContentView: ContentView
-    
     public var mainContentViewConstraints: AnchoredConstraints?
+    
+    public var cancellables = Set<AnyCancellable>()
 
     public override init(frame: CGRect) {
         self.mainContentView = ContentView()
@@ -26,6 +28,12 @@ open class CollectionViewCell<ContentView: UIView>: UICollectionViewCell {
             .trailing(contentView.trailingAnchor),
             .bottom(contentView.bottomAnchor)
         )
+    }
+    
+    open override func prepareForReuse() {
+        super.prepareForReuse()
+        
+        cancellables.removeAll()
     }
     
     public required init?(coder: NSCoder) {

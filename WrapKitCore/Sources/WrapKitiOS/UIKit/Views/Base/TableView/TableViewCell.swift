@@ -7,10 +7,13 @@
 
 #if canImport(UIKit)
 import UIKit
+import Combine
 
 open class TableViewCell<ContentView: UIView>: UITableViewCell {
     public let mainContentView: ContentView
     public var mainContentViewConstraints: AnchoredConstraints?
+    
+    public var cancellables = Set<AnyCancellable>()
 
     public override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         self.mainContentView = ContentView()
@@ -31,6 +34,12 @@ open class TableViewCell<ContentView: UIView>: UITableViewCell {
     public required init?(coder: NSCoder) {
         self.mainContentView = ContentView()
         super.init(coder: coder)
+    }
+    
+    open override func prepareForReuse() {
+        super.prepareForReuse()
+        
+        cancellables.removeAll()
     }
 }
 

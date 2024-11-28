@@ -11,8 +11,6 @@ import Kingfisher
 import Combine
 
 public class SelectionCell: TableViewCell<SelectionCellContentView> {
-    private var cancellables = Set<AnyCancellable>()
-
     public var model: SelectionType.SelectionCellPresentableModel? {
         didSet {
             guard let model = model else { return }
