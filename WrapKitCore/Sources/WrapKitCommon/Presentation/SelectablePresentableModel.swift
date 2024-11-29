@@ -18,4 +18,17 @@ public struct SelectablePresentableModel<Model>: HashableWithReflection {
         self.isSelected = InMemoryStorage(model: isSelected)
         self.model = model
     }
+    
+    public init(model: Model) {
+        self.isSelected = InMemoryStorage(model: nil)
+        self.model = model
+    }
+    
+    public init(
+        isSelected: InMemoryStorage<Bool>,
+        model: Model
+    ) {
+        self.isSelected = isSelected
+        self.model = model
+    }
 }

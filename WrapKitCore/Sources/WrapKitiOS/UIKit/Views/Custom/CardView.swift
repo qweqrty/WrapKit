@@ -65,11 +65,10 @@ extension CardView: CardViewOutput {
         model.valueTitle.forEach { attribute in
             titleViews.valueLabel.append(attribute)
         }
-        
         // Subtitle
         subtitleLabel.isHidden = model.subTitle.isEmpty
         subtitleLabel.removeAttributes()
-        model.valueTitle.forEach { attribute in
+        model.subTitle.forEach { attribute in
             subtitleLabel.append(attribute)
         }
         
@@ -87,9 +86,9 @@ extension CardView: CardViewOutput {
         trailingImageView.setImage(model.trailingImage?.image)
         
         // SecondaryTrailingImage
-        secondaryTrailingImageWrapperView.isHidden = model.trailingImage == nil
-        secondaryTrailingImageViewConstraints?.width?.constant = model.trailingImage?.size.width ?? 0
-        secondaryTrailingImageViewConstraints?.height?.constant = model.trailingImage?.size.height ?? 0
+        secondaryTrailingImageWrapperView.isHidden = model.secondaryTrailingImage == nil
+        secondaryTrailingImageViewConstraints?.width?.constant = model.secondaryTrailingImage?.size.width ?? 0
+        secondaryTrailingImageViewConstraints?.height?.constant = model.secondaryTrailingImage?.size.height ?? 0
         secondaryTrailingImageView.setImage(model.secondaryTrailingImage?.image)
         
         // bottomSeparatorView
@@ -156,6 +155,7 @@ open class CardView: View {
         titleViews.keyLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
         titleViews.keyLabel.setContentCompressionResistancePriority(.required, for: .vertical)
         titleViews.valueLabel.setContentCompressionResistancePriority(.required, for: .vertical)
+        titleViewsWrapperView.setContentCompressionResistancePriority(.required, for: .vertical)
         switchControl.setContentCompressionResistancePriority(.required, for: .horizontal)
         switchControl.setContentCompressionResistancePriority(.required, for: .vertical)
     }
