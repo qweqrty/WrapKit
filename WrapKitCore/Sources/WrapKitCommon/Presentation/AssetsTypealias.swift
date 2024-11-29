@@ -7,12 +7,30 @@ import AppKit
 public typealias Image = NSImage
 public typealias Color = NSColor
 public typealias Font = NSFont
+
+public struct EdgeInsets: Equatable {
+    public let top: CGFloat
+    public let leading: CGFloat
+    public let bottom: CGFloat
+    public let trailing: CGFloat
+    
+    public init(top: CGFloat = 0, leading: CGFloat = 0, bottom: CGFloat = 0, trailing: CGFloat = 0) {
+        self.top = top
+        self.leading = leading
+        self.bottom = bottom
+        self.trailing = trailing
+    }
+    
+    public static let zero = EdgeInsets()
+}
+
 @available(macOS 10.15, *)
 public typealias SwiftUIColor = SwiftUI.Color
 @available(macOS 10.15, *)
 public typealias SwiftUIImage = SwiftUI.Image
 @available(macOS 10.15, *)
 public typealias SwiftUIFont = SwiftUI.Font
+
 
 #elseif os(iOS) || os(tvOS) || os(watchOS)
 import UIKit

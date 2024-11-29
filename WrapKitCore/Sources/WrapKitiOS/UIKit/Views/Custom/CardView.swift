@@ -22,13 +22,25 @@ public struct CardViewPresentableModel: HashableWithReflection {
         }
     }
     
+    public struct BottomSeparator {
+        public let color: Color
+        public let padding: EdgeInsets
+        public let height: CGFloat
+
+        public init(color: Color, padding: EdgeInsets = .init(), height: CGFloat = 1) {
+            self.color = color
+            self.padding = padding
+            self.height = height
+        }
+    }
+
     public let title: [TextAttributes]
     public let leadingImage: Image?
     public let trailingImage: Image?
     public let secondaryTrailingImage: Image?
     public let subTitle: [TextAttributes]
     public let valueTitle: [TextAttributes]
-    public let separatorColor: Color?
+    public let bottomSeparator: BottomSeparator?
     
     public init(
         title: [TextAttributes] = [],
@@ -37,7 +49,7 @@ public struct CardViewPresentableModel: HashableWithReflection {
         secondaryTrailingImage: Image? = nil,
         subTitle: [TextAttributes] = [],
         valueTitle: [TextAttributes] = [],
-        separatorColor: Color? = nil
+        bottomSeparator: BottomSeparator? = nil
     ) {
         self.title = title
         self.leadingImage = leadingImage
@@ -45,7 +57,7 @@ public struct CardViewPresentableModel: HashableWithReflection {
         self.secondaryTrailingImage = secondaryTrailingImage
         self.subTitle = subTitle
         self.valueTitle = valueTitle
-        self.separatorColor = separatorColor
+        self.bottomSeparator = bottomSeparator
     }
 }
 
@@ -92,8 +104,15 @@ extension CardView: CardViewOutput {
         secondaryTrailingImageView.setImage(model.secondaryTrailingImage?.image)
         
         // bottomSeparatorView
-        bottomSeparatorView.contentView.backgroundColor = model.separatorColor
-        bottomSeparatorView.isHidden = model.separatorColor == nil
+        bottomSeparatorView.isHidden = model.bottomSeparator == nil
+        if let bottomSeparator = model.bottomSeparator {
+            bottomSeparatorView.contentView.backgroundColor = model.bottomSeparator?.color
+            bottomSeparatorView.contentViewConstraints?.top?.constant = bottomSeparator.padding.top
+            bottomSeparatorView.contentViewConstraints?.leading?.constant = bottomSeparator.padding.leading
+            bottomSeparatorView.contentViewConstraints?.trailing?.constant = bottomSeparator.padding.trailing
+            bottomSeparatorView.contentViewConstraints?.bottom?.constant = bottomSeparator.padding.bottom
+            bottomSeparatorViewConstraints?.height?.constant = bottomSeparator.height
+        }
     }
 }
 
@@ -134,6 +153,7 @@ open class CardView: View {
     public var trailingImageViewConstraints: AnchoredConstraints?
     public var secondaryTrailingImageViewConstraints: AnchoredConstraints?
     public var switchControlConstraints: AnchoredConstraints?
+    public var bottomSeparatorViewConstraints: AnchoredConstraints?
     
     public init() {
         super.init(frame: .zero)
@@ -250,7 +270,7 @@ extension CardView {
             .bottom(bottomAnchor)
         )
         
-        bottomSeparatorView.anchor(.height(1))
+        bottomSeparatorViewConstraints = bottomSeparatorView.anchor(.height(1))
     }
 }
 
