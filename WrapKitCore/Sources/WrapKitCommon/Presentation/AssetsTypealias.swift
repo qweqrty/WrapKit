@@ -7,6 +7,7 @@ import AppKit
 public typealias Image = NSImage
 public typealias Color = NSColor
 public typealias Font = NSFont
+public typealias EdgeInsets = CGFloat
 @available(macOS 10.15, *)
 public typealias SwiftUIColor = SwiftUI.Color
 @available(macOS 10.15, *)

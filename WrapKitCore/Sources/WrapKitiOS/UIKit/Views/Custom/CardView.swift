@@ -22,6 +22,16 @@ public struct CardViewPresentableModel: HashableWithReflection {
         }
     }
     
+    public struct BottomSeparator {
+        public let color: Color
+        public let padding: EdgeInsets
+        
+        public init(color: Color, padding: CGFloat) {
+            self.color = color
+            self.padding = padding
+        }
+    }
+    
     public let title: [TextAttributes]
     public let leadingImage: Image?
     public let trailingImage: Image?
