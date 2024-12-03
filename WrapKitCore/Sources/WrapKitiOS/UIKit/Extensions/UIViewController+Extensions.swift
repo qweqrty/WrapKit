@@ -24,7 +24,7 @@ public protocol AlertOutput: AnyObject {
         title: String?,
         text: String?,
         actions: [AlertAction],
-        cancelText: String
+        cancelText: String?
     )
 }
 
@@ -97,7 +97,12 @@ public extension UIViewController {
         return nil
     }
         
-    func showActionSheet(title: String?, text: String?, actions: [AlertAction], cancelText: String) {
+    func showActionSheet(
+        title: String? = nil,
+        text: String? = nil,
+        actions: [AlertAction],
+        cancelText: String? = nil
+    ) {
         let alert = UIAlertController(
             title: title,
             message: text,
@@ -118,8 +123,27 @@ public extension UIViewController {
             alert.addAction(uiAction)
         }
         
-        alert.addAction(UIAlertAction(title: cancelText, style: .cancel, handler: nil))
-        present(alert, animated: true, completion: nil)
+        if let cancelText {
+                alert.addAction(UIAlertAction(title: cancelText, style: .cancel, handler: nil))
+        }
     }
 }
 #endif
+
+public struct AlertAction {
+    public enum Style {
+        case `default`
+        case cancel
+        case destructive
+    }
+
+    public let title: String
+    public let style: Style
+    public let handler: (() -> Void)?
+    
+    public init(title: String, style: Style = .default, handler: (() -> Void)? = nil) {
+        self.title = title
+        self.style = style
+        self.handler = handler
+    }
+}
