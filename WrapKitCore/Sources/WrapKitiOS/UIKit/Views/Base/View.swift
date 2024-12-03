@@ -59,6 +59,30 @@ open class View: UIView {
     }()
 
     @objc private func didTap() {
+        // Play the animations corresponding to the current set of animations
+        animations.forEach { animation in
+            switch animation {
+            case .shrink:
+                UIView.animate(withDuration: 0.2, delay: 0, options: [.allowUserInteraction]) { [weak self] in
+                    self?.transform = CGAffineTransform(scaleX: 0.95, y: 0.95)
+                } completion: { [weak self] _ in
+                    UIView.animate(withDuration: 0.2, delay: 0, options: [.allowUserInteraction]) {
+                        self?.transform = .identity
+                    }
+                }
+                
+            case .alphaTouch:
+                UIView.animate(withDuration: 0.2, delay: 0, options: [.allowUserInteraction]) { [weak self] in
+                    self?.alpha = 0.5
+                } completion: { [weak self] _ in
+                    UIView.animate(withDuration: 0.2, delay: 0, options: [.allowUserInteraction]) {
+                        self?.alpha = 1.0
+                    }
+                }
+            default:
+                break
+            }
+        }
         onPress?()
     }
 
