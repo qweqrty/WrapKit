@@ -19,6 +19,13 @@ public protocol AlertOutput: AnyObject {
         text: String,
         okText: String
     )
+    
+    func showActionSheet(
+        title: String?,
+        text: String?,
+        actions: [AlertAction],
+        cancelText: String?
+    )
 }
 
 #if canImport(UIKit)
@@ -90,15 +97,53 @@ public extension UIViewController {
         return nil
     }
         
-    func showActionSheet(title: String?, text: String?, actions: [UIAlertAction], cancelText: String) {
+    func showActionSheet(
+        title: String? = nil,
+        text: String? = nil,
+        actions: [AlertAction],
+        cancelText: String? = nil
+    ) {
         let alert = UIAlertController(
             title: title,
             message: text,
             preferredStyle: .actionSheet
         )
-        actions.forEach { alert.addAction($0) }
-        alert.addAction(UIAlertAction(title: cancelText, style: .cancel, handler: nil))
-        present(alert, animated: true, completion: nil)
+        
+        actions.forEach { action in
+            let style: UIAlertAction.Style
+            switch action.style {
+            case .default: style = .default
+            case .cancel: style = .cancel
+            case .destructive: style = .destructive
+            }
+            
+            let uiAction = UIAlertAction(title: action.title, style: style) { _ in
+                action.handler?()
+            }
+            alert.addAction(uiAction)
+        }
+        
+        if let cancelText {
+                alert.addAction(UIAlertAction(title: cancelText, style: .cancel, handler: nil))
+        }
     }
 }
 #endif
+
+public struct AlertAction {
+    public enum Style {
+        case `default`
+        case cancel
+        case destructive
+    }
+
+    public let title: String
+    public let style: Style
+    public let handler: (() -> Void)?
+    
+    public init(title: String, style: Style = .default, handler: (() -> Void)? = nil) {
+        self.title = title
+        self.style = style
+        self.handler = handler
+    }
+}
