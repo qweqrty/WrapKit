@@ -43,6 +43,10 @@ extension WeakRefVirtualProxy: CardViewOutput where T: CardViewOutput {
 }
 
 extension WeakRefVirtualProxy: AlertOutput where T: AlertOutput {
+    public func showActionSheet(title: String?, text: String?, actions: [AlertAction], cancelText: String?) {
+        object?.showActionSheet(title: title, text: text, actions: actions, cancelText: cancelText)
+    }
+    
     public func showAlert(text: String, okText: String) {
         object?.showAlert(text: text, okText: okText)
     }

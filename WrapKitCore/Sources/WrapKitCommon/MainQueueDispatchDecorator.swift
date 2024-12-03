@@ -82,6 +82,12 @@ extension MainQueueDispatchDecorator: AlertOutput where T == AlertOutput {
             self?.decoratee.showDefaultPrompt(title: title, text: text, cancelText: cancelText, yesText: yesText, onCancelCompletion: onCancelCompletion, onYesCompletion: onYesCompletion)
         }
     }
+    
+    public func showActionSheet(title: String?, text: String?, actions: [AlertAction], cancelText: String?) {
+        dispatch { [weak self] in
+            self?.decoratee.showActionSheet(title: title, text: text, actions: actions, cancelText: cancelText)
+        }
+    }
 }
 
 extension AlertOutput {

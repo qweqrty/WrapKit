@@ -132,7 +132,7 @@ open class CardView: View {
     
     public let subtitleLabel = Label(font: .systemFont(ofSize: 16), textColor: .gray, numberOfLines: 1)
     
-    public let trailingImageWrapperView = UIView()
+    public let trailingImageWrapperView = View()
     public let trailingImageView = ImageView(image: UIImage(named: "rightArrow"), tintColor: .black)
     
     public let secondaryTrailingImageWrapperView = UIView(isHidden: true)
