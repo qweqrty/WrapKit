@@ -19,6 +19,13 @@ public protocol AlertOutput: AnyObject {
         text: String,
         okText: String
     )
+    
+    func showActionSheet(
+        title: String?,
+        text: String?,
+        actions: [AlertAction],
+        cancelText: String
+    )
 }
 
 #if canImport(UIKit)
@@ -90,13 +97,27 @@ public extension UIViewController {
         return nil
     }
         
-    func showActionSheet(title: String?, text: String?, actions: [UIAlertAction], cancelText: String) {
+    func showActionSheet(title: String?, text: String?, actions: [AlertAction], cancelText: String) {
         let alert = UIAlertController(
             title: title,
             message: text,
             preferredStyle: .actionSheet
         )
-        actions.forEach { alert.addAction($0) }
+        
+        actions.forEach { action in
+            let style: UIAlertAction.Style
+            switch action.style {
+            case .default: style = .default
+            case .cancel: style = .cancel
+            case .destructive: style = .destructive
+            }
+            
+            let uiAction = UIAlertAction(title: action.title, style: style) { _ in
+                action.handler?()
+            }
+            alert.addAction(uiAction)
+        }
+        
         alert.addAction(UIAlertAction(title: cancelText, style: .cancel, handler: nil))
         present(alert, animated: true, completion: nil)
     }
