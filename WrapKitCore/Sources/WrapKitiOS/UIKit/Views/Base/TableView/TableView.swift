@@ -57,6 +57,8 @@ open class TableView: UITableView {
         self.backgroundView?.isHidden = false
         self.backgroundView?.alpha = 0
         self.keyboardDismissMode = .onDrag
+        self.tableHeaderView = UIView(frame: CGRect(x: 0, y: 0, width: 0, height: CGFloat.leastNonzeroMagnitude))
+        self.tableFooterView = UIView(frame: CGRect(x: 0, y: 0, width: 0, height: CGFloat.leastNonzeroMagnitude))
     }
     
     public required init?(coder aDecoder: NSCoder) {
