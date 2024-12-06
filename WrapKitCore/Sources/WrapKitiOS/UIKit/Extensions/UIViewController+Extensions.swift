@@ -126,6 +126,7 @@ public extension UIViewController {
         if let cancelText {
                 alert.addAction(UIAlertAction(title: cancelText, style: .cancel, handler: nil))
         }
+        present(alert, animated: true, completion: nil)
     }
 }
 #endif
