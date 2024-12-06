@@ -5,14 +5,13 @@ import Kingfisher
 public extension ImageView {
     func setImage(
         _ image: ImageEnum?,
-        animation: UIView.AnimationOptions = .transitionCrossDissolve,
-        kingfisherOptions: KingfisherOptionsInfo = []
+        animation: UIView.AnimationOptions = .transitionCrossDissolve
     ) {
         if Thread.isMainThread {
-             handleImage(image, kingfisherOptions: kingfisherOptions)
+             handleImage(image)
          } else {
              DispatchQueue.main.async { [weak self] in
-                 self?.handleImage(image, kingfisherOptions: kingfisherOptions)
+                 self?.handleImage(image)
              }
          }
     }
