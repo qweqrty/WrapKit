@@ -48,7 +48,7 @@ let package = Package(
             dependencies: [
                 "WrapKit",
                 "WrapKitTestUtils",
-                .product(name: "Kingfisher", package: "Kingfisher", condition: .when(platforms: [.iOS])),
+                .product(name: "Kingfisher", package: "Kingfisher"),
                 .product(name: "PhoneNumberKit", package: "PhoneNumberKit"),
                 .product(name: "IsoCountryCodes", package: "IsoCountryCodes"),
                 .product(name: "DeviceKit", package: "DeviceKit")
