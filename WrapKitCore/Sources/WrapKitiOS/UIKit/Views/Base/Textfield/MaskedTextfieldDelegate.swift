@@ -25,6 +25,8 @@ public class MaskedTextfieldDelegate: NSObject, UITextFieldDelegate {
     }
     
     public var backspacePressClearsText: Bool
+    public var trailingSymbol: String?
+    
     private var textfield: Textfield?
     
     public var onlySpecifiersIfMaskedText: String { format.mask.extractUserInput(from: fullText) }
@@ -35,8 +37,9 @@ public class MaskedTextfieldDelegate: NSObject, UITextFieldDelegate {
             if mask.input.isEmpty && !(textfield.placeholder?.isEmpty ?? true) && !textfield.isFirstResponder {
                 textfield.attributedText = nil
             } else {
+                let textWithTrailingSymbol = fullText + (trailingSymbol ?? "")
                 textfield.attributedText = .combined(
-                    .init(mask.input, font: textfield.font ?? .systemFont(ofSize: 17), color: textfield.appearance.colors.textColor, textAlignment: textfield.textAlignment),
+                    .init(textWithTrailingSymbol, font: textfield.font ?? .systemFont(ofSize: 17), color: textfield.appearance.colors.textColor, textAlignment: textfield.textAlignment),
                     .init(mask.maskToInput, font: textfield.font ?? .systemFont(ofSize: 17), color: format.maskedTextColor, textAlignment: textfield.textAlignment)
                 )
             }
@@ -47,10 +50,12 @@ public class MaskedTextfieldDelegate: NSObject, UITextFieldDelegate {
     
     public init(
         format: Format,
-        backspacePressClearsText: Bool = false
+        backspacePressClearsText: Bool = false,
+        trailingSymbol: String? = nil
     ) {
         self.format = format
         self.backspacePressClearsText = backspacePressClearsText
+        self.trailingSymbol = trailingSymbol
     }
     
     @discardableResult
@@ -72,18 +77,30 @@ public class MaskedTextfieldDelegate: NSObject, UITextFieldDelegate {
     }
     
     public func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-        if string.isEmpty && backspacePressClearsText {
-            textField.text = ""
-        } else {
-            if string.count > 1 {
-                onPaste(fullText + string)
-            } else {
-                setupMask(mask: string.isEmpty ? format.mask.removeCharacters(from: fullText, in: range) : format.mask.applied(to: fullText + string))
+        var currentText = fullText
+
+        if string.isEmpty {
+            if range.location < currentText.count {
+                let indexToRemove = currentText.index(currentText.startIndex, offsetBy: range.location)
+                currentText.remove(at: indexToRemove)
             }
+        } else {
+            let indexToInsert = currentText.index(currentText.startIndex, offsetBy: range.location)
+            currentText.insert(contentsOf: string, at: indexToInsert)
         }
+
+        fullText = currentText
+        textField.text = fullText
+
+        if let newPosition = textField.position(from: textField.beginningOfDocument, offset: range.location + string.count) {
+            textField.selectedTextRange = textField.textRange(from: newPosition, to: newPosition)
+        }
+
         textField.sendActions(for: .editingChanged)
+        
         return false
     }
+
     
     private func onPaste(_ text: String) {
         guard let textfield = textfield else { return }
@@ -120,5 +137,4 @@ public class MaskedTextfieldDelegate: NSObject, UITextFieldDelegate {
     }
 
 }
-
 #endif
