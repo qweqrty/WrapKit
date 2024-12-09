@@ -36,32 +36,37 @@ public class TokenRefresherImpl<RefreshRequest, RefreshResponse>: TokenRefresher
     }
 
     public func refresh(completion: @escaping (Result<String, ServiceError>) -> Void) {
+        var shouldStartAuthentication = false
+
         authenticationLock.sync {
             if isAuthenticating {
-                // Queue up the completion to be called later.
                 pendingCompletions.append(completion)
                 return
             }
-            
+
             isAuthenticating = true
+            shouldStartAuthentication = true
+            pendingCompletions.append(completion)
         }
-        
+
+        guard shouldStartAuthentication else { return }
+
         guard let refreshToken = refreshTokenStorage.get() else {
+            completeAll(with: .failure(.internal))
             return
         }
 
         let refreshRequest = mapRefreshRequest(refreshToken)
-        
+
         refreshService.make(request: refreshRequest)
             .handle(
                 onSuccess: { [weak self] response in
                     guard let newToken = self?.mapRefreshResponse(response) else { return }
-                    completion(.success(newToken))
+                    self?.refreshTokenStorage.set(model: newToken)
                     self?.completeAll(with: .success(newToken))
                 },
                 onError: { [weak self] error in
                     self?.refreshTokenStorage.set(model: nil)
-                    completion(.failure(error))
                     self?.completeAll(with: .failure(error))
                 }
             )
@@ -69,12 +74,14 @@ public class TokenRefresherImpl<RefreshRequest, RefreshResponse>: TokenRefresher
     }
     
     private func completeAll(with result: Result<String, ServiceError>) {
+        var completions: [(Result<String, ServiceError>) -> Void] = [] // Initialize as mutable
+
         authenticationLock.sync {
             isAuthenticating = false
-            for completion in pendingCompletions {
-                completion(result)
-            }
+            completions = pendingCompletions
             pendingCompletions.removeAll()
         }
+
+        completions.forEach { $0(result) }
     }
 }

@@ -9,21 +9,28 @@ import Foundation
 
 public class CompositeHTTPClientTask: HTTPClientTask {
     private var tasks: [HTTPClientTask]
+    private let queue = DispatchQueue(label: "com.compositeHTTPClientTask.queue", attributes: .concurrent) // Concurrent queue
 
     public init(tasks: [HTTPClientTask] = []) {
         self.tasks = tasks
     }
 
     public func add(_ task: HTTPClientTask) {
-        tasks.append(task)
+        queue.async(flags: .barrier) { // Barrier to ensure exclusive write access
+            self.tasks.append(task)
+        }
     }
 
     public func resume() {
-        tasks.forEach { $0.resume() }
+        queue.sync { // Sync read for thread safety
+            self.tasks.forEach { $0.resume() }
+        }
     }
 
     public func cancel() {
-        tasks.forEach { $0.cancel() }
+        queue.sync { // Sync read for thread safety
+            self.tasks.forEach { $0.cancel() }
+        }
     }
 }
 

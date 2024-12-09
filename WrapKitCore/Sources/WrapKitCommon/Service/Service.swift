@@ -18,7 +18,6 @@ public enum ServiceError: Encodable, Error, Equatable {
     case message(String)
     case `internal`
     case connectivity
-    case notAuthorized
     case cancelled
     
     public var title: String {
@@ -31,8 +30,6 @@ public enum ServiceError: Encodable, Error, Equatable {
             return "Something went wrong"
         case .connectivity:
             return "No internet connection"
-        case .notAuthorized:
-            return "Not authorized"
         }
     }
 }

@@ -42,8 +42,12 @@ public class AuthenticatedHTTPClientDecorator: HTTPClient {
     }
     
     private func dispatch(_ request: URLRequest, completion: @escaping (HTTPClient.Result) -> Void, isRetryNeeded: Bool) -> HTTPClientTask {
+        guard let token = accessTokenStorage.get(), !token.isEmpty else {
+            onNotAuthenticated?()
+            completion(.failure(ServiceError.internal))
+            return CompositeHTTPClientTask()
+        }
         let compositeTask = CompositeHTTPClientTask(tasks: [])
-        let token = accessTokenStorage.get()
         let enrichedRequest = enrichRequestWithToken(request, token ?? "")
         let firstTask = decoratee.dispatch(enrichedRequest) { [weak self] result in
             guard let self = self else { return }
@@ -65,15 +69,13 @@ public class AuthenticatedHTTPClientDecorator: HTTPClient {
                                 }
                                 .store(in: &self.cancellables)
                         case .failure:
-                            _ = self.accessTokenStorage.set(model: nil)
+                            self.accessTokenStorage.set(model: nil)
                             self.onNotAuthenticated?()
-                            completion(.failure(ServiceError.notAuthorized))
                         }
                     }
                 } else {
-                    _ = self.accessTokenStorage.set(model: nil)
+                    self.accessTokenStorage.set(model: nil)
                     self.onNotAuthenticated?()
-                    completion(.success((data, response)))
                 }
             case .failure(let error):
                 completion(.failure(error))
