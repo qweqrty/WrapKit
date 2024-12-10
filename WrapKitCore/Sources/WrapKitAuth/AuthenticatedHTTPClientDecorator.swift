@@ -69,12 +69,10 @@ public class AuthenticatedHTTPClientDecorator: HTTPClient {
                                 }
                                 .store(in: &self.cancellables)
                         case .failure:
-                            self.accessTokenStorage.set(model: nil)
                             self.onNotAuthenticated?()
                         }
                     }
                 } else {
-                    self.accessTokenStorage.set(model: nil)
                     self.onNotAuthenticated?()
                 }
             case .failure(let error):

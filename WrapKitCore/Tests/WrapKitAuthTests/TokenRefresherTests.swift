@@ -74,7 +74,6 @@ final class TokenRefresherImplTests: XCTestCase {
                     switch result {
                     case .failure(let receivedError):
                         XCTAssertEqual(receivedError, error, "Expected `.connectivity` error")
-                        XCTAssertNil(storage.get(), "Expected storage to clear the token on failure")
                     case .success:
                         XCTFail("Expected failure, got success")
                     }
