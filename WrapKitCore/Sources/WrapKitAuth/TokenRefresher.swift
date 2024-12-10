@@ -66,7 +66,6 @@ public class TokenRefresherImpl<RefreshRequest, RefreshResponse>: TokenRefresher
                     self?.completeAll(with: .success(newToken))
                 },
                 onError: { [weak self] error in
-                    self?.refreshTokenStorage.set(model: nil)
                     self?.completeAll(with: .failure(error))
                 }
             )
