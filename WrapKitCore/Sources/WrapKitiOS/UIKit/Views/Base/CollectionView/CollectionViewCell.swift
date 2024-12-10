@@ -14,6 +14,7 @@ open class CollectionViewCell<ContentView: UIView>: UICollectionViewCell {
     public var mainContentViewConstraints: AnchoredConstraints?
     
     public var cancellables = Set<AnyCancellable>()
+    public var onPrepareForReuse: ((CollectionViewCell<ContentView>) -> Void)?
 
     public override init(frame: CGRect) {
         self.mainContentView = ContentView()
@@ -34,6 +35,7 @@ open class CollectionViewCell<ContentView: UIView>: UICollectionViewCell {
         super.prepareForReuse()
         
         cancellables.removeAll()
+        onPrepareForReuse?(self)
     }
     
     public required init?(coder: NSCoder) {

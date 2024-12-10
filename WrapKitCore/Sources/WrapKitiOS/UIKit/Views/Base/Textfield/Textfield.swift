@@ -294,6 +294,7 @@ open class Textfield: UITextField {
          return isEnabledForEditing
      }
     
+    @discardableResult
     open override func resignFirstResponder() -> Bool {
         let result = super.resignFirstResponder()
         if result { onResignFirstResponder?() }

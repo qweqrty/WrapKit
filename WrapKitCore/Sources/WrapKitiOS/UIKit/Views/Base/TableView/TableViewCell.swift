@@ -14,6 +14,7 @@ open class TableViewCell<ContentView: UIView>: UITableViewCell {
     public var mainContentViewConstraints: AnchoredConstraints?
     
     public var cancellables = Set<AnyCancellable>()
+    public var onPrepareForReuse: ((TableViewCell<ContentView>) -> Void)?
 
     public override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         self.mainContentView = ContentView()
@@ -40,6 +41,7 @@ open class TableViewCell<ContentView: UIView>: UITableViewCell {
         super.prepareForReuse()
         
         cancellables.removeAll()
+        onPrepareForReuse?(self)
     }
 }
 
