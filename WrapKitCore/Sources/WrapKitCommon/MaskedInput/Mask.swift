@@ -40,6 +40,10 @@ public struct Mask: Masking {
     }
     
     public func applied(to text: String) -> (input: String, maskToInput: String) {
+        guard !format.isEmpty else {
+            return (text, "")
+        }
+        
         let text = text.prefix(format.count)
         
         var input = ""
@@ -70,6 +74,13 @@ public struct Mask: Masking {
     }
     
     public func removeCharacters(from text: String, in range: NSRange) -> (input: String, maskToInput: String) {
+        guard !format.isEmpty else {
+            let startIndex = text.index(text.startIndex, offsetBy: range.location, limitedBy: text.endIndex) ?? text.endIndex
+            let endIndex = text.index(startIndex, offsetBy: range.length, limitedBy: text.endIndex) ?? text.endIndex
+            let updatedText = text.replacingCharacters(in: startIndex..<endIndex, with: "")
+            return (updatedText, "")
+        }
+
         guard range.location >= 0, range.length > 0, range.location <= text.count else {
             return (text, format[max(text.count - 1, 0)...].map { $0.mask }.joined())
         }
@@ -87,6 +98,7 @@ public struct Mask: Masking {
         let input = String(text.dropLast(removeCount))
         return (input, format[input.count...].map { $0.mask }.joined())
     }
+
     
     public func extractUserInput(from text: String) -> String {
         var result = ""
