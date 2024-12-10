@@ -1,10 +1,3 @@
-//
-//  MaskedTextfieldDelegate.swift
-//  WrapKit
-//
-//  Created by Stas Lee on 28/8/23.
-//
-
 #if canImport(UIKit)
 import UIKit
 
@@ -37,10 +30,10 @@ public class MaskedTextfieldDelegate: NSObject, UITextFieldDelegate {
             if mask.input.isEmpty && !(textfield.placeholder?.isEmpty ?? true) && !textfield.isFirstResponder {
                 textfield.attributedText = nil
             } else {
-                let textWithTrailingSymbol = fullText + (trailingSymbol ?? "")
+                let trailingWithString = mask.maskToInput + (trailingSymbol ?? "")
                 textfield.attributedText = .combined(
-                    .init(textWithTrailingSymbol, font: textfield.font ?? .systemFont(ofSize: 17), color: textfield.appearance.colors.textColor, textAlignment: textfield.textAlignment),
-                    .init(mask.maskToInput, font: textfield.font ?? .systemFont(ofSize: 17), color: format.maskedTextColor, textAlignment: textfield.textAlignment)
+                    .init(mask.input, font: textfield.font ?? .systemFont(ofSize: 17), color: textfield.appearance.colors.textColor, textAlignment: textfield.textAlignment),
+                    .init(trailingWithString, font: textfield.font ?? .systemFont(ofSize: 17), color: format.maskedTextColor, textAlignment: textfield.textAlignment)
                 )
             }
             let newPosition = textfield.position(from: textfield.beginningOfDocument, offset: mask.input.count) ?? textfield.beginningOfDocument
@@ -77,34 +70,24 @@ public class MaskedTextfieldDelegate: NSObject, UITextFieldDelegate {
     }
     
     public func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-        var currentText = fullText
-
-        if string.isEmpty {
-            if range.location < currentText.count {
-                let indexToRemove = currentText.index(currentText.startIndex, offsetBy: range.location)
-                currentText.remove(at: indexToRemove)
-            }
+        if string.isEmpty && backspacePressClearsText {
+            textField.text = ""
         } else {
-            let indexToInsert = currentText.index(currentText.startIndex, offsetBy: range.location)
-            currentText.insert(contentsOf: string, at: indexToInsert)
+            if string.count > 1 {
+                onPaste(fullText + string)
+            } else {
+                setupMask(mask: string.isEmpty ? format.mask.removeCharacters(from: fullText, in: range) : format.mask.applied(to: fullText + string))
+            }
         }
-
-        fullText = currentText
-        textField.text = fullText
-
-        if let newPosition = textField.position(from: textField.beginningOfDocument, offset: range.location + string.count) {
-            textField.selectedTextRange = textField.textRange(from: newPosition, to: newPosition)
-        }
-
-        textField.sendActions(for: .editingChanged)
         
+        textField.sendActions(for: .editingChanged)
         return false
     }
 
     
     private func onPaste(_ text: String) {
         guard let textfield = textfield else { return }
-
+        
         let maxLength = format.mask.maxSpecifiersLength()
         let specifiers = format.mask.removeLiterals(from: text.replacingOccurrences(of: " ", with: ""))
         let newText = specifiers.count > maxLength ? String(specifiers.prefix(maxLength)) : specifiers
@@ -112,7 +95,6 @@ public class MaskedTextfieldDelegate: NSObject, UITextFieldDelegate {
         
         self.fullText = maskedText.input
     }
-
     
     public func textFieldDidBeginEditing(_ textField: UITextField) {
         setupMask(mask: format.mask.applied(to: fullText))
@@ -135,6 +117,5 @@ public class MaskedTextfieldDelegate: NSObject, UITextFieldDelegate {
             textField.selectedTextRange = textField.textRange(from: newPosition, to: newPosition)
         }
     }
-
 }
 #endif
