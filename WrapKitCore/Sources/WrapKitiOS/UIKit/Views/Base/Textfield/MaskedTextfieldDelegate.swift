@@ -1,10 +1,3 @@
-//
-//  MaskedTextfieldDelegate.swift
-//  WrapKit
-//
-//  Created by Stas Lee on 28/8/23.
-//
-
 #if canImport(UIKit)
 import UIKit
 
@@ -25,6 +18,8 @@ public class MaskedTextfieldDelegate: NSObject, UITextFieldDelegate {
     }
     
     public var backspacePressClearsText: Bool
+    public var trailingSymbol: String?
+    
     private var textfield: Textfield?
     
     public var onlySpecifiersIfMaskedText: String { format.mask.extractUserInput(from: fullText) }
@@ -35,9 +30,10 @@ public class MaskedTextfieldDelegate: NSObject, UITextFieldDelegate {
             if mask.input.isEmpty && !(textfield.placeholder?.isEmpty ?? true) && !textfield.isFirstResponder {
                 textfield.attributedText = nil
             } else {
+                let trailingWithString = mask.maskToInput + (trailingSymbol ?? "")
                 textfield.attributedText = .combined(
                     .init(mask.input, font: textfield.font ?? .systemFont(ofSize: 17), color: textfield.appearance.colors.textColor, textAlignment: textfield.textAlignment),
-                    .init(mask.maskToInput, font: textfield.font ?? .systemFont(ofSize: 17), color: format.maskedTextColor, textAlignment: textfield.textAlignment)
+                    .init(trailingWithString, font: textfield.font ?? .systemFont(ofSize: 17), color: format.maskedTextColor, textAlignment: textfield.textAlignment)
                 )
             }
             let newPosition = textfield.position(from: textfield.beginningOfDocument, offset: mask.input.count) ?? textfield.beginningOfDocument
@@ -47,10 +43,12 @@ public class MaskedTextfieldDelegate: NSObject, UITextFieldDelegate {
     
     public init(
         format: Format,
-        backspacePressClearsText: Bool = false
+        backspacePressClearsText: Bool = false,
+        trailingSymbol: String? = nil
     ) {
         self.format = format
         self.backspacePressClearsText = backspacePressClearsText
+        self.trailingSymbol = trailingSymbol
     }
     
     @discardableResult
@@ -81,13 +79,15 @@ public class MaskedTextfieldDelegate: NSObject, UITextFieldDelegate {
                 setupMask(mask: string.isEmpty ? format.mask.removeCharacters(from: fullText, in: range) : format.mask.applied(to: fullText + string))
             }
         }
+        
         textField.sendActions(for: .editingChanged)
         return false
     }
+
     
     private func onPaste(_ text: String) {
         guard let textfield = textfield else { return }
-
+        
         let maxLength = format.mask.maxSpecifiersLength()
         let specifiers = format.mask.removeLiterals(from: text.replacingOccurrences(of: " ", with: ""))
         let newText = specifiers.count > maxLength ? String(specifiers.prefix(maxLength)) : specifiers
@@ -95,7 +95,6 @@ public class MaskedTextfieldDelegate: NSObject, UITextFieldDelegate {
         
         self.fullText = maskedText.input
     }
-
     
     public func textFieldDidBeginEditing(_ textField: UITextField) {
         setupMask(mask: format.mask.applied(to: fullText))
@@ -118,7 +117,5 @@ public class MaskedTextfieldDelegate: NSObject, UITextFieldDelegate {
             textField.selectedTextRange = textField.textRange(from: newPosition, to: newPosition)
         }
     }
-
 }
-
 #endif
