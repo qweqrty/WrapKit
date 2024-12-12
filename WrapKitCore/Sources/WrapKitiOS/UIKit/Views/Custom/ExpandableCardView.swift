@@ -31,17 +31,19 @@ extension ExpandableCardView: ExpandableCardViewOutput {
                     self?.secondaryCardView.alpha = 0
                     self?.secondaryCardView.transform = CGAffineTransform(translationX: 0, y: -20)
                     
-                    UIView.animate(withDuration: 0.3, animations: { [weak self] in
+                    UIView.animate(withDuration: 0.3, delay: 0, options: [.allowUserInteraction], animations: { [weak self] in
                         guard let self = self else { return }
+                        self.primeCardView.bottomSeparatorView.isHidden = model.model.first.bottomSeparator == nil ? true : false
                         self.secondaryCardView.alpha = 1
                         self.secondaryCardView.transform = .identity
                         self.layoutIfNeeded()
                     })
                 } else {
-                    UIView.animate(withDuration: 0.3, animations: { [weak self] in
+                    UIView.animate(withDuration: 0.3, delay: 0, options: [.allowUserInteraction], animations: { [weak self] in
                         guard let self = self else { return }
                         self.secondaryCardView.alpha = 0
                         self.secondaryCardView.transform = CGAffineTransform(translationX: 0, y: -20)
+                        self.primeCardView.bottomSeparatorView.isHidden = true
                         self.layoutIfNeeded()
                     }, completion: { [weak self] _ in
                         self?.secondaryCardView.isHidden = true
