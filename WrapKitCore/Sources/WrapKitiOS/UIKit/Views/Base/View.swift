@@ -86,8 +86,10 @@ open class View: UIView {
         onPress?()
     }
 
-    @objc private func didLongPress() {
-        onLongPress?()
+    @objc private func didLongPress(_ gesture: UILongPressGestureRecognizer) {
+        if gesture.state == .began {
+            onLongPress?()
+        }
     }
     
     public init(
