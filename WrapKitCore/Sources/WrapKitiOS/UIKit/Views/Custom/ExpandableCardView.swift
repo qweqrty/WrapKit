@@ -8,7 +8,7 @@
 import Foundation
 
 public protocol ExpandableCardViewOutput: AnyObject {
-    func display(model: SelectablePresentableModel<Pair<CardViewPresentableModel, CardViewPresentableModel>>)
+    func display(model: Pair<CardViewPresentableModel, CardViewPresentableModel?>)
 }
 
 #if canImport(UIKit)
@@ -16,41 +16,13 @@ import UIKit
 import Combine
 
 extension ExpandableCardView: ExpandableCardViewOutput {
-    public func display(model: SelectablePresentableModel<Pair<CardViewPresentableModel, CardViewPresentableModel>>) {
+    public func display(model: Pair<CardViewPresentableModel, CardViewPresentableModel?>) {
         cancellables.removeAll()
-        primeCardView.display(model: model.model.first)
-        secondaryCardView.display(model: model.model.second)
-        model
-            .isSelected
-            .publisher
-            .sink { [weak self] isSelected in
-                let isSelected = isSelected ?? false
-
-                if isSelected {
-                    self?.secondaryCardView.isHidden = false
-                    self?.secondaryCardView.alpha = 0
-                    self?.secondaryCardView.transform = CGAffineTransform(translationX: 0, y: -20)
-                    
-                    UIView.animate(withDuration: 0.3, delay: 0, options: [.allowUserInteraction], animations: { [weak self] in
-                        guard let self = self else { return }
-                        self.primeCardView.bottomSeparatorView.isHidden = model.model.first.bottomSeparator == nil ? true : false
-                        self.secondaryCardView.alpha = 1
-                        self.secondaryCardView.transform = .identity
-                        self.layoutIfNeeded()
-                    })
-                } else {
-                    UIView.animate(withDuration: 0.3, delay: 0, options: [.allowUserInteraction], animations: { [weak self] in
-                        guard let self = self else { return }
-                        self.secondaryCardView.alpha = 0
-                        self.secondaryCardView.transform = CGAffineTransform(translationX: 0, y: -20)
-                        self.primeCardView.bottomSeparatorView.isHidden = true
-                        self.layoutIfNeeded()
-                    }, completion: { [weak self] _ in
-                        self?.secondaryCardView.isHidden = true
-                    })
-                }
-            }
-            .store(in: &cancellables)
+        primeCardView.display(model: model.first)
+        secondaryCardView.isHidden = model.second == nil
+        if let model = model.second {
+            secondaryCardView.display(model: model)
+        }
     }
 }
 

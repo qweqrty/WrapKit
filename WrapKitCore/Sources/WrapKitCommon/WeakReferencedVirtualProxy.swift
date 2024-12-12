@@ -78,7 +78,7 @@ extension ExpandableCardViewOutput {
 }
 
 extension WeakRefVirtualProxy: ExpandableCardViewOutput where T: ExpandableCardViewOutput {
-    public func display(model: SelectablePresentableModel<Pair<CardViewPresentableModel, CardViewPresentableModel>>) {
+    public func display(model: Pair<CardViewPresentableModel, CardViewPresentableModel?>) {
         object?.display(model: model)
     }
 }
