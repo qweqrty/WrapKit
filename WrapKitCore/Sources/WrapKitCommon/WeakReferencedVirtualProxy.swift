@@ -70,3 +70,15 @@ extension WeakRefVirtualProxy: SelectionOutput where T: SelectionOutput {
     }
     
 }
+
+extension ExpandableCardViewOutput {
+    public var weakReferenced: ExpandableCardViewOutput {
+        return WeakRefVirtualProxy(self)
+    }
+}
+
+extension WeakRefVirtualProxy: ExpandableCardViewOutput where T: ExpandableCardViewOutput {
+    public func display(model: SelectablePresentableModel<Pair<CardViewPresentableModel, CardViewPresentableModel>>) {
+        object?.display(model: model)
+    }
+}

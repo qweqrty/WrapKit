@@ -176,3 +176,17 @@ extension MainQueueDispatchDecorator: HTTPDownloadClient where T == HTTPDownload
         }
     }
 }
+
+extension MainQueueDispatchDecorator: ExpandableCardViewOutput where T == ExpandableCardViewOutput {
+    public func display(model: SelectablePresentableModel<Pair<CardViewPresentableModel, CardViewPresentableModel>>) {
+        dispatch { [weak self] in
+            self?.decoratee.display(model: model)
+        }
+    }
+}
+
+extension ExpandableCardViewOutput {
+    public var mainQueueDispatched: ExpandableCardViewOutput {
+        MainQueueDispatchDecorator(decoratee: self)
+    }
+}
