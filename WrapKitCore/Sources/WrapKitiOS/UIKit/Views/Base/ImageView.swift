@@ -107,8 +107,10 @@ open class ImageView: UIImageView {
         onPress?()
     }
     
-    @objc private func didLongPress() {
-        onLongPress?()
+    @objc private func didLongPress(_ gesture: UILongPressGestureRecognizer) {
+        if gesture.state == .began {
+            onLongPress?()
+        }
     }
     
     override open func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
