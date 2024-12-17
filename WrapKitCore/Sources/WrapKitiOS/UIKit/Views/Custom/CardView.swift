@@ -33,6 +33,14 @@ public struct CardViewPresentableModel: HashableWithReflection {
             self.height = height
         }
     }
+    
+    public struct SwitchControl {
+        public let isOn: Bool
+        
+        public init(isOn: Bool) {
+            self.isOn = isOn
+        }
+    }
 
     public let title: [TextAttributes]
     public let leadingImage: Image?
@@ -41,6 +49,7 @@ public struct CardViewPresentableModel: HashableWithReflection {
     public let subTitle: [TextAttributes]
     public let valueTitle: [TextAttributes]
     public let bottomSeparator: BottomSeparator?
+    public let switchControl: SwitchControl?
     
     public init(
         title: [TextAttributes] = [],
@@ -49,7 +58,8 @@ public struct CardViewPresentableModel: HashableWithReflection {
         secondaryTrailingImage: Image? = nil,
         subTitle: [TextAttributes] = [],
         valueTitle: [TextAttributes] = [],
-        bottomSeparator: BottomSeparator? = nil
+        bottomSeparator: BottomSeparator? = nil,
+        switchControl: SwitchControl? = nil
     ) {
         self.title = title
         self.leadingImage = leadingImage
@@ -58,6 +68,7 @@ public struct CardViewPresentableModel: HashableWithReflection {
         self.subTitle = subTitle
         self.valueTitle = valueTitle
         self.bottomSeparator = bottomSeparator
+        self.switchControl = switchControl
     }
 }
 
@@ -112,6 +123,10 @@ extension CardView: CardViewOutput {
             bottomSeparatorView.contentViewConstraints?.trailing?.constant = bottomSeparator.padding.trailing
             bottomSeparatorView.contentViewConstraints?.bottom?.constant = bottomSeparator.padding.bottom
             bottomSeparatorViewConstraints?.height?.constant = bottomSeparator.height
+        }
+        //switchControl
+        if let switchControl = model.switchControl {
+            self.switchControl.isOn = switchControl.isOn
         }
     }
 }
