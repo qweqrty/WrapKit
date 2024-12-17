@@ -58,6 +58,7 @@ public class DiffableTableViewDataSource<Model: Hashable>: NSObject, UITableView
                 snapshot.appendSections([section])
                 snapshot.appendItems(uniqueItems.map { .model($0) }, toSection: section)
                 self?.dataSource.apply(snapshot, animatingDifferences: true)
+                self?.tableView?.reloadData()
             }
         }
     }
@@ -72,6 +73,7 @@ public class DiffableTableViewDataSource<Model: Hashable>: NSObject, UITableView
                     snapshot.appendItems($0.element.uniqued.map { .model($0) }, toSection: $0.offset)
                 }
                 self?.dataSource.apply(snapshot, animatingDifferences: true)
+                self?.tableView?.reloadData()
             }
         }
     }
