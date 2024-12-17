@@ -140,6 +140,11 @@ open class ToastView: UIView {
                 let distanceMoved = abs(panOffset)
                 let newAlpha = max(1.0 - (distanceMoved / maxDistance), 0.0)
                 self.alpha = newAlpha
+            } else if position == .top, panOffset < 0 {
+                let maxDistance = frame.height
+                let distanceMoved = abs(panOffset)
+                let newAlpha = max(1.0 - (distanceMoved / maxDistance), 0.0)
+                self.alpha = newAlpha
             }
         case .ended, .cancelled, .failed:
             resumeHideTimer()

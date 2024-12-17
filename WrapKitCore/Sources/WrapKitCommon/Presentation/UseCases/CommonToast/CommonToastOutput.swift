@@ -11,26 +11,6 @@ public protocol CommonToastOutput: AnyObject {
     func display(_ toast: CommonToast)
 }
 
-public extension CommonToastOutput {
-    func display(serviceError: ServiceError) {
-        display(.error(
-            CommonToast.Toast(
-                keyTitle: serviceError.title,
-                position: .bottom()
-            )
-        ))
-    }
-    
-    func display(serviceError: ServiceError, toast: CommonToast) {
-        display(.error(
-            CommonToast.Toast(
-                keyTitle: serviceError.title,
-                position: .bottom()
-            )
-        ))
-    }
-}
-
 public enum CommonToast {
     public enum Position: Equatable {
         case top

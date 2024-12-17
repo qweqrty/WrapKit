@@ -19,19 +19,6 @@ public enum ServiceError: Encodable, Error, Equatable {
     case `internal`
     case connectivity
     case cancelled
-    
-    public var title: String {
-        switch self {
-        case .cancelled:
-            return "Network request has been successfully cancelled"
-        case .message(let title):
-            return title
-        case .internal:
-            return "Something went wrong"
-        case .connectivity:
-            return "No internet connection"
-        }
-    }
 }
 
 // MARK: - Service abstraction helper

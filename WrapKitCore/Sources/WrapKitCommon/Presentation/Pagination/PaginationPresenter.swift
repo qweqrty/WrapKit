@@ -13,8 +13,8 @@ public protocol PaginationViewOutput<PresentableItem>: AnyObject {
     func display(model: [PresentableItem], hasMore: Bool)
     func display(isLoadingFirstPage: Bool)
     func display(isLoadingSubsequentPage: Bool)
-    func display(errorAtFirstPage: String?)
-    func display(errorAtSubsequentPage: String?)
+    func display(errorAtFirstPage: ServiceError)
+    func display(errorAtSubsequentPage: ServiceError)
 }
 
 public protocol PaginationViewInput<RemoteItem>: AnyObject {
@@ -155,7 +155,7 @@ extension PaginationPresenter: PaginationViewInput {
             self.totalPages = totalPages
         case .failure(let error):
             page = backToPage
-            backToPage == initialPage - 1 ? view?.display(errorAtFirstPage: error.title) : view?.display(errorAtSubsequentPage: error.title)
+            backToPage == initialPage - 1 ? view?.display(errorAtFirstPage: error) : view?.display(errorAtSubsequentPage: error)
         }
     }
 }
