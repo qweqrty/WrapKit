@@ -53,7 +53,7 @@ class MaskingKeyboardTypeTests: XCTestCase {
     func testKeyboardType_withNumbersOnly() {
         // Given: Format allows only numbers
         let masking = MockMasking(format: [
-            .specifier("#", allowedCharacters: .decimalDigits)
+            .specifier(placeholder: "#", allowedCharacters: .decimalDigits)
         ])
 
         // When
@@ -66,7 +66,7 @@ class MaskingKeyboardTypeTests: XCTestCase {
     func testKeyboardType_withDecimalNumbers() {
         // Given: Format allows decimal numbers
         let masking = MockMasking(format: [
-            .specifier("#", allowedCharacters: .decimalDigits.union(CharacterSet(charactersIn: ".,")))
+            .specifier(placeholder: "#", allowedCharacters: .decimalDigits.union(CharacterSet(charactersIn: ".,")))
         ])
 
         // When
@@ -79,7 +79,7 @@ class MaskingKeyboardTypeTests: XCTestCase {
     func testKeyboardType_withLettersOnly() {
         // Given: Format allows only letters
         let masking = MockMasking(format: [
-            .specifier("A", allowedCharacters: .letters)
+            .specifier(placeholder: "A", allowedCharacters: .letters)
         ])
 
         // When
@@ -92,7 +92,7 @@ class MaskingKeyboardTypeTests: XCTestCase {
     func testKeyboardType_withSymbols() {
         // Given: Format allows symbols
         let masking = MockMasking(format: [
-            .specifier("*", allowedCharacters: .symbols)
+            .specifier(placeholder: "*", allowedCharacters: .symbols)
         ])
 
         // When
@@ -105,7 +105,7 @@ class MaskingKeyboardTypeTests: XCTestCase {
     func testKeyboardType_withMixedLettersAndNumbers() {
         // Given: Format allows letters and numbers
         let masking = MockMasking(format: [
-            .specifier("A", allowedCharacters: .letters.union(.decimalDigits))
+            .specifier(placeholder: "A", allowedCharacters: .letters.union(.decimalDigits))
         ])
 
         // When
