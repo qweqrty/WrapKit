@@ -148,7 +148,7 @@ open class ToastView: UIView {
             }
         case .ended, .cancelled, .failed:
             resumeHideTimer()
-            let shouldDismiss = velocity > velocityThreshold || bottomConstraint?.constant ?? 0 > (showConstant / 1.5)
+            let shouldDismiss = velocity > velocityThreshold || position == .top ? bottomConstraint?.constant ?? 0 < (showConstant / 1.5) : bottomConstraint?.constant ?? 0 > (showConstant / 1.5)
             UIView.animate(withDuration: 0.2, delay: .zero, options: [.curveEaseInOut, .allowUserInteraction]) {
                 if shouldDismiss {
                     self.bottomConstraint?.constant = 0
