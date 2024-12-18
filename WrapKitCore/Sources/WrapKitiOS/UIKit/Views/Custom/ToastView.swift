@@ -180,7 +180,6 @@ open class ToastView: UIView {
         }
         centerXAnchor.constraint(equalTo: window.centerXAnchor).isActive = true
         widthAnchor.constraint(equalTo: window.widthAnchor, constant: -spacing * 2).isActive = true
-        window.bringSubviewToFront(self)
 
         layoutIfNeeded()
         window.layoutIfNeeded()
@@ -202,11 +201,13 @@ open class ToastView: UIView {
                 self.superview?.layoutIfNeeded()
             },
             completion: { [weak self] finished in
+                guard let self = self else { return }
                 guard finished else { return }
-                self?.alpha = 1
-                self?.startHideTimer()
-                self?.layoutIfNeeded()
-                self?.superview?.layoutIfNeeded()
+                self.alpha = 1
+                self.startHideTimer()
+                self.layoutIfNeeded()
+                self.superview?.layoutIfNeeded()
+                window.bringSubviewToFront(self)
             }
         )
     }
