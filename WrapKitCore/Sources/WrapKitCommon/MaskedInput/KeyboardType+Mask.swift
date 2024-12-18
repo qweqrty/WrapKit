@@ -30,8 +30,7 @@ public extension Masking {
                     allowsLetters = true
                 }
                 // Check for symbols
-                if allowedCharacters.isSuperset(of: .symbols) ||
-                   allowedCharacters.subtracting(.letters).subtracting(.decimalDigits).isEmpty == false {
+                if allowedCharacters.isSuperset(of: .symbols) {
                     allowsSymbols = true
                 }
             }
