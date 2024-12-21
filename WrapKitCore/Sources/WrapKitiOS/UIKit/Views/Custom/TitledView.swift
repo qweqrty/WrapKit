@@ -79,34 +79,34 @@ open class TitledView<ContentView: UIView>: View {
         setupConstraints()
     }
     
-    public func applyNormalState() {
+    public func applyNormalState(errorLabel: Label? = nil) {
         UIView.performAnimationsInSequence([
             (0.15, {
-                self.wrappedErrorLabel.isHidden = true
+                (errorLabel ?? self.wrappedErrorLabel).isHidden = true
             }, nil),
             
             (0.15, {
-                self.wrappedErrorLabel.alpha = 0
+                (errorLabel ?? self.wrappedErrorLabel).alpha = 0
             }, nil),
         ], completion: { finished in
             guard finished else { return }
-            self.wrappedErrorLabel.isHidden = true
-            self.wrappedErrorLabel.alpha = 0
+            (errorLabel ?? self.wrappedErrorLabel).isHidden = true
+            (errorLabel ?? self.wrappedErrorLabel).alpha = 0
         })
     }
 
-    public func applyErrorState() {
+    public func applyErrorState(errorLabel: Label? = nil) {
         UIView.performAnimationsInSequence([
             (0.15, {
-                self.wrappedErrorLabel.isHidden = false
+                (errorLabel ?? self.wrappedErrorLabel).isHidden = false
             }, nil),
             (0.15, {
-                self.wrappedErrorLabel.alpha = 1
+                (errorLabel ?? self.wrappedErrorLabel).alpha = 1
             }, nil),
         ], completion: { finished in
             guard finished else { return }
-            self.wrappedErrorLabel.isHidden = false
-            self.wrappedErrorLabel.alpha = 1
+            (errorLabel ?? self.wrappedErrorLabel).isHidden = false
+            (errorLabel ?? self.wrappedErrorLabel).alpha = 1
         })
     }
     
