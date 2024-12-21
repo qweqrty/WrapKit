@@ -38,7 +38,18 @@ public class ChunkedTextField: View {
                 $0.textColor = isUserInteractionEnabled ? appearance.colors.textColor : appearance.colors.disabledTextColor
                 $0.backgroundColor = isUserInteractionEnabled ? appearance.colors.deselectedBackgroundColor : appearance.colors.disabledBackgroundColor
                 $0.updatePlaceholder()
+                if isUserInteractionEnabled == false {
+                    $0.resignFirstResponder()
+                }
             }
+        }
+    }
+    
+    public override func becomeFirstResponder() -> Bool {
+        if isUserInteractionEnabled {
+            return super.becomeFirstResponder()
+        } else {
+            return false
         }
     }
     

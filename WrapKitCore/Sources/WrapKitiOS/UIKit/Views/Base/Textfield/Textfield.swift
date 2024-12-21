@@ -232,6 +232,9 @@ open class Textfield: UITextField {
             textColor = isUserInteractionEnabled ? appearance.colors.textColor : appearance.colors.disabledTextColor
             backgroundColor = isUserInteractionEnabled ? appearance.colors.deselectedBackgroundColor : appearance.colors.disabledBackgroundColor
             updatePlaceholder()
+            if !isUserInteractionEnabled {
+                resignFirstResponder()
+            }
         }
     }
     
@@ -279,7 +282,7 @@ open class Textfield: UITextField {
     
     @discardableResult
     open override func becomeFirstResponder() -> Bool {
-        guard isEnabledForEditing else { return false }
+        guard isEnabledForEditing, isUserInteractionEnabled else { return false }
         let success = super.becomeFirstResponder()
         if success { onBecomeFirstResponder?() }
         if isSecureTextEntry, let text = self.text {
