@@ -128,29 +128,32 @@ public extension UIView {
     }
     
     func showLoadingView(_ loadingView: UIView? = nil, backgroundColor: UIColor = .clear, contentInset: UIEdgeInsets = .zero, size: CGSize? = nil) {
-        if let previousLoadingContainerView = viewWithTag(345635463546) {
-            previousLoadingContainerView.removeFromSuperview()
+        UIView.performWithoutAnimation {
+            if let previousLoadingContainerView = viewWithTag(345635463546) {
+                previousLoadingContainerView.removeFromSuperview()
+            }
+            let loadingContainerView: UIView = {
+                let view = UIView(backgroundColor: backgroundColor)
+                view.tag = 345635463546
+                addSubview(view)
+                view.layer.cornerRadius = layer.cornerRadius
+                view.fillSuperview()
+                return view
+            }()
+            clipsToBounds = true
+            let loadingView = loadingView ?? makeDefaultLoadingView()
+            loadingContainerView.addSubview(loadingView)
+            loadingView.anchor(
+                .centerX(loadingContainerView.centerXAnchor, constant: contentInset.left - contentInset.right),
+                .centerY(loadingContainerView.centerYAnchor, constant: contentInset.top - contentInset.bottom)
+            )
+            if let size = size {
+                loadingView.constrainHeight(size.height)
+                loadingView.constrainWidth(size.width)
+            }
+            isUserInteractionEnabled = false
+            loadingContainerView.layoutIfNeeded()
         }
-        let loadingContainerView: UIView = {
-            let view = UIView(backgroundColor: backgroundColor)
-            view.tag = 345635463546
-            addSubview(view)
-            view.layer.cornerRadius = layer.cornerRadius
-            view.fillSuperview()
-            return view
-        }()
-        clipsToBounds = true
-        let loadingView = loadingView ?? makeDefaultLoadingView()
-        loadingContainerView.addSubview(loadingView)
-        loadingView.anchor(
-            .centerX(loadingContainerView.centerXAnchor, constant: contentInset.left - contentInset.right),
-            .centerY(loadingContainerView.centerYAnchor, constant: contentInset.top - contentInset.bottom)
-        )
-        if let size = size {
-            loadingView.constrainHeight(size.height)
-            loadingView.constrainWidth(size.width)
-        }
-        isUserInteractionEnabled = false
     }
     
     func hideLoadingView() {
