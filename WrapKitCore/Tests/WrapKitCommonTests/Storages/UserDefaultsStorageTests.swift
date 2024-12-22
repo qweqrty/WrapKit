@@ -1,173 +1,135 @@
 import XCTest
+import WrapKit
 import Combine
-@testable import WrapKit
 
-final class UserDefaultsStorageTests: XCTestCase {
+class UserDefaultsStorageTests: XCTestCase {
     private var cancellables: Set<AnyCancellable> = []
-    
-    struct TestModel: Codable, Hashable {
-        let id: Int
-        let name: String
+
+    func test_get_returnsInitialModel() {
+        let initialModel = "TestModel"
+        let (sut, _) = makeUserDefaultsSUT(model: initialModel)
+
+        XCTAssertEqual(sut.get(), initialModel)
     }
-    
-    func testInitializationAndGet() {
-        // Arrange
-        let userDefaults = UserDefaults(suiteName: "testInitializationAndGet")!
-        defer { userDefaults.removePersistentDomain(forName: "testInitializationAndGet") }
-        
-        let storage = UserDefaultsStorage<TestModel>(
-            key: "testKey",
-            userDefaults: userDefaults,
-            getLogic: { defaults in
-                guard let data = defaults.data(forKey: "testKey"),
-                      let model = try? JSONDecoder().decode(TestModel.self, from: data) else {
-                    return nil
-                }
-                return model
-            },
-            setLogic: { defaults, model in
-                if let model = model {
-                    let data = try? JSONEncoder().encode(model)
-                    defaults.set(data, forKey: "testKey")
-                } else {
-                    defaults.removeObject(forKey: "testKey")
-                }
-            }
-        )
-        
-        // Act
-        let retrievedModel = storage.get()
-        
-        // Assert
-        XCTAssertNil(retrievedModel, "Expected initial value to be nil")
-    }
-    
-    func testSetAndGet() {
-        // Arrange
-        let userDefaults = UserDefaults(suiteName: "testSetAndGet")!
-        defer { userDefaults.removePersistentDomain(forName: "testSetAndGet") }
-        
-        let storage = UserDefaultsStorage<TestModel>(
-            key: "testKey",
-            userDefaults: userDefaults,
-            getLogic: { defaults in
-                guard let data = defaults.data(forKey: "testKey"),
-                      let model = try? JSONDecoder().decode(TestModel.self, from: data) else {
-                    return nil
-                }
-                return model
-            },
-            setLogic: { defaults, model in
-                if let model = model {
-                    let data = try? JSONEncoder().encode(model)
-                    defaults.set(data, forKey: "testKey")
-                } else {
-                    defaults.removeObject(forKey: "testKey")
-                }
-            }
-        )
-        
-        let testModel = TestModel(id: 1, name: "Test")
-        
-        // Act
-        let expectation = self.expectation(description: "Set value")
-        storage.set(model: testModel)
+
+    func test_set_updatesModel() {
+        let (sut, _) = makeUserDefaultsSUT(model: "Initial")
+        let expectation = XCTestExpectation(description: "Set model")
+
+        sut.set(model: "Updated")
             .sink { success in
-                XCTAssertTrue(success, "Expected set to succeed")
-                let retrievedModel = storage.get()
-                XCTAssertEqual(retrievedModel, testModel, "Expected retrieved model to match the set model")
+                XCTAssertTrue(success)
+                XCTAssertEqual(sut.get(), "Updated")
                 expectation.fulfill()
             }
             .store(in: &cancellables)
-        
-        waitForExpectations(timeout: 1, handler: nil)
+
+        wait(for: [expectation], timeout: 1.0)
     }
-    
-    func testClear() {
-        // Arrange
-        let userDefaults = UserDefaults(suiteName: "testClear")!
-        defer { userDefaults.removePersistentDomain(forName: "testClear") }
-        
-        let storage = UserDefaultsStorage<TestModel>(
-            key: "testKey",
-            userDefaults: userDefaults,
-            getLogic: { defaults in
-                guard let data = defaults.data(forKey: "testKey"),
-                      let model = try? JSONDecoder().decode(TestModel.self, from: data) else {
-                    return nil
-                }
-                return model
-            },
-            setLogic: { defaults, model in
-                if let model = model {
-                    let data = try? JSONEncoder().encode(model)
-                    defaults.set(data, forKey: "testKey")
-                } else {
-                    defaults.removeObject(forKey: "testKey")
-                }
-            }
-        )
-        
-        let testModel = TestModel(id: 1, name: "Test")
-        storage.set(model: testModel)
-            .sink { _ in }
-            .store(in: &cancellables)
-        
-        // Act
-        let expectation = self.expectation(description: "Clear value")
-        storage.clear()
+
+    func test_clear_removesModel() {
+        let (sut, _) = makeUserDefaultsSUT(model: "ToBeCleared")
+        let expectation = XCTestExpectation(description: "Clear model")
+
+        sut.clear()
             .sink { success in
-                XCTAssertTrue(success, "Expected clear to succeed")
-                let retrievedModel = storage.get()
-                XCTAssertNil(retrievedModel, "Expected value to be nil after clearing")
+                XCTAssertTrue(success)
+                XCTAssertNil(sut.get())
                 expectation.fulfill()
             }
             .store(in: &cancellables)
-        
-        waitForExpectations(timeout: 1, handler: nil)
+
+        wait(for: [expectation], timeout: 1.0)
     }
-    
-    func testPublisher() {
-        // Arrange
-        let userDefaults = UserDefaults(suiteName: "testPublisher")!
-        defer { userDefaults.removePersistentDomain(forName: "testPublisher") }
-        
-        let storage = UserDefaultsStorage<TestModel>(
-            key: "testKey",
-            userDefaults: userDefaults,
-            getLogic: { defaults in
-                guard let data = defaults.data(forKey: "testKey"),
-                      let model = try? JSONDecoder().decode(TestModel.self, from: data) else {
-                    return nil
-                }
-                return model
-            },
-            setLogic: { defaults, model in
-                if let model = model {
-                    let data = try? JSONEncoder().encode(model)
-                    defaults.set(data, forKey: "testKey")
-                } else {
-                    defaults.removeObject(forKey: "testKey")
-                }
-            }
-        )
-        
-        let testModel = TestModel(id: 1, name: "Test")
-        let expectation = self.expectation(description: "Publisher emits new value")
-        
-        // Act
-        storage.publisher
+
+    func test_publisher_emitsChanges() {
+        let (sut, _) = makeUserDefaultsSUT(model: "Initial")
+        let expectation = XCTestExpectation(description: "Publisher emits changes")
+        var receivedValues: [String] = []
+
+        sut.publisher
+            .compactMap { $0 }
             .sink { value in
-                if value == testModel {
+                receivedValues.append(value)
+                if receivedValues.count == 3 {
                     expectation.fulfill()
                 }
             }
             .store(in: &cancellables)
-        
-        storage.set(model: testModel)
-            .sink { _ in }
-            .store(in: &cancellables)
-        
-        waitForExpectations(timeout: 1, handler: nil)
+
+        sut.set(model: "FirstUpdate")
+        sut.set(model: "SecondUpdate")
+
+        wait(for: [expectation], timeout: 1.0)
+        XCTAssertEqual(receivedValues, ["Initial", "FirstUpdate", "SecondUpdate"])
     }
+}
+
+extension UserDefaultsStorageTests {
+    // MARK: - Helpers
+    func makeUserDefaultsSUT<Model: Codable & Hashable>(
+        model: Model? = nil,
+        file: StaticString = #file,
+        line: UInt = #line
+    ) -> (sut: UserDefaultsStorage<Model>, mockStorage: MockUserDefaultsStorage<Model>) {
+        let mockStorage = MockUserDefaultsStorage<Model>(model: model)
+        let sut = UserDefaultsStorage<Model>(
+            key: "testKey",
+            getLogic: { _ in mockStorage.get() },
+            setLogic: { _, model in mockStorage.set(model: model) }
+        )
+        checkForMemoryLeaks(sut, file: file, line: line)
+        checkForMemoryLeaks(mockStorage, file: file, line: line)
+        return (sut, mockStorage)
+    }
+
+    // MARK: - MockUserDefaultsStorage
+    class MockUserDefaultsStorage<Model: Codable & Hashable>: Storage, Hashable {
+        private var store: Model?
+        private let subject: CurrentValueSubject<Model?, Never>
+
+        init(model: Model? = nil) {
+            self.store = model
+            self.subject = CurrentValueSubject(model)
+        }
+
+        var publisher: AnyPublisher<Model?, Never> {
+            subject
+                .receive(on: DispatchQueue.main)
+                .eraseToAnyPublisher()
+        }
+
+        func get() -> Model? {
+            return store
+        }
+
+        @discardableResult
+        func set(model: Model?) -> AnyPublisher<Bool, Never> {
+            return Future<Bool, Never> { [weak self] promise in
+                guard let self = self else {
+                    promise(.success(false))
+                    return
+                }
+                self.store = model
+                self.subject.send(model)
+                promise(.success(true))
+            }
+            .eraseToAnyPublisher()
+        }
+
+
+        @discardableResult
+        func clear() -> AnyPublisher<Bool, Never> {
+            return set(model: nil)
+        }
+
+        static func == (lhs: MockUserDefaultsStorage<Model>, rhs: MockUserDefaultsStorage<Model>) -> Bool {
+            return lhs.store == rhs.store
+        }
+
+        func hash(into hasher: inout Hasher) {
+            hasher.combine(store)
+        }
+    }
+
 }
