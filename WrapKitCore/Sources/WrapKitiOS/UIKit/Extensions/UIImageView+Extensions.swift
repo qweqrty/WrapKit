@@ -40,14 +40,29 @@ public extension ImageView {
             fallbackView.isHidden = true
         }
         viewWhileLoadingView?.isHidden = false
-        KingfisherManager.shared.retrieveImage(with: url, options: [.callbackQueue(.mainCurrentOrAsync)] + kingfisherOptions) { [weak self, weak viewWhileLoadingView, url] result in
-            viewWhileLoadingView?.isHidden = true
-
+        KingfisherManager.shared.cache.retrieveImage(forKey: url.absoluteString, options: [.callbackQueue(.mainCurrentOrAsync)]) { [weak self] result in
+            self?.viewWhileLoadingView?.isHidden = true
             switch result {
             case .success(let image):
                 self?.animatedSet(image.image)
-            case .failure:
-                self?.showFallbackView(url)
+
+                KingfisherManager.shared.retrieveImage(with: url, options: [.callbackQueue(.mainCurrentOrAsync), .forceRefresh] + kingfisherOptions) { [weak self, url] result in
+                    switch result {
+                    case .success(let image):
+                        self?.animatedSet(image.image)
+                    case .failure:
+                        self?.showFallbackView(url)
+                    }
+                }
+            case.failure(let image):
+                KingfisherManager.shared.retrieveImage(with: url, options: [.callbackQueue(.mainCurrentOrAsync)] + kingfisherOptions) { [weak self, url] result in
+                    switch result {
+                    case .success(let image):
+                        self?.animatedSet(image.image)
+                    case .failure:
+                        self?.showFallbackView(url)
+                    }
+                }
             }
         }
     }
