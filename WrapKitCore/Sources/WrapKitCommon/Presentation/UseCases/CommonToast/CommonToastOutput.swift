@@ -57,19 +57,25 @@ public enum CommonToast {
         public let textColor: Color?
         public let leadingImage: ImageEnum?
         public let trailingTitle: String?
+        public let leadingTitle: String?
+        public let onPress: (() -> Void)?
         
         public init(
             common: Toast,
             leadingImage: ImageEnum? = nil,
             trailingTitle: String? = nil,
             backgroundColor: Color? = nil,
-            textColor: Color? = nil
+            textColor: Color? = nil,
+            onPress: (() -> Void)? = nil,
+            leadingTitle: String? = nil
         ) {
             self.common = common
             self.leadingImage = leadingImage
             self.trailingTitle = trailingTitle
             self.backgroundColor = backgroundColor
             self.textColor = textColor
+            self.leadingTitle = leadingTitle
+            self.onPress = onPress
         }
     }
     
