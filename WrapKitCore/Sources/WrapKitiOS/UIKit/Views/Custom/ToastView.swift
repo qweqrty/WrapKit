@@ -15,18 +15,18 @@ open class ToastView: UIView {
     public var keyboardHeight: CGFloat = 0
 
     private let spacing: CGFloat = 8
-    public let duration: TimeInterval
+    public let duration: TimeInterval?
     private let position: CommonToast.Position
     private lazy var panGesture = UIPanGestureRecognizer(target: self, action: #selector(handlePanGesture))
     private var hideTimer: Timer?
-    private var remainingTime: TimeInterval = 0
+    private var remainingTime: TimeInterval? = nil
     public var shadowColor: UIColor?
     public var onDismiss: (() -> Void)?
 
     public var leadingConstraint: NSLayoutConstraint?
     public var bottomConstraint: NSLayoutConstraint?
 
-    public init(duration: TimeInterval = 3.0, position: CommonToast.Position) {
+    public init(duration: TimeInterval? = 3.0, position: CommonToast.Position) {
         self.duration = duration
         self.position = position
         self.remainingTime = duration
@@ -213,6 +213,7 @@ open class ToastView: UIView {
     }
 
     private func startHideTimer() {
+        guard let remainingTime else { return }
         hideTimer = Timer.scheduledTimer(withTimeInterval: remainingTime, repeats: false) { [weak self] _ in
             self?.hide(after: 0)
         }

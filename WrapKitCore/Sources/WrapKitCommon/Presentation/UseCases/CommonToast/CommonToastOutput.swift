@@ -27,11 +27,10 @@ public enum CommonToast {
     }
     
     public struct Toast {
-        public let keyTitle: String
-        public let valueTitle: String?
+        public let cardViewModel: CardViewPresentableModel
         public let position: Position
         public let shadowColor: Color?
-        public let duration: TimeInterval
+        public let duration: TimeInterval?
         public let onPress: (() -> Void)?
         
         public init(
@@ -39,11 +38,27 @@ public enum CommonToast {
             valueTitle: String? = nil,
             position: Position,
             shadowColor: Color? = nil,
-            duration: TimeInterval = 3.0,
+            duration: TimeInterval? = 3.0,
             onPress: (() -> Void)? = nil
         ) {
-            self.keyTitle = keyTitle
-            self.valueTitle = valueTitle
+            self.cardViewModel = .init(
+                title: [.init(text: keyTitle)],
+                valueTitle: valueTitle == nil ? [] : [.init(text: valueTitle ?? "")]
+            )
+            self.position = position
+            self.shadowColor = shadowColor
+            self.duration = duration
+            self.onPress = onPress
+        }
+        
+        public init(
+            cardViewModel: CardViewPresentableModel,
+            position: Position,
+            shadowColor: Color? = nil,
+            duration: TimeInterval? = 3.0,
+            onPress: (() -> Void)? = nil
+        ) {
+            self.cardViewModel = cardViewModel
             self.position = position
             self.shadowColor = shadowColor
             self.duration = duration
@@ -52,30 +67,31 @@ public enum CommonToast {
     }
     
     public struct CustomToast {
+        public struct Button {
+            public let title: String
+            public let onPress: (() -> Void)?
+            
+            public init(title: String, onPress: (() -> Void)? = nil) {
+                self.title = title
+                self.onPress = onPress
+            }
+        }
+        
         public let common: Toast
+        public let image: ImageEnum?
         public let backgroundColor: Color?
-        public let textColor: Color?
-        public let leadingImage: ImageEnum?
-        public let trailingTitle: String?
-        public let leadingTitle: String?
-        public let onPress: (() -> Void)?
+        public let buttons: [Button]?
         
         public init(
             common: Toast,
-            leadingImage: ImageEnum? = nil,
-            trailingTitle: String? = nil,
+            image: ImageEnum? = nil,
             backgroundColor: Color? = nil,
-            textColor: Color? = nil,
-            onPress: (() -> Void)? = nil,
-            leadingTitle: String? = nil
+            buttons: [Button]? = nil
         ) {
             self.common = common
-            self.leadingImage = leadingImage
-            self.trailingTitle = trailingTitle
             self.backgroundColor = backgroundColor
-            self.textColor = textColor
-            self.leadingTitle = leadingTitle
-            self.onPress = onPress
+            self.buttons = buttons
+            self.image = image
         }
     }
     
@@ -84,7 +100,7 @@ public enum CommonToast {
     case warning(Toast)
     case custom(CustomToast)
     
-    public var duration: TimeInterval {
+    public var duration: TimeInterval? {
         switch self {
         case .error(let toast), .success(let toast), .warning(let toast):
             return toast.duration
