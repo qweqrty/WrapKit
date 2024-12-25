@@ -31,30 +31,32 @@ extension UIViewController: AlertOutput {
         actions: [AlertAction],
         cancelText: String? = nil
     ) {
-        let alert = UIAlertController(
-            title: title,
-            message: text,
-            preferredStyle: .alert
-        )
-        actions.forEach { action in
-            let style: UIAlertAction.Style
-            switch action.style {
-            case .default: style = .default
-            case .cancel: style = .cancel
-            case .destructive: style = .destructive
+        CFRunLoopPerformBlock(CFRunLoopGetMain(), CFRunLoopMode.defaultMode.rawValue) { [weak self] in
+            let alert = UIAlertController(
+                title: title,
+                message: text,
+                preferredStyle: .alert
+            )
+            actions.forEach { action in
+                let style: UIAlertAction.Style
+                switch action.style {
+                case .default: style = .default
+                case .cancel: style = .cancel
+                case .destructive: style = .destructive
+                }
+                
+                let uiAction = UIAlertAction(title: action.title, style: style) { _ in
+                    action.handler?()
+                }
+                alert.addAction(uiAction)
             }
             
-            let uiAction = UIAlertAction(title: action.title, style: style) { _ in
-                action.handler?()
+            if let cancelText {
+                alert.addAction(UIAlertAction(title: cancelText, style: .cancel, handler: nil))
             }
-            alert.addAction(uiAction)
+            
+            self?.present(alert, animated: true, completion: nil)
         }
-        
-        if let cancelText {
-            alert.addAction(UIAlertAction(title: cancelText, style: .cancel, handler: nil))
-        }
-        
-        present(alert, animated: true, completion: nil)
     }
     
     public func showActionSheet(
@@ -63,30 +65,32 @@ extension UIViewController: AlertOutput {
         actions: [AlertAction],
         cancelText: String? = nil
     ) {
-        let alert = UIAlertController(
-            title: title,
-            message: text,
-            preferredStyle: .actionSheet
-        )
-        
-        actions.forEach { action in
-            let style: UIAlertAction.Style
-            switch action.style {
-            case .default: style = .default
-            case .cancel: style = .cancel
-            case .destructive: style = .destructive
+        CFRunLoopPerformBlock(CFRunLoopGetMain(), CFRunLoopMode.defaultMode.rawValue) { [weak self] in
+            let alert = UIAlertController(
+                title: title,
+                message: text,
+                preferredStyle: .actionSheet
+            )
+            
+            actions.forEach { action in
+                let style: UIAlertAction.Style
+                switch action.style {
+                case .default: style = .default
+                case .cancel: style = .cancel
+                case .destructive: style = .destructive
+                }
+                
+                let uiAction = UIAlertAction(title: action.title, style: style) { _ in
+                    action.handler?()
+                }
+                alert.addAction(uiAction)
             }
             
-            let uiAction = UIAlertAction(title: action.title, style: style) { _ in
-                action.handler?()
+            if let cancelText {
+                alert.addAction(UIAlertAction(title: cancelText, style: .cancel, handler: nil))
             }
-            alert.addAction(uiAction)
+            self?.present(alert, animated: true, completion: nil)
         }
-        
-        if let cancelText {
-            alert.addAction(UIAlertAction(title: cancelText, style: .cancel, handler: nil))
-        }
-        present(alert, animated: true, completion: nil)
     }
 }
 
