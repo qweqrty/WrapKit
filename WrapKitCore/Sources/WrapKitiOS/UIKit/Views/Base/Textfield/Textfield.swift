@@ -122,6 +122,21 @@ open class Textfield: UITextField {
         }
     }
     
+    open override func buildMenu(with builder: UIMenuBuilder) {
+        if #available(iOS 17.0, *) {
+            if isTextSelectionDisabled {
+                // Remove all menus
+                builder.remove(menu: .text)
+                builder.remove(menu: .edit)
+                builder.remove(menu: .standardEdit)
+                builder.remove(menu: .format)
+                builder.remove(menu: .lookup)
+                builder.remove(menu: .autoFill)
+            }
+        }
+        super.buildMenu(with: builder)
+    }
+    
     public var onPress: (() -> Void)?
     public var onPaste: ((String?) -> Void)?
     public var nextTextfield: UIResponder? = nil { didSet { returnKeyType = nextTextfield == nil ? .done : .next } }
