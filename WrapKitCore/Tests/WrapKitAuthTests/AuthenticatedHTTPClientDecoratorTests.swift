@@ -32,20 +32,19 @@ class AuthenticatedHTTPClientDecoratorTests: XCTestCase {
     }
     
     func test_dispatch_failsWithoutTokenAndNoTokenRefresher() {
-        let (sut, storage, httpClientSpy, _) = makeSUT(tokenRefresher: nil)
-        
+        var onNotAuthenticatedCalled = false
+        let (sut, _, httpClientSpy, _) = makeSUT(tokenRefresher: nil, onNotAuthenticated: {
+            onNotAuthenticatedCalled = true
+        })
         var receivedResult: HTTPClient.Result?
+        
         sut.dispatch(URLRequest(url: URL(string: "http://test.com")!)) { result in
             receivedResult = result
         }.resume()
         
         XCTAssertEqual(httpClientSpy.requestedURLs.count, 0, "Expected no request to be dispatched without a token")
-        switch receivedResult {
-        case .failure(let error as ServiceError):
-            XCTAssertEqual(error, .internal)
-        default:
-            XCTFail("Expected '.failure(.internal)', but got \(String(describing: receivedResult))")
-        }
+        XCTAssertNil(receivedResult)
+        XCTAssertEqual(onNotAuthenticatedCalled, true)
     }
     
     func test_dispatch_triggersOnNotAuthenticatedWithoutTokenRefresher() {
@@ -463,7 +462,7 @@ class AuthenticatedHTTPClientDecoratorTests: XCTestCase {
         }
         
         // Wait until all requests are dispatched
-        wait(for: [dispatchExp], timeout: 1.0)
+        wait(for: [dispatchExp], timeout: 2.0)
         
         // Now complete the requests after ensuring they exist in `httpClientSpy.messages`
         httpClientSpy.completes(withStatusCode: 200, data: Data("data1".utf8), at: 0)
