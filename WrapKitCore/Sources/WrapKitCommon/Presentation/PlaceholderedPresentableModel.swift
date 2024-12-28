@@ -9,7 +9,7 @@ import Foundation
 
 public enum ShimmeredCellModel<PresentableModel: Hashable>: Hashable {
     case model(PresentableModel)
-    case shimmer(UUID)
+    case shimmer
 
     public var isPlaceholder: Bool {
         switch self {
@@ -33,8 +33,8 @@ public enum ShimmeredCellModel<PresentableModel: Hashable>: Hashable {
         switch (lhs, rhs) {
         case (.model(let lhsModel), .model(let rhsModel)):
             return lhsModel == rhsModel
-        case (.shimmer(let lhsID), .shimmer(let rhsID)):
-            return lhsID == rhsID
+        case (.shimmer, .shimmer):
+            return false
         default:
             return false
         }
@@ -44,8 +44,8 @@ public enum ShimmeredCellModel<PresentableModel: Hashable>: Hashable {
         switch self {
         case .model(let model):
             hasher.combine(model)
-        case .shimmer(let id):
-            hasher.combine(id)
+        default:
+            break
         }
     }
 }
