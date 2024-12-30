@@ -41,7 +41,6 @@ public extension ImageView {
         }
         viewWhileLoadingView?.isHidden = false
         KingfisherManager.shared.cache.retrieveImage(forKey: url.absoluteString, options: [.callbackQueue(.mainCurrentOrAsync)]) { [weak self] result in
-            self?.viewWhileLoadingView?.isHidden = true
             switch result {
             case .success(let image):
                 self?.animatedSet(image.image)
@@ -68,6 +67,7 @@ public extension ImageView {
     }
     
     private func showFallbackView(_ url: URL, kingfisherOptions: KingfisherOptionsInfo = []) {
+        viewWhileLoadingView?.isHidden = true
         guard let fallbackView else { return }
         fallbackView.isHidden = false
         fallbackView.animations.insert(.shrink)
@@ -77,15 +77,18 @@ public extension ImageView {
     }
     
     private func animatedSet(_ image: UIImage?) {
-        UIView.transition(
-            with: self,
-            duration: 0.3,
-            options: [.transitionCrossDissolve, .allowUserInteraction],
-            animations: { [weak self] in
-                self?.image = image
-            },
-            completion: nil
-        )
+        cancelCurrentAnimation()
+
+        currentAnimator = UIViewPropertyAnimator(duration: 0.3, curve: .easeInOut) { [weak self] in
+            self?.image = image
+        }
+        currentAnimator?.addCompletion { [weak self] _ in
+            self?.currentAnimator = nil
+            self?.viewWhileLoadingView?.isHidden = true
+        }
+
+        // Start the animation
+        currentAnimator?.startAnimation()
     }
 }
 #endif

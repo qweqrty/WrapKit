@@ -9,6 +9,28 @@
 import UIKit
 
 open class ImageView: UIImageView {
+    public var currentAnimator: UIViewPropertyAnimator?
+
+    open override var image: UIImage? {
+        get {
+            super.image
+        }
+        set {
+            if newValue == nil {
+                cancelCurrentAnimation()
+                super.image = nil
+            } else {
+                super.image = newValue
+            }
+        }
+    }
+    
+    
+    public func cancelCurrentAnimation() {
+        currentAnimator?.stopAnimation(true) // Stop the animation and leave the view in its current state
+        currentAnimator = nil
+    }
+    
     public var onPress: (() -> Void)? {
         didSet {
             removeGestureRecognizer(tapGestureRecognizer)
