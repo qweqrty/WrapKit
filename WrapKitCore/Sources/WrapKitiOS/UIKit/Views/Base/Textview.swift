@@ -5,6 +5,14 @@
 //  Created by Stas Lee on 6/8/23.
 //
 
+import Foundation
+
+public protocol TextviewOutput: AnyObject {
+    func display(isValidState: Bool?)
+    func display(textDidChange: (() -> Void)?)
+    func display(shouldChangeText: ((NSRange, String) -> Bool)?)
+}
+
 #if canImport(UIKit)
 import UIKit
 
@@ -121,6 +129,21 @@ public extension Textview {
             }
             self.layer.borderWidth = (isFirstResponder ? appearance.border?.selectedBorderWidth : appearance.border?.idleBorderWidth) ?? 0
         }
+    }
+}
+
+public extension Textview: TextviewOutput {
+    public func display(isValidState: Bool?) {
+        self.isValidState = isValidState
+        updateAppearance(isValid: isValidState)
+    }
+    
+    public func display(textDidChange: (() -> Void)?) {
+        self.textDidChange = textDidChange
+    }
+    
+    public func display(shouldChangeText: ((NSRange, String) -> Bool)?) {
+        self.shouldChangeText = shouldChangeText
     }
 }
 #endif
