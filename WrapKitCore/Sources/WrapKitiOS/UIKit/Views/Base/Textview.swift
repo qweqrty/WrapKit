@@ -124,7 +124,7 @@ public extension Textview {
     }
 }
 
-public extension Textview: TextInputOutput {
+extension Textview: TextInputOutput {
     public func display(isValid: Bool?) {
         self.isValidState = isValid
         updateAppearance(isValid: isValid)
