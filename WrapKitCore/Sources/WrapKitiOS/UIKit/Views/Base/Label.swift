@@ -107,33 +107,86 @@ open class Label: UILabel {
     }
     
     public override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
-        // Convert touch point to attributed text coordinates
-        guard let attributedText = attributedText, let labelText = text else { return super.hitTest(point, with: event) }
-        let textRange = NSRange(location: 0, length: labelText.utf16.count)
-        
-        // Check if the touch is on any attribute with `onTap`
+        // Ensure we have valid attributed text and attributes
+        guard let attributedText = attributedText, !attributes.isEmpty else {
+            return super.hitTest(point, with: event)
+        }
+
+        // Create layout-related objects for accurate text hit-testing
+        let layoutManager = NSLayoutManager()
+        let textContainer = NSTextContainer(size: bounds.size)
+        let textStorage = NSTextStorage(attributedString: attributedText)
+
+        layoutManager.addTextContainer(textContainer)
+        textStorage.addLayoutManager(layoutManager)
+
+        // Configure text container for the label's layout
+        textContainer.lineFragmentPadding = 0
+        textContainer.lineBreakMode = lineBreakMode
+        textContainer.maximumNumberOfLines = numberOfLines
+        textContainer.size = bounds.size
+
+        // Calculate the location of the touch in the label
+        let locationOfTouchInLabel = point
+        let textBoundingBox = layoutManager.usedRect(for: textContainer)
+        let textContainerOffset = CGPoint(
+            x: (bounds.width - textBoundingBox.width) * aligmentOffset() - textBoundingBox.origin.x,
+            y: (bounds.height - textBoundingBox.height) * aligmentOffset() - textBoundingBox.origin.y
+        )
+        let locationOfTouchInTextContainer = CGPoint(
+            x: locationOfTouchInLabel.x - textContainerOffset.x,
+            y: locationOfTouchInLabel.y - textContainerOffset.y
+        )
+
+        // Check if the touch is within the text bounding box
+        guard textBoundingBox.contains(locationOfTouchInTextContainer) else {
+            return super.hitTest(point, with: event) // Outside of text bounding box
+        }
+
+        // Determine the character index at the touch point
+        let characterIndex = layoutManager.characterIndex(
+            for: locationOfTouchInTextContainer,
+            in: textContainer,
+            fractionOfDistanceBetweenInsertionPoints: nil
+        )
+
+        // Find the matching attribute for the touched range
         for attribute in attributes {
             guard let range = attribute.range else { continue }
-            
-            if tapGestureRecognizer.didTapAttributedTextInLabel(label: self, inRange: range), attribute.onTap != nil {
-                return self  // Forward touch to self to handle `onTap`
+            if NSLocationInRange(characterIndex, range) {
+                return self // Return self to handle the tap
             }
         }
-        
-        // If no tappable attribute, pass the touch to the next responder
-        return nil
+
+        return super.hitTest(point, with: event)
+    }
+    
+    private func aligmentOffset() -> CGFloat {
+        switch textAlignment {
+        case .left, .natural, .justified:
+            return 0.0
+        case .center:
+            return 0.5
+        case .right:
+            return 1.0
+        @unknown default:
+            return 0.0
+        }
     }
     
     @objc
     private func handleTap(gesture: UITapGestureRecognizer) {
+        guard let attributedText = attributedText else { return }
+
         for attribute in attributes {
             guard let range = attribute.range else { continue }
-            if gesture.didTapAttributedTextInLabel(label: self, inRange: range) {
+            if gesture.didTapAttributedTextInLabel(label: self, textAlignment: attribute.textAlignment ?? textAlignment, inRange: range) {
                 attribute.onTap?()
                 return
-            }
+             }
         }
     }
+
 }
 
 public extension Label {
