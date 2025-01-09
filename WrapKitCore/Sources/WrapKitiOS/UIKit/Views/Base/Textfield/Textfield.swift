@@ -449,7 +449,7 @@ public extension Textfield {
     }
 }
 
-public extension Textfield: TextInputOutput {
+extension Textfield: TextInputOutput {
     public func display(mask: String?) {
         self.maskedTextfieldDelegate?.fullText = mask
     }
