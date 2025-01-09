@@ -85,7 +85,7 @@ public struct TextfieldAppearance {
     public var placeholder: Placeholder?
 }
 
-public protocol TextfieldOutput: AnyObject {
+public protocol TextInputOutput: AnyObject {
     func display(mask: String?)
     func display(text: String?)
     func display(leadingViewOnPress: (() -> Void)?)
@@ -449,7 +449,7 @@ public extension Textfield {
     }
 }
 
-public extension Textfield: TextfieldOutput {
+public extension Textfield: TextInputOutput {
     public func display(mask: String?) {
         self.maskedTextfieldDelegate?.fullText = mask
     }

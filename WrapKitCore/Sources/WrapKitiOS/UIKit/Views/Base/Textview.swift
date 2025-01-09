@@ -5,14 +5,6 @@
 //  Created by Stas Lee on 6/8/23.
 //
 
-import Foundation
-
-public protocol TextviewOutput: AnyObject {
-    func display(isValidState: Bool?)
-    func display(textDidChange: (() -> Void)?)
-    func display(shouldChangeText: ((NSRange, String) -> Bool)?)
-}
-
 #if canImport(UIKit)
 import UIKit
 
@@ -132,18 +124,25 @@ public extension Textview {
     }
 }
 
-public extension Textview: TextviewOutput {
-    public func display(isValidState: Bool?) {
-        self.isValidState = isValidState
-        updateAppearance(isValid: isValidState)
+public extension Textview: TextInputOutput {
+    public func display(isValid: Bool?) {
+        self.isValidState = isValid
+        updateAppearance(isValid: isValid)
     }
     
-    public func display(textDidChange: (() -> Void)?) {
-        self.textDidChange = textDidChange
-    }
-    
-    public func display(shouldChangeText: ((NSRange, String) -> Bool)?) {
-        self.shouldChangeText = shouldChangeText
-    }
+    public func display(mask: String?) { }
+    public func display(text: String?) { }
+    public func display(leadingViewOnPress: (() -> Void)?) { }
+    public func display(trailingViewOnPress: (() -> Void)?) { }
+    public func display(onTapBackSpace: (() -> Void)?) { }
+    public func display(isEnabledForEditing: Bool?) { }
+    public func display(isTextSelectionDisabled: (() -> Void)?) { }
+    public func display(onPress: (() -> Void)?) { }
+    public func display(onPaste: ((String) -> Void)?) { }
+    public func display(placeholder: String?) { }
+    public func display(onBecomeFirstResponder: (() -> Void)?) { }
+    public func display(onResignFirstResponder: (() -> Void)?) { }
+    public func display(isUserInteractionEnabled: (() -> Void)?) { }
+    public func display(isSecureTextEntry: Bool) { }
 }
 #endif
