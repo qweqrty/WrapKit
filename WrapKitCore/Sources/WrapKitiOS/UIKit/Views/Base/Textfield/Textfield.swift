@@ -86,21 +86,28 @@ public struct TextfieldAppearance {
 }
 
 public protocol TextInputOutput: AnyObject {
-    func display(mask: String?)
+    func display(mask: Masking, maskColor: UIColor)
     func display(text: String?)
     func display(leadingViewOnPress: (() -> Void)?)
     func display(trailingViewOnPress: (() -> Void)?)
     func display(onTapBackSpace: (() -> Void)?)
-    func display(isValid: Bool?)
-    func display(isEnabledForEditing: Bool?)
-    func display(isTextSelectionDisabled: (() -> Void)?)
+    func display(isValid: Bool)
+    func display(isEnabledForEditing: Bool)
+    func display(isTextSelectionDisabled: Bool)
     func display(onPress: (() -> Void)?)
-    func display(onPaste: ((String) -> Void)?)
+    func display(onPaste: ((String?) -> Void)?)
     func display(placeholder: String?)
     func display(onBecomeFirstResponder: (() -> Void)?)
     func display(onResignFirstResponder: (() -> Void)?)
-    func display(isUserInteractionEnabled: (() -> Void)?)
+    func display(isUserInteractionEnabled: Bool)
     func display(isSecureTextEntry: Bool)
+    
+    var onPress: (() -> Void)? { get set }
+    var onPaste: ((String?) -> Void)? { get set }
+    var onBecomeFirstResponder: (() -> Void)? { get set }
+    var onResignFirstResponder: (() -> Void)? { get set }
+    var onTapBackspace: (() -> Void)? { get set }
+    var didChangeText: [((String?) -> Void)] { get set }
 }
 
 #if canImport(UIKit)
@@ -450,8 +457,8 @@ public extension Textfield {
 }
 
 extension Textfield: TextInputOutput {
-    public func display(mask: String?) {
-        self.maskedTextfieldDelegate?.fullText = mask
+    public func display(mask: Masking, maskColor: UIColor) {
+        maskedTextfieldDelegate = .init(format: .init(mask: mask, maskedTextColor: maskColor))
     }
     
     public func display(text: String?) {
@@ -470,16 +477,16 @@ extension Textfield: TextInputOutput {
         self.onTapBackspace = onTapBackSpace
     }
     
-    public func display(isValid: Bool?) {
+    public func display(isValid: Bool) {
         self.isValidState = isValid
         updateAppearance(isValid: isValid)
     }
     
-    public func display(isEnabledForEditing: Bool?) {
+    public func display(isEnabledForEditing: Bool) {
         self.isEnabledForEditing = isEnabledForEditing
     }
     
-    public func display(isTextSelectionDisabled: (() -> Void)?) {
+    public func display(isTextSelectionDisabled: Bool) {
         self.isTextSelectionDisabled = isTextSelectionDisabled
     }
     
@@ -487,7 +494,7 @@ extension Textfield: TextInputOutput {
         self.onPress = onPress
     }
     
-    public func display(onPaste: ((String) -> Void)?) {
+    public func display(onPaste: ((String?) -> Void)?) {
         self.onPaste = onPaste
     }
     
@@ -503,7 +510,7 @@ extension Textfield: TextInputOutput {
         self.onResignFirstResponder = onResignFirstResponder
     }
     
-    public func display(isUserInteractionEnabled: (() -> Void)?) {
+    public func display(isUserInteractionEnabled: Bool) {
         self.isUserInteractionEnabled = isUserInteractionEnabled
     }
     

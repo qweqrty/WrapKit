@@ -11,7 +11,7 @@ public class MaskedTextfieldDelegate: NSObject, UITextFieldDelegate {
             self.maskedTextColor = maskedTextColor
         }
     }
-    private var format: Format {
+    public var format: Format {
         didSet {
             setupMask(mask: format.mask.applied(to: fullText))
         }

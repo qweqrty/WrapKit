@@ -9,6 +9,15 @@
 import UIKit
 
 open class Textview: UITextView, UITextViewDelegate {
+    public var onPress: (() -> Void)?
+    public var onPaste: ((String?) -> Void)?
+    public var nextTextfield: UIResponder? = nil { didSet { returnKeyType = nextTextfield == nil ? .done : .next } }
+    public var onBecomeFirstResponder: (() -> Void)?
+    public var onResignFirstResponder: (() -> Void)?
+    public var onTapBackspace: (() -> Void)?
+    
+    public var didChangeText = [((String?) -> Void)]()
+    
     private var padding: UIEdgeInsets
     private var isValidState = true
     
@@ -125,24 +134,23 @@ public extension Textview {
 }
 
 extension Textview: TextInputOutput {
-    public func display(isValid: Bool?) {
+    public func display(isValid: Bool) {
         self.isValidState = isValid
         updateAppearance(isValid: isValid)
     }
-    
-    public func display(mask: String?) { }
+    public func display(mask: Masking, maskColor: UIColor) {}
+    public func display(isEnabledForEditing: Bool) { }
+    public func display(isTextSelectionDisabled: Bool) { }
+    public func display(onPaste: ((String?) -> Void)?) { }
+    public func display(isUserInteractionEnabled: Bool) { }
     public func display(text: String?) { }
     public func display(leadingViewOnPress: (() -> Void)?) { }
     public func display(trailingViewOnPress: (() -> Void)?) { }
     public func display(onTapBackSpace: (() -> Void)?) { }
-    public func display(isEnabledForEditing: Bool?) { }
-    public func display(isTextSelectionDisabled: (() -> Void)?) { }
     public func display(onPress: (() -> Void)?) { }
-    public func display(onPaste: ((String) -> Void)?) { }
     public func display(placeholder: String?) { }
     public func display(onBecomeFirstResponder: (() -> Void)?) { }
     public func display(onResignFirstResponder: (() -> Void)?) { }
-    public func display(isUserInteractionEnabled: (() -> Void)?) { }
     public func display(isSecureTextEntry: Bool) { }
 }
 #endif
