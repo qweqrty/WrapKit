@@ -125,6 +125,7 @@ extension CardView: CardViewOutput {
             bottomSeparatorViewConstraints?.height?.constant = bottomSeparator.height
         }
         //switchControl
+        switchWrapperView.isHidden = model.switchControl == nil
         if let switchControl = model.switchControl {
             self.switchControl.isOn = switchControl.isOn
         }
