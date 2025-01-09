@@ -34,7 +34,6 @@ open class Label: UILabel {
         self.translatesAutoresizingMaskIntoConstraints = translatesAutoresizingMaskIntoConstraints
         self.textColor = textColor
         self.numberOfLines = numberOfLines
-        addGestureRecognizer(tapGestureRecognizer)
     }
     
     override init(frame: CGRect) {
@@ -48,15 +47,8 @@ open class Label: UILabel {
         self.minimumScaleFactor = 0
         self.adjustsFontSizeToFitWidth = false
         self.isUserInteractionEnabled = true
-        addGestureRecognizer(tapGestureRecognizer)
     }
-    
-    private lazy var tapGestureRecognizer: UITapGestureRecognizer = {
-        let gesture = UITapGestureRecognizer(target: self, action: #selector(handleTap(gesture:)))
-        gesture.name = String(describing: TextAttributes.self)
-        return gesture
-    }()
-    
+
     public override var intrinsicContentSize: CGSize {
         if text == nil || text!.isEmpty {
             return CGSize(width: super.intrinsicContentSize.width, height: 0)
@@ -106,32 +98,31 @@ open class Label: UILabel {
         super.init(coder: aDecoder)
     }
     
-    public override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
-        // Convert touch point to attributed text coordinates
-        guard let attributedText = attributedText, let labelText = text else { return super.hitTest(point, with: event) }
-        let textRange = NSRange(location: 0, length: labelText.utf16.count)
+    open override func point(inside point: CGPoint, with event: UIEvent?) -> Bool {
+        let isInsideLabel = super.point(inside: point, with: event)
         
-        // Check if the touch is on any attribute with `onTap`
+        guard isInsideLabel else { return false }
+        
         for attribute in attributes {
             guard let range = attribute.range else { continue }
-            
-            if tapGestureRecognizer.didTapAttributedTextInLabel(label: self, inRange: range), attribute.onTap != nil {
-                return self  // Forward touch to self to handle `onTap`
-            }
+            if UITapGestureRecognizer().didTapAttributedTextInLabel(label: self, textAlignment: attribute.textAlignment ?? textAlignment, inRange: range), let onTap = attribute.onTap {
+                onTap()
+                return false
+             }
         }
-        
-        // If no tappable attribute, pass the touch to the next responder
-        return nil
+        return isInsideLabel
     }
     
-    @objc
-    private func handleTap(gesture: UITapGestureRecognizer) {
-        for attribute in attributes {
-            guard let range = attribute.range else { continue }
-            if gesture.didTapAttributedTextInLabel(label: self, inRange: range) {
-                attribute.onTap?()
-                return
-            }
+    private func aligmentOffset() -> CGFloat {
+        switch textAlignment {
+        case .left, .natural, .justified:
+            return 0.0
+        case .center:
+            return 0.5
+        case .right:
+            return 1.0
+        @unknown default:
+            return 0.0
         }
     }
 }
