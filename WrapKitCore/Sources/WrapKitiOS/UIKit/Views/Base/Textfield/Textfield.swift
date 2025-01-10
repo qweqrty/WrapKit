@@ -88,8 +88,6 @@ public struct TextfieldAppearance {
 public protocol TextInputOutput: AnyObject {
     func display(mask: Masking, maskColor: UIColor)
     func display(text: String?)
-    func display(leadingViewOnPress: (() -> Void)?)
-    func display(trailingViewOnPress: (() -> Void)?)
     func display(isValid: Bool)
     func display(isEnabledForEditing: Bool)
     func display(isTextSelectionDisabled: Bool)
@@ -97,6 +95,8 @@ public protocol TextInputOutput: AnyObject {
     func display(isUserInteractionEnabled: Bool)
     func display(isSecureTextEntry: Bool)
     
+    var leadingViewOnPress: (() -> Void)? { get set }
+    var trailingViewOnPress: (() -> Void)? { get set }
     var onPress: (() -> Void)? { get set }
     var onPaste: ((String?) -> Void)? { get set }
     var onBecomeFirstResponder: (() -> Void)? { get set }
@@ -155,6 +155,17 @@ open class Textfield: UITextField {
             }
         }
         super.buildMenu(with: builder)
+    }
+    
+    public var leadingViewOnPress: (() -> Void)? {
+        didSet {
+            leadingView?.onPress = leadingViewOnPress
+        }
+    }
+    public var trailingViewOnPress: (() -> Void)? {
+        didSet {
+            trailingView?.onPress = trailingViewOnPress
+        }
     }
     
     public var onPress: (() -> Void)?
@@ -460,18 +471,6 @@ extension Textfield: TextInputOutput {
         self.text = text
     }
     
-    public func display(leadingViewOnPress: (() -> Void)?) {
-        self.leadingView?.onPress = leadingViewOnPress
-    }
-    
-    public func display(trailingViewOnPress: (() -> Void)?) {
-        self.trailingView?.onPress = trailingViewOnPress
-    }
-    
-    public func display(onTapBackSpace: (() -> Void)?) {
-        self.onTapBackspace = onTapBackSpace
-    }
-    
     public func display(isValid: Bool) {
         self.isValidState = isValid
         updateAppearance(isValid: isValid)
@@ -485,24 +484,9 @@ extension Textfield: TextInputOutput {
         self.isTextSelectionDisabled = isTextSelectionDisabled
     }
     
-    public func display(onPress: (() -> Void)?) {
-        self.onPress = onPress
-    }
-    
-    public func display(onPaste: ((String?) -> Void)?) {
-        self.onPaste = onPaste
-    }
     
     public func display(placeholder: String?) {
         self.placeholder = placeholder
-    }
-    
-    public func display(onBecomeFirstResponder: (() -> Void)?) {
-        self.onBecomeFirstResponder = onBecomeFirstResponder
-    }
-    
-    public func display(onResignFirstResponder: (() -> Void)?) {
-        self.onResignFirstResponder = onResignFirstResponder
     }
     
     public func display(isUserInteractionEnabled: Bool) {
