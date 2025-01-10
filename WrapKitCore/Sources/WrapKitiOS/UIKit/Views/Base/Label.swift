@@ -5,6 +5,13 @@
 //  Created by Stas Lee on 5/8/23.
 //
 
+import Foundation
+
+public protocol TextOutput: AnyObject {
+    func display(text: String?)
+    func display(attributes: [TextAttributes])
+}
+
 #if canImport(UIKit)
 import UIKit
 
@@ -148,6 +155,16 @@ public extension Label {
     func removeAttributes() {
         self.attributes.removeAll()
         self.attributedText = nil
+    }
+}
+
+extension Label: TextOutput {
+    public func display(text: String?) {
+        self.text = text
+    }
+    
+    public func display(attributes: [TextAttributes]) {
+        self.attributes = attributes
     }
 }
 #endif
