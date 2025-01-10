@@ -15,7 +15,7 @@ public final class WeakRefVirtualProxy<T: AnyObject> {
     }
 }
 
-extension WeakRefVirtualProxy: CommonLoadingOutput where T: CommonLoadingOutput {
+extension WeakRefVirtualProxy: LoadingOutput where T: LoadingOutput {
     public var isLoading: Bool { object?.isLoading == true }
     
     public func display(isLoading: Bool) {
