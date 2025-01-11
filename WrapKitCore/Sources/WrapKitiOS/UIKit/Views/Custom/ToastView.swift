@@ -17,7 +17,7 @@ open class ToastView: UIView {
     private let spacing: CGFloat = 8
     public let duration: TimeInterval?
     private let position: CommonToast.Position
-    private lazy var panGesture = UIPanGestureRecognizer(target: self, action: #selector(handlePanGesture))
+    private lazy var horizontalPanGesture = UIPanGestureRecognizer(target: self, action: #selector(handleHorizontalSwipeGesture))
     private var hideTimer: Timer?
     private var remainingTime: TimeInterval? = nil
     public var shadowColor: UIColor?
@@ -25,6 +25,7 @@ open class ToastView: UIView {
 
     public var leadingConstraint: NSLayoutConstraint?
     public var bottomConstraint: NSLayoutConstraint?
+    private var centerXConstraint: NSLayoutConstraint?
 
     private var isSwipingHorizontal = false // Для отслеживания направления жеста
 
@@ -117,16 +118,14 @@ open class ToastView: UIView {
     }
 
     private func setSwipe() {
-        panGesture.delegate = self
-        panGesture.cancelsTouchesInView = true
-        addGestureRecognizer(panGesture)
+        horizontalPanGesture.delegate = self
+        horizontalPanGesture.cancelsTouchesInView = true
+        addGestureRecognizer(horizontalPanGesture)
     }
 
-    @objc private func handlePanGesture(gesture: UIPanGestureRecognizer) {
-        let panOffsetX = gesture.translation(in: self).x
-        let panOffsetY = gesture.translation(in: self).y
-        let velocityX = gesture.velocity(in: self).x
-        let velocityY = gesture.velocity(in: self).y
+    @objc private func handleHorizontalSwipeGesture(gesture: UIPanGestureRecognizer) {
+        let panOffset = gesture.translation(in: self).x
+        let velocity = gesture.velocity(in: self).x
         let velocityThreshold: CGFloat = 500
 
         switch gesture.state {
@@ -134,61 +133,23 @@ open class ToastView: UIView {
             pauseHideTimer()
             isSwipingHorizontal = false
         case .changed:
-            if !isSwipingHorizontal {
-                isSwipingHorizontal = abs(panOffsetX) > abs(panOffsetY)
-            }
-            if isSwipingHorizontal {
-                leadingConstraint?.constant = panOffsetX
-                layoutIfNeeded()
-            } else {
-                bottomConstraint?.constant = position == .top
-                    ? min(showConstant + panOffsetY, showConstant)
-                    : max(showConstant + panOffsetY, showConstant)
-                layoutIfNeeded()
-
-                if case .bottom(_) = position, panOffsetY > 0 {
-                    let maxDistance = frame.height
-                    let distanceMoved = abs(panOffsetY)
-                    let newAlpha = max(1.0 - (distanceMoved / maxDistance), 0.0)
-                    self.alpha = newAlpha
-                } else if position == .top, panOffsetY < 0 {
-                    let maxDistance = frame.height
-                    let distanceMoved = abs(panOffsetY)
-                    let newAlpha = max(1.0 - (distanceMoved / maxDistance), 0.0)
-                    self.alpha = newAlpha
-                }
-            }
+            centerXConstraint?.constant = panOffset
+            layoutIfNeeded()
         case .ended, .cancelled, .failed:
-            if isSwipingHorizontal {
-                let shouldDismiss = abs(velocityX) > velocityThreshold || abs(panOffsetX) > (frame.width / 3)
-                UIView.animate(withDuration: 0.2, delay: .zero, options: [.curveEaseInOut, .allowUserInteraction]) {
-                    if shouldDismiss {
-                        self.alpha = 0
-                        self.leadingConstraint?.constant = panOffsetX > 0 ? self.frame.width : -self.frame.width
-                    } else {
-                        self.alpha = 1.0
-                        self.leadingConstraint?.constant = 0
-                    }
-                    self.layoutIfNeeded()
-                } completion: { finished in
-                    if shouldDismiss {
-                        self.hide(after: 0)
-                    }
+            let shouldDismiss = abs(velocity) > velocityThreshold || abs(panOffset) > (frame.width / 3)
+            
+            UIView.animate(withDuration: 0.2, delay: .zero, options: [.curveEaseInOut, .allowUserInteraction]) {
+                if shouldDismiss {
+                    self.alpha = 0
+                    self.centerXConstraint?.constant = panOffset > 0 ? self.frame.width : -self.frame.width
+                } else {
+                    self.alpha = 1.0
+                    self.centerXConstraint?.constant = 0
                 }
-            } else {
-                resumeHideTimer()
-                let shouldDismiss = velocityY > velocityThreshold || position == .top ? bottomConstraint?.constant ?? 0 < (showConstant / 1.5) : bottomConstraint?.constant ?? 0 > (showConstant / 1.5)
-                UIView.animate(withDuration: 0.2, delay: .zero, options: [.curveEaseInOut, .allowUserInteraction]) {
-                    if shouldDismiss {
-                        self.bottomConstraint?.constant = 0
-                        self.alpha = 0
-                        self.hide(after: 0)
-                    } else {
-                        self.bottomConstraint?.constant = self.showConstant
-                        self.alpha = 1.0
-                    }
-                    self.layoutIfNeeded()
-                    self.superview?.layoutIfNeeded()
+                self.layoutIfNeeded()
+            } completion: { finished in
+                if shouldDismiss {
+                    self.hide(after: 0)
                 }
             }
         default:
@@ -208,8 +169,8 @@ open class ToastView: UIView {
             bottomConstraint = topAnchor.constraint(equalTo: window.bottomAnchor, constant: 0)
             bottomConstraint?.isActive = true
         }
-        leadingConstraint = centerXAnchor.constraint(equalTo: window.centerXAnchor)
-        leadingConstraint?.isActive = true
+        centerXConstraint = centerXAnchor.constraint(equalTo: window.centerXAnchor)
+        centerXConstraint?.isActive = true
         widthAnchor.constraint(equalTo: window.widthAnchor, constant: -spacing * 2).isActive = true
 
         layoutIfNeeded()
@@ -270,8 +231,7 @@ open class ToastView: UIView {
                 options: [.curveEaseInOut, .allowUserInteraction],
                 animations: {
                     self?.alpha = 0
-                    self?.bottomConstraint?.constant = 0
-                    self?.leadingConstraint?.constant = 0
+                    self?.centerXConstraint?.constant = 0
                     self?.layoutIfNeeded()
                     self?.superview?.layoutIfNeeded()
                 },
@@ -287,7 +247,7 @@ open class ToastView: UIView {
 
 extension ToastView: UIGestureRecognizerDelegate {
     public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
-        return true
+        return gestureRecognizer == horizontalPanGesture
     }
 }
 
