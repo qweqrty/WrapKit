@@ -5,6 +5,12 @@
 //  Created by Stas Lee on 5/8/23.
 //
 
+public protocol ImageViewOutput: AnyObject {
+    var onPress: (() -> Void)? { get set }
+    var onLongPress: (() -> Void)? { get set }
+    func display(image: ImageEnum)
+}
+
 #if canImport(UIKit)
 import UIKit
 
@@ -164,6 +170,12 @@ open class ImageView: UIImageView {
         UIView.animate(withDuration: 0.3, delay: 0, options: [.allowUserInteraction]) {
             self.alpha = 1.0
         }
+    }
+}
+
+extension ImageView: ImageViewOutput {
+    public func display(image: ImageEnum) {
+        self.setImage(image)
     }
 }
 #endif
