@@ -31,7 +31,7 @@ public class SelectionServiceVC: SelectionVC {
     }
 }
 
-extension SelectionServiceVC: CommonLoadingOutput {
+extension SelectionServiceVC: LoadingOutput {
     public func display(isLoading: Bool) {
         self.isLoading = isLoading
         isLoading ? contentView.refreshControl.beginRefreshing() : contentView.refreshControl.endRefreshing()

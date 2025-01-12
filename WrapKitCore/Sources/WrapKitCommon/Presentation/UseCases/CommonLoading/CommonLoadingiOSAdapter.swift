@@ -8,14 +8,14 @@
 #if canImport(UIKit)
 import UIKit
 
-public extension CommonLoadingOutput where Self == CommonLoadingiOSAdapter {
+public extension LoadingOutput where Self == CommonLoadingiOSAdapter {
     static func NVActivityLoader(
         onView: UIView,
         type: NVActivityIndicatorType = .circleStrokeSpin,
         size: CGSize = .init(width: 80, height: 80),
         loadingViewColor: UIColor,
         wrapperViewColor: UIColor
-    ) -> CommonLoadingOutput {
+    ) -> LoadingOutput {
         let loadingView = WrapperView(
             contentView: NVActivityIndicatorView(
                 frame: .zero,
@@ -37,7 +37,7 @@ public extension CommonLoadingOutput where Self == CommonLoadingiOSAdapter {
     }
 }
 
-public class CommonLoadingiOSAdapter: CommonLoadingOutput {
+public class CommonLoadingiOSAdapter: LoadingOutput {
     public func display(isLoading: Bool) {
         self.isLoading = isLoading
         isLoading ? onView?.showLoadingView(
