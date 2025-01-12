@@ -5,6 +5,13 @@
 //  Created by Stas Lee on 5/8/23.
 //
 
+public protocol TitledOutput<ContentView>: AnyObject {
+    associatedtype ContentView
+    func display(contentView: ContentView)
+    func display(keyTitle: [TextAttributes])
+    func display(valueTitle: [TextAttributes])
+}
+
 #if canImport(UIKit)
 import UIKit
 import SwiftUI
@@ -124,6 +131,20 @@ open class TitledView<ContentView: UIView>: View {
     
     public required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+}
+
+extension TitledView: TitledOutput {
+    public func display(keyTitle: [TextAttributes]) {
+        titlesView.keyLabel.display(attributes: keyTitle)
+    }
+    
+    public func display(valueTitle: [TextAttributes]) {
+        titlesView.valueLabel.display(attributes: valueTitle)
+    }
+    
+    public func display(contentView: ContentView) {
+        self.contentView = contentView
     }
 }
 
