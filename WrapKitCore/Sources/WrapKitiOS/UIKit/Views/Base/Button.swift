@@ -13,6 +13,8 @@ public enum PressAnimation: HashableWithReflection {
 }
 
 open class Button: UIButton {
+    var currentAnimator: UIViewPropertyAnimator?
+    
     public var onPress: (() -> Void)? {
         didSet {
             removeTarget(self, action: #selector(onTap), for: .touchUpInside)
