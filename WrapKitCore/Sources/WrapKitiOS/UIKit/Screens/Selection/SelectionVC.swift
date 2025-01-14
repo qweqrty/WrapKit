@@ -34,7 +34,7 @@ open class SelectionVC: BottomSheetController<SelectionContentView> {
         contentView.navigationBar.primeTrailingImageWrapperView.onPress = presenter.onTapClose
         contentView.resetButton.onPress = presenter.onTapReset
         contentView.selectButton.onPress = presenter.onTapFinishSelection
-        contentView.searchBar.textfield.didChangeText.append(presenter.onSearch)
+        contentView.searchBar.textfield.didChangeText?.append(presenter.onSearch)
         contentView.stackView.isHidden = !presenter.isMultipleSelectionEnabled
     }
     

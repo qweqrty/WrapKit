@@ -86,7 +86,7 @@ public struct TextfieldAppearance {
 }
 
 public protocol TextInputOutput: AnyObject {
-    func display(mask: Masking, maskColor: UIColor)
+    func display(mask: Masking, maskColor: Color)
     func display(text: String?)
     func display(isValid: Bool)
     func display(isEnabledForEditing: Bool)
@@ -102,7 +102,7 @@ public protocol TextInputOutput: AnyObject {
     var onBecomeFirstResponder: (() -> Void)? { get set }
     var onResignFirstResponder: (() -> Void)? { get set }
     var onTapBackspace: (() -> Void)? { get set }
-    var didChangeText: [((String?) -> Void)] { get set }
+    var didChangeText: [((String?) -> Void)]? { get set }
 }
 
 #if canImport(UIKit)
@@ -175,7 +175,7 @@ open class Textfield: UITextField {
     public var onResignFirstResponder: (() -> Void)?
     public var onTapBackspace: (() -> Void)?
     
-    public var didChangeText = [((String?) -> Void)]()
+    public var didChangeText: [((String?) -> Void)]?
     
     open override var placeholder: String? {
         didSet {
@@ -241,7 +241,7 @@ open class Textfield: UITextField {
                 self?.sendActions(for: .editingChanged)
                 trailingView.isHidden = true
             }
-            self.didChangeText.append { [weak self] text in
+            self.didChangeText?.append { [weak self] text in
                 let text = self?.maskedTextfieldDelegate?.onlySpecifiersIfMaskedText ?? text ?? ""
                 self?.trailingView?.isHidden = text.isEmpty
             }
@@ -289,7 +289,7 @@ open class Textfield: UITextField {
     }
     
     @objc private func textFieldDidChange() {
-        didChangeText.forEach {
+        didChangeText?.forEach {
             if let delegate = self.delegate as? MaskedTextfieldDelegate {
                 $0(delegate.fullText)
             } else {
@@ -463,7 +463,7 @@ public extension Textfield {
 }
 
 extension Textfield: TextInputOutput {
-    public func display(mask: Masking, maskColor: UIColor) {
+    public func display(mask: Masking, maskColor: Color) {
         maskedTextfieldDelegate = .init(format: .init(mask: mask, maskedTextColor: maskColor))
     }
     

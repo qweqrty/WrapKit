@@ -9,6 +9,8 @@
 import UIKit
 
 open class Textview: UITextView, UITextViewDelegate {
+    public var leadingViewOnPress: (() -> Void)?
+    public var trailingViewOnPress: (() -> Void)?
     public var onPress: (() -> Void)?
     public var onPaste: ((String?) -> Void)?
     public var nextTextfield: UIResponder? = nil { didSet { returnKeyType = nextTextfield == nil ? .done : .next } }
@@ -16,7 +18,7 @@ open class Textview: UITextView, UITextViewDelegate {
     public var onResignFirstResponder: (() -> Void)?
     public var onTapBackspace: (() -> Void)?
     
-    public var didChangeText = [((String?) -> Void)]()
+    public var didChangeText: [((String?) -> Void)]?
     
     private var padding: UIEdgeInsets
     private var isValidState = true

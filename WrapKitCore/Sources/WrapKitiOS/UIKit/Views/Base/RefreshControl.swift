@@ -9,9 +9,9 @@
 import UIKit
 
 open class RefreshControl: UIRefreshControl {
-    public var isLoading: Bool = false {
+    public var isLoading: Bool? = false {
         didSet {
-            isLoading ? beginRefreshing() : endRefreshing()
+            isLoading ?? false ? beginRefreshing() : endRefreshing()
         }
     }
     
