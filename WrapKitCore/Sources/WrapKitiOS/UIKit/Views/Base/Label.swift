@@ -8,8 +8,12 @@
 import Foundation
 
 public protocol TextOutput: AnyObject {
-    func display(text: String?)
-    func display(attributes: [TextAttributes])
+    func display(model: TextOutputPresentableModel?)
+}
+
+public struct TextOutputPresentableModel {
+    let text: String?
+    let attributes: [TextAttributes]
 }
 
 #if canImport(UIKit)
@@ -150,12 +154,11 @@ public extension Label {
 }
 
 extension Label: TextOutput {
-    public func display(text: String?) {
-        self.text = text
-    }
-    
-    public func display(attributes: [TextAttributes]) {
-        self.attributes = attributes
+    public func display(model: TextOutputPresentableModel?) {
+        isHidden = model == nil
+        guard let model = model else { return }
+        text = model.text
+        attributes = model.attributes
     }
 }
 #endif

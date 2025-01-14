@@ -32,7 +32,8 @@ public class SelectionServiceVC: SelectionVC {
 }
 
 extension SelectionServiceVC: LoadingOutput {
-    public func display(isLoading: Bool) {
+    public func display(model: LoadingOutputPresentableModel?) {
+        guard let isLoading = model?.isLoading else { return }
         self.isLoading = isLoading
         isLoading ? contentView.refreshControl.beginRefreshing() : contentView.refreshControl.endRefreshing()
     }

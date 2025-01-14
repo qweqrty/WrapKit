@@ -7,14 +7,9 @@ import Foundation
 
 extension MainQueueDispatchDecorator: ChunkedTextFieldOutput where T: ChunkedTextFieldOutput {
 
-    public func display(text: String?) {
+    public func display(model: ChunkedTextFieldPresentableModel?) {
         dispatch { [weak self] in
-            self?.decoratee.display(text: text)
-        }
-    }
-    public func display(isValid: Bool) {
-        dispatch { [weak self] in
-            self?.decoratee.display(isValid: isValid)
+            self?.decoratee.display(model: model)
         }
     }
 
@@ -34,11 +29,8 @@ extension ChunkedTextFieldOutput {
 
 extension WeakRefVirtualProxy: ChunkedTextFieldOutput where T: ChunkedTextFieldOutput {
 
-    public func display(text: String?) {
-        object?.display(text: text)
-    }
-    public func display(isValid: Bool) {
-        object?.display(isValid: isValid)
+    public func display(model: ChunkedTextFieldPresentableModel?) {
+        object?.display(model: model)
     }
 
 }

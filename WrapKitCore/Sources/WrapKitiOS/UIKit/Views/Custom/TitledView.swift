@@ -7,9 +7,13 @@
 
 public protocol TitledOutput<ContentView>: AnyObject {
     associatedtype ContentView
-    func display(contentView: ContentView)
-    func display(keyTitle: [TextAttributes])
-    func display(valueTitle: [TextAttributes])
+    func display(model: TitledViewPresentableModel<ContentView>?)
+}
+
+public struct TitledViewPresentableModel<ContentView> {
+    let contentView: ContentView
+    let keyTitle: [TextAttributes]
+    let valueTitle: [TextAttributes]
 }
 
 #if canImport(UIKit)
@@ -135,16 +139,12 @@ open class TitledView<ContentView: UIView>: View {
 }
 
 extension TitledView: TitledOutput {
-    public func display(keyTitle: [TextAttributes]) {
-        titlesView.keyLabel.display(attributes: keyTitle)
-    }
-    
-    public func display(valueTitle: [TextAttributes]) {
-        titlesView.valueLabel.display(attributes: valueTitle)
-    }
-    
-    public func display(contentView: ContentView) {
-        self.contentView = contentView
+    public func display(model: TitledViewPresentableModel<ContentView>?) {
+        isHidden = model == nil
+        guard let model = model else { return }
+        self.contentView = model.contentView
+        titlesView.keyLabel.display(model: .init(text: nil, attributes: model.keyTitle))
+        titlesView.valueLabel.display(model: .init(text: nil, attributes: model.valueTitle))
     }
 }
 

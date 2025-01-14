@@ -5,6 +5,16 @@
 //  Created by Stas Lee on 5/8/23.
 //
 
+public protocol ProgressBarOutput: AnyObject {
+    func display(model: ProgressBarPresentableModel?)
+}
+
+public struct ProgressBarPresentableModel {
+    let color: Color
+    let width: Float
+    let progress: Float
+}
+
 #if canImport(UIKit)
 import UIKit
 import SwiftUI
@@ -56,6 +66,16 @@ extension ProgressBarView {
             .bottom(bottomAnchor),
             .width(0)
         )
+    }
+}
+
+extension ProgressBarView: ProgressBarOutput {
+    public func display(model: ProgressBarPresentableModel?) {
+        isHidden = model == nil
+        guard let model = model else { return }
+        progressView.backgroundColor = model.color
+        applyProgress(width: CGFloat(model.width))
+        applyProgress(percentage: CGFloat(model.progress))
     }
 }
 

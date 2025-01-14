@@ -7,36 +7,12 @@ import Foundation
 
 extension MainQueueDispatchDecorator: ImageViewOutput where T: ImageViewOutput {
 
-    public func display(image: ImageEnum) {
+    public func display(model: ImageViewPresentableModel?) {
         dispatch { [weak self] in
-            self?.decoratee.display(image: image)
+            self?.decoratee.display(model: model)
         }
     }
 
-    public var onPress: (() -> Void)? {
-        get {
-            return DispatchQueue.main.sync {
-                return self.decoratee.onPress
-            }
-        }
-        set {
-            dispatch { [weak self] in
-                self?.decoratee.onPress = newValue
-            }
-        }
-    }
-    public var onLongPress: (() -> Void)? {
-        get {
-            return DispatchQueue.main.sync {
-                return self.decoratee.onLongPress
-            }
-        }
-        set {
-            dispatch { [weak self] in
-                self?.decoratee.onLongPress = newValue
-            }
-        }
-    }
 }
 
 extension ImageViewOutput {
@@ -53,16 +29,8 @@ extension ImageViewOutput {
 
 extension WeakRefVirtualProxy: ImageViewOutput where T: ImageViewOutput {
 
-    public func display(image: ImageEnum) {
-        object?.display(image: image)
+    public func display(model: ImageViewPresentableModel?) {
+        object?.display(model: model)
     }
 
-    public var onPress: (() -> Void)? {
-        get { return object?.onPress }
-        set { object?.onPress = newValue }
-    }
-    public var onLongPress: (() -> Void)? {
-        get { return object?.onLongPress }
-        set { object?.onLongPress = newValue }
-    }
 }

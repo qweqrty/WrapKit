@@ -7,34 +7,9 @@ import Foundation
 
 extension MainQueueDispatchDecorator: HeaderOutput where T: HeaderOutput {
 
-    public func display(keyTitle: [TextAttributes]) {
+    public func display(model: HeaderPresentableModel?) {
         dispatch { [weak self] in
-            self?.decoratee.display(keyTitle: keyTitle)
-        }
-    }
-    public func display(valueTitle: [TextAttributes]) {
-        dispatch { [weak self] in
-            self?.decoratee.display(valueTitle: valueTitle)
-        }
-    }
-    public func display(leadingImage: ImageEnum) {
-        dispatch { [weak self] in
-            self?.decoratee.display(leadingImage: leadingImage)
-        }
-    }
-    public func display(primeTrailingImage: ImageEnum) {
-        dispatch { [weak self] in
-            self?.decoratee.display(primeTrailingImage: primeTrailingImage)
-        }
-    }
-    public func display(secondaryTrailingImage: ImageEnum) {
-        dispatch { [weak self] in
-            self?.decoratee.display(secondaryTrailingImage: secondaryTrailingImage)
-        }
-    }
-    public func display(tertiaryTrailingImage: ImageEnum) {
-        dispatch { [weak self] in
-            self?.decoratee.display(tertiaryTrailingImage: tertiaryTrailingImage)
+            self?.decoratee.display(model: model)
         }
     }
 
@@ -54,23 +29,8 @@ extension HeaderOutput {
 
 extension WeakRefVirtualProxy: HeaderOutput where T: HeaderOutput {
 
-    public func display(keyTitle: [TextAttributes]) {
-        object?.display(keyTitle: keyTitle)
-    }
-    public func display(valueTitle: [TextAttributes]) {
-        object?.display(valueTitle: valueTitle)
-    }
-    public func display(leadingImage: ImageEnum) {
-        object?.display(leadingImage: leadingImage)
-    }
-    public func display(primeTrailingImage: ImageEnum) {
-        object?.display(primeTrailingImage: primeTrailingImage)
-    }
-    public func display(secondaryTrailingImage: ImageEnum) {
-        object?.display(secondaryTrailingImage: secondaryTrailingImage)
-    }
-    public func display(tertiaryTrailingImage: ImageEnum) {
-        object?.display(tertiaryTrailingImage: tertiaryTrailingImage)
+    public func display(model: HeaderPresentableModel?) {
+        object?.display(model: model)
     }
 
 }

@@ -8,19 +8,9 @@ import Foundation
 extension MainQueueDispatchDecorator: TitledOutput where T: TitledOutput {
     public typealias ContentView = T.ContentView
 
-    public func display(contentView: ContentView) {
+    public func display(model: TitledViewPresentableModel<ContentView>?) {
         dispatch { [weak self] in
-            self?.decoratee.display(contentView: contentView)
-        }
-    }
-    public func display(keyTitle: [TextAttributes]) {
-        dispatch { [weak self] in
-            self?.decoratee.display(keyTitle: keyTitle)
-        }
-    }
-    public func display(valueTitle: [TextAttributes]) {
-        dispatch { [weak self] in
-            self?.decoratee.display(valueTitle: valueTitle)
+            self?.decoratee.display(model: model)
         }
     }
 
@@ -41,14 +31,8 @@ extension TitledOutput {
 extension WeakRefVirtualProxy: TitledOutput where T: TitledOutput {
     public typealias ContentView = T.ContentView
 
-    public func display(contentView: ContentView) {
-        object?.display(contentView: contentView)
-    }
-    public func display(keyTitle: [TextAttributes]) {
-        object?.display(keyTitle: keyTitle)
-    }
-    public func display(valueTitle: [TextAttributes]) {
-        object?.display(valueTitle: valueTitle)
+    public func display(model: TitledViewPresentableModel<ContentView>?) {
+        object?.display(model: model)
     }
 
 }

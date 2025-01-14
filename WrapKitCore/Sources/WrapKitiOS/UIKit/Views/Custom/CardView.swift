@@ -8,7 +8,7 @@
 import Foundation
 
 public protocol CardViewOutput: AnyObject {
-    func display(model: CardViewPresentableModel)
+    func display(model: CardViewPresentableModel?)
 }
 
 public struct CardViewPresentableModel: HashableWithReflection {
@@ -77,8 +77,10 @@ import UIKit
 import SwiftUI
 
 extension CardView: CardViewOutput {
-    public func display(model: CardViewPresentableModel) {
+    public func display(model: CardViewPresentableModel?) {
         // Key title
+        isHidden = model == nil
+        guard let model = model else { return }
         titleViews.keyLabel.isHidden = model.title.isEmpty
         titleViews.keyLabel.removeAttributes()
         model.title.forEach { titleViews.keyLabel.append($0) }

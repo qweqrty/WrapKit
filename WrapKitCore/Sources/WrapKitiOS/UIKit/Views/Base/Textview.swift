@@ -136,23 +136,22 @@ public extension Textview {
 }
 
 extension Textview: TextInputOutput {
-    public func display(isValid: Bool) {
-        self.isValidState = isValid
-        updateAppearance(isValid: isValid)
+    public func display(model: TextInputPresentableModel?) {
+        isHidden = model == nil
+        guard let model = model else { return }
+        text = model.text
+        isValidState = model.isValid
+        updateAppearance(isValid: model.isValid)
+        isUserInteractionEnabled = model.isUserInteractionEnabled
+        isSecureTextEntry = model.isSecureTextEntry
+        leadingViewOnPress = model.leadingViewOnPress
+        trailingViewOnPress = model.trailingViewOnPress
+        onPress = model.onPress
+        onPaste = model.onPaste
+        onBecomeFirstResponder = model.onBecomeFirstResponder
+        onResignFirstResponder = model.onResignFirstResponder
+        onTapBackspace = model.onTapBackspace
+        didChangeText = model.didChangeText
     }
-    public func display(mask: Masking, maskColor: UIColor) {}
-    public func display(isEnabledForEditing: Bool) { }
-    public func display(isTextSelectionDisabled: Bool) { }
-    public func display(onPaste: ((String?) -> Void)?) { }
-    public func display(isUserInteractionEnabled: Bool) { }
-    public func display(text: String?) { }
-    public func display(leadingViewOnPress: (() -> Void)?) { }
-    public func display(trailingViewOnPress: (() -> Void)?) { }
-    public func display(onTapBackSpace: (() -> Void)?) { }
-    public func display(onPress: (() -> Void)?) { }
-    public func display(placeholder: String?) { }
-    public func display(onBecomeFirstResponder: (() -> Void)?) { }
-    public func display(onResignFirstResponder: (() -> Void)?) { }
-    public func display(isSecureTextEntry: Bool) { }
 }
 #endif

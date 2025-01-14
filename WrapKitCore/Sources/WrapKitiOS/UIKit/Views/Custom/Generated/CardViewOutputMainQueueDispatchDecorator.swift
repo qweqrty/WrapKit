@@ -7,7 +7,7 @@ import Foundation
 
 extension MainQueueDispatchDecorator: CardViewOutput where T: CardViewOutput {
 
-    public func display(model: CardViewPresentableModel) {
+    public func display(model: CardViewPresentableModel?) {
         dispatch { [weak self] in
             self?.decoratee.display(model: model)
         }
@@ -29,7 +29,7 @@ extension CardViewOutput {
 
 extension WeakRefVirtualProxy: CardViewOutput where T: CardViewOutput {
 
-    public func display(model: CardViewPresentableModel) {
+    public func display(model: CardViewPresentableModel?) {
         object?.display(model: model)
     }
 

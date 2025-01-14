@@ -1,24 +1,27 @@
 import Foundation
 
 public protocol ChunkedTextFieldOutput: AnyObject {
-    func display(text: String?)
-    func display(isValid: Bool)
+    func display(model: ChunkedTextFieldPresentableModel?)
+}
+
+public struct ChunkedTextFieldPresentableModel {
+    let text: String?
+    let isValid: Bool
 }
 
 #if canImport(UIKit)
 extension ChunkedTextField: ChunkedTextFieldOutput {
-    public func display(text: String?) {
-        let text = String((text ?? "").prefix(count))
+    public func display(model: ChunkedTextFieldPresentableModel?) {
+        isHidden = model == nil
+        guard let model = model else { return }
+        let text = String((model.text ?? "").prefix(count))
         text.enumerated().forEach {
             textfields.item(at: $0.offset)?.text = String($0.element)
         }
-    }
-    
-    public func display(isValid: Bool) {
-        textfields.forEach { $0.updateAppearance(isValid: isValid) }
+        
+        textfields.forEach { $0.updateAppearance(isValid: model.isValid) }
     }
 }
-
 
 public class ChunkedTextField: View {
     private static let maxCharactersPerTextfield = 1

@@ -6,8 +6,12 @@
 //
 
 public protocol ButtonOutput: AnyObject {
-    var onPress: (() -> Void)? { get set }
-    func display(spacing: Float)
+    func display(model: ButtonPresentableModel?)
+}
+
+public struct ButtonPresentableModel {
+    let spacing: Float
+    var onPress: (() -> Void)?
 }
 
 #if canImport(UIKit)
@@ -154,8 +158,11 @@ open class Button: UIButton {
 }
 
 extension Button: ButtonOutput {
-    public func display(spacing: Float) {
+    public func display(model: ButtonPresentableModel?) {
+        isHidden = model == nil
+        guard let spacing = model?.spacing else { return }
         self.spacing = CGFloat(spacing)
+        onPress = model?.onPress
     }
 }
 #endif

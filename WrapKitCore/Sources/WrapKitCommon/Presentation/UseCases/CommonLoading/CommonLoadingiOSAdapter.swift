@@ -38,8 +38,9 @@ public extension LoadingOutput where Self == CommonLoadingiOSAdapter {
 }
 
 public class CommonLoadingiOSAdapter: LoadingOutput {
-    public func display(isLoading: Bool) {
-        self.isLoading = isLoading
+    public func display(model: LoadingOutputPresentableModel?) {
+        guard let isLoading = model?.isLoading else { return }
+        self.isLoading = model?.isLoading
         isLoading ? onView?.showLoadingView(
             loadingView,
             backgroundColor: backgroundColor,
