@@ -5,6 +5,11 @@
 //  Created by Stas Lee on 5/8/23.
 //
 
+public protocol ButtonOutput: AnyObject {
+    var onPress: (() -> Void)? { get set }
+    func display(spacing: Float)
+}
+
 #if canImport(UIKit)
 import UIKit
 
@@ -13,6 +18,8 @@ public enum PressAnimation: HashableWithReflection {
 }
 
 open class Button: UIButton {
+    var currentAnimator: UIViewPropertyAnimator?
+    
     public var onPress: (() -> Void)? {
         didSet {
             removeTarget(self, action: #selector(onTap), for: .touchUpInside)
@@ -143,6 +150,12 @@ open class Button: UIButton {
             self?.setTitleColor(self?.textColor, for: .normal)
         }
         super.touchesEnded(touches, with: event)
+    }
+}
+
+extension Button: ButtonOutput {
+    public func display(spacing: Float) {
+        self.spacing = CGFloat(spacing)
     }
 }
 #endif

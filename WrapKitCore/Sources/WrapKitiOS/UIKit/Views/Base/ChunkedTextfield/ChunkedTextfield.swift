@@ -117,7 +117,7 @@ private extension ChunkedTextField {
             textfield.tintColor = .clear
             textfield.textContentType = .oneTimeCode
             
-            textfield.didChangeText.append { [weak self, weak textfield] text in
+            textfield.didChangeText?.append { [weak self, weak textfield] text in
                 let text = text?.filter { Self.characterSet.contains($0) }
                 if let nextTextfield = self?.textfields.item(at: offset + 1), (text?.count ?? 0) >= Self.maxCharactersPerTextfield {
                     nextTextfield.becomeFirstResponder()

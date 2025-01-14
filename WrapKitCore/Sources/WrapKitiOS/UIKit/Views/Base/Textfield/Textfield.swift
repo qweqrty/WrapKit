@@ -85,6 +85,26 @@ public struct TextfieldAppearance {
     public var placeholder: Placeholder?
 }
 
+public protocol TextInputOutput: AnyObject {
+    func display(mask: Masking, maskColor: Color)
+    func display(text: String?)
+    func display(isValid: Bool)
+    func display(isEnabledForEditing: Bool)
+    func display(isTextSelectionDisabled: Bool)
+    func display(placeholder: String?)
+    func display(isUserInteractionEnabled: Bool)
+    func display(isSecureTextEntry: Bool)
+    
+    var leadingViewOnPress: (() -> Void)? { get set }
+    var trailingViewOnPress: (() -> Void)? { get set }
+    var onPress: (() -> Void)? { get set }
+    var onPaste: ((String?) -> Void)? { get set }
+    var onBecomeFirstResponder: (() -> Void)? { get set }
+    var onResignFirstResponder: (() -> Void)? { get set }
+    var onTapBackspace: (() -> Void)? { get set }
+    var didChangeText: [((String?) -> Void)]? { get set }
+}
+
 #if canImport(UIKit)
 import UIKit
 
@@ -137,6 +157,17 @@ open class Textfield: UITextField {
         super.buildMenu(with: builder)
     }
     
+    public var leadingViewOnPress: (() -> Void)? {
+        didSet {
+            leadingView?.onPress = leadingViewOnPress
+        }
+    }
+    public var trailingViewOnPress: (() -> Void)? {
+        didSet {
+            trailingView?.onPress = trailingViewOnPress
+        }
+    }
+    
     public var onPress: (() -> Void)?
     public var onPaste: ((String?) -> Void)?
     public var nextTextfield: UIResponder? = nil { didSet { returnKeyType = nextTextfield == nil ? .done : .next } }
@@ -144,7 +175,7 @@ open class Textfield: UITextField {
     public var onResignFirstResponder: (() -> Void)?
     public var onTapBackspace: (() -> Void)?
     
-    public var didChangeText = [((String?) -> Void)]()
+    public var didChangeText: [((String?) -> Void)]?
     
     open override var placeholder: String? {
         didSet {
@@ -210,7 +241,7 @@ open class Textfield: UITextField {
                 self?.sendActions(for: .editingChanged)
                 trailingView.isHidden = true
             }
-            self.didChangeText.append { [weak self] text in
+            self.didChangeText?.append { [weak self] text in
                 let text = self?.maskedTextfieldDelegate?.onlySpecifiersIfMaskedText ?? text ?? ""
                 self?.trailingView?.isHidden = text.isEmpty
             }
@@ -258,7 +289,7 @@ open class Textfield: UITextField {
     }
     
     @objc private func textFieldDidChange() {
-        didChangeText.forEach {
+        didChangeText?.forEach {
             if let delegate = self.delegate as? MaskedTextfieldDelegate {
                 $0(delegate.fullText)
             } else {
@@ -428,6 +459,42 @@ public extension Textfield {
             }
             self.layer.borderWidth = (isFirstResponder ? appearance.border?.selectedBorderWidth : appearance.border?.idleBorderWidth) ?? 0
         }
+    }
+}
+
+extension Textfield: TextInputOutput {
+    public func display(mask: Masking, maskColor: Color) {
+        maskedTextfieldDelegate = .init(format: .init(mask: mask, maskedTextColor: maskColor))
+    }
+    
+    public func display(text: String?) {
+        self.text = text
+    }
+    
+    public func display(isValid: Bool) {
+        self.isValidState = isValid
+        updateAppearance(isValid: isValid)
+    }
+    
+    public func display(isEnabledForEditing: Bool) {
+        self.isEnabledForEditing = isEnabledForEditing
+    }
+    
+    public func display(isTextSelectionDisabled: Bool) {
+        self.isTextSelectionDisabled = isTextSelectionDisabled
+    }
+    
+    
+    public func display(placeholder: String?) {
+        self.placeholder = placeholder
+    }
+    
+    public func display(isUserInteractionEnabled: Bool) {
+        self.isUserInteractionEnabled = isUserInteractionEnabled
+    }
+    
+    public func display(isSecureTextEntry: Bool) {
+        self.isSecureTextEntry = isSecureTextEntry
     }
 }
 #endif

@@ -9,6 +9,12 @@
 import UIKit
 
 open class RefreshControl: UIRefreshControl {
+    public var isLoading: Bool? = false {
+        didSet {
+            isLoading ?? false ? beginRefreshing() : endRefreshing()
+        }
+    }
+    
     public var onRefresh: (() -> Void)?
     
     public init(tintColor: UIColor, zPosition: CGFloat = 0) {
@@ -25,6 +31,12 @@ open class RefreshControl: UIRefreshControl {
     
     public required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+}
+
+extension RefreshControl: LoadingOutput {
+    public func display(isLoading: Bool) {
+        self.isLoading = isLoading
     }
 }
 #endif

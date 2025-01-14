@@ -14,6 +14,5 @@ public extension UIButton {
             self.setImage(newImage, for: state)
         }, completion: nil)
     }
-    
 }
 #endif

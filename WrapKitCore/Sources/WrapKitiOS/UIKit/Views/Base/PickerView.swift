@@ -5,6 +5,13 @@
 //  Created by Stanislav Li on 15/5/24.
 //
 
+public protocol PickerViewOutput: AnyObject {
+    var componentsCount: (() -> Int?)? { get set }
+    var rowsCount: (() -> Int)? { get set }
+    var titleForRowAt: ((Int) -> String?)? { get set }
+    var didSelectAt: ((Int) -> Void)? { get set }
+}
+
 #if canImport(UIKit)
 import Foundation
 import UIKit
@@ -49,4 +56,6 @@ extension PickerView: UIPickerViewDataSource, UIPickerViewDelegate {
         didSelectAt?(row)
     }
 }
+
+extension PickerView: PickerViewOutput { }
 #endif

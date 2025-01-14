@@ -5,6 +5,15 @@
 //  Created by Stas Lee on 5/8/23.
 //
 
+public protocol HeaderOutput: AnyObject {
+    func display(keyTitle: [TextAttributes])
+    func display(valueTitle: [TextAttributes])
+    func display(leadingImage: ImageEnum)
+    func display(primeTrailingImage: ImageEnum)
+    func display(secondaryTrailingImage: ImageEnum)
+    func display(tertiaryTrailingImage: ImageEnum)
+}
+
 #if canImport(UIKit)
 import UIKit
 
@@ -128,6 +137,32 @@ private extension NavigationBar {
                 )
             }
         )
+    }
+}
+
+extension NavigationBar: HeaderOutput {
+    public func display(keyTitle: [TextAttributes]) {
+        titleViews.keyLabel.display(attributes: keyTitle)
+    }
+    
+    public func display(valueTitle: [TextAttributes]) {
+        titleViews.valueLabel.display(attributes: valueTitle)
+    }
+    
+    public func display(leadingImage: ImageEnum) {
+        leadingCardView.leadingImageView.setImage(leadingImage)
+    }
+    
+    public func display(primeTrailingImage: ImageEnum) {
+        primeTrailingImageWrapperView.contentView.setImage(primeTrailingImage)
+    }
+    
+    public func display(secondaryTrailingImage: ImageEnum) {
+        secondaryTrailingImageWrapperView.contentView.setImage(secondaryTrailingImage)
+    }
+    
+    public func display(tertiaryTrailingImage: ImageEnum) {
+        tertiaryTrailingImageWrapperView.contentView.setImage(tertiaryTrailingImage)
     }
 }
 #endif
