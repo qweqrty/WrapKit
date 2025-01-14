@@ -5,7 +5,8 @@
 
 import Foundation
 
-extension MainQueueDispatchDecorator: SelectionOutput where T == SelectionOutput {
+extension MainQueueDispatchDecorator: SelectionOutput where T: SelectionOutput {
+
     public func display(items: [SelectionType.SelectionCellPresentableModel], selectedCountTitle: String) {
         dispatch { [weak self] in
             self?.decoratee.display(items: items, selectedCountTitle: selectedCountTitle)
@@ -30,18 +31,19 @@ extension MainQueueDispatchDecorator: SelectionOutput where T == SelectionOutput
 }
 
 extension SelectionOutput {
-    public var mainQueueDispatched: SelectionOutput {
+    public var mainQueueDispatched: any SelectionOutput {
         MainQueueDispatchDecorator(decoratee: self)
     }
 }
 
 extension SelectionOutput {
-    public var weakReferenced: SelectionOutput {
+    public var weakReferenced: any SelectionOutput {
         return WeakRefVirtualProxy(self)
     }
 }
 
 extension WeakRefVirtualProxy: SelectionOutput where T: SelectionOutput {
+
     public func display(items: [SelectionType.SelectionCellPresentableModel], selectedCountTitle: String) {
         object?.display(items: items, selectedCountTitle: selectedCountTitle)
     }

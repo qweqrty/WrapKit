@@ -47,7 +47,7 @@ public class CommonLoadingiOSAdapter: LoadingOutput {
         ) : onView?.hideLoadingView()
     }
     
-    public private(set) var isLoading: Bool = false
+    public var isLoading: Bool? = false
     
     private weak var onView: UIView?
     private let loadingView: UIView

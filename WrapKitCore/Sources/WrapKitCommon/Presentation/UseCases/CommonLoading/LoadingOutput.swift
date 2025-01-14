@@ -8,17 +8,7 @@
 import Foundation
 
 public protocol LoadingOutput: AnyObject {
-    var isLoading: Bool { get }
+    var isLoading: Bool? { get set }
     
     func display(isLoading: Bool)
-}
-
-extension LoadingOutput {
-    public var weakReferenced: LoadingOutput {
-        return WeakRefVirtualProxy(self)
-    }
-    
-    public var mainQueueDispatched: LoadingOutput {
-        MainQueueDispatchDecorator(decoratee: self)
-    }
 }

@@ -5,7 +5,8 @@
 
 import Foundation
 
-extension MainQueueDispatchDecorator: TimerOutput where T == TimerOutput {
+extension MainQueueDispatchDecorator: TimerOutput where T: TimerOutput {
+
     public func display(secondsRemaining: Int?) {
         dispatch { [weak self] in
             self?.decoratee.display(secondsRemaining: secondsRemaining)
@@ -15,18 +16,19 @@ extension MainQueueDispatchDecorator: TimerOutput where T == TimerOutput {
 }
 
 extension TimerOutput {
-    public var mainQueueDispatched: TimerOutput {
+    public var mainQueueDispatched: any TimerOutput {
         MainQueueDispatchDecorator(decoratee: self)
     }
 }
 
 extension TimerOutput {
-    public var weakReferenced: TimerOutput {
+    public var weakReferenced: any TimerOutput {
         return WeakRefVirtualProxy(self)
     }
 }
 
 extension WeakRefVirtualProxy: TimerOutput where T: TimerOutput {
+
     public func display(secondsRemaining: Int?) {
         object?.display(secondsRemaining: secondsRemaining)
     }

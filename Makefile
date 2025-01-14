@@ -1,10 +1,12 @@
 SOURCERY_SCRIPT=./Scripts/Sourcery/MainQueueDispatchDecorator.sh
-OPEN_COMMAND = "open package.swift"
+GENERATED_DIR=./Generated
+OPEN_COMMAND="open Package.swift"
+
 
 # Default target
-project: run-sourcery open-command
+project: clean-sourcery run-sourcery open-command
 
-# Run Open command
+# Open the Package.swift file
 open-command:
 	@echo "Opening Package.swift..."
 	@if ! open package.swift; then \
@@ -13,11 +15,31 @@ open-command:
 	fi
 	@echo "Opening successfully"
 
-# Run Sourcery script
+# Clean all Sourcery-generated files
+clean-sourcery:
+	@echo "Cleaning Sourcery-generated files..."
+	@if [ -d $(GENERATED_DIR) ]; then \
+		find $(GENERATED_DIR) -type f -name '*Output*' -delete; \
+		echo "Cleaned all files matching '*Output*' in $(GENERATED_DIR)."; \
+	else \
+		echo "$(GENERATED_DIR) does not exist. Creating directory."; \
+		mkdir -p $(GENERATED_DIR); \
+	fi
+
+
+# Run Sourcery script to regenerate files
 run-sourcery:
-	@echo "Running Sourcery from root..."
+	@echo "Running Sourcery to regenerate files..."
 	@if ! $(SOURCERY_SCRIPT); then \
-		echo "Sourcery failed. Exiting..."; \
+		echo "Sourcery failed. Please check the script at $(SOURCERY_SCRIPT). Exiting..."; \
 		exit 1; \
 	fi
-	@echo "Sourcery completed successfully."
+	@echo "Sourcery completed successfully. All files regenerated."
+
+# Help target
+help:
+	@echo "Available targets:"
+	@echo "  project          - Clean, regenerate Sourcery files, and open Package.swift."
+	@echo "  open-command     - Open Package.swift."
+	@echo "  clean-sourcery   - Clean all Sourcery-generated files matching '*Output*'."
+	@echo "  run-sourcery     - Regenerate Sourcery files using the script."

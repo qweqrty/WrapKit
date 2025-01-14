@@ -22,32 +22,32 @@ public final class MainQueueDispatchDecorator<T> {
     }
 }
 
-//extension MainQueueDispatchDecorator: SelectionFlow where T == SelectionFlow {
-//    public func showSelection(model: SelectionPresenterModel) {
-//        dispatch { [weak self] in
-//            self?.decoratee.showSelection(model: model)
-//        }
-//    }
-//    
-//    public func showSelection<Request, Response>(model: ServicedSelectionModel<Request, Response>) {
-//        dispatch { [weak self] in
-//            self?.decoratee.showSelection(model: model)
-//        }
-//    }
-//    
-//    public func close(with result: SelectionType?) {
-//        dispatch { [weak self, result] in
-//            self?.decoratee.close(with: result)
-//        }
-//    }
-//}
-//
-//extension SelectionFlow {
-//    public var mainQueueDispatched: SelectionFlow {
-//        MainQueueDispatchDecorator(decoratee: self)
-//    }
-//}
-//
+extension MainQueueDispatchDecorator: SelectionFlow where T == SelectionFlow {
+    public func showSelection(model: SelectionPresenterModel) {
+        dispatch { [weak self] in
+            self?.decoratee.showSelection(model: model)
+        }
+    }
+    
+    public func showSelection<Request, Response>(model: ServicedSelectionModel<Request, Response>) {
+        dispatch { [weak self] in
+            self?.decoratee.showSelection(model: model)
+        }
+    }
+    
+    public func close(with result: SelectionType?) {
+        dispatch { [weak self, result] in
+            self?.decoratee.close(with: result)
+        }
+    }
+}
+
+extension SelectionFlow {
+    public var mainQueueDispatched: SelectionFlow {
+        MainQueueDispatchDecorator(decoratee: self)
+    }
+}
+
 //extension MainQueueDispatchDecorator: CardViewOutput where T == CardViewOutput {
 //    public func display(model: CardViewPresentableModel) {
 //        dispatch { [weak self] in

@@ -12,7 +12,7 @@ import UIKit
 public class SelectionServiceVC: SelectionVC {
     private let servicePresenter: SelectionServiceInput
     
-    public var isLoading = false
+    public var isLoading: Bool? = false
     
     public init(contentView: SelectionContentView, servicePresenter: SelectionServiceInput & SelectionInput) {
         self.servicePresenter = servicePresenter

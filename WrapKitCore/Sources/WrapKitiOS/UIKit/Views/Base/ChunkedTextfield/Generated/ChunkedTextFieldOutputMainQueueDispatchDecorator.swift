@@ -5,7 +5,8 @@
 
 import Foundation
 
-extension MainQueueDispatchDecorator: ChunkedTextFieldOutput where T == ChunkedTextFieldOutput {
+extension MainQueueDispatchDecorator: ChunkedTextFieldOutput where T: ChunkedTextFieldOutput {
+
     public func display(text: String?) {
         dispatch { [weak self] in
             self?.decoratee.display(text: text)
@@ -20,18 +21,19 @@ extension MainQueueDispatchDecorator: ChunkedTextFieldOutput where T == ChunkedT
 }
 
 extension ChunkedTextFieldOutput {
-    public var mainQueueDispatched: ChunkedTextFieldOutput {
+    public var mainQueueDispatched: any ChunkedTextFieldOutput {
         MainQueueDispatchDecorator(decoratee: self)
     }
 }
 
 extension ChunkedTextFieldOutput {
-    public var weakReferenced: ChunkedTextFieldOutput {
+    public var weakReferenced: any ChunkedTextFieldOutput {
         return WeakRefVirtualProxy(self)
     }
 }
 
 extension WeakRefVirtualProxy: ChunkedTextFieldOutput where T: ChunkedTextFieldOutput {
+
     public func display(text: String?) {
         object?.display(text: text)
     }

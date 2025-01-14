@@ -5,7 +5,8 @@
 
 import Foundation
 
-extension MainQueueDispatchDecorator: WebViewOutput where T == WebViewOutput {
+extension MainQueueDispatchDecorator: WebViewOutput where T: WebViewOutput {
+
     public func display(url: URL) {
         dispatch { [weak self] in
             self?.decoratee.display(url: url)
@@ -15,18 +16,19 @@ extension MainQueueDispatchDecorator: WebViewOutput where T == WebViewOutput {
 }
 
 extension WebViewOutput {
-    public var mainQueueDispatched: WebViewOutput {
+    public var mainQueueDispatched: any WebViewOutput {
         MainQueueDispatchDecorator(decoratee: self)
     }
 }
 
 extension WebViewOutput {
-    public var weakReferenced: WebViewOutput {
+    public var weakReferenced: any WebViewOutput {
         return WeakRefVirtualProxy(self)
     }
 }
 
 extension WeakRefVirtualProxy: WebViewOutput where T: WebViewOutput {
+
     public func display(url: URL) {
         object?.display(url: url)
     }

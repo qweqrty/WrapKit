@@ -5,30 +5,32 @@
 
 import Foundation
 
-extension MainQueueDispatchDecorator: CommonToastOutput where T == CommonToastOutput {
+extension MainQueueDispatchDecorator: CommonToastOutput where T: CommonToastOutput {
+
     public func display(_ toast: CommonToast) {
         dispatch { [weak self] in
-            self?.decoratee.display(: toast)
+            self?.decoratee.display(toast)
         }
     }
 
 }
 
 extension CommonToastOutput {
-    public var mainQueueDispatched: CommonToastOutput {
+    public var mainQueueDispatched: any CommonToastOutput {
         MainQueueDispatchDecorator(decoratee: self)
     }
 }
 
 extension CommonToastOutput {
-    public var weakReferenced: CommonToastOutput {
+    public var weakReferenced: any CommonToastOutput {
         return WeakRefVirtualProxy(self)
     }
 }
 
 extension WeakRefVirtualProxy: CommonToastOutput where T: CommonToastOutput {
+
     public func display(_ toast: CommonToast) {
-        object?.display(: toast)
+        object?.display(toast)
     }
 
 }
