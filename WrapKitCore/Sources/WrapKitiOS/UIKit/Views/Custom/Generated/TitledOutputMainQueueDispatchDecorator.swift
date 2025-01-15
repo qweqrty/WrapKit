@@ -13,6 +13,16 @@ extension MainQueueDispatchDecorator: TitledOutput where T: TitledOutput {
             self?.decoratee.display(model: model)
         }
     }
+    public func display(keyTitle: [TextAttributes]) {
+        dispatch { [weak self] in
+            self?.decoratee.display(keyTitle: keyTitle)
+        }
+    }
+    public func display(valueTitle: [TextAttributes]) {
+        dispatch { [weak self] in
+            self?.decoratee.display(valueTitle: valueTitle)
+        }
+    }
 
 }
 
@@ -33,6 +43,12 @@ extension WeakRefVirtualProxy: TitledOutput where T: TitledOutput {
 
     public func display(model: TitledViewPresentableModel<ContentView>?) {
         object?.display(model: model)
+    }
+    public func display(keyTitle: [TextAttributes]) {
+        object?.display(keyTitle: keyTitle)
+    }
+    public func display(valueTitle: [TextAttributes]) {
+        object?.display(valueTitle: valueTitle)
     }
 
 }

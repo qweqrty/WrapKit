@@ -13,6 +13,54 @@ extension MainQueueDispatchDecorator: PickerViewOutput where T: PickerViewOutput
         }
     }
 
+    public var componentsCount: (() -> Int?)? {
+        get {
+            return DispatchQueue.main.sync {
+                return self.decoratee.componentsCount
+            }
+        }
+        set {
+            dispatch { [weak self] in
+                self?.decoratee.componentsCount = newValue
+            }
+        }
+    }
+    public var rowsCount: (() -> Int)? {
+        get {
+            return DispatchQueue.main.sync {
+                return self.decoratee.rowsCount
+            }
+        }
+        set {
+            dispatch { [weak self] in
+                self?.decoratee.rowsCount = newValue
+            }
+        }
+    }
+    public var titleForRowAt: ((Int) -> String?)? {
+        get {
+            return DispatchQueue.main.sync {
+                return self.decoratee.titleForRowAt
+            }
+        }
+        set {
+            dispatch { [weak self] in
+                self?.decoratee.titleForRowAt = newValue
+            }
+        }
+    }
+    public var didSelectAt: ((Int) -> Void)? {
+        get {
+            return DispatchQueue.main.sync {
+                return self.decoratee.didSelectAt
+            }
+        }
+        set {
+            dispatch { [weak self] in
+                self?.decoratee.didSelectAt = newValue
+            }
+        }
+    }
 }
 
 extension PickerViewOutput {
@@ -33,4 +81,20 @@ extension WeakRefVirtualProxy: PickerViewOutput where T: PickerViewOutput {
         object?.display(model: model)
     }
 
+    public var componentsCount: (() -> Int?)? {
+        get { return object?.componentsCount }
+        set { object?.componentsCount = newValue }
+    }
+    public var rowsCount: (() -> Int)? {
+        get { return object?.rowsCount }
+        set { object?.rowsCount = newValue }
+    }
+    public var titleForRowAt: ((Int) -> String?)? {
+        get { return object?.titleForRowAt }
+        set { object?.titleForRowAt = newValue }
+    }
+    public var didSelectAt: ((Int) -> Void)? {
+        get { return object?.didSelectAt }
+        set { object?.didSelectAt = newValue }
+    }
 }

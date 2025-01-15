@@ -28,7 +28,7 @@ extension ChunkedTextField: TextInputOutput {
         self.isUserInteractionEnabled = isUserInteractionEnabled
     }
     
-    public func display(mask: MaskedTextfieldDelegate?) { }
+    public func display(mask: TextInputPresentableModel.Mask?) { }
     public func display(isEnabledForEditing: Bool) { }
     public func display(isTextSelectionDisabled: Bool) { }
     public func display(placeholder: String?) { }

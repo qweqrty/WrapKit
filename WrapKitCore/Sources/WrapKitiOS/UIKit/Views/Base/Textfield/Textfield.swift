@@ -88,7 +88,7 @@ public struct TextfieldAppearance {
 public protocol TextInputOutput: AnyObject {
     func display(model: TextInputPresentableModel?)
     func display(text: String?)
-    func display(mask: MaskedTextfieldDelegate?)
+    func display(mask: TextInputPresentableModel.Mask?)
     func display(isValid: Bool)
     func display(isEnabledForEditing: Bool)
     func display(isTextSelectionDisabled: Bool)
@@ -106,8 +106,12 @@ public protocol TextInputOutput: AnyObject {
 }
 
 public struct TextInputPresentableModel {
+    public struct Mask {
+        public let mask: Masking
+        public let maskColor: Color
+    }
+    public let mask: Mask?
     public let text: String?
-    public let mask: MaskedTextfieldDelegate?
     public let isValid: Bool
     public let isEnabledForEditing: Bool
     public let isTextSelectionDisabled: Bool
@@ -125,7 +129,7 @@ public struct TextInputPresentableModel {
     
     public init(
         text: String? = nil,
-        mask: MaskedTextfieldDelegate? = nil,
+        mask: Mask? = nil,
         maskColor: Color = .gray,
         isValid: Bool = false,
         isEnabledForEditing: Bool = true,
@@ -523,7 +527,7 @@ extension Textfield: TextInputOutput {
         isHidden = model == nil
         guard let model = model else { return }
         if let mask = model.mask {
-            maskedTextfieldDelegate = mask
+            maskedTextfieldDelegate = .init(format: .init(mask: mask.mask, maskedTextColor: mask.maskColor))
         }
         text = model.text
         isValidState = model.isValid
@@ -547,8 +551,10 @@ extension Textfield: TextInputOutput {
         self.text = text
     }
     
-    public func display(mask: MaskedTextfieldDelegate?) {
-        maskedTextfieldDelegate = mask
+    public func display(mask: TextInputPresentableModel.Mask?) {
+        if let mask = mask {
+            maskedTextfieldDelegate = .init(format: .init(mask: mask.mask, maskedTextColor: mask.maskColor))
+        }
     }
     
     public func display(isValid: Bool) {
