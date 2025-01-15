@@ -11,9 +11,19 @@ public protocol TitledOutput<ContentView>: AnyObject {
 }
 
 public struct TitledViewPresentableModel<ContentView> {
-    let contentView: ContentView
-    let keyTitle: [TextAttributes]
-    let valueTitle: [TextAttributes]
+    public let contentView: ContentView
+    public let keyTitle: [TextAttributes]
+    public let valueTitle: [TextAttributes]
+    
+    public init(
+        contentView: ContentView = UIView(),
+        keyTitle: [TextAttributes] = [],
+        valueTitle: [TextAttributes] = []
+    ) {
+        self.contentView = contentView
+        self.keyTitle = keyTitle
+        self.valueTitle = valueTitle
+    }
 }
 
 #if canImport(UIKit)

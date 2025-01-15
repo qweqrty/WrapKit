@@ -10,8 +10,13 @@ public protocol ButtonOutput: AnyObject {
 }
 
 public struct ButtonPresentableModel {
-    let spacing: Float
-    var onPress: (() -> Void)?
+    public let spacing: Float
+    public let onPress: (() -> Void)?
+    
+    public init(spacing: Float = 0, onPress: (() -> Void)? = nil) {
+        self.spacing = spacing
+        self.onPress = onPress
+    }
 }
 
 #if canImport(UIKit)

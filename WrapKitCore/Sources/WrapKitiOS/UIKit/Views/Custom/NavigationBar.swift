@@ -10,12 +10,28 @@ public protocol HeaderOutput: AnyObject {
 }
 
 public struct HeaderPresentableModel {
-    let keyTitle: [TextAttributes]
-    let valueTitle: [TextAttributes]
-    let leadingImage: ImageEnum
-    let primeTrailingImage: ImageEnum
-    let secondaryTrailingImage: ImageEnum
-    let tertiaryTrailingImage: ImageEnum
+    public let keyTitle: [TextAttributes]
+    public let valueTitle: [TextAttributes]
+    public let leadingImage: ImageEnum?
+    public let primeTrailingImage: ImageEnum?
+    public let secondaryTrailingImage: ImageEnum?
+    public let tertiaryTrailingImage: ImageEnum?
+    
+    public init(
+        keyTitle: [TextAttributes] = [],
+        valueTitle: [TextAttributes] = [],
+        leadingImage: ImageEnum? = nil,
+        primeTrailingImage: ImageEnum? = nil,
+        secondaryTrailingImage: ImageEnum? = nil,
+        tertiaryTrailingImage: ImageEnum? = nil
+    ) {
+        self.keyTitle = keyTitle
+        self.valueTitle = valueTitle
+        self.leadingImage = leadingImage
+        self.primeTrailingImage = primeTrailingImage
+        self.secondaryTrailingImage = secondaryTrailingImage
+        self.tertiaryTrailingImage = tertiaryTrailingImage
+    }
 }
 
 #if canImport(UIKit)

@@ -35,9 +35,8 @@ open class RefreshControl: UIRefreshControl {
 }
 
 extension RefreshControl: LoadingOutput {
-    public func display(model: LoadingOutputPresentableModel?) {
-        isHidden = model == nil
-        isLoading = model?.isLoading
+    public func display(isLoading: Bool) {
+        self.isLoading = isLoading
     }
 }
 #endif

@@ -7,13 +7,25 @@ import Foundation
 
 extension MainQueueDispatchDecorator: LoadingOutput where T: LoadingOutput {
 
-    public func display(model: LoadingOutputPresentableModel?) {
+    public func display(isLoading: Bool) {
         dispatch { [weak self] in
-            self?.decoratee.display(model: model)
+            self?.decoratee.display(isLoading: isLoading)
         }
     }
     // Static methods cannot be generated for generic T. Implement this in specific types.
 
+    public var isLoading: Bool? {
+        get {
+            return DispatchQueue.main.sync {
+                return self.decoratee.isLoading
+            }
+        }
+        set {
+            dispatch { [weak self] in
+                self?.decoratee.isLoading = newValue
+            }
+        }
+    }
 }
 
 extension LoadingOutput {
@@ -30,9 +42,13 @@ extension LoadingOutput {
 
 extension WeakRefVirtualProxy: LoadingOutput where T: LoadingOutput {
 
-    public func display(model: LoadingOutputPresentableModel?) {
-        object?.display(model: model)
+    public func display(isLoading: Bool) {
+        object?.display(isLoading: isLoading)
     }
     // Static methods cannot be generated for generic T. Implement this in specific types.
 
+    public var isLoading: Bool? {
+        get { return object?.isLoading }
+        set { object?.isLoading = newValue }
+    }
 }

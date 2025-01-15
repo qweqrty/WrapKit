@@ -1,17 +1,8 @@
 import Foundation
 
-public protocol ChunkedTextFieldOutput: AnyObject {
-    func display(model: ChunkedTextFieldPresentableModel?)
-}
-
-public struct ChunkedTextFieldPresentableModel {
-    let text: String?
-    let isValid: Bool
-}
-
 #if canImport(UIKit)
-extension ChunkedTextField: ChunkedTextFieldOutput {
-    public func display(model: ChunkedTextFieldPresentableModel?) {
+extension ChunkedTextField: TextInputOutput {
+    public func display(model: TextInputPresentableModel?) {
         isHidden = model == nil
         guard let model = model else { return }
         let text = String((model.text ?? "").prefix(count))

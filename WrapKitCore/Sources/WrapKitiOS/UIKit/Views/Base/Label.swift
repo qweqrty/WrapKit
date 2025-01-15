@@ -12,8 +12,13 @@ public protocol TextOutput: AnyObject {
 }
 
 public struct TextOutputPresentableModel {
-    let text: String?
-    let attributes: [TextAttributes]
+    public let text: String?
+    public let attributes: [TextAttributes]
+    
+    public init(text: String? = nil, attributes: [TextAttributes] = []) {
+        self.text = text
+        self.attributes = attributes
+    }
 }
 
 #if canImport(UIKit)

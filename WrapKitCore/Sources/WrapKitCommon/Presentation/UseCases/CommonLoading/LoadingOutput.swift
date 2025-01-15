@@ -8,9 +8,7 @@
 import Foundation
 
 public protocol LoadingOutput: AnyObject {
-    func display(model: LoadingOutputPresentableModel?)
-}
-
-public struct LoadingOutputPresentableModel {
-    let isLoading: Bool?
+    var isLoading: Bool? { get set }
+    
+    func display(isLoading: Bool)
 }

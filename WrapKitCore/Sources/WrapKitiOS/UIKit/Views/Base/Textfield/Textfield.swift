@@ -90,23 +90,61 @@ public protocol TextInputOutput: AnyObject {
 }
 
 public struct TextInputPresentableModel {
-    let text: String?
-    let mask: Masking
-    let maskColor: Color
-    let isValid: Bool
-    let isEnabledForEditing: Bool
-    let isTextSelectionDisabled: Bool
-    let placeholder: String?
-    let isUserInteractionEnabled: Bool
-    let isSecureTextEntry: Bool
-    var leadingViewOnPress: (() -> Void)?
-    var trailingViewOnPress: (() -> Void)?
-    var onPress: (() -> Void)?
-    var onPaste: ((String?) -> Void)?
-    var onBecomeFirstResponder: (() -> Void)?
-    var onResignFirstResponder: (() -> Void)?
-    var onTapBackspace: (() -> Void)?
-    var didChangeText: [((String?) -> Void)]?
+    public let text: String?
+    public let mask: Masking?
+    public let maskColor: Color
+    public let isValid: Bool
+    public let isEnabledForEditing: Bool
+    public let isTextSelectionDisabled: Bool
+    public let placeholder: String?
+    public let isUserInteractionEnabled: Bool
+    public let isSecureTextEntry: Bool
+    public var leadingViewOnPress: (() -> Void)?
+    public var trailingViewOnPress: (() -> Void)?
+    public var onPress: (() -> Void)?
+    public var onPaste: ((String?) -> Void)?
+    public var onBecomeFirstResponder: (() -> Void)?
+    public var onResignFirstResponder: (() -> Void)?
+    public var onTapBackspace: (() -> Void)?
+    public var didChangeText: [((String?) -> Void)]?
+    
+    public init(
+        text: String? = nil,
+        mask: Masking? = nil,
+        maskColor: Color = .gray,
+        isValid: Bool = false,
+        isEnabledForEditing: Bool = true,
+        isTextSelectionDisabled: Bool = false,
+        placeholder: String? = nil,
+        isUserInteractionEnabled: Bool = true,
+        isSecureTextEntry: Bool = false,
+        leadingViewOnPress: (() -> Void)? = nil,
+        trailingViewOnPress: (() -> Void)? = nil,
+        onPress: (() -> Void)? = nil,
+        onPaste: ((String?) -> Void)? = nil,
+        onBecomeFirstResponder: (() -> Void)? = nil,
+        onResignFirstResponder: (() -> Void)? = nil,
+        onTapBackspace: (() -> Void)? = nil,
+        didChangeText: [(String?) -> Void]? = nil
+    ) {
+        self.text = text
+        self.mask = mask
+        self.maskColor = maskColor
+        self.isValid = isValid
+        self.isEnabledForEditing = isEnabledForEditing
+        self.isTextSelectionDisabled = isTextSelectionDisabled
+        self.placeholder = placeholder
+        self.isUserInteractionEnabled = isUserInteractionEnabled
+        self.isSecureTextEntry = isSecureTextEntry
+        self.leadingViewOnPress = leadingViewOnPress
+        self.trailingViewOnPress = trailingViewOnPress
+        self.onPress = onPress
+        self.onPaste = onPaste
+        self.onBecomeFirstResponder = onBecomeFirstResponder
+        self.onResignFirstResponder = onResignFirstResponder
+        self.onTapBackspace = onTapBackspace
+        self.didChangeText = didChangeText
+    }
 }
 
 #if canImport(UIKit)
@@ -470,7 +508,9 @@ extension Textfield: TextInputOutput {
     public func display(model: TextInputPresentableModel?) {
         isHidden = model == nil
         guard let model = model else { return }
-        maskedTextfieldDelegate = .init(format: .init(mask: model.mask, maskedTextColor: model.maskColor))
+        if let mask = model.mask {
+            maskedTextfieldDelegate = .init(format: .init(mask: mask, maskedTextColor: model.maskColor))
+        }
         text = model.text
         isValidState = model.isValid
         updateAppearance(isValid: model.isValid)

@@ -44,7 +44,7 @@ public class SelectionServiceProxy<Request, Response>: SelectionInput {
     }
     
     public func viewDidLoad() {
-        view?.display(model: .init(isLoading: true))
+        view?.display(isLoading: true)
         service.make(request: makeRequest())
             .handle(
                 onSuccess: { [weak self] response in
@@ -54,7 +54,7 @@ public class SelectionServiceProxy<Request, Response>: SelectionInput {
                     self?.decoratee.items = self?.makeResponse(.failure(error)) ?? []
                 },
                 onCompletion: { [weak self] in
-                    self?.view?.display(model: .init(isLoading: false))
+                    self?.view?.display(isLoading: false)
                 }
             )
             .subscribe(storeIn: &cancellables)
@@ -89,7 +89,7 @@ public class SelectionServiceProxy<Request, Response>: SelectionInput {
 
 extension SelectionServiceProxy: SelectionServiceInput {
     public func onRefresh() {
-        view?.display(model: .init(isLoading: true))
+        view?.display(isLoading: true)
         service.make(request: makeRequest())
             .handle(
                 onSuccess: { [weak self] response in
@@ -99,7 +99,7 @@ extension SelectionServiceProxy: SelectionServiceInput {
                     self?.decoratee.items = self?.makeResponse(.failure(error)) ?? []
                 },
                 onCompletion: { [weak self] in
-                    self?.view?.display(model: .init(isLoading: false))
+                    self?.view?.display(isLoading: false)
                 }
             )
             .subscribe(storeIn: &cancellables)

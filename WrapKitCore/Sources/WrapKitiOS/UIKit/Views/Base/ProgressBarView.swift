@@ -10,9 +10,13 @@ public protocol ProgressBarOutput: AnyObject {
 }
 
 public struct ProgressBarPresentableModel {
-    let color: Color
-    let width: Float
-    let progress: Float
+    public let color: Color
+    public let progress: Float // 0-100
+    
+    public init(color: Color = .magenta, progress: Float = 100) {
+        self.color = color
+        self.progress = progress
+    }
 }
 
 #if canImport(UIKit)
@@ -74,7 +78,6 @@ extension ProgressBarView: ProgressBarOutput {
         isHidden = model == nil
         guard let model = model else { return }
         progressView.backgroundColor = model.color
-        applyProgress(width: CGFloat(model.width))
         applyProgress(percentage: CGFloat(model.progress))
     }
 }

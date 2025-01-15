@@ -10,10 +10,22 @@ public protocol PickerViewOutput: AnyObject {
 }
 
 public struct PickerViewPresentableModel {
-    var componentsCount: (() -> Int?)?
-    var rowsCount: (() -> Int)?
-    var titleForRowAt: ((Int) -> String?)?
-    var didSelectAt: ((Int) -> Void)?
+    public let componentsCount: (() -> Int?)?
+    public let rowsCount: (() -> Int)?
+    public let titleForRowAt: ((Int) -> String?)?
+    public let didSelectAt: ((Int) -> Void)?
+    
+    public init(
+        componentsCount: (() -> Int?)? = nil,
+        rowsCount: (() -> Int)? = nil,
+        titleForRowAt: ((Int) -> String?)? = nil,
+        didSelectAt: ((Int) -> Void)? = nil
+    ) {
+        self.componentsCount = componentsCount
+        self.rowsCount = rowsCount
+        self.titleForRowAt = titleForRowAt
+        self.didSelectAt = didSelectAt
+    }
 }
 
 #if canImport(UIKit)

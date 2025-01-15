@@ -10,9 +10,19 @@ public protocol ImageViewOutput: AnyObject {
 }
 
 public struct ImageViewPresentableModel {
-    let image: ImageEnum
-    var onPress: (() -> Void)?
-    var onLongPress: (() -> Void)?
+    public let image: ImageEnum?
+    public let onPress: (() -> Void)?
+    public let onLongPress: (() -> Void)?
+    
+    public init(
+        image: ImageEnum? = nil,
+        onPress: (() -> Void)? = nil,
+        onLongPress: (() -> Void)? = nil
+    ) {
+        self.image = image
+        self.onPress = onPress
+        self.onLongPress = onLongPress
+    }
 }
 
 #if canImport(UIKit)
