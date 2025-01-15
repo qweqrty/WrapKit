@@ -9,6 +9,15 @@ import Foundation
 
 public protocol CardViewOutput: AnyObject {
     func display(model: CardViewPresentableModel?)
+    func display(title: [TextAttributes])
+    func display(leadingImage: Image?)
+    func display(trailingImage: Image?)
+    func display(secondaryTrailingImage: Image?)
+    func display(subTitle: [TextAttributes])
+    func display(valueTitle: [TextAttributes])
+    func display(bottomSeparator: CardViewPresentableModel.BottomSeparator?)
+    func display(switchControl: CardViewPresentableModel.SwitchControl?)
+    
 }
 
 public struct CardViewPresentableModel: HashableWithReflection {
@@ -77,6 +86,69 @@ import UIKit
 import SwiftUI
 
 extension CardView: CardViewOutput {
+    public func display(title: [TextAttributes]) {
+        titleViews.keyLabel.isHidden = title.isEmpty
+        titleViews.keyLabel.removeAttributes()
+        title.forEach { titleViews.keyLabel.append($0) }
+    }
+    
+    public func display(leadingImage: Image?) {
+        leadingImageWrapperView.isHidden = leadingImage == nil
+        leadingImageViewConstraints?.width?.constant = leadingImage?.size.width ?? 0
+        leadingImageViewConstraints?.height?.constant = leadingImage?.size.height ?? 0
+        
+        leadingImageView.setImage(.asset(leadingImage))
+    }
+    
+    public func display(trailingImage: Image?) {
+        trailingImageWrapperView.isHidden = trailingImage == nil
+        trailingImageViewConstraints?.width?.constant = trailingImage?.size.width ?? 0
+        trailingImageViewConstraints?.height?.constant = trailingImage?.size.height ?? 0
+        trailingImageView.setImage(.asset(trailingImage))
+    }
+    
+    public func display(secondaryTrailingImage: Image?) {
+        secondaryTrailingImageWrapperView.isHidden = secondaryTrailingImage == nil
+        secondaryTrailingImageViewConstraints?.width?.constant = secondaryTrailingImage?.size.width ?? 0
+        secondaryTrailingImageViewConstraints?.height?.constant = secondaryTrailingImage?.size.height ?? 0
+        secondaryTrailingImageView.setImage(.asset(secondaryTrailingImage))
+    }
+    
+    public func display(subTitle: [TextAttributes]) {
+        subtitleLabel.isHidden = subTitle.isEmpty
+        subtitleLabel.removeAttributes()
+        subTitle.forEach { attribute in
+            subtitleLabel.append(attribute)
+        }
+    }
+    
+    public func display(valueTitle: [TextAttributes]) {
+        titleViews.valueLabel.removeAttributes()
+        titleViews.valueLabel.isHidden = valueTitle.isEmpty
+        valueTitle.forEach { attribute in
+            titleViews.valueLabel.append(attribute)
+        }
+    }
+    
+    public func display(bottomSeparator: CardViewPresentableModel.BottomSeparator?) {
+        bottomSeparatorView.isHidden = bottomSeparator == nil
+        if let bottomSeparator = bottomSeparator {
+            bottomSeparatorView.contentView.backgroundColor = bottomSeparator.color
+            bottomSeparatorView.contentViewConstraints?.top?.constant = bottomSeparator.padding.top
+            bottomSeparatorView.contentViewConstraints?.leading?.constant = bottomSeparator.padding.leading
+            bottomSeparatorView.contentViewConstraints?.trailing?.constant = bottomSeparator.padding.trailing
+            bottomSeparatorView.contentViewConstraints?.bottom?.constant = bottomSeparator.padding.bottom
+            bottomSeparatorViewConstraints?.height?.constant = bottomSeparator.height
+        }
+    }
+    
+    public func display(switchControl: CardViewPresentableModel.SwitchControl?) {
+        switchWrapperView.isHidden = switchControl == nil
+        if let switchControl = switchControl {
+            self.switchControl.isOn = switchControl.isOn
+        }
+    }
+    
     public func display(model: CardViewPresentableModel?) {
         // Key title
         isHidden = model == nil

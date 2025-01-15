@@ -8,6 +8,8 @@
 public protocol TitledOutput<ContentView>: AnyObject {
     associatedtype ContentView
     func display(model: TitledViewPresentableModel<ContentView>?)
+    func display(keyTitle: [TextAttributes])
+    func display(valueTitle: [TextAttributes])
 }
 
 public struct TitledViewPresentableModel<ContentView> {
@@ -155,6 +157,13 @@ extension TitledView: TitledOutput {
         self.contentView = model.contentView
         titlesView.keyLabel.display(model: .init(text: nil, attributes: model.keyTitle))
         titlesView.valueLabel.display(model: .init(text: nil, attributes: model.valueTitle))
+    }
+    public func display(keyTitle: [TextAttributes]) {
+        titlesView.keyLabel.display(model: .init(text: nil, attributes: keyTitle))
+    }
+    
+    public func display(valueTitle: [TextAttributes]) {
+        titlesView.valueLabel.display(model: .init(text: nil, attributes: valueTitle))
     }
 }
 

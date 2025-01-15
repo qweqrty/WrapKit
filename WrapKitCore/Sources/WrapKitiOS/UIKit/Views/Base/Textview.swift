@@ -146,12 +146,36 @@ extension Textview: TextInputOutput {
         isSecureTextEntry = model.isSecureTextEntry
         leadingViewOnPress = model.leadingViewOnPress
         trailingViewOnPress = model.trailingViewOnPress
+        self.placeholderLabel.text = model.placeholder
         onPress = model.onPress
         onPaste = model.onPaste
         onBecomeFirstResponder = model.onBecomeFirstResponder
         onResignFirstResponder = model.onResignFirstResponder
         onTapBackspace = model.onTapBackspace
         didChangeText = model.didChangeText
+    }
+    
+    public func display(text: String?) {
+        self.text = text
+    }
+    
+    public func display(mask: MaskedTextfieldDelegate?) { }
+    public func display(isValid: Bool) {
+        isValidState = isValid
+    }
+    
+    public func display(isEnabledForEditing: Bool) { }
+    public func display(isTextSelectionDisabled: Bool) { }
+    public func display(placeholder: String?) {
+        self.placeholderLabel.text = placeholder
+    }
+    
+    public func display(isUserInteractionEnabled: Bool) {
+        self.isUserInteractionEnabled = isUserInteractionEnabled
+    }
+    
+    public func display(isSecureTextEntry: Bool) {
+        self.isSecureTextEntry = isSecureTextEntry
     }
 }
 #endif

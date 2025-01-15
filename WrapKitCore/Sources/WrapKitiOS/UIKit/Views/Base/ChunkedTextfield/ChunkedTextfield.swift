@@ -2,6 +2,13 @@ import Foundation
 
 #if canImport(UIKit)
 extension ChunkedTextField: TextInputOutput {
+    public func display(text: String?) {
+        let text = String((text ?? "").prefix(count))
+        text.enumerated().forEach {
+            textfields.item(at: $0.offset)?.text = String($0.element)
+        }
+    }
+    
     public func display(model: TextInputPresentableModel?) {
         isHidden = model == nil
         guard let model = model else { return }
@@ -12,6 +19,20 @@ extension ChunkedTextField: TextInputOutput {
         
         textfields.forEach { $0.updateAppearance(isValid: model.isValid) }
     }
+    
+    public func display(isValid: Bool) {
+        textfields.forEach { $0.updateAppearance(isValid: isValid) }
+    }
+    
+    public func display(isUserInteractionEnabled: Bool) {
+        self.isUserInteractionEnabled = isUserInteractionEnabled
+    }
+    
+    public func display(mask: MaskedTextfieldDelegate?) { }
+    public func display(isEnabledForEditing: Bool) { }
+    public func display(isTextSelectionDisabled: Bool) { }
+    public func display(placeholder: String?) { }
+    public func display(isSecureTextEntry: Bool) { }
 }
 
 public class ChunkedTextField: View {
@@ -24,7 +45,13 @@ public class ChunkedTextField: View {
     public lazy var stackView = StackView(distribution: .fillEqually, axis: .horizontal, spacing: count > 4 ? 8 : 12)
     public lazy var textfields = makeTextfields()
     
-    public var didChangeText = [((String?) -> Void)]()
+    public var didChangeText: [((String?) -> Void)]?
+    public var leadingViewOnPress: (() -> Void)?
+    public var trailingViewOnPress: (() -> Void)?
+    public var onPaste: ((String?) -> Void)?
+    public var onBecomeFirstResponder: (() -> Void)?
+    public var onResignFirstResponder: (() -> Void)?
+    public var onTapBackspace: (() -> Void)?
     
     open override var isUserInteractionEnabled: Bool {
         didSet {
@@ -99,7 +126,7 @@ private extension ChunkedTextField {
         }
         
         let allFieldsText = textfields.compactMap { $0.text }.joined()
-        didChangeText.forEach { $0(allFieldsText) }
+        didChangeText?.forEach { $0(allFieldsText) }
     }
 }
 
@@ -125,7 +152,7 @@ private extension ChunkedTextField {
                         return nil
                     }
                 }.joined()
-                self?.didChangeText.forEach { $0(allFieldsText) }
+                self?.didChangeText?.forEach { $0(allFieldsText) }
             }
             
             textfield.onPaste = { [weak self] pastedText in

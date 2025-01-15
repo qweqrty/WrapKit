@@ -7,6 +7,8 @@
 
 public protocol ProgressBarOutput: AnyObject {
     func display(model: ProgressBarPresentableModel?)
+    func display(color: Color)
+    func display(progress: Float)
 }
 
 public struct ProgressBarPresentableModel {
@@ -79,6 +81,14 @@ extension ProgressBarView: ProgressBarOutput {
         guard let model = model else { return }
         progressView.backgroundColor = model.color
         applyProgress(percentage: CGFloat(model.progress))
+    }
+    
+    public func display(color: Color) {
+        progressView.backgroundColor = color
+    }
+    
+    public func display(progress: Float) {
+        applyProgress(percentage: CGFloat(progress))
     }
 }
 

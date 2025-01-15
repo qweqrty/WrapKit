@@ -7,6 +7,10 @@
 
 public protocol PickerViewOutput: AnyObject {
     func display(model: PickerViewPresentableModel?)
+    var componentsCount: (() -> Int?)? { get set }
+    var rowsCount: (() -> Int)? { get set }
+    var titleForRowAt: ((Int) -> String?)? { get set }
+    var didSelectAt: ((Int) -> Void)? { get set }
 }
 
 public struct PickerViewPresentableModel {

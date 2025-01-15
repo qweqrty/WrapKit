@@ -9,6 +9,8 @@ import Foundation
 
 public protocol TextOutput: AnyObject {
     func display(model: TextOutputPresentableModel?)
+    func display(text: String?)
+    func display(attributes: [TextAttributes])
 }
 
 public struct TextOutputPresentableModel {
@@ -164,6 +166,14 @@ extension Label: TextOutput {
         guard let model = model else { return }
         text = model.text
         attributes = model.attributes
+    }
+    
+    public func display(text: String?) {
+        self.text = text
+    }
+    
+    public func display(attributes: [TextAttributes]) {
+        self.attributes = attributes
     }
 }
 #endif

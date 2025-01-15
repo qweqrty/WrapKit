@@ -87,12 +87,27 @@ public struct TextfieldAppearance {
 
 public protocol TextInputOutput: AnyObject {
     func display(model: TextInputPresentableModel?)
+    func display(text: String?)
+    func display(mask: MaskedTextfieldDelegate?)
+    func display(isValid: Bool)
+    func display(isEnabledForEditing: Bool)
+    func display(isTextSelectionDisabled: Bool)
+    func display(placeholder: String?)
+    func display(isUserInteractionEnabled: Bool)
+    func display(isSecureTextEntry: Bool)
+    var leadingViewOnPress: (() -> Void)? { get set }
+    var trailingViewOnPress: (() -> Void)? { get set }
+    var onPress: (() -> Void)? { get set }
+    var onPaste: ((String?) -> Void)? { get set }
+    var onBecomeFirstResponder: (() -> Void)? { get set }
+    var onResignFirstResponder: (() -> Void)? { get set }
+    var onTapBackspace: (() -> Void)? { get set }
+    var didChangeText: [((String?) -> Void)]? { get set }
 }
 
 public struct TextInputPresentableModel {
     public let text: String?
-    public let mask: Masking?
-    public let maskColor: Color
+    public let mask: MaskedTextfieldDelegate?
     public let isValid: Bool
     public let isEnabledForEditing: Bool
     public let isTextSelectionDisabled: Bool
@@ -110,7 +125,7 @@ public struct TextInputPresentableModel {
     
     public init(
         text: String? = nil,
-        mask: Masking? = nil,
+        mask: MaskedTextfieldDelegate? = nil,
         maskColor: Color = .gray,
         isValid: Bool = false,
         isEnabledForEditing: Bool = true,
@@ -129,7 +144,6 @@ public struct TextInputPresentableModel {
     ) {
         self.text = text
         self.mask = mask
-        self.maskColor = maskColor
         self.isValid = isValid
         self.isEnabledForEditing = isEnabledForEditing
         self.isTextSelectionDisabled = isTextSelectionDisabled
@@ -509,7 +523,7 @@ extension Textfield: TextInputOutput {
         isHidden = model == nil
         guard let model = model else { return }
         if let mask = model.mask {
-            maskedTextfieldDelegate = .init(format: .init(mask: mask, maskedTextColor: model.maskColor))
+            maskedTextfieldDelegate = mask
         }
         text = model.text
         isValidState = model.isValid
@@ -527,6 +541,39 @@ extension Textfield: TextInputOutput {
         onResignFirstResponder = model.onResignFirstResponder
         onTapBackspace = model.onTapBackspace
         didChangeText = model.didChangeText
+    }
+    
+    public func display(text: String?) {
+        self.text = text
+    }
+    
+    public func display(mask: MaskedTextfieldDelegate?) {
+        maskedTextfieldDelegate = mask
+    }
+    
+    public func display(isValid: Bool) {
+        isValidState = isValid
+        updateAppearance(isValid: isValid)
+    }
+    
+    public func display(isEnabledForEditing: Bool) {
+        self.isEnabledForEditing = isEnabledForEditing
+    }
+    
+    public func display(isTextSelectionDisabled: Bool) {
+        self.isTextSelectionDisabled = isTextSelectionDisabled
+    }
+    
+    public func display(placeholder: String?) {
+        self.placeholder = placeholder
+    }
+    
+    public func display(isUserInteractionEnabled: Bool) {
+        self.isUserInteractionEnabled = isUserInteractionEnabled
+    }
+    
+    public func display(isSecureTextEntry: Bool) {
+        self.isSecureTextEntry = isSecureTextEntry
     }
 }
 #endif

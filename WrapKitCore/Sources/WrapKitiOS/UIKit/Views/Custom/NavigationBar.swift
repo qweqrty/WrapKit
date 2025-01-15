@@ -7,6 +7,12 @@
 
 public protocol HeaderOutput: AnyObject {
     func display(model: HeaderPresentableModel?)
+    func display(keyTitle: [TextAttributes])
+    func display(valueTitle: [TextAttributes])
+    func display(leadingImage: ImageEnum?)
+    func display(primeTrailingImage: ImageEnum?)
+    func display(secondaryTrailingImage: ImageEnum?)
+    func display(tertiaryTrailingImage: ImageEnum?)
 }
 
 public struct HeaderPresentableModel {
@@ -170,6 +176,30 @@ extension NavigationBar: HeaderOutput {
         primeTrailingImageWrapperView.contentView.setImage(model.primeTrailingImage)
         secondaryTrailingImageWrapperView.contentView.setImage(model.secondaryTrailingImage)
         tertiaryTrailingImageWrapperView.contentView.setImage(model.tertiaryTrailingImage)
+    }
+    
+    public func display(keyTitle: [TextAttributes]) {
+        titleViews.keyLabel.display(model: .init(text: nil, attributes: keyTitle))
+    }
+    
+    public func display(valueTitle: [TextAttributes]) {
+        titleViews.valueLabel.display(model: .init(text: nil, attributes: valueTitle))
+    }
+    
+    public func display(leadingImage: ImageEnum?) {
+        leadingCardView.leadingImageView.setImage(leadingImage)
+    }
+    
+    public func display(primeTrailingImage: ImageEnum?) {
+        primeTrailingImageWrapperView.contentView.setImage(primeTrailingImage)
+    }
+    
+    public func display(secondaryTrailingImage: ImageEnum?) {
+        secondaryTrailingImageWrapperView.contentView.setImage(secondaryTrailingImage)
+    }
+    
+    public func display(tertiaryTrailingImage: ImageEnum?) {
+        tertiaryTrailingImageWrapperView.contentView.setImage(tertiaryTrailingImage)
     }
 }
 #endif

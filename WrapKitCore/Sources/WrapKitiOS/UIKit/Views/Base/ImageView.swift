@@ -7,6 +7,9 @@
 
 public protocol ImageViewOutput: AnyObject {
     func display(model: ImageViewPresentableModel?)
+    func display(image: ImageEnum)
+    var onPress: (() -> Void)? { get set }
+    var onLongPress: (() -> Void)? { get set }
 }
 
 public struct ImageViewPresentableModel {
@@ -193,6 +196,10 @@ extension ImageView: ImageViewOutput {
         self.setImage(model?.image)
         onPress = model?.onPress
         onLongPress = model?.onLongPress
+    }
+    
+    public func display(image: ImageEnum) {
+        self.setImage(image)
     }
 }
 #endif
