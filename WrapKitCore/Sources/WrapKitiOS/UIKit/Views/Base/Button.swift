@@ -12,12 +12,14 @@ public protocol ButtonOutput: AnyObject {
 }
 
 public struct ButtonPresentableModel {
+    public let title: String?
     public let spacing: Float
     public let onPress: (() -> Void)?
     
-    public init(spacing: Float = 0, onPress: (() -> Void)? = nil) {
+    public init(title: String?, spacing: Float = 0, onPress: (() -> Void)? = nil) {
         self.spacing = spacing
         self.onPress = onPress
+        self.title = title
     }
 }
 
@@ -169,7 +171,12 @@ extension Button: ButtonOutput {
         isHidden = model == nil
         guard let spacing = model?.spacing else { return }
         self.spacing = CGFloat(spacing)
+        self.setTitle(model?.title, for: .normal)
         onPress = model?.onPress
+    }
+    
+    public func display(title: String?) {
+        self.setTitle(title, for: .normal)
     }
     
     public func display(spacing: Float) {

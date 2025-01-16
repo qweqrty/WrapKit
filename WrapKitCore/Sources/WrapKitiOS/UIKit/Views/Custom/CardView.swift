@@ -17,6 +17,7 @@ public protocol CardViewOutput: AnyObject {
     func display(valueTitle: [TextAttributes])
     func display(bottomSeparator: CardViewPresentableModel.BottomSeparator?)
     func display(switchControl: CardViewPresentableModel.SwitchControl?)
+    func display(status: CardViewPresentableModel.Status?)
 }
 
 public struct CardViewPresentableModel: HashableWithReflection {
@@ -104,6 +105,17 @@ extension CardView: CardViewOutput {
         titleViews.keyLabel.isHidden = title.isEmpty
         titleViews.keyLabel.removeAttributes()
         title.forEach { titleViews.keyLabel.append($0) }
+    }
+    
+    public func display(status: CardViewPresentableModel.Status?) {
+        statusWrapperView.isHidden = status == nil
+        if let status = status {
+            statusLabel.removeAttributes()
+            status.title.forEach { statusLabel.append($0) }
+            statusLeadingImageView.setImage(status.leadingImage?.image)
+            statusLeadingImageViewConstraints?.width?.constant = status.leadingImage?.size.width ?? 0
+            statusLeadingImageViewConstraints?.height?.constant = status.leadingImage?.size.height ?? 0
+        }
     }
     
     public func display(leadingImage: Image?) {
@@ -224,6 +236,7 @@ extension CardView: CardViewOutput {
         if let status = model.status {
             statusLabel.removeAttributes()
             status.title.forEach { statusLabel.append($0) }
+            statusLeadingImageView.setImage(status.leadingImage?.image)
             statusLeadingImageViewConstraints?.width?.constant = status.leadingImage?.size.width ?? 0
             statusLeadingImageViewConstraints?.height?.constant = status.leadingImage?.size.height ?? 0
         }
