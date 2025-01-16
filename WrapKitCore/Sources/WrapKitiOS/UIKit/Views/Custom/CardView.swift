@@ -110,7 +110,7 @@ extension CardView: CardViewOutput {
     }
     
     public func display(status: CardViewPresentableModel.Status?) {
-        statusWrapperView.isHidden = status == nil
+        statusContainerView.isHidden = status == nil
         if let status = status {
             statusLabel.removeAttributes()
             status.title.forEach { statusLabel.append($0) }
@@ -279,6 +279,7 @@ open class CardView: View {
     public lazy var switchControl = SwitchControl()
     
     public let statusWrapperView = View(isHidden: true)
+    public let statusContainerView = View()
     public let statusLabel = Label(font: .systemFont(ofSize: 16), textColor: .black)
     public let statusLeadingImageView = ImageView()
     
@@ -348,7 +349,8 @@ extension CardView {
         secondaryTrailingImageWrapperView.addSubview(secondaryTrailingImageView)
         titleViewsWrapperView.addSubview(titleViews)
         switchWrapperView.addSubview(switchControl)
-        statusWrapperView.addSubviews(statusLeadingImageView, statusLabel)
+        statusWrapperView.addSubview(statusContainerView)
+        statusContainerView.addSubviews(statusLeadingImageView, statusLabel)
     }
     
     func setupConstraints() {
@@ -411,20 +413,18 @@ extension CardView {
         )
         
         statusLeadingImageViewConstraints = statusLeadingImageView.anchor(
-            .leading(statusWrapperView.leadingAnchor, constant: 6),
-            .topGreaterThanEqual(statusWrapperView.topAnchor, constant: 4),
-            .bottomLessThanEqual(statusWrapperView.bottomAnchor, constant: 4),
-            .centerY(statusWrapperView.centerYAnchor),
+            .leading(statusContainerView.leadingAnchor, constant: 6),
+            .top(statusContainerView.topAnchor, constant: 4),
+            .bottom(statusContainerView.bottomAnchor, constant: 4),
+            .centerY(statusContainerView.centerYAnchor),
             .height(16),
             .width(16)
         )
         
         statusLabel.anchor(
             .leading(statusLeadingImageView.trailingAnchor, constant: 4),
-            .topGreaterThanEqual(statusWrapperView.topAnchor, constant: 4),
-            .bottomLessThanEqual(statusWrapperView.bottomAnchor, constant: 4),
-            .trailing(statusWrapperView.trailingAnchor, constant: 6),
-            .centerY(statusWrapperView.centerYAnchor)
+            .trailing(statusContainerView.trailingAnchor, constant: 6),
+            .centerY(statusContainerView.centerYAnchor)
         )
         
         vStackView.anchor(
@@ -433,6 +433,8 @@ extension CardView {
             .trailing(trailingAnchor),
             .bottom(bottomAnchor)
         )
+        
+        statusContainerView.centerInSuperview()
         
         bottomSeparatorViewConstraints = bottomSeparatorView.anchor(.height(1))
     }
