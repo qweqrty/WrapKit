@@ -288,6 +288,8 @@ open class CardView: View {
     private func setupPriorities() {
         subtitleLabel.setContentHuggingPriority(.required, for: .horizontal)
         subtitleLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
+        statusLabel.setContentHuggingPriority(.required, for: .horizontal)
+        statusLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
         titleViews.keyLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
         titleViews.keyLabel.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
         titleViews.keyLabel.setContentCompressionResistancePriority(.required, for: .vertical)
