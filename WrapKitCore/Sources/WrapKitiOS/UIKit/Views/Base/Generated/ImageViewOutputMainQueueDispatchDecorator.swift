@@ -17,31 +17,17 @@ extension MainQueueDispatchDecorator: ImageViewOutput where T: ImageViewOutput {
             self?.decoratee.display(image: image)
         }
     }
+    public func display(onPress: (() -> Void)?) {
+        dispatch { [weak self] in
+            self?.decoratee.display(onPress: onPress)
+        }
+    }
+    public func display(onLongPress: (() -> Void)?) {
+        dispatch { [weak self] in
+            self?.decoratee.display(onLongPress: onLongPress)
+        }
+    }
 
-    public var onPress: (() -> Void)? {
-        get {
-            return DispatchQueue.main.sync {
-                return self.decoratee.onPress
-            }
-        }
-        set {
-            dispatch { [weak self] in
-                self?.decoratee.onPress = newValue
-            }
-        }
-    }
-    public var onLongPress: (() -> Void)? {
-        get {
-            return DispatchQueue.main.sync {
-                return self.decoratee.onLongPress
-            }
-        }
-        set {
-            dispatch { [weak self] in
-                self?.decoratee.onLongPress = newValue
-            }
-        }
-    }
 }
 
 extension ImageViewOutput {
@@ -64,13 +50,11 @@ extension WeakRefVirtualProxy: ImageViewOutput where T: ImageViewOutput {
     public func display(image: ImageEnum) {
         object?.display(image: image)
     }
+    public func display(onPress: (() -> Void)?) {
+        object?.display(onPress: onPress)
+    }
+    public func display(onLongPress: (() -> Void)?) {
+        object?.display(onLongPress: onLongPress)
+    }
 
-    public var onPress: (() -> Void)? {
-        get { return object?.onPress }
-        set { object?.onPress = newValue }
-    }
-    public var onLongPress: (() -> Void)? {
-        get { return object?.onLongPress }
-        set { object?.onLongPress = newValue }
-    }
 }

@@ -52,103 +52,47 @@ extension MainQueueDispatchDecorator: TextInputOutput where T: TextInputOutput {
             self?.decoratee.display(isSecureTextEntry: isSecureTextEntry)
         }
     }
+    public func display(leadingViewOnPress: (() -> Void)?) {
+        dispatch { [weak self] in
+            self?.decoratee.display(leadingViewOnPress: leadingViewOnPress)
+        }
+    }
+    public func display(trailingViewOnPress: (() -> Void)?) {
+        dispatch { [weak self] in
+            self?.decoratee.display(trailingViewOnPress: trailingViewOnPress)
+        }
+    }
+    public func display(onPress: (() -> Void)?) {
+        dispatch { [weak self] in
+            self?.decoratee.display(onPress: onPress)
+        }
+    }
+    public func display(onPaste: ((String?) -> Void)?) {
+        dispatch { [weak self] in
+            self?.decoratee.display(onPaste: onPaste)
+        }
+    }
+    public func display(onBecomeFirstResponder: (() -> Void)?) {
+        dispatch { [weak self] in
+            self?.decoratee.display(onBecomeFirstResponder: onBecomeFirstResponder)
+        }
+    }
+    public func display(onResignFirstResponder: (() -> Void)?) {
+        dispatch { [weak self] in
+            self?.decoratee.display(onResignFirstResponder: onResignFirstResponder)
+        }
+    }
+    public func display(onTapBackspace: (() -> Void)?) {
+        dispatch { [weak self] in
+            self?.decoratee.display(onTapBackspace: onTapBackspace)
+        }
+    }
+    public func display(didChangeText: [((String?) -> Void)]) {
+        dispatch { [weak self] in
+            self?.decoratee.display(didChangeText: didChangeText)
+        }
+    }
 
-    public var leadingViewOnPress: (() -> Void)? {
-        get {
-            return DispatchQueue.main.sync {
-                return self.decoratee.leadingViewOnPress
-            }
-        }
-        set {
-            dispatch { [weak self] in
-                self?.decoratee.leadingViewOnPress = newValue
-            }
-        }
-    }
-    public var trailingViewOnPress: (() -> Void)? {
-        get {
-            return DispatchQueue.main.sync {
-                return self.decoratee.trailingViewOnPress
-            }
-        }
-        set {
-            dispatch { [weak self] in
-                self?.decoratee.trailingViewOnPress = newValue
-            }
-        }
-    }
-    public var onPress: (() -> Void)? {
-        get {
-            return DispatchQueue.main.sync {
-                return self.decoratee.onPress
-            }
-        }
-        set {
-            dispatch { [weak self] in
-                self?.decoratee.onPress = newValue
-            }
-        }
-    }
-    public var onPaste: ((String?) -> Void)? {
-        get {
-            return DispatchQueue.main.sync {
-                return self.decoratee.onPaste
-            }
-        }
-        set {
-            dispatch { [weak self] in
-                self?.decoratee.onPaste = newValue
-            }
-        }
-    }
-    public var onBecomeFirstResponder: (() -> Void)? {
-        get {
-            return DispatchQueue.main.sync {
-                return self.decoratee.onBecomeFirstResponder
-            }
-        }
-        set {
-            dispatch { [weak self] in
-                self?.decoratee.onBecomeFirstResponder = newValue
-            }
-        }
-    }
-    public var onResignFirstResponder: (() -> Void)? {
-        get {
-            return DispatchQueue.main.sync {
-                return self.decoratee.onResignFirstResponder
-            }
-        }
-        set {
-            dispatch { [weak self] in
-                self?.decoratee.onResignFirstResponder = newValue
-            }
-        }
-    }
-    public var onTapBackspace: (() -> Void)? {
-        get {
-            return DispatchQueue.main.sync {
-                return self.decoratee.onTapBackspace
-            }
-        }
-        set {
-            dispatch { [weak self] in
-                self?.decoratee.onTapBackspace = newValue
-            }
-        }
-    }
-    public var didChangeText: [((String?) -> Void)]? {
-        get {
-            return DispatchQueue.main.sync {
-                return self.decoratee.didChangeText
-            }
-        }
-        set {
-            dispatch { [weak self] in
-                self?.decoratee.didChangeText = newValue
-            }
-        }
-    }
 }
 
 extension TextInputOutput {
@@ -192,37 +136,29 @@ extension WeakRefVirtualProxy: TextInputOutput where T: TextInputOutput {
     public func display(isSecureTextEntry: Bool) {
         object?.display(isSecureTextEntry: isSecureTextEntry)
     }
+    public func display(leadingViewOnPress: (() -> Void)?) {
+        object?.display(leadingViewOnPress: leadingViewOnPress)
+    }
+    public func display(trailingViewOnPress: (() -> Void)?) {
+        object?.display(trailingViewOnPress: trailingViewOnPress)
+    }
+    public func display(onPress: (() -> Void)?) {
+        object?.display(onPress: onPress)
+    }
+    public func display(onPaste: ((String?) -> Void)?) {
+        object?.display(onPaste: onPaste)
+    }
+    public func display(onBecomeFirstResponder: (() -> Void)?) {
+        object?.display(onBecomeFirstResponder: onBecomeFirstResponder)
+    }
+    public func display(onResignFirstResponder: (() -> Void)?) {
+        object?.display(onResignFirstResponder: onResignFirstResponder)
+    }
+    public func display(onTapBackspace: (() -> Void)?) {
+        object?.display(onTapBackspace: onTapBackspace)
+    }
+    public func display(didChangeText: [((String?) -> Void)]) {
+        object?.display(didChangeText: didChangeText)
+    }
 
-    public var leadingViewOnPress: (() -> Void)? {
-        get { return object?.leadingViewOnPress }
-        set { object?.leadingViewOnPress = newValue }
-    }
-    public var trailingViewOnPress: (() -> Void)? {
-        get { return object?.trailingViewOnPress }
-        set { object?.trailingViewOnPress = newValue }
-    }
-    public var onPress: (() -> Void)? {
-        get { return object?.onPress }
-        set { object?.onPress = newValue }
-    }
-    public var onPaste: ((String?) -> Void)? {
-        get { return object?.onPaste }
-        set { object?.onPaste = newValue }
-    }
-    public var onBecomeFirstResponder: (() -> Void)? {
-        get { return object?.onBecomeFirstResponder }
-        set { object?.onBecomeFirstResponder = newValue }
-    }
-    public var onResignFirstResponder: (() -> Void)? {
-        get { return object?.onResignFirstResponder }
-        set { object?.onResignFirstResponder = newValue }
-    }
-    public var onTapBackspace: (() -> Void)? {
-        get { return object?.onTapBackspace }
-        set { object?.onTapBackspace = newValue }
-    }
-    public var didChangeText: [((String?) -> Void)]? {
-        get { return object?.didChangeText }
-        set { object?.didChangeText = newValue }
-    }
 }

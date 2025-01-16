@@ -8,7 +8,7 @@
 public protocol ButtonOutput: AnyObject {
     func display(model: ButtonPresentableModel?)
     func display(spacing: Float)
-    var onPress: (() -> Void)? { get set }
+    func display(onPress: (() -> Void)?)
 }
 
 public struct ButtonPresentableModel {
@@ -174,6 +174,10 @@ extension Button: ButtonOutput {
     
     public func display(spacing: Float) {
         self.spacing = CGFloat(spacing)
+    }
+    
+    public func display(onPress: (() -> Void)?) {
+        self.onPress = onPress
     }
 }
 #endif

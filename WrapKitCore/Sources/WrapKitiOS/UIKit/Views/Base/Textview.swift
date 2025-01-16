@@ -18,7 +18,7 @@ open class Textview: UITextView, UITextViewDelegate {
     public var onResignFirstResponder: (() -> Void)?
     public var onTapBackspace: (() -> Void)?
     
-    public var didChangeText: [((String?) -> Void)]?
+    public var didChangeText = [((String?) -> Void)]()
     
     private var padding: UIEdgeInsets
     private var isValidState = true
@@ -152,7 +152,10 @@ extension Textview: TextInputOutput {
         onBecomeFirstResponder = model.onBecomeFirstResponder
         onResignFirstResponder = model.onResignFirstResponder
         onTapBackspace = model.onTapBackspace
-        didChangeText = model.didChangeText
+        if let didChangeText = model.didChangeText {
+            self.didChangeText = didChangeText
+        }
+        
     }
     
     public func display(text: String?) {
@@ -176,6 +179,38 @@ extension Textview: TextInputOutput {
     
     public func display(isSecureTextEntry: Bool) {
         self.isSecureTextEntry = isSecureTextEntry
+    }
+    
+    public func display(leadingViewOnPress: (() -> Void)?) {
+        self.leadingViewOnPress = leadingViewOnPress
+    }
+    
+    public func display(trailingViewOnPress: (() -> Void)?) {
+        self.trailingViewOnPress = trailingViewOnPress
+    }
+    
+    public func display(onPress: (() -> Void)?) {
+        self.onPress = onPress
+    }
+    
+    public func display(onPaste: ((String?) -> Void)?) {
+        self.onPaste = onPaste
+    }
+    
+    public func display(onBecomeFirstResponder: (() -> Void)?) {
+        self.onBecomeFirstResponder = onBecomeFirstResponder
+    }
+    
+    public func display(onResignFirstResponder: (() -> Void)?) {
+        self.onResignFirstResponder = onResignFirstResponder
+    }
+    
+    public func display(onTapBackspace: (() -> Void)?) {
+        self.onTapBackspace = onTapBackspace
+    }
+    
+    public func display(didChangeText: [((String?) -> Void)]) {
+        self.didChangeText = didChangeText
     }
 }
 #endif

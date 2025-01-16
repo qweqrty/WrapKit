@@ -28,11 +28,22 @@ extension ChunkedTextField: TextInputOutput {
         self.isUserInteractionEnabled = isUserInteractionEnabled
     }
     
+    public func display(didChangeText: [((String?) -> Void)]) {
+        self.didChangeText = didChangeText
+    }
+    
     public func display(mask: TextInputPresentableModel.Mask?) { }
     public func display(isEnabledForEditing: Bool) { }
     public func display(isTextSelectionDisabled: Bool) { }
     public func display(placeholder: String?) { }
     public func display(isSecureTextEntry: Bool) { }
+    public func display(leadingViewOnPress: (() -> Void)?) {}
+    public func display(trailingViewOnPress: (() -> Void)?) {}
+    public func display(onPress: (() -> Void)?) {}
+    public func display(onPaste: ((String?) -> Void)?) {}
+    public func display(onBecomeFirstResponder: (() -> Void)?) {}
+    public func display(onResignFirstResponder: (() -> Void)?) {}
+    public func display(onTapBackspace: (() -> Void)?) {}
 }
 
 public class ChunkedTextField: View {
@@ -45,13 +56,7 @@ public class ChunkedTextField: View {
     public lazy var stackView = StackView(distribution: .fillEqually, axis: .horizontal, spacing: count > 4 ? 8 : 12)
     public lazy var textfields = makeTextfields()
     
-    public var didChangeText: [((String?) -> Void)]?
-    public var leadingViewOnPress: (() -> Void)?
-    public var trailingViewOnPress: (() -> Void)?
-    public var onPaste: ((String?) -> Void)?
-    public var onBecomeFirstResponder: (() -> Void)?
-    public var onResignFirstResponder: (() -> Void)?
-    public var onTapBackspace: (() -> Void)?
+    public var didChangeText = [((String?) -> Void)]()
     
     open override var isUserInteractionEnabled: Bool {
         didSet {
@@ -126,7 +131,7 @@ private extension ChunkedTextField {
         }
         
         let allFieldsText = textfields.compactMap { $0.text }.joined()
-        didChangeText?.forEach { $0(allFieldsText) }
+        didChangeText.forEach { $0(allFieldsText) }
     }
 }
 
@@ -138,7 +143,7 @@ private extension ChunkedTextField {
             textfield.tintColor = .clear
             textfield.textContentType = .oneTimeCode
             
-            textfield.didChangeText?.append { [weak self, weak textfield] text in
+            textfield.didChangeText.append { [weak self, weak textfield] text in
                 let text = text?.filter { Self.characterSet.contains($0) }
                 if let nextTextfield = self?.textfields.item(at: offset + 1), (text?.count ?? 0) >= Self.maxCharactersPerTextfield {
                     nextTextfield.becomeFirstResponder()
@@ -152,7 +157,7 @@ private extension ChunkedTextField {
                         return nil
                     }
                 }.joined()
-                self?.didChangeText?.forEach { $0(allFieldsText) }
+                self?.didChangeText.forEach { $0(allFieldsText) }
             }
             
             textfield.onPaste = { [weak self] pastedText in

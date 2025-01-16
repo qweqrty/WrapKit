@@ -95,14 +95,14 @@ public protocol TextInputOutput: AnyObject {
     func display(placeholder: String?)
     func display(isUserInteractionEnabled: Bool)
     func display(isSecureTextEntry: Bool)
-    var leadingViewOnPress: (() -> Void)? { get set }
-    var trailingViewOnPress: (() -> Void)? { get set }
-    var onPress: (() -> Void)? { get set }
-    var onPaste: ((String?) -> Void)? { get set }
-    var onBecomeFirstResponder: (() -> Void)? { get set }
-    var onResignFirstResponder: (() -> Void)? { get set }
-    var onTapBackspace: (() -> Void)? { get set }
-    var didChangeText: [((String?) -> Void)]? { get set }
+    func display(leadingViewOnPress: (() -> Void)?)
+    func display(trailingViewOnPress: (() -> Void)?)
+    func display(onPress: (() -> Void)?)
+    func display(onPaste: ((String?) -> Void)?)
+    func display(onBecomeFirstResponder: (() -> Void)?)
+    func display(onResignFirstResponder: (() -> Void)?)
+    func display(onTapBackspace: (() -> Void)?)
+    func display(didChangeText: [((String?) -> Void)])
 }
 
 public struct TextInputPresentableModel {
@@ -235,7 +235,7 @@ open class Textfield: UITextField {
     public var onResignFirstResponder: (() -> Void)?
     public var onTapBackspace: (() -> Void)?
     
-    public var didChangeText: [((String?) -> Void)]?
+    public var didChangeText = [((String?) -> Void)]()
     
     open override var placeholder: String? {
         didSet {
@@ -301,7 +301,7 @@ open class Textfield: UITextField {
                 self?.sendActions(for: .editingChanged)
                 trailingView.isHidden = true
             }
-            self.didChangeText?.append { [weak self] text in
+            self.didChangeText.append { [weak self] text in
                 let text = self?.maskedTextfieldDelegate?.onlySpecifiersIfMaskedText ?? text ?? ""
                 self?.trailingView?.isHidden = text.isEmpty
             }
@@ -349,7 +349,7 @@ open class Textfield: UITextField {
     }
     
     @objc private func textFieldDidChange() {
-        didChangeText?.forEach {
+        didChangeText.forEach {
             if let delegate = self.delegate as? MaskedTextfieldDelegate {
                 $0(delegate.fullText)
             } else {
@@ -544,7 +544,9 @@ extension Textfield: TextInputOutput {
         onBecomeFirstResponder = model.onBecomeFirstResponder
         onResignFirstResponder = model.onResignFirstResponder
         onTapBackspace = model.onTapBackspace
-        didChangeText = model.didChangeText
+        if let didChangeText = model.didChangeText {
+            self.didChangeText = didChangeText
+        }
     }
     
     public func display(text: String?) {
@@ -580,6 +582,38 @@ extension Textfield: TextInputOutput {
     
     public func display(isSecureTextEntry: Bool) {
         self.isSecureTextEntry = isSecureTextEntry
+    }
+    
+    public func display(leadingViewOnPress: (() -> Void)?) {
+        self.leadingViewOnPress = leadingViewOnPress
+    }
+    
+    public func display(trailingViewOnPress: (() -> Void)?) {
+        self.trailingViewOnPress = trailingViewOnPress
+    }
+    
+    public func display(onPress: (() -> Void)?) {
+        self.onPress = onPress
+    }
+    
+    public func display(onPaste: ((String?) -> Void)?) {
+        self.onPaste = onPaste
+    }
+    
+    public func display(onBecomeFirstResponder: (() -> Void)?) {
+        self.onBecomeFirstResponder = onBecomeFirstResponder
+    }
+    
+    public func display(onResignFirstResponder: (() -> Void)?) {
+        self.onResignFirstResponder = onResignFirstResponder
+    }
+    
+    public func display(onTapBackspace: (() -> Void)?) {
+        self.onTapBackspace = onTapBackspace
+    }
+    
+    public func display(didChangeText: [((String?) -> Void)]) {
+        self.didChangeText = didChangeText
     }
 }
 #endif
