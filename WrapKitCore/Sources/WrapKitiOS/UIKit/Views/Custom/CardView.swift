@@ -44,9 +44,11 @@ public struct CardViewPresentableModel: HashableWithReflection {
     
     public struct SwitchControl {
         public let isOn: Bool
+        public let isEnabled: Bool
         
-        public init(isOn: Bool) {
+        public init(isOn: Bool, isEnabled: Bool = true) {
             self.isOn = isOn
+            self.isEnabled = isEnabled
         }
     }
     
@@ -158,6 +160,7 @@ extension CardView: CardViewOutput {
         switchWrapperView.isHidden = switchControl == nil
         if let switchControl = switchControl {
             self.switchControl.isOn = switchControl.isOn
+            self.switchControl.isEnabled = switchControl.isEnabled
         }
     }
     
