@@ -7,14 +7,14 @@ import Foundation
 
 extension MainQueueDispatchDecorator: AlertOutput where T: AlertOutput {
 
-    public func showAlert(title: String?, text: String?, actions: [AlertAction], cancelText: String?) {
+    public func showAlert(model: AlertPresentableModel?) {
         dispatch { [weak self] in
-            self?.decoratee.showAlert(title: title, text: text, actions: actions, cancelText: cancelText)
+            self?.decoratee.showAlert(model: model)
         }
     }
-    public func showActionSheet(title: String?, text: String?, actions: [AlertAction], cancelText: String?) {
+    public func showActionSheet(model: AlertPresentableModel?) {
         dispatch { [weak self] in
-            self?.decoratee.showActionSheet(title: title, text: text, actions: actions, cancelText: cancelText)
+            self?.decoratee.showActionSheet(model: model)
         }
     }
 
@@ -34,11 +34,11 @@ extension AlertOutput {
 
 extension WeakRefVirtualProxy: AlertOutput where T: AlertOutput {
 
-    public func showAlert(title: String?, text: String?, actions: [AlertAction], cancelText: String?) {
-        object?.showAlert(title: title, text: text, actions: actions, cancelText: cancelText)
+    public func showAlert(model: AlertPresentableModel?) {
+        object?.showAlert(model: model)
     }
-    public func showActionSheet(title: String?, text: String?, actions: [AlertAction], cancelText: String?) {
-        object?.showActionSheet(title: title, text: text, actions: actions, cancelText: cancelText)
+    public func showActionSheet(model: AlertPresentableModel?) {
+        object?.showActionSheet(model: model)
     }
 
 }

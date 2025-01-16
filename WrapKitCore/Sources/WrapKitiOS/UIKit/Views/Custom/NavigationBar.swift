@@ -6,12 +6,38 @@
 //
 
 public protocol HeaderOutput: AnyObject {
+    func display(model: HeaderPresentableModel?)
     func display(keyTitle: [TextAttributes])
     func display(valueTitle: [TextAttributes])
-    func display(leadingImage: ImageEnum)
-    func display(primeTrailingImage: ImageEnum)
-    func display(secondaryTrailingImage: ImageEnum)
-    func display(tertiaryTrailingImage: ImageEnum)
+    func display(leadingImage: ImageEnum?)
+    func display(primeTrailingImage: ImageEnum?)
+    func display(secondaryTrailingImage: ImageEnum?)
+    func display(tertiaryTrailingImage: ImageEnum?)
+}
+
+public struct HeaderPresentableModel {
+    public let keyTitle: [TextAttributes]
+    public let valueTitle: [TextAttributes]
+    public let leadingImage: ImageEnum?
+    public let primeTrailingImage: ImageEnum?
+    public let secondaryTrailingImage: ImageEnum?
+    public let tertiaryTrailingImage: ImageEnum?
+    
+    public init(
+        keyTitle: [TextAttributes] = [],
+        valueTitle: [TextAttributes] = [],
+        leadingImage: ImageEnum? = nil,
+        primeTrailingImage: ImageEnum? = nil,
+        secondaryTrailingImage: ImageEnum? = nil,
+        tertiaryTrailingImage: ImageEnum? = nil
+    ) {
+        self.keyTitle = keyTitle
+        self.valueTitle = valueTitle
+        self.leadingImage = leadingImage
+        self.primeTrailingImage = primeTrailingImage
+        self.secondaryTrailingImage = secondaryTrailingImage
+        self.tertiaryTrailingImage = tertiaryTrailingImage
+    }
 }
 
 #if canImport(UIKit)
@@ -141,27 +167,38 @@ private extension NavigationBar {
 }
 
 extension NavigationBar: HeaderOutput {
+    public func display(model: HeaderPresentableModel?) {
+        isHidden = model == nil
+        guard let model = model else { return }
+        titleViews.keyLabel.display(model: .init(text: nil, attributes: model.keyTitle))
+        titleViews.valueLabel.display(model: .init(text: nil, attributes: model.valueTitle))
+        leadingCardView.leadingImageView.setImage(model.leadingImage)
+        primeTrailingImageWrapperView.contentView.setImage(model.primeTrailingImage)
+        secondaryTrailingImageWrapperView.contentView.setImage(model.secondaryTrailingImage)
+        tertiaryTrailingImageWrapperView.contentView.setImage(model.tertiaryTrailingImage)
+    }
+    
     public func display(keyTitle: [TextAttributes]) {
-        titleViews.keyLabel.display(attributes: keyTitle)
+        titleViews.keyLabel.display(model: .init(text: nil, attributes: keyTitle))
     }
     
     public func display(valueTitle: [TextAttributes]) {
-        titleViews.valueLabel.display(attributes: valueTitle)
+        titleViews.valueLabel.display(model: .init(text: nil, attributes: valueTitle))
     }
     
-    public func display(leadingImage: ImageEnum) {
+    public func display(leadingImage: ImageEnum?) {
         leadingCardView.leadingImageView.setImage(leadingImage)
     }
     
-    public func display(primeTrailingImage: ImageEnum) {
+    public func display(primeTrailingImage: ImageEnum?) {
         primeTrailingImageWrapperView.contentView.setImage(primeTrailingImage)
     }
     
-    public func display(secondaryTrailingImage: ImageEnum) {
+    public func display(secondaryTrailingImage: ImageEnum?) {
         secondaryTrailingImageWrapperView.contentView.setImage(secondaryTrailingImage)
     }
     
-    public func display(tertiaryTrailingImage: ImageEnum) {
+    public func display(tertiaryTrailingImage: ImageEnum?) {
         tertiaryTrailingImageWrapperView.contentView.setImage(tertiaryTrailingImage)
     }
 }

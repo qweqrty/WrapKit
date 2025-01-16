@@ -6,10 +6,30 @@
 //
 
 public protocol PickerViewOutput: AnyObject {
+    func display(model: PickerViewPresentableModel?)
     var componentsCount: (() -> Int?)? { get set }
     var rowsCount: (() -> Int)? { get set }
     var titleForRowAt: ((Int) -> String?)? { get set }
     var didSelectAt: ((Int) -> Void)? { get set }
+}
+
+public struct PickerViewPresentableModel {
+    public let componentsCount: (() -> Int?)?
+    public let rowsCount: (() -> Int)?
+    public let titleForRowAt: ((Int) -> String?)?
+    public let didSelectAt: ((Int) -> Void)?
+    
+    public init(
+        componentsCount: (() -> Int?)? = nil,
+        rowsCount: (() -> Int)? = nil,
+        titleForRowAt: ((Int) -> String?)? = nil,
+        didSelectAt: ((Int) -> Void)? = nil
+    ) {
+        self.componentsCount = componentsCount
+        self.rowsCount = rowsCount
+        self.titleForRowAt = titleForRowAt
+        self.didSelectAt = didSelectAt
+    }
 }
 
 #if canImport(UIKit)
@@ -57,5 +77,13 @@ extension PickerView: UIPickerViewDataSource, UIPickerViewDelegate {
     }
 }
 
-extension PickerView: PickerViewOutput { }
+extension PickerView: PickerViewOutput {
+    public func display(model: PickerViewPresentableModel?) {
+        isHidden = model == nil
+        componentsCount = model?.componentsCount
+        rowsCount = model?.rowsCount
+        titleForRowAt = model?.titleForRowAt
+        didSelectAt = model?.didSelectAt
+    }
+}
 #endif

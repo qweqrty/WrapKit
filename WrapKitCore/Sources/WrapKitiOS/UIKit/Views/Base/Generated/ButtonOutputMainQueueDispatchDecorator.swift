@@ -7,24 +7,22 @@ import Foundation
 
 extension MainQueueDispatchDecorator: ButtonOutput where T: ButtonOutput {
 
+    public func display(model: ButtonPresentableModel?) {
+        dispatch { [weak self] in
+            self?.decoratee.display(model: model)
+        }
+    }
     public func display(spacing: Float) {
         dispatch { [weak self] in
             self?.decoratee.display(spacing: spacing)
         }
     }
-
-    public var onPress: (() -> Void)? {
-        get {
-            return DispatchQueue.main.sync {
-                return self.decoratee.onPress
-            }
-        }
-        set {
-            dispatch { [weak self] in
-                self?.decoratee.onPress = newValue
-            }
+    public func display(onPress: (() -> Void)?) {
+        dispatch { [weak self] in
+            self?.decoratee.display(onPress: onPress)
         }
     }
+
 }
 
 extension ButtonOutput {
@@ -41,12 +39,14 @@ extension ButtonOutput {
 
 extension WeakRefVirtualProxy: ButtonOutput where T: ButtonOutput {
 
+    public func display(model: ButtonPresentableModel?) {
+        object?.display(model: model)
+    }
     public func display(spacing: Float) {
         object?.display(spacing: spacing)
     }
-
-    public var onPress: (() -> Void)? {
-        get { return object?.onPress }
-        set { object?.onPress = newValue }
+    public func display(onPress: (() -> Void)?) {
+        object?.display(onPress: onPress)
     }
+
 }

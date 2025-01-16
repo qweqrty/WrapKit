@@ -7,9 +7,25 @@
 
 public protocol TitledOutput<ContentView>: AnyObject {
     associatedtype ContentView
-    func display(contentView: ContentView)
+    func display(model: TitledViewPresentableModel<ContentView>?)
     func display(keyTitle: [TextAttributes])
     func display(valueTitle: [TextAttributes])
+}
+
+public struct TitledViewPresentableModel<ContentView> {
+    public let contentView: ContentView
+    public let keyTitle: [TextAttributes]
+    public let valueTitle: [TextAttributes]
+    
+    public init(
+        contentView: ContentView,
+        keyTitle: [TextAttributes] = [],
+        valueTitle: [TextAttributes] = []
+    ) {
+        self.contentView = contentView
+        self.keyTitle = keyTitle
+        self.valueTitle = valueTitle
+    }
 }
 
 #if canImport(UIKit)
@@ -135,16 +151,19 @@ open class TitledView<ContentView: UIView>: View {
 }
 
 extension TitledView: TitledOutput {
+    public func display(model: TitledViewPresentableModel<ContentView>?) {
+        isHidden = model == nil
+        guard let model = model else { return }
+        self.contentView = model.contentView
+        titlesView.keyLabel.display(model: .init(text: nil, attributes: model.keyTitle))
+        titlesView.valueLabel.display(model: .init(text: nil, attributes: model.valueTitle))
+    }
     public func display(keyTitle: [TextAttributes]) {
-        titlesView.keyLabel.display(attributes: keyTitle)
+        titlesView.keyLabel.display(model: .init(text: nil, attributes: keyTitle))
     }
     
     public func display(valueTitle: [TextAttributes]) {
-        titlesView.valueLabel.display(attributes: valueTitle)
-    }
-    
-    public func display(contentView: ContentView) {
-        self.contentView = contentView
+        titlesView.valueLabel.display(model: .init(text: nil, attributes: valueTitle))
     }
 }
 

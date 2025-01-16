@@ -7,6 +7,11 @@ import Foundation
 
 extension MainQueueDispatchDecorator: PickerViewOutput where T: PickerViewOutput {
 
+    public func display(model: PickerViewPresentableModel?) {
+        dispatch { [weak self] in
+            self?.decoratee.display(model: model)
+        }
+    }
 
     public var componentsCount: (() -> Int?)? {
         get {
@@ -72,6 +77,9 @@ extension PickerViewOutput {
 
 extension WeakRefVirtualProxy: PickerViewOutput where T: PickerViewOutput {
 
+    public func display(model: PickerViewPresentableModel?) {
+        object?.display(model: model)
+    }
 
     public var componentsCount: (() -> Int?)? {
         get { return object?.componentsCount }

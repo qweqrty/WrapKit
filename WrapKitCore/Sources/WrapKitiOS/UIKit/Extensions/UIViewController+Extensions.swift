@@ -6,38 +6,30 @@
 //
 
 public protocol AlertOutput: AnyObject {
-    func showAlert(
-        title: String?,
-        text: String?,
-        actions: [AlertAction],
-        cancelText: String?
-    )
-    
-    func showActionSheet(
-        title: String?,
-        text: String?,
-        actions: [AlertAction],
-        cancelText: String?
-    )
+    func showAlert(model: AlertPresentableModel?)
+    func showActionSheet(model: AlertPresentableModel?)
+}
+
+public struct AlertPresentableModel {
+    let title: String?
+    let text: String?
+    let actions: [AlertAction]
+    let cancelText: String?
 }
 
 #if canImport(UIKit)
 import UIKit
 
 extension UIViewController: AlertOutput {
-    public func showAlert(
-        title: String? = nil,
-        text: String? = nil,
-        actions: [AlertAction],
-        cancelText: String? = nil
-    ) {
+    public func showAlert(model: AlertPresentableModel?) {
+        guard let model = model else { return }
         CFRunLoopPerformBlock(CFRunLoopGetMain(), CFRunLoopMode.defaultMode.rawValue) { [weak self] in
             let alert = UIAlertController(
-                title: title,
-                message: text,
+                title: model.title,
+                message: model.text,
                 preferredStyle: .alert
             )
-            actions.forEach { action in
+            model.actions.forEach { action in
                 let style: UIAlertAction.Style
                 switch action.style {
                 case .default: style = .default
@@ -51,7 +43,7 @@ extension UIViewController: AlertOutput {
                 alert.addAction(uiAction)
             }
             
-            if let cancelText {
+            if let cancelText = model.cancelText {
                 alert.addAction(UIAlertAction(title: cancelText, style: .cancel, handler: nil))
             }
             
@@ -59,20 +51,16 @@ extension UIViewController: AlertOutput {
         }
     }
     
-    public func showActionSheet(
-        title: String? = nil,
-        text: String? = nil,
-        actions: [AlertAction],
-        cancelText: String? = nil
-    ) {
+    public func showActionSheet(model: AlertPresentableModel?) {
+        guard let model = model else { return }
         CFRunLoopPerformBlock(CFRunLoopGetMain(), CFRunLoopMode.defaultMode.rawValue) { [weak self] in
             let alert = UIAlertController(
-                title: title,
-                message: text,
+                title: model.title,
+                message: model.text,
                 preferredStyle: .actionSheet
             )
             
-            actions.forEach { action in
+            model.actions.forEach { action in
                 let style: UIAlertAction.Style
                 switch action.style {
                 case .default: style = .default
@@ -86,7 +74,7 @@ extension UIViewController: AlertOutput {
                 alert.addAction(uiAction)
             }
             
-            if let cancelText {
+            if let cancelText = model.cancelText {
                 alert.addAction(UIAlertAction(title: cancelText, style: .cancel, handler: nil))
             }
             self?.present(alert, animated: true, completion: nil)

@@ -7,6 +7,11 @@ import Foundation
 
 extension MainQueueDispatchDecorator: TextOutput where T: TextOutput {
 
+    public func display(model: TextOutputPresentableModel?) {
+        dispatch { [weak self] in
+            self?.decoratee.display(model: model)
+        }
+    }
     public func display(text: String?) {
         dispatch { [weak self] in
             self?.decoratee.display(text: text)
@@ -34,6 +39,9 @@ extension TextOutput {
 
 extension WeakRefVirtualProxy: TextOutput where T: TextOutput {
 
+    public func display(model: TextOutputPresentableModel?) {
+        object?.display(model: model)
+    }
     public func display(text: String?) {
         object?.display(text: text)
     }

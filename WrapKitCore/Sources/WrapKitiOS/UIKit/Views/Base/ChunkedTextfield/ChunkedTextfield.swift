@@ -1,12 +1,7 @@
 import Foundation
 
-public protocol ChunkedTextFieldOutput: AnyObject {
-    func display(text: String?)
-    func display(isValid: Bool)
-}
-
 #if canImport(UIKit)
-extension ChunkedTextField: ChunkedTextFieldOutput {
+extension ChunkedTextField: TextInputOutput {
     public func display(text: String?) {
         let text = String((text ?? "").prefix(count))
         text.enumerated().forEach {
@@ -14,11 +9,42 @@ extension ChunkedTextField: ChunkedTextFieldOutput {
         }
     }
     
+    public func display(model: TextInputPresentableModel?) {
+        isHidden = model == nil
+        guard let model = model else { return }
+        let text = String((model.text ?? "").prefix(count))
+        text.enumerated().forEach {
+            textfields.item(at: $0.offset)?.text = String($0.element)
+        }
+        
+        textfields.forEach { $0.updateAppearance(isValid: model.isValid) }
+    }
+    
     public func display(isValid: Bool) {
         textfields.forEach { $0.updateAppearance(isValid: isValid) }
     }
+    
+    public func display(isUserInteractionEnabled: Bool) {
+        self.isUserInteractionEnabled = isUserInteractionEnabled
+    }
+    
+    public func display(didChangeText: [((String?) -> Void)]) {
+        self.didChangeText = didChangeText
+    }
+    
+    public func display(mask: TextInputPresentableModel.Mask?) { }
+    public func display(isEnabledForEditing: Bool) { }
+    public func display(isTextSelectionDisabled: Bool) { }
+    public func display(placeholder: String?) { }
+    public func display(isSecureTextEntry: Bool) { }
+    public func display(leadingViewOnPress: (() -> Void)?) {}
+    public func display(trailingViewOnPress: (() -> Void)?) {}
+    public func display(onPress: (() -> Void)?) {}
+    public func display(onPaste: ((String?) -> Void)?) {}
+    public func display(onBecomeFirstResponder: (() -> Void)?) {}
+    public func display(onResignFirstResponder: (() -> Void)?) {}
+    public func display(onTapBackspace: (() -> Void)?) {}
 }
-
 
 public class ChunkedTextField: View {
     private static let maxCharactersPerTextfield = 1
@@ -117,7 +143,7 @@ private extension ChunkedTextField {
             textfield.tintColor = .clear
             textfield.textContentType = .oneTimeCode
             
-            textfield.didChangeText?.append { [weak self, weak textfield] text in
+            textfield.didChangeText.append { [weak self, weak textfield] text in
                 let text = text?.filter { Self.characterSet.contains($0) }
                 if let nextTextfield = self?.textfields.item(at: offset + 1), (text?.count ?? 0) >= Self.maxCharactersPerTextfield {
                     nextTextfield.becomeFirstResponder()

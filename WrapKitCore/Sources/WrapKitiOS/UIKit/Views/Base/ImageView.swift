@@ -6,9 +6,26 @@
 //
 
 public protocol ImageViewOutput: AnyObject {
-    var onPress: (() -> Void)? { get set }
-    var onLongPress: (() -> Void)? { get set }
+    func display(model: ImageViewPresentableModel?)
     func display(image: ImageEnum)
+    func display(onPress: (() -> Void)?)
+    func display(onLongPress: (() -> Void)?)
+}
+
+public struct ImageViewPresentableModel {
+    public let image: ImageEnum?
+    public let onPress: (() -> Void)?
+    public let onLongPress: (() -> Void)?
+    
+    public init(
+        image: ImageEnum? = nil,
+        onPress: (() -> Void)? = nil,
+        onLongPress: (() -> Void)? = nil
+    ) {
+        self.image = image
+        self.onPress = onPress
+        self.onLongPress = onLongPress
+    }
 }
 
 #if canImport(UIKit)
@@ -174,8 +191,23 @@ open class ImageView: UIImageView {
 }
 
 extension ImageView: ImageViewOutput {
+    public func display(model: ImageViewPresentableModel?) {
+        isHidden = model == nil
+        self.setImage(model?.image)
+        onPress = model?.onPress
+        onLongPress = model?.onLongPress
+    }
+    
     public func display(image: ImageEnum) {
         self.setImage(image)
+    }
+    
+    public func display(onPress: (() -> Void)?) {
+        self.onPress = onPress
+    }
+    
+    public func display(onLongPress: (() -> Void)?) {
+        self.onLongPress = onLongPress
     }
 }
 #endif

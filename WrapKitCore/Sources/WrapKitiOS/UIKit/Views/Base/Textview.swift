@@ -18,7 +18,7 @@ open class Textview: UITextView, UITextViewDelegate {
     public var onResignFirstResponder: (() -> Void)?
     public var onTapBackspace: (() -> Void)?
     
-    public var didChangeText: [((String?) -> Void)]?
+    public var didChangeText = [((String?) -> Void)]()
     
     private var padding: UIEdgeInsets
     private var isValidState = true
@@ -136,23 +136,81 @@ public extension Textview {
 }
 
 extension Textview: TextInputOutput {
-    public func display(isValid: Bool) {
-        self.isValidState = isValid
-        updateAppearance(isValid: isValid)
+    public func display(model: TextInputPresentableModel?) {
+        isHidden = model == nil
+        guard let model = model else { return }
+        text = model.text
+        isValidState = model.isValid
+        updateAppearance(isValid: model.isValid)
+        isUserInteractionEnabled = model.isUserInteractionEnabled
+        isSecureTextEntry = model.isSecureTextEntry
+        leadingViewOnPress = model.leadingViewOnPress
+        trailingViewOnPress = model.trailingViewOnPress
+        self.placeholderLabel.text = model.placeholder
+        onPress = model.onPress
+        onPaste = model.onPaste
+        onBecomeFirstResponder = model.onBecomeFirstResponder
+        onResignFirstResponder = model.onResignFirstResponder
+        onTapBackspace = model.onTapBackspace
+        if let didChangeText = model.didChangeText {
+            self.didChangeText = didChangeText
+        }
+        
     }
-    public func display(mask: Masking, maskColor: UIColor) {}
+    
+    public func display(text: String?) {
+        self.text = text
+    }
+    
+    public func display(mask: TextInputPresentableModel.Mask?) { }
+    public func display(isValid: Bool) {
+        isValidState = isValid
+    }
+    
     public func display(isEnabledForEditing: Bool) { }
     public func display(isTextSelectionDisabled: Bool) { }
-    public func display(onPaste: ((String?) -> Void)?) { }
-    public func display(isUserInteractionEnabled: Bool) { }
-    public func display(text: String?) { }
-    public func display(leadingViewOnPress: (() -> Void)?) { }
-    public func display(trailingViewOnPress: (() -> Void)?) { }
-    public func display(onTapBackSpace: (() -> Void)?) { }
-    public func display(onPress: (() -> Void)?) { }
-    public func display(placeholder: String?) { }
-    public func display(onBecomeFirstResponder: (() -> Void)?) { }
-    public func display(onResignFirstResponder: (() -> Void)?) { }
-    public func display(isSecureTextEntry: Bool) { }
+    public func display(placeholder: String?) {
+        self.placeholderLabel.text = placeholder
+    }
+    
+    public func display(isUserInteractionEnabled: Bool) {
+        self.isUserInteractionEnabled = isUserInteractionEnabled
+    }
+    
+    public func display(isSecureTextEntry: Bool) {
+        self.isSecureTextEntry = isSecureTextEntry
+    }
+    
+    public func display(leadingViewOnPress: (() -> Void)?) {
+        self.leadingViewOnPress = leadingViewOnPress
+    }
+    
+    public func display(trailingViewOnPress: (() -> Void)?) {
+        self.trailingViewOnPress = trailingViewOnPress
+    }
+    
+    public func display(onPress: (() -> Void)?) {
+        self.onPress = onPress
+    }
+    
+    public func display(onPaste: ((String?) -> Void)?) {
+        self.onPaste = onPaste
+    }
+    
+    public func display(onBecomeFirstResponder: (() -> Void)?) {
+        self.onBecomeFirstResponder = onBecomeFirstResponder
+    }
+    
+    public func display(onResignFirstResponder: (() -> Void)?) {
+        self.onResignFirstResponder = onResignFirstResponder
+    }
+    
+    public func display(onTapBackspace: (() -> Void)?) {
+        self.onTapBackspace = onTapBackspace
+    }
+    
+    public func display(didChangeText: [((String?) -> Void)]) {
+        self.didChangeText = didChangeText
+    }
 }
 #endif
