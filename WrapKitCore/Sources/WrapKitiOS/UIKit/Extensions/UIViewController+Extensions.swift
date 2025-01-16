@@ -17,10 +17,10 @@ public struct AlertPresentableModel {
     public let cancelText: String?
     
     public init(
-        title: String? = "",
-        text: String? = "",
+        title: String? = nil,
+        text: String? = nil,
         actions: [AlertAction] = [],
-        cancelText: String? = ""
+        cancelText: String? = nil
     ) {
         self.title = title
         self.text = text
