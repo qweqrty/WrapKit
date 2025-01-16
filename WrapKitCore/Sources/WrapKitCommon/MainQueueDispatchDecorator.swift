@@ -47,3 +47,21 @@ extension SelectionFlow {
         MainQueueDispatchDecorator(decoratee: self)
     }
 }
+
+extension MainQueueDispatchDecorator: HTTPClient where T == HTTPClient {
+    public func dispatch(_ request: URLRequest, completion: @escaping (Swift.Result<(data: Data, response: HTTPURLResponse), Error>) -> Void) -> HTTPClientTask {
+        decoratee.dispatch(request) { [weak self] response in
+            self?.dispatch { completion(response) }
+        }
+    }
+}
+
+extension MainQueueDispatchDecorator: HTTPDownloadClient where T == HTTPDownloadClient {
+    public func download(_ request: URLRequest, progress: @escaping (Double) -> Void, completion: @escaping (DownloadResult) -> Void) -> HTTPClientTask {
+        decoratee.download(request, progress: { [weak self] result in
+            self?.dispatch(completion: { progress(result) })
+        }) { [weak self] response in
+            self?.dispatch { completion(response) }
+        }
+    }
+}
