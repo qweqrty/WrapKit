@@ -11,10 +11,22 @@ public protocol AlertOutput: AnyObject {
 }
 
 public struct AlertPresentableModel {
-    let title: String?
-    let text: String?
-    let actions: [AlertAction]
-    let cancelText: String?
+    public let title: String?
+    public let text: String?
+    public let actions: [AlertAction]
+    public let cancelText: String?
+    
+    public init(
+        title: String? = "",
+        text: String? = "",
+        actions: [AlertAction] = [],
+        cancelText: String? = ""
+    ) {
+        self.title = title
+        self.text = text
+        self.actions = actions
+        self.cancelText = cancelText
+    }
 }
 
 #if canImport(UIKit)
