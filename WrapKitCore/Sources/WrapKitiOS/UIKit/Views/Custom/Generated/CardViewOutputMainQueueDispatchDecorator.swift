@@ -17,17 +17,17 @@ extension MainQueueDispatchDecorator: CardViewOutput where T: CardViewOutput {
             self?.decoratee.display(title: title)
         }
     }
-    public func display(leadingImage: Image?) {
+    public func display(leadingImage: CardViewPresentableModel.Image?) {
         dispatch { [weak self] in
             self?.decoratee.display(leadingImage: leadingImage)
         }
     }
-    public func display(trailingImage: Image?) {
+    public func display(trailingImage: CardViewPresentableModel.Image?) {
         dispatch { [weak self] in
             self?.decoratee.display(trailingImage: trailingImage)
         }
     }
-    public func display(secondaryTrailingImage: Image?) {
+    public func display(secondaryTrailingImage: CardViewPresentableModel.Image?) {
         dispatch { [weak self] in
             self?.decoratee.display(secondaryTrailingImage: secondaryTrailingImage)
         }
@@ -80,13 +80,13 @@ extension WeakRefVirtualProxy: CardViewOutput where T: CardViewOutput {
     public func display(title: [TextAttributes]) {
         object?.display(title: title)
     }
-    public func display(leadingImage: Image?) {
+    public func display(leadingImage: CardViewPresentableModel.Image?) {
         object?.display(leadingImage: leadingImage)
     }
-    public func display(trailingImage: Image?) {
+    public func display(trailingImage: CardViewPresentableModel.Image?) {
         object?.display(trailingImage: trailingImage)
     }
-    public func display(secondaryTrailingImage: Image?) {
+    public func display(secondaryTrailingImage: CardViewPresentableModel.Image?) {
         object?.display(secondaryTrailingImage: secondaryTrailingImage)
     }
     public func display(subTitle: [TextAttributes]) {

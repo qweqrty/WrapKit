@@ -10,9 +10,9 @@ import Foundation
 public protocol CardViewOutput: AnyObject {
     func display(model: CardViewPresentableModel?)
     func display(title: [TextAttributes])
-    func display(leadingImage: Image?)
-    func display(trailingImage: Image?)
-    func display(secondaryTrailingImage: Image?)
+    func display(leadingImage: CardViewPresentableModel.Image?)
+    func display(trailingImage: CardViewPresentableModel.Image?)
+    func display(secondaryTrailingImage: CardViewPresentableModel.Image?)
     func display(subTitle: [TextAttributes])
     func display(valueTitle: [TextAttributes])
     func display(bottomSeparator: CardViewPresentableModel.BottomSeparator?)
@@ -23,11 +23,13 @@ public protocol CardViewOutput: AnyObject {
 public struct CardViewPresentableModel: HashableWithReflection {
     public struct Image {
         public let image: ImageEnum
+        public let contentModeIsFit: Bool
         public let size: CGSize
         
-        public init(image: ImageEnum, size: CGSize) {
+        public init(image: ImageEnum, size: CGSize, contentModeIsFit: Bool = true) {
             self.image = image
             self.size = size
+            self.contentModeIsFit = contentModeIsFit
         }
     }
     
@@ -113,31 +115,35 @@ extension CardView: CardViewOutput {
             statusLabel.removeAttributes()
             status.title.forEach { statusLabel.append($0) }
             statusLeadingImageView.setImage(status.leadingImage?.image)
+            statusLeadingImageView.contentMode = status.leadingImage?.contentModeIsFit == true ? .scaleAspectFit : .scaleAspectFill
             statusLeadingImageViewConstraints?.width?.constant = status.leadingImage?.size.width ?? 0
             statusLeadingImageViewConstraints?.height?.constant = status.leadingImage?.size.height ?? 0
         }
     }
     
-    public func display(leadingImage: Image?) {
+    public func display(leadingImage: CardViewPresentableModel.Image?) {
         leadingImageWrapperView.isHidden = leadingImage == nil
         leadingImageViewConstraints?.width?.constant = leadingImage?.size.width ?? 0
         leadingImageViewConstraints?.height?.constant = leadingImage?.size.height ?? 0
         
-        leadingImageView.setImage(.asset(leadingImage))
+        leadingImageView.setImage(leadingImage?.image)
+        leadingImageView.contentMode = leadingImage?.contentModeIsFit == true ? .scaleAspectFit : .scaleAspectFill
     }
     
-    public func display(trailingImage: Image?) {
+    public func display(trailingImage: CardViewPresentableModel.Image?) {
         trailingImageWrapperView.isHidden = trailingImage == nil
         trailingImageViewConstraints?.width?.constant = trailingImage?.size.width ?? 0
         trailingImageViewConstraints?.height?.constant = trailingImage?.size.height ?? 0
-        trailingImageView.setImage(.asset(trailingImage))
+        trailingImageView.setImage(trailingImage?.image)
+        trailingImageView.contentMode = trailingImage?.contentModeIsFit == true ? .scaleAspectFit : .scaleAspectFill
     }
     
-    public func display(secondaryTrailingImage: Image?) {
+    public func display(secondaryTrailingImage: CardViewPresentableModel.Image?) {
         secondaryTrailingImageWrapperView.isHidden = secondaryTrailingImage == nil
         secondaryTrailingImageViewConstraints?.width?.constant = secondaryTrailingImage?.size.width ?? 0
         secondaryTrailingImageViewConstraints?.height?.constant = secondaryTrailingImage?.size.height ?? 0
-        secondaryTrailingImageView.setImage(.asset(secondaryTrailingImage))
+        secondaryTrailingImageView.setImage(secondaryTrailingImage?.image)
+        secondaryTrailingImageView.contentMode = secondaryTrailingImage?.contentModeIsFit == true ? .scaleAspectFit : .scaleAspectFill
     }
     
     public func display(subTitle: [TextAttributes]) {
@@ -202,18 +208,21 @@ extension CardView: CardViewOutput {
         leadingImageViewConstraints?.height?.constant = model.leadingImage?.size.height ?? 0
         
         leadingImageView.setImage(model.leadingImage?.image)
+        leadingImageView.contentMode = model.leadingImage?.contentModeIsFit == true ? .scaleAspectFit : .scaleAspectFill
         
         // TrailingImage
         trailingImageWrapperView.isHidden = model.trailingImage == nil
         trailingImageViewConstraints?.width?.constant = model.trailingImage?.size.width ?? 0
         trailingImageViewConstraints?.height?.constant = model.trailingImage?.size.height ?? 0
         trailingImageView.setImage(model.trailingImage?.image)
+        trailingImageView.contentMode = model.trailingImage?.contentModeIsFit == true ? .scaleAspectFit : .scaleAspectFill
         
         // SecondaryTrailingImage
         secondaryTrailingImageWrapperView.isHidden = model.secondaryTrailingImage == nil
         secondaryTrailingImageViewConstraints?.width?.constant = model.secondaryTrailingImage?.size.width ?? 0
         secondaryTrailingImageViewConstraints?.height?.constant = model.secondaryTrailingImage?.size.height ?? 0
         secondaryTrailingImageView.setImage(model.secondaryTrailingImage?.image)
+        secondaryTrailingImageView.contentMode = model.secondaryTrailingImage?.contentModeIsFit == true ? .scaleAspectFit : .scaleAspectFill
         
         // bottomSeparatorView
         bottomSeparatorView.isHidden = model.bottomSeparator == nil
@@ -237,6 +246,7 @@ extension CardView: CardViewOutput {
             statusLabel.removeAttributes()
             status.title.forEach { statusLabel.append($0) }
             statusLeadingImageView.setImage(status.leadingImage?.image)
+            statusLeadingImageView.contentMode = status.leadingImage?.contentModeIsFit == true ? .scaleAspectFit : .scaleAspectFill
             statusLeadingImageViewConstraints?.width?.constant = status.leadingImage?.size.width ?? 0
             statusLeadingImageViewConstraints?.height?.constant = status.leadingImage?.size.height ?? 0
         }
