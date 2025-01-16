@@ -17,7 +17,6 @@ public protocol CardViewOutput: AnyObject {
     func display(valueTitle: [TextAttributes])
     func display(bottomSeparator: CardViewPresentableModel.BottomSeparator?)
     func display(switchControl: CardViewPresentableModel.SwitchControl?)
-    
 }
 
 public struct CardViewPresentableModel: HashableWithReflection {
@@ -50,6 +49,16 @@ public struct CardViewPresentableModel: HashableWithReflection {
             self.isOn = isOn
         }
     }
+    
+    public struct Status {
+        public let title: [TextAttributes]
+        public let leadingImage: Image?
+        
+        public init(title: [TextAttributes], leadingImage: Image?) {
+            self.title = title
+            self.leadingImage = leadingImage
+        }
+    }
 
     public let title: [TextAttributes]
     public let leadingImage: Image?
@@ -59,6 +68,7 @@ public struct CardViewPresentableModel: HashableWithReflection {
     public let valueTitle: [TextAttributes]
     public let bottomSeparator: BottomSeparator?
     public let switchControl: SwitchControl?
+    public let status: Status?
     
     public init(
         title: [TextAttributes] = [],
@@ -68,7 +78,8 @@ public struct CardViewPresentableModel: HashableWithReflection {
         subTitle: [TextAttributes] = [],
         valueTitle: [TextAttributes] = [],
         bottomSeparator: BottomSeparator? = nil,
-        switchControl: SwitchControl? = nil
+        switchControl: SwitchControl? = nil,
+        status: Status? = nil
     ) {
         self.title = title
         self.leadingImage = leadingImage
@@ -78,6 +89,7 @@ public struct CardViewPresentableModel: HashableWithReflection {
         self.valueTitle = valueTitle
         self.bottomSeparator = bottomSeparator
         self.switchControl = switchControl
+        self.status = status
     }
 }
 
@@ -203,6 +215,15 @@ extension CardView: CardViewOutput {
         if let switchControl = model.switchControl {
             self.switchControl.isOn = switchControl.isOn
         }
+        
+        //status view
+        statusWrapperView.isHidden = model.status == nil
+        if let status = model.status {
+            statusLabel.removeAttributes()
+            status.title.forEach { statusLabel.append($0) }
+            statusLeadingImageViewConstraints?.width?.constant = status.leadingImage?.size.width ?? 0
+            statusLeadingImageViewConstraints?.height?.constant = status.leadingImage?.size.height ?? 0
+        }
     }
 }
 
@@ -231,6 +252,10 @@ open class CardView: View {
     public let switchWrapperView = UIView(isHidden: true)
     public lazy var switchControl = SwitchControl()
     
+    public let statusWrapperView = View(isHidden: true)
+    public let statusLabel = Label(font: .systemFont(ofSize: 16), textColor: .black)
+    public let statusLeadingImageView = ImageView()
+    
     public let bottomSeparatorView = WrapperView(
         contentView: View(backgroundColor: .gray),
         contentViewConstraints: { contentView, superView in
@@ -243,6 +268,7 @@ open class CardView: View {
     public var trailingImageViewConstraints: AnchoredConstraints?
     public var secondaryTrailingImageViewConstraints: AnchoredConstraints?
     public var switchControlConstraints: AnchoredConstraints?
+    public var statusLeadingImageViewConstraints: AnchoredConstraints?
     public var bottomSeparatorViewConstraints: AnchoredConstraints?
     
     public init() {
@@ -287,12 +313,14 @@ extension CardView {
         hStackView.addArrangedSubview(secondaryTrailingImageWrapperView)
         hStackView.addArrangedSubview(trailingImageWrapperView)
         hStackView.addArrangedSubview(switchWrapperView)
+        hStackView.addArrangedSubview(statusWrapperView)
         
         leadingImageWrapperView.addSubview(leadingImageView)
         trailingImageWrapperView.addSubview(trailingImageView)
         secondaryTrailingImageWrapperView.addSubview(secondaryTrailingImageView)
         titleViewsWrapperView.addSubview(titleViews)
         switchWrapperView.addSubview(switchControl)
+        statusWrapperView.addSubviews(statusLeadingImageView, statusLabel)
     }
     
     func setupConstraints() {
@@ -352,6 +380,23 @@ extension CardView {
             .trailing(switchWrapperView.trailingAnchor),
             .centerX(switchWrapperView.centerXAnchor),
             .centerY(switchWrapperView.centerYAnchor)
+        )
+        
+        statusLeadingImageViewConstraints = statusLeadingImageView.anchor(
+            .leading(statusWrapperView.leadingAnchor, constant: 6),
+            .topGreaterThanEqual(statusWrapperView.topAnchor, constant: 4),
+            .bottomLessThanEqual(statusWrapperView.bottomAnchor, constant: 4),
+            .centerY(statusWrapperView.centerYAnchor),
+            .height(16),
+            .width(16)
+        )
+        
+        statusLabel.anchor(
+            .leading(statusLeadingImageView.trailingAnchor, constant: 4),
+            .topGreaterThanEqual(statusWrapperView.topAnchor, constant: 4),
+            .bottomLessThanEqual(statusWrapperView.bottomAnchor, constant: 4),
+            .trailing(statusWrapperView.trailingAnchor, constant: 6),
+            .centerY(statusWrapperView.centerYAnchor)
         )
         
         vStackView.anchor(
