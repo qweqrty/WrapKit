@@ -18,7 +18,7 @@ public struct TitledViewPresentableModel<ContentView> {
     public let valueTitle: [TextAttributes]
     
     public init(
-        contentView: ContentView = UIView(),
+        contentView: ContentView,
         keyTitle: [TextAttributes] = [],
         valueTitle: [TextAttributes] = []
     ) {
