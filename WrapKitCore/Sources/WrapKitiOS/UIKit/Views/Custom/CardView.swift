@@ -110,7 +110,7 @@ extension CardView: CardViewOutput {
     }
     
     public func display(status: CardViewPresentableModel.Status?) {
-        statusContainerView.isHidden = status == nil
+        statusWrapperView.isHidden = status == nil
         if let status = status {
             statusLabel.removeAttributes()
             status.title.forEach { statusLabel.append($0) }
