@@ -46,9 +46,7 @@ let package = Package(
             dependencies: [
                 "WrapKit",
                 "WrapKitTestUtils",
-                .product(name: "Kingfisher", package: "Kingfisher"),
                 .product(name: "PhoneNumberKit", package: "PhoneNumberKit"),
-                .product(name: "DeviceKit", package: "DeviceKit")
                 
             ],
             path: "WrapKitCore/Tests"
