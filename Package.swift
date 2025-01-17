@@ -16,6 +16,10 @@ let package = Package(
             type: .dynamic,
             targets: ["WrapKit"]),
         .library(
+            name: "WrapKitStatic",
+            type: .static,
+            targets: ["WrapKit"]),
+        .library(
             name: "WrapKitTestUtils",
             type: .dynamic,
             targets: ["WrapKitTestUtils"])
