@@ -25,17 +25,13 @@ let package = Package(
             targets: ["WrapKitTestUtils"])
     ],
     dependencies: [
-        .package(url: "https://github.com/onevcat/Kingfisher.git", from: "7.12.0"),
         .package(url: "https://github.com/marmelroy/PhoneNumberKit", from: "4.0.0"),
-        .package(url: "https://github.com/devicekit/DeviceKit", from: "5.5.0")
     ],
     targets: [
         .target(
             name: "WrapKit",
             dependencies: [
-                .product(name: "Kingfisher", package: "Kingfisher"),
                 .product(name: "PhoneNumberKit", package: "PhoneNumberKit"),
-                .product(name: "DeviceKit", package: "DeviceKit")
             ],
             path: "WrapKitCore/Sources"
         ),
