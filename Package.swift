@@ -33,9 +33,9 @@ let package = Package(
         .target(
             name: "WrapKit",
             dependencies: [
-                .product(name: "Kingfisher", package: "Kingfisher"),
-                .product(name: "PhoneNumberKit", package: "PhoneNumberKit"),
-                .product(name: "DeviceKit", package: "DeviceKit")
+                .product(name: "Kingfisher", package: "Kingfisher", moduleAliases: ["Kingfisher": "WKingfisher"]),
+                .product(name: "PhoneNumberKit", package: "PhoneNumberKit", moduleAliases: ["PhoneNumberKit": "WPhoneNumberKit"]),
+                .product(name: "DeviceKit", package: "DeviceKit", moduleAliases: ["DeviceKit": "WDeviceKit"])
             ],
             path: "WrapKitCore/Sources"
         ),
@@ -50,9 +50,9 @@ let package = Package(
             dependencies: [
                 "WrapKit",
                 "WrapKitTestUtils",
-                .product(name: "Kingfisher", package: "Kingfisher"),
-                .product(name: "PhoneNumberKit", package: "PhoneNumberKit"),
-                .product(name: "DeviceKit", package: "DeviceKit")
+                .product(name: "Kingfisher", package: "Kingfisher", moduleAliases: ["Kingfisher": "WKingfisher"]),
+                .product(name: "PhoneNumberKit", package: "PhoneNumberKit", moduleAliases: ["PhoneNumberKit": "WPhoneNumberKit"]),
+                .product(name: "DeviceKit", package: "DeviceKit", moduleAliases: ["DeviceKit": "WDeviceKit"])
                 
             ],
             path: "WrapKitCore/Tests"
