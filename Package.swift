@@ -13,15 +13,9 @@ let package = Package(
     products: [
         .library(
             name: "WrapKit",
-            type: .dynamic,
-            targets: ["WrapKit"]),
-        .library(
-            name: "WrapKitStatic",
-            type: .static,
             targets: ["WrapKit"]),
         .library(
             name: "WrapKitTestUtils",
-            type: .dynamic,
             targets: ["WrapKitTestUtils"])
     ],
     dependencies: [
@@ -33,9 +27,9 @@ let package = Package(
         .target(
             name: "WrapKit",
             dependencies: [
-                .product(name: "Kingfisher", package: "Kingfisher"),
-                .product(name: "PhoneNumberKit", package: "PhoneNumberKit"),
-                .product(name: "DeviceKit", package: "DeviceKit")
+                "Kingfisher",
+                "PhoneNumberKit",
+                "DeviceKit"
             ],
             path: "WrapKitCore/Sources"
         ),
@@ -50,9 +44,9 @@ let package = Package(
             dependencies: [
                 "WrapKit",
                 "WrapKitTestUtils",
-                .product(name: "Kingfisher", package: "Kingfisher"),
-                .product(name: "PhoneNumberKit", package: "PhoneNumberKit"),
-                .product(name: "DeviceKit", package: "DeviceKit")
+                "Kingfisher",
+                "PhoneNumberKit",
+                "DeviceKit"
                 
             ],
             path: "WrapKitCore/Tests"
