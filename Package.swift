@@ -1,5 +1,5 @@
-// swift-tools-version: 6.0
-@preconcurrency import PackageDescription
+// swift-tools-version: 5.8
+import PackageDescription
 
 let package = Package(
     name: "WrapKit",
@@ -35,7 +35,7 @@ let package = Package(
         .target(
             name: "WrapKitTestUtils",
             dependencies: [],
-            path: "WrapKitCore/TestUtils", 
+            path: "WrapKitCore/TestUtils",
             linkerSettings: [.linkedFramework("XCTest")]
         ),
         .testTarget(
