@@ -1,6 +1,5 @@
-// swift-tools-version:5.8
-
-import PackageDescription
+// swift-tools-version: 6.0
+@preconcurrency import PackageDescription
 
 let package = Package(
     name: "WrapKit",
