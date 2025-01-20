@@ -6,16 +6,24 @@
 //
 
 public struct ButtonStyle {
-    public enum Style {
-        case magenta
-        case natural
-        case green
-        case gray
-    }
-    public let style: Style?
+    public let backgroundColor: Color?
+    public let titleColor: Color?
+    public let borderColor: Color?
+    public let pressedColor: Color?
+    public let pressedTintColor: Color?
     
-    public init(style: Style? = nil) {
-        self.style = style
+    public init(
+        backgroundColor: Color? = nil,
+        titleColor: Color? = nil,
+        borderColor: Color? = nil,
+        pressedColor: Color? = nil,
+        pressedTintColor: Color? = nil
+    ) {
+        self.backgroundColor = backgroundColor
+        self.titleColor = titleColor
+        self.borderColor = borderColor
+        self.pressedColor = pressedColor
+        self.pressedTintColor = pressedTintColor
     }
 }
 
