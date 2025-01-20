@@ -5,8 +5,11 @@
 //  Created by Stas Lee on 5/8/23.
 //
 
+import Foundation
+
 public protocol StackViewOutput: AnyObject {
     func display(model: StackViewPresentableModel)
+    func display(spacing: CGFloat?)
 }
 
 public enum StackViewAxis: HashableWithReflection {
@@ -37,15 +40,18 @@ public struct StackViewPresentableModel {
     public let axis: StackViewAxis?
     public let distribution: StackViewDistribution?
     public let alignment: StackViewAlignment?
+    public let spacing: CGFloat?
     
     public init(
         axis: StackViewAxis? = nil,
         distribution: StackViewDistribution? = nil,
-        alignment: StackViewAlignment? = nil
+        alignment: StackViewAlignment? = nil,
+        spacing: CGFloat? = 0
     ) {
         self.axis = axis
         self.distribution = distribution
         self.alignment = alignment
+        self.spacing = spacing
     }
 }
 
@@ -111,6 +117,11 @@ extension StackView: StackViewOutput {
         self.distribution = mapDistribution(model.distribution)
         self.axis = mapAxis(model.axis)
         self.alignment = mapAlignment(model.alignment)
+    }
+    
+    public func display(spacing: CGFloat?) {
+        guard let spacing else { return }
+        self.spacing = spacing
     }
     
     private func mapDistribution(_ distribution: StackViewDistribution?) -> UIStackView.Distribution {
