@@ -5,21 +5,55 @@
 //  Created by Stas Lee on 5/8/23.
 //
 
+import Foundation
+
+public struct ButtonStyle {
+    public let backgroundColor: Color?
+    public let titleColor: Color?
+    public let borderColor: Color?
+    public let pressedColor: Color?
+    public let pressedTintColor: Color?
+    
+    public init(
+        backgroundColor: Color? = nil,
+        titleColor: Color? = nil,
+        borderColor: Color? = nil,
+        pressedColor: Color? = nil,
+        pressedTintColor: Color? = nil
+    ) {
+        self.backgroundColor = backgroundColor
+        self.titleColor = titleColor
+        self.borderColor = borderColor
+        self.pressedColor = pressedColor
+        self.pressedTintColor = pressedTintColor
+    }
+}
+
 public protocol ButtonOutput: AnyObject {
     func display(model: ButtonPresentableModel?)
-    func display(spacing: Float)
+    func display(spacing: CGFloat)
     func display(onPress: (() -> Void)?)
 }
 
 public struct ButtonPresentableModel {
+    public let height: CGFloat?
     public let title: String?
-    public let spacing: Float
+    public let spacing: CGFloat
     public let onPress: (() -> Void)?
+    public let style: ButtonStyle?
     
-    public init(title: String?, spacing: Float = 0, onPress: (() -> Void)? = nil) {
+    public init(
+        title: String?,
+        spacing: CGFloat = 0,
+        onPress: (() -> Void)? = nil,
+        height: CGFloat? = nil,
+        style: ButtonStyle? = nil
+    ) {
         self.spacing = spacing
         self.onPress = onPress
         self.title = title
+        self.height = height
+        self.style = style
     }
 }
 
@@ -52,11 +86,13 @@ open class Button: UIButton {
         }
     }
     
+    public var style: ButtonStyle?
     public var textColor: UIColor?
     public var textBackgroundColor: UIColor?
     public var pressedTextColor: UIColor?
     public var pressedBackgroundColor: UIColor?
     public var pressAnimations = Set<PressAnimation>()
+    open var anchoredConstraints: AnchoredConstraints?
     
     private func updateSpacings() {
         let isRTL = UIView.userInterfaceLayoutDirection(for: self.semanticContentAttribute) == .rightToLeft
@@ -107,6 +143,10 @@ open class Button: UIButton {
         self.isHidden = isHidden
         self.pressedTextColor = pressedTextColor
         self.pressedBackgroundColor = pressedBacgroundColor
+        anchoredConstraints = anchor(
+            .height(image?.size.height ?? 0, priority: .defaultLow),
+            .width(image?.size.width ?? 0, priority: .defaultLow)
+        )
         updateSpacings()
     }
     
@@ -170,8 +210,14 @@ extension Button: ButtonOutput {
     public func display(model: ButtonPresentableModel?) {
         isHidden = model == nil
         guard let spacing = model?.spacing else { return }
-        self.spacing = CGFloat(spacing)
+        self.spacing = spacing
         self.setTitle(model?.title, for: .normal)
+        if let height = model?.height {
+            anchoredConstraints?.height?.constant = height
+        }
+        if let style = model?.style {
+            self.style = style
+        }
         onPress = model?.onPress
     }
     
@@ -179,8 +225,8 @@ extension Button: ButtonOutput {
         self.setTitle(title, for: .normal)
     }
     
-    public func display(spacing: Float) {
-        self.spacing = CGFloat(spacing)
+    public func display(spacing: CGFloat) {
+        self.spacing = spacing
     }
     
     public func display(onPress: (() -> Void)?) {

@@ -12,7 +12,7 @@ extension MainQueueDispatchDecorator: ButtonOutput where T: ButtonOutput {
             self?.decoratee.display(model: model)
         }
     }
-    public func display(spacing: Float) {
+    public func display(spacing: CGFloat) {
         dispatch { [weak self] in
             self?.decoratee.display(spacing: spacing)
         }
@@ -42,7 +42,7 @@ extension WeakRefVirtualProxy: ButtonOutput where T: ButtonOutput {
     public func display(model: ButtonPresentableModel?) {
         object?.display(model: model)
     }
-    public func display(spacing: Float) {
+    public func display(spacing: CGFloat) {
         object?.display(spacing: spacing)
     }
     public func display(onPress: (() -> Void)?) {
