@@ -28,6 +28,8 @@ open class ToastView: UIView {
     public var bottomConstraint: NSLayoutConstraint?
     private var centerXConstraint: NSLayoutConstraint?
 
+    private var isSwipingHorizontal = false // Для отслеживания направления жеста
+
     public init(duration: TimeInterval? = 3.0, position: CommonToast.Position) {
         self.duration = duration
         self.position = position
@@ -127,45 +129,73 @@ open class ToastView: UIView {
     }
 
     @objc private func handlePanGesture(gesture: UIPanGestureRecognizer) {
-        let panOffset = gesture.translation(in: self).y
-        let initialAlpha: CGFloat = 1.0
-        let velocity = gesture.velocity(in: self).y
+        let panOffsetX = gesture.translation(in: self).x
+        let panOffsetY = gesture.translation(in: self).y
+        let velocityX = gesture.velocity(in: self).x
+        let velocityY = gesture.velocity(in: self).y
         let velocityThreshold: CGFloat = 500
 
         switch gesture.state {
         case .began:
             pauseHideTimer()
+            isSwipingHorizontal = false
         case .changed:
-            bottomConstraint?.constant = position == .top
-                ? min(showConstant + panOffset, showConstant)
-                : max(showConstant + panOffset, showConstant)
-            layoutIfNeeded()
+            if !isSwipingHorizontal {
+                isSwipingHorizontal = abs(panOffsetX) > abs(panOffsetY)
+            }
+            if isSwipingHorizontal {
+                leadingConstraint?.constant = panOffsetX
+                layoutIfNeeded()
+            } else {
+                bottomConstraint?.constant = position == .top
+                    ? min(showConstant + panOffsetY, showConstant)
+                    : max(showConstant + panOffsetY, showConstant)
+                layoutIfNeeded()
 
-            if case .bottom(_) = position, panOffset > 0 {
-                let maxDistance = frame.height
-                let distanceMoved = abs(panOffset)
-                let newAlpha = max(1.0 - (distanceMoved / maxDistance), 0.0)
-                self.alpha = newAlpha
-            } else if position == .top, panOffset < 0 {
-                let maxDistance = frame.height
-                let distanceMoved = abs(panOffset)
-                let newAlpha = max(1.0 - (distanceMoved / maxDistance), 0.0)
-                self.alpha = newAlpha
+                if case .bottom(_) = position, panOffsetY > 0 {
+                    let maxDistance = frame.height
+                    let distanceMoved = abs(panOffsetY)
+                    let newAlpha = max(1.0 - (distanceMoved / maxDistance), 0.0)
+                    self.alpha = newAlpha
+                } else if position == .top, panOffsetY < 0 {
+                    let maxDistance = frame.height
+                    let distanceMoved = abs(panOffsetY)
+                    let newAlpha = max(1.0 - (distanceMoved / maxDistance), 0.0)
+                    self.alpha = newAlpha
+                }
             }
         case .ended, .cancelled, .failed:
-            resumeHideTimer()
-            let shouldDismiss = velocity > velocityThreshold || position == .top ? bottomConstraint?.constant ?? 0 < (showConstant / 1.5) : bottomConstraint?.constant ?? 0 > (showConstant / 1.5)
-            UIView.animate(withDuration: 0.2, delay: .zero, options: [.curveEaseInOut, .allowUserInteraction]) {
-                if shouldDismiss {
-                    self.bottomConstraint?.constant = 0
-                    self.alpha = 0
-                    self.hide(after: 0)
-                } else {
-                    self.bottomConstraint?.constant = self.showConstant
-                    self.alpha = initialAlpha // Restore to full opacity
+            if isSwipingHorizontal {
+                let shouldDismiss = abs(velocityX) > velocityThreshold || abs(panOffsetX) > (frame.width / 3)
+                UIView.animate(withDuration: 0.2, delay: .zero, options: [.curveEaseInOut, .allowUserInteraction]) {
+                    if shouldDismiss {
+                        self.alpha = 0
+                        self.leadingConstraint?.constant = panOffsetX > 0 ? self.frame.width : -self.frame.width
+                    } else {
+                        self.alpha = 1.0
+                        self.leadingConstraint?.constant = 0
+                    }
+                    self.layoutIfNeeded()
+                } completion: { finished in
+                    if shouldDismiss {
+                        self.hide(after: 0)
+                    }
                 }
-                self.layoutIfNeeded()
-                self.superview?.layoutIfNeeded()
+            } else {
+                resumeHideTimer()
+                let shouldDismiss = velocityY > velocityThreshold || position == .top ? bottomConstraint?.constant ?? 0 < (showConstant / 1.5) : bottomConstraint?.constant ?? 0 > (showConstant / 1.5)
+                UIView.animate(withDuration: 0.2, delay: .zero, options: [.curveEaseInOut, .allowUserInteraction]) {
+                    if shouldDismiss {
+                        self.bottomConstraint?.constant = 0
+                        self.alpha = 0
+                        self.hide(after: 0)
+                    } else {
+                        self.bottomConstraint?.constant = self.showConstant
+                        self.alpha = 1.0
+                    }
+                    self.layoutIfNeeded()
+                    self.superview?.layoutIfNeeded()
+                }
             }
         default:
             break
@@ -273,7 +303,6 @@ open class ToastView: UIView {
     public func hide(after duration: Double) {
         hideTimer?.invalidate()
         hideTimer = Timer.scheduledTimer(withTimeInterval: duration, repeats: false) { [weak self] _ in
-            self?.panGesture.isEnabled = false
             UIView.animate(
                 withDuration: 0.15,
                 delay: 0,
