@@ -5,6 +5,20 @@
 //  Created by Stas Lee on 5/8/23.
 //
 
+public struct ButtonStyle {
+    public enum Style {
+        case magenta
+        case natural
+        case green
+        case gray
+    }
+    public let style: Style?
+    
+    public init(style: Style? = nil) {
+        self.style = style
+    }
+}
+
 public protocol ButtonOutput: AnyObject {
     func display(model: ButtonPresentableModel?)
     func display(spacing: Float)
@@ -12,14 +26,24 @@ public protocol ButtonOutput: AnyObject {
 }
 
 public struct ButtonPresentableModel {
+    public let height: Float?
     public let title: String?
     public let spacing: Float
     public let onPress: (() -> Void)?
+    public let style: ButtonStyle?
     
-    public init(title: String?, spacing: Float = 0, onPress: (() -> Void)? = nil) {
+    public init(
+        title: String?,
+        spacing: Float = 0,
+        onPress: (() -> Void)? = nil,
+        height: Float? = nil,
+        style: ButtonStyle? = nil
+    ) {
         self.spacing = spacing
         self.onPress = onPress
         self.title = title
+        self.height = height
+        self.style = style
     }
 }
 
@@ -52,11 +76,13 @@ open class Button: UIButton {
         }
     }
     
+    public var style: ButtonStyle?
     public var textColor: UIColor?
     public var textBackgroundColor: UIColor?
     public var pressedTextColor: UIColor?
     public var pressedBackgroundColor: UIColor?
     public var pressAnimations = Set<PressAnimation>()
+    open var anchoredConstraints: AnchoredConstraints?
     
     private func updateSpacings() {
         let isRTL = UIView.userInterfaceLayoutDirection(for: self.semanticContentAttribute) == .rightToLeft
@@ -107,6 +133,10 @@ open class Button: UIButton {
         self.isHidden = isHidden
         self.pressedTextColor = pressedTextColor
         self.pressedBackgroundColor = pressedBacgroundColor
+        anchoredConstraints = anchor(
+            .height(image?.size.height ?? 0, priority: .defaultLow),
+            .width(image?.size.width ?? 0, priority: .defaultLow)
+        )
         updateSpacings()
     }
     
@@ -172,6 +202,12 @@ extension Button: ButtonOutput {
         guard let spacing = model?.spacing else { return }
         self.spacing = CGFloat(spacing)
         self.setTitle(model?.title, for: .normal)
+        if let height = model?.height {
+            anchoredConstraints?.height?.constant = CGFloat(height)
+        }
+        if let style = model?.style {
+            self.style = style
+        }
         onPress = model?.onPress
     }
     
