@@ -5,6 +5,50 @@
 //  Created by Stas Lee on 5/8/23.
 //
 
+public protocol StackViewOutput: AnyObject {
+    func display(model: StackViewPresentableModel)
+}
+
+public enum StackViewAxis: HashableWithReflection {
+    case vertical
+    case horizontal
+}
+
+public enum StackViewDistribution: HashableWithReflection {
+    case fill
+    case fillEqually
+    case fillProportionally
+    case equalSpacing
+    case equalCentering
+}
+
+public enum StackViewAlignment: HashableWithReflection {
+    case fill
+    case leading
+    case top
+    case firstBaseline
+    case center
+    case trailing
+    case bottom
+    case lastBaseline
+}
+
+public struct StackViewPresentableModel {
+    public let axis: StackViewAxis?
+    public let distribution: StackViewDistribution?
+    public let alignment: StackViewAlignment?
+    
+    public init(
+        axis: StackViewAxis? = nil,
+        distribution: StackViewDistribution? = nil,
+        alignment: StackViewAlignment? = nil
+    ) {
+        self.axis = axis
+        self.distribution = distribution
+        self.alignment = alignment
+    }
+}
+
 #if canImport(UIKit)
 import UIKit
 
@@ -59,6 +103,65 @@ open class StackView: UIStackView {
     
     public required init(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+}
+
+extension StackView: StackViewOutput {
+    public func display(model: StackViewPresentableModel) {
+        self.distribution = mapDistribution(model.distribution)
+        self.axis = mapAxis(model.axis)
+        self.alignment = mapAlignment(model.alignment)
+    }
+    
+    private func mapDistribution(_ distribution: StackViewDistribution?) -> UIStackView.Distribution {
+        switch distribution {
+        case .fill:
+            return .fill
+        case .fillEqually:
+            return .fillEqually
+        case .fillProportionally:
+            return .fillProportionally
+        case .equalSpacing:
+            return .equalSpacing
+        case .equalCentering:
+            return .equalCentering
+        case .none:
+            return .fill
+        }
+    }
+    
+    private func mapAxis(_ axis: StackViewAxis?) -> NSLayoutConstraint.Axis {
+        switch axis {
+        case .vertical:
+            return .vertical
+        case .horizontal:
+            return .horizontal
+        case nil:
+            return .horizontal
+        }
+    }
+    
+    private func mapAlignment(_ alignment: StackViewAlignment?) -> UIStackView.Alignment {
+        switch alignment {
+        case .fill:
+            return .fill
+        case .leading:
+            return .leading
+        case .top:
+            return .top
+        case .firstBaseline:
+            return .firstBaseline
+        case .center:
+            return .center
+        case .trailing:
+            return .trailing
+        case .bottom:
+            return .bottom
+        case .lastBaseline:
+            return .lastBaseline
+        case nil:
+            return .fill
+        }
     }
 }
 #endif

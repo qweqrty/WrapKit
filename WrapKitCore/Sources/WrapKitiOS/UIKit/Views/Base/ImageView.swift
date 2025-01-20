@@ -5,6 +5,8 @@
 //  Created by Stas Lee on 5/8/23.
 //
 
+import Foundation
+
 public protocol ImageViewOutput: AnyObject {
     func display(model: ImageViewPresentableModel?)
     func display(image: ImageEnum)
@@ -13,15 +15,18 @@ public protocol ImageViewOutput: AnyObject {
 }
 
 public struct ImageViewPresentableModel {
+    public let size: CGSize?
     public let image: ImageEnum?
     public let onPress: (() -> Void)?
     public let onLongPress: (() -> Void)?
     
     public init(
+        size: CGSize? = nil,
         image: ImageEnum? = nil,
         onPress: (() -> Void)? = nil,
         onLongPress: (() -> Void)? = nil
     ) {
+        self.size = size
         self.image = image
         self.onPress = onPress
         self.onLongPress = onLongPress
@@ -47,6 +52,8 @@ open class ImageView: UIImageView {
             }
         }
     }
+    
+    open var anchoredConstraints: AnchoredConstraints?
     
     
     public func cancelCurrentAnimation() {
@@ -138,6 +145,10 @@ open class ImageView: UIImageView {
         self.cornerRadius = cornerRadius
         self.isUserInteractionEnabled = true
         self.clipsToBounds = true
+        anchoredConstraints = anchor(
+            .height(image?.size.height ?? 0, priority: .defaultLow),
+            .width(image?.size.width ?? 0, priority: .defaultLow)
+        )
     }
     
     public override init(frame: CGRect) {
@@ -196,6 +207,11 @@ extension ImageView: ImageViewOutput {
         self.setImage(model?.image)
         onPress = model?.onPress
         onLongPress = model?.onLongPress
+        
+        if let size = model?.size {
+            anchoredConstraints?.height?.constant = size.height
+            anchoredConstraints?.width?.constant = size.width
+        }
     }
     
     public func display(image: ImageEnum) {
