@@ -5,6 +5,8 @@
 //  Created by Stas Lee on 5/8/23.
 //
 
+import Foundation
+
 public struct ButtonStyle {
     public let backgroundColor: Color?
     public let titleColor: Color?
@@ -29,22 +31,22 @@ public struct ButtonStyle {
 
 public protocol ButtonOutput: AnyObject {
     func display(model: ButtonPresentableModel?)
-    func display(spacing: Float)
+    func display(spacing: CGFloat)
     func display(onPress: (() -> Void)?)
 }
 
 public struct ButtonPresentableModel {
-    public let height: Float?
+    public let height: CGFloat?
     public let title: String?
-    public let spacing: Float
+    public let spacing: CGFloat
     public let onPress: (() -> Void)?
     public let style: ButtonStyle?
     
     public init(
         title: String?,
-        spacing: Float = 0,
+        spacing: CGFloat = 0,
         onPress: (() -> Void)? = nil,
-        height: Float? = nil,
+        height: CGFloat? = nil,
         style: ButtonStyle? = nil
     ) {
         self.spacing = spacing
@@ -208,10 +210,10 @@ extension Button: ButtonOutput {
     public func display(model: ButtonPresentableModel?) {
         isHidden = model == nil
         guard let spacing = model?.spacing else { return }
-        self.spacing = CGFloat(spacing)
+        self.spacing = spacing
         self.setTitle(model?.title, for: .normal)
         if let height = model?.height {
-            anchoredConstraints?.height?.constant = CGFloat(height)
+            anchoredConstraints?.height?.constant = height
         }
         if let style = model?.style {
             self.style = style
@@ -223,8 +225,8 @@ extension Button: ButtonOutput {
         self.setTitle(title, for: .normal)
     }
     
-    public func display(spacing: Float) {
-        self.spacing = CGFloat(spacing)
+    public func display(spacing: CGFloat) {
+        self.spacing = spacing
     }
     
     public func display(onPress: (() -> Void)?) {
