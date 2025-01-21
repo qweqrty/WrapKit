@@ -52,6 +52,8 @@ open class ToastView: UIView {
     private func setupObservers() {
         NotificationCenter.default.addObserver(self, selector: #selector(didEnterBackground), name: UIApplication.didEnterBackgroundNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(willEnterForeground), name: UIApplication.willEnterForegroundNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(_:)), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide(_:)), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
 
     @objc private func didEnterBackground() {
@@ -61,6 +63,43 @@ open class ToastView: UIView {
 
     @objc private func willEnterForeground() {
         resumeHideTimer()
+    }
+    
+    @objc private func keyboardWillShow(_ notification: Notification) {
+        switch position {
+        case .top:
+            break
+        case .bottom(let additionalBottomPadding):
+            if let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect {
+                keyboardHeight = keyboardFrame.height
+                adjustForKeyboardVisibility(additionalBottomPadding: additionalBottomPadding)
+            }
+        }
+    }
+
+    @objc private func keyboardWillHide(_ notification: Notification) {
+        switch position {
+        case .top:
+            break
+        case .bottom(let additionalBottomPadding):
+            keyboardHeight = 0
+            adjustForKeyboardVisibility(additionalBottomPadding: additionalBottomPadding)
+        }
+    }
+    
+    private func adjustForKeyboardVisibility(additionalBottomPadding: CGFloat) {
+        guard let bottomConstraint = bottomConstraint else { return }
+        
+        let newBottomConstant = -frame.height - additionalBottomPadding - safeAreaInsets.bottom - keyboardHeight - 24
+        
+        UIView.animate(withDuration: 0.3, animations: {
+            bottomConstraint.constant = newBottomConstant
+            self.layoutIfNeeded()
+        })
+    }
+
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
 
     private func setupSubviews() {
