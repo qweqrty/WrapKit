@@ -1,6 +1,6 @@
 import SwiftUI
 
-enum UserInterfaceStyle {
+public enum UserInterfaceStyle {
     case light
     case dark
     case unspecified
@@ -8,7 +8,7 @@ enum UserInterfaceStyle {
 
 extension UserInterfaceStyle {
     /// Returns the current user interface style in a platform-agnostic way
-    static var current: UserInterfaceStyle {
+    public static var current: UserInterfaceStyle {
         #if canImport(UIKit)
         // iOS and tvOS
         if #available(iOS 13.0, tvOS 13.0, *) {
