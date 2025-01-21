@@ -1,6 +1,11 @@
 #if canImport(UIKit)
 import UIKit
 
+public enum DirectionType {
+    case horizontal
+    case vertical
+}
+
 open class ToastView: UIView {
     public lazy var cardView = {
         let view = CardView()
@@ -18,6 +23,7 @@ open class ToastView: UIView {
     public let duration: TimeInterval?
     private let position: CommonToast.Position
     private lazy var panGesture = UIPanGestureRecognizer(target: self, action: #selector(handlePanGesture))
+    private lazy var longPressGesture = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPressGesture))
     private var hideTimer: Timer?
     private var remainingTime: TimeInterval? = nil
     public var shadowColor: UIColor?
@@ -26,6 +32,8 @@ open class ToastView: UIView {
     public var leadingConstraint: NSLayoutConstraint?
     public var bottomConstraint: NSLayoutConstraint?
 
+    private var gestureDirection: DirectionType?
+
     public init(duration: TimeInterval? = 3.0, position: CommonToast.Position) {
         self.duration = duration
         self.position = position
@@ -33,19 +41,17 @@ open class ToastView: UIView {
         super.init(frame: .zero)
         setupSubviews()
         setupConstraints()
-        setSwipe()
+        setupGestures()
         setupObservers()
     }
 
     public required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
     private func setupObservers() {
         NotificationCenter.default.addObserver(self, selector: #selector(didEnterBackground), name: UIApplication.didEnterBackgroundNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(willEnterForeground), name: UIApplication.willEnterForegroundNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(_:)), name: UIResponder.keyboardWillShowNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide(_:)), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
 
     @objc private func didEnterBackground() {
@@ -55,43 +61,6 @@ open class ToastView: UIView {
 
     @objc private func willEnterForeground() {
         resumeHideTimer()
-    }
-    
-    @objc private func keyboardWillShow(_ notification: Notification) {
-        switch position {
-        case .top:
-            break
-        case .bottom(let additionalBottomPadding):
-            if let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect {
-                keyboardHeight = keyboardFrame.height
-                adjustForKeyboardVisibility(additionalBottomPadding: additionalBottomPadding)
-            }
-        }
-    }
-
-    @objc private func keyboardWillHide(_ notification: Notification) {
-        switch position {
-        case .top:
-            break
-        case .bottom(let additionalBottomPadding):
-            keyboardHeight = 0
-            adjustForKeyboardVisibility(additionalBottomPadding: additionalBottomPadding)
-        }
-    }
-    
-    private func adjustForKeyboardVisibility(additionalBottomPadding: CGFloat) {
-        guard let bottomConstraint = bottomConstraint else { return }
-        
-        let newBottomConstant = -frame.height - additionalBottomPadding - safeAreaInsets.bottom - keyboardHeight - 24
-        
-        UIView.animate(withDuration: 0.3, animations: {
-            bottomConstraint.constant = newBottomConstant
-            self.layoutIfNeeded()
-        })
-    }
-
-    deinit {
-        NotificationCenter.default.removeObserver(self)
     }
 
     private func setupSubviews() {
@@ -114,52 +83,101 @@ open class ToastView: UIView {
         cardView.fillSuperview()
     }
 
-    private func setSwipe() {
+    private func setupGestures() {
         panGesture.delegate = self
         panGesture.cancelsTouchesInView = true
         addGestureRecognizer(panGesture)
+
+        longPressGesture.minimumPressDuration = 0.5
+        addGestureRecognizer(longPressGesture)
     }
 
     @objc private func handlePanGesture(gesture: UIPanGestureRecognizer) {
-        let panOffset = gesture.translation(in: self).y
-        let initialAlpha: CGFloat = 1.0
-        let velocity = gesture.velocity(in: self).y
+        let panOffsetX = gesture.translation(in: self).x
+        let panOffsetY = gesture.translation(in: self).y
+        let velocityX = gesture.velocity(in: self).x
+        let velocityY = gesture.velocity(in: self).y
         let velocityThreshold: CGFloat = 500
 
         switch gesture.state {
         case .began:
             pauseHideTimer()
+            gestureDirection = nil
         case .changed:
-            bottomConstraint?.constant = position == .top
-                ? min(showConstant + panOffset, showConstant)
-                : max(showConstant + panOffset, showConstant)
-            layoutIfNeeded()
+            if gestureDirection == nil {
+                if abs(panOffsetX) > abs(panOffsetY) {
+                    gestureDirection = .horizontal
+                } else {
+                    gestureDirection = .vertical
+                }
+            }
 
-            if case .bottom(_) = position, panOffset > 0 {
-                let maxDistance = frame.height
-                let distanceMoved = abs(panOffset)
-                let newAlpha = max(1.0 - (distanceMoved / maxDistance), 0.0)
-                self.alpha = newAlpha
-            } else if position == .top, panOffset < 0 {
-                let maxDistance = frame.height
-                let distanceMoved = abs(panOffset)
-                let newAlpha = max(1.0 - (distanceMoved / maxDistance), 0.0)
-                self.alpha = newAlpha
+            if gestureDirection == .horizontal {
+                leadingConstraint?.constant = panOffsetX
+                self.alpha = max(1.0 - abs(panOffsetX) / frame.width, 0.0)
+                layoutIfNeeded()
+            } else if gestureDirection == .vertical {
+                if panOffsetY > 0 {
+                    bottomConstraint?.constant = max(showConstant + panOffsetY, showConstant)
+                    self.alpha = max(1.0 - abs(panOffsetY) / frame.height, 0.0)
+                    layoutIfNeeded()
+                }
             }
         case .ended, .cancelled, .failed:
-            resumeHideTimer()
-            let shouldDismiss = velocity > velocityThreshold || position == .top ? bottomConstraint?.constant ?? 0 < (showConstant / 1.5) : bottomConstraint?.constant ?? 0 > (showConstant / 1.5)
-            UIView.animate(withDuration: 0.2, delay: .zero, options: [.curveEaseInOut, .allowUserInteraction]) {
-                if shouldDismiss {
-                    self.bottomConstraint?.constant = 0
-                    self.alpha = 0
-                    self.hide(after: 0)
-                } else {
-                    self.bottomConstraint?.constant = self.showConstant
-                    self.alpha = initialAlpha // Restore to full opacity
+            if gestureDirection == .horizontal {
+                let shouldDismiss = abs(panOffsetX) > (frame.width / 3) || abs(velocityX) > velocityThreshold
+                UIView.animate(withDuration: 0.3, delay: .zero, options: [.curveEaseInOut, .allowUserInteraction]) {
+                    if shouldDismiss {
+                        self.alpha = 0
+                        self.transform = CGAffineTransform(translationX: panOffsetX > 0 ? self.frame.width : -self.frame.width, y: 0)
+                    } else {
+                        self.alpha = 1.0
+                        self.leadingConstraint?.constant = 0
+                        self.transform = .identity
+                    }
+                    self.layoutIfNeeded()
+                } completion: { finished in
+                    if shouldDismiss {
+                        self.hide(after: 0)
+                    }
                 }
-                self.layoutIfNeeded()
-                self.superview?.layoutIfNeeded()
+            } else if gestureDirection == .vertical {
+                let shouldDismiss = panOffsetY > frame.height / 3 || velocityY > velocityThreshold
+                UIView.animate(withDuration: 0.3, delay: .zero, options: [.curveEaseInOut, .allowUserInteraction]) {
+                    if shouldDismiss {
+                        self.alpha = 0
+                        self.transform = CGAffineTransform(translationX: 0, y: self.frame.height)
+                    } else {
+                        self.alpha = 1.0
+                        self.bottomConstraint?.constant = self.showConstant
+                        self.transform = .identity
+                    }
+                    self.layoutIfNeeded()
+                } completion: { finished in
+                    if shouldDismiss {
+                        self.hide(after: 0)
+                    }
+                }
+            }
+            gestureDirection = nil
+            resumeHideTimer()
+        default:
+            break
+        }
+    }
+
+    @objc private func handleLongPressGesture(gesture: UILongPressGestureRecognizer) {
+        switch gesture.state {
+        case .began:
+            pauseHideTimer()
+            UIView.animate(withDuration: 0.2) {
+                self.transform = CGAffineTransform(scaleX: 1.05, y: 1.05)
+                self.alpha = 1.0
+            }
+        case .ended, .cancelled:
+            resumeHideTimer()
+            UIView.animate(withDuration: 0.2) {
+                self.transform = .identity
             }
         default:
             break
@@ -240,6 +258,7 @@ open class ToastView: UIView {
                 options: [.curveEaseInOut, .allowUserInteraction],
                 animations: {
                     self?.alpha = 0
+                    self?.transform = .identity
                     self?.bottomConstraint?.constant = 0
                     self?.layoutIfNeeded()
                     self?.superview?.layoutIfNeeded()
