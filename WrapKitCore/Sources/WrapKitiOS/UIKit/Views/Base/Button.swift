@@ -10,6 +10,7 @@ import Foundation
 public struct ButtonStyle {
     public let backgroundColor: Color?
     public let titleColor: Color?
+    public let borderWidth: CGFloat
     public let borderColor: Color?
     public let pressedColor: Color?
     public let pressedTintColor: Color?
@@ -18,6 +19,7 @@ public struct ButtonStyle {
     public init(
         backgroundColor: Color? = nil,
         titleColor: Color? = nil,
+        borderWidth: CGFloat = 0,
         borderColor: Color? = nil,
         pressedColor: Color? = nil,
         pressedTintColor: Color? = nil,
@@ -29,6 +31,7 @@ public struct ButtonStyle {
         self.pressedColor = pressedColor
         self.pressedTintColor = pressedTintColor
         self.font = font
+        self.borderWidth = borderWidth
     }
 }
 
@@ -135,6 +138,26 @@ open class Button: UIButton {
     }
     
     public convenience init(
+        style: ButtonStyle,
+        title: String? = nil,
+        enabled: Bool = true
+    ) {
+        self.init(
+            textColor: style.titleColor,
+            backgroundColor: style.backgroundColor ?? .clear,
+            pressedTextColor: style.pressedTintColor,
+            pressedBacgroundColor: style.pressedColor
+        )
+        display(style: style)
+        layer.borderColor = style.borderColor?.cgColor ?? UIColor.clear.cgColor
+        layer.borderWidth = style.borderWidth
+        setTitle(title, for: .normal)
+        cornerRadius = 12  // MARK: - TODO
+        isUserInteractionEnabled = enabled
+        updateAppearance(enabled: enabled)
+    }
+    
+    public convenience init(
         image: UIImage? = nil,
         tintColor: UIColor? = nil,
         textColor: UIColor? = nil,
@@ -222,6 +245,17 @@ open class Button: UIButton {
             self?.setTitleColor(self?.textColor, for: .normal)
         }
         super.touchesEnded(touches, with: event)
+    }
+    
+    open func updateAppearance(enabled: Bool) {
+        isUserInteractionEnabled = enabled
+        alpha = enabled ? 1.0 : 0.5
+        titleLabel?.alpha = enabled ? 1.0 : 0.5
+    }
+    
+    open func display(isHidden: Bool = false) {
+        backgroundColor = isHidden ? .clear : textBackgroundColor
+        setTitleColor(isHidden ? .clear : textColor, for: .normal)
     }
 }
 
