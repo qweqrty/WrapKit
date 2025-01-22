@@ -24,7 +24,7 @@ public class SelectionContentView: UIView {
     public lazy var refreshControl = RefreshControl(tintColor: config.content.refreshColor)
     
     public lazy var emptyView = {
-        let view = EmptyViewTest()
+        let view = EmptyView()
         view.isHidden = true
         return view
     }()
