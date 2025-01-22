@@ -9,22 +9,22 @@ import Foundation
 
 public protocol EmptyViewOutput: AnyObject {
     func display(model: EmptyViewPresentableModel?)
-    func display(title: [TextAttributes])
-    func display(subtitle: [TextAttributes])
+    func display(title: TextOutputPresentableModel?)
+    func display(subtitle: TextOutputPresentableModel?)
     func display(buttonModel: ButtonPresentableModel?)
     func display(image: ImageViewPresentableModel?)
 }
 
 public struct EmptyViewPresentableModel: HashableWithReflection {
 
-    public let title: [TextAttributes]
-    public let subTitle: [TextAttributes]
+    public let title: TextOutputPresentableModel?
+    public let subTitle: TextOutputPresentableModel?
     public let button: ButtonPresentableModel?
     public let image: ImageViewPresentableModel?
     
     public init(
-        title: [TextAttributes],
-        subTitle: [TextAttributes] = [],
+        title: TextOutputPresentableModel?,
+        subTitle: TextOutputPresentableModel? = nil,
         button: ButtonPresentableModel? = nil,
         image: ImageViewPresentableModel? = nil
     ) {
@@ -96,16 +96,14 @@ extension EmptyView: EmptyViewOutput {
         imageWrapperView.contentView.display(model: image)
     }
     
-    public func display(title: [TextAttributes]) {
-        titleLabel.isHidden = title.isEmpty
-        titleLabel.removeAttributes()
-        title.forEach { titleLabel.append($0) }
+    public func display(title: TextOutputPresentableModel?) {
+        titleLabel.isHidden = title == nil
+        titleLabel.display(model: title)
     }
    
-    public func display(subtitle: [TextAttributes]) {
-        subTitleLabel.isHidden = subtitle.isEmpty
-        subTitleLabel.removeAttributes()
-        subtitle.forEach { subTitleLabel.append($0) }
+    public func display(subtitle: TextOutputPresentableModel?) {
+        subTitleLabel.isHidden = subtitle == nil
+        subTitleLabel.display(model: subtitle)
     }
     
     public func display(buttonModel: ButtonPresentableModel?) {
@@ -120,15 +118,8 @@ extension EmptyView: EmptyViewOutput {
     public func display(model: EmptyViewPresentableModel?) {
         self.isHidden = model == nil
         guard let model else { return }
-        titleLabel.removeAttributes()
-        model.title.forEach {
-            titleLabel.append($0)
-        }
-        subTitleLabel.removeAttributes()
-        model.subTitle.forEach {
-            subTitleLabel.append($0)
-        }
-        
+        titleLabel.display(model: model.title)
+        subTitleLabel.display(model: model.subTitle)
         button.display(model: model.button)
         imageWrapperView.contentView.display(model: model.image)
     }

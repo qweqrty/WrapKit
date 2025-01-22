@@ -12,12 +12,12 @@ extension MainQueueDispatchDecorator: EmptyViewOutput where T: EmptyViewOutput {
             self?.decoratee.display(model: model)
         }
     }
-    public func display(title: [TextAttributes]) {
+    public func display(title: TextOutputPresentableModel?) {
         dispatch { [weak self] in
             self?.decoratee.display(title: title)
         }
     }
-    public func display(subtitle: [TextAttributes]) {
+    public func display(subtitle: TextOutputPresentableModel?) {
         dispatch { [weak self] in
             self?.decoratee.display(subtitle: subtitle)
         }
@@ -52,10 +52,10 @@ extension WeakRefVirtualProxy: EmptyViewOutput where T: EmptyViewOutput {
     public func display(model: EmptyViewPresentableModel?) {
         object?.display(model: model)
     }
-    public func display(title: [TextAttributes]) {
+    public func display(title: TextOutputPresentableModel?) {
         object?.display(title: title)
     }
-    public func display(subtitle: [TextAttributes]) {
+    public func display(subtitle: TextOutputPresentableModel?) {
         object?.display(subtitle: subtitle)
     }
     public func display(buttonModel: ButtonPresentableModel?) {
