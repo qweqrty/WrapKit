@@ -12,6 +12,11 @@ extension MainQueueDispatchDecorator: ButtonOutput where T: ButtonOutput {
             self?.decoratee.display(model: model)
         }
     }
+    public func display(style: ButtonStyle?) {
+        dispatch { [weak self] in
+            self?.decoratee.display(style: style)
+        }
+    }
     public func display(title: String?) {
         dispatch { [weak self] in
             self?.decoratee.display(title: title)
@@ -46,6 +51,9 @@ extension WeakRefVirtualProxy: ButtonOutput where T: ButtonOutput {
 
     public func display(model: ButtonPresentableModel?) {
         object?.display(model: model)
+    }
+    public func display(style: ButtonStyle?) {
+        object?.display(style: style)
     }
     public func display(title: String?) {
         object?.display(title: title)

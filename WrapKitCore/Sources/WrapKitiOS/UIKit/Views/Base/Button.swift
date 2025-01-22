@@ -13,24 +13,28 @@ public struct ButtonStyle {
     public let borderColor: Color?
     public let pressedColor: Color?
     public let pressedTintColor: Color?
+    public let font: Font?
     
     public init(
         backgroundColor: Color? = nil,
         titleColor: Color? = nil,
         borderColor: Color? = nil,
         pressedColor: Color? = nil,
-        pressedTintColor: Color? = nil
+        pressedTintColor: Color? = nil,
+        font: Font? = nil
     ) {
         self.backgroundColor = backgroundColor
         self.titleColor = titleColor
         self.borderColor = borderColor
         self.pressedColor = pressedColor
         self.pressedTintColor = pressedTintColor
+        self.font = font
     }
 }
 
 public protocol ButtonOutput: AnyObject {
     func display(model: ButtonPresentableModel?)
+    func display(style: ButtonStyle?)
     func display(title: String?)
     func display(spacing: CGFloat)
     func display(onPress: (() -> Void)?)
@@ -87,9 +91,27 @@ open class Button: UIButton {
         }
     }
     
-    public var style: ButtonStyle?
-    public var textColor: UIColor?
-    public var textBackgroundColor: UIColor?
+    public var style: ButtonStyle? {
+        didSet {
+            if let textColor = style?.titleColor { self.setTitleColor(textColor, for: .normal) }
+            if let titleLabelFont = style?.font { self.titleLabel?.font = titleLabelFont }
+            self.textColor = style?.titleColor
+            self.textBackgroundColor = style?.backgroundColor
+            self.pressedTextColor = style?.pressedTintColor
+            self.pressedBackgroundColor = style?.backgroundColor
+            self.layer.borderColor = style?.borderColor?.cgColor
+        }
+    }
+    public var textColor: UIColor? {
+        didSet {
+            setTitleColor(textColor, for: .normal)
+        }
+    }
+    public var textBackgroundColor: UIColor? {
+        didSet {
+            backgroundColor = textBackgroundColor
+        }
+    }
     public var pressedTextColor: UIColor?
     public var pressedBackgroundColor: UIColor?
     public var pressAnimations = Set<PressAnimation>()
@@ -214,10 +236,12 @@ extension Button: ButtonOutput {
         } else if let height = model?.height {
             anchor(.height(height))
         }
-        if let style = model?.style {
-            self.style = style
-        }
+        self.style = model?.style
         onPress = model?.onPress
+    }
+    
+    public func display(style: ButtonStyle?) {
+        self.style = style
     }
     
     public func display(title: String?) {
