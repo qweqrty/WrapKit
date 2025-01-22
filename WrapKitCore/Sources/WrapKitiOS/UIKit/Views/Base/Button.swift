@@ -31,6 +31,7 @@ public struct ButtonStyle {
 
 public protocol ButtonOutput: AnyObject {
     func display(model: ButtonPresentableModel?)
+    func display(title: String?)
     func display(spacing: CGFloat)
     func display(onPress: (() -> Void)?)
 }
