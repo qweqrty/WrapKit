@@ -9,6 +9,7 @@ public protocol EmptyViewOutput {
     func display(title: [TextAttributes])
     func display(subtitle: [TextAttributes])
     func display(buttonModel: ButtonPresentableModel?)
+    func display(image: ImageViewPresentableModel?)
 }
 
 public struct EmptyViewPresentableModel: HashableWithReflection {
@@ -16,11 +17,18 @@ public struct EmptyViewPresentableModel: HashableWithReflection {
     public let title: [TextAttributes]
     public let subTitle: [TextAttributes]
     public let button: ButtonPresentableModel?
+    public let image: ImageViewPresentableModel?
     
-    public init(title: [TextAttributes], subTitle: [TextAttributes] = [], button: ButtonPresentableModel? = nil) {
+    public init(
+        title: [TextAttributes],
+        subTitle: [TextAttributes] = [],
+        button: ButtonPresentableModel? = nil,
+        image: ImageViewPresentableModel? = nil
+    ) {
         self.title = title
         self.subTitle = subTitle
         self.button = button
+        self.image = image
     }
 }
 
@@ -81,6 +89,10 @@ public class EmptyView: UIView {
 }
 
 extension EmptyView: EmptyViewOutput {
+    public func display(image: ImageViewPresentableModel?) {
+        imageWrapperView.contentView.display(model: image)
+    }
+    
     public func display(title: [TextAttributes]) {
         titleLabel.isHidden = title.isEmpty
         titleLabel.removeAttributes()
@@ -115,6 +127,7 @@ extension EmptyView: EmptyViewOutput {
         }
         
         button.display(model: model.button)
+        imageWrapperView.contentView.display(model: model.image)
     }
 }
 #endif
