@@ -27,6 +27,11 @@ extension MainQueueDispatchDecorator: SelectionOutput where T: SelectionOutput {
             self?.decoratee.display(canReset: canReset)
         }
     }
+    public func display(model: EmptyViewPresentableModel?) {
+        dispatch { [weak self] in
+            self?.decoratee.display(model: model)
+        }
+    }
 
 }
 
@@ -55,6 +60,9 @@ extension WeakRefVirtualProxy: SelectionOutput where T: SelectionOutput {
     }
     public func display(canReset: Bool) {
         object?.display(canReset: canReset)
+    }
+    public func display(model: EmptyViewPresentableModel?) {
+        object?.display(model: model)
     }
 
 }

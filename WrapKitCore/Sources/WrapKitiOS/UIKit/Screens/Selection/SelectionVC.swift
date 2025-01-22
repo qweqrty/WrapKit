@@ -44,6 +44,11 @@ open class SelectionVC: BottomSheetController<SelectionContentView> {
 }
 
 extension SelectionVC: SelectionOutput {
+    public func display(model: EmptyViewPresentableModel?) {
+        guard let model else { return }
+        contentView.emptyView.display(model: model)
+    }
+    
     public func display(canReset: Bool) {
         if canReset {
             contentView.resetButton.setTitleColor(presenter.configuration.resetButtonColors.activeTitleColor, for: .normal)
@@ -65,6 +70,7 @@ extension SelectionVC: SelectionOutput {
     }
     
     public func display(items: [SelectionType.SelectionCellPresentableModel], selectedCountTitle: String) {
+        contentView.emptyView.isHidden = !items.isEmpty
         datasource.updateItems(items)
         let selectedItemsCount = items.filter { $0.isSelected.get() == true }.count
         contentView.selectButton.setTitle("\(selectedCountTitle)\(selectedItemsCount == 0 ? "" : " (\(selectedItemsCount))")", for: .normal)

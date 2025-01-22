@@ -12,6 +12,7 @@ public protocol SelectionOutput: AnyObject {
     func display(title: String?)
     func display(shouldShowSearchBar: Bool)
     func display(canReset: Bool)
+    func display(model: EmptyViewPresentableModel?)
 }
 
 public protocol SelectionInput {
@@ -66,6 +67,7 @@ extension SelectionPresenter: SelectionInput {
     }
     
     public func viewDidLoad() {
+        view?.display(model: model.emptyViewPresentableModel)
         view?.display(shouldShowSearchBar: items.count > Self.shouldShowSearchBarThresholdCount)
         view?.display(title: model.title)
         onSearch(searchText)

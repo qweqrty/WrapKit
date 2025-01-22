@@ -23,6 +23,12 @@ public class SelectionContentView: UIView {
     public lazy var spacerView = UIView()
     public lazy var refreshControl = RefreshControl(tintColor: config.content.refreshColor)
     
+    public lazy var emptyView = {
+        let view = EmptyView()
+        view.isHidden = true
+        return view
+    }()
+    
     public var searchBarConstraints: AnchoredConstraints?
     public var tableViewConstraints: AnchoredConstraints?
     
@@ -49,7 +55,7 @@ public class SelectionContentView: UIView {
 
 extension SelectionContentView {
     func setupSubviews() {
-        addSubviews(lineView, navigationBar, searchBar, tableView, spacerView, stackView)
+        addSubviews(lineView, navigationBar, searchBar, tableView, emptyView, spacerView, stackView)
         stackView.addArrangedSubview(resetButton)
         stackView.addArrangedSubview(selectButton)
     }
@@ -87,6 +93,13 @@ extension SelectionContentView {
             .leading(leadingAnchor, constant: 12),
             .trailing(trailingAnchor, constant: 12)
         )
+        
+        emptyView.anchor(
+            .top(searchBar.bottomAnchor, constant: 16),
+            .leading(leadingAnchor, constant: 12),
+            .trailing(trailingAnchor, constant: 12)
+        )
+        
         spacerView.anchor(
             .top(tableView.bottomAnchor),
             .bottom(bottomAnchor)
