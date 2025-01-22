@@ -7,7 +7,7 @@
 
 import Foundation
 
-public protocol EmptyViewOutput {
+public protocol EmptyViewOutput: AnyObject {
     func display(model: EmptyViewPresentableModel?)
     func display(title: [TextAttributes])
     func display(subtitle: [TextAttributes])
