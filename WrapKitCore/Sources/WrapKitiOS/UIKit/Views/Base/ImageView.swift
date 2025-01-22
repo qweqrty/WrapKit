@@ -145,10 +145,6 @@ open class ImageView: UIImageView {
         self.cornerRadius = cornerRadius
         self.isUserInteractionEnabled = true
         self.clipsToBounds = true
-        anchoredConstraints = anchor(
-            .height(image?.size.height ?? 0, priority: .defaultLow),
-            .width(image?.size.width ?? 0, priority: .defaultLow)
-        )
     }
     
     public override init(frame: CGRect) {
@@ -209,8 +205,15 @@ extension ImageView: ImageViewOutput {
         onLongPress = model?.onLongPress
         
         if let size = model?.size {
-            anchoredConstraints?.height?.constant = size.height
-            anchoredConstraints?.width?.constant = size.width
+            if let anchoredConstraints = anchoredConstraints {
+                    anchoredConstraints.height?.constant = size.height
+                    anchoredConstraints.width?.constant = size.width
+            } else {
+                anchoredConstraints = anchor(
+                    .height(size.height, priority: .required),
+                    .width(size.width, priority: .required)
+                )
+            }
         }
     }
     

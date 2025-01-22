@@ -143,10 +143,6 @@ open class Button: UIButton {
         self.isHidden = isHidden
         self.pressedTextColor = pressedTextColor
         self.pressedBackgroundColor = pressedBacgroundColor
-        anchoredConstraints = anchor(
-            .height(image?.size.height ?? 0, priority: .defaultLow),
-            .width(image?.size.width ?? 0, priority: .defaultLow)
-        )
         updateSpacings()
     }
     
@@ -212,8 +208,10 @@ extension Button: ButtonOutput {
         guard let spacing = model?.spacing else { return }
         self.spacing = spacing
         self.setTitle(model?.title, for: .normal)
-        if let height = model?.height {
-            anchoredConstraints?.height?.constant = height
+        if let anchoredConstraints = anchoredConstraints, let height = model?.height {
+            anchoredConstraints.height?.constant = height
+        } else if let height = model?.height {
+            anchor(.height(height))
         }
         if let style = model?.style {
             self.style = style

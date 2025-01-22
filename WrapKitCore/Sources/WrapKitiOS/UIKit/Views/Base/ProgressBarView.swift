@@ -5,17 +5,19 @@
 //  Created by Stas Lee on 5/8/23.
 //
 
+import Foundation
+
 public protocol ProgressBarOutput: AnyObject {
     func display(model: ProgressBarPresentableModel?)
     func display(color: Color)
-    func display(progress: Float)
+    func display(progress: CGFloat)
 }
 
 public struct ProgressBarPresentableModel {
     public let color: Color
-    public let progress: Float // 0-100
+    public let progress: CGFloat // 0-100
     
-    public init(color: Color = .magenta, progress: Float = 100) {
+    public init(color: Color = .magenta, progress: CGFloat = 100) {
         self.color = color
         self.progress = progress
     }
@@ -80,15 +82,15 @@ extension ProgressBarView: ProgressBarOutput {
         isHidden = model == nil
         guard let model = model else { return }
         progressView.backgroundColor = model.color
-        applyProgress(percentage: CGFloat(model.progress))
+        applyProgress(percentage: model.progress)
     }
     
     public func display(color: Color) {
         progressView.backgroundColor = color
     }
     
-    public func display(progress: Float) {
-        applyProgress(percentage: CGFloat(progress))
+    public func display(progress: CGFloat) {
+        applyProgress(percentage: progress)
     }
 }
 
