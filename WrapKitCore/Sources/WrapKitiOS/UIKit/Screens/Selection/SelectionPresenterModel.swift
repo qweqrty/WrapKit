@@ -12,17 +12,20 @@ public struct SelectionPresenterModel {
     public let isMultipleSelectionEnabled: Bool
     public let items: [SelectionType.SelectionCellPresentableModel]
     public let callback: ((SelectionType?) -> Void)?
+    public let emptyViewPresentableModel: EmptyViewPresentableModel?
     
     public init(
         title: String?,
         isMultipleSelectionEnabled: Bool,
         items: [SelectionType.SelectionCellPresentableModel],
-        callback: ((SelectionType?) -> Void)?
+        callback: ((SelectionType?) -> Void)?,
+        emptyViewPresentableModel: EmptyViewPresentableModel?
     ) {
         self.title = title
         self.isMultipleSelectionEnabled = isMultipleSelectionEnabled
         self.items = items
         self.callback = callback
+        self.emptyViewPresentableModel = emptyViewPresentableModel
     }
 }
 

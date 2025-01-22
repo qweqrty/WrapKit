@@ -7,6 +7,12 @@ import Foundation
 
 extension MainQueueDispatchDecorator: SelectionOutput where T: SelectionOutput {
 
+    public func display(model: EmptyViewPresentableModel?) {
+        dispatch { [weak self] in
+            self?.decoratee.display(model: model)
+        }
+    }
+    
     public func display(items: [SelectionType.SelectionCellPresentableModel], selectedCountTitle: String) {
         dispatch { [weak self] in
             self?.decoratee.display(items: items, selectedCountTitle: selectedCountTitle)
@@ -27,7 +33,6 @@ extension MainQueueDispatchDecorator: SelectionOutput where T: SelectionOutput {
             self?.decoratee.display(canReset: canReset)
         }
     }
-
 }
 
 extension SelectionOutput {
@@ -43,6 +48,9 @@ extension SelectionOutput {
 }
 
 extension WeakRefVirtualProxy: SelectionOutput where T: SelectionOutput {
+    public func display(model: EmptyViewPresentableModel?) {
+        object?.display(model: model)
+    }
 
     public func display(items: [SelectionType.SelectionCellPresentableModel], selectedCountTitle: String) {
         object?.display(items: items, selectedCountTitle: selectedCountTitle)

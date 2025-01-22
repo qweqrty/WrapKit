@@ -1,5 +1,5 @@
 //
-//  SelectionContentView.swift
+//  SelectionCellContentView.swift
 //  WrapKit
 //
 //  Created by Daniiar Erkinov on 3/7/24.
