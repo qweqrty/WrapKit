@@ -4,6 +4,9 @@
 //
 //  Created by Gulzat Zheenbek kyzy on 22/1/25.
 //
+
+import Foundation
+
 public protocol EmptyViewOutput {
     func display(model: EmptyViewPresentableModel?)
     func display(title: [TextAttributes])
