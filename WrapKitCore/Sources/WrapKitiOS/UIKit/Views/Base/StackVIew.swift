@@ -117,6 +117,9 @@ extension StackView: StackViewOutput {
         self.distribution = mapDistribution(model.distribution)
         self.axis = mapAxis(model.axis)
         self.alignment = mapAlignment(model.alignment)
+        if let spacing = model.spacing {
+            self.spacing = spacing
+        }
     }
     
     public func display(spacing: CGFloat?) {

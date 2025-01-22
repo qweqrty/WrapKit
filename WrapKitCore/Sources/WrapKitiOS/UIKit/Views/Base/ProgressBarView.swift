@@ -5,19 +5,37 @@
 //  Created by Stas Lee on 5/8/23.
 //
 
+import Foundation
+
 public protocol ProgressBarOutput: AnyObject {
     func display(model: ProgressBarPresentableModel?)
     func display(color: Color)
-    func display(progress: Float)
+    func display(progress: CGFloat)
 }
 
 public struct ProgressBarPresentableModel {
-    public let color: Color
-    public let progress: Float // 0-100
+    public struct ProgressBarStyle {
+        public let backgroundColor: Color
+        public let progressBarColor: Color
+        public let height: CGFloat
+        
+        public init(
+            backgroundColor: Color,
+            progressBarColor: Color,
+            height: CGFloat
+        ) {
+            self.backgroundColor = backgroundColor
+            self.progressBarColor = progressBarColor
+            self.height = height
+        }
+    }
     
-    public init(color: Color = .magenta, progress: Float = 100) {
-        self.color = color
+    public let progress: CGFloat // 0-100
+    public let style: ProgressBarStyle
+    
+    public init(progress: CGFloat = 100, style: ProgressBarStyle) {
         self.progress = progress
+        self.style = style
     }
 }
 
@@ -79,16 +97,18 @@ extension ProgressBarView: ProgressBarOutput {
     public func display(model: ProgressBarPresentableModel?) {
         isHidden = model == nil
         guard let model = model else { return }
-        progressView.backgroundColor = model.color
-        applyProgress(percentage: CGFloat(model.progress))
+        progressView.backgroundColor = model.style.progressBarColor
+        backgroundColor = model.style.backgroundColor
+        anchor(.height(model.style.height))
+        applyProgress(percentage: model.progress)
     }
     
     public func display(color: Color) {
         progressView.backgroundColor = color
     }
     
-    public func display(progress: Float) {
-        applyProgress(percentage: CGFloat(progress))
+    public func display(progress: CGFloat) {
+        applyProgress(percentage: progress)
     }
 }
 
