@@ -5,25 +5,33 @@ OPEN_COMMAND="open Package.swift"
 # Default target
 project: clean-sourcery run-sourcery open-command
 
-# Release new tag incrementing its patch (e.g MAJOR.MINOR.PATCH.)
- .PHONY: patch-tag
+# Push new tag incrementing its patch (e.g MAJOR.MINOR.PATCH.)
+.PHONY: patch-tag
 
 patch-tag:
 	@git fetch --tags --force
-	@LATEST_TAG=$(shell git describe --tags --abbrev=0 2>/dev/null || echo "0.0.0") && \
-	echo "Latest tag: $$LATEST_TAG" && \
+	@LATEST_TAG=$(shell git ls-remote --tags origin | awk -F'/' '{print $$NF}' | grep '^3\.' | sort -V | tail -n 1) && \
+	echo "Latest tag in series 3.x: $$LATEST_TAG" && \
 	MAJOR=$$(echo $$LATEST_TAG | awk -F. '{print $$1}') && \
 	MINOR=$$(echo $$LATEST_TAG | awk -F. '{print $$2}') && \
 	PATCH=$$(echo $$LATEST_TAG | awk -F. '{print $$3+1}') && \
 	NEW_TAG=$$MAJOR.$$MINOR.$$PATCH && \
-	if git rev-parse $$NEW_TAG >/dev/null 2>&1; then \
-	    echo "Error: Tag $$NEW_TAG already exists. Please verify."; \
+	if git ls-remote --tags origin | grep -q "refs/tags/$$NEW_TAG"; then \
+	    echo "Error: Tag $$NEW_TAG already exists. Increment manually if needed."; \
 	    exit 1; \
 	fi && \
 	echo "Creating new tag: $$NEW_TAG" && \
 	git tag $$NEW_TAG && \
 	git push origin $$NEW_TAG
 	
+# Echo latest tag
+.PHONY: show-latest-tag
+
+show-latest-tag:
+	@git fetch --tags --force
+	@LATEST_TAG=$(shell git ls-remote --tags origin | awk -F'/' '{print $$NF}' | grep '^3\.' | sort -V | tail -n 1) && \
+	echo "Latest tag in series 3.x: $$LATEST_TAG"
+
 # Open the Package.swift file
 open-command:
 	@echo "Opening Package.swift..."
