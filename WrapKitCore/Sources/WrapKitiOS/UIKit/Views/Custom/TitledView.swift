@@ -8,19 +8,19 @@
 public protocol TitledOutput<ContentView>: AnyObject {
     associatedtype ContentView
     func display(model: TitledViewPresentableModel<ContentView>?)
-    func display(keyTitle: [TextAttributes])
-    func display(valueTitle: [TextAttributes])
+    func display(keyTitle: TextOutputPresentableModel?)
+    func display(valueTitle: TextOutputPresentableModel?)
 }
 
 public struct TitledViewPresentableModel<ContentView> {
     public let contentView: ContentView
-    public let keyTitle: [TextAttributes]
-    public let valueTitle: [TextAttributes]
+    public let keyTitle: TextOutputPresentableModel?
+    public let valueTitle: TextOutputPresentableModel?
     
     public init(
         contentView: ContentView,
-        keyTitle: [TextAttributes] = [],
-        valueTitle: [TextAttributes] = []
+        keyTitle: TextOutputPresentableModel? = nil,
+        valueTitle: TextOutputPresentableModel? = nil
     ) {
         self.contentView = contentView
         self.keyTitle = keyTitle
@@ -155,15 +155,15 @@ extension TitledView: TitledOutput {
         isHidden = model == nil
         guard let model = model else { return }
         self.contentView = model.contentView
-        titlesView.keyLabel.display(model: .init(text: nil, attributes: model.keyTitle))
-        titlesView.valueLabel.display(model: .init(text: nil, attributes: model.valueTitle))
+        titlesView.keyLabel.display(model: model.keyTitle)
+        titlesView.valueLabel.display(model: model.valueTitle)
     }
-    public func display(keyTitle: [TextAttributes]) {
-        titlesView.keyLabel.display(model: .init(text: nil, attributes: keyTitle))
+    public func display(keyTitle: TextOutputPresentableModel?) {
+        titlesView.keyLabel.display(model: keyTitle)
     }
     
-    public func display(valueTitle: [TextAttributes]) {
-        titlesView.valueLabel.display(model: .init(text: nil, attributes: valueTitle))
+    public func display(valueTitle: TextOutputPresentableModel?) {
+        titlesView.valueLabel.display(model: valueTitle)
     }
 }
 

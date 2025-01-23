@@ -12,12 +12,12 @@ extension MainQueueDispatchDecorator: HeaderOutput where T: HeaderOutput {
             self?.decoratee.display(model: model)
         }
     }
-    public func display(keyTitle: [TextAttributes]) {
+    public func display(keyTitle: TextOutputPresentableModel?) {
         dispatch { [weak self] in
             self?.decoratee.display(keyTitle: keyTitle)
         }
     }
-    public func display(valueTitle: [TextAttributes]) {
+    public func display(valueTitle: TextOutputPresentableModel?) {
         dispatch { [weak self] in
             self?.decoratee.display(valueTitle: valueTitle)
         }
@@ -62,10 +62,10 @@ extension WeakRefVirtualProxy: HeaderOutput where T: HeaderOutput {
     public func display(model: HeaderPresentableModel?) {
         object?.display(model: model)
     }
-    public func display(keyTitle: [TextAttributes]) {
+    public func display(keyTitle: TextOutputPresentableModel?) {
         object?.display(keyTitle: keyTitle)
     }
-    public func display(valueTitle: [TextAttributes]) {
+    public func display(valueTitle: TextOutputPresentableModel?) {
         object?.display(valueTitle: valueTitle)
     }
     public func display(leadingImage: ImageViewPresentableModel?) {

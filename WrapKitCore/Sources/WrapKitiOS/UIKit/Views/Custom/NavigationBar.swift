@@ -7,8 +7,8 @@
 
 public protocol HeaderOutput: AnyObject {
     func display(model: HeaderPresentableModel?)
-    func display(keyTitle: [TextAttributes])
-    func display(valueTitle: [TextAttributes])
+    func display(keyTitle: TextOutputPresentableModel?)
+    func display(valueTitle: TextOutputPresentableModel?)
     func display(leadingImage: ImageViewPresentableModel?)
     func display(primeTrailingImage: ButtonPresentableModel?)
     func display(secondaryTrailingImage: ButtonPresentableModel?)
@@ -16,20 +16,20 @@ public protocol HeaderOutput: AnyObject {
 }
 
 public struct HeaderPresentableModel {
-    public let keyTitle: [TextAttributes]
-    public let valueTitle: [TextAttributes]
+    public let keyTitle: TextOutputPresentableModel?
+    public let valueTitle: TextOutputPresentableModel?
     public let leadingImage: ImageViewPresentableModel?
-    public let primeTrailingImage: ImageViewPresentableModel?
-    public let secondaryTrailingImage: ImageViewPresentableModel?
-    public let tertiaryTrailingImage: ImageViewPresentableModel?
+    public let primeTrailingImage: ButtonPresentableModel?
+    public let secondaryTrailingImage: ButtonPresentableModel?
+    public let tertiaryTrailingImage: ButtonPresentableModel?
     
     public init(
-        keyTitle: [TextAttributes] = [],
-        valueTitle: [TextAttributes] = [],
+        keyTitle: TextOutputPresentableModel? = nil,
+        valueTitle: TextOutputPresentableModel? = nil,
         leadingImage: ImageViewPresentableModel? = nil,
-        primeTrailingImage: ImageViewPresentableModel? = nil,
-        secondaryTrailingImage: ImageViewPresentableModel? = nil,
-        tertiaryTrailingImage: ImageViewPresentableModel? = nil
+        primeTrailingImage: ButtonPresentableModel? = nil,
+        secondaryTrailingImage: ButtonPresentableModel? = nil,
+        tertiaryTrailingImage: ButtonPresentableModel? = nil
     ) {
         self.keyTitle = keyTitle
         self.valueTitle = valueTitle
@@ -170,20 +170,20 @@ extension NavigationBar: HeaderOutput {
     public func display(model: HeaderPresentableModel?) {
         isHidden = model == nil
         guard let model = model else { return }
-        titleViews.keyLabel.display(model: .init(text: nil, attributes: model.keyTitle))
-        titleViews.valueLabel.display(model: .init(text: nil, attributes: model.valueTitle))
+        titleViews.keyLabel.display(model: model.keyTitle)
+        titleViews.valueLabel.display(model: model.valueTitle)
         leadingCardView.leadingImageView.display(model: model.leadingImage)
-        primeTrailingImageWrapperView.contentView.setImage(model.primeTrailingImage?.image)
-        secondaryTrailingImageWrapperView.contentView.setImage(model.secondaryTrailingImage?.image)
-        tertiaryTrailingImageWrapperView.contentView.setImage(model.tertiaryTrailingImage?.image)
+        primeTrailingImageWrapperView.contentView.display(model: model.primeTrailingImage)
+        secondaryTrailingImageWrapperView.contentView.display(model: model.secondaryTrailingImage)
+        tertiaryTrailingImageWrapperView.contentView.display(model: model.tertiaryTrailingImage)
     }
     
-    public func display(keyTitle: [TextAttributes]) {
-        titleViews.keyLabel.display(model: .init(text: nil, attributes: keyTitle))
+    public func display(keyTitle: TextOutputPresentableModel?) {
+        titleViews.keyLabel.display(model: keyTitle)
     }
     
-    public func display(valueTitle: [TextAttributes]) {
-        titleViews.valueLabel.display(model: .init(text: nil, attributes: valueTitle))
+    public func display(valueTitle: TextOutputPresentableModel?) {
+        titleViews.valueLabel.display(model: valueTitle)
     }
     
     public func display(leadingImage: ImageViewPresentableModel?) {
