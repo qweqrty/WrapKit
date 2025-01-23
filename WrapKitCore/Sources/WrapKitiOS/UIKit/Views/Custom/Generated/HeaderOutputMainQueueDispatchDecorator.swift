@@ -22,22 +22,22 @@ extension MainQueueDispatchDecorator: HeaderOutput where T: HeaderOutput {
             self?.decoratee.display(valueTitle: valueTitle)
         }
     }
-    public func display(leadingImage: ImageEnum?) {
+    public func display(leadingImage: ImageViewPresentableModel?) {
         dispatch { [weak self] in
             self?.decoratee.display(leadingImage: leadingImage)
         }
     }
-    public func display(primeTrailingImage: ImageEnum?) {
+    public func display(primeTrailingImage: ImageViewPresentableModel?) {
         dispatch { [weak self] in
             self?.decoratee.display(primeTrailingImage: primeTrailingImage)
         }
     }
-    public func display(secondaryTrailingImage: ImageEnum?) {
+    public func display(secondaryTrailingImage: ImageViewPresentableModel?) {
         dispatch { [weak self] in
             self?.decoratee.display(secondaryTrailingImage: secondaryTrailingImage)
         }
     }
-    public func display(tertiaryTrailingImage: ImageEnum?) {
+    public func display(tertiaryTrailingImage: ImageViewPresentableModel?) {
         dispatch { [weak self] in
             self?.decoratee.display(tertiaryTrailingImage: tertiaryTrailingImage)
         }
@@ -68,16 +68,16 @@ extension WeakRefVirtualProxy: HeaderOutput where T: HeaderOutput {
     public func display(valueTitle: [TextAttributes]) {
         object?.display(valueTitle: valueTitle)
     }
-    public func display(leadingImage: ImageEnum?) {
+    public func display(leadingImage: ImageViewPresentableModel?) {
         object?.display(leadingImage: leadingImage)
     }
-    public func display(primeTrailingImage: ImageEnum?) {
+    public func display(primeTrailingImage: ImageViewPresentableModel?) {
         object?.display(primeTrailingImage: primeTrailingImage)
     }
-    public func display(secondaryTrailingImage: ImageEnum?) {
+    public func display(secondaryTrailingImage: ImageViewPresentableModel?) {
         object?.display(secondaryTrailingImage: secondaryTrailingImage)
     }
-    public func display(tertiaryTrailingImage: ImageEnum?) {
+    public func display(tertiaryTrailingImage: ImageViewPresentableModel?) {
         object?.display(tertiaryTrailingImage: tertiaryTrailingImage)
     }
 

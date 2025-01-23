@@ -9,27 +9,27 @@ public protocol HeaderOutput: AnyObject {
     func display(model: HeaderPresentableModel?)
     func display(keyTitle: [TextAttributes])
     func display(valueTitle: [TextAttributes])
-    func display(leadingImage: ImageEnum?)
-    func display(primeTrailingImage: ImageEnum?)
-    func display(secondaryTrailingImage: ImageEnum?)
-    func display(tertiaryTrailingImage: ImageEnum?)
+    func display(leadingImage: ImageViewPresentableModel?)
+    func display(primeTrailingImage: ImageViewPresentableModel?)
+    func display(secondaryTrailingImage: ImageViewPresentableModel?)
+    func display(tertiaryTrailingImage: ImageViewPresentableModel?)
 }
 
 public struct HeaderPresentableModel {
     public let keyTitle: [TextAttributes]
     public let valueTitle: [TextAttributes]
-    public let leadingImage: ImageEnum?
-    public let primeTrailingImage: ImageEnum?
-    public let secondaryTrailingImage: ImageEnum?
-    public let tertiaryTrailingImage: ImageEnum?
+    public let leadingImage: ImageViewPresentableModel?
+    public let primeTrailingImage: ImageViewPresentableModel?
+    public let secondaryTrailingImage: ImageViewPresentableModel?
+    public let tertiaryTrailingImage: ImageViewPresentableModel?
     
     public init(
         keyTitle: [TextAttributes] = [],
         valueTitle: [TextAttributes] = [],
-        leadingImage: ImageEnum? = nil,
-        primeTrailingImage: ImageEnum? = nil,
-        secondaryTrailingImage: ImageEnum? = nil,
-        tertiaryTrailingImage: ImageEnum? = nil
+        leadingImage: ImageViewPresentableModel? = nil,
+        primeTrailingImage: ImageViewPresentableModel? = nil,
+        secondaryTrailingImage: ImageViewPresentableModel? = nil,
+        tertiaryTrailingImage: ImageViewPresentableModel? = nil
     ) {
         self.keyTitle = keyTitle
         self.valueTitle = valueTitle
@@ -172,10 +172,10 @@ extension NavigationBar: HeaderOutput {
         guard let model = model else { return }
         titleViews.keyLabel.display(model: .init(text: nil, attributes: model.keyTitle))
         titleViews.valueLabel.display(model: .init(text: nil, attributes: model.valueTitle))
-        leadingCardView.leadingImageView.setImage(model.leadingImage)
-        primeTrailingImageWrapperView.contentView.setImage(model.primeTrailingImage)
-        secondaryTrailingImageWrapperView.contentView.setImage(model.secondaryTrailingImage)
-        tertiaryTrailingImageWrapperView.contentView.setImage(model.tertiaryTrailingImage)
+        leadingCardView.leadingImageView.display(model: model.leadingImage)
+        primeTrailingImageWrapperView.contentView.setImage(model.primeTrailingImage?.image)
+        secondaryTrailingImageWrapperView.contentView.setImage(model.secondaryTrailingImage?.image)
+        tertiaryTrailingImageWrapperView.contentView.setImage(model.tertiaryTrailingImage?.image)
     }
     
     public func display(keyTitle: [TextAttributes]) {
@@ -186,20 +186,20 @@ extension NavigationBar: HeaderOutput {
         titleViews.valueLabel.display(model: .init(text: nil, attributes: valueTitle))
     }
     
-    public func display(leadingImage: ImageEnum?) {
-        leadingCardView.leadingImageView.setImage(leadingImage)
+    public func display(leadingImage: ImageViewPresentableModel?) {
+        leadingCardView.leadingImageView.display(model: leadingImage)
     }
     
-    public func display(primeTrailingImage: ImageEnum?) {
-        primeTrailingImageWrapperView.contentView.setImage(primeTrailingImage)
+    public func display(primeTrailingImage: ImageViewPresentableModel?) {
+        primeTrailingImageWrapperView.contentView.setImage(primeTrailingImage?.image)
     }
     
-    public func display(secondaryTrailingImage: ImageEnum?) {
-        secondaryTrailingImageWrapperView.contentView.setImage(secondaryTrailingImage)
+    public func display(secondaryTrailingImage: ImageViewPresentableModel?) {
+        secondaryTrailingImageWrapperView.contentView.setImage(secondaryTrailingImage?.image)
     }
     
-    public func display(tertiaryTrailingImage: ImageEnum?) {
-        tertiaryTrailingImageWrapperView.contentView.setImage(tertiaryTrailingImage)
+    public func display(tertiaryTrailingImage: ImageViewPresentableModel?) {
+        tertiaryTrailingImageWrapperView.contentView.setImage(tertiaryTrailingImage?.image)
     }
 }
 #endif
