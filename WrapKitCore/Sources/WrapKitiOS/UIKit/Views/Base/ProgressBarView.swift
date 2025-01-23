@@ -13,23 +13,23 @@ public protocol ProgressBarOutput: AnyObject {
     func display(progress: CGFloat)
 }
 
-public struct ProgressBarPresentableModel {
-    public struct ProgressBarStyle {
-        public let backgroundColor: Color
-        public let progressBarColor: Color
-        public let height: CGFloat
-        
-        public init(
-            backgroundColor: Color,
-            progressBarColor: Color,
-            height: CGFloat
-        ) {
-            self.backgroundColor = backgroundColor
-            self.progressBarColor = progressBarColor
-            self.height = height
-        }
-    }
+public struct ProgressBarStyle {
+    public let backgroundColor: Color?
+    public let progressBarColor: Color?
+    public let height: CGFloat?
     
+    public init(
+        backgroundColor: Color? = nil,
+        progressBarColor: Color? = nil,
+        height: CGFloat? = nil
+    ) {
+        self.backgroundColor = backgroundColor
+        self.progressBarColor = progressBarColor
+        self.height = height
+    }
+}
+
+public struct ProgressBarPresentableModel {
     public let progress: CGFloat // 0-100
     public let style: ProgressBarStyle
     
@@ -54,6 +54,14 @@ open class ProgressBarView: UIView {
         progressView.layer.cornerRadius = 4
         setupSubviews()
         setupConstraints()
+    }
+    
+    public var style: ProgressBarStyle? {
+        didSet {
+            self.backgroundColor = style?.backgroundColor
+            self.progressView.backgroundColor = style?.progressBarColor
+            self.anchor(.height(style?.height ?? 10))
+        }
     }
     
     public func applyProgress(width: CGFloat) {
@@ -97,9 +105,7 @@ extension ProgressBarView: ProgressBarOutput {
     public func display(model: ProgressBarPresentableModel?) {
         isHidden = model == nil
         guard let model = model else { return }
-        progressView.backgroundColor = model.style.progressBarColor
-        backgroundColor = model.style.backgroundColor
-        anchor(.height(model.style.height))
+        self.style = model.style
         applyProgress(percentage: model.progress)
     }
     
