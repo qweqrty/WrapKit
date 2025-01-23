@@ -192,6 +192,7 @@ open class Textfield: UITextField {
     public var padding: UIEdgeInsets = .zero
     public var midPadding: CGFloat = 0
     public var clearButtonEdgeInsets = UIEdgeInsets(top: 0, left: -8, bottom: 0, right: 8)
+    public var disabledMenus = [UIMenu.Identifier]()
 
     public var isTextSelectionDisabled = false
     public var isEnabledForEditing = true {
@@ -211,7 +212,9 @@ open class Textfield: UITextField {
                 builder.remove(menu: .standardEdit)
                 builder.remove(menu: .format)
                 builder.remove(menu: .lookup)
-                builder.remove(menu: .autoFill)
+            }
+            disabledMenus.forEach {
+                builder.remove(menu: $0)
             }
         }
         super.buildMenu(with: builder)
