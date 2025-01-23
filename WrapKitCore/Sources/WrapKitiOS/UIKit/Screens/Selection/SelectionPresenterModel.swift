@@ -19,7 +19,7 @@ public struct SelectionPresenterModel {
         isMultipleSelectionEnabled: Bool,
         items: [SelectionType.SelectionCellPresentableModel],
         callback: ((SelectionType?) -> Void)?,
-        emptyViewPresentableModel: EmptyViewPresentableModel?
+        emptyViewPresentableModel: EmptyViewPresentableModel? = nil
     ) {
         self.title = title
         self.isMultipleSelectionEnabled = isMultipleSelectionEnabled

@@ -114,6 +114,11 @@ extension EmptyView: EmptyViewOutput {
         button.setTitle(buttonModel.title, for: .normal)
         button.spacing = buttonModel.spacing
         button.onPress = buttonModel.onPress
+        button.backgroundColor = buttonModel.style?.backgroundColor
+        button.setTitleColor(buttonModel.style?.titleColor, for: .normal)
+        button.layer.borderColor = buttonModel.style?.borderColor?.cgColor
+        button.titleLabel?.font = buttonModel.style?.titleLabelFont
+        
         button.style = buttonModel.style
     }
     
