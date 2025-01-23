@@ -103,6 +103,7 @@ open class Button: UIButton {
             self.pressedTextColor = style?.pressedTintColor
             self.pressedBackgroundColor = style?.backgroundColor
             self.layer.borderColor = style?.borderColor?.cgColor
+            self.layer.borderWidth = style?.borderWidth ?? 0
         }
     }
     public var textColor: UIColor? {
