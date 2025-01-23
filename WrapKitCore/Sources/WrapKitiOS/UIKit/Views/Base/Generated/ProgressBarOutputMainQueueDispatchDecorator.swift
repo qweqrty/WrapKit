@@ -22,6 +22,11 @@ extension MainQueueDispatchDecorator: ProgressBarOutput where T: ProgressBarOutp
             self?.decoratee.display(progress: progress)
         }
     }
+    public func display(style: ProgressBarStyle?) {
+        dispatch { [weak self] in
+            self?.decoratee.display(style: style)
+        }
+    }
 
 }
 
@@ -47,6 +52,9 @@ extension WeakRefVirtualProxy: ProgressBarOutput where T: ProgressBarOutput {
     }
     public func display(progress: CGFloat) {
         object?.display(progress: progress)
+    }
+    public func display(style: ProgressBarStyle?) {
+        object?.display(style: style)
     }
 
 }
