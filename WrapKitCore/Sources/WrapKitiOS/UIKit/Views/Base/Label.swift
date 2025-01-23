@@ -13,14 +13,9 @@ public protocol TextOutput: AnyObject {
     func display(attributes: [TextAttributes])
 }
 
-public struct TextOutputPresentableModel {
-    public let text: String?
-    public let attributes: [TextAttributes]
-    
-    public init(text: String? = nil, attributes: [TextAttributes] = []) {
-        self.text = text
-        self.attributes = attributes
-    }
+public enum TextOutputPresentableModel {
+    case text(String?)
+    case attributes([TextAttributes])
 }
 
 #if canImport(UIKit)
@@ -164,8 +159,12 @@ extension Label: TextOutput {
     public func display(model: TextOutputPresentableModel?) {
         isHidden = model == nil
         guard let model = model else { return }
-        text = model.text
-        attributes = model.attributes
+        switch model {
+        case .text(let text):
+            self.text = text
+        case .attributes(let attributes):
+            self.attributes = attributes
+        }
     }
     
     public func display(text: String?) {
