@@ -27,17 +27,17 @@ extension MainQueueDispatchDecorator: HeaderOutput where T: HeaderOutput {
             self?.decoratee.display(leadingImage: leadingImage)
         }
     }
-    public func display(primeTrailingImage: ImageViewPresentableModel?) {
+    public func display(primeTrailingImage: ButtonPresentableModel?) {
         dispatch { [weak self] in
             self?.decoratee.display(primeTrailingImage: primeTrailingImage)
         }
     }
-    public func display(secondaryTrailingImage: ImageViewPresentableModel?) {
+    public func display(secondaryTrailingImage: ButtonPresentableModel?) {
         dispatch { [weak self] in
             self?.decoratee.display(secondaryTrailingImage: secondaryTrailingImage)
         }
     }
-    public func display(tertiaryTrailingImage: ImageViewPresentableModel?) {
+    public func display(tertiaryTrailingImage: ButtonPresentableModel?) {
         dispatch { [weak self] in
             self?.decoratee.display(tertiaryTrailingImage: tertiaryTrailingImage)
         }
@@ -71,13 +71,13 @@ extension WeakRefVirtualProxy: HeaderOutput where T: HeaderOutput {
     public func display(leadingImage: ImageViewPresentableModel?) {
         object?.display(leadingImage: leadingImage)
     }
-    public func display(primeTrailingImage: ImageViewPresentableModel?) {
+    public func display(primeTrailingImage: ButtonPresentableModel?) {
         object?.display(primeTrailingImage: primeTrailingImage)
     }
-    public func display(secondaryTrailingImage: ImageViewPresentableModel?) {
+    public func display(secondaryTrailingImage: ButtonPresentableModel?) {
         object?.display(secondaryTrailingImage: secondaryTrailingImage)
     }
-    public func display(tertiaryTrailingImage: ImageViewPresentableModel?) {
+    public func display(tertiaryTrailingImage: ButtonPresentableModel?) {
         object?.display(tertiaryTrailingImage: tertiaryTrailingImage)
     }
 

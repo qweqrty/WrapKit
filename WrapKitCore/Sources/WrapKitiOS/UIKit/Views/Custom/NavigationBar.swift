@@ -10,9 +10,9 @@ public protocol HeaderOutput: AnyObject {
     func display(keyTitle: [TextAttributes])
     func display(valueTitle: [TextAttributes])
     func display(leadingImage: ImageViewPresentableModel?)
-    func display(primeTrailingImage: ImageViewPresentableModel?)
-    func display(secondaryTrailingImage: ImageViewPresentableModel?)
-    func display(tertiaryTrailingImage: ImageViewPresentableModel?)
+    func display(primeTrailingImage: ButtonPresentableModel?)
+    func display(secondaryTrailingImage: ButtonPresentableModel?)
+    func display(tertiaryTrailingImage: ButtonPresentableModel?)
 }
 
 public struct HeaderPresentableModel {
@@ -190,16 +190,16 @@ extension NavigationBar: HeaderOutput {
         leadingCardView.leadingImageView.display(model: leadingImage)
     }
     
-    public func display(primeTrailingImage: ImageViewPresentableModel?) {
-        primeTrailingImageWrapperView.contentView.setImage(primeTrailingImage?.image)
+    public func display(primeTrailingImage: ButtonPresentableModel?) {
+        primeTrailingImageWrapperView.contentView.display(model: primeTrailingImage)
     }
     
-    public func display(secondaryTrailingImage: ImageViewPresentableModel?) {
-        secondaryTrailingImageWrapperView.contentView.setImage(secondaryTrailingImage?.image)
+    public func display(secondaryTrailingImage: ButtonPresentableModel?) {
+        secondaryTrailingImageWrapperView.contentView.display(model: secondaryTrailingImage)
     }
     
-    public func display(tertiaryTrailingImage: ImageViewPresentableModel?) {
-        tertiaryTrailingImageWrapperView.contentView.setImage(tertiaryTrailingImage?.image)
+    public func display(tertiaryTrailingImage: ButtonPresentableModel?) {
+        tertiaryTrailingImageWrapperView.contentView.display(model: tertiaryTrailingImage)
     }
 }
 #endif
