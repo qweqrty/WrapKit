@@ -41,6 +41,7 @@ public protocol ButtonOutput: AnyObject {
     func display(title: String?)
     func display(spacing: CGFloat)
     func display(onPress: (() -> Void)?)
+    func display(height: CGFloat?)
 }
 
 public struct ButtonPresentableModel {
@@ -273,6 +274,14 @@ extension Button: ButtonOutput {
         }
         self.style = model?.style
         onPress = model?.onPress
+    }
+    
+    public func display(height: CGFloat?) {
+        if let anchoredConstraints = anchoredConstraints, let height = height {
+            anchoredConstraints.height?.constant = height
+        } else if let height = height {
+            anchor(.height(height))
+        }
     }
     
     public func display(style: ButtonStyle?) {
