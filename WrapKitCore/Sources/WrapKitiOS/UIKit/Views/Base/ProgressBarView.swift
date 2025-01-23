@@ -64,7 +64,7 @@ open class ProgressBarView: UIView {
             if let progressViewAnchoredConstraints = progressViewAnchoredConstraints, let height = style?.height {
                 progressViewAnchoredConstraints.height?.constant = height
             } else if let height = style?.height {
-                anchor(.height(height))
+                progressViewAnchoredConstraints = anchor(.height(height))
             }
         }
     }

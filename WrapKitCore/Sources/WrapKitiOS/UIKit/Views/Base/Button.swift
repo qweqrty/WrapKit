@@ -270,7 +270,7 @@ extension Button: ButtonOutput {
         if let anchoredConstraints = anchoredConstraints, let height = model?.height {
             anchoredConstraints.height?.constant = height
         } else if let height = model?.height {
-            anchor(.height(height))
+            anchoredConstraints = anchor(.height(height))
         }
         self.style = model?.style
         onPress = model?.onPress
