@@ -10,6 +10,7 @@ import Foundation
 public protocol ImageViewOutput: AnyObject {
     func display(model: ImageViewPresentableModel?)
     func display(image: ImageEnum)
+    func display(size: CGSize?)
     func display(onPress: (() -> Void)?)
     func display(onLongPress: (() -> Void)?)
 }
@@ -205,6 +206,20 @@ extension ImageView: ImageViewOutput {
         onLongPress = model?.onLongPress
         
         if let size = model?.size {
+            if let anchoredConstraints = anchoredConstraints {
+                    anchoredConstraints.height?.constant = size.height
+                    anchoredConstraints.width?.constant = size.width
+            } else {
+                anchoredConstraints = anchor(
+                    .height(size.height, priority: .required),
+                    .width(size.width, priority: .required)
+                )
+            }
+        }
+    }
+    
+    public func display(size: CGSize?) {
+        if let size = size {
             if let anchoredConstraints = anchoredConstraints {
                     anchoredConstraints.height?.constant = size.height
                     anchoredConstraints.width?.constant = size.width

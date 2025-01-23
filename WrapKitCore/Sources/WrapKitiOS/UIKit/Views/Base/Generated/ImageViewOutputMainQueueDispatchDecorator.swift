@@ -17,6 +17,11 @@ extension MainQueueDispatchDecorator: ImageViewOutput where T: ImageViewOutput {
             self?.decoratee.display(image: image)
         }
     }
+    public func display(size: CGSize?) {
+        dispatch { [weak self] in
+            self?.decoratee.display(size: size)
+        }
+    }
     public func display(onPress: (() -> Void)?) {
         dispatch { [weak self] in
             self?.decoratee.display(onPress: onPress)
@@ -49,6 +54,9 @@ extension WeakRefVirtualProxy: ImageViewOutput where T: ImageViewOutput {
     }
     public func display(image: ImageEnum) {
         object?.display(image: image)
+    }
+    public func display(size: CGSize?) {
+        object?.display(size: size)
     }
     public func display(onPress: (() -> Void)?) {
         object?.display(onPress: onPress)
