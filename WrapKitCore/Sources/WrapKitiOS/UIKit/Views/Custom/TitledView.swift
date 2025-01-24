@@ -155,8 +155,8 @@ extension TitledView: TitledOutput {
         isHidden = model == nil
         guard let model = model else { return }
         self.contentView = model.contentView
-        titlesView.keyLabel.display(model: model.keyTitle)
-        titlesView.valueLabel.display(model: model.valueTitle)
+        display(keyTitle: model.keyTitle)
+        display(valueTitle: model.valueTitle)
     }
     public func display(keyTitle: TextOutputPresentableModel?) {
         titlesView.keyLabel.display(model: keyTitle)

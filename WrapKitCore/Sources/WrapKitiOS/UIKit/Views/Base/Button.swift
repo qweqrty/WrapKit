@@ -47,13 +47,13 @@ public protocol ButtonOutput: AnyObject {
 public struct ButtonPresentableModel {
     public let height: CGFloat?
     public let title: String?
-    public let spacing: CGFloat
+    public let spacing: CGFloat?
     public let onPress: (() -> Void)?
     public let style: ButtonStyle?
     
     public init(
-        title: String?,
-        spacing: CGFloat = 0,
+        title: String? = nil,
+        spacing: CGFloat? = nil,
         onPress: (() -> Void)? = nil,
         height: CGFloat? = nil,
         style: ButtonStyle? = nil
@@ -264,16 +264,11 @@ open class Button: UIButton {
 extension Button: ButtonOutput {
     public func display(model: ButtonPresentableModel?) {
         isHidden = model == nil
-        guard let spacing = model?.spacing else { return }
-        self.spacing = spacing
-        self.setTitle(model?.title, for: .normal)
-        if let anchoredConstraints = anchoredConstraints, let height = model?.height {
-            anchoredConstraints.height?.constant = height
-        } else if let height = model?.height {
-            anchoredConstraints = anchor(.height(height))
-        }
-        self.style = model?.style
-        onPress = model?.onPress
+        if let spacing = model?.spacing { display(spacing: spacing) }
+        display(title: model?.title)
+        if let height = model?.height { display(height: height) }
+        display(style: model?.style)
+        display(onPress: model?.onPress)
     }
     
     public func display(height: CGFloat?) {

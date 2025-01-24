@@ -139,23 +139,26 @@ extension Textview: TextInputOutput {
     public func display(model: TextInputPresentableModel?) {
         isHidden = model == nil
         guard let model = model else { return }
-        text = model.text
-        isValidState = model.isValid
-        updateAppearance(isValid: model.isValid)
-        isUserInteractionEnabled = model.isUserInteractionEnabled
-        isSecureTextEntry = model.isSecureTextEntry
-        leadingViewOnPress = model.leadingViewOnPress
-        trailingViewOnPress = model.trailingViewOnPress
-        self.placeholderLabel.text = model.placeholder
-        onPress = model.onPress
-        onPaste = model.onPaste
-        onBecomeFirstResponder = model.onBecomeFirstResponder
-        onResignFirstResponder = model.onResignFirstResponder
-        onTapBackspace = model.onTapBackspace
-        if let didChangeText = model.didChangeText {
-            self.didChangeText = didChangeText
+        display(text: model.text)
+        if let isValid = model.isValid {
+            display(isValid: isValid)
+            updateAppearance(isValid: isValid)
         }
-        
+        if let isEnabledForEditing = model.isEnabledForEditing { display(isEnabledForEditing: isEnabledForEditing) }
+        if let isTextSelectionDisabled = model.isTextSelectionDisabled { display(isTextSelectionDisabled: isTextSelectionDisabled) }
+        display(placeholder: model.placeholder)
+        if let isUserInteractionEnabled = model.isUserInteractionEnabled { display(isUserInteractionEnabled: isUserInteractionEnabled) }
+        if let isSecureTextEntry = model.isSecureTextEntry { display(isSecureTextEntry: isSecureTextEntry) }
+        display(leadingViewOnPress: model.leadingViewOnPress)
+        display(trailingViewOnPress: model.trailingViewOnPress)
+        display(onPress: model.onPress)
+        display(onPaste: model.onPaste)
+        display(onBecomeFirstResponder: model.onBecomeFirstResponder)
+        display(onResignFirstResponder: model.onResignFirstResponder)
+        display(onTapBackspace: model.onTapBackspace)
+        if let didChangeText = model.didChangeText {
+            display(didChangeText: didChangeText)
+        }
     }
     
     public func display(text: String?) {

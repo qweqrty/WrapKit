@@ -13,6 +13,7 @@ public protocol ImageViewOutput: AnyObject {
     func display(size: CGSize?)
     func display(onPress: (() -> Void)?)
     func display(onLongPress: (() -> Void)?)
+    func display(contentModeIsFit: Bool)
 }
 
 public struct ImageViewPresentableModel {
@@ -20,17 +21,20 @@ public struct ImageViewPresentableModel {
     public let image: ImageEnum?
     public let onPress: (() -> Void)?
     public let onLongPress: (() -> Void)?
+    public let contentModeIsFit: Bool?
     
     public init(
         size: CGSize? = nil,
         image: ImageEnum? = nil,
         onPress: (() -> Void)? = nil,
-        onLongPress: (() -> Void)? = nil
+        onLongPress: (() -> Void)? = nil,
+        contentModeIsFit: Bool? = nil
     ) {
         self.size = size
         self.image = image
         self.onPress = onPress
         self.onLongPress = onLongPress
+        self.contentModeIsFit = contentModeIsFit
     }
 }
 
@@ -201,21 +205,11 @@ open class ImageView: UIImageView {
 extension ImageView: ImageViewOutput {
     public func display(model: ImageViewPresentableModel?) {
         isHidden = model == nil
-        self.setImage(model?.image)
-        onPress = model?.onPress
-        onLongPress = model?.onLongPress
-        
-        if let size = model?.size {
-            if let anchoredConstraints = anchoredConstraints {
-                    anchoredConstraints.height?.constant = size.height
-                    anchoredConstraints.width?.constant = size.width
-            } else {
-                anchoredConstraints = anchor(
-                    .height(size.height, priority: .required),
-                    .width(size.width, priority: .required)
-                )
-            }
-        }
+        display(onPress: model?.onPress)
+        display(onLongPress: model?.onLongPress)
+        if let image = model?.image { display(image: image) }
+        if let size = model?.size { display(size: size)}
+        if let contentModeIsFit = model?.contentModeIsFit { display(contentModeIsFit: contentModeIsFit) }
     }
     
     public func display(size: CGSize?) {
@@ -242,6 +236,10 @@ extension ImageView: ImageViewOutput {
     
     public func display(onLongPress: (() -> Void)?) {
         self.onLongPress = onLongPress
+    }
+    
+    public func display(contentModeIsFit: Bool) {
+        self.contentMode = contentModeIsFit == true ? .scaleAspectFit : .scaleAspectFill
     }
 }
 #endif

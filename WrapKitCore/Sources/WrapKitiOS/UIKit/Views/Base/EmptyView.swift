@@ -110,7 +110,7 @@ extension EmptyView: EmptyViewOutput {
         button.isHidden = buttonModel == nil
         guard let buttonModel else { return }
         button.setTitle(buttonModel.title, for: .normal)
-        button.spacing = buttonModel.spacing
+        if let spacing = buttonModel.spacing { button.spacing = spacing }
         button.onPress = buttonModel.onPress
         button.style = buttonModel.style
     }

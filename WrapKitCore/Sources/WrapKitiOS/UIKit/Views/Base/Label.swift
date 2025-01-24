@@ -161,9 +161,9 @@ extension Label: TextOutput {
         guard let model = model else { return }
         switch model {
         case .text(let text):
-            self.text = text
+            self.display(text: text)
         case .attributes(let attributes):
-            self.attributes = attributes
+            self.display(attributes: attributes)
         }
     }
     

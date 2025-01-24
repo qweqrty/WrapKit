@@ -112,12 +112,12 @@ public struct TextInputPresentableModel {
     }
     public let mask: Mask?
     public let text: String?
-    public let isValid: Bool
-    public let isEnabledForEditing: Bool
-    public let isTextSelectionDisabled: Bool
+    public let isValid: Bool?
+    public let isEnabledForEditing: Bool?
+    public let isTextSelectionDisabled: Bool?
     public let placeholder: String?
-    public let isUserInteractionEnabled: Bool
-    public let isSecureTextEntry: Bool
+    public let isUserInteractionEnabled: Bool?
+    public let isSecureTextEntry: Bool?
     public var leadingViewOnPress: (() -> Void)?
     public var trailingViewOnPress: (() -> Void)?
     public var onPress: (() -> Void)?
@@ -130,13 +130,12 @@ public struct TextInputPresentableModel {
     public init(
         text: String? = nil,
         mask: Mask? = nil,
-        maskColor: Color = .gray,
-        isValid: Bool = false,
-        isEnabledForEditing: Bool = true,
-        isTextSelectionDisabled: Bool = false,
+        isValid: Bool? = nil,
+        isEnabledForEditing: Bool? = nil,
+        isTextSelectionDisabled: Bool? = nil,
         placeholder: String? = nil,
-        isUserInteractionEnabled: Bool = true,
-        isSecureTextEntry: Bool = false,
+        isUserInteractionEnabled: Bool? = nil,
+        isSecureTextEntry: Bool? = nil,
         leadingViewOnPress: (() -> Void)? = nil,
         trailingViewOnPress: (() -> Void)? = nil,
         onPress: (() -> Void)? = nil,
@@ -532,23 +531,25 @@ extension Textfield: TextInputOutput {
         if let mask = model.mask {
             maskedTextfieldDelegate = .init(format: .init(mask: mask.mask, maskedTextColor: mask.maskColor))
         }
-        text = model.text
-        isValidState = model.isValid
-        updateAppearance(isValid: model.isValid)
-        isEnabledForEditing = model.isEnabledForEditing
-        isTextSelectionDisabled = model.isTextSelectionDisabled
-        placeholder = model.placeholder
-        isUserInteractionEnabled = model.isUserInteractionEnabled
-        isSecureTextEntry = model.isSecureTextEntry
-        leadingViewOnPress = model.leadingViewOnPress
-        trailingViewOnPress = model.trailingViewOnPress
-        onPress = model.onPress
-        onPaste = model.onPaste
-        onBecomeFirstResponder = model.onBecomeFirstResponder
-        onResignFirstResponder = model.onResignFirstResponder
-        onTapBackspace = model.onTapBackspace
+        display(text: model.text)
+        if let isValid = model.isValid {
+            display(isValid: isValid)
+            updateAppearance(isValid: isValid)
+        }
+        if let isEnabledForEditing = model.isEnabledForEditing { display(isEnabledForEditing: isEnabledForEditing) }
+        if let isTextSelectionDisabled = model.isTextSelectionDisabled { display(isTextSelectionDisabled: isTextSelectionDisabled) }
+        display(placeholder: model.placeholder)
+        if let isUserInteractionEnabled = model.isUserInteractionEnabled { display(isUserInteractionEnabled: isUserInteractionEnabled) }
+        if let isSecureTextEntry = model.isSecureTextEntry { display(isSecureTextEntry: isSecureTextEntry) }
+        display(leadingViewOnPress: model.leadingViewOnPress)
+        display(trailingViewOnPress: model.trailingViewOnPress)
+        display(onPress: model.onPress)
+        display(onPaste: model.onPaste)
+        display(onBecomeFirstResponder: model.onBecomeFirstResponder)
+        display(onResignFirstResponder: model.onResignFirstResponder)
+        display(onTapBackspace: model.onTapBackspace)
         if let didChangeText = model.didChangeText {
-            self.didChangeText = didChangeText
+            display(didChangeText: didChangeText)
         }
     }
     

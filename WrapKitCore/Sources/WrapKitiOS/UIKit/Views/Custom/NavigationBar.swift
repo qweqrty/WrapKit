@@ -170,12 +170,12 @@ extension NavigationBar: HeaderOutput {
     public func display(model: HeaderPresentableModel?) {
         isHidden = model == nil
         guard let model = model else { return }
-        titleViews.keyLabel.display(model: model.keyTitle)
-        titleViews.valueLabel.display(model: model.valueTitle)
-        leadingCardView.leadingImageView.display(model: model.leadingImage)
-        primeTrailingImageWrapperView.contentView.display(model: model.primeTrailingImage)
-        secondaryTrailingImageWrapperView.contentView.display(model: model.secondaryTrailingImage)
-        tertiaryTrailingImageWrapperView.contentView.display(model: model.tertiaryTrailingImage)
+        display(keyTitle: model.keyTitle)
+        display(valueTitle: model.valueTitle)
+        display(leadingImage: model.leadingImage)
+        display(primeTrailingImage: model.primeTrailingImage)
+        display(secondaryTrailingImage: model.secondaryTrailingImage)
+        display(tertiaryTrailingImage: model.tertiaryTrailingImage)
     }
     
     public func display(keyTitle: TextOutputPresentableModel?) {

@@ -9,30 +9,18 @@ import Foundation
 
 public protocol CardViewOutput: AnyObject {
     func display(model: CardViewPresentableModel?)
-    func display(title: [TextAttributes])
-    func display(leadingImage: CardViewPresentableModel.Image?)
-    func display(trailingImage: CardViewPresentableModel.Image?)
-    func display(secondaryTrailingImage: CardViewPresentableModel.Image?)
-    func display(subTitle: [TextAttributes])
-    func display(valueTitle: [TextAttributes])
+    func display(title: TextOutputPresentableModel?)
+    func display(leadingImage: ImageViewPresentableModel?)
+    func display(trailingImage: ImageViewPresentableModel?)
+    func display(secondaryTrailingImage: ImageViewPresentableModel?)
+    func display(subTitle: TextOutputPresentableModel?)
+    func display(valueTitle: TextOutputPresentableModel?)
     func display(bottomSeparator: CardViewPresentableModel.BottomSeparator?)
     func display(switchControl: CardViewPresentableModel.SwitchControl?)
     func display(status: CardViewPresentableModel.Status?)
 }
 
 public struct CardViewPresentableModel: HashableWithReflection {
-    public struct Image {
-        public let image: ImageEnum
-        public let contentModeIsFit: Bool
-        public let size: CGSize
-        
-        public init(image: ImageEnum, size: CGSize, contentModeIsFit: Bool = true) {
-            self.image = image
-            self.size = size
-            self.contentModeIsFit = contentModeIsFit
-        }
-    }
-    
     public struct BottomSeparator {
         public let color: Color
         public let padding: EdgeInsets
@@ -56,32 +44,32 @@ public struct CardViewPresentableModel: HashableWithReflection {
     }
     
     public struct Status {
-        public let title: [TextAttributes]
-        public let leadingImage: Image?
+        public let title: TextOutputPresentableModel?
+        public let leadingImage: ImageViewPresentableModel?
         
-        public init(title: [TextAttributes], leadingImage: Image?) {
+        public init(title: TextOutputPresentableModel? = nil, leadingImage: ImageViewPresentableModel? = nil) {
             self.title = title
             self.leadingImage = leadingImage
         }
     }
 
-    public let title: [TextAttributes]
-    public let leadingImage: Image?
-    public let trailingImage: Image?
-    public let secondaryTrailingImage: Image?
-    public let subTitle: [TextAttributes]
-    public let valueTitle: [TextAttributes]
+    public let title: TextOutputPresentableModel?
+    public let leadingImage: ImageViewPresentableModel?
+    public let trailingImage: ImageViewPresentableModel?
+    public let secondaryTrailingImage: ImageViewPresentableModel?
+    public let subTitle: TextOutputPresentableModel?
+    public let valueTitle: TextOutputPresentableModel?
     public let bottomSeparator: BottomSeparator?
     public let switchControl: SwitchControl?
     public let status: Status?
     
     public init(
-        title: [TextAttributes] = [],
-        leadingImage: Image? = nil,
-        trailingImage: Image? = nil,
-        secondaryTrailingImage: Image? = nil,
-        subTitle: [TextAttributes] = [],
-        valueTitle: [TextAttributes] = [],
+        title: TextOutputPresentableModel? = nil,
+        leadingImage: ImageViewPresentableModel? = nil,
+        trailingImage: ImageViewPresentableModel? = nil,
+        secondaryTrailingImage: ImageViewPresentableModel? = nil,
+        subTitle: TextOutputPresentableModel? = nil,
+        valueTitle: TextOutputPresentableModel? = nil,
         bottomSeparator: BottomSeparator? = nil,
         switchControl: SwitchControl? = nil,
         status: Status? = nil
@@ -103,63 +91,59 @@ import UIKit
 import SwiftUI
 
 extension CardView: CardViewOutput {
-    public func display(title: [TextAttributes]) {
-        titleViews.keyLabel.isHidden = title.isEmpty
+    public func display(title: TextOutputPresentableModel?) {
+        titleViews.keyLabel.isHidden = title == nil
         titleViews.keyLabel.removeAttributes()
-        title.forEach { titleViews.keyLabel.append($0) }
+        titleViews.keyLabel.display(model: title)
     }
     
     public func display(status: CardViewPresentableModel.Status?) {
         statusWrapperView.isHidden = status == nil
         if let status = status {
             statusLabel.removeAttributes()
-            status.title.forEach { statusLabel.append($0) }
-            statusLeadingImageView.setImage(status.leadingImage?.image)
+            statusLabel.display(model: status.title)
+            statusLeadingImageView.display(model: status.leadingImage)
             statusLeadingImageView.contentMode = status.leadingImage?.contentModeIsFit == true ? .scaleAspectFit : .scaleAspectFill
-            statusLeadingImageViewConstraints?.width?.constant = status.leadingImage?.size.width ?? 0
-            statusLeadingImageViewConstraints?.height?.constant = status.leadingImage?.size.height ?? 0
+            statusLeadingImageViewConstraints?.width?.constant = status.leadingImage?.size?.width ?? 0
+            statusLeadingImageViewConstraints?.height?.constant = status.leadingImage?.size?.height ?? 0
         }
     }
     
-    public func display(leadingImage: CardViewPresentableModel.Image?) {
+    public func display(leadingImage: ImageViewPresentableModel?) {
         leadingImageWrapperView.isHidden = leadingImage == nil
-        leadingImageViewConstraints?.width?.constant = leadingImage?.size.width ?? 0
-        leadingImageViewConstraints?.height?.constant = leadingImage?.size.height ?? 0
+        leadingImageViewConstraints?.width?.constant = leadingImage?.size?.width ?? 0
+        leadingImageViewConstraints?.height?.constant = leadingImage?.size?.height ?? 0
         
-        leadingImageView.setImage(leadingImage?.image)
+        leadingImageView.display(model: leadingImage)
         leadingImageView.contentMode = leadingImage?.contentModeIsFit == true ? .scaleAspectFit : .scaleAspectFill
     }
     
-    public func display(trailingImage: CardViewPresentableModel.Image?) {
+    public func display(trailingImage: ImageViewPresentableModel?) {
         trailingImageWrapperView.isHidden = trailingImage == nil
-        trailingImageViewConstraints?.width?.constant = trailingImage?.size.width ?? 0
-        trailingImageViewConstraints?.height?.constant = trailingImage?.size.height ?? 0
-        trailingImageView.setImage(trailingImage?.image)
+        trailingImageViewConstraints?.width?.constant = trailingImage?.size?.width ?? 0
+        trailingImageViewConstraints?.height?.constant = trailingImage?.size?.height ?? 0
+        trailingImageView.display(model: trailingImage)
         trailingImageView.contentMode = trailingImage?.contentModeIsFit == true ? .scaleAspectFit : .scaleAspectFill
     }
     
-    public func display(secondaryTrailingImage: CardViewPresentableModel.Image?) {
+    public func display(secondaryTrailingImage: ImageViewPresentableModel?) {
         secondaryTrailingImageWrapperView.isHidden = secondaryTrailingImage == nil
-        secondaryTrailingImageViewConstraints?.width?.constant = secondaryTrailingImage?.size.width ?? 0
-        secondaryTrailingImageViewConstraints?.height?.constant = secondaryTrailingImage?.size.height ?? 0
-        secondaryTrailingImageView.setImage(secondaryTrailingImage?.image)
+        secondaryTrailingImageViewConstraints?.width?.constant = secondaryTrailingImage?.size?.width ?? 0
+        secondaryTrailingImageViewConstraints?.height?.constant = secondaryTrailingImage?.size?.height ?? 0
+        secondaryTrailingImageView.display(model: secondaryTrailingImage)
         secondaryTrailingImageView.contentMode = secondaryTrailingImage?.contentModeIsFit == true ? .scaleAspectFit : .scaleAspectFill
     }
     
-    public func display(subTitle: [TextAttributes]) {
-        subtitleLabel.isHidden = subTitle.isEmpty
+    public func display(subTitle: TextOutputPresentableModel?) {
+        subtitleLabel.isHidden = subTitle == nil
         subtitleLabel.removeAttributes()
-        subTitle.forEach { attribute in
-            subtitleLabel.append(attribute)
-        }
+        subtitleLabel.display(model: subTitle)
     }
     
-    public func display(valueTitle: [TextAttributes]) {
+    public func display(valueTitle: TextOutputPresentableModel?) {
+        titleViews.valueLabel.isHidden = valueTitle == nil
         titleViews.valueLabel.removeAttributes()
-        titleViews.valueLabel.isHidden = valueTitle.isEmpty
-        valueTitle.forEach { attribute in
-            titleViews.valueLabel.append(attribute)
-        }
+        titleViews.valueLabel.display(model: valueTitle)
     }
     
     public func display(bottomSeparator: CardViewPresentableModel.BottomSeparator?) {
@@ -183,73 +167,34 @@ extension CardView: CardViewOutput {
     }
     
     public func display(model: CardViewPresentableModel?) {
-        // Key title
         isHidden = model == nil
         guard let model = model else { return }
-        titleViews.keyLabel.isHidden = model.title.isEmpty
-        titleViews.keyLabel.removeAttributes()
-        model.title.forEach { titleViews.keyLabel.append($0) }
+        // Key title
+        display(title: model.title)
+        
         // Value title
-        titleViews.valueLabel.removeAttributes()
-        titleViews.valueLabel.isHidden = model.valueTitle.isEmpty
-        model.valueTitle.forEach { attribute in
-            titleViews.valueLabel.append(attribute)
-        }
+        display(valueTitle: model.valueTitle)
+        
         // Subtitle
-        subtitleLabel.isHidden = model.subTitle.isEmpty
-        subtitleLabel.removeAttributes()
-        model.subTitle.forEach { attribute in
-            subtitleLabel.append(attribute)
-        }
+        display(subTitle: model.subTitle)
         
         // LeadingImage
-        leadingImageWrapperView.isHidden = model.leadingImage == nil
-        leadingImageViewConstraints?.width?.constant = model.leadingImage?.size.width ?? 0
-        leadingImageViewConstraints?.height?.constant = model.leadingImage?.size.height ?? 0
-        
-        leadingImageView.setImage(model.leadingImage?.image)
-        leadingImageView.contentMode = model.leadingImage?.contentModeIsFit == true ? .scaleAspectFit : .scaleAspectFill
+        display(leadingImage: model.leadingImage)
         
         // TrailingImage
-        trailingImageWrapperView.isHidden = model.trailingImage == nil
-        trailingImageViewConstraints?.width?.constant = model.trailingImage?.size.width ?? 0
-        trailingImageViewConstraints?.height?.constant = model.trailingImage?.size.height ?? 0
-        trailingImageView.setImage(model.trailingImage?.image)
-        trailingImageView.contentMode = model.trailingImage?.contentModeIsFit == true ? .scaleAspectFit : .scaleAspectFill
+        display(trailingImage: model.trailingImage)
         
         // SecondaryTrailingImage
-        secondaryTrailingImageWrapperView.isHidden = model.secondaryTrailingImage == nil
-        secondaryTrailingImageViewConstraints?.width?.constant = model.secondaryTrailingImage?.size.width ?? 0
-        secondaryTrailingImageViewConstraints?.height?.constant = model.secondaryTrailingImage?.size.height ?? 0
-        secondaryTrailingImageView.setImage(model.secondaryTrailingImage?.image)
-        secondaryTrailingImageView.contentMode = model.secondaryTrailingImage?.contentModeIsFit == true ? .scaleAspectFit : .scaleAspectFill
+        display(secondaryTrailingImage: model.secondaryTrailingImage)
         
         // bottomSeparatorView
-        bottomSeparatorView.isHidden = model.bottomSeparator == nil
-        if let bottomSeparator = model.bottomSeparator {
-            bottomSeparatorView.contentView.backgroundColor = model.bottomSeparator?.color
-            bottomSeparatorView.contentViewConstraints?.top?.constant = bottomSeparator.padding.top
-            bottomSeparatorView.contentViewConstraints?.leading?.constant = bottomSeparator.padding.leading
-            bottomSeparatorView.contentViewConstraints?.trailing?.constant = bottomSeparator.padding.trailing
-            bottomSeparatorView.contentViewConstraints?.bottom?.constant = bottomSeparator.padding.bottom
-            bottomSeparatorViewConstraints?.height?.constant = bottomSeparator.height
-        }
+        display(bottomSeparator: model.bottomSeparator)
+        
         //switchControl
-        switchWrapperView.isHidden = model.switchControl == nil
-        if let switchControl = model.switchControl {
-            self.switchControl.isOn = switchControl.isOn
-        }
+        display(switchControl: model.switchControl)
         
         //status view
-        statusWrapperView.isHidden = model.status == nil
-        if let status = model.status {
-            statusLabel.removeAttributes()
-            status.title.forEach { statusLabel.append($0) }
-            statusLeadingImageView.setImage(status.leadingImage?.image)
-            statusLeadingImageView.contentMode = status.leadingImage?.contentModeIsFit == true ? .scaleAspectFit : .scaleAspectFill
-            statusLeadingImageViewConstraints?.width?.constant = status.leadingImage?.size.width ?? 0
-            statusLeadingImageViewConstraints?.height?.constant = status.leadingImage?.size.height ?? 0
-        }
+        display(status: model.status)
     }
 }
 

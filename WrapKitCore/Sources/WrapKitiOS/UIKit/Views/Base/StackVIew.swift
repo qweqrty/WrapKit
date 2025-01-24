@@ -10,6 +10,9 @@ import Foundation
 public protocol StackViewOutput: AnyObject {
     func display(model: StackViewPresentableModel)
     func display(spacing: CGFloat?)
+    func display(axis: StackViewAxis)
+    func display(distribution: StackViewDistribution)
+    func display(alignment: StackViewAlignment)
 }
 
 public enum StackViewAxis: HashableWithReflection {
@@ -114,17 +117,27 @@ open class StackView: UIStackView {
 
 extension StackView: StackViewOutput {
     public func display(model: StackViewPresentableModel) {
-        self.distribution = mapDistribution(model.distribution)
-        self.axis = mapAxis(model.axis)
-        self.alignment = mapAlignment(model.alignment)
-        if let spacing = model.spacing {
-            self.spacing = spacing
-        }
+        if let axis = model.axis { display(axis: axis) }
+        if let alignment = model.alignment { display(alignment: alignment) }
+        if let distribution = model.distribution { display(distribution: distribution) }
+        display(spacing: model.spacing)
     }
     
     public func display(spacing: CGFloat?) {
         guard let spacing else { return }
         self.spacing = spacing
+    }
+    
+    public func display(axis: StackViewAxis) {
+        self.axis = mapAxis(axis)
+    }
+    
+    public func display(alignment: StackViewAlignment) {
+        self.alignment = mapAlignment(alignment)
+    }
+    
+    public func display(distribution: StackViewDistribution) {
+        self.distribution = mapDistribution(distribution)
     }
     
     private func mapDistribution(_ distribution: StackViewDistribution?) -> UIStackView.Distribution {

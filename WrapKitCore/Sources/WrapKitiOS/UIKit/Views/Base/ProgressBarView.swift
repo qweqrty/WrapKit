@@ -110,7 +110,8 @@ extension ProgressBarView: ProgressBarOutput {
     public func display(model: ProgressBarPresentableModel?) {
         isHidden = model == nil
         guard let model = model else { return }
-        self.style = model.style
+        display(style: model.style)
+        if let color = model.style.progressBarColor { display(color: color)}
         applyProgress(percentage: model.progress)
     }
     
