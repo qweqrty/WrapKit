@@ -16,7 +16,7 @@ public protocol CardViewOutput: AnyObject {
     func display(subTitle: TextOutputPresentableModel?)
     func display(valueTitle: TextOutputPresentableModel?)
     func display(bottomSeparator: CardViewPresentableModel.BottomSeparator?)
-    func display(switchControl: CardViewPresentableModel.SwitchControl?)
+    func display(switchControl: SwitchControlPresentableModel?)
     func display(status: CardViewPresentableModel.Status?)
 }
 
@@ -30,16 +30,6 @@ public struct CardViewPresentableModel: HashableWithReflection {
             self.color = color
             self.padding = padding
             self.height = height
-        }
-    }
-    
-    public struct SwitchControl {
-        public let isOn: Bool
-        public let isEnabled: Bool
-        
-        public init(isOn: Bool, isEnabled: Bool = true) {
-            self.isOn = isOn
-            self.isEnabled = isEnabled
         }
     }
     
@@ -60,7 +50,7 @@ public struct CardViewPresentableModel: HashableWithReflection {
     public let subTitle: TextOutputPresentableModel?
     public let valueTitle: TextOutputPresentableModel?
     public let bottomSeparator: BottomSeparator?
-    public let switchControl: SwitchControl?
+    public let switchControl: SwitchControlPresentableModel?
     public let status: Status?
     
     public init(
@@ -71,7 +61,7 @@ public struct CardViewPresentableModel: HashableWithReflection {
         subTitle: TextOutputPresentableModel? = nil,
         valueTitle: TextOutputPresentableModel? = nil,
         bottomSeparator: BottomSeparator? = nil,
-        switchControl: SwitchControl? = nil,
+        switchControl: SwitchControlPresentableModel? = nil,
         status: Status? = nil
     ) {
         self.title = title
@@ -158,11 +148,10 @@ extension CardView: CardViewOutput {
         }
     }
     
-    public func display(switchControl: CardViewPresentableModel.SwitchControl?) {
+    public func display(switchControl: SwitchControlPresentableModel?) {
         switchWrapperView.isHidden = switchControl == nil
         if let switchControl = switchControl {
-            self.switchControl.isOn = switchControl.isOn
-            self.switchControl.isEnabled = switchControl.isEnabled
+            self.switchControl.display(model: switchControl)
         }
     }
     

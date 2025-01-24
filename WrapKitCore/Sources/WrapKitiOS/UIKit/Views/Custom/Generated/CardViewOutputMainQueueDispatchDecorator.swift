@@ -47,7 +47,7 @@ extension MainQueueDispatchDecorator: CardViewOutput where T: CardViewOutput {
             self?.decoratee.display(bottomSeparator: bottomSeparator)
         }
     }
-    public func display(switchControl: CardViewPresentableModel.SwitchControl?) {
+    public func display(switchControl: SwitchControlPresentableModel?) {
         dispatch { [weak self] in
             self?.decoratee.display(switchControl: switchControl)
         }
@@ -98,7 +98,7 @@ extension WeakRefVirtualProxy: CardViewOutput where T: CardViewOutput {
     public func display(bottomSeparator: CardViewPresentableModel.BottomSeparator?) {
         object?.display(bottomSeparator: bottomSeparator)
     }
-    public func display(switchControl: CardViewPresentableModel.SwitchControl?) {
+    public func display(switchControl: SwitchControlPresentableModel?) {
         object?.display(switchControl: switchControl)
     }
     public func display(status: CardViewPresentableModel.Status?) {
