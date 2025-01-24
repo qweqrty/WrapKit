@@ -37,6 +37,7 @@ public struct ButtonStyle {
 
 public protocol ButtonOutput: AnyObject {
     func display(model: ButtonPresentableModel?)
+    func display(enabled: Bool)
     func display(style: ButtonStyle?)
     func display(title: String?)
     func display(spacing: CGFloat)
@@ -50,19 +51,22 @@ public struct ButtonPresentableModel {
     public let spacing: CGFloat?
     public let onPress: (() -> Void)?
     public let style: ButtonStyle?
+    public let enabled: Bool?
     
     public init(
         title: String? = nil,
         spacing: CGFloat? = nil,
         onPress: (() -> Void)? = nil,
         height: CGFloat? = nil,
-        style: ButtonStyle? = nil
+        style: ButtonStyle? = nil,
+        enabled: Bool? = nil
     ) {
         self.spacing = spacing
         self.onPress = onPress
         self.title = title
         self.height = height
         self.style = style
+        self.enabled = enabled
     }
 }
 
@@ -269,6 +273,13 @@ extension Button: ButtonOutput {
         if let height = model?.height { display(height: height) }
         display(style: model?.style)
         display(onPress: model?.onPress)
+        if let enabled = model?.enabled {
+            updateAppearance(enabled: enabled)
+        }
+    }
+    
+    public func display(enabled: Bool) {
+        updateAppearance(enabled: enabled)
     }
     
     public func display(height: CGFloat?) {
