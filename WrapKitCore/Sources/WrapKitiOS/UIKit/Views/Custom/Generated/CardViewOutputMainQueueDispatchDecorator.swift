@@ -12,32 +12,32 @@ extension MainQueueDispatchDecorator: CardViewOutput where T: CardViewOutput {
             self?.decoratee.display(model: model)
         }
     }
-    public func display(title: [TextAttributes]) {
+    public func display(title: TextOutputPresentableModel?) {
         dispatch { [weak self] in
             self?.decoratee.display(title: title)
         }
     }
-    public func display(leadingImage: CardViewPresentableModel.Image?) {
+    public func display(leadingImage: ImageViewPresentableModel?) {
         dispatch { [weak self] in
             self?.decoratee.display(leadingImage: leadingImage)
         }
     }
-    public func display(trailingImage: CardViewPresentableModel.Image?) {
+    public func display(trailingImage: ImageViewPresentableModel?) {
         dispatch { [weak self] in
             self?.decoratee.display(trailingImage: trailingImage)
         }
     }
-    public func display(secondaryTrailingImage: CardViewPresentableModel.Image?) {
+    public func display(secondaryTrailingImage: ImageViewPresentableModel?) {
         dispatch { [weak self] in
             self?.decoratee.display(secondaryTrailingImage: secondaryTrailingImage)
         }
     }
-    public func display(subTitle: [TextAttributes]) {
+    public func display(subTitle: TextOutputPresentableModel?) {
         dispatch { [weak self] in
             self?.decoratee.display(subTitle: subTitle)
         }
     }
-    public func display(valueTitle: [TextAttributes]) {
+    public func display(valueTitle: TextOutputPresentableModel?) {
         dispatch { [weak self] in
             self?.decoratee.display(valueTitle: valueTitle)
         }
@@ -77,22 +77,22 @@ extension WeakRefVirtualProxy: CardViewOutput where T: CardViewOutput {
     public func display(model: CardViewPresentableModel?) {
         object?.display(model: model)
     }
-    public func display(title: [TextAttributes]) {
+    public func display(title: TextOutputPresentableModel?) {
         object?.display(title: title)
     }
-    public func display(leadingImage: CardViewPresentableModel.Image?) {
+    public func display(leadingImage: ImageViewPresentableModel?) {
         object?.display(leadingImage: leadingImage)
     }
-    public func display(trailingImage: CardViewPresentableModel.Image?) {
+    public func display(trailingImage: ImageViewPresentableModel?) {
         object?.display(trailingImage: trailingImage)
     }
-    public func display(secondaryTrailingImage: CardViewPresentableModel.Image?) {
+    public func display(secondaryTrailingImage: ImageViewPresentableModel?) {
         object?.display(secondaryTrailingImage: secondaryTrailingImage)
     }
-    public func display(subTitle: [TextAttributes]) {
+    public func display(subTitle: TextOutputPresentableModel?) {
         object?.display(subTitle: subTitle)
     }
-    public func display(valueTitle: [TextAttributes]) {
+    public func display(valueTitle: TextOutputPresentableModel?) {
         object?.display(valueTitle: valueTitle)
     }
     public func display(bottomSeparator: CardViewPresentableModel.BottomSeparator?) {

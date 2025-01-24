@@ -17,6 +17,21 @@ extension MainQueueDispatchDecorator: StackViewOutput where T: StackViewOutput {
             self?.decoratee.display(spacing: spacing)
         }
     }
+    public func display(axis: StackViewAxis) {
+        dispatch { [weak self] in
+            self?.decoratee.display(axis: axis)
+        }
+    }
+    public func display(distribution: StackViewDistribution) {
+        dispatch { [weak self] in
+            self?.decoratee.display(distribution: distribution)
+        }
+    }
+    public func display(alignment: StackViewAlignment) {
+        dispatch { [weak self] in
+            self?.decoratee.display(alignment: alignment)
+        }
+    }
 
 }
 
@@ -39,6 +54,15 @@ extension WeakRefVirtualProxy: StackViewOutput where T: StackViewOutput {
     }
     public func display(spacing: CGFloat?) {
         object?.display(spacing: spacing)
+    }
+    public func display(axis: StackViewAxis) {
+        object?.display(axis: axis)
+    }
+    public func display(distribution: StackViewDistribution) {
+        object?.display(distribution: distribution)
+    }
+    public func display(alignment: StackViewAlignment) {
+        object?.display(alignment: alignment)
     }
 
 }

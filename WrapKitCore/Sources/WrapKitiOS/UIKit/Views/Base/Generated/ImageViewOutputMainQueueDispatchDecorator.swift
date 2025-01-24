@@ -32,6 +32,11 @@ extension MainQueueDispatchDecorator: ImageViewOutput where T: ImageViewOutput {
             self?.decoratee.display(onLongPress: onLongPress)
         }
     }
+    public func display(contentModeIsFit: Bool) {
+        dispatch { [weak self] in
+            self?.decoratee.display(contentModeIsFit: contentModeIsFit)
+        }
+    }
 
 }
 
@@ -63,6 +68,9 @@ extension WeakRefVirtualProxy: ImageViewOutput where T: ImageViewOutput {
     }
     public func display(onLongPress: (() -> Void)?) {
         object?.display(onLongPress: onLongPress)
+    }
+    public func display(contentModeIsFit: Bool) {
+        object?.display(contentModeIsFit: contentModeIsFit)
     }
 
 }
