@@ -109,6 +109,11 @@ public struct TextInputPresentableModel {
     public struct Mask {
         public let mask: Masking
         public let maskColor: Color
+        
+        public init(mask: Masking, maskColor: Color) {
+            self.mask = mask
+            self.maskColor = maskColor
+        }
     }
     public let mask: Mask?
     public let text: String?
