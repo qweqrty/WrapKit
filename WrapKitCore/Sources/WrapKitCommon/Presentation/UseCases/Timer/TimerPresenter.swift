@@ -11,7 +11,7 @@ public protocol TimerOutput: AnyObject {
     func display(secondsRemaining: Int?)
 }
 
-public protocol TimerInput: WillEnterForegoundInput, DidEnterBacgkroundInput {
+public protocol TimerInput: ApplicationLifecycleInput {
     func start(seconds: Int)
     func stop()
 }
@@ -53,12 +53,7 @@ public class TimerPresenter: TimerInput {
         timer = nil
     }
     
-    public func didEnterBackground() {
-        backgroundStartTime = Date()
-        stop()
-    }
-    
-    public func willEnterForeground() {
+    public func applicationWillEnterForeground(){
         guard let backgroundStartTime = backgroundStartTime else { return }
         let timeSpentInBackground = Int(Date().timeIntervalSince(backgroundStartTime))
         secondsRemained = (secondsRemained ?? 0) - timeSpentInBackground
@@ -69,5 +64,10 @@ public class TimerPresenter: TimerInput {
             view?.display(secondsRemaining: secondsRemained)
             start(seconds: secondsRemained ?? 0)
         }
+    }
+    
+    public func applicationDidEnterBackground() {
+        backgroundStartTime = Date()
+        stop()
     }
 }
