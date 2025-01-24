@@ -537,10 +537,7 @@ extension Textfield: TextInputOutput {
             maskedTextfieldDelegate = .init(format: .init(mask: mask.mask, maskedTextColor: mask.maskColor))
         }
         display(text: model.text)
-        if let isValid = model.isValid {
-            display(isValid: isValid)
-            updateAppearance(isValid: isValid)
-        }
+        if let isValid = model.isValid { display(isValid: isValid) }
         if let isEnabledForEditing = model.isEnabledForEditing { display(isEnabledForEditing: isEnabledForEditing) }
         if let isTextSelectionDisabled = model.isTextSelectionDisabled { display(isTextSelectionDisabled: isTextSelectionDisabled) }
         display(placeholder: model.placeholder)

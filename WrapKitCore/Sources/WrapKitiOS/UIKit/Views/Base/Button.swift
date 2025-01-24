@@ -286,7 +286,7 @@ extension Button: ButtonOutput {
         if let anchoredConstraints = anchoredConstraints, let height = height {
             anchoredConstraints.height?.constant = height
         } else if let height = height {
-            anchor(.height(height))
+            anchoredConstraints = anchor(.height(height))
         }
     }
     

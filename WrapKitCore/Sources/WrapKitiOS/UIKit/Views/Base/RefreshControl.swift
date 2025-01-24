@@ -8,6 +8,12 @@
 #if canImport(UIKit)
 import UIKit
 
+extension RefreshControl: LoadingOutput {
+    public func display(isLoading: Bool) {
+        self.isLoading = isLoading
+    }
+}
+
 open class RefreshControl: UIRefreshControl {
     public var isLoading: Bool? = false {
         didSet {
@@ -31,12 +37,6 @@ open class RefreshControl: UIRefreshControl {
     
     public required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
-    }
-}
-
-extension RefreshControl: LoadingOutput {
-    public func display(isLoading: Bool) {
-        self.isLoading = isLoading
     }
 }
 #endif

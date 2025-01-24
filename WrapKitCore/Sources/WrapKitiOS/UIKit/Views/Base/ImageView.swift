@@ -9,7 +9,7 @@ import Foundation
 
 public protocol ImageViewOutput: AnyObject {
     func display(model: ImageViewPresentableModel?)
-    func display(image: ImageEnum)
+    func display(image: ImageEnum?)
     func display(size: CGSize?)
     func display(onPress: (() -> Void)?)
     func display(onLongPress: (() -> Void)?)
@@ -226,7 +226,7 @@ extension ImageView: ImageViewOutput {
         }
     }
     
-    public func display(image: ImageEnum) {
+    public func display(image: ImageEnum?) {
         self.setImage(image)
     }
     

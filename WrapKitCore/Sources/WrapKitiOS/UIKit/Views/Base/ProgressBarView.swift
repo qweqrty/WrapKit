@@ -9,7 +9,6 @@ import Foundation
 
 public protocol ProgressBarOutput: AnyObject {
     func display(model: ProgressBarPresentableModel?)
-    func display(color: Color)
     func display(progress: CGFloat)
     func display(style: ProgressBarStyle?)
 }
@@ -111,12 +110,7 @@ extension ProgressBarView: ProgressBarOutput {
         isHidden = model == nil
         guard let model = model else { return }
         display(style: model.style)
-        if let color = model.style.progressBarColor { display(color: color)}
         applyProgress(percentage: model.progress)
-    }
-    
-    public func display(color: Color) {
-        progressView.backgroundColor = color
     }
     
     public func display(progress: CGFloat) {
