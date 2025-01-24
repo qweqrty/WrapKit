@@ -42,8 +42,8 @@ public enum CommonToast {
             onPress: (() -> Void)? = nil
         ) {
             self.cardViewModel = .init(
-                title: [.init(text: keyTitle)],
-                valueTitle: valueTitle == nil ? [] : [.init(text: valueTitle ?? "")]
+                title: .text(keyTitle),
+                valueTitle: .text(valueTitle)
             )
             self.position = position
             self.shadowColor = shadowColor

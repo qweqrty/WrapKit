@@ -12,12 +12,8 @@ extension ChunkedTextField: TextInputOutput {
     public func display(model: TextInputPresentableModel?) {
         isHidden = model == nil
         guard let model = model else { return }
-        let text = String((model.text ?? "").prefix(count))
-        text.enumerated().forEach {
-            textfields.item(at: $0.offset)?.text = String($0.element)
-        }
-        
-        textfields.forEach { $0.updateAppearance(isValid: model.isValid) }
+        display(text: model.text)
+        if let isValid = model.isValid { display(isValid: isValid) }
     }
     
     public func display(isValid: Bool) {
