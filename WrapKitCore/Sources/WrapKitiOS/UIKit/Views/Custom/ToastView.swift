@@ -156,7 +156,11 @@ open class ToastView: UIView {
                 self.alpha = max(1.0 - abs(panOffsetX) / frame.width, 0.0)
                 layoutIfNeeded()
             } else if gestureDirection == .vertical {
-                if panOffsetY > 0 {
+                if position == .top && panOffsetY > 0 {
+                    return
+                } else if case .bottom = position, panOffsetY < 0 {
+                    return
+                } else {
                     bottomConstraint?.constant = max(showConstant + panOffsetY, showConstant)
                     self.alpha = max(1.0 - abs(panOffsetY) / frame.height, 0.0)
                     layoutIfNeeded()
@@ -181,11 +185,11 @@ open class ToastView: UIView {
                     }
                 }
             } else if gestureDirection == .vertical {
-                let shouldDismiss = panOffsetY > frame.height / 3 || velocityY > velocityThreshold
+                let shouldDismiss = (position == .top && abs(panOffsetY) > frame.height / 3 && panOffsetY < 0) || (position == .bottom() && panOffsetY > frame.height / 3) || abs(velocityY) > velocityThreshold
                 UIView.animate(withDuration: 0.3, delay: .zero, options: [.curveEaseInOut, .allowUserInteraction]) {
                     if shouldDismiss {
                         self.alpha = 0
-                        self.transform = CGAffineTransform(translationX: 0, y: self.frame.height)
+                        self.transform = CGAffineTransform(translationX: 0, y: (self.position == .top ? -self.frame.height : self.frame.height))
                     } else {
                         self.alpha = 1.0
                         self.bottomConstraint?.constant = self.showConstant
@@ -297,8 +301,11 @@ open class ToastView: UIView {
                 options: [.curveEaseInOut, .allowUserInteraction],
                 animations: {
                     self?.alpha = 0
-                    self?.transform = .identity
-                    self?.bottomConstraint?.constant = 0
+                    if self?.position == .top {
+                        self?.transform = CGAffineTransform(translationX: 0, y: -(self?.frame.height ?? 0))
+                    } else {
+                        self?.transform = CGAffineTransform(translationX: 0, y: self?.frame.height ?? 0)
+                    }
                     self?.layoutIfNeeded()
                     self?.superview?.layoutIfNeeded()
                 },
@@ -319,3 +326,4 @@ extension ToastView: UIGestureRecognizerDelegate {
 }
 
 #endif
+
