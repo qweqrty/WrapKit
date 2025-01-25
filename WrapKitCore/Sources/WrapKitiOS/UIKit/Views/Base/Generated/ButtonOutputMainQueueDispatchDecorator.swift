@@ -17,6 +17,11 @@ extension MainQueueDispatchDecorator: ButtonOutput where T: ButtonOutput {
             self?.decoratee.display(enabled: enabled)
         }
     }
+    public func display(image: Image?) {
+        dispatch { [weak self] in
+            self?.decoratee.display(image: image)
+        }
+    }
     public func display(style: ButtonStyle?) {
         dispatch { [weak self] in
             self?.decoratee.display(style: style)
@@ -64,6 +69,9 @@ extension WeakRefVirtualProxy: ButtonOutput where T: ButtonOutput {
     }
     public func display(enabled: Bool) {
         object?.display(enabled: enabled)
+    }
+    public func display(image: Image?) {
+        object?.display(image: image)
     }
     public func display(style: ButtonStyle?) {
         object?.display(style: style)
