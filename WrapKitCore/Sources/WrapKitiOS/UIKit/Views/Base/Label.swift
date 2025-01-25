@@ -172,6 +172,7 @@ extension Label: TextOutput {
     }
     
     public func display(attributes: [TextAttributes]) {
+        self.removeAttributes()
         self.attributes = attributes
     }
 }

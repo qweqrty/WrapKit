@@ -227,28 +227,4 @@ public final class AppPermissions {
         permissionCallback(false)
         #endif
     }
-
-    // MARK: - HealthKit Permission
-    public static func requestHealthKitAccess(permissionCallback: @escaping ((Bool) -> Void)) {
-        if #available(macOS 13.0, *) {
-#if canImport(HealthKit)
-            if HKHealthStore.isHealthDataAvailable() {
-                let healthStore = HKHealthStore()
-                let readTypes = Set([HKObjectType.quantityType(forIdentifier: .heartRate)!])
-                
-                healthStore.requestAuthorization(toShare: nil, read: readTypes) { success, _ in
-                    DispatchQueue.main.async {
-                        permissionCallback(success)
-                    }
-                }
-            } else {
-                permissionCallback(false)
-            }
-#else
-            permissionCallback(false)
-#endif
-        } else {
-            // Fallback on earlier versions
-        }
-    }
 }

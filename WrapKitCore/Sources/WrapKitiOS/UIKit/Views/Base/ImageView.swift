@@ -208,7 +208,11 @@ extension ImageView: ImageViewOutput {
         display(onPress: model?.onPress)
         display(onLongPress: model?.onLongPress)
         if let image = model?.image { display(image: image) }
-        if let size = model?.size { display(size: size)}
+        if let size = model?.size {
+            display(size: size)
+        } else if let size = image?.size {
+            display(size: size)
+        }
         if let contentModeIsFit = model?.contentModeIsFit { display(contentModeIsFit: contentModeIsFit) }
     }
     
@@ -219,8 +223,8 @@ extension ImageView: ImageViewOutput {
                     anchoredConstraints.width?.constant = size.width
             } else {
                 anchoredConstraints = anchor(
-                    .height(size.height, priority: .required),
-                    .width(size.width, priority: .required)
+                    .height(size.height),
+                    .width(size.width)
                 )
             }
         }

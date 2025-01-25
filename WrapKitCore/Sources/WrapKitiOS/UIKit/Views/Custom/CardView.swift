@@ -82,57 +82,37 @@ import SwiftUI
 
 extension CardView: CardViewOutput {
     public func display(title: TextOutputPresentableModel?) {
-        titleViews.keyLabel.isHidden = title == nil
-        titleViews.keyLabel.removeAttributes()
         titleViews.keyLabel.display(model: title)
     }
     
     public func display(status: CardViewPresentableModel.Status?) {
         statusWrapperView.isHidden = status == nil
         if let status = status {
-            statusLabel.removeAttributes()
             statusLabel.display(model: status.title)
             statusLeadingImageView.display(model: status.leadingImage)
-            statusLeadingImageView.contentMode = status.leadingImage?.contentModeIsFit == true ? .scaleAspectFit : .scaleAspectFill
-            statusLeadingImageViewConstraints?.width?.constant = status.leadingImage?.size?.width ?? 0
-            statusLeadingImageViewConstraints?.height?.constant = status.leadingImage?.size?.height ?? 0
         }
     }
     
     public func display(leadingImage: ImageViewPresentableModel?) {
         leadingImageWrapperView.isHidden = leadingImage == nil
-        leadingImageViewConstraints?.width?.constant = leadingImage?.size?.width ?? 0
-        leadingImageViewConstraints?.height?.constant = leadingImage?.size?.height ?? 0
-        
         leadingImageView.display(model: leadingImage)
-        leadingImageView.contentMode = leadingImage?.contentModeIsFit == true ? .scaleAspectFit : .scaleAspectFill
     }
     
     public func display(trailingImage: ImageViewPresentableModel?) {
         trailingImageWrapperView.isHidden = trailingImage == nil
-        trailingImageViewConstraints?.width?.constant = trailingImage?.size?.width ?? 0
-        trailingImageViewConstraints?.height?.constant = trailingImage?.size?.height ?? 0
         trailingImageView.display(model: trailingImage)
-        trailingImageView.contentMode = trailingImage?.contentModeIsFit == true ? .scaleAspectFit : .scaleAspectFill
     }
     
     public func display(secondaryTrailingImage: ImageViewPresentableModel?) {
         secondaryTrailingImageWrapperView.isHidden = secondaryTrailingImage == nil
-        secondaryTrailingImageViewConstraints?.width?.constant = secondaryTrailingImage?.size?.width ?? 0
-        secondaryTrailingImageViewConstraints?.height?.constant = secondaryTrailingImage?.size?.height ?? 0
         secondaryTrailingImageView.display(model: secondaryTrailingImage)
-        secondaryTrailingImageView.contentMode = secondaryTrailingImage?.contentModeIsFit == true ? .scaleAspectFit : .scaleAspectFill
     }
     
     public func display(subTitle: TextOutputPresentableModel?) {
-        subtitleLabel.isHidden = subTitle == nil
-        subtitleLabel.removeAttributes()
         subtitleLabel.display(model: subTitle)
     }
     
     public func display(valueTitle: TextOutputPresentableModel?) {
-        titleViews.valueLabel.isHidden = valueTitle == nil
-        titleViews.valueLabel.removeAttributes()
         titleViews.valueLabel.display(model: valueTitle)
     }
     
@@ -304,9 +284,7 @@ extension CardView {
             .leading(leadingImageWrapperView.leadingAnchor),
             .trailing(leadingImageWrapperView.trailingAnchor),
             .centerX(leadingImageWrapperView.centerXAnchor),
-            .centerY(leadingImageWrapperView.centerYAnchor),
-            .width(16),
-            .height(16, priority: .defaultHigh)
+            .centerY(leadingImageWrapperView.centerYAnchor)
         )
         
         secondaryTrailingImageViewConstraints = secondaryTrailingImageView.anchor(
@@ -317,9 +295,7 @@ extension CardView {
             .leading(secondaryTrailingImageWrapperView.leadingAnchor),
             .trailing(secondaryTrailingImageWrapperView.trailingAnchor),
             .centerX(secondaryTrailingImageWrapperView.centerXAnchor),
-            .centerY(secondaryTrailingImageWrapperView.centerYAnchor),
-            .width(6.25),
-            .height(10, priority: .defaultHigh)
+            .centerY(secondaryTrailingImageWrapperView.centerYAnchor)
         )
         
         trailingImageViewConstraints = trailingImageView.anchor(
@@ -330,9 +306,7 @@ extension CardView {
             .leading(trailingImageWrapperView.leadingAnchor),
             .trailing(trailingImageWrapperView.trailingAnchor),
             .centerX(trailingImageWrapperView.centerXAnchor),
-            .centerY(trailingImageWrapperView.centerYAnchor),
-            .width(6.25),
-            .height(10, priority: .defaultHigh)
+            .centerY(trailingImageWrapperView.centerYAnchor)
         )
         
         switchControlConstraints = switchControl.anchor(
@@ -350,9 +324,7 @@ extension CardView {
             .leading(statusContainerView.leadingAnchor, constant: 6),
             .top(statusContainerView.topAnchor, constant: 4),
             .bottom(statusContainerView.bottomAnchor, constant: 4),
-            .centerY(statusContainerView.centerYAnchor),
-            .height(16),
-            .width(16)
+            .centerY(statusContainerView.centerYAnchor)
         )
         
         statusLabel.anchor(
