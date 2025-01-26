@@ -165,7 +165,7 @@ extension Textview: TextInputOutput {
         self.text = text
     }
     
-    public func display(mask: TextInputPresentableModel.Mask?) { }
+    public func display(mask: TextInputPresentableModel.Mask) { }
     public func display(isValid: Bool) {
         isValidState = isValid
     }

@@ -42,7 +42,7 @@ extension MainQueueDispatchDecorator: ButtonOutput where T: ButtonOutput {
             self?.decoratee.display(onPress: onPress)
         }
     }
-    public func display(height: CGFloat?) {
+    public func display(height: CGFloat) {
         dispatch { [weak self] in
             self?.decoratee.display(height: height)
         }
@@ -85,7 +85,7 @@ extension WeakRefVirtualProxy: ButtonOutput where T: ButtonOutput {
     public func display(onPress: (() -> Void)?) {
         object?.display(onPress: onPress)
     }
-    public func display(height: CGFloat?) {
+    public func display(height: CGFloat) {
         object?.display(height: height)
     }
 

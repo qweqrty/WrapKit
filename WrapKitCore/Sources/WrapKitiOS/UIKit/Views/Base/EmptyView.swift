@@ -16,7 +16,6 @@ public protocol EmptyViewOutput: AnyObject {
 }
 
 public struct EmptyViewPresentableModel: HashableWithReflection {
-
     public let title: TextOutputPresentableModel?
     public let subTitle: TextOutputPresentableModel?
     public let button: ButtonPresentableModel?

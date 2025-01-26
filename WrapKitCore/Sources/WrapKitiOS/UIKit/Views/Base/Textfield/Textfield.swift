@@ -88,7 +88,7 @@ public struct TextfieldAppearance {
 public protocol TextInputOutput: AnyObject {
     func display(model: TextInputPresentableModel?)
     func display(text: String?)
-    func display(mask: TextInputPresentableModel.Mask?)
+    func display(mask: TextInputPresentableModel.Mask)
     func display(isValid: Bool)
     func display(isEnabledForEditing: Bool)
     func display(isTextSelectionDisabled: Bool)
@@ -171,6 +171,98 @@ public struct TextInputPresentableModel {
 
 #if canImport(UIKit)
 import UIKit
+
+extension Textfield: TextInputOutput {
+    public func display(model: TextInputPresentableModel?) {
+        isHidden = model == nil
+        guard let model = model else { return }
+        if let mask = model.mask {
+            maskedTextfieldDelegate = .init(format: .init(mask: mask.mask, maskedTextColor: mask.maskColor))
+        }
+        display(text: model.text)
+        if let isValid = model.isValid { display(isValid: isValid) }
+        if let isEnabledForEditing = model.isEnabledForEditing { display(isEnabledForEditing: isEnabledForEditing) }
+        if let isTextSelectionDisabled = model.isTextSelectionDisabled { display(isTextSelectionDisabled: isTextSelectionDisabled) }
+        display(placeholder: model.placeholder)
+        if let isUserInteractionEnabled = model.isUserInteractionEnabled { display(isUserInteractionEnabled: isUserInteractionEnabled) }
+        if let isSecureTextEntry = model.isSecureTextEntry { display(isSecureTextEntry: isSecureTextEntry) }
+        display(leadingViewOnPress: model.leadingViewOnPress)
+        display(trailingViewOnPress: model.trailingViewOnPress)
+        display(onPress: model.onPress)
+        display(onPaste: model.onPaste)
+        display(onBecomeFirstResponder: model.onBecomeFirstResponder)
+        display(onResignFirstResponder: model.onResignFirstResponder)
+        display(onTapBackspace: model.onTapBackspace)
+        if let didChangeText = model.didChangeText {
+            display(didChangeText: didChangeText)
+        }
+    }
+    
+    public func display(text: String?) {
+        self.text = text
+    }
+    
+    public func display(mask: TextInputPresentableModel.Mask) {
+        maskedTextfieldDelegate = .init(format: .init(mask: mask.mask, maskedTextColor: mask.maskColor))
+    }
+    
+    public func display(isValid: Bool) {
+        isValidState = isValid
+        updateAppearance(isValid: isValid)
+    }
+    
+    public func display(isEnabledForEditing: Bool) {
+        self.isEnabledForEditing = isEnabledForEditing
+    }
+    
+    public func display(isTextSelectionDisabled: Bool) {
+        self.isTextSelectionDisabled = isTextSelectionDisabled
+    }
+    
+    public func display(placeholder: String?) {
+        self.placeholder = placeholder
+    }
+    
+    public func display(isUserInteractionEnabled: Bool) {
+        self.isUserInteractionEnabled = isUserInteractionEnabled
+    }
+    
+    public func display(isSecureTextEntry: Bool) {
+        self.isSecureTextEntry = isSecureTextEntry
+    }
+    
+    public func display(leadingViewOnPress: (() -> Void)?) {
+        self.leadingViewOnPress = leadingViewOnPress
+    }
+    
+    public func display(trailingViewOnPress: (() -> Void)?) {
+        self.trailingViewOnPress = trailingViewOnPress
+    }
+    
+    public func display(onPress: (() -> Void)?) {
+        self.onPress = onPress
+    }
+    
+    public func display(onPaste: ((String?) -> Void)?) {
+        self.onPaste = onPaste
+    }
+    
+    public func display(onBecomeFirstResponder: (() -> Void)?) {
+        self.onBecomeFirstResponder = onBecomeFirstResponder
+    }
+    
+    public func display(onResignFirstResponder: (() -> Void)?) {
+        self.onResignFirstResponder = onResignFirstResponder
+    }
+    
+    public func display(onTapBackspace: (() -> Void)?) {
+        self.onTapBackspace = onTapBackspace
+    }
+    
+    public func display(didChangeText: [((String?) -> Void)]) {
+        self.didChangeText = didChangeText
+    }
+}
 
 open class Textfield: UITextField {
     public enum TrailingViewStyle {
@@ -526,100 +618,6 @@ public extension Textfield {
             }
             self.layer.borderWidth = (isFirstResponder ? appearance.border?.selectedBorderWidth : appearance.border?.idleBorderWidth) ?? 0
         }
-    }
-}
-
-extension Textfield: TextInputOutput {
-    public func display(model: TextInputPresentableModel?) {
-        isHidden = model == nil
-        guard let model = model else { return }
-        if let mask = model.mask {
-            maskedTextfieldDelegate = .init(format: .init(mask: mask.mask, maskedTextColor: mask.maskColor))
-        }
-        display(text: model.text)
-        if let isValid = model.isValid { display(isValid: isValid) }
-        if let isEnabledForEditing = model.isEnabledForEditing { display(isEnabledForEditing: isEnabledForEditing) }
-        if let isTextSelectionDisabled = model.isTextSelectionDisabled { display(isTextSelectionDisabled: isTextSelectionDisabled) }
-        display(placeholder: model.placeholder)
-        if let isUserInteractionEnabled = model.isUserInteractionEnabled { display(isUserInteractionEnabled: isUserInteractionEnabled) }
-        if let isSecureTextEntry = model.isSecureTextEntry { display(isSecureTextEntry: isSecureTextEntry) }
-        display(leadingViewOnPress: model.leadingViewOnPress)
-        display(trailingViewOnPress: model.trailingViewOnPress)
-        display(onPress: model.onPress)
-        display(onPaste: model.onPaste)
-        display(onBecomeFirstResponder: model.onBecomeFirstResponder)
-        display(onResignFirstResponder: model.onResignFirstResponder)
-        display(onTapBackspace: model.onTapBackspace)
-        if let didChangeText = model.didChangeText {
-            display(didChangeText: didChangeText)
-        }
-    }
-    
-    public func display(text: String?) {
-        self.text = text
-    }
-    
-    public func display(mask: TextInputPresentableModel.Mask?) {
-        if let mask = mask {
-            maskedTextfieldDelegate = .init(format: .init(mask: mask.mask, maskedTextColor: mask.maskColor))
-        }
-    }
-    
-    public func display(isValid: Bool) {
-        isValidState = isValid
-        updateAppearance(isValid: isValid)
-    }
-    
-    public func display(isEnabledForEditing: Bool) {
-        self.isEnabledForEditing = isEnabledForEditing
-    }
-    
-    public func display(isTextSelectionDisabled: Bool) {
-        self.isTextSelectionDisabled = isTextSelectionDisabled
-    }
-    
-    public func display(placeholder: String?) {
-        self.placeholder = placeholder
-    }
-    
-    public func display(isUserInteractionEnabled: Bool) {
-        self.isUserInteractionEnabled = isUserInteractionEnabled
-    }
-    
-    public func display(isSecureTextEntry: Bool) {
-        self.isSecureTextEntry = isSecureTextEntry
-    }
-    
-    public func display(leadingViewOnPress: (() -> Void)?) {
-        self.leadingViewOnPress = leadingViewOnPress
-    }
-    
-    public func display(trailingViewOnPress: (() -> Void)?) {
-        self.trailingViewOnPress = trailingViewOnPress
-    }
-    
-    public func display(onPress: (() -> Void)?) {
-        self.onPress = onPress
-    }
-    
-    public func display(onPaste: ((String?) -> Void)?) {
-        self.onPaste = onPaste
-    }
-    
-    public func display(onBecomeFirstResponder: (() -> Void)?) {
-        self.onBecomeFirstResponder = onBecomeFirstResponder
-    }
-    
-    public func display(onResignFirstResponder: (() -> Void)?) {
-        self.onResignFirstResponder = onResignFirstResponder
-    }
-    
-    public func display(onTapBackspace: (() -> Void)?) {
-        self.onTapBackspace = onTapBackspace
-    }
-    
-    public func display(didChangeText: [((String?) -> Void)]) {
-        self.didChangeText = didChangeText
     }
 }
 #endif

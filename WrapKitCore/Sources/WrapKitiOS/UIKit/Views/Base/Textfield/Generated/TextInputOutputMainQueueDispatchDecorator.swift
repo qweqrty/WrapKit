@@ -17,7 +17,7 @@ extension MainQueueDispatchDecorator: TextInputOutput where T: TextInputOutput {
             self?.decoratee.display(text: text)
         }
     }
-    public func display(mask: TextInputPresentableModel.Mask?) {
+    public func display(mask: TextInputPresentableModel.Mask) {
         dispatch { [weak self] in
             self?.decoratee.display(mask: mask)
         }
@@ -115,7 +115,7 @@ extension WeakRefVirtualProxy: TextInputOutput where T: TextInputOutput {
     public func display(text: String?) {
         object?.display(text: text)
     }
-    public func display(mask: TextInputPresentableModel.Mask?) {
+    public func display(mask: TextInputPresentableModel.Mask) {
         object?.display(mask: mask)
     }
     public func display(isValid: Bool) {

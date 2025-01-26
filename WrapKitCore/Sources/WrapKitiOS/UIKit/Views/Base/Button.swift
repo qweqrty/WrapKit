@@ -43,7 +43,7 @@ public protocol ButtonOutput: AnyObject {
     func display(title: String?)
     func display(spacing: CGFloat)
     func display(onPress: (() -> Void)?)
-    func display(height: CGFloat?)
+    func display(height: CGFloat)
 }
 
 public struct ButtonPresentableModel {
@@ -76,6 +76,53 @@ public struct ButtonPresentableModel {
 
 #if canImport(UIKit)
 import UIKit
+
+extension Button: ButtonOutput {
+    public func display(model: ButtonPresentableModel?) {
+        isHidden = model == nil
+        if let spacing = model?.spacing { display(spacing: spacing) }
+        display(title: model?.title)
+        display(image: model?.image)
+        if let height = model?.height { display(height: height) }
+        display(style: model?.style)
+        display(onPress: model?.onPress)
+        if let enabled = model?.enabled {
+            updateAppearance(enabled: enabled)
+        }
+    }
+    
+    public func display(image: Image?) {
+        setImage(image, for: .normal)
+    }
+    
+    public func display(enabled: Bool) {
+        updateAppearance(enabled: enabled)
+    }
+    
+    public func display(height: CGFloat) {
+        if let anchoredConstraints = anchoredConstraints {
+            anchoredConstraints.height?.constant = height
+        } else {
+            anchoredConstraints = anchor(.height(height))
+        }
+    }
+    
+    public func display(style: ButtonStyle?) {
+        self.style = style
+    }
+    
+    public func display(title: String?) {
+        self.setTitle(title, for: .normal)
+    }
+    
+    public func display(spacing: CGFloat) {
+        self.spacing = spacing
+    }
+    
+    public func display(onPress: (() -> Void)?) {
+        self.onPress = onPress
+    }
+}
 
 public enum PressAnimation: HashableWithReflection {
     case shrink
@@ -266,53 +313,6 @@ open class Button: UIButton {
     open func display(isHidden: Bool = false) {
         backgroundColor = isHidden ? .clear : textBackgroundColor
         setTitleColor(isHidden ? .clear : textColor, for: .normal)
-    }
-}
-
-extension Button: ButtonOutput {
-    public func display(model: ButtonPresentableModel?) {
-        isHidden = model == nil
-        if let spacing = model?.spacing { display(spacing: spacing) }
-        display(title: model?.title)
-        if let image = model?.image { display(image: image) }
-        if let height = model?.height { display(height: height) }
-        display(style: model?.style)
-        display(onPress: model?.onPress)
-        if let enabled = model?.enabled {
-            updateAppearance(enabled: enabled)
-        }
-    }
-    
-    public func display(image: Image?) {
-        setImage(image, for: .normal)
-    }
-    
-    public func display(enabled: Bool) {
-        updateAppearance(enabled: enabled)
-    }
-    
-    public func display(height: CGFloat?) {
-        if let anchoredConstraints = anchoredConstraints, let height = height {
-            anchoredConstraints.height?.constant = height
-        } else if let height = height {
-            anchoredConstraints = anchor(.height(height))
-        }
-    }
-    
-    public func display(style: ButtonStyle?) {
-        self.style = style
-    }
-    
-    public func display(title: String?) {
-        self.setTitle(title, for: .normal)
-    }
-    
-    public func display(spacing: CGFloat) {
-        self.spacing = spacing
-    }
-    
-    public func display(onPress: (() -> Void)?) {
-        self.onPress = onPress
     }
 }
 #endif

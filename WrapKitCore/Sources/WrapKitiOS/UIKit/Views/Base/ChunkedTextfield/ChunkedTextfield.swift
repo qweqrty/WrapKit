@@ -28,7 +28,7 @@ extension ChunkedTextField: TextInputOutput {
         self.didChangeText = didChangeText
     }
     
-    public func display(mask: TextInputPresentableModel.Mask?) { }
+    public func display(mask: TextInputPresentableModel.Mask) { }
     public func display(isEnabledForEditing: Bool) { }
     public func display(isTextSelectionDisabled: Bool) { }
     public func display(placeholder: String?) { }
