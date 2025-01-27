@@ -19,7 +19,7 @@ extension VKeyValueFieldView: VKeyValueFieldViewOutput {
     public func display(model: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>) {
         isHidden = model.first == nil && model.second == nil
         display(keyTitle: model.first)
-        display(keyTitle: model.second)
+        display(valueTitle: model.second)
     }
     
     public func display(keyTitle: TextOutputPresentableModel?) {

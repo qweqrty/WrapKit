@@ -56,6 +56,8 @@ public struct CardViewPresentableModel: HashableWithReflection {
     public let bottomSeparator: BottomSeparator?
     public let switchControl: SwitchControlPresentableModel?
     public let status: Status?
+    public let onPress: (() -> Void)?
+    public let onLongPress: (() -> Void)?
     
     public init(
         title: TextOutputPresentableModel? = nil,
@@ -67,7 +69,9 @@ public struct CardViewPresentableModel: HashableWithReflection {
         valueTitle: TextOutputPresentableModel? = nil,
         bottomSeparator: BottomSeparator? = nil,
         switchControl: SwitchControlPresentableModel? = nil,
-        status: Status? = nil
+        status: Status? = nil,
+        onPress: (() -> Void)? = nil,
+        onLongPress: (() -> Void)? = nil
     ) {
         self.title = title
         self.leadingImage = leadingImage
@@ -79,6 +83,8 @@ public struct CardViewPresentableModel: HashableWithReflection {
         self.bottomSeparator = bottomSeparator
         self.switchControl = switchControl
         self.status = status
+        self.onPress = onPress
+        self.onLongPress = onLongPress
     }
 }
 
@@ -183,6 +189,9 @@ extension CardView: CardViewOutput {
         
         //status view
         display(status: model.status)
+        
+        display(onPress: model.onPress)
+        display(onLongPress: model.onLongPress)
     }
 }
 
