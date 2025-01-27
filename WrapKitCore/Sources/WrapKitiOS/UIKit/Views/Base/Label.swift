@@ -13,7 +13,7 @@ public protocol TextOutput: AnyObject {
     func display(attributes: [TextAttributes])
 }
 
-public enum TextOutputPresentableModel {
+public enum TextOutputPresentableModel: HashableWithReflection {
     case text(String?)
     case attributes([TextAttributes])
 }

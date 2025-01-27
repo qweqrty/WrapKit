@@ -105,7 +105,7 @@ public protocol TextInputOutput: AnyObject {
     func display(didChangeText: [((String?) -> Void)])
 }
 
-public struct TextInputPresentableModel {
+public struct TextInputPresentableModel: HashableWithReflection {
     public struct Mask {
         public let mask: Masking
         public let maskColor: Color
