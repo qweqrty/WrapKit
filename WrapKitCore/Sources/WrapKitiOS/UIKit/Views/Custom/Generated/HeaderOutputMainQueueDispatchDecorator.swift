@@ -22,9 +22,9 @@ extension MainQueueDispatchDecorator: HeaderOutput where T: HeaderOutput {
             self?.decoratee.display(centerView: centerView)
         }
     }
-    public func display(leadingImage: ImageViewPresentableModel?) {
+    public func display(leadingCard: CardViewPresentableModel?) {
         dispatch { [weak self] in
-            self?.decoratee.display(leadingImage: leadingImage)
+            self?.decoratee.display(leadingCard: leadingCard)
         }
     }
     public func display(primeTrailingImage: ButtonPresentableModel?) {
@@ -68,8 +68,8 @@ extension WeakRefVirtualProxy: HeaderOutput where T: HeaderOutput {
     public func display(centerView: HeaderPresentableModel.CenterView?) {
         object?.display(centerView: centerView)
     }
-    public func display(leadingImage: ImageViewPresentableModel?) {
-        object?.display(leadingImage: leadingImage)
+    public func display(leadingCard: CardViewPresentableModel?) {
+        object?.display(leadingCard: leadingCard)
     }
     public func display(primeTrailingImage: ButtonPresentableModel?) {
         object?.display(primeTrailingImage: primeTrailingImage)

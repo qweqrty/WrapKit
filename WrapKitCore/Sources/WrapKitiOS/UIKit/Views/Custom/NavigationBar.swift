@@ -9,7 +9,7 @@ public protocol HeaderOutput: AnyObject {
     func display(model: HeaderPresentableModel?)
     func display(style: HeaderPresentableModel.Style?)
     func display(centerView: HeaderPresentableModel.CenterView?)
-    func display(leadingImage: ImageViewPresentableModel?)
+    func display(leadingCard: CardViewPresentableModel?)
     func display(primeTrailingImage: ButtonPresentableModel?)
     func display(secondaryTrailingImage: ButtonPresentableModel?)
     func display(tertiaryTrailingImage: ButtonPresentableModel?)
@@ -45,7 +45,7 @@ public struct HeaderPresentableModel {
     
     public let style: Style?
     public let centerView: CenterView?
-    public let leadingImage: ImageViewPresentableModel?
+    public let leadingCard: CardViewPresentableModel?
     public let primeTrailingImage: ButtonPresentableModel?
     public let secondaryTrailingImage: ButtonPresentableModel?
     public let tertiaryTrailingImage: ButtonPresentableModel?
@@ -53,14 +53,14 @@ public struct HeaderPresentableModel {
     public init(
         style: Style? = nil,
         centerView: CenterView? = nil,
-        leadingImage: ImageViewPresentableModel? = nil,
+        leadingCard: CardViewPresentableModel? = nil,
         primeTrailingImage: ButtonPresentableModel? = nil,
         secondaryTrailingImage: ButtonPresentableModel? = nil,
         tertiaryTrailingImage: ButtonPresentableModel? = nil
     ) {
         self.style = style
         self.centerView = centerView
-        self.leadingImage = leadingImage
+        self.leadingCard = leadingCard
         self.primeTrailingImage = primeTrailingImage
         self.secondaryTrailingImage = secondaryTrailingImage
         self.tertiaryTrailingImage = tertiaryTrailingImage
@@ -208,7 +208,7 @@ extension NavigationBar: HeaderOutput {
         guard let model = model else { return }
         display(centerView: model.centerView)
         display(style: model.style)
-        display(leadingImage: model.leadingImage)
+        display(leadingCard: model.leadingCard)
         display(primeTrailingImage: model.primeTrailingImage)
         display(secondaryTrailingImage: model.secondaryTrailingImage)
         display(tertiaryTrailingImage: model.tertiaryTrailingImage)
@@ -246,8 +246,8 @@ extension NavigationBar: HeaderOutput {
         }
     }
     
-    public func display(leadingImage: ImageViewPresentableModel?) {
-        leadingCardView.display(leadingImage: leadingImage)
+    public func display(leadingCard: CardViewPresentableModel?) {
+        leadingCardView.display(model: leadingCard)
     }
     
     public func display(primeTrailingImage: ButtonPresentableModel?) {
