@@ -19,6 +19,8 @@ public protocol CardViewOutput: AnyObject {
     func display(bottomSeparator: CardViewPresentableModel.BottomSeparator?)
     func display(switchControl: SwitchControlPresentableModel?)
     func display(status: CardViewPresentableModel.Status?)
+    func display(onPress: (() -> Void)?)
+    func display(onLongPress: (() -> Void)?)
 }
 
 public struct CardViewPresentableModel: HashableWithReflection {
@@ -85,6 +87,14 @@ import UIKit
 import SwiftUI
 
 extension CardView: CardViewOutput {
+    public func display(onPress: (() -> Void)?) {
+        self.onPress = onPress
+    }
+    
+    public func display(onLongPress: (() -> Void)?) {
+        self.onLongPress = onLongPress
+    }
+    
     public func display(title: TextOutputPresentableModel?) {
         titleViews.keyLabel.display(model: title)
     }

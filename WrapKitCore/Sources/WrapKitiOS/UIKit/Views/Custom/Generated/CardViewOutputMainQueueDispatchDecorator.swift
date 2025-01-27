@@ -62,6 +62,16 @@ extension MainQueueDispatchDecorator: CardViewOutput where T: CardViewOutput {
             self?.decoratee.display(status: status)
         }
     }
+    public func display(onPress: (() -> Void)?) {
+        dispatch { [weak self] in
+            self?.decoratee.display(onPress: onPress)
+        }
+    }
+    public func display(onLongPress: (() -> Void)?) {
+        dispatch { [weak self] in
+            self?.decoratee.display(onLongPress: onLongPress)
+        }
+    }
 
 }
 
@@ -111,6 +121,12 @@ extension WeakRefVirtualProxy: CardViewOutput where T: CardViewOutput {
     }
     public func display(status: CardViewPresentableModel.Status?) {
         object?.display(status: status)
+    }
+    public func display(onPress: (() -> Void)?) {
+        object?.display(onPress: onPress)
+    }
+    public func display(onLongPress: (() -> Void)?) {
+        object?.display(onLongPress: onLongPress)
     }
 
 }
