@@ -180,7 +180,9 @@ private extension NavigationBar {
         view.isHidden = true
         view.closingTitleVFieldView.setContentCompressionResistancePriority(.required, for: .horizontal)
         view.closingTitleVFieldView.keyLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
+        view.closingTitleVFieldView.valueLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
         view.closingTitleVFieldView.keyLabel.textAlignment = .center
+        view.closingTitleVFieldView.valueLabel.textAlignment = .center
         view.closingTitleVFieldView.isHidden = false
         return view
     }
@@ -222,7 +224,7 @@ extension NavigationBar: HeaderOutput {
         case .titledImage(let pair):
             titleViews.isHidden = true
             centerTitledImageView.isHidden = pair.first == nil && pair.second == nil
-            centerTitledImageView.titlesView.keyLabel.display(model: pair.second)
+            centerTitledImageView.closingTitleVFieldView.keyLabel.display(model: pair.second)
             centerTitledImageView.contentView.display(model: pair.first)
         default:
             titleViews.isHidden = true
@@ -237,6 +239,7 @@ extension NavigationBar: HeaderOutput {
             mainStackViewConstraints?.leading?.constant = 8
             mainStackViewConstraints?.trailing?.constant = -8
             
+            leadingCardView.leadingImageView.tintColor = style.primeColor
             leadingCardView.titleViews.keyLabel.font = style.primeFont
             leadingCardView.titleViews.keyLabel.textColor = style.primeColor
             titleViews.keyLabel.font = style.primeFont

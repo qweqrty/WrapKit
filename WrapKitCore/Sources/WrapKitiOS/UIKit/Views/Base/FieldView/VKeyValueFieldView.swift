@@ -5,7 +5,7 @@
 //  Created by Stas Lee on 5/8/23.
 //
 
-public protocol VKeyValueFieldViewOutput: AnyObject {
+public protocol KeyValueFieldViewOutput: AnyObject {
     func display(model: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>)
     func display(keyTitle: TextOutputPresentableModel?)
     func display(valueTitle: TextOutputPresentableModel?)
@@ -15,19 +15,21 @@ public protocol VKeyValueFieldViewOutput: AnyObject {
 import UIKit
 import SwiftUI
 
-extension VKeyValueFieldView: VKeyValueFieldViewOutput {
+extension VKeyValueFieldView: KeyValueFieldViewOutput {
     public func display(model: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>) {
         isHidden = model.first == nil && model.second == nil
         display(keyTitle: model.first)
-        display(keyTitle: model.second)
+        display(valueTitle: model.second)
     }
     
     public func display(keyTitle: TextOutputPresentableModel?) {
+        isHidden = keyTitle == nil && valueLabel.isHidden
         keyLabel.isHidden = keyTitle == nil
         keyLabel.display(model: keyTitle)
     }
     
     public func display(valueTitle: TextOutputPresentableModel?) {
+        isHidden = valueTitle == nil && keyLabel.isHidden
         valueLabel.isHidden = valueTitle == nil
         valueLabel.display(model: valueTitle)
     }
