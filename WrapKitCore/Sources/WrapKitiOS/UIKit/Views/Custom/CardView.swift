@@ -11,6 +11,7 @@ public protocol CardViewOutput: AnyObject {
     func display(model: CardViewPresentableModel?)
     func display(title: TextOutputPresentableModel?)
     func display(leadingImage: ImageViewPresentableModel?)
+    func display(secondaryLeadingImage: ImageViewPresentableModel?)
     func display(trailingImage: ImageViewPresentableModel?)
     func display(secondaryTrailingImage: ImageViewPresentableModel?)
     func display(subTitle: TextOutputPresentableModel?)
@@ -45,6 +46,7 @@ public struct CardViewPresentableModel: HashableWithReflection {
 
     public let title: TextOutputPresentableModel?
     public let leadingImage: ImageViewPresentableModel?
+    public let secondaryLeadingImage: ImageViewPresentableModel?
     public let trailingImage: ImageViewPresentableModel?
     public let secondaryTrailingImage: ImageViewPresentableModel?
     public let subTitle: TextOutputPresentableModel?
@@ -56,6 +58,7 @@ public struct CardViewPresentableModel: HashableWithReflection {
     public init(
         title: TextOutputPresentableModel? = nil,
         leadingImage: ImageViewPresentableModel? = nil,
+        secondaryLeadingImage: ImageViewPresentableModel? = nil,
         trailingImage: ImageViewPresentableModel? = nil,
         secondaryTrailingImage: ImageViewPresentableModel? = nil,
         subTitle: TextOutputPresentableModel? = nil,
@@ -66,6 +69,7 @@ public struct CardViewPresentableModel: HashableWithReflection {
     ) {
         self.title = title
         self.leadingImage = leadingImage
+        self.secondaryLeadingImage = secondaryLeadingImage
         self.trailingImage = trailingImage
         self.secondaryTrailingImage = secondaryTrailingImage
         self.subTitle = subTitle
@@ -96,6 +100,11 @@ extension CardView: CardViewOutput {
     public func display(leadingImage: ImageViewPresentableModel?) {
         leadingImageWrapperView.isHidden = leadingImage == nil
         leadingImageView.display(model: leadingImage)
+    }
+    
+    public func display(secondaryLeadingImage: ImageViewPresentableModel?) {
+        secondaryLeadingImageWrapperView.isHidden = secondaryLeadingImage == nil
+        secondaryLeadingImageView.display(model: secondaryLeadingImage)
     }
     
     public func display(trailingImage: ImageViewPresentableModel?) {
@@ -174,6 +183,9 @@ open class CardView: View {
     public let leadingImageWrapperView = UIView()
     public let leadingImageView = ImageView(tintColor: .black)
     
+    public let secondaryLeadingImageWrapperView = UIView(isHidden: true)
+    public let secondaryLeadingImageView = ImageView(tintColor: .black)
+    
     public let titleViewsWrapperView = UIView()
     public let titleViews = VKeyValueFieldView(
         keyLabel: Label(font: .systemFont(ofSize: 16), textColor: .black),
@@ -206,6 +218,7 @@ open class CardView: View {
     
     public var titlesViewConstraints: AnchoredConstraints?
     public var leadingImageViewConstraints: AnchoredConstraints?
+    public var secondaryLeadingImageViewConstraints: AnchoredConstraints?
     public var trailingImageViewConstraints: AnchoredConstraints?
     public var secondaryTrailingImageViewConstraints: AnchoredConstraints?
     public var switchControlConstraints: AnchoredConstraints?
@@ -251,6 +264,7 @@ extension CardView {
         vStackView.addArrangedSubview(hStackView)
         vStackView.addArrangedSubview(bottomSeparatorView)
         hStackView.addArrangedSubview(leadingImageWrapperView)
+        hStackView.addArrangedSubview(secondaryLeadingImageWrapperView)
         hStackView.addArrangedSubview(titleViewsWrapperView)
         hStackView.addArrangedSubview(subtitleLabel)
         hStackView.addArrangedSubview(secondaryTrailingImageWrapperView)
@@ -259,6 +273,7 @@ extension CardView {
         hStackView.addArrangedSubview(statusWrapperView)
         
         leadingImageWrapperView.addSubview(leadingImageView)
+        secondaryLeadingImageWrapperView.addSubview(secondaryLeadingImageView)
         trailingImageWrapperView.addSubview(trailingImageView)
         secondaryTrailingImageWrapperView.addSubview(secondaryTrailingImageView)
         titleViewsWrapperView.addSubview(titleViews)
@@ -285,6 +300,17 @@ extension CardView {
             .trailing(leadingImageWrapperView.trailingAnchor),
             .centerX(leadingImageWrapperView.centerXAnchor),
             .centerY(leadingImageWrapperView.centerYAnchor)
+        )
+        
+        secondaryLeadingImageViewConstraints = secondaryLeadingImageView.anchor(
+            .topGreaterThanEqual(secondaryLeadingImageWrapperView.topAnchor),
+            .bottomLessThanEqual(secondaryLeadingImageWrapperView.bottomAnchor),
+            .top(secondaryLeadingImageWrapperView.topAnchor, priority: .defaultHigh),
+            .bottom(secondaryLeadingImageWrapperView.bottomAnchor, priority: .defaultHigh),
+            .leading(secondaryLeadingImageWrapperView.leadingAnchor),
+            .trailing(secondaryLeadingImageWrapperView.trailingAnchor),
+            .centerX(secondaryLeadingImageWrapperView.centerXAnchor),
+            .centerY(secondaryLeadingImageWrapperView.centerYAnchor)
         )
         
         secondaryTrailingImageViewConstraints = secondaryTrailingImageView.anchor(

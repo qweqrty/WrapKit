@@ -16,7 +16,7 @@ public protocol ImageViewOutput: AnyObject {
     func display(contentModeIsFit: Bool)
 }
 
-public struct ImageViewPresentableModel {
+public struct ImageViewPresentableModel: HashableWithReflection {
     public let size: CGSize?
     public let image: ImageEnum?
     public let onPress: (() -> Void)?

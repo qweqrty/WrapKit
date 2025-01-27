@@ -7,8 +7,8 @@
 
 public protocol HeaderOutput: AnyObject {
     func display(model: HeaderPresentableModel?)
-    func display(keyTitle: TextOutputPresentableModel?)
-    func display(valueTitle: TextOutputPresentableModel?)
+    func display(style: HeaderPresentableModel.Style?)
+    func display(centerView: HeaderPresentableModel.CenterView?)
     func display(leadingImage: ImageViewPresentableModel?)
     func display(primeTrailingImage: ButtonPresentableModel?)
     func display(secondaryTrailingImage: ButtonPresentableModel?)
@@ -16,23 +16,50 @@ public protocol HeaderOutput: AnyObject {
 }
 
 public struct HeaderPresentableModel {
-    public let keyTitle: TextOutputPresentableModel?
-    public let valueTitle: TextOutputPresentableModel?
+    public struct Style {
+        public let horizontalSpacing: CGFloat
+        public let primeFont: Font
+        public let primeTextColor: Color
+        public let secondaryFont: Font
+        public let secondaryTextColor: Color
+        
+        public init(
+            horizontalSpacing: CGFloat,
+            primeFont: Font,
+            primeTextColor: Color,
+            secondaryFont: Font,
+            secondaryTextColor: Color
+        ) {
+            self.horizontalSpacing = horizontalSpacing
+            self.primeFont = primeFont
+            self.primeTextColor = primeTextColor
+            self.secondaryFont = secondaryFont
+            self.secondaryTextColor = secondaryTextColor
+        }
+    }
+    
+    public enum CenterView {
+        case keyValue(Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>)
+        case titledImage(Pair<ImageViewPresentableModel?, TextOutputPresentableModel?>)
+    }
+    
+    public let style: Style?
+    public let centerView: CenterView?
     public let leadingImage: ImageViewPresentableModel?
     public let primeTrailingImage: ButtonPresentableModel?
     public let secondaryTrailingImage: ButtonPresentableModel?
     public let tertiaryTrailingImage: ButtonPresentableModel?
     
     public init(
-        keyTitle: TextOutputPresentableModel? = nil,
-        valueTitle: TextOutputPresentableModel? = nil,
+        style: Style? = nil,
+        centerView: CenterView? = nil,
         leadingImage: ImageViewPresentableModel? = nil,
         primeTrailingImage: ButtonPresentableModel? = nil,
         secondaryTrailingImage: ButtonPresentableModel? = nil,
         tertiaryTrailingImage: ButtonPresentableModel? = nil
     ) {
-        self.keyTitle = keyTitle
-        self.valueTitle = valueTitle
+        self.style = style
+        self.centerView = centerView
         self.leadingImage = leadingImage
         self.primeTrailingImage = primeTrailingImage
         self.secondaryTrailingImage = secondaryTrailingImage
@@ -54,7 +81,8 @@ open class NavigationBar: UIView {
     public lazy var trailingStackView = StackView(axis: .horizontal, spacing: 12)
     public lazy var mainStackView = StackView(axis: .horizontal, spacing: 8)
     
-    public lazy var leadingCardView = makeLeadingCardView()
+    public lazy var leadingCardView = makeLeadingCardView(isHidden: false)
+    public lazy var secondaryLeadingCardView = makeLeadingCardView(isHidden: true)
     public lazy var titleViews = VKeyValueFieldView(
         keyLabel: Label(font: .systemFont(ofSize: 18), textColor: .black, textAlignment: .center, numberOfLines: 1),
         valueLabel: Label(isHidden: true, font: .systemFont(ofSize: 14), textColor: .black, numberOfLines: 1)
@@ -129,8 +157,9 @@ open class NavigationBar: UIView {
 }
 
 private extension NavigationBar {
-    func makeLeadingCardView() -> CardView {
+    func makeLeadingCardView(isHidden: Bool) -> CardView {
         let view = CardView()
+        view.isHidden = isHidden
         view.vStackView.layoutMargins = .zero
         view.hStackView.spacing = 8
         view.bottomSeparatorView.isHidden = true
@@ -170,20 +199,44 @@ extension NavigationBar: HeaderOutput {
     public func display(model: HeaderPresentableModel?) {
         isHidden = model == nil
         guard let model = model else { return }
-        display(keyTitle: model.keyTitle)
-        display(valueTitle: model.valueTitle)
+        display(centerView: model.centerView)
+        display(style: model.style)
         display(leadingImage: model.leadingImage)
         display(primeTrailingImage: model.primeTrailingImage)
         display(secondaryTrailingImage: model.secondaryTrailingImage)
         display(tertiaryTrailingImage: model.tertiaryTrailingImage)
     }
     
-    public func display(keyTitle: TextOutputPresentableModel?) {
-        titleViews.keyLabel.display(model: keyTitle)
+    public func display(centerView: HeaderPresentableModel.CenterView?) {
+        switch centerView {
+        case .keyValue(let pair):
+            titleViews.display(model: pair)
+            centerTitledImageView.isHidden = true
+        case .titledImage(let pair):
+            titleViews.isHidden = true
+            centerTitledImageView.isHidden = pair.first == nil && pair.second == nil
+            centerTitledImageView.titlesView.keyLabel.display(model: pair.second)
+            centerTitledImageView.contentView.display(model: pair.first)
+        default:
+            titleViews.isHidden = true
+            centerTitledImageView.isHidden = true
+        }
     }
     
-    public func display(valueTitle: TextOutputPresentableModel?) {
-        titleViews.valueLabel.display(model: valueTitle)
+    public func display(style: HeaderPresentableModel.Style?) {
+        if let style = style {
+            leadingStackView.spacing = style.horizontalSpacing
+            trailingStackView.spacing = style.horizontalSpacing * 1.5
+            mainStackViewConstraints?.leading?.constant = 8
+            mainStackViewConstraints?.trailing?.constant = -8
+            
+            leadingCardView.titleViews.keyLabel.font = style.primeFont
+            leadingCardView.titleViews.keyLabel.textColor = style.primeTextColor
+            titleViews.keyLabel.font = style.primeFont
+            titleViews.keyLabel.textColor = style.primeTextColor
+            centerTitledImageView.closingTitleVFieldView.keyLabel.textColor = style.secondaryTextColor
+            centerTitledImageView.closingTitleVFieldView.keyLabel.font = style.secondaryFont
+        }
     }
     
     public func display(leadingImage: ImageViewPresentableModel?) {
