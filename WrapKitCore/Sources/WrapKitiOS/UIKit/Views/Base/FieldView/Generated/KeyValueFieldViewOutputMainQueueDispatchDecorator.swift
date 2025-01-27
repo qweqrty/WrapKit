@@ -5,7 +5,7 @@
 
 import Foundation
 
-extension MainQueueDispatchDecorator: VKeyValueFieldViewOutput where T: VKeyValueFieldViewOutput {
+extension MainQueueDispatchDecorator: KeyValueFieldViewOutput where T: KeyValueFieldViewOutput {
 
     public func display(model: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>) {
         dispatch { [weak self] in
@@ -25,19 +25,19 @@ extension MainQueueDispatchDecorator: VKeyValueFieldViewOutput where T: VKeyValu
 
 }
 
-extension VKeyValueFieldViewOutput {
-    public var mainQueueDispatched: any VKeyValueFieldViewOutput {
+extension KeyValueFieldViewOutput {
+    public var mainQueueDispatched: any KeyValueFieldViewOutput {
         MainQueueDispatchDecorator(decoratee: self)
     }
 }
 
-extension VKeyValueFieldViewOutput {
-    public var weakReferenced: any VKeyValueFieldViewOutput {
+extension KeyValueFieldViewOutput {
+    public var weakReferenced: any KeyValueFieldViewOutput {
         return WeakRefVirtualProxy(self)
     }
 }
 
-extension WeakRefVirtualProxy: VKeyValueFieldViewOutput where T: VKeyValueFieldViewOutput {
+extension WeakRefVirtualProxy: KeyValueFieldViewOutput where T: KeyValueFieldViewOutput {
 
     public func display(model: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>) {
         object?.display(model: model)

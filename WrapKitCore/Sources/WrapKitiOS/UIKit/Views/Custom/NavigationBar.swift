@@ -85,7 +85,7 @@ open class NavigationBar: UIView {
     public lazy var secondaryLeadingCardView = makeLeadingCardView(isHidden: true)
     public lazy var titleViews = VKeyValueFieldView(
         keyLabel: Label(font: .systemFont(ofSize: 18), textColor: .black, textAlignment: .center, numberOfLines: 1),
-        valueLabel: Label(isHidden: true, font: .systemFont(ofSize: 14), textColor: .black, numberOfLines: 1)
+        valueLabel: Label(isHidden: true, font: .systemFont(ofSize: 14), textColor: .black, textAlignment: .center, numberOfLines: 1)
     )
     public lazy var primeTrailingImageWrapperView = makeWrappedImageView()
     public lazy var secondaryTrailingImageWrapperView = makeWrappedImageView()
@@ -180,7 +180,9 @@ private extension NavigationBar {
         view.isHidden = true
         view.closingTitleVFieldView.setContentCompressionResistancePriority(.required, for: .horizontal)
         view.closingTitleVFieldView.keyLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
+        view.closingTitleVFieldView.valueLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
         view.closingTitleVFieldView.keyLabel.textAlignment = .center
+        view.closingTitleVFieldView.valueLabel.textAlignment = .center
         view.closingTitleVFieldView.isHidden = false
         return view
     }
@@ -222,7 +224,7 @@ extension NavigationBar: HeaderOutput {
         case .titledImage(let pair):
             titleViews.isHidden = true
             centerTitledImageView.isHidden = pair.first == nil && pair.second == nil
-            centerTitledImageView.titlesView.keyLabel.display(model: pair.second)
+            centerTitledImageView.closingTitleVFieldView.keyLabel.display(model: pair.second)
             centerTitledImageView.contentView.display(model: pair.first)
         default:
             titleViews.isHidden = true
@@ -236,6 +238,11 @@ extension NavigationBar: HeaderOutput {
             trailingStackView.spacing = style.horizontalSpacing * 1.5
             mainStackViewConstraints?.leading?.constant = 8
             mainStackViewConstraints?.trailing?.constant = -8
+            
+            leadingCardView.leadingImageView.tintColor = style.primeColor
+            primeTrailingImageWrapperView.contentView.setImage(primeTrailingImageWrapperView.contentView.image(for: .normal)?.withTintColor(style.primeColor), for: .normal)
+            secondaryTrailingImageWrapperView.contentView.setImage(secondaryTrailingImageWrapperView.contentView.image(for: .normal)?.withTintColor(style.primeColor), for: .normal)
+            tertiaryTrailingImageWrapperView.contentView.setImage(tertiaryTrailingImageWrapperView.contentView.image(for: .normal)?.withTintColor(style.primeColor), for: .normal)
             
             leadingCardView.titleViews.keyLabel.font = style.primeFont
             leadingCardView.titleViews.keyLabel.textColor = style.primeColor
