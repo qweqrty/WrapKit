@@ -19,22 +19,22 @@ public struct HeaderPresentableModel {
     public struct Style {
         public let horizontalSpacing: CGFloat
         public let primeFont: Font
-        public let primeTextColor: Color
+        public let primeColor: Color
         public let secondaryFont: Font
-        public let secondaryTextColor: Color
+        public let secondaryColor: Color
         
         public init(
             horizontalSpacing: CGFloat,
             primeFont: Font,
-            primeTextColor: Color,
+            primeColor: Color,
             secondaryFont: Font,
-            secondaryTextColor: Color
+            secondaryColor: Color
         ) {
             self.horizontalSpacing = horizontalSpacing
             self.primeFont = primeFont
-            self.primeTextColor = primeTextColor
+            self.primeColor = primeColor
             self.secondaryFont = secondaryFont
-            self.secondaryTextColor = secondaryTextColor
+            self.secondaryColor = secondaryColor
         }
     }
     
@@ -97,6 +97,13 @@ open class NavigationBar: UIView {
         super.init(frame: frame)
         setupSubviews()
         setupConstraints()
+    }
+    
+    public init(style: HeaderPresentableModel.Style) {
+        super.init(frame: .zero)
+        setupSubviews()
+        setupConstraints()
+        display(style: style)
     }
     
     private func setupSubviews() {
@@ -231,10 +238,10 @@ extension NavigationBar: HeaderOutput {
             mainStackViewConstraints?.trailing?.constant = -8
             
             leadingCardView.titleViews.keyLabel.font = style.primeFont
-            leadingCardView.titleViews.keyLabel.textColor = style.primeTextColor
+            leadingCardView.titleViews.keyLabel.textColor = style.primeColor
             titleViews.keyLabel.font = style.primeFont
-            titleViews.keyLabel.textColor = style.primeTextColor
-            centerTitledImageView.closingTitleVFieldView.keyLabel.textColor = style.secondaryTextColor
+            titleViews.keyLabel.textColor = style.primeColor
+            centerTitledImageView.closingTitleVFieldView.keyLabel.textColor = style.secondaryColor
             centerTitledImageView.closingTitleVFieldView.keyLabel.font = style.secondaryFont
         }
     }
