@@ -351,6 +351,15 @@ open class CardView: View {
         setupPriorities()
     }
     
+    public init(style: CardViewPresentableModel.Style) {
+        super.init(frame: .zero)
+        
+        setupSubviews()
+        setupConstraints()
+        setupPriorities()
+        display(style: style)
+    }
+    
     private func setupPriorities() {
         subtitleLabel.setContentHuggingPriority(.required, for: .horizontal)
         subtitleLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
