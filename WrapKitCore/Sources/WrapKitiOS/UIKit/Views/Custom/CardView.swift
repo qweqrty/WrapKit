@@ -292,7 +292,7 @@ open class CardView: View {
     public let vStackView = StackView(axis: .vertical, contentInset: .init(top: 0, left: 8, bottom: 0, right: 8))
     public let hStackView = StackView(axis: .horizontal, spacing: 14)
     
-    public let leadingImageWrapperView = UIView()
+    public let leadingImageWrapperView = UIView(isHidden: true)
     public let leadingImageView = ImageView(tintColor: .black)
     
     public let secondaryLeadingImageWrapperView = UIView(isHidden: true)
@@ -307,7 +307,7 @@ open class CardView: View {
     
     public let subtitleLabel = Label(font: .systemFont(ofSize: 16), textColor: .gray, numberOfLines: 1)
     
-    public let trailingImageWrapperView = View()
+    public let trailingImageWrapperView = View(isHidden: true)
     public let trailingImageView = ImageView(image: UIImage(named: "rightArrow"), tintColor: .black)
     
     public let secondaryTrailingImageWrapperView = UIView(isHidden: true)
@@ -323,6 +323,7 @@ open class CardView: View {
     
     public let bottomSeparatorView = WrapperView(
         contentView: View(backgroundColor: .gray),
+        isHidden: true,
         contentViewConstraints: { contentView, superView in
             contentView.fillSuperview()
         }
@@ -487,7 +488,7 @@ extension CardView {
             .bottom(bottomAnchor)
         )
         
-        statusContainerView.centerInSuperview()
+        statusContainerView.fillSuperview()
         
         bottomSeparatorViewConstraints = bottomSeparatorView.anchor(.height(1))
     }
