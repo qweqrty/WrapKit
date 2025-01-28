@@ -10,6 +10,7 @@ public protocol SwitchCotrolOutput: AnyObject {
     func display(model: SwitchControlPresentableModel?)
     func display(onPress: (() -> Void)?)
     func display(isOn: Bool)
+    func display(style: SwitchControlPresentableModel.Style)
     func display(isEnabled: Bool)
 }
 
@@ -17,17 +18,40 @@ public struct SwitchControlPresentableModel {
     public let onPress: (() -> Void)?
     public let isOn: Bool?
     public let isEnabled: Bool?
-    
+    public let style: Style?
+
     public init(
         onPress: (() -> Void)? = nil,
         isOn: Bool? = nil,
-        isEnabled: Bool? = nil
+        isEnabled: Bool? = nil,
+        style: Style? = nil
     ) {
         self.onPress = onPress
         self.isOn = isOn
         self.isEnabled = isEnabled
+        self.style = style
+    }
+
+    public struct Style {
+        public let tintColor: Color
+        public let thumbTintColor: Color
+        public let backgroundColor: Color
+        public let cornerRadius: CGFloat
+
+        public init(
+            tintColor: Color,
+            thumbTintColor: Color,
+            backgroundColor: Color,
+            cornerRadius: CGFloat
+        ) {
+            self.tintColor = tintColor
+            self.thumbTintColor = thumbTintColor
+            self.backgroundColor = backgroundColor
+            self.cornerRadius = cornerRadius
+        }
     }
 }
+
 
 #if canImport(UIKit)
 import UIKit
@@ -39,6 +63,13 @@ open class SwitchControl: UISwitch {
         super.init(frame: .zero)
 
         addTarget(self, action: #selector(didPress), for: .valueChanged)
+    }
+    
+    public init(style: SwitchControlPresentableModel.Style) {
+        super.init(frame: .zero)
+        
+        addTarget(self, action: #selector(didPress), for: .valueChanged)
+        display(style: style)
     }
     
     @objc private func didPress() {
@@ -55,7 +86,15 @@ extension SwitchControl: SwitchCotrolOutput {
         isHidden = model == nil
         if let isOn = model?.isOn { display(isOn: isOn) }
         if let isEnabled = model?.isEnabled { display(isEnabled: isEnabled) }
+        if let style = model?.style { display(style: style) }
         display(onPress: model?.onPress)
+    }
+    
+    public func display(style: SwitchControlPresentableModel.Style) {
+        tintColor = style.tintColor
+        thumbTintColor = style.thumbTintColor
+        backgroundColor = style.backgroundColor
+        cornerRadius = style.cornerRadius
     }
     
     public func display(onPress: (() -> Void)?) {

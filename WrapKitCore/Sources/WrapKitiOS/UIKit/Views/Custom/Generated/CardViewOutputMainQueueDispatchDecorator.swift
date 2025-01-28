@@ -12,6 +12,11 @@ extension MainQueueDispatchDecorator: CardViewOutput where T: CardViewOutput {
             self?.decoratee.display(model: model)
         }
     }
+    public func display(style: CardViewPresentableModel.Style?) {
+        dispatch { [weak self] in
+            self?.decoratee.display(style: style)
+        }
+    }
     public func display(title: TextOutputPresentableModel?) {
         dispatch { [weak self] in
             self?.decoratee.display(title: title)
@@ -91,6 +96,9 @@ extension WeakRefVirtualProxy: CardViewOutput where T: CardViewOutput {
 
     public func display(model: CardViewPresentableModel?) {
         object?.display(model: model)
+    }
+    public func display(style: CardViewPresentableModel.Style?) {
+        object?.display(style: style)
     }
     public func display(title: TextOutputPresentableModel?) {
         object?.display(title: title)

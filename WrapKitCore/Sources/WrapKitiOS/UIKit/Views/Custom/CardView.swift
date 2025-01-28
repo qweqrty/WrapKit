@@ -9,6 +9,7 @@ import Foundation
 
 public protocol CardViewOutput: AnyObject {
     func display(model: CardViewPresentableModel?)
+    func display(style: CardViewPresentableModel.Style?)
     func display(title: TextOutputPresentableModel?)
     func display(leadingImage: ImageViewPresentableModel?)
     func display(secondaryLeadingImage: ImageViewPresentableModel?)
@@ -24,12 +25,73 @@ public protocol CardViewOutput: AnyObject {
 }
 
 public struct CardViewPresentableModel: HashableWithReflection {
+    public struct Style {
+        public struct StatusStyle {
+            public let font: Font
+            public let backgroundColor: Color
+            public let cornerRadius: CGFloat
+            
+            public init(
+                font: Font,
+                backgroundColor: Color,
+                cornerRadius: CGFloat
+            ) {
+                self.font = font
+                self.backgroundColor = backgroundColor
+                self.cornerRadius = cornerRadius
+            }
+        }
+        public let backgroundColor: Color
+        public let vStacklayoutMargins: EdgeInsets
+        public let hStacklayoutMargins: EdgeInsets
+        public let titleKeyTextColor: Color
+        public let titleValueTextColor: Color
+        public let subTitleTextColor: Color
+        public let titleKeyLabelFont: Font
+        public let titleValueLabelFont: Font
+        public let subTitleLabelFont: Font
+        public let cornerRadius: CGFloat
+        public let stackSpace: CGFloat
+        public let hStackViewSpacing: CGFloat
+        public let statusStyle: StatusStyle
+        
+        public init(
+            backgroundColor: Color,
+            vStacklayoutMargins: EdgeInsets,
+            hStacklayoutMargins: EdgeInsets,
+            titleKeyTextColor: Color,
+            titleValueTextColor: Color,
+            subTitleTextColor: Color,
+            titleKeyLabelFont: Font,
+            titleValueLabelFont: Font,
+            subTitleLabelFont: Font,
+            cornerRadius: CGFloat,
+            stackSpace: CGFloat,
+            hStackViewSpacing: CGFloat,
+            statusStyle: StatusStyle
+        ) {
+            self.backgroundColor = backgroundColor
+            self.vStacklayoutMargins = vStacklayoutMargins
+            self.hStacklayoutMargins = hStacklayoutMargins
+            self.titleKeyTextColor = titleKeyTextColor
+            self.titleValueTextColor = titleValueTextColor
+            self.subTitleTextColor = subTitleTextColor
+            self.titleKeyLabelFont = titleKeyLabelFont
+            self.titleValueLabelFont = titleValueLabelFont
+            self.subTitleLabelFont = subTitleLabelFont
+            self.cornerRadius = cornerRadius
+            self.stackSpace = stackSpace
+            self.hStackViewSpacing = hStackViewSpacing
+            self.statusStyle = statusStyle
+        }
+    }
+
     public struct BottomSeparator {
         public let color: Color
         public let padding: EdgeInsets
         public let height: CGFloat
 
-        public init(color: Color, padding: EdgeInsets = .init(), height: CGFloat = 1) {
+        public init(color: Color, padding: EdgeInsets = .zero, height: CGFloat = 1) {
             self.color = color
             self.padding = padding
             self.height = height
@@ -46,6 +108,7 @@ public struct CardViewPresentableModel: HashableWithReflection {
         }
     }
 
+    public let style: Style?
     public let title: TextOutputPresentableModel?
     public let leadingImage: ImageViewPresentableModel?
     public let secondaryLeadingImage: ImageViewPresentableModel?
@@ -60,6 +123,7 @@ public struct CardViewPresentableModel: HashableWithReflection {
     public let onLongPress: (() -> Void)?
     
     public init(
+        style: Style? = nil,
         title: TextOutputPresentableModel? = nil,
         leadingImage: ImageViewPresentableModel? = nil,
         secondaryLeadingImage: ImageViewPresentableModel? = nil,
@@ -73,6 +137,7 @@ public struct CardViewPresentableModel: HashableWithReflection {
         onPress: (() -> Void)? = nil,
         onLongPress: (() -> Void)? = nil
     ) {
+        self.style = style
         self.title = title
         self.leadingImage = leadingImage
         self.secondaryLeadingImage = secondaryLeadingImage
@@ -93,6 +158,28 @@ import UIKit
 import SwiftUI
 
 extension CardView: CardViewOutput {
+    public func display(style: CardViewPresentableModel.Style?) {
+        guard let style = style else { return }
+        hStackView.spacing = style.hStackViewSpacing
+        backgroundColor = style.backgroundColor
+        vStackView.layoutMargins = style.vStacklayoutMargins.asUIEdgeInsets
+        hStackView.layoutMargins = style.hStacklayoutMargins.asUIEdgeInsets
+        titleViews.stackView.spacing = style.stackSpace
+
+        titleViews.keyLabel.font = style.titleKeyLabelFont
+        subtitleLabel.textColor = style.subTitleTextColor
+        subtitleLabel.font = style.subTitleLabelFont
+        titleViews.keyLabel.textColor = style.titleKeyTextColor
+        titleViews.valueLabel.textColor = style.titleValueTextColor
+        titleViews.valueLabel.font = style.titleValueLabelFont
+        cornerRadius = style.cornerRadius
+        
+        statusLabel.font = style.statusStyle.font
+        statusLabel.textColor = style.titleKeyTextColor
+        statusContainerView.backgroundColor = style.statusStyle.backgroundColor
+        statusContainerView.cornerRadius = style.statusStyle.cornerRadius
+    }
+    
     public func display(onPress: (() -> Void)?) {
         self.onPress = onPress
     }
@@ -146,8 +233,8 @@ extension CardView: CardViewOutput {
         if let bottomSeparator = bottomSeparator {
             bottomSeparatorView.contentView.backgroundColor = bottomSeparator.color
             bottomSeparatorView.contentViewConstraints?.top?.constant = bottomSeparator.padding.top
-            bottomSeparatorView.contentViewConstraints?.leading?.constant = bottomSeparator.padding.leading
-            bottomSeparatorView.contentViewConstraints?.trailing?.constant = bottomSeparator.padding.trailing
+            bottomSeparatorView.contentViewConstraints?.leading?.constant = bottomSeparator.padding.left
+            bottomSeparatorView.contentViewConstraints?.trailing?.constant = bottomSeparator.padding.right
             bottomSeparatorView.contentViewConstraints?.bottom?.constant = bottomSeparator.padding.bottom
             bottomSeparatorViewConstraints?.height?.constant = bottomSeparator.height
         }
@@ -163,6 +250,9 @@ extension CardView: CardViewOutput {
     public func display(model: CardViewPresentableModel?) {
         isHidden = model == nil
         guard let model = model else { return }
+        // Style
+        display(style: model.style)
+        
         // Key title
         display(title: model.title)
         
