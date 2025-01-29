@@ -47,6 +47,7 @@ open class Label: UILabel {
         self.translatesAutoresizingMaskIntoConstraints = translatesAutoresizingMaskIntoConstraints
         self.textColor = textColor
         self.numberOfLines = numberOfLines
+        addGestureRecognizer(tapGesture)
     }
     
     override init(frame: CGRect) {
@@ -60,6 +61,7 @@ open class Label: UILabel {
         self.minimumScaleFactor = 0
         self.adjustsFontSizeToFitWidth = false
         self.isUserInteractionEnabled = true
+        addGestureRecognizer(tapGesture)
     }
 
     public override var intrinsicContentSize: CGSize {
@@ -84,8 +86,7 @@ open class Label: UILabel {
             }
             
             let combinedAttributedString = NSMutableAttributedString()
-            
-            for (index, (prev, current, _)) in attributes.withPreviousAndNext.enumerated() {
+            for (index, current) in attributes.enumerated() {
                 combinedAttributedString.append(
                     NSAttributedString(
                         current.text,
@@ -100,8 +101,8 @@ open class Label: UILabel {
                         trailingImageBounds: current.trailingImageBounds
                     )
                 )
-                let prevRange = prev?.range ?? .init(location: 0, length: 0)
-                attributes[index].range = NSRange(location: prevRange.location + prevRange.length, length: current.text.count)
+                let currentLocation = combinedAttributedString.length - current.text.count
+                attributes[index].range = NSRange(location: currentLocation, length: current.text.count)
             }
             attributedText = combinedAttributedString
         }
@@ -111,20 +112,11 @@ open class Label: UILabel {
         super.init(coder: aDecoder)
     }
     
-    open override func point(inside point: CGPoint, with event: UIEvent?) -> Bool {
-        let isInsideLabel = super.point(inside: point, with: event)
-        
-        guard isInsideLabel else { return false }
-        
-        for attribute in attributes {
-            guard let range = attribute.range else { continue }
-            if UITapGestureRecognizer().didTapAttributedTextInLabel(label: self, textAlignment: attribute.textAlignment ?? textAlignment, inRange: range), let onTap = attribute.onTap {
-                onTap()
-                return false
-             }
-        }
-        return isInsideLabel
-    }
+    lazy var tapGesture: UITapGestureRecognizer = {
+        let gesture = UITapGestureRecognizer(target: self, action: nil)
+        gesture.delegate = self
+        return gesture
+    }()
     
     private func aligmentOffset() -> CGFloat {
         switch textAlignment {
@@ -161,9 +153,9 @@ extension Label: TextOutput {
         guard let model = model else { return }
         switch model {
         case .text(let text):
-            self.display(text: text)
+            self.text = text
         case .attributes(let attributes):
-            self.display(attributes: attributes)
+            self.attributes = attributes
         }
     }
     
@@ -172,8 +164,20 @@ extension Label: TextOutput {
     }
     
     public func display(attributes: [TextAttributes]) {
-        self.removeAttributes()
         self.attributes = attributes
+    }
+}
+
+extension Label: UIGestureRecognizerDelegate {
+    open override func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+        for attribute in attributes {
+            guard let range = attribute.range else { continue }
+            if tapGesture.didTapAttributedTextInLabel(label: self, textAlignment: attribute.textAlignment ?? textAlignment, inRange: range), let onTap = attribute.onTap {
+                onTap()
+                return true
+            }
+        }
+        return false
     }
 }
 #endif
