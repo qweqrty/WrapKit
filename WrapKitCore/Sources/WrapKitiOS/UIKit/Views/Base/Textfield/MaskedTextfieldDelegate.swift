@@ -20,7 +20,7 @@ public class MaskedTextfieldDelegate: NSObject, UITextFieldDelegate {
     public var backspacePressClearsText: Bool
     public var trailingSymbol: String?
     
-    private var textfield: Textfield?
+    private weak var textfield: Textfield?
     
     public var onlySpecifiersIfMaskedText: String { format.mask.extractUserInput(from: fullText) }
     public lazy var fullText: String = format.mask.applied(to: "").input {
