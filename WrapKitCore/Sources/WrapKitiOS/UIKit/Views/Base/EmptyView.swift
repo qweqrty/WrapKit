@@ -1,10 +1,3 @@
-//
-//  File.swift
-//  WrapKit
-//
-//  Created by Gulzat Zheenbek kyzy on 22/1/25.
-//
-
 import Foundation
 
 public protocol EmptyViewOutput: AnyObject {
@@ -90,6 +83,7 @@ public class EmptyView: UIView {
 
 extension EmptyView: EmptyViewOutput {
     public func display(image: ImageViewPresentableModel?) {
+        imageWrapperView.isHidden = image == nil
         imageWrapperView.contentView.display(model: image)
     }
     
@@ -115,10 +109,10 @@ extension EmptyView: EmptyViewOutput {
     public func display(model: EmptyViewPresentableModel?) {
         self.isHidden = model == nil
         guard let model else { return }
-        titleLabel.display(model: model.title)
-        subTitleLabel.display(model: model.subTitle)
-        button.display(model: model.button)
-        imageWrapperView.contentView.display(model: model.image)
+        display(title: model.title)
+        display(subtitle: model.subTitle)
+        display(buttonModel: model.button)
+        display(image: model.image)
     }
 }
 #endif
