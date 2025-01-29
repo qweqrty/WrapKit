@@ -92,6 +92,16 @@ extension MainQueueDispatchDecorator: TextInputOutput where T: TextInputOutput {
             self?.decoratee.display(didChangeText: didChangeText)
         }
     }
+    public func display(trailingViewIsHidden: Bool) {
+        dispatch { [weak self] in
+            self?.decoratee.display(trailingViewIsHidden: trailingViewIsHidden)
+        }
+    }
+    public func display(leadingViewIsHidden: Bool) {
+        dispatch { [weak self] in
+            self?.decoratee.display(leadingViewIsHidden: leadingViewIsHidden)
+        }
+    }
 
 }
 
@@ -159,6 +169,12 @@ extension WeakRefVirtualProxy: TextInputOutput where T: TextInputOutput {
     }
     public func display(didChangeText: [((String?) -> Void)]) {
         object?.display(didChangeText: didChangeText)
+    }
+    public func display(trailingViewIsHidden: Bool) {
+        object?.display(trailingViewIsHidden: trailingViewIsHidden)
+    }
+    public func display(leadingViewIsHidden: Bool) {
+        object?.display(leadingViewIsHidden: leadingViewIsHidden)
     }
 
 }

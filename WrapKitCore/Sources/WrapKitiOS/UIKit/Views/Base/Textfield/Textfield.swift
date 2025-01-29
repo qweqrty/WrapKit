@@ -103,6 +103,8 @@ public protocol TextInputOutput: AnyObject {
     func display(onResignFirstResponder: (() -> Void)?)
     func display(onTapBackspace: (() -> Void)?)
     func display(didChangeText: [((String?) -> Void)])
+    func display(trailingViewIsHidden: Bool)
+    func display(leadingViewIsHidden: Bool)
 }
 
 public struct TextInputPresentableModel: HashableWithReflection {
@@ -213,6 +215,14 @@ extension Textfield: TextInputOutput {
     
     public func display(isEnabledForEditing: Bool) {
         self.isEnabledForEditing = isEnabledForEditing
+    }
+    
+    public func display(leadingViewIsHidden: Bool) {
+        leadingView?.isHidden = leadingViewIsHidden
+    }
+    
+    public func display(trailingViewIsHidden: Bool) {
+        trailingView?.isHidden = trailingViewIsHidden
     }
     
     public func display(isTextSelectionDisabled: Bool) {
