@@ -23,6 +23,11 @@ extension MainQueueDispatchDecorator: TitledOutput where T: TitledOutput {
             self?.decoratee.display(valueTitle: valueTitle)
         }
     }
+    public func display(isUserInteractionEnabled: Bool) {
+        dispatch { [weak self] in
+            self?.decoratee.display(isUserInteractionEnabled: isUserInteractionEnabled)
+        }
+    }
 
 }
 
@@ -49,6 +54,9 @@ extension WeakRefVirtualProxy: TitledOutput where T: TitledOutput {
     }
     public func display(valueTitle: TextOutputPresentableModel?) {
         object?.display(valueTitle: valueTitle)
+    }
+    public func display(isUserInteractionEnabled: Bool) {
+        object?.display(isUserInteractionEnabled: isUserInteractionEnabled)
     }
 
 }
