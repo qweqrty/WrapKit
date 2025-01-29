@@ -10,6 +10,7 @@ public protocol TitledOutput<ContentView>: AnyObject {
     func display(model: TitledViewPresentableModel<ContentView>?)
     func display(keyTitle: TextOutputPresentableModel?)
     func display(valueTitle: TextOutputPresentableModel?)
+    func display(isUserInteractionEnabled: Bool)
 }
 
 public struct TitledViewPresentableModel<ContentView> {
@@ -41,7 +42,7 @@ open class TitledView<ContentView: UIView>: View {
     public lazy var contentView = ContentView()
     public lazy var closingTitleVFieldView = HKeyValueFieldView(isHidden: true)
     public lazy var wrappedErrorLabel = WrapperView(
-        contentView: Label(font: .systemFont(ofSize: 14), textColor: .red), 
+        contentView: Label(font: .systemFont(ofSize: 14), textColor: .red),
         isHidden: true,
         contentViewConstraints: { contentView, wrapperView in
             contentView.fillSuperview()
@@ -164,6 +165,10 @@ extension TitledView: TitledOutput {
     
     public func display(valueTitle: TextOutputPresentableModel?) {
         titlesView.valueLabel.display(model: valueTitle)
+    }
+    
+    public func display(isUserInteractionEnabled: Bool) {
+        self.isUserInteractionEnabled = isUserInteractionEnabled
     }
 }
 
