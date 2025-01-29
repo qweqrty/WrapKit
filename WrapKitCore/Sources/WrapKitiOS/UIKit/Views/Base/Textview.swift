@@ -196,6 +196,14 @@ extension Textview: TextInputOutput {
         self.onPress = onPress
     }
     
+    public func display(leadingViewIsHidden: Bool) {
+
+    }
+    
+    public func display(trailingViewIsHidden: Bool) {
+        
+    }
+    
     public func display(onPaste: ((String?) -> Void)?) {
         self.onPaste = onPaste
     }
