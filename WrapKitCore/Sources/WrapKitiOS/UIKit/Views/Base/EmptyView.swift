@@ -111,7 +111,7 @@ extension EmptyView: EmptyViewOutput {
         button.setTitle(buttonModel.title, for: .normal)
         if let spacing = buttonModel.spacing { button.spacing = spacing }
         button.onPress = buttonModel.onPress
-        button.style = buttonModel.style
+        button.display(style: buttonModel.style)
     }
     
     public func display(model: EmptyViewPresentableModel?) {

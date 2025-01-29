@@ -108,7 +108,16 @@ extension Button: ButtonOutput {
     }
     
     public func display(style: ButtonStyle?) {
-        self.style = style
+        guard let style = style else { return }
+        if let textColor = style.titleColor { self.setTitleColor(textColor, for: .normal) }
+        if let titleLabelFont = style.font { self.titleLabel?.font = titleLabelFont }
+        self.textColor = style.titleColor
+        self.textBackgroundColor = style.backgroundColor
+        self.backgroundColor = style.backgroundColor
+        self.pressedTextColor = style.pressedTintColor
+        self.pressedBackgroundColor = style.backgroundColor
+        self.layer.borderColor = style.borderColor?.cgColor
+        self.layer.borderWidth = style.borderWidth
     }
     
     public func display(title: String?) {
@@ -149,19 +158,7 @@ open class Button: UIButton {
             updateSpacings()
         }
     }
-    
-    public var style: ButtonStyle? {
-        didSet {
-            if let textColor = style?.titleColor { self.setTitleColor(textColor, for: .normal) }
-            if let titleLabelFont = style?.font { self.titleLabel?.font = titleLabelFont }
-            self.textColor = style?.titleColor
-            self.textBackgroundColor = style?.backgroundColor
-            self.pressedTextColor = style?.pressedTintColor
-            self.pressedBackgroundColor = style?.backgroundColor
-            self.layer.borderColor = style?.borderColor?.cgColor
-            self.layer.borderWidth = style?.borderWidth ?? 0
-        }
-    }
+
     public var textColor: UIColor? {
         didSet {
             setTitleColor(textColor, for: .normal)
@@ -205,13 +202,12 @@ open class Button: UIButton {
             pressedTextColor: style.pressedTintColor,
             pressedBacgroundColor: style.pressedColor
         )
-        display(style: style)
-        layer.borderColor = style.borderColor?.cgColor ?? UIColor.clear.cgColor
-        layer.borderWidth = style.borderWidth
+        
         setTitle(title, for: .normal)
         cornerRadius = 12  // MARK: - TODO
         isUserInteractionEnabled = enabled
         updateAppearance(enabled: enabled)
+        display(style: style)
     }
     
     public convenience init(
