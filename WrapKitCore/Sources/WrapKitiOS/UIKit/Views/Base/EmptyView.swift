@@ -45,8 +45,6 @@ public class EmptyView: UIView {
             contentView.anchor(
                 .top(superView.topAnchor),
                 .leadingGreaterThanEqual(superView.leadingAnchor),
-                .width(0),
-                .height(0),
                 .centerX(superView.centerXAnchor),
                 .trailingLessThanEqual(superView.trailingAnchor),
                 .bottom(superView.bottomAnchor)
