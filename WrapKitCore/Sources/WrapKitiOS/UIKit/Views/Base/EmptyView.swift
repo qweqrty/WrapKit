@@ -31,7 +31,12 @@ public struct EmptyViewPresentableModel: HashableWithReflection {
 import UIKit
 
 public class EmptyView: UIView {
-    public lazy var stackView = StackView(axis: .vertical, spacing: 16)
+    public lazy var stackView = StackView(
+        axis: .vertical,
+        spacing: 16,
+        contentInset: .init(top: 12, left: 12, bottom: 12, right: 12)
+    )
+    
     public lazy var imageWrapperView = WrapperView(
         contentView: ImageView(),
         contentViewConstraints: { contentView, superView in
