@@ -5,27 +5,26 @@
 //  Created by Stas Lee on 5/8/23.
 //
 
-public protocol TitledOutput<ContentView>: AnyObject {
-    associatedtype ContentView
-    func display(model: TitledViewPresentableModel<ContentView>?)
-    func display(keyTitle: TextOutputPresentableModel?)
-    func display(valueTitle: TextOutputPresentableModel?)
+public protocol TitledOutput: AnyObject {
+    func display(model: TitledViewPresentableModel?)
+    func display(titles: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>)
+    func display(bottomTitles: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>)
     func display(isUserInteractionEnabled: Bool)
 }
 
-public struct TitledViewPresentableModel<ContentView> {
-    public let contentView: ContentView
-    public let keyTitle: TextOutputPresentableModel?
-    public let valueTitle: TextOutputPresentableModel?
+public struct TitledViewPresentableModel {
+    public let titles: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>?
+    public let bottomTitles: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>?
+    public let isUserInteractionEnabled: Bool
     
     public init(
-        contentView: ContentView,
-        keyTitle: TextOutputPresentableModel? = nil,
-        valueTitle: TextOutputPresentableModel? = nil
+        titles: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>? = nil,
+        bottomTitles: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>? = nil,
+        isUserInteractionEnabled: Bool = true
     ) {
-        self.contentView = contentView
-        self.keyTitle = keyTitle
-        self.valueTitle = valueTitle
+        self.titles = titles
+        self.bottomTitles = bottomTitles
+        self.isUserInteractionEnabled = isUserInteractionEnabled
     }
 }
 
@@ -152,19 +151,18 @@ open class TitledView<ContentView: UIView>: View {
 }
 
 extension TitledView: TitledOutput {
-    public func display(model: TitledViewPresentableModel<ContentView>?) {
+    public func display(model: TitledViewPresentableModel?) {
         isHidden = model == nil
-        guard let model = model else { return }
-        self.contentView = model.contentView
-        display(keyTitle: model.keyTitle)
-        display(valueTitle: model.valueTitle)
+        if let titles = model?.titles { display(titles: titles) }
+        if let bottomTitles = model?.bottomTitles { display(bottomTitles: bottomTitles) }
+        if let isUserInteractionEnabled = model?.isUserInteractionEnabled { display(isUserInteractionEnabled: isUserInteractionEnabled) }
     }
-    public func display(keyTitle: TextOutputPresentableModel?) {
-        titlesView.keyLabel.display(model: keyTitle)
+    public func display(titles: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>) {
+        titlesView.display(model: titles)
     }
     
-    public func display(valueTitle: TextOutputPresentableModel?) {
-        titlesView.valueLabel.display(model: valueTitle)
+    public func display(bottomTitles: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>) {
+        closingTitleVFieldView.display(model: bottomTitles)
     }
     
     public func display(isUserInteractionEnabled: Bool) {
