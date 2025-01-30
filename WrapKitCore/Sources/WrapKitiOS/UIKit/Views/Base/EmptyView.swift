@@ -1,10 +1,3 @@
-//
-//  File.swift
-//  WrapKit
-//
-//  Created by Gulzat Zheenbek kyzy on 22/1/25.
-//
-
 import Foundation
 
 public protocol EmptyViewOutput: AnyObject {
@@ -38,15 +31,18 @@ public struct EmptyViewPresentableModel: HashableWithReflection {
 import UIKit
 
 public class EmptyView: UIView {
-    public lazy var stackView = StackView(axis: .vertical, spacing: 16)
+    public lazy var stackView = StackView(
+        axis: .vertical,
+        spacing: 16,
+        contentInset: .init(top: 12, left: 12, bottom: 12, right: 12)
+    )
+    
     public lazy var imageWrapperView = WrapperView(
         contentView: ImageView(),
         contentViewConstraints: { contentView, superView in
             contentView.anchor(
                 .top(superView.topAnchor),
                 .leadingGreaterThanEqual(superView.leadingAnchor),
-                .width(0),
-                .height(0),
                 .centerX(superView.centerXAnchor),
                 .trailingLessThanEqual(superView.trailingAnchor),
                 .bottom(superView.bottomAnchor)
@@ -92,6 +88,7 @@ public class EmptyView: UIView {
 
 extension EmptyView: EmptyViewOutput {
     public func display(image: ImageViewPresentableModel?) {
+        imageWrapperView.isHidden = image == nil
         imageWrapperView.contentView.display(model: image)
     }
     
@@ -111,16 +108,16 @@ extension EmptyView: EmptyViewOutput {
         button.setTitle(buttonModel.title, for: .normal)
         if let spacing = buttonModel.spacing { button.spacing = spacing }
         button.onPress = buttonModel.onPress
-        button.style = buttonModel.style
+        button.display(style: buttonModel.style)
     }
     
     public func display(model: EmptyViewPresentableModel?) {
         self.isHidden = model == nil
         guard let model else { return }
-        titleLabel.display(model: model.title)
-        subTitleLabel.display(model: model.subTitle)
-        button.display(model: model.button)
-        imageWrapperView.contentView.display(model: model.image)
+        display(title: model.title)
+        display(subtitle: model.subTitle)
+        display(buttonModel: model.button)
+        display(image: model.image)
     }
 }
 #endif

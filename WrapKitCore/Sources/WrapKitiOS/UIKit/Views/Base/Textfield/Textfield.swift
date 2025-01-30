@@ -88,6 +88,8 @@ public struct TextfieldAppearance {
 public protocol TextInputOutput: AnyObject {
     func display(model: TextInputPresentableModel?)
     func display(text: String?)
+    func startEditing()
+    func stopEditing()
     func display(mask: TextInputPresentableModel.Mask)
     func display(isValid: Bool)
     func display(isEnabledForEditing: Bool)
@@ -103,9 +105,11 @@ public protocol TextInputOutput: AnyObject {
     func display(onResignFirstResponder: (() -> Void)?)
     func display(onTapBackspace: (() -> Void)?)
     func display(didChangeText: [((String?) -> Void)])
+    func display(trailingViewIsHidden: Bool)
+    func display(leadingViewIsHidden: Bool)
 }
 
-public struct TextInputPresentableModel {
+public struct TextInputPresentableModel: HashableWithReflection {
     public struct Mask {
         public let mask: Masking
         public let maskColor: Color
@@ -173,6 +177,14 @@ public struct TextInputPresentableModel {
 import UIKit
 
 extension Textfield: TextInputOutput {
+    public func startEditing() {
+        becomeFirstResponder()
+    }
+    
+    public func stopEditing() {
+        resignFirstResponder()
+    }
+    
     public func display(model: TextInputPresentableModel?) {
         isHidden = model == nil
         guard let model = model else { return }
@@ -213,6 +225,14 @@ extension Textfield: TextInputOutput {
     
     public func display(isEnabledForEditing: Bool) {
         self.isEnabledForEditing = isEnabledForEditing
+    }
+    
+    public func display(leadingViewIsHidden: Bool) {
+        leadingView?.isHidden = leadingViewIsHidden
+    }
+    
+    public func display(trailingViewIsHidden: Bool) {
+        trailingView?.isHidden = trailingViewIsHidden
     }
     
     public func display(isTextSelectionDisabled: Bool) {

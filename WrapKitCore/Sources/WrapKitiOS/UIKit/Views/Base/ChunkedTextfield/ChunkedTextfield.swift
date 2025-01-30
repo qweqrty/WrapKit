@@ -2,6 +2,14 @@ import Foundation
 
 #if canImport(UIKit)
 extension ChunkedTextField: TextInputOutput {
+    public func startEditing() {
+        textfields.first?.becomeFirstResponder()
+    }
+    
+    public func stopEditing() {
+        endEditing(true)
+    }
+    
     public func display(text: String?) {
         let text = String((text ?? "").prefix(count))
         text.enumerated().forEach {
@@ -18,6 +26,14 @@ extension ChunkedTextField: TextInputOutput {
     
     public func display(isValid: Bool) {
         textfields.forEach { $0.updateAppearance(isValid: isValid) }
+    }
+    
+    public func display(leadingViewIsHidden: Bool) {
+        textfields.forEach { $0.display(leadingViewIsHidden: leadingViewIsHidden) }
+    }
+    
+    public func display(trailingViewIsHidden: Bool) {
+        textfields.forEach { $0.display(trailingViewIsHidden: trailingViewIsHidden) }
     }
     
     public func display(isUserInteractionEnabled: Bool) {

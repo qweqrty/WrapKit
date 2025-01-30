@@ -12,6 +12,11 @@ extension MainQueueDispatchDecorator: CardViewOutput where T: CardViewOutput {
             self?.decoratee.display(model: model)
         }
     }
+    public func display(style: CardViewPresentableModel.Style?) {
+        dispatch { [weak self] in
+            self?.decoratee.display(style: style)
+        }
+    }
     public func display(title: TextOutputPresentableModel?) {
         dispatch { [weak self] in
             self?.decoratee.display(title: title)
@@ -20,6 +25,11 @@ extension MainQueueDispatchDecorator: CardViewOutput where T: CardViewOutput {
     public func display(leadingImage: ImageViewPresentableModel?) {
         dispatch { [weak self] in
             self?.decoratee.display(leadingImage: leadingImage)
+        }
+    }
+    public func display(secondaryLeadingImage: ImageViewPresentableModel?) {
+        dispatch { [weak self] in
+            self?.decoratee.display(secondaryLeadingImage: secondaryLeadingImage)
         }
     }
     public func display(trailingImage: ImageViewPresentableModel?) {
@@ -57,6 +67,16 @@ extension MainQueueDispatchDecorator: CardViewOutput where T: CardViewOutput {
             self?.decoratee.display(status: status)
         }
     }
+    public func display(onPress: (() -> Void)?) {
+        dispatch { [weak self] in
+            self?.decoratee.display(onPress: onPress)
+        }
+    }
+    public func display(onLongPress: (() -> Void)?) {
+        dispatch { [weak self] in
+            self?.decoratee.display(onLongPress: onLongPress)
+        }
+    }
 
 }
 
@@ -77,11 +97,17 @@ extension WeakRefVirtualProxy: CardViewOutput where T: CardViewOutput {
     public func display(model: CardViewPresentableModel?) {
         object?.display(model: model)
     }
+    public func display(style: CardViewPresentableModel.Style?) {
+        object?.display(style: style)
+    }
     public func display(title: TextOutputPresentableModel?) {
         object?.display(title: title)
     }
     public func display(leadingImage: ImageViewPresentableModel?) {
         object?.display(leadingImage: leadingImage)
+    }
+    public func display(secondaryLeadingImage: ImageViewPresentableModel?) {
+        object?.display(secondaryLeadingImage: secondaryLeadingImage)
     }
     public func display(trailingImage: ImageViewPresentableModel?) {
         object?.display(trailingImage: trailingImage)
@@ -103,6 +129,12 @@ extension WeakRefVirtualProxy: CardViewOutput where T: CardViewOutput {
     }
     public func display(status: CardViewPresentableModel.Status?) {
         object?.display(status: status)
+    }
+    public func display(onPress: (() -> Void)?) {
+        object?.display(onPress: onPress)
+    }
+    public func display(onLongPress: (() -> Void)?) {
+        object?.display(onLongPress: onLongPress)
     }
 
 }

@@ -12,19 +12,19 @@ extension MainQueueDispatchDecorator: HeaderOutput where T: HeaderOutput {
             self?.decoratee.display(model: model)
         }
     }
-    public func display(keyTitle: TextOutputPresentableModel?) {
+    public func display(style: HeaderPresentableModel.Style?) {
         dispatch { [weak self] in
-            self?.decoratee.display(keyTitle: keyTitle)
+            self?.decoratee.display(style: style)
         }
     }
-    public func display(valueTitle: TextOutputPresentableModel?) {
+    public func display(centerView: HeaderPresentableModel.CenterView?) {
         dispatch { [weak self] in
-            self?.decoratee.display(valueTitle: valueTitle)
+            self?.decoratee.display(centerView: centerView)
         }
     }
-    public func display(leadingImage: ImageViewPresentableModel?) {
+    public func display(leadingCard: CardViewPresentableModel?) {
         dispatch { [weak self] in
-            self?.decoratee.display(leadingImage: leadingImage)
+            self?.decoratee.display(leadingCard: leadingCard)
         }
     }
     public func display(primeTrailingImage: ButtonPresentableModel?) {
@@ -62,14 +62,14 @@ extension WeakRefVirtualProxy: HeaderOutput where T: HeaderOutput {
     public func display(model: HeaderPresentableModel?) {
         object?.display(model: model)
     }
-    public func display(keyTitle: TextOutputPresentableModel?) {
-        object?.display(keyTitle: keyTitle)
+    public func display(style: HeaderPresentableModel.Style?) {
+        object?.display(style: style)
     }
-    public func display(valueTitle: TextOutputPresentableModel?) {
-        object?.display(valueTitle: valueTitle)
+    public func display(centerView: HeaderPresentableModel.CenterView?) {
+        object?.display(centerView: centerView)
     }
-    public func display(leadingImage: ImageViewPresentableModel?) {
-        object?.display(leadingImage: leadingImage)
+    public func display(leadingCard: CardViewPresentableModel?) {
+        object?.display(leadingCard: leadingCard)
     }
     public func display(primeTrailingImage: ButtonPresentableModel?) {
         object?.display(primeTrailingImage: primeTrailingImage)

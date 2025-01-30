@@ -136,6 +136,14 @@ public extension Textview {
 }
 
 extension Textview: TextInputOutput {
+    public func startEditing() {
+        becomeFirstResponder()
+    }
+    
+    public func stopEditing() {
+        resignFirstResponder()
+    }
+    
     public func display(model: TextInputPresentableModel?) {
         isHidden = model == nil
         guard let model = model else { return }
@@ -194,6 +202,14 @@ extension Textview: TextInputOutput {
     
     public func display(onPress: (() -> Void)?) {
         self.onPress = onPress
+    }
+    
+    public func display(leadingViewIsHidden: Bool) {
+
+    }
+    
+    public func display(trailingViewIsHidden: Bool) {
+        
     }
     
     public func display(onPaste: ((String?) -> Void)?) {

@@ -7,33 +7,60 @@
 
 public protocol HeaderOutput: AnyObject {
     func display(model: HeaderPresentableModel?)
-    func display(keyTitle: TextOutputPresentableModel?)
-    func display(valueTitle: TextOutputPresentableModel?)
-    func display(leadingImage: ImageViewPresentableModel?)
+    func display(style: HeaderPresentableModel.Style?)
+    func display(centerView: HeaderPresentableModel.CenterView?)
+    func display(leadingCard: CardViewPresentableModel?)
     func display(primeTrailingImage: ButtonPresentableModel?)
     func display(secondaryTrailingImage: ButtonPresentableModel?)
     func display(tertiaryTrailingImage: ButtonPresentableModel?)
 }
 
 public struct HeaderPresentableModel {
-    public let keyTitle: TextOutputPresentableModel?
-    public let valueTitle: TextOutputPresentableModel?
-    public let leadingImage: ImageViewPresentableModel?
+    public struct Style {
+        public let horizontalSpacing: CGFloat
+        public let primeFont: Font
+        public let primeColor: Color
+        public let secondaryFont: Font
+        public let secondaryColor: Color
+        
+        public init(
+            horizontalSpacing: CGFloat,
+            primeFont: Font,
+            primeColor: Color,
+            secondaryFont: Font,
+            secondaryColor: Color
+        ) {
+            self.horizontalSpacing = horizontalSpacing
+            self.primeFont = primeFont
+            self.primeColor = primeColor
+            self.secondaryFont = secondaryFont
+            self.secondaryColor = secondaryColor
+        }
+    }
+    
+    public enum CenterView {
+        case keyValue(Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>)
+        case titledImage(Pair<ImageViewPresentableModel?, TextOutputPresentableModel?>)
+    }
+    
+    public let style: Style?
+    public let centerView: CenterView?
+    public let leadingCard: CardViewPresentableModel?
     public let primeTrailingImage: ButtonPresentableModel?
     public let secondaryTrailingImage: ButtonPresentableModel?
     public let tertiaryTrailingImage: ButtonPresentableModel?
     
     public init(
-        keyTitle: TextOutputPresentableModel? = nil,
-        valueTitle: TextOutputPresentableModel? = nil,
-        leadingImage: ImageViewPresentableModel? = nil,
+        style: Style? = nil,
+        centerView: CenterView? = nil,
+        leadingCard: CardViewPresentableModel? = nil,
         primeTrailingImage: ButtonPresentableModel? = nil,
         secondaryTrailingImage: ButtonPresentableModel? = nil,
         tertiaryTrailingImage: ButtonPresentableModel? = nil
     ) {
-        self.keyTitle = keyTitle
-        self.valueTitle = valueTitle
-        self.leadingImage = leadingImage
+        self.style = style
+        self.centerView = centerView
+        self.leadingCard = leadingCard
         self.primeTrailingImage = primeTrailingImage
         self.secondaryTrailingImage = secondaryTrailingImage
         self.tertiaryTrailingImage = tertiaryTrailingImage
@@ -54,10 +81,11 @@ open class NavigationBar: UIView {
     public lazy var trailingStackView = StackView(axis: .horizontal, spacing: 12)
     public lazy var mainStackView = StackView(axis: .horizontal, spacing: 8)
     
-    public lazy var leadingCardView = makeLeadingCardView()
+    public lazy var leadingCardView = makeLeadingCardView(isHidden: false)
+    public lazy var secondaryLeadingCardView = makeLeadingCardView(isHidden: true)
     public lazy var titleViews = VKeyValueFieldView(
         keyLabel: Label(font: .systemFont(ofSize: 18), textColor: .black, textAlignment: .center, numberOfLines: 1),
-        valueLabel: Label(isHidden: true, font: .systemFont(ofSize: 14), textColor: .black, numberOfLines: 1)
+        valueLabel: Label(isHidden: true, font: .systemFont(ofSize: 14), textColor: .black, textAlignment: .center, numberOfLines: 1)
     )
     public lazy var primeTrailingImageWrapperView = makeWrappedImageView()
     public lazy var secondaryTrailingImageWrapperView = makeWrappedImageView()
@@ -69,6 +97,13 @@ open class NavigationBar: UIView {
         super.init(frame: frame)
         setupSubviews()
         setupConstraints()
+    }
+    
+    public init(style: HeaderPresentableModel.Style) {
+        super.init(frame: .zero)
+        setupSubviews()
+        setupConstraints()
+        display(style: style)
     }
     
     private func setupSubviews() {
@@ -129,8 +164,9 @@ open class NavigationBar: UIView {
 }
 
 private extension NavigationBar {
-    func makeLeadingCardView() -> CardView {
+    func makeLeadingCardView(isHidden: Bool) -> CardView {
         let view = CardView()
+        view.isHidden = isHidden
         view.vStackView.layoutMargins = .zero
         view.hStackView.spacing = 8
         view.bottomSeparatorView.isHidden = true
@@ -139,12 +175,19 @@ private extension NavigationBar {
         return view
     }
     
-    func makeTitledLogoView() -> TitledView<ImageView> {
-        let view = TitledView(contentView: ImageView())
+    func makeTitledLogoView() -> TitledView<WrapperView<ImageView>> {
+        let view = TitledView(contentView: WrapperView(
+            contentView: ImageView(),
+            contentViewConstraints: { contentView, _ in
+                contentView.centerInSuperview()
+            }
+        ))
         view.isHidden = true
         view.closingTitleVFieldView.setContentCompressionResistancePriority(.required, for: .horizontal)
         view.closingTitleVFieldView.keyLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
+        view.closingTitleVFieldView.valueLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
         view.closingTitleVFieldView.keyLabel.textAlignment = .center
+        view.closingTitleVFieldView.valueLabel.textAlignment = .center
         view.closingTitleVFieldView.isHidden = false
         return view
     }
@@ -170,24 +213,53 @@ extension NavigationBar: HeaderOutput {
     public func display(model: HeaderPresentableModel?) {
         isHidden = model == nil
         guard let model = model else { return }
-        display(keyTitle: model.keyTitle)
-        display(valueTitle: model.valueTitle)
-        display(leadingImage: model.leadingImage)
+        display(centerView: model.centerView)
+        display(style: model.style)
+        display(leadingCard: model.leadingCard)
         display(primeTrailingImage: model.primeTrailingImage)
         display(secondaryTrailingImage: model.secondaryTrailingImage)
         display(tertiaryTrailingImage: model.tertiaryTrailingImage)
     }
     
-    public func display(keyTitle: TextOutputPresentableModel?) {
-        titleViews.keyLabel.display(model: keyTitle)
+    public func display(centerView: HeaderPresentableModel.CenterView?) {
+        switch centerView {
+        case .keyValue(let pair):
+            titleViews.display(model: pair)
+            centerTitledImageView.isHidden = true
+        case .titledImage(let pair):
+            titleViews.isHidden = true
+            centerTitledImageView.isHidden = pair.first == nil && pair.second == nil
+            centerTitledImageView.closingTitleVFieldView.keyLabel.display(model: pair.second)
+            centerTitledImageView.contentView.contentView.display(model: pair.first)
+        default:
+            titleViews.isHidden = true
+            centerTitledImageView.isHidden = true
+        }
     }
     
-    public func display(valueTitle: TextOutputPresentableModel?) {
-        titleViews.valueLabel.display(model: valueTitle)
+    public func display(style: HeaderPresentableModel.Style?) {
+        if let style = style {
+            leadingStackView.spacing = style.horizontalSpacing
+            trailingStackView.spacing = style.horizontalSpacing * 1.5
+            mainStackViewConstraints?.leading?.constant = 8
+            mainStackViewConstraints?.trailing?.constant = -8
+            
+            leadingCardView.leadingImageView.tintColor = style.primeColor
+            primeTrailingImageWrapperView.contentView.setImage(primeTrailingImageWrapperView.contentView.image(for: .normal)?.withTintColor(style.primeColor), for: .normal)
+            secondaryTrailingImageWrapperView.contentView.setImage(secondaryTrailingImageWrapperView.contentView.image(for: .normal)?.withTintColor(style.primeColor), for: .normal)
+            tertiaryTrailingImageWrapperView.contentView.setImage(tertiaryTrailingImageWrapperView.contentView.image(for: .normal)?.withTintColor(style.primeColor), for: .normal)
+            
+            leadingCardView.titleViews.keyLabel.font = style.primeFont
+            leadingCardView.titleViews.keyLabel.textColor = style.primeColor
+            titleViews.keyLabel.font = style.primeFont
+            titleViews.keyLabel.textColor = style.primeColor
+            centerTitledImageView.closingTitleVFieldView.keyLabel.textColor = style.secondaryColor
+            centerTitledImageView.closingTitleVFieldView.keyLabel.font = style.secondaryFont
+        }
     }
     
-    public func display(leadingImage: ImageViewPresentableModel?) {
-        leadingCardView.display(leadingImage: leadingImage)
+    public func display(leadingCard: CardViewPresentableModel?) {
+        leadingCardView.display(model: leadingCard)
     }
     
     public func display(primeTrailingImage: ButtonPresentableModel?) {

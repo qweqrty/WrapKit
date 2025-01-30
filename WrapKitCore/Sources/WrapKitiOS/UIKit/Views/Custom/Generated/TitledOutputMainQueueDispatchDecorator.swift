@@ -6,21 +6,25 @@
 import Foundation
 
 extension MainQueueDispatchDecorator: TitledOutput where T: TitledOutput {
-    public typealias ContentView = T.ContentView
 
-    public func display(model: TitledViewPresentableModel<ContentView>?) {
+    public func display(model: TitledViewPresentableModel?) {
         dispatch { [weak self] in
             self?.decoratee.display(model: model)
         }
     }
-    public func display(keyTitle: TextOutputPresentableModel?) {
+    public func display(titles: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>) {
         dispatch { [weak self] in
-            self?.decoratee.display(keyTitle: keyTitle)
+            self?.decoratee.display(titles: titles)
         }
     }
-    public func display(valueTitle: TextOutputPresentableModel?) {
+    public func display(bottomTitles: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>) {
         dispatch { [weak self] in
-            self?.decoratee.display(valueTitle: valueTitle)
+            self?.decoratee.display(bottomTitles: bottomTitles)
+        }
+    }
+    public func display(isUserInteractionEnabled: Bool) {
+        dispatch { [weak self] in
+            self?.decoratee.display(isUserInteractionEnabled: isUserInteractionEnabled)
         }
     }
 
@@ -39,16 +43,18 @@ extension TitledOutput {
 }
 
 extension WeakRefVirtualProxy: TitledOutput where T: TitledOutput {
-    public typealias ContentView = T.ContentView
 
-    public func display(model: TitledViewPresentableModel<ContentView>?) {
+    public func display(model: TitledViewPresentableModel?) {
         object?.display(model: model)
     }
-    public func display(keyTitle: TextOutputPresentableModel?) {
-        object?.display(keyTitle: keyTitle)
+    public func display(titles: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>) {
+        object?.display(titles: titles)
     }
-    public func display(valueTitle: TextOutputPresentableModel?) {
-        object?.display(valueTitle: valueTitle)
+    public func display(bottomTitles: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>) {
+        object?.display(bottomTitles: bottomTitles)
+    }
+    public func display(isUserInteractionEnabled: Bool) {
+        object?.display(isUserInteractionEnabled: isUserInteractionEnabled)
     }
 
 }

@@ -22,6 +22,11 @@ extension MainQueueDispatchDecorator: SwitchCotrolOutput where T: SwitchCotrolOu
             self?.decoratee.display(isOn: isOn)
         }
     }
+    public func display(style: SwitchControlPresentableModel.Style) {
+        dispatch { [weak self] in
+            self?.decoratee.display(style: style)
+        }
+    }
     public func display(isEnabled: Bool) {
         dispatch { [weak self] in
             self?.decoratee.display(isEnabled: isEnabled)
@@ -52,6 +57,9 @@ extension WeakRefVirtualProxy: SwitchCotrolOutput where T: SwitchCotrolOutput {
     }
     public func display(isOn: Bool) {
         object?.display(isOn: isOn)
+    }
+    public func display(style: SwitchControlPresentableModel.Style) {
+        object?.display(style: style)
     }
     public func display(isEnabled: Bool) {
         object?.display(isEnabled: isEnabled)

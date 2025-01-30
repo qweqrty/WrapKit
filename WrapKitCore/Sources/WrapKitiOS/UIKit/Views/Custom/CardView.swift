@@ -9,8 +9,10 @@ import Foundation
 
 public protocol CardViewOutput: AnyObject {
     func display(model: CardViewPresentableModel?)
+    func display(style: CardViewPresentableModel.Style?)
     func display(title: TextOutputPresentableModel?)
     func display(leadingImage: ImageViewPresentableModel?)
+    func display(secondaryLeadingImage: ImageViewPresentableModel?)
     func display(trailingImage: ImageViewPresentableModel?)
     func display(secondaryTrailingImage: ImageViewPresentableModel?)
     func display(subTitle: TextOutputPresentableModel?)
@@ -18,15 +20,78 @@ public protocol CardViewOutput: AnyObject {
     func display(bottomSeparator: CardViewPresentableModel.BottomSeparator?)
     func display(switchControl: SwitchControlPresentableModel?)
     func display(status: CardViewPresentableModel.Status?)
+    func display(onPress: (() -> Void)?)
+    func display(onLongPress: (() -> Void)?)
 }
 
 public struct CardViewPresentableModel: HashableWithReflection {
+    public struct Style {
+        public struct StatusStyle {
+            public let font: Font
+            public let backgroundColor: Color
+            public let cornerRadius: CGFloat
+            
+            public init(
+                font: Font,
+                backgroundColor: Color,
+                cornerRadius: CGFloat
+            ) {
+                self.font = font
+                self.backgroundColor = backgroundColor
+                self.cornerRadius = cornerRadius
+            }
+        }
+        public let backgroundColor: Color
+        public let vStacklayoutMargins: EdgeInsets
+        public let hStacklayoutMargins: EdgeInsets
+        public let titleKeyTextColor: Color
+        public let titleValueTextColor: Color
+        public let subTitleTextColor: Color
+        public let titleKeyLabelFont: Font
+        public let titleValueLabelFont: Font
+        public let subTitleLabelFont: Font
+        public let cornerRadius: CGFloat
+        public let stackSpace: CGFloat
+        public let hStackViewSpacing: CGFloat
+        public let statusStyle: StatusStyle
+        
+        public init(
+            backgroundColor: Color,
+            vStacklayoutMargins: EdgeInsets,
+            hStacklayoutMargins: EdgeInsets,
+            titleKeyTextColor: Color,
+            titleValueTextColor: Color,
+            subTitleTextColor: Color,
+            titleKeyLabelFont: Font,
+            titleValueLabelFont: Font,
+            subTitleLabelFont: Font,
+            cornerRadius: CGFloat,
+            stackSpace: CGFloat,
+            hStackViewSpacing: CGFloat,
+            statusStyle: StatusStyle
+        ) {
+            self.backgroundColor = backgroundColor
+            self.vStacklayoutMargins = vStacklayoutMargins
+            self.hStacklayoutMargins = hStacklayoutMargins
+            self.titleKeyTextColor = titleKeyTextColor
+            self.titleValueTextColor = titleValueTextColor
+            self.subTitleTextColor = subTitleTextColor
+            self.titleKeyLabelFont = titleKeyLabelFont
+            self.titleValueLabelFont = titleValueLabelFont
+            self.subTitleLabelFont = subTitleLabelFont
+            self.cornerRadius = cornerRadius
+            self.stackSpace = stackSpace
+            self.hStackViewSpacing = hStackViewSpacing
+            self.statusStyle = statusStyle
+        }
+    }
+
     public struct BottomSeparator {
         public let color: Color
         public let padding: EdgeInsets
         public let height: CGFloat
 
-        public init(color: Color, padding: EdgeInsets = .init(), height: CGFloat = 1) {
+        public init(color: Color, padding: EdgeInsets = .zero, height: CGFloat = 1) {
             self.color = color
             self.padding = padding
             self.height = height
@@ -43,8 +108,10 @@ public struct CardViewPresentableModel: HashableWithReflection {
         }
     }
 
+    public let style: Style?
     public let title: TextOutputPresentableModel?
     public let leadingImage: ImageViewPresentableModel?
+    public let secondaryLeadingImage: ImageViewPresentableModel?
     public let trailingImage: ImageViewPresentableModel?
     public let secondaryTrailingImage: ImageViewPresentableModel?
     public let subTitle: TextOutputPresentableModel?
@@ -52,20 +119,28 @@ public struct CardViewPresentableModel: HashableWithReflection {
     public let bottomSeparator: BottomSeparator?
     public let switchControl: SwitchControlPresentableModel?
     public let status: Status?
+    public let onPress: (() -> Void)?
+    public let onLongPress: (() -> Void)?
     
     public init(
+        style: Style? = nil,
         title: TextOutputPresentableModel? = nil,
         leadingImage: ImageViewPresentableModel? = nil,
+        secondaryLeadingImage: ImageViewPresentableModel? = nil,
         trailingImage: ImageViewPresentableModel? = nil,
         secondaryTrailingImage: ImageViewPresentableModel? = nil,
         subTitle: TextOutputPresentableModel? = nil,
         valueTitle: TextOutputPresentableModel? = nil,
         bottomSeparator: BottomSeparator? = nil,
         switchControl: SwitchControlPresentableModel? = nil,
-        status: Status? = nil
+        status: Status? = nil,
+        onPress: (() -> Void)? = nil,
+        onLongPress: (() -> Void)? = nil
     ) {
+        self.style = style
         self.title = title
         self.leadingImage = leadingImage
+        self.secondaryLeadingImage = secondaryLeadingImage
         self.trailingImage = trailingImage
         self.secondaryTrailingImage = secondaryTrailingImage
         self.subTitle = subTitle
@@ -73,6 +148,8 @@ public struct CardViewPresentableModel: HashableWithReflection {
         self.bottomSeparator = bottomSeparator
         self.switchControl = switchControl
         self.status = status
+        self.onPress = onPress
+        self.onLongPress = onLongPress
     }
 }
 
@@ -81,6 +158,36 @@ import UIKit
 import SwiftUI
 
 extension CardView: CardViewOutput {
+    public func display(style: CardViewPresentableModel.Style?) {
+        guard let style = style else { return }
+        hStackView.spacing = style.hStackViewSpacing
+        backgroundColor = style.backgroundColor
+        vStackView.layoutMargins = style.vStacklayoutMargins.asUIEdgeInsets
+        hStackView.layoutMargins = style.hStacklayoutMargins.asUIEdgeInsets
+        titleViews.stackView.spacing = style.stackSpace
+
+        titleViews.keyLabel.font = style.titleKeyLabelFont
+        subtitleLabel.textColor = style.subTitleTextColor
+        subtitleLabel.font = style.subTitleLabelFont
+        titleViews.keyLabel.textColor = style.titleKeyTextColor
+        titleViews.valueLabel.textColor = style.titleValueTextColor
+        titleViews.valueLabel.font = style.titleValueLabelFont
+        cornerRadius = style.cornerRadius
+        
+        statusLabel.font = style.statusStyle.font
+        statusLabel.textColor = style.titleKeyTextColor
+        statusContainerView.backgroundColor = style.statusStyle.backgroundColor
+        statusContainerView.cornerRadius = style.statusStyle.cornerRadius
+    }
+    
+    public func display(onPress: (() -> Void)?) {
+        self.onPress = onPress
+    }
+    
+    public func display(onLongPress: (() -> Void)?) {
+        self.onLongPress = onLongPress
+    }
+    
     public func display(title: TextOutputPresentableModel?) {
         titleViews.keyLabel.display(model: title)
     }
@@ -96,6 +203,11 @@ extension CardView: CardViewOutput {
     public func display(leadingImage: ImageViewPresentableModel?) {
         leadingImageWrapperView.isHidden = leadingImage == nil
         leadingImageView.display(model: leadingImage)
+    }
+    
+    public func display(secondaryLeadingImage: ImageViewPresentableModel?) {
+        secondaryLeadingImageWrapperView.isHidden = secondaryLeadingImage == nil
+        secondaryLeadingImageView.display(model: secondaryLeadingImage)
     }
     
     public func display(trailingImage: ImageViewPresentableModel?) {
@@ -121,8 +233,8 @@ extension CardView: CardViewOutput {
         if let bottomSeparator = bottomSeparator {
             bottomSeparatorView.contentView.backgroundColor = bottomSeparator.color
             bottomSeparatorView.contentViewConstraints?.top?.constant = bottomSeparator.padding.top
-            bottomSeparatorView.contentViewConstraints?.leading?.constant = bottomSeparator.padding.leading
-            bottomSeparatorView.contentViewConstraints?.trailing?.constant = bottomSeparator.padding.trailing
+            bottomSeparatorView.contentViewConstraints?.leading?.constant = bottomSeparator.padding.left
+            bottomSeparatorView.contentViewConstraints?.trailing?.constant = bottomSeparator.padding.right
             bottomSeparatorView.contentViewConstraints?.bottom?.constant = bottomSeparator.padding.bottom
             bottomSeparatorViewConstraints?.height?.constant = bottomSeparator.height
         }
@@ -138,6 +250,9 @@ extension CardView: CardViewOutput {
     public func display(model: CardViewPresentableModel?) {
         isHidden = model == nil
         guard let model = model else { return }
+        // Style
+        display(style: model.style)
+        
         // Key title
         display(title: model.title)
         
@@ -149,6 +264,9 @@ extension CardView: CardViewOutput {
         
         // LeadingImage
         display(leadingImage: model.leadingImage)
+        
+        // SecondaryLeadingImage
+        display(secondaryLeadingImage: model.secondaryLeadingImage)
         
         // TrailingImage
         display(trailingImage: model.trailingImage)
@@ -164,6 +282,9 @@ extension CardView: CardViewOutput {
         
         //status view
         display(status: model.status)
+        
+        display(onPress: model.onPress)
+        display(onLongPress: model.onLongPress)
     }
 }
 
@@ -171,8 +292,11 @@ open class CardView: View {
     public let vStackView = StackView(axis: .vertical, contentInset: .init(top: 0, left: 8, bottom: 0, right: 8))
     public let hStackView = StackView(axis: .horizontal, spacing: 14)
     
-    public let leadingImageWrapperView = UIView()
+    public let leadingImageWrapperView = UIView(isHidden: true)
     public let leadingImageView = ImageView(tintColor: .black)
+    
+    public let secondaryLeadingImageWrapperView = UIView(isHidden: true)
+    public let secondaryLeadingImageView = ImageView(tintColor: .black)
     
     public let titleViewsWrapperView = UIView()
     public let titleViews = VKeyValueFieldView(
@@ -183,7 +307,7 @@ open class CardView: View {
     
     public let subtitleLabel = Label(font: .systemFont(ofSize: 16), textColor: .gray, numberOfLines: 1)
     
-    public let trailingImageWrapperView = View()
+    public let trailingImageWrapperView = View(isHidden: true)
     public let trailingImageView = ImageView(image: UIImage(named: "rightArrow"), tintColor: .black)
     
     public let secondaryTrailingImageWrapperView = UIView(isHidden: true)
@@ -199,6 +323,7 @@ open class CardView: View {
     
     public let bottomSeparatorView = WrapperView(
         contentView: View(backgroundColor: .gray),
+        isHidden: true,
         contentViewConstraints: { contentView, superView in
             contentView.fillSuperview()
         }
@@ -206,6 +331,7 @@ open class CardView: View {
     
     public var titlesViewConstraints: AnchoredConstraints?
     public var leadingImageViewConstraints: AnchoredConstraints?
+    public var secondaryLeadingImageViewConstraints: AnchoredConstraints?
     public var trailingImageViewConstraints: AnchoredConstraints?
     public var secondaryTrailingImageViewConstraints: AnchoredConstraints?
     public var switchControlConstraints: AnchoredConstraints?
@@ -224,6 +350,15 @@ open class CardView: View {
         setupSubviews()
         setupConstraints()
         setupPriorities()
+    }
+    
+    public init(style: CardViewPresentableModel.Style) {
+        super.init(frame: .zero)
+        
+        setupSubviews()
+        setupConstraints()
+        setupPriorities()
+        display(style: style)
     }
     
     private func setupPriorities() {
@@ -251,6 +386,7 @@ extension CardView {
         vStackView.addArrangedSubview(hStackView)
         vStackView.addArrangedSubview(bottomSeparatorView)
         hStackView.addArrangedSubview(leadingImageWrapperView)
+        hStackView.addArrangedSubview(secondaryLeadingImageWrapperView)
         hStackView.addArrangedSubview(titleViewsWrapperView)
         hStackView.addArrangedSubview(subtitleLabel)
         hStackView.addArrangedSubview(secondaryTrailingImageWrapperView)
@@ -259,6 +395,7 @@ extension CardView {
         hStackView.addArrangedSubview(statusWrapperView)
         
         leadingImageWrapperView.addSubview(leadingImageView)
+        secondaryLeadingImageWrapperView.addSubview(secondaryLeadingImageView)
         trailingImageWrapperView.addSubview(trailingImageView)
         secondaryTrailingImageWrapperView.addSubview(secondaryTrailingImageView)
         titleViewsWrapperView.addSubview(titleViews)
@@ -285,6 +422,17 @@ extension CardView {
             .trailing(leadingImageWrapperView.trailingAnchor),
             .centerX(leadingImageWrapperView.centerXAnchor),
             .centerY(leadingImageWrapperView.centerYAnchor)
+        )
+        
+        secondaryLeadingImageViewConstraints = secondaryLeadingImageView.anchor(
+            .topGreaterThanEqual(secondaryLeadingImageWrapperView.topAnchor),
+            .bottomLessThanEqual(secondaryLeadingImageWrapperView.bottomAnchor),
+            .top(secondaryLeadingImageWrapperView.topAnchor, priority: .defaultHigh),
+            .bottom(secondaryLeadingImageWrapperView.bottomAnchor, priority: .defaultHigh),
+            .leading(secondaryLeadingImageWrapperView.leadingAnchor),
+            .trailing(secondaryLeadingImageWrapperView.trailingAnchor),
+            .centerX(secondaryLeadingImageWrapperView.centerXAnchor),
+            .centerY(secondaryLeadingImageWrapperView.centerYAnchor)
         )
         
         secondaryTrailingImageViewConstraints = secondaryTrailingImageView.anchor(
@@ -340,7 +488,7 @@ extension CardView {
             .bottom(bottomAnchor)
         )
         
-        statusContainerView.centerInSuperview()
+        statusContainerView.fillSuperview()
         
         bottomSeparatorViewConstraints = bottomSeparatorView.anchor(.height(1))
     }
