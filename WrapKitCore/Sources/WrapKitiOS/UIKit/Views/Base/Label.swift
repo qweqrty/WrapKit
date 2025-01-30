@@ -78,6 +78,12 @@ open class Label: UILabel {
         }
     }
     
+    lazy var tapGesture: UITapGestureRecognizer = {
+        let gesture = UITapGestureRecognizer(target: self, action: nil)
+        gesture.delegate = self
+        return gesture
+    }()
+    
     private var attributes: [TextAttributes] = [] {
         didSet {
             guard !attributes.isEmpty else {
@@ -110,25 +116,6 @@ open class Label: UILabel {
     
     public required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
-    }
-    
-    lazy var tapGesture: UITapGestureRecognizer = {
-        let gesture = UITapGestureRecognizer(target: self, action: nil)
-        gesture.delegate = self
-        return gesture
-    }()
-    
-    private func aligmentOffset() -> CGFloat {
-        switch textAlignment {
-        case .left, .natural, .justified:
-            return 0.0
-        case .center:
-            return 0.5
-        case .right:
-            return 1.0
-        @unknown default:
-            return 0.0
-        }
     }
 }
 
@@ -170,6 +157,7 @@ extension Label: TextOutput {
 
 extension Label: UIGestureRecognizerDelegate {
     open override func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+        guard gestureRecognizer == tapGesture else { return true }
         for attribute in attributes {
             guard let range = attribute.range else { continue }
             if tapGesture.didTapAttributedTextInLabel(label: self, textAlignment: attribute.textAlignment ?? textAlignment, inRange: range), let onTap = attribute.onTap {
