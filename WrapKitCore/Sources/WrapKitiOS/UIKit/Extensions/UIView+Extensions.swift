@@ -86,16 +86,16 @@ public extension UIView {
         scale: Bool = true,
         shouldRasterize: Bool = false
     ) {
-        DispatchQueue.main.async {
-            self.layer.masksToBounds = false
-            self.layer.shadowColor = shadowColor.cgColor
-            self.layer.shadowOpacity = shadowOpacity
-            self.layer.shadowOffset = shadowOffset
-            self.layer.shadowRadius = shadowRadius
+        DispatchQueue.main.async { [weak self] in
+            self?.layer.masksToBounds = false
+            self?.layer.shadowColor = shadowColor.cgColor
+            self?.layer.shadowOpacity = shadowOpacity
+            self?.layer.shadowOffset = shadowOffset
+            self?.layer.shadowRadius = shadowRadius
             
-            self.layer.shadowPath = path ?? UIBezierPath(rect: self.bounds).cgPath
-            self.layer.shouldRasterize = false
-            self.layer.rasterizationScale = scale ? UIScreen.main.scale : 1
+            self?.layer.shadowPath = path ?? UIBezierPath(rect: self?.bounds ?? .zero).cgPath
+            self?.layer.shouldRasterize = false
+            self?.layer.rasterizationScale = scale ? UIScreen.main.scale : 1
         }
         
     }
