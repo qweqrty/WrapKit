@@ -28,6 +28,14 @@ extension ChunkedTextField: TextInputOutput {
         textfields.forEach { $0.updateAppearance(isValid: isValid) }
     }
     
+    public func display(leadingViewIsHidden: Bool) {
+        textfields.forEach { $0.display(leadingViewIsHidden: leadingViewIsHidden) }
+    }
+    
+    public func display(trailingViewIsHidden: Bool) {
+        textfields.forEach { $0.display(trailingViewIsHidden: trailingViewIsHidden) }
+    }
+    
     public func display(isUserInteractionEnabled: Bool) {
         self.isUserInteractionEnabled = isUserInteractionEnabled
     }
