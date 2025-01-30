@@ -175,8 +175,13 @@ private extension NavigationBar {
         return view
     }
     
-    func makeTitledLogoView() -> TitledView<ImageView> {
-        let view = TitledView(contentView: ImageView())
+    func makeTitledLogoView() -> TitledView<WrapperView<ImageView>> {
+        let view = TitledView(contentView: WrapperView(
+            contentView: ImageView(),
+            contentViewConstraints: { contentView, _ in
+                contentView.centerInSuperview()
+            }
+        ))
         view.isHidden = true
         view.closingTitleVFieldView.setContentCompressionResistancePriority(.required, for: .horizontal)
         view.closingTitleVFieldView.keyLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
@@ -225,7 +230,7 @@ extension NavigationBar: HeaderOutput {
             titleViews.isHidden = true
             centerTitledImageView.isHidden = pair.first == nil && pair.second == nil
             centerTitledImageView.closingTitleVFieldView.keyLabel.display(model: pair.second)
-            centerTitledImageView.contentView.display(model: pair.first)
+            centerTitledImageView.contentView.contentView.display(model: pair.first)
         default:
             titleViews.isHidden = true
             centerTitledImageView.isHidden = true
