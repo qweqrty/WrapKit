@@ -2,6 +2,14 @@ import Foundation
 
 #if canImport(UIKit)
 extension ChunkedTextField: TextInputOutput {
+    public func startEditing() {
+        textfields.first?.becomeFirstResponder()
+    }
+    
+    public func stopEditing() {
+        endEditing(true)
+    }
+    
     public func display(text: String?) {
         let text = String((text ?? "").prefix(count))
         text.enumerated().forEach {

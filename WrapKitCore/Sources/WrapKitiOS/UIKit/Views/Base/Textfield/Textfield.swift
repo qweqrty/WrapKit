@@ -88,6 +88,8 @@ public struct TextfieldAppearance {
 public protocol TextInputOutput: AnyObject {
     func display(model: TextInputPresentableModel?)
     func display(text: String?)
+    func startEditing()
+    func stopEditing()
     func display(mask: TextInputPresentableModel.Mask)
     func display(isValid: Bool)
     func display(isEnabledForEditing: Bool)
@@ -173,6 +175,14 @@ public struct TextInputPresentableModel: HashableWithReflection {
 import UIKit
 
 extension Textfield: TextInputOutput {
+    public func startEditing() {
+        becomeFirstResponder()
+    }
+    
+    public func stopEditing() {
+        resignFirstResponder()
+    }
+    
     public func display(model: TextInputPresentableModel?) {
         isHidden = model == nil
         guard let model = model else { return }
