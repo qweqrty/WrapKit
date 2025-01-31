@@ -28,10 +28,6 @@ import UserNotifications
 import CoreBluetooth
 #endif
 
-#if canImport(HealthKit)
-import HealthKit
-#endif
-
 public final class AppPermissions {
     // MARK: - Camera Permission
     public static func requestCameraAccess(permissionCallback: @escaping ((Bool) -> Void)) {
