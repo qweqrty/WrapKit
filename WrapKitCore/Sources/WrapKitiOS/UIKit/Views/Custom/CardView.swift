@@ -19,28 +19,12 @@ public protocol CardViewOutput: AnyObject {
     func display(valueTitle: TextOutputPresentableModel?)
     func display(bottomSeparator: CardViewPresentableModel.BottomSeparator?)
     func display(switchControl: SwitchControlPresentableModel?)
-    func display(status: CardViewPresentableModel.Status?)
     func display(onPress: (() -> Void)?)
     func display(onLongPress: (() -> Void)?)
 }
 
 public struct CardViewPresentableModel: HashableWithReflection {
     public struct Style {
-        public struct StatusStyle {
-            public let font: Font
-            public let backgroundColor: Color
-            public let cornerRadius: CGFloat
-            
-            public init(
-                font: Font,
-                backgroundColor: Color,
-                cornerRadius: CGFloat
-            ) {
-                self.font = font
-                self.backgroundColor = backgroundColor
-                self.cornerRadius = cornerRadius
-            }
-        }
         public let backgroundColor: Color
         public let vStacklayoutMargins: EdgeInsets
         public let hStacklayoutMargins: EdgeInsets
@@ -53,7 +37,6 @@ public struct CardViewPresentableModel: HashableWithReflection {
         public let cornerRadius: CGFloat
         public let stackSpace: CGFloat
         public let hStackViewSpacing: CGFloat
-        public let statusStyle: StatusStyle
         
         public init(
             backgroundColor: Color,
@@ -67,8 +50,7 @@ public struct CardViewPresentableModel: HashableWithReflection {
             subTitleLabelFont: Font,
             cornerRadius: CGFloat,
             stackSpace: CGFloat,
-            hStackViewSpacing: CGFloat,
-            statusStyle: StatusStyle
+            hStackViewSpacing: CGFloat
         ) {
             self.backgroundColor = backgroundColor
             self.vStacklayoutMargins = vStacklayoutMargins
@@ -82,7 +64,6 @@ public struct CardViewPresentableModel: HashableWithReflection {
             self.cornerRadius = cornerRadius
             self.stackSpace = stackSpace
             self.hStackViewSpacing = hStackViewSpacing
-            self.statusStyle = statusStyle
         }
     }
 
@@ -97,16 +78,6 @@ public struct CardViewPresentableModel: HashableWithReflection {
             self.height = height
         }
     }
-    
-    public struct Status {
-        public let title: TextOutputPresentableModel?
-        public let leadingImage: ImageViewPresentableModel?
-        
-        public init(title: TextOutputPresentableModel? = nil, leadingImage: ImageViewPresentableModel? = nil) {
-            self.title = title
-            self.leadingImage = leadingImage
-        }
-    }
 
     public let style: Style?
     public let title: TextOutputPresentableModel?
@@ -118,7 +89,6 @@ public struct CardViewPresentableModel: HashableWithReflection {
     public let valueTitle: TextOutputPresentableModel?
     public let bottomSeparator: BottomSeparator?
     public let switchControl: SwitchControlPresentableModel?
-    public let status: Status?
     public let onPress: (() -> Void)?
     public let onLongPress: (() -> Void)?
     
@@ -133,7 +103,6 @@ public struct CardViewPresentableModel: HashableWithReflection {
         valueTitle: TextOutputPresentableModel? = nil,
         bottomSeparator: BottomSeparator? = nil,
         switchControl: SwitchControlPresentableModel? = nil,
-        status: Status? = nil,
         onPress: (() -> Void)? = nil,
         onLongPress: (() -> Void)? = nil
     ) {
@@ -147,7 +116,6 @@ public struct CardViewPresentableModel: HashableWithReflection {
         self.valueTitle = valueTitle
         self.bottomSeparator = bottomSeparator
         self.switchControl = switchControl
-        self.status = status
         self.onPress = onPress
         self.onLongPress = onLongPress
     }
@@ -173,11 +141,6 @@ extension CardView: CardViewOutput {
         titleViews.valueLabel.textColor = style.titleValueTextColor
         titleViews.valueLabel.font = style.titleValueLabelFont
         cornerRadius = style.cornerRadius
-        
-        statusLabel.font = style.statusStyle.font
-        statusLabel.textColor = style.titleKeyTextColor
-        statusContainerView.backgroundColor = style.statusStyle.backgroundColor
-        statusContainerView.cornerRadius = style.statusStyle.cornerRadius
     }
     
     public func display(onPress: (() -> Void)?) {
@@ -190,14 +153,6 @@ extension CardView: CardViewOutput {
     
     public func display(title: TextOutputPresentableModel?) {
         titleViews.keyLabel.display(model: title)
-    }
-    
-    public func display(status: CardViewPresentableModel.Status?) {
-        statusWrapperView.isHidden = status == nil
-        if let status = status {
-            statusLabel.display(model: status.title)
-            statusLeadingImageView.display(model: status.leadingImage)
-        }
     }
     
     public func display(leadingImage: ImageViewPresentableModel?) {
@@ -280,9 +235,6 @@ extension CardView: CardViewOutput {
         //switchControl
         display(switchControl: model.switchControl)
         
-        //status view
-        display(status: model.status)
-        
         display(onPress: model.onPress)
         display(onLongPress: model.onLongPress)
     }
@@ -316,11 +268,6 @@ open class CardView: View {
     public let switchWrapperView = UIView(isHidden: true)
     public lazy var switchControl = SwitchControl()
     
-    public let statusWrapperView = View(isHidden: true)
-    public let statusContainerView = View()
-    public let statusLabel = Label(font: .systemFont(ofSize: 16), textColor: .black)
-    public let statusLeadingImageView = ImageView()
-    
     public let bottomSeparatorView = WrapperView(
         contentView: View(backgroundColor: .gray),
         isHidden: true,
@@ -335,7 +282,6 @@ open class CardView: View {
     public var trailingImageViewConstraints: AnchoredConstraints?
     public var secondaryTrailingImageViewConstraints: AnchoredConstraints?
     public var switchControlConstraints: AnchoredConstraints?
-    public var statusLeadingImageViewConstraints: AnchoredConstraints?
     public var bottomSeparatorViewConstraints: AnchoredConstraints?
     
     public init() {
@@ -364,8 +310,6 @@ open class CardView: View {
     private func setupPriorities() {
         subtitleLabel.setContentHuggingPriority(.required, for: .horizontal)
         subtitleLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
-        statusLabel.setContentHuggingPriority(.required, for: .horizontal)
-        statusLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
         titleViews.keyLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
         titleViews.keyLabel.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
         titleViews.keyLabel.setContentCompressionResistancePriority(.required, for: .vertical)
@@ -392,7 +336,6 @@ extension CardView {
         hStackView.addArrangedSubview(secondaryTrailingImageWrapperView)
         hStackView.addArrangedSubview(trailingImageWrapperView)
         hStackView.addArrangedSubview(switchWrapperView)
-        hStackView.addArrangedSubview(statusWrapperView)
         
         leadingImageWrapperView.addSubview(leadingImageView)
         secondaryLeadingImageWrapperView.addSubview(secondaryLeadingImageView)
@@ -400,8 +343,6 @@ extension CardView {
         secondaryTrailingImageWrapperView.addSubview(secondaryTrailingImageView)
         titleViewsWrapperView.addSubview(titleViews)
         switchWrapperView.addSubview(switchControl)
-        statusWrapperView.addSubview(statusContainerView)
-        statusContainerView.addSubviews(statusLeadingImageView, statusLabel)
     }
     
     func setupConstraints() {
@@ -467,28 +408,13 @@ extension CardView {
             .centerX(switchWrapperView.centerXAnchor),
             .centerY(switchWrapperView.centerYAnchor)
         )
-        
-        statusLeadingImageViewConstraints = statusLeadingImageView.anchor(
-            .leading(statusContainerView.leadingAnchor, constant: 6),
-            .top(statusContainerView.topAnchor, constant: 4),
-            .bottom(statusContainerView.bottomAnchor, constant: 4),
-            .centerY(statusContainerView.centerYAnchor)
-        )
-        
-        statusLabel.anchor(
-            .leading(statusLeadingImageView.trailingAnchor, constant: 4),
-            .trailing(statusContainerView.trailingAnchor, constant: 6),
-            .centerY(statusContainerView.centerYAnchor)
-        )
-        
+
         vStackView.anchor(
             .leading(leadingAnchor),
             .top(topAnchor),
             .trailing(trailingAnchor),
             .bottom(bottomAnchor)
         )
-        
-        statusContainerView.fillSuperview()
         
         bottomSeparatorViewConstraints = bottomSeparatorView.anchor(.height(1))
     }
