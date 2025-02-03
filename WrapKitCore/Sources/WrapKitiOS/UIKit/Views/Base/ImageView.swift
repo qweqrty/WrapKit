@@ -233,6 +233,10 @@ extension ImageView: ImageViewOutput {
         if let borderWidth = model?.borderWidth {
             display(borderWidth: borderWidth)
         }
+        
+        if let cornerRadius = model?.cornerRadius {
+            display(cornerRadius: cornerRadius)
+        }
     }
     
     public func display(size: CGSize?) {
