@@ -246,8 +246,8 @@ extension ImageView: ImageViewOutput {
                     anchoredConstraints.width?.constant = size.width
             } else {
                 anchoredConstraints = anchor(
-                    .height(size.height, priority: .defaultHigh),
-                    .width(size.width, priority: .defaultHigh)
+                    .height(size.height, priority: .required),
+                    .width(size.width, priority: .required)
                 )
             }
         }
