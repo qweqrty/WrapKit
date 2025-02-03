@@ -14,6 +14,9 @@ public protocol ImageViewOutput: AnyObject {
     func display(onPress: (() -> Void)?)
     func display(onLongPress: (() -> Void)?)
     func display(contentModeIsFit: Bool)
+    func display(borderWidth: CGFloat?)
+    func display(borderColor: Color?)
+    func display(cornerRadius: CGFloat?)
 }
 
 public struct ImageViewPresentableModel: HashableWithReflection {
@@ -22,19 +25,28 @@ public struct ImageViewPresentableModel: HashableWithReflection {
     public let onPress: (() -> Void)?
     public let onLongPress: (() -> Void)?
     public let contentModeIsFit: Bool?
+    public let borderWidth: CGFloat?
+    public let borderColor: Color?
+    public let cornerRadius: CGFloat?
     
     public init(
         size: CGSize? = nil,
         image: ImageEnum? = nil,
         onPress: (() -> Void)? = nil,
         onLongPress: (() -> Void)? = nil,
-        contentModeIsFit: Bool? = nil
+        contentModeIsFit: Bool? = nil,
+        borderWidth: CGFloat? = nil,
+        borderColor: Color? = nil,
+        cornerRadius: CGFloat? = nil
     ) {
         self.size = size
         self.image = image
         self.onPress = onPress
         self.onLongPress = onLongPress
         self.contentModeIsFit = contentModeIsFit
+        self.borderWidth = borderWidth
+        self.borderColor = borderColor
+        self.cornerRadius = cornerRadius
     }
 }
 
@@ -214,6 +226,13 @@ extension ImageView: ImageViewOutput {
             display(size: size)
         }
         if let contentModeIsFit = model?.contentModeIsFit { display(contentModeIsFit: contentModeIsFit) }
+        
+        if let borderColor = model?.borderColor {
+            display(borderColor: borderColor)
+        }
+        if let borderWidth = model?.borderWidth {
+            display(borderWidth: borderWidth)
+        }
     }
     
     public func display(size: CGSize?) {
@@ -228,6 +247,21 @@ extension ImageView: ImageViewOutput {
                 )
             }
         }
+    }
+    
+    public func display(borderColor: UIColor?) {
+        self.layer.borderColor = borderColor?.cgColor
+    }
+    
+    public func display(borderWidth: CGFloat?) {
+        guard let borderWidth else { return }
+        self.layer.borderWidth = borderWidth
+    }
+    
+    public func display(cornerRadius: CGFloat?) {
+        guard let cornerRadius else { return }
+        self.cornerRadius = cornerRadius
+        self.layer.cornerRadius = cornerRadius
     }
     
     public func display(image: ImageEnum?) {
