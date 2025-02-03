@@ -11,6 +11,7 @@ import UIKit
 
 public class SelectionContentView: UIView {
     static let searchBarHeight: CGFloat = 44
+    static let maxSearchBarTopSpacing: CGFloat = 8
     
     public lazy var lineView = View(backgroundColor: config.content.lineColor)
     public lazy var navigationBar = makeNavigationBar()
@@ -58,6 +59,7 @@ extension SelectionContentView {
         addSubviews(lineView, navigationBar, searchBar, tableView, emptyView, spacerView, stackView)
         stackView.addArrangedSubview(resetButton)
         stackView.addArrangedSubview(selectButton)
+        bringSubviewToFront(navigationBar)
     }
     
     func setupConstraints() {
@@ -78,7 +80,7 @@ extension SelectionContentView {
         )
         selectButton.anchor(.height(48))
         searchBarConstraints = searchBar.anchor(
-            .top(navigationBar.bottomAnchor, constant: 8),
+            .top(navigationBar.bottomAnchor, constant: Self.maxSearchBarTopSpacing),
             .leading(leadingAnchor, constant: 12),
             .trailing(trailingAnchor, constant: 12),
             .height(Self.searchBarHeight)
@@ -115,11 +117,8 @@ private extension SelectionContentView {
     }
     
     func makeNavigationBar() -> NavigationBar {
-        let navigationBar = NavigationBar()
-        navigationBar.titleViews.keyLabel.font = config.content.navBarFont
-        navigationBar.titleViews.keyLabel.textColor = config.content.navBarTextColor
-        navigationBar.leadingCardView.titleViews.keyLabel.font = config.content.navBarFont
-        navigationBar.leadingCardView.titleViews.keyLabel.textColor = config.content.navBarTextColor
+        let navigationBar = NavigationBar(style: config.navBar)
+        
         navigationBar.leadingCardView.leadingImageWrapperView.isHidden = true
         navigationBar.primeTrailingImageWrapperView.contentView.setImage(config.content.backButtonImage, for: .normal)
         navigationBar.primeTrailingImageWrapperView.isHidden = config.content.backButtonImage == nil

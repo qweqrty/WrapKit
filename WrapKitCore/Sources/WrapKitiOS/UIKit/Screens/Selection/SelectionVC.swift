@@ -98,57 +98,87 @@ extension SelectionVC {
         }
         
         datasource.didScrollViewDidScroll = { [weak self] scrollView in
-            guard let self = self, !self.contentView.searchBar.isHidden,
-                  scrollView.isDragging, scrollView.contentOffset.y > 0,
-                  self.contentView.searchBar.textfield.text?.isEmpty == true else { return }
-            
-            // Prevent unnecessary updates at the bottom of the scroll view
+            guard let self = self,
+                  !self.contentView.searchBar.isHidden,
+                  !self.contentView.searchBar.textfield.isFirstResponder,
+                  scrollView.contentOffset.y > 0 || (scrollView.refreshControl?.isRefreshing ?? false) else { return } // Fix for refreshControl
+
             let isNearBottom = scrollView.contentOffset.y >= (scrollView.contentSize.height - scrollView.frame.size.height)
             guard !isNearBottom else { return }
-
-            // Calculate the new height and offset based on scroll behavior
+            
+            // Determine scroll direction
             let offset = scrollView.contentOffset.y - self.currentContentYOffset
-            let height = self.contentView.searchBarConstraints?.height?.constant ?? 0
-            let newHeight = offset >= 0 ? max(0, height - offset) : min(SelectionContentView.searchBarHeight, height - offset)
-            
-            // Update searchBar height and alpha smoothly
-            self.contentView.searchBarConstraints?.height?.constant = newHeight
-            self.contentView.searchBar.alpha = newHeight / SelectionContentView.searchBarHeight
-            
-            // Prevent unnecessary re-calculations
-            if height != newHeight {
-                scrollView.contentOffset.y = self.currentContentYOffset
+            let currentTopConstant = self.contentView.searchBarConstraints?.top?.constant ?? 0
+
+            // Compute new top constant
+            let newTopConstant = offset >= 0
+                ? max(-SelectionContentView.searchBarHeight, currentTopConstant - offset) // Hide
+                : min(SelectionContentView.maxSearchBarTopSpacing, currentTopConstant - offset) // Show
+
+            // Ensure correct behavior when refreshControl is active
+            if let refreshControl = scrollView.refreshControl, refreshControl.isRefreshing {
+                self.showSearchBar()
+                return
             }
-            
+
+            // Update searchBar constraints and alpha
+            self.contentView.searchBarConstraints?.top?.constant = newTopConstant
+            let visibilityProgress = (newTopConstant + SelectionContentView.searchBarHeight) / SelectionContentView.searchBarHeight
+            self.contentView.searchBar.alpha = min(1, max(0, visibilityProgress))
+
+            // Store last offset for next calculation
             self.currentContentYOffset = scrollView.contentOffset.y
         }
 
-        
-        datasource.didScrollViewDidEndDragging = { [weak self] scrollView, _ in
-            guard let self = self, !self.contentView.searchBar.isHidden else { return }
-            let height = self.contentView.searchBarConstraints?.height?.constant ?? 0
-            let newHeight = height >= (SelectionContentView.searchBarHeight / 2) || !self.contentView.searchBar.textfield.text.isEmpty || scrollView.contentOffset.y <= 0 ? SelectionContentView.searchBarHeight : 0
-            
-            UIView.animate(withDuration: 0.1, delay: 0, options: .allowUserInteraction) {
-                self.contentView.searchBarConstraints?.height?.constant = newHeight
-                self.contentView.searchBar.alpha = newHeight / SelectionContentView.searchBarHeight
-                self.view.layoutIfNeeded()
+        // Ensure final positioning when scrolling stops
+        datasource.didScrollViewDidEndDragging = { [weak self] scrollView, decelerate in
+            guard scrollView.contentOffset.y > 0 else {
+                self?.showSearchBar()
+                return
             }
-        }
-        
-        datasource.didScrollViewDidEndDecelerating = { [weak self] scrollView in
-            guard let self = self, !self.contentView.searchBar.isHidden else { return }
-            let height = self.contentView.searchBarConstraints?.height?.constant ?? 0
-            let newHeight = height >= (SelectionContentView.searchBarHeight / 2) || !self.contentView.searchBar.textfield.text.isEmpty || scrollView.contentOffset.y <= 0 ? SelectionContentView.searchBarHeight : 0
-            
-            UIView.animate(withDuration: 0.1, delay: 0, options: .allowUserInteraction) {
-                self.contentView.searchBarConstraints?.height?.constant = newHeight
-                self.contentView.searchBar.alpha = newHeight / SelectionContentView.searchBarHeight
-                self.view.layoutIfNeeded()
+
+            if scrollView.refreshControl?.isRefreshing == true {
+                self?.showSearchBar() // Keep search bar visible when refreshing
+            } else if !decelerate {
+                self?.finalizeSearchBarPosition()
             }
         }
 
+        datasource.didScrollViewDidEndDecelerating = { [weak self] scrollView in
+            guard scrollView.contentOffset.y > 0 else {
+                self?.showSearchBar()
+                return
+            }
+
+            if scrollView.refreshControl?.isRefreshing == true {
+                self?.showSearchBar()
+            } else {
+                self?.finalizeSearchBarPosition()
+            }
+        }
         return datasource
+    }
+    
+    private func finalizeSearchBarPosition() {
+        let currentTopConstant = contentView.searchBarConstraints?.top?.constant ?? 0
+        let threshold = -SelectionContentView.searchBarHeight / 2
+
+        let shouldHide = currentTopConstant < threshold
+        let finalTopConstant = shouldHide ? -SelectionContentView.searchBarHeight : SelectionContentView.maxSearchBarTopSpacing
+        let finalAlpha = shouldHide ? 0 : 1
+
+            contentView.searchBarConstraints?.top?.constant = finalTopConstant
+            contentView.searchBar.alpha = CGFloat(finalAlpha)
+            view.layoutIfNeeded()
+    }
+
+    // Show search bar explicitly when refresh starts
+    private func showSearchBar(animated: Bool = true) {
+        UIView.animate(withDuration: animated ? 0.1 : 0) { [weak self] in
+            self?.contentView.searchBarConstraints?.top?.constant = SelectionContentView.maxSearchBarTopSpacing
+            self?.contentView.searchBar.alpha = 1
+            self?.view.layoutIfNeeded()
+        }
     }
 }
 #endif

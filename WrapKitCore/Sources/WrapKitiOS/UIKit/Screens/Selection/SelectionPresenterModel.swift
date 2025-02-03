@@ -68,6 +68,7 @@ public enum SelectionType {
 public struct SelectionConfiguration {
     public let texts: Texts
     public let content: Content
+    public let navBar: HeaderPresentableModel.Style
     public let resetButton: ActionButton
     public let searchButton: ActionButton
     public let searchBar: SearchBar
@@ -76,6 +77,7 @@ public struct SelectionConfiguration {
     public init(
         texts: Texts,
         content: Content,
+        navBar: HeaderPresentableModel.Style,
         resetButton: ActionButton,
         searchButton: ActionButton,
         searchBar: SearchBar,
@@ -86,6 +88,7 @@ public struct SelectionConfiguration {
         self.resetButton = resetButton
         self.searchButton = searchButton
         self.searchBar = searchBar
+        self.navBar = navBar
         self.resetButtonColors = resetButtonColors
     }
     
