@@ -17,6 +17,7 @@ public protocol HeaderOutput: AnyObject {
 
 public struct HeaderPresentableModel {
     public struct Style {
+        public let backgroundColor: Color
         public let horizontalSpacing: CGFloat
         public let primeFont: Font
         public let primeColor: Color
@@ -24,12 +25,14 @@ public struct HeaderPresentableModel {
         public let secondaryColor: Color
         
         public init(
+            backgroundColor: Color,
             horizontalSpacing: CGFloat,
             primeFont: Font,
             primeColor: Color,
             secondaryFont: Font,
             secondaryColor: Color
         ) {
+            self.backgroundColor = backgroundColor
             self.horizontalSpacing = horizontalSpacing
             self.primeFont = primeFont
             self.primeColor = primeColor
@@ -239,6 +242,7 @@ extension NavigationBar: HeaderOutput {
     
     public func display(style: HeaderPresentableModel.Style?) {
         if let style = style {
+            backgroundColor = style.backgroundColor
             leadingStackView.spacing = style.horizontalSpacing
             trailingStackView.spacing = style.horizontalSpacing * 1.5
             mainStackViewConstraints?.leading?.constant = 8
