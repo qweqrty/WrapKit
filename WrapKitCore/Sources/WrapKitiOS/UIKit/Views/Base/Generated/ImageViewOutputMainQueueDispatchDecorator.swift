@@ -37,6 +37,21 @@ extension MainQueueDispatchDecorator: ImageViewOutput where T: ImageViewOutput {
             self?.decoratee.display(contentModeIsFit: contentModeIsFit)
         }
     }
+    public func display(borderWidth: CGFloat?) {
+        dispatch { [weak self] in
+            self?.decoratee.display(borderWidth: borderWidth)
+        }
+    }
+    public func display(borderColor: Color?) {
+        dispatch { [weak self] in
+            self?.decoratee.display(borderColor: borderColor)
+        }
+    }
+    public func display(cornerRadius: CGFloat?) {
+        dispatch { [weak self] in
+            self?.decoratee.display(cornerRadius: cornerRadius)
+        }
+    }
 
 }
 
@@ -71,6 +86,15 @@ extension WeakRefVirtualProxy: ImageViewOutput where T: ImageViewOutput {
     }
     public func display(contentModeIsFit: Bool) {
         object?.display(contentModeIsFit: contentModeIsFit)
+    }
+    public func display(borderWidth: CGFloat?) {
+        object?.display(borderWidth: borderWidth)
+    }
+    public func display(borderColor: Color?) {
+        object?.display(borderColor: borderColor)
+    }
+    public func display(cornerRadius: CGFloat?) {
+        object?.display(cornerRadius: cornerRadius)
     }
 
 }
