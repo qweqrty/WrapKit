@@ -309,7 +309,7 @@ open class Textfield: UITextField {
     public var midPadding: CGFloat = 0
     public var clearButtonEdgeInsets = UIEdgeInsets(top: 0, left: -8, bottom: 0, right: 8)
     public var disabledMenus = [UIMenu.Identifier]()
-
+    
     public var isTextSelectionDisabled = false
     public var isEnabledForEditing = true {
         didSet {
@@ -355,6 +355,7 @@ open class Textfield: UITextField {
     public var onTapBackspace: (() -> Void)?
     
     public var didChangeText = [((String?) -> Void)]()
+    private var didChangeTextClear: ((String?) -> Void)?
     
     open override var placeholder: String? {
         didSet {
@@ -396,7 +397,7 @@ open class Textfield: UITextField {
         self.nextTextfield = nextTextfield
         self.appearance = appearance
         super.init(frame: .zero)
-
+        
         self.textAlignment = textAlignment
         self.cornerRadius = cornerRadius
         self.autocorrectionType = .no
@@ -407,6 +408,7 @@ open class Textfield: UITextField {
         delegate?.applyTo(textfield: self)
         returnKeyType = nextTextfield == nil ? .done : .next
         addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
+        addTarget(self, action: #selector(textFieldDidChangeClear), for: .editingChanged)
         
         self.leadingView = leadingView
         updateAppearance()
@@ -415,12 +417,24 @@ open class Textfield: UITextField {
         case .custom(let trailingView):
             self.trailingView = trailingView
         case .clear(let trailingView):
-            trailingView.onPress = { [weak self] in
-                self?.text = ""
-                self?.sendActions(for: .editingChanged)
-                trailingView.isHidden = true
+            trailingView.allSubviews.forEach {
+                ($0 as? View)?.onPress = { [weak self] in
+                    self?.text = ""
+                    self?.sendActions(for: .editingChanged)
+                    trailingView.isHidden = true
+                }
+                ($0 as? ImageView)?.onPress = { [weak self] in
+                    self?.text = ""
+                    self?.sendActions(for: .editingChanged)
+                    trailingView.isHidden = true
+                }
+                ($0 as? Button)?.onPress = { [weak self] in
+                    self?.text = ""
+                    self?.sendActions(for: .editingChanged)
+                    trailingView.isHidden = true
+                }
             }
-            self.didChangeText.append { [weak self] text in
+            didChangeTextClear = { [weak self] text in
                 let text = self?.maskedTextfieldDelegate?.onlySpecifiersIfMaskedText ?? text ?? ""
                 self?.trailingView?.isHidden = text.isEmpty
             }
@@ -477,6 +491,15 @@ open class Textfield: UITextField {
         }
     }
     
+    @objc private func textFieldDidChangeClear() {
+        if let delegate = self.delegate as? MaskedTextfieldDelegate {
+            didChangeTextClear?(delegate.fullText)
+        } else {
+            didChangeTextClear?(self.text)
+        }
+    }
+    
+    
     public func updatePlaceholder() {
         guard let customizedPlaceholder = appearance.placeholder else { return }
         attributedPlaceholder = NSAttributedString(
@@ -519,8 +542,8 @@ open class Textfield: UITextField {
     }
     
     open override var canBecomeFirstResponder: Bool {
-         return isEnabledForEditing
-     }
+        return isEnabledForEditing
+    }
     
     @discardableResult
     open override func resignFirstResponder() -> Bool {

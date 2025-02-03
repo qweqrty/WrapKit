@@ -249,13 +249,12 @@ public extension UIView {
             delay: 0,
             options: [.curveEaseInOut, .allowUserInteraction],
             animations: {
-            shimmerView.alpha = 1
+                shimmerView.alpha = 1
             }, completion: { finished in
                 guard finished else { return }
                 shimmerView.alpha = 1
             })
     }
-    
     
     func hideShimmer() {
         guard let shimmerView = viewWithTag(Self.shimmerViewTag) else { return }
@@ -271,6 +270,22 @@ public extension UIView {
             currentView = view.superview
         }
         return nil
+    }
+    
+    /// Returns an array of all subviews recursively, including nested ones.
+    var allSubviews: [UIView] {
+        return subviews + subviews.flatMap { $0.allSubviews }
+    }
+    
+    /// Adds a tap gesture recognizer to dismiss the keyboard when tapping anywhere on the view.
+    func addTapToDismissKeyboard() {
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        tapGesture.cancelsTouchesInView = false
+        addGestureRecognizer(tapGesture)
+    }
+    
+    @objc private func dismissKeyboard() {
+        endEditing(true)
     }
 }
 #endif
