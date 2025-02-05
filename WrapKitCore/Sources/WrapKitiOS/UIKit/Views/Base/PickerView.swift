@@ -19,11 +19,18 @@ public struct PickerViewPresentableModel {
         public let row: Int
         public let component: Int
         public let animated: Bool
+        public let selectedRowCompletion: ((Int) -> Void)?
         
-        public init(row: Int, component: Int = 0, animated: Bool = false) {
+        public init(
+            row: Int,
+            component: Int = 0,
+            animated: Bool = false,
+            selectedRowCompletion: ((Int) -> Void)? = nil
+        ) {
             self.row = row
             self.component = component
             self.animated = animated
+            self.selectedRowCompletion = selectedRowCompletion
         }
     }
     
@@ -111,6 +118,7 @@ extension PickerView: PickerViewOutput {
               selectedRow.row <= rowsCount else { return }
         reloadAllComponents()
         selectRow(selectedRow.row, inComponent: selectedRow.component, animated: selectedRow.animated)
+        selectedRow.selectedRowCompletion?(self.selectedRow(inComponent: selectedRow.component))
     }
 }
 #endif
