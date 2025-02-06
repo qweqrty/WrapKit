@@ -10,10 +10,10 @@ import UIKit
 import SwiftUI
 
 extension HKeyValueFieldView: KeyValueFieldViewOutput {
-    public func display(model: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>) {
-        isHidden = model.first == nil && model.second == nil
-        display(keyTitle: model.first)
-        display(valueTitle: model.second)
+    public func display(model: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>?) {
+        isHidden = model?.first == nil && model?.second == nil
+        display(keyTitle: model?.first)
+        display(valueTitle: model?.second)
     }
     
     public func display(keyTitle: TextOutputPresentableModel?) {

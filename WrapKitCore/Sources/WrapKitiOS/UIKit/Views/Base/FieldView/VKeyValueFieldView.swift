@@ -6,7 +6,7 @@
 //
 
 public protocol KeyValueFieldViewOutput: AnyObject {
-    func display(model: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>)
+    func display(model: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>?)
     func display(keyTitle: TextOutputPresentableModel?)
     func display(valueTitle: TextOutputPresentableModel?)
 }
@@ -16,10 +16,10 @@ import UIKit
 import SwiftUI
 
 extension VKeyValueFieldView: KeyValueFieldViewOutput {
-    public func display(model: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>) {
-        isHidden = model.first == nil && model.second == nil
-        display(keyTitle: model.first)
-        display(valueTitle: model.second)
+    public func display(model: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>?) {
+        isHidden = model?.first == nil && model?.second == nil
+        display(keyTitle: model?.first)
+        display(valueTitle: model?.second)
     }
     
     public func display(keyTitle: TextOutputPresentableModel?) {

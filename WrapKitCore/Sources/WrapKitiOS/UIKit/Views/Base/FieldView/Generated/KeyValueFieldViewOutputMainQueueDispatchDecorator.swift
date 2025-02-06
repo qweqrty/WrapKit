@@ -7,7 +7,7 @@ import Foundation
 
 extension MainQueueDispatchDecorator: KeyValueFieldViewOutput where T: KeyValueFieldViewOutput {
 
-    public func display(model: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>) {
+    public func display(model: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>?) {
         dispatch { [weak self] in
             self?.decoratee.display(model: model)
         }
@@ -39,7 +39,7 @@ extension KeyValueFieldViewOutput {
 
 extension WeakRefVirtualProxy: KeyValueFieldViewOutput where T: KeyValueFieldViewOutput {
 
-    public func display(model: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>) {
+    public func display(model: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>?) {
         object?.display(model: model)
     }
     public func display(keyTitle: TextOutputPresentableModel?) {

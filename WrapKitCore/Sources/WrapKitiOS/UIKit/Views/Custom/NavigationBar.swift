@@ -263,21 +263,25 @@ extension NavigationBar: HeaderOutput {
     }
     
     public func display(leadingCard: CardViewPresentableModel?) {
+        leadingStackWrapperView.isHidden = leadingCard == nil
         leadingCardView.display(model: leadingCard)
     }
     
     public func display(primeTrailingImage: ButtonPresentableModel?) {
         primeTrailingImageWrapperView.isHidden = primeTrailingImage == nil
+        trailingStackWrapperView.isHidden = primeTrailingImage == nil && secondaryTrailingImageWrapperView.isHidden && tertiaryTrailingImageWrapperView.isHidden
         primeTrailingImageWrapperView.contentView.display(model: primeTrailingImage)
     }
     
     public func display(secondaryTrailingImage: ButtonPresentableModel?) {
         secondaryTrailingImageWrapperView.isHidden = secondaryTrailingImage == nil
+        trailingStackWrapperView.isHidden = secondaryTrailingImage == nil && primeTrailingImageWrapperView.isHidden && tertiaryTrailingImageWrapperView.isHidden
         secondaryTrailingImageWrapperView.contentView.display(model: secondaryTrailingImage)
     }
     
     public func display(tertiaryTrailingImage: ButtonPresentableModel?) {
         tertiaryTrailingImageWrapperView.isHidden = tertiaryTrailingImage == nil
+        trailingStackWrapperView.isHidden = tertiaryTrailingImage == nil && primeTrailingImageWrapperView.isHidden && secondaryTrailingImageWrapperView.isHidden
         tertiaryTrailingImageWrapperView.contentView.display(model: tertiaryTrailingImage)
     }
 }
