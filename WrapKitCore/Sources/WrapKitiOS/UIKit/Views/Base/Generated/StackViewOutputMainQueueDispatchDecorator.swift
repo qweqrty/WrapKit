@@ -32,6 +32,11 @@ extension MainQueueDispatchDecorator: StackViewOutput where T: StackViewOutput {
             self?.decoratee.display(alignment: alignment)
         }
     }
+    public func display(layoutMargins: EdgeInsets) {
+        dispatch { [weak self] in
+            self?.decoratee.display(layoutMargins: layoutMargins)
+        }
+    }
 
 }
 
@@ -63,6 +68,9 @@ extension WeakRefVirtualProxy: StackViewOutput where T: StackViewOutput {
     }
     public func display(alignment: StackViewAlignment) {
         object?.display(alignment: alignment)
+    }
+    public func display(layoutMargins: EdgeInsets) {
+        object?.display(layoutMargins: layoutMargins)
     }
 
 }

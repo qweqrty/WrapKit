@@ -1,5 +1,5 @@
 //
-//  StackVIew.swift
+//  StackView.swift
 //  WrapKit
 //
 //  Created by Stas Lee on 5/8/23.
@@ -13,6 +13,7 @@ public protocol StackViewOutput: AnyObject {
     func display(axis: StackViewAxis)
     func display(distribution: StackViewDistribution)
     func display(alignment: StackViewAlignment)
+    func display(layoutMargins: EdgeInsets)
 }
 
 public enum StackViewAxis: HashableWithReflection {
@@ -44,17 +45,20 @@ public struct StackViewPresentableModel {
     public let distribution: StackViewDistribution?
     public let alignment: StackViewAlignment?
     public let spacing: CGFloat?
+    public let layoutMargins: EdgeInsets?
     
     public init(
         axis: StackViewAxis? = nil,
         distribution: StackViewDistribution? = nil,
         alignment: StackViewAlignment? = nil,
-        spacing: CGFloat? = 0
+        spacing: CGFloat? = 0,
+        layoutMargins: EdgeInsets? = nil
     ) {
         self.axis = axis
         self.distribution = distribution
         self.alignment = alignment
         self.spacing = spacing
+        self.layoutMargins = layoutMargins
     }
 }
 
@@ -120,6 +124,7 @@ extension StackView: StackViewOutput {
         if let axis = model.axis { display(axis: axis) }
         if let alignment = model.alignment { display(alignment: alignment) }
         if let distribution = model.distribution { display(distribution: distribution) }
+        if let layoutMargins = model.layoutMargins { display(layoutMargins: layoutMargins) }
         display(spacing: model.spacing)
     }
     
@@ -138,6 +143,12 @@ extension StackView: StackViewOutput {
     
     public func display(distribution: StackViewDistribution) {
         self.distribution = mapDistribution(distribution)
+    }
+    
+    public func display(layoutMargins: EdgeInsets) {
+        self.layoutMargins = layoutMargins.asUIEdgeInsets
+        self.isLayoutMarginsRelativeArrangement = true
+        self.insetsLayoutMarginsFromSafeArea = false
     }
     
     private func mapDistribution(_ distribution: StackViewDistribution?) -> UIStackView.Distribution {

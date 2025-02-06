@@ -7,6 +7,7 @@
 
 public protocol PickerViewOutput: AnyObject {
     func display(model: PickerViewPresentableModel?)
+    func display(selectedRow: PickerViewPresentableModel.SelectedRow?)
     var componentsCount: (() -> Int?)? { get set }
     var rowsCount: (() -> Int)? { get set }
     var titleForRowAt: ((Int) -> String?)? { get set }
@@ -14,21 +15,43 @@ public protocol PickerViewOutput: AnyObject {
 }
 
 public struct PickerViewPresentableModel {
+    public struct SelectedRow {
+        public let row: Int
+        public let component: Int
+        public let animated: Bool
+        public let selectedRowCompletion: ((Int) -> Void)?
+        
+        public init(
+            row: Int,
+            component: Int = 0,
+            animated: Bool = false,
+            selectedRowCompletion: ((Int) -> Void)? = nil
+        ) {
+            self.row = row
+            self.component = component
+            self.animated = animated
+            self.selectedRowCompletion = selectedRowCompletion
+        }
+    }
+    
     public let componentsCount: (() -> Int?)?
     public let rowsCount: (() -> Int)?
     public let titleForRowAt: ((Int) -> String?)?
     public let didSelectAt: ((Int) -> Void)?
+    public let selectedRow: SelectedRow?
     
     public init(
         componentsCount: (() -> Int?)? = nil,
         rowsCount: (() -> Int)? = nil,
         titleForRowAt: ((Int) -> String?)? = nil,
-        didSelectAt: ((Int) -> Void)? = nil
+        didSelectAt: ((Int) -> Void)? = nil,
+        selectedRow: SelectedRow? = nil
     ) {
         self.componentsCount = componentsCount
         self.rowsCount = rowsCount
         self.titleForRowAt = titleForRowAt
         self.didSelectAt = didSelectAt
+        self.selectedRow = selectedRow
     }
 }
 
@@ -84,6 +107,18 @@ extension PickerView: PickerViewOutput {
         rowsCount = model?.rowsCount
         titleForRowAt = model?.titleForRowAt
         didSelectAt = model?.didSelectAt
+        display(selectedRow: model?.selectedRow)
+    }
+    
+    public func display(selectedRow: PickerViewPresentableModel.SelectedRow?) {
+        guard let selectedRow,
+              let componentsCount = componentsCount?(),
+              let rowsCount = rowsCount?(),
+              selectedRow.component <= rowsCount,
+              selectedRow.row <= rowsCount else { return }
+        reloadAllComponents()
+        selectRow(selectedRow.row, inComponent: selectedRow.component, animated: selectedRow.animated)
+        selectedRow.selectedRowCompletion?(self.selectedRow(inComponent: selectedRow.component))
     }
 }
 #endif

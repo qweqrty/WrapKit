@@ -12,6 +12,11 @@ extension MainQueueDispatchDecorator: PickerViewOutput where T: PickerViewOutput
             self?.decoratee.display(model: model)
         }
     }
+    public func display(selectedRow: PickerViewPresentableModel.SelectedRow?) {
+        dispatch { [weak self] in
+            self?.decoratee.display(selectedRow: selectedRow)
+        }
+    }
 
     public var componentsCount: (() -> Int?)? {
         get {
@@ -79,6 +84,9 @@ extension WeakRefVirtualProxy: PickerViewOutput where T: PickerViewOutput {
 
     public func display(model: PickerViewPresentableModel?) {
         object?.display(model: model)
+    }
+    public func display(selectedRow: PickerViewPresentableModel.SelectedRow?) {
+        object?.display(selectedRow: selectedRow)
     }
 
     public var componentsCount: (() -> Int?)? {
