@@ -9,30 +9,51 @@ import Foundation
 
 public protocol WebViewOutput: AnyObject {
     func display(url: URL)
+    func display(refreshEnabled: Bool)
 }
 
 public protocol WebViewInput {
     func viewDidLoad()
-    func onBackButtonTap()
 }
 
 open class WebViewPresenter {
     public weak var view: WebViewOutput?
-    public var navigateToBack: (() -> Void)?
-    private var url: URL
+    public weak var navBarView: HeaderOutput?
+    public weak var progressBarView: ProgressBarOutput?
+    public weak var refreshControlView: LoadingOutput?
     
-    public init(url: URL) {
+    private var flow: WebViewFlow
+    private var url: URL
+    private var style: WebViewStyle
+    
+    public init(
+        url: URL,
+        flow: WebViewFlow,
+        style: WebViewStyle
+    ) {
         self.url = url
+        self.flow = flow
+        self.style = style
+    }
+    
+    private func setupNavigationBar() {
+        switch style.header {
+        case .default(let title):
+            navBarView?.display(model: .defaultWebViewHeader(title: title, onPress: flow.navigateBack))
+        case .custom(let model):
+            navBarView?.display(model: model)
+        case .hidden:
+            navBarView?.display(model: nil)
+        }
     }
 }
 
 extension WebViewPresenter: WebViewInput {
     public func viewDidLoad() {
         view?.display(url: url)
-    }
-    
-    public func onBackButtonTap() {
-        navigateToBack?()
+        view?.display(refreshEnabled: style.refreshEnabled)
+        progressBarView?.display(model: style.progressBarModel)
+        setupNavigationBar()
     }
 }
 
