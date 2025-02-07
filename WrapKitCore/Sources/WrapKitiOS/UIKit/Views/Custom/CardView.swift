@@ -17,7 +17,6 @@ public protocol CardViewOutput: AnyObject {
     func display(secondaryTrailingImage: ImageViewPresentableModel?)
     func display(subTitle: TextOutputPresentableModel?)
     func display(valueTitle: TextOutputPresentableModel?)
-    func display(bottomImage: ImageViewPresentableModel?)
     func display(bottomSeparator: CardViewPresentableModel.BottomSeparator?)
     func display(switchControl: SwitchControlPresentableModel?)
     func display(onPress: (() -> Void)?)
@@ -187,11 +186,6 @@ extension CardView: CardViewOutput {
         titleViews.valueLabel.display(model: valueTitle)
     }
     
-    public func display(bottomImage: ImageViewPresentableModel?) {
-        bottomImageWrapperView.isHidden = bottomImage == nil
-        bottomImageView.display(model: bottomImage)
-    }
-    
     public func display(bottomSeparator: CardViewPresentableModel.BottomSeparator?) {
         bottomSeparatorView.isHidden = bottomSeparator == nil
         if let bottomSeparator = bottomSeparator {
@@ -237,9 +231,6 @@ extension CardView: CardViewOutput {
         
         // SecondaryTrailingImage
         display(secondaryTrailingImage: model.secondaryTrailingImage)
-        
-        // BottomImage
-        display(bottomImage: model.bottomImage)
         
         // bottomSeparatorView
         display(bottomSeparator: model.bottomSeparator)
@@ -297,7 +288,6 @@ open class CardView: View {
     public var trailingImageViewConstraints: AnchoredConstraints?
     public var secondaryTrailingImageViewConstraints: AnchoredConstraints?
     public var switchControlConstraints: AnchoredConstraints?
-    public var bottomImageViewConstraints: AnchoredConstraints?
     public var bottomSeparatorViewConstraints: AnchoredConstraints?
     
     public init() {
@@ -358,7 +348,6 @@ extension CardView {
         secondaryLeadingImageWrapperView.addSubview(secondaryLeadingImageView)
         trailingImageWrapperView.addSubview(trailingImageView)
         secondaryTrailingImageWrapperView.addSubview(secondaryTrailingImageView)
-        bottomImageWrapperView.addSubview(bottomImageView)
         
         titleViewsWrapperView.addSubview(titleViews)
         switchWrapperView.addSubview(switchControl)
@@ -415,15 +404,6 @@ extension CardView {
             .trailing(trailingImageWrapperView.trailingAnchor),
             .centerX(trailingImageWrapperView.centerXAnchor),
             .centerY(trailingImageWrapperView.centerYAnchor)
-        )
-        
-        bottomImageViewConstraints = bottomImageView.anchor(
-            .topGreaterThanEqual(bottomImageWrapperView.topAnchor),
-            .bottomLessThanEqual(bottomImageWrapperView.bottomAnchor),
-            .top(bottomImageWrapperView.topAnchor, priority: .defaultHigh),
-            .bottom(bottomImageWrapperView.bottomAnchor, priority: .defaultHigh),
-            .leading(bottomImageWrapperView.leadingAnchor),
-            .trailingLessThanEqual(bottomImageWrapperView.trailingAnchor)
         )
         
         switchControlConstraints = switchControl.anchor(

@@ -9,6 +9,7 @@ public protocol KeyValueFieldViewOutput: AnyObject {
     func display(model: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>?)
     func display(keyTitle: TextOutputPresentableModel?)
     func display(valueTitle: TextOutputPresentableModel?)
+    func display(bottomImage: ImageViewPresentableModel?)
 }
 
 #if canImport(UIKit)
@@ -17,21 +18,26 @@ import SwiftUI
 
 extension VKeyValueFieldView: KeyValueFieldViewOutput {
     public func display(model: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>?) {
-        isHidden = model?.first == nil && model?.second == nil
+        isHidden = model?.first == nil && model?.second == nil && bottomImageWrapperView.isHidden
         display(keyTitle: model?.first)
         display(valueTitle: model?.second)
     }
     
     public func display(keyTitle: TextOutputPresentableModel?) {
-        isHidden = keyTitle == nil && valueLabel.isHidden
+        isHidden = keyTitle == nil && valueLabel.isHidden && bottomImageWrapperView.isHidden
         keyLabel.isHidden = keyTitle == nil
         keyLabel.display(model: keyTitle)
     }
     
     public func display(valueTitle: TextOutputPresentableModel?) {
-        isHidden = valueTitle == nil && keyLabel.isHidden
+        isHidden = valueTitle == nil && keyLabel.isHidden && bottomImageWrapperView.isHidden
         valueLabel.isHidden = valueTitle == nil
         valueLabel.display(model: valueTitle)
+    }
+    
+    public func display(bottomImage: ImageViewPresentableModel?) {
+        bottomImageWrapperView.isHidden = bottomImage == nil
+        bottomImageView.display(model: bottomImage)
     }
 }
 
@@ -49,6 +55,8 @@ open class VKeyValueFieldView: UIView {
         minimumScaleFactor: 0.5,
         adjustsFontSizeToFitWidth: true
     )
+    public let bottomImageWrapperView = UIView(isHidden: true)
+    public let bottomImageView = ImageView(tintColor: .black)
 
     public init(
         keyLabel: Label = Label(
@@ -95,6 +103,8 @@ extension VKeyValueFieldView {
         addSubview(stackView)
         stackView.addArrangedSubview(keyLabel)
         stackView.addArrangedSubview(valueLabel)
+        stackView.addArrangedSubview(bottomImageWrapperView)
+        bottomImageWrapperView.addSubview(bottomImageView)
     }
 
     func setupConstraints() {
@@ -103,6 +113,13 @@ extension VKeyValueFieldView {
             .bottom(bottomAnchor),
             .leading(leadingAnchor),
             .trailing(trailingAnchor)
+        )
+        
+        bottomImageView.anchor(
+            .top(bottomImageWrapperView.topAnchor),
+            .bottom(bottomImageWrapperView.bottomAnchor),
+            .leading(bottomImageWrapperView.leadingAnchor),
+            .trailingLessThanEqual(bottomImageWrapperView.trailingAnchor)
         )
     }
 }

@@ -22,6 +22,11 @@ extension MainQueueDispatchDecorator: KeyValueFieldViewOutput where T: KeyValueF
             self?.decoratee.display(valueTitle: valueTitle)
         }
     }
+    public func display(bottomImage: ImageViewPresentableModel?) {
+        dispatch { [weak self] in
+            self?.decoratee.display(bottomImage: bottomImage)
+        }
+    }
 
 }
 
@@ -47,6 +52,9 @@ extension WeakRefVirtualProxy: KeyValueFieldViewOutput where T: KeyValueFieldVie
     }
     public func display(valueTitle: TextOutputPresentableModel?) {
         object?.display(valueTitle: valueTitle)
+    }
+    public func display(bottomImage: ImageViewPresentableModel?) {
+        object?.display(bottomImage: bottomImage)
     }
 
 }
