@@ -44,7 +44,7 @@ public class DiffableTableViewDataSource<Model: Hashable>: NSObject, UITableView
                 return self?.configureCell?(tableView, indexPath, model) ?? UITableViewCell()
             }
         }
-        dataSource.defaultRowAnimation = .fade
+        dataSource.defaultRowAnimation = .none
         tableView.dataSource = dataSource
         tableView.delegate = self
     }
