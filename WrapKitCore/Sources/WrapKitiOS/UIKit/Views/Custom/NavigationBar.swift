@@ -73,6 +73,77 @@ public struct HeaderPresentableModel {
 #if canImport(UIKit)
 import UIKit
 
+extension NavigationBar: HeaderOutput {
+    public func display(model: HeaderPresentableModel?) {
+        isHidden = model == nil
+        guard let model = model else { return }
+        display(centerView: model.centerView)
+        display(style: model.style)
+        display(leadingCard: model.leadingCard)
+        display(primeTrailingImage: model.primeTrailingImage)
+        display(secondaryTrailingImage: model.secondaryTrailingImage)
+        display(tertiaryTrailingImage: model.tertiaryTrailingImage)
+    }
+    
+    public func display(centerView: HeaderPresentableModel.CenterView?) {
+        switch centerView {
+        case .keyValue(let pair):
+            titleViews.display(model: pair)
+            centerTitledImageView.isHidden = true
+        case .titledImage(let pair):
+            titleViews.isHidden = true
+            centerTitledImageView.isHidden = pair.first == nil && pair.second == nil
+            centerTitledImageView.closingTitleVFieldView.keyLabel.display(model: pair.second)
+            centerTitledImageView.contentView.contentView.display(model: pair.first)
+        default:
+            titleViews.isHidden = true
+            centerTitledImageView.isHidden = true
+        }
+    }
+    
+    public func display(style: HeaderPresentableModel.Style?) {
+        if let style = style {
+            backgroundColor = style.backgroundColor
+            leadingStackView.spacing = style.horizontalSpacing
+            trailingStackView.spacing = style.horizontalSpacing * 1.5
+            mainStackViewConstraints?.leading?.constant = 8
+            mainStackViewConstraints?.trailing?.constant = -8
+            
+            leadingCardView.leadingImageView.tintColor = style.primeColor
+            primeTrailingImageWrapperView.contentView.setImage(primeTrailingImageWrapperView.contentView.image(for: .normal)?.withTintColor(style.primeColor), for: .normal)
+            secondaryTrailingImageWrapperView.contentView.setImage(secondaryTrailingImageWrapperView.contentView.image(for: .normal)?.withTintColor(style.primeColor), for: .normal)
+            tertiaryTrailingImageWrapperView.contentView.setImage(tertiaryTrailingImageWrapperView.contentView.image(for: .normal)?.withTintColor(style.primeColor), for: .normal)
+            
+            leadingCardView.titleViews.keyLabel.font = style.primeFont
+            leadingCardView.titleViews.keyLabel.textColor = style.primeColor
+            titleViews.keyLabel.font = style.primeFont
+            titleViews.keyLabel.textColor = style.primeColor
+            centerTitledImageView.closingTitleVFieldView.keyLabel.textColor = style.secondaryColor
+            centerTitledImageView.closingTitleVFieldView.keyLabel.font = style.secondaryFont
+        }
+    }
+    
+    public func display(leadingCard: CardViewPresentableModel?) {
+        leadingStackWrapperView.isHidden = leadingCard == nil
+        leadingCardView.display(model: leadingCard)
+    }
+    
+    public func display(primeTrailingImage: ButtonPresentableModel?) {
+        primeTrailingImageWrapperView.isHidden = primeTrailingImage == nil
+        primeTrailingImageWrapperView.contentView.display(model: primeTrailingImage)
+    }
+    
+    public func display(secondaryTrailingImage: ButtonPresentableModel?) {
+        secondaryTrailingImageWrapperView.isHidden = secondaryTrailingImage == nil
+        secondaryTrailingImageWrapperView.contentView.display(model: secondaryTrailingImage)
+    }
+    
+    public func display(tertiaryTrailingImage: ButtonPresentableModel?) {
+        tertiaryTrailingImageWrapperView.isHidden = tertiaryTrailingImage == nil
+        tertiaryTrailingImageWrapperView.contentView.display(model: tertiaryTrailingImage)
+    }
+}
+
 open class NavigationBar: UIView {
     public lazy var leadingStackWrapperView = UIView()
     public lazy var leadingStackView = StackView(axis: .horizontal, spacing: 12)
@@ -209,80 +280,6 @@ private extension NavigationBar {
                 )
             }
         )
-    }
-}
-
-extension NavigationBar: HeaderOutput {
-    public func display(model: HeaderPresentableModel?) {
-        isHidden = model == nil
-        guard let model = model else { return }
-        display(centerView: model.centerView)
-        display(style: model.style)
-        display(leadingCard: model.leadingCard)
-        display(primeTrailingImage: model.primeTrailingImage)
-        display(secondaryTrailingImage: model.secondaryTrailingImage)
-        display(tertiaryTrailingImage: model.tertiaryTrailingImage)
-    }
-    
-    public func display(centerView: HeaderPresentableModel.CenterView?) {
-        switch centerView {
-        case .keyValue(let pair):
-            titleViews.display(model: pair)
-            centerTitledImageView.isHidden = true
-        case .titledImage(let pair):
-            titleViews.isHidden = true
-            centerTitledImageView.isHidden = pair.first == nil && pair.second == nil
-            centerTitledImageView.closingTitleVFieldView.keyLabel.display(model: pair.second)
-            centerTitledImageView.contentView.contentView.display(model: pair.first)
-        default:
-            titleViews.isHidden = true
-            centerTitledImageView.isHidden = true
-        }
-    }
-    
-    public func display(style: HeaderPresentableModel.Style?) {
-        if let style = style {
-            backgroundColor = style.backgroundColor
-            leadingStackView.spacing = style.horizontalSpacing
-            trailingStackView.spacing = style.horizontalSpacing * 1.5
-            mainStackViewConstraints?.leading?.constant = 8
-            mainStackViewConstraints?.trailing?.constant = -8
-            
-            leadingCardView.leadingImageView.tintColor = style.primeColor
-            primeTrailingImageWrapperView.contentView.setImage(primeTrailingImageWrapperView.contentView.image(for: .normal)?.withTintColor(style.primeColor), for: .normal)
-            secondaryTrailingImageWrapperView.contentView.setImage(secondaryTrailingImageWrapperView.contentView.image(for: .normal)?.withTintColor(style.primeColor), for: .normal)
-            tertiaryTrailingImageWrapperView.contentView.setImage(tertiaryTrailingImageWrapperView.contentView.image(for: .normal)?.withTintColor(style.primeColor), for: .normal)
-            
-            leadingCardView.titleViews.keyLabel.font = style.primeFont
-            leadingCardView.titleViews.keyLabel.textColor = style.primeColor
-            titleViews.keyLabel.font = style.primeFont
-            titleViews.keyLabel.textColor = style.primeColor
-            centerTitledImageView.closingTitleVFieldView.keyLabel.textColor = style.secondaryColor
-            centerTitledImageView.closingTitleVFieldView.keyLabel.font = style.secondaryFont
-        }
-    }
-    
-    public func display(leadingCard: CardViewPresentableModel?) {
-        leadingStackWrapperView.isHidden = leadingCard == nil
-        leadingCardView.display(model: leadingCard)
-    }
-    
-    public func display(primeTrailingImage: ButtonPresentableModel?) {
-        primeTrailingImageWrapperView.isHidden = primeTrailingImage == nil
-        trailingStackWrapperView.isHidden = primeTrailingImage == nil && secondaryTrailingImageWrapperView.isHidden && tertiaryTrailingImageWrapperView.isHidden
-        primeTrailingImageWrapperView.contentView.display(model: primeTrailingImage)
-    }
-    
-    public func display(secondaryTrailingImage: ButtonPresentableModel?) {
-        secondaryTrailingImageWrapperView.isHidden = secondaryTrailingImage == nil
-        trailingStackWrapperView.isHidden = secondaryTrailingImage == nil && primeTrailingImageWrapperView.isHidden && tertiaryTrailingImageWrapperView.isHidden
-        secondaryTrailingImageWrapperView.contentView.display(model: secondaryTrailingImage)
-    }
-    
-    public func display(tertiaryTrailingImage: ButtonPresentableModel?) {
-        tertiaryTrailingImageWrapperView.isHidden = tertiaryTrailingImage == nil
-        trailingStackWrapperView.isHidden = tertiaryTrailingImage == nil && primeTrailingImageWrapperView.isHidden && secondaryTrailingImageWrapperView.isHidden
-        tertiaryTrailingImageWrapperView.contentView.display(model: tertiaryTrailingImage)
     }
 }
 #endif
