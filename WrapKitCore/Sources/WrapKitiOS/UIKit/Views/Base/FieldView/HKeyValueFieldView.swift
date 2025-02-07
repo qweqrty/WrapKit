@@ -27,6 +27,10 @@ extension HKeyValueFieldView: KeyValueFieldViewOutput {
         valueLabel.isHidden = valueTitle == nil
         valueLabel.display(model: valueTitle)
     }
+    
+    public func display(bottomImage: ImageViewPresentableModel?) {
+        // MARK: TODO
+    }
 }
 
 open class HKeyValueFieldView: View {
