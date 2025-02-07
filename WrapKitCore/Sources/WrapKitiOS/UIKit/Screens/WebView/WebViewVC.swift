@@ -19,12 +19,7 @@ open class WebViewVC: ViewController<WebViewContentView> {
     
     public override func viewDidLoad() {
         super.viewDidLoad()
-        setupUI()
         presenter.viewDidLoad()
-    }
-    
-    public func setupUI() {
-        contentView.navigationBar.leadingCardView.onPress = presenter.onBackButtonTap
     }
     
     public required init?(coder: NSCoder) {
@@ -37,6 +32,9 @@ extension WebViewVC: WebViewOutput {
         contentView.webView.load(URLRequest(url: url))
     }
     
-    
+    public func display(refreshEnabled: Bool) {
+        contentView.webView.scrollView.bounces = refreshEnabled
+        contentView.webView.scrollView.refreshControl = refreshEnabled ? contentView.refreshControl : nil
+    }
 }
 #endif
