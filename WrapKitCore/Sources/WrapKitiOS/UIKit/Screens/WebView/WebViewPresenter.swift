@@ -12,15 +12,11 @@ public protocol WebViewOutput: AnyObject {
     func display(refreshEnabled: Bool)
 }
 
-public protocol WebViewInput {
-    func viewDidLoad()
-}
-
 open class WebViewPresenter {
-    public weak var view: WebViewOutput?
-    public weak var navBarView: HeaderOutput?
-    public weak var progressBarView: ProgressBarOutput?
-    public weak var refreshControlView: LoadingOutput?
+    public var view: WebViewOutput?
+    public var navBarView: HeaderOutput?
+    public var progressBarView: ProgressBarOutput?
+    public var refreshControlView: LoadingOutput?
     
     private var flow: WebViewFlow
     private var url: URL
@@ -48,7 +44,7 @@ open class WebViewPresenter {
     }
 }
 
-extension WebViewPresenter: WebViewInput {
+extension WebViewPresenter: LifeCycleViewInput {
     public func viewDidLoad() {
         view?.display(url: url)
         view?.display(refreshEnabled: style.refreshEnabled)
