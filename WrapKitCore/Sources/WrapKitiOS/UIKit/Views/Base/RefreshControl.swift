@@ -15,6 +15,16 @@ extension RefreshControl: LoadingOutput {
 }
 
 open class RefreshControl: UIRefreshControl {
+    public struct Style {
+        public let tintColor: UIColor?
+        public let zPosition: CGFloat
+        
+        public init(tintColor: UIColor? = nil, zPosition: CGFloat = 0) {
+            self.tintColor = tintColor
+            self.zPosition = zPosition
+        }
+    }
+    
     public var isLoading: Bool? = false {
         didSet {
             isLoading ?? false ? beginRefreshing() : endRefreshing()
@@ -23,12 +33,16 @@ open class RefreshControl: UIRefreshControl {
     
     public var onRefresh: (() -> Void)?
     
-    public init(tintColor: UIColor, zPosition: CGFloat = 0) {
+    public init(tintColor: UIColor? = nil, zPosition: CGFloat = 0) {
         super.init()
         
         self.tintColor = tintColor
         self.layer.zPosition = zPosition
         addTarget(self, action: #selector(didRefresh), for: .valueChanged)
+    }
+    
+    convenience public init(style: Style = .init()) {
+        self.init(tintColor: style.tintColor ?? .black, zPosition: style.zPosition)
     }
     
     @objc private func didRefresh() {

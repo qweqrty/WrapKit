@@ -10,16 +10,8 @@ import Foundation
 import UIKit
 
 open class WebViewVC: ViewController<WebViewContentView> {
-    private let presenter: WebViewInput
-    
-    public init(contentView: WebViewContentView, presenter: WebViewInput) {
-        self.presenter = presenter
-        super.init(contentView: contentView)
-    }
-    
-    public override func viewDidLoad() {
-        super.viewDidLoad()
-        presenter.viewDidLoad()
+    public init(contentView: WebViewContentView, presenter: LifeCycleViewInput) {
+        super.init(contentView: contentView, lifeCycleViewInput: presenter)
     }
     
     public required init?(coder: NSCoder) {
