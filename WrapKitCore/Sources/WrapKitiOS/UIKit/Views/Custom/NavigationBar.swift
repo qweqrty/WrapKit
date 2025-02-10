@@ -5,8 +5,6 @@
 //  Created by Stas Lee on 5/8/23.
 //
 
-import Foundation
-
 public protocol HeaderOutput: AnyObject {
     func display(model: HeaderPresentableModel?)
     func display(style: HeaderPresentableModel.Style?)
