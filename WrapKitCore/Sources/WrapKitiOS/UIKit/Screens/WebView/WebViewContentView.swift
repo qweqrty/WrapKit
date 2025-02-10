@@ -21,6 +21,7 @@ open class WebViewContentView: UIView {
         super.init(frame: frame)
         setupViews()
         setupConstraints()
+        backgroundColor = .white
     }
     
     public required init?(coder: NSCoder) {
@@ -36,7 +37,6 @@ private extension WebViewContentView {
     
     func setupConstraints() {
         contentStackView.fillSuperview()
-        contentStackView.setCustomSpacing(8, after: progressBarView)
     }
 }
 

@@ -29,18 +29,21 @@ public struct WebViewStyle {
     public let progressBarModel: ProgressBarPresentableModel?
     public let hidesBottomBarWhenPushed: Bool
     public let refresh: Refresh
+    public let backgroundColor: Color?
     
     public init(
         title: String? = nil,
         header: Header? = nil,
         progressBarModel: ProgressBarPresentableModel? = nil,
         hidesBottomBarWhenPushed: Bool = false,
-        refresh: Refresh = .init()
+        refresh: Refresh = .init(),
+        backgroundColor: Color? = nil
     ) {
         self.title = title
         self.header = header ?? .default(title: title)
         self.progressBarModel = progressBarModel
         self.hidesBottomBarWhenPushed = hidesBottomBarWhenPushed
         self.refresh = refresh
+        self.backgroundColor = backgroundColor
     }
 }

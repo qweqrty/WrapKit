@@ -44,6 +44,11 @@ extension WebViewVC: WebViewOutput {
             context: nil
         )
     }
+    
+    public func display(backgroundColor: Color?) {
+        guard let backgroundColor else { return }
+        contentView.backgroundColor = backgroundColor
+    }
 }
 
 extension WebViewVC: UIWebViewDelegate {

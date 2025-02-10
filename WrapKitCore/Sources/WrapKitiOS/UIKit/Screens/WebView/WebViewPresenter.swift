@@ -10,6 +10,8 @@ import Foundation
 public protocol WebViewOutput: AnyObject {
     func display(url: URL)
     func display(refreshModel: WebViewStyle.Refresh)
+    func display(backgroundColor: Color?)
+    func display(isProgressBarNeeded: Bool)
 }
 
 open class WebViewPresenter {
@@ -46,10 +48,11 @@ open class WebViewPresenter {
 
 extension WebViewPresenter: LifeCycleViewInput {
     public func viewDidLoad() {
+        setupNavigationBar()
         view?.display(url: url)
         view?.display(refreshModel: style.refresh)
+        view?.display(isProgressBarNeeded: style.progressBarModel != nil)
         progressBarView?.display(model: style.progressBarModel)
-        setupNavigationBar()
     }
 }
 

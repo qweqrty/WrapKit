@@ -248,7 +248,7 @@ open class CardView: View {
     public let hStackView = StackView(axis: .horizontal, spacing: 14)
     
     public let leadingImageWrapperView = UIView(isHidden: true)
-    public let leadingImageView = ImageView(tintColor: .black)
+    public let leadingImageView = ImageView(image: UIImage(named: "rightArrow"), tintColor: .black)
     
     public let secondaryLeadingImageWrapperView = UIView(isHidden: true)
     public let secondaryLeadingImageView = ImageView(tintColor: .black)
