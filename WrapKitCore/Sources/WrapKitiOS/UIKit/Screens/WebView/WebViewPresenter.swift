@@ -55,4 +55,3 @@ extension WebViewPresenter: LifeCycleViewInput {
         view?.display(url: url)
     }
 }
-

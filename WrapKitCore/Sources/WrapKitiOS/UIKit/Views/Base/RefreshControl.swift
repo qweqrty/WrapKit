@@ -5,6 +5,18 @@
 //  Created by Stas Lee on 5/8/23.
 //
 
+import Foundation
+
+public struct RefreshControlStyle {
+    public let tintColor: Color?
+    public let zPosition: CGFloat
+    
+    public init(tintColor: Color? = nil, zPosition: CGFloat = 0) {
+        self.tintColor = tintColor
+        self.zPosition = zPosition
+    }
+}
+
 #if canImport(UIKit)
 import UIKit
 
@@ -15,16 +27,6 @@ extension RefreshControl: LoadingOutput {
 }
 
 open class RefreshControl: UIRefreshControl {
-    public struct Style {
-        public let tintColor: UIColor?
-        public let zPosition: CGFloat
-        
-        public init(tintColor: UIColor? = nil, zPosition: CGFloat = 0) {
-            self.tintColor = tintColor
-            self.zPosition = zPosition
-        }
-    }
-    
     public var isLoading: Bool? = false {
         didSet {
             isLoading ?? false ? beginRefreshing() : endRefreshing()
@@ -41,7 +43,7 @@ open class RefreshControl: UIRefreshControl {
         addTarget(self, action: #selector(didRefresh), for: .valueChanged)
     }
     
-    convenience public init(style: Style = .init()) {
+    convenience public init(style: RefreshControlStyle = .init()) {
         self.init(tintColor: style.tintColor, zPosition: style.zPosition)
     }
     
@@ -53,7 +55,7 @@ open class RefreshControl: UIRefreshControl {
         fatalError("init(coder:) has not been implemented")
     }
     
-    public func display(style: Style) {
+    public func display(style: RefreshControlStyle) {
         self.tintColor = style.tintColor
         self.layer.zPosition = style.zPosition
     }
