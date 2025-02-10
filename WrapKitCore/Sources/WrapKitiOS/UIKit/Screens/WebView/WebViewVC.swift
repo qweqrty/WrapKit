@@ -41,6 +41,7 @@ extension WebViewVC: WebViewOutput {
     
     public func display(isProgressBarNeeded: Bool) {
         guard isProgressBarNeeded else { return }
+        // TODO: Check observers removal
         if contentView.webView.observationInfo != nil {
             contentView.webView.removeObserver(self, forKeyPath: Self.estimatedProgressKeyPath)
         }
