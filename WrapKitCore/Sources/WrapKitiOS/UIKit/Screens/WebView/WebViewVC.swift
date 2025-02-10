@@ -63,7 +63,7 @@ extension WebViewVC: WKUIDelegate {
         context: UnsafeMutableRawPointer?
     ) {
         guard keyPath == "estimatedProgress" else { return }
-        contentView.progressBarView.display(progress: contentView.webView.estimatedProgress)
+        contentView.progressBarView.display(progress: .percentage(contentView.webView.estimatedProgress))
         guard contentView.webView.estimatedProgress == 1 else { return }
         contentView.progressBarView.display(model: nil)
     }
@@ -83,6 +83,7 @@ extension WebViewVC: WKNavigationDelegate {
     }
     
     public func webView(_ webView: WKWebView, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping @MainActor (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
+        completionHandler(.performDefaultHandling, nil)
         contentView.refreshControl.display(isLoading: false)
     }
 }

@@ -49,10 +49,10 @@ open class WebViewPresenter {
 extension WebViewPresenter: LifeCycleViewInput {
     public func viewDidLoad() {
         setupNavigationBar()
-        view?.display(url: url)
         view?.display(refreshModel: style.refresh)
         view?.display(isProgressBarNeeded: style.progressBarModel != nil)
         progressBarView?.display(model: style.progressBarModel)
+        view?.display(url: url)
     }
 }
 
