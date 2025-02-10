@@ -17,15 +17,18 @@ public struct ProgressBarStyle {
     public let backgroundColor: Color?
     public let progressBarColor: Color?
     public let height: CGFloat?
+    public let cornerRadius: CGFloat?
     
     public init(
         backgroundColor: Color? = nil,
         progressBarColor: Color? = nil,
-        height: CGFloat? = nil
+        height: CGFloat? = nil,
+        cornerRadius: CGFloat? = nil
     ) {
         self.backgroundColor = backgroundColor
         self.progressBarColor = progressBarColor
         self.height = height
+        self.cornerRadius = cornerRadius
     }
 }
 
@@ -65,6 +68,10 @@ open class ProgressBarView: UIView {
             } else if let height = style?.height {
                 progressViewAnchoredConstraints = anchor(.height(height))
             }
+            if let cornerRadius = style?.cornerRadius {
+                layer.cornerRadius = cornerRadius
+                progressView.layer.cornerRadius = cornerRadius
+            }
         }
     }
     
@@ -100,6 +107,7 @@ extension ProgressBarView {
             .top(topAnchor),
             .leading(leadingAnchor),
             .bottom(bottomAnchor),
+            .height(0),
             .width(0)
         )
     }

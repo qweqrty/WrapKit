@@ -18,6 +18,8 @@ public protocol WebViewFactory {
 }
 
 public class WebViewFactoryiOS: WebViewFactory {
+    public init() {}
+    
     public func makeWebView(
         title: String? = nil,
         url: URL,
