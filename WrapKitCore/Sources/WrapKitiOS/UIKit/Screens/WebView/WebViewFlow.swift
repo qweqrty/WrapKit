@@ -22,7 +22,7 @@ public class WebViewFlowImpl: WebViewFlow {
         self.navigationController = navigationController
     }
     
-    public func navigateToWebView(title: String?, url: URL, style: WebViewStyle = .init()) {
+    public func navigateToWebView(title: String? = nil, url: URL, style: WebViewStyle = .init()) {
         let vc = factory.makeWebView(title: title, url: url, flow: self, style: style)
         navigationController.pushViewController(vc, animated: true)
     }
