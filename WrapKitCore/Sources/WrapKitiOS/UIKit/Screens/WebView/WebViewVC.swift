@@ -14,7 +14,6 @@ import WebKit
 open class WebViewVC: ViewController<WebViewContentView> {
     public init(contentView: WebViewContentView, presenter: LifeCycleViewInput) {
         super.init(contentView: contentView, lifeCycleViewInput: presenter)
-        contentView.webView.uiDelegate = self
         contentView.webView.navigationDelegate = self
     }
     
@@ -49,13 +48,7 @@ extension WebViewVC: WebViewOutput {
         guard let backgroundColor else { return }
         contentView.backgroundColor = backgroundColor
     }
-}
-
-extension WebViewVC: UIWebViewDelegate {
     
-}
-
-extension WebViewVC: WKUIDelegate {
     open override func observeValue(
         forKeyPath keyPath: String?,
         of object: Any?,
