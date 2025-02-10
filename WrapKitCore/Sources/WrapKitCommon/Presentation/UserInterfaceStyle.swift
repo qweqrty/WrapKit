@@ -12,10 +12,12 @@ extension UserInterfaceStyle {
         #if canImport(UIKit)
         // iOS and tvOS
         if #available(iOS 13.0, tvOS 13.0, *) {
-            if let window = UIApplication.shared.connectedScenes
+            // Get the first active window
+            if let windowScene = UIApplication.shared.connectedScenes
                 .compactMap({ $0 as? UIWindowScene })
-                .first?.windows
-                .first {
+                .first(where: { $0.activationState == .foregroundActive }),
+               let window = windowScene.windows.first(where: { $0.isKeyWindow }) {
+                
                 switch window.traitCollection.userInterfaceStyle {
                 case .dark: return .dark
                 case .light: return .light
@@ -23,7 +25,7 @@ extension UserInterfaceStyle {
                 }
             }
         } else {
-            // iOS 12 and earlier fallback
+            // iOS 12 and earlier fallback (using screen brightness)
             if UIScreen.main.brightness < 0.5 {
                 return .dark
             } else {
@@ -31,28 +33,35 @@ extension UserInterfaceStyle {
             }
         }
         return .unspecified
+        
         #elseif canImport(AppKit)
         // macOS
-        if NSApp.effectiveAppearance.name == .darkAqua {
-            return .dark
-        } else if NSApp.effectiveAppearance.name == .aqua {
-            return .light
+        if #available(macOS 10.14, *) {
+            let appearance = NSAppearance.currentDrawing().bestMatch(from: [.darkAqua, .aqua])
+            switch appearance {
+            case .darkAqua: return .dark
+            case .aqua: return .light
+            default: return .unspecified
+            }
         } else {
-            return .unspecified
+            return .light // macOS before Mojave only had light mode
         }
+        
         #elseif canImport(WatchKit)
         // watchOS
         if #available(watchOS 6.0, *) {
-            if let isDarkMode = WKExtension.shared().rootInterfaceController?
-                .traitCollection.userInterfaceStyle == .dark {
-                return isDarkMode ? .dark : .light
+            // No direct API; fallback heuristic:
+            if WKInterfaceDevice.current().screenScale < 1.5 {
+                return .dark // Older watches with OLED screens likely use dark mode by default
+            } else {
+                return .light
             }
         }
         return .unspecified
+        
         #else
         // Unsupported platforms
         return .unspecified
         #endif
     }
 }
-

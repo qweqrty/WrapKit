@@ -20,6 +20,7 @@ public protocol ApplicationLifecycleInput {
     func applicationDidEnterBackground()
     func applicationDidBecomeActive()
     func applicationWillResignActive()
+    func applicationDidChange(userInterfaceStyle: UserInterfaceStyle)
 }
 
 #if canImport(UIKit)
@@ -58,6 +59,12 @@ open class ViewController<ContentView: UIView>: UIViewController {
         navigationController?.setNavigationBarHidden(true, animated: false)
         navigationController?.interactivePopGestureRecognizer?.delegate = interactivePopGestureRecognizer
         lifeCycleViewInput?.viewWillDisappear()
+    }
+    
+    open override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        
+        applicationLifecycleInput?.applicationDidChange(userInterfaceStyle: UserInterfaceStyle.current)
     }
 
     open override func viewDidLoad() {
@@ -133,4 +140,5 @@ public extension ApplicationLifecycleInput {
     func applicationDidEnterBackground() {}
     func applicationDidBecomeActive() {}
     func applicationWillResignActive() {}
+    func applicationDidChange(userInterfaceStyle: UserInterfaceStyle) {}
 }
