@@ -9,7 +9,7 @@ import Foundation
 
 public protocol ProgressBarOutput: AnyObject {
     func display(model: ProgressBarPresentableModel?)
-    func display(progress: ProgressBarPresentableModel.Progress)
+    func display(progress: CGFloat)
     func display(style: ProgressBarStyle?)
 }
 
@@ -33,15 +33,10 @@ public struct ProgressBarStyle {
 }
 
 public struct ProgressBarPresentableModel {
-    public enum Progress {
-        case value(CGFloat)
-        case percentage(CGFloat)
-    }
-    
+    public let progress: CGFloat // 0-100
     public let style: ProgressBarStyle
-    public let progress: Progress
     
-    public init(progress: Progress = .value(100), style: ProgressBarStyle) {
+    public init(progress: CGFloat = 100, style: ProgressBarStyle) {
         self.progress = progress
         self.style = style
     }
@@ -84,15 +79,12 @@ open class ProgressBarView: UIView {
         progressViewAnchoredConstraints?.width?.constant = width
     }
     
-    public func applyProgress(value: CGFloat, animated: Bool = true) {
-        applyProgress(percentage: value / 100, animated: animated)
-    }
-    
     public func applyProgress(percentage: CGFloat, animated: Bool = true) {
         layoutIfNeeded()
         let maxWidth = bounds.width
-        let newWidth = maxWidth * (percentage)
+        let newWidth = maxWidth * (percentage / 100.0)
         progressViewAnchoredConstraints?.width?.constant = newWidth
+        
         if animated {
             UIView.animate(withDuration: 0.3) {
                 self.layoutIfNeeded()
@@ -126,16 +118,11 @@ extension ProgressBarView: ProgressBarOutput {
         isHidden = model == nil
         guard let model = model else { return }
         display(style: model.style)
-        display(progress: model.progress)
+        applyProgress(percentage: model.progress)
     }
     
-    public func display(progress: ProgressBarPresentableModel.Progress) {
-        switch progress {
-        case .value(let value):
-            applyProgress(value: value)
-        case .percentage(let percentage):
-            applyProgress(percentage: percentage)
-        }
+    public func display(progress: CGFloat) {
+        applyProgress(percentage: progress)
     }
     
     public func display(style: ProgressBarStyle?) {
