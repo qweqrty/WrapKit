@@ -15,7 +15,7 @@ open class WebViewContentView: UIView {
     public lazy var navigationBar = NavigationBar()
     public lazy var progressBarView = ProgressBarView()
     public lazy var webView = makeWebView()
-    public lazy var refreshControl = RefreshControl(tintColor: .black)
+    public lazy var refreshControl = RefreshControl()
 
     public override init(frame: CGRect) {
         super.init(frame: frame)

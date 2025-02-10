@@ -42,7 +42,7 @@ open class RefreshControl: UIRefreshControl {
     }
     
     convenience public init(style: Style = .init()) {
-        self.init(tintColor: style.tintColor ?? .black, zPosition: style.zPosition)
+        self.init(tintColor: style.tintColor, zPosition: style.zPosition)
     }
     
     @objc private func didRefresh() {
@@ -51,6 +51,11 @@ open class RefreshControl: UIRefreshControl {
     
     public required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    public func display(style: Style) {
+        self.tintColor = style.tintColor
+        self.layer.zPosition = style.zPosition
     }
 }
 #endif

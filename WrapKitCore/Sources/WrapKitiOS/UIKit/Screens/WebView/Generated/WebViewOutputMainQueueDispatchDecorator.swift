@@ -12,9 +12,9 @@ extension MainQueueDispatchDecorator: WebViewOutput where T: WebViewOutput {
             self?.decoratee.display(url: url)
         }
     }
-    public func display(refreshEnabled: Bool) {
+    public func display(refreshModel: WebViewStyle.Refresh) {
         dispatch { [weak self] in
-            self?.decoratee.display(refreshEnabled: refreshEnabled)
+            self?.decoratee.display(refreshModel: refreshModel)
         }
     }
 
@@ -37,8 +37,8 @@ extension WeakRefVirtualProxy: WebViewOutput where T: WebViewOutput {
     public func display(url: URL) {
         object?.display(url: url)
     }
-    public func display(refreshEnabled: Bool) {
-        object?.display(refreshEnabled: refreshEnabled)
+    public func display(refreshModel: WebViewStyle.Refresh) {
+        object?.display(refreshModel: refreshModel)
     }
 
 }
