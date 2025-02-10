@@ -12,6 +12,21 @@ extension MainQueueDispatchDecorator: WebViewOutput where T: WebViewOutput {
             self?.decoratee.display(url: url)
         }
     }
+    public func display(refreshModel: WebViewStyle.Refresh) {
+        dispatch { [weak self] in
+            self?.decoratee.display(refreshModel: refreshModel)
+        }
+    }
+    public func display(backgroundColor: Color?) {
+        dispatch { [weak self] in
+            self?.decoratee.display(backgroundColor: backgroundColor)
+        }
+    }
+    public func display(isProgressBarNeeded: Bool) {
+        dispatch { [weak self] in
+            self?.decoratee.display(isProgressBarNeeded: isProgressBarNeeded)
+        }
+    }
 
 }
 
@@ -31,6 +46,15 @@ extension WeakRefVirtualProxy: WebViewOutput where T: WebViewOutput {
 
     public func display(url: URL) {
         object?.display(url: url)
+    }
+    public func display(refreshModel: WebViewStyle.Refresh) {
+        object?.display(refreshModel: refreshModel)
+    }
+    public func display(backgroundColor: Color?) {
+        object?.display(backgroundColor: backgroundColor)
+    }
+    public func display(isProgressBarNeeded: Bool) {
+        object?.display(isProgressBarNeeded: isProgressBarNeeded)
     }
 
 }

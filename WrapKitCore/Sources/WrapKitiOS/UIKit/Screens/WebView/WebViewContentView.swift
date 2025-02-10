@@ -11,13 +11,17 @@ import UIKit
 import WebKit
 
 open class WebViewContentView: UIView {
-    public lazy var navigationBar = makeNavigationBar()
+    lazy var contentStackView = StackView(axis: .vertical)
+    public lazy var navigationBar = NavigationBar()
+    public lazy var progressBarView = ProgressBarView()
     public lazy var webView = makeWebView()
-    
+    public lazy var refreshControl = RefreshControl()
+
     public override init(frame: CGRect) {
         super.init(frame: frame)
         setupViews()
         setupConstraints()
+        backgroundColor = .white
     }
     
     public required init?(coder: NSCoder) {
@@ -27,33 +31,16 @@ open class WebViewContentView: UIView {
 
 private extension WebViewContentView {
     func setupViews() {
-        addSubviews(navigationBar, webView)
+        addSubviews(contentStackView)
+        contentStackView.addArrangedSubviews(navigationBar, progressBarView, webView)
     }
     
     func setupConstraints() {
-        navigationBar.anchor(
-            .top(topAnchor),
-            .leading(leadingAnchor),
-            .trailing(trailingAnchor)
-        )
-        
-        webView.anchor(
-            .top(navigationBar.bottomAnchor, constant: 8),
-            .bottom(bottomAnchor),
-            .leading(leadingAnchor),
-            .trailing(trailingAnchor)
-        )
+        contentStackView.fillSuperview()
     }
 }
 
 private extension WebViewContentView {
-    func makeNavigationBar() -> NavigationBar {
-        let navigationBar = NavigationBar()
-        navigationBar.titleViews.keyLabel.font = .systemFont(ofSize: 18, weight: .semibold)
-        navigationBar.leadingCardView.leadingImageView.image = UIImage(named: "icChevronLeft")
-        return navigationBar
-    }
-    
     func makeWebView() -> WKWebView {
         let view = WKWebView()
         view.allowsLinkPreview = false
