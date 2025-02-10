@@ -24,9 +24,10 @@ extension WebViewVC: WebViewOutput {
         contentView.webView.load(URLRequest(url: url))
     }
     
-    public func display(refreshEnabled: Bool) {
-        contentView.webView.scrollView.bounces = refreshEnabled
-        contentView.webView.scrollView.refreshControl = refreshEnabled ? contentView.refreshControl : nil
+    public func display(refreshModel: WebViewStyle.Refresh) {
+        contentView.refreshControl.display(style: refreshModel.style)
+        contentView.webView.scrollView.bounces = refreshModel.isEnabled
+        contentView.webView.scrollView.refreshControl = refreshModel.isEnabled ? contentView.refreshControl : nil
     }
 }
 #endif

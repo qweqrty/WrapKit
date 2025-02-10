@@ -9,7 +9,7 @@ import Foundation
 
 public protocol WebViewOutput: AnyObject {
     func display(url: URL)
-    func display(refreshEnabled: Bool)
+    func display(refreshModel: WebViewStyle.Refresh)
 }
 
 open class WebViewPresenter {
@@ -47,7 +47,7 @@ open class WebViewPresenter {
 extension WebViewPresenter: LifeCycleViewInput {
     public func viewDidLoad() {
         view?.display(url: url)
-        view?.display(refreshEnabled: style.refreshEnabled)
+        view?.display(refreshModel: style.refresh)
         progressBarView?.display(model: style.progressBarModel)
         setupNavigationBar()
     }
