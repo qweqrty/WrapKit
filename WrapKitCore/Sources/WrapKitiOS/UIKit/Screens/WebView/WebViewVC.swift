@@ -12,6 +12,8 @@ import UIKit
 import WebKit
 
 open class WebViewVC: ViewController<WebViewContentView> {
+    private static let estimatedProgressKeyPath = #keyPath(WKWebView.estimatedProgress)
+    
     public init(contentView: WebViewContentView, presenter: LifeCycleViewInput) {
         super.init(contentView: contentView, lifeCycleViewInput: presenter)
         contentView.webView.navigationDelegate = self
@@ -19,6 +21,10 @@ open class WebViewVC: ViewController<WebViewContentView> {
     
     public required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    deinit {
+        contentView.webView.removeObserver(self, forKeyPath: Self.estimatedProgressKeyPath)
     }
 }
 
@@ -35,10 +41,12 @@ extension WebViewVC: WebViewOutput {
     
     public func display(isProgressBarNeeded: Bool) {
         guard isProgressBarNeeded else { return }
-        
+        if contentView.webView.observationInfo != nil {
+            contentView.webView.removeObserver(self, forKeyPath: Self.estimatedProgressKeyPath)
+        }
         contentView.webView.addObserver(
             self,
-            forKeyPath: #keyPath(WKWebView.estimatedProgress),
+            forKeyPath: Self.estimatedProgressKeyPath,
             options: .new,
             context: nil
         )
@@ -56,7 +64,7 @@ extension WebViewVC: WebViewOutput {
         context: UnsafeMutableRawPointer?
     ) {
         guard keyPath == "estimatedProgress" else { return }
-        contentView.progressBarView.display(progress: .percentage(contentView.webView.estimatedProgress))
+        contentView.progressBarView.display(progress: contentView.webView.estimatedProgress * 100)
         guard contentView.webView.estimatedProgress == 1 else { return }
         contentView.progressBarView.display(model: nil)
     }

@@ -5,17 +5,20 @@
 //  Created by Daniiar Erkinov on 7/2/25.
 //
 
-#if canImport(UIKit)
-import UIKit
+import Foundation
 
-public protocol WebViewFactory {
+public protocol WebViewFactory<Controller> {
+    associatedtype Controller
     func makeWebView(
         title: String?,
         url: URL,
         flow: any WebViewFlow,
         style: WebViewStyle
-    ) -> UIViewController
+    ) -> Controller
 }
+
+#if canImport(UIKit)
+import UIKit
 
 public class WebViewFactoryiOS: WebViewFactory {
     public init() {}
