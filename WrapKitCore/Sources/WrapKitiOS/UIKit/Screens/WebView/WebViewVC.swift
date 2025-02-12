@@ -24,6 +24,7 @@ open class WebViewVC: ViewController<WebViewContentView> {
     }
     
     deinit {
+        guard contentView.webView.observationInfo != nil else { return }
         contentView.webView.removeObserver(self, forKeyPath: Self.estimatedProgressKeyPath)
     }
 }
