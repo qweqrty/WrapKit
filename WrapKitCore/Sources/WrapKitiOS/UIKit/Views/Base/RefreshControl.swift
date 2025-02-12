@@ -7,18 +7,55 @@
 
 import Foundation
 
-public struct RefreshControlStyle {
-    public let tintColor: Color?
-    public let zPosition: CGFloat
-    
-    public init(tintColor: Color? = nil, zPosition: CGFloat = 0) {
-        self.tintColor = tintColor
-        self.zPosition = zPosition
+public struct RefreshControlPresentableModel {
+    public struct Style {
+        public let tintColor: Color?
+        public let zPosition: CGFloat
+        
+        public init(tintColor: Color? = nil, zPosition: CGFloat = 0) {
+            self.tintColor = tintColor
+            self.zPosition = zPosition
+        }
     }
+    
+    public let style: Style?
+    public let onRefresh: (() -> Void)?
+    public let isLoading: Bool?
+    
+    public init(
+        style: Style? = nil,
+        onRefresh: (() -> Void)? = nil,
+        isLoading: Bool? = nil
+    ) {
+        self.style = style
+        self.onRefresh = onRefresh
+        self.isLoading = isLoading
+    }
+}
+
+public protocol RefreshControlOutput: AnyObject {
+    func display(model: RefreshControlPresentableModel?)
+    func display(style: RefreshControlPresentableModel.Style)
+    func display(onRefresh: (() -> Void)?)
+    func display(isLoading: Bool)
 }
 
 #if canImport(UIKit)
 import UIKit
+
+extension RefreshControl: RefreshControlOutput {
+    public func display(model: RefreshControlPresentableModel?) {
+        if let style = model?.style { display(style: style) }
+        display(onRefresh: model?.onRefresh)
+        if let isLoading = model?.isLoading {
+            display(isLoading: isLoading)
+        }
+    }
+    
+    public func display(onRefresh: (() -> Void)?) {
+        self.onRefresh = onRefresh
+    }
+}
 
 extension RefreshControl: LoadingOutput {
     public func display(isLoading: Bool) {
@@ -43,7 +80,7 @@ open class RefreshControl: UIRefreshControl {
         addTarget(self, action: #selector(didRefresh), for: .valueChanged)
     }
     
-    convenience public init(style: RefreshControlStyle = .init()) {
+    convenience public init(style: RefreshControlPresentableModel.Style = .init()) {
         self.init(tintColor: style.tintColor, zPosition: style.zPosition)
     }
     
@@ -55,7 +92,7 @@ open class RefreshControl: UIRefreshControl {
         fatalError("init(coder:) has not been implemented")
     }
     
-    public func display(style: RefreshControlStyle) {
+    public func display(style: RefreshControlPresentableModel.Style) {
         self.tintColor = style.tintColor
         self.layer.zPosition = style.zPosition
     }

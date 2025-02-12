@@ -16,9 +16,9 @@ public struct WebViewStyle {
     
     public struct Refresh {
         public let isEnabled: Bool
-        public let style: RefreshControlStyle
+        public let style: RefreshControlPresentableModel.Style
         
-        public init(isEnabled: Bool = false, style: RefreshControlStyle = .init()) {
+        public init(isEnabled: Bool = false, style: RefreshControlPresentableModel.Style = .init()) {
             self.isEnabled = isEnabled
             self.style = style
         }
