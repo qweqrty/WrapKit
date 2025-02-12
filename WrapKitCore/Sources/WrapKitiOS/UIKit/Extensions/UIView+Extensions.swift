@@ -100,30 +100,37 @@ public extension UIView {
         
     }
     
-    func gradientBorder(
+    func gradientBackgroundColor(
         width: CGFloat,
         colors: [UIColor],
         startPoint: CGPoint = .init(x: 0.5, y: 0),
-        endPoint: CGPoint = .init(x: 0.5, y: 1),
-        cornerRadius: CGFloat = 0
+        endPoint: CGPoint = .init(x: 0.5, y: 1)
     ) {
         // Remove any existing gradient layers
         layer.sublayers?.removeAll(where: { $0.name == UIView.CAGradientLayerName })
-        // Gradient layer
+
+        // Create a gradient layer
         let gradientLayer = CAGradientLayer()
         gradientLayer.name = UIView.CAGradientLayerName
         gradientLayer.frame = bounds
         gradientLayer.colors = colors.map { $0.cgColor }
         gradientLayer.startPoint = startPoint
         gradientLayer.endPoint = endPoint
+
+        // Create a shape layer for the border
+        let maskLayer = CAShapeLayer()
+        let roundedRectPath = UIBezierPath(roundedRect: bounds, cornerRadius: cornerRadius)
+        maskLayer.path = roundedRectPath.cgPath
+        maskLayer.fillColor = UIColor.clear.cgColor
+        maskLayer.strokeColor = UIColor.black.cgColor
+        maskLayer.lineWidth = width
+        gradientLayer.mask = maskLayer
         
-        let shapeLayer = CAShapeLayer()
-        shapeLayer.lineWidth = width
-        shapeLayer.path = UIBezierPath(roundedRect: bounds.insetBy(dx: width / 2, dy: width / 2), cornerRadius: cornerRadius).cgPath
-        shapeLayer.fillColor = nil
-        shapeLayer.strokeColor = UIColor.black.cgColor
-        gradientLayer.mask = shapeLayer
+        // Apply corner radius to the view itself
+        layer.cornerRadius = cornerRadius
+        layer.masksToBounds = true
         
+        // Add the gradient layer
         layer.addSublayer(gradientLayer)
     }
     
