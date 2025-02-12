@@ -34,9 +34,9 @@ public struct ProgressBarStyle {
 
 public struct ProgressBarPresentableModel {
     public let progress: CGFloat // 0-100
-    public let style: ProgressBarStyle
+    public let style: ProgressBarStyle?
     
-    public init(progress: CGFloat = 100, style: ProgressBarStyle) {
+    public init(progress: CGFloat = 100, style: ProgressBarStyle?) {
         self.progress = progress
         self.style = style
     }
@@ -106,6 +106,7 @@ extension ProgressBarView {
         progressViewAnchoredConstraints = progressView.anchor(
             .top(topAnchor),
             .leading(leadingAnchor),
+            .trailingLessThanEqual(trailingAnchor),
             .bottom(bottomAnchor),
             .height(0),
             .width(0)
@@ -117,7 +118,9 @@ extension ProgressBarView: ProgressBarOutput {
     public func display(model: ProgressBarPresentableModel?) {
         isHidden = model == nil
         guard let model = model else { return }
-        display(style: model.style)
+        if let style = model.style {
+            display(style: style)
+        }
         applyProgress(percentage: model.progress)
     }
     

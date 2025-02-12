@@ -140,8 +140,10 @@ extension Label: TextOutput {
         guard let model = model else { return }
         switch model {
         case .text(let text):
+            isHidden = text.isEmpty
             self.text = text
         case .attributes(let attributes):
+            isHidden = attributes.isEmpty
             self.attributes = attributes
         }
     }
