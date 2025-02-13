@@ -75,4 +75,8 @@ public class TimerPresenter: TimerInput {
         backgroundStartTime = Date()
         stop()
     }
+    
+    deinit {
+        stop()
+    }
 }
