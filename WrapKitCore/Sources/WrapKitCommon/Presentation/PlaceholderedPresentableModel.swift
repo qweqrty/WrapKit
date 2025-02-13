@@ -10,12 +10,13 @@ import Foundation
 public enum ShimmeredCellModel<PresentableModel: Hashable>: Hashable {
     case model(PresentableModel)
     case shimmer
+    case uniqueShimmer(UUID = UUID())
 
     public var isPlaceholder: Bool {
         switch self {
         case .model:
             return false
-        case .shimmer:
+        case .shimmer, .uniqueShimmer:
             return true
         }
     }
@@ -33,6 +34,8 @@ public enum ShimmeredCellModel<PresentableModel: Hashable>: Hashable {
         switch (lhs, rhs) {
         case (.model(let lhsModel), .model(let rhsModel)):
             return lhsModel == rhsModel
+        case (.uniqueShimmer(let lhsId), .uniqueShimmer(let rhsId)):
+            return lhsId == rhsId
         case (.shimmer, .shimmer):
             return false
         default:
@@ -44,6 +47,8 @@ public enum ShimmeredCellModel<PresentableModel: Hashable>: Hashable {
         switch self {
         case .model(let model):
             hasher.combine(model)
+        case .uniqueShimmer(let id):
+            hasher.combine(id)
         default:
             break
         }

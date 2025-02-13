@@ -1,4 +1,5 @@
-import Foundation
+#if canImport(UIKit)
+import UIKit
 
 public protocol SectionedDiffableItem: Hashable {
     associatedtype SectionItem: Hashable
@@ -6,13 +7,6 @@ public protocol SectionedDiffableItem: Hashable {
     var header: SectionItem { get set }
     var cells: [Model] { get set }
 }
-
-public class CellPresenter {
-    
-}
-
-#if canImport(UIKit)
-import UIKit
 
 @available(iOS 13.0, *)
 public class DiffableTableViewDataSource<SectionItem: Hashable, Model: Hashable>: NSObject, UITableViewDelegate {
