@@ -8,20 +8,20 @@ import Foundation
 
 public protocol SwitchCotrolOutput: AnyObject {
     func display(model: SwitchControlPresentableModel?)
-    func display(onPress: (() -> Void)?)
+    func display(onPress: ((SwitchCotrolOutput) -> Void)?)
     func display(isOn: Bool)
     func display(style: SwitchControlPresentableModel.Style)
     func display(isEnabled: Bool)
 }
 
 public struct SwitchControlPresentableModel {
-    public let onPress: (() -> Void)?
+    public let onPress: ((SwitchCotrolOutput) -> Void)?
     public let isOn: Bool?
     public let isEnabled: Bool?
     public let style: Style?
 
     public init(
-        onPress: (() -> Void)? = nil,
+        onPress: ((SwitchCotrolOutput) -> Void)?,
         isOn: Bool? = nil,
         isEnabled: Bool? = nil,
         style: Style? = nil
@@ -31,7 +31,7 @@ public struct SwitchControlPresentableModel {
         self.isEnabled = isEnabled
         self.style = style
     }
-
+    
     public struct Style {
         public let tintColor: Color
         public let thumbTintColor: Color
@@ -52,34 +52,32 @@ public struct SwitchControlPresentableModel {
     }
 }
 
-
 #if canImport(UIKit)
 import UIKit
 
 open class SwitchControl: UISwitch {
-    public var onPress: (() -> Void)?
+    public var onPress: ((SwitchCotrolOutput) -> Void)?
     
     public init() {
         super.init(frame: .zero)
-
         addTarget(self, action: #selector(didPress), for: .valueChanged)
     }
-    
+
     public init(style: SwitchControlPresentableModel.Style) {
         super.init(frame: .zero)
-        
         addTarget(self, action: #selector(didPress), for: .valueChanged)
         display(style: style)
     }
-    
+
     @objc private func didPress() {
-        onPress?()
+        onPress?(self)
     }
-    
+
     public required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 }
+
 
 extension SwitchControl: SwitchCotrolOutput {
     public func display(model: SwitchControlPresentableModel?) {
@@ -97,7 +95,7 @@ extension SwitchControl: SwitchCotrolOutput {
         cornerRadius = style.cornerRadius
     }
     
-    public func display(onPress: (() -> Void)?) {
+    public func display(onPress: ((SwitchCotrolOutput) -> Void)?) {
         self.onPress = onPress
     }
     
