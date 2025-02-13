@@ -56,6 +56,7 @@ public class DiffableTableViewDataSource<SectionItem: Hashable, Model: Hashable>
                 return self?.configureCell?(tableView, indexPath, model) ?? UITableViewCell()
             }
         }
+        dataSource.defaultRowAnimation = defaultRowAnimation
         tableView.dataSource = dataSource
         tableView.delegate = self
     }
