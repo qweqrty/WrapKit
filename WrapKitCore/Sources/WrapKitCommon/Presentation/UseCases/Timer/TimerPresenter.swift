@@ -8,7 +8,7 @@
 import Foundation
 
 public protocol TimerOutput: AnyObject {
-    func display(secondsRemaining: Int?)
+    func display(timerInput: TimerInput, secondsRemaining: Int?)
 }
 
 public protocol TimerInput: ApplicationLifecycleInput {
@@ -40,9 +40,9 @@ public class TimerPresenter: TimerInput {
             self.secondsRemained = (self.secondsRemained ?? 1) - 1
             if self.secondsRemained ?? 0 <= 0 {
                 self.stop()
-                self.view?.display(secondsRemaining: nil)
+                self.view?.display(timerInput: self, secondsRemaining: nil)
             } else {
-                self.view?.display(secondsRemaining: self.secondsRemained)
+                self.view?.display(timerInput: self, secondsRemaining: self.secondsRemained)
             }
         }
         timer?.resume()
@@ -59,9 +59,9 @@ public class TimerPresenter: TimerInput {
         secondsRemained = (secondsRemained ?? 0) - timeSpentInBackground
         if secondsRemained ?? 0 <= 0 {
             stop()
-            view?.display(secondsRemaining: nil)
+            view?.display(timerInput: self, secondsRemaining: nil)
         } else {
-            view?.display(secondsRemaining: secondsRemained)
+            view?.display(timerInput: self, secondsRemaining: secondsRemained)
             start(seconds: secondsRemained ?? 0)
         }
     }

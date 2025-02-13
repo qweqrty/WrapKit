@@ -7,9 +7,9 @@ import Foundation
 
 extension MainQueueDispatchDecorator: TimerOutput where T: TimerOutput {
 
-    public func display(secondsRemaining: Int?) {
+    public func display(timerInput: TimerInput, secondsRemaining: Int?) {
         dispatch { [weak self] in
-            self?.decoratee.display(secondsRemaining: secondsRemaining)
+            self?.decoratee.display(timerInput: timerInput, secondsRemaining: secondsRemaining)
         }
     }
 
@@ -29,8 +29,8 @@ extension TimerOutput {
 
 extension WeakRefVirtualProxy: TimerOutput where T: TimerOutput {
 
-    public func display(secondsRemaining: Int?) {
-        object?.display(secondsRemaining: secondsRemaining)
+    public func display(timerInput: TimerInput, secondsRemaining: Int?) {
+        object?.display(timerInput: timerInput, secondsRemaining: secondsRemaining)
     }
 
 }
