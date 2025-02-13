@@ -1,9 +1,15 @@
 #if canImport(UIKit)
 import UIKit
 
+public protocol SectionedDiffableItem: Hashable {
+    associatedtype SectionItem: Hashable
+    associatedtype Model: Hashable
+    var header: SectionItem { get set }
+    var cells: [Model] { get set }
+}
+
 @available(iOS 13.0, *)
-public class DiffableTableViewDataSource<Model: Hashable>: NSObject, UITableViewDelegate {
-    
+public class DiffableTableViewDataSource<SectionItem: Hashable, Model: Hashable>: NSObject, UITableViewDelegate {
     public enum TableItem: Hashable {
         case model(Model)
         case footer(UUID)
@@ -13,7 +19,7 @@ public class DiffableTableViewDataSource<Model: Hashable>: NSObject, UITableView
     public var didSelectAt: ((IndexPath, Model) -> Void)?
     public var configureCell: ((UITableView, IndexPath, Model) -> UITableViewCell)?
     public var configureFooter: (() -> UITableViewCell)?
-    public var viewForHeaderInSection: ((Int) -> View)?
+    public var viewForHeaderInSection: ((UITableView, Int) -> UIView)?
     public var heightForHeaderInSection: ((Int) -> CGFloat)?
     public var onRetry: (() -> Void)?
     public var showLoader = false
@@ -24,7 +30,13 @@ public class DiffableTableViewDataSource<Model: Hashable>: NSObject, UITableView
     public var didScrollViewDidEndDecelerating: ((UIScrollView) -> Void)?
     
     private weak var tableView: UITableView?
-    private var dataSource: UITableViewDiffableDataSource<Int, TableItem>!
+    private var dataSource: UITableViewDiffableDataSource<SectionItem, TableItem>!
+    
+    public var defaultRowAnimation: UITableView.RowAnimation = .fade {
+        didSet {
+            dataSource.defaultRowAnimation = defaultRowAnimation
+        }
+    }
     
     // MARK: - Initializer
     public init(tableView: UITableView, configureCell: @escaping (UITableView, IndexPath, Model) -> UITableViewCell) {
@@ -36,7 +48,7 @@ public class DiffableTableViewDataSource<Model: Hashable>: NSObject, UITableView
     
     // MARK: - Setup Data Source
     private func setupDataSource(for tableView: UITableView) {
-        dataSource = UITableViewDiffableDataSource<Int, TableItem>(tableView: tableView) { [weak self] tableView, indexPath, item in
+        dataSource = UITableViewDiffableDataSource<SectionItem, TableItem>(tableView: tableView) { [weak self] tableView, indexPath, item in
             switch item {
             case .footer:
                 return self?.configureFooter?() ?? UITableViewCell()
@@ -44,36 +56,37 @@ public class DiffableTableViewDataSource<Model: Hashable>: NSObject, UITableView
                 return self?.configureCell?(tableView, indexPath, model) ?? UITableViewCell()
             }
         }
-        dataSource.defaultRowAnimation = .none
         tableView.dataSource = dataSource
         tableView.delegate = self
     }
     
+    
     // MARK: - Snapshot Management
-    public func updateItems(_ items: [Model], at section: Int = 0) {
+    public func updateItems(_ items: [Model], at section: SectionItem) {
         DispatchQueue.global(qos: .userInitiated).async {
             let uniqueItems = items.uniqued
             DispatchQueue.main.async { [weak self] in
-                var snapshot = NSDiffableDataSourceSnapshot<Int, TableItem>()
+                guard var snapshot = self?.dataSource.snapshot() else { return }
+                snapshot.deleteAllItems()
                 snapshot.appendSections([section])
                 snapshot.appendItems(uniqueItems.map { .model($0) }, toSection: section)
                 self?.dataSource.apply(snapshot, animatingDifferences: true)
-                self?.tableView?.reloadData()
             }
         }
     }
-    
-    public func updateItems(_ items: [[Model]]) {
+
+    public func updateSectionedItems<Item: SectionedDiffableItem>(_ items: [Item]) where Item.SectionItem == SectionItem, Item.Model == Model {
         DispatchQueue.global(qos: .userInitiated).async {
             let uniqueItems = items.uniqued
             DispatchQueue.main.async { [weak self] in
-                var snapshot = NSDiffableDataSourceSnapshot<Int, TableItem>()
-                snapshot.appendSections(uniqueItems.enumerated().map { $0.offset })
-                uniqueItems.enumerated().forEach {
-                    snapshot.appendItems($0.element.uniqued.map { .model($0) }, toSection: $0.offset)
+                guard var snapshot = self?.dataSource.snapshot() else { return }
+                snapshot.deleteAllItems()
+                let headers = items.map { $0.header }.uniqued
+                snapshot.appendSections(headers)
+                uniqueItems.forEach { item in
+                    snapshot.appendItems(item.cells.uniqued.map { .model($0) }, toSection: item.header)
                 }
                 self?.dataSource.apply(snapshot, animatingDifferences: true)
-                self?.tableView?.reloadData()
             }
         }
     }
@@ -85,7 +98,7 @@ public class DiffableTableViewDataSource<Model: Hashable>: NSObject, UITableView
     
     public func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        guard case .model(let selectedModel) = dataSource.snapshot().itemIdentifiers(inSection: indexPath.section).item(at: indexPath.row) else { return }
+        guard case .model(let selectedModel) = dataSource.itemIdentifier(for: indexPath) else { return }
         didSelectAt?(indexPath, selectedModel)
     }
     
@@ -113,7 +126,7 @@ public class DiffableTableViewDataSource<Model: Hashable>: NSObject, UITableView
     
     // MARK: - Header/Footer Views
     open func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        return viewForHeaderInSection?(section) ?? UIView()
+        return viewForHeaderInSection?(tableView, section) ?? UIView()
     }
     
     open func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
@@ -128,4 +141,28 @@ public class DiffableTableViewDataSource<Model: Hashable>: NSObject, UITableView
         return .leastNonzeroMagnitude
     }
 }
+
+extension DiffableTableViewDataSource where SectionItem == Int {
+    public func updateItems(_ items: [Model], at section: Int = 0) {
+        DispatchQueue.global(qos: .userInitiated).async {
+            let uniqueItems = items.uniqued
+            DispatchQueue.main.async { [weak self] in
+                guard var snapshot = self?.dataSource?.snapshot() else { return }
+                snapshot.deleteAllItems()
+                snapshot.appendSections([section])
+                snapshot.appendItems(uniqueItems.map { .model($0) }, toSection: section)
+                self?.dataSource?.apply(snapshot, animatingDifferences: true)
+            }
+        }
+    }
+}
+
+extension DiffableTableViewDataSource where SectionItem == Int {
+    public func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+        guard case .model(let selectedModel) = dataSource.snapshot().itemIdentifiers(inSection: indexPath.section).item(at: indexPath.row) else { return }
+        didSelectAt?(indexPath, selectedModel)
+    }
+}
+
 #endif
