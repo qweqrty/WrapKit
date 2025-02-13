@@ -83,8 +83,8 @@ extension SelectionVC: SelectionOutput {
 }
 
 extension SelectionVC {
-    func makeDatasource() -> DiffableTableViewDataSource<SelectionType.SelectionCellPresentableModel> {
-        let datasource = DiffableTableViewDataSource<SelectionType.SelectionCellPresentableModel>(
+    func makeDatasource() -> DiffableTableViewDataSource<Int, SelectionType.SelectionCellPresentableModel> {
+        let datasource = DiffableTableViewDataSource<Int, SelectionType.SelectionCellPresentableModel>(
             tableView: contentView.tableView,
             configureCell: { tableView, indexPath, model in
                 let cell: SelectionCell = tableView.dequeueReusableCell(for: indexPath)
