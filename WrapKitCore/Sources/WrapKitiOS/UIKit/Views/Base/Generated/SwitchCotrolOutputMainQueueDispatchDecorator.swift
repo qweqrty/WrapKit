@@ -12,7 +12,7 @@ extension MainQueueDispatchDecorator: SwitchCotrolOutput where T: SwitchCotrolOu
             self?.decoratee.display(model: model)
         }
     }
-    public func display(onPress: (() -> Void)?) {
+    public func display(onPress: ((SwitchCotrolOutput) -> Void)?) {
         dispatch { [weak self] in
             self?.decoratee.display(onPress: onPress)
         }
@@ -52,7 +52,7 @@ extension WeakRefVirtualProxy: SwitchCotrolOutput where T: SwitchCotrolOutput {
     public func display(model: SwitchControlPresentableModel?) {
         object?.display(model: model)
     }
-    public func display(onPress: (() -> Void)?) {
+    public func display(onPress: ((SwitchCotrolOutput) -> Void)?) {
         object?.display(onPress: onPress)
     }
     public func display(isOn: Bool) {
