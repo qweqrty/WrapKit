@@ -21,6 +21,7 @@ public class TimerPresenter: TimerInput {
     private var secondsRemained: Int?
     private var backgroundStartTime: Date?
     public weak var view: TimerOutput?
+    public var onSecondsRemaining: ((Int?) -> Void)?
     
     public init(timer: DispatchSourceTimer? = nil, secondsRemained: Int? = nil, backgroundStartTime: Date? = nil, view: TimerOutput? = nil) {
         self.timer = timer
@@ -40,8 +41,10 @@ public class TimerPresenter: TimerInput {
             self.secondsRemained = (self.secondsRemained ?? 1) - 1
             if self.secondsRemained ?? 0 <= 0 {
                 self.stop()
+                self.onSecondsRemaining?(nil)
                 self.view?.display(timerInput: self, secondsRemaining: nil)
             } else {
+                self.onSecondsRemaining?(self.secondsRemained)
                 self.view?.display(timerInput: self, secondsRemaining: self.secondsRemained)
             }
         }
@@ -59,8 +62,10 @@ public class TimerPresenter: TimerInput {
         secondsRemained = (secondsRemained ?? 0) - timeSpentInBackground
         if secondsRemained ?? 0 <= 0 {
             stop()
+            onSecondsRemaining?(nil)
             view?.display(timerInput: self, secondsRemaining: nil)
         } else {
+            onSecondsRemaining?(secondsRemained)
             view?.display(timerInput: self, secondsRemaining: secondsRemained)
             start(seconds: secondsRemained ?? 0)
         }
