@@ -22,6 +22,16 @@ public extension Optional where Wrapped == String {
     }
 }
 
+public extension Date {
+    /// Converts a Date to a String with the given format
+    func toString(format: String, locale: Locale = .current) -> String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = format
+        dateFormatter.locale = locale
+        return dateFormatter.string(from: self)
+    }
+}
+
 public extension String {
     var asHtmlAttributedString: NSAttributedString? {
         guard let data = data(using: .utf8) else { return nil }
