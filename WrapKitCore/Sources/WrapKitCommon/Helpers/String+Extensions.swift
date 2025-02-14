@@ -63,3 +63,17 @@ public extension String {
         return Int(cleanString)
     }
 }
+
+public extension Int {
+    /// Converts milliseconds to Date
+    var toDateFromMilliseconds: Date {
+        return Date(timeIntervalSince1970: TimeInterval(self) / 1000)
+    }
+}
+
+public extension Double {
+    /// Converts milliseconds to Date
+    var toDateFromMilliseconds: Date {
+        return Date(timeIntervalSince1970: self / 1000)
+    }
+}
