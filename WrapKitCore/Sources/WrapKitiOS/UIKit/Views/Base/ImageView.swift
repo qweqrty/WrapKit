@@ -222,8 +222,13 @@ extension ImageView: ImageViewOutput {
         if let image = model?.image { display(image: image) }
         if let size = model?.size {
             display(size: size)
-        } else if let size = image?.size {
-            display(size: size)
+        }
+        
+        switch model?.image {
+        case .asset(let image) where model?.size == nil:
+            display(size: image?.size)
+        default:
+            break
         }
         if let contentModeIsFit = model?.contentModeIsFit { display(contentModeIsFit: contentModeIsFit) }
         
