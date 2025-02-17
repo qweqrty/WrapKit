@@ -79,11 +79,36 @@ public extension Int {
     var toDateFromMilliseconds: Date {
         return Date(timeIntervalSince1970: TimeInterval(self) / 1000)
     }
+
+    /// Converts milliseconds to formatted String date
+    func millisecondsToDateString(format: String, locale: Locale = .current) -> String {
+        let date = self.toDateFromMilliseconds
+        return date.toString(format: format, locale: locale)
+    }
 }
 
 public extension Double {
     /// Converts milliseconds to Date
     var toDateFromMilliseconds: Date {
         return Date(timeIntervalSince1970: self / 1000)
+    }
+
+    /// Converts milliseconds to formatted String date
+    func millisecondsToDateString(format: String, locale: Locale = .current) -> String {
+        let date = self.toDateFromMilliseconds
+        return date.toString(format: format, locale: locale)
+    }
+}
+
+public extension Float {
+    /// Converts milliseconds to Date
+    var toDateFromMilliseconds: Date {
+        return Date(timeIntervalSince1970: TimeInterval(self) / 1000)
+    }
+
+    /// Converts milliseconds to formatted String date
+    func millisecondsToDateString(format: String, locale: Locale = .current) -> String {
+        let date = self.toDateFromMilliseconds
+        return date.toString(format: format, locale: locale)
     }
 }
