@@ -248,10 +248,10 @@ open class CardView: View {
     public let hStackView = StackView(axis: .horizontal, spacing: 14)
     
     public let leadingImageWrapperView = UIView(isHidden: true)
-    public let leadingImageView = ImageView(tintColor: .black)
+    public private(set) var leadingImageView = ImageView(tintColor: .black)
     
     public let secondaryLeadingImageWrapperView = UIView(isHidden: true)
-    public let secondaryLeadingImageView = ImageView(tintColor: .black)
+    public private(set) var secondaryLeadingImageView = ImageView(tintColor: .black)
     
     public let titleViewsWrapperView = UIView()
     public let titleViews = VKeyValueFieldView(
@@ -263,16 +263,16 @@ open class CardView: View {
     public let subtitleLabel = Label(font: .systemFont(ofSize: 16), textColor: .gray, numberOfLines: 1)
     
     public let trailingImageWrapperView = View(isHidden: true)
-    public let trailingImageView = ImageView(image: UIImage(named: "rightArrow"), tintColor: .black)
+    public private(set) var trailingImageView = ImageView(image: UIImage(named: "rightArrow"), tintColor: .black)
     
     public let secondaryTrailingImageWrapperView = UIView(isHidden: true)
-    public let secondaryTrailingImageView = ImageView()
+    public private(set) var secondaryTrailingImageView = ImageView()
     
     public let switchWrapperView = UIView(isHidden: true)
     public lazy var switchControl = SwitchControl()
     
     public let bottomImageWrapperView = UIView(isHidden: true)
-    public let bottomImageView = ImageView(tintColor: .black)
+    public private(set) var bottomImageView = ImageView(tintColor: .black)
     
     public let bottomSeparatorView = WrapperView(
         contentView: View(backgroundColor: .gray),
@@ -304,7 +304,14 @@ open class CardView: View {
         setupPriorities()
     }
     
-    public init(style: CardViewPresentableModel.Style) {
+    public init(style: CardViewPresentableModel.Style, buildImage: (() -> ImageView)? = nil) {
+        if let buildImage {
+            self.leadingImageView = buildImage()
+            self.secondaryLeadingImageView = buildImage()
+            self.trailingImageView = buildImage()
+            self.secondaryTrailingImageView = buildImage()
+            self.bottomImageView = buildImage()
+        }
         super.init(frame: .zero)
         
         setupSubviews()
