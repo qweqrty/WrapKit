@@ -14,18 +14,15 @@ open class RemoteService<Request, Response>: Service {
     private let client: HTTPClient
     private let makeURLRequest: (Request) -> URLRequest?
     private let responseHandler: ResponseHandler?
-    private let shouldFailOnConnectivityError: Bool
     
     public init(
         client: HTTPClient,
-        shouldFailOnConnectivityError: Bool = true,
         makeURLRequest: @escaping (Request) -> URLRequest?,
         responseHandler: ResponseHandler?
     ) {
         self.client = client
         self.makeURLRequest = makeURLRequest
         self.responseHandler = responseHandler
-        self.shouldFailOnConnectivityError = shouldFailOnConnectivityError
     }
     
     public func make(request: Request) -> AnyPublisher<Response, ServiceError> {
@@ -46,7 +43,7 @@ open class RemoteService<Request, Response>: Service {
                     case .failure(let error):
                         if (error as? URLError)?.code == .cancelled {
                             promise(.failure(.cancelled))
-                        } else if let error = error as NSError?, self?.shouldFailOnConnectivityError == true,
+                        } else if let error = error as NSError?,
                                   error.domain == NSURLErrorDomain && error.code == NSURLErrorNotConnectedToInternet {
                             promise(.failure(.connectivity))
                         } else {
