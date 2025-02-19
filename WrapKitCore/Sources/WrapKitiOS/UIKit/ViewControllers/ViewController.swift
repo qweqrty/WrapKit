@@ -63,6 +63,11 @@ open class ViewController<ContentView: UIView>: UIViewController {
     
     open override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         super.traitCollectionDidChange(previousTraitCollection)
+
+        guard let previousTraitCollection = previousTraitCollection,
+              previousTraitCollection.userInterfaceStyle != traitCollection.userInterfaceStyle else {
+            return
+        }
         
         applicationLifecycleInput?.applicationDidChange(userInterfaceStyle: UserInterfaceStyle.current)
     }
