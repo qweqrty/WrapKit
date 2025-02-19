@@ -67,8 +67,7 @@ public class DiffableTableViewDataSource<SectionItem: Hashable, Model: Hashable>
         DispatchQueue.global(qos: .userInitiated).async {
             let uniqueItems = items.uniqued
             DispatchQueue.main.async { [weak self] in
-                guard var snapshot = self?.dataSource.snapshot() else { return }
-                snapshot.deleteAllItems()
+                var snapshot = NSDiffableDataSourceSnapshot<SectionItem, TableItem>()
                 snapshot.appendSections([section])
                 snapshot.appendItems(uniqueItems.map { .model($0) }, toSection: section)
                 self?.dataSource.apply(snapshot, animatingDifferences: true)
@@ -80,9 +79,8 @@ public class DiffableTableViewDataSource<SectionItem: Hashable, Model: Hashable>
         DispatchQueue.global(qos: .userInitiated).async {
             let uniqueItems = items.uniqued
             DispatchQueue.main.async { [weak self] in
-                guard var snapshot = self?.dataSource.snapshot() else { return }
-                snapshot.deleteAllItems()
-                let headers = items.map { $0.header }.uniqued
+                var snapshot = NSDiffableDataSourceSnapshot<SectionItem, TableItem>()
+                let headers = uniqueItems.map { $0.header }.uniqued
                 snapshot.appendSections(headers)
                 uniqueItems.forEach { item in
                     snapshot.appendItems(item.cells.uniqued.map { .model($0) }, toSection: item.header)
@@ -148,8 +146,7 @@ extension DiffableTableViewDataSource where SectionItem == Int {
         DispatchQueue.global(qos: .userInitiated).async {
             let uniqueItems = items.uniqued
             DispatchQueue.main.async { [weak self] in
-                guard var snapshot = self?.dataSource?.snapshot() else { return }
-                snapshot.deleteAllItems()
+                var snapshot = NSDiffableDataSourceSnapshot<SectionItem, TableItem>()
                 snapshot.appendSections([section])
                 snapshot.appendItems(uniqueItems.map { .model($0) }, toSection: section)
                 self?.dataSource?.apply(snapshot, animatingDifferences: true)
