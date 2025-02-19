@@ -191,8 +191,8 @@ extension CardView: CardViewOutput {
         if let bottomSeparator = bottomSeparator {
             bottomSeparatorView.contentView.backgroundColor = bottomSeparator.color
             bottomSeparatorView.contentViewConstraints?.top?.constant = bottomSeparator.padding.top
-            bottomSeparatorView.contentViewConstraints?.leading?.constant = bottomSeparator.padding.left
-            bottomSeparatorView.contentViewConstraints?.trailing?.constant = bottomSeparator.padding.right
+            bottomSeparatorView.contentViewConstraints?.leading?.constant = bottomSeparator.padding.leading
+            bottomSeparatorView.contentViewConstraints?.trailing?.constant = bottomSeparator.padding.trailing
             bottomSeparatorView.contentViewConstraints?.bottom?.constant = bottomSeparator.padding.bottom
             bottomSeparatorViewConstraints?.height?.constant = bottomSeparator.height
         }

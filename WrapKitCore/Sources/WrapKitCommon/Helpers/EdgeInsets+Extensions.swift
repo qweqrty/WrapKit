@@ -7,37 +7,37 @@
 
 import Foundation
 
-public struct EdgeInsets {
+public struct EdgeInsets: Equatable {
     public let top: CGFloat
-    public let left: CGFloat
+    public let leading: CGFloat
     public let bottom: CGFloat
-    public let right: CGFloat
-
-    public init(top: CGFloat, left: CGFloat, bottom: CGFloat, right: CGFloat) {
+    public let trailing: CGFloat
+    
+    public init(top: CGFloat, leading: CGFloat, bottom: CGFloat, trailing: CGFloat) {
         self.top = top
-        self.left = left
+        self.leading = leading
         self.bottom = bottom
-        self.right = right
+        self.trailing = trailing
     }
 
     // Convenience initializer for uniform insets
     public init(all: CGFloat) {
         self.top = all
-        self.left = all
+        self.leading = all
         self.bottom = all
-        self.right = all
+        self.trailing = all
     }
 
     // Convenience initializer for horizontal and vertical insets
     public init(horizontal: CGFloat, vertical: CGFloat) {
         self.top = vertical
-        self.left = horizontal
+        self.leading = horizontal
         self.bottom = vertical
-        self.right = horizontal
+        self.trailing = horizontal
     }
 
     // Static properties for common cases
-    public static let zero = EdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
+    public static let zero = EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)
 }
 
 #if canImport(UIKit)
@@ -45,7 +45,7 @@ import UIKit
 
 extension EdgeInsets {
     var asUIEdgeInsets: UIEdgeInsets {
-        UIEdgeInsets(top: top, left: left, bottom: bottom, right: right)
+        UIEdgeInsets(top: top, left: leading, bottom: bottom, right: trailing)
     }
 }
 #endif
