@@ -24,10 +24,6 @@ import AppTrackingTransparency
 import UserNotifications
 #endif
 
-#if canImport(CoreBluetooth)
-import CoreBluetooth
-#endif
-
 public final class AppPermissions {
     // MARK: - Camera Permission
     public static func requestCameraAccess(permissionCallback: @escaping ((Bool) -> Void)) {
@@ -178,23 +174,6 @@ public final class AppPermissions {
                     permissionCallback(false)
                 }
             }
-        }
-        #else
-        permissionCallback(false)
-        #endif
-    }
-
-    // MARK: - Bluetooth Permission
-    public static func requestBluetoothAccess(permissionCallback: @escaping ((Bool) -> Void)) {
-        #if canImport(CoreBluetooth)
-        let manager = CBCentralManager()
-        switch manager.authorization {
-        case .allowedAlways:
-            DispatchQueue.main.async {
-                permissionCallback(true)
-            }
-        default:
-            permissionCallback(false)
         }
         #else
         permissionCallback(false)
