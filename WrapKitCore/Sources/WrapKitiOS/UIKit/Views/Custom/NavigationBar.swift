@@ -112,9 +112,9 @@ extension NavigationBar: HeaderOutput {
             mainStackViewConstraints?.trailing?.constant = -8
             
             leadingCardView.leadingImageView.tintColor = style.primeColor
-            primeTrailingImageWrapperView.contentView.setImage(primeTrailingImageWrapperView.contentView.image(for: .normal)?.withTintColor(style.primeColor), for: .normal)
-            secondaryTrailingImageWrapperView.contentView.setImage(secondaryTrailingImageWrapperView.contentView.image(for: .normal)?.withTintColor(style.primeColor), for: .normal)
-            tertiaryTrailingImageWrapperView.contentView.setImage(tertiaryTrailingImageWrapperView.contentView.image(for: .normal)?.withTintColor(style.primeColor), for: .normal)
+            primeTrailingImageWrapperView.contentView.tintColor = style.primeColor
+            secondaryTrailingImageWrapperView.contentView.tintColor = style.primeColor
+            tertiaryTrailingImageWrapperView.contentView.tintColor = style.primeColor
             
             leadingCardView.titleViews.keyLabel.font = style.primeFont
             leadingCardView.titleViews.keyLabel.textColor = style.primeColor
