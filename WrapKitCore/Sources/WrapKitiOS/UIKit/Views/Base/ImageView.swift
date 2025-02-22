@@ -17,6 +17,7 @@ public protocol ImageViewOutput: AnyObject {
     func display(borderWidth: CGFloat?)
     func display(borderColor: Color?)
     func display(cornerRadius: CGFloat?)
+    func display(alpha: CGFloat?)
 }
 
 public struct ImageViewPresentableModel: HashableWithReflection {
@@ -28,6 +29,7 @@ public struct ImageViewPresentableModel: HashableWithReflection {
     public let borderWidth: CGFloat?
     public let borderColor: Color?
     public let cornerRadius: CGFloat?
+    public let alpha: CGFloat?
     
     public init(
         size: CGSize? = nil,
@@ -37,7 +39,8 @@ public struct ImageViewPresentableModel: HashableWithReflection {
         contentModeIsFit: Bool? = nil,
         borderWidth: CGFloat? = nil,
         borderColor: Color? = nil,
-        cornerRadius: CGFloat? = nil
+        cornerRadius: CGFloat? = nil,
+        alpha: CGFloat? = nil
     ) {
         self.size = size
         self.image = image
@@ -47,6 +50,7 @@ public struct ImageViewPresentableModel: HashableWithReflection {
         self.borderWidth = borderWidth
         self.borderColor = borderColor
         self.cornerRadius = cornerRadius
+        self.alpha = alpha
     }
 }
 
@@ -250,6 +254,9 @@ extension ImageView: ImageViewOutput {
         if let cornerRadius = model?.cornerRadius {
             display(cornerRadius: cornerRadius)
         }
+        if let alpha = model?.alpha {
+            display(alpha: alpha)
+        }
     }
     
     public func display(size: CGSize?) {
@@ -295,6 +302,11 @@ extension ImageView: ImageViewOutput {
     
     public func display(contentModeIsFit: Bool) {
         self.contentMode = contentModeIsFit == true ? .scaleAspectFit : .scaleAspectFill
+    }
+    
+    public func display(alpha: CGFloat?) {
+        guard let alpha else { return }
+        self.alpha = alpha
     }
 }
 #endif

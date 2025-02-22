@@ -52,6 +52,11 @@ extension MainQueueDispatchDecorator: ImageViewOutput where T: ImageViewOutput {
             self?.decoratee.display(cornerRadius: cornerRadius)
         }
     }
+    public func display(alpha: CGFloat?) {
+        dispatch { [weak self] in
+            self?.decoratee.display(alpha: alpha)
+        }
+    }
 
 }
 
@@ -95,6 +100,9 @@ extension WeakRefVirtualProxy: ImageViewOutput where T: ImageViewOutput {
     }
     public func display(cornerRadius: CGFloat?) {
         object?.display(cornerRadius: cornerRadius)
+    }
+    public func display(alpha: CGFloat?) {
+        object?.display(alpha: alpha)
     }
 
 }
