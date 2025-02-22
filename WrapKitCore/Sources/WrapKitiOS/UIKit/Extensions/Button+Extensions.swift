@@ -25,11 +25,10 @@ public extension Button {
         switch image {
         case .asset(let image):
             self.animatedSet(image)
-        case .url(let url):
-            guard let url else { return }
-            self.loadImage(url, kingfisherOptions: kingfisherOptions)
-        case .urlString(let string):
-            guard let string else { return }
+        case .url(let lightUrl, let darkUrl):
+            self.loadImage(UserInterfaceStyle.current == .light ? (lightUrl ?? darkUrl) : (darkUrl ?? lightUrl), kingfisherOptions: kingfisherOptions)
+        case .urlString(let lightString, let darkString):
+            guard let string = UserInterfaceStyle.current == .light ? (lightString ?? darkString) : (darkString ?? lightString) else { return }
             guard let url = URL(string: string) else { return }
             self.loadImage(url, kingfisherOptions: kingfisherOptions)
         case .data(let data):
@@ -40,7 +39,8 @@ public extension Button {
         }
     }
     
-    private func loadImage(_ url: URL, kingfisherOptions: KingfisherOptionsInfo) {
+    private func loadImage(_ url: URL?, kingfisherOptions: KingfisherOptionsInfo) {
+        guard let url else { return }
         KingfisherManager.shared.cache.retrieveImage(forKey: url.absoluteString, options: [.callbackQueue(.mainCurrentOrAsync)]) { [weak self] result in
             switch result {
             case .success(let image):

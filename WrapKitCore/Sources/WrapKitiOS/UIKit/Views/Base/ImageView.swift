@@ -55,6 +55,7 @@ import UIKit
 
 open class ImageView: UIImageView {
     public var currentAnimator: UIViewPropertyAnimator?
+    public var currentImageEnum: ImageEnum?
 
     open override var image: UIImage? {
         get {
@@ -139,8 +140,15 @@ open class ImageView: UIImageView {
     open override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         super.traitCollectionDidChange(previousTraitCollection)
         
-        if #available(iOS 13.0, *), let image = self.image, image.renderingMode == .alwaysTemplate {
-            setImage(.asset(self.image?.withTintColor(tintColor)))
+        switch currentImageEnum {
+        case .url, .urlString:
+            setImage(currentImageEnum)
+        case .asset, .data:
+            if #available(iOS 13.0, *), let image = self.image, image.renderingMode == .alwaysTemplate {
+                setImage(.asset(self.image?.withTintColor(tintColor)))
+            }
+        case .none:
+            break
         }
     }
     

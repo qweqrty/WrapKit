@@ -18,14 +18,14 @@ public extension ImageView {
     }
     
     private func handleImage(_ image: ImageEnum?, kingfisherOptions: KingfisherOptionsInfo = [], closure: ((Image?) -> Void)? = nil) {
+        currentImageEnum = image
         switch image {
         case .asset(let image):
             self.animatedSet(image, closure: closure)
-        case .url(let url):
-            guard let url else { return }
-            self.loadImage(url, kingfisherOptions: kingfisherOptions, closure: closure)
-        case .urlString(let string):
-            guard let string else { return }
+        case .url(let lightUrl, let darkUrl):
+            self.loadImage(UserInterfaceStyle.current == .light ? (lightUrl ?? darkUrl) : (darkUrl ?? lightUrl), kingfisherOptions: kingfisherOptions, closure: closure)
+        case .urlString(let lightString, let darkString):
+            guard let string = UserInterfaceStyle.current == .light ? (lightString ?? darkString) : (darkString ?? lightString) else { return }
             guard let url = URL(string: string) else { return }
             self.loadImage(url, kingfisherOptions: kingfisherOptions, closure: closure)
         case .data(let data):
@@ -36,7 +36,8 @@ public extension ImageView {
         }
     }
     
-    private func loadImage(_ url: URL, kingfisherOptions: KingfisherOptionsInfo, closure: ((Image?) -> Void)? = nil) {
+    private func loadImage(_ url: URL?, kingfisherOptions: KingfisherOptionsInfo, closure: ((Image?) -> Void)? = nil) {
+        guard let url = url else { return }
         if let fallbackView {
             fallbackView.isHidden = true
         }

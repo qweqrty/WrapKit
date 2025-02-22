@@ -139,6 +139,7 @@ public enum PressAnimation: HashableWithReflection {
 
 open class Button: UIButton {
     var currentAnimator: UIViewPropertyAnimator?
+    public var currentImageEnum: ImageEnum?
     
     public var onPress: (() -> Void)? {
         didSet {
@@ -243,6 +244,17 @@ open class Button: UIButton {
         self.pressedTextColor = pressedTextColor
         self.pressedBackgroundColor = pressedBacgroundColor
         updateSpacings()
+    }
+    
+    open override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        
+        switch currentImageEnum {
+        case .url, .urlString:
+            setImage(currentImageEnum)
+        default:
+            break
+        }
     }
     
     @objc private func onTap() {

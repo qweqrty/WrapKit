@@ -34,6 +34,6 @@ public typealias SwiftUIFont = SwiftUI.Font
 public enum ImageEnum: HashableWithReflection {
     case asset(Image?)
     case data(Data?)
-    case url(URL?)
-    case urlString(String?)
+    case url(URL?, URL? = nil) // Light, Dark
+    case urlString(String?, String? = nil) // Light, Dark
 }
