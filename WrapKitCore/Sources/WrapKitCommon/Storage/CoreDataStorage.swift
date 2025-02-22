@@ -67,10 +67,10 @@ public class CoreDataStorage<Model, CoreDataModel: NSManagedObject & CoreDataCon
             .eraseToAnyPublisher()
     }
     
-    public init?(storeURL: URL, entityName: String) {
+    public init?(storeURL: URL, entityName: String, bundle: Bundle? = nil) {
         self.entityName = entityName
         
-        guard let model = NSManagedObjectModel.with(name: entityName, in: Bundle(for: CoreDataModel.self)) else {
+        guard let model = NSManagedObjectModel.with(name: entityName, in: bundle ?? Bundle(for: CoreDataModel.self)) else {
             return nil
         }
         
