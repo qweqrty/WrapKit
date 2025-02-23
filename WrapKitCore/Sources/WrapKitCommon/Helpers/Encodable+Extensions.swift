@@ -52,13 +52,49 @@ public extension Encodable {
     }
     
     func toURLFormEncodedString(withRootKey rootKey: String? = nil, withAllowedCharacters allowedCharacters: CharacterSet = .urlQueryAllowed) -> Data? {
-        guard let jsonData = try? JSONEncoder().encode(self) else { return nil }
-        guard let jsonString = String(data: jsonData, encoding: .utf8) else { return nil }
-        guard let encodedJsonString = jsonString.addingPercentEncoding(withAllowedCharacters: allowedCharacters) else { return nil }
-        if let rootKey = rootKey {
-            return "\(rootKey)=\(encodedJsonString)".data(using: .utf8)
-        } else {
-            return encodedJsonString.data(using: .utf8)
+            if let rootKey = rootKey {
+                // When rootKey is provided, encode as JSON and assign to the key
+                guard let jsonData = try? JSONEncoder().encode(self),
+                      let jsonString = String(data: jsonData, encoding: .utf8),
+                      let encodedJsonString = jsonString.addingPercentEncoding(withAllowedCharacters: allowedCharacters) else {
+                    return nil
+                }
+                return "\(rootKey)=\(encodedJsonString)".data(using: .utf8)
+            } else {
+                // When no rootKey, convert to dictionary and create form-encoded string
+                guard let dict = try? JSONSerialization.jsonObject(with: JSONEncoder().encode(self)) as? [String: Any] else {
+                    return nil
+                }
+                
+                let pairs = dict.compactMap { key, value -> String? in
+                    let stringValue: String
+                    switch value {
+                    case let str as String:
+                        stringValue = str
+                    case let num as NSNumber:
+                        stringValue = num.stringValue
+                    case let bool as Bool:
+                        stringValue = bool ? "true" : "false"
+                    case is NSNull, nil:
+                        stringValue = ""
+                    default:
+                        // For nested objects, encode as JSON string
+                        if let data = try? JSONSerialization.data(withJSONObject: value),
+                           let jsonStr = String(data: data, encoding: .utf8) {
+                            stringValue = jsonStr
+                        } else {
+                            return nil
+                        }
+                    }
+                    
+                    guard let encodedValue = stringValue.addingPercentEncoding(withAllowedCharacters: allowedCharacters) else {
+                        return nil
+                    }
+                    return "\(key)=\(encodedValue)"
+                }
+                
+                let formString = pairs.joined(separator: "&")
+                return formString.data(using: .utf8)
+            }
         }
-    }
 }
