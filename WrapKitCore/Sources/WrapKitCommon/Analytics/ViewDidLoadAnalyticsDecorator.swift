@@ -26,7 +26,7 @@ public class ViewDidLoadAnalyticsDecorator: LifeCycleViewInput {
 
     public func viewDidLoad() {
         wrapped.viewDidLoad()
-        analytics.trackScreenView(screenName: screenName)
+        analytics.log(screenName: screenName)
     }
 
     // Forward other lifecycle methods without tracking
