@@ -409,7 +409,8 @@ open class Textfield: UITextField {
         returnKeyType = nextTextfield == nil ? .done : .next
         addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
         addTarget(self, action: #selector(textFieldDidChangeClear), for: .editingChanged)
-        
+        addTarget(self, action: #selector(onTapReturnButton), for: .editingDidEndOnExit)
+
         self.leadingView = leadingView
         updateAppearance()
         
@@ -499,6 +500,10 @@ open class Textfield: UITextField {
         }
     }
     
+    @objc private func onTapReturnButton() {
+        guard returnKeyType == .done else { return }
+        resignFirstResponder()
+    }
     
     public func updatePlaceholder() {
         guard let customizedPlaceholder = appearance.placeholder else { return }
