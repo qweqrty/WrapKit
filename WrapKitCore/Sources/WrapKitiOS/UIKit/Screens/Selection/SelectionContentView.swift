@@ -95,7 +95,7 @@ extension SelectionContentView {
             .trailing(trailingAnchor, constant: 12)
         )
         spacerView.anchor(
-            .top(tableView.bottomAnchor),
+            .top(tableStackView.bottomAnchor),
             .leading(leadingAnchor),
             .trailing(trailingAnchor)
         )
