@@ -79,6 +79,7 @@ public struct CardViewPresentableModel: HashableWithReflection {
         }
     }
 
+    public let id: String
     public let style: Style?
     public let title: TextOutputPresentableModel?
     public let leadingImage: ImageViewPresentableModel?
@@ -94,6 +95,7 @@ public struct CardViewPresentableModel: HashableWithReflection {
     public let onLongPress: (() -> Void)?
     
     public init(
+        id: String = UUID().uuidString,
         style: Style? = nil,
         title: TextOutputPresentableModel? = nil,
         leadingImage: ImageViewPresentableModel? = nil,
@@ -108,6 +110,7 @@ public struct CardViewPresentableModel: HashableWithReflection {
         onPress: (() -> Void)? = nil,
         onLongPress: (() -> Void)? = nil
     ) {
+        self.id = id
         self.style = style
         self.title = title
         self.leadingImage = leadingImage
