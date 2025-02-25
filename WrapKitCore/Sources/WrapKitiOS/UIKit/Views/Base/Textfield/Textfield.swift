@@ -529,8 +529,11 @@ open class Textfield: UITextField {
     }
     
     open override func paste(_ sender: Any?) {
-        super.paste(sender)
-        onPaste?(UIPasteboard.general.string)
+        if let onPaste {
+            onPaste(UIPasteboard.general.string)
+        } else {
+            super.paste(sender)
+        }
     }
     
     @discardableResult
