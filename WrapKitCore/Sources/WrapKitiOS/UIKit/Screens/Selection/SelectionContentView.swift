@@ -15,23 +15,23 @@ public class SelectionContentView: UIView {
     
     public lazy var lineView = View(backgroundColor: config.content.lineColor)
     public lazy var navigationBar = makeNavigationBar()
-    public lazy var tableView = makeTableView()
-    public lazy var searchBar = makeSearchBar()
-    
-    public lazy var stackView = StackView(axis: .horizontal, spacing: 12)
-    public lazy var resetButton = makeActionButton(isReset: true)
-    public lazy var selectButton = makeActionButton(isReset: false)
-    public lazy var spacerView = UIView()
-    public lazy var refreshControl = RefreshControl(tintColor: config.content.refreshColor)
-    
+    public lazy var tableStackView = StackView(axis: .vertical)
     public lazy var emptyView = {
         let view = EmptyView()
         view.isHidden = true
         return view
     }()
+    public lazy var tableView = makeTableView()
+    public lazy var searchBar = makeSearchBar()
+    
+    public lazy var buttonsStackView = StackView(axis: .horizontal, spacing: 12)
+    public lazy var resetButton = makeActionButton(isReset: true)
+    public lazy var selectButton = makeActionButton(isReset: false)
+    public lazy var spacerView = UIView()
+    public lazy var refreshControl = RefreshControl(tintColor: config.content.refreshColor)
     
     public var searchBarConstraints: AnchoredConstraints?
-    public var tableViewConstraints: AnchoredConstraints?
+    public var tableStackViewConstraints: AnchoredConstraints?
     
     public let config: SelectionConfiguration
     
@@ -56,9 +56,13 @@ public class SelectionContentView: UIView {
 
 extension SelectionContentView {
     func setupSubviews() {
-        addSubviews(lineView, navigationBar, searchBar, tableView, emptyView, spacerView, stackView)
-        stackView.addArrangedSubview(resetButton)
-        stackView.addArrangedSubview(selectButton)
+        addSubviews(lineView, navigationBar, searchBar, tableStackView, spacerView, buttonsStackView)
+        tableStackView.addArrangedSubviews(
+            tableView,
+            emptyView
+        )
+        buttonsStackView.addArrangedSubview(resetButton)
+        buttonsStackView.addArrangedSubview(selectButton)
         bringSubviewToFront(navigationBar)
     }
     
@@ -85,25 +89,20 @@ extension SelectionContentView {
             .trailing(trailingAnchor, constant: 12),
             .height(Self.searchBarHeight)
         )
-        stackView.anchor(
-            .leading(leadingAnchor, constant: 12),
-            .trailing(trailingAnchor, constant: 12),
-            .bottom(bottomAnchor, constant: 24 + safeAreaInsets.bottom)
-        )
-        tableViewConstraints = tableView.anchor(
+        tableStackViewConstraints = tableStackView.anchor(
             .top(searchBar.bottomAnchor, constant: 16),
             .leading(leadingAnchor, constant: 12),
             .trailing(trailingAnchor, constant: 12)
         )
-        
-        emptyView.anchor(
-            .top(searchBar.bottomAnchor, constant: 16),
-            .leading(leadingAnchor, constant: 12),
-            .trailing(trailingAnchor, constant: 12)
-        )
-        
         spacerView.anchor(
             .top(tableView.bottomAnchor),
+            .leading(leadingAnchor),
+            .trailing(trailingAnchor)
+        )
+        buttonsStackView.anchor(
+            .top(spacerView.bottomAnchor),
+            .leading(leadingAnchor, constant: 12),
+            .trailing(trailingAnchor, constant: 12),
             .bottom(bottomAnchor)
         )
     }

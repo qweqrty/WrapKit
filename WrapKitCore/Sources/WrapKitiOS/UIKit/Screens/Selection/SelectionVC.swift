@@ -35,7 +35,7 @@ open class SelectionVC: BottomSheetController<SelectionContentView> {
         contentView.resetButton.onPress = presenter.onTapReset
         contentView.selectButton.onPress = presenter.onTapFinishSelection
         contentView.searchBar.textfield.didChangeText.append(presenter.onSearch)
-        contentView.stackView.isHidden = !presenter.isMultipleSelectionEnabled
+        contentView.buttonsStackView.isHidden = !presenter.isMultipleSelectionEnabled
     }
     
     public required init?(coder: NSCoder) {
@@ -66,7 +66,7 @@ extension SelectionVC: SelectionOutput {
         contentView.searchBar.isHidden = !shouldShowSearchBar
         contentView.searchBarConstraints?.height?.constant = shouldShowSearchBar ? SelectionContentView.searchBarHeight : 0
         contentView.searchBarConstraints?.top?.constant = shouldShowSearchBar ? 8 : 0
-        contentView.tableViewConstraints?.top?.constant = shouldShowSearchBar ? 16 : 8
+        contentView.tableStackViewConstraints?.top?.constant = shouldShowSearchBar ? 16 : 8
     }
     
     public func display(items: [SelectionType.SelectionCellPresentableModel], selectedCountTitle: String) {
