@@ -121,7 +121,7 @@ extension Button: ButtonOutput {
     }
     
     public func display(title: String?) {
-        self.setTitle(title, for: .normal)
+        self.setTitle(title?.removingPercentEncoding ?? title, for: .normal)
     }
     
     public func display(spacing: CGFloat) {

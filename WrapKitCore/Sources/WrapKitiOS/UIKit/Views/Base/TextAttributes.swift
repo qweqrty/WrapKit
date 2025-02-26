@@ -1,6 +1,6 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by Gulzat Zheenbek kyzy on 22/10/24.
 //
@@ -43,7 +43,7 @@ public struct TextAttributes {
         self.trailingImageBounds = trailingImageBounds
     }
 
-    public let text: String
+    public var text: String
     public let color: Color?
     public let underlineStyle: UnderlineStyle?
     public let font: Font?

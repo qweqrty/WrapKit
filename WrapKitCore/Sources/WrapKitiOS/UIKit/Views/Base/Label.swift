@@ -140,20 +140,24 @@ extension Label: TextOutput {
         guard let model = model else { return }
         switch model {
         case .text(let text):
-            isHidden = text.isEmpty
-            self.text = text
+            display(text: text)
         case .attributes(let attributes):
-            isHidden = attributes.isEmpty
-            self.attributes = attributes
+            display(attributes: attributes)
         }
     }
     
     public func display(text: String?) {
-        self.text = text
+        isHidden = text.isEmpty
+        self.text = text?.removingPercentEncoding ?? text
     }
     
     public func display(attributes: [TextAttributes]) {
-        self.attributes = attributes
+        isHidden = attributes.isEmpty
+        self.attributes = attributes.map { attribute in
+            var updatedAttribute = attribute
+            updatedAttribute.text = attribute.text.removingPercentEncoding ?? attribute.text
+            return updatedAttribute
+        }
     }
 }
 
