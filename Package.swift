@@ -15,7 +15,12 @@ let package = Package(
             targets: ["WrapKit"]),
         .library(
             name: "WrapKitTestUtils",
-            targets: ["WrapKitTestUtils"])
+            targets: ["WrapKitTestUtils"]),
+        .library(
+            name: "WrapKitDynamic",
+            type: .dynamic,
+            targets: ["WrapKit"]
+        )
     ],
     dependencies: [
         .package(url: "https://github.com/onevcat/Kingfisher.git", from: "7.12.0"),
@@ -27,7 +32,7 @@ let package = Package(
             name: "WrapKit",
             dependencies: [
                 "Kingfisher",
-                "PhoneNumberKit",
+                .product(name: "PhoneNumberKit-Dynamic", package: "PhoneNumberKit"),
                 "DeviceKit"
             ],
             path: "WrapKitCore/Sources"
@@ -44,7 +49,7 @@ let package = Package(
                 "WrapKit",
                 "WrapKitTestUtils",
                 "Kingfisher",
-                "PhoneNumberKit",
+                .product(name: "PhoneNumberKit-Dynamic", package: "PhoneNumberKit"),
                 "DeviceKit"
                 
             ],
