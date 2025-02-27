@@ -23,7 +23,7 @@ public class SelectionServiceVC: SelectionVC {
         super.viewDidLoad()
         
         contentView.tableView.refreshControl = contentView.refreshControl
-        contentView.refreshControl.onRefresh = servicePresenter.onRefresh
+        contentView.refreshControl.display(onRefresh: servicePresenter.onRefresh)
     }
     
     public required init?(coder: NSCoder) {

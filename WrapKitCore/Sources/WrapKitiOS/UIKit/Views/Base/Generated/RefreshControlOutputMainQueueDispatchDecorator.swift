@@ -22,6 +22,11 @@ extension MainQueueDispatchDecorator: RefreshControlOutput where T: RefreshContr
             self?.decoratee.display(onRefresh: onRefresh)
         }
     }
+    public func display(appendingOnRefresh: (() -> Void)?) {
+        dispatch { [weak self] in
+            self?.decoratee.display(appendingOnRefresh: appendingOnRefresh)
+        }
+    }
     public func display(isLoading: Bool) {
         dispatch { [weak self] in
             self?.decoratee.display(isLoading: isLoading)
@@ -52,6 +57,9 @@ extension WeakRefVirtualProxy: RefreshControlOutput where T: RefreshControlOutpu
     }
     public func display(onRefresh: (() -> Void)?) {
         object?.display(onRefresh: onRefresh)
+    }
+    public func display(appendingOnRefresh: (() -> Void)?) {
+        object?.display(appendingOnRefresh: appendingOnRefresh)
     }
     public func display(isLoading: Bool) {
         object?.display(isLoading: isLoading)
