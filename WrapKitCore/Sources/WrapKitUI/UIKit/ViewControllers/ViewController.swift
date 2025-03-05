@@ -32,10 +32,10 @@ open class ViewController<ContentView: UIView>: UIViewController {
     private let ApplicationLifecycleOutput: ApplicationLifecycleOutput?
     public var interactivePopGestureRecognizer: UIGestureRecognizerDelegate?
 
-    public init(contentView: ContentView, LifeCycleViewOutput: LifeCycleViewOutput? = nil, ApplicationLifecycleOutput: ApplicationLifecycleOutput? = nil) {
+    public init(contentView: ContentView, lifeCycleViewOutput: LifeCycleViewOutput? = nil, applicationLifecycleOutput: ApplicationLifecycleOutput? = nil) {
         self.contentView = contentView
-        self.LifeCycleViewOutput = LifeCycleViewOutput
-        self.ApplicationLifecycleOutput = ApplicationLifecycleOutput
+        self.LifeCycleViewOutput = lifeCycleViewOutput
+        self.ApplicationLifecycleOutput = applicationLifecycleOutput
         super.init(nibName: nil, bundle: nil)
         registerForAppLifecycleNotifications()
     }

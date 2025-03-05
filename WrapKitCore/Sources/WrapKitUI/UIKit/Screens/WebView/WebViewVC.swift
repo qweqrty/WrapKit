@@ -15,7 +15,7 @@ open class WebViewVC: ViewController<WebViewContentView> {
     private static let estimatedProgressKeyPath = #keyPath(WKWebView.estimatedProgress)
     
     public init(contentView: WebViewContentView, presenter: LifeCycleViewOutput) {
-        super.init(contentView: contentView, LifeCycleViewOutput: presenter)
+        super.init(contentView: contentView, lifeCycleViewOutput: presenter)
         contentView.webView.navigationDelegate = self
     }
     
