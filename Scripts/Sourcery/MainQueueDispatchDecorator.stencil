@@ -1,0 +1,83 @@
+{% for type in types.protocols where type.name|hasSuffix:"Flow" or type.name|hasSuffix:"Output" %}
+
+// sourcery:file:{{ type.path|dirname }}/Generated/{{ type.name }}MainQueueDispatchDecoratorGenerated.swift
+
+// Generated using Sourcery 2.2.5 — https://github.com/krzysztofzablocki/Sourcery
+// DO NOT EDIT
+
+#if canImport(WrapKit)
+import WrapKit
+{% for importName in type.allImports %}
+#if canImport({{ importName }})
+import {{ importName }}
+#endif
+{% endfor %}
+
+extension {{ type.name }} {
+    public var mainQueueDispatched: any {{ type.name }} {
+        MainQueueDispatchDecorator(decoratee: self)
+    }
+}
+
+extension {{ type.name }} {
+    public var weakReferenced: any {{ type.name }} {
+        return WeakRefVirtualProxy(self)
+    }
+}
+
+extension MainQueueDispatchDecorator: {{ type.name }} where T: {{ type.name }} {
+    {% for associatedType in type.associatedTypes %}
+    public typealias {{ associatedType }} = T.{{ associatedType }}
+    {% endfor %}
+
+    {% for method in type.methods %}
+    {% if method.isStatic %}
+    // Static methods cannot be generated for generic T. Implement this in specific types.
+    {% else %}
+    public func {{ method.name }} {
+        dispatch { [weak self] in
+            self?.decoratee.{{ method.callName }}({% for param in method.parameters %}{% if param.argumentLabel %}{{ param.argumentLabel }}: {% endif %}{{ param.name }}{% if not forloop.last %}, {% endif %}{% endfor %})
+        }
+    }
+    {% endif %}
+    {% endfor %}
+
+    {% for variable in type.variables %}
+    public var {{ variable.name }}: {{ variable.typeName }} {
+        get {
+            return decoratee.{{ variable.name }}          
+        }
+        set {
+            decoratee.{{ variable.name }} = newValue
+        }
+    }
+    {% endfor %}
+}
+
+extension WeakRefVirtualProxy: {{ type.name }} where T: {{ type.name }} {
+    {% for associatedType in type.associatedTypes %}
+    public typealias {{ associatedType }} = T.{{ associatedType }}
+    {% endfor %}
+
+    {% for method in type.methods %}
+    {% if method.isStatic %}
+    // Static methods cannot be generated for generic T. Implement this in specific types.
+    {% else %}
+    public func {{ method.name }} {
+        object?.{{ method.callName }}({% for param in method.parameters %}{% if param.argumentLabel %}{{ param.argumentLabel }}: {% endif %}{{ param.name }}{% if not forloop.last %}, {% endif %}{% endfor %})
+    }
+    {% endif %}
+    {% endfor %}
+
+    {% for variable in type.variables %}
+    public var {{ variable.name }}: {{ variable.typeName }} {
+        get { return object?.{{ variable.name }} }
+        set { object?.{{ variable.name }} = newValue }
+    }
+    {% endfor %}
+}
+
+#endif
+
+// sourcery:end
+{% endfor %}

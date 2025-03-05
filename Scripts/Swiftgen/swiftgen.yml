@@ -1,0 +1,11 @@
+strings:
+  - inputs: ../../Sources/DesignSystemiOSResources/Sources/Assets/ru.lproj/Localizable.strings
+    outputs:
+      - templatePath: ./strings.stencil
+        output: ../../Sources/DesignSystemiOSResources/Sources/Generated/NurStrings+Generated.swift
+
+xcassets:
+  - inputs: ../../Sources/DesignSystemiOSResources/Sources/Assets/Media.xcassets
+    outputs:
+      - templatePath: ./assets.stencil
+        output: ../../Sources/DesignSystemiOSResources/Sources/Generated/NurAssets+Generated.swift

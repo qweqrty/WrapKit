@@ -38,7 +38,6 @@ public struct PaginationRequest {
     public let perPage: Int
 }
 
-
 open class PaginationPresenter<ServicePaginationRequest, ServicePaginationResponse, RemoteItem, PresentableModel> {
     public let remoteItemsStorage: any Storage<[RemoteItem]>
     

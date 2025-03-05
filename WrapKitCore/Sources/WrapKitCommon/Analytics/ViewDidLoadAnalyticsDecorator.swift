@@ -7,18 +7,18 @@
 
 import Foundation
 
-public extension LifeCycleViewInput {
-    func withAnalytics(screenName: String, analytics: AnalyticsTracker) -> LifeCycleViewInput {
+public extension LifeCycleViewOutput {
+    func withAnalytics(screenName: String, analytics: AnalyticsTracker) -> LifeCycleViewOutput {
         return ViewDidLoadAnalyticsDecorator(wrapped: self, analytics: analytics, screenName: screenName)
     }
 }
 
-public class ViewDidLoadAnalyticsDecorator: LifeCycleViewInput {
-    private let wrapped: LifeCycleViewInput
+public class ViewDidLoadAnalyticsDecorator: LifeCycleViewOutput {
+    private let wrapped: LifeCycleViewOutput
     private let analytics: AnalyticsTracker
     private let screenName: String
 
-    public init(wrapped: LifeCycleViewInput, analytics: AnalyticsTracker, screenName: String) {
+    public init(wrapped: LifeCycleViewOutput, analytics: AnalyticsTracker, screenName: String) {
         self.wrapped = wrapped
         self.analytics = analytics
         self.screenName = screenName

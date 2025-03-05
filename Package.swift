@@ -5,7 +5,7 @@ let package = Package(
     name: "WrapKit",
     platforms: [
         .iOS(.v13),
-        .macOS(.v10_15),
+        .macOS(.v11),
         .tvOS(.v13),
         .watchOS(.v6)
     ],
@@ -18,6 +18,7 @@ let package = Package(
             targets: ["WrapKitTestUtils"])
     ],
     dependencies: [
+        .package(url: "https://github.com/airbnb/lottie-spm", from: "4.5.0"),
         .package(url: "https://github.com/onevcat/Kingfisher.git", from: "7.12.0"),
         .package(url: "https://github.com/marmelroy/PhoneNumberKit", from: "4.0.0"),
         .package(url: "https://github.com/devicekit/DeviceKit", from: "5.5.0")
@@ -28,7 +29,8 @@ let package = Package(
             dependencies: [
                 "Kingfisher",
                 "PhoneNumberKit",
-                "DeviceKit"
+                "DeviceKit",
+                .product(name: "Lottie", package: "lottie-spm")
             ],
             path: "WrapKitCore/Sources"
         ),
@@ -45,8 +47,8 @@ let package = Package(
                 "WrapKitTestUtils",
                 "Kingfisher",
                 "PhoneNumberKit",
-                "DeviceKit"
-                
+                "DeviceKit",
+                .product(name: "Lottie", package: "lottie-spm")
             ],
             path: "WrapKitCore/Tests"
         ),

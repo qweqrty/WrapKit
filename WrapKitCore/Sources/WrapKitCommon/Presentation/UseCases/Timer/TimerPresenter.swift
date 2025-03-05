@@ -11,7 +11,7 @@ public protocol TimerOutput: AnyObject {
     func display(timerInput: TimerInput, secondsRemaining: Int?)
 }
 
-public protocol TimerInput: ApplicationLifecycleInput {
+public protocol TimerInput: ApplicationLifecycleOutput {
     func start(seconds: Int)
     func stop()
 }
