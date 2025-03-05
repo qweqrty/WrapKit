@@ -65,7 +65,7 @@ open class Label: UILabel {
     }
 
     public override var intrinsicContentSize: CGSize {
-        guard text.isEmpty else { return CGSize(width: super.intrinsicContentSize.width, height: 0) }
+        guard !text.isEmpty else { return CGSize(width: super.intrinsicContentSize.width, height: 0) }
         return super.intrinsicContentSize
     }
     
