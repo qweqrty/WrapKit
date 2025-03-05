@@ -1,5 +1,172 @@
+import Foundation
+
+public protocol DiffableTableViewDataSourceOutput: AnyObject {
+    associatedtype Model
+    associatedtype SectionItem: Hashable
+
+    func display(model: DiffableTableViewDataSourcePresentableModel<Model, SectionItem>?)
+    func display(didSelectAt: ((IndexPath, Model) -> Void)?)
+    func display(configureCell: ((UITableView, IndexPath, Model) -> UITableViewCell)?)
+    func display(configureFooter: (() -> UITableViewCell)?)
+    func display(viewForHeaderInSection: ((UITableView, Int) -> UIView)?)
+    func display(heightForHeaderInSection: ((Int) -> CGFloat)?)
+    func display(onRetry: (() -> Void)?)
+    func display(showLoader: Bool)
+    func display(loadNextPage: (() -> Void)?)
+    func display(heightForRowAt: ((IndexPath) -> CGFloat)?)
+    func display(didScrollViewDidScroll: ((UIScrollView) -> Void)?)
+    func display(didScrollViewDidEndDragging: ((UIScrollView, Bool) -> Void)?)
+    func display(didScrollViewDidEndDecelerating: ((UIScrollView) -> Void)?)
+    func display(defaultRowAnimation: UITableView.RowAnimation)
+    func display(items: [Model]?, at section: SectionItem?)
+    func display<Item: SectionedDiffableItem>(sectionedItems: [Item]?) where Item.SectionItem == SectionItem, Item.Model == Model
+    func display(header: SectionItem?, forItems items: [Model]?)
+}
+
+public struct DiffableTableViewDataSourcePresentableModel<Model, SectionItem: Hashable> {
+    public let didSelectAt: ((IndexPath, Model) -> Void)?
+    public let configureCell: ((UITableView, IndexPath, Model) -> UITableViewCell)?
+    public let configureFooter: (() -> UITableViewCell)?
+    public let viewForHeaderInSection: ((UITableView, Int) -> UIView)?
+    public let heightForHeaderInSection: ((Int) -> CGFloat)?
+    public let onRetry: (() -> Void)?
+    public let showLoader: Bool
+    public let loadNextPage: (() -> Void)?
+    public let heightForRowAt: ((IndexPath) -> CGFloat)?
+    public let didScrollViewDidScroll: ((UIScrollView) -> Void)?
+    public let didScrollViewDidEndDragging: ((UIScrollView, Bool) -> Void)?
+    public let didScrollViewDidEndDecelerating: ((UIScrollView) -> Void)?
+    public let defaultRowAnimation: UITableView.RowAnimation
+    public let items: [Model]?
+    public let sectionedItems: SectionItem?
+    public let header: SectionItem?
+
+    public init(
+        didSelectAt: ((IndexPath, Model) -> Void)? = nil,
+        configureCell: ((UITableView, IndexPath, Model) -> UITableViewCell)? = nil,
+        configureFooter: (() -> UITableViewCell)? = nil,
+        viewForHeaderInSection: ((UITableView, Int) -> UIView)? = nil,
+        heightForHeaderInSection: ((Int) -> CGFloat)? = nil,
+        onRetry: (() -> Void)? = nil,
+        showLoader: Bool = false,
+        loadNextPage: (() -> Void)? = nil,
+        heightForRowAt: ((IndexPath) -> CGFloat)? = nil,
+        didScrollViewDidScroll: ((UIScrollView) -> Void)? = nil,
+        didScrollViewDidEndDragging: ((UIScrollView, Bool) -> Void)? = nil,
+        didScrollViewDidEndDecelerating: ((UIScrollView) -> Void)? = nil,
+        defaultRowAnimation: UITableView.RowAnimation = .fade,
+        items: [Model]? = nil,
+        sectionedItems: SectionItem? = nil,
+        header: SectionItem? = nil
+    ) {
+        self.didSelectAt = didSelectAt
+        self.configureCell = configureCell
+        self.configureFooter = configureFooter
+        self.viewForHeaderInSection = viewForHeaderInSection
+        self.heightForHeaderInSection = heightForHeaderInSection
+        self.onRetry = onRetry
+        self.showLoader = showLoader
+        self.loadNextPage = loadNextPage
+        self.heightForRowAt = heightForRowAt
+        self.didScrollViewDidScroll = didScrollViewDidScroll
+        self.didScrollViewDidEndDragging = didScrollViewDidEndDragging
+        self.didScrollViewDidEndDecelerating = didScrollViewDidEndDecelerating
+        self.defaultRowAnimation = defaultRowAnimation
+        self.items = items
+        self.sectionedItems = sectionedItems
+        self.header = header
+    }
+}
+
 #if canImport(UIKit)
 import UIKit
+
+extension DiffableTableViewDataSource: DiffableTableViewDataSourceOutput {
+    public func display(model: DiffableTableViewDataSourcePresentableModel<Model, SectionItem>?) {
+        guard let model else { return }
+        display(didSelectAt: model.didSelectAt)
+        display(configureCell: model.configureCell)
+        display(configureFooter: model.configureFooter)
+        display(viewForHeaderInSection: model.viewForHeaderInSection)
+        display(heightForHeaderInSection: model.heightForHeaderInSection)
+        display(onRetry: model.onRetry)
+        display(showLoader: model.showLoader)
+        display(loadNextPage: model.loadNextPage)
+        display(heightForRowAt: model.heightForRowAt)
+        display(didScrollViewDidScroll: model.didScrollViewDidScroll)
+        display(didScrollViewDidEndDragging: model.didScrollViewDidEndDragging)
+        display(didScrollViewDidEndDecelerating: model.didScrollViewDidEndDecelerating)
+        display(defaultRowAnimation: model.defaultRowAnimation)
+        display(items: model.items, at: model.sectionedItems)
+    }
+    
+    public func display(didSelectAt: ((IndexPath, Model) -> Void)?) {
+        self.didSelectAt = didSelectAt
+    }
+
+    public func display(configureCell: ((UITableView, IndexPath, Model) -> UITableViewCell)?) {
+        self.configureCell = configureCell
+    }
+
+    public func display(configureFooter: (() -> UITableViewCell)?) {
+        self.configureFooter = configureFooter
+    }
+
+    public func display(viewForHeaderInSection: ((UITableView, Int) -> UIView)?) {
+        self.viewForHeaderInSection = viewForHeaderInSection
+    }
+
+    public func display(heightForHeaderInSection: ((Int) -> CGFloat)?) {
+        self.heightForHeaderInSection = heightForHeaderInSection
+    }
+
+    public func display(onRetry: (() -> Void)?) {
+        self.onRetry = onRetry
+    }
+
+    public func display(showLoader: Bool) {
+        self.showLoader = showLoader
+    }
+
+    public func display(loadNextPage: (() -> Void)?) {
+        self.loadNextPage = loadNextPage
+    }
+
+    public func display(heightForRowAt: ((IndexPath) -> CGFloat)?) {
+        self.heightForRowAt = heightForRowAt
+    }
+
+    public func display(didScrollViewDidScroll: ((UIScrollView) -> Void)?) {
+        self.didScrollViewDidScroll = didScrollViewDidScroll
+    }
+
+    public func display(didScrollViewDidEndDragging: ((UIScrollView, Bool) -> Void)?) {
+        self.didScrollViewDidEndDragging = didScrollViewDidEndDragging
+    }
+
+    public func display(didScrollViewDidEndDecelerating: ((UIScrollView) -> Void)?) {
+        self.didScrollViewDidEndDecelerating = didScrollViewDidEndDecelerating
+    }
+
+    public func display(defaultRowAnimation: UITableView.RowAnimation) {
+        self.defaultRowAnimation = defaultRowAnimation
+    }
+
+    public func display(items: [Model]?, at section: SectionItem?) {
+        guard let items, let section else { return }
+        updateItems(items, at: section)
+    }
+
+    public func display<Item: SectionedDiffableItem>(sectionedItems: [Item]?) where Item.SectionItem == SectionItem, Item.Model == Model {
+        guard let sectionedItems else { return }
+        updateSectionedItems(sectionedItems)
+    }
+
+    public func display(header: SectionItem?, forItems items: [Model]?) {
+        guard let items, let header else { return }
+        updateItems(items, at: header)
+    }
+}
 
 public protocol SectionedDiffableItem: Hashable {
     associatedtype SectionItem: Hashable

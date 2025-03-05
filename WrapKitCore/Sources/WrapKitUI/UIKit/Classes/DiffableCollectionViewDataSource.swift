@@ -5,8 +5,149 @@
 //  Created by Stanislav Li on 20/5/24.
 //
 
+import Foundation
+
+public protocol DiffableCollectionViewDataSourceOutput: AnyObject {
+    associatedtype Model: Hashable
+    
+    func display(model: DiffableCollectionViewDataSourcePresentableModel<Model>?)
+    func display(didSelectAt: ((IndexPath, Model) -> Void)?)
+    func display(configureCell: ((UICollectionView, IndexPath, Model) -> UICollectionViewCell)?)
+    func display(configureSupplementaryView: ((UICollectionView, String, IndexPath) -> UICollectionReusableView)?)
+    func display(onRetry: (() -> Void)?)
+    func display(showLoader: Bool)
+    func display(minimumLineSpacingForSectionAt: ((Int) -> CGFloat)?)
+    func display(loadNextPage: (() -> Void)?)
+    func display(sizeForItemAt: ((IndexPath) -> CGSize)?)
+    func display(didScrollTo: ((IndexPath) -> Void)?)
+    func display(didScrollViewDidScroll: ((UIScrollView) -> Void)?)
+    func display(didMoveItem: ((IndexPath, IndexPath) -> Void)?)
+    func display(items: [Model], at section: Int)
+    func display(items: [[Model]])
+}
+
+public struct DiffableCollectionViewDataSourcePresentableModel<Model: Hashable> {
+    public let didSelectAt: ((IndexPath, Model) -> Void)?
+    public let configureCell: ((UICollectionView, IndexPath, Model) -> UICollectionViewCell)?
+    public let configureSupplementaryView: ((UICollectionView, String, IndexPath) -> UICollectionReusableView)?
+    public let onRetry: (() -> Void)?
+    public let showLoader: Bool
+    public let minimumLineSpacingForSectionAt: ((Int) -> CGFloat)?
+    public let loadNextPage: (() -> Void)?
+    public let sizeForItemAt: ((IndexPath) -> CGSize)?
+    public let didScrollTo: ((IndexPath) -> Void)?
+    public let didScrollViewDidScroll: ((UIScrollView) -> Void)?
+    public let didMoveItem: ((IndexPath, IndexPath) -> Void)?
+    public let items: [[Model]]?
+    
+    public init(
+        didSelectAt: ((IndexPath, Model) -> Void)? = nil,
+        configureCell: ((UICollectionView, IndexPath, Model) -> UICollectionViewCell)? = nil,
+        configureSupplementaryView: ((UICollectionView, String, IndexPath) -> UICollectionReusableView)? = nil,
+        onRetry: (() -> Void)? = nil,
+        showLoader: Bool = false,
+        minimumLineSpacingForSectionAt: ((Int) -> CGFloat)? = nil,
+        loadNextPage: (() -> Void)? = nil,
+        sizeForItemAt: ((IndexPath) -> CGSize)? = nil,
+        didScrollTo: ((IndexPath) -> Void)? = nil,
+        didScrollViewDidScroll: ((UIScrollView) -> Void)? = nil,
+        didMoveItem: ((IndexPath, IndexPath) -> Void)? = nil,
+        items: [[Model]]? = nil
+    ) {
+        self.didSelectAt = didSelectAt
+        self.configureCell = configureCell
+        self.configureSupplementaryView = configureSupplementaryView
+        self.onRetry = onRetry
+        self.showLoader = showLoader
+        self.minimumLineSpacingForSectionAt = minimumLineSpacingForSectionAt
+        self.loadNextPage = loadNextPage
+        self.sizeForItemAt = sizeForItemAt
+        self.didScrollTo = didScrollTo
+        self.didScrollViewDidScroll = didScrollViewDidScroll
+        self.didMoveItem = didMoveItem
+        self.items = items
+    }
+}
+
 #if canImport(UIKit)
 import UIKit
+
+extension DiffableCollectionViewDataSource: DiffableCollectionViewDataSourceOutput {
+    public func display(model: DiffableCollectionViewDataSourcePresentableModel<Model>?) {
+        guard let model else { return }
+        display(didSelectAt: model.didSelectAt)
+        display(configureCell: model.configureCell)
+        display(configureSupplementaryView: model.configureSupplementaryView)
+        display(onRetry: model.onRetry)
+        display(showLoader: model.showLoader)
+        display(minimumLineSpacingForSectionAt: model.minimumLineSpacingForSectionAt)
+        display(loadNextPage: model.loadNextPage)
+        display(sizeForItemAt: model.sizeForItemAt)
+        display(didScrollTo: model.didScrollTo)
+        display(didScrollViewDidScroll: model.didScrollViewDidScroll)
+        display(didMoveItem: model.didMoveItem)
+
+        if let items = model.items {
+            if items.count == 1 {
+                display(items: items[0], at: 0)
+            } else {
+                display(items: items)
+            }
+        }
+    }
+    
+    public func display(didSelectAt: ((IndexPath, Model) -> Void)?) {
+        self.didSelectAt = didSelectAt
+    }
+
+    public func display(configureCell: ((UICollectionView, IndexPath, Model) -> UICollectionViewCell)?) {
+        self.configureCell = configureCell
+    }
+
+    public func display(configureSupplementaryView: ((UICollectionView, String, IndexPath) -> UICollectionReusableView)?) {
+        self.configureSupplementaryView = configureSupplementaryView
+    }
+
+    public func display(onRetry: (() -> Void)?) {
+        self.onRetry = onRetry
+    }
+
+    public func display(showLoader: Bool) {
+        self.showLoader = showLoader
+    }
+
+    public func display(minimumLineSpacingForSectionAt: ((Int) -> CGFloat)?) {
+        self.minimumLineSpacingForSectionAt = minimumLineSpacingForSectionAt ?? { _ in 0 }
+    }
+
+    public func display(loadNextPage: (() -> Void)?) {
+        self.loadNextPage = loadNextPage
+    }
+
+    public func display(sizeForItemAt: ((IndexPath) -> CGSize)?) {
+        self.sizeForItemAt = sizeForItemAt
+    }
+
+    public func display(didScrollTo: ((IndexPath) -> Void)?) {
+        self.didScrollTo = didScrollTo
+    }
+
+    public func display(didScrollViewDidScroll: ((UIScrollView) -> Void)?) {
+        self.didScrollViewDidScroll = didScrollViewDidScroll
+    }
+
+    public func display(didMoveItem: ((IndexPath, IndexPath) -> Void)?) {
+        self.didMoveItem = didMoveItem
+    }
+
+    public func display(items: [Model], at section: Int) {
+        updateItems(items, at: section)
+    }
+
+    public func display(items: [[Model]]) {
+        updateItems(items)
+    }
+}
 
 public enum CollectionItem<Model: Hashable>: Hashable {
     case model(Model)
