@@ -54,7 +54,7 @@ run-sourcery:
 
 patch-tag:
 	@git fetch --tags --force
-	@LATEST_TAG=$(shell git ls-remote --tags origin | awk -F'/' '{print $$NF}' | grep '^0\.' | sort -V | tail -n 1) && \
+	@LATEST_TAG=$(shell git ls-remote --tags origin | awk -F'/' '{print $$NF}' | grep '^3\.' | sort -V | tail -n 1) && \
 	echo "Latest tag in series 3.x: $$LATEST_TAG" && \
 	MAJOR=$$(echo $$LATEST_TAG | awk -F. '{print $$1}') && \
 	MINOR=$$(echo $$LATEST_TAG | awk -F. '{print $$2}') && \
