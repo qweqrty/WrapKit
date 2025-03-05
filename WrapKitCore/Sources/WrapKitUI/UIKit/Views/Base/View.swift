@@ -10,20 +10,19 @@ import SwiftUI
 public struct LifeCycleView<Content: View>: View {
     private let content: () -> Content
     private let lifeCycleInput: LifeCycleViewOutput?
-    private let ApplicationLifecycleOutput: ApplicationLifecycleOutput?
+    private let applicationLifecycleOutput: ApplicationLifecycleOutput?
 
-    @Environment(\.scenePhase) private var scenePhase
-    @Environment(\.colorScheme) private var colorScheme // For userInterfaceStyle change
+    @Environment(\.colorScheme) private var colorScheme
     @State private var didAppear = false
     @State private var lastColorScheme: ColorScheme?
 
     public init(
         lifeCycleInput: LifeCycleViewOutput? = nil,
-        ApplicationLifecycleOutput: ApplicationLifecycleOutput? = nil,
+        applicationLifecycleOutput: ApplicationLifecycleOutput? = nil,
         @ViewBuilder content: @escaping () -> Content
     ) {
         self.lifeCycleInput = lifeCycleInput
-        self.ApplicationLifecycleOutput = ApplicationLifecycleOutput
+        self.applicationLifecycleOutput = applicationLifecycleOutput
         self.content = content
     }
 
@@ -34,26 +33,81 @@ public struct LifeCycleView<Content: View>: View {
                 if !didAppear {
                     lifeCycleInput?.viewDidLoad()
                     didAppear = true
+                    setupLifecycleObservers()
+                    checkColorSchemeChange() // Initial check on first appear
                 }
                 lifeCycleInput?.viewDidAppear()
             }
             .onDisappear {
                 lifeCycleInput?.viewWillDisappear()
                 lifeCycleInput?.viewDidDisappear()
+                removeLifecycleObservers()
             }
-            .onChange(of: scenePhase) { newPhase in
-                switch newPhase {
-                case .active:
-                    ApplicationLifecycleOutput?.applicationDidBecomeActive()
-                case .inactive:
-                    ApplicationLifecycleOutput?.applicationWillResignActive()
-                case .background:
-                    ApplicationLifecycleOutput?.applicationDidEnterBackground()
-                @unknown default:
-                    break
-                }
-            }
-            .onChange(of: colorScheme) { newColorScheme in
+            // Use a custom modifier to check color scheme changes
+            .modifier(ColorSchemeChangeModifier(
+                colorScheme: colorScheme,
+                lastColorScheme: $lastColorScheme,
+                applicationLifecycleOutput: applicationLifecycleOutput
+            ))
+    }
+    
+    // MARK: - Lifecycle Observers (iOS 13-style)
+    private func setupLifecycleObservers() {
+        let center = NotificationCenter.default
+        
+        center.addObserver(
+            forName: UIApplication.didBecomeActiveNotification,
+            object: nil,
+            queue: .main
+        ) { _ in
+            applicationLifecycleOutput?.applicationDidBecomeActive()
+        }
+        
+        center.addObserver(
+            forName: UIApplication.willResignActiveNotification,
+            object: nil,
+            queue: .main
+        ) { _ in
+            applicationLifecycleOutput?.applicationWillResignActive()
+        }
+        
+        center.addObserver(
+            forName: UIApplication.didEnterBackgroundNotification,
+            object: nil,
+            queue: .main
+        ) { _ in
+            applicationLifecycleOutput?.applicationDidEnterBackground()
+        }
+    }
+    
+    private func removeLifecycleObservers() {
+        NotificationCenter.default.removeObserver(self)
+    }
+    
+    // MARK: - Color Scheme Check
+    private func checkColorSchemeChange() {
+        guard let lastColorScheme = lastColorScheme else {
+            self.lastColorScheme = colorScheme
+            return
+        }
+        
+        if colorScheme != lastColorScheme {
+            let style: UserInterfaceStyle = (colorScheme == .dark) ? .dark : .light
+            applicationLifecycleOutput?.applicationDidChange(userInterfaceStyle: style)
+            self.lastColorScheme = colorScheme
+        }
+    }
+}
+
+// MARK: - Custom Modifier for Color Scheme Changes
+struct ColorSchemeChangeModifier: ViewModifier {
+    let colorScheme: ColorScheme
+    @Binding var lastColorScheme: ColorScheme?
+    let applicationLifecycleOutput: ApplicationLifecycleOutput?
+    
+    func body(content: Content) -> some View {
+        content
+            .onPreferenceChange(ColorSchemePreferenceKey.self) { newColorScheme in
                 guard let lastColorScheme = lastColorScheme else {
                     self.lastColorScheme = newColorScheme
                     return
@@ -61,10 +115,20 @@ public struct LifeCycleView<Content: View>: View {
                 
                 if newColorScheme != lastColorScheme {
                     let style: UserInterfaceStyle = (newColorScheme == .dark) ? .dark : .light
-                    ApplicationLifecycleOutput?.applicationDidChange(userInterfaceStyle: style)
+                    applicationLifecycleOutput?.applicationDidChange(userInterfaceStyle: style)
                     self.lastColorScheme = newColorScheme
                 }
             }
+            .preference(key: ColorSchemePreferenceKey.self, value: colorScheme)
+    }
+}
+
+// MARK: - Preference Key for Color Scheme
+struct ColorSchemePreferenceKey: PreferenceKey {
+    static var defaultValue: ColorScheme = .light
+    
+    static func reduce(value: inout ColorScheme, nextValue: () -> ColorScheme) {
+        value = nextValue()
     }
 }
 

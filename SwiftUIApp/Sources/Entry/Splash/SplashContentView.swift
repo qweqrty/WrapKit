@@ -23,7 +23,7 @@ public struct SplashContentView: View {
     public var body: some View {
         LifeCycleView(
             lifeCycleInput: lifeCycleInput,
-            ApplicationLifecycleOutput: ApplicationLifecycleOutput
+            applicationLifecycleOutput: ApplicationLifecycleOutput
         ) {
             ZStack {
                 Color.red.ignoresSafeArea()
