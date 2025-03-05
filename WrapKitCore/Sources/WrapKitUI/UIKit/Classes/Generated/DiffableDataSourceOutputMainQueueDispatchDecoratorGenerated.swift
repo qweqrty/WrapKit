@@ -29,9 +29,9 @@ extension MainQueueDispatchDecorator: DiffableDataSourceOutput where T: Diffable
     public typealias Model = T.Model
     public typealias SectionItem = T.SectionItem
 
-    public func display(model: [DiffableTableViewDataSourcePresentableModel<Model>]) {
+    public func display(model: [DiffableDataSourcePresentableModel<Model>], at section: SectionItem) {
         dispatch { [weak self] in
-            self?.decoratee.display(model: model)
+            self?.decoratee.display(model: model, at: section)
         }
     }
     public func display(onRetry: (() -> Void)?) {
@@ -56,8 +56,8 @@ extension WeakRefVirtualProxy: DiffableDataSourceOutput where T: DiffableDataSou
     public typealias Model = T.Model
     public typealias SectionItem = T.SectionItem
 
-    public func display(model: [DiffableTableViewDataSourcePresentableModel<Model>]) {
-        object?.display(model: model)
+    public func display(model: [DiffableDataSourcePresentableModel<Model>], at section: SectionItem) {
+        object?.display(model: model, at: section)
     }
     public func display(onRetry: (() -> Void)?) {
         object?.display(onRetry: onRetry)

@@ -10,83 +10,6 @@ import Foundation
 #if canImport(UIKit)
 import UIKit
 
-extension DiffableCollectionViewDataSource: DiffableCollectionViewDataSourceOutput {
-    public func display(model: DiffableCollectionViewDataSourcePresentableModel<Model>?) {
-        guard let model else { return }
-        display(didSelectAt: model.didSelectAt)
-        display(configureCell: model.configureCell)
-        display(configureSupplementaryView: model.configureSupplementaryView)
-        display(onRetry: model.onRetry)
-        display(showLoader: model.showLoader)
-        display(minimumLineSpacingForSectionAt: model.minimumLineSpacingForSectionAt)
-        display(loadNextPage: model.loadNextPage)
-        display(sizeForItemAt: model.sizeForItemAt)
-        display(didScrollTo: model.didScrollTo)
-        display(didScrollViewDidScroll: model.didScrollViewDidScroll)
-        display(didMoveItem: model.didMoveItem)
-
-        if let items = model.items {
-            if items.count == 1 {
-                display(items: items[0], at: 0)
-            } else {
-                display(items: items)
-            }
-        }
-    }
-    
-    public func display(didSelectAt: ((IndexPath, Model) -> Void)?) {
-        self.didSelectAt = didSelectAt
-    }
-
-    public func display(configureCell: ((UICollectionView, IndexPath, Model) -> UICollectionViewCell)?) {
-        self.configureCell = configureCell
-    }
-
-    public func display(configureSupplementaryView: ((UICollectionView, String, IndexPath) -> UICollectionReusableView)?) {
-        self.configureSupplementaryView = configureSupplementaryView
-    }
-
-    public func display(onRetry: (() -> Void)?) {
-        self.onRetry = onRetry
-    }
-
-    public func display(showLoader: Bool) {
-        self.showLoader = showLoader
-    }
-
-    public func display(minimumLineSpacingForSectionAt: ((Int) -> CGFloat)?) {
-        self.minimumLineSpacingForSectionAt = minimumLineSpacingForSectionAt ?? { _ in 0 }
-    }
-
-    public func display(loadNextPage: (() -> Void)?) {
-        self.loadNextPage = loadNextPage
-    }
-
-    public func display(sizeForItemAt: ((IndexPath) -> CGSize)?) {
-        self.sizeForItemAt = sizeForItemAt
-    }
-
-    public func display(didScrollTo: ((IndexPath) -> Void)?) {
-        self.didScrollTo = didScrollTo
-    }
-
-    public func display(didScrollViewDidScroll: ((UIScrollView) -> Void)?) {
-        self.didScrollViewDidScroll = didScrollViewDidScroll
-    }
-
-    public func display(didMoveItem: ((IndexPath, IndexPath) -> Void)?) {
-        self.didMoveItem = didMoveItem
-    }
-
-    public func display(items: [Model], at section: Int) {
-        updateItems(items, at: section)
-    }
-
-    public func display(items: [[Model]]) {
-        updateItems(items)
-    }
-}
-
 public enum CollectionItem<Model: Hashable>: Hashable {
     case model(Model)
     case footer(UUID)
@@ -201,11 +124,31 @@ public class DiffableCollectionViewDataSource<Model: Hashable>: UICollectionView
         }
     }
 
-    
     public override func collectionView(_ collectionView: UICollectionView, moveItemAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
         super.collectionView(collectionView, moveItemAt: sourceIndexPath, to: destinationIndexPath)
         
         didMoveItem?(sourceIndexPath, destinationIndexPath)
+    }
+}
+
+extension DiffableCollectionViewDataSource: DiffableDataSourceOutput {
+    public typealias Model = Model
+    public typealias SectionItem = CollectionItem
+    
+    public func display(model: [DiffableDataSourcePresentableModel<Model>], at section: SectionItem<Model>) {
+        self.updateItems(model.map { $0.model })
+    }
+    
+    public func display(onRetry: (() -> Void)?) {
+        self.onRetry = onRetry
+    }
+    
+    public func display(showLoader: Bool) {
+        self.showLoader = showLoader
+    }
+    
+    public func display(loadNextPage: (() -> Void)?) {
+        self.loadNextPage = loadNextPage
     }
 }
 #endif

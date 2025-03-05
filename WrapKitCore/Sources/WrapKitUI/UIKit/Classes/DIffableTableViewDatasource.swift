@@ -4,7 +4,7 @@ public protocol DiffableDataSourceOutput: AnyObject {
     associatedtype Model: Hashable
     associatedtype SectionItem: Hashable
 
-    func display(model: [DiffableTableViewDataSourcePresentableModel<Model>])
+    func display(model: [DiffableDataSourcePresentableModel<Model>], at section: SectionItem)
     func display(onRetry: (() -> Void)?)
     func display(showLoader: Bool)
     func display(loadNextPage: (() -> Void)?)
@@ -12,23 +12,23 @@ public protocol DiffableDataSourceOutput: AnyObject {
 
 public protocol HeaderDiffableDataSourceOutput: AnyObject {
     associatedtype HeaderItem: Hashable
-    associatedtype SectionItem: Hashable
+    associatedtype HeaderSectionItem: Hashable
 
-    func display(header: HeaderItem?, section: SectionItem?)
+    func display(header: HeaderItem?, section: HeaderSectionItem?)
 }
 
 public protocol FooterDiffableDataSourceOutput: AnyObject {
     associatedtype FooterItem: Hashable
-    associatedtype SectionItem: Hashable
+    associatedtype FooterSectionItem: Hashable
     
-    func display(footer: FooterItem?, section: SectionItem?)
+    func display(footer: FooterItem?, section: FooterSectionItem?)
 }
 
-public struct DiffableTableViewDataSourcePresentableModel<Model: Hashable>: Hashable {
+public struct DiffableDataSourcePresentableModel<Model: Hashable>: Hashable {
     public let onTap: (() -> Void)?
     public let model: Model
     
-    public static func == (lhs: DiffableTableViewDataSourcePresentableModel<Model>, rhs: DiffableTableViewDataSourcePresentableModel<Model>) -> Bool {
+    public static func == (lhs: DiffableDataSourcePresentableModel<Model>, rhs: DiffableDataSourcePresentableModel<Model>) -> Bool {
         return lhs.model == rhs.model
     }
 
@@ -39,93 +39,6 @@ public struct DiffableTableViewDataSourcePresentableModel<Model: Hashable>: Hash
 
 #if canImport(UIKit)
 import UIKit
-
-extension DiffableTableViewDataSource: DiffableTableViewDataSourceOutput {
-    public func display(model: DiffableTableViewDataSourcePresentableModel<Model, SectionItem>?) {
-        guard let model else { return }
-        display(didSelectAt: model.didSelectAt)
-        display(configureCell: model.configureCell)
-        display(configureFooter: model.configureFooter)
-        display(viewForHeaderInSection: model.viewForHeaderInSection)
-        display(heightForHeaderInSection: model.heightForHeaderInSection)
-        display(onRetry: model.onRetry)
-        display(showLoader: model.showLoader)
-        display(loadNextPage: model.loadNextPage)
-        display(heightForRowAt: model.heightForRowAt)
-        display(didScrollViewDidScroll: model.didScrollViewDidScroll)
-        display(didScrollViewDidEndDragging: model.didScrollViewDidEndDragging)
-        display(didScrollViewDidEndDecelerating: model.didScrollViewDidEndDecelerating)
-        display(defaultRowAnimation: model.defaultRowAnimation)
-        display(items: model.items, at: model.sectionedItems)
-    }
-    
-    public func display(didSelectAt: ((IndexPath, Model) -> Void)?) {
-        self.didSelectAt = didSelectAt
-    }
-
-    public func display(configureCell: ((UITableView, IndexPath, Model) -> UITableViewCell)?) {
-        self.configureCell = configureCell
-    }
-
-    public func display(configureFooter: (() -> UITableViewCell)?) {
-        self.configureFooter = configureFooter
-    }
-
-    public func display(viewForHeaderInSection: ((UITableView, Int) -> UIView)?) {
-        self.viewForHeaderInSection = viewForHeaderInSection
-    }
-
-    public func display(heightForHeaderInSection: ((Int) -> CGFloat)?) {
-        self.heightForHeaderInSection = heightForHeaderInSection
-    }
-
-    public func display(onRetry: (() -> Void)?) {
-        self.onRetry = onRetry
-    }
-
-    public func display(showLoader: Bool) {
-        self.showLoader = showLoader
-    }
-
-    public func display(loadNextPage: (() -> Void)?) {
-        self.loadNextPage = loadNextPage
-    }
-
-    public func display(heightForRowAt: ((IndexPath) -> CGFloat)?) {
-        self.heightForRowAt = heightForRowAt
-    }
-
-    public func display(didScrollViewDidScroll: ((UIScrollView) -> Void)?) {
-        self.didScrollViewDidScroll = didScrollViewDidScroll
-    }
-
-    public func display(didScrollViewDidEndDragging: ((UIScrollView, Bool) -> Void)?) {
-        self.didScrollViewDidEndDragging = didScrollViewDidEndDragging
-    }
-
-    public func display(didScrollViewDidEndDecelerating: ((UIScrollView) -> Void)?) {
-        self.didScrollViewDidEndDecelerating = didScrollViewDidEndDecelerating
-    }
-
-    public func display(defaultRowAnimation: UITableView.RowAnimation) {
-        self.defaultRowAnimation = defaultRowAnimation
-    }
-
-    public func display(items: [Model]?, at section: SectionItem?) {
-        guard let items, let section else { return }
-        updateItems(items, at: section)
-    }
-
-    public func display<Item: SectionedDiffableItem>(sectionedItems: [Item]?) where Item.SectionItem == SectionItem, Item.Model == Model {
-        guard let sectionedItems else { return }
-        updateSectionedItems(sectionedItems)
-    }
-
-    public func display(header: SectionItem?, forItems items: [Model]?) {
-        guard let items, let header else { return }
-        updateItems(items, at: header)
-    }
-}
 
 public protocol SectionedDiffableItem: Hashable {
     associatedtype SectionItem: Hashable
@@ -259,6 +172,24 @@ public class DiffableTableViewDataSource<SectionItem: Hashable, Model: Hashable>
     }
     
     open func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
+        guard let snapshot = dataSource?.snapshot(),
+              section < snapshot.numberOfSections,
+              let sectionItem = snapshot.sectionIdentifiers[safe: section] else {
+            return UIView()
+        }
+        
+        if let footerCell = configureFooter?() {
+            let containerView = UIView()
+            containerView.addSubview(footerCell)
+            footerCell.translatesAutoresizingMaskIntoConstraints = false
+            NSLayoutConstraint.activate([
+                footerCell.topAnchor.constraint(equalTo: containerView.topAnchor),
+                footerCell.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
+                footerCell.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
+                footerCell.bottomAnchor.constraint(equalTo: containerView.bottomAnchor)
+            ])
+            return containerView
+        }
         return UIView()
     }
     
@@ -286,6 +217,92 @@ extension DiffableTableViewDataSource where SectionItem == Int {
         tableView.deselectRow(at: indexPath, animated: true)
         guard case .model(let selectedModel) = dataSource.snapshot().itemIdentifiers(inSection: indexPath.section).item(at: indexPath.row) else { return }
         didSelectAt?(indexPath, selectedModel)
+    }
+}
+
+extension DiffableTableViewDataSource: DiffableDataSourceOutput {
+    public func display(model: [DiffableDataSourcePresentableModel<Model>], at section: SectionItem) {
+        self.updateItems(model.map { $0.model }, at: section)
+    }
+    
+    public func display(onRetry: (() -> Void)?) {
+        self.onRetry = onRetry
+    }
+    
+    public func display(showLoader: Bool) {
+        self.showLoader = showLoader
+    }
+    
+    public func display(loadNextPage: (() -> Void)?) {
+        self.loadNextPage = loadNextPage
+    }
+}
+
+extension DiffableTableViewDataSource: HeaderDiffableDataSourceOutput {
+    public typealias HeaderItem = Model
+    public typealias HeaderSectionItem = SectionItem
+    
+    public func display(header: HeaderItem?, section: HeaderSectionItem?) {
+        self.viewForHeaderInSection = { [weak self] tableView, sectionIndex in
+            guard let self = self,
+                  let snapshot = self.dataSource?.snapshot(),
+                  sectionIndex < snapshot.numberOfSections,
+                  let sectionItem = snapshot.sectionIdentifiers[safe: sectionIndex],
+                  sectionItem == section else {
+                return UIView()
+            }
+            
+            if let headerModel = header {
+                let headerView = UIView()
+                return headerView
+            }
+            return UIView()
+        }
+        
+        if let tableView = tableView {
+            tableView.reloadData()
+        }
+    }
+}
+
+extension DiffableTableViewDataSource: FooterDiffableDataSourceOutput {
+    public typealias FooterItem = Model
+    public typealias FooterSectionItem = SectionItem
+    
+    public func display(footer: FooterItem?, section: FooterSectionItem?) {
+        self.configureFooter = { [weak self] in
+            guard let self = self else { return UITableViewCell() }
+            
+            if let footerModel = footer {
+                let cell = UITableViewCell()
+                return cell
+            }
+            return UITableViewCell()
+        }
+        
+        if let footer = footer, let section = section {
+            DispatchQueue.main.async { [weak self] in
+                guard let self = self else { return }
+                var snapshot = self.dataSource.snapshot()
+                
+                if !snapshot.sectionIdentifiers.contains(section) {
+                    snapshot.appendSections([section])
+                }
+                
+                let footerIdentifier = TableItem.footer(UUID())
+                if !snapshot.itemIdentifiers(inSection: section).contains(footerIdentifier) {
+                    snapshot.appendItems([footerIdentifier], toSection: section)
+                }
+                
+                self.dataSource.apply(snapshot, animatingDifferences: true)
+            }
+        }
+    }
+}
+
+extension Collection {
+    subscript(safe index: Index) -> Element? {
+        indices.contains(index) ? self[index] : nil
     }
 }
 

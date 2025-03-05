@@ -27,9 +27,9 @@ extension HeaderDiffableDataSourceOutput {
 
 extension MainQueueDispatchDecorator: HeaderDiffableDataSourceOutput where T: HeaderDiffableDataSourceOutput {
     public typealias HeaderItem = T.HeaderItem
-    public typealias SectionItem = T.SectionItem
+    public typealias HeaderSectionItem = T.HeaderSectionItem
 
-    public func display(header: HeaderItem?, section: SectionItem?) {
+    public func display(header: HeaderItem?, section: HeaderSectionItem?) {
         dispatch { [weak self] in
             self?.decoratee.display(header: header, section: section)
         }
@@ -39,9 +39,9 @@ extension MainQueueDispatchDecorator: HeaderDiffableDataSourceOutput where T: He
 
 extension WeakRefVirtualProxy: HeaderDiffableDataSourceOutput where T: HeaderDiffableDataSourceOutput {
     public typealias HeaderItem = T.HeaderItem
-    public typealias SectionItem = T.SectionItem
+    public typealias HeaderSectionItem = T.HeaderSectionItem
 
-    public func display(header: HeaderItem?, section: SectionItem?) {
+    public func display(header: HeaderItem?, section: HeaderSectionItem?) {
         object?.display(header: header, section: section)
     }
 

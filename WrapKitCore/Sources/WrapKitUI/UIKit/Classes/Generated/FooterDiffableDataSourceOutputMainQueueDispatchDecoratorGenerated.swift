@@ -27,9 +27,9 @@ extension FooterDiffableDataSourceOutput {
 
 extension MainQueueDispatchDecorator: FooterDiffableDataSourceOutput where T: FooterDiffableDataSourceOutput {
     public typealias FooterItem = T.FooterItem
-    public typealias SectionItem = T.SectionItem
+    public typealias FooterSectionItem = T.FooterSectionItem
 
-    public func display(footer: FooterItem?, section: SectionItem?) {
+    public func display(footer: FooterItem?, section: FooterSectionItem?) {
         dispatch { [weak self] in
             self?.decoratee.display(footer: footer, section: section)
         }
@@ -39,9 +39,9 @@ extension MainQueueDispatchDecorator: FooterDiffableDataSourceOutput where T: Fo
 
 extension WeakRefVirtualProxy: FooterDiffableDataSourceOutput where T: FooterDiffableDataSourceOutput {
     public typealias FooterItem = T.FooterItem
-    public typealias SectionItem = T.SectionItem
+    public typealias FooterSectionItem = T.FooterSectionItem
 
-    public func display(footer: FooterItem?, section: SectionItem?) {
+    public func display(footer: FooterItem?, section: FooterSectionItem?) {
         object?.display(footer: footer, section: section)
     }
 
