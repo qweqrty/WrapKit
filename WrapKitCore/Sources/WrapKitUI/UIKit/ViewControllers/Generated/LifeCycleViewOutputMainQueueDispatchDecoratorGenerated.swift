@@ -23,7 +23,6 @@ extension LifeCycleViewOutput {
 }
 
 extension MainQueueDispatchDecorator: LifeCycleViewOutput where T: LifeCycleViewOutput {
-
     public func viewDidLoad() {
         dispatch { [weak self] in
             self?.decoratee.viewDidLoad()
@@ -54,11 +53,9 @@ extension MainQueueDispatchDecorator: LifeCycleViewOutput where T: LifeCycleView
             self?.decoratee.withAnalytics(screenName: screenName, analytics: analytics)
         }
     }
-
 }
 
 extension WeakRefVirtualProxy: LifeCycleViewOutput where T: LifeCycleViewOutput {
-
     public func viewDidLoad() {
         object?.viewDidLoad()
     }
@@ -77,7 +74,6 @@ extension WeakRefVirtualProxy: LifeCycleViewOutput where T: LifeCycleViewOutput 
     public func withAnalytics(screenName: String, analytics: AnalyticsTracker) {
         object?.withAnalytics(screenName: screenName, analytics: analytics)
     }
-
 }
 
 #endif
