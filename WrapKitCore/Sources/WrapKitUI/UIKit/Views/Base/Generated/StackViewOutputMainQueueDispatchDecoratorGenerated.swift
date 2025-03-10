@@ -32,7 +32,7 @@ extension MainQueueDispatchDecorator: StackViewOutput where T: StackViewOutput {
             self?.decoratee.display(model: model)
         }
     }
-    public func display(views: [UIView]?) {
+    public func display(views: [UIView]) {
         dispatch { [weak self] in
             self?.decoratee.display(views: views)
         }
@@ -70,7 +70,7 @@ extension WeakRefVirtualProxy: StackViewOutput where T: StackViewOutput {
     public func display(model: StackViewPresentableModel) {
         object?.display(model: model)
     }
-    public func display(views: [UIView]?) {
+    public func display(views: [UIView]) {
         object?.display(views: views)
     }
     public func display(spacing: CGFloat?) {
