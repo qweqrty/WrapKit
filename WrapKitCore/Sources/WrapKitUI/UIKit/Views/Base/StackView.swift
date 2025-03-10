@@ -9,6 +9,7 @@ import Foundation
 
 public protocol StackViewOutput: AnyObject {
     func display(model: StackViewPresentableModel)
+    func display(views: [UIView])
     func display(spacing: CGFloat?)
     func display(axis: StackViewAxis)
     func display(distribution: StackViewDistribution)
@@ -41,6 +42,7 @@ public enum StackViewAlignment: HashableWithReflection {
 }
 
 public struct StackViewPresentableModel {
+    public let views: [UIView]
     public let axis: StackViewAxis?
     public let distribution: StackViewDistribution?
     public let alignment: StackViewAlignment?
@@ -48,12 +50,14 @@ public struct StackViewPresentableModel {
     public let layoutMargins: EdgeInsets?
     
     public init(
+        views: [UIView] = [],
         axis: StackViewAxis? = nil,
         distribution: StackViewDistribution? = nil,
         alignment: StackViewAlignment? = nil,
         spacing: CGFloat? = 0,
         layoutMargins: EdgeInsets? = nil
     ) {
+        self.views = views
         self.axis = axis
         self.distribution = distribution
         self.alignment = alignment
@@ -121,11 +125,18 @@ open class StackView: UIStackView {
 
 extension StackView: StackViewOutput {
     public func display(model: StackViewPresentableModel) {
+        display(views: model.views)
         if let axis = model.axis { display(axis: axis) }
         if let alignment = model.alignment { display(alignment: alignment) }
         if let distribution = model.distribution { display(distribution: distribution) }
         if let layoutMargins = model.layoutMargins { display(layoutMargins: layoutMargins) }
         display(spacing: model.spacing)
+    }
+    
+    public func display(views: [UIView]) {
+        views.forEach {
+            addArrangedSubview($0)
+        }
     }
     
     public func display(spacing: CGFloat?) {

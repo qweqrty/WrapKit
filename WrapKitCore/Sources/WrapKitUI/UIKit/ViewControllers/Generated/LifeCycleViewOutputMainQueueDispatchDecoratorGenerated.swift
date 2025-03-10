@@ -23,6 +23,7 @@ extension LifeCycleViewOutput {
 }
 
 extension MainQueueDispatchDecorator: LifeCycleViewOutput where T: LifeCycleViewOutput {
+
     public func viewDidLoad() {
         dispatch { [weak self] in
             self?.decoratee.viewDidLoad()
@@ -48,14 +49,21 @@ extension MainQueueDispatchDecorator: LifeCycleViewOutput where T: LifeCycleView
             self?.decoratee.viewDidDisappear()
         }
     }
+    public func composed(with output: LifeCycleViewOutput) {
+        dispatch { [weak self] in
+            self?.decoratee.composed(with: output)
+        }
+    }
     public func withAnalytics(screenName: String, analytics: AnalyticsTracker) {
         dispatch { [weak self] in
             self?.decoratee.withAnalytics(screenName: screenName, analytics: analytics)
         }
     }
+
 }
 
 extension WeakRefVirtualProxy: LifeCycleViewOutput where T: LifeCycleViewOutput {
+
     public func viewDidLoad() {
         object?.viewDidLoad()
     }
@@ -71,9 +79,13 @@ extension WeakRefVirtualProxy: LifeCycleViewOutput where T: LifeCycleViewOutput 
     public func viewDidDisappear() {
         object?.viewDidDisappear()
     }
+    public func composed(with output: LifeCycleViewOutput) {
+        object?.composed(with: output)
+    }
     public func withAnalytics(screenName: String, analytics: AnalyticsTracker) {
         object?.withAnalytics(screenName: screenName, analytics: analytics)
     }
+
 }
 
 #endif
