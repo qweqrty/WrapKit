@@ -49,11 +49,6 @@ extension MainQueueDispatchDecorator: ApplicationLifecycleOutput where T: Applic
             self?.decoratee.applicationDidChange(userInterfaceStyle: userInterfaceStyle)
         }
     }
-    public func composed(with output: ApplicationLifecycleOutput) {
-        dispatch { [weak self] in
-            self?.decoratee.composed(with: output)
-        }
-    }
 
 }
 
@@ -73,9 +68,6 @@ extension WeakRefVirtualProxy: ApplicationLifecycleOutput where T: ApplicationLi
     }
     public func applicationDidChange(userInterfaceStyle: UserInterfaceStyle) {
         object?.applicationDidChange(userInterfaceStyle: userInterfaceStyle)
-    }
-    public func composed(with output: ApplicationLifecycleOutput) {
-        object?.composed(with: output)
     }
 
 }
