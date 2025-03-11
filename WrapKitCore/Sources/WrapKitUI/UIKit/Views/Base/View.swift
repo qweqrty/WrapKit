@@ -12,7 +12,8 @@ public struct LifeCycleView<Content: View>: View {
     private let lifeCycleInput: LifeCycleViewOutput?
     private let applicationLifecycleOutput: ApplicationLifecycleOutput?
 
-    @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.colorScheme) private var colorScheme // For userInterfaceStyle change
     @State private var didAppear = false
     @State private var lastColorScheme: ColorScheme?
 
@@ -33,55 +34,31 @@ public struct LifeCycleView<Content: View>: View {
                 if !didAppear {
                     lifeCycleInput?.viewDidLoad()
                     didAppear = true
-                    setupLifecycleObservers()
-                    checkColorSchemeChange() // Initial check on first appear
+                    // Initial check of the color scheme
+                    checkColorSchemeChange()
                 }
                 lifeCycleInput?.viewDidAppear()
             }
             .onDisappear {
                 lifeCycleInput?.viewWillDisappear()
                 lifeCycleInput?.viewDidDisappear()
-                removeLifecycleObservers()
             }
-            // Use a custom modifier to check color scheme changes
-            .modifier(ColorSchemeChangeModifier(
-                colorScheme: colorScheme,
-                lastColorScheme: $lastColorScheme,
-                applicationLifecycleOutput: applicationLifecycleOutput
-            ))
-    }
-    
-    // MARK: - Lifecycle Observers (iOS 13-style)
-    private func setupLifecycleObservers() {
-        let center = NotificationCenter.default
-        
-        center.addObserver(
-            forName: UIApplication.didBecomeActiveNotification,
-            object: nil,
-            queue: .main
-        ) { _ in
-            applicationLifecycleOutput?.applicationDidBecomeActive()
-        }
-        
-        center.addObserver(
-            forName: UIApplication.willResignActiveNotification,
-            object: nil,
-            queue: .main
-        ) { _ in
-            applicationLifecycleOutput?.applicationWillResignActive()
-        }
-        
-        center.addObserver(
-            forName: UIApplication.didEnterBackgroundNotification,
-            object: nil,
-            queue: .main
-        ) { _ in
-            applicationLifecycleOutput?.applicationDidEnterBackground()
-        }
-    }
-    
-    private func removeLifecycleObservers() {
-        NotificationCenter.default.removeObserver(self)
+            .onChange(of: scenePhase) { newPhase in
+                switch newPhase {
+                case .active:
+                    applicationLifecycleOutput?.applicationWillEnterForeground()
+                    applicationLifecycleOutput?.applicationDidBecomeActive()
+                case .inactive:
+                    applicationLifecycleOutput?.applicationWillResignActive()
+                case .background:
+                    applicationLifecycleOutput?.applicationDidEnterBackground()
+                @unknown default:
+                    break
+                }
+            }
+            .onChange(of: colorScheme) { _ in
+                checkColorSchemeChange()
+            }
     }
     
     // MARK: - Color Scheme Check
@@ -90,7 +67,6 @@ public struct LifeCycleView<Content: View>: View {
             self.lastColorScheme = colorScheme
             return
         }
-        
         if colorScheme != lastColorScheme {
             let style: UserInterfaceStyle = (colorScheme == .dark) ? .dark : .light
             applicationLifecycleOutput?.applicationDidChange(userInterfaceStyle: style)

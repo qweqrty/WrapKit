@@ -18,6 +18,31 @@ let project = Project(
                 .external(name: "PhoneNumberKit"),
                 .external(name: "DeviceKit")
             ]
+        ),
+        .target(
+            name: wrapKitTestUtils.name,
+            destinations: .all,
+            product: .framework,
+            bundleId: wrapKitTestUtils.bundleId,
+            deploymentTargets: .all,
+            sources: [.glob("TestUtils/**", excluding: ["**/Project.swift", "**/*Tests.swift"])],
+            scripts: [Scripts.swiftlint],
+            dependencies: [
+                .xctest
+            ]
+        ),
+        .target(
+            name: "\(wrapKit.name)Tests",
+            destinations: .all,
+            product: .unitTests,
+            bundleId: "\(wrapKit.bundleId)Tests",
+            deploymentTargets: .all,
+            sources: ["Tests/**"],
+            dependencies: [
+                .target(name: wrapKit.name),
+                .target(name: wrapKitTestUtils.name),
+                .xctest
+            ]
         )
     ]
 )
