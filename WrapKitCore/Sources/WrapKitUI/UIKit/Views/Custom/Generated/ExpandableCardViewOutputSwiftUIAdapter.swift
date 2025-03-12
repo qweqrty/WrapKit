@@ -6,7 +6,26 @@
 // swift-format-ignore-file
 // swiftformat:disable all
 
-import SwiftUI
+#if canImport(WrapKit)
+import WrapKit
+#if canImport(Foundation)
+import Foundation
+#endif
+#if canImport(SwiftUI)
+import Foundation
+#endif
+#if canImport(UIKit)
+import UIKit
+#endif
+#if canImport(SwiftUI)
+import UIKit
+#endif
+#if canImport(Combine)
+import Combine
+#endif
+#if canImport(SwiftUI)
+import Combine
+#endif
 public class ExpandableCardViewOutputSwiftUIAdapter: ObservableObject, ExpandableCardViewOutput {
 
     // Initializer
@@ -24,3 +43,4 @@ public class ExpandableCardViewOutputSwiftUIAdapter: ObservableObject, Expandabl
         )
     }
 }
+#endif

@@ -9,20 +9,20 @@ import SwiftUI
 import WrapKit
 
 public struct SplashContentView: View {
-    private let lifeCycleInput: LifeCycleViewOutput?
+    private let lifeCycleOutput: LifeCycleViewOutput?
     private let ApplicationLifecycleOutput: ApplicationLifecycleOutput?
 
     public init(
-        lifeCycleInput: LifeCycleViewOutput? = nil,
+        lifeCycleOutput: LifeCycleViewOutput? = nil,
         ApplicationLifecycleOutput: ApplicationLifecycleOutput? = nil
     ) {
-        self.lifeCycleInput = lifeCycleInput
+        self.lifeCycleOutput = lifeCycleOutput
         self.ApplicationLifecycleOutput = ApplicationLifecycleOutput
     }
 
     public var body: some View {
         LifeCycleView(
-            lifeCycleInput: lifeCycleInput,
+            lifeCycleOutput: lifeCycleOutput,
             applicationLifecycleOutput: ApplicationLifecycleOutput
         ) {
             ZStack {

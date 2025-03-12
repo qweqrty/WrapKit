@@ -9,7 +9,7 @@ import SwiftUI
 
 public struct LifeCycleView<Content: View>: View {
     private let content: () -> Content
-    private let lifeCycleInput: LifeCycleViewOutput?
+    private let lifeCycleOutput: LifeCycleViewOutput?
     private let applicationLifecycleOutput: ApplicationLifecycleOutput?
 
     @Environment(\.scenePhase) private var scenePhase
@@ -18,11 +18,11 @@ public struct LifeCycleView<Content: View>: View {
     @State private var lastColorScheme: ColorScheme?
 
     public init(
-        lifeCycleInput: LifeCycleViewOutput? = nil,
+        lifeCycleOutput: LifeCycleViewOutput? = nil,
         applicationLifecycleOutput: ApplicationLifecycleOutput? = nil,
         @ViewBuilder content: @escaping () -> Content
     ) {
-        self.lifeCycleInput = lifeCycleInput
+        self.lifeCycleOutput = lifeCycleOutput
         self.applicationLifecycleOutput = applicationLifecycleOutput
         self.content = content
     }
@@ -30,18 +30,18 @@ public struct LifeCycleView<Content: View>: View {
     public var body: some View {
         content()
             .onAppear {
-                lifeCycleInput?.viewWillAppear()
+                lifeCycleOutput?.viewWillAppear()
                 if !didAppear {
-                    lifeCycleInput?.viewDidLoad()
+                    lifeCycleOutput?.viewDidLoad()
                     didAppear = true
                     // Initial check of the color scheme
                     checkColorSchemeChange()
                 }
-                lifeCycleInput?.viewDidAppear()
+                lifeCycleOutput?.viewDidAppear()
             }
             .onDisappear {
-                lifeCycleInput?.viewWillDisappear()
-                lifeCycleInput?.viewDidDisappear()
+                lifeCycleOutput?.viewWillDisappear()
+                lifeCycleOutput?.viewDidDisappear()
             }
             .onChange(of: scenePhase) { newPhase in
                 switch newPhase {

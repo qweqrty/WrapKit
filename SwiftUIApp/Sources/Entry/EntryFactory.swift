@@ -20,7 +20,7 @@ struct EntryViewSwiftUIFactory: EntryViewFactory {
     func makeSplashScreen() -> AnyView {
         let presenter = SplashPresenter()
         let view = SplashContentView(
-            lifeCycleInput: presenter,
+            lifeCycleOutput: presenter,
             ApplicationLifecycleOutput: presenter
         )
         return AnyView(view)

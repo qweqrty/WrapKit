@@ -6,7 +6,26 @@
 // swift-format-ignore-file
 // swiftformat:disable all
 
+#if canImport(WrapKit)
+import WrapKit
+#if canImport(Foundation)
+import Foundation
+#endif
+#if canImport(SwiftUI)
+import Foundation
+#endif
+#if canImport(UIKit)
+import UIKit
+#endif
+#if canImport(SwiftUI)
+import UIKit
+#endif
+#if canImport(SwiftUI)
 import SwiftUI
+#endif
+#if canImport(SwiftUI)
+import SwiftUI
+#endif
 public class ProgressBarOutputSwiftUIAdapter: ObservableObject, ProgressBarOutput {
 
     // Initializer
@@ -42,3 +61,4 @@ public class ProgressBarOutputSwiftUIAdapter: ObservableObject, ProgressBarOutpu
         )
     }
 }
+#endif

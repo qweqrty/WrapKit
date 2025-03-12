@@ -6,7 +6,16 @@
 // swift-format-ignore-file
 // swiftformat:disable all
 
-import SwiftUI
+#if canImport(WrapKit)
+import WrapKit
+{% for importName in type.allImports %}
+#if canImport({{ importName }})
+import {{ importName }}
+#endif
+#if canImport(SwiftUI)
+import {{ importName }}
+#endif
+{% endfor %}
 public class {{ type.name }}SwiftUIAdapter{% for associatedType in type.associatedTypes|sortedValuesByKeys %}{% if forloop.first %}<{% endif %}{{ associatedType.name }}{% if forloop.last %}>{% endif %}{% endfor %}: ObservableObject, {{ type.name }} {
     {% for variable in type.variables %}
         {% if variable.isOptional %}
@@ -50,6 +59,7 @@ public class {{ type.name }}SwiftUIAdapter{% for associatedType in type.associat
     {% endif %}
     {% endfor %}
 }
+#endif
 // sourcery:end
 // sourcery:endfile
 {% endfor %}

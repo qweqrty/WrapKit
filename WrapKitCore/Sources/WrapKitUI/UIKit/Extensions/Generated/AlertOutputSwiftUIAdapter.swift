@@ -6,7 +6,14 @@
 // swift-format-ignore-file
 // swiftformat:disable all
 
-import SwiftUI
+#if canImport(WrapKit)
+import WrapKit
+#if canImport(UIKit)
+import UIKit
+#endif
+#if canImport(SwiftUI)
+import UIKit
+#endif
 public class AlertOutputSwiftUIAdapter: ObservableObject, AlertOutput {
 
     // Initializer
@@ -33,3 +40,4 @@ public class AlertOutputSwiftUIAdapter: ObservableObject, AlertOutput {
         )
     }
 }
+#endif

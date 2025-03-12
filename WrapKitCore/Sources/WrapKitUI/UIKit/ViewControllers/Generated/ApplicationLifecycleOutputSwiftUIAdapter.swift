@@ -6,7 +6,14 @@
 // swift-format-ignore-file
 // swiftformat:disable all
 
-import SwiftUI
+#if canImport(WrapKit)
+import WrapKit
+#if canImport(UIKit)
+import UIKit
+#endif
+#if canImport(SwiftUI)
+import UIKit
+#endif
 public class ApplicationLifecycleOutputSwiftUIAdapter: ObservableObject, ApplicationLifecycleOutput {
 
     // Initializer
@@ -61,3 +68,4 @@ public class ApplicationLifecycleOutputSwiftUIAdapter: ObservableObject, Applica
         )
     }
 }
+#endif
