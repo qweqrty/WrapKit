@@ -8,8 +8,6 @@
 import Combine
 import WrapKit
 import XCTest
-import XCTest
-import Combine
 
 final class TokenRefresherImplTests: XCTestCase {
     private var cancellables = Set<AnyCancellable>()

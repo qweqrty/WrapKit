@@ -1,4 +1,5 @@
 SOURCERY_MAIN_QUEUE_SCRIPT=./Scripts/Sourcery/MainQueueDispatchDecorator.sh
+SOURCERY_WEAK_PROXY_SCRIPT=./Scripts/Sourcery/WeakRefVirtualProxy.sh
 SOURCERY_ADAPTER_SCRIPT=./Scripts/Sourcery/SwiftUIAdapterGenerator.sh
 TUIST_COMMANDS="tuist clean; tuist install; tuist generate"
 
@@ -39,7 +40,14 @@ run-sourcery:
 		echo "Sourcery failed. Exiting..."; \
 		exit 1; \
 	fi
-		@echo "Running SwiftUI Adapter Sourcery from root..."
+
+	@echo "Running Weak proxy Sourcery from root..."
+	@if ! $(SOURCERY_WEAK_PROXY_SCRIPT); then \
+		echo "Sourcery failed. Exiting..."; \
+		exit 1; \
+	fi
+	
+	@echo "Running SwiftUI Adapter Sourcery from root..."
 	@if ! $(SOURCERY_ADAPTER_SCRIPT); then \
 		echo "Sourcery failed. Exiting..."; \
 		exit 1; \

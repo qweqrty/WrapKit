@@ -1,8 +1,10 @@
 // Generated using Sourcery 2.2.5 — https://github.com/krzysztofzablocki/Sourcery
 // DO NOT EDIT
-
 // Generated using Sourcery 2.2.5 — https://github.com/krzysztofzablocki/Sourcery
-// DO NOT EDIT
+// swiftlint:disable:this file_name
+// swiftlint:disable all
+// swift-format-ignore-file
+// swiftformat:disable all
 
 #if canImport(WrapKit)
 import WrapKit
@@ -22,12 +24,6 @@ extension ProgressBarOutput {
     }
 }
 
-extension ProgressBarOutput {
-    public var weakReferenced: any ProgressBarOutput {
-        return WeakRefVirtualProxy(self)
-    }
-}
-
 extension MainQueueDispatchDecorator: ProgressBarOutput where T: ProgressBarOutput {
 
     public func display(model: ProgressBarPresentableModel?) {
@@ -44,20 +40,6 @@ extension MainQueueDispatchDecorator: ProgressBarOutput where T: ProgressBarOutp
         dispatch { [weak self] in
             self?.decoratee.display(style: style)
         }
-    }
-
-}
-
-extension WeakRefVirtualProxy: ProgressBarOutput where T: ProgressBarOutput {
-
-    public func display(model: ProgressBarPresentableModel?) {
-        object?.display(model: model)
-    }
-    public func display(progress: CGFloat) {
-        object?.display(progress: progress)
-    }
-    public func display(style: ProgressBarStyle?) {
-        object?.display(style: style)
     }
 
 }

@@ -1,8 +1,10 @@
 // Generated using Sourcery 2.2.5 — https://github.com/krzysztofzablocki/Sourcery
 // DO NOT EDIT
-
 // Generated using Sourcery 2.2.5 — https://github.com/krzysztofzablocki/Sourcery
-// DO NOT EDIT
+// swiftlint:disable:this file_name
+// swiftlint:disable all
+// swift-format-ignore-file
+// swiftformat:disable all
 
 #if canImport(WrapKit)
 import WrapKit
@@ -25,12 +27,6 @@ extension LottieViewOutput {
     }
 }
 
-extension LottieViewOutput {
-    public var weakReferenced: any LottieViewOutput {
-        return WeakRefVirtualProxy(self)
-    }
-}
-
 extension MainQueueDispatchDecorator: LottieViewOutput where T: LottieViewOutput {
 
     public func display(model: LottieViewPresentableModel) {
@@ -46,18 +42,6 @@ extension MainQueueDispatchDecorator: LottieViewOutput where T: LottieViewOutput
         set {
             decoratee.currentAnimationName = newValue
         }
-    }
-}
-
-extension WeakRefVirtualProxy: LottieViewOutput where T: LottieViewOutput {
-
-    public func display(model: LottieViewPresentableModel) {
-        object?.display(model: model)
-    }
-
-    public var currentAnimationName: String? {
-        get { return object?.currentAnimationName }
-        set { object?.currentAnimationName = newValue }
     }
 }
 #endif

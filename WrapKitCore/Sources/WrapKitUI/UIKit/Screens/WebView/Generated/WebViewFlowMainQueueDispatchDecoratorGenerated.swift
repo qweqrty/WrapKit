@@ -1,8 +1,10 @@
 // Generated using Sourcery 2.2.5 — https://github.com/krzysztofzablocki/Sourcery
 // DO NOT EDIT
-
 // Generated using Sourcery 2.2.5 — https://github.com/krzysztofzablocki/Sourcery
-// DO NOT EDIT
+// swiftlint:disable:this file_name
+// swiftlint:disable all
+// swift-format-ignore-file
+// swiftformat:disable all
 
 #if canImport(WrapKit)
 import WrapKit
@@ -13,12 +15,6 @@ import Foundation
 extension WebViewFlow {
     public var mainQueueDispatched: any WebViewFlow {
         MainQueueDispatchDecorator(decoratee: self)
-    }
-}
-
-extension WebViewFlow {
-    public var weakReferenced: any WebViewFlow {
-        return WeakRefVirtualProxy(self)
     }
 }
 
@@ -33,17 +29,6 @@ extension MainQueueDispatchDecorator: WebViewFlow where T: WebViewFlow {
         dispatch { [weak self] in
             self?.decoratee.navigateBack()
         }
-    }
-
-}
-
-extension WeakRefVirtualProxy: WebViewFlow where T: WebViewFlow {
-
-    public func navigateToWebView(title: String?, url: URL, style: WebViewStyle) {
-        object?.navigateToWebView(title: title, url: url, style: style)
-    }
-    public func navigateBack() {
-        object?.navigateBack()
     }
 
 }

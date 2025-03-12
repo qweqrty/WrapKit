@@ -1,8 +1,10 @@
 // Generated using Sourcery 2.2.5 — https://github.com/krzysztofzablocki/Sourcery
 // DO NOT EDIT
-
 // Generated using Sourcery 2.2.5 — https://github.com/krzysztofzablocki/Sourcery
-// DO NOT EDIT
+// swiftlint:disable:this file_name
+// swiftlint:disable all
+// swift-format-ignore-file
+// swiftformat:disable all
 
 #if canImport(WrapKit)
 import WrapKit
@@ -13,12 +15,6 @@ import Foundation
 extension SelectionFlow {
     public var mainQueueDispatched: any SelectionFlow {
         MainQueueDispatchDecorator(decoratee: self)
-    }
-}
-
-extension SelectionFlow {
-    public var weakReferenced: any SelectionFlow {
-        return WeakRefVirtualProxy(self)
     }
 }
 
@@ -38,20 +34,6 @@ extension MainQueueDispatchDecorator: SelectionFlow where T: SelectionFlow {
         dispatch { [weak self] in
             self?.decoratee.close(with: result)
         }
-    }
-
-}
-
-extension WeakRefVirtualProxy: SelectionFlow where T: SelectionFlow {
-
-    public func showSelection(model: SelectionPresenterModel) {
-        object?.showSelection(model: model)
-    }
-    public func showSelection<Request, Response>(model: ServicedSelectionModel<Request, Response>) {
-        object?.showSelection(model: model)
-    }
-    public func close(with result: SelectionType?) {
-        object?.close(with: result)
     }
 
 }

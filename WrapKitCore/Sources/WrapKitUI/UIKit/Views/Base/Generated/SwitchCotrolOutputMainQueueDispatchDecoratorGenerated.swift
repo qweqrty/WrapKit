@@ -1,8 +1,10 @@
 // Generated using Sourcery 2.2.5 — https://github.com/krzysztofzablocki/Sourcery
 // DO NOT EDIT
-
 // Generated using Sourcery 2.2.5 — https://github.com/krzysztofzablocki/Sourcery
-// DO NOT EDIT
+// swiftlint:disable:this file_name
+// swiftlint:disable all
+// swift-format-ignore-file
+// swiftformat:disable all
 
 #if canImport(WrapKit)
 import WrapKit
@@ -16,12 +18,6 @@ import UIKit
 extension SwitchCotrolOutput {
     public var mainQueueDispatched: any SwitchCotrolOutput {
         MainQueueDispatchDecorator(decoratee: self)
-    }
-}
-
-extension SwitchCotrolOutput {
-    public var weakReferenced: any SwitchCotrolOutput {
-        return WeakRefVirtualProxy(self)
     }
 }
 
@@ -51,26 +47,6 @@ extension MainQueueDispatchDecorator: SwitchCotrolOutput where T: SwitchCotrolOu
         dispatch { [weak self] in
             self?.decoratee.display(isEnabled: isEnabled)
         }
-    }
-
-}
-
-extension WeakRefVirtualProxy: SwitchCotrolOutput where T: SwitchCotrolOutput {
-
-    public func display(model: SwitchControlPresentableModel?) {
-        object?.display(model: model)
-    }
-    public func display(onPress: ((SwitchCotrolOutput) -> Void)?) {
-        object?.display(onPress: onPress)
-    }
-    public func display(isOn: Bool) {
-        object?.display(isOn: isOn)
-    }
-    public func display(style: SwitchControlPresentableModel.Style) {
-        object?.display(style: style)
-    }
-    public func display(isEnabled: Bool) {
-        object?.display(isEnabled: isEnabled)
     }
 
 }

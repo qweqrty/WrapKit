@@ -1,8 +1,10 @@
 // Generated using Sourcery 2.2.5 — https://github.com/krzysztofzablocki/Sourcery
 // DO NOT EDIT
-
 // Generated using Sourcery 2.2.5 — https://github.com/krzysztofzablocki/Sourcery
-// DO NOT EDIT
+// swiftlint:disable:this file_name
+// swiftlint:disable all
+// swift-format-ignore-file
+// swiftformat:disable all
 
 #if canImport(WrapKit)
 import WrapKit
@@ -16,12 +18,6 @@ import SwiftUI
 extension KeyValueFieldViewOutput {
     public var mainQueueDispatched: any KeyValueFieldViewOutput {
         MainQueueDispatchDecorator(decoratee: self)
-    }
-}
-
-extension KeyValueFieldViewOutput {
-    public var weakReferenced: any KeyValueFieldViewOutput {
-        return WeakRefVirtualProxy(self)
     }
 }
 
@@ -46,23 +42,6 @@ extension MainQueueDispatchDecorator: KeyValueFieldViewOutput where T: KeyValueF
         dispatch { [weak self] in
             self?.decoratee.display(bottomImage: bottomImage)
         }
-    }
-
-}
-
-extension WeakRefVirtualProxy: KeyValueFieldViewOutput where T: KeyValueFieldViewOutput {
-
-    public func display(model: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>?) {
-        object?.display(model: model)
-    }
-    public func display(keyTitle: TextOutputPresentableModel?) {
-        object?.display(keyTitle: keyTitle)
-    }
-    public func display(valueTitle: TextOutputPresentableModel?) {
-        object?.display(valueTitle: valueTitle)
-    }
-    public func display(bottomImage: ImageViewPresentableModel?) {
-        object?.display(bottomImage: bottomImage)
     }
 
 }

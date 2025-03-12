@@ -532,4 +532,3 @@ class AuthenticatedHTTPClientDecoratorTests: XCTestCase {
         }
     }
 }
-

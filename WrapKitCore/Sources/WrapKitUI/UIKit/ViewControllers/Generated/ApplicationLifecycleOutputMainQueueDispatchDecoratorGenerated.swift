@@ -1,8 +1,10 @@
 // Generated using Sourcery 2.2.5 — https://github.com/krzysztofzablocki/Sourcery
 // DO NOT EDIT
-
 // Generated using Sourcery 2.2.5 — https://github.com/krzysztofzablocki/Sourcery
-// DO NOT EDIT
+// swiftlint:disable:this file_name
+// swiftlint:disable all
+// swift-format-ignore-file
+// swiftformat:disable all
 
 #if canImport(WrapKit)
 import WrapKit
@@ -13,12 +15,6 @@ import UIKit
 extension ApplicationLifecycleOutput {
     public var mainQueueDispatched: any ApplicationLifecycleOutput {
         MainQueueDispatchDecorator(decoratee: self)
-    }
-}
-
-extension ApplicationLifecycleOutput {
-    public var weakReferenced: any ApplicationLifecycleOutput {
-        return WeakRefVirtualProxy(self)
     }
 }
 
@@ -53,29 +49,6 @@ extension MainQueueDispatchDecorator: ApplicationLifecycleOutput where T: Applic
         dispatch { [weak self] in
             self?.decoratee.composed(with: output)
         }
-    }
-
-}
-
-extension WeakRefVirtualProxy: ApplicationLifecycleOutput where T: ApplicationLifecycleOutput {
-
-    public func applicationWillEnterForeground() {
-        object?.applicationWillEnterForeground()
-    }
-    public func applicationDidEnterBackground() {
-        object?.applicationDidEnterBackground()
-    }
-    public func applicationDidBecomeActive() {
-        object?.applicationDidBecomeActive()
-    }
-    public func applicationWillResignActive() {
-        object?.applicationWillResignActive()
-    }
-    public func applicationDidChange(userInterfaceStyle: UserInterfaceStyle) {
-        object?.applicationDidChange(userInterfaceStyle: userInterfaceStyle)
-    }
-    public func composed(with output: ApplicationLifecycleOutput) {
-        object?.composed(with: output)
     }
 
 }

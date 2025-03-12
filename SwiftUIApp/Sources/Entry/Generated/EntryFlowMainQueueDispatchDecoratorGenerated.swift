@@ -1,8 +1,10 @@
 // Generated using Sourcery 2.2.5 — https://github.com/krzysztofzablocki/Sourcery
 // DO NOT EDIT
-
 // Generated using Sourcery 2.2.5 — https://github.com/krzysztofzablocki/Sourcery
-// DO NOT EDIT
+// swiftlint:disable:this file_name
+// swiftlint:disable all
+// swift-format-ignore-file
+// swiftformat:disable all
 
 #if canImport(WrapKit)
 import WrapKit
@@ -22,26 +24,12 @@ extension EntryFlow {
     }
 }
 
-extension EntryFlow {
-    public var weakReferenced: any EntryFlow {
-        return WeakRefVirtualProxy(self)
-    }
-}
-
 extension MainQueueDispatchDecorator: EntryFlow where T: EntryFlow {
 
     public func showSplash() {
         dispatch { [weak self] in
             self?.decoratee.showSplash()
         }
-    }
-
-}
-
-extension WeakRefVirtualProxy: EntryFlow where T: EntryFlow {
-
-    public func showSplash() {
-        object?.showSplash()
     }
 
 }

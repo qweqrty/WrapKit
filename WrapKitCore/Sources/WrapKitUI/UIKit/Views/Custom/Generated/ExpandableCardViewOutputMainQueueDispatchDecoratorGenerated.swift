@@ -1,8 +1,10 @@
 // Generated using Sourcery 2.2.5 — https://github.com/krzysztofzablocki/Sourcery
 // DO NOT EDIT
-
 // Generated using Sourcery 2.2.5 — https://github.com/krzysztofzablocki/Sourcery
-// DO NOT EDIT
+// swiftlint:disable:this file_name
+// swiftlint:disable all
+// swift-format-ignore-file
+// swiftformat:disable all
 
 #if canImport(WrapKit)
 import WrapKit
@@ -22,26 +24,12 @@ extension ExpandableCardViewOutput {
     }
 }
 
-extension ExpandableCardViewOutput {
-    public var weakReferenced: any ExpandableCardViewOutput {
-        return WeakRefVirtualProxy(self)
-    }
-}
-
 extension MainQueueDispatchDecorator: ExpandableCardViewOutput where T: ExpandableCardViewOutput {
 
     public func display(model: Pair<CardViewPresentableModel, CardViewPresentableModel?>) {
         dispatch { [weak self] in
             self?.decoratee.display(model: model)
         }
-    }
-
-}
-
-extension WeakRefVirtualProxy: ExpandableCardViewOutput where T: ExpandableCardViewOutput {
-
-    public func display(model: Pair<CardViewPresentableModel, CardViewPresentableModel?>) {
-        object?.display(model: model)
     }
 
 }
