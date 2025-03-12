@@ -35,6 +35,9 @@ tuist-generate:
 
 # Run Sourcery script
 run-sourcery:
+	@echo "Deleting all 'Generated' folders..."
+	find . -type d -name "Generated" -exec rm -rf {} +
+
 	@echo "Running Main queue Sourcery from root..."
 	@if ! $(SOURCERY_MAIN_QUEUE_SCRIPT); then \
 		echo "Sourcery failed. Exiting..."; \

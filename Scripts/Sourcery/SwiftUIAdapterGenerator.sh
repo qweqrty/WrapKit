@@ -17,10 +17,6 @@ for EXCLUDED in "${EXCLUDED_DIRS[@]}"; do
     EXCLUDE_ARGS+="--exclude-sources $PROJECT_ROOT/$EXCLUDED "
 done
 
-# Delete all previously generated files
-echo "Cleaning up previous SwiftUIAdapter files..."
-find "$OUTPUT_DIR" -name '*SwiftUIAdapter.swift' -type f -delete
-
 # Run Sourcery for _Flow.swift and _Presenter.swift files
 echo "Running Sourcery for _Flow.swift and _Presenter.swift files..."
 
