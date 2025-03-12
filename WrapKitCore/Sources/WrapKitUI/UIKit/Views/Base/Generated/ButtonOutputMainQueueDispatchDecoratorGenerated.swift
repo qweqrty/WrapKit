@@ -98,5 +98,4 @@ extension WeakRefVirtualProxy: ButtonOutput where T: ButtonOutput {
     }
 
 }
-
 #endif

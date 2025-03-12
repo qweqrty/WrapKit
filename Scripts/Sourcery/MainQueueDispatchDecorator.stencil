@@ -76,8 +76,6 @@ extension WeakRefVirtualProxy: {{ type.name }} where T: {{ type.name }} {
     }
     {% endfor %}
 }
-
 #endif
-
 // sourcery:end
 {% endfor %}

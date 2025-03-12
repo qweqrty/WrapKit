@@ -47,5 +47,4 @@ extension WeakRefVirtualProxy: WebViewFlow where T: WebViewFlow {
     }
 
 }
-
 #endif

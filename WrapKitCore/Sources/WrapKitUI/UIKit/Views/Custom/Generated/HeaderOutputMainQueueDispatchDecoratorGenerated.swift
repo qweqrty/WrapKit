@@ -90,5 +90,4 @@ extension WeakRefVirtualProxy: HeaderOutput where T: HeaderOutput {
     }
 
 }
-
 #endif

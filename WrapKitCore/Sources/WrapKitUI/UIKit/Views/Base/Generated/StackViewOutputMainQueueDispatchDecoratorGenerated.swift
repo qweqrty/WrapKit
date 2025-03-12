@@ -82,5 +82,4 @@ extension WeakRefVirtualProxy: StackViewOutput where T: StackViewOutput {
     }
 
 }
-
 #endif

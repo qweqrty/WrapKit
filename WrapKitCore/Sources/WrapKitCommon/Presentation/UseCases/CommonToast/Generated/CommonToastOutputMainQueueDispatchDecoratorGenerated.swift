@@ -39,5 +39,4 @@ extension WeakRefVirtualProxy: CommonToastOutput where T: CommonToastOutput {
     }
 
 }
-
 #endif

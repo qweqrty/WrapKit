@@ -74,5 +74,4 @@ extension WeakRefVirtualProxy: RefreshControlOutput where T: RefreshControlOutpu
     }
 
 }
-
 #endif

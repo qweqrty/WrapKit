@@ -74,5 +74,4 @@ extension WeakRefVirtualProxy: SwitchCotrolOutput where T: SwitchCotrolOutput {
     }
 
 }
-
 #endif

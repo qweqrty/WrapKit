@@ -76,5 +76,4 @@ extension WeakRefVirtualProxy: PaginationViewOutput where T: PaginationViewOutpu
     }
 
 }
-
 #endif

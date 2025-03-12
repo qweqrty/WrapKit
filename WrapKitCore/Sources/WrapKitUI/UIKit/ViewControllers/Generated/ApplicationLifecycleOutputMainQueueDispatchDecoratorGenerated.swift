@@ -79,5 +79,4 @@ extension WeakRefVirtualProxy: ApplicationLifecycleOutput where T: ApplicationLi
     }
 
 }
-
 #endif

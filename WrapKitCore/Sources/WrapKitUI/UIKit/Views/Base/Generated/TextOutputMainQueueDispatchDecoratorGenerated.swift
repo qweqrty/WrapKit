@@ -58,5 +58,4 @@ extension WeakRefVirtualProxy: TextOutput where T: TextOutput {
     }
 
 }
-
 #endif

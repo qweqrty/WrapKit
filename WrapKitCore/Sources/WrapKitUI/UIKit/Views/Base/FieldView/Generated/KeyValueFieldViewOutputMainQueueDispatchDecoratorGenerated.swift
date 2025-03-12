@@ -66,5 +66,4 @@ extension WeakRefVirtualProxy: KeyValueFieldViewOutput where T: KeyValueFieldVie
     }
 
 }
-
 #endif

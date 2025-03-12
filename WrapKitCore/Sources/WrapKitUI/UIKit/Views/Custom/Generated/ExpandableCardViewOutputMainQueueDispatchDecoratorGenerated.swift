@@ -45,5 +45,4 @@ extension WeakRefVirtualProxy: ExpandableCardViewOutput where T: ExpandableCardV
     }
 
 }
-
 #endif

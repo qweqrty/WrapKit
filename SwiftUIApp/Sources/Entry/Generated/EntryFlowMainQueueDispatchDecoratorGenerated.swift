@@ -45,5 +45,4 @@ extension WeakRefVirtualProxy: EntryFlow where T: EntryFlow {
     }
 
 }
-
 #endif

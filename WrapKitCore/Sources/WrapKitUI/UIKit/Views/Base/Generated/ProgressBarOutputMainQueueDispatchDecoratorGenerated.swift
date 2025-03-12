@@ -61,5 +61,4 @@ extension WeakRefVirtualProxy: ProgressBarOutput where T: ProgressBarOutput {
     }
 
 }
-
 #endif

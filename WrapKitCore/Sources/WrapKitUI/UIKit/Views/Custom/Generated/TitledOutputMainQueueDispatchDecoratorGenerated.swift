@@ -66,5 +66,4 @@ extension WeakRefVirtualProxy: TitledOutput where T: TitledOutput {
     }
 
 }
-
 #endif

@@ -39,5 +39,4 @@ extension WeakRefVirtualProxy: TimerOutput where T: TimerOutput {
     }
 
 }
-
 #endif

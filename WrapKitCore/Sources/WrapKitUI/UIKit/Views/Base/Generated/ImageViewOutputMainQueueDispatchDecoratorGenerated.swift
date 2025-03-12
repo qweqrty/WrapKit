@@ -114,5 +114,4 @@ extension WeakRefVirtualProxy: ImageViewOutput where T: ImageViewOutput {
     }
 
 }
-
 #endif

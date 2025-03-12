@@ -55,5 +55,4 @@ extension WeakRefVirtualProxy: SelectionFlow where T: SelectionFlow {
     }
 
 }
-
 #endif

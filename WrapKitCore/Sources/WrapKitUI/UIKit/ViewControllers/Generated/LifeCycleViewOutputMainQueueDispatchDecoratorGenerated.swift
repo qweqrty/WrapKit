@@ -87,5 +87,4 @@ extension WeakRefVirtualProxy: LifeCycleViewOutput where T: LifeCycleViewOutput 
     }
 
 }
-
 #endif

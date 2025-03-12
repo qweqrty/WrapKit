@@ -98,5 +98,4 @@ extension WeakRefVirtualProxy: PickerViewOutput where T: PickerViewOutput {
         set { object?.didSelectAt = newValue }
     }
 }
-
 #endif

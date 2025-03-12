@@ -74,5 +74,4 @@ extension WeakRefVirtualProxy: EmptyViewOutput where T: EmptyViewOutput {
     }
 
 }
-
 #endif

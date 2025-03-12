@@ -202,5 +202,4 @@ extension WeakRefVirtualProxy: TextInputOutput where T: TextInputOutput {
     }
 
 }
-
 #endif

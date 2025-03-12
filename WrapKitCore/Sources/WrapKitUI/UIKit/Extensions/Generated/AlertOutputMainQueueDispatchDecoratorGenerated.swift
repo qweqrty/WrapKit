@@ -47,5 +47,4 @@ extension WeakRefVirtualProxy: AlertOutput where T: AlertOutput {
     }
 
 }
-
 #endif

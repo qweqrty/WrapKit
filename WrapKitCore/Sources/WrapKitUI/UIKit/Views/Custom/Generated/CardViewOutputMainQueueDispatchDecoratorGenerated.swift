@@ -141,5 +141,4 @@ extension WeakRefVirtualProxy: CardViewOutput where T: CardViewOutput {
     }
 
 }
-
 #endif

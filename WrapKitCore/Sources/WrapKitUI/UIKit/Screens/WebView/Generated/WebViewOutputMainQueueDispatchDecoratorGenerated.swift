@@ -63,5 +63,4 @@ extension WeakRefVirtualProxy: WebViewOutput where T: WebViewOutput {
     }
 
 }
-
 #endif

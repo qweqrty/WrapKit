@@ -71,5 +71,4 @@ extension WeakRefVirtualProxy: SelectionOutput where T: SelectionOutput {
     }
 
 }
-
 #endif

@@ -25,10 +25,10 @@ find "$OUTPUT_DIR" -name '*SwiftUIAdapter.swift' -type f -delete
 echo "Running Sourcery for _Flow.swift and _Presenter.swift files..."
 
 # Run Sourcery with CLI options to generate files in 'Generated' folder next to the source files
-# sourcery \
-#     --sources "$SOURCES_PATH" \
-#     --templates "$TEMPLATE_PATH" \
-#     --output "$PROJECT_ROOT/scripts/Sourcery/Derived" \
-#     $EXCLUDE_ARGS
+sourcery \
+    --sources "$SOURCES_PATH" \
+    --templates "$TEMPLATE_PATH" \
+    --output "$PROJECT_ROOT/scripts/Sourcery/Derived" \
+    $EXCLUDE_ARGS
 
 echo "Sourcery completed successfully."

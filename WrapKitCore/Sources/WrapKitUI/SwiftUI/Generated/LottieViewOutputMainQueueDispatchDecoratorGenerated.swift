@@ -60,5 +60,4 @@ extension WeakRefVirtualProxy: LottieViewOutput where T: LottieViewOutput {
         set { object?.currentAnimationName = newValue }
     }
 }
-
 #endif

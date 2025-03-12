@@ -56,5 +56,4 @@ extension WeakRefVirtualProxy: LoadingOutput where T: LoadingOutput {
         set { object?.isLoading = newValue }
     }
 }
-
 #endif
