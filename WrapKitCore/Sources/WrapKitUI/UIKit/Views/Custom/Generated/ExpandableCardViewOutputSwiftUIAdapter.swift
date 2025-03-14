@@ -33,4 +33,13 @@ public class ExpandableCardViewOutputSwiftUIAdapter: ObservableObject, Expandabl
             model: model
         )
     }
+    @Published public var displayIsHiddenState: DisplayIsHiddenState? = nil
+    public struct DisplayIsHiddenState {
+        public let isHidden: Bool
+    }
+    public func display(isHidden: Bool) {
+        displayIsHiddenState = .init(
+            isHidden: isHidden
+        )
+    }
 }

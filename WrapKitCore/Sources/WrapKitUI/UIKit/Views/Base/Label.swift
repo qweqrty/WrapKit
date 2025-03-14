@@ -11,6 +11,7 @@ public protocol TextOutput: AnyObject {
     func display(model: TextOutputPresentableModel?)
     func display(text: String?)
     func display(attributes: [TextAttributes])
+    func display(isHidden: Bool)
 }
 
 public enum TextOutputPresentableModel: HashableWithReflection {
@@ -155,6 +156,10 @@ extension Label: TextOutput {
             updatedAttribute.text = attribute.text.removingPercentEncoding ?? attribute.text
             return updatedAttribute
         }
+    }
+    
+    public func display(isHidden: Bool) {
+        self.isHidden = isHidden
     }
 }
 

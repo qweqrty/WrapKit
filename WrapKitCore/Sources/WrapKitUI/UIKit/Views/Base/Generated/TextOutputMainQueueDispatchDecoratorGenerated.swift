@@ -37,6 +37,11 @@ extension MainQueueDispatchDecorator: TextOutput where T: TextOutput {
             self?.decoratee.display(attributes: attributes)
         }
     }
+    public func display(isHidden: Bool) {
+        dispatch { [weak self] in
+            self?.decoratee.display(isHidden: isHidden)
+        }
+    }
 
 }
 #endif

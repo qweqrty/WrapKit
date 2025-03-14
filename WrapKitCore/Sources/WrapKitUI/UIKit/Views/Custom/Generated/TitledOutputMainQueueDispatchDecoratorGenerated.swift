@@ -42,6 +42,11 @@ extension MainQueueDispatchDecorator: TitledOutput where T: TitledOutput {
             self?.decoratee.display(isUserInteractionEnabled: isUserInteractionEnabled)
         }
     }
+    public func display(isHidden: Bool) {
+        dispatch { [weak self] in
+            self?.decoratee.display(isHidden: isHidden)
+        }
+    }
 
 }
 #endif

@@ -10,6 +10,7 @@ public protocol TitledOutput: AnyObject {
     func display(titles: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>)
     func display(bottomTitles: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>)
     func display(isUserInteractionEnabled: Bool)
+    func display(isHidden: Bool)
 }
 
 public struct TitledViewPresentableModel {
@@ -167,6 +168,10 @@ extension TitledView: TitledOutput {
     
     public func display(isUserInteractionEnabled: Bool) {
         self.isUserInteractionEnabled = isUserInteractionEnabled
+    }
+    
+    public func display(isHidden: Bool) {
+        self.isHidden = isHidden
     }
 }
 

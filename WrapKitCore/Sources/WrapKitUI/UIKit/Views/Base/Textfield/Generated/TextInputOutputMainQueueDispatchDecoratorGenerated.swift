@@ -127,6 +127,11 @@ extension MainQueueDispatchDecorator: TextInputOutput where T: TextInputOutput {
             self?.decoratee.display(leadingViewIsHidden: leadingViewIsHidden)
         }
     }
+    public func display(isHidden: Bool) {
+        dispatch { [weak self] in
+            self?.decoratee.display(isHidden: isHidden)
+        }
+    }
 
 }
 #endif

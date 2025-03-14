@@ -9,6 +9,7 @@ import Foundation
 
 public protocol ExpandableCardViewOutput: AnyObject {
     func display(model: Pair<CardViewPresentableModel, CardViewPresentableModel?>)
+    func display(isHidden: Bool)
 }
 
 #if canImport(UIKit)
@@ -23,6 +24,10 @@ extension ExpandableCardView: ExpandableCardViewOutput {
         if let model = model.second {
             secondaryCardView.display(model: model)
         }
+    }
+    
+    public func display(isHidden: Bool) {
+        self.isHidden = isHidden
     }
 }
 

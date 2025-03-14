@@ -11,6 +11,7 @@ public protocol ProgressBarOutput: AnyObject {
     func display(model: ProgressBarPresentableModel?)
     func display(progress: CGFloat)
     func display(style: ProgressBarStyle?)
+    func display(isHidden: Bool)
 }
 
 public struct ProgressBarStyle {
@@ -130,6 +131,10 @@ extension ProgressBarView: ProgressBarOutput {
     
     public func display(style: ProgressBarStyle?) {
         self.style = style
+    }
+    
+    public func display(isHidden: Bool) {
+        self.isHidden = isHidden
     }
 }
 

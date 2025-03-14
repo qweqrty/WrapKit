@@ -57,6 +57,11 @@ extension MainQueueDispatchDecorator: HeaderOutput where T: HeaderOutput {
             self?.decoratee.display(tertiaryTrailingImage: tertiaryTrailingImage)
         }
     }
+    public func display(isHidden: Bool) {
+        dispatch { [weak self] in
+            self?.decoratee.display(isHidden: isHidden)
+        }
+    }
 
 }
 #endif

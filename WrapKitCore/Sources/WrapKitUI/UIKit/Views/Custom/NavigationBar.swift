@@ -15,6 +15,7 @@ public protocol HeaderOutput: AnyObject {
     func display(primeTrailingImage: ButtonPresentableModel?)
     func display(secondaryTrailingImage: ButtonPresentableModel?)
     func display(tertiaryTrailingImage: ButtonPresentableModel?)
+    func display(isHidden: Bool)
 }
 
 public struct HeaderPresentableModel {
@@ -143,6 +144,10 @@ extension NavigationBar: HeaderOutput {
     public func display(tertiaryTrailingImage: ButtonPresentableModel?) {
         tertiaryTrailingImageWrapperView.isHidden = tertiaryTrailingImage == nil
         tertiaryTrailingImageWrapperView.contentView.display(model: tertiaryTrailingImage)
+    }
+    
+    public func display(isHidden: Bool) {
+        self.isHidden = isHidden
     }
 }
 

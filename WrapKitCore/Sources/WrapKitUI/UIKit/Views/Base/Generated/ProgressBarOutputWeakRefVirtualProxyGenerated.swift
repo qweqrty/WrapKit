@@ -34,6 +34,9 @@ extension WeakRefVirtualProxy: ProgressBarOutput where T: ProgressBarOutput {
     public func display(style: ProgressBarStyle?) {
         object?.display(style: style)
     }
+    public func display(isHidden: Bool) {
+        object?.display(isHidden: isHidden)
+    }
 
 }
 #endif

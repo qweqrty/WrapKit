@@ -107,6 +107,7 @@ public protocol TextInputOutput: AnyObject {
     func display(didChangeText: [((String?) -> Void)])
     func display(trailingViewIsHidden: Bool)
     func display(leadingViewIsHidden: Bool)
+    func display(isHidden: Bool)
 }
 
 public struct TextInputPresentableModel: HashableWithReflection {
@@ -281,6 +282,10 @@ extension Textfield: TextInputOutput {
     
     public func display(didChangeText: [((String?) -> Void)]) {
         self.didChangeText = didChangeText
+    }
+    
+    public func display(isHidden: Bool) {
+        self.isHidden = isHidden
     }
 }
 
