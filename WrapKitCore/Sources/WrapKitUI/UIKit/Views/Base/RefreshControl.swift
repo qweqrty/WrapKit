@@ -34,6 +34,8 @@ public struct RefreshControlPresentableModel {
 }
 
 public protocol RefreshControlOutput: AnyObject {
+    var onRefresh: [(() -> Void)?]? { get set }
+    
     func display(model: RefreshControlPresentableModel?)
     func display(style: RefreshControlPresentableModel.Style)
     func display(onRefresh: (() -> Void)?)
@@ -54,12 +56,12 @@ extension RefreshControl: RefreshControlOutput {
     }
     
     public func display(onRefresh: (() -> Void)?) {
-        self.onRefresh.removeAll()
-        self.onRefresh.append(onRefresh)
+        self.onRefresh?.removeAll()
+        self.onRefresh?.append(onRefresh)
     }
     
     public func display(appendingOnRefresh: (() -> Void)?) {
-        self.onRefresh.append(appendingOnRefresh)
+        self.onRefresh?.append(appendingOnRefresh)
     }
 }
 
@@ -76,7 +78,7 @@ open class RefreshControl: UIRefreshControl {
         }
     }
     
-    public var onRefresh = [(() -> Void)?]()
+    public var onRefresh: [(() -> Void)?]? = [(() -> Void)?]()
     
     public init(tintColor: UIColor? = nil, zPosition: CGFloat = 0) {
         super.init()
@@ -91,7 +93,7 @@ open class RefreshControl: UIRefreshControl {
     }
     
     @objc private func didRefresh() {
-        onRefresh.forEach {
+        onRefresh?.forEach {
             $0?()
         }
     }

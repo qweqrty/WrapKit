@@ -48,5 +48,13 @@ extension MainQueueDispatchDecorator: RefreshControlOutput where T: RefreshContr
         }
     }
 
+    public var onRefresh: [(() -> Void)?]? {
+        get {
+            return decoratee.onRefresh          
+        }
+        set {
+            decoratee.onRefresh = newValue
+        }
+    }
 }
 #endif

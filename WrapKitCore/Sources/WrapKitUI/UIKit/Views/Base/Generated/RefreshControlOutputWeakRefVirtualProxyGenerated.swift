@@ -38,5 +38,9 @@ extension WeakRefVirtualProxy: RefreshControlOutput where T: RefreshControlOutpu
         object?.display(isLoading: isLoading)
     }
 
+    public var onRefresh: [(() -> Void)?]? {
+        get { return object?.onRefresh }
+        set { object?.onRefresh = newValue }
+    }
 }
 #endif
