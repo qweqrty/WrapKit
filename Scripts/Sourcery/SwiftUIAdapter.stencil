@@ -9,9 +9,6 @@
 #if canImport(WrapKit)
 import WrapKit
 #endif
-#if canImport(SwiftUI)
-import SwiftUI
-#endif
 {% for importName in type.allImports %}
 #if canImport({{ importName }})
 import {{ importName }}

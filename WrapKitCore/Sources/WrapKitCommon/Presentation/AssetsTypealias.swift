@@ -15,7 +15,6 @@ public typealias SwiftUIImage = SwiftUI.Image
 @available(macOS 10.15, *)
 public typealias SwiftUIFont = SwiftUI.Font
 
-
 #elseif os(iOS) || os(tvOS) || os(watchOS)
 import UIKit
 public typealias Image = UIImage
