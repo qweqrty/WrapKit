@@ -9,7 +9,7 @@ TEMPLATE_PATH="$PROJECT_ROOT/Scripts/Sourcery/SwiftUIAdapter.stencil"
 OUTPUT_DIR="$PROJECT_ROOT"
 
 # Exclude paths (like Pods, .build, etc.)
-EXCLUDED_DIRS=(".build" "Pods" "Carthage" ".git" "playgrounds")
+EXCLUDED_DIRS=(".build" "Pods" "Carthage" ".git" "playgrounds" "Tuist")
 
 # Construct the exclude args for Sourcery
 EXCLUDE_ARGS=""
