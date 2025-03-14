@@ -1,6 +1,5 @@
 {% for type in types.protocols where type.name|hasSuffix:"Output" %}
 // sourcery:file:{{ type.path|dirname }}/Generated/{{ type.name }}WeakRefVirtualProxyGenerated.swift
-// Generated using Sourcery 2.2.5 — https://github.com/krzysztofzablocki/Sourcery
 // swiftlint:disable:this file_name
 // swiftlint:disable all
 // swift-format-ignore-file
