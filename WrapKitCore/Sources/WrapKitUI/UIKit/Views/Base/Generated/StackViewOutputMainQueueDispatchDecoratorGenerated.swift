@@ -52,6 +52,11 @@ extension MainQueueDispatchDecorator: StackViewOutput where T: StackViewOutput {
             self?.decoratee.display(layoutMargins: layoutMargins)
         }
     }
+    public func display(isHidden: Bool) {
+        dispatch { [weak self] in
+            self?.decoratee.display(isHidden: isHidden)
+        }
+    }
 
 }
 #endif

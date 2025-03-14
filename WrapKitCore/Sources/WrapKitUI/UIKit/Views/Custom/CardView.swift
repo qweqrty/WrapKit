@@ -21,6 +21,7 @@ public protocol CardViewOutput: AnyObject {
     func display(switchControl: SwitchControlPresentableModel?)
     func display(onPress: (() -> Void)?)
     func display(onLongPress: (() -> Void)?)
+    func display(isHidden: Bool)
 }
 
 public struct CardViewPresentableModel: HashableWithReflection {
@@ -243,6 +244,10 @@ extension CardView: CardViewOutput {
         
         display(onPress: model.onPress)
         display(onLongPress: model.onLongPress)
+    }
+    
+    public func display(isHidden: Bool) {
+        self.isHidden = isHidden
     }
 }
 

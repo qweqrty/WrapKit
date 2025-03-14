@@ -27,6 +27,10 @@ extension ChunkedTextField: TextInputOutput {
     public func display(isValid: Bool) {
         textfields.forEach { $0.updateAppearance(isValid: isValid) }
     }
+
+    public func display(isHidden: Bool) {
+        self.isHidden = isHidden
+    }
     
     public func display(leadingViewIsHidden: Bool) {
         textfields.forEach { $0.display(leadingViewIsHidden: leadingViewIsHidden) }

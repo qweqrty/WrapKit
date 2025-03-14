@@ -44,6 +44,7 @@ public protocol ButtonOutput: AnyObject {
     func display(spacing: CGFloat)
     func display(onPress: (() -> Void)?)
     func display(height: CGFloat)
+    func display(isHidden: Bool)
 }
 
 public struct ButtonPresentableModel {
@@ -130,6 +131,10 @@ extension Button: ButtonOutput {
     
     public func display(onPress: (() -> Void)?) {
         self.onPress = onPress
+    }
+    
+    public func display(isHidden: Bool) {
+        self.isHidden = isHidden
     }
 }
 
@@ -316,11 +321,6 @@ open class Button: UIButton {
         isUserInteractionEnabled = enabled
         alpha = enabled ? 1.0 : 0.5
         titleLabel?.alpha = enabled ? 1.0 : 0.5
-    }
-    
-    open func display(isHidden: Bool = false) {
-        backgroundColor = isHidden ? .clear : textBackgroundColor
-        setTitleColor(isHidden ? .clear : textColor, for: .normal)
     }
 }
 #endif

@@ -46,6 +46,9 @@ extension WeakRefVirtualProxy: ButtonOutput where T: ButtonOutput {
     public func display(height: CGFloat) {
         object?.display(height: height)
     }
+    public func display(isHidden: Bool) {
+        object?.display(isHidden: isHidden)
+    }
 
 }
 #endif

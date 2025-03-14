@@ -12,6 +12,7 @@ public protocol SwitchCotrolOutput: AnyObject {
     func display(isOn: Bool)
     func display(style: SwitchControlPresentableModel.Style)
     func display(isEnabled: Bool)
+    func display(isHidden: Bool)
 }
 
 public struct SwitchControlPresentableModel {
@@ -105,6 +106,10 @@ extension SwitchControl: SwitchCotrolOutput {
     
     public func display(isEnabled: Bool) {
         self.isEnabled = isEnabled
+    }
+    
+    public func display(isHidden: Bool) {
+        self.isHidden = isHidden
     }
 }
 #endif

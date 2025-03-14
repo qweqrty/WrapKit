@@ -47,6 +47,11 @@ extension MainQueueDispatchDecorator: EmptyViewOutput where T: EmptyViewOutput {
             self?.decoratee.display(image: image)
         }
     }
+    public func display(isHidden: Bool) {
+        dispatch { [weak self] in
+            self?.decoratee.display(isHidden: isHidden)
+        }
+    }
 
 }
 #endif

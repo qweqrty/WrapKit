@@ -28,6 +28,9 @@ extension WeakRefVirtualProxy: ExpandableCardViewOutput where T: ExpandableCardV
     public func display(model: Pair<CardViewPresentableModel, CardViewPresentableModel?>) {
         object?.display(model: model)
     }
+    public func display(isHidden: Bool) {
+        object?.display(isHidden: isHidden)
+    }
 
 }
 #endif

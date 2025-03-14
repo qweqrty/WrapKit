@@ -30,6 +30,11 @@ extension MainQueueDispatchDecorator: ExpandableCardViewOutput where T: Expandab
             self?.decoratee.display(model: model)
         }
     }
+    public func display(isHidden: Bool) {
+        dispatch { [weak self] in
+            self?.decoratee.display(isHidden: isHidden)
+        }
+    }
 
 }
 #endif

@@ -6,6 +6,7 @@ public protocol EmptyViewOutput: AnyObject {
     func display(subtitle: TextOutputPresentableModel?)
     func display(buttonModel: ButtonPresentableModel?)
     func display(image: ImageViewPresentableModel?)
+    func display(isHidden: Bool)
 }
 
 public struct EmptyViewPresentableModel: HashableWithReflection {
@@ -118,6 +119,10 @@ extension EmptyView: EmptyViewOutput {
         display(subtitle: model.subTitle)
         display(buttonModel: model.button)
         display(image: model.image)
+    }
+    
+    public func display(isHidden: Bool) {
+        self.isHidden = isHidden
     }
 }
 #endif

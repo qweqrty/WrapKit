@@ -34,6 +34,9 @@ extension WeakRefVirtualProxy: TitledOutput where T: TitledOutput {
     public func display(isUserInteractionEnabled: Bool) {
         object?.display(isUserInteractionEnabled: isUserInteractionEnabled)
     }
+    public func display(isHidden: Bool) {
+        object?.display(isHidden: isHidden)
+    }
 
 }
 #endif

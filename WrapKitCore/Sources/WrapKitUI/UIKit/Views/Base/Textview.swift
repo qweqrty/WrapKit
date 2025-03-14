@@ -231,5 +231,9 @@ extension Textview: TextInputOutput {
     public func display(didChangeText: [((String?) -> Void)]) {
         self.didChangeText = didChangeText
     }
+    
+    public func display(isHidden: Bool) {
+        self.isHidden = isHidden
+    }
 }
 #endif

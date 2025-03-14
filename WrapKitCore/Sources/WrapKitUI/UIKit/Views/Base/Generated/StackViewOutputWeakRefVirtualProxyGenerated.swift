@@ -40,6 +40,9 @@ extension WeakRefVirtualProxy: StackViewOutput where T: StackViewOutput {
     public func display(layoutMargins: EdgeInsets) {
         object?.display(layoutMargins: layoutMargins)
     }
+    public func display(isHidden: Bool) {
+        object?.display(isHidden: isHidden)
+    }
 
 }
 #endif
