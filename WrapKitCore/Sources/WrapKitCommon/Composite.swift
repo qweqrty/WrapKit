@@ -36,23 +36,23 @@ extension Composite: LifeCycleViewOutput where T == LifeCycleViewOutput {
     }
     
     public func viewWillAppear() {
-        primary.viewDidLoad()
-        secondary.viewDidLoad()
+        primary.viewWillAppear()
+        secondary.viewWillAppear()
     }
     
     public func viewWillDisappear() {
-        primary.viewDidLoad()
-        secondary.viewDidLoad()
+        primary.viewWillDisappear()
+        secondary.viewWillDisappear()
     }
     
     public func viewDidAppear() {
-        primary.viewDidLoad()
-        secondary.viewDidLoad()
+        primary.viewDidAppear()
+        secondary.viewDidAppear()
     }
     
     public func viewDidDisappear() {
-        primary.viewDidLoad()
-        secondary.viewDidLoad()
+        primary.viewDidDisappear()
+        secondary.viewDidDisappear()
     }
 }
 
