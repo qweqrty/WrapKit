@@ -66,4 +66,13 @@ public class SwitchCotrolOutputSwiftUIAdapter: ObservableObject, SwitchCotrolOut
             isEnabled: isEnabled
         )
     }
+    @Published public var displayIsHiddenState: DisplayIsHiddenState? = nil
+    public struct DisplayIsHiddenState {
+        public let isHidden: Bool
+    }
+    public func display(isHidden: Bool) {
+        displayIsHiddenState = .init(
+            isHidden: isHidden
+        )
+    }
 }

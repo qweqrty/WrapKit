@@ -93,4 +93,13 @@ public class ButtonOutputSwiftUIAdapter: ObservableObject, ButtonOutput {
             height: height
         )
     }
+    @Published public var displayIsHiddenState: DisplayIsHiddenState? = nil
+    public struct DisplayIsHiddenState {
+        public let isHidden: Bool
+    }
+    public func display(isHidden: Bool) {
+        displayIsHiddenState = .init(
+            isHidden: isHidden
+        )
+    }
 }

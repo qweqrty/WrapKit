@@ -72,6 +72,11 @@ extension MainQueueDispatchDecorator: ImageViewOutput where T: ImageViewOutput {
             self?.decoratee.display(alpha: alpha)
         }
     }
+    public func display(isHidden: Bool) {
+        dispatch { [weak self] in
+            self?.decoratee.display(isHidden: isHidden)
+        }
+    }
 
 }
 #endif

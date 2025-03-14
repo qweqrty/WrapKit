@@ -84,4 +84,13 @@ public class HeaderOutputSwiftUIAdapter: ObservableObject, HeaderOutput {
             tertiaryTrailingImage: tertiaryTrailingImage
         )
     }
+    @Published public var displayIsHiddenState: DisplayIsHiddenState? = nil
+    public struct DisplayIsHiddenState {
+        public let isHidden: Bool
+    }
+    public func display(isHidden: Bool) {
+        displayIsHiddenState = .init(
+            isHidden: isHidden
+        )
+    }
 }

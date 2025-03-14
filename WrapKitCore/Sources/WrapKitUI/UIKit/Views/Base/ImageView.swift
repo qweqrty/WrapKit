@@ -18,6 +18,7 @@ public protocol ImageViewOutput: AnyObject {
     func display(borderColor: Color?)
     func display(cornerRadius: CGFloat?)
     func display(alpha: CGFloat?)
+    func display(isHidden: Bool)
 }
 
 public struct ImageViewPresentableModel: HashableWithReflection {
@@ -307,6 +308,10 @@ extension ImageView: ImageViewOutput {
     public func display(alpha: CGFloat?) {
         guard let alpha else { return }
         self.alpha = alpha
+    }
+    
+    public func display(isHidden: Bool) {
+        self.isHidden = isHidden
     }
 }
 #endif

@@ -47,6 +47,11 @@ extension MainQueueDispatchDecorator: SwitchCotrolOutput where T: SwitchCotrolOu
             self?.decoratee.display(isEnabled: isEnabled)
         }
     }
+    public func display(isHidden: Bool) {
+        dispatch { [weak self] in
+            self?.decoratee.display(isHidden: isHidden)
+        }
+    }
 
 }
 #endif

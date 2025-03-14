@@ -52,6 +52,9 @@ extension WeakRefVirtualProxy: ImageViewOutput where T: ImageViewOutput {
     public func display(alpha: CGFloat?) {
         object?.display(alpha: alpha)
     }
+    public func display(isHidden: Bool) {
+        object?.display(isHidden: isHidden)
+    }
 
 }
 #endif

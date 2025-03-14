@@ -40,6 +40,11 @@ extension MainQueueDispatchDecorator: ProgressBarOutput where T: ProgressBarOutp
             self?.decoratee.display(style: style)
         }
     }
+    public func display(isHidden: Bool) {
+        dispatch { [weak self] in
+            self?.decoratee.display(isHidden: isHidden)
+        }
+    }
 
 }
 #endif

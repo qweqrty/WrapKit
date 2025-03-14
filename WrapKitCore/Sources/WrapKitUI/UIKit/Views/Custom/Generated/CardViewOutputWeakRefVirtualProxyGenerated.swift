@@ -64,6 +64,9 @@ extension WeakRefVirtualProxy: CardViewOutput where T: CardViewOutput {
     public func display(onLongPress: (() -> Void)?) {
         object?.display(onLongPress: onLongPress)
     }
+    public func display(isHidden: Bool) {
+        object?.display(isHidden: isHidden)
+    }
 
 }
 #endif

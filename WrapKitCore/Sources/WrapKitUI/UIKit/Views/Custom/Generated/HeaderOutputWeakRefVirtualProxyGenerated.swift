@@ -43,6 +43,9 @@ extension WeakRefVirtualProxy: HeaderOutput where T: HeaderOutput {
     public func display(tertiaryTrailingImage: ButtonPresentableModel?) {
         object?.display(tertiaryTrailingImage: tertiaryTrailingImage)
     }
+    public func display(isHidden: Bool) {
+        object?.display(isHidden: isHidden)
+    }
 
 }
 #endif

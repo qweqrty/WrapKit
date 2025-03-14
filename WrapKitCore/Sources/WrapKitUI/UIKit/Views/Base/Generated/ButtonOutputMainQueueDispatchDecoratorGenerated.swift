@@ -62,6 +62,11 @@ extension MainQueueDispatchDecorator: ButtonOutput where T: ButtonOutput {
             self?.decoratee.display(height: height)
         }
     }
+    public func display(isHidden: Bool) {
+        dispatch { [weak self] in
+            self?.decoratee.display(isHidden: isHidden)
+        }
+    }
 
 }
 #endif

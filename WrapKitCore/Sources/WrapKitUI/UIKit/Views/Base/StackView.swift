@@ -14,6 +14,7 @@ public protocol StackViewOutput: AnyObject {
     func display(distribution: StackViewDistribution)
     func display(alignment: StackViewAlignment)
     func display(layoutMargins: EdgeInsets)
+    func display(isHidden: Bool)
 }
 
 public enum StackViewAxis: HashableWithReflection {
@@ -149,6 +150,10 @@ extension StackView: StackViewOutput {
         self.layoutMargins = layoutMargins.asUIEdgeInsets
         self.isLayoutMarginsRelativeArrangement = true
         self.insetsLayoutMarginsFromSafeArea = false
+    }
+    
+    public func display(isHidden: Bool) {
+        self.isHidden = isHidden
     }
     
     private func mapDistribution(_ distribution: StackViewDistribution?) -> UIStackView.Distribution {

@@ -37,6 +37,9 @@ extension WeakRefVirtualProxy: EmptyViewOutput where T: EmptyViewOutput {
     public func display(image: ImageViewPresentableModel?) {
         object?.display(image: image)
     }
+    public func display(isHidden: Bool) {
+        object?.display(isHidden: isHidden)
+    }
 
 }
 #endif
