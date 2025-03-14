@@ -60,9 +60,6 @@ run-sourcery:
 # Release new tag incrementing its patch (e.g MAJOR.MINOR.PATCH.)
 .PHONY: patch-tag
 
-# Push new tag incrementing its patch (e.g MAJOR.MINOR.PATCH.)
-.PHONY: patch-tag
-
 patch-tag:
 	@git fetch --tags --force
 	@LATEST_TAG=$(shell git ls-remote --tags origin | awk -F'/' '{print $$NF}' | grep '^3\.' | sort -V | tail -n 1) && \
