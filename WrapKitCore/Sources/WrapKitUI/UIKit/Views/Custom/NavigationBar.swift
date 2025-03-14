@@ -127,7 +127,6 @@ extension NavigationBar: HeaderOutput {
     }
     
     public func display(leadingCard: CardViewPresentableModel?) {
-        leadingStackWrapperView.isHidden = leadingCard == nil
         leadingCardView.display(model: leadingCard)
     }
     
