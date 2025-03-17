@@ -9,10 +9,8 @@ import Foundation
 
 public protocol SelectionOutput: AnyObject {
     func display(items: [SelectionType.SelectionCellPresentableModel], selectedCountTitle: String)
-    func display(title: String?)
     func display(shouldShowSearchBar: Bool)
     func display(canReset: Bool)
-    func display(model: EmptyViewPresentableModel?)
 }
 
 public protocol SelectionInput {
@@ -23,8 +21,6 @@ public protocol SelectionInput {
     func onSearch(_ text: String?)
     func onSelect(at index: Int)
     func onTapFinishSelection()
-    func onTapReset()
-    func onTapClose()
     func isNeedToShowSearch(_ isNeedToShowSearch: Bool)
 }
 
@@ -32,6 +28,10 @@ public class SelectionPresenter {
     public static let shouldShowSearchBarThresholdCount = 15
     private let flow: SelectionFlow
     public var view: SelectionOutput?
+    public var navBarView: HeaderOutput?
+    public var resetButton: ButtonOutput?
+    public var selectButton: ButtonOutput?
+    public var emptyView: EmptyViewOutput?
     
     private let model: SelectionPresenterModel
     public var isMultipleSelectionEnabled: Bool { model.isMultipleSelectionEnabled }
@@ -61,15 +61,57 @@ public class SelectionPresenter {
 }
 
 extension SelectionPresenter: SelectionInput {
-    public func onTapClose() {
-        model.callback?(nil)
-        flow.close(with: nil)
-    }
     
     public func viewDidLoad() {
-        view?.display(model: model.emptyViewPresentableModel)
+       
         view?.display(shouldShowSearchBar: items.count > Self.shouldShowSearchBarThresholdCount)
-        view?.display(title: model.title)
+        navBarView?.display(model: .init(
+            style: configuration.navBar,
+            leadingCard: .init(title: .text(model.title)),
+            primeTrailingImage: configuration.content.backButtonImage.map { backButtonImage in
+                    .init(image: backButtonImage, onPress: { [weak self] in
+                        guard let self = self else { return }
+                        self.model.callback?(nil)
+                        self.flow.close(with: nil)
+                    })
+            }
+        ))
+        emptyView?.display(model: model.emptyViewPresentableModel)
+        
+        resetButton?.display(model: .init(
+            title: configuration.texts.resetTitle,
+            style: .init(
+                backgroundColor: configuration.resetButton.backgroundColor,
+                titleColor: configuration.resetButton.textColor,
+                borderWidth: 1,
+                borderColor: configuration.resetButton.borderColor,
+                font: configuration.resetButton.labelFont,
+                cornerRadius: 16
+            ),
+            enabled: false,
+            onPress: { [weak self] in
+                self?.items.forEach { $0.isSelected.set(model: false) }
+                self?.view?.display(canReset: false)
+                self?.onSearch(self?.searchText)
+            }
+        ))
+        
+        selectButton?.display(model: .init(
+            title: configuration.texts.selectTitle,
+            style: .init(
+                backgroundColor: configuration.searchButton.backgroundColor,
+                titleColor: configuration.searchButton.textColor,
+                borderWidth: 0,
+                borderColor: configuration.searchButton.borderColor,
+                font: configuration.resetButton.labelFont,
+                cornerRadius: 16
+            ),
+            enabled: true,
+            onPress: { [weak self] in
+                self?.onTapFinishSelection()
+            }
+        ))
+        
         onSearch(searchText)
     }
     
@@ -85,12 +127,6 @@ extension SelectionPresenter: SelectionInput {
             model.callback?(nil)
             flow.close(with: nil)
         }
-    }
-    
-    public func onTapReset() {
-        items.forEach { $0.isSelected.set(model: false) }
-        view?.display(canReset: false)
-        onSearch(searchText)
     }
     
     public func onSearch(_ text: String?) {
@@ -121,3 +157,4 @@ extension SelectionPresenter: SelectionInput {
         view?.display(shouldShowSearchBar: isNeedToShowSearch)
     }
 }
+

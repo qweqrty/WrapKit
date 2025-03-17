@@ -24,11 +24,6 @@ extension MainQueueDispatchDecorator: SelectionOutput where T: SelectionOutput {
             self?.decoratee.display(items: items, selectedCountTitle: selectedCountTitle)
         }
     }
-    public func display(title: String?) {
-        dispatch { [weak self] in
-            self?.decoratee.display(title: title)
-        }
-    }
     public func display(shouldShowSearchBar: Bool) {
         dispatch { [weak self] in
             self?.decoratee.display(shouldShowSearchBar: shouldShowSearchBar)
@@ -39,11 +34,5 @@ extension MainQueueDispatchDecorator: SelectionOutput where T: SelectionOutput {
             self?.decoratee.display(canReset: canReset)
         }
     }
-    public func display(model: EmptyViewPresentableModel?) {
-        dispatch { [weak self] in
-            self?.decoratee.display(model: model)
-        }
-    }
-
 }
 #endif

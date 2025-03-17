@@ -15,6 +15,7 @@ public struct ButtonStyle {
     public let pressedColor: Color?
     public let pressedTintColor: Color?
     public let font: Font?
+    public let cornerRadius: CGFloat?
     
     public init(
         backgroundColor: Color? = nil,
@@ -23,7 +24,8 @@ public struct ButtonStyle {
         borderColor: Color? = nil,
         pressedColor: Color? = nil,
         pressedTintColor: Color? = nil,
-        font: Font? = nil
+        font: Font? = nil,
+        cornerRadius: CGFloat = 12
     ) {
         self.backgroundColor = backgroundColor
         self.titleColor = titleColor
@@ -32,6 +34,7 @@ public struct ButtonStyle {
         self.pressedTintColor = pressedTintColor
         self.font = font
         self.borderWidth = borderWidth
+        self.cornerRadius = cornerRadius
     }
 }
 
@@ -60,10 +63,10 @@ public struct ButtonPresentableModel {
         title: String? = nil,
         image: Image? = nil,
         spacing: CGFloat? = nil,
-        onPress: (() -> Void)? = nil,
         height: CGFloat? = nil,
         style: ButtonStyle? = nil,
-        enabled: Bool? = nil
+        enabled: Bool? = nil,
+        onPress: (() -> Void)? = nil
     ) {
         self.spacing = spacing
         self.image = image
@@ -324,3 +327,4 @@ open class Button: UIButton {
     }
 }
 #endif
+

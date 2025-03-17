@@ -14,7 +14,7 @@ public class SelectionContentView: UIView {
     static let maxSearchBarTopSpacing: CGFloat = 8
     
     public lazy var lineView = ViewUIKit(backgroundColor: config.content.lineColor)
-    public lazy var navigationBar = makeNavigationBar()
+    public lazy var navigationBar = NavigationBar()
     public lazy var tableStackView = StackView(axis: .vertical)
     public lazy var emptyView = {
         let view = EmptyView()
@@ -25,8 +25,8 @@ public class SelectionContentView: UIView {
     public lazy var searchBar = makeSearchBar()
     
     public lazy var buttonsStackView = StackView(axis: .horizontal, spacing: 12)
-    public lazy var resetButton = makeActionButton(isReset: true)
-    public lazy var selectButton = makeActionButton(isReset: false)
+    public lazy var resetButton = Button()
+    public lazy var selectButton = Button()
     public lazy var spacerView = UIView()
     public lazy var refreshControl = RefreshControl(tintColor: config.content.refreshColor)
     
@@ -115,33 +115,6 @@ private extension SelectionContentView {
         return tableView
     }
     
-    func makeNavigationBar() -> NavigationBar {
-        let navigationBar = NavigationBar(style: config.navBar)
-        
-        navigationBar.leadingCardView.leadingImageWrapperView.isHidden = true
-        navigationBar.primeTrailingImageWrapperView.contentView.setImage(config.content.backButtonImage, for: .normal)
-        navigationBar.primeTrailingImageWrapperView.isHidden = config.content.backButtonImage == nil
-        navigationBar.primeTrailingImageWrapperView.contentView.anchor(.width(config.content.backButtonImage?.size.width ?? 24))
-        navigationBar.titleViews.stackView.layoutMargins = .init(top: 0, left: 12, bottom: 0, right: 12)
-        
-        navigationBar.titleViews.isHidden = config.content.backButtonImage != nil
-        navigationBar.leadingCardView.isHidden = config.content.backButtonImage == nil
-        return navigationBar
-    }
-    
-    func makeActionButton(isReset: Bool) -> Button {
-        let button = Button(
-            textColor: isReset ? config.resetButton.textColor : config.searchButton.textColor,
-            titleLabelFont: config.resetButton.labelFont,
-            backgroundColor: isReset ? config.resetButton.backgroundColor : config.searchButton.backgroundColor
-        )
-        button.layer.cornerRadius = 16
-        button.layer.borderColor = isReset ? config.resetButton.borderColor.cgColor : config.searchButton.borderColor.cgColor
-        button.layer.borderWidth = isReset ? 1 : 0
-        button.isUserInteractionEnabled = !isReset
-        return button
-    }
-    
     func makeSearchBar() -> SearchBar {
         let searchBar = SearchBar(
             textfield: Textfield(
@@ -161,3 +134,4 @@ private extension SelectionContentView {
     }
 }
 #endif
+
