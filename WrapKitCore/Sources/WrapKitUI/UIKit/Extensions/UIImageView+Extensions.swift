@@ -70,10 +70,12 @@ public extension ImageView {
     
     private func showFallbackView(_ url: URL, kingfisherOptions: KingfisherOptionsInfo = []) {
         viewWhileLoadingView?.isHidden = true
+        viewWhileLoadingView?.alpha = 0
         guard let fallbackView else { return }
         fallbackView.isHidden = false
         fallbackView.animations.insert(.shrink)
         fallbackView.onPress = { [weak self] in
+            self?.viewWhileLoadingView?.alpha = 1
             self?.loadImage(url, kingfisherOptions: kingfisherOptions)
         }
     }
