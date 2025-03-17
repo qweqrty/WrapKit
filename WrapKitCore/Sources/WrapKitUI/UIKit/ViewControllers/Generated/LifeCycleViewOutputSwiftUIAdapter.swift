@@ -62,14 +62,16 @@ public class LifeCycleViewOutputSwiftUIAdapter: ObservableObject, LifeCycleViewO
             output: output
         )
     }
-    @Published public var withAnalyticsScreenNameAnalyticsState: WithAnalyticsScreenNameAnalyticsState? = nil
-    public struct WithAnalyticsScreenNameAnalyticsState {
-        public let screenName: String
+    @Published public var withAnalyticsEventNameParametersAnalyticsState: WithAnalyticsEventNameParametersAnalyticsState? = nil
+    public struct WithAnalyticsEventNameParametersAnalyticsState {
+        public let eventName: String
+        public let parameters: [String: Any]
         public let analytics: AnalyticsTracker
     }
-    public func withAnalytics(screenName: String, analytics: AnalyticsTracker) {
-        withAnalyticsScreenNameAnalyticsState = .init(
-            screenName: screenName, 
+    public func withAnalytics(eventName: String, parameters: [String: Any], analytics: AnalyticsTracker) {
+        withAnalyticsEventNameParametersAnalyticsState = .init(
+            eventName: eventName, 
+            parameters: parameters, 
             analytics: analytics
         )
     }

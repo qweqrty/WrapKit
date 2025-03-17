@@ -8,25 +8,32 @@
 import Foundation
 
 public extension LifeCycleViewOutput {
-    func withAnalytics(screenName: String, analytics: AnalyticsTracker) -> LifeCycleViewOutput {
-        return ViewDidLoadAnalyticsDecorator(wrapped: self, analytics: analytics, screenName: screenName)
+    func withAnalytics(eventName: String, parameters: [String: Any], analytics: AnalyticsTracker) -> LifeCycleViewOutput {
+        return ViewDidLoadAnalyticsDecorator(wrapped: self, analytics: analytics, eventName: eventName, parameters: parameters)
     }
 }
 
 public class ViewDidLoadAnalyticsDecorator: LifeCycleViewOutput {
     private let wrapped: LifeCycleViewOutput
     private let analytics: AnalyticsTracker
-    private let screenName: String
+    private let eventName: String
+    private let parameters: [String: Any]
 
-    public init(wrapped: LifeCycleViewOutput, analytics: AnalyticsTracker, screenName: String) {
+    public init(
+        wrapped: LifeCycleViewOutput,
+        analytics: AnalyticsTracker,
+        eventName: String,
+        parameters: [String: Any]
+    ) {
         self.wrapped = wrapped
         self.analytics = analytics
-        self.screenName = screenName
+        self.eventName = eventName
+        self.parameters = parameters
     }
-
+    
     public func viewDidLoad() {
         wrapped.viewDidLoad()
-        analytics.log(screenName: screenName)
+        analytics.log(eventName: eventName, parameters: parameters)
     }
 
     // Forward other lifecycle methods without tracking

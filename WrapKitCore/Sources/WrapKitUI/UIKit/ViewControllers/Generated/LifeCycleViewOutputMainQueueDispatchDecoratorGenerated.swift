@@ -49,9 +49,9 @@ extension MainQueueDispatchDecorator: LifeCycleViewOutput where T: LifeCycleView
             self?.decoratee.composed(with: output)
         }
     }
-    public func withAnalytics(screenName: String, analytics: AnalyticsTracker) {
+    public func withAnalytics(eventName: String, parameters: [String: Any], analytics: AnalyticsTracker) {
         dispatch { [weak self] in
-            self?.decoratee.withAnalytics(screenName: screenName, analytics: analytics)
+            self?.decoratee.withAnalytics(eventName: eventName, parameters: parameters, analytics: analytics)
         }
     }
 

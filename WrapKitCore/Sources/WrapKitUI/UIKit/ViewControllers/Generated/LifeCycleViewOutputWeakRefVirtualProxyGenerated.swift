@@ -37,8 +37,8 @@ extension WeakRefVirtualProxy: LifeCycleViewOutput where T: LifeCycleViewOutput 
     public func composed(with output: LifeCycleViewOutput) {
         object?.composed(with: output)
     }
-    public func withAnalytics(screenName: String, analytics: AnalyticsTracker) {
-        object?.withAnalytics(screenName: screenName, analytics: analytics)
+    public func withAnalytics(eventName: String, parameters: [String: Any], analytics: AnalyticsTracker) {
+        object?.withAnalytics(eventName: eventName, parameters: parameters, analytics: analytics)
     }
 
 }
