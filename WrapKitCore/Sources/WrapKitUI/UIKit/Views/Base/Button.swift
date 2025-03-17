@@ -15,7 +15,7 @@ public struct ButtonStyle {
     public let pressedColor: Color?
     public let pressedTintColor: Color?
     public let font: Font?
-    public let cornerRadius: CGFloat?
+    public let cornerRadius: CGFloat
     
     public init(
         backgroundColor: Color? = nil,
@@ -122,6 +122,7 @@ extension Button: ButtonOutput {
         self.pressedBackgroundColor = style.backgroundColor
         self.layer.borderColor = style.borderColor?.cgColor
         self.layer.borderWidth = style.borderWidth
+        self.layer.cornerRadius = style.cornerRadius
     }
     
     public func display(title: String?) {
