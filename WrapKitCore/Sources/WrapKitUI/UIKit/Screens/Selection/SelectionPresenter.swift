@@ -79,12 +79,13 @@ extension SelectionPresenter: SelectionInput {
         
         resetButton?.display(model: .init(
             title: configuration.texts.resetTitle,
+            height: 48,
             style: .init(
-                backgroundColor: configuration.resetButton.backgroundColor,
-                titleColor: configuration.resetButton.textColor,
+                backgroundColor: configuration.resetButton?.backgroundColor,
+                titleColor: configuration.resetButton?.textColor,
                 borderWidth: 1,
-                borderColor: configuration.resetButton.borderColor,
-                font: configuration.resetButton.labelFont,
+                borderColor: configuration.resetButton?.borderColor,
+                font: configuration.resetButton?.labelFont,
                 cornerRadius: 16
             ),
             enabled: false,
@@ -97,12 +98,13 @@ extension SelectionPresenter: SelectionInput {
         
         selectButton?.display(model: .init(
             title: configuration.texts.selectTitle,
+            height: 48,
             style: .init(
                 backgroundColor: configuration.searchButton.backgroundColor,
                 titleColor: configuration.searchButton.textColor,
                 borderWidth: 0,
                 borderColor: configuration.searchButton.borderColor,
-                font: configuration.resetButton.labelFont,
+                font: configuration.resetButton?.labelFont,
                 cornerRadius: 16
             ),
             enabled: true,
@@ -170,5 +172,7 @@ extension SelectionPresenter: SelectionInput {
         view?.display(shouldShowSearchBar: isNeedToShowSearch)
     }
 }
+
+
 
 

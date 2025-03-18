@@ -12,6 +12,7 @@ import UIKit
 public class SelectionContentView: UIView {
     static let searchBarHeight: CGFloat = 44
     static let maxSearchBarTopSpacing: CGFloat = 8
+    private let buttonHeight: CGFloat
     
     public lazy var lineView = ViewUIKit(backgroundColor: config.content.lineColor)
     public lazy var navigationBar = NavigationBar()
@@ -37,6 +38,7 @@ public class SelectionContentView: UIView {
     
     public init(config: SelectionConfiguration) {
         self.config = config
+        self.buttonHeight = config.resetButton == nil ? 0 : 48
         super.init(frame: .zero)
         setupSubviews()
         setupConstraints()
@@ -79,10 +81,10 @@ extension SelectionContentView {
             .trailing(trailingAnchor)
         )
         resetButton.anchor(
-            .height(48),
+            .height(buttonHeight),
             .widthTo(widthAnchor, 133/375, priority: .defaultHigh)
         )
-        selectButton.anchor(.height(48))
+        selectButton.anchor(.height(buttonHeight))
         searchBarConstraints = searchBar.anchor(
             .top(navigationBar.bottomAnchor, constant: Self.maxSearchBarTopSpacing),
             .leading(leadingAnchor, constant: 12),
@@ -103,7 +105,7 @@ extension SelectionContentView {
             .top(spacerView.bottomAnchor),
             .leading(leadingAnchor, constant: 12),
             .trailing(trailingAnchor, constant: 12),
-            .bottom(bottomAnchor)
+            .bottom(safeAreaLayoutGuide.bottomAnchor)
         )
     }
 }
@@ -134,4 +136,5 @@ private extension SelectionContentView {
     }
 }
 #endif
+
 
