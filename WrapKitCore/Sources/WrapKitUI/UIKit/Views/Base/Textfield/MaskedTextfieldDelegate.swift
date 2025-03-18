@@ -36,7 +36,8 @@ public class MaskedTextfieldDelegate: NSObject, UITextFieldDelegate {
                     .init(trailingWithString, font: textfield.font ?? .systemFont(ofSize: 17), color: format.maskedTextColor, textAlignment: textfield.textAlignment)
                 )
             }
-            let newPosition = textfield.position(from: textfield.beginningOfDocument, offset: mask.input.count) ?? textfield.beginningOfDocument
+            let offset = mask.input.count + (trailingSymbol?.hasPrefix(" ") == true ? -2 : 0)
+            let newPosition = textfield.position(from: textfield.beginningOfDocument, offset: offset) ?? textfield.beginningOfDocument
             textfield.selectedTextRange = textfield.textRange(from: newPosition, to: newPosition)
         }
     }
