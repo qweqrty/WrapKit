@@ -295,8 +295,10 @@ extension Textfield: TextInputOutput {
     
     public func display(trailingSymbol: String?) {
         guard let masketTextfieldDelegate = maskedTextfieldDelegate else {
-            self.maskedTextfieldDelegate = .init()
-            self.maskedTextfieldDelegate?.trailingSymbol = trailingSymbol
+            self.maskedTextfieldDelegate = MaskedTextfieldDelegate(
+                format: .init(mask: Mask(format: []), maskedTextColor: .clear),
+                trailingSymbol: trailingSymbol
+            )
             return
         }
         self.maskedTextfieldDelegate?.trailingSymbol = trailingSymbol

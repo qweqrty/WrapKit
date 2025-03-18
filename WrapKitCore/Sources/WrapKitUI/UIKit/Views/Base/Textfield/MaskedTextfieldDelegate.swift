@@ -51,8 +51,6 @@ public class MaskedTextfieldDelegate: NSObject, UITextFieldDelegate {
         self.trailingSymbol = trailingSymbol
     }
     
-    public override init() { }
-    
     @discardableResult
     public func applyTo(textfield: Textfield) -> Self {
         self.textfield = textfield
@@ -85,7 +83,6 @@ public class MaskedTextfieldDelegate: NSObject, UITextFieldDelegate {
         textField.sendActions(for: .editingChanged)
         return false
     }
-
     
     private func onPaste(_ text: String) {
         guard let textfield = textfield else { return }
