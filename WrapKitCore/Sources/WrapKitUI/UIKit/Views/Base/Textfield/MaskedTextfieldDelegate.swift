@@ -51,6 +51,8 @@ public class MaskedTextfieldDelegate: NSObject, UITextFieldDelegate {
         self.trailingSymbol = trailingSymbol
     }
     
+    public override init() { }
+    
     @discardableResult
     public func applyTo(textfield: Textfield) -> Self {
         self.textfield = textfield
