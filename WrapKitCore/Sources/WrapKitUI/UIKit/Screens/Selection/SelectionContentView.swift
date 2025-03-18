@@ -12,9 +12,10 @@ import UIKit
 public class SelectionContentView: UIView {
     static let searchBarHeight: CGFloat = 44
     static let maxSearchBarTopSpacing: CGFloat = 8
+    private let buttonHeight: CGFloat
     
     public lazy var lineView = ViewUIKit(backgroundColor: config.content.lineColor)
-    public lazy var navigationBar = makeNavigationBar()
+    public lazy var navigationBar = NavigationBar()
     public lazy var tableStackView = StackView(axis: .vertical)
     public lazy var emptyView = {
         let view = EmptyView()
@@ -25,8 +26,8 @@ public class SelectionContentView: UIView {
     public lazy var searchBar = makeSearchBar()
     
     public lazy var buttonsStackView = StackView(axis: .horizontal, spacing: 12)
-    public lazy var resetButton = makeActionButton(isReset: true)
-    public lazy var selectButton = makeActionButton(isReset: false)
+    public lazy var resetButton = Button()
+    public lazy var selectButton = Button()
     public lazy var spacerView = UIView()
     public lazy var refreshControl = RefreshControl(tintColor: config.content.refreshColor)
     
@@ -37,6 +38,7 @@ public class SelectionContentView: UIView {
     
     public init(config: SelectionConfiguration) {
         self.config = config
+        self.buttonHeight = config.resetButton == nil ? 0 : 48
         super.init(frame: .zero)
         setupSubviews()
         setupConstraints()
@@ -79,10 +81,10 @@ extension SelectionContentView {
             .trailing(trailingAnchor)
         )
         resetButton.anchor(
-            .height(48),
+            .height(buttonHeight),
             .widthTo(widthAnchor, 133/375, priority: .defaultHigh)
         )
-        selectButton.anchor(.height(48))
+        selectButton.anchor(.height(buttonHeight))
         searchBarConstraints = searchBar.anchor(
             .top(navigationBar.bottomAnchor, constant: Self.maxSearchBarTopSpacing),
             .leading(leadingAnchor, constant: 12),
@@ -103,7 +105,7 @@ extension SelectionContentView {
             .top(spacerView.bottomAnchor),
             .leading(leadingAnchor, constant: 12),
             .trailing(trailingAnchor, constant: 12),
-            .bottom(bottomAnchor)
+            .bottom(safeAreaLayoutGuide.bottomAnchor)
         )
     }
 }
@@ -113,33 +115,6 @@ private extension SelectionContentView {
         let tableView = TableView(adjustHeight: true)
         tableView.register(SelectionCell.self)
         return tableView
-    }
-    
-    func makeNavigationBar() -> NavigationBar {
-        let navigationBar = NavigationBar(style: config.navBar)
-        
-        navigationBar.leadingCardView.leadingImageWrapperView.isHidden = true
-        navigationBar.primeTrailingImageWrapperView.contentView.setImage(config.content.backButtonImage, for: .normal)
-        navigationBar.primeTrailingImageWrapperView.isHidden = config.content.backButtonImage == nil
-        navigationBar.primeTrailingImageWrapperView.contentView.anchor(.width(config.content.backButtonImage?.size.width ?? 24))
-        navigationBar.titleViews.stackView.layoutMargins = .init(top: 0, left: 12, bottom: 0, right: 12)
-        
-        navigationBar.titleViews.isHidden = config.content.backButtonImage != nil
-        navigationBar.leadingCardView.isHidden = config.content.backButtonImage == nil
-        return navigationBar
-    }
-    
-    func makeActionButton(isReset: Bool) -> Button {
-        let button = Button(
-            textColor: isReset ? config.resetButton.textColor : config.searchButton.textColor,
-            titleLabelFont: config.resetButton.labelFont,
-            backgroundColor: isReset ? config.resetButton.backgroundColor : config.searchButton.backgroundColor
-        )
-        button.layer.cornerRadius = 16
-        button.layer.borderColor = isReset ? config.resetButton.borderColor.cgColor : config.searchButton.borderColor.cgColor
-        button.layer.borderWidth = isReset ? 1 : 0
-        button.isUserInteractionEnabled = !isReset
-        return button
     }
     
     func makeSearchBar() -> SearchBar {
@@ -161,3 +136,5 @@ private extension SelectionContentView {
     }
 }
 #endif
+
+

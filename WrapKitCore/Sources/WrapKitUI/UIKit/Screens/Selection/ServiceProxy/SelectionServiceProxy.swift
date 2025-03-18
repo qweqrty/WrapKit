@@ -74,14 +74,6 @@ public class SelectionServiceProxy<Request, Response>: SelectionInput {
         decoratee.onTapFinishSelection()
     }
     
-    public func onTapReset() {
-        decoratee.onTapReset()
-    }
-    
-    public func onTapClose() {
-        decoratee.onTapClose()
-    }
-    
     public func isNeedToShowSearch(_ isNeedToShowSearch: Bool) {
         decoratee.isNeedToShowSearch(isNeedToShowSearch)
     }

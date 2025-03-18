@@ -69,7 +69,7 @@ public struct SelectionConfiguration {
     public let texts: Texts
     public let content: Content
     public let navBar: HeaderPresentableModel.Style
-    public let resetButton: ActionButton
+    public let resetButton: ActionButton?
     public let searchButton: ActionButton
     public let searchBar: SearchBar
     public let resetButtonColors: ResetButtonColors
@@ -78,7 +78,7 @@ public struct SelectionConfiguration {
         texts: Texts,
         content: Content,
         navBar: HeaderPresentableModel.Style,
-        resetButton: ActionButton,
+        resetButton: ActionButton?,
         searchButton: ActionButton,
         searchBar: SearchBar,
         resetButtonColors: ResetButtonColors
@@ -234,3 +234,4 @@ public struct SelectionConfiguration {
         }
     }
 }
+

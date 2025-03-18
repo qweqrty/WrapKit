@@ -28,12 +28,6 @@ open class SelectionVC: BottomSheetController<SelectionContentView> {
     
     private func setupUI() {
         contentView.searchBar.textfield.placeholder = presenter.configuration.texts.searchTitle
-        contentView.resetButton.setTitle(presenter.configuration.texts.resetTitle, for: .normal)
-        contentView.selectButton.setTitle(presenter.configuration.texts.selectTitle, for: .normal)
-        
-        contentView.navigationBar.primeTrailingImageWrapperView.onPress = presenter.onTapClose
-        contentView.resetButton.onPress = presenter.onTapReset
-        contentView.selectButton.onPress = presenter.onTapFinishSelection
         contentView.searchBar.textfield.didChangeText.append(presenter.onSearch)
         contentView.buttonsStackView.isHidden = !presenter.isMultipleSelectionEnabled
     }
@@ -44,24 +38,6 @@ open class SelectionVC: BottomSheetController<SelectionContentView> {
 }
 
 extension SelectionVC: SelectionOutput {
-    public func display(model: EmptyViewPresentableModel?) {
-        guard let model else { return }
-        contentView.emptyView.display(model: model)
-    }
-    
-    public func display(canReset: Bool) {
-        if canReset {
-            contentView.resetButton.setTitleColor(presenter.configuration.resetButtonColors.activeTitleColor, for: .normal)
-            contentView.resetButton.layer.borderColor = presenter.configuration.resetButtonColors.activeBorderColor.cgColor
-            contentView.resetButton.backgroundColor = presenter.configuration.resetButtonColors.activeBackgroundColor
-        } else {
-            contentView.resetButton.setTitleColor(presenter.configuration.resetButtonColors.inactiveTitleColor, for: .normal)
-            contentView.resetButton.layer.borderColor = presenter.configuration.resetButtonColors.inactiveBorderColor.cgColor
-            contentView.resetButton.backgroundColor = presenter.configuration.resetButtonColors.inactiveBackgroundColor
-        }
-        contentView.resetButton.isUserInteractionEnabled = canReset
-    }
-    
     public func display(shouldShowSearchBar: Bool) {
         contentView.searchBar.isHidden = !shouldShowSearchBar
         contentView.searchBarConstraints?.height?.constant = shouldShowSearchBar ? SelectionContentView.searchBarHeight : 0
@@ -74,11 +50,6 @@ extension SelectionVC: SelectionOutput {
         datasource.updateItems(items)
         let selectedItemsCount = items.filter { $0.isSelected.get() == true }.count
         contentView.selectButton.setTitle("\(selectedCountTitle)\(selectedItemsCount == 0 ? "" : " (\(selectedItemsCount))")", for: .normal)
-    }
-    
-    public func display(title: String?) {
-        contentView.navigationBar.titleViews.keyLabel.text = title
-        contentView.navigationBar.leadingCardView.titleViews.keyLabel.text = title
     }
 }
 
@@ -182,3 +153,4 @@ extension SelectionVC {
     }
 }
 #endif
+
