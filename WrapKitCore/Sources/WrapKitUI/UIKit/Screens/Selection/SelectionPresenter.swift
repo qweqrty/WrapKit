@@ -10,7 +10,6 @@ import Foundation
 public protocol SelectionOutput: AnyObject {
     func display(items: [SelectionType.SelectionCellPresentableModel], selectedCountTitle: String)
     func display(shouldShowSearchBar: Bool)
-    func display(canReset: Bool)
 }
 
 public protocol SelectionInput {
@@ -91,7 +90,7 @@ extension SelectionPresenter: SelectionInput {
             enabled: false,
             onPress: { [weak self] in
                 self?.items.forEach { $0.isSelected.set(model: false) }
-                self?.view?.display(canReset: false)
+                self?.setupButton(canReset: false)
                 self?.onSearch(self?.searchText)
             }
         ))
@@ -115,6 +114,20 @@ extension SelectionPresenter: SelectionInput {
         onSearch(searchText)
     }
     
+    private func setupButton(canReset: Bool) {
+        
+        resetButton?.display(style: .init(
+            backgroundColor: canReset ? configuration.resetButtonColors.activeBackgroundColor
+            : configuration.resetButtonColors.inactiveBackgroundColor,
+            titleColor: canReset ? configuration.resetButtonColors.activeTitleColor
+            : configuration.resetButtonColors.inactiveTitleColor,
+            borderColor: canReset ? configuration.resetButtonColors.activeBorderColor
+            : configuration.resetButtonColors.inactiveBorderColor
+        ))
+        
+        resetButton?.display(enabled: canReset)
+    }
+    
     public func onTapFinishSelection() {
         let selectedItems = items.filter { $0.isSelected.get() == true }
         if isMultipleSelectionEnabled {
@@ -132,7 +145,7 @@ extension SelectionPresenter: SelectionInput {
     public func onSearch(_ text: String?) {
         searchText = text ?? ""
         view?.display(items: itemsToPresent, selectedCountTitle: configuration.texts.selectedCountTitle)
-        view?.display(canReset: items.contains(where: { $0.isSelected.get() == true }))
+        setupButton(canReset: items.contains(where: { $0.isSelected.get() == true }))
     }
     
     public func onSelect(at index: Int) {
@@ -157,4 +170,5 @@ extension SelectionPresenter: SelectionInput {
         view?.display(shouldShowSearchBar: isNeedToShowSearch)
     }
 }
+
 

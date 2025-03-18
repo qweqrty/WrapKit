@@ -29,10 +29,5 @@ extension MainQueueDispatchDecorator: SelectionOutput where T: SelectionOutput {
             self?.decoratee.display(shouldShowSearchBar: shouldShowSearchBar)
         }
     }
-    public func display(canReset: Bool) {
-        dispatch { [weak self] in
-            self?.decoratee.display(canReset: canReset)
-        }
-    }
 }
 #endif

@@ -38,19 +38,6 @@ open class SelectionVC: BottomSheetController<SelectionContentView> {
 }
 
 extension SelectionVC: SelectionOutput {
-    public func display(canReset: Bool) {
-        if canReset {
-            contentView.resetButton.setTitleColor(presenter.configuration.resetButtonColors.activeTitleColor, for: .normal)
-            contentView.resetButton.layer.borderColor = presenter.configuration.resetButtonColors.activeBorderColor.cgColor
-            contentView.resetButton.backgroundColor = presenter.configuration.resetButtonColors.activeBackgroundColor
-        } else {
-            contentView.resetButton.setTitleColor(presenter.configuration.resetButtonColors.inactiveTitleColor, for: .normal)
-            contentView.resetButton.layer.borderColor = presenter.configuration.resetButtonColors.inactiveBorderColor.cgColor
-            contentView.resetButton.backgroundColor = presenter.configuration.resetButtonColors.inactiveBackgroundColor
-        }
-        contentView.resetButton.isUserInteractionEnabled = canReset
-    }
-    
     public func display(shouldShowSearchBar: Bool) {
         contentView.searchBar.isHidden = !shouldShowSearchBar
         contentView.searchBarConstraints?.height?.constant = shouldShowSearchBar ? SelectionContentView.searchBarHeight : 0

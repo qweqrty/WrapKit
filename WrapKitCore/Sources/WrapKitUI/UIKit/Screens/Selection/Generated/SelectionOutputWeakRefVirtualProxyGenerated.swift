@@ -25,8 +25,5 @@ extension WeakRefVirtualProxy: SelectionOutput where T: SelectionOutput {
     public func display(shouldShowSearchBar: Bool) {
         object?.display(shouldShowSearchBar: shouldShowSearchBar)
     }
-    public func display(canReset: Bool) {
-        object?.display(canReset: canReset)
-    }
 }
 #endif

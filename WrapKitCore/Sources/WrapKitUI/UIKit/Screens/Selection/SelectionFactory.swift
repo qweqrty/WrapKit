@@ -79,13 +79,25 @@ public class SelectionFactoryiOS: ISelectionFactory {
             makeRequest: model.request,
             makeResponse: model.response
         )
-        
+        let contentView = SelectionContentView(config: configuration)
         let vc = SelectionServiceVC(
-            contentView: .init(config: configuration),
+            contentView: contentView,
             servicePresenter: servicePresenter
         )
         
         presenter.view = vc
+            .weakReferenced
+            .mainQueueDispatched
+        presenter.navBarView = contentView.navigationBar
+            .weakReferenced
+            .mainQueueDispatched
+        presenter.resetButton = contentView.resetButton
+            .weakReferenced
+            .mainQueueDispatched
+        presenter.selectButton = contentView.selectButton
+            .weakReferenced
+            .mainQueueDispatched
+        presenter.emptyView = contentView.emptyView
             .weakReferenced
             .mainQueueDispatched
         
@@ -100,4 +112,5 @@ public class SelectionFactoryiOS: ISelectionFactory {
     public init() {}
 }
 #endif
+
 
