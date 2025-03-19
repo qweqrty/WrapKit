@@ -53,5 +53,6 @@ extension WebViewPresenter: LifeCycleViewOutput {
         view?.display(isProgressBarNeeded: style.progressBarModel != nil)
         progressBarView?.display(model: style.progressBarModel)
         view?.display(url: url)
+        view?.display(backgroundColor: style.backgroundColor)
     }
 }
