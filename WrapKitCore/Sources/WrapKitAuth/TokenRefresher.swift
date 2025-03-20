@@ -72,8 +72,9 @@ public class TokenRefresherImpl<RefreshRequest, RefreshResponse>: TokenRefresher
                                 self?.completeAll(with: .success(newToken))
                             }
                             .store(in: &self.cancellables)
+                    } else {
+                        self.completeAll(with: .success(newToken))
                     }
-
                 },
                 onError: { [weak self] error in
                     self?.completeAll(with: .failure(error))
