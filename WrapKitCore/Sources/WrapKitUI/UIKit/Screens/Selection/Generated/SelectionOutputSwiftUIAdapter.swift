@@ -8,6 +8,9 @@
 #if canImport(WrapKit)
 import WrapKit
 #endif
+#if canImport(SwiftUI)
+import SwiftUI
+#endif
 #if canImport(Foundation)
 import Foundation
 #endif
@@ -29,15 +32,6 @@ public class SelectionOutputSwiftUIAdapter: ObservableObject, SelectionOutput {
             selectedCountTitle: selectedCountTitle
         )
     }
-    @Published public var displayTitleState: DisplayTitleState? = nil
-    public struct DisplayTitleState {
-        public let title: String?
-    }
-    public func display(title: String?) {
-        displayTitleState = .init(
-            title: title
-        )
-    }
     @Published public var displayShouldShowSearchBarState: DisplayShouldShowSearchBarState? = nil
     public struct DisplayShouldShowSearchBarState {
         public let shouldShowSearchBar: Bool
@@ -45,24 +39,6 @@ public class SelectionOutputSwiftUIAdapter: ObservableObject, SelectionOutput {
     public func display(shouldShowSearchBar: Bool) {
         displayShouldShowSearchBarState = .init(
             shouldShowSearchBar: shouldShowSearchBar
-        )
-    }
-    @Published public var displayCanResetState: DisplayCanResetState? = nil
-    public struct DisplayCanResetState {
-        public let canReset: Bool
-    }
-    public func display(canReset: Bool) {
-        displayCanResetState = .init(
-            canReset: canReset
-        )
-    }
-    @Published public var displayModelState: DisplayModelState? = nil
-    public struct DisplayModelState {
-        public let model: EmptyViewPresentableModel?
-    }
-    public func display(model: EmptyViewPresentableModel?) {
-        displayModelState = .init(
-            model: model
         )
     }
 }

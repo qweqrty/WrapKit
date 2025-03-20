@@ -29,5 +29,6 @@ extension MainQueueDispatchDecorator: SelectionOutput where T: SelectionOutput {
             self?.decoratee.display(shouldShowSearchBar: shouldShowSearchBar)
         }
     }
+
 }
 #endif

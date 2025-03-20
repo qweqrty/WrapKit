@@ -16,7 +16,8 @@ public class TokenRefresherImpl<RefreshRequest, RefreshResponse>: TokenRefresher
     private let refreshTokenStorage: any Storage<String>
     private let refreshService: any Service<RefreshRequest, RefreshResponse>
     private let mapRefreshRequest: (String) -> RefreshRequest
-    private let mapRefreshResponse: (RefreshResponse) -> String
+    private let mapResponseToAccess: ((RefreshResponse) -> String)?
+    private let mapResponseToRefresh: ((RefreshResponse) -> String?)?
     
     private var isAuthenticating = false
     private var authenticationLock = DispatchQueue(label: "com.tokenRefresher.lock")
@@ -27,12 +28,14 @@ public class TokenRefresherImpl<RefreshRequest, RefreshResponse>: TokenRefresher
         refreshTokenStorage: any Storage<String>,
         refreshService: any Service<RefreshRequest, RefreshResponse>,
         mapRefreshRequest: @escaping (String) -> RefreshRequest,
-        mapRefreshResponse: @escaping (RefreshResponse) -> String
+        mapResponseToAccess: ((RefreshResponse) -> String)?,
+        mapResponseToRefresh: ((RefreshResponse) -> String?)? = nil
     ) {
         self.refreshTokenStorage = refreshTokenStorage
         self.refreshService = refreshService
         self.mapRefreshRequest = mapRefreshRequest
-        self.mapRefreshResponse = mapRefreshResponse
+        self.mapResponseToAccess = mapResponseToAccess
+        self.mapResponseToRefresh = mapResponseToRefresh
     }
 
     public func refresh(completion: @escaping (Result<String, ServiceError>) -> Void) {
@@ -61,8 +64,16 @@ public class TokenRefresherImpl<RefreshRequest, RefreshResponse>: TokenRefresher
         refreshService.make(request: refreshRequest)
             .handle(
                 onSuccess: { [weak self] response in
-                    guard let newToken = self?.mapRefreshResponse(response) else { return }
-                    self?.completeAll(with: .success(newToken))
+                    guard let self else { return }
+                    guard let newToken = self.mapResponseToAccess?(response) else { return }
+                    if let newRefreshToken = self.mapResponseToRefresh?(response) {
+                        self.refreshTokenStorage.set(model: newRefreshToken)
+                            .sink { [weak self] _ in
+                                self?.completeAll(with: .success(newToken))
+                            }
+                            .store(in: &self.cancellables)
+                    }
+
                 },
                 onError: { [weak self] error in
                     self?.completeAll(with: .failure(error))

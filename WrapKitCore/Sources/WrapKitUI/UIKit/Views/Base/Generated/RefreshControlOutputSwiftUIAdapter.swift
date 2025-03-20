@@ -8,6 +8,9 @@
 #if canImport(WrapKit)
 import WrapKit
 #endif
+#if canImport(SwiftUI)
+import SwiftUI
+#endif
 #if canImport(Foundation)
 import Foundation
 #endif
