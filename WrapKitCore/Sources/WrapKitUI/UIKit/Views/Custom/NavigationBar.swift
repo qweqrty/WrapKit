@@ -124,6 +124,7 @@ extension NavigationBar: HeaderOutput {
             leadingCardView.titleViews.keyLabel.textColor = style.primeColor
             titleViews.keyLabel.font = style.primeFont
             titleViews.keyLabel.textColor = style.primeColor
+            titleViews.keyLabel.numberOfLines = style.numberOfLines
             centerTitledImageView.closingTitleVFieldView.keyLabel.textColor = style.secondaryColor
             centerTitledImageView.closingTitleVFieldView.keyLabel.font = style.secondaryFont
         }
