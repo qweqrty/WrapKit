@@ -25,4 +25,9 @@ open class MockService<Request, Response: Decodable>: Service {
         }
         .eraseToAnyPublisher()
     }
+    
+    public func make(request: Request, completion: @escaping ((Result<Response, ServiceError>)) -> Void) -> (any HTTPClientTask)? {
+        completion(result)
+        return nil
+    }
 }

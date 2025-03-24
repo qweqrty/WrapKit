@@ -59,4 +59,30 @@ open class RemoteService<Request, Response>: Service {
         })
         .eraseToAnyPublisher()
     }
+    
+    public func make(request: Request, completion: @escaping ((Result<Response, ServiceError>)) -> Void) -> HTTPClientTask? {
+        guard let urlRequest = makeURLRequest(request) else {
+            completion(.failure(.internal))
+            return nil
+        }
+        let task = client.dispatch(urlRequest) { [weak self] result in
+            switch result {
+            case .success(let response):
+                self?.responseHandler?(request, response.data, response.response) { handlerResult in
+                    completion(handlerResult)
+                }
+            case .failure(let error):
+                if (error as? URLError)?.code == .cancelled {
+                    completion(.failure(.cancelled))
+                } else if let error = error as NSError?,
+                          error.domain == NSURLErrorDomain && error.code == NSURLErrorNotConnectedToInternet {
+                    completion(.failure(.connectivity))
+                } else {
+                    completion(.failure(.internal))
+                }
+            }
+        }
+        task.resume()
+        return task
+    }
 }

@@ -62,4 +62,28 @@ open class DownloadService: Service {
         })
         .eraseToAnyPublisher()
     }
+    
+    public func make(request: DownloadRequest, completion: @escaping ((Result<Response, ServiceError>)) -> Void) -> HTTPClientTask? {
+        guard let urlRequest = makeDownloadRequest(request) else {
+            completion(.failure(.internal))
+            return nil
+        }
+        
+        let task = downloadClient.download(urlRequest, progress: { progress in
+            request.progressHandler?(progress)
+        }, completion: { result in
+            switch result {
+            case .success(let fileURL):
+                completion(.success(fileURL))
+            case .failure(let error):
+                if (error as NSError).code == NSURLErrorNotConnectedToInternet {
+                    completion(.failure(.connectivity))
+                } else {
+                    completion(.failure(.internal))
+                }
+            }
+        })
+        task.resume()
+        return task
+    }
 }

@@ -26,4 +26,3 @@ public class StoredHTTPClientDecorator<Model>: HTTPClient {
         return decoratee.dispatch(enrichRequest(request, storage.get()), completion: completion)
     }
 }
-

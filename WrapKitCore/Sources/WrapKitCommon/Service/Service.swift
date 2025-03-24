@@ -11,7 +11,10 @@ import Combine
 public protocol Service<Request, Response> {
     associatedtype Request
     associatedtype Response
+    
+    @available(*, deprecated, message: "Publishers leave artifacts in memory. Use completion handler instead.")
     func make(request: Request) -> AnyPublisher<Response, ServiceError>
+    func make(request: Request, completion: @escaping ((Result<Response, ServiceError>)) -> Void) -> HTTPClientTask?
 }
 
 public enum ServiceError: Encodable, Error, Equatable {

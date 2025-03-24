@@ -34,7 +34,6 @@ public class CompositeHTTPClientTask: HTTPClientTask {
     }
 }
 
-
 public protocol HTTPClientTask {
     func cancel()
     func resume()
