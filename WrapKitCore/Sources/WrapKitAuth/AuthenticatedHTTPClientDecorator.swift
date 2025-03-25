@@ -12,7 +12,6 @@ public class AuthenticatedHTTPClientDecorator: HTTPClient {
     public typealias EnrichRequestWithToken = ((URLRequest, String) -> URLRequest)
     public typealias AuthenticationPolicy = (((Data, HTTPURLResponse)) -> Bool)
     
-    private var cancellables = Set<AnyCancellable>()
     private let decoratee: HTTPClient
     private let tokenLock: DispatchQueue
     private let accessTokenStorage: any Storage<String>

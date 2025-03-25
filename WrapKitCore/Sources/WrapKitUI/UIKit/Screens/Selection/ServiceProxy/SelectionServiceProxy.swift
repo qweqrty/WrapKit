@@ -27,7 +27,6 @@ public class SelectionServiceProxy<Request, Response>: SelectionInput {
     private let makeRequest: (() -> Request)
     private let makeResponse: ((Result<Response, ServiceError>) -> [SelectionType.SelectionCellPresentableModel])
     public var view: LoadingOutput?
-    private var cancellables = Set<AnyCancellable>()
     
     public init(
         decoratee: SelectionPresenter,

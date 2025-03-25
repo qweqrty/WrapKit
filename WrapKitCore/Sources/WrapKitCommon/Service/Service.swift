@@ -104,16 +104,15 @@ public extension AnyPublisher {
 private extension AnyPublisher {
     @discardableResult
     func subscribe() -> AnyPublisher<Output, Failure> {
-        var id = UUID()
+        let id = UUID()
         
-        // Ensure uniqueness (almost never needed, but extra safe)
-        while servicesCancellables[id] != nil {
-            id = UUID()
-        }
-        
-        let cancellable = self.sink(receiveCompletion: { _ in
-            servicesCancellables.removeValue(forKey: id) // Clean up on completion
-        }, receiveValue: { _ in })
+        let cancellable = self
+            .handleEvents(receiveCancel: {
+                servicesCancellables.removeValue(forKey: id) // Clean up on cancel
+            })
+            .sink(receiveCompletion: { _ in
+                servicesCancellables.removeValue(forKey: id) // Clean up on completion
+            }, receiveValue: { _ in })
         
         servicesCancellables[id] = cancellable
         
