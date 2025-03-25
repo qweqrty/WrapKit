@@ -8,13 +8,13 @@
 import Foundation
 import Combine
 
+private var servicesCancellables: [UUID: AnyCancellable] = [:]
+
 public protocol Service<Request, Response> {
     associatedtype Request
     associatedtype Response
     
-    @available(*, deprecated, message: "Publishers leave artifacts in memory. Use completion handler instead.")
     func make(request: Request) -> AnyPublisher<Response, ServiceError>
-    func make(request: Request, completion: @escaping ((Result<Response, ServiceError>)) -> Void) -> HTTPClientTask?
 }
 
 public enum ServiceError: Encodable, Error, Equatable {
@@ -97,13 +97,26 @@ public extension AnyPublisher {
                 }
             )
             .eraseToAnyPublisher()
+            .subscribe()
         }
+}
 
-    
+private extension AnyPublisher {
     @discardableResult
-    func subscribe(storeIn cancellables: inout Set<AnyCancellable>) -> AnyPublisher<Output, Failure> {
-        self.sink(receiveCompletion: { _ in }, receiveValue: { _ in })
-            .store(in: &cancellables)
+    func subscribe() -> AnyPublisher<Output, Failure> {
+        var id = UUID()
+        
+        // Ensure uniqueness (almost never needed, but extra safe)
+        while servicesCancellables[id] != nil {
+            id = UUID()
+        }
+        
+        let cancellable = self.sink(receiveCompletion: { _ in
+            servicesCancellables.removeValue(forKey: id) // Clean up on completion
+        }, receiveValue: { _ in })
+        
+        servicesCancellables[id] = cancellable
+        
         return self
     }
 }

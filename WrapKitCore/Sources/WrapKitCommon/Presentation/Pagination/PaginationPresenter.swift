@@ -110,7 +110,6 @@ extension PaginationPresenter: PaginationViewInput {
                     self?.view?.display(isLoadingFirstPage: false)
                 }
             )
-            .subscribe(storeIn: &cancellables)
     }
     
     public func loadNextPage() {
@@ -132,7 +131,6 @@ extension PaginationPresenter: PaginationViewInput {
                     self?.view?.display(isLoadingSubsequentPage: false)
                 }
             )
-            .subscribe(storeIn: &cancellables)
     }
     
     private func handle(response: Result<ServicePaginationResponse, ServiceError>, backToPage: Int) {

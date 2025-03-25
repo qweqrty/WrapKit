@@ -57,7 +57,6 @@ public class SelectionServiceProxy<Request, Response>: SelectionInput {
                     self?.view?.display(isLoading: false)
                 }
             )
-            .subscribe(storeIn: &cancellables)
         
         decoratee.viewDidLoad()
     }
@@ -94,6 +93,5 @@ extension SelectionServiceProxy: SelectionServiceInput {
                     self?.view?.display(isLoading: false)
                 }
             )
-            .subscribe(storeIn: &cancellables)
     }
 }

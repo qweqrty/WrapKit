@@ -91,7 +91,6 @@ public class AuthenticatedHTTPClientDecorator: HTTPClient {
                         self?.onNotAuthenticated?()
                     }
                 )
-                .subscribe(storeIn: &cancellables)
             return
         }
 
@@ -119,7 +118,6 @@ public class AuthenticatedHTTPClientDecorator: HTTPClient {
                     self?.onNotAuthenticated?()
                 }
             )
-            .subscribe(storeIn: &cancellables)
     }
 
     private func retryRequest(_ request: URLRequest, with token: String, completion: @escaping (HTTPClient.Result) -> Void, compositeTask: CompositeHTTPClientTask) {

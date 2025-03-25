@@ -80,7 +80,6 @@ public class TokenRefresherImpl<RefreshRequest, RefreshResponse>: TokenRefresher
                     self?.completeAll(with: .failure(error))
                 }
             )
-            .subscribe(storeIn: &cancellables)
     }
     
     private func completeAll(with result: Result<String, ServiceError>) {

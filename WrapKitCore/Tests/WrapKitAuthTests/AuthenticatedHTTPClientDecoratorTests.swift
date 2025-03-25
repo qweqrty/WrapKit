@@ -478,7 +478,6 @@ class AuthenticatedHTTPClientDecoratorTests: XCTestCase {
         XCTAssertEqual(httpClientSpy.requestedURLRequests[1].value(forHTTPHeaderField: "Authorization"), "valid_token")
         XCTAssertEqual(httpClientSpy.requestedURLRequests[2].value(forHTTPHeaderField: "Authorization"), "valid_token")
     }
-
     
     // MARK: - Helpers
 

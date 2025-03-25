@@ -19,6 +19,7 @@ class HTTPClientSpy: HTTPClient {
     }
     
     private var messages: [(requests: URLRequest, completion: (Result) -> Void)] = []
+    private let queue = DispatchQueue(label: "com.httpclientspy.queue") // Serial queue for synchronization
     private(set) var resumedURLs: [URL] = []
     private(set) var cancelledURLs: [URL] = []
     private(set) var completedResponses: [HTTPClient.Result] = []
@@ -32,7 +33,9 @@ class HTTPClientSpy: HTTPClient {
     }
     
     func dispatch(_ request: URLRequest, completion: @escaping (Result) -> Void) -> HTTPClientTask {
-        messages.append((request, completion))
+        queue.sync {
+                    messages.append((request, completion))
+                }
         return Task(resumeCallback: { [weak self] in
             self?.resumedURLs.append(request.url!)
         }, cancelCallback: { [weak self] in
@@ -41,19 +44,23 @@ class HTTPClientSpy: HTTPClient {
     }
     
     func completes(with error: Error, at index: Int = 0) {
-        completedResponses.append(.failure(error))
-        messages[index].completion(.failure(error))
+        queue.sync {
+            completedResponses.append(.failure(error))
+            messages[index].completion(.failure(error))
+        }
     }
     
     func completes(withStatusCode code: Int, data: Data, at index: Int = 0) {
-        let response = HTTPURLResponse(
-            url: requestedURLs[index],
-            statusCode: code,
-            httpVersion: nil,
-            headerFields: nil
-        )!
-        let result = HTTPClient.Result.success((data, response))
-        completedResponses.append(result)
-        messages[index].completion(result)
+        queue.sync {
+            let response = HTTPURLResponse(
+                url: self.requestedURLs[index],
+                statusCode: code,
+                httpVersion: nil,
+                headerFields: nil
+            )!
+            let result = HTTPClient.Result.success((data, response))
+            self.completedResponses.append(result)
+            self.messages[index].completion(result)
+        }
     }
 }

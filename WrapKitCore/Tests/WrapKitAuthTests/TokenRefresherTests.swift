@@ -220,7 +220,7 @@ final class TokenRefresherImplTests: XCTestCase {
             refreshTokenStorage: storage,
             refreshService: service,
             mapRefreshRequest: mapRequest,
-            mapRefreshResponse: mapResponse
+            mapResponseToAccess: mapResponse
         )
         checkForMemoryLeaks(sut, file: file, line: line)
         checkForMemoryLeaks(storage, file: file, line: line)
