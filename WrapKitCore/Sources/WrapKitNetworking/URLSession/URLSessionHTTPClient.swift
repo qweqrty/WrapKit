@@ -63,7 +63,7 @@ public final class URLSessionHTTPClient: HTTPClient {
         let urlString = request.url?.absoluteString ?? "N/A"
         let method = request.httpMethod ?? "N/A"
         let headers = request.allHTTPHeaderFields ?? [:]
-        let body = String(data: request.httpBody ?? Data(), encoding: .utf8) ?? "N/A"
+        let body = request.httpBody?.prettyPrintedJSONString ?? "N/A"
 
         var requestLog = "📤 Outgoing Request: \(urlString)"
         requestLog += "\nMethod: \(method)"
@@ -77,7 +77,7 @@ public final class URLSessionHTTPClient: HTTPClient {
         let urlString = response?.url?.absoluteString ?? "N/A"
         let statusCode = (response as? HTTPURLResponse)?.statusCode.description ?? "N/A"
         let headers = (response as? HTTPURLResponse)?.allHeaderFields as? [String: Any] ?? [:]
-        let body = String(data: data ?? Data(), encoding: .utf8) ?? "N/A"
+        let body = data?.prettyPrintedJSONString ?? "N/A"
         
         var responseLog = "📥 Incoming Response: \(urlString)"
         responseLog += "\nStatus Code: \(statusCode)"
@@ -121,5 +121,17 @@ fileprivate extension String {
     func truncatedForCancelled() -> String {
         let maxCharacters = URLSessionHTTPClient.maxCharactersToPrintForCancelled
         return count > maxCharacters ? prefix(maxCharacters) + "..." : self
+    }
+}
+
+// Pretty print JSON
+fileprivate extension Data {
+    var prettyPrintedJSONString: String? {
+        guard let object = try? JSONSerialization.jsonObject(with: self, options: []),
+              let data = try? JSONSerialization.data(withJSONObject: object, options: [.prettyPrinted]),
+              let prettyString = String(data: data, encoding: .utf8) else {
+            return String(data: self, encoding: .utf8) ?? "N/A"
+        }
+        return prettyString
     }
 }
