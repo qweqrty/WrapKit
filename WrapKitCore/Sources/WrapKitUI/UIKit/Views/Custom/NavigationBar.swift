@@ -26,6 +26,7 @@ public struct HeaderPresentableModel {
         public let primeColor: Color
         public let secondaryFont: Font
         public let secondaryColor: Color
+        public let numberOfLines: Int
         
         public init(
             backgroundColor: Color,
@@ -33,7 +34,8 @@ public struct HeaderPresentableModel {
             primeFont: Font,
             primeColor: Color,
             secondaryFont: Font,
-            secondaryColor: Color
+            secondaryColor: Color,
+            numberOfLines: Int = 1
         ) {
             self.backgroundColor = backgroundColor
             self.horizontalSpacing = horizontalSpacing
@@ -41,6 +43,7 @@ public struct HeaderPresentableModel {
             self.primeColor = primeColor
             self.secondaryFont = secondaryFont
             self.secondaryColor = secondaryColor
+            self.numberOfLines = numberOfLines
         }
     }
     
@@ -121,6 +124,7 @@ extension NavigationBar: HeaderOutput {
             leadingCardView.titleViews.keyLabel.textColor = style.primeColor
             titleViews.keyLabel.font = style.primeFont
             titleViews.keyLabel.textColor = style.primeColor
+            titleViews.keyLabel.numberOfLines = style.numberOfLines
             centerTitledImageView.closingTitleVFieldView.keyLabel.textColor = style.secondaryColor
             centerTitledImageView.closingTitleVFieldView.keyLabel.font = style.secondaryFont
         }
@@ -289,3 +293,4 @@ private extension NavigationBar {
     }
 }
 #endif
+
