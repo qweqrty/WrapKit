@@ -132,6 +132,11 @@ extension MainQueueDispatchDecorator: TextInputOutput where T: TextInputOutput {
             self?.decoratee.display(isHidden: isHidden)
         }
     }
+    public func display(trailingSymbol: String?) {
+        dispatch { [weak self] in
+            self?.decoratee.display(trailingSymbol: trailingSymbol)
+        }
+    }
 
 }
 #endif
