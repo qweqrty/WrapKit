@@ -1,5 +1,4 @@
-#if canImport(UIKit)
-import UIKit
+import Foundation
 
 public protocol SectionedDiffableItem: Hashable {
     associatedtype SectionItem: Hashable
@@ -7,6 +6,9 @@ public protocol SectionedDiffableItem: Hashable {
     var header: SectionItem { get set }
     var cells: [Model] { get set }
 }
+
+#if canImport(UIKit)
+import UIKit
 
 @available(iOS 13.0, *)
 public class DiffableTableViewDataSource<SectionItem: Hashable, Model: Hashable>: NSObject, UITableViewDelegate {
@@ -60,7 +62,6 @@ public class DiffableTableViewDataSource<SectionItem: Hashable, Model: Hashable>
         tableView.dataSource = dataSource
         tableView.delegate = self
     }
-    
     
     // MARK: - Snapshot Management
     public func updateItems(_ items: [Model], at section: SectionItem) {

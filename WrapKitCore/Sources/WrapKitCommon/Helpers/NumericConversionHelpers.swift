@@ -2,7 +2,7 @@ public extension BinaryInteger {
     /// Converts to an `Int`, returning `nil` if the value is outside `Int`’s range.
     /// - Example: `Int64.max.toInt` → `nil` on 32-bit systems (Int.max = 2147483647), `9223372036854775807` on 64-bit.
     /// - Example: `UInt(5).toInt` → `5` (fits in Int range).
-    var toInt: Int? {
+    var asInt: Int? {
         return Int(exactly: self)
     }
     
@@ -10,7 +10,7 @@ public extension BinaryInteger {
     /// - Note: Large integers may lose precision when converted to `Float`.
     /// - Example: `UInt64.max.toFloat` → `1.8446744e+19` (approximate, loses precision).
     /// - Example: `Int64.max.toFloat` → `9.223372e+18` (approximate, loses precision).
-    var toFloat: Float {
+    var asFloat: Float {
         return Float(self)
     }
     
@@ -18,15 +18,15 @@ public extension BinaryInteger {
     /// - Note: Large integers may lose precision when converted to `Double`.
     /// - Example: `UInt64.max.toDouble` → `1.8446744073709552e+19` (exact for `UInt64.max`).
     /// - Example: `Int64.max.toDouble` → `9.223372036854776e+18` (exact for `Int64.max`).
-    var toDouble: Double {
+    var asDouble: Double {
         return Double(self)
     }
     
     /// Converts to an `Int`, falling back to `0` if outside `Int`’s range.
     /// - Example: `Int64.max.toIntOrZero` → `0` on 32-bit, `9223372036854775807` on 64-bit.
     /// - Example: `UInt(5).toIntOrZero` → `5`.
-    var toIntOrZero: Int {
-        return toInt ?? 0
+    var asIntOrZero: Int {
+        return asInt ?? 0
     }
 }
 
@@ -35,7 +35,7 @@ public extension BinaryFloatingPoint {
     /// - Example: `Double(3.9).toInt` → `3` (truncates).
     /// - Example: `Float(1e40).toInt` → `nil` (exceeds Int.max).
     /// - Example: `Double(-5.7).toInt` → `-5` (truncates).
-    var toInt: Int? {
+    var asInt: Int? {
         return Int(exactly: rounded(.towardZero))
     }
     
@@ -43,7 +43,7 @@ public extension BinaryFloatingPoint {
     /// - Note: May lose precision if the value exceeds `Float`’s range or precision.
     /// - Example: `Double(3.141592653589793).toFloat` → `3.1415927` (rounded to `Float` precision).
     /// - Example: `Float(42.0).toFloat` → `42.0` (exact).
-    var toFloat: Float {
+    var asFloat: Float {
         return Float(self)
     }
     
@@ -51,7 +51,7 @@ public extension BinaryFloatingPoint {
     /// - Note: Always safe for `Float` → `Double` (no precision loss).
     /// - Example: `Float(3.14).toDouble` → `3.140000104904175` (exact representation of `Float`).
     /// - Example: `Double(1e50).toDouble` → `1e50` (exact).
-    var toDouble: Double {
+    var asDouble: Double {
         return Double(self)
     }
     
@@ -59,7 +59,7 @@ public extension BinaryFloatingPoint {
     /// - Example: `Double(3.9).toIntOrZero` → `3`.
     /// - Example: `Float(1e40).toIntOrZero` → `0` (out of range).
     /// - Example: `Double(-5.7).toIntOrZero` → `-5`.
-    var toIntOrZero: Int {
-        return toInt ?? 0
+    var asIntOrZero: Int {
+        return asInt ?? 0
     }
 }

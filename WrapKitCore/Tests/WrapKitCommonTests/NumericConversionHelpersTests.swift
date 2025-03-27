@@ -10,110 +10,110 @@ import XCTest
 import WrapKitTestUtils
 
 class NumericExtensionsTests: XCTestCase {
-    func testBinaryIntegerToInt() {
+    func testBinaryIntegerasInt() {
         // Test typical cases
         let int8: Int8 = 42
-        XCTAssertEqual(int8.toInt, 42)
+        XCTAssertEqual(int8.asInt, 42)
         
         let uint8: UInt8 = 255
-        XCTAssertEqual(uint8.toInt, 255)
+        XCTAssertEqual(uint8.asInt, 255)
         
         // Test zero
         let zero: Int16 = 0
-        XCTAssertEqual(zero.toInt, 0)
+        XCTAssertEqual(zero.asInt, 0)
         
         // Test large value within Int bounds
         let large: Int64 = Int64(Int.max)
-        XCTAssertEqual(large.toInt, Int.max)
+        XCTAssertEqual(large.asInt, Int.max)
     }
     
-    func testBinaryIntegerToFloat() {
+    func testBinaryIntegerasFloat() {
         let int16: Int16 = 123
-        XCTAssertEqual(int16.toFloat, 123.0)
+        XCTAssertEqual(int16.asFloat, 123.0)
         
         let uint16: UInt16 = 456
-        XCTAssertEqual(uint16.toFloat, 456.0)
+        XCTAssertEqual(uint16.asFloat, 456.0)
         
         let zero: Int32 = 0
-        XCTAssertEqual(zero.toFloat, 0.0)
+        XCTAssertEqual(zero.asFloat, 0.0)
         
         let int64Max: Int64 = Int64.max
-        XCTAssertEqual(int64Max.toFloat, 9.223372e18, accuracy: 1e13) // Approximate
+        XCTAssertEqual(int64Max.asFloat, 9.223372e18, accuracy: 1e13) // Approximate
     }
     
-    func testBinaryIntegerToDouble() {
+    func testBinaryIntegerasDouble() {
         let int32: Int32 = -789
-        XCTAssertEqual(int32.toDouble, -789.0)
+        XCTAssertEqual(int32.asDouble, -789.0)
         
         let uint32: UInt32 = 1000
-        XCTAssertEqual(uint32.toDouble, 1000.0)
+        XCTAssertEqual(uint32.asDouble, 1000.0)
         
         let zero: Int64 = 0
-        XCTAssertEqual(zero.toDouble, 0.0)
+        XCTAssertEqual(zero.asDouble, 0.0)
         
         let int64Max: Int64 = Int64.max
-        XCTAssertEqual(int64Max.toDouble, 9.223372036854776e18) // Exact
+        XCTAssertEqual(int64Max.asDouble, 9.223372036854776e18) // Exact
     }
     
-    func testBinaryIntegerToIntOrZero() {
+    func testBinaryIntegerasIntOrZero() {
         let int8: Int8 = 42
-        XCTAssertEqual(int8.toIntOrZero, 42)
+        XCTAssertEqual(int8.asIntOrZero, 42)
         
         let uint8: UInt8 = 255
-        XCTAssertEqual(uint8.toIntOrZero, 255)
+        XCTAssertEqual(uint8.asIntOrZero, 255)
         
         let zero: Int16 = 0
-        XCTAssertEqual(zero.toIntOrZero, 0)
+        XCTAssertEqual(zero.asIntOrZero, 0)
     }
     
     // MARK: - BinaryFloatingPoint Tests
     
-    func testBinaryFloatingPointToInt() {
+    func testBinaryFloatingPointasInt() {
         let float: Float = 5.7
-        XCTAssertEqual(float.toInt, 5) // Truncates
+        XCTAssertEqual(float.asInt, 5) // Truncates
         
         let double: Double = -3.2
-        XCTAssertEqual(double.toInt, -3) // Truncates
+        XCTAssertEqual(double.asInt, -3) // Truncates
         
         let zero: Float = 0.0
-        XCTAssertEqual(zero.toInt, 0)
+        XCTAssertEqual(zero.asInt, 0)
         
         // Test edge cases
         let largeFloat: Float = Float(Int.max) + 1
-        XCTAssertNil(largeFloat.toInt) // Should fail due to overflow
+        XCTAssertNil(largeFloat.asInt) // Should fail due to overflow
     }
     
-    func testBinaryFloatingPointToFloat() {
+    func testBinaryFloatingPointasFloat() {
         let double: Double = 123.456
-        XCTAssertEqual(double.toFloat, Float(123.456), accuracy: 0.001)
+        XCTAssertEqual(double.asFloat, Float(123.456), accuracy: 0.001)
         
         let float: Float = -789.123
-        XCTAssertEqual(float.toFloat, -789.123)
+        XCTAssertEqual(float.asFloat, -789.123)
         
         let zero: Double = 0.0
-        XCTAssertEqual(zero.toFloat, 0.0)
+        XCTAssertEqual(zero.asFloat, 0.0)
     }
     
-    func testBinaryFloatingPointToDouble() {
+    func testBinaryFloatingPointasDouble() {
         let float: Float = 456.789
-        XCTAssertEqual(float.toDouble, Double(456.789), accuracy: 0.001)
+        XCTAssertEqual(float.asDouble, Double(456.789), accuracy: 0.001)
         
         let double: Double = -987.654
-        XCTAssertEqual(double.toDouble, -987.654, accuracy: 0.001)
+        XCTAssertEqual(double.asDouble, -987.654, accuracy: 0.001)
         
         let zero: Float = 0.0
-        XCTAssertEqual(zero.toDouble, 0.0, accuracy: 0.001) // Accuracy not strictly needed for zero
+        XCTAssertEqual(zero.asDouble, 0.0, accuracy: 0.001) // Accuracy not strictly needed for zero
     }
     
-    func testBinaryFloatingPointToIntOrZero() {
+    func testBinaryFloatingPointasIntOrZero() {
         let float: Float = 5.7
-        XCTAssertEqual(float.toIntOrZero, 5) // Truncates
+        XCTAssertEqual(float.asIntOrZero, 5) // Truncates
         
         let double: Double = -3.2
-        XCTAssertEqual(double.toIntOrZero, -3) // Truncates
+        XCTAssertEqual(double.asIntOrZero, -3) // Truncates
         
         let largeFloat: Float = Float(Int.max) + 1
-        XCTAssertEqual(largeFloat.toIntOrZero, 0) // Falls back to 0 on failure
+        XCTAssertEqual(largeFloat.asIntOrZero, 0) // Falls back to 0 on failure
     }
     
     // MARK: - Edge Cases
@@ -124,116 +124,116 @@ class NumericExtensionsTests: XCTestCase {
         let int64Min: Int64 = Int64.min
         
         if MemoryLayout<Int>.size == 4 { // 32-bit
-            XCTAssertNil(int64Max.toInt)
-            XCTAssertNil(int64Min.toInt)
-            XCTAssertEqual(int64Max.toIntOrZero, 0)
-            XCTAssertEqual(int64Min.toIntOrZero, 0)
+            XCTAssertNil(int64Max.asInt)
+            XCTAssertNil(int64Min.asInt)
+            XCTAssertEqual(int64Max.asIntOrZero, 0)
+            XCTAssertEqual(int64Min.asIntOrZero, 0)
         } else { // 64-bit
-            XCTAssertEqual(int64Max.toInt, Int.max)
-            XCTAssertEqual(int64Min.toInt, Int.min)
-            XCTAssertEqual(int64Max.toIntOrZero, Int.max)
-            XCTAssertEqual(int64Min.toIntOrZero, Int.min)
+            XCTAssertEqual(int64Max.asInt, Int.max)
+            XCTAssertEqual(int64Min.asInt, Int.min)
+            XCTAssertEqual(int64Max.asIntOrZero, Int.max)
+            XCTAssertEqual(int64Min.asIntOrZero, Int.min)
         }
         
         // Test just outside Int32 range
         let justAboveInt32Max: Int64 = Int64(Int32.max) + 1
         let justBelowInt32Min: Int64 = Int64(Int32.min) - 1
         if MemoryLayout<Int>.size == 4 { // 32-bit
-            XCTAssertNil(justAboveInt32Max.toInt)
-            XCTAssertNil(justBelowInt32Min.toInt)
-            XCTAssertEqual(justAboveInt32Max.toIntOrZero, 0)
-            XCTAssertEqual(justBelowInt32Min.toIntOrZero, 0)
+            XCTAssertNil(justAboveInt32Max.asInt)
+            XCTAssertNil(justBelowInt32Min.asInt)
+            XCTAssertEqual(justAboveInt32Max.asIntOrZero, 0)
+            XCTAssertEqual(justBelowInt32Min.asIntOrZero, 0)
         } else { // 64-bit
-            XCTAssertEqual(justAboveInt32Max.toInt, 2147483648)
-            XCTAssertEqual(justBelowInt32Min.toInt, -2147483649)
+            XCTAssertEqual(justAboveInt32Max.asInt, 2147483648)
+            XCTAssertEqual(justBelowInt32Min.asInt, -2147483649)
         }
     }
     
     func testBinaryIntegerNegativeEdgeCases() {
         let int8Min: Int8 = Int8.min // -128
-        XCTAssertEqual(int8Min.toInt, -128)
-        XCTAssertEqual(int8Min.toIntOrZero, -128)
+        XCTAssertEqual(int8Min.asInt, -128)
+        XCTAssertEqual(int8Min.asIntOrZero, -128)
         
         let int16Min: Int16 = Int16.min // -32768
-        XCTAssertEqual(int16Min.toInt, -32768)
-        XCTAssertEqual(int16Min.toFloat, -32768.0)
-        XCTAssertEqual(int16Min.toDouble, -32768.0)
+        XCTAssertEqual(int16Min.asInt, -32768)
+        XCTAssertEqual(int16Min.asFloat, -32768.0)
+        XCTAssertEqual(int16Min.asDouble, -32768.0)
     }
     
     func testBinaryIntegerUnsignedOverflow() {
         let uint64Max: UInt64 = UInt64.max // 18446744073709551615
         if MemoryLayout<Int>.size == 4 { // 32-bit
-            XCTAssertNil(uint64Max.toInt)
-            XCTAssertEqual(uint64Max.toIntOrZero, 0)
+            XCTAssertNil(uint64Max.asInt)
+            XCTAssertEqual(uint64Max.asIntOrZero, 0)
         } else { // 64-bit
-            XCTAssertNil(uint64Max.toInt) // Exceeds Int.max (9223372036854775807)
-            XCTAssertEqual(uint64Max.toIntOrZero, 0)
+            XCTAssertNil(uint64Max.asInt) // Exceeds Int.max (9223372036854775807)
+            XCTAssertEqual(uint64Max.asIntOrZero, 0)
         }
         
-        XCTAssertEqual(uint64Max.toFloat, 1.8446744e19 as Float, accuracy: 1e15)
-        XCTAssertEqual(uint64Max.toDouble, 1.8446744073709552e19)
+        XCTAssertEqual(uint64Max.asFloat, 1.8446744e19 as Float, accuracy: 1e15)
+        XCTAssertEqual(uint64Max.asDouble, 1.8446744073709552e19)
         
         // Add Int64.max for comparison
         let int64Max: Int64 = Int64.max
         if MemoryLayout<Int>.size == 4 { // 32-bit
-            XCTAssertNil(int64Max.toInt) // Exceeds Int32.max
-            XCTAssertEqual(int64Max.toIntOrZero, 0)
+            XCTAssertNil(int64Max.asInt) // Exceeds Int32.max
+            XCTAssertEqual(int64Max.asIntOrZero, 0)
         } else { // 64-bit
-            XCTAssertEqual(int64Max.toInt, Int.max) // Fits in 64-bit Int
-            XCTAssertEqual(int64Max.toIntOrZero, Int.max)
+            XCTAssertEqual(int64Max.asInt, Int.max) // Fits in 64-bit Int
+            XCTAssertEqual(int64Max.asIntOrZero, Int.max)
         }
-        XCTAssertEqual(int64Max.toFloat, 9.223372e18 as Float, accuracy: 1e13)
-        XCTAssertEqual(int64Max.toDouble, 9.223372036854776e18)
+        XCTAssertEqual(int64Max.asFloat, 9.223372e18 as Float, accuracy: 1e13)
+        XCTAssertEqual(int64Max.asDouble, 9.223372036854776e18)
     }
     
-    func testBinaryIntegerToFloatPrecision() {
+    func testBinaryIntegerasFloatPrecision() {
         let largeInt64: Int64 = 1_000_000_000_000_000 // 1e15
-        XCTAssertEqual(largeInt64.toFloat, 1e15, accuracy: 1e10)
+        XCTAssertEqual(largeInt64.asFloat, 1e15, accuracy: 1e10)
     }
     
-    func testBinaryFloatingPointToFloatPrecision() {
+    func testBinaryFloatingPointasFloatPrecision() {
         let preciseDouble: Double = 1.2345678901234567
-        XCTAssertEqual(preciseDouble.toFloat, 1.234568, accuracy: 0.000001) // Float has ~7 digits precision
+        XCTAssertEqual(preciseDouble.asFloat, 1.234568, accuracy: 0.000001) // Float has ~7 digits precision
     }
     
     func testBinaryFloatingPointExtremes() {
         let infinity: Double = .infinity
-        XCTAssertNil(infinity.toInt) // Should fail
-        XCTAssertEqual(infinity.toIntOrZero, 0)
+        XCTAssertNil(infinity.asInt) // Should fail
+        XCTAssertEqual(infinity.asIntOrZero, 0)
         
         let nan: Double = .nan
-        XCTAssertNil(nan.toInt) // Should fail
-        XCTAssertEqual(nan.toIntOrZero, 0)
+        XCTAssertNil(nan.asInt) // Should fail
+        XCTAssertEqual(nan.asIntOrZero, 0)
         
         let subnormal: Double = Double.leastNonzeroMagnitude
-        XCTAssertEqual(subnormal.toInt, 0) // Truncates to 0
-        XCTAssertEqual(subnormal.toFloat, Float(subnormal), accuracy: 1e-45)
+        XCTAssertEqual(subnormal.asInt, 0) // Truncates to 0
+        XCTAssertEqual(subnormal.asFloat, Float(subnormal), accuracy: 1e-45)
         
         // Test very large/small floating point
         let hugeDouble: Double = Double.greatestFiniteMagnitude
-        XCTAssertNil(hugeDouble.toInt)
-        XCTAssertEqual(hugeDouble.toIntOrZero, 0)
+        XCTAssertNil(hugeDouble.asInt)
+        XCTAssertEqual(hugeDouble.asIntOrZero, 0)
     }
     
-    func testBinaryIntegerToFloatEdgeCases() {
+    func testBinaryIntegerasFloatEdgeCases() {
         let veryLargeInt64: Int64 = 1 << 53 // Beyond Float’s exact integer range (2^24)
         
-        XCTAssertEqual(veryLargeInt64.toFloat, 9.007199254740992e15, accuracy: 1e10)
-        XCTAssertEqual(veryLargeInt64.toDouble, 9.007199254740992e15) // Exact
+        XCTAssertEqual(veryLargeInt64.asFloat, 9.007199254740992e15, accuracy: 1e10)
+        XCTAssertEqual(veryLargeInt64.asDouble, 9.007199254740992e15) // Exact
     }
     
     func testBinaryFloatingPointTruncation() {
         let floatUp: Float = 5.999
-        XCTAssertEqual(floatUp.toInt, 5) // Truncates toward zero
+        XCTAssertEqual(floatUp.asInt, 5) // Truncates toward zero
         
         let floatDown: Float = -5.999
-        XCTAssertEqual(floatDown.toInt, -5) // Truncates toward zero
+        XCTAssertEqual(floatDown.asInt, -5) // Truncates toward zero
     }
     
     func testBinaryIntegerConsistency() {
         let smallUInt: UInt8 = 200
-        XCTAssertEqual(smallUInt.toInt, 200)
-        XCTAssertEqual(smallUInt.toFloat, 200.0)
-        XCTAssertEqual(smallUInt.toDouble, 200.0)
+        XCTAssertEqual(smallUInt.asInt, 200)
+        XCTAssertEqual(smallUInt.asFloat, 200.0)
+        XCTAssertEqual(smallUInt.asDouble, 200.0)
     }
 }
