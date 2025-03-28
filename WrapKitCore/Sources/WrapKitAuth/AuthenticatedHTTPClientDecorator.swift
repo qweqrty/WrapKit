@@ -108,9 +108,7 @@ public class AuthenticatedHTTPClientDecorator: HTTPClient {
         refreshPublisher
             .handle(
                 onSuccess: { [weak self] newToken in
-                    self?.synchronizedTokenAccess {
-                        self?.accessTokenStorage.set(model: newToken)
-                    }
+                    self?.accessTokenStorage.set(model: newToken)
                     self?.retryRequest(request, with: newToken, completion: completion, compositeTask: compositeTask)
                 },
                 onError: { [weak self] error in
@@ -119,9 +117,28 @@ public class AuthenticatedHTTPClientDecorator: HTTPClient {
             )
     }
 
-    private func retryRequest(_ request: URLRequest, with token: String, completion: @escaping (HTTPClient.Result) -> Void, compositeTask: CompositeHTTPClientTask) {
+    private func retryRequest(
+        _ request: URLRequest,
+        with token: String,
+        completion: @escaping (HTTPClient.Result) -> Void,
+        compositeTask: CompositeHTTPClientTask
+    ) {
+        // Use the new token directly instead of fetching from storage
         let enrichedRequest = enrichRequestWithToken(request, token)
-        let newTask = dispatch(enrichedRequest, completion: completion, isRetryNeeded: false)
+        
+        let newTask = decoratee.dispatch(enrichedRequest) { [weak self] result in
+            guard let self = self else { return }
+            switch result {
+            case .success(let (data, response)):
+                if self.isAuthenticated((data, response)) {
+                    completion(.success((data, response)))
+                } else {
+                    self.onNotAuthenticated?()
+                }
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
         compositeTask.add(newTask)
         newTask.resume()
     }

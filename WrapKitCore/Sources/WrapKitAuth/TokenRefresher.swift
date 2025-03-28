@@ -68,13 +68,8 @@ public class TokenRefresherImpl<RefreshRequest, RefreshResponse>: TokenRefresher
                     guard let newToken = self.mapResponseToAccess?(response) else { return }
                     if let newRefreshToken = self.mapResponseToRefresh?(response) {
                         self.refreshTokenStorage.set(model: newRefreshToken)
-                            .sink { [weak self] _ in
-                                self?.completeAll(with: .success(newToken))
-                            }
-                            .store(in: &self.cancellables)
-                    } else {
-                        self.completeAll(with: .success(newToken))
                     }
+                    self.completeAll(with: .success(newToken))
                 },
                 onError: { [weak self] error in
                     self?.completeAll(with: .failure(error))
