@@ -8,7 +8,7 @@
 import Foundation
 
 public extension Locale {
-    var currentLanguageCode: String {
+    static var currentLanguageCode: String {
         Locale.preferredLanguages.first.flatMap { Locale(identifier: $0).languageCode } ?? Locale.current.languageCode ?? "en"
     }
 }
