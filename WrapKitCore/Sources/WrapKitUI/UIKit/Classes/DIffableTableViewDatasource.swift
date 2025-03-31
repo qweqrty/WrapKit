@@ -188,7 +188,7 @@ public struct TableSection<Header, Cell: Hashable, Footer>: HashableWithReflecti
     }
 }
 
-public protocol TableOutput<Header, Cell, Footer> {
+public protocol TableOutput<Header, Cell, Footer>: AnyObject {
     associatedtype Header
     associatedtype Cell: Hashable
     associatedtype Footer
@@ -204,8 +204,7 @@ extension DiffableTableViewDataSource1: TableOutput {
             footers[offset] = section.footer
         }
         updateItems(sections.map { $0.cells.map(\.cell) })
-        didSelectAt = { [weak self] indexPath, cell in
-            guard let self = self else { return }
+        didSelectAt = { indexPath, cell in
             sections.item(at: indexPath.section)?.cells.item(at: indexPath.row)?.onTap?()
         }
         tableView?.reloadData()
