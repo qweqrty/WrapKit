@@ -122,7 +122,6 @@ public class DiffableCollectionViewDataSource<Model: Hashable>: UICollectionView
         }
     }
 
-    
     public override func collectionView(_ collectionView: UICollectionView, moveItemAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
         super.collectionView(collectionView, moveItemAt: sourceIndexPath, to: destinationIndexPath)
         
