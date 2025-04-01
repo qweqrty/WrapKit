@@ -29,6 +29,11 @@ extension MainQueueDispatchDecorator: AlertOutput where T: AlertOutput {
             self?.decoratee.showActionSheet(model: model)
         }
     }
+    public func showTextFieldAlert(model: AlertPresentableModel?) {
+        dispatch { [weak self] in
+            self?.decoratee.showTextFieldAlert(model: model)
+        }
+    }
 
 }
 #endif

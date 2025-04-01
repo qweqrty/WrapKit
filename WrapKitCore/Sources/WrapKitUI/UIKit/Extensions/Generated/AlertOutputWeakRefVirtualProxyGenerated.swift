@@ -25,6 +25,9 @@ extension WeakRefVirtualProxy: AlertOutput where T: AlertOutput {
     public func showActionSheet(model: AlertPresentableModel?) {
         object?.showActionSheet(model: model)
     }
+    public func showTextFieldAlert(model: AlertPresentableModel?) {
+        object?.showTextFieldAlert(model: model)
+    }
 
 }
 #endif
