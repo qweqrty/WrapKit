@@ -8,22 +8,26 @@
 public protocol AlertOutput: AnyObject {
     func showAlert(model: AlertPresentableModel?)
     func showActionSheet(model: AlertPresentableModel?)
+    func showTextFieldAlert(model: AlertPresentableModel?)
 }
 
 public struct AlertPresentableModel {
     public let title: String?
     public let text: String?
+    public let placeholder: String?
     public let actions: [AlertAction]
     public let cancelText: String?
     
     public init(
         title: String? = nil,
         text: String? = nil,
+        placeholder: String? = nil,
         actions: [AlertAction] = [],
         cancelText: String? = nil
     ) {
         self.title = title
         self.text = text
+        self.placeholder = placeholder
         self.actions = actions
         self.cancelText = cancelText
     }
@@ -33,6 +37,47 @@ public struct AlertPresentableModel {
 import UIKit
 
 extension UIViewController: AlertOutput {
+    public func showTextFieldAlert(model: AlertPresentableModel?) {
+            guard let model = model else { return }
+            
+            CFRunLoopPerformBlock(CFRunLoopGetMain(), CFRunLoopMode.defaultMode.rawValue) { [weak self] in
+                let alert = UIAlertController(
+                    title: model.title,
+                    message: model.text,
+                    preferredStyle: .alert
+                )
+                
+                alert.addTextField { textField in
+                    textField.placeholder = model.placeholder
+                }
+                
+                model.actions.forEach { action in
+                    let style: UIAlertAction.Style
+                    switch action.style {
+                    case .default: style = .default
+                    case .cancel: style = .cancel
+                    case .destructive: style = .destructive
+                    }
+                    
+                    let uiAction = UIAlertAction(title: action.title, style: style) { _ in
+                        if action.style != .cancel, let textField = alert.textFields?.first {
+                            action.inputHandler?(textField.text ?? "")
+                        } else {
+                            action.inputHandler?("")
+                        }
+                        action.handler?()
+                    }
+                    alert.addAction(uiAction)
+                }
+                
+                if let cancelText = model.cancelText {
+                    alert.addAction(UIAlertAction(title: cancelText, style: .cancel, handler: nil))
+                }
+                
+                self?.present(alert, animated: true, completion: nil)
+            }
+        }
+    
     public func showAlert(model: AlertPresentableModel?) {
         guard let model = model else { return }
         CFRunLoopPerformBlock(CFRunLoopGetMain(), CFRunLoopMode.defaultMode.rawValue) { [weak self] in
@@ -121,10 +166,12 @@ public struct AlertAction {
     public let title: String
     public let style: Style
     public let handler: (() -> Void)?
+    public let inputHandler: ((String) -> Void)?
     
-    public init(title: String, style: Style = .default, handler: (() -> Void)? = nil) {
+    public init(title: String, style: Style = .default, handler: (() -> Void)? = nil, inputHandler: ((String) -> Void)? = nil) {
         self.title = title
         self.style = style
         self.handler = handler
+        self.inputHandler = inputHandler
     }
 }

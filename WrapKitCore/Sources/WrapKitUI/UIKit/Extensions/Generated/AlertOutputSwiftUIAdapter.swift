@@ -39,4 +39,13 @@ public class AlertOutputSwiftUIAdapter: ObservableObject, AlertOutput {
             model: model
         )
     }
+    @Published public var showTextFieldAlertModelState: ShowTextFieldAlertModelState? = nil
+    public struct ShowTextFieldAlertModelState {
+        public let model: AlertPresentableModel?
+    }
+    public func showTextFieldAlert(model: AlertPresentableModel?) {
+        showTextFieldAlertModelState = .init(
+            model: model
+        )
+    }
 }
