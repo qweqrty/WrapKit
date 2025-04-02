@@ -14,7 +14,11 @@ public protocol WebViewOutput: AnyObject {
     func display(isProgressBarNeeded: Bool)
 }
 
-open class WebViewPresenter {
+public protocol WebViewInput {
+    func decideNavigation(for url: URL, trigger: WebViewNavigationTrigger) -> WebViewNavigationDecision
+}
+
+open class WebViewPresenter: WebViewInput {
     public var view: WebViewOutput?
     public var navBarView: HeaderOutput?
     public var progressBarView: ProgressBarOutput?
@@ -23,15 +27,18 @@ open class WebViewPresenter {
     private var flow: WebViewFlow
     private var url: URL
     private var style: WebViewStyle
+    private var navigationPolicy: WebViewNavigationPolicy?
     
     public init(
         url: URL,
         flow: WebViewFlow,
-        style: WebViewStyle
+        style: WebViewStyle,
+        navigationPolicy: WebViewNavigationPolicy?
     ) {
         self.url = url
         self.flow = flow
         self.style = style
+        self.navigationPolicy = navigationPolicy
     }
     
     private func setupNavigationBar() {
@@ -43,6 +50,10 @@ open class WebViewPresenter {
         case .hidden:
             navBarView?.display(model: nil)
         }
+    }
+    
+    public func decideNavigation(for url: URL, trigger: WebViewNavigationTrigger) -> WebViewNavigationDecision {
+        return navigationPolicy?.decideNavigation(for: url, trigger: trigger) ?? .allow
     }
 }
 

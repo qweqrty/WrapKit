@@ -24,13 +24,15 @@ public class WebViewFlowiOS: WebViewFlow {
     public func navigateToWebView(
         title: String? = nil,
         url: URL,
-        style: WebViewStyle = .init()
+        style: WebViewStyle = .init(),
+        navigationPolicy: WebViewNavigationPolicy? = nil
     ) {
         let vc = factory.makeWebView(
             title: title,
             url: url,
             flow: self,
-            style: style
+            style: style,
+            navigationPolicy: navigationPolicy
         )
         navigationController?.pushViewController(vc, animated: true)
     }
