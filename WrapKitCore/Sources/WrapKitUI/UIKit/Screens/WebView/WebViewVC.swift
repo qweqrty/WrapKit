@@ -12,10 +12,16 @@ import UIKit
 import WebKit
 
 open class WebViewVC: ViewController<WebViewContentView> {
+    private let presenter: WebViewInput
     private static let estimatedProgressKeyPath = #keyPath(WKWebView.estimatedProgress)
     
-    public init(contentView: WebViewContentView, presenter: LifeCycleViewOutput) {
-        super.init(contentView: contentView, lifeCycleViewOutput: presenter)
+    public init(
+        contentView: WebViewContentView,
+        presenter: WebViewInput,
+        lifeCycleViewOutput: LifeCycleViewOutput?
+    ) {
+        self.presenter = presenter
+        super.init(contentView: contentView, lifeCycleViewOutput: lifeCycleViewOutput)
         contentView.webView.navigationDelegate = self
     }
     
@@ -88,6 +94,28 @@ extension WebViewVC: WKNavigationDelegate {
     public func webView(_ webView: WKWebView, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping @MainActor (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
         completionHandler(.performDefaultHandling, nil)
         contentView.refreshControl.display(isLoading: false)
+    }
+    
+    public func webView(
+        _ webView: WKWebView,
+        decidePolicyFor navigationAction: WKNavigationAction,
+        decisionHandler: @escaping (WKNavigationActionPolicy) -> Void
+    ) {
+        guard let url = navigationAction.request.url else {
+            decisionHandler(.cancel)
+            return
+        }
+        let trigger: WebViewNavigationTrigger = navigationAction.navigationType == .linkActivated ? .linkActivated : .other
+        let decision = presenter.decideNavigation(for: url, trigger: trigger)
+        switch decision {
+        case .allow:
+            decisionHandler(.allow)
+        case .cancelAndOpenExternally:
+            decisionHandler(.cancel)
+            UIApplication.shared.open(url, options: [:], completionHandler: nil)
+        case .cancel:
+            decisionHandler(.cancel)
+        }
     }
 }
 
