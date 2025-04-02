@@ -19,7 +19,7 @@ extension SelectionOutput {
 
 extension MainQueueDispatchDecorator: SelectionOutput where T: SelectionOutput {
 
-    public func display(items: [SelectionType.SelectionCellPresentableModel], selectedCountTitle: String) {
+    public func display(items: [TableSection<Void, SelectionType.SelectionCellPresentableModel, Void>], selectedCountTitle: String) {
         dispatch { [weak self] in
             self?.decoratee.display(items: items, selectedCountTitle: selectedCountTitle)
         }

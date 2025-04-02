@@ -17,7 +17,7 @@ public protocol SelectionServiceInput {
 public class SelectionServiceProxy<Request, Response>: SelectionInput {
     typealias SelectionService = (any Service<Request, Response>)
     
-    public var isMultipleSelectionEnabled: Bool  { decoratee.isMultipleSelectionEnabled }
+    public var isMultipleSelectionEnabled: Bool { decoratee.isMultipleSelectionEnabled }
     
     public var configuration: SelectionConfiguration { decoratee.configuration }
     
@@ -62,10 +62,6 @@ public class SelectionServiceProxy<Request, Response>: SelectionInput {
     
     public func onSearch(_ text: String?) {
         decoratee.onSearch(text)
-    }
-    
-    public func onSelect(at index: Int) {
-        decoratee.onSelect(at: index)
     }
     
     public func onTapFinishSelection() {

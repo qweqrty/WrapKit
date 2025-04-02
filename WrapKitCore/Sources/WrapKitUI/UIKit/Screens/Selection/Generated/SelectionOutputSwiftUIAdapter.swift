@@ -23,10 +23,10 @@ public class SelectionOutputSwiftUIAdapter: ObservableObject, SelectionOutput {
 
     @Published public var displayItemsSelectedCountTitleState: DisplayItemsSelectedCountTitleState? = nil
     public struct DisplayItemsSelectedCountTitleState {
-        public let items: [SelectionType.SelectionCellPresentableModel]
+        public let items: [TableSection<Void, SelectionType.SelectionCellPresentableModel, Void>]
         public let selectedCountTitle: String
     }
-    public func display(items: [SelectionType.SelectionCellPresentableModel], selectedCountTitle: String) {
+    public func display(items: [TableSection<Void, SelectionType.SelectionCellPresentableModel, Void>], selectedCountTitle: String) {
         displayItemsSelectedCountTitleState = .init(
             items: items, 
             selectedCountTitle: selectedCountTitle

@@ -8,6 +8,8 @@
 import Foundation
 
 public struct SelectionPresenterModel {
+    public typealias Section = TableSection<Void, SelectionType.SelectionCellPresentableModel, Void>
+    
     public let title: String?
     public let isMultipleSelectionEnabled: Bool
     public let items: [SelectionType.SelectionCellPresentableModel]

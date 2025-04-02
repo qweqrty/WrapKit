@@ -8,7 +8,7 @@
 import Foundation
 
 public protocol SelectionOutput: AnyObject {
-    func display(items: [SelectionType.SelectionCellPresentableModel], selectedCountTitle: String)
+    func display(items: [TableSection<Void, SelectionType.SelectionCellPresentableModel, Void>], selectedCountTitle: String)
     func display(shouldShowSearchBar: Bool)
 }
 
@@ -18,7 +18,6 @@ public protocol SelectionInput {
     
     func viewDidLoad()
     func onSearch(_ text: String?)
-    func onSelect(at index: Int)
     func onTapFinishSelection()
     func isNeedToShowSearch(_ isNeedToShowSearch: Bool)
 }
@@ -146,12 +145,12 @@ extension SelectionPresenter: SelectionInput {
     
     public func onSearch(_ text: String?) {
         searchText = text ?? ""
-        view?.display(items: itemsToPresent, selectedCountTitle: configuration.texts.selectedCountTitle)
+        view?.display(items: [.init(cells: itemsToPresent.map { .init(cell: $0, onTap: onSelect(at:model:)) })], selectedCountTitle: configuration.texts.selectedCountTitle)
         setupButton(canReset: items.contains(where: { $0.isSelected.get() == true }))
     }
     
-    public func onSelect(at index: Int) {
-        guard let selectedItem = itemsToPresent.item(at: index) else { return }
+    private func onSelect(at indexPath: IndexPath, model: SelectionType.SelectionCellPresentableModel) {
+        guard let selectedItem = itemsToPresent.item(at: indexPath.row) else { return }
         guard let selectedItemIndex = self.items.firstIndex(where: { $0.id == selectedItem.id }) else { return }
         selectedItem.onPress?()
         
@@ -172,7 +171,3 @@ extension SelectionPresenter: SelectionInput {
         view?.display(shouldShowSearchBar: isNeedToShowSearch)
     }
 }
-
-
-
-
