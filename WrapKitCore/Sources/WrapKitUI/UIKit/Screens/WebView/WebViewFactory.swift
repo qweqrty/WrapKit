@@ -13,7 +13,8 @@ public protocol WebViewFactory<Controller> {
         title: String?,
         url: URL,
         flow: any WebViewFlow,
-        style: WebViewStyle
+        style: WebViewStyle,
+        navigationPolicy: WebViewNavigationPolicy?
     ) -> Controller
 }
 
@@ -27,15 +28,21 @@ public class WebViewFactoryiOS: WebViewFactory {
         title: String? = nil,
         url: URL,
         flow: any WebViewFlow,
-        style: WebViewStyle = .init()
+        style: WebViewStyle = .init(),
+        navigationPolicy: WebViewNavigationPolicy? = nil
     ) -> UIViewController {
         let presenter = WebViewPresenter(
             url: url,
             flow: flow,
-            style: style
+            style: style,
+            navigationPolicy: navigationPolicy
         )
         let contentView = WebViewContentView()
-        let vc = WebViewVC(contentView: contentView, presenter: presenter)
+        let vc = WebViewVC(
+            contentView: contentView,
+            presenter: presenter,
+            lifeCycleViewOutput: presenter
+        )
         presenter.view = vc.weakReferenced.mainQueueDispatched
         presenter.navBarView = contentView.navigationBar.weakReferenced.mainQueueDispatched
         presenter.progressBarView = contentView.progressBarView.weakReferenced.mainQueueDispatched
