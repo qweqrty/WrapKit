@@ -36,7 +36,15 @@ public extension BinaryFloatingPoint {
     /// - Example: `Float(1e40).toInt` → `nil` (exceeds Int.max).
     /// - Example: `Double(-5.7).toInt` → `-5` (truncates).
     var asInt: Int? {
-        return Int(exactly: rounded(.towardZero))
+        return asInt(roundingRule: .towardZero)
+    }
+    
+    /// Converts to an `Int` using the specified rounding rule, returning `nil` if the rounded value is outside `Int`’s range.
+    /// - Parameter roundingRule: The rounding rule to apply (e.g. `.up`, `.down`, `.towardZero`, `.awayFromZero`).
+    /// - Example: `Double(5.7).asInt(roundingRule: .up)` → `6`
+    /// - Example: `Double(3.9).asInt(roundingRule: .towardZero)` → `3`
+    func asInt(roundingRule: FloatingPointRoundingRule) -> Int? {
+        return Int(exactly: rounded(roundingRule))
     }
     
     /// Converts to a `Float`, preserving the value (non-optional).

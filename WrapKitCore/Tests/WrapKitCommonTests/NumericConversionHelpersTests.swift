@@ -236,4 +236,28 @@ class NumericExtensionsTests: XCTestCase {
         XCTAssertEqual(smallUInt.asFloat, 200.0)
         XCTAssertEqual(smallUInt.asDouble, 200.0)
     }
+    
+    func testBinaryFloatingPointAsIntWithRoundingRules() {
+        // Test using rounding rule: .up (rounds any fractional part up)
+        let positiveFloat: Float = 5.7
+        XCTAssertEqual(positiveFloat.asInt(roundingRule: .up), 6)
+        
+        let positiveFloatEdge: Float = 5.01
+        XCTAssertEqual(positiveFloatEdge.asInt(roundingRule: .up), 6)
+        
+        let positiveFloatEdge2: Float = 5.99
+        XCTAssertEqual(positiveFloatEdge2.asInt(roundingRule: .up), 6)
+        
+        // Test using rounding rule: .down (rounds toward negative infinity)
+        let negativeFloat: Float = -5.7
+        XCTAssertEqual(negativeFloat.asInt(roundingRule: .down), -6)
+        
+        // Test using rounding rule: .towardZero (default truncation)
+        XCTAssertEqual(positiveFloat.asInt(roundingRule: .towardZero), 5)
+        XCTAssertEqual(negativeFloat.asInt(roundingRule: .towardZero), -5)
+        
+        // Test using rounding rule: .awayFromZero (rounds away from zero)
+        XCTAssertEqual(positiveFloat.asInt(roundingRule: .awayFromZero), 6)
+        XCTAssertEqual(negativeFloat.asInt(roundingRule: .awayFromZero), -6)
+    }
 }
