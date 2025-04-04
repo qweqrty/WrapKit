@@ -218,4 +218,13 @@ public class TextInputOutputSwiftUIAdapter: ObservableObject, TextInputOutput {
             isHidden: isHidden
         )
     }
+    @Published public var displayTrailingSymbolState: DisplayTrailingSymbolState? = nil
+    public struct DisplayTrailingSymbolState {
+        public let trailingSymbol: String?
+    }
+    public func display(trailingSymbol: String?) {
+        displayTrailingSymbolState = .init(
+            trailingSymbol: trailingSymbol
+        )
+    }
 }
