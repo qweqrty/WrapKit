@@ -17,7 +17,7 @@ import Foundation
 #if canImport(Combine)
 import Combine
 #endif
-public class PaginationViewOutputSwiftUIAdapter<PresentableItem>: ObservableObject, PaginationViewOutput {
+public class PaginationViewOutputSwiftUIAdapter<PresentableItem: Any>: ObservableObject, PaginationViewOutput {
 
     // Initializer
     public init(

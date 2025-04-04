@@ -16,7 +16,7 @@ import SwiftUI
 import {{ importName }}
 #endif
 {% endfor %}
-public class {{ type.name }}SwiftUIAdapter{% for associatedType in type.associatedTypes|sortedValuesByKeys %}{% if forloop.first %}<{% endif %}{{ associatedType.name }}{% if forloop.last %}>{% endif %}{% endfor %}: ObservableObject, {{ type.name }} {
+public class {{ type.name }}SwiftUIAdapter{% for associatedType in type.associatedTypes|sortedValuesByKeys %}{% if forloop.first %}<{% endif %}{{ associatedType.name }}: {{ associatedType.typeName }}{% if not forloop.last %}{% if type.associatedTypes.count > 1 %},{% endif %}{% endif %}{% if forloop.last %}>{% endif %}{% endfor %}: ObservableObject, {{ type.name }} {
     {% for variable in type.variables %}
         {% if variable.isOptional %}
         @Published public var {{ variable.name }}: {{ variable.typeName }} = nil

@@ -19,7 +19,7 @@ extension SelectionOutput {
 
 extension WeakRefVirtualProxy: SelectionOutput where T: SelectionOutput {
 
-    public func display(items: [SelectionType.SelectionCellPresentableModel], selectedCountTitle: String) {
+    public func display(items: [TableSection<Void, SelectionType.SelectionCellPresentableModel, Void>], selectedCountTitle: String) {
         object?.display(items: items, selectedCountTitle: selectedCountTitle)
     }
     public func display(shouldShowSearchBar: Bool) {

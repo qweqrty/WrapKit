@@ -45,17 +45,19 @@ extension SelectionVC: SelectionOutput {
         contentView.tableStackViewConstraints?.top?.constant = shouldShowSearchBar ? 16 : 8
     }
     
-    public func display(items: [SelectionType.SelectionCellPresentableModel], selectedCountTitle: String) {
+    public func display(items: [TableSection<Void, SelectionType.SelectionCellPresentableModel, Void>], selectedCountTitle: String) {
         contentView.emptyView.isHidden = !items.isEmpty
-        datasource.updateItems(items)
-        let selectedItemsCount = items.filter { $0.isSelected.get() == true }.count
+        datasource.display(sections: items)
+        let selectedItemsCount = items.flatMap(\.cells).filter { $0.cell.isSelected.get() == true }.count
         contentView.selectButton.setTitle("\(selectedCountTitle)\(selectedItemsCount == 0 ? "" : " (\(selectedItemsCount))")", for: .normal)
     }
 }
 
 extension SelectionVC {
-    func makeDatasource() -> DiffableTableViewDataSource<Int, SelectionType.SelectionCellPresentableModel> {
-        let datasource = DiffableTableViewDataSource<Int, SelectionType.SelectionCellPresentableModel>(
+    typealias Datasource = DiffableTableViewDataSource<Void, SelectionType.SelectionCellPresentableModel, Void>
+    
+    func makeDatasource() -> Datasource {
+        let datasource = Datasource(
             tableView: contentView.tableView,
             configureCell: { tableView, indexPath, model in
                 let cell: SelectionCell = tableView.dequeueReusableCell(for: indexPath)
@@ -63,10 +65,6 @@ extension SelectionVC {
                 return cell
             }
         )
-        
-        datasource.didSelectAt = { [weak self] indexPath, model in
-            self?.presenter.onSelect(at: indexPath.row)
-        }
         
         datasource.didScrollViewDidScroll = { [weak self] scrollView in
             guard let self = self,
@@ -153,4 +151,3 @@ extension SelectionVC {
     }
 }
 #endif
-
