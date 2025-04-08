@@ -18,7 +18,7 @@ public extension Service {
     }
 }
 
-private class StorageServiceComposition<Request, Response>: Service {
+public class StorageServiceComposition<Request, Response>: Service {
     private let primary: any Storage<Response>
     private let secondary: any Service<Request, Response>
     
@@ -44,7 +44,7 @@ private class StorageServiceComposition<Request, Response>: Service {
     }
 }
 
-private class ServiceStorageComposition<Request, Response>: Service {
+public class ServiceStorageComposition<Request, Response>: Service {
     private let primary: any Service<Request, Response>
     private let secondary: any Storage<Response>
     
@@ -61,7 +61,7 @@ private class ServiceStorageComposition<Request, Response>: Service {
                 }
             )
             .catch { [weak self] error -> AnyPublisher<Response, ServiceError> in
-                if let cached = self?.secondary.get() {
+                if let cached = self?.secondary.get(), error == .connectivity {
                     return Just(cached)
                         .setFailureType(to: ServiceError.self)
                         .eraseToAnyPublisher()
