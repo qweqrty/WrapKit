@@ -43,7 +43,7 @@ public class UserDefaultsStorage<Model: Codable & Hashable>: Storage {
     }
     
     public func get() -> Model? {
-        return subject.value
+        return getLogic(userDefaults)
     }
     
     @discardableResult
