@@ -9,22 +9,40 @@ public protocol EmptyViewOutput: AnyObject {
     func display(isHidden: Bool)
 }
 
+public struct EmptyViewAnimationConfig: HashableWithReflection {
+    public let isAnimated: Bool
+    public let duration: TimeInterval
+    
+    public init(
+        isAnimated: Bool = false,
+        duration: TimeInterval = 0.3
+    ) {
+        self.isAnimated = isAnimated
+        self.duration = duration
+    }
+    
+    public static let `default` = EmptyViewAnimationConfig()
+}
+
 public struct EmptyViewPresentableModel: HashableWithReflection {
     public let title: TextOutputPresentableModel?
     public let subTitle: TextOutputPresentableModel?
     public let button: ButtonPresentableModel?
     public let image: ImageViewPresentableModel?
+    public let animationConfig: EmptyViewAnimationConfig
     
     public init(
         title: TextOutputPresentableModel?,
         subTitle: TextOutputPresentableModel? = nil,
         button: ButtonPresentableModel? = nil,
-        image: ImageViewPresentableModel? = nil
+        image: ImageViewPresentableModel? = nil,
+        animationConfig: EmptyViewAnimationConfig = .default
     ) {
         self.title = title
         self.subTitle = subTitle
         self.button = button
         self.image = image
+        self.animationConfig = animationConfig
     }
 }
 
@@ -113,16 +131,50 @@ extension EmptyView: EmptyViewOutput {
     }
     
     public func display(model: EmptyViewPresentableModel?) {
-        self.isHidden = model == nil
-        guard let model else { return }
-        display(title: model.title)
-        display(subtitle: model.subTitle)
-        display(buttonModel: model.button)
-        display(image: model.image)
+        guard let model else {
+            setHidden(true, animated: false)
+            return
+        }
+        
+        setHidden(
+            false,
+            animated: model.animationConfig.isAnimated,
+            duration: model.animationConfig.duration
+        )
+        
+        // Update content without animation
+        UIView.performWithoutAnimation {
+            display(title: model.title)
+            display(subtitle: model.subTitle)
+            display(buttonModel: model.button)
+            display(image: model.image)
+        }
     }
     
     public func display(isHidden: Bool) {
-        self.isHidden = isHidden
+        setHidden(isHidden, animated: false)
+    }
+    
+    private func setHidden(_ isHidden: Bool, animated: Bool, duration: TimeInterval = 0.3) {
+        guard animated else {
+            self.isHidden = isHidden
+            self.alpha = isHidden ? 0 : 1
+            return
+        }
+        
+        if isHidden {
+            UIView.animate(withDuration: duration, animations: {
+                self.alpha = 0
+            }) { _ in
+                self.isHidden = true
+            }
+        } else {
+            self.alpha = 0
+            self.isHidden = false
+            UIView.animate(withDuration: duration) {
+                self.alpha = 1
+            }
+        }
     }
 }
 #endif
