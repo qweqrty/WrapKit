@@ -10,6 +10,7 @@ import Foundation
 public protocol CardViewOutput: AnyObject {
     func display(model: CardViewPresentableModel?)
     func display(style: CardViewPresentableModel.Style?)
+    func display(backgroundImage: ImageViewPresentableModel?)
     func display(title: TextOutputPresentableModel?)
     func display(leadingImage: ImageViewPresentableModel?)
     func display(secondaryLeadingImage: ImageViewPresentableModel?)
@@ -82,6 +83,7 @@ public struct CardViewPresentableModel: HashableWithReflection {
 
     public let id: String
     public let style: Style?
+    public let backgroundImage: ImageViewPresentableModel?
     public let title: TextOutputPresentableModel?
     public let leadingImage: ImageViewPresentableModel?
     public let secondaryLeadingImage: ImageViewPresentableModel?
@@ -98,6 +100,7 @@ public struct CardViewPresentableModel: HashableWithReflection {
     public init(
         id: String = UUID().uuidString,
         style: Style? = nil,
+        backgroundImage: ImageViewPresentableModel? = nil,
         title: TextOutputPresentableModel? = nil,
         leadingImage: ImageViewPresentableModel? = nil,
         secondaryLeadingImage: ImageViewPresentableModel? = nil,
@@ -113,6 +116,7 @@ public struct CardViewPresentableModel: HashableWithReflection {
     ) {
         self.id = id
         self.style = style
+        self.backgroundImage = backgroundImage
         self.title = title
         self.leadingImage = leadingImage
         self.secondaryLeadingImage = secondaryLeadingImage
@@ -148,6 +152,10 @@ extension CardView: CardViewOutput {
         titleViews.valueLabel.textColor = style.titleValueTextColor
         titleViews.valueLabel.font = style.titleValueLabelFont
         cornerRadius = style.cornerRadius
+    }
+    
+    public func display(backgroundImage: ImageViewPresentableModel?) {
+        backgroundImageView.display(model: backgroundImage)
     }
     
     public func display(onPress: (() -> Void)?) {
@@ -215,6 +223,9 @@ extension CardView: CardViewOutput {
         // Style
         display(style: model.style)
         
+        // BackgroundImage
+        display(backgroundImage: model.backgroundImage)
+        
         // Key title
         display(title: model.title)
         
@@ -254,6 +265,7 @@ extension CardView: CardViewOutput {
 open class CardView: ViewUIKit {
     public let vStackView = StackView(axis: .vertical, contentInset: .init(top: 0, left: 8, bottom: 0, right: 8))
     public let hStackView = StackView(axis: .horizontal, spacing: 14)
+    public private(set) var backgroundImageView = ImageView()
     
     public let leadingImageWrapperView = UIView(isHidden: true)
     public private(set) var leadingImageView = ImageView(tintColor: .black)
@@ -348,6 +360,7 @@ open class CardView: ViewUIKit {
 extension CardView {
     func setupSubviews() {
         addSubviews(vStackView)
+        vStackView.addSubview(backgroundImageView)
         vStackView.addArrangedSubview(hStackView)
         vStackView.addArrangedSubview(bottomSeparatorView)
         vStackView.addArrangedSubview(bottomImageWrapperView)
@@ -369,6 +382,8 @@ extension CardView {
     }
     
     func setupConstraints() {
+        backgroundImageView.fillSuperview()
+        
         titlesViewConstraints = titleViews.anchor(
             .topGreaterThanEqual(titleViewsWrapperView.topAnchor),
             .bottomLessThanEqual(titleViewsWrapperView.bottomAnchor),
