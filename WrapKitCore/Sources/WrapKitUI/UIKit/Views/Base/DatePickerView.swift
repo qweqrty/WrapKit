@@ -5,6 +5,12 @@
 //  Created by Stanislav Li on 15/5/24.
 //
 
+import Foundation
+
+public protocol DatePickerViewOutput {
+    func display(dateChanged: ((Date) -> Void)?)
+}
+
 #if canImport(UIKit)
 import Foundation
 import UIKit
@@ -37,6 +43,12 @@ open class DatePickerView: UIDatePicker {
     
     @objc private func dateDidChange() {
         dateChanged?(date)
+    }
+}
+
+extension DatePickerView: DatePickerViewOutput {
+    public func display(dateChanged: ((Date) -> Void)?) {
+        self.dateChanged = dateChanged
     }
 }
 #endif
