@@ -7,7 +7,7 @@
 
 import Foundation
 
-public protocol DatePickerViewOutput {
+public protocol DatePickerViewOutput: AnyObject {
     func display(dateChanged: ((Date) -> Void)?)
 }
 
