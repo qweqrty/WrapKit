@@ -65,7 +65,7 @@ open class Label: UILabel {
         addGestureRecognizer(tapGesture)
     }
 
-    public override var intrinsicContentSize: CGSize {
+    open override var intrinsicContentSize: CGSize {
         guard !text.isEmpty else { return CGSize(width: super.intrinsicContentSize.width, height: 0) }
         return super.intrinsicContentSize
     }
