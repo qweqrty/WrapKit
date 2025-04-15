@@ -35,10 +35,16 @@ public struct SegmentedControlAppearance {
 public struct SegmentControlModel {
     public var title: String
     public var index: Int
+    public var onTap: ((Int) -> Void)?
     
-    public init(title: String, index: Int) {
+    public init(
+        title: String,
+        index: Int,
+        onTap: ((Int) -> Void)? = nil
+    ) {
         self.title = title
         self.index = index
+        self.onTap = onTap
     }
 }
 
