@@ -20,12 +20,12 @@ public protocol TextOutput: AnyObject {
     func display(isHidden: Bool)
 }
 
-public enum TextOutputPresentableModel: HashableWithReflection {
+public indirect enum TextOutputPresentableModel: HashableWithReflection {
     case text(String?)
     case attributes([TextAttributes])
     case textStyled(
-        attributes: [TextAttributes],
-        cornerStyle: CornerStyle,
+        text: TextOutputPresentableModel,
+        cornerStyle: CornerStyle?,
         insets: EdgeInsets
     )
 }
@@ -182,8 +182,8 @@ extension Label: TextOutput {
             display(text: text)
         case .attributes(let attributes):
             display(attributes: attributes)
-        case .textStyled(let attributes, let style, let insets):
-            display(attributes: attributes)
+        case .textStyled(let model, let style, let insets):
+            display(model: model)
             self.cornerStyle = style
             self.textInsets = insets.asUIEdgeInsets
         }
