@@ -30,6 +30,7 @@ public struct CardViewPresentableModel: HashableWithReflection {
         public let backgroundColor: Color
         public let vStacklayoutMargins: EdgeInsets
         public let hStacklayoutMargins: EdgeInsets
+        public let hStackViewDistribution: StackViewDistribution
         public let titleKeyTextColor: Color
         public let titleValueTextColor: Color
         public let subTitleTextColor: Color
@@ -44,6 +45,7 @@ public struct CardViewPresentableModel: HashableWithReflection {
             backgroundColor: Color,
             vStacklayoutMargins: EdgeInsets,
             hStacklayoutMargins: EdgeInsets,
+            hStackViewDistribution: StackViewDistribution,
             titleKeyTextColor: Color,
             titleValueTextColor: Color,
             subTitleTextColor: Color,
@@ -57,6 +59,7 @@ public struct CardViewPresentableModel: HashableWithReflection {
             self.backgroundColor = backgroundColor
             self.vStacklayoutMargins = vStacklayoutMargins
             self.hStacklayoutMargins = hStacklayoutMargins
+            self.hStackViewDistribution = hStackViewDistribution
             self.titleKeyTextColor = titleKeyTextColor
             self.titleValueTextColor = titleValueTextColor
             self.subTitleTextColor = subTitleTextColor
@@ -139,10 +142,12 @@ import SwiftUI
 extension CardView: CardViewOutput {
     public func display(style: CardViewPresentableModel.Style?) {
         guard let style = style else { return }
-        hStackView.spacing = style.hStackViewSpacing
+        
         backgroundColor = style.backgroundColor
         vStackView.layoutMargins = style.vStacklayoutMargins.asUIEdgeInsets
         hStackView.layoutMargins = style.hStacklayoutMargins.asUIEdgeInsets
+        hStackView.spacing = style.hStackViewSpacing
+        hStackView.distribution = hStackView.mapDistribution(style.hStackViewDistribution)
         titleViews.stackView.spacing = style.stackSpace
 
         titleViews.keyLabel.font = style.titleKeyLabelFont
