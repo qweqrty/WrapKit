@@ -156,7 +156,7 @@ extension StackView: StackViewOutput {
         self.isHidden = isHidden
     }
     
-    private func mapDistribution(_ distribution: StackViewDistribution?) -> UIStackView.Distribution {
+    func mapDistribution(_ distribution: StackViewDistribution?) -> UIStackView.Distribution {
         switch distribution {
         case .fill:
             return .fill
