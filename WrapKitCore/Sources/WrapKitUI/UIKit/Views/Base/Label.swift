@@ -24,9 +24,9 @@ public enum TextOutputPresentableModel: HashableWithReflection {
     case text(String?)
     case attributes([TextAttributes])
     case textStyled(
-        [TextAttributes],
-        cornerStyle: CornerStyle? = nil,
-        insets: EdgeInsets = .zero
+        attributes: [TextAttributes],
+        cornerStyle: CornerStyle,
+        insets: EdgeInsets
     )
 }
 
@@ -186,7 +186,7 @@ extension Label: TextOutput {
         case .textStyled(let attributes, let style, let insets):
             display(attributes: attributes)
             self.cornerStyle = style
-            self.textInsets = insets
+            self.textInsets = insets.asUIEdgeInsets
         }
     }
     
