@@ -63,7 +63,6 @@ open class Label: UILabel {
         self.translatesAutoresizingMaskIntoConstraints = translatesAutoresizingMaskIntoConstraints
         self.textColor = textColor
         self.numberOfLines = numberOfLines
-        
         self.cornerStyle = cornerStyle
         self.textInsets = textInsets
         addGestureRecognizer(tapGesture)
