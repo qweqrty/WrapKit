@@ -33,4 +33,24 @@ public class DatePickerViewOutputSwiftUIAdapter: ObservableObject, DatePickerVie
             dateChanged: dateChanged
         )
     }
+    @Published public var displayDateState: DisplayDateState? = nil
+    public struct DisplayDateState {
+        public let date: Date
+    }
+    public func display(date: Date) {
+        displayDateState = .init(
+            date: date
+        )
+    }
+    @Published public var displaySetDateAnimatedState: DisplaySetDateAnimatedState? = nil
+    public struct DisplaySetDateAnimatedState {
+        public let setDate: Date
+        public let animated: Bool
+    }
+    public func display(setDate: Date, animated: Bool) {
+        displaySetDateAnimatedState = .init(
+            setDate: setDate, 
+            animated: animated
+        )
+    }
 }
