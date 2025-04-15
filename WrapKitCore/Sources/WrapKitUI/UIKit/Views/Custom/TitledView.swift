@@ -169,10 +169,6 @@ extension TitledView: TitledOutput {
     public func display(isUserInteractionEnabled: Bool) {
         self.isUserInteractionEnabled = isUserInteractionEnabled
     }
-    
-    public func display(isHidden: Bool) {
-        self.isHidden = isHidden
-    }
 }
 
 @available(iOS 13.0, *)

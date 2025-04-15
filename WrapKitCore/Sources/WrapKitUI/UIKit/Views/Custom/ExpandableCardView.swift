@@ -25,10 +25,6 @@ extension ExpandableCardView: ExpandableCardViewOutput {
             secondaryCardView.display(model: model)
         }
     }
-    
-    public func display(isHidden: Bool) {
-        self.isHidden = isHidden
-    }
 }
 
 open class ExpandableCardView: ViewUIKit {

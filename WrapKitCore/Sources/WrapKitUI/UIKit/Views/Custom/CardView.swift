@@ -256,10 +256,6 @@ extension CardView: CardViewOutput {
         display(onPress: model.onPress)
         display(onLongPress: model.onLongPress)
     }
-    
-    public func display(isHidden: Bool) {
-        self.isHidden = isHidden
-    }
 }
 
 open class CardView: ViewUIKit {
