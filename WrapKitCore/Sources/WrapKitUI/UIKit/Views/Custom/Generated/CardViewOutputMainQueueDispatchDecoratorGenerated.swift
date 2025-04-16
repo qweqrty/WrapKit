@@ -35,6 +35,11 @@ extension MainQueueDispatchDecorator: CardViewOutput where T: CardViewOutput {
             self?.decoratee.display(style: style)
         }
     }
+    public func display(backgroundImage: ImageViewPresentableModel?) {
+        dispatch { [weak self] in
+            self?.decoratee.display(backgroundImage: backgroundImage)
+        }
+    }
     public func display(title: TextOutputPresentableModel?) {
         dispatch { [weak self] in
             self?.decoratee.display(title: title)

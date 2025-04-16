@@ -7,6 +7,12 @@
 
 import Foundation
 
+public enum CornerStyle {
+    case automatic        // height / 2
+    case fixed(CGFloat)
+    case none
+}
+
 public protocol TextOutput: AnyObject {
     func display(model: TextOutputPresentableModel?)
     func display(text: String?)
@@ -15,10 +21,15 @@ public protocol TextOutput: AnyObject {
     func display(isHidden: Bool)
 }
 
-public enum TextOutputPresentableModel: HashableWithReflection {
+public indirect enum TextOutputPresentableModel: HashableWithReflection {
     case text(String?)
     case attributes([TextAttributes])
     case counting(Float, Float)
+    case textStyled(
+        text: TextOutputPresentableModel,
+        cornerStyle: CornerStyle?,
+        insets: EdgeInsets
+    )
 }
 
 #if canImport(UIKit)
@@ -101,7 +112,9 @@ open class CountingLabelAnimation {
 }
 
 open class Label: UILabel {
-   
+    public var textInsets: UIEdgeInsets = .zero
+    public var cornerStyle: CornerStyle?
+
     public init(
         backgroundColor: UIColor? = .clear,
         isHidden: Bool = false,
@@ -112,7 +125,9 @@ open class Label: UILabel {
         numberOfLines: Int = 0,
         minimumScaleFactor: CGFloat = 0,
         adjustsFontSizeToFitWidth: Bool = false,
-        isUserInteractionEnabled: Bool = true
+        isUserInteractionEnabled: Bool = true,
+        cornerStyle: CornerStyle? = nil,
+        textInsets: UIEdgeInsets = .zero
     ) {
         super.init(frame: .zero)
 
@@ -126,6 +141,8 @@ open class Label: UILabel {
         self.translatesAutoresizingMaskIntoConstraints = translatesAutoresizingMaskIntoConstraints
         self.textColor = textColor
         self.numberOfLines = numberOfLines
+        self.cornerStyle = cornerStyle
+        self.textInsets = textInsets
         addGestureRecognizer(tapGesture)
     }
     
@@ -142,10 +159,34 @@ open class Label: UILabel {
         self.isUserInteractionEnabled = true
         addGestureRecognizer(tapGesture)
     }
-
-    public override var intrinsicContentSize: CGSize {
-        guard !text.isEmpty else { return CGSize(width: super.intrinsicContentSize.width, height: 0) }
-        return super.intrinsicContentSize
+    
+    open override func layoutSubviews() {
+        super.layoutSubviews()
+        guard let cornerStyle = cornerStyle else { return }
+        switch cornerStyle {
+        case .automatic:
+            layer.cornerRadius = bounds.height / 2
+        case .fixed(let radius):
+            layer.cornerRadius = radius
+        case .none:
+            layer.cornerRadius = 0
+        }
+        clipsToBounds = true
+    }
+    
+    open override func drawText(in rect: CGRect) {
+        super.drawText(in: rect.inset(by: textInsets))
+    }
+    
+    open override var intrinsicContentSize: CGSize {
+        let base = super.intrinsicContentSize
+        guard let text = text, !text.isEmpty else {
+            return CGSize(width: base.width, height: 0)
+        }
+        return CGSize(
+            width: base.width + textInsets.left + textInsets.right,
+            height: base.height + textInsets.top + textInsets.bottom
+        )
     }
     
     public override var text: String? {
@@ -223,6 +264,10 @@ extension Label: TextOutput {
             display(attributes: attributes)
         case .counting(let startAmount, let endAmount):
             display(from: startAmount, to: endAmount)
+        case .textStyled(let model, let style, let insets):
+            display(model: model)
+            self.cornerStyle = style
+            self.textInsets = insets.asUIEdgeInsets
         }
     }
     

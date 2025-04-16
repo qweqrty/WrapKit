@@ -31,6 +31,9 @@ extension WeakRefVirtualProxy: CardViewOutput where T: CardViewOutput {
     public func display(style: CardViewPresentableModel.Style?) {
         object?.display(style: style)
     }
+    public func display(backgroundImage: ImageViewPresentableModel?) {
+        object?.display(backgroundImage: backgroundImage)
+    }
     public func display(title: TextOutputPresentableModel?) {
         object?.display(title: title)
     }

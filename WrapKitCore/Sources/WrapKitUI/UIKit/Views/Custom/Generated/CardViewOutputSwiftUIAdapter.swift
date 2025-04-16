@@ -45,6 +45,15 @@ public class CardViewOutputSwiftUIAdapter: ObservableObject, CardViewOutput {
             style: style
         )
     }
+    @Published public var displayBackgroundImageState: DisplayBackgroundImageState? = nil
+    public struct DisplayBackgroundImageState {
+        public let backgroundImage: ImageViewPresentableModel?
+    }
+    public func display(backgroundImage: ImageViewPresentableModel?) {
+        displayBackgroundImageState = .init(
+            backgroundImage: backgroundImage
+        )
+    }
     @Published public var displayTitleState: DisplayTitleState? = nil
     public struct DisplayTitleState {
         public let title: TextOutputPresentableModel?

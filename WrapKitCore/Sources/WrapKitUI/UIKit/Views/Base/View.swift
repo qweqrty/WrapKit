@@ -7,6 +7,10 @@
 
 import SwiftUI
 
+public protocol HiddableOutput: AnyObject {
+    func display(isHidden: Bool)
+}
+
 public struct LifeCycleView<Content: View>: View {
     private let content: () -> Content
     private let lifeCycleOutput: LifeCycleViewOutput?
@@ -110,6 +114,12 @@ struct ColorSchemePreferenceKey: PreferenceKey {
 
 #if canImport(UIKit)
 import UIKit
+
+extension ViewUIKit: HiddableOutput {
+    public func display(isHidden: Bool) {
+        self.isHidden = isHidden
+    }
+}
 
 open class ViewUIKit: UIView {
     public enum Animation: HashableWithReflection {

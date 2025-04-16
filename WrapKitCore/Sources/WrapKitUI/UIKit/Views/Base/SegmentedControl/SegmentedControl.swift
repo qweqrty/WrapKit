@@ -32,6 +32,27 @@ public struct SegmentedControlAppearance {
     public var cornerRadius: CGFloat
 }
 
+public struct SegmentControlModel {
+    public var title: String
+    public var index: Int
+    public var onTap: ((Int) -> Void)?
+    
+    public init(
+        title: String,
+        index: Int,
+        onTap: ((Int) -> Void)? = nil
+    ) {
+        self.title = title
+        self.index = index
+        self.onTap = onTap
+    }
+}
+
+public protocol SegmentedControlOutput: AnyObject {
+    func display(appearence: SegmentedControlAppearance)
+    func display(segments: [SegmentControlModel])
+}
+
 #if canImport(UIKit)
 import UIKit
 
@@ -63,6 +84,20 @@ public class SegmentedControl: UISegmentedControl {
             .font: appearance.font
         ]
         self.setTitleTextAttributes(normalTextAttributes, for: .normal)
+    }
+}
+
+extension SegmentedControl: SegmentedControlOutput {
+    public func display(appearence: SegmentedControlAppearance) {
+        self.appearance = appearence
+    }
+    
+    public func display(segments: [SegmentControlModel]) {
+        self.removeAllSegments()
+        for (index, item) in segments.enumerated() {
+            self.insertSegment(withTitle: item.title, at: item.index, animated: false)
+        }
+        self.selectedSegmentIndex = 0
     }
 }
 #endif

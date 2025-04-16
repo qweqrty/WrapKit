@@ -5,19 +5,42 @@
 //  Created by Stanislav Li on 20/5/24.
 //
 
+import Foundation
+
+extension DiffableCollectionViewDataSource: TableOutput {
+    public func display(sections: [TableSection<Header, Cell, Footer>]) {
+        DispatchQueue.global().async { [weak self] in
+            self?.headers.removeAll()
+            self?.footers.removeAll()
+            
+            sections.enumerated().forEach { offset, section in
+                self?.headers[offset] = section.header
+                self?.footers[offset] = section.footer
+            }
+            
+            DispatchQueue.main.async { [weak self] in
+                guard let self = self else { return }
+                self.updateItems(sections.map { $0.cells.map(\.cell) })
+                didSelectAt = { indexPath, cell in
+                    sections.item(at: indexPath.section)?.cells.item(at: indexPath.row)?.onTap?(indexPath, cell)
+                }
+                collectionView?.reloadData()
+            }
+        }
+    }
+}
+
 #if canImport(UIKit)
 import UIKit
 
-public enum CollectionItem<Model: Hashable>: Hashable {
-    case model(Model)
-    case footer(UUID)
-}
-
 @available(iOS 13.0, *)
-public class DiffableCollectionViewDataSource<Model: Hashable>: UICollectionViewDiffableDataSource<Int, CollectionItem<Model>>, UICollectionViewDelegateFlowLayout {
-    public var didSelectAt: ((IndexPath, Model) -> Void)?
-    public var configureCell: ((UICollectionView, IndexPath, Model) -> UICollectionViewCell)?
-    public var configureSupplementaryView: ((UICollectionView, String, IndexPath) -> UICollectionReusableView)?
+public class DiffableCollectionViewDataSource<Header, Cell: Hashable, Footer>: UICollectionViewDiffableDataSource<Int, Cell>, UICollectionViewDelegateFlowLayout {
+    public var didSelectAt: ((IndexPath, Cell) -> Void)?
+    public var configureCell: ((UICollectionView, IndexPath, Cell) -> UICollectionViewCell)?
+    public var viewForHeaderInSection: ((UICollectionView, _ atSection: Int, _ header: Header) -> UICollectionReusableView)?
+    public var sizeForHeaderInSection: ((_ atSection: Int, _ model: Header) -> CGSize)?
+    public var viewForFooterInSection: ((UICollectionView, Int, Footer) -> UICollectionReusableView)?
+    public var sizeForFooterInSection: ((_ atSection: Int, _ model: Footer) -> CGSize)?
     public var onRetry: (() -> Void)?
     public var showLoader = false
     public var minimumLineSpacingForSectionAt: ((Int) -> CGFloat) = { _ in 0 }
@@ -29,51 +52,39 @@ public class DiffableCollectionViewDataSource<Model: Hashable>: UICollectionView
 
     private weak var collectionView: UICollectionView?
     
-    public init(collectionView: UICollectionView, configureCell: @escaping (UICollectionView, IndexPath, Model) -> UICollectionViewCell) {
+    var headers = [Int: Header]()
+    var footers = [Int: Footer]()
+    
+    public init(collectionView: UICollectionView, configureCell: @escaping (UICollectionView, IndexPath, Cell) -> UICollectionViewCell) {
         super.init(collectionView: collectionView, cellProvider: { collectionView, indexPath, item in
-            switch item {
-            case .footer:
-                let cell: CollectionViewCell<UIView> = collectionView.dequeueReusableCell(for: indexPath)
-                return cell
-            case .model(let model):
-                return configureCell(collectionView, indexPath, model)
-            }
+            return configureCell(collectionView, indexPath, item)
         })
         supplementaryViewProvider = { [weak self] collectionView, kind, indexPath in
-            return self?.configureSupplementaryView?(collectionView, kind, indexPath) ?? UICollectionReusableView()
+            if kind == UICollectionView.elementKindSectionHeader, let model = self?.headers[indexPath.section] {
+                return self?.viewForHeaderInSection?(collectionView, indexPath.section, model)
+            } else if kind == UICollectionView.elementKindSectionFooter, let model = self?.footers[indexPath.section] {
+                return self?.viewForFooterInSection?(collectionView, indexPath.section, model)
+            }
+            return nil
         }
         
         self.collectionView = collectionView
         self.configureCell = configureCell
-        collectionView.register(CollectionViewCell<UIView>.self, forCellWithReuseIdentifier: CollectionViewCell<UIView>.reuseIdentifier)
         
         collectionView.dataSource = self
         collectionView.delegate = self
     }
     
-    public func updateItems(_ items: [Model], at section: Int = 0) {
-        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
-            let uniqueItems = items.uniqued
-            DispatchQueue.main.async { [weak self] in
-                var snapshot = NSDiffableDataSourceSnapshot<Int, CollectionItem<Model>>()
-                snapshot.appendSections([section])
-                snapshot.appendItems(uniqueItems.map { .model($0) }, toSection: section)
-                self?.apply(snapshot, animatingDifferences: true)
+    public func updateItems(_ items: [[Cell]]) {
+        DispatchQueue.main.async { [weak self] in
+            var snapshot = NSDiffableDataSourceSnapshot<Int, Cell>()
+            let items = items.enumerated()
+            snapshot.appendSections(items.map { $0.offset })
+            items.forEach { offset, element in
+                let uniqueItems = element.uniqued
+                snapshot.appendItems(uniqueItems, toSection: offset)
             }
-        }
-    }
-    
-    public func updateItems(_ items: [[Model]]) {
-        DispatchQueue.global(qos: .userInitiated).async {
-            let uniqueItems = items.uniqued
-            DispatchQueue.main.async { [weak self] in
-                var snapshot = NSDiffableDataSourceSnapshot<Int, CollectionItem<Model>>()
-                snapshot.appendSections(uniqueItems.enumerated().map { $0.offset })
-                uniqueItems.enumerated().forEach {
-                    snapshot.appendItems($0.element.uniqued.map { .model($0) }, toSection: $0.offset)
-                }
-                self?.apply(snapshot, animatingDifferences: true)
-            }
+            self?.apply(snapshot, animatingDifferences: true)
         }
     }
     
@@ -97,9 +108,8 @@ public class DiffableCollectionViewDataSource<Model: Hashable>: UICollectionView
     public func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         collectionView.deselectItem(at: indexPath, animated: true)
         
-        if case .model(let selectedModel) = snapshot().itemIdentifiers(inSection: indexPath.section).item(at: indexPath.row) {
-            didSelectAt?(indexPath, selectedModel)
-        }
+        guard let selectedModel = itemIdentifier(for: indexPath) else { return }
+        didSelectAt?(indexPath, selectedModel)
     }
     
     public func scrollViewDidScroll(_ scrollView: UIScrollView) {
@@ -120,6 +130,16 @@ public class DiffableCollectionViewDataSource<Model: Hashable>: UICollectionView
         if position > contentHeight - scrollViewHeight * 2 && showLoader {
             loadNextPage?()
         }
+    }
+    
+    public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForFooterInSection section: Int) -> CGSize {
+        guard let model = footers[section] else { return .zero }
+        return sizeForFooterInSection?(section, model) ?? .zero
+    }
+    
+    public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
+        guard let model = headers[section] else { return .zero }
+        return sizeForHeaderInSection?(section, model) ?? .zero
     }
 
     public override func collectionView(_ collectionView: UICollectionView, moveItemAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {

@@ -51,7 +51,7 @@ public class KeychainStorage: Storage {
     }
     
     public func get() -> Model? {
-        subject.value
+        keychain.get(self.key)
     }
     
     @discardableResult

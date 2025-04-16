@@ -78,7 +78,6 @@ open class ImageView: UIImageView {
     
     open var anchoredConstraints: AnchoredConstraints?
     
-    
     public func cancelCurrentAnimation() {
         currentAnimator?.stopAnimation(true) // Stop the animation and leave the view in its current state
         currentAnimator = nil
