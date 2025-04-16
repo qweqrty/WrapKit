@@ -127,7 +127,7 @@ open class Label: UILabel {
         adjustsFontSizeToFitWidth: Bool = false,
         isUserInteractionEnabled: Bool = true,
         cornerStyle: CornerStyle? = nil,
-        textInsets: UIEdgeInsets = .zero
+        textInsets: UIEdgeInsets
     ) {
         super.init(frame: .zero)
 
