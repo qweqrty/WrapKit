@@ -11,13 +11,16 @@ import WrapKit
 public struct SplashContentView: View {
     private let lifeCycleOutput: LifeCycleViewOutput?
     private let ApplicationLifecycleOutput: ApplicationLifecycleOutput?
+    private let adapter: TextOutputSwiftUIAdapter
 
     public init(
         lifeCycleOutput: LifeCycleViewOutput? = nil,
-        ApplicationLifecycleOutput: ApplicationLifecycleOutput? = nil
+        ApplicationLifecycleOutput: ApplicationLifecycleOutput? = nil,
+        adapter: TextOutputSwiftUIAdapter
     ) {
         self.lifeCycleOutput = lifeCycleOutput
         self.ApplicationLifecycleOutput = ApplicationLifecycleOutput
+        self.adapter = adapter
     }
 
     public var body: some View {
@@ -27,16 +30,10 @@ public struct SplashContentView: View {
         ) {
             ZStack {
                 Color.red.ignoresSafeArea()
-                Text("Splash Screen")
-                    .font(.largeTitle)
-                    .foregroundColor(.white)
+                SUILabel(adapter: adapter)
+                    .padding()
+                Spacer()
             }
         }
-    }
-}
-
-struct SplashContentView_Previews: PreviewProvider {
-    static var previews: some View {
-        SplashContentView()
     }
 }

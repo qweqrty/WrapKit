@@ -10,6 +10,7 @@ import WrapKit
 
 public class SplashPresenter: LifeCycleViewOutput, ApplicationLifecycleOutput {
     public var lottieView: LottieViewOutput?
+    public var textOutput: TextOutput?
     
     public init() {
        
@@ -18,6 +19,7 @@ public class SplashPresenter: LifeCycleViewOutput, ApplicationLifecycleOutput {
     // MARK: - View Lifecycle
     public func viewDidLoad() {
         print("SplashPresenter: viewDidLoad()")
+        textOutput?.display(text: "fasefaesfaesfasf")
     }
 
     public func viewWillAppear() {

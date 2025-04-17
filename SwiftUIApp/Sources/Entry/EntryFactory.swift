@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftUI
+import WrapKit
 import Combine
 
 public protocol EntryViewFactory<T> {
@@ -19,10 +20,15 @@ struct EntryViewSwiftUIFactory: EntryViewFactory {
     
     func makeSplashScreen() -> AnyView {
         let presenter = SplashPresenter()
+        let adapter = TextOutputSwiftUIAdapter()
         let view = SplashContentView(
             lifeCycleOutput: presenter,
-            ApplicationLifecycleOutput: presenter
+            ApplicationLifecycleOutput: presenter,
+            adapter: adapter
         )
+        presenter.textOutput = adapter
+            .weakReferenced
+            .mainQueueDispatched
         return AnyView(view)
     }
 }
