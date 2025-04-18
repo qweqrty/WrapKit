@@ -17,14 +17,14 @@ public protocol TextOutput: AnyObject {
     func display(model: TextOutputPresentableModel?)
     func display(text: String?)
     func display(attributes: [TextAttributes])
-    func display(from startAmount: Float, to endAmount: Float)
+    func display(from startAmount: Float, to endAmount: Float, resultedText: String)
     func display(isHidden: Bool)
 }
 
 public indirect enum TextOutputPresentableModel: HashableWithReflection {
     case text(String?)
     case attributes([TextAttributes])
-    case counting(Float, Float)
+    case counting(Float, Float, String)
     case textStyled(
         text: TextOutputPresentableModel,
         cornerStyle: CornerStyle?,
@@ -34,82 +34,6 @@ public indirect enum TextOutputPresentableModel: HashableWithReflection {
 
 #if canImport(UIKit)
 import UIKit
-
-open class CountingLabelAnimation {
-    private weak var label: UILabel?
-    private var paymentFormat: String = ""
-    
-    public required init(label: UILabel) {
-        self.label = label
-    }
-    public var floatLimit: Float? = nil
-    
-    var startNumber: Float = 0.0
-    var endNumber: Float = 0.0
-    let counterVelocity: Float = 2.0
-    
-    var progress: TimeInterval!
-    var duration: TimeInterval = 1
-    var lastUpdate: TimeInterval!
-    
-    var timer: Timer?
-    
-    func getCurrentCounterValue() -> String {
-        if progress >= duration {
-            return "\(endNumber)"
-        }
-        let percentage = Float(progress / duration)
-        let update = 1.0 - powf(1.0 - percentage, counterVelocity)
-        
-        return "\(startNumber + (update * (endNumber - startNumber)))"
-    }
-    
-    public func setupPaymentFormat(format: String) {
-        paymentFormat = format
-    }
-    
-    public func startAnimation(
-        fromValue: Float,
-        to toValue: Float
-    ) {
-        startNumber = fromValue
-        endNumber = toValue
-        progress = 0
-        lastUpdate = Date.timeIntervalSinceReferenceDate
-    
-        timer?.invalidate()
-        timer = Timer.scheduledTimer(
-            timeInterval: 0.01,
-            target: self,
-            selector: #selector(updateValue),
-            userInfo: nil,
-            repeats: true
-        )
-    }
-    
-    @objc func updateValue() {
-        let now = Date.timeIntervalSinceReferenceDate
-        progress += (now - lastUpdate)
-        lastUpdate = now
-        
-        if progress >= duration {
-            timer?.invalidate()
-            progress = duration
-        }
-        
-        if paymentFormat.isEmpty {
-            label?.text = getCurrentCounterValue()
-        } else {
-            label?.text = getCurrentCounterValue()
-        }
-        
-    }
-    
-    deinit {
-        timer?.invalidate()
-        timer = nil
-    }
-}
 
 open class Label: UILabel {
     public var textInsets: UIEdgeInsets = .zero
@@ -184,7 +108,7 @@ open class Label: UILabel {
             return CGSize(width: base.width, height: 0)
         }
         return CGSize(
-            width: base.width + textInsets.left + textInsets.right,
+            width: ((animation.resultedText.isEmpty ? base.width : animation.resultedText?.width(usingFont: font)) ?? base.width) + textInsets.left + textInsets.right,
             height: base.height + textInsets.top + textInsets.bottom
         )
     }
@@ -262,8 +186,8 @@ extension Label: TextOutput {
             display(text: text)
         case .attributes(let attributes):
             display(attributes: attributes)
-        case .counting(let startAmount, let endAmount):
-            display(from: startAmount, to: endAmount)
+        case .counting(let startAmount, let endAmount, let resultedText):
+            display(from: startAmount, to: endAmount, resultedText: resultedText)
         case .textStyled(let model, let style, let insets):
             display(model: model)
             self.cornerStyle = style
@@ -285,8 +209,8 @@ extension Label: TextOutput {
         }
     }
     
-    public func display(from startAmount: Float, to endAmount: Float) {
-        animation.startAnimation(fromValue: startAmount, to: endAmount)
+    public func display(from startAmount: Float, to endAmount: Float, resultedText: String) {
+        animation.startAnimation(fromValue: startAmount, to: endAmount, resultedText: resultedText)
     }
     
     public func display(isHidden: Bool) {
@@ -305,6 +229,14 @@ extension Label: UIGestureRecognizerDelegate {
             }
         }
         return false
+    }
+}
+
+private extension String {
+    func width(usingFont font: Font) -> CGFloat {
+        let attributes: [NSAttributedString.Key: Any] = [.font: font]
+        let size = self.size(withAttributes: attributes)
+        return ceil(size.width) + 4
     }
 }
 #endif
