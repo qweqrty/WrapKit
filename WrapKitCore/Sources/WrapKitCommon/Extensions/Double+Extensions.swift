@@ -23,3 +23,20 @@ public extension Double {
         return String(format: "%.\(count)f", self)
     }
 }
+
+public extension Float {
+    func round(nearest: Float) -> Float {
+        let n = 1/nearest
+        let numberToRound = self * n
+        return numberToRound.rounded() / n
+    }
+
+    func floor(nearest: Float) -> Float {
+        let intDiv = Float(Int(self / nearest))
+        return intDiv * nearest
+    }
+    
+    func asString(withDecimalPlaces count: Int, separator: Character = ".") -> String {
+        return String(format: "%.\(count)f", self)
+    }
+}
