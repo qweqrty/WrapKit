@@ -17,12 +17,14 @@ public protocol TextOutput: AnyObject {
     func display(model: TextOutputPresentableModel?)
     func display(text: String?)
     func display(attributes: [TextAttributes])
+    func display(from startAmount: Float, to endAmount: Float, resultedText: String)
     func display(isHidden: Bool)
 }
 
 public indirect enum TextOutputPresentableModel: HashableWithReflection {
     case text(String?)
     case attributes([TextAttributes])
+    case counting(Float, Float, String)
     case textStyled(
         text: TextOutputPresentableModel,
         cornerStyle: CornerStyle?,
@@ -106,7 +108,7 @@ open class Label: UILabel {
             return CGSize(width: base.width, height: 0)
         }
         return CGSize(
-            width: base.width + textInsets.left + textInsets.right,
+            width: ((animation.resultedText.isEmpty ? base.width : animation.resultedText?.width(usingFont: font)) ?? base.width) + textInsets.left + textInsets.right,
             height: base.height + textInsets.top + textInsets.bottom
         )
     }
@@ -116,6 +118,8 @@ open class Label: UILabel {
             self.invalidateIntrinsicContentSize()
         }
     }
+    
+    lazy var animation: CountingLabelAnimation = .init(label: self)
     
     lazy var tapGesture: UITapGestureRecognizer = {
         let gesture = UITapGestureRecognizer(target: self, action: nil)
@@ -182,6 +186,8 @@ extension Label: TextOutput {
             display(text: text)
         case .attributes(let attributes):
             display(attributes: attributes)
+        case .counting(let startAmount, let endAmount, let resultedText):
+            display(from: startAmount, to: endAmount, resultedText: resultedText)
         case .textStyled(let model, let style, let insets):
             display(model: model)
             self.cornerStyle = style
@@ -203,6 +209,10 @@ extension Label: TextOutput {
         }
     }
     
+    public func display(from startAmount: Float, to endAmount: Float, resultedText: String) {
+        animation.startAnimation(fromValue: startAmount, to: endAmount, resultedText: resultedText)
+    }
+    
     public func display(isHidden: Bool) {
         self.isHidden = isHidden
     }
@@ -219,6 +229,14 @@ extension Label: UIGestureRecognizerDelegate {
             }
         }
         return false
+    }
+}
+
+private extension String {
+    func width(usingFont font: Font) -> CGFloat {
+        let attributes: [NSAttributedString.Key: Any] = [.font: font]
+        let size = self.size(withAttributes: attributes)
+        return ceil(size.width) + 4
     }
 }
 #endif
