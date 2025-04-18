@@ -9,7 +9,7 @@ import Foundation
 
 public extension Double {
     func round(nearest: Double) -> Double {
-        let n = 1/nearest
+        let n = 1 / nearest
         let numberToRound = self * n
         return numberToRound.rounded() / n
     }
@@ -18,15 +18,20 @@ public extension Double {
         let intDiv = Double(Int(self / nearest))
         return intDiv * nearest
     }
-    
-    func asString(withDecimalPlaces count: Int) -> String {
-        return String(format: "%.\(count)f", self)
+
+    func asString(withDecimalPlaces count: Int = 0, locale: Locale = .current) -> String {
+        let formatter = NumberFormatter()
+        formatter.locale = locale
+        formatter.numberStyle = .decimal
+        formatter.minimumFractionDigits = count
+        formatter.maximumFractionDigits = count
+        return formatter.string(from: NSNumber(value: self)) ?? "\(self)"
     }
 }
 
 public extension Float {
     func round(nearest: Float) -> Float {
-        let n = 1/nearest
+        let n = 1 / nearest
         let numberToRound = self * n
         return numberToRound.rounded() / n
     }
@@ -35,8 +40,22 @@ public extension Float {
         let intDiv = Float(Int(self / nearest))
         return intDiv * nearest
     }
-    
-    func asString(withDecimalPlaces count: Int, separator: Character = ".") -> String {
-        return String(format: "%.\(count)f", self)
+
+    func asString(withDecimalPlaces count: Int = 0, locale: Locale = .current) -> String {
+        let formatter = NumberFormatter()
+        formatter.locale = locale
+        formatter.numberStyle = .decimal
+        formatter.minimumFractionDigits = count
+        formatter.maximumFractionDigits = count
+        return formatter.string(from: NSNumber(value: self)) ?? "\(self)"
+    }
+}
+
+public extension Int {
+    func asString(locale: Locale = .current) -> String {
+        let formatter = NumberFormatter()
+        formatter.locale = locale
+        formatter.numberStyle = .decimal
+        return formatter.string(from: NSNumber(value: self)) ?? "\(self)"
     }
 }
