@@ -31,8 +31,8 @@ extension WeakRefVirtualProxy: TextOutput where T: TextOutput {
     public func display(attributes: [TextAttributes]) {
         object?.display(attributes: attributes)
     }
-    public func display(from startAmount: Float, to endAmount: Float, resultedText: String) {
-        object?.display(from: startAmount, to: endAmount, resultedText: resultedText)
+    public func display(from startAmount: Float, to endAmount: Float, mapToString: ((Float) -> String)?) {
+        object?.display(from: startAmount, to: endAmount, mapToString: mapToString)
     }
     public func display(isHidden: Bool) {
         object?.display(isHidden: isHidden)

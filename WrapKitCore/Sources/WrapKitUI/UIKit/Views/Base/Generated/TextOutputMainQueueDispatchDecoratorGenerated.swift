@@ -37,9 +37,9 @@ extension MainQueueDispatchDecorator: TextOutput where T: TextOutput {
             self?.decoratee.display(attributes: attributes)
         }
     }
-    public func display(from startAmount: Float, to endAmount: Float, resultedText: String) {
+    public func display(from startAmount: Float, to endAmount: Float, mapToString: ((Float) -> String)?) {
         dispatch { [weak self] in
-            self?.decoratee.display(from: startAmount, to: endAmount, resultedText: resultedText)
+            self?.decoratee.display(from: startAmount, to: endAmount, mapToString: mapToString)
         }
     }
     public func display(isHidden: Bool) {

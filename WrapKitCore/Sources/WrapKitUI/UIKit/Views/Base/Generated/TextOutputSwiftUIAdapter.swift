@@ -51,17 +51,17 @@ public class TextOutputSwiftUIAdapter: ObservableObject, TextOutput {
             attributes: attributes
         )
     }
-    @Published public var displayStartAmountEndAmountResultedTextState: DisplayStartAmountEndAmountResultedTextState? = nil
-    public struct DisplayStartAmountEndAmountResultedTextState {
+    @Published public var displayStartAmountEndAmountMapToStringState: DisplayStartAmountEndAmountMapToStringState? = nil
+    public struct DisplayStartAmountEndAmountMapToStringState {
         public let startAmount: Float
         public let endAmount: Float
-        public let resultedText: String
+        public let mapToString: ((Float) -> String)?
     }
-    public func display(from startAmount: Float, to endAmount: Float, resultedText: String) {
-        displayStartAmountEndAmountResultedTextState = .init(
+    public func display(from startAmount: Float, to endAmount: Float, mapToString: ((Float) -> String)?) {
+        displayStartAmountEndAmountMapToStringState = .init(
             startAmount: startAmount, 
             endAmount: endAmount, 
-            resultedText: resultedText
+            mapToString: mapToString
         )
     }
     @Published public var displayIsHiddenState: DisplayIsHiddenState? = nil

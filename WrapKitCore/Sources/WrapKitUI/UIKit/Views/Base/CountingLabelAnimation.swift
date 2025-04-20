@@ -20,7 +20,7 @@ open class CountingLabelAnimation {
     
     var startNumber: Float? = 0.0
     var endNumber: Float? = 0.0
-    var resultedText: String?
+    var mapToString: ((Float) -> String)?
     let counterVelocity: Float = 5
     
     var progress: TimeInterval!
@@ -33,12 +33,12 @@ open class CountingLabelAnimation {
         let startNumber = startNumber ?? 0
         let endNumber = endNumber ?? 0
         if progress >= duration {
-            return "\(endNumber)"
+            return mapToString?(endNumber) ?? ""
         }
         let percentage = Float(progress / duration)
         let update = 1.0 - powf(1.0 - percentage, counterVelocity)
         
-        return "\(startNumber + (update * (endNumber - startNumber)))"
+        return mapToString?(startNumber + (update * (endNumber - startNumber))) ?? ""
     }
     
     public func setupPaymentFormat(format: String) {
@@ -48,11 +48,11 @@ open class CountingLabelAnimation {
     public func startAnimation(
         fromValue: Float,
         to toValue: Float,
-        resultedText: String
+        mapToString: ((Float) -> String)?
     ) {
         startNumber = fromValue
         endNumber = toValue
-        self.resultedText = resultedText
+        self.mapToString = mapToString
         progress = 0
         lastUpdate = Date.timeIntervalSinceReferenceDate
     
@@ -73,15 +73,12 @@ open class CountingLabelAnimation {
         
         if progress >= duration {
             timer?.invalidate()
-            startNumber = nil
-            endNumber = nil
-            progress = duration
-            label?.text = resultedText
+            label?.text = getCurrentCounterValue()
+            mapToString = nil
             return
         }
         
-        let value = getCurrentCounterValue()
-        label?.text = String(value.prefix(resultedText?.count ?? value.count))
+        label?.text = getCurrentCounterValue()
     }
     
     deinit {

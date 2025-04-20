@@ -17,14 +17,14 @@ public protocol TextOutput: AnyObject {
     func display(model: TextOutputPresentableModel?)
     func display(text: String?)
     func display(attributes: [TextAttributes])
-    func display(from startAmount: Float, to endAmount: Float, resultedText: String)
+    func display(from startAmount: Float, to endAmount: Float, mapToString: ((Float) -> String)?)
     func display(isHidden: Bool)
 }
 
 public indirect enum TextOutputPresentableModel: HashableWithReflection {
     case text(String?)
     case attributes([TextAttributes])
-    case counting(Float, Float, String)
+    case counting(Float, Float, mapToString: ((Float) -> String)?)
     case textStyled(
         text: TextOutputPresentableModel,
         cornerStyle: CornerStyle?,
@@ -34,6 +34,47 @@ public indirect enum TextOutputPresentableModel: HashableWithReflection {
 
 #if canImport(UIKit)
 import UIKit
+
+extension Label: TextOutput {
+    public func display(model: TextOutputPresentableModel?) {
+        isHidden = model == nil
+        guard let model = model else { return }
+        switch model {
+        case .text(let text):
+            display(text: text)
+        case .attributes(let attributes):
+            display(attributes: attributes)
+        case .counting(let startAmount, let endAmount, let mapToString):
+            display(from: startAmount, to: endAmount, mapToString: mapToString)
+        case .textStyled(let model, let style, let insets):
+            display(model: model)
+            self.cornerStyle = style
+            self.textInsets = insets.asUIEdgeInsets
+        }
+    }
+    
+    public func display(text: String?) {
+        isHidden = text.isEmpty
+        self.text = text?.removingPercentEncoding ?? text
+    }
+    
+    public func display(attributes: [TextAttributes]) {
+        isHidden = attributes.isEmpty
+        self.attributes = attributes.map { attribute in
+            var updatedAttribute = attribute
+            updatedAttribute.text = attribute.text.removingPercentEncoding ?? attribute.text
+            return updatedAttribute
+        }
+    }
+    
+    public func display(from startAmount: Float, to endAmount: Float, mapToString: ((Float) -> String)?) {
+        animation.startAnimation(fromValue: startAmount, to: endAmount, mapToString: mapToString)
+    }
+    
+    public func display(isHidden: Bool) {
+        self.isHidden = isHidden
+    }
+}
 
 open class Label: UILabel {
     public var textInsets: UIEdgeInsets = .zero
@@ -108,7 +149,7 @@ open class Label: UILabel {
             return CGSize(width: base.width, height: 0)
         }
         return CGSize(
-            width: ((animation.resultedText.isEmpty ? base.width : animation.resultedText?.width(usingFont: font)) ?? base.width) + textInsets.left + textInsets.right,
+            width: (animation.mapToString == nil ? base.width : animation.getCurrentCounterValue().width(usingFont: font)) + textInsets.left + textInsets.right,
             height: base.height + textInsets.top + textInsets.bottom
         )
     }
@@ -174,47 +215,6 @@ public extension Label {
     func removeAttributes() {
         self.attributes.removeAll()
         self.attributedText = nil
-    }
-}
-
-extension Label: TextOutput {
-    public func display(model: TextOutputPresentableModel?) {
-        isHidden = model == nil
-        guard let model = model else { return }
-        switch model {
-        case .text(let text):
-            display(text: text)
-        case .attributes(let attributes):
-            display(attributes: attributes)
-        case .counting(let startAmount, let endAmount, let resultedText):
-            display(from: startAmount, to: endAmount, resultedText: resultedText)
-        case .textStyled(let model, let style, let insets):
-            display(model: model)
-            self.cornerStyle = style
-            self.textInsets = insets.asUIEdgeInsets
-        }
-    }
-    
-    public func display(text: String?) {
-        isHidden = text.isEmpty
-        self.text = text?.removingPercentEncoding ?? text
-    }
-    
-    public func display(attributes: [TextAttributes]) {
-        isHidden = attributes.isEmpty
-        self.attributes = attributes.map { attribute in
-            var updatedAttribute = attribute
-            updatedAttribute.text = attribute.text.removingPercentEncoding ?? attribute.text
-            return updatedAttribute
-        }
-    }
-    
-    public func display(from startAmount: Float, to endAmount: Float, resultedText: String) {
-        animation.startAnimation(fromValue: startAmount, to: endAmount, resultedText: resultedText)
-    }
-    
-    public func display(isHidden: Bool) {
-        self.isHidden = isHidden
     }
 }
 
