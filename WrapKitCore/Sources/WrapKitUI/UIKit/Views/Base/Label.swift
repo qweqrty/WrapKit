@@ -30,8 +30,6 @@ public indirect enum TextOutputPresentableModel: HashableWithReflection {
         cornerStyle: CornerStyle?,
         insets: EdgeInsets
     )
-    case shimmerText(String)
-    case shimmerLength(Int)
 }
 
 #if canImport(UIKit)
@@ -41,8 +39,6 @@ extension Label: TextOutput {
     public func display(model: TextOutputPresentableModel?) {
         isHidden = model == nil
         guard let model = model else { return }
-        let invisibleSymbol = "\u{2800}" /// for shimmer
-        
         switch model {
         case .text(let text):
             display(text: text)
@@ -54,12 +50,6 @@ extension Label: TextOutput {
             display(model: model)
             self.cornerStyle = style
             self.textInsets = insets.asUIEdgeInsets
-        case .shimmerText(let text):
-            let shimmerPlaceholder = String(repeating: invisibleSymbol, count: text.count)
-            display(text: shimmerPlaceholder)
-        case .shimmerLength(let length):
-            let shimmerPlaceholder = String(repeating: invisibleSymbol, count: length)
-            display(text: shimmerPlaceholder)
         }
     }
     
