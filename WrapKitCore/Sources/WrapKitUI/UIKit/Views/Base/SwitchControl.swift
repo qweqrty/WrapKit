@@ -13,6 +13,7 @@ public protocol SwitchCotrolOutput: AnyObject {
     func display(style: SwitchControlPresentableModel.Style)
     func display(isEnabled: Bool)
     func display(isHidden: Bool)
+    func display(isShowShimmer: Bool)
 }
 
 public struct SwitchControlPresentableModel {
@@ -79,7 +80,6 @@ open class SwitchControl: UISwitch {
     }
 }
 
-
 extension SwitchControl: SwitchCotrolOutput {
     public func display(model: SwitchControlPresentableModel?) {
         isHidden = model == nil
@@ -111,5 +111,12 @@ extension SwitchControl: SwitchCotrolOutput {
     public func display(isHidden: Bool) {
         self.isHidden = isHidden
     }
+    
+    public func display(isShowShimmer: Bool) {
+        isShowShimmer
+        ? self.showShimmer()
+        : self.hideShimmer()
+    }
 }
 #endif
+

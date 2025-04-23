@@ -41,5 +41,8 @@ extension WeakRefVirtualProxy: SwitchCotrolOutput where T: SwitchCotrolOutput {
         object?.display(isHidden: isHidden)
     }
 
+    public func display(isShowShimmer: Bool) {
+        object?.display(isShowShimmer: isShowShimmer)
+    }
 }
 #endif

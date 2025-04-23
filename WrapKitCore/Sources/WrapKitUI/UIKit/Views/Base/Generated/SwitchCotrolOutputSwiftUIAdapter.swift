@@ -78,4 +78,13 @@ public class SwitchCotrolOutputSwiftUIAdapter: ObservableObject, SwitchCotrolOut
             isHidden: isHidden
         )
     }
+    @Published public var displayisShowShimmerState: DisplayisShowShimmerState? = nil
+    public struct DisplayisShowShimmerState {
+        public let isShowShimmer: Bool
+    }
+    public func display(isShowShimmer: Bool) {
+        displayisShowShimmerState = .init(
+            isShowShimmer: isShowShimmer
+        )
+    }
 }
