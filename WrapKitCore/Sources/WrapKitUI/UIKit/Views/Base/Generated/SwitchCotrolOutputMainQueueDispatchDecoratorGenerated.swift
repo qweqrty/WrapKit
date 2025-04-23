@@ -52,9 +52,10 @@ extension MainQueueDispatchDecorator: SwitchCotrolOutput where T: SwitchCotrolOu
             self?.decoratee.display(isHidden: isHidden)
         }
     }
-    public func display(isLoading: Bool) {
+    
+    public func display(isLoading: Bool, shimmerStyle: ShimmerView.Style?) {
         dispatch { [weak self] in
-            self?.decoratee.display(isLoading: isLoading)
+            self?.decoratee.display(isLoading: isLoading, shimmerStyle: shimmerStyle)
         }
     }
 }

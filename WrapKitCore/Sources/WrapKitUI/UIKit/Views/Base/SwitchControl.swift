@@ -13,7 +13,14 @@ public protocol SwitchCotrolOutput: AnyObject {
     func display(style: SwitchControlPresentableModel.Style)
     func display(isEnabled: Bool)
     func display(isHidden: Bool)
-    func display(isLoading: Bool)
+    
+    func display(isLoading: Bool, shimmerStyle: ShimmerView.Style?)
+}
+
+public extension SwitchCotrolOutput {
+    func display(isLoading: Bool, shimmerStyle: ShimmerView.Style? = nil) {
+        display(isLoading: isLoading, shimmerStyle: nil)
+    }
 }
 
 public struct SwitchControlPresentableModel {
@@ -112,11 +119,16 @@ extension SwitchControl: SwitchCotrolOutput {
         self.isHidden = isHidden
     }
     
-    public func display(isLoading: Bool) {
+    public func display(isLoading: Bool, shimmerStyle: ShimmerView.Style?) {
+        var shimmerView: ShimmerView? = nil
+        if let shimmerStyle {
+            shimmerView = ShimmerView(backgroundColor: shimmerStyle.backgroundColor)
+            shimmerView?.style = shimmerStyle
+        }
+        
         isLoading
-        ? self.showShimmer()
+        ? self.showShimmer(shimmerView)
         : self.hideShimmer()
     }
 }
 #endif
-

@@ -24,6 +24,33 @@ extension UIView {
 }
 
 open class ShimmerView: UIView {
+    public struct Style {
+        var backgroundColor: Color
+        var gradientColorOne: Color
+        var gradientColorTwo: Color
+        var cornerRadius: CGFloat
+        
+        public init(
+            backgroundColor: Color,
+            gradientColorOne: Color,
+            gradientColorTwo: Color,
+            cornerRadius: CGFloat
+        ) {
+            self.backgroundColor = backgroundColor
+            self.gradientColorOne = gradientColorOne
+            self.gradientColorTwo = gradientColorTwo
+            self.cornerRadius = cornerRadius
+        }
+    }
+    open var style: Style? {
+        didSet {
+            guard let style else { return }
+            backgroundColor = style.backgroundColor
+            gradientColorOne = style.gradientColorOne
+            gradientColorTwo = style.gradientColorTwo
+            cornerRadius = style.cornerRadius
+        }
+    }
     open var gradientColorOne: UIColor = .clear {
         didSet {
             setupGradientLayer()
