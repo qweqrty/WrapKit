@@ -82,9 +82,9 @@ public class SwitchCotrolOutputSwiftUIAdapter: ObservableObject, SwitchCotrolOut
     public struct DisplayisShowShimmerState {
         public let isShowShimmer: Bool
     }
-    public func display(isShowShimmer: Bool) {
+    public func display(isLoading: Bool) {
         displayisShowShimmerState = .init(
-            isShowShimmer: isShowShimmer
+            isShowShimmer: isLoading
         )
     }
 }
