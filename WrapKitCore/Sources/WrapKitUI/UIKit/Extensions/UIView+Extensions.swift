@@ -209,20 +209,20 @@ public extension UIView {
     ) {
         let bgColor = shimmerView == nil ? .clear : (firstNonClearBackgroundColor ?? .clear)
         let emptyView = UIView(backgroundColor: bgColor)
-        let shimmerView = shimmerView ?? ShimmerView(backgroundColor: .clear)
-        shimmerView.startShimmering()
+        let shimmerContent = shimmerView ?? ShimmerView(backgroundColor: .clear)
+        shimmerContent.startShimmering()
         
         emptyView.tag = Self.shimmerViewTag
         addSubview(emptyView)
         emptyView.fillSuperview()
         
-        emptyView.addSubview(shimmerView)
+        emptyView.addSubview(shimmerContent)
         
-        shimmerView.alpha = 0
-        shimmerView.cornerRadius = 4
+        shimmerContent.alpha = 0
+        shimmerContent.cornerRadius = shimmerView?.cornerRadius ?? 4
         
         if let heightMultiplier, let widthMultiplier {
-            shimmerView.anchor(
+            shimmerContent.anchor(
                 .leading(leadingAnchor),
                 .centerY(centerYAnchor),
                 .widthTo(widthAnchor, widthMultiplier),
@@ -231,7 +231,7 @@ public extension UIView {
         }
         
         if let heightMultiplier, widthMultiplier == nil {
-            shimmerView.anchor(
+            shimmerContent.anchor(
                 .leading(leadingAnchor),
                 .trailing(trailingAnchor, constant: 12),
                 .centerY(centerYAnchor),
@@ -240,7 +240,7 @@ public extension UIView {
         }
         
         if let widthMultiplier, heightMultiplier == nil {
-            shimmerView.anchor(
+            shimmerContent.anchor(
                 .leading(leadingAnchor),
                 .centerY(centerYAnchor),
                 .widthTo(widthAnchor, widthMultiplier)
@@ -248,7 +248,7 @@ public extension UIView {
         }
         
         if heightMultiplier == nil && widthMultiplier == nil {
-            shimmerView.fillSuperview()
+            shimmerContent.fillSuperview()
         }
         
         UIView.animate(
@@ -256,16 +256,16 @@ public extension UIView {
             delay: 0,
             options: [.curveEaseInOut, .allowUserInteraction],
             animations: {
-                shimmerView.alpha = 1
+                shimmerContent.alpha = 1
             }, completion: { finished in
                 guard finished else { return }
-                shimmerView.alpha = 1
+                shimmerContent.alpha = 1
             })
     }
     
     func hideShimmer() {
-        guard let shimmerView = viewWithTag(Self.shimmerViewTag) else { return }
-        shimmerView.removeFromSuperview()
+        guard let shimmerContent = viewWithTag(Self.shimmerViewTag) else { return }
+        shimmerContent.removeFromSuperview()
     }
     
     var firstNonClearBackgroundColor: UIColor? {
