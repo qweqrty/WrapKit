@@ -88,10 +88,14 @@ public class SwitchCotrolOutputSwiftUIAdapter: ObservableObject, SwitchCotrolOut
         public let shimmerStyle: ShimmerView.Style?
     }
     public func display(isLoading: Bool, shimmerStyle: ShimmerView.Style?) {
-        displayisLoadingState = .init(isLoading: isLoading)
-        displayshimmerStyleState = .init(shimmerStyle: shimmerStyle)
+        displayIsLoadingShimmerStyleState = .init(
+            isLoading: isLoading, 
+            shimmerStyle: shimmerStyle
+        )
     }
-    
-
+    @Published public var displayIsLoadingShimmerStyleState: DisplayIsLoadingShimmerStyleState? = nil
+    public struct DisplayIsLoadingShimmerStyleState {
+        public let isLoading: Bool
+        public let shimmerStyle: ShimmerView.Style?
+    }
 }
-
