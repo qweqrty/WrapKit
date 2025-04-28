@@ -10,17 +10,17 @@ import Foundation
 import UIKit
 
 open class CountingLabelAnimation {
-    private weak var label: UILabel?
+    private weak var label: Label?
     private var paymentFormat: String = ""
     
-    public required init(label: UILabel) {
+    public required init(label: Label) {
         self.label = label
     }
     public var floatLimit: Float? = nil
     
     var startNumber: Float? = 0.0
     var endNumber: Float? = 0.0
-    var mapToString: ((Float) -> String)?
+    var mapToString: ((Float) -> TextOutputPresentableModel)?
     let counterVelocity: Float = 5
     
     var progress: TimeInterval!
@@ -29,16 +29,16 @@ open class CountingLabelAnimation {
     
     var timer: Timer?
     
-    func getCurrentCounterValue() -> String {
+    func getCurrentCounterValue() -> TextOutputPresentableModel {
         let startNumber = startNumber ?? 0
         let endNumber = endNumber ?? 0
         if progress >= duration {
-            return mapToString?(endNumber) ?? ""
+            return mapToString?(endNumber) ?? .text("")
         }
         let percentage = Float(progress / duration)
         let update = 1.0 - powf(1.0 - percentage, counterVelocity)
         
-        return mapToString?(startNumber + (update * (endNumber - startNumber))) ?? ""
+        return mapToString?(startNumber + (update * (endNumber - startNumber))) ?? .text("")
     }
     
     public func setupPaymentFormat(format: String) {
@@ -48,7 +48,7 @@ open class CountingLabelAnimation {
     public func startAnimation(
         fromValue: Float,
         to toValue: Float,
-        mapToString: ((Float) -> String)?
+        mapToString: ((Float) -> TextOutputPresentableModel)?
     ) {
         startNumber = fromValue
         endNumber = toValue
@@ -73,12 +73,12 @@ open class CountingLabelAnimation {
         
         if progress >= duration {
             timer?.invalidate()
-            label?.text = getCurrentCounterValue()
+            label?.display(model: getCurrentCounterValue())
             mapToString = nil
             return
         }
         
-        label?.text = getCurrentCounterValue()
+        label?.display(model: getCurrentCounterValue())
     }
     
     deinit {

@@ -17,14 +17,14 @@ public protocol TextOutput: AnyObject {
     func display(model: TextOutputPresentableModel?)
     func display(text: String?)
     func display(attributes: [TextAttributes])
-    func display(from startAmount: Float, to endAmount: Float, mapToString: ((Float) -> String)?)
+    func display(from startAmount: Float, to endAmount: Float, mapToString: ((Float) -> TextOutputPresentableModel)?)
     func display(isHidden: Bool)
 }
 
 public indirect enum TextOutputPresentableModel: HashableWithReflection {
     case text(String?)
     case attributes([TextAttributes])
-    case counting(Float, Float, mapToString: ((Float) -> String)?)
+    case counting(Float, Float, mapToString: ((Float) -> TextOutputPresentableModel)?)
     case textStyled(
         text: TextOutputPresentableModel,
         cornerStyle: CornerStyle?,
@@ -67,7 +67,7 @@ extension Label: TextOutput {
         }
     }
     
-    public func display(from startAmount: Float, to endAmount: Float, mapToString: ((Float) -> String)?) {
+    public func display(from startAmount: Float, to endAmount: Float, mapToString: ((Float) -> TextOutputPresentableModel)?) {
         animation.startAnimation(fromValue: startAmount, to: endAmount, mapToString: mapToString)
     }
     
@@ -236,6 +236,26 @@ private extension String {
     func width(usingFont font: Font) -> CGFloat {
         let attributes: [NSAttributedString.Key: Any] = [.font: font]
         let size = self.size(withAttributes: attributes)
+        return ceil(size.width) + 4
+    }
+}
+
+private extension TextOutputPresentableModel {
+    func width(usingFont font: Font) -> CGFloat {
+        guard case .text(let string) = self else {
+            return 0
+        }
+        
+        guard let unwrappedString = string else {
+            return 0
+        }
+        
+        let attributedString = NSAttributedString(
+            string: unwrappedString,
+            attributes: [.font: font]
+        )
+        
+        let size = attributedString.size()
         return ceil(size.width) + 4
     }
 }
