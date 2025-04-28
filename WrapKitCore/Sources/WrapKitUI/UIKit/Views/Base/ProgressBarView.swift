@@ -82,11 +82,6 @@ open class ProgressBarView: UIView {
     }
     
     public func applyProgress(percentage: CGFloat, animated: Bool = true) {
-        if bounds.width == 0 {
-            pendingProgressPercentage = percentage
-            return
-        }
-        pendingProgressPercentage = nil
         layoutIfNeeded()
         let maxWidth = bounds.width
         let newWidth = maxWidth * (percentage / 100.0)
