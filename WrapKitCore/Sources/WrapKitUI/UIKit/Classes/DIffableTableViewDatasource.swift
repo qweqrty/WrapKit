@@ -23,14 +23,18 @@ public struct TableSection<Header, Cell: Hashable, Footer>: HashableWithReflecti
 }
 
 public struct TableContextualAction {
-    let style: UIContextualAction.Style?
+    public enum Style {
+        case normal
+        case destructive
+    }
+    let style: Style
     let backgroundColor: Color?
     let image: Image?
     let title: String?
     let onPress: (() -> Void)?
     
     public init(
-        style: UIContextualAction.Style? = .destructive,
+        style: Style = .normal,
         backgroundColor: Color? = .clear,
         image: Image? = nil,
         title: String? = nil,
@@ -71,27 +75,6 @@ extension DiffableTableViewDataSource: TableOutput {
                 }
                 tableView?.reloadData()
             }
-        }
-    }
-    
-    public func display(actions: [TableContextualAction]) {
-        trailingSwipeActionsConfigurationForRowAt = { indexPath in
-            let contextualActions = actions.map { action in
-                let uiAction = UIContextualAction(style: action.style ?? .normal, title: action.title) { _, _, completion in
-                    action.onPress?()
-                    completion(true)
-                }
-                if let backgroundColor = action.backgroundColor {
-                    uiAction.backgroundColor = backgroundColor
-                }
-                if let image = action.image {
-                    uiAction.image = image
-                }
-                return uiAction
-            }
-            let configuration = UISwipeActionsConfiguration(actions: contextualActions)
-            configuration.performsFirstActionWithFullSwipe = true
-            return configuration
         }
     }
 }
@@ -220,4 +203,27 @@ public class DiffableTableViewDataSource<Header, Cell: Hashable, Footer>: NSObje
     }
 }
 
+extension DiffableTableViewDataSource {
+    public func display(actions: [TableContextualAction]) {
+        trailingSwipeActionsConfigurationForRowAt = { indexPath in
+            let contextualActions = actions.map { action in
+                let uiStyle: UIContextualAction.Style = action.style == .destructive ? .destructive : .normal
+                let uiAction = UIContextualAction(style: uiStyle, title: action.title) { _, _, completion in
+                    action.onPress?()
+                    completion(true)
+                }
+                if let backgroundColor = action.backgroundColor {
+                    uiAction.backgroundColor = backgroundColor
+                }
+                if let image = action.image {
+                    uiAction.image = image
+                }
+                return uiAction
+            }
+            let configuration = UISwipeActionsConfiguration(actions: contextualActions)
+            configuration.performsFirstActionWithFullSwipe = true
+            return configuration
+        }
+    }
+}
 #endif

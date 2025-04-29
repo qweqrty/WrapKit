@@ -78,20 +78,26 @@ public class SwitchCotrolOutputSwiftUIAdapter: ObservableObject, SwitchCotrolOut
             isHidden: isHidden
         )
     }
-
-    @Published public var displayisLoadingState: DisplayisLoadingState? = nil
-    public struct DisplayisLoadingState {
+    @Published public var displayIsLoadingShimmerStyleState: DisplayIsLoadingShimmerStyleState? = nil
+    public struct DisplayIsLoadingShimmerStyleState {
         public let isLoading: Bool
-    }
-    @Published public var displayshimmerStyleState: DisplayshimmerStyleState? = nil
-    public struct DisplayshimmerStyleState {
         public let shimmerStyle: ShimmerView.Style?
     }
     public func display(isLoading: Bool, shimmerStyle: ShimmerView.Style?) {
-        displayisLoadingState = .init(isLoading: isLoading)
-        displayshimmerStyleState = .init(shimmerStyle: shimmerStyle)
+        displayIsLoadingShimmerStyleState = .init(
+            isLoading: isLoading, 
+            shimmerStyle: shimmerStyle
+        )
     }
-    
-
+    @Published public var displayIsLoadingShimmerStyleState: DisplayIsLoadingShimmerStyleState? = nil
+    public struct DisplayIsLoadingShimmerStyleState {
+        public let isLoading: Bool
+        public let shimmerStyle: ShimmerView.Style?
+    }
+    public func display(isLoading: Bool, shimmerStyle: ShimmerView.Style? = nil) {
+        displayIsLoadingShimmerStyleState = .init(
+            isLoading: isLoading, 
+            shimmerStyle: shimmerStyle
+        )
+    }
 }
-
