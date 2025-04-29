@@ -22,11 +22,34 @@ public struct TableSection<Header, Cell: Hashable, Footer>: HashableWithReflecti
     }
 }
 
+public struct TableContextualAction {
+    let style: UIContextualAction.Style?
+    let backgroundColor: Color?
+    let image: Image?
+    let title: String?
+    let onPress: (() -> Void)?
+    
+    public init(
+        style: UIContextualAction.Style? = .destructive,
+        backgroundColor: Color? = .clear,
+        image: Image? = nil,
+        title: String? = nil,
+        onPress: (() -> Void)? = nil
+    ) {
+        self.style = style
+        self.backgroundColor = backgroundColor
+        self.image = image
+        self.title = title
+        self.onPress = onPress
+    }
+}
+
 public protocol TableOutput<Header, Cell, Footer>: AnyObject {
     associatedtype Header
     associatedtype Cell: Hashable
     associatedtype Footer
     func display(sections: [TableSection<Header, Cell, Footer>])
+    func display(actions: [TableContextualAction])
 }
 
 extension DiffableTableViewDataSource: TableOutput {
@@ -50,6 +73,27 @@ extension DiffableTableViewDataSource: TableOutput {
             }
         }
     }
+    
+    public func display(actions: [TableContextualAction]) {
+        trailingSwipeActionsConfigurationForRowAt = { indexPath in
+            let contextualActions = actions.map { action in
+                let uiAction = UIContextualAction(style: action.style ?? .normal, title: action.title) { _, _, completion in
+                    action.onPress?()
+                    completion(true)
+                }
+                if let backgroundColor = action.backgroundColor {
+                    uiAction.backgroundColor = backgroundColor
+                }
+                if let image = action.image {
+                    uiAction.image = image
+                }
+                return uiAction
+            }
+            let configuration = UISwipeActionsConfiguration(actions: contextualActions)
+            configuration.performsFirstActionWithFullSwipe = true
+            return configuration
+        }
+    }
 }
 
 #if canImport(UIKit)
@@ -68,6 +112,7 @@ public class DiffableTableViewDataSource<Header, Cell: Hashable, Footer>: NSObje
     public var didScrollViewDidScroll: ((UIScrollView) -> Void)?
     public var didScrollViewDidEndDragging: ((UIScrollView, Bool) -> Void)?
     public var didScrollViewDidEndDecelerating: ((UIScrollView) -> Void)?
+    public var trailingSwipeActionsConfigurationForRowAt: ((IndexPath) -> UISwipeActionsConfiguration?)?
     
     public var showLoader = false
     public var loadNextPage: (() -> Void)?
@@ -168,6 +213,10 @@ public class DiffableTableViewDataSource<Header, Cell: Hashable, Footer>: NSObje
     open func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
         guard let model = footers[section] else { return .leastNonzeroMagnitude }
         return heightForFooterInSection?(section, model) ?? .leastNonzeroMagnitude
+    }
+    
+    open func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        return trailingSwipeActionsConfigurationForRowAt?(indexPath)
     }
 }
 

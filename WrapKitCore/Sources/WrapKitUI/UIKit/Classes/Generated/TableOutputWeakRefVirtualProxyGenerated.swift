@@ -28,6 +28,9 @@ extension WeakRefVirtualProxy: TableOutput where T: TableOutput {
     public func display(sections: [TableSection<Header, Cell, Footer>]) {
         object?.display(sections: sections)
     }
+    public func display(actions: [TableContextualAction]) {
+        object?.display(actions: actions)
+    }
 
 }
 #endif

@@ -33,4 +33,13 @@ public class TableOutputSwiftUIAdapter<Cell: Hashable,Footer: Any,Header: Any>: 
             sections: sections
         )
     }
+    @Published public var displayActionsState: DisplayActionsState? = nil
+    public struct DisplayActionsState {
+        public let actions: [TableContextualAction]
+    }
+    public func display(actions: [TableContextualAction]) {
+        displayActionsState = .init(
+            actions: actions
+        )
+    }
 }

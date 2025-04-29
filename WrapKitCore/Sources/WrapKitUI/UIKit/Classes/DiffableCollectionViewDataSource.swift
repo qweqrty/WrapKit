@@ -8,6 +8,8 @@
 import Foundation
 
 extension DiffableCollectionViewDataSource: TableOutput {
+    public func display(actions: [TableContextualAction]) { }
+    
     public func display(sections: [TableSection<Header, Cell, Footer>]) {
         DispatchQueue.global().async { [weak self] in
             self?.headers.removeAll()
