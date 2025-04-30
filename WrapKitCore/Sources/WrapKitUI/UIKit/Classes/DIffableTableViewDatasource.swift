@@ -91,6 +91,7 @@ public class DiffableTableViewDataSource<Header, Cell: Hashable, Footer>: NSObje
                                 canEditRowAt indexPath: IndexPath) -> Bool {
             return canEdit?(indexPath) ?? false
         }
+        
     }
     // MARK: - Properties
     public var didSelectAt: ((IndexPath, Cell) -> Void)?
@@ -104,7 +105,7 @@ public class DiffableTableViewDataSource<Header, Cell: Hashable, Footer>: NSObje
     public var didScrollViewDidEndDragging: ((UIScrollView, Bool) -> Void)?
     public var didScrollViewDidEndDecelerating: ((UIScrollView) -> Void)?
     public var trailingSwipeActionsConfigurationForRowAt: ((IndexPath) -> UISwipeActionsConfiguration?)?
-    public var canEditRowAtIndexPath: ((IndexPath) -> Bool)?
+    public var canEditRowAtIndexPath: ((IndexPath, Cell) -> Bool)?
     
     public var showLoader = false
     public var loadNextPage: (() -> Void)?
@@ -134,7 +135,10 @@ public class DiffableTableViewDataSource<Header, Cell: Hashable, Footer>: NSObje
         let dataSource = EditableDataSource(tableView: tableView) { [weak self] tableView, indexPath, item in
             self?.configureCell?(tableView, indexPath, item) ?? UITableViewCell()
         }
-        dataSource.canEdit = canEditRowAtIndexPath
+        dataSource.canEdit = { [weak self] indexPath in
+            guard let model = dataSource.itemIdentifier(for: indexPath) else { return false }
+            return self?.canEditRowAtIndexPath?(indexPath, model) ?? false
+        }
         dataSource.defaultRowAnimation = defaultRowAnimation
         self.dataSource = dataSource
         tableView.dataSource = dataSource
@@ -173,7 +177,7 @@ public class DiffableTableViewDataSource<Header, Cell: Hashable, Footer>: NSObje
         let position = scrollView.contentOffset.y
         let contentHeight = scrollView.contentSize.height
         let scrollViewHeight = scrollView.frame.size.height
-
+        
         // Load next page if near the bottom of table view
         if position > contentHeight - scrollViewHeight * 2 && showLoader {
             loadNextPage?()
