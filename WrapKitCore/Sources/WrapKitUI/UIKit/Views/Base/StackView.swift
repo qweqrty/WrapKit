@@ -107,6 +107,11 @@ open class StackView: UIStackView {
         self.isHidden = false
     }
     
+    open override func addArrangedSubview(_ view: UIView) {
+        super.addArrangedSubview(view)
+        layoutIfNeeded()
+    }
+    
     override public var backgroundColor: UIColor? {
         didSet {
             let subView = UIView(frame: .zero)
