@@ -84,6 +84,14 @@ import UIKit
 
 @available(iOS 13.0, *)
 public class DiffableTableViewDataSource<Header, Cell: Hashable, Footer>: NSObject, UITableViewDelegate {
+    class EditableDataSource: UITableViewDiffableDataSource<Int, Cell> {
+        public var canEdit: ((IndexPath) -> Bool)?
+        
+        override func tableView(_ tableView: UITableView,
+                                canEditRowAt indexPath: IndexPath) -> Bool {
+            return canEdit?(indexPath) ?? false
+        }
+    }
     // MARK: - Properties
     public var didSelectAt: ((IndexPath, Cell) -> Void)?
     public var configureCell: ((UITableView, IndexPath, Cell) -> UITableViewCell)?
@@ -96,6 +104,7 @@ public class DiffableTableViewDataSource<Header, Cell: Hashable, Footer>: NSObje
     public var didScrollViewDidEndDragging: ((UIScrollView, Bool) -> Void)?
     public var didScrollViewDidEndDecelerating: ((UIScrollView) -> Void)?
     public var trailingSwipeActionsConfigurationForRowAt: ((IndexPath) -> UISwipeActionsConfiguration?)?
+    public var canEditRowAtIndexPath: ((IndexPath) -> Bool)?
     
     public var showLoader = false
     public var loadNextPage: (() -> Void)?
@@ -122,10 +131,12 @@ public class DiffableTableViewDataSource<Header, Cell: Hashable, Footer>: NSObje
     
     // MARK: - Setup Data Source
     private func setupDataSource(for tableView: UITableView) {
-        dataSource = UITableViewDiffableDataSource<Int, Cell>(tableView: tableView) { [weak self] tableView, indexPath, item in
+        let dataSource = EditableDataSource(tableView: tableView) { [weak self] tableView, indexPath, item in
             self?.configureCell?(tableView, indexPath, item) ?? UITableViewCell()
         }
+        dataSource.canEdit = canEditRowAtIndexPath
         dataSource.defaultRowAnimation = defaultRowAnimation
+        self.dataSource = dataSource
         tableView.dataSource = dataSource
         tableView.delegate = self
     }
@@ -198,6 +209,7 @@ public class DiffableTableViewDataSource<Header, Cell: Hashable, Footer>: NSObje
         return heightForFooterInSection?(section, model) ?? .leastNonzeroMagnitude
     }
     
+    // MARK: - Actions
     open func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         return trailingSwipeActionsConfigurationForRowAt?(indexPath)
     }
