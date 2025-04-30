@@ -231,6 +231,7 @@ extension ImageView: ImageViewOutput {
         isHidden = model == nil
         display(onPress: model?.onPress)
         display(onLongPress: model?.onLongPress)
+        hideShimmer()
         if let image = model?.image { display(image: image) }
         if let size = model?.size {
             display(size: size)
