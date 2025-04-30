@@ -35,7 +35,7 @@ public struct TableContextualAction {
     
     public init(
         style: Style = .normal,
-        backgroundColor: Color? = .clear,
+        backgroundColor: Color? = nil,
         image: Image? = nil,
         title: String? = nil,
         onPress: (() -> Void)? = nil
@@ -223,8 +223,10 @@ extension DiffableTableViewDataSource {
     public func display(actions: [TableContextualAction]) {
         trailingSwipeActionsConfigurationForRowAt = { indexPath in
             let contextualActions = actions.map { action in
-                let uiStyle: UIContextualAction.Style = action.style == .destructive ? .destructive : .normal
-                let uiAction = UIContextualAction(style: uiStyle, title: action.title) { _, _, completion in
+                let uiAction = UIContextualAction(
+                    style: action.style.asUIContextualActionStyle,
+                    title: action.title
+                ) { _, _, completion in
                     action.onPress?()
                     completion(true)
                 }
@@ -242,4 +244,14 @@ extension DiffableTableViewDataSource {
         }
     }
 }
+
+private extension TableContextualAction.Style {
+    var asUIContextualActionStyle: UIContextualAction.Style {
+        switch self {
+        case .destructive: .destructive
+        case .normal: .normal
+        }
+    }
+}
+
 #endif
