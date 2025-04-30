@@ -22,7 +22,7 @@ public struct TableSection<Header, Cell: Hashable, Footer>: HashableWithReflecti
     }
 }
 
-public struct TableContextualAction {
+public struct TableContextualAction<Cell> {
     public enum Style {
         case normal
         case destructive
@@ -31,14 +31,14 @@ public struct TableContextualAction {
     let backgroundColor: Color?
     let image: Image?
     let title: String?
-    let onPress: (() -> Void)?
+    let onPress: ((Cell) -> Void)?
     
     public init(
         style: Style = .normal,
         backgroundColor: Color? = nil,
         image: Image? = nil,
         title: String? = nil,
-        onPress: (() -> Void)? = nil
+        onPress: ((Cell) -> Void)? = nil
     ) {
         self.style = style
         self.backgroundColor = backgroundColor
@@ -53,7 +53,7 @@ public protocol TableOutput<Header, Cell, Footer>: AnyObject {
     associatedtype Cell: Hashable
     associatedtype Footer
     func display(sections: [TableSection<Header, Cell, Footer>])
-    func display(actions: [TableContextualAction])
+    func display(actions: [TableContextualAction<Cell>])
 }
 
 extension DiffableTableViewDataSource: TableOutput {
@@ -220,14 +220,16 @@ public class DiffableTableViewDataSource<Header, Cell: Hashable, Footer>: NSObje
 }
 
 extension DiffableTableViewDataSource {
-    public func display(actions: [TableContextualAction]) {
+    public func display(actions: [TableContextualAction<Cell>]) {
         trailingSwipeActionsConfigurationForRowAt = { indexPath in
             let contextualActions = actions.map { action in
                 let uiAction = UIContextualAction(
                     style: action.style.asUIContextualActionStyle,
                     title: action.title
                 ) { _, _, completion in
-                    action.onPress?()
+                    if let model = self.dataSource.itemIdentifier(for: indexPath) {
+                        action.onPress?(model)
+                    }
                     completion(true)
                 }
                 if let backgroundColor = action.backgroundColor {

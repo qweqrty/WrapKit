@@ -30,7 +30,7 @@ extension MainQueueDispatchDecorator: TableOutput where T: TableOutput {
             self?.decoratee.display(sections: sections)
         }
     }
-    public func display(actions: [TableContextualAction]) {
+    public func display(actions: [TableContextualAction<Cell>]) {
         dispatch { [weak self] in
             self?.decoratee.display(actions: actions)
         }
