@@ -88,6 +88,9 @@ extension WeakRefVirtualProxy: TextInputOutput where T: TextInputOutput {
     public func display(isHidden: Bool) {
         object?.display(isHidden: isHidden)
     }
+    public func display(trailingSymbol: String?) {
+        object?.display(trailingSymbol: trailingSymbol)
+    }
 
 }
 #endif

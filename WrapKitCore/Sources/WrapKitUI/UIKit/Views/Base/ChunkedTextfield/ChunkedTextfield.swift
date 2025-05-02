@@ -44,6 +44,8 @@ extension ChunkedTextField: TextInputOutput {
         self.didChangeText = didChangeText
     }
     
+    public func display(trailingSymbol: String?) { }
+    
     public func display(mask: TextInputPresentableModel.Mask) { }
     public func display(isEnabledForEditing: Bool) { }
     public func display(isTextSelectionDisabled: Bool) { }

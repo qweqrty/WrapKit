@@ -36,7 +36,8 @@ public class MaskedTextfieldDelegate: NSObject, UITextFieldDelegate {
                     .init(trailingWithString, font: textfield.font ?? .systemFont(ofSize: 17), color: format.maskedTextColor, textAlignment: textfield.textAlignment)
                 )
             }
-            let newPosition = textfield.position(from: textfield.beginningOfDocument, offset: mask.input.count) ?? textfield.beginningOfDocument
+            let offset = handleTrailingSymbolOffset(textfield.text, mask: mask)
+            let newPosition = textfield.position(from: textfield.beginningOfDocument, offset: offset) ?? textfield.beginningOfDocument
             textfield.selectedTextRange = textfield.textRange(from: newPosition, to: newPosition)
         }
     }
@@ -83,7 +84,6 @@ public class MaskedTextfieldDelegate: NSObject, UITextFieldDelegate {
         textField.sendActions(for: .editingChanged)
         return false
     }
-
     
     private func onPaste(_ text: String) {
         guard let textfield = textfield else { return }
@@ -94,6 +94,17 @@ public class MaskedTextfieldDelegate: NSObject, UITextFieldDelegate {
         let maskedText = format.mask.applied(to: newText)
         
         self.fullText = maskedText.input
+    }
+    
+    private func handleTrailingSymbolOffset(_ text: String?, mask: (input: String, maskToInput: String)) -> Int {
+        guard let trailingSymbol, let text else { return 0 }
+        let isTextContainsTrailingSymbol = text.contains(trailingSymbol)
+        if isTextContainsTrailingSymbol {
+            return mask.input.count + (trailingSymbol.hasPrefix(" ") == true ? -2 : 0)
+        } else {
+            return 0
+        }
+        
     }
     
     public func textFieldDidBeginEditing(_ textField: UITextField) {

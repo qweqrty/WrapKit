@@ -108,6 +108,7 @@ public protocol TextInputOutput: AnyObject {
     func display(trailingViewIsHidden: Bool)
     func display(leadingViewIsHidden: Bool)
     func display(isHidden: Bool)
+    func display(trailingSymbol: String?)
 }
 
 public struct TextInputPresentableModel: HashableWithReflection {
@@ -136,6 +137,7 @@ public struct TextInputPresentableModel: HashableWithReflection {
     public var onResignFirstResponder: (() -> Void)?
     public var onTapBackspace: (() -> Void)?
     public var didChangeText: [((String?) -> Void)]?
+    public let trailingSymbol: String?
     
     public init(
         text: String? = nil,
@@ -153,7 +155,8 @@ public struct TextInputPresentableModel: HashableWithReflection {
         onBecomeFirstResponder: (() -> Void)? = nil,
         onResignFirstResponder: (() -> Void)? = nil,
         onTapBackspace: (() -> Void)? = nil,
-        didChangeText: [(String?) -> Void]? = nil
+        didChangeText: [(String?) -> Void]? = nil,
+        trailingSymbol: String? = nil
     ) {
         self.text = text
         self.mask = mask
@@ -171,6 +174,7 @@ public struct TextInputPresentableModel: HashableWithReflection {
         self.onResignFirstResponder = onResignFirstResponder
         self.onTapBackspace = onTapBackspace
         self.didChangeText = didChangeText
+        self.trailingSymbol = trailingSymbol
     }
 }
 
@@ -209,6 +213,7 @@ extension Textfield: TextInputOutput {
         if let didChangeText = model.didChangeText {
             display(didChangeText: didChangeText)
         }
+        display(trailingSymbol: model.trailingSymbol)
     }
     
     public func display(text: String?) {
@@ -286,6 +291,17 @@ extension Textfield: TextInputOutput {
     
     public func display(isHidden: Bool) {
         self.isHidden = isHidden
+    }
+    
+    public func display(trailingSymbol: String?) {
+        guard let masketTextfieldDelegate = maskedTextfieldDelegate else {
+            self.maskedTextfieldDelegate = MaskedTextfieldDelegate(
+                format: .init(mask: Mask(format: []), maskedTextColor: .clear),
+                trailingSymbol: trailingSymbol
+            )
+            return
+        }
+        self.maskedTextfieldDelegate?.trailingSymbol = trailingSymbol
     }
 }
 

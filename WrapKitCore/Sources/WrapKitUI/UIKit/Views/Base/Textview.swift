@@ -235,5 +235,7 @@ extension Textview: TextInputOutput {
     public func display(isHidden: Bool) {
         self.isHidden = isHidden
     }
+    
+    public func display(trailingSymbol: String?) { }
 }
 #endif
