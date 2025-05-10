@@ -7,7 +7,7 @@
 
 import Foundation
 
-extension DiffableCollectionViewDataSource: TableOutput {
+extension DiffableCollectionViewDataSource: TableOutput { 
     public func display(trailingSwipeActionsForIndexPath: ((IndexPath) -> [TableContextualAction<Cell>])?) {
                 
     }
