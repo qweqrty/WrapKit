@@ -51,6 +51,7 @@ public extension LoadingOutput where Self == CommonLoadingiOSAdapter {
         onView: UIView,
         type: NVActivityIndicatorType = .circleStrokeSpin,
         size: CGSize = .init(width: 80, height: 80),
+        padding: UIEdgeInsets = .init(top: 25, left: 25, bottom: 25, right: 25),
         loadingViewColor: UIColor,
         wrapperViewColor: UIColor
     ) -> LoadingOutput {
@@ -62,7 +63,7 @@ public extension LoadingOutput where Self == CommonLoadingiOSAdapter {
             ),
             backgroundColor: wrapperViewColor,
             contentViewConstraints: { contentView, wrapperView in
-                contentView.fillSuperview(padding: .init(top: 25, left: 25, bottom: 25, right: 25))
+                contentView.fillSuperview(padding: padding)
             }
         )
         loadingView.cornerRadius = 12
