@@ -16,6 +16,7 @@ public let swiftUIApp = Project(name: "SwiftUIApp", path: .modulesRelative("Swif
 public let wrapKit = Project(name: "WrapKit", path: .modulesRelative("WrapKitCore"))
 public let wrapKitGame = Project(name: "WrapKitGame", path: .modulesRelative("WrapKitGame"))
 public let wrapKitTestUtils = Project(name: "WrapKitTestUtils", path: .modulesRelative("WrapKitCore/TestUtils"))
+public let gameApp = Project(name: "GameApp", path: .modulesRelative("GameApp"))
 
 // Scripts
 public enum Scripts {
