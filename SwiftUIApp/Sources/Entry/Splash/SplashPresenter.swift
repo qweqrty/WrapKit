@@ -7,6 +7,7 @@
 
 import Foundation
 import WrapKit
+import GameKit
 
 public class SplashPresenter: LifeCycleViewOutput, ApplicationLifecycleOutput {
     public var lottieView: LottieViewOutput?

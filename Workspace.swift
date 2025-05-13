@@ -5,6 +5,7 @@ let workspace = Workspace(
     name: "Wrapkit",
     projects: [
         swiftUIApp.path,
-        wrapKit.path
+        wrapKit.path,
+        wrapKitGame.path
     ]
 )

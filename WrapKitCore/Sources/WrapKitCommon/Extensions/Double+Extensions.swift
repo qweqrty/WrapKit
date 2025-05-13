@@ -8,56 +8,46 @@
 import Foundation
 
 public extension Double {
-    func round(nearest: Double) -> Double {
-        let n = 1 / nearest
-        let numberToRound = self * n
-        return numberToRound.rounded() / n
-    }
-
-    func floor(nearest: Double) -> Double {
-        let intDiv = Double(Int(self / nearest))
-        return intDiv * nearest
-    }
-
     func asString(withDecimalPlaces count: Int = 0, locale: Locale = .current) -> String {
-        // Use String(format:) to control decimal places directly
-        let format = "%.\(count)f"
-        // Split the number into integer and fractional parts
-        let multiplier = pow(10.0, Double(count))
-        let intPart = Int(self)
-        let fracPart = Int((self - Double(intPart)) * multiplier)
-        return String(format: format, Double(intPart) + Double(fracPart) / multiplier)
+        guard self.isFinite else { return String(self) }
+
+        // Use Decimal for exactness
+        var decimal = Decimal(self)
+        let roundingMode: NSDecimalNumber.RoundingMode = self >= 0 ? .plain : .up
+        var truncated = Decimal()
+        NSDecimalRound(&truncated, &decimal, count, roundingMode)
+
+        // Format using locale
+        let formatter = NumberFormatter()
+        formatter.locale = locale
+        formatter.numberStyle = .decimal
+        formatter.minimumFractionDigits = count
+        formatter.maximumFractionDigits = count
+        formatter.usesGroupingSeparator = true
+        formatter.groupingSeparator = locale.groupingSeparator // Explicitly set for consistency
+        formatter.decimalSeparator = locale.decimalSeparator // Explicitly set for consistency
+
+        // Convert Decimal to NSDecimalNumber for precise formatting
+        let number = NSDecimalNumber(decimal: truncated)
+        return formatter.string(from: number) ?? String(format: "%.\(count)f", number.doubleValue)
     }
 }
 
 public extension Float {
-    func round(nearest: Float) -> Float {
-        let n = 1 / nearest
-        let numberToRound = self * n
-        return numberToRound.rounded() / n
-    }
-
-    func floor(nearest: Float) -> Float {
-        let intDiv = Float(Int(self / nearest))
-        return intDiv * nearest
-    }
-
     func asString(withDecimalPlaces count: Int = 0, locale: Locale = .current) -> String {
-            // Use String(format:) to control decimal places directly
-            let format = "%.\(count)f"
-            // Split the number into integer and fractional parts
-            let multiplier = pow(10.0, Float(count))
-            let intPart = Int(self)
-            let fracPart = Int((self - Float(intPart)) * multiplier)
-            return String(format: format, Float(intPart) + Float(fracPart) / multiplier)
-        }
+        guard self.isFinite else { return String(self) }
+
+        return Double(self).asString(withDecimalPlaces: 2, locale: locale)
+    }
 }
 
 public extension Int {
+    /// Formats the integer as a localized string with grouping separators.
     func asString(locale: Locale = .current) -> String {
         let formatter = NumberFormatter()
-        formatter.locale = locale
-        formatter.numberStyle = .decimal
+        formatter.locale                = locale
+        formatter.numberStyle           = .decimal
+        formatter.usesGroupingSeparator = true
         return formatter.string(from: NSNumber(value: self)) ?? "\(self)"
     }
 }

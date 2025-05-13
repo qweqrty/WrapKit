@@ -17,12 +17,6 @@ public protocol SwitchCotrolOutput: AnyObject {
     func display(isLoading: Bool, shimmerStyle: ShimmerView.Style?)
 }
 
-public extension SwitchCotrolOutput {
-    func display(isLoading: Bool, shimmerStyle: ShimmerView.Style? = nil) {
-        display(isLoading: isLoading, shimmerStyle: nil)
-    }
-}
-
 public struct SwitchControlPresentableModel {
     public let onPress: ((SwitchCotrolOutput) -> Void)?
     public let isOn: Bool?

@@ -51,7 +51,6 @@ open class ProgressBarView: UIView {
     public let progressView = ViewUIKit(backgroundColor: .green)
     
     private var progressViewAnchoredConstraints: AnchoredConstraints?
-    private var pendingProgressPercentage: CGFloat?
     
     public init() {
         super.init(frame: .zero)
@@ -82,28 +81,15 @@ open class ProgressBarView: UIView {
     }
     
     public func applyProgress(percentage: CGFloat, animated: Bool = true) {
-        if bounds.width == 0 {
-            pendingProgressPercentage = percentage
-            return
-        }
-        pendingProgressPercentage = nil
-        layoutIfNeeded()
-        let maxWidth = bounds.width
-        let newWidth = maxWidth * (percentage / 100.0)
-        progressViewAnchoredConstraints?.width?.constant = newWidth
-        
-        if animated {
-            UIView.animate(withDuration: 0.3) {
-                self.layoutIfNeeded()
+        CFRunLoopPerformBlock(CFRunLoopGetCurrent(), CFRunLoopMode.defaultMode.rawValue) { [weak self] in
+            let maxWidth = self?.bounds.width ?? 0
+            let newWidth = maxWidth * (percentage / 100.0)
+            self?.progressViewAnchoredConstraints?.width?.constant = newWidth
+            if animated {
+                UIView.animate(withDuration: 0.3) {
+                    self?.layoutIfNeeded()
+                }
             }
-        }
-    }
-    
-    override open func layoutSubviews() {
-        super.layoutSubviews()
-        
-        if let percentage = pendingProgressPercentage {
-            applyProgress(percentage: percentage, animated: false)
         }
     }
     
@@ -123,7 +109,6 @@ extension ProgressBarView {
             .leading(leadingAnchor),
             .trailingLessThanEqual(trailingAnchor),
             .bottom(bottomAnchor),
-            .height(0),
             .width(0)
         )
     }

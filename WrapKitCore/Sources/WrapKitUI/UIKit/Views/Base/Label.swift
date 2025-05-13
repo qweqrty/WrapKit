@@ -39,6 +39,7 @@ extension Label: TextOutput {
     public func display(model: TextOutputPresentableModel?) {
         isHidden = model == nil
         guard let model = model else { return }
+        hideShimmer()
         switch model {
         case .text(let text):
             display(text: text)

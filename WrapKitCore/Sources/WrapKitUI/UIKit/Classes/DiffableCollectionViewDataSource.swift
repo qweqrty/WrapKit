@@ -7,7 +7,31 @@
 
 import Foundation
 
-extension DiffableCollectionViewDataSource: TableOutput {
+extension DiffableCollectionViewDataSource: TableOutput { 
+    public func display(trailingSwipeActionsForIndexPath: ((IndexPath) -> [TableContextualAction<Cell>])?) {
+                
+    }
+    
+    public func display(leadingSwipeActionsForIndexPath: ((IndexPath) -> [TableContextualAction<Cell>])?) {
+        
+    }
+    
+    public func display(move: ((IndexPath, IndexPath) -> Void)?) {
+        
+    }
+    
+    public func display(canMove: ((IndexPath) -> Bool)?) {
+        
+    }
+    
+    public func display(canEdit: ((IndexPath) -> Bool)?) {
+        
+    }
+    
+    public func display(commitEditing: ((TableEditingStyle, IndexPath) -> Void)?) {
+        
+    }
+    
     public func display(sections: [TableSection<Header, Cell, Footer>]) {
         DispatchQueue.global().async { [weak self] in
             self?.headers.removeAll()
