@@ -55,9 +55,9 @@ public class TextOutputSwiftUIAdapter: ObservableObject, TextOutput {
     public struct DisplayStartAmountEndAmountMapToStringState {
         public let startAmount: Float
         public let endAmount: Float
-        public let mapToString: ((Float) -> String)?
+        public let mapToString: ((Float) -> TextOutputPresentableModel)?
     }
-    public func display(from startAmount: Float, to endAmount: Float, mapToString: ((Float) -> String)?) {
+    public func display(from startAmount: Float, to endAmount: Float, mapToString: ((Float) -> TextOutputPresentableModel)?) {
         displayStartAmountEndAmountMapToStringState = .init(
             startAmount: startAmount, 
             endAmount: endAmount, 
