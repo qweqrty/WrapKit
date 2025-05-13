@@ -36,6 +36,7 @@ private extension WebViewContentView {
     }
     
     func setupConstraints() {
+        progressBarView.constrainHeight(2)
         contentStackView.fillSuperview()
     }
 }
