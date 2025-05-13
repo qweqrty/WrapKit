@@ -120,7 +120,6 @@ struct LanguageSelectionView: View {
                 }
             }
             .navigationTitle("Select Language")
-            .navigationBarTitleDisplayMode(.inline)
             .foregroundColor(style.modalTitleColor)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {

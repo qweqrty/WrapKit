@@ -7,7 +7,6 @@
 
 import SwiftUI
 
-
 let spaceGameStyle = SettingsStyleConfig(
     backgroundImage: "background1",
     sectionHeaderColor: .blue,
@@ -17,9 +16,8 @@ let spaceGameStyle = SettingsStyleConfig(
     pickerBackgroundColor: .white,
     titleFont: .custom("Futura", size: 24),
     buttonFont: .custom("Futura", size: 16),
-    sectionHeaderFont: .custom("Futura", size: 18),
+    sectionHeaderFont: .custom("Futura", size: 18)
 )
-
 
 let fantasyGameStyle = SettingsStyleConfig(
     backgroundImage: "background2",
@@ -30,5 +28,5 @@ let fantasyGameStyle = SettingsStyleConfig(
     pickerBackgroundColor: .white,
     titleFont: .custom("Papyrus", size: 24),
     buttonFont: .custom("Papyrus", size: 16),
-    sectionHeaderFont: .custom("Papyrus", size: 18),
+    sectionHeaderFont: .custom("Papyrus", size: 18)
 )

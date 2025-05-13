@@ -150,7 +150,7 @@ extension SelectionPresenter: SelectionInput {
     }
     
     private func onSelect(at indexPath: IndexPath, model: SelectionType.SelectionCellPresentableModel) {
-        guard let selectedItem = itemsToPresent.item(at: indexPath.row) else { return }
+        guard let selectedItem = itemsToPresent.item(at: indexPath.item) else { return }
         guard let selectedItemIndex = self.items.firstIndex(where: { $0.id == selectedItem.id }) else { return }
         selectedItem.onPress?()
         
