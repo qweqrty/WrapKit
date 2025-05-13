@@ -89,9 +89,4 @@ public class SwitchCotrolOutputSwiftUIAdapter: ObservableObject, SwitchCotrolOut
             shimmerStyle: shimmerStyle
         )
     }
-    @Published public var displayIsLoadingShimmerStyleState: DisplayIsLoadingShimmerStyleState? = nil
-    public struct DisplayIsLoadingShimmerStyleState {
-        public let isLoading: Bool
-        public let shimmerStyle: ShimmerView.Style?
-    }
 }

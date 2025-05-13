@@ -243,16 +243,18 @@ private extension String {
 
 private extension TextOutputPresentableModel {
     func width(usingFont font: Font) -> CGFloat {
-        guard case .text(let string) = self else {
-            return 0
-        }
-        
-        guard let unwrappedString = string else {
+        var string: String?
+        switch self {
+        case .attributes(let attributes):
+            string = attributes.map { $0.text }.joined()
+        case .text(let text):
+            string = text
+        default:
             return 0
         }
         
         let attributedString = NSAttributedString(
-            string: unwrappedString,
+            string: string ?? "",
             attributes: [.font: font]
         )
         
