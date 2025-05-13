@@ -16,11 +16,12 @@ struct GameMenu: View {
                 .ignoresSafeArea()
                 .overlay(Color.black.opacity(0.3))
             
-//            LottieView(animation: .named(backgroundAnimation))
             LottieView(animation: .named(backgroundAnimation))
               .looping()
               .resizable()
               .ignoresSafeArea()
+//              .scaledToFill()
+//              .edgesIgnoringSafeArea(.all)
 
             VStack(spacing: 40) {
                 Text(title)

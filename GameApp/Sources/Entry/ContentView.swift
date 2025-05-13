@@ -2,13 +2,12 @@ import SwiftUI
 
 struct ContentView: View {
     @EnvironmentObject var gameState: GameState
-//    @State private var navigationPath = NavigationPath()
+    //    @State private var navigationPath = NavigationPath()
     @State private var showFullScreen = false
     @State private var showSettings = false
     
     var body: some View {
-//        NavigationStack(path: $navigationPath) {
-            
+        ZStack {
             GameMenu(
                 title: "Game Menu",
                 buttons: [
@@ -38,16 +37,25 @@ struct ContentView: View {
                 backgroundImageName: "background1",
                 backgroundAnimation: "cartoon"
             )
-            .fullScreenCover(isPresented: $showSettings) {
+            
+            if showSettings {
+                Color.black.opacity(0.6)
+                    .ignoresSafeArea()
+                    .transition(.opacity)
+                
                 SettingsView(
                     musicEnabled: $gameState.musicEnabled,
+                    isPresented: $showSettings,
                     soundEffectsEnabled: $gameState.soundEffectsEnabled,
                     vibrationEnabled: $gameState.vibrationEnabled,
                     selectedLanguage: $gameState.selectedLanguage,
-                    styleConfig: spaceGameStyle
+                    styleConfig: fantasyGameStyle
                 )
-                
+                .transition(.scale)
+                .zIndex(1)
             }
         }
+        
     }
-//}
+    
+}

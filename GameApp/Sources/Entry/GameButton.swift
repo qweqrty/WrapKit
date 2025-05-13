@@ -1,6 +1,5 @@
 import SwiftUI
 
-// Модуль кнопки
 struct GameButton: View {
     let title: String
     let backgroundImageName: String
@@ -14,8 +13,8 @@ struct GameButton: View {
                         .resizable()
                         .scaledToFit()
                         .frame(
-                            width: min(geometry.size.width * 0.3, 300), // 30% ширины или максимум 200
-                            height: min(geometry.size.width * 0.075, 70) // 7.5% от ширины или максимум 50
+                            width: max(min(geometry.size.width * 0.3, 200), 150), // Минимум 150, максимум 200
+                            height: max(min(geometry.size.width * 0.075, 50), 75) // Минимум 40, максимум 50
                         )
                         .clipShape(RoundedRectangle(cornerRadius: 20))
                     
@@ -30,9 +29,9 @@ struct GameButton: View {
                 .frame(maxWidth: .infinity)
                 .shadow(radius: 5)
             }
-            .frame(height: min(geometry.size.width * 0.075, 50))
+            .frame(height: max(min(geometry.size.width * 0.075, 75), 40))
         }
-        .frame(height: 50) // Минимальная высота
+        .frame(minHeight: 40, maxHeight: 75) // Ограничиваем высоту
     }
 }
 

@@ -113,7 +113,7 @@ extension SwitchControl: SwitchCotrolOutput {
         self.isHidden = isHidden
     }
     
-    public func display(isLoading: Bool, shimmerStyle: ShimmerView.Style?) {
+    public func display(isLoading: Bool, shimmerStyle: ShimmerStyle?) {
         var shimmerView: ShimmerView? = nil
         if let shimmerStyle {
             shimmerView = ShimmerView(backgroundColor: shimmerStyle.backgroundColor)
