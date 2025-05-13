@@ -80,7 +80,7 @@ open class RefreshControl: UIRefreshControl {
     
     public var onRefresh: [(() -> Void)?]? = [(() -> Void)?]()
     
-    public init(tintColor: UIColor? = nil, zPosition: CGFloat = 0) {
+    public init(tintColor: UIColor? = nil, zPosition: CGFloat = -1) {
         super.init()
         
         self.tintColor = tintColor
