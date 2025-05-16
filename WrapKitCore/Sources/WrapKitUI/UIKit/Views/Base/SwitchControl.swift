@@ -121,7 +121,7 @@ extension SwitchControl: SwitchCotrolOutput {
         }
         
         isLoading
-        ? self.showShimmer(shimmerView)
+        ? self.showShimmer(shimmerView, heightMultiplier: 1, widthMultiplier: 1.1)
         : self.hideShimmer()
     }
 }
