@@ -16,6 +16,8 @@ public protocol DatePickerViewOutput: AnyObject {
 public enum DatePickerMode: HashableWithReflection {
     case time
     case date
+    case dateAndTime
+    case countDownTimer
 }
 
 #if canImport(UIKit)
@@ -68,12 +70,17 @@ extension DatePickerView: DatePickerViewOutput {
 }
 
 public extension DatePickerView {
+    
     func mapMode(_ mode: DatePickerMode) -> UIDatePicker.Mode {
         switch mode {
         case .time:
-            return .time
+                .time
         case .date:
-            return .date
+                .date
+        case .dateAndTime:
+                .dateAndTime
+        case .countDownTimer:
+                .countDownTimer
         }
     }
 }
