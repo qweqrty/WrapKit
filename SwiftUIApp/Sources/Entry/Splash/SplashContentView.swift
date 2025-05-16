@@ -10,23 +10,21 @@ import WrapKit
 
 public struct SplashContentView: View {
     private let lifeCycleOutput: LifeCycleViewOutput?
-    private let ApplicationLifecycleOutput: ApplicationLifecycleOutput?
-    private let adapter: TextOutputSwiftUIAdapter
+    private let applicationLifecycleOutput: ApplicationLifecycleOutput?
+    public let adapter = TextOutputSwiftUIAdapter()
 
     public init(
         lifeCycleOutput: LifeCycleViewOutput? = nil,
-        ApplicationLifecycleOutput: ApplicationLifecycleOutput? = nil,
-        adapter: TextOutputSwiftUIAdapter
+        applicationLifecycleOutput: ApplicationLifecycleOutput? = nil
     ) {
         self.lifeCycleOutput = lifeCycleOutput
-        self.ApplicationLifecycleOutput = ApplicationLifecycleOutput
-        self.adapter = adapter
+        self.applicationLifecycleOutput = applicationLifecycleOutput
     }
 
     public var body: some View {
         LifeCycleView(
             lifeCycleOutput: lifeCycleOutput,
-            applicationLifecycleOutput: ApplicationLifecycleOutput
+            applicationLifecycleOutput: applicationLifecycleOutput
         ) {
             ZStack {
                 Color.red.ignoresSafeArea()

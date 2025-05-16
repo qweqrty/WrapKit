@@ -20,15 +20,14 @@ struct EntryViewSwiftUIFactory: EntryViewFactory {
     
     func makeSplashScreen() -> AnyView {
         let presenter = SplashPresenter()
-        let adapter = TextOutputSwiftUIAdapter()
-        let view = SplashContentView(
+        let contentView = SplashContentView(
             lifeCycleOutput: presenter,
-            ApplicationLifecycleOutput: presenter,
-            adapter: adapter
+            applicationLifecycleOutput: presenter
         )
-        presenter.textOutput = adapter
+        presenter.textOutput = contentView
+            .adapter
             .weakReferenced
             .mainQueueDispatched
-        return AnyView(view)
+        return AnyView(contentView)
     }
 }
