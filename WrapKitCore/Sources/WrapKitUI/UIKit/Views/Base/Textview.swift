@@ -136,6 +136,35 @@ public extension Textview {
 }
 
 extension Textview: TextInputOutput {
+    public func display(inputView: TextInputPresentableModel.InputView?) {
+        switch inputView {
+        case .date(let model):
+            let picker = DatePickerView()
+            picker.datePickerMode = picker.mapMode(model.mode)
+            picker.date = model.value
+            picker.minimumDate = model.minDate
+            picker.maximumDate = model.maxDate
+            picker.addAction(
+                UIAction { _ in model.onChange?(picker.date) },
+                for: .valueChanged
+            )
+            self.inputView = picker
+            
+            guard let accessoryViewModel = model.accessoryViewModel else { return }
+            let button = Button()
+            button.display(model: accessoryViewModel)
+            button.onPress = { [weak self] in
+                if let picker = self?.inputView as? UIDatePicker {
+                    model.onDoneTapped?(picker.date)
+                }
+                self?.endEditing(true)
+            }
+            self.inputAccessoryView = makeAccessoryView(accessoryView: button)
+        case .none: break
+        }
+        self.reloadInputViews()
+    }
+    
     public func startEditing() {
         becomeFirstResponder()
     }
