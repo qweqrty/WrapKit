@@ -120,7 +120,7 @@ public class DiffableTableViewDataSource<Header, Cell: Hashable, Footer>: UITabl
     }
     
     override public func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-        return canEditHandler?(indexPath) ?? false
+        return canEditHandler?(indexPath) ?? true
     }
     
     override public func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
