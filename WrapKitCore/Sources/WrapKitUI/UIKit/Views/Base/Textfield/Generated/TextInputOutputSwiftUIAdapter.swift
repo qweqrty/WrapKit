@@ -24,6 +24,16 @@ public class TextInputOutputSwiftUIAdapter: ObservableObject, TextInputOutput {
     ) {
     }
 
+    @Published public var displayInputViewState: DisplayInputViewState? = nil
+    public struct DisplayInputViewState {
+        public let inputView: TextInputPresentableModel.InputView?
+    }
+    public func display(inputView: TextInputPresentableModel.InputView?) {
+        displayInputViewState = .init(
+            inputView: inputView
+        )
+    }
+    
     @Published public var displayModelState: DisplayModelState? = nil
     public struct DisplayModelState {
         public let model: TextInputPresentableModel?

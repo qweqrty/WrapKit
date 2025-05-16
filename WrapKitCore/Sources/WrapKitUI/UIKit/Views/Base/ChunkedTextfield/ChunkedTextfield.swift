@@ -2,6 +2,8 @@ import Foundation
 
 #if canImport(UIKit)
 extension ChunkedTextField: TextInputOutput {
+    public func display(inputView: TextInputPresentableModel.InputView?) { }
+    
     public func startEditing() {
         textfields.first?.becomeFirstResponder()
     }

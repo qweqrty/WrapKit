@@ -108,9 +108,41 @@ public protocol TextInputOutput: AnyObject {
     func display(trailingViewIsHidden: Bool)
     func display(leadingViewIsHidden: Bool)
     func display(isHidden: Bool)
+    func display(inputView: TextInputPresentableModel.InputView?)
 }
 
 public struct TextInputPresentableModel: HashableWithReflection {
+    
+    public enum InputView {
+        public struct DatePickerPresentableModel {
+            public let accessoryViewModel: ButtonPresentableModel?
+            public let mode: DatePickerMode
+            public let value: Date
+            public let minDate: Date?
+            public let maxDate: Date?
+            public let onChange: ((Date) -> Void)?
+            public let onDoneTapped: ((Date) -> Void)?
+            
+            public init(
+                minDate: Date? = nil,
+                maxDate: Date? = nil,
+                mode: DatePickerMode = .date,
+                value: Date = Date(),
+                accessoryViewModel: ButtonPresentableModel? = nil,
+                onChange: ((Date) -> Void)? = nil,
+                onDoneTapped: ((Date) -> Void)? = nil
+            ) {
+                self.mode = mode
+                self.value = value
+                self.onChange = onChange
+                self.accessoryViewModel = accessoryViewModel
+                self.minDate = minDate
+                self.maxDate = maxDate
+                self.onDoneTapped = onDoneTapped
+            }
+        }
+        case date(DatePickerPresentableModel)
+    }
     public struct Mask {
         public let mask: Masking
         public let maskColor: Color
@@ -128,6 +160,7 @@ public struct TextInputPresentableModel: HashableWithReflection {
     public let placeholder: String?
     public let isUserInteractionEnabled: Bool?
     public let isSecureTextEntry: Bool?
+    public let inputView: InputView?
     public var leadingViewOnPress: (() -> Void)?
     public var trailingViewOnPress: (() -> Void)?
     public var onPress: (() -> Void)?
@@ -146,6 +179,7 @@ public struct TextInputPresentableModel: HashableWithReflection {
         placeholder: String? = nil,
         isUserInteractionEnabled: Bool? = nil,
         isSecureTextEntry: Bool? = nil,
+        inputView: InputView? = nil,
         leadingViewOnPress: (() -> Void)? = nil,
         trailingViewOnPress: (() -> Void)? = nil,
         onPress: (() -> Void)? = nil,
@@ -171,11 +205,37 @@ public struct TextInputPresentableModel: HashableWithReflection {
         self.onResignFirstResponder = onResignFirstResponder
         self.onTapBackspace = onTapBackspace
         self.didChangeText = didChangeText
+        self.inputView = inputView
     }
 }
 
 #if canImport(UIKit)
 import UIKit
+
+public extension TextInputOutput {
+    func makeAccessoryView(
+        accessoryView: UIView,
+        height: CGFloat = 60,
+        constraints: ((UIView, UIView) -> [NSLayoutConstraint])? = nil
+    ) -> UIView {
+        let container = UIView(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: height))
+        container.backgroundColor = .systemGroupedBackground
+        
+        container.addSubview(accessoryView)
+        accessoryView.translatesAutoresizingMaskIntoConstraints = false
+    
+        let defaultConstraints: (UIView, UIView) -> [NSLayoutConstraint] = { container, view in
+            return [
+                view.centerYAnchor.constraint(equalTo: container.centerYAnchor),
+                view.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -16),
+                view.heightAnchor.constraint(equalToConstant: 36),
+                view.widthAnchor.constraint(equalToConstant: 80)
+            ]
+        }
+        NSLayoutConstraint.activate((constraints ?? defaultConstraints)(container, accessoryView))
+        return container
+    }
+}
 
 extension Textfield: TextInputOutput {
     public func startEditing() {
@@ -209,6 +269,37 @@ extension Textfield: TextInputOutput {
         if let didChangeText = model.didChangeText {
             display(didChangeText: didChangeText)
         }
+        
+        display(inputView: model.inputView)
+    }
+    
+    public func display(inputView: TextInputPresentableModel.InputView?) {
+        switch inputView {
+        case .date(let model):
+            let picker = DatePickerView()
+            picker.datePickerMode = picker.mapMode(model.mode)
+            picker.date = model.value
+            picker.minimumDate = model.minDate
+            picker.maximumDate = model.maxDate
+            picker.addAction(
+                UIAction { _ in model.onChange?(picker.date) },
+                for: .valueChanged
+            )
+            self.inputView = picker
+            
+            guard let accessoryViewModel = model.accessoryViewModel else { return }
+            let button = Button()
+            button.display(model: accessoryViewModel)
+            button.onPress = { [weak self] in
+                if let picker = self?.inputView as? UIDatePicker {
+                    model.onDoneTapped?(picker.date)
+                }
+                self?.endEditing(true)
+            }
+            self.inputAccessoryView = makeAccessoryView(accessoryView: button)
+        case .none: break
+        }
+        self.reloadInputViews()
     }
     
     public func display(text: String?) {
@@ -290,6 +381,7 @@ extension Textfield: TextInputOutput {
 }
 
 open class Textfield: UITextField {
+    
     public enum TrailingViewStyle {
         case clear(trailingView: ViewUIKit)
         case custom(trailingView: ViewUIKit)

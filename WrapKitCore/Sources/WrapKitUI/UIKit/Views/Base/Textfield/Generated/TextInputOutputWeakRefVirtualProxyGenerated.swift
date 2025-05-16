@@ -22,6 +22,9 @@ extension TextInputOutput {
 
 extension WeakRefVirtualProxy: TextInputOutput where T: TextInputOutput {
 
+    public func display(inputView: TextInputPresentableModel.InputView?) {
+        object?.display(inputView: inputView)
+    }
     public func display(model: TextInputPresentableModel?) {
         object?.display(model: model)
     }

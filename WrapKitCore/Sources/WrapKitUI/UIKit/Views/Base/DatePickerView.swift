@@ -13,6 +13,11 @@ public protocol DatePickerViewOutput: AnyObject {
     func display(setDate: Date, animated: Bool)
 }
 
+public enum DatePickerMode: HashableWithReflection {
+    case time
+    case date
+}
+
 #if canImport(UIKit)
 import Foundation
 import UIKit
@@ -59,6 +64,17 @@ extension DatePickerView: DatePickerViewOutput {
     
     public func display(dateChanged: ((Date) -> Void)?) {
         self.dateChanged = dateChanged
+    }
+}
+
+public extension DatePickerView {
+    func mapMode(_ mode: DatePickerMode) -> UIDatePicker.Mode {
+        switch mode {
+        case .time:
+            return .time
+        case .date:
+            return .date
+        }
     }
 }
 #endif
