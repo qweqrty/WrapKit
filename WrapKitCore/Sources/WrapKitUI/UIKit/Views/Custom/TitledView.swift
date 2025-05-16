@@ -9,6 +9,8 @@ public protocol TitledOutput: AnyObject {
     func display(model: TitledViewPresentableModel?)
     func display(titles: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>)
     func display(bottomTitles: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>)
+    func display(leadingBottomTitle: TextOutputPresentableModel?)
+    func display(trailingBottomTitle: TextOutputPresentableModel?)
     func display(isUserInteractionEnabled: Bool)
     func display(isHidden: Bool)
 }
@@ -164,6 +166,14 @@ extension TitledView: TitledOutput {
     
     public func display(bottomTitles: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>) {
         closingTitleVFieldView.display(model: bottomTitles)
+    }
+    
+    public func display(leadingBottomTitle: TextOutputPresentableModel?) {
+        closingTitleVFieldView.display(keyTitle: leadingBottomTitle)
+    }
+    
+    public func display(trailingBottomTitle: TextOutputPresentableModel?) {
+        closingTitleVFieldView.display(valueTitle: trailingBottomTitle)
     }
     
     public func display(isUserInteractionEnabled: Bool) {

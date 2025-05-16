@@ -51,6 +51,24 @@ public class TitledOutputSwiftUIAdapter: ObservableObject, TitledOutput {
             bottomTitles: bottomTitles
         )
     }
+    @Published public var displayLeadingBottomTitleState: DisplayLeadingBottomTitleState? = nil
+    public struct DisplayLeadingBottomTitleState {
+        public let leadingBottomTitle: TextOutputPresentableModel?
+    }
+    public func display(leadingBottomTitle: TextOutputPresentableModel?) {
+        displayLeadingBottomTitleState = .init(
+            leadingBottomTitle: leadingBottomTitle
+        )
+    }
+    @Published public var displayTrailingBottomTitleState: DisplayTrailingBottomTitleState? = nil
+    public struct DisplayTrailingBottomTitleState {
+        public let trailingBottomTitle: TextOutputPresentableModel?
+    }
+    public func display(trailingBottomTitle: TextOutputPresentableModel?) {
+        displayTrailingBottomTitleState = .init(
+            trailingBottomTitle: trailingBottomTitle
+        )
+    }
     @Published public var displayIsUserInteractionEnabledState: DisplayIsUserInteractionEnabledState? = nil
     public struct DisplayIsUserInteractionEnabledState {
         public let isUserInteractionEnabled: Bool

@@ -31,6 +31,12 @@ extension WeakRefVirtualProxy: TitledOutput where T: TitledOutput {
     public func display(bottomTitles: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>) {
         object?.display(bottomTitles: bottomTitles)
     }
+    public func display(leadingBottomTitle: TextOutputPresentableModel?) {
+        object?.display(leadingBottomTitle: leadingBottomTitle)
+    }
+    public func display(trailingBottomTitle: TextOutputPresentableModel?) {
+        object?.display(trailingBottomTitle: trailingBottomTitle)
+    }
     public func display(isUserInteractionEnabled: Bool) {
         object?.display(isUserInteractionEnabled: isUserInteractionEnabled)
     }
