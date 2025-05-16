@@ -37,6 +37,16 @@ extension MainQueueDispatchDecorator: TitledOutput where T: TitledOutput {
             self?.decoratee.display(bottomTitles: bottomTitles)
         }
     }
+    public func display(leadingBottomTitle: TextOutputPresentableModel?) {
+        dispatch { [weak self] in
+            self?.decoratee.display(leadingBottomTitle: leadingBottomTitle)
+        }
+    }
+    public func display(trailingBottomTitle: TextOutputPresentableModel?) {
+        dispatch { [weak self] in
+            self?.decoratee.display(trailingBottomTitle: trailingBottomTitle)
+        }
+    }
     public func display(isUserInteractionEnabled: Bool) {
         dispatch { [weak self] in
             self?.decoratee.display(isUserInteractionEnabled: isUserInteractionEnabled)
