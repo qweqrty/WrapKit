@@ -99,11 +99,11 @@ public class DiffableTableViewDataSource<Header, Cell: Hashable, Footer>: UITabl
     var footers = [Int: Footer]()
     
     // MARK: - Initializer
-    public init(tableView: UITableView, configureCell: @escaping (UITableView, IndexPath, Cell) -> UITableViewCell) {
+    public init(tableView: UITableView, configureCell: ((UITableView, IndexPath, Cell) -> UITableViewCell)?) {
         self.tableView = tableView
         self.configureCell = configureCell
         super.init(tableView: tableView) { tableView, indexPath, item in
-            configureCell(tableView, indexPath, item)
+            configureCell?(tableView, indexPath, item)
         }
         defaultRowAnimation = .fade
         tableView.delegate = self
@@ -120,7 +120,7 @@ public class DiffableTableViewDataSource<Header, Cell: Hashable, Footer>: UITabl
     }
     
     override public func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-        return canEditHandler?(indexPath) ?? true
+        return canEditHandler?(indexPath) ?? false
     }
     
     override public func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
@@ -210,12 +210,26 @@ public class DiffableTableViewDataSource<Header, Cell: Hashable, Footer>: UITabl
         guard let model = footers[section] else { return .leastNonzeroMagnitude }
         return heightForFooterInSection?(section, model) ?? .leastNonzeroMagnitude
     }
+    
+    deinit {
+        didSelectAt = nil
+        configureCell = nil
+        viewForHeaderInSection = nil
+        heightForHeaderInSection = nil
+        viewForFooterInSection = nil
+        heightForFooterInSection = nil
+        heightForRowAt = nil
+        didScrollViewDidScroll = nil
+        didScrollViewDidEndDragging = nil
+        didScrollViewDidEndDecelerating = nil
+        loadNextPage = nil
+    }
 }
 
 // MARK: - TableOutput Conformance
 extension DiffableTableViewDataSource: TableOutput {
     public func display(leadingSwipeActionsForIndexPath: ((IndexPath) -> [TableContextualAction<Cell>])?) {
-        self.leadingSwipeActionsConfigurationForRowAt = { indexPath in
+        self.leadingSwipeActionsConfigurationForRowAt = { [weak self] indexPath in
             let contextualActions = leadingSwipeActionsForIndexPath?(indexPath).map { action in
                 let uiAction = UIContextualAction(
                     style: action.style.asUIContextualActionStyle,
@@ -241,7 +255,7 @@ extension DiffableTableViewDataSource: TableOutput {
     }
     
     public func display(trailingSwipeActionsForIndexPath: ((IndexPath) -> [TableContextualAction<Cell>])?) {
-        self.trailingSwipeActionsConfigurationForRowAt = { indexPath in
+        self.trailingSwipeActionsConfigurationForRowAt = { [weak self] indexPath in
             let contextualActions = trailingSwipeActionsForIndexPath?(indexPath).map { action in
                 let uiAction = UIContextualAction(
                     style: action.style.asUIContextualActionStyle,
