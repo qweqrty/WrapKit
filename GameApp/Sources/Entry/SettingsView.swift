@@ -13,7 +13,7 @@ struct SettingsView: View {
     
     var body: some View {
         ZStack {
-
+            
             Color.black
                 .opacity(showBackground ? 0.5 : 0.0)
                 .ignoresSafeArea()
@@ -21,7 +21,7 @@ struct SettingsView: View {
                 .onTapGesture {
                     close()
                 }
-        
+            
             if showContent {
                 VStack(spacing: 8) {
                     Text("Settings")
@@ -54,15 +54,20 @@ struct SettingsView: View {
                         font: styleConfig.titleFont
                     )
                     
-                    GameButton(title: "Restore", backgroundImageName: "menuItem") {
-                        print("Restore")
+                    VStack {
+                        GameButton(title: "Restore", backgroundImageName: "menuItem") {
+                            print("Restore")
+                        }
+                        
+                        
+                        GameButton(title: "Close", backgroundImageName: "menuItem2") {
+                            close()
+                        }
+                        .offset(y: -10)
                     }
-                    
-                    GameButton(title: "Close", backgroundImageName: "menuItem2") {
-                        close()
-                    }
+                    .padding(.top, 15)
                 }
-                .padding(10)
+                .padding()
                 .background(Color.white.opacity(0.95))
                 .cornerRadius(30)
                 .shadow(radius: 20)

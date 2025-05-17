@@ -23,7 +23,7 @@ struct GameMenu: View {
 //              .scaledToFill()
 //              .edgesIgnoringSafeArea(.all)
 
-            VStack(spacing: 40) {
+            VStack(spacing: 15) {
                 Text(title)
                     .font(.largeTitle)
                     .fontWeight(.bold)
