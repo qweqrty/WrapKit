@@ -6,6 +6,11 @@ struct SettingsView: View {
     @Binding var soundEffectsEnabled: Bool
     @Binding var vibrationEnabled: Bool
     @Binding var selectedLanguage: String
+    
+    @EnvironmentObject var interstitialAd: InterstitialAdsManager
+    
+    @EnvironmentObject var gameState: GameState
+    
     let styleConfig: SettingsStyleConfig
     
     @State private var showContent = false
@@ -38,7 +43,10 @@ struct SettingsView: View {
                         borderWidth: 2,
                         cornerRadius: 20,
                         title: "Music",
-                        font: styleConfig.titleFont
+                        font: styleConfig.titleFont,
+                        action: {
+                            playMusic()
+                        }
                     )
                     
                     GameToggle(
@@ -51,12 +59,15 @@ struct SettingsView: View {
                         borderWidth: 2,
                         cornerRadius: 20,
                         title: "Vibration",
-                        font: styleConfig.titleFont
+                        font: styleConfig.titleFont,
+                        action: {
+                            
+                        }
                     )
                     
                     VStack {
                         GameButton(title: "Restore", backgroundImageName: "menuItem") {
-                            print("Restore")
+                            interstitialAd.displayInterstitialAd()
                         }
                         
                         
@@ -92,6 +103,12 @@ struct SettingsView: View {
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
             isPresented = false
+        }
+    }
+    
+    func playMusic() {
+        if gameState.soundEffectsEnabled {
+            AudioManager.shared.playEffect(named: "clickSound.wav")
         }
     }
 }

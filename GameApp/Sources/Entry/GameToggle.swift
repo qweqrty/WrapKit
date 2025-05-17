@@ -20,6 +20,7 @@ struct GameToggle: View {
     var animation: Animation = .easeInOut(duration: 0.2)
     var title: String
     var font: Font
+    var action: () -> Void
     
     var body: some View {
         HStack {
@@ -27,6 +28,7 @@ struct GameToggle: View {
                 .font(font)
             Spacer()
             Button(action: {
+                action()
                 withAnimation(animation) {
                     isOn.toggle()
                 }

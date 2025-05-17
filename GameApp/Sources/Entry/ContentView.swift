@@ -2,9 +2,11 @@ import SwiftUI
 
 struct ContentView: View {
     @EnvironmentObject var gameState: GameState
+    @EnvironmentObject var interstitialAd: InterstitialAdsManager
     //    @State private var navigationPath = NavigationPath()
     @State private var showFullScreen = false
     @State private var showSettings = false
+    
     
     var body: some View {
         ZStack {
@@ -53,6 +55,7 @@ struct ContentView: View {
                 )
                 .transition(.scale)
                 .zIndex(1)
+                .environmentObject(interstitialAd)
             }
         }
         

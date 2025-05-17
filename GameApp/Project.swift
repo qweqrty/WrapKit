@@ -38,6 +38,7 @@ let project = Project(
             dependencies: [
                 .project(target: wrapKit.name, path: wrapKit.path),
                 .external(name: "Lottie"),
+                .external(name: "GoogleMobileAds"),
             ],
             settings: projectSettings
         )
