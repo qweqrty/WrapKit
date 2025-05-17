@@ -32,7 +32,7 @@ public enum Scripts {
 public struct Project: Sendable{
     public let name: String
     public let path: Path
-    public var bundleId: String { "${PRODUCT_BUNDLE_IDENTIFIER}.\(name)" }
+    public var bundleId: String { name + ".com" }
     
     public var moduleName: String { name }
 }
@@ -45,7 +45,7 @@ public extension ProjectDescription.DeploymentTargets {
     // Deployment targets with calculated risk assesments
     static let all: ProjectDescription.DeploymentTargets = .multiplatform(
         iOS: "14.0",
-        macOS: "11.0",
+        macOS: "12.0",
         watchOS: "6.0",
         tvOS: "13.0",
         visionOS: "1.0"

@@ -1,4 +1,5 @@
 import SwiftUI
+import WrapKitGame
 
 struct ContentView: View {
     @EnvironmentObject var gameState: GameState
@@ -58,7 +59,6 @@ struct ContentView: View {
                 .environmentObject(interstitialAd)
             }
         }
-        
     }
     
 }
