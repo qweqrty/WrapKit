@@ -36,38 +36,16 @@ struct GameToggle: View {
                     .resizable()
                     .frame(width: size.width, height: size.height)
                     .scaledToFit()
-                
-//                ZStack {
-//                    RoundedRectangle(cornerRadius: cornerRadius)
-//                        .fill(backgroundColor)
-//                        .overlay(
-//                            RoundedRectangle(cornerRadius: cornerRadius)
-//                                .stroke(borderColor, lineWidth: borderWidth)
-//                        )
-//                        .frame(width: size.width, height: size.height)
-//                    
-//                    (isOn ? onImage : offImage)
-//                        .resizable()
-//                        .scaledToFit()
-//                        .frame(width: size.height * 0.6, height: size.height * 0.6)
-//                }
             }
-            .buttonStyle(PlainButtonStyle())
+            .buttonStyle(OpacityButtonStyle())
         }
         }
 }
 
-//ZStack {
-//    RoundedRectangle(cornerRadius: cornerRadius)
-//        .fill(backgroundColor)
-//        .overlay(
-//            RoundedRectangle(cornerRadius: cornerRadius)
-//                .stroke(borderColor, lineWidth: borderWidth)
-//        )
-//        .frame(width: size.width, height: size.height)
-//    
-//    (isOn ? onImage : offImage)
-//        .resizable()
-//        .scaledToFit()
-//        .frame(width: size.height * 0.6, height: size.height * 0.6)
-//}
+struct OpacityButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .opacity(1.0)    }
+}
+
+
