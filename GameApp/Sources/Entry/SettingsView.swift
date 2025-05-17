@@ -70,7 +70,7 @@ struct SettingsView: View {
                             
                         }
                     )
-
+                    
                     if storeVM.purchasedSubscriptions.isEmpty || storeVM.subscriptionGroupStatus == .failed {
                         ForEach(storeVM.subscriptions) { product in
                             GameButton(title: "Buy", backgroundImageName: "menuItem") {
@@ -86,39 +86,41 @@ struct SettingsView: View {
                     VStack {
                         GameButton(title: "Show add", backgroundImageName: "menuItem") {
                             interstitialAd.displayInterstitialAd()
-                    GameButton(title: "Restore", backgroundImageName: "menuItem") {
-                        Task {
-                            await restore()
+                            GameButton(title: "Restore", backgroundImageName: "menuItem") {
+                                Task {
+                                    await restore()
+                                }
+                            }
+                            
+                            GameButton(title: "Close", backgroundImageName: "menuItem2") {
+                                close()
+                            }
+                            .padding(.top, 15)
                         }
+                        .padding()
+                        .background(Color.white.opacity(0.95))
+                        .cornerRadius(30)
+                        .shadow(radius: 20)
+                        .frame(maxWidth: 350)
+                        .transition(.scale.combined(with: .opacity))
                     }
-                    
-                    GameButton(title: "Close", backgroundImageName: "menuItem2") {
-                        close()
-                    }
-                    .padding(.top, 15)
                 }
-                .padding()
-                .background(Color.white.opacity(0.95))
-                .cornerRadius(30)
-                .shadow(radius: 20)
-                .frame(maxWidth: 350)
-                .transition(.scale.combined(with: .opacity))
+                .onAppear {
+                    showBackground = true
+                    withAnimation(.spring()) {
+                        showContent = true
+                    }
+                }
+//                .alert("Purchase Failed", isPresented: $showPurchaseFailedAlert, actions: {
+//                    Button("Ok", role: .cancel) {}
+//                }, message: {
+//                    if let message = purchaseErrorMessage {
+//                        Text(message)
+//                    }
+//                })
+                .environmentObject(storeVM)
             }
         }
-        .onAppear {
-            showBackground = true
-            withAnimation(.spring()) {
-                showContent = true
-            }
-        }
-        .alert("Purchase Failed", isPresented: $showPurchaseFailedAlert, actions: {
-            Button("Ok", role: .cancel) {}
-        }, message: {
-            if let message = purchaseErrorMessage {
-                Text(message)
-            }
-        })
-        .environmentObject(storeVM)
     }
     
     private func close() {
@@ -133,11 +135,12 @@ struct SettingsView: View {
         }
     }
     
-<<<<<<< HEAD
     func playMusic() {
         if gameState.soundEffectsEnabled {
             AudioManager.shared.playEffect(named: "clickSound.wav")
-=======
+        }
+    }
+            
     private func buy(product: SKProduct) async {
         do {
             try await storeVM.purchase(product)
@@ -155,7 +158,6 @@ struct SettingsView: View {
             // TODO: CHECK
             purchaseErrorMessage = error.localizedDescription
             showPurchaseFailedAlert = true
->>>>>>> cb33cf351d492bbd887be1905f593d42b17b50e1
         }
     }
 }
