@@ -33,10 +33,11 @@ let project = Project(
             infoPlist: "Sources/Info.plist",
             sources: [.glob("Sources/**", excluding: ["**/Project.swift", "**/*Tests.swift"])],
             resources: ["Sources/Assets.xcassets"],
-//            entitlements: .file(path: .modulesRelative("\(gameApp.name)/gameApp.entitlements")),
+            entitlements: .file(path: .modulesRelative("\(gameApp.name)/gameApp.entitlements")),
             scripts: [Scripts.swiftlint],
             dependencies: [
                 .project(target: wrapKit.name, path: wrapKit.path),
+                .project(target: wrapKitGame.name, path: wrapKitGame.path),
                 .external(name: "Lottie"),
             ],
             settings: projectSettings

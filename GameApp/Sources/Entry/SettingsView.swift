@@ -1,4 +1,6 @@
 import SwiftUI
+import WrapKitGame
+import StoreKit
 
 struct SettingsView: View {
     @Binding var musicEnabled: Bool
@@ -10,6 +12,10 @@ struct SettingsView: View {
     
     @State private var showContent = false
     @State private var showBackground = false
+    @State private var showPurchaseFailedAlert = false
+    @State private var purchaseErrorMessage: String?
+
+    @StateObject var storeVM = StoreVM()
     
     var body: some View {
         ZStack {
@@ -53,9 +59,23 @@ struct SettingsView: View {
                         title: "Vibration",
                         font: styleConfig.titleFont
                     )
+
+                    if storeVM.purchasedSubscriptions.isEmpty || storeVM.subscriptionGroupStatus == .failed {
+                        ForEach(storeVM.subscriptions) { product in
+                            GameButton(title: "Buy", backgroundImageName: "menuItem") {
+                                Task {
+                                    await buy(product: product)
+                                }
+                            }
+                        }
+                    } else {
+                        Text("Subscription is enabled")
+                    }
                     
                     GameButton(title: "Restore", backgroundImageName: "menuItem") {
-                        print("Restore")
+                        Task {
+                            await restore()
+                        }
                     }
                     
                     GameButton(title: "Close", backgroundImageName: "menuItem2") {
@@ -76,6 +96,14 @@ struct SettingsView: View {
                 showContent = true
             }
         }
+        .alert("Purchase Failed", isPresented: $showPurchaseFailedAlert, actions: {
+            Button("Ok", role: .cancel) {}
+        }, message: {
+            if let message = purchaseErrorMessage {
+                Text(message)
+            }
+        })
+        .environmentObject(storeVM)
     }
     
     private func close() {
@@ -87,6 +115,26 @@ struct SettingsView: View {
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
             isPresented = false
+        }
+    }
+    
+    private func buy(product: SKProduct) async {
+        do {
+            try await storeVM.purchase(product)
+        } catch {
+            // TODO: CHECK
+            purchaseErrorMessage = error.localizedDescription
+            showPurchaseFailedAlert = true
+        }
+    }
+    
+    private func restore() async {
+        do {
+            try await storeVM.restorePurchases()
+        } catch {
+            // TODO: CHECK
+            purchaseErrorMessage = error.localizedDescription
+            showPurchaseFailedAlert = true
         }
     }
 }

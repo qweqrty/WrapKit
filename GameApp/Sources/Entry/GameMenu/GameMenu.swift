@@ -1,5 +1,6 @@
 import SwiftUI
 import Lottie
+import WrapKitGame
 
 // Модуль основного меню
 struct GameMenu: View {

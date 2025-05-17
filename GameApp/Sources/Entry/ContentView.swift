@@ -1,11 +1,11 @@
 import SwiftUI
+import WrapKitGame
 
 struct ContentView: View {
     @EnvironmentObject var gameState: GameState
     //    @State private var navigationPath = NavigationPath()
     @State private var showFullScreen = false
     @State private var showSettings = false
-    
     var body: some View {
         ZStack {
             GameMenu(
@@ -55,7 +55,6 @@ struct ContentView: View {
                 .zIndex(1)
             }
         }
-        
     }
     
 }

@@ -1,4 +1,5 @@
 import SwiftUI
+import WrapKitGame
 
 @main
 struct GameMenuApp: App {

@@ -30,8 +30,8 @@ public struct SplashContentView: View {
         ) {
             ZStack {
                 Color.red.ignoresSafeArea()
-                SUILabel(adapter: adapter)
-                    .padding()
+//                SUILabel(adapter: adapter)
+//                    .padding()
                 Spacer()
             }
         }
