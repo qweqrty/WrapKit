@@ -10,11 +10,10 @@ import Combine
 
 public protocol SelectionServiceInput {
     func onRefresh()
-    func viewDidLoad()
     func isNeedToShowSearch(_ isNeedToShowSearch: Bool)
 }
 
-public class SelectionServiceProxy<Request, Response>: SelectionInput {
+public class SelectionServiceProxy<Request, Response>: SelectionInput, LifeCycleViewOutput {
     typealias SelectionService = (any Service<Request, Response>)
     
     public var isMultipleSelectionEnabled: Bool { decoratee.isMultipleSelectionEnabled }

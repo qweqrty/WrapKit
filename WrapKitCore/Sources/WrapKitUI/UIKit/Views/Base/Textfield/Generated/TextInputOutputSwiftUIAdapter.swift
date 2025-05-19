@@ -24,16 +24,6 @@ public class TextInputOutputSwiftUIAdapter: ObservableObject, TextInputOutput {
     ) {
     }
 
-    @Published public var displayInputViewState: DisplayInputViewState? = nil
-    public struct DisplayInputViewState {
-        public let inputView: TextInputPresentableModel.InputView?
-    }
-    public func display(inputView: TextInputPresentableModel.InputView?) {
-        displayInputViewState = .init(
-            inputView: inputView
-        )
-    }
-    
     @Published public var displayModelState: DisplayModelState? = nil
     public struct DisplayModelState {
         public let model: TextInputPresentableModel?
@@ -226,6 +216,28 @@ public class TextInputOutputSwiftUIAdapter: ObservableObject, TextInputOutput {
     public func display(isHidden: Bool) {
         displayIsHiddenState = .init(
             isHidden: isHidden
+        )
+    }
+    @Published public var displayInputViewState: DisplayInputViewState? = nil
+    public struct DisplayInputViewState {
+        public let inputView: TextInputPresentableModel.InputView?
+    }
+    public func display(inputView: TextInputPresentableModel.InputView?) {
+        displayInputViewState = .init(
+            inputView: inputView
+        )
+    }
+    @Published public var makeAccessoryViewAccessoryViewHeightConstraintsState: MakeAccessoryViewAccessoryViewHeightConstraintsState? = nil
+    public struct MakeAccessoryViewAccessoryViewHeightConstraintsState {
+        public let accessoryView: UIView
+        public let height: CGFloat
+        public let constraints: ((UIView, UIView) -> [NSLayoutConstraint])?
+    }
+    public func makeAccessoryView(accessoryView: UIView, height: CGFloat = 60, constraints: ((UIView, UIView) -> [NSLayoutConstraint])? = nil) {
+        makeAccessoryViewAccessoryViewHeightConstraintsState = .init(
+            accessoryView: accessoryView, 
+            height: height, 
+            constraints: constraints
         )
     }
 }

@@ -7,6 +7,22 @@
 
 import Foundation
 
+public struct ScreenViewAnalyticsConfig {
+  public let eventName: String
+  public let parameters: [String: Any]
+  public let tracker: AnalyticsTracker
+
+  public init(
+    eventName: String,
+    parameters: [String: Any],
+    tracker: AnalyticsTracker
+  ) {
+    self.eventName = eventName
+    self.parameters = parameters
+    self.tracker = tracker
+  }
+}
+
 public struct SelectionPresenterModel {
     public typealias Section = TableSection<Void, SelectionType.SelectionCellPresentableModel, Void>
     
@@ -15,19 +31,22 @@ public struct SelectionPresenterModel {
     public let items: [SelectionType.SelectionCellPresentableModel]
     public let callback: ((SelectionType?) -> Void)?
     public let emptyViewPresentableModel: EmptyViewPresentableModel?
+    public let screenViewAnalytics: ScreenViewAnalyticsConfig?
     
     public init(
         title: String?,
         isMultipleSelectionEnabled: Bool,
         items: [SelectionType.SelectionCellPresentableModel],
         callback: ((SelectionType?) -> Void)?,
-        emptyViewPresentableModel: EmptyViewPresentableModel? = nil
+        emptyViewPresentableModel: EmptyViewPresentableModel? = nil,
+        screenViewAnalytics: ScreenViewAnalyticsConfig? = nil
     ) {
         self.title = title
         self.isMultipleSelectionEnabled = isMultipleSelectionEnabled
         self.items = items
         self.callback = callback
         self.emptyViewPresentableModel = emptyViewPresentableModel
+        self.screenViewAnalytics = screenViewAnalytics
     }
 }
 

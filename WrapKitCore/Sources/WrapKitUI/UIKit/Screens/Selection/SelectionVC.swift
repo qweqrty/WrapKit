@@ -14,16 +14,19 @@ open class SelectionVC: BottomSheetController<SelectionContentView> {
     private lazy var datasource = makeDatasource()
     private var currentContentYOffset: CGFloat = 0
     
-    public init(contentView: SelectionContentView, presenter: SelectionInput) {
+    public init(
+        contentView: SelectionContentView,
+        presenter: SelectionInput,
+        lifeCycleViewOutput: LifeCycleViewOutput?
+    ) {
         self.presenter = presenter
-        super.init(contentView: contentView)
+        super.init(contentView: contentView, lifeCycleViewOutput: lifeCycleViewOutput)
     }
     
     public override func viewDidLoad() {
         super.viewDidLoad()
         
         setupUI()
-        presenter.viewDidLoad()
     }
     
     private func setupUI() {

@@ -14,9 +14,17 @@ public class SelectionServiceVC: SelectionVC {
     
     public var isLoading: Bool? = false
     
-    public init(contentView: SelectionContentView, servicePresenter: SelectionServiceInput & SelectionInput) {
+    public init(
+        contentView: SelectionContentView,
+        servicePresenter: SelectionServiceInput & SelectionInput,
+        lifeCycleViewOutput: LifeCycleViewOutput?
+    ) {
         self.servicePresenter = servicePresenter
-        super.init(contentView: contentView, presenter: servicePresenter)
+        super.init(
+            contentView: contentView,
+            presenter: servicePresenter,
+            lifeCycleViewOutput: lifeCycleViewOutput
+        )
     }
 
     public override func viewDidLoad() {

@@ -36,9 +36,18 @@ public class SelectionFactoryiOS: ISelectionFactory {
         )
        
         let contentView = SelectionContentView(config: configuration)
+        var lifeCycleViewOutput: LifeCycleViewOutput = presenter
+        if let analyticsConfig = model.screenViewAnalytics {
+            lifeCycleViewOutput = lifeCycleViewOutput.withAnalytics(
+                eventName: analyticsConfig.eventName,
+                parameters: analyticsConfig.parameters,
+                analytics: analyticsConfig.tracker
+            )
+        }
         let vc = SelectionVC(
             contentView: contentView,
-            presenter: presenter
+            presenter: presenter,
+            lifeCycleViewOutput: lifeCycleViewOutput
         )
         presenter.view = vc
             .weakReferenced
@@ -79,10 +88,21 @@ public class SelectionFactoryiOS: ISelectionFactory {
             makeRequest: model.request,
             makeResponse: model.response
         )
+        
+        var lifeCycleViewOutput: LifeCycleViewOutput = servicePresenter
+        if let analyticsConfig = model.model.screenViewAnalytics {
+            lifeCycleViewOutput = lifeCycleViewOutput.withAnalytics(
+                eventName: analyticsConfig.eventName,
+                parameters: analyticsConfig.parameters,
+                analytics: analyticsConfig.tracker
+            )
+        }
+        
         let contentView = SelectionContentView(config: configuration)
         let vc = SelectionServiceVC(
             contentView: contentView,
-            servicePresenter: servicePresenter
+            servicePresenter: servicePresenter,
+            lifeCycleViewOutput: lifeCycleViewOutput
         )
         
         presenter.view = vc
