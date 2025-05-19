@@ -17,7 +17,7 @@ struct GameMenuApp: App {
     
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            ContentView().enableGameCenter()
                 .environmentObject(gameState)
                 .environmentObject(storeVM)
                 .environmentObject(interstitialManager)
