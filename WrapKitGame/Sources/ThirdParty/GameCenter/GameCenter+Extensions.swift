@@ -103,7 +103,11 @@ private class GameCenterController:
         case .challenges: return GKGameCenterViewController(state: .challenges)
         case .localPlayerProfile: return GKGameCenterViewController(state: .localPlayerProfile)
         case .dashboard: return GKGameCenterViewController(state: .dashboard)
-        case .localPlayerFriendsList: return GKGameCenterViewController(state: .localPlayerFriendsList)
+        case .localPlayerFriendsList: if #available(iOS 15.0, *) {
+            return GKGameCenterViewController(state: .localPlayerFriendsList)
+        } else {
+            return GKGameCenterViewController(state: .default)
+        }
         case .leaderBoardID(let id, let playerScope, let timeScope):
             return GKGameCenterViewController(leaderboardID: id, playerScope: playerScope, timeScope: timeScope)
         case .leaderBoard(let leaderboard, let playerScope):
