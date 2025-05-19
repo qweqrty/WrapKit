@@ -22,9 +22,6 @@ extension TextInputOutput {
 
 extension WeakRefVirtualProxy: TextInputOutput where T: TextInputOutput {
 
-    public func display(inputView: TextInputPresentableModel.InputView?) {
-        object?.display(inputView: inputView)
-    }
     public func display(model: TextInputPresentableModel?) {
         object?.display(model: model)
     }
@@ -90,6 +87,12 @@ extension WeakRefVirtualProxy: TextInputOutput where T: TextInputOutput {
     }
     public func display(isHidden: Bool) {
         object?.display(isHidden: isHidden)
+    }
+    public func display(inputView: TextInputPresentableModel.InputView?) {
+        object?.display(inputView: inputView)
+    }
+    public func makeAccessoryView(accessoryView: UIView, height: CGFloat = 60, constraints: ((UIView, UIView) -> [NSLayoutConstraint])? = nil) {
+        object?.makeAccessoryView(accessoryView: accessoryView, height: height, constraints: constraints)
     }
 
 }

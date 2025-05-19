@@ -16,7 +16,6 @@ public protocol SelectionInput {
     var isMultipleSelectionEnabled: Bool { get }
     var configuration: SelectionConfiguration { get }
     
-    func viewDidLoad()
     func onSearch(_ text: String?)
     func onTapFinishSelection()
     func isNeedToShowSearch(_ isNeedToShowSearch: Bool)
@@ -58,7 +57,7 @@ public class SelectionPresenter {
     private var itemsToPresent: [SelectionType.SelectionCellPresentableModel] { searchText.isEmpty ? items : items.filter({ ($0.title ).lowercased().contains(searchText.lowercased()) }) }
 }
 
-extension SelectionPresenter: SelectionInput {
+extension SelectionPresenter: SelectionInput, LifeCycleViewOutput {
     
     public func viewDidLoad() {
        
