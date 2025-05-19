@@ -19,10 +19,9 @@ struct SettingsView: View {
     @State private var showBackground = false
     @State private var showPurchaseFailedAlert = false
     @State private var purchaseErrorMessage: String?
-
+    
     var body: some View {
         ZStack {
-            
             Color.black
                 .opacity(showBackground ? 0.5 : 0.0)
                 .ignoresSafeArea()
@@ -33,41 +32,9 @@ struct SettingsView: View {
             
             if showContent {
                 VStack(spacing: 8) {
-                        Text("Settings")
-                            .font(styleConfig.titleFont)
-                            .foregroundColor(styleConfig.sectionHeaderColor)
-                    
-                    GameToggle(
-                        isOn: $musicEnabled,
-                        onImage: "soundOn",
-                        offImage: "soundoff",
-                        size: CGSize(width: 50, height: 50),
-                        backgroundColor: Color.black.opacity(0.3),
-                        borderColor: .yellow,
-                        borderWidth: 2,
-                        cornerRadius: 20,
-                        title: "Music",
-                        font: styleConfig.titleFont,
-                        action: {
-                            playMusic()
-                        }
-                    )
-                    
-                    GameToggle(
-                        isOn: $vibrationEnabled,
-                        onImage: "soundOn",
-                        offImage: "soundoff",
-                        size: CGSize(width: 50, height: 50),
-                        backgroundColor: Color.black.opacity(0.3),
-                        borderColor: .yellow,
-                        borderWidth: 2,
-                        cornerRadius: 20,
-                        title: "Vibration",
-                        font: styleConfig.titleFont,
-                        action: {
-                            
-                        }
-                    )
+                    Text("Settings")
+                        .font(styleConfig.titleFont)
+                        .foregroundColor(styleConfig.sectionHeaderColor)
                     
                     if storeVM.subscriptionGroupStatus != .purchased {
                         ForEach(storeVM.subscriptions) { product in
@@ -82,40 +49,69 @@ struct SettingsView: View {
                     }
                     
                     VStack {
+                        GameToggle(
+                            isOn: $musicEnabled,
+                            onImage: "soundOn",
+                            offImage: "soundoff",
+                            size: CGSize(width: 50, height: 50),
+                            backgroundColor: Color.black.opacity(0.3),
+                            borderColor: .yellow,
+                            borderWidth: 2,
+                            cornerRadius: 20,
+                            title: "Music",
+                            font: styleConfig.titleFont,
+                            action: {
+                                playMusic()
+                            }
+                        )
+                        
+                        GameToggle(
+                            isOn: $vibrationEnabled,
+                            onImage: "soundOn",
+                            offImage: "soundoff",
+                            size: CGSize(width: 50, height: 50),
+                            backgroundColor: Color.black.opacity(0.3),
+                            borderColor: .yellow,
+                            borderWidth: 2,
+                            cornerRadius: 20,
+                            title: "Vibration",
+                            font: styleConfig.titleFont,
+                            action: {
+                                
+                            }
+                        )
                         GameButton(title: "Show add", backgroundImageName: "menuItem") {
                             interstitialAd.displayInterstitialAd()
-                            GameButton(title: "Restore", backgroundImageName: "menuItem") {
-                                Task {
-                                    await restore()
-                                }
-                            }
-                            
-                            GameButton(title: "Close", backgroundImageName: "menuItem2") {
-                                close()
-                            }
-                            .padding(.top, 15)
                         }
-                        .padding()
-                        .background(Color.white.opacity(0.95))
-                        .cornerRadius(30)
-                        .shadow(radius: 20)
-                        .frame(maxWidth: 350)
-                        .transition(.scale.combined(with: .opacity))
+                        GameButton(title: "Restore", backgroundImageName: "menuItem") {
+                            Task {
+                                await restore()
+                            }
+                        }
+                        GameButton(title: "Close", backgroundImageName: "menuItem2") {
+                            close()
+                        }
                     }
+                    .padding()
+                    .background(Color.white.opacity(0.95))
+                    .cornerRadius(30)
+                    .shadow(radius: 20)
+                    .frame(maxWidth: 350)
+                    .transition(.scale.combined(with: .opacity))
                 }
-                .onAppear {
-                    showBackground = true
-                    withAnimation(.spring()) {
-                        showContent = true
-                    }
-                }
-//                .alert("Purchase Failed", isPresented: $showPurchaseFailedAlert, actions: {
-//                    Button("Ok", role: .cancel) {}
-//                }, message: {
-//                    if let message = purchaseErrorMessage {
-//                        Text(message)
-//                    }
-//                })
+                //                .alert("Purchase Failed", isPresented: $showPurchaseFailedAlert, actions: {
+                //                    Button("Ok", role: .cancel) {}
+                //                }, message: {
+                //                    if let message = purchaseErrorMessage {
+                //                        Text(message)
+                //                    }
+                //                })
+            }
+        }
+        .onAppear {
+            showBackground = true
+            withAnimation(.spring()) {
+                showContent = true
             }
         }
     }
@@ -137,7 +133,7 @@ struct SettingsView: View {
             AudioManager.shared.playEffect(named: "clickSound.wav")
         }
     }
-            
+    
     private func buy(product: SKProduct) async {
         do {
             try await storeVM.purchase(product)
