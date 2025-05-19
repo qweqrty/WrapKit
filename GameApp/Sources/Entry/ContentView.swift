@@ -2,6 +2,7 @@ import SwiftUI
 import WrapKitGame
 
 struct ContentView: View {
+    @EnvironmentObject var storeVM: StoreVM
     @EnvironmentObject var gameState: GameState
     @EnvironmentObject var interstitialAd: InterstitialAdsManager
     //    @State private var navigationPath = NavigationPath()
@@ -57,6 +58,7 @@ struct ContentView: View {
                 .transition(.scale)
                 .zIndex(1)
                 .environmentObject(interstitialAd)
+                .environmentObject(storeVM)
             }
         }
     }

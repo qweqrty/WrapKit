@@ -10,7 +10,7 @@ struct SettingsView: View {
     @Binding var selectedLanguage: String
     
     @EnvironmentObject var interstitialAd: InterstitialAdsManager
-    
+    @EnvironmentObject var storeVM: StoreVM
     @EnvironmentObject var gameState: GameState
     
     let styleConfig: SettingsStyleConfig
@@ -20,8 +20,6 @@ struct SettingsView: View {
     @State private var showPurchaseFailedAlert = false
     @State private var purchaseErrorMessage: String?
 
-    @StateObject var storeVM = StoreVM()
-    
     var body: some View {
         ZStack {
             
@@ -35,9 +33,9 @@ struct SettingsView: View {
             
             if showContent {
                 VStack(spacing: 8) {
-                    Text("Settings")
-                        .font(styleConfig.titleFont)
-                        .foregroundColor(styleConfig.sectionHeaderColor)
+                        Text("Settings")
+                            .font(styleConfig.titleFont)
+                            .foregroundColor(styleConfig.sectionHeaderColor)
                     
                     GameToggle(
                         isOn: $musicEnabled,
@@ -71,7 +69,7 @@ struct SettingsView: View {
                         }
                     )
                     
-                    if storeVM.purchasedSubscriptions.isEmpty || storeVM.subscriptionGroupStatus == .failed {
+                    if storeVM.subscriptionGroupStatus != .purchased {
                         ForEach(storeVM.subscriptions) { product in
                             GameButton(title: "Buy", backgroundImageName: "menuItem") {
                                 Task {
@@ -118,7 +116,6 @@ struct SettingsView: View {
 //                        Text(message)
 //                    }
 //                })
-                .environmentObject(storeVM)
             }
         }
     }
