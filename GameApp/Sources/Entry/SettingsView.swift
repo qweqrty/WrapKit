@@ -36,18 +36,6 @@ struct SettingsView: View {
                         .font(styleConfig.titleFont)
                         .foregroundColor(styleConfig.sectionHeaderColor)
                     
-                    if storeVM.subscriptionGroupStatus != .purchased {
-                        ForEach(storeVM.subscriptions) { product in
-                            GameButton(title: "Buy", backgroundImageName: "menuItem") {
-                                Task {
-                                    await buy(product: product)
-                                }
-                            }
-                        }
-                    } else {
-                        Text("Subscription is enabled")
-                    }
-                    
                     VStack {
                         GameToggle(
                             isOn: $musicEnabled,
@@ -86,6 +74,17 @@ struct SettingsView: View {
                             .padding()
                         
                         
+                        if storeVM.subscriptionGroupStatus != .purchased {
+                            ForEach(storeVM.subscriptions) { product in
+                                GameButton(title: "Buy", backgroundImageName: "menuItem") {
+                                    Task {
+                                        await buy(product: product)
+                                    }
+                                }
+                            }
+                        } else {
+                            GameButton(title: "Subscribed", backgroundImageName: "menuItem")
+                        }
                         GameButton(title: "Show add", backgroundImageName: "menuItem") {
                             interstitialAd.displayInterstitialAd()
                         }

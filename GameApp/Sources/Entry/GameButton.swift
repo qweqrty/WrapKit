@@ -3,10 +3,18 @@ import SwiftUI
 struct GameButton: View {
     let title: String
     let backgroundImageName: String
-    let action: () -> Void
+    let action: (() -> Void)?
+    
+    init(title: String, backgroundImageName: String, action: (() -> Void)? = nil, isPressed: Bool = false, offsetY: CGFloat = 0) {
+        self.title = title
+        self.backgroundImageName = backgroundImageName
+        self.action = action
+        self.isPressed = isPressed
+        self.offsetY = offsetY
+    }
     
     @State private var isPressed = false
-    @State private var offsetY: CGFloat = 0 // Смещение по Y для анимации
+    @State private var offsetY: CGFloat = 0
     
     var body: some View {
         GeometryReader { geometry in
@@ -14,7 +22,7 @@ struct GameButton: View {
                 withAnimation(.easeInOut(duration: 0.1)) {
                     isPressed = true
                 }
-                action()
+                action?()
                 withAnimation(.easeInOut(duration: 0.1)) {
                     isPressed = false
                 }
