@@ -8,7 +8,7 @@
 import SwiftUI
 import GoogleMobileAds
 
-class InterstitialAdsManager: NSObject, FullScreenContentDelegate, ObservableObject {
+class InterstitialAD: NSObject, FullScreenContentDelegate, ObservableObject {
     
     // Properties
    @Published var interstitialAdLoaded: Bool = false
@@ -69,4 +69,3 @@ class InterstitialAdsManager: NSObject, FullScreenContentDelegate, ObservableObj
         print("😔: Interstitial ad closed")
     }
 }
-

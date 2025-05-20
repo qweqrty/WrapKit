@@ -13,7 +13,8 @@ class AppDelegate:NSObject,UIApplicationDelegate{
 struct GameMenuApp: App {
     @StateObject private var gameState = GameState()
     @StateObject private var storeVM = StoreVM()
-    @StateObject var interstitialManager = InterstitialAdsManager()
+    @StateObject var interstitialManager = InterstitialAD()
+    @StateObject var rewardedAd = RewardedAD()
     
     var body: some Scene {
         WindowGroup {
@@ -21,8 +22,10 @@ struct GameMenuApp: App {
                 .environmentObject(gameState)
                 .environmentObject(storeVM)
                 .environmentObject(interstitialManager)
+                .environmentObject(rewardedAd)
                 .onAppear {
                     interstitialManager.loadInterstitialAd()
+                    rewardedAd.loadRewardedAd()
                 }
         }
     }

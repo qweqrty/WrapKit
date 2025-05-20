@@ -9,9 +9,10 @@ struct SettingsView: View {
     @Binding var vibrationEnabled: Bool
     @Binding var selectedLanguage: String
     
-    @EnvironmentObject var interstitialAd: InterstitialAdsManager
+    @EnvironmentObject var interstitialAd: InterstitialAD
     @EnvironmentObject var storeVM: StoreVM
     @EnvironmentObject var gameState: GameState
+    @EnvironmentObject var rewardedAd: RewardedAD
     
     let styleConfig: SettingsStyleConfig
     
@@ -25,7 +26,6 @@ struct SettingsView: View {
             Color.black
                 .opacity(showBackground ? 0.5 : 0.0)
                 .ignoresSafeArea()
-                .animation(.easeInOut(duration: 0.3), value: showBackground)
                 .onTapGesture {
                     close()
                 }
@@ -80,6 +80,12 @@ struct SettingsView: View {
                                 
                             }
                         )
+                        
+                        Text("Золото: \(gameState.gold)")
+                            .font(.title)
+                            .padding()
+                        
+                        
                         GameButton(title: "Show add", backgroundImageName: "menuItem") {
                             interstitialAd.displayInterstitialAd()
                         }
@@ -91,27 +97,32 @@ struct SettingsView: View {
                         GameButton(title: "Close", backgroundImageName: "menuItem2") {
                             close()
                         }
+                        
+                        GameButton(title: "Get 100 gold", backgroundImageName: "menuItem2") {
+                            rewardedAd.displayRewardedAd()
+                        }
+                        .disabled(!rewardedAd.rewardedAdLoaded)
                     }
-                    .padding()
-                    .background(Color.white.opacity(0.95))
-                    .cornerRadius(30)
-                    .shadow(radius: 20)
-                    .frame(maxWidth: 350)
-                    .transition(.scale.combined(with: .opacity))
+                    
                 }
-                //                .alert("Purchase Failed", isPresented: $showPurchaseFailedAlert, actions: {
-                //                    Button("Ok", role: .cancel) {}
-                //                }, message: {
-                //                    if let message = purchaseErrorMessage {
-                //                        Text(message)
-                //                    }
-                //                })
+                .padding()
+                .background(Color.white.opacity(0.95))
+                .cornerRadius(30)
+                .shadow(radius: 20)
+                .frame(maxWidth: 350)
+                .transition(.scale.combined(with: .opacity))
             }
         }
         .onAppear {
-            showBackground = true
             withAnimation(.spring()) {
+                showBackground = true
                 showContent = true
+            }
+        }
+        .onChange(of: rewardedAd.userEarnedReward) { newValue in
+            if newValue {
+                gameState.addGold(amount: 100)
+                rewardedAd.userEarnedReward = false
             }
         }
     }
@@ -119,9 +130,8 @@ struct SettingsView: View {
     private func close() {
         withAnimation(.spring()) {
             showContent = false
+            showBackground = false
         }
-        
-        showBackground = false
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
             isPresented = false
