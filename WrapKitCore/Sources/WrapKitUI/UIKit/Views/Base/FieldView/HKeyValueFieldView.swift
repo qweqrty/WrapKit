@@ -111,6 +111,7 @@ extension HKeyValueFieldView {
         mainView.addSubview(mainStackView)
         mainStackView.addArrangedSubview(keyLabel)
         mainStackView.addArrangedSubview(valueLabel)
+        mainStackView.addArrangedSubview(UIView())
         valueLabel.setContentHuggingPriority(.required, for: .horizontal)
         valueLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
     }
