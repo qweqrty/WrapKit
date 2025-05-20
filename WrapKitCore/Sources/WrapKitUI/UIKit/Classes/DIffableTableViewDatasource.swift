@@ -152,11 +152,11 @@ public class DiffableTableViewDataSource<Header, Cell: Hashable, Footer>: UITabl
     
     // MARK: - UITableViewDelegate Methods
     public func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-        return trailingSwipeActionsConfigurationForRowAt?(indexPath)
+        return trailingSwipeActionsConfigurationForRowAt?(indexPath) ?? .init(actions: [])
     }
     
     public func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-        return leadingSwipeActionsConfigurationForRowAt?(indexPath)
+        return leadingSwipeActionsConfigurationForRowAt?(indexPath) ?? .init(actions: [])
     }
     
     public func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
