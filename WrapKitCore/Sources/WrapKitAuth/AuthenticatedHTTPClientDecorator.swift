@@ -19,7 +19,7 @@ public class AuthenticatedHTTPClientDecorator: HTTPClient {
     private let onNotAuthenticated: (() -> Void)?
     private let enrichRequestWithToken: EnrichRequestWithToken
     private let isAuthenticated: AuthenticationPolicy
-    private var ongoingRefresh: AnyPublisher<String, ServiceError>?
+    private static var ongoingRefresh: AnyPublisher<String, ServiceError>?
 
     public init(
         decoratee: HTTPClient,
@@ -80,7 +80,7 @@ public class AuthenticatedHTTPClientDecorator: HTTPClient {
             return
         }
 
-        if let ongoingRefresh = synchronizedTokenAccess({ ongoingRefresh }) {
+        if let ongoingRefresh = synchronizedTokenAccess({ Self.ongoingRefresh }) {
             ongoingRefresh
                 .handle(
                     onSuccess: { [weak self] newToken in
@@ -99,11 +99,11 @@ public class AuthenticatedHTTPClientDecorator: HTTPClient {
             }
         }
         .handleEvents(receiveCompletion: { [weak self] _ in
-            self?.synchronizedTokenAccess { self?.ongoingRefresh = nil }
+            self?.synchronizedTokenAccess { Self.ongoingRefresh = nil }
         })
         .eraseToAnyPublisher()
 
-        synchronizedTokenAccess { self.ongoingRefresh = refreshPublisher }
+        synchronizedTokenAccess { Self.ongoingRefresh = refreshPublisher }
 
         refreshPublisher
             .handle(
