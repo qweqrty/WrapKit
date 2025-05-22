@@ -86,9 +86,6 @@ public class AuthenticatedHTTPClientDecorator: HTTPClient {
                 .handle(
                     onSuccess: { [weak self] newToken in
                         self?.retryRequest(request, with: newToken, completion: completion, compositeTask: compositeTask)
-                    },
-                    onError: { [weak self] error in
-                        self?.onNotAuthenticated?()
                     }
                 )
             return

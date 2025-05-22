@@ -14,6 +14,9 @@ let package = Package(
             name: "WrapKit",
             targets: ["WrapKit"]),
         .library(
+            name: "WrapKitGame",
+            targets: ["WrapKitGame"]),
+        .library(
             name: "WrapKitTestUtils",
             targets: ["WrapKitTestUtils"])
     ],
@@ -35,6 +38,14 @@ let package = Package(
                 .product(name: "Lottie", package: "lottie-spm")
             ],
             path: "WrapKitCore/Sources"
+        ),
+        .target(
+            name: "WrapKitGame",
+            dependencies: [
+                "WrapKit",
+                .product(name: "Lottie", package: "lottie-spm")
+            ],
+            path: "WrapKitGame/Sources"
         ),
         .target(
             name: "WrapKitTestUtils",
