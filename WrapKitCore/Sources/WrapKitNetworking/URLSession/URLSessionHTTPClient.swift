@@ -65,11 +65,6 @@ public final class URLSessionHTTPClient: HTTPClient {
         let headers = request.allHTTPHeaderFields ?? [:]
         let body = request.httpBody?.prettyPrintedJSONString ?? "N/A"
 
-        var requestLog = "📤 Outgoing Request: \(urlString)"
-        requestLog += "\nMethod: \(method)"
-        requestLog += "\nHeaders: \(headers)"
-        requestLog += "\nBody: \(body)"
-        print(requestLog)
         print(request.cURL(pretty: true))
     }
 
