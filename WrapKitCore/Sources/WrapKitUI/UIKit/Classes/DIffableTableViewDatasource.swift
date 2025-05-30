@@ -227,7 +227,11 @@ public class DiffableTableViewDataSource<Header, Cell: Hashable, Footer>: UITabl
 }
 
 // MARK: - TableOutput Conformance
-extension DiffableTableViewDataSource: TableOutput {
+extension DiffableTableViewDataSource: TableOutput & HiddableOutput {
+    public func display(isHidden: Bool) {
+        tableView?.isHidden = isHidden
+    }
+    
     public func display(leadingSwipeActionsForIndexPath: ((IndexPath) -> [TableContextualAction<Cell>])?) {
         self.leadingSwipeActionsConfigurationForRowAt = { [weak self] indexPath in
             let contextualActions = leadingSwipeActionsForIndexPath?(indexPath).map { action in
