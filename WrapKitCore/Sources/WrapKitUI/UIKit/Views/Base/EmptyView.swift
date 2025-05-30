@@ -131,23 +131,18 @@ extension EmptyView: EmptyViewOutput {
     }
     
     public func display(model: EmptyViewPresentableModel?) {
-        guard let model else {
-            setHidden(true, animated: false)
-            return
-        }
-        
         setHidden(
-            false,
-            animated: model.animationConfig.isAnimated,
-            duration: model.animationConfig.duration
+            model == nil,
+            animated: model?.animationConfig.isAnimated ?? true,
+            duration: model?.animationConfig.duration ?? 0.3
         )
         
         // Update content without animation
         UIView.performWithoutAnimation {
-            display(title: model.title)
-            display(subtitle: model.subTitle)
-            display(buttonModel: model.button)
-            display(image: model.image)
+            display(title: model?.title)
+            display(subtitle: model?.subTitle)
+            display(buttonModel: model?.button)
+            display(image: model?.image)
         }
     }
     
