@@ -109,6 +109,7 @@ public protocol TextInputOutput: AnyObject {
     func display(leadingViewIsHidden: Bool)
     func display(isHidden: Bool)
     func display(inputView: TextInputPresentableModel.InputView?)
+    func display(inputType: KeyboardType)
 }
 
 public struct TextInputPresentableModel: HashableWithReflection {
@@ -377,6 +378,10 @@ extension Textfield: TextInputOutput {
     
     public func display(isHidden: Bool) {
         self.isHidden = isHidden
+    }
+
+    public func display(inputType: KeyboardType) {
+        self.keyboardType = UIKeyboardType(rawValue: inputType.rawValue) ?? .default
     }
 }
 

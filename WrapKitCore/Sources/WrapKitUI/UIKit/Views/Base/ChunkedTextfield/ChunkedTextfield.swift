@@ -58,6 +58,7 @@ extension ChunkedTextField: TextInputOutput {
     public func display(onBecomeFirstResponder: (() -> Void)?) {}
     public func display(onResignFirstResponder: (() -> Void)?) {}
     public func display(onTapBackspace: (() -> Void)?) {}
+    public func display(inputType: KeyboardType) {}
 }
 
 public class ChunkedTextField: ViewUIKit {
