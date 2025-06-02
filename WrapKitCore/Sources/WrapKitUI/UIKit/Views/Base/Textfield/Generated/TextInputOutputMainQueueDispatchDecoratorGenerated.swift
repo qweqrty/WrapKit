@@ -137,6 +137,11 @@ extension MainQueueDispatchDecorator: TextInputOutput where T: TextInputOutput {
             self?.decoratee.display(inputView: inputView)
         }
     }
+    public func display(inputType: KeyboardType) {
+        dispatch { [weak self] in
+            self?.decoratee.display(inputType: inputType)
+        }
+    }
     public func makeAccessoryView(accessoryView: UIView, height: CGFloat = 60, constraints: ((UIView, UIView) -> [NSLayoutConstraint])? = nil) {
         dispatch { [weak self] in
             self?.decoratee.makeAccessoryView(accessoryView: accessoryView, height: height, constraints: constraints)

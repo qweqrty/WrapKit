@@ -264,5 +264,9 @@ extension Textview: TextInputOutput {
     public func display(isHidden: Bool) {
         self.isHidden = isHidden
     }
+
+    public func display(inputType: KeyboardType) {
+        self.keyboardType = UIKeyboardType(rawValue: inputType.rawValue) ?? .default
+    }
 }
 #endif

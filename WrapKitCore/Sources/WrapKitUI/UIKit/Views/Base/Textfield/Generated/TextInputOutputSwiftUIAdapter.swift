@@ -227,6 +227,15 @@ public class TextInputOutputSwiftUIAdapter: ObservableObject, TextInputOutput {
             inputView: inputView
         )
     }
+    @Published public var displayInputTypeState: DisplayInputTypeState? = nil
+    public struct DisplayInputTypeState {
+        public let inputType: KeyboardType
+    }
+    public func display(inputType: KeyboardType) {
+        displayInputTypeState = .init(
+            inputType: inputType
+        )
+    }
     @Published public var makeAccessoryViewAccessoryViewHeightConstraintsState: MakeAccessoryViewAccessoryViewHeightConstraintsState? = nil
     public struct MakeAccessoryViewAccessoryViewHeightConstraintsState {
         public let accessoryView: UIView
