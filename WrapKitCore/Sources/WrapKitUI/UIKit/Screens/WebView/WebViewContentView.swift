@@ -13,7 +13,7 @@ import WebKit
 open class WebViewContentView: UIView {
     lazy var contentStackView = StackView(axis: .vertical)
     public lazy var navigationBar = NavigationBar()
-    public lazy var progressBarView = ProgressBarView()
+    public lazy var progressBarView = ProgressBarView(style: nil)
     public lazy var webView = makeWebView()
     public lazy var refreshControl = RefreshControl()
 
