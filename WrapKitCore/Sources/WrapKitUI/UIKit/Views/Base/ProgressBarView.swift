@@ -48,48 +48,46 @@ import UIKit
 import SwiftUI
 
 open class ProgressBarView: UIView {
-    public let progressView = ViewUIKit(backgroundColor: .green)
-    
+    public lazy var progressView = {
+        let view = UIProgressView()
+        view.progressTintColor = .clear
+        view.trackTintColor = .clear
+        view.clipsToBounds = true
+        return view
+    }()
     private var progressViewAnchoredConstraints: AnchoredConstraints?
     
-    public init() {
+    public init(style: ProgressBarStyle? = nil) {
         super.init(frame: .zero)
         layer.cornerRadius = 4
+        self.style = style
         progressView.layer.cornerRadius = 4
         setupSubviews()
         setupConstraints()
+        applyStyle()
     }
     
     public var style: ProgressBarStyle? {
         didSet {
-            self.backgroundColor = style?.backgroundColor
-            self.progressView.backgroundColor = style?.progressBarColor
-            if let progressViewAnchoredConstraints = progressViewAnchoredConstraints, let height = style?.height {
-                progressViewAnchoredConstraints.height?.constant = height
-            } else if let height = style?.height {
-                progressViewAnchoredConstraints = anchor(.height(height))
-            }
-            if let cornerRadius = style?.cornerRadius {
-                layer.cornerRadius = cornerRadius
-                progressView.layer.cornerRadius = cornerRadius
-            }
+            applyStyle()
         }
     }
     
-    public func applyProgress(width: CGFloat) {
-        progressViewAnchoredConstraints?.width?.constant = width
+    public func applyProgress(percentage: CGFloat, animated: Bool = true) {
+        progressView.progress = Float(percentage * 0.01)
     }
     
-    public func applyProgress(percentage: CGFloat, animated: Bool = true) {
-        CFRunLoopPerformBlock(CFRunLoopGetCurrent(), CFRunLoopMode.defaultMode.rawValue) { [weak self] in
-            let maxWidth = self?.bounds.width ?? 0
-            let newWidth = maxWidth * (percentage / 100.0)
-            self?.progressViewAnchoredConstraints?.width?.constant = newWidth
-            if animated {
-                UIView.animate(withDuration: 0.3) {
-                    self?.layoutIfNeeded()
-                }
-            }
+    private func applyStyle() {
+        backgroundColor = style?.backgroundColor
+        progressView.progressTintColor = style?.progressBarColor
+        if let progressViewAnchoredConstraints = progressViewAnchoredConstraints, let height = style?.height {
+            progressViewAnchoredConstraints.height?.constant = height
+        } else if let height = style?.height {
+            progressViewAnchoredConstraints = anchor(.height(height))
+        }
+        if let cornerRadius = style?.cornerRadius {
+            layer.cornerRadius = cornerRadius
+            progressView.layer.cornerRadius = cornerRadius
         }
     }
     
@@ -104,12 +102,11 @@ extension ProgressBarView {
     }
     
     func setupConstraints() {
-        progressViewAnchoredConstraints = progressView.anchor(
+        progressView.anchor(
             .top(topAnchor),
             .leading(leadingAnchor),
-            .trailingLessThanEqual(trailingAnchor),
-            .bottom(bottomAnchor),
-            .width(0)
+            .trailing(trailingAnchor),
+            .bottom(bottomAnchor)
         )
     }
 }
@@ -140,8 +137,8 @@ extension ProgressBarView: ProgressBarOutput {
 @available(iOS 13.0, *)
 struct ProgressBarViewFullRepresentable: UIViewRepresentable {
     func makeUIView(context: Context) -> ProgressBarView {
-        let view = ProgressBarView()
-        view.applyProgress(width: 340)
+        let view = ProgressBarView(style: .init(backgroundColor: .lightGray, progressBarColor: .green))
+        view.applyProgress(percentage: 40)
         return view
     }
 
