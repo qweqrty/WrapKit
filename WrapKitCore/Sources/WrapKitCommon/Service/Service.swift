@@ -81,7 +81,9 @@ public extension AnyPublisher {
             onCancel: (() -> Void)? = nil,
             onCompletion: (() -> Void)? = nil
         ) -> AnyPublisher<Output, Failure> {
-            self.handleEvents(
+            self
+                .receive(on: RunLoop.main)
+                .handleEvents(
                 receiveOutput: { output in
                     onSuccess?(output)
                 },
