@@ -55,11 +55,13 @@ extension Label: TextOutput {
     }
     
     public func display(text: String?) {
+        animation = nil
         isHidden = text.isEmpty
         self.text = text?.removingPercentEncoding ?? text
     }
     
     public func display(attributes: [TextAttributes]) {
+        animation = nil
         isHidden = attributes.isEmpty
         self.attributes = attributes.map { attribute in
             var updatedAttribute = attribute
@@ -69,7 +71,8 @@ extension Label: TextOutput {
     }
     
     public func display(from startAmount: Float, to endAmount: Float, mapToString: ((Float) -> TextOutputPresentableModel)?) {
-        animation.startAnimation(fromValue: startAmount, to: endAmount, mapToString: mapToString)
+        animation = .init(label: self)
+        animation?.startAnimation(fromValue: startAmount, to: endAmount, mapToString: mapToString)
     }
     
     public func display(isHidden: Bool) {
@@ -149,10 +152,20 @@ open class Label: UILabel {
         guard let text = text, !text.isEmpty else {
             return CGSize(width: base.width, height: 0)
         }
-        return CGSize(
-            width: (animation.mapToString == nil ? base.width : animation.getCurrentCounterValue().width(usingFont: font)) + textInsets.left + textInsets.right,
-            height: base.height + textInsets.top + textInsets.bottom
-        )
+        
+        if let animation = animation {
+            let endModel = animation.getEndCounterValue()
+            let endWidth = endModel.width(usingFont: font) + textInsets.left + textInsets.right
+            return CGSize(
+                width: endWidth,
+                height: base.height + textInsets.top + textInsets.bottom
+            )
+        } else {
+            return CGSize(
+                width: base.width + textInsets.left + textInsets.right,
+                height: base.height + textInsets.top + textInsets.bottom
+            )
+        }
     }
     
     public override var text: String? {
@@ -161,7 +174,7 @@ open class Label: UILabel {
         }
     }
     
-    lazy var animation: CountingLabelAnimation = .init(label: self)
+    private var animation: CountingLabelAnimation?
     
     lazy var tapGesture: UITapGestureRecognizer = {
         let gesture = UITapGestureRecognizer(target: self, action: nil)

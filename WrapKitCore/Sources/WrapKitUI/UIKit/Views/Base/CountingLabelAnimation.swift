@@ -41,6 +41,11 @@ open class CountingLabelAnimation {
         return mapToString?(startNumber + (update * (endNumber - startNumber))) ?? .text("")
     }
     
+    func getEndCounterValue() -> TextOutputPresentableModel {
+        let endNumber = endNumber ?? 0
+        return mapToString?(endNumber) ?? .text("")
+    }
+    
     public func setupPaymentFormat(format: String) {
         paymentFormat = format
     }
@@ -74,7 +79,6 @@ open class CountingLabelAnimation {
         if progress >= duration {
             timer?.invalidate()
             label?.display(model: getCurrentCounterValue())
-            mapToString = nil
             return
         }
         
