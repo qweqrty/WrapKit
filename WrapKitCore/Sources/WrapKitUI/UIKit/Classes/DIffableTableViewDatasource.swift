@@ -137,17 +137,15 @@ public class DiffableTableViewDataSource<Header, Cell: Hashable, Footer>: UITabl
     }
     
     // MARK: - Snapshot Management
-    public func updateItems(_ items: [[Cell]]) {
-        DispatchQueue.main.async { [weak self] in
-            var snapshot = NSDiffableDataSourceSnapshot<Int, Cell>()
-            let items = items.enumerated()
-            snapshot.appendSections(items.map(\.offset))
-            items.forEach { offset, element in
-                let uniqueItems = element.uniqued
-                snapshot.appendItems(uniqueItems, toSection: offset)
-            }
-            self?.apply(snapshot, animatingDifferences: true)
+    private func updateItems(_ items: [[Cell]]) {
+        var snapshot = NSDiffableDataSourceSnapshot<Int, Cell>()
+        let items = items.enumerated()
+        snapshot.appendSections(items.map(\.offset))
+        items.forEach { offset, element in
+            let uniqueItems = element.uniqued
+            snapshot.appendItems(uniqueItems, toSection: offset)
         }
+        apply(snapshot, animatingDifferences: true)
     }
     
     // MARK: - UITableViewDelegate Methods
