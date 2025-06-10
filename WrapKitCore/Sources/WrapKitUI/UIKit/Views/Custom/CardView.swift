@@ -40,6 +40,8 @@ public struct CardViewPresentableModel: HashableWithReflection {
         public let cornerRadius: CGFloat
         public let stackSpace: CGFloat
         public let hStackViewSpacing: CGFloat
+        public let titleKeyNumberOfLines: Int
+        public let titleValueNumberOfLines: Int
         
         public init(
             backgroundColor: Color,
@@ -54,7 +56,9 @@ public struct CardViewPresentableModel: HashableWithReflection {
             subTitleLabelFont: Font,
             cornerRadius: CGFloat,
             stackSpace: CGFloat,
-            hStackViewSpacing: CGFloat
+            hStackViewSpacing: CGFloat,
+            titleKeyNumberOfLines: Int,
+            titleValueNumberOfLines: Int
         ) {
             self.backgroundColor = backgroundColor
             self.vStacklayoutMargins = vStacklayoutMargins
@@ -69,6 +73,8 @@ public struct CardViewPresentableModel: HashableWithReflection {
             self.cornerRadius = cornerRadius
             self.stackSpace = stackSpace
             self.hStackViewSpacing = hStackViewSpacing
+            self.titleKeyNumberOfLines = titleKeyNumberOfLines
+            self.titleValueNumberOfLines = titleValueNumberOfLines
         }
     }
 
@@ -156,6 +162,8 @@ extension CardView: CardViewOutput {
         titleViews.keyLabel.textColor = style.titleKeyTextColor
         titleViews.valueLabel.textColor = style.titleValueTextColor
         titleViews.valueLabel.font = style.titleValueLabelFont
+        titleViews.keyLabel.numberOfLines = style.titleKeyNumberOfLines
+        titleViews.valueLabel.numberOfLines = style.titleValueNumberOfLines
         cornerRadius = style.cornerRadius
     }
     
