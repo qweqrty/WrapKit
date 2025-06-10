@@ -13,18 +13,30 @@ public enum CornerStyle {
     case none
 }
 
+public enum LabelAnimationStyle {
+    case none
+    case circle
+}
+
 public protocol TextOutput: AnyObject {
     func display(model: TextOutputPresentableModel?)
     func display(text: String?)
     func display(attributes: [TextAttributes])
-    func display(from startAmount: Float, to endAmount: Float, mapToString: ((Float) -> TextOutputPresentableModel)?)
+    func display(from startAmount: Float, to endAmount: Float, mapToString: ((Float) -> TextOutputPresentableModel)?, animationStyle: LabelAnimationStyle, duration: TimeInterval, completion: (() -> Void)?)
     func display(isHidden: Bool)
 }
 
 public indirect enum TextOutputPresentableModel: HashableWithReflection {
     case text(String?)
     case attributes([TextAttributes])
-    case counting(Float, Float, mapToString: ((Float) -> TextOutputPresentableModel)?)
+    case animated(
+        Float,
+        Float,
+        mapToString: ((Float) -> TextOutputPresentableModel)?,
+        animationStyle: LabelAnimationStyle,
+        duration: TimeInterval,
+        completion: (() -> Void)?
+    )
     case textStyled(
         text: TextOutputPresentableModel,
         cornerStyle: CornerStyle?,
@@ -45,8 +57,8 @@ extension Label: TextOutput {
             display(text: text)
         case .attributes(let attributes):
             display(attributes: attributes)
-        case .counting(let startAmount, let endAmount, let mapToString):
-            display(from: startAmount, to: endAmount, mapToString: mapToString)
+        case .animated(let startAmount, let endAmount, let mapToString, let animationStyle, let duration, let completion):
+            display(from: startAmount, to: endAmount, mapToString: mapToString, animationStyle: animationStyle, duration: duration, completion: completion)
         case .textStyled(let model, let style, let insets):
             display(model: model)
             self.cornerStyle = style
@@ -71,8 +83,13 @@ extension Label: TextOutput {
     }
     
     public func display(from startAmount: Float, to endAmount: Float, mapToString: ((Float) -> TextOutputPresentableModel)?) {
+        display(from: startAmount, to: endAmount, mapToString: mapToString, animationStyle: .none, duration: 1.0, completion: nil)
+    }
+    
+    public func display(from startAmount: Float, to endAmount: Float, mapToString: ((Float) -> TextOutputPresentableModel)?, animationStyle: LabelAnimationStyle = .none, duration: TimeInterval = 1.0, completion: (() -> Void)? = nil) {
         animation = .init(label: self)
-        animation?.startAnimation(fromValue: startAmount, to: endAmount, mapToString: mapToString)
+        animation?.startAnimation(fromValue: startAmount, to: endAmount, mapToString: mapToString, animationStyle: animationStyle, duration: duration, completion: completion)
+        invalidateIntrinsicContentSize()
     }
     
     public func display(isHidden: Bool) {
@@ -153,9 +170,10 @@ open class Label: UILabel {
             return CGSize(width: base.width, height: 0)
         }
         
-        if let animation = animation {
-            let endModel = animation.getEndCounterValue()
+        if let animation = animation, case .animated(let startAmount, let endAmount, let mapToString, _, _, _) = animation.model {
+            let endModel = mapToString?(endAmount) ?? .text(String(format: "%.0f", endAmount))
             let endWidth = endModel.width(usingFont: font) + textInsets.left + textInsets.right
+            
             return CGSize(
                 width: endWidth,
                 height: base.height + textInsets.top + textInsets.bottom

@@ -6,16 +6,20 @@
 //
 
 import Foundation
+
 #if canImport(UIKit)
 import UIKit
 
 open class CountingLabelAnimation {
     private weak var label: Label?
     private var paymentFormat: String = ""
+    public var model: TextOutputPresentableModel? // Added to store model
+    private var progressView: CircularProgressView? // For circular animation
     
     public required init(label: Label) {
         self.label = label
     }
+    
     public var floatLimit: Float? = nil
     
     var startNumber: Float? = 0.0
@@ -26,6 +30,7 @@ open class CountingLabelAnimation {
     var progress: TimeInterval!
     var duration: TimeInterval = 1
     var lastUpdate: TimeInterval!
+    var completion: (() -> Void)? // Added for completion closure
     
     var timer: Timer?
     
@@ -53,14 +58,36 @@ open class CountingLabelAnimation {
     public func startAnimation(
         fromValue: Float,
         to toValue: Float,
-        mapToString: ((Float) -> TextOutputPresentableModel)?
+        mapToString: ((Float) -> TextOutputPresentableModel)?,
+        animationStyle: LabelAnimationStyle = .none,
+        duration: TimeInterval = 1.0,
+        completion: (() -> Void)? = nil
     ) {
-        startNumber = fromValue
-        endNumber = toValue
+        self.startNumber = fromValue
+        self.endNumber = toValue
         self.mapToString = mapToString
-        progress = 0
-        lastUpdate = Date.timeIntervalSinceReferenceDate
-    
+        self.progress = 0
+        self.duration = duration
+        self.completion = completion
+        self.model = .animated(fromValue, toValue, mapToString: mapToString, animationStyle: animationStyle, duration: duration, completion: completion)
+        self.lastUpdate = Date.timeIntervalSinceReferenceDate
+        
+        // Set up circular progress view if needed
+        if animationStyle == .circle, let label = label {
+            progressView = CircularProgressView(frame: label.bounds.insetBy(dx: -8, dy: -8))
+            if let progressView {
+                label.addSubview(progressView)
+                progressView.translatesAutoresizingMaskIntoConstraints = false
+                NSLayoutConstraint.activate([
+                    progressView.centerXAnchor.constraint(equalTo: label.centerXAnchor),
+                    progressView.centerYAnchor.constraint(equalTo: label.centerYAnchor),
+                    progressView.widthAnchor.constraint(equalTo: label.widthAnchor, constant: 16),
+                    progressView.heightAnchor.constraint(equalTo: label.heightAnchor, constant: 16)
+                ])
+                progressView.animateProgress(from: 1.0, to: 0.0, duration: duration, completion: nil)
+            }
+        }
+        
         timer?.invalidate()
         timer = Timer.scheduledTimer(
             timeInterval: 0.01,
@@ -78,7 +105,11 @@ open class CountingLabelAnimation {
         
         if progress >= duration {
             timer?.invalidate()
+            timer = nil
+            progressView?.removeFromSuperview()
+            progressView = nil
             label?.display(model: getCurrentCounterValue())
+            completion?()
             return
         }
         
@@ -88,6 +119,7 @@ open class CountingLabelAnimation {
     deinit {
         timer?.invalidate()
         timer = nil
+        progressView?.removeFromSuperview()
     }
 }
 #endif
