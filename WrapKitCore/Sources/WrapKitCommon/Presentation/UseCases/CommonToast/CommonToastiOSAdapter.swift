@@ -14,6 +14,7 @@ public class CommonToastiOSAdapter: CommonToastOutput {
     
     private let toastViewBuilder: ((CommonToast) -> ToastView?)?
     private var keyboardHeight: CGFloat = 0
+    private var currentToast: ToastView?
     
     public init(toastViewBuilder: ((CommonToast) -> ToastView?)?) {
         self.toastViewBuilder = toastViewBuilder
@@ -26,17 +27,23 @@ public class CommonToastiOSAdapter: CommonToastOutput {
         queue.enqueue(toastView)
         showNextToast()
     }
+    
+    public func hide() {
+        currentToast?.hide(after: 0)
+    }
 
     private func showNextToast() {
-        guard !isDisplaying, let nextToast = queue.dequeue() else { return }
+        guard !isDisplaying else { return }
+        currentToast = queue.dequeue()
         isDisplaying = true
-        nextToast.keyboardHeight = keyboardHeight
-        nextToast.onDismiss = { [weak self] in
+        currentToast?.keyboardHeight = keyboardHeight
+        currentToast?.onDismiss = { [weak self] in
+            self?.currentToast = nil
             self?.isDisplaying = false
             self?.showNextToast()
         }
         
-        nextToast.show()
+        currentToast?.show()
     }
     
     @objc private func keyboardWillShow(_ notification: Notification) {

@@ -9,6 +9,7 @@ import Foundation
 
 public protocol CommonToastOutput: AnyObject {
     func display(_ toast: CommonToast)
+    func hide()
 }
 
 public enum CommonToast {

@@ -326,4 +326,3 @@ extension ToastView: UIGestureRecognizerDelegate {
 }
 
 #endif
-

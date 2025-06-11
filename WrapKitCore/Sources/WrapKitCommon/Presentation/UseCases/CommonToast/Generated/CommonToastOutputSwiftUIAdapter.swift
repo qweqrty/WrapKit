@@ -30,4 +30,11 @@ public class CommonToastOutputSwiftUIAdapter: ObservableObject, CommonToastOutpu
             toast: toast
         )
     }
+    @Published public var hideState: HideState? = nil
+    public struct HideState {
+    }
+    public func hide() {
+        hideState = .init(
+        )
+    }
 }

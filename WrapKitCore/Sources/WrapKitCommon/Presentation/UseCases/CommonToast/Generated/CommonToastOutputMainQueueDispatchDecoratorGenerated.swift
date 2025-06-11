@@ -24,6 +24,11 @@ extension MainQueueDispatchDecorator: CommonToastOutput where T: CommonToastOutp
             self?.decoratee.display(toast)
         }
     }
+    public func hide() {
+        dispatch { [weak self] in
+            self?.decoratee.hide()
+        }
+    }
 
 }
 #endif

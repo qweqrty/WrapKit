@@ -22,6 +22,9 @@ extension WeakRefVirtualProxy: CommonToastOutput where T: CommonToastOutput {
     public func display(_ toast: CommonToast) {
         object?.display(toast)
     }
+    public func hide() {
+        object?.hide()
+    }
 
 }
 #endif

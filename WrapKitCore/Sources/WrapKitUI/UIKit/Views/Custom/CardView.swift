@@ -324,14 +324,14 @@ open class CardView: ViewUIKit {
     
     public let leadingTitleViewsWrapperView = UIView(isHidden: true)
     public let leadingTitleViews = VKeyValueFieldView(
-        keyLabel: Label(font: .systemFont(ofSize: 16), textColor: .black),
+        keyLabel: Label(font: .systemFont(ofSize: 16), textColor: .black, textAlignment: .center),
         valueLabel: Label(isHidden: true, font: .systemFont(ofSize: 16), textColor: .black),
         spacing: 0
     )
     
     public let trailingTitleViewsWrapperView = UIView(isHidden: true)
     public let trailingTitleViews = VKeyValueFieldView(
-        keyLabel: Label(font: .systemFont(ofSize: 16), textColor: .black),
+        keyLabel: Label(font: .systemFont(ofSize: 16), textColor: .black, textAlignment: .center),
         valueLabel: Label(isHidden: true, font: .systemFont(ofSize: 16), textColor: .black),
         spacing: 0
     )
