@@ -63,6 +63,24 @@ public class CardViewOutputSwiftUIAdapter: ObservableObject, CardViewOutput {
             title: title
         )
     }
+    @Published public var displayLeadingTitlesState: DisplayLeadingTitlesState? = nil
+    public struct DisplayLeadingTitlesState {
+        public let leadingTitles: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>?
+    }
+    public func display(leadingTitles: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>?) {
+        displayLeadingTitlesState = .init(
+            leadingTitles: leadingTitles
+        )
+    }
+    @Published public var displayTrailingTitlesState: DisplayTrailingTitlesState? = nil
+    public struct DisplayTrailingTitlesState {
+        public let trailingTitles: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>?
+    }
+    public func display(trailingTitles: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>?) {
+        displayTrailingTitlesState = .init(
+            trailingTitles: trailingTitles
+        )
+    }
     @Published public var displayLeadingImageState: DisplayLeadingImageState? = nil
     public struct DisplayLeadingImageState {
         public let leadingImage: ImageViewPresentableModel?

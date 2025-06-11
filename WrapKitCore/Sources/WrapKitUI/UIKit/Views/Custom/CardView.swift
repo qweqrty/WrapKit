@@ -12,6 +12,8 @@ public protocol CardViewOutput: AnyObject {
     func display(style: CardViewPresentableModel.Style?)
     func display(backgroundImage: ImageViewPresentableModel?)
     func display(title: TextOutputPresentableModel?)
+    func display(leadingTitles: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>?)
+    func display(trailingTitles: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>?)
     func display(leadingImage: ImageViewPresentableModel?)
     func display(secondaryLeadingImage: ImageViewPresentableModel?)
     func display(trailingImage: ImageViewPresentableModel?)
@@ -31,10 +33,14 @@ public struct CardViewPresentableModel: HashableWithReflection {
         public let vStacklayoutMargins: EdgeInsets
         public let hStacklayoutMargins: EdgeInsets
         public let hStackViewDistribution: StackViewDistribution
+        public let leadingTitleKeyTextColor: Color
         public let titleKeyTextColor: Color
+        public let trailingTitleKeyTextColor: Color
         public let titleValueTextColor: Color
         public let subTitleTextColor: Color
+        public let leadingTitleKeyLabelFont: Font
         public let titleKeyLabelFont: Font
+        public let trailingTitleKeyLabelFont: Font
         public let titleValueLabelFont: Font
         public let subTitleLabelFont: Font
         public let cornerRadius: CGFloat
@@ -48,10 +54,14 @@ public struct CardViewPresentableModel: HashableWithReflection {
             vStacklayoutMargins: EdgeInsets,
             hStacklayoutMargins: EdgeInsets,
             hStackViewDistribution: StackViewDistribution,
+            leadingTitleKeyTextColor: Color,
             titleKeyTextColor: Color,
+            trailingTitleKeyTextColor: Color,
             titleValueTextColor: Color,
             subTitleTextColor: Color,
+            leadingTitleKeyLabelFont: Font,
             titleKeyLabelFont: Font,
+            trailingTitleKeyLabelFont: Font,
             titleValueLabelFont: Font,
             subTitleLabelFont: Font,
             cornerRadius: CGFloat,
@@ -64,10 +74,14 @@ public struct CardViewPresentableModel: HashableWithReflection {
             self.vStacklayoutMargins = vStacklayoutMargins
             self.hStacklayoutMargins = hStacklayoutMargins
             self.hStackViewDistribution = hStackViewDistribution
+            self.leadingTitleKeyTextColor = leadingTitleKeyTextColor
             self.titleKeyTextColor = titleKeyTextColor
+            self.trailingTitleKeyTextColor = trailingTitleKeyTextColor
             self.titleValueTextColor = titleValueTextColor
             self.subTitleTextColor = subTitleTextColor
+            self.leadingTitleKeyLabelFont = leadingTitleKeyLabelFont
             self.titleKeyLabelFont = titleKeyLabelFont
+            self.trailingTitleKeyLabelFont = trailingTitleKeyLabelFont
             self.titleValueLabelFont = titleValueLabelFont
             self.subTitleLabelFont = subTitleLabelFont
             self.cornerRadius = cornerRadius
@@ -94,6 +108,8 @@ public struct CardViewPresentableModel: HashableWithReflection {
     public let style: Style?
     public let backgroundImage: ImageViewPresentableModel?
     public let title: TextOutputPresentableModel?
+    public let leadingTitles: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>?
+    public let trailingTitles: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>?
     public let leadingImage: ImageViewPresentableModel?
     public let secondaryLeadingImage: ImageViewPresentableModel?
     public let trailingImage: ImageViewPresentableModel?
@@ -111,6 +127,8 @@ public struct CardViewPresentableModel: HashableWithReflection {
         style: Style? = nil,
         backgroundImage: ImageViewPresentableModel? = nil,
         title: TextOutputPresentableModel? = nil,
+        leadingTitles: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>? = nil,
+        trailingTitles: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>? = nil,
         leadingImage: ImageViewPresentableModel? = nil,
         secondaryLeadingImage: ImageViewPresentableModel? = nil,
         trailingImage: ImageViewPresentableModel? = nil,
@@ -126,7 +144,9 @@ public struct CardViewPresentableModel: HashableWithReflection {
         self.id = id
         self.style = style
         self.backgroundImage = backgroundImage
+        self.leadingTitles = leadingTitles
         self.title = title
+        self.trailingTitles = trailingTitles
         self.leadingImage = leadingImage
         self.secondaryLeadingImage = secondaryLeadingImage
         self.trailingImage = trailingImage
@@ -165,6 +185,16 @@ extension CardView: CardViewOutput {
         titleViews.keyLabel.numberOfLines = style.titleKeyNumberOfLines
         titleViews.valueLabel.numberOfLines = style.titleValueNumberOfLines
         cornerRadius = style.cornerRadius
+    }
+    
+    public func display(leadingTitles: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>?) {
+        leadingTitleViewsWrapperView.isHidden = leadingTitles == nil
+        leadingTitleViews.display(model: leadingTitles)
+    }
+    
+    public func display(trailingTitles: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>?) {
+        trailingTitleViewsWrapperView.isHidden = trailingTitles == nil
+        trailingTitleViews.display(model: trailingTitles)
     }
     
     public func display(backgroundImage: ImageViewPresentableModel?) {
@@ -239,6 +269,9 @@ extension CardView: CardViewOutput {
         // BackgroundImage
         display(backgroundImage: model.backgroundImage)
         
+        // Key leading titles
+        display(leadingTitles: model.leadingTitles)
+        
         // Key title
         display(title: model.title)
         
@@ -266,6 +299,9 @@ extension CardView: CardViewOutput {
         //switchControl
         display(switchControl: model.switchControl)
         
+        // Key trailing titles
+        display(trailingTitles: model.trailingTitles)
+        
         display(onPress: model.onPress)
         display(onLongPress: model.onLongPress)
     }
@@ -281,6 +317,20 @@ open class CardView: ViewUIKit {
     
     public let secondaryLeadingImageWrapperView = UIView(isHidden: true)
     public private(set) var secondaryLeadingImageView = ImageView(tintColor: .black)
+    
+    public let leadingTitleViewsWrapperView = UIView(isHidden: true)
+    public let leadingTitleViews = VKeyValueFieldView(
+        keyLabel: Label(font: .systemFont(ofSize: 16), textColor: .black),
+        valueLabel: Label(isHidden: true, font: .systemFont(ofSize: 16), textColor: .black),
+        spacing: 0
+    )
+    
+    public let trailingTitleViewsWrapperView = UIView(isHidden: true)
+    public let trailingTitleViews = VKeyValueFieldView(
+        keyLabel: Label(font: .systemFont(ofSize: 16), textColor: .black),
+        valueLabel: Label(isHidden: true, font: .systemFont(ofSize: 16), textColor: .black),
+        spacing: 0
+    )
     
     public let titleViewsWrapperView = UIView()
     public let titleViews = VKeyValueFieldView(
@@ -311,6 +361,8 @@ open class CardView: ViewUIKit {
         }
     )
     
+    public var leadingTitlesViewConstraints: AnchoredConstraints?
+    public var trailingTitlesViewConstraints: AnchoredConstraints?
     public var titlesViewConstraints: AnchoredConstraints?
     public var leadingImageViewConstraints: AnchoredConstraints?
     public var secondaryLeadingImageViewConstraints: AnchoredConstraints?
@@ -373,6 +425,7 @@ extension CardView {
         vStackView.addArrangedSubview(hStackView)
         vStackView.addArrangedSubview(bottomSeparatorView)
         vStackView.addArrangedSubview(bottomImageWrapperView)
+        hStackView.addArrangedSubview(leadingTitleViewsWrapperView)
         hStackView.addArrangedSubview(leadingImageWrapperView)
         hStackView.addArrangedSubview(secondaryLeadingImageWrapperView)
         hStackView.addArrangedSubview(titleViewsWrapperView)
@@ -380,13 +433,16 @@ extension CardView {
         hStackView.addArrangedSubview(secondaryTrailingImageWrapperView)
         hStackView.addArrangedSubview(trailingImageWrapperView)
         hStackView.addArrangedSubview(switchWrapperView)
+        hStackView.addArrangedSubview(trailingTitleViewsWrapperView)
         
         leadingImageWrapperView.addSubview(leadingImageView)
         secondaryLeadingImageWrapperView.addSubview(secondaryLeadingImageView)
         trailingImageWrapperView.addSubview(trailingImageView)
         secondaryTrailingImageWrapperView.addSubview(secondaryTrailingImageView)
         
+        leadingTitleViewsWrapperView.addSubview(leadingTitleViews)
         titleViewsWrapperView.addSubview(titleViews)
+        trailingTitleViewsWrapperView.addSubview(trailingTitleViews)
         switchWrapperView.addSubview(switchControl)
     }
     
@@ -399,6 +455,22 @@ extension CardView {
             .leading(titleViewsWrapperView.leadingAnchor),
             .trailing(titleViewsWrapperView.trailingAnchor),
             .centerY(titleViewsWrapperView.centerYAnchor)
+        )
+        
+        leadingTitlesViewConstraints = leadingTitleViews.anchor(
+            .topGreaterThanEqual(leadingTitleViewsWrapperView.topAnchor),
+            .bottomLessThanEqual(leadingTitleViewsWrapperView.bottomAnchor),
+            .leading(leadingTitleViewsWrapperView.leadingAnchor),
+            .trailing(leadingTitleViewsWrapperView.trailingAnchor),
+            .centerY(leadingTitleViewsWrapperView.centerYAnchor)
+        )
+        
+        trailingTitlesViewConstraints = trailingTitleViews.anchor(
+            .topGreaterThanEqual(trailingTitleViewsWrapperView.topAnchor),
+            .bottomLessThanEqual(trailingTitleViewsWrapperView.bottomAnchor),
+            .leading(trailingTitleViewsWrapperView.leadingAnchor),
+            .trailing(trailingTitleViewsWrapperView.trailingAnchor),
+            .centerY(trailingTitleViewsWrapperView.centerYAnchor)
         )
         
         leadingImageViewConstraints = leadingImageView.anchor(
