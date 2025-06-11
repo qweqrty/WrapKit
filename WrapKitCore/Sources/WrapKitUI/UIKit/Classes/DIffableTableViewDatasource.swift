@@ -145,7 +145,12 @@ public class DiffableTableViewDataSource<Header, Cell: Hashable, Footer>: UITabl
             let uniqueItems = element.uniqued
             snapshot.appendItems(uniqueItems, toSection: offset)
         }
-        apply(snapshot, animatingDifferences: true)
+        if #available(iOS 15.0, *) {
+            applySnapshotUsingReloadData(snapshot)
+        } else {
+            // TODO: CHECK CRASH ON IOS 14
+            apply(snapshot, animatingDifferences: true)
+        }
     }
     
     // MARK: - UITableViewDelegate Methods
