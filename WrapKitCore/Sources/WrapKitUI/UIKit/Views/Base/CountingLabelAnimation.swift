@@ -10,7 +10,7 @@ import Foundation
 #if canImport(UIKit)
 import UIKit
 
-open class CountingLabelAnimation {
+class CountingLabelAnimation {
     private weak var label: Label?
     private var paymentFormat: String = ""
     public var model: TextOutputPresentableModel? // Added to store model
@@ -41,9 +41,9 @@ open class CountingLabelAnimation {
             return mapToString?(endNumber) ?? .text("")
         }
         let percentage = Float(progress / duration)
-        let update = 1.0 - powf(1.0 - percentage, counterVelocity)
-        
-        return mapToString?(startNumber + (update * (endNumber - startNumber))) ?? .text("")
+        // Linear interpolation (remove easing for linear animation)
+        let currentValue = startNumber + (percentage * (endNumber - startNumber))
+        return mapToString?(currentValue) ?? .text("")
     }
     
     func getEndCounterValue() -> TextOutputPresentableModel {
@@ -73,8 +73,8 @@ open class CountingLabelAnimation {
         self.lastUpdate = Date.timeIntervalSinceReferenceDate
         
         // Set up circular progress view if needed
-        if animationStyle == .circle, let label = label {
-            progressView = CircularProgressView(frame: label.bounds.insetBy(dx: -8, dy: -8))
+        if case .circle(let lineColor) = animationStyle, let label = label {
+            progressView = CircularProgressView(lineColor: lineColor, frame: label.bounds.insetBy(dx: -8, dy: -8))
             if let progressView {
                 label.addSubview(progressView)
                 progressView.translatesAutoresizingMaskIntoConstraints = false
@@ -100,7 +100,8 @@ open class CountingLabelAnimation {
     
     @objc func updateValue() {
         let now = Date.timeIntervalSinceReferenceDate
-        progress += (now - lastUpdate)
+        let timeStep: TimeInterval = 0.01
+        progress = min(progress + timeStep, duration)
         lastUpdate = now
         
         if progress >= duration {
@@ -108,7 +109,8 @@ open class CountingLabelAnimation {
             timer = nil
             progressView?.removeFromSuperview()
             progressView = nil
-            label?.display(model: getCurrentCounterValue())
+            model = nil
+            label?.display(model: getEndCounterValue())
             completion?()
             return
         }

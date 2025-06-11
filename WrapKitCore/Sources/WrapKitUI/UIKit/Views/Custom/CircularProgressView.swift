@@ -13,40 +13,35 @@ import UIKit
 class CircularProgressView: UIView {
     private let progressLayer = CAShapeLayer()
     
-    override init(frame: CGRect) {
+    init(lineColor: UIColor, frame: CGRect) {
         super.init(frame: frame)
-        setupProgressLayer()
-    }
-    
-    required init?(coder: NSCoder) {
-        super.init(coder: coder)
-        setupProgressLayer()
-    }
-    
-    private func setupProgressLayer() {
         let circularPath = UIBezierPath(arcCenter: CGPoint(x: bounds.midX, y: bounds.midY),
                                         radius: bounds.width / 2,
                                         startAngle: -CGFloat.pi / 2,
                                         endAngle: 1.5 * CGFloat.pi,
                                         clockwise: true)
         progressLayer.path = circularPath.cgPath
-        progressLayer.strokeColor = UIColor.blue.cgColor // Customize as needed
+        progressLayer.strokeColor = lineColor.cgColor
         progressLayer.fillColor = UIColor.clear.cgColor
-        progressLayer.lineWidth = 4 // Customize thickness
+        progressLayer.lineWidth = 2 // Customize thickness
         progressLayer.strokeEnd = 1.0
         layer.addSublayer(progressLayer)
     }
     
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     func animateProgress(from: CGFloat, to: CGFloat, duration: TimeInterval, completion: (() -> Void)?) {
-        progressLayer.strokeEnd = from
-        let animation = CABasicAnimation(keyPath: "strokeEnd")
-        animation.fromValue = from
-        animation.toValue = to
+        progressLayer.strokeStart = from
+        let animation = CABasicAnimation(keyPath: "strokeStart")
+        animation.fromValue = to
+        animation.toValue = from
         animation.duration = duration
         animation.fillMode = .forwards
         animation.isRemovedOnCompletion = false
         animation.timingFunction = CAMediaTimingFunction(name: .linear)
-        progressLayer.add(animation, forKey: "progressAnimation")
+        progressLayer.add(animation, forKey: "\(String(describing: self))progressAnimation")
         
         DispatchQueue.main.asyncAfter(deadline: .now() + duration) {
             completion?()
