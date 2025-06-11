@@ -9,12 +9,12 @@
 import UIKit
 
 public class CommonToastiOSAdapter: CommonToastOutput {
-    private var queue = Queue<ToastView>()
+    private var queue = Queue<CommonToast>()
     private var isDisplaying = false
     
     private let toastViewBuilder: ((CommonToast) -> ToastView?)?
     private var keyboardHeight: CGFloat = 0
-    private var currentToast: ToastView?
+    private var currentToastView: ToastView?
     
     public init(toastViewBuilder: ((CommonToast) -> ToastView?)?) {
         self.toastViewBuilder = toastViewBuilder
@@ -23,27 +23,27 @@ public class CommonToastiOSAdapter: CommonToastOutput {
     }
     
     public func display(_ toast: CommonToast) {
-        guard let toastView = toastViewBuilder?(toast) else { return }
-        queue.enqueue(toastView)
+        queue.enqueue(toast)
         showNextToast()
     }
     
     public func hide() {
-        currentToast?.hide(after: 0)
+        currentToastView?.hide(after: 0)
     }
 
     private func showNextToast() {
-        guard !isDisplaying else { return }
-        currentToast = queue.dequeue()
+        guard !isDisplaying, let toast = queue.dequeue() else { return }
+        currentToastView = toastViewBuilder?(toast)
+
         isDisplaying = true
-        currentToast?.keyboardHeight = keyboardHeight
-        currentToast?.onDismiss = { [weak self] in
-            self?.currentToast = nil
+        currentToastView?.keyboardHeight = keyboardHeight
+        currentToastView?.onDismiss = { [weak self] in
+            self?.currentToastView = nil
             self?.isDisplaying = false
             self?.showNextToast()
         }
         
-        currentToast?.show()
+        currentToastView?.show()
     }
     
     @objc private func keyboardWillShow(_ notification: Notification) {

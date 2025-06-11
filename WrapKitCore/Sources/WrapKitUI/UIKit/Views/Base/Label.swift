@@ -229,6 +229,11 @@ open class Label: UILabel {
     public required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
     }
+    
+    deinit {
+        animation?.timer?.invalidate()
+        animation = nil
+    }
 }
 
 public extension Label {
