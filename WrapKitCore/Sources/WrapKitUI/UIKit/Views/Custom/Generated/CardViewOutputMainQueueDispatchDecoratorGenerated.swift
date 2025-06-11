@@ -45,6 +45,16 @@ extension MainQueueDispatchDecorator: CardViewOutput where T: CardViewOutput {
             self?.decoratee.display(title: title)
         }
     }
+    public func display(leadingTitles: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>?) {
+        dispatch { [weak self] in
+            self?.decoratee.display(leadingTitles: leadingTitles)
+        }
+    }
+    public func display(trailingTitles: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>?) {
+        dispatch { [weak self] in
+            self?.decoratee.display(trailingTitles: trailingTitles)
+        }
+    }
     public func display(leadingImage: ImageViewPresentableModel?) {
         dispatch { [weak self] in
             self?.decoratee.display(leadingImage: leadingImage)

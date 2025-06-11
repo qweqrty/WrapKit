@@ -15,7 +15,7 @@ public enum CornerStyle {
 
 public enum LabelAnimationStyle {
     case none
-    case circle(color: Color)
+    case circle(lineColor: Color)
 }
 
 public protocol TextOutput: AnyObject {
