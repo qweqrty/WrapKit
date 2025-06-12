@@ -36,14 +36,26 @@ public extension String {
     var asHtmlAttributedString: NSAttributedString? {
         guard let data = data(using: .utf8) else { return nil }
                 
-        return try? NSAttributedString(
-            data: data,
-            options: [
-                .documentType: NSAttributedString.DocumentType.html,
-                .characterEncoding: String.Encoding.utf8.rawValue
-            ],
-            documentAttributes: nil
-        )
+        if #available(macOS 15.0, iOS 18.0, *) {
+            return try? NSAttributedString(
+                data: data,
+                options: [
+                    .documentType: NSAttributedString.DocumentType.html,
+                    .characterEncoding: String.Encoding.utf8.rawValue,
+                    .textKit1ListMarkerFormatDocumentOption: true
+                ],
+                documentAttributes: nil
+            )
+        } else {
+            return try? NSAttributedString(
+                data: data,
+                options: [
+                    .documentType: NSAttributedString.DocumentType.html,
+                    .characterEncoding: String.Encoding.utf8.rawValue
+                ],
+                documentAttributes: nil
+            )
+        }
     }
     
     func asDate(withFormat format: String) -> Date? {
