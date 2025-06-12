@@ -282,7 +282,7 @@ private extension String {
     }
 }
 
- extension TextOutputPresentableModel {
+private extension TextOutputPresentableModel {
     func width(usingFont font: Font) -> CGFloat {
         var string: String?
         switch self {
