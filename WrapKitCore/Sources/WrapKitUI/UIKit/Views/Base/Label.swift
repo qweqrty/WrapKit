@@ -51,7 +51,6 @@ extension Label: TextOutput {
     public func display(model: TextOutputPresentableModel?) {
         isHidden = model == nil
         guard let model = model else { return }
-        clearAnimationModel()
         hideShimmer()
         switch model {
         case .text(let text):
@@ -69,14 +68,12 @@ extension Label: TextOutput {
     
     public func display(text: String?) {
         isHidden = text.isEmpty
-        clearAnimationModel()
         self.text = text?.removingPercentEncoding ?? text
         
     }
     
     public func display(attributes: [TextAttributes]) {
         isHidden = attributes.isEmpty
-        clearAnimationModel()
         self.attributes = attributes.map { attribute in
             var updatedAttribute = attribute
             updatedAttribute.text = attribute.text.removingPercentEncoding ?? attribute.text
@@ -85,13 +82,11 @@ extension Label: TextOutput {
     }
     
     public func display(from startAmount: Float, to endAmount: Float, mapToString: ((Float) -> TextOutputPresentableModel)?) {
-        clearAnimationModel()
         display(from: startAmount, to: endAmount, mapToString: mapToString, animationStyle: .none, duration: 1.0, completion: nil)
     }
     
     public func display(from startAmount: Float, to endAmount: Float, mapToString: ((Float) -> TextOutputPresentableModel)?, animationStyle: LabelAnimationStyle = .none, duration: TimeInterval = 1.0, completion: (() -> Void)? = nil) {
         animation = .init(label: self)
-        clearAnimationModel()
         animation?.startAnimation(fromValue: startAmount, to: endAmount, mapToString: mapToString, animationStyle: animationStyle, duration: duration, completion: completion)
     }
     
@@ -226,12 +221,6 @@ open class Label: UILabel {
                 attributes[index].range = NSRange(location: currentLocation, length: current.text.count)
             }
             attributedText = combinedAttributedString
-        }
-    }
-    
-    private func clearAnimationModel() {
-        if animation?.timer == nil {
-            animation?.endModel = nil
         }
     }
     
