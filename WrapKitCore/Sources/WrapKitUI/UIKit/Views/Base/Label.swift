@@ -274,14 +274,6 @@ extension Label: UIGestureRecognizerDelegate {
     }
 }
 
-private extension String {
-    func width(usingFont font: Font) -> CGFloat {
-        let attributes: [NSAttributedString.Key: Any] = [.font: font]
-        let size = self.size(withAttributes: attributes)
-        return ceil(size.width) + 4
-    }
-}
-
 private extension TextOutputPresentableModel {
     func width(usingFont font: Font) -> CGFloat {
         var string: String?
@@ -300,7 +292,7 @@ private extension TextOutputPresentableModel {
         )
         
         let size = attributedString.size()
-        return ceil(size.width) + 4
+        return ceil(size.width) + 5
     }
 }
 #endif
