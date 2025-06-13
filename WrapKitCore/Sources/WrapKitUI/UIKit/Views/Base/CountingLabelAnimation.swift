@@ -116,7 +116,6 @@ class CountingLabelAnimation {
             completion?()
             model = nil
             timer = nil
-            endModel = nil
             return
         }
         
