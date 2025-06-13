@@ -34,6 +34,8 @@ class CountingLabelAnimation {
     
     var timer: Timer?
     
+    public var endModel: TextOutputPresentableModel?
+    
     func getCurrentCounterValue() -> TextOutputPresentableModel {
         let startNumber = startNumber ?? 0
         let endNumber = endNumber ?? 0
@@ -87,7 +89,9 @@ class CountingLabelAnimation {
                 progressView.animateProgress(from: 1.0, to: 0.0, duration: duration, completion: nil)
             }
         }
-        
+        if let mapper = mapToString, let endNumber, let label {
+            endModel = mapper(endNumber)
+        }
         timer?.invalidate()
         timer = Timer.scheduledTimer(
             timeInterval: 0.01,
@@ -106,12 +110,12 @@ class CountingLabelAnimation {
         
         if progress >= duration {
             timer?.invalidate()
-            timer = nil
             progressView?.removeFromSuperview()
             progressView = nil
-            model = nil
             label?.display(model: getEndCounterValue())
             completion?()
+            model = nil
+            timer = nil
             return
         }
         
@@ -125,3 +129,4 @@ class CountingLabelAnimation {
     }
 }
 #endif
+
