@@ -236,6 +236,15 @@ public class TextInputOutputSwiftUIAdapter: ObservableObject, TextInputOutput {
             inputType: inputType
         )
     }
+    @Published public var displayTrailingSymbolState: DisplayTrailingSymbolState? = nil
+    public struct DisplayTrailingSymbolState {
+        public let trailingSymbol: String?
+    }
+    public func display(trailingSymbol: String?) {
+        displayTrailingSymbolState = .init(
+            trailingSymbol: trailingSymbol
+        )
+    }
     @Published public var makeAccessoryViewAccessoryViewHeightConstraintsState: MakeAccessoryViewAccessoryViewHeightConstraintsState? = nil
     public struct MakeAccessoryViewAccessoryViewHeightConstraintsState {
         public let accessoryView: UIView

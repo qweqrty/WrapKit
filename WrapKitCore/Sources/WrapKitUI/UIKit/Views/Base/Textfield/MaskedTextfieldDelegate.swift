@@ -84,7 +84,6 @@ public class MaskedTextfieldDelegate: NSObject, UITextFieldDelegate {
         return false
     }
 
-    
     private func onPaste(_ text: String) {
         guard let textfield = textfield else { return }
         
@@ -116,6 +115,12 @@ public class MaskedTextfieldDelegate: NSObject, UITextFieldDelegate {
             let newPosition = textField.position(from: textField.beginningOfDocument, offset: mask.input.count) ?? textField.beginningOfDocument
             textField.selectedTextRange = textField.textRange(from: newPosition, to: newPosition)
         }
+    }
+}
+
+public extension MaskedTextfieldDelegate {
+    func refreshMask() {
+        setupMask(mask: format.mask.applied(to: fullText))
     }
 }
 #endif

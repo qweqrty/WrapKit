@@ -110,6 +110,7 @@ public protocol TextInputOutput: AnyObject {
     func display(isHidden: Bool)
     func display(inputView: TextInputPresentableModel.InputView?)
     func display(inputType: KeyboardType)
+    func display(trailingSymbol: String?)
 }
 
 public struct TextInputPresentableModel: HashableWithReflection {
@@ -162,6 +163,7 @@ public struct TextInputPresentableModel: HashableWithReflection {
     public let isUserInteractionEnabled: Bool?
     public let isSecureTextEntry: Bool?
     public let inputView: InputView?
+    public let trailingSymbol: String?
     public var leadingViewOnPress: (() -> Void)?
     public var trailingViewOnPress: (() -> Void)?
     public var onPress: (() -> Void)?
@@ -181,6 +183,7 @@ public struct TextInputPresentableModel: HashableWithReflection {
         isUserInteractionEnabled: Bool? = nil,
         isSecureTextEntry: Bool? = nil,
         inputView: InputView? = nil,
+        trailingSymbol: String? = nil,
         leadingViewOnPress: (() -> Void)? = nil,
         trailingViewOnPress: (() -> Void)? = nil,
         onPress: (() -> Void)? = nil,
@@ -207,6 +210,7 @@ public struct TextInputPresentableModel: HashableWithReflection {
         self.onTapBackspace = onTapBackspace
         self.didChangeText = didChangeText
         self.inputView = inputView
+        self.trailingSymbol = trailingSymbol
     }
 }
 
@@ -272,6 +276,7 @@ extension Textfield: TextInputOutput {
         }
         
         display(inputView: model.inputView)
+        display(trailingSymbol: model.trailingSymbol)
     }
     
     public func display(inputView: TextInputPresentableModel.InputView?) {
@@ -382,6 +387,12 @@ extension Textfield: TextInputOutput {
 
     public func display(inputType: KeyboardType) {
         self.keyboardType = UIKeyboardType(rawValue: inputType.rawValue) ?? .default
+    }
+    
+    public func display(trailingSymbol: String?) {
+        guard let delegate = maskedTextfieldDelegate else { return }
+        delegate.trailingSymbol = trailingSymbol
+        delegate.refreshMask()
     }
 }
 
