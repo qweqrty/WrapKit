@@ -196,6 +196,7 @@ extension Textview: TextInputOutput {
         if let didChangeText = model.didChangeText {
             display(didChangeText: didChangeText)
         }
+        display(trailingSymbol: model.trailingSymbol)
     }
     
     public func display(text: String?) {
@@ -268,5 +269,7 @@ extension Textview: TextInputOutput {
     public func display(inputType: KeyboardType) {
         self.keyboardType = UIKeyboardType(rawValue: inputType.rawValue) ?? .default
     }
+    
+    public func display(trailingSymbol: String?) {}
 }
 #endif
