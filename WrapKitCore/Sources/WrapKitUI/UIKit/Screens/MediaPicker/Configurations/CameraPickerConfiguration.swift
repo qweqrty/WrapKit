@@ -18,6 +18,7 @@ public enum VideoQualityType: Int {
 
 public struct CameraPickerConfiguration {
     
+    public let title: String
     public let mediaTypes: [String]
     public let allowsEditing: Bool
     public let videoMaximumDuration: TimeInterval
@@ -34,6 +35,7 @@ public struct CameraPickerConfiguration {
     public let desiredResultType: MediaPickerManager.DesiredResultType
     
     public init(
+        title: String,
         desiredResultType: MediaPickerManager.DesiredResultType = .url,
         mediaTypes: [String] = [MediaPickerManager.Constants.imageIdent],
         allowsEditing: Bool = false,
@@ -57,6 +59,7 @@ public struct CameraPickerConfiguration {
         self.cameraDevice = cameraDevice
         self.cameraFlashMode = cameraFlashMode
         self.desiredResultType = desiredResultType
+        self.title = title
     }
 }
 

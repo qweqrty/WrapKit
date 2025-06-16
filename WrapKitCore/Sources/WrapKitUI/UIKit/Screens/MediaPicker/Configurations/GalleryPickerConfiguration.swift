@@ -14,11 +14,14 @@ public struct GalleryPickerConfiguration {
         case images, videos, livePhotos
         case any([FilterType])
     }
+    
+    public let title: String
     public let desiredResultType: MediaPickerManager.DesiredResultType
     public let type: FilterType
     public let selectionLimit: Int
     
     public init(
+        title: String,
         type: FilterType = .images,
         selectionLimit: Int = 1,
         desiredResultType: MediaPickerManager.DesiredResultType = .image
@@ -26,6 +29,7 @@ public struct GalleryPickerConfiguration {
         self.type = type
         self.selectionLimit = selectionLimit
         self.desiredResultType = desiredResultType
+        self.title = title
     }
 }
 

@@ -8,22 +8,18 @@
 import Foundation
 import PhotosUI
 
-#if canImport(UIKit)
-import UIKit
-
 public protocol MyOMediaPickerFactory<Controller> {
     associatedtype Controller
 
     func makeMediaPickerController(
         flow: MyOMediaPickerFlow,
         sourceTypes: [MediaPickerManager.Source],
+        localizable: MediaPickerLocalizable,
         callback: ((MediaPickerManager.ResultType?) -> Void)?
     ) -> Controller
-    
-#if targetEnvironment(simulator)
-    func makeSimulatedCameraController(onCapture: ((UIImage?) -> Void)?) -> Controller
-#endif
 }
+
+#if canImport(UIKit)
 
 public class MyOMediaPickerFactoryiOS: MyOMediaPickerFactory {
     
@@ -34,11 +30,13 @@ public class MyOMediaPickerFactoryiOS: MyOMediaPickerFactory {
     public func makeMediaPickerController(
         flow: any MyOMediaPickerFlow,
         sourceTypes: [MediaPickerManager.Source],
+        localizable: MediaPickerLocalizable,
         callback: ((MediaPickerManager.ResultType?) -> Void)?
     ) -> UIViewController {
         let presenter = MediaPickerPresenter(
             flow: flow.mainQueueDispatched,
             sourceTypes: sourceTypes,
+            localizable: localizable,
             callback: callback
         )
         let vc = BottomSheetController(contentView: .init(), lifeCycleViewOutput: presenter)
@@ -49,21 +47,5 @@ public class MyOMediaPickerFactoryiOS: MyOMediaPickerFactory {
             .mainQueueDispatched
         return vc
     }
-    
-#if targetEnvironment(simulator)
-    public func makeSimulatedCameraController(onCapture: ((UIImage?) -> Void)?) -> UIViewController {
-        let presenter = SimulatedCameraPresenter(onCapture: onCapture)
-        let contentView = SimulatedCameraContentView()
-        let vc = ViewController(contentView: contentView, lifeCycleViewOutput: presenter)
-        vc.presentationController?.delegate = presenter
-        presenter.shutterButton = contentView.shutterButton
-            .weakReferenced
-            .mainQueueDispatched
-        presenter.cancelButton = contentView.cancelButton
-            .weakReferenced
-            .mainQueueDispatched
-        return vc
-    }
-#endif
 }
 #endif

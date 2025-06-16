@@ -11,6 +11,7 @@ import Combine
 
 public struct DocumentPickerConfiguration {
     
+    public let title: String
     public let contentTypes: [UTType]
     public let asCopy: Bool
     public let multipleSelection: Bool
@@ -19,6 +20,7 @@ public struct DocumentPickerConfiguration {
     public let desiredResultType: MediaPickerManager.DesiredResultType
  
     public init(
+        title: String,
         contentTypes: [UTType] = [.image, .video, .pdf, .data],
         asCopy: Bool = true,
         multipleSelection: Bool = false,
@@ -32,6 +34,7 @@ public struct DocumentPickerConfiguration {
         self.showFileExtensions = showFileExtensions
         self.directoryURL = directoryURL
         self.desiredResultType = desiredResultType
+        self.title = title
     }
 }
 

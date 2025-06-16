@@ -9,6 +9,7 @@
 public protocol MyOMediaPickerFlow {
     func showMediaPicker(
         sourceTypes: [MediaPickerManager.Source],
+        localizable: MediaPickerLocalizable,
         callback: ((MediaPickerManager.ResultType?) -> Void)?
     )
 
@@ -33,11 +34,13 @@ public class MyOMediaPickerFlowiOS: MyOMediaPickerFlow {
     
     public func showMediaPicker(
         sourceTypes: [MediaPickerManager.Source],
+        localizable: MediaPickerLocalizable,
         callback: ((MediaPickerManager.ResultType?) -> Void)?
     ) {
         let vc = factory.makeMediaPickerController(
             flow: self,
             sourceTypes: sourceTypes,
+            localizable: localizable,
             callback: callback
         )
         navigationController?.present(vc, animated: true)
