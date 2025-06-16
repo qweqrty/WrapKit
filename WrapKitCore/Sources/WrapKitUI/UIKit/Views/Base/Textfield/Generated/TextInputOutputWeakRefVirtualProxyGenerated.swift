@@ -94,6 +94,9 @@ extension WeakRefVirtualProxy: TextInputOutput where T: TextInputOutput {
     public func display(inputType: KeyboardType) {
         object?.display(inputType: inputType)
     }
+    public func display(trailingSymbol: String?) {
+        object?.display(trailingSymbol: trailingSymbol)
+    }
     public func makeAccessoryView(accessoryView: UIView, height: CGFloat = 60, constraints: ((UIView, UIView) -> [NSLayoutConstraint])? = nil) {
         object?.makeAccessoryView(accessoryView: accessoryView, height: height, constraints: constraints)
     }

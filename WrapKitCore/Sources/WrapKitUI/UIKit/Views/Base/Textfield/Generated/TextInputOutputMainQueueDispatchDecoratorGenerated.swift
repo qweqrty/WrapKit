@@ -142,6 +142,11 @@ extension MainQueueDispatchDecorator: TextInputOutput where T: TextInputOutput {
             self?.decoratee.display(inputType: inputType)
         }
     }
+    public func display(trailingSymbol: String?) {
+        dispatch { [weak self] in
+            self?.decoratee.display(trailingSymbol: trailingSymbol)
+        }
+    }
     public func makeAccessoryView(accessoryView: UIView, height: CGFloat = 60, constraints: ((UIView, UIView) -> [NSLayoutConstraint])? = nil) {
         dispatch { [weak self] in
             self?.decoratee.makeAccessoryView(accessoryView: accessoryView, height: height, constraints: constraints)
