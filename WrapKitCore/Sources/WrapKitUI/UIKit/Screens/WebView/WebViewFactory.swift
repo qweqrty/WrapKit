@@ -10,7 +10,6 @@ import Foundation
 public protocol WebViewFactory<Controller> {
     associatedtype Controller
     func makeWebView(
-        title: String?,
         url: URL,
         flow: any WebViewFlow,
         style: WebViewStyle,
@@ -25,7 +24,6 @@ public class WebViewFactoryiOS: WebViewFactory {
     public init() {}
     
     public func makeWebView(
-        title: String? = nil,
         url: URL,
         flow: any WebViewFlow,
         style: WebViewStyle = .init(),

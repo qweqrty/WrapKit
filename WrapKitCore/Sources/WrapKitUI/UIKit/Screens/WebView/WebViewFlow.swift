@@ -9,7 +9,6 @@ import Foundation
 
 public protocol WebViewFlow: AnyObject {
     func navigateToWebView(
-        title: String?,
         url: URL,
         style: WebViewStyle,
         navigationPolicy: WebViewNavigationPolicy?

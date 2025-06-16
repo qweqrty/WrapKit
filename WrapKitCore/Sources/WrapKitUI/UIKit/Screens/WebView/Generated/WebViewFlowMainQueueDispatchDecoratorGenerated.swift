@@ -19,9 +19,9 @@ extension WebViewFlow {
 
 extension MainQueueDispatchDecorator: WebViewFlow where T: WebViewFlow {
 
-    public func navigateToWebView(title: String?, url: URL, style: WebViewStyle, navigationPolicy: WebViewNavigationPolicy?) {
+    public func navigateToWebView(url: URL, style: WebViewStyle, navigationPolicy: WebViewNavigationPolicy?) {
         dispatch { [weak self] in
-            self?.decoratee.navigateToWebView(title: title, url: url, style: style, navigationPolicy: navigationPolicy)
+            self?.decoratee.navigateToWebView(url: url, style: style, navigationPolicy: navigationPolicy)
         }
     }
     public func navigateBack() {
