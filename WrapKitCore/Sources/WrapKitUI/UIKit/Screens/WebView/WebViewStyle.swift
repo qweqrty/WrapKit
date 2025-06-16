@@ -35,7 +35,7 @@ public struct WebViewStyle {
         title: String? = nil,
         header: Header? = nil,
         progressBarModel: ProgressBarPresentableModel? = nil,
-        hidesBottomBarWhenPushed: Bool = false,
+        hidesBottomBarWhenPushed: Bool = true,
         refresh: Refresh = .init(),
         backgroundColor: Color? = nil
     ) {
