@@ -23,10 +23,11 @@ public extension ImageView {
         case .asset(let image):
             self.animatedSet(image, closure: closure)
         case .url(let lightUrl, let darkUrl):
-            self.loadImage(UserInterfaceStyle.current == .light ? (lightUrl ?? darkUrl) : (darkUrl ?? lightUrl), kingfisherOptions: kingfisherOptions, closure: closure)
+            let url = traitCollection.userInterfaceStyle == .dark ? (darkUrl ?? lightUrl) : (lightUrl ?? darkUrl)
+            self.loadImage(url, kingfisherOptions: kingfisherOptions, closure: closure)
         case .urlString(let lightString, let darkString):
-            guard let string = UserInterfaceStyle.current == .light ? (lightString ?? darkString) : (darkString ?? lightString) else { return }
-            guard let url = URL(string: string) else { return }
+            let string = traitCollection.userInterfaceStyle == .dark ? (darkString ?? lightString) : (lightString ?? darkString)
+            guard let url = URL(string: string ?? "") else { return }
             self.loadImage(url, kingfisherOptions: kingfisherOptions, closure: closure)
         case .data(let data):
             guard let data else { return }
