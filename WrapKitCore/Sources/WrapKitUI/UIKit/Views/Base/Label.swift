@@ -172,17 +172,10 @@ open class Label: UILabel {
         guard let text = text, !text.isEmpty else {
             return CGSize(width: base.width, height: 0)
         }
-        if let endModel = animation?.endModel {
-            return CGSize(
-                width: endModel.width(usingFont: font) + textInsets.left + textInsets.right,
-                height: base.height + textInsets.top + textInsets.bottom
-            )
-        } else {
-            return CGSize(
-                width: base.width + textInsets.left + textInsets.right,
-                height: base.height + textInsets.top + textInsets.bottom
-            )
-        }
+        return CGSize(
+            width: animation?.animatedTextMaxWidth ?? base.width + textInsets.left + textInsets.right,
+            height: base.height + textInsets.top + textInsets.bottom
+        )
     }
 
     public override var text: String? {
@@ -231,7 +224,7 @@ open class Label: UILabel {
     
     private func clearAnimationModel() {
         if animation?.timer == nil {
-            animation?.endModel = nil
+            animation?.animatedTextMaxWidth = nil
         }
     }
     
@@ -274,7 +267,7 @@ extension Label: UIGestureRecognizerDelegate {
     }
 }
 
-private extension TextOutputPresentableModel {
+extension TextOutputPresentableModel {
     func width(usingFont font: Font) -> CGFloat {
         var string: String?
         switch self {
@@ -292,7 +285,7 @@ private extension TextOutputPresentableModel {
         )
         
         let size = attributedString.size()
-        return ceil(size.width) + 5
+        return ceil(size.width)
     }
 }
 #endif
