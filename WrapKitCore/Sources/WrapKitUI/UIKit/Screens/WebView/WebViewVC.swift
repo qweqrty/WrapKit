@@ -44,6 +44,14 @@ extension WebViewVC: WebViewOutput {
         contentView.refreshControl.display(style: refreshModel.style)
         contentView.webView.scrollView.bounces = refreshModel.isEnabled
         contentView.webView.scrollView.refreshControl = refreshModel.isEnabled ? contentView.refreshControl : nil
+        if refreshModel.isEnabled {
+            contentView.refreshControl.addTarget(self, action: #selector(reloadWebView), for: .valueChanged)
+        }
+    }
+    
+    @objc func reloadWebView() {
+        contentView.webView.reload()
+        contentView.refreshControl.endRefreshing()
     }
     
     public func display(isProgressBarNeeded: Bool) {
