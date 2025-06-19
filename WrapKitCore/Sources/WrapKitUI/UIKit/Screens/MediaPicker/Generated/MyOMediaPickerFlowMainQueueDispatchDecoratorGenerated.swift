@@ -19,12 +19,7 @@ extension MyOMediaPickerFlow {
 
 extension MainQueueDispatchDecorator: MyOMediaPickerFlow where T: MyOMediaPickerFlow {
 
- 
-    public func showMediaPicker(
-        sourceTypes: [MediaPickerManager.Source],
-        localizable: MediaPickerLocalizable,
-        callback: ((MediaPickerManager.ResultType?) -> Void)?
-    ) {
+    public func showMediaPicker(sourceTypes: [MediaPickerManager.Source], localizable: MediaPickerLocalizable, callback: ((MediaPickerManager.ResultType?) -> Void)?) {
         dispatch { [weak self] in
             self?.decoratee.showMediaPicker(sourceTypes: sourceTypes, localizable: localizable, callback: callback)
         }
