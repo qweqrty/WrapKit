@@ -8,11 +8,11 @@
 import Foundation
 import PhotosUI
 
-public protocol MyOMediaPickerFactory<Controller> {
+public protocol MediaPickerFactory<Controller> {
     associatedtype Controller
 
     func makeMediaPickerController(
-        flow: MyOMediaPickerFlow,
+        flow: MediaPickerFlow,
         sourceTypes: [MediaPickerManager.Source],
         localizable: MediaPickerLocalizable,
         callback: ((MediaPickerManager.ResultType?) -> Void)?
@@ -21,14 +21,14 @@ public protocol MyOMediaPickerFactory<Controller> {
 
 #if canImport(UIKit)
 
-public class MyOMediaPickerFactoryiOS: MyOMediaPickerFactory {
+public class MediaPickerFactoryiOS: MediaPickerFactory {
     
     public init() {
         _ = PHPickerViewController(configuration: .init())
     }
     
     public func makeMediaPickerController(
-        flow: any MyOMediaPickerFlow,
+        flow: any MediaPickerFlow,
         sourceTypes: [MediaPickerManager.Source],
         localizable: MediaPickerLocalizable,
         callback: ((MediaPickerManager.ResultType?) -> Void)?

@@ -36,12 +36,12 @@ public class MediaPickerPresenter {
     public var pickerManager: MediaPickerManager?
     
     public let localizable: MediaPickerLocalizable
-    private let flow: MyOMediaPickerFlow
+    private let flow: MediaPickerFlow
     private let sourceTypes: [MediaPickerManager.Source]
     private let callback: ((MediaPickerManager.ResultType?) -> Void)?
    
     public init(
-        flow: MyOMediaPickerFlow,
+        flow: MediaPickerFlow,
         sourceTypes: [MediaPickerManager.Source],
         localizable: MediaPickerLocalizable,
         callback: ((MediaPickerManager.ResultType?) -> Void)?
@@ -142,3 +142,4 @@ extension MediaPickerPresenter {
     }
 }
 #endif
+

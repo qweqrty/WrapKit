@@ -6,7 +6,7 @@
 //
 
 
-public protocol MyOMediaPickerFlow {
+public protocol MediaPickerFlow {
     func showMediaPicker(
         sourceTypes: [MediaPickerManager.Source],
         localizable: MediaPickerLocalizable,
@@ -19,14 +19,14 @@ public protocol MyOMediaPickerFlow {
 #if canImport(UIKit)
 import UIKit
 
-public class MyOMediaPickerFlowiOS: MyOMediaPickerFlow {
+public class MediaPickerFlowiOS: MediaPickerFlow {
     
     public weak var navigationController: UINavigationController?
-    public let factory: any MyOMediaPickerFactory<UIViewController>
+    public let factory: any MediaPickerFactory<UIViewController>
     
     public init(
         navigationController: UINavigationController?,
-        factory: any MyOMediaPickerFactory<UIViewController>
+        factory: any MediaPickerFactory<UIViewController>
     ) {
         self.navigationController = navigationController
         self.factory = factory

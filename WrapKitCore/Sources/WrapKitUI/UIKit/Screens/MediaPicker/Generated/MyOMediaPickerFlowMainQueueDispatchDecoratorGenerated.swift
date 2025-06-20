@@ -11,13 +11,13 @@ import WrapKit
 import UIKit
 #endif
 
-extension MyOMediaPickerFlow {
-    public var mainQueueDispatched: any MyOMediaPickerFlow {
+extension MediaPickerFlow {
+    public var mainQueueDispatched: any MediaPickerFlow {
         MainQueueDispatchDecorator(decoratee: self)
     }
 }
 
-extension MainQueueDispatchDecorator: MyOMediaPickerFlow where T: MyOMediaPickerFlow {
+extension MainQueueDispatchDecorator: MediaPickerFlow where T: MediaPickerFlow {
 
     public func showMediaPicker(sourceTypes: [MediaPickerManager.Source], localizable: MediaPickerLocalizable, callback: ((MediaPickerManager.ResultType?) -> Void)?) {
         dispatch { [weak self] in
