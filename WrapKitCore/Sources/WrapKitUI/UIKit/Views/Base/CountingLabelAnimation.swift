@@ -11,6 +11,8 @@ import Foundation
 import UIKit
 
 class CountingLabelAnimation {
+    private let timeStep: TimeInterval = 0.01
+    
     private weak var label: Label?
     private var paymentFormat: String = ""
     public var model: TextOutputPresentableModel? // Added to store model
@@ -34,7 +36,7 @@ class CountingLabelAnimation {
     
     var timer: Timer?
     
-    public var endModel: TextOutputPresentableModel?
+    public var animatedTextMaxWidth: CGFloat?
     
     func getCurrentCounterValue() -> TextOutputPresentableModel {
         let startNumber = startNumber ?? 0
@@ -89,9 +91,17 @@ class CountingLabelAnimation {
                 progressView.animateProgress(from: 1.0, to: 0.0, duration: duration, completion: nil)
             }
         }
-        if let mapper = mapToString, let endNumber, let label {
-            endModel = mapper(endNumber)
+        if let label {
+            while progress < duration {
+                progress = min(progress + timeStep, duration)
+                animatedTextMaxWidth = max(
+                    animatedTextMaxWidth ?? 0,
+                    getCurrentCounterValue().width(usingFont: label.font)
+                )
+            }
+            progress = 0
         }
+        
         timer?.invalidate()
         timer = Timer.scheduledTimer(
             timeInterval: 0.01,
@@ -104,7 +114,6 @@ class CountingLabelAnimation {
     
     @objc func updateValue() {
         let now = Date.timeIntervalSinceReferenceDate
-        let timeStep: TimeInterval = 0.01
         progress = min(progress + timeStep, duration)
         lastUpdate = now
         
