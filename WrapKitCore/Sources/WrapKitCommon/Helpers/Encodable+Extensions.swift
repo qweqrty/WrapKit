@@ -51,6 +51,14 @@ public extension Encodable {
         return urlEncodedString.data(using: .utf8)
     }
     
+    func asDictionary() -> [String: Any] {
+        guard let data = try? JSONEncoder().encode(self),
+              let dictionary = try? JSONSerialization.jsonObject(with: data, options: .allowFragments) as? [String: Any] else {
+            return [:]
+        }
+        return dictionary
+    }
+    
     func toURLFormEncodedString(withRootKey rootKey: String? = nil, withAllowedCharacters allowedCharacters: CharacterSet = .urlQueryAllowed) -> Data? {
             if let rootKey = rootKey {
                 // When rootKey is provided, encode as JSON and assign to the key
