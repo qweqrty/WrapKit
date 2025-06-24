@@ -303,7 +303,6 @@ extension DiffableTableViewDataSource: TableOutput & HiddableOutput {
                 didSelectAt = { indexPath, cell in
                     sections.item(at: indexPath.section)?.cells.item(at: indexPath.row)?.onTap?(indexPath, cell)
                 }
-                tableView?.reloadData()
             }
         }
     }
