@@ -10,10 +10,10 @@ import SwiftUI
 import WrapKit
 import UIKit
 
-struct SUILabel: View {
+public struct SUILabel: View {
     @ObservedObject var adapter: TextOutputSwiftUIAdapter
 
-    var body: some View {
+    public var body: some View {
         Group {
             if let isHidden = adapter.displayIsHiddenState?.isHidden, isHidden {
                 SwiftUICore.EmptyView()
@@ -34,7 +34,7 @@ struct SUILabel: View {
         return ""
     }
 
-    init(adapter: TextOutputSwiftUIAdapter) {
+    public init(adapter: TextOutputSwiftUIAdapter) {
         self.adapter = adapter
     }
 }
