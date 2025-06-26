@@ -7,7 +7,6 @@
 
 import Foundation
 import SwiftUI
-import WrapKit
 import UIKit
 
 public struct SUILabel: View {
