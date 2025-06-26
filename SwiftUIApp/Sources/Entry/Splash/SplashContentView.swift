@@ -33,10 +33,127 @@ public struct SplashContentView: View {
                     SUILabel(adapter: adapter)
                       .frame(maxWidth: .infinity, alignment: .leading)
                       .padding(.horizontal)
-
+                    let sample = BonusGiftPillPresentableModel(
+                        image: ImageViewPresentableModel(
+                            size: CGSize(width: 16, height: 16),
+                            image: .asset(UIImage(systemName: "mail"))
+                        ),
+                        title: .attributes(
+                            [.init(
+                                text: "Gift for you",
+                                color: .white,
+                                font: .boldSystemFont(ofSize: 13)
+                            )]
+                        ),
+                        gradient: [
+                            .red,
+                            .blue
+                        ],
+                        onTap: { print("Tapped!") }
+                    )
+                    BonusGiftPillViewSwiftUI(model: sample)
+                        .fixedSize(horizontal: true, vertical: true)
+                        .previewLayout(.sizeThatFits)
+                        .padding()
                     Spacer()
                 }
             }
         }
+    }
+}
+
+struct ImageViewWrapper: UIViewRepresentable {
+    let model: ImageViewPresentableModel
+    func makeUIView(context: Context) -> ImageView { ImageView() }
+    func updateUIView(_ uiView: ImageView, context: Context) {
+        uiView.display(model: model)
+    }
+}
+
+public struct BonusGiftPillViewSwiftUI: View {
+    public let model: BonusGiftPillPresentableModel
+    
+    @StateObject private var adapter = TextOutputSwiftUIAdapter()
+    
+    public init(model: BonusGiftPillPresentableModel) {
+      self.model = model
+      _adapter = StateObject(wrappedValue: {
+        let a = TextOutputSwiftUIAdapter()
+        a.display(model: model.title)
+        return a
+      }())
+    }
+    
+    public var body: some View {
+        HStack(spacing: 1) {
+            ImageViewWrapper(model: model.image)
+            SUILabel(adapter: adapter)
+        }
+        .padding(.vertical, 4)
+        .padding(.leading, 4)
+        .padding(.trailing, 8)
+        .background(
+            LinearGradient(
+                gradient: Gradient(colors: model.gradient.map { SwiftUI.Color($0) }),
+                startPoint: .leading,
+                endPoint: .trailing
+            )
+        )
+        .clipShape(Capsule())
+        .onTapGesture { model.onTap?() }
+    }
+}
+
+// MARK: — Preview
+
+struct BonusGiftPillView_Previews: PreviewProvider {
+    static var previews: some View {
+        let sample = BonusGiftPillPresentableModel(
+            image: ImageViewPresentableModel(
+                size: CGSize(width: 16, height: 16),
+                image: .asset(UIImage(systemName: "mail"))
+            ),
+            title: .attributes(
+                [.init(
+                    text: "Gift for you",
+                    color: .white,
+                    font: .boldSystemFont(ofSize: 13),
+                    underlineStyle: .byWord,
+                    textAlignment: .center
+                )]
+            ),
+            gradient: [
+                .red,
+                .blue
+            ],
+            onTap: { print("Tapped!") }
+        )
+        BonusGiftPillViewSwiftUI(model: sample)
+            .fixedSize(horizontal: true, vertical: true)
+            .previewLayout(.sizeThatFits)
+            .padding()
+    }
+}
+
+public protocol BonusGiftPillOutput: AnyObject {
+    func display(model: BonusGiftPillPresentableModel)
+}
+
+public struct BonusGiftPillPresentableModel {
+    public let image: ImageViewPresentableModel
+    public let title: TextOutputPresentableModel
+    public let gradient: [WrapKit.Color]
+    public let onTap: (() -> Void)?
+    
+    public init(
+        image: ImageViewPresentableModel,
+        title: TextOutputPresentableModel,
+        gradient: [WrapKit.Color],
+        onTap: (() -> Void)?
+    ) {
+        self.image = image
+        self.title = title
+        self.gradient = gradient
+        self.onTap = onTap
     }
 }
