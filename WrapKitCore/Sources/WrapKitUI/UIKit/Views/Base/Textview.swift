@@ -137,6 +137,12 @@ public extension Textview {
 
 extension Textview: TextInputOutput {
     public func display(inputView: TextInputPresentableModel.InputView?) {
+        guard let inputView else {
+            self.inputView = nil
+            self.inputAccessoryView = nil
+            self.reloadInputViews()
+            return
+        }
         switch inputView {
         case .date(let model):
             let picker = DatePickerView()
@@ -160,7 +166,6 @@ extension Textview: TextInputOutput {
                 self?.endEditing(true)
             }
             self.inputAccessoryView = makeAccessoryView(accessoryView: button)
-        case .none: break
         }
         self.reloadInputViews()
     }
