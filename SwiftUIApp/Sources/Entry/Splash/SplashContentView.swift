@@ -11,7 +11,7 @@ import WrapKit
 public struct SplashContentView: View {
     private let lifeCycleOutput: LifeCycleViewOutput?
     private let applicationLifecycleOutput: ApplicationLifecycleOutput?
-    public let adapter = TextOutputSwiftUIAdapter()
+    var adapter = TextOutputSwiftUIAdapter()
 
     public init(
         lifeCycleOutput: LifeCycleViewOutput? = nil,
@@ -27,35 +27,36 @@ public struct SplashContentView: View {
             applicationLifecycleOutput: applicationLifecycleOutput
         ) {
             ZStack {
-                Color.red.ignoresSafeArea()
-
-                VStack {
-                    SUILabel(adapter: adapter)
-                      .frame(maxWidth: .infinity, alignment: .leading)
-                      .padding(.horizontal)
-                    let sample = BonusGiftPillPresentableModel(
-                        image: ImageViewPresentableModel(
-                            size: CGSize(width: 16, height: 16),
-                            image: .asset(UIImage(systemName: "mail"))
-                        ),
-                        title: .attributes(
-                            [.init(
-                                text: "Gift for you",
-                                color: .white,
-                                font: .boldSystemFont(ofSize: 13)
-                            )]
-                        ),
-                        gradient: [
-                            .red,
-                            .blue
-                        ],
-                        onTap: { print("Tapped!") }
-                    )
-                    BonusGiftPillViewSwiftUI(model: sample)
-                        .fixedSize(horizontal: true, vertical: true)
-                        .previewLayout(.sizeThatFits)
-                        .padding()
-                    Spacer()
+                Color.gray.ignoresSafeArea()
+                
+                ScrollView(.vertical, showsIndicators: true) {
+                    VStack(spacing: 16) {
+                        if #available(iOS 16, *) {
+                            SUILabel(adapter: adapter)
+                        } else {
+                            // Fallback on earlier versions
+                        }
+                        
+//                        let sample = BonusGiftPillPresentableModel(
+//                            image: ImageViewPresentableModel(
+//                                size: CGSize(width: 16, height: 16),
+//                                image: .asset(UIImage(systemName: "mail"))
+//                            ),
+//                            title: .attributes([
+//                                .init(
+//                                    text: "Gift for you",
+//                                    color: .white,
+//                                    font: .boldSystemFont(ofSize: 13)
+//                                )
+//                            ]),
+//                            gradient: [.green, .blue],
+//                            onTap: { print("Tapped!") }
+//                        )
+//                        BonusGiftPillViewSwiftUI(model: sample)
+                        
+                        Spacer(minLength: 0)
+                    }
+                    .frame(maxWidth: .infinity)
                 }
             }
         }
@@ -77,18 +78,18 @@ public struct BonusGiftPillViewSwiftUI: View {
     
     public init(model: BonusGiftPillPresentableModel) {
       self.model = model
-      _adapter = StateObject(wrappedValue: {
-        let a = TextOutputSwiftUIAdapter()
-        a.display(model: model.title)
-        return a
-      }())
     }
     
     public var body: some View {
         HStack(spacing: 1) {
             ImageViewWrapper(model: model.image)
-            SUILabel(adapter: adapter)
+            if #available(iOS 16, *) {
+                SUILabel(adapter: adapter)
+            } else {
+                // Fallback on earlier versions
+            }
         }
+        .fixedSize(horizontal: true, vertical: true)
         .padding(.vertical, 4)
         .padding(.leading, 4)
         .padding(.trailing, 8)
@@ -100,7 +101,15 @@ public struct BonusGiftPillViewSwiftUI: View {
             )
         )
         .clipShape(Capsule())
-        .onTapGesture { model.onTap?() }
+        .contentShape(Capsule())
+        .simultaneousGesture(
+            TapGesture().onEnded {
+                model.onTap?()
+            }
+        )
+        .onAppear {
+            adapter.display(model: model.title)
+        }
     }
 }
 
@@ -129,9 +138,6 @@ struct BonusGiftPillView_Previews: PreviewProvider {
             onTap: { print("Tapped!") }
         )
         BonusGiftPillViewSwiftUI(model: sample)
-            .fixedSize(horizontal: true, vertical: true)
-            .previewLayout(.sizeThatFits)
-            .padding()
     }
 }
 
