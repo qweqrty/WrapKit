@@ -56,6 +56,16 @@ public class MediaPickerPresenter {
 extension MediaPickerPresenter: LifeCycleViewOutput {
     public func viewDidLoad() {
         
+        guard sourceTypes.count > 1 else {
+            guard let source = sourceTypes.first else { return }
+            switch source {
+            case .camera(let configuration):
+                checkCameraPermissionAndPresentPicker(configuration)
+            case .file, .gallery:
+                presentPicker(source: source)
+            }
+            return
+        }
         alertView?.showActionSheet(
             model: .init(
                 title: localizable.sourceASTitle,
