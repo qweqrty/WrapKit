@@ -43,6 +43,7 @@ public class MediaPickerFlowiOS: MediaPickerFlow {
             localizable: localizable,
             callback: callback
         )
+        navigationController?.view.endEditing(true)
         navigationController?.present(vc, animated: true)
     }
     

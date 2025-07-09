@@ -21,7 +21,11 @@ extension TextInputOutput {
 }
 
 extension MainQueueDispatchDecorator: TextInputOutput where T: TextInputOutput {
-
+    public func display(toolbarModel: ButtonPresentableModel?) {
+        dispatch { [weak self] in
+            self?.decoratee.display(toolbarModel: toolbarModel)
+        }
+    }
     public func display(model: TextInputPresentableModel?) {
         dispatch { [weak self] in
             self?.decoratee.display(model: model)
