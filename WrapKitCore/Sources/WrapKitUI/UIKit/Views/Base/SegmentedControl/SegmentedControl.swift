@@ -95,7 +95,10 @@ extension SegmentedControl: SegmentedControlOutput {
     public func display(segments: [SegmentControlModel]) {
         self.removeAllSegments()
         for (index, item) in segments.enumerated() {
-            self.insertSegment(withTitle: item.title, at: item.index, animated: false)
+            let action = UIAction(title: item.title) { _ in
+                item.onTap?(index)
+            }
+            self.insertSegment(action: action, at: index, animated: false)
         }
         self.selectedSegmentIndex = 0
     }
