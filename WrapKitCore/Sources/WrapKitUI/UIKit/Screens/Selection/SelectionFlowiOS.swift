@@ -31,7 +31,7 @@ public class SelectionFlowiOS: SelectionFlow {
             flow: self,
             model: model
         )
-        
+        navigationController?.view.endEditing(true)
         navigationController?.present(vc, animated: true)
     }
     
@@ -41,6 +41,7 @@ public class SelectionFlowiOS: SelectionFlow {
             flow: self,
             model: model
         )
+        navigationController?.view.endEditing(true)
         navigationController?.present(vc, animated: true)
     }
     

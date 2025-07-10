@@ -136,10 +136,10 @@ public extension Textview {
 }
 
 extension Textview: TextInputOutput {
+   
     public func display(inputView: TextInputPresentableModel.InputView?) {
         guard let inputView else {
             self.inputView = nil
-            self.inputAccessoryView = nil
             self.reloadInputViews()
             return
         }
@@ -167,6 +167,18 @@ extension Textview: TextInputOutput {
             }
             self.inputAccessoryView = makeAccessoryView(accessoryView: button)
         }
+        self.reloadInputViews()
+    }
+    
+    public func display(toolbarModel: ButtonPresentableModel?) {
+        guard let toolbarModel else { return }
+        let button = Button()
+        button.display(model: toolbarModel)
+        button.onPress = { [weak self] in
+            toolbarModel.onPress?()
+            self?.endEditing(true)
+        }
+        self.inputAccessoryView = makeAccessoryView(accessoryView: button)
         self.reloadInputViews()
     }
     

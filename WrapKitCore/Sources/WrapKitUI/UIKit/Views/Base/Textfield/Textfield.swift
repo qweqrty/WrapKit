@@ -111,6 +111,7 @@ public protocol TextInputOutput: AnyObject {
     func display(inputView: TextInputPresentableModel.InputView?)
     func display(inputType: KeyboardType)
     func display(trailingSymbol: String?)
+    func display(toolbarModel: ButtonPresentableModel?)
 }
 
 public struct TextInputPresentableModel: HashableWithReflection {
@@ -163,6 +164,7 @@ public struct TextInputPresentableModel: HashableWithReflection {
     public let isUserInteractionEnabled: Bool?
     public let isSecureTextEntry: Bool?
     public let inputView: InputView?
+    public let toolbarModel: ButtonPresentableModel?
     public let trailingSymbol: String?
     public var leadingViewOnPress: (() -> Void)?
     public var trailingViewOnPress: (() -> Void)?
@@ -183,6 +185,7 @@ public struct TextInputPresentableModel: HashableWithReflection {
         isUserInteractionEnabled: Bool? = nil,
         isSecureTextEntry: Bool? = nil,
         inputView: InputView? = nil,
+        toolbarModel: ButtonPresentableModel? = nil,
         trailingSymbol: String? = nil,
         leadingViewOnPress: (() -> Void)? = nil,
         trailingViewOnPress: (() -> Void)? = nil,
@@ -211,6 +214,7 @@ public struct TextInputPresentableModel: HashableWithReflection {
         self.didChangeText = didChangeText
         self.inputView = inputView
         self.trailingSymbol = trailingSymbol
+        self.toolbarModel = toolbarModel
     }
 }
 
@@ -275,14 +279,19 @@ extension Textfield: TextInputOutput {
             display(didChangeText: didChangeText)
         }
         
+        display(toolbarModel: model.toolbarModel)
         display(inputView: model.inputView)
         display(trailingSymbol: model.trailingSymbol)
+        
+        if model.toolbarModel == nil, model.inputView == nil {
+            self.inputAccessoryView = nil
+            self.reloadInputViews()
+        }
     }
     
     public func display(inputView: TextInputPresentableModel.InputView?) {
         guard let inputView else {
             self.inputView = nil
-            self.inputAccessoryView = nil
             self.reloadInputViews()
             return
         }
@@ -310,6 +319,18 @@ extension Textfield: TextInputOutput {
             }
             self.inputAccessoryView = makeAccessoryView(accessoryView: button)
         }
+        self.reloadInputViews()
+    }
+    
+    public func display(toolbarModel: ButtonPresentableModel?) {
+        guard let toolbarModel else { return }
+        let button = Button()
+        button.display(model: toolbarModel)
+        button.onPress = { [weak self] in
+            toolbarModel.onPress?()
+            self?.endEditing(true)
+        }
+        self.inputAccessoryView = makeAccessoryView(accessoryView: button)
         self.reloadInputViews()
     }
     
