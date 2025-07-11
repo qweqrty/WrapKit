@@ -9,7 +9,7 @@ extension Path {
         .relativeToRoot("\(path)")
     }
 }
-
+public let wrapKitMac = Project(name: "WrapKitMac", path: .modulesRelative("WrapKitMac"))
 public let swiftUIApp = Project(name: "SwiftUIApp", path: .modulesRelative("SwiftUIApp"))
 
 // MARK: - Features
