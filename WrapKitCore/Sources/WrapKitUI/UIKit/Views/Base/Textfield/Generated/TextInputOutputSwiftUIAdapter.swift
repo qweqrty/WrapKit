@@ -18,20 +18,12 @@ import Foundation
 import UIKit
 #endif
 public class TextInputOutputSwiftUIAdapter: ObservableObject, TextInputOutput {
+
     // Initializer
     public init(
     ) {
     }
 
-    @Published public var toolbarModelState: DisplayToolbarModelState? = nil
-    public struct DisplayToolbarModelState {
-        public let toolbarModel: ButtonPresentableModel?
-    }
-    public func display(toolbarModel: ButtonPresentableModel?) {
-        toolbarModelState = .init(
-            toolbarModel: toolbarModel
-        )
-    }
     @Published public var displayModelState: DisplayModelState? = nil
     public struct DisplayModelState {
         public let model: TextInputPresentableModel?
@@ -253,6 +245,15 @@ public class TextInputOutputSwiftUIAdapter: ObservableObject, TextInputOutput {
             trailingSymbol: trailingSymbol
         )
     }
+    @Published public var displayToolbarModelState: DisplayToolbarModelState? = nil
+    public struct DisplayToolbarModelState {
+        public let toolbarModel: ButtonPresentableModel?
+    }
+    public func display(toolbarModel: ButtonPresentableModel?) {
+        displayToolbarModelState = .init(
+            toolbarModel: toolbarModel
+        )
+    }
     @Published public var makeAccessoryViewAccessoryViewHeightConstraintsState: MakeAccessoryViewAccessoryViewHeightConstraintsState? = nil
     public struct MakeAccessoryViewAccessoryViewHeightConstraintsState {
         public let accessoryView: UIView
@@ -261,8 +262,8 @@ public class TextInputOutputSwiftUIAdapter: ObservableObject, TextInputOutput {
     }
     public func makeAccessoryView(accessoryView: UIView, height: CGFloat = 60, constraints: ((UIView, UIView) -> [NSLayoutConstraint])? = nil) {
         makeAccessoryViewAccessoryViewHeightConstraintsState = .init(
-            accessoryView: accessoryView,
-            height: height,
+            accessoryView: accessoryView, 
+            height: height, 
             constraints: constraints
         )
     }
