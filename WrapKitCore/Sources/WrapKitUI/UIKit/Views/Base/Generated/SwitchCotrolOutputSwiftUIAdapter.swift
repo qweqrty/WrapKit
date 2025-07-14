@@ -53,9 +53,9 @@ public class SwitchCotrolOutputSwiftUIAdapter: ObservableObject, SwitchCotrolOut
     }
     @Published public var displayStyleState: DisplayStyleState? = nil
     public struct DisplayStyleState {
-        public let style: ShimmerStyle
+        public let style: SwitchControlPresentableModel.Style
     }
-    public func display(style: ShimmerStyle) {
+    public func display(style: SwitchControlPresentableModel.Style) {
         displayStyleState = .init(
             style: style
         )

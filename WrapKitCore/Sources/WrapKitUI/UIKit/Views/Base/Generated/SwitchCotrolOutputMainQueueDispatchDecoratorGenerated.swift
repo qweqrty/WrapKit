@@ -37,7 +37,7 @@ extension MainQueueDispatchDecorator: SwitchCotrolOutput where T: SwitchCotrolOu
             self?.decoratee.display(isOn: isOn)
         }
     }
-    public func display(style: ShimmerStyle) {
+    public func display(style: SwitchControlPresentableModel.Style) {
         dispatch { [weak self] in
             self?.decoratee.display(style: style)
         }

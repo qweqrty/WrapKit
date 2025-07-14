@@ -4,18 +4,19 @@
 //
 //  Created by Stanislav Li on 17/11/23.
 //
+import Foundation
 
 public struct ShimmerStyle {
     var backgroundColor: Color
     var gradientColorOne: Color
     var gradientColorTwo: Color
-    var cornerRadius: Float
+    var cornerRadius: CGFloat
     
     public init(
         backgroundColor: Color,
         gradientColorOne: Color,
         gradientColorTwo: Color,
-        cornerRadius: Float
+        cornerRadius: CGFloat
     ) {
         self.backgroundColor = backgroundColor
         self.gradientColorOne = gradientColorOne
