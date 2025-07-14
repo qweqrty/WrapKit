@@ -7,6 +7,8 @@
 
 import Foundation
 import SwiftUI
+
+#if canImport(UIKit) ///
 import UIKit
 
 public struct SUILabel: View {
@@ -177,3 +179,4 @@ private class TapableLabel: UILabel {
         }
     }
 }
+#endif

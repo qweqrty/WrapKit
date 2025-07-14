@@ -7,6 +7,7 @@
 
 import Foundation
 import PhotosUI
+#if canImport(UIKit)
 
 public protocol MediaPickerFactory<Controller> {
     associatedtype Controller
@@ -18,8 +19,6 @@ public protocol MediaPickerFactory<Controller> {
         callback: ((MediaPickerManager.ResultType?) -> Void)?
     ) -> Controller
 }
-
-#if canImport(UIKit)
 
 public class MediaPickerFactoryiOS: MediaPickerFactory {
     

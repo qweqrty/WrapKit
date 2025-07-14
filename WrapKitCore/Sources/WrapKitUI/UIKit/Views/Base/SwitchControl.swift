@@ -10,11 +10,11 @@ public protocol SwitchCotrolOutput: AnyObject {
     func display(model: SwitchControlPresentableModel?)
     func display(onPress: ((SwitchCotrolOutput) -> Void)?)
     func display(isOn: Bool)
-    func display(style: SwitchControlPresentableModel.Style)
+    func display(style: ShimmerStyle)
     func display(isEnabled: Bool)
     func display(isHidden: Bool)
     
-    func display(isLoading: Bool, shimmerStyle: ShimmerView.Style?)
+    func display(isLoading: Bool, shimmerStyle: ShimmerStyle?)
 }
 
 public struct SwitchControlPresentableModel {

@@ -7,6 +7,16 @@
 
 import Foundation
 
+public extension IndexPath { ///
+    var unifiedIndex: Int {
+        #if os(macOS)
+        return self.item
+        #else
+        return self.row
+        #endif
+    }
+}
+
 public protocol SelectionOutput: AnyObject {
     func display(items: [TableSection<Void, SelectionType.SelectionCellPresentableModel, Void>], selectedCountTitle: String)
     func display(shouldShowSearchBar: Bool)
@@ -149,7 +159,7 @@ extension SelectionPresenter: SelectionInput, LifeCycleViewOutput {
     }
     
     private func onSelect(at indexPath: IndexPath, model: SelectionType.SelectionCellPresentableModel) {
-        guard let selectedItem = itemsToPresent.item(at: indexPath.row) else { return }
+        guard let selectedItem = itemsToPresent.item(at: indexPath.unifiedIndex) else { return }
         guard let selectedItemIndex = self.items.firstIndex(where: { $0.id == selectedItem.id }) else { return }
         selectedItem.onPress?()
         

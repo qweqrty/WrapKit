@@ -5,12 +5,13 @@
 //  Created by Gulzat Zheenbek kyzy on 16/6/25.
 //
 
-
-public protocol MediaPickerFlow {
+public protocol MediaPickerFlow { ///
+    associatedtype View
+    
     func showMediaPicker(
-        sourceTypes: [MediaPickerManager.Source],
+        sourceTypes: [MediaPickerSource<View>],
         localizable: MediaPickerLocalizable,
-        callback: ((MediaPickerManager.ResultType?) -> Void)?
+        callback: ((MediaPickerResultType?) -> Void)?
     )
 
     func finish()
