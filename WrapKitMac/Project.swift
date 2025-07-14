@@ -33,10 +33,9 @@ let project = Project(
             infoPlist: "Sources/Info.plist",
             sources: [.glob("Sources/**", excluding: ["**/Project.swift", "**/*Tests.swift"])],
             resources: ["Sources/Assets.xcassets"],
-//            entitlements: .file(path: .modulesRelative("\(swiftUIApp.name)/swiftUIApp.entitlements")),
-            scripts: [Scripts.swiftlint],
+         scripts: [Scripts.swiftlint],
             dependencies: [
-                .project(target: wrapKit.name, path: wrapKit.path),
+               // .project(target: wrapKit.name, path: wrapKit.path),
             ],
             settings: projectSettings
         )

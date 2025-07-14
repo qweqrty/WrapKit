@@ -9,39 +9,43 @@ import PhotosUI
 import UniformTypeIdentifiers
 import Combine
 
+public enum DesiredResultType { ///
+    case image
+    case data(DataType)
+    case url
+    
+    public enum DataType {
+        case png
+        case jpeg(CGFloat)
+        case heic
+    }
+}
+
+public struct MediaPickerConstants {
+    public static let imageIdent = "public.image"
+    public static let videoIdent = "public.movie"
+}
+
+public enum MediaPickerSource<T> {
+    case camera(CameraPickerConfiguration<T>)
+    case gallery(GalleryPickerConfiguration)
+    case file(DocumentPickerConfiguration)
+}
+
+public enum MediaPickerResultType {
+    case image([Image])
+    case data([Data])
+    case url([URL])
+}
+
+#if canImport(UIKit)
+import UIKit
+
 public final class MediaPickerManager: NSObject {
-    public struct Constants {
-        public static let imageIdent = "public.image"
-        public static let videoIdent = "public.movie"
-    }
-    
-    public enum DesiredResultType {
-        case image
-        case data(DataType)
-        case url
-        
-        public enum DataType {
-            case png
-            case jpeg(CGFloat)
-            case heic
-        }
-    }
-    
-    public enum ResultType {
-        case image([UIImage])
-        case data([Data])
-        case url([URL])
-    }
-    
-    public enum Source {
-        case camera(CameraPickerConfiguration)
-        case gallery(GalleryPickerConfiguration)
-        case file(DocumentPickerConfiguration)
-    }
-    
+   
     private var cancellables = Set<AnyCancellable>()
     
-    public var desiredResultType: MediaPickerManager.DesiredResultType = .url
+    public var desiredResultType: DesiredResultType = .url
     weak var presentingController: UIViewController?
     private var completion: ((ResultType?) -> Void)?
     
@@ -153,8 +157,6 @@ public final class MediaPickerManager: NSObject {
             .store(in: &cancellables)
     }
 }
-
-#if canImport(UIKit)
 
 // MARK: - UIImagePickerControllerDelegate
 extension MediaPickerManager: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
