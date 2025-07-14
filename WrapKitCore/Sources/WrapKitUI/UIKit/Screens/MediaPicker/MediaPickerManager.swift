@@ -41,8 +41,12 @@ public enum MediaPickerResultType {
 #if canImport(UIKit)
 import UIKit
 
-public final class MediaPickerManager<T>: NSObject {
-   
+public final class MediaPickerManager<T>: NSObject,
+                                          UIImagePickerControllerDelegate,
+                                          UINavigationControllerDelegate,
+                                          UIAdaptivePresentationControllerDelegate,
+                                          UIDocumentPickerDelegate {
+    
     private var cancellables = Set<AnyCancellable>()
     
     public var desiredResultType: DesiredResultType = .url
@@ -156,11 +160,8 @@ public final class MediaPickerManager<T>: NSObject {
             }
             .store(in: &cancellables)
     }
-}
-
-// MARK: - UIImagePickerControllerDelegate
-extension MediaPickerManager: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
+    // MARK: - UIImagePickerControllerDelegate
     public func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
         completion?(nil)
         picker.dismiss(animated: true)
@@ -175,13 +176,39 @@ extension MediaPickerManager: UIImagePickerControllerDelegate, UINavigationContr
             completion?(nil); return
         }
         switch mediaType {
-        case UTType.image.identifier, Constants.imageIdent:
+        case UTType.image.identifier, MediaPickerConstants.imageIdent:
             handlePickedImage(info)
-        case UTType.movie.identifier, Constants.videoIdent:
+        case UTType.movie.identifier, MediaPickerConstants.videoIdent:
             handlePickedVideo(info)
         default: completion?(nil)
         }
     }
+    
+    // MARK: - UIAdaptivePresentationControllerDelegate
+    public func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
+        completion?(nil)
+    }
+    
+    // MARK: - UIDocumentPickerDelegate
+    public func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
+        switch desiredResultType {
+        case .image:
+            let publishers = urls.map { $0.asImage }
+            returnImages(publishers)
+        case .data(let type):
+            let publishers = urls.map { $0.asImage }
+            returnData(publishers, type: type)
+        case .url:
+            completion?(.url(urls))
+        }
+    }
+    
+    public func documentPickerWasCancelled(_ controller: UIDocumentPickerViewController) {
+        completion?(nil)
+    }
+}
+
+extension MediaPickerManager {
     
     // MARK: - Image Handling
     private func handlePickedImage(_ info: [UIImagePickerController.InfoKey: Any]) {
@@ -278,31 +305,6 @@ extension MediaPickerManager: PHPickerViewControllerDelegate {
             subject.send(completion: .finished)
         }
         return subject.eraseToAnyPublisher()
-    }
-}
-// MARK: - UIAdaptivePresentationControllerDelegate
-extension MediaPickerManager: UIAdaptivePresentationControllerDelegate {
-    public func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
-        completion?(nil)
-    }
-}
-
-// MARK: - UIDocumentPickerDelegate
-extension MediaPickerManager: UIDocumentPickerDelegate {
-    public func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
-        switch desiredResultType {
-        case .image:
-            let publishers = urls.map { $0.asImage }
-            returnImages(publishers)
-        case .data(let type):
-            let publishers = urls.map { $0.asImage }
-            returnData(publishers, type: type)
-        case .url:
-            completion?(.url(urls))
-        }
-    }
-    public func documentPickerWasCancelled(_ controller: UIDocumentPickerViewController) {
-        completion?(nil)
     }
 }
 #endif
