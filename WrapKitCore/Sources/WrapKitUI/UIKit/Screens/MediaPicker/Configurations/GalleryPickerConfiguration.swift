@@ -16,7 +16,7 @@ public struct GalleryPickerConfiguration {
     }
     
     public let title: String
-    public let desiredResultType: DesiredResultType ///
+    public let desiredResultType: DesiredResultType
     public let type: FilterType
     public let selectionLimit: Int
     
@@ -67,7 +67,7 @@ extension GalleryPickerConfiguration {
 }
 
 extension UIImage {
-    func convertToData(type: MediaPickerManager.DesiredResultType.DataType) -> Data? {
+    func convertToData(type: DesiredResultType.DataType) -> Data? {
         switch type {
         case .png:
             return self.pngData()

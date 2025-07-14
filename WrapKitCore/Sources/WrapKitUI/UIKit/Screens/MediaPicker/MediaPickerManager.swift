@@ -9,7 +9,7 @@ import PhotosUI
 import UniformTypeIdentifiers
 import Combine
 
-public enum DesiredResultType { ///
+public enum DesiredResultType {
     case image
     case data(DataType)
     case url
@@ -41,13 +41,13 @@ public enum MediaPickerResultType {
 #if canImport(UIKit)
 import UIKit
 
-public final class MediaPickerManager: NSObject {
+public final class MediaPickerManager<T>: NSObject {
    
     private var cancellables = Set<AnyCancellable>()
     
     public var desiredResultType: DesiredResultType = .url
     weak var presentingController: UIViewController?
-    private var completion: ((ResultType?) -> Void)?
+    private var completion: ((MediaPickerResultType?) -> Void)?
     
     public init(presentingController: UIViewController) {
         self.presentingController = presentingController
@@ -72,7 +72,7 @@ public final class MediaPickerManager: NSObject {
         }
     }
     
-    func presentPicker(source: Source, completion: @escaping (ResultType?) -> Void) {
+    func presentPicker(source: MediaPickerSource<T>, completion: @escaping (MediaPickerResultType?) -> Void) {
         self.completion = completion
         
         switch source {
@@ -85,7 +85,7 @@ public final class MediaPickerManager: NSObject {
         }
     }
     
-    func presentCamera(_ configuration: CameraPickerConfiguration) {
+    func presentCamera(_ configuration: CameraPickerConfiguration<T>) {
         let picker = configuration.asImagePicker
         picker.delegate = self
         desiredResultType = configuration.desiredResultType
@@ -96,19 +96,19 @@ public final class MediaPickerManager: NSObject {
         let picker = PHPickerViewController(configuration: configuration.asPHPickerConfiguration)
         desiredResultType = configuration.desiredResultType
         picker.delegate = self
-        picker.presentationController?.delegate = self
+        picker.presentationController?.delegate = self as? any UIAdaptivePresentationControllerDelegate
         presentingController?.present(picker, animated: true)
     }
     
     private func presentDocumentPicker(_ configuration: DocumentPickerConfiguration) {
         let documentPicker = configuration.asDocumentPicker
-        documentPicker.delegate = self
-        documentPicker.presentationController?.delegate = self
+        documentPicker.delegate = self as? any UIDocumentPickerDelegate
+        documentPicker.presentationController?.delegate = self as? any UIAdaptivePresentationControllerDelegate
         desiredResultType = configuration.desiredResultType
         presentingController?.present(documentPicker, animated: true)
     }
     
-    func deliver(image: UIImage, using type: DesiredResultType, simulatedCompletion: ((ResultType?) -> Void)? = nil) {
+    func deliver(image: Image, using type: DesiredResultType, simulatedCompletion: ((MediaPickerResultType?) -> Void)? = nil) {
         
         if let simulatedCompletion {
             completion = simulatedCompletion
@@ -144,7 +144,7 @@ public final class MediaPickerManager: NSObject {
     }
     
     private func returnData(
-        _ publishers: [AnyPublisher<UIImage?, Never>],
+        _ publishers: [AnyPublisher<Image?, Never>],
         type: DesiredResultType.DataType
     ) {
         Publishers.MergeMany(publishers)

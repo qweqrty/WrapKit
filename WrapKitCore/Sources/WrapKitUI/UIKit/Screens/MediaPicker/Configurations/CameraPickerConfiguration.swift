@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import CoreGraphics
 
 public enum VideoQualityType: Int {
     case typeHigh = 0
@@ -16,7 +17,7 @@ public enum VideoQualityType: Int {
     case typeIFrame960x540 = 5
 }
 
-public enum CameraCaptureMode: Int { ///
+public enum CameraCaptureMode: Int {
     case photo = 0
     case video = 1
 }
@@ -40,14 +41,14 @@ public struct CameraPickerConfiguration<T> {
     public let videoMaximumDuration: TimeInterval
     public let videoQuality: VideoQualityType
     public let showsCameraControls: Bool
-    public let cameraOverlayView: T?
-    public let cameraViewTransform: CGAffineTransform
     
     /// For video, make sure to include mediaTypes "public.video"
-    public let cameraCaptureMode: CameraCaptureMode // UIImagePickerController.CameraCaptureMode
+    public let cameraCaptureMode: CameraCaptureMode
+    public let cameraOverlayView: T?
+    public let cameraViewTransform: CGAffineTransform
+    public let cameraDevice: CameraDevice
+    public let cameraFlashMode: CameraFlashMode
     
-    public let cameraDevice: CameraDevice //UIImagePickerController.CameraDevice
-    public let cameraFlashMode: CameraFlashMode //UIImagePickerController.CameraFlashMode
     public let desiredResultType: DesiredResultType
     
     public init(
@@ -58,11 +59,11 @@ public struct CameraPickerConfiguration<T> {
         videoMaximumDuration: TimeInterval = 10,
         videoQuality: VideoQualityType = .typeMedium,
         showsCameraControls: Bool = true,
-        cameraOverlayView: T? = nil, //ViewUIKit? = nil,
+        cameraOverlayView: T? = nil,
         cameraViewTransform: CGAffineTransform = .identity,
-        cameraCaptureMode: CameraCaptureMode = .photo, //UIImagePickerController.CameraCaptureMode = .photo,
-        cameraDevice: CameraDevice = .front, //UIImagePickerController.CameraDevice = .front,
-        cameraFlashMode: CameraFlashMode = .auto //UIImagePickerController.CameraFlashMode = .auto
+        cameraCaptureMode: CameraCaptureMode = .photo,
+        cameraDevice: CameraDevice = .front,
+        cameraFlashMode: CameraFlashMode = .auto
     ) {
         self.mediaTypes = mediaTypes
         self.allowsEditing = allowsEditing
@@ -89,19 +90,19 @@ extension CameraPickerConfiguration {
         picker.mediaTypes = mediaTypes
         picker.allowsEditing = allowsEditing
         picker.videoMaximumDuration = videoMaximumDuration
-        picker.videoQuality = videoQuality.asUIImagePickerControllerQualityType
+        picker.videoQuality = videoQuality.asUIImagePickerQualityType
         picker.showsCameraControls = showsCameraControls
-        picker.cameraOverlayView = cameraOverlayView
+        picker.cameraOverlayView = cameraOverlayView as? UIView
         picker.cameraViewTransform = cameraViewTransform
-        picker.cameraCaptureMode = cameraCaptureMode /// For video, make sure to include mediaTypes "public.video"
-        picker.cameraDevice = cameraDevice
-        picker.cameraFlashMode = cameraFlashMode
+        picker.cameraCaptureMode = cameraCaptureMode.asUIImagePickerCameraCaptureMode /// For video, make sure to include mediaTypes "public.video"
+        picker.cameraDevice = cameraDevice.asUIImagePickerCameraDevice
+        picker.cameraFlashMode = cameraFlashMode.asUIImagePickerCameraFlashMode
         return picker
     }
 }
 
 extension VideoQualityType {
-    var asUIImagePickerControllerQualityType: UIImagePickerController.QualityType {
+    var asUIImagePickerQualityType: UIImagePickerController.QualityType {
         switch self {
         case .typeHigh:
                 .typeHigh
@@ -115,6 +116,41 @@ extension VideoQualityType {
                 .typeIFrame1280x720
         case .typeIFrame960x540:
                 .typeIFrame960x540
+        }
+    }
+}
+
+extension CameraCaptureMode {
+    var asUIImagePickerCameraCaptureMode: UIImagePickerController.CameraCaptureMode {
+        switch self {
+        case .photo:
+                .photo
+        case .video:
+                .video
+        }
+    }
+}
+
+extension CameraDevice {
+    var asUIImagePickerCameraDevice: UIImagePickerController.CameraDevice {
+        switch self {
+        case .rear:
+                .rear
+        case .front:
+                .front
+        }
+    }
+}
+
+extension CameraFlashMode {
+    var asUIImagePickerCameraFlashMode: UIImagePickerController.CameraFlashMode {
+        switch self {
+        case .off:
+                .off
+        case .auto:
+                .auto
+        case .on:
+                .on
         }
     }
 }
