@@ -17,7 +17,7 @@ public struct DocumentPickerConfiguration {
     public let multipleSelection: Bool
     public let showFileExtensions: Bool
     public let directoryURL: URL?
-    public let desiredResultType: DesiredResultType ///
+    public let desiredResultType: DesiredResultType
  
     public init(
         title: String,

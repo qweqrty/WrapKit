@@ -7,7 +7,7 @@
 
 import Foundation
 
-public extension IndexPath { ///
+public extension IndexPath {
     var unifiedIndex: Int {
         #if os(macOS)
         return self.item
