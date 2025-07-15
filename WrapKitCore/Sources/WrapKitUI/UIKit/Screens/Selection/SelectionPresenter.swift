@@ -7,16 +7,6 @@
 
 import Foundation
 
-public extension IndexPath {
-    var unifiedIndex: Int {
-        #if os(macOS)
-        return self.item
-        #else
-        return self.row
-        #endif
-    }
-}
-
 public protocol SelectionOutput: AnyObject {
     func display(items: [TableSection<Void, SelectionType.SelectionCellPresentableModel, Void>], selectedCountTitle: String)
     func display(shouldShowSearchBar: Bool)
