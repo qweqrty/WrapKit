@@ -21,9 +21,7 @@ extension TextInputOutput {
 }
 
 extension WeakRefVirtualProxy: TextInputOutput where T: TextInputOutput {
-    public func display(toolbarModel: ButtonPresentableModel?) {
-        object?.display(toolbarModel: toolbarModel)
-    }
+
     public func display(model: TextInputPresentableModel?) {
         object?.display(model: model)
     }
@@ -99,8 +97,8 @@ extension WeakRefVirtualProxy: TextInputOutput where T: TextInputOutput {
     public func display(trailingSymbol: String?) {
         object?.display(trailingSymbol: trailingSymbol)
     }
-    public func makeAccessoryView(accessoryView: UIView, height: CGFloat = 60, constraints: ((UIView, UIView) -> [NSLayoutConstraint])? = nil) {
-        object?.makeAccessoryView(accessoryView: accessoryView, height: height, constraints: constraints)
+    public func display(toolbarModel: ButtonPresentableModel?) {
+        object?.display(toolbarModel: toolbarModel)
     }
 
 }
