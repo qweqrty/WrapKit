@@ -7,20 +7,20 @@
 
 import Foundation
 import PhotosUI
-#if canImport(UIKit)
 
 public protocol MediaPickerFactory<Controller, View> {
     associatedtype Controller
     associatedtype View
     
     func makeMediaPickerController(
-        flow: MediaPickerFlow,
+        flow: any MediaPickerFlow,
         sourceTypes: [MediaPickerSource<View>],
         localizable: MediaPickerLocalizable,
         callback: ((MediaPickerResultType?) -> Void)?
     ) -> Controller
 }
 
+#if canImport(UIKit)
 public class MediaPickerFactoryiOS: MediaPickerFactory {
     
     public init() {
