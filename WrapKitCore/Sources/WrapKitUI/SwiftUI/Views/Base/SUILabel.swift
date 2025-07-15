@@ -8,7 +8,7 @@
 import Foundation
 import SwiftUI
 
-#if canImport(UIKit) ///
+#if canImport(UIKit)
 import UIKit
 
 public struct SUILabel: View {
