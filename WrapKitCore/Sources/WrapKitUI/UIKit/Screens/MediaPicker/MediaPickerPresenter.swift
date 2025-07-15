@@ -37,12 +37,12 @@ public class MediaPickerPresenter<T> {
     public var pickerManager: MediaPickerManager<T>?
     
     public let localizable: MediaPickerLocalizable
-    private let flow: MediaPickerFlow
+    private let flow: any MediaPickerFlow
     private let sourceTypes: [MediaPickerSource<T>]
     private let callback: ((MediaPickerResultType?) -> Void)?
    
     public init(
-        flow: MediaPickerFlow,
+        flow: any MediaPickerFlow,
         sourceTypes: [MediaPickerSource<T>],
         localizable: MediaPickerLocalizable,
         callback: ((MediaPickerResultType?) -> Void)?
