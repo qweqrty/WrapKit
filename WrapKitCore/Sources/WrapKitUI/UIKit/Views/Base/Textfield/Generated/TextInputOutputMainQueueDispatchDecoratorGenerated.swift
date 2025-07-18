@@ -21,11 +21,7 @@ extension TextInputOutput {
 }
 
 extension MainQueueDispatchDecorator: TextInputOutput where T: TextInputOutput {
-    public func display(toolbarModel: ButtonPresentableModel?) {
-        dispatch { [weak self] in
-            self?.decoratee.display(toolbarModel: toolbarModel)
-        }
-    }
+
     public func display(model: TextInputPresentableModel?) {
         dispatch { [weak self] in
             self?.decoratee.display(model: model)
@@ -149,6 +145,11 @@ extension MainQueueDispatchDecorator: TextInputOutput where T: TextInputOutput {
     public func display(trailingSymbol: String?) {
         dispatch { [weak self] in
             self?.decoratee.display(trailingSymbol: trailingSymbol)
+        }
+    }
+    public func display(toolbarModel: ButtonPresentableModel?) {
+        dispatch { [weak self] in
+            self?.decoratee.display(toolbarModel: toolbarModel)
         }
     }
     public func makeAccessoryView(accessoryView: UIView, height: CGFloat = 60, constraints: ((UIView, UIView) -> [NSLayoutConstraint])? = nil) {
