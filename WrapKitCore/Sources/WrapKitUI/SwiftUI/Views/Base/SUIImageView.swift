@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Kingfisher
 
 public struct SUIImageView: View {
     @ObservedObject var adapter: ImageViewOutputSwiftUIAdapter
@@ -19,63 +20,159 @@ public struct SUIImageView: View {
             if let hidden = adapter.displayIsHiddenState?.isHidden, hidden {
                 SwiftUICore.EmptyView()
             } else if let model = adapter.displayModelState?.model {
-               // ImageViewSwiftUI(model: model)
-
+                ModelImageView(model: model)
+            } else if let image = adapter.displayImageState?.image {
+                ModelImageView(model: .init(image: image))
             }
         }
     }
+}
 
-    /// Renders a basic SwiftUIImage when only ImageEnum is provided
-    @ViewBuilder
-    private func renderPlainImage(from imageEnum: ImageEnum) -> some View {
-        switch imageEnum {
-        case .asset(let platformImg):
-            if let platformImg = platformImg {
-                swiftUIImage(from: platformImg)
-                    .resizable()
-                    .scaledToFit()
+struct ModelImageView: View {
+    let model: ImageViewPresentableModel
+    
+    @Environment(\.colorScheme) private var colorScheme
+    
+    @State private var loadedImage: AnyView?
+    @State private var hasError = false
+    
+    var body: some View {
+        Group {
+            if hasError {
+                showImageError()
+            } else if let image = loadedImage {
+                image
+                    .modifier(ImageViewStyle(model: model))
             } else {
-                EmptyView()
+                showImageError() // TODO:
+            }
+        }
+        .onAppear {
+            loadImage()
+        }
+    }
+    
+    private func loadImage() {
+        guard let imageEnum = model.image else { return }
+        
+        switch imageEnum {
+        case .asset(let image):
+            if let image {
+                loadedImage = AnyView(
+                    SwiftUIImage(image: image)
+                        .resizable()
+                        .modifier(ImageViewStyle(model: model))
+                )
+            } else {
+                loadedImage = AnyView(showImageError())
             }
         case .data(let data):
-            if let data = data,
-               let plat = platformImage(from: data) {
-                swiftUIImage(from: plat)
-                    .resizable()
-                    .scaledToFit()
-            } else {
-                EmptyView()
+            if let data {
+                loadedImage = AnyView(CGImageView(data: data, model: model))
             }
-        case .url(let url, _):
-//            if let u = url {
-//                ImageViewSwiftUI(model: ImageViewPresentableModel(image: .url(u)))
-//            } else {
-//                EmptyView()
-//            }
-        case .urlString(let str, _):
-//            if let s = str, let u = URL(string: s) {
-//                ImageViewSwiftUI(model: ImageViewPresentableModel(image: .url(u)))
-//            } else {
-//                EmptyView()
-//            }
+        case .url(let light, let dark):
+            let selected = (colorScheme == .dark ? dark ?? light : light ?? dark)
+            if let url = selected {
+                loadedImage = AnyView(
+                    KFImage(url)
+                        .onFailure { _ in hasError = true }
+                        .fade(duration: 0.3)
+                )
+            } else {
+                loadedImage = AnyView(showImageError())
+            }
+        case .urlString(let light, let dark):
+            let selected = (colorScheme == .dark ? dark ?? light : light ?? dark)
+            if let url = URL(string: selected ?? "") {
+                loadedImage = AnyView(
+                    KFImage(url)
+                        .onFailure { _ in hasError = true }
+                        .fade(duration: 0.3)
+                )
+            } else {
+                loadedImage = AnyView(showImageError())
+            }
         }
     }
-
-    /// Converts platform Image (UIImage/NSImage) to SwiftUIImage
-    private func swiftUIImage(from platformImg: Image) -> SwiftUIImage {
-    #if os(macOS)
-        return SwiftUIImage(nsImage: platformImg)
-    #else
-        return SwiftUIImage(uiImage: platformImg)
-    #endif
+    
+    private func showImageError() -> some View {
+        Text("Invalid image data")
+            .foregroundColor(.red)
     }
+}
 
-    /// Helper to get platform Image from Data
-    private func platformImage(from data: Data) -> Image? {
-    #if os(macOS)
-        return NSImage(data: data)
-    #else
-        return UIImage(data: data)
-    #endif
+struct ImageViewStyle: ViewModifier {
+    let model: ImageViewPresentableModel?
+    
+    func body(content: Content) -> some View {
+        guard let model else {
+            return AnyView(content)
+        }
+        return AnyView(
+            content
+            .modifier(OptionalFrame(size: model.size))
+            .modifier(OptionalAspectRatio(contentModeIsFit: model.contentModeIsFit))
+            .clipped()
+            .cornerRadius(model.cornerRadius ?? 0)
+            .overlay(
+                RoundedRectangle(cornerRadius: model.cornerRadius ?? 0)
+                    .stroke(model.borderColor.map { SwiftUIColor($0) } ?? .clear,
+                            lineWidth: model.borderWidth ?? 0)
+            )
+            .opacity(model.alpha ?? 1.0)
+            .onTapGesture {
+                model.onPress?()
+            }
+            .onLongPressGesture(minimumDuration: 1) {
+                model.onLongPress?()
+            }
+        )
+    }
+}
+
+struct CGImageView: View {
+    let data: Data
+    let model: ImageViewPresentableModel?
+    
+    var body: some View {
+        if let cgImage = cgImageFromData(data) {
+            SwiftUIImage(decorative: cgImage, scale: 1.0)
+                .resizable()
+                .modifier(ImageViewStyle(model: model))
+        } else {
+            Text("Invalid image data")
+                .foregroundColor(.red)
+        }
+    }
+    
+    func cgImageFromData(_ data: Data) -> CGImage? {
+        guard let source = CGImageSourceCreateWithData(data as CFData, nil) else {
+            return nil
+        }
+        return CGImageSourceCreateImageAtIndex(source, 0, nil)
+    }
+}
+
+struct OptionalFrame: ViewModifier {
+    let size: CGSize?
+    
+    func body(content: Content) -> some View {
+        if let size = size {
+            content.frame(width: size.width, height: size.height)
+        } else {
+            content
+        }
+    }
+}
+
+struct OptionalAspectRatio: ViewModifier {
+    let contentModeIsFit: Bool?
+    
+    func body(content: Content) -> some View {
+        if let isFit = contentModeIsFit {
+            content.aspectRatio(contentMode: isFit ? .fit : .fill)
+        } else {
+            content
+        }
     }
 }

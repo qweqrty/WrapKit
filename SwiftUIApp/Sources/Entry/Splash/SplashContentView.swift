@@ -31,13 +31,21 @@ public struct SplashContentView: View {
                 Color.red.ignoresSafeArea()
 
                 VStack {
-//                    SUILabel(adapter: textOutputAdapter)
-//                      .frame(maxWidth: .infinity, alignment: .leading)
-//                      .padding(.horizontal)
-
-                    SUIImageView(adapter: imageViewAdapter)
-                        .padding(.horizontal)
+                    ZStack {
+                        Color.red.ignoresSafeArea()
+                      //  SUILabel(adapter: textOutputAdapter)
+                       //                      .frame(maxWidth: .infinity, alignment: .leading)
+                       //                      .padding(.horizontal)
+                    }
                     
+                    Spacer()
+                    
+                    ZStack {
+                        Color.white
+                        SUIImageView(adapter: imageViewAdapter)
+                            .padding(.horizontal)
+                    }
+                   
                     Spacer()
                 }
             }

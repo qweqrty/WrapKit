@@ -9,6 +9,9 @@ import Foundation
 import WrapKit
 import GameKit
 
+//#if canImport(UIKit)
+//import UIKit
+
 public class SplashPresenter: LifeCycleViewOutput, ApplicationLifecycleOutput {
     public var lottieView: LottieViewOutput?
     public var textOutput: TextOutput?
@@ -86,7 +89,95 @@ public class SplashPresenter: LifeCycleViewOutput, ApplicationLifecycleOutput {
     }
     
     private func showImage() {
-        imageViewOutput?.display(model: .init(image: .asset(.init(named: .delete))))
+        // setImageAsset()
+        //setImageData()
+        //setImageURL()
+        setImageURLString()
+        
+        ///
+        func setImageAsset() {
+            imageViewOutput?.display(
+                model: .init(
+                    size: .init(width: 24, height: 24),
+                    image: .asset(.init(named: "mini")),
+                    contentModeIsFit: false,
+                    borderWidth: 1,
+                    borderColor: .red,
+                    cornerRadius: 12
+                )
+            )
+        }
+        
+        func setImageData() {
+        /// Saved to: file:///Users/gzheenbekkyzy/Library/Developer/CoreSimulator/Devices/03F80A19-F083-40AC-B89E-C9B4EE99F48A/data/Containers/Data/Application/9BD5B09B-10F6-483A-9FA9-DC47E66B39DB/Documents/savedImage.png
+
+    //        if let nsImage = NSImage(named: "mini"),
+    //           let tiffData = nsImage.tiffRepresentation,
+    //           let bitmap = NSBitmapImageRep(data: tiffData),
+    //           let pngData = bitmap.representation(using: .png, properties: [:]) {
+    //
+    //            let fileURL = FileManager.default
+    //                .urls(for: .documentDirectory, in: .userDomainMask)[0]
+    //                .appendingPathComponent("savedImage.png")
+    //
+    //            do {
+    //                try pngData.write(to: fileURL)
+    //                print("Image saved to: \(fileURL)")
+    //            } catch {
+    //                print("Error saving image: \(error)")
+    //            }
+    //        }
+
+            let fileURL = FileManager.default
+                .urls(for: .documentDirectory, in: .userDomainMask)[0]
+                .appendingPathComponent("savedImage.png")
+
+            if let data = try? Data(contentsOf: fileURL) {
+                imageViewOutput?.display(
+                    model: .init(
+                        size: .init(width: 24, height: 24),
+                        image: .data(data),
+                        onPress: {
+                            print("image view pressed")
+                        },
+                        onLongPress: {
+                            print("image view long pressed")
+                        },
+                        contentModeIsFit: false,
+                        borderWidth: 1,
+                        borderColor: .red,
+                        cornerRadius: 12
+                    )
+                )
+            }
+        }
+        
+        func setImageURL() {
+            let url = URL(string: "https://developer.apple.com/assets/elements/icons/swift/swift-64x64_2x.png")
+            imageViewOutput?.display(
+                model: .init(
+                    image: .url(url, url),
+                    contentModeIsFit: false,
+                    borderWidth: 1,
+                    borderColor: .red,
+                    cornerRadius: 12
+                )
+            )
+        }
+        
+        func setImageURLString() {
+            let urlString = "https://developer.apple.com/assets/elements/icons/swift/swift-64x64_2x.png"
+            imageViewOutput?.display(
+                model: .init(
+                    size: .init(width: 140, height: 140),
+                    image: .urlString(urlString, urlString),
+                    contentModeIsFit: false,
+                    borderWidth: 1,
+                    borderColor: .red,
+                    cornerRadius: 12
+                )
+            )
+        }
     }
 
     public func viewWillAppear() {
@@ -126,3 +217,5 @@ public class SplashPresenter: LifeCycleViewOutput, ApplicationLifecycleOutput {
         print("SplashPresenter: applicationDidChange(userInterfaceStyle: \(userInterfaceStyle))")
     }
 }
+
+//#endif

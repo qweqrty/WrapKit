@@ -10,9 +10,7 @@ public typealias Font = NSFont
 
 @available(macOS 10.15, *)
 public typealias SwiftUIColor = SwiftUI.Color
-@available(macOS 10.15, *)
 public typealias SwiftUIImage = SwiftUI.Image
-@available(macOS 10.15, *)
 public typealias SwiftUIFont = SwiftUI.Font
 
 #elseif os(iOS) || os(tvOS) || os(watchOS)
@@ -23,9 +21,7 @@ public typealias Font = UIFont
 
 @available(iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 public typealias SwiftUIColor = SwiftUI.Color
-@available(iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 public typealias SwiftUIImage = SwiftUI.Image
-@available(iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 public typealias SwiftUIFont = SwiftUI.Font
 
 public extension Color {
@@ -89,6 +85,16 @@ public enum ImageFactory {
         return UIImage(systemName: name)
         #elseif canImport(AppKit)
         NSImage(systemSymbolName: name, accessibilityDescription: nil)
+        #endif
+    }
+}
+
+public extension SwiftUIImage {
+    init(image: Image) {
+        #if os(macOS)
+        self.init(nsImage: image)
+        #else
+        self.init(uiImage: image)
         #endif
     }
 }
