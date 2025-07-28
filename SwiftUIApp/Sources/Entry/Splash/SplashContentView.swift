@@ -11,7 +11,8 @@ import WrapKit
 public struct SplashContentView: View {
     private let lifeCycleOutput: LifeCycleViewOutput?
     private let applicationLifecycleOutput: ApplicationLifecycleOutput?
-    public let adapter = TextOutputSwiftUIAdapter()
+    public let textOutputAdapter = TextOutputSwiftUIAdapter()
+    public let imageViewAdapter = ImageViewOutputSwiftUIAdapter()
 
     public init(
         lifeCycleOutput: LifeCycleViewOutput? = nil,
@@ -30,10 +31,13 @@ public struct SplashContentView: View {
                 Color.red.ignoresSafeArea()
 
                 VStack {
-                    SUILabel(adapter: adapter)
-                      .frame(maxWidth: .infinity, alignment: .leading)
-                      .padding(.horizontal)
+//                    SUILabel(adapter: textOutputAdapter)
+//                      .frame(maxWidth: .infinity, alignment: .leading)
+//                      .padding(.horizontal)
 
+                    SUIImageView(adapter: imageViewAdapter)
+                        .padding(.horizontal)
+                    
                     Spacer()
                 }
             }

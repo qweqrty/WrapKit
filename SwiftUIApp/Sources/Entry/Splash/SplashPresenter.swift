@@ -12,6 +12,7 @@ import GameKit
 public class SplashPresenter: LifeCycleViewOutput, ApplicationLifecycleOutput {
     public var lottieView: LottieViewOutput?
     public var textOutput: TextOutput?
+    public var imageViewOutput: ImageViewOutput?
     
     public init() {
        
@@ -80,6 +81,12 @@ public class SplashPresenter: LifeCycleViewOutput, ApplicationLifecycleOutput {
                 )
             ]
         )
+        
+        showImage()
+    }
+    
+    private func showImage() {
+        imageViewOutput?.display(model: .init(image: .asset(.init(named: .delete))))
     }
 
     public func viewWillAppear() {
