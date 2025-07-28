@@ -82,7 +82,6 @@ public extension AnyPublisher {
             onCompletion: (() -> Void)? = nil
         ) -> AnyPublisher<Output, Failure> {
             self
-                .receive(on: RunLoop.main)
                 .handleEvents(
                 receiveOutput: { output in
                     onSuccess?(output)
@@ -109,6 +108,7 @@ private extension AnyPublisher {
         let id = UUID()
         
         let cancellable = self
+            .receive(on: RunLoop.main)
             .handleEvents(receiveCancel: {
                 servicesCancellables.removeValue(forKey: id) // Clean up on cancel
             })
