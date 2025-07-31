@@ -32,9 +32,6 @@ public struct ImageViewPresentableModel: HashableWithReflection {
     public let cornerRadius: CGFloat?
     public let alpha: CGFloat?
     
-//    public let fallbackView: T?
-//    public let viewWhileLoadingView: T?
-
     public init(
         size: CGSize? = nil,
         image: ImageEnum? = nil,
@@ -45,8 +42,6 @@ public struct ImageViewPresentableModel: HashableWithReflection {
         borderColor: Color? = nil,
         cornerRadius: CGFloat? = nil,
         alpha: CGFloat? = nil
-//        fallbackView: T? = nil,
-//        viewWhileLoadingView: T? = nil
     ) {
         self.size = size
         self.image = image
@@ -57,9 +52,6 @@ public struct ImageViewPresentableModel: HashableWithReflection {
         self.borderColor = borderColor
         self.cornerRadius = cornerRadius
         self.alpha = alpha
-        
-//        self.fallbackView = fallbackView
-//        self.viewWhileLoadingView = viewWhileLoadingView
     }
 }
 

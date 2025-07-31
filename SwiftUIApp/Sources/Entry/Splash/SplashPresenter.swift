@@ -100,7 +100,7 @@ public class SplashPresenter: LifeCycleViewOutput, ApplicationLifecycleOutput {
                         setImageData()
                     },
                     onLongPress: {
-                        changeBorderStyle()
+                        changeBorderColor()
                     },
                     contentModeIsFit: false,
                     borderWidth: 2,
@@ -142,7 +142,6 @@ public class SplashPresenter: LifeCycleViewOutput, ApplicationLifecycleOutput {
                             setImageURL()
                         },
                         onLongPress: {
-                            print("image view long pressed")
                             changeFrameSize()
                         },
                         contentModeIsFit: false,
@@ -161,6 +160,9 @@ public class SplashPresenter: LifeCycleViewOutput, ApplicationLifecycleOutput {
                     onPress: {
                         setImageURLString()
                     },
+                    onLongPress: {
+                        changeModel()
+                    },
                     contentModeIsFit: false,
                     borderWidth: 1,
                     borderColor: .red,
@@ -177,6 +179,9 @@ public class SplashPresenter: LifeCycleViewOutput, ApplicationLifecycleOutput {
                     onPress: {
                         setImageAsset()
                     },
+                    onLongPress: {
+                        hide()
+                    },
                     contentModeIsFit: false,
                     borderWidth: 1,
                     borderColor: .red,
@@ -185,12 +190,24 @@ public class SplashPresenter: LifeCycleViewOutput, ApplicationLifecycleOutput {
             )
         }
         
-        func changeBorderStyle() {
+        func changeBorderColor() {
             imageViewOutput?.display(borderColor: .black)
         }
         
         func changeFrameSize() {
             imageViewOutput?.display(size: .init(width: 24, height: 24))
+        }
+        
+        func changeModel() {
+            imageViewOutput?.display(model: .init(
+                size: .init(width: 60, height: 60),
+                borderWidth: 5,
+                borderColor: .green
+            ))
+        }
+        
+        func hide() {
+            imageViewOutput?.display(isHidden: true)
         }
     }
     

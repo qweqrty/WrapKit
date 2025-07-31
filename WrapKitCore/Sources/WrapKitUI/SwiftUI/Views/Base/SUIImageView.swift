@@ -20,8 +20,10 @@ public struct SUIImageView: View {
     @State private var loadedImage: Image?
     @State private var isLoading = false
     @State private var hasError = false
-    @Environment(\.colorScheme) private var colorScheme
+    @State private var isHidden = false
     @State private var downloadTask: DownloadTask?
+    
+    @Environment(\.colorScheme) private var colorScheme
     
     public init(
         adapter: ImageViewOutputSwiftUIAdapter,
@@ -35,80 +37,133 @@ public struct SUIImageView: View {
     
     public var body: some View {
         Group {
-            if adapter.displayIsHiddenState?.isHidden == true {
+            if isHidden {
                 SwiftUICore.EmptyView()
             } else {
                 ZStack {
                     if hasError {
-                        (fallbackView ?? AnyView(errorView))
-                            .frame(width: model.size?.width, height: model.size?.height)
+                        fallbackViewOrError
                     } else if let loadedImage {
-                        SwiftUIImage(image: loadedImage)
-                            .resizable()
-                            .modifier(ImageViewStyle(model: model))
+                        contentView(loadedImage)
                     }
                     
                     if isLoading {
-                        viewWhileLoadingView ?? AnyView(
-                            ProgressView().frame(maxWidth: .infinity, maxHeight: .infinity)
-                        )
+                        loadingView
                     }
-                }
-                .onAppear {
-                    updateModelFromAdapter()
-                    loadImage(for: colorScheme)
                 }
                 .onChange(of: colorScheme) { newMode in
                     loadImage(for: newMode)
                 }
-                .onReceive(adapter.objectWillChange) { _ in
-                    updateModelFromAdapter()
-                    loadImage(for: colorScheme)
+                .onReceive(adapter.$displayImageState) { newState in
+                    if let image = newState?.image {
+                        model = model.updated(image: image)
+                        loadImage(for: colorScheme)
+                    }
+                }
+                .onReceive(adapter.$displayAlphaState) { newState in
+                    if let alpha = newState?.alpha {
+                        model = model.updated(alpha: alpha)
+                        loadImage(for: colorScheme)
+                    }
+                }
+                .onReceive(adapter.$displaySizeState) { newState in
+                    if let size = newState?.size {
+                        model = model.updated(size: size)
+                        loadImage(for: colorScheme)
+                    }
+                }
+                .onReceive(adapter.$displayModelState) { newState in
+                    if let adapterModel = newState?.model {
+                        model = model.updated(
+                            size: adapterModel.size,
+                            image: adapterModel.image,
+                            onPress: adapterModel.onPress,
+                            onLongPress: adapterModel.onLongPress,
+                            contentModeIsFit: adapterModel.contentModeIsFit,
+                            borderWidth: adapterModel.borderWidth,
+                            borderColor: adapterModel.borderColor,
+                            cornerRadius: adapterModel.cornerRadius,
+                            alpha: adapterModel.alpha
+                        )
+                        loadImage(for: colorScheme)
+                    }
+                }
+                .onReceive(adapter.$displayBorderColorState) { newState in
+                    if let borderColor = newState?.borderColor {
+                        model = model.updated(borderColor: borderColor)
+                        loadImage(for: colorScheme)
+                    }
+                }
+                .onReceive(adapter.$displayBorderWidthState) { newState in
+                    if let borderWidth = newState?.borderWidth {
+                        model = model.updated(borderWidth: borderWidth)
+                        loadImage(for: colorScheme)
+                    }
+                }
+                .onReceive(adapter.$displayCornerRadiusState) { newState in
+                    if let cornerRadius = newState?.cornerRadius {
+                        model = model.updated(cornerRadius: cornerRadius)
+                        loadImage(for: colorScheme)
+                    }
+                }
+                .onReceive(adapter.$displayOnPressState) { newState in
+                    if let onPress = newState?.onPress {
+                        model = model.updated(onPress: onPress)
+                        loadImage(for: colorScheme)
+                    }
+                }
+                .onReceive(adapter.$displayOnLongPressState) { newState in
+                    if let onLongPress = newState?.onLongPress {
+                        model = model.updated(onLongPress: onLongPress)
+                        loadImage(for: colorScheme)
+                    }
+                }
+                .onReceive(adapter.$displayContentModeIsFitState) { newState in
+                    if let isFit = newState?.contentModeIsFit {
+                        model = model.updated(contentModeIsFit: isFit)
+                        loadImage(for: colorScheme)
+                    }
+                }
+                .onReceive(adapter.$displayIsHiddenState) { newState in
+                    if let isHide = newState?.isHidden {
+                        isHidden = isHide
+                    }
                 }
             }
         }
     }
     
-    private func updateModelFromAdapter() {
-        var model = adapter.displayModelState?.model ?? ImageViewPresentableModel()
-        
-        if let image = adapter.displayImageState?.image {
-            model = model.withImage(image)
-        }
-        if let size = adapter.displaySizeState?.size {
-            model = model.withSize(size)
-        }
-        if let onPress = adapter.displayOnPressState?.onPress {
-            model = model.withOnPress(onPress)
-        }
-        if let onLongPress = adapter.displayOnLongPressState?.onLongPress {
-            model = model.withOnLongPress(onLongPress)
-        }
-        if let contentModeIsFit = adapter.displayContentModeIsFitState?.contentModeIsFit {
-            model = model.withContentModeIsFit(contentModeIsFit)
-        }
-        if let borderWidth = adapter.displayBorderWidthState?.borderWidth {
-            model = model.withBorderWidth(borderWidth)
-        }
-        if let borderColor = adapter.displayBorderColorState?.borderColor {
-            model = model.withBorderColor(borderColor)
-        }
-        if let cornerRadius = adapter.displayCornerRadiusState?.cornerRadius {
-            model = model.withCornerRadius(cornerRadius)
-        }
-        if let alpha = adapter.displayAlphaState?.alpha {
-            model = model.withAlpha(alpha)
-        }
-        self.model = model
+    /// views
+    private var fallbackViewOrError: some View {
+        (fallbackView ?? AnyView(errorView))
+            .frame(width: model.size?.width, height: model.size?.height)
+    }
+
+    private func contentView(_ image: Image) -> some View {
+        SwiftUIImage(image: image)
+            .resizable()
+            .modifier(ImageViewStyle(model: model))
+    }
+
+    private var loadingView: some View {
+        viewWhileLoadingView ?? AnyView(
+            ProgressView().frame(maxWidth: .infinity, maxHeight: .infinity)
+        )
     }
     
+    private var errorView: some View {
+        Text("Invalid image data")
+            .foregroundColor(.red)
+            .padding()
+    }
+    
+    ///
     private func loadImage(for mode: ColorScheme) {
         downloadTask?.cancel()
         hasError = false
         loadedImage = nil
         
         guard let imageEnum = model.image else {
-            isLoading = false
             hasError = true
             return
         }
@@ -116,10 +171,12 @@ public struct SUIImageView: View {
         switch imageEnum {
         case .asset(let image):
             self.loadedImage = image
-            self.isLoading = false
-            
         case .data(let data):
-            loadImageFromData(data)
+            guard let data else {
+                self.hasError = true
+                return
+            }
+            loadedImage = Image(data: data)
             
         case .url(let light, let dark):
             let url = (mode == .dark ? dark : light) ?? light
@@ -132,19 +189,9 @@ public struct SUIImageView: View {
         }
     }
     
-    private func loadImageFromData(_ data: Data?) {
-        guard let data else {
-            self.hasError = true
-            return
-        }
-        
-        loadedImage = Image(data: data)
-    }
-    
     private func loadImageFromURL(_ url: URL?) {
         guard let url else {
             self.hasError = true
-            self.isLoading = false
             return
         }
         
@@ -161,139 +208,31 @@ public struct SUIImageView: View {
             }
         }
     }
-    
-    private var errorView: some View {
-        Text("Invalid image data")
-            .foregroundColor(.red)
-            .padding()
-    }
 }
 
 // MARK: - Model Extensions
 private extension ImageViewPresentableModel {
-    func withImage(_ image: ImageEnum?) -> ImageViewPresentableModel {
+    func updated(
+        size: CGSize? = nil,
+        image: ImageEnum? = nil,
+        onPress: (() -> Void)? = nil,
+        onLongPress: (() -> Void)? = nil,
+        contentModeIsFit: Bool? = nil,
+        borderWidth: CGFloat? = nil,
+        borderColor: Color? = nil,
+        cornerRadius: CGFloat? = nil,
+        alpha: CGFloat? = nil
+    ) -> ImageViewPresentableModel {
         ImageViewPresentableModel(
-            size: size,
-            image: image,
-            onPress: onPress,
-            onLongPress: onLongPress,
-            contentModeIsFit: contentModeIsFit,
-            borderWidth: borderWidth,
-            borderColor: borderColor,
-            cornerRadius: cornerRadius,
-            alpha: alpha
-        )
-    }
-    
-    func withSize(_ size: CGSize?) -> ImageViewPresentableModel {
-        ImageViewPresentableModel(
-            size: size,
-            image: image,
-            onPress: onPress,
-            onLongPress: onLongPress,
-            contentModeIsFit: contentModeIsFit,
-            borderWidth: borderWidth,
-            borderColor: borderColor,
-            cornerRadius: cornerRadius,
-            alpha: alpha
-        )
-    }
-    
-    func withOnPress(_ onPress: (() -> Void)?) -> ImageViewPresentableModel {
-        ImageViewPresentableModel(
-            size: size,
-            image: image,
-            onPress: onPress,
-            onLongPress: onLongPress,
-            contentModeIsFit: contentModeIsFit,
-            borderWidth: borderWidth,
-            borderColor: borderColor,
-            cornerRadius: cornerRadius,
-            alpha: alpha
-        )
-    }
-    
-    func withOnLongPress(_ onLongPress: (() -> Void)?) -> ImageViewPresentableModel {
-        ImageViewPresentableModel(
-            size: size,
-            image: image,
-            onPress: onPress,
-            onLongPress: onLongPress,
-            contentModeIsFit: contentModeIsFit,
-            borderWidth: borderWidth,
-            borderColor: borderColor,
-            cornerRadius: cornerRadius,
-            alpha: alpha
-        )
-    }
-    
-    func withContentModeIsFit(_ contentModeIsFit: Bool?) -> ImageViewPresentableModel {
-        ImageViewPresentableModel(
-            size: size,
-            image: image,
-            onPress: onPress,
-            onLongPress: onLongPress,
-            contentModeIsFit: contentModeIsFit,
-            borderWidth: borderWidth,
-            borderColor: borderColor,
-            cornerRadius: cornerRadius,
-            alpha: alpha
-        )
-    }
-    
-    func withBorderWidth(_ borderWidth: CGFloat?) -> ImageViewPresentableModel {
-        ImageViewPresentableModel(
-            size: size,
-            image: image,
-            onPress: onPress,
-            onLongPress: onLongPress,
-            contentModeIsFit: contentModeIsFit,
-            borderWidth: borderWidth,
-            borderColor: borderColor,
-            cornerRadius: cornerRadius,
-            alpha: alpha
-        )
-    }
-    
-    func withBorderColor(_ borderColor: Color?) -> ImageViewPresentableModel {
-        ImageViewPresentableModel(
-            size: size,
-            image: image,
-            onPress: onPress,
-            onLongPress: onLongPress,
-            contentModeIsFit: contentModeIsFit,
-            borderWidth: borderWidth,
-            borderColor: borderColor,
-            cornerRadius: cornerRadius,
-            alpha: alpha
-        )
-    }
-    
-    func withCornerRadius(_ cornerRadius: CGFloat?) -> ImageViewPresentableModel {
-        ImageViewPresentableModel(
-            size: size,
-            image: image,
-            onPress: onPress,
-            onLongPress: onLongPress,
-            contentModeIsFit: contentModeIsFit,
-            borderWidth: borderWidth,
-            borderColor: borderColor,
-            cornerRadius: cornerRadius,
-            alpha: alpha
-        )
-    }
-    
-    func withAlpha(_ alpha: CGFloat?) -> ImageViewPresentableModel {
-        ImageViewPresentableModel(
-            size: size,
-            image: image,
-            onPress: onPress,
-            onLongPress: onLongPress,
-            contentModeIsFit: contentModeIsFit,
-            borderWidth: borderWidth,
-            borderColor: borderColor,
-            cornerRadius: cornerRadius,
-            alpha: alpha
+            size: size ?? self.size,
+            image: image ?? self.image,
+            onPress: onPress ?? self.onPress,
+            onLongPress: onLongPress ?? self.onLongPress,
+            contentModeIsFit: contentModeIsFit ?? self.contentModeIsFit,
+            borderWidth: borderWidth ?? self.borderWidth,
+            borderColor: borderColor ?? self.borderColor,
+            cornerRadius: cornerRadius ?? self.cornerRadius,
+            alpha: alpha ?? self.alpha
         )
     }
 }
