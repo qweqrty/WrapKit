@@ -43,7 +43,6 @@ public struct SplashContentView: View {
                     ZStack {
                         Color.white
                         SUIImageView(adapter: imageViewAdapter)
-                            .padding(.horizontal)
                     }
                    
                     Spacer()

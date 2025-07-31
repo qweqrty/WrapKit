@@ -9,18 +9,15 @@ import Foundation
 import WrapKit
 import GameKit
 
-//#if canImport(UIKit)
-//import UIKit
-
 public class SplashPresenter: LifeCycleViewOutput, ApplicationLifecycleOutput {
     public var lottieView: LottieViewOutput?
     public var textOutput: TextOutput?
     public var imageViewOutput: ImageViewOutput?
     
     public init() {
-       
+        
     }
-
+    
     // MARK: - View Lifecycle
     public func viewDidLoad() {
         print("SplashPresenter: viewDidLoad()")
@@ -89,19 +86,24 @@ public class SplashPresenter: LifeCycleViewOutput, ApplicationLifecycleOutput {
     }
     
     private func showImage() {
-        // setImageAsset()
-        //setImageData()
-        //setImageURL()
-        setImageURLString()
+        let urlStringLight = "https://developer.apple.com/assets/elements/icons/swift/swift-64x64_2x.png"
+        let urlStringDark = "https://uxwing.com/wp-content/themes/uxwing/download/web-app-development/dark-mode-icon.png"
         
+        setImageAsset()
         ///
         func setImageAsset() {
             imageViewOutput?.display(
                 model: .init(
-                    size: .init(width: 24, height: 24),
+                    size: .init(width: 40, height: 40),
                     image: .asset(.init(named: "mini")),
+                    onPress: {
+                        setImageData()
+                    },
+                    onLongPress: {
+                        changeBorderStyle()
+                    },
                     contentModeIsFit: false,
-                    borderWidth: 1,
+                    borderWidth: 2,
                     borderColor: .red,
                     cornerRadius: 12
                 )
@@ -109,39 +111,39 @@ public class SplashPresenter: LifeCycleViewOutput, ApplicationLifecycleOutput {
         }
         
         func setImageData() {
-        /// Saved to: file:///Users/gzheenbekkyzy/Library/Developer/CoreSimulator/Devices/03F80A19-F083-40AC-B89E-C9B4EE99F48A/data/Containers/Data/Application/9BD5B09B-10F6-483A-9FA9-DC47E66B39DB/Documents/savedImage.png
-
-    //        if let nsImage = NSImage(named: "mini"),
-    //           let tiffData = nsImage.tiffRepresentation,
-    //           let bitmap = NSBitmapImageRep(data: tiffData),
-    //           let pngData = bitmap.representation(using: .png, properties: [:]) {
-    //
-    //            let fileURL = FileManager.default
-    //                .urls(for: .documentDirectory, in: .userDomainMask)[0]
-    //                .appendingPathComponent("savedImage.png")
-    //
-    //            do {
-    //                try pngData.write(to: fileURL)
-    //                print("Image saved to: \(fileURL)")
-    //            } catch {
-    //                print("Error saving image: \(error)")
-    //            }
-    //        }
-
+            /// uncomment thic code to get data from image
+            //        if let nsImage = NSImage(named: "mini"),
+            //           let tiffData = nsImage.tiffRepresentation,
+            //           let bitmap = NSBitmapImageRep(data: tiffData),
+            //           let pngData = bitmap.representation(using: .png, properties: [:]) {
+            //
+            //            let fileURL = FileManager.default
+            //                .urls(for: .documentDirectory, in: .userDomainMask)[0]
+            //                .appendingPathComponent("savedImage.png")
+            //
+            //            do {
+            //                try pngData.write(to: fileURL)
+            //                print("Image saved to: \(fileURL)")
+            //            } catch {
+            //                print("Error saving image: \(error)")
+            //            }
+            //        }
+            
             let fileURL = FileManager.default
                 .urls(for: .documentDirectory, in: .userDomainMask)[0]
                 .appendingPathComponent("savedImage.png")
-
+            
             if let data = try? Data(contentsOf: fileURL) {
                 imageViewOutput?.display(
                     model: .init(
-                        size: .init(width: 24, height: 24),
+                        size: .init(width: 60, height: 60),
                         image: .data(data),
                         onPress: {
-                            print("image view pressed")
+                            setImageURL()
                         },
                         onLongPress: {
                             print("image view long pressed")
+                            changeFrameSize()
                         },
                         contentModeIsFit: false,
                         borderWidth: 1,
@@ -153,10 +155,12 @@ public class SplashPresenter: LifeCycleViewOutput, ApplicationLifecycleOutput {
         }
         
         func setImageURL() {
-            let url = URL(string: "https://developer.apple.com/assets/elements/icons/swift/swift-64x64_2x.png")
             imageViewOutput?.display(
                 model: .init(
-                    image: .url(url, url),
+                    image: .url(URL(string: urlStringLight), URL(string: urlStringDark)),
+                    onPress: {
+                        setImageURLString()
+                    },
                     contentModeIsFit: false,
                     borderWidth: 1,
                     borderColor: .red,
@@ -166,11 +170,13 @@ public class SplashPresenter: LifeCycleViewOutput, ApplicationLifecycleOutput {
         }
         
         func setImageURLString() {
-            let urlString = "https://developer.apple.com/assets/elements/icons/swift/swift-64x64_2x.png"
             imageViewOutput?.display(
                 model: .init(
-                    size: .init(width: 140, height: 140),
-                    image: .urlString(urlString, urlString),
+                    size: .init(width: 60, height: 60),
+                    image: .urlString(urlStringLight, urlStringDark),
+                    onPress: {
+                        setImageAsset()
+                    },
                     contentModeIsFit: false,
                     borderWidth: 1,
                     borderColor: .red,
@@ -178,44 +184,50 @@ public class SplashPresenter: LifeCycleViewOutput, ApplicationLifecycleOutput {
                 )
             )
         }
+        
+        func changeBorderStyle() {
+            imageViewOutput?.display(borderColor: .black)
+        }
+        
+        func changeFrameSize() {
+            imageViewOutput?.display(size: .init(width: 24, height: 24))
+        }
     }
-
+    
     public func viewWillAppear() {
         print("SplashPresenter: viewWillAppear()")
     }
-
+    
     public func viewWillDisappear() {
         print("SplashPresenter: viewWillDisappear()")
     }
-
+    
     public func viewDidAppear() {
         print("SplashPresenter: viewDidAppear()")
     }
-
+    
     public func viewDidDisappear() {
         print("SplashPresenter: viewDidDisappear()")
     }
-
+    
     // MARK: - Application Lifecycle
     public func applicationWillEnterForeground() {
         print("SplashPresenter: applicationWillEnterForeground()")
     }
-
+    
     public func applicationDidEnterBackground() {
         print("SplashPresenter: applicationDidEnterBackground()")
     }
-
+    
     public func applicationDidBecomeActive() {
         print("SplashPresenter: applicationDidBecomeActive()")
     }
-
+    
     public func applicationWillResignActive() {
         print("SplashPresenter: applicationWillResignActive()")
     }
-
+    
     public func applicationDidChange(userInterfaceStyle: UserInterfaceStyle) {
         print("SplashPresenter: applicationDidChange(userInterfaceStyle: \(userInterfaceStyle))")
     }
 }
-
-//#endif
