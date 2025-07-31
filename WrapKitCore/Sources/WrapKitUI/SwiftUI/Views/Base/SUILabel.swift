@@ -7,7 +7,6 @@
 
 import Foundation
 import SwiftUI
-import UIKit
 
 public struct SUILabel: View {
     @ObservedObject var adapter: TextOutputSwiftUIAdapter
@@ -17,7 +16,9 @@ public struct SUILabel: View {
             if let isHidden = adapter.displayIsHiddenState?.isHidden, isHidden {
                 SwiftUICore.EmptyView()
             } else if let attributes = adapter.displayAttributesState?.attributes {
+#if canImport(UIKit)
                 AttributedText(attributes: attributes)
+#endif
             } else {
                 Text(displayText)
             }
@@ -38,6 +39,8 @@ public struct SUILabel: View {
     }
 }
 
+#if canImport(UIKit)
+import UIKit
 /// UIViewRepresentable that builds an NSAttributedString with images, underlines, and tap handlers.
 private struct AttributedText: UIViewRepresentable {
     typealias UIViewType = UIView
@@ -177,3 +180,4 @@ private class TapableLabel: UILabel {
         }
     }
 }
+#endif
