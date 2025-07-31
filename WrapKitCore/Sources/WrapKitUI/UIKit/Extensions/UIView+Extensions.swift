@@ -286,9 +286,27 @@ public extension UIView {
     
     /// Adds a tap gesture recognizer to dismiss the keyboard when tapping anywhere on the view.
     func addTapToDismissKeyboard() {
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        let tapGesture = DismissKeyboardTapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
         tapGesture.cancelsTouchesInView = false
         addGestureRecognizer(tapGesture)
+    }
+    
+    private class DismissKeyboardTapGestureRecognizer: UITapGestureRecognizer {
+        override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent) {
+            guard let view = touches.first?.view else {
+                super.touchesEnded(touches, with: event)
+                return
+            }
+
+            // Если цель — UIControl (например, UIButton), не обрабатываем тут
+            if view is UIControl {
+                self.isEnabled = false
+                self.isEnabled = true
+                return
+            }
+
+            super.touchesEnded(touches, with: event)
+        }
     }
     
     @objc private func dismissKeyboard() {
