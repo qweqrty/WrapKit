@@ -25,7 +25,12 @@ struct EntryViewSwiftUIFactory: EntryViewFactory {
             applicationLifecycleOutput: presenter
         )
         presenter.textOutput = contentView
-            .adapter
+            .textOutputAdapter
+            .weakReferenced
+            .mainQueueDispatched
+        
+        presenter.imageViewOutput = contentView
+            .imageViewAdapter
             .weakReferenced
             .mainQueueDispatched
         return AnyView(contentView)
