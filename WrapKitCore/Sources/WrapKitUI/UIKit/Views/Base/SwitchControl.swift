@@ -14,7 +14,7 @@ public protocol SwitchCotrolOutput: AnyObject {
     func display(isEnabled: Bool)
     func display(isHidden: Bool)
     
-    func display(isLoading: Bool, shimmerStyle: ShimmerView.Style?)
+    func display(isLoading: Bool, shimmerStyle: ShimmerStyle?)
 }
 
 public struct SwitchControlPresentableModel {
@@ -22,7 +22,7 @@ public struct SwitchControlPresentableModel {
     public let isOn: Bool?
     public let isEnabled: Bool?
     public let style: Style?
-
+    
     public init(
         onPress: ((SwitchCotrolOutput) -> Void)? = nil,
         isOn: Bool? = nil,
@@ -40,7 +40,7 @@ public struct SwitchControlPresentableModel {
         public let thumbTintColor: Color
         public let backgroundColor: Color
         public let cornerRadius: CGFloat
-
+        
         public init(
             tintColor: Color,
             thumbTintColor: Color,
@@ -65,23 +65,24 @@ open class SwitchControl: UISwitch {
         super.init(frame: .zero)
         addTarget(self, action: #selector(didPress), for: .valueChanged)
     }
-
+    
     public init(style: SwitchControlPresentableModel.Style) {
         super.init(frame: .zero)
         addTarget(self, action: #selector(didPress), for: .valueChanged)
         display(style: style)
     }
-
+    
     @objc private func didPress() {
         onPress?(self)
     }
-
+    
     public required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 }
 
 extension SwitchControl: SwitchCotrolOutput {
+    
     public func display(model: SwitchControlPresentableModel?) {
         isHidden = model == nil
         if let isOn = model?.isOn { display(isOn: isOn) }
@@ -113,7 +114,7 @@ extension SwitchControl: SwitchCotrolOutput {
         self.isHidden = isHidden
     }
     
-    public func display(isLoading: Bool, shimmerStyle: ShimmerView.Style?) {
+    public func display(isLoading: Bool, shimmerStyle: ShimmerStyle?) {
         var shimmerView: ShimmerView? = nil
         if let shimmerStyle {
             shimmerView = ShimmerView(backgroundColor: shimmerStyle.backgroundColor)

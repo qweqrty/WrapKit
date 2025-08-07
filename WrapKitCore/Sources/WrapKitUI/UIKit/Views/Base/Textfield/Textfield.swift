@@ -221,7 +221,7 @@ public struct TextInputPresentableModel: HashableWithReflection {
 #if canImport(UIKit)
 import UIKit
 
-public extension TextInputOutput {
+public extension Textfield {
     func makeAccessoryView(
         accessoryView: UIView,
         height: CGFloat = 60,

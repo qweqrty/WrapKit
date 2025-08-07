@@ -254,17 +254,4 @@ public class TextInputOutputSwiftUIAdapter: ObservableObject, TextInputOutput {
             toolbarModel: toolbarModel
         )
     }
-    @Published public var makeAccessoryViewAccessoryViewHeightConstraintsState: MakeAccessoryViewAccessoryViewHeightConstraintsState? = nil
-    public struct MakeAccessoryViewAccessoryViewHeightConstraintsState {
-        public let accessoryView: UIView
-        public let height: CGFloat
-        public let constraints: ((UIView, UIView) -> [NSLayoutConstraint])?
-    }
-    public func makeAccessoryView(accessoryView: UIView, height: CGFloat = 60, constraints: ((UIView, UIView) -> [NSLayoutConstraint])? = nil) {
-        makeAccessoryViewAccessoryViewHeightConstraintsState = .init(
-            accessoryView: accessoryView, 
-            height: height, 
-            constraints: constraints
-        )
-    }
 }
