@@ -9,6 +9,7 @@ import Foundation
 import Combine
 
 private var servicesCancellables: [UUID: AnyCancellable] = [:]
+private let cancellablesLock = DispatchQueue(label: "com.wrapkit.cancellables")
 
 public protocol Service<Request, Response> {
     associatedtype Request
@@ -110,13 +111,19 @@ private extension AnyPublisher {
         let cancellable = self
             .receive(on: RunLoop.main)
             .handleEvents(receiveCancel: {
-                servicesCancellables.removeValue(forKey: id) // Clean up on cancel
+                cancellablesLock.async {
+                    servicesCancellables.removeValue(forKey: id) // Clean up on cancel
+                }
             })
             .sink(receiveCompletion: { _ in
-                servicesCancellables.removeValue(forKey: id) // Clean up on completion
+                cancellablesLock.async {
+                    servicesCancellables.removeValue(forKey: id) // Clean up on completion
+                }
             }, receiveValue: { _ in })
         
-        servicesCancellables[id] = cancellable
+        cancellablesLock.async {
+            servicesCancellables[id] = cancellable
+        }
         
         return self
     }
