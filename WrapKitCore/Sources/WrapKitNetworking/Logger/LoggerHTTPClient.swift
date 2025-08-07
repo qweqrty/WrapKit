@@ -18,11 +18,11 @@ public final class LoggerHTTPClient: HTTPClient {
     
     public struct Log: HashableWithReflection {
         public let request: URLRequest
-        public let response: String
+        public let response = InMemoryStorage<String>(model: nil)
         
-        public init(request: URLRequest, response: String) {
+        public init(request: URLRequest, response: String?) {
             self.request = request
-            self.response = response
+            self.response.set(model: response)
         }
     }
     
@@ -34,21 +34,20 @@ public final class LoggerHTTPClient: HTTPClient {
     }
     
     public func dispatch(_ request: URLRequest, completion: @escaping (Result) -> Void) -> any HTTPClientTask {
+        let log = Log(request: request, response: nil)
+        var requests = Self.requests.get()
+        requests?.append(log)
+        Self.requests.set(model: requests)
         return decoratee.dispatch(request) { [weak self] result in
             var requests = Self.requests.get()
             switch result {
             case .success((let data, let response)):
-                requests?.append(.init(
-                    request: request,
-                    response: self?.message(from: response, data: data) ?? "Something went wrong"
-                ))
+                log.response.set(model: self?.message(from: response, data: data) ?? "Something went wrong")
+                completion(.success((data, response)))
             case .failure(let error):
-                requests?.append(.init(
-                    request: request,
-                    response: self?.message(error: error) ?? "Something went wrong"
-                ))
+                log.response.set(model: self?.message(error: error) ?? "Something went wrong")
+                completion(.failure(error))
             }
-            Self.requests.set(model: requests)
         }
     }
     

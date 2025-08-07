@@ -7,9 +7,7 @@
 
 import Foundation
 
-#if canImport(UIKit)
-
-extension DiffableCollectionViewDataSource: TableOutput {
+extension DiffableCollectionViewDataSource: TableOutput { 
     public func display(trailingSwipeActionsForIndexPath: ((IndexPath) -> [TableContextualAction<Cell>])?) {
                 
     }
@@ -56,6 +54,7 @@ extension DiffableCollectionViewDataSource: TableOutput {
     }
 }
 
+#if canImport(UIKit)
 import UIKit
 
 @available(iOS 13.0, *)

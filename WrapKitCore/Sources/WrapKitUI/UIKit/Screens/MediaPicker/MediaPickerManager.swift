@@ -9,49 +9,41 @@ import PhotosUI
 import UniformTypeIdentifiers
 import Combine
 
-public enum DesiredResultType {
-    case image
-    case data(DataType)
-    case url
-    
-    public enum DataType {
-        case png
-        case jpeg(CGFloat)
-        case heic
+public final class MediaPickerManager: NSObject {
+    public struct Constants {
+        public static let imageIdent = "public.image"
+        public static let videoIdent = "public.movie"
     }
-}
-
-public struct MediaPickerConstants {
-    public static let imageIdent = "public.image"
-    public static let videoIdent = "public.movie"
-}
-
-public enum MediaPickerSource<T> {
-    case camera(CameraPickerConfiguration<T>)
-    case gallery(GalleryPickerConfiguration)
-    case file(DocumentPickerConfiguration)
-}
-
-public enum MediaPickerResultType {
-    case image([Image])
-    case data([Data])
-    case url([URL])
-}
-
-#if canImport(UIKit)
-import UIKit
-
-public final class MediaPickerManager<T>: NSObject,
-                                          UIImagePickerControllerDelegate,
-                                          UINavigationControllerDelegate,
-                                          UIAdaptivePresentationControllerDelegate,
-                                          UIDocumentPickerDelegate {
+    
+    public enum DesiredResultType {
+        case image
+        case data(DataType)
+        case url
+        
+        public enum DataType {
+            case png
+            case jpeg(CGFloat)
+            case heic
+        }
+    }
+    
+    public enum ResultType {
+        case image([UIImage])
+        case data([Data])
+        case url([URL])
+    }
+    
+    public enum Source {
+        case camera(CameraPickerConfiguration)
+        case gallery(GalleryPickerConfiguration)
+        case file(DocumentPickerConfiguration)
+    }
     
     private var cancellables = Set<AnyCancellable>()
     
-    public var desiredResultType: DesiredResultType = .url
+    public var desiredResultType: MediaPickerManager.DesiredResultType = .url
     weak var presentingController: UIViewController?
-    private var completion: ((MediaPickerResultType?) -> Void)?
+    private var completion: ((ResultType?) -> Void)?
     
     public init(presentingController: UIViewController) {
         self.presentingController = presentingController
@@ -76,7 +68,7 @@ public final class MediaPickerManager<T>: NSObject,
         }
     }
     
-    func presentPicker(source: MediaPickerSource<T>, completion: @escaping (MediaPickerResultType?) -> Void) {
+    func presentPicker(source: Source, completion: @escaping (ResultType?) -> Void) {
         self.completion = completion
         
         switch source {
@@ -89,7 +81,7 @@ public final class MediaPickerManager<T>: NSObject,
         }
     }
     
-    func presentCamera(_ configuration: CameraPickerConfiguration<T>) {
+    func presentCamera(_ configuration: CameraPickerConfiguration) {
         let picker = configuration.asImagePicker
         picker.delegate = self
         desiredResultType = configuration.desiredResultType
@@ -100,19 +92,19 @@ public final class MediaPickerManager<T>: NSObject,
         let picker = PHPickerViewController(configuration: configuration.asPHPickerConfiguration)
         desiredResultType = configuration.desiredResultType
         picker.delegate = self
-        picker.presentationController?.delegate = self as? any UIAdaptivePresentationControllerDelegate
+        picker.presentationController?.delegate = self
         presentingController?.present(picker, animated: true)
     }
     
     private func presentDocumentPicker(_ configuration: DocumentPickerConfiguration) {
         let documentPicker = configuration.asDocumentPicker
-        documentPicker.delegate = self as? any UIDocumentPickerDelegate
-        documentPicker.presentationController?.delegate = self as? any UIAdaptivePresentationControllerDelegate
+        documentPicker.delegate = self
+        documentPicker.presentationController?.delegate = self
         desiredResultType = configuration.desiredResultType
         presentingController?.present(documentPicker, animated: true)
     }
     
-    func deliver(image: Image, using type: DesiredResultType, simulatedCompletion: ((MediaPickerResultType?) -> Void)? = nil) {
+    func deliver(image: UIImage, using type: DesiredResultType, simulatedCompletion: ((ResultType?) -> Void)? = nil) {
         
         if let simulatedCompletion {
             completion = simulatedCompletion
@@ -148,7 +140,7 @@ public final class MediaPickerManager<T>: NSObject,
     }
     
     private func returnData(
-        _ publishers: [AnyPublisher<Image?, Never>],
+        _ publishers: [AnyPublisher<UIImage?, Never>],
         type: DesiredResultType.DataType
     ) {
         Publishers.MergeMany(publishers)
@@ -160,8 +152,13 @@ public final class MediaPickerManager<T>: NSObject,
             }
             .store(in: &cancellables)
     }
+}
+
+#if canImport(UIKit)
+
+// MARK: - UIImagePickerControllerDelegate
+extension MediaPickerManager: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
-    // MARK: - UIImagePickerControllerDelegate
     public func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
         completion?(nil)
         picker.dismiss(animated: true)
@@ -176,39 +173,13 @@ public final class MediaPickerManager<T>: NSObject,
             completion?(nil); return
         }
         switch mediaType {
-        case UTType.image.identifier, MediaPickerConstants.imageIdent:
+        case UTType.image.identifier, Constants.imageIdent:
             handlePickedImage(info)
-        case UTType.movie.identifier, MediaPickerConstants.videoIdent:
+        case UTType.movie.identifier, Constants.videoIdent:
             handlePickedVideo(info)
         default: completion?(nil)
         }
     }
-    
-    // MARK: - UIAdaptivePresentationControllerDelegate
-    public func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
-        completion?(nil)
-    }
-    
-    // MARK: - UIDocumentPickerDelegate
-    public func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
-        switch desiredResultType {
-        case .image:
-            let publishers = urls.map { $0.asImage }
-            returnImages(publishers)
-        case .data(let type):
-            let publishers = urls.map { $0.asImage }
-            returnData(publishers, type: type)
-        case .url:
-            completion?(.url(urls))
-        }
-    }
-    
-    public func documentPickerWasCancelled(_ controller: UIDocumentPickerViewController) {
-        completion?(nil)
-    }
-}
-
-extension MediaPickerManager {
     
     // MARK: - Image Handling
     private func handlePickedImage(_ info: [UIImagePickerController.InfoKey: Any]) {
@@ -305,6 +276,31 @@ extension MediaPickerManager: PHPickerViewControllerDelegate {
             subject.send(completion: .finished)
         }
         return subject.eraseToAnyPublisher()
+    }
+}
+// MARK: - UIAdaptivePresentationControllerDelegate
+extension MediaPickerManager: UIAdaptivePresentationControllerDelegate {
+    public func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
+        completion?(nil)
+    }
+}
+
+// MARK: - UIDocumentPickerDelegate
+extension MediaPickerManager: UIDocumentPickerDelegate {
+    public func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
+        switch desiredResultType {
+        case .image:
+            let publishers = urls.map { $0.asImage }
+            returnImages(publishers)
+        case .data(let type):
+            let publishers = urls.map { $0.asImage }
+            returnData(publishers, type: type)
+        case .url:
+            completion?(.url(urls))
+        }
+    }
+    public func documentPickerWasCancelled(_ controller: UIDocumentPickerViewController) {
+        completion?(nil)
     }
 }
 #endif

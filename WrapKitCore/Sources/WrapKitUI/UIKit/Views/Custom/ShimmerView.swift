@@ -4,26 +4,6 @@
 //
 //  Created by Stanislav Li on 17/11/23.
 //
-import Foundation
-
-public struct ShimmerStyle {
-    var backgroundColor: Color
-    var gradientColorOne: Color
-    var gradientColorTwo: Color
-    var cornerRadius: CGFloat
-    
-    public init(
-        backgroundColor: Color,
-        gradientColorOne: Color,
-        gradientColorTwo: Color,
-        cornerRadius: CGFloat
-    ) {
-        self.backgroundColor = backgroundColor
-        self.gradientColorOne = gradientColorOne
-        self.gradientColorTwo = gradientColorTwo
-        self.cornerRadius = cornerRadius
-    }
-}
 
 #if canImport(UIKit)
 import UIKit
@@ -44,8 +24,25 @@ extension UIView {
 }
 
 open class ShimmerView: UIView {
-    
-    open var style: ShimmerStyle? {
+    public struct Style {
+        var backgroundColor: Color
+        var gradientColorOne: Color
+        var gradientColorTwo: Color
+        var cornerRadius: CGFloat
+        
+        public init(
+            backgroundColor: Color,
+            gradientColorOne: Color,
+            gradientColorTwo: Color,
+            cornerRadius: CGFloat
+        ) {
+            self.backgroundColor = backgroundColor
+            self.gradientColorOne = gradientColorOne
+            self.gradientColorTwo = gradientColorTwo
+            self.cornerRadius = cornerRadius
+        }
+    }
+    open var style: Style? {
         didSet {
             guard let style else { return }
             backgroundColor = style.backgroundColor
