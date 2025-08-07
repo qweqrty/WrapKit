@@ -38,21 +38,22 @@ public final class LoggerHTTPClient: HTTPClient {
         var requests = Self.requests.get()
         requests?.append(log)
         Self.requests.set(model: requests)
+        print(request.cURL())
         return decoratee.dispatch(request) { [weak self] result in
             var requests = Self.requests.get()
             switch result {
             case .success((let data, let response)):
-                log.response.set(model: self?.message(from: response, data: data) ?? "Something went wrong")
+                let message = self?.message(from: response, data: data) ?? "Something went wrong"
+                log.response.set(model: message)
                 completion(.success((data, response)))
+                print(message)
             case .failure(let error):
-                log.response.set(model: self?.message(error: error) ?? "Something went wrong")
+                let message = self?.message(error: error) ?? "Something went wrong"
+                log.response.set(model: message)
+                print(message)
                 completion(.failure(error))
             }
         }
-    }
-    
-    private func printRequest(_ request: URLRequest) {
-        print(request.cURL())
     }
     
     private func message(from response: HTTPURLResponse? = nil, data: Data? = nil, error: Error? = nil, request: URLRequest? = nil) -> String {
