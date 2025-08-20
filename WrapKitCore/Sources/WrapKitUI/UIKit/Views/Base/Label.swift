@@ -90,23 +90,20 @@ extension Label: TextOutput {
     }
     
     public func display(id: String? = nil, from startAmount: Float, to endAmount: Float, mapToString: ((Float) -> TextOutputPresentableModel)?, animationStyle: LabelAnimationStyle = .none, duration: TimeInterval = 1.0, completion: (() -> Void)? = nil) {
-        // If the same model id is already animating, just update to end value
-        if let id, currentAnimatedModelID == id {
-            animation?.cancel()
-            self.display(model: mapToString?(endAmount) ?? .text(""))
+        if let id, id == currentAnimatedModelID, endAmount == currentAnimatedTarget {
             return
         }
         
-        // Different (or unknown) model → cancel previous and start new
         animation?.cancel()
         animation = CountingLabelAnimation(label: self)
         currentAnimatedModelID = id
+        currentAnimatedTarget = endAmount
         
         clearAnimationModel()
         animation?.startAnimation(fromValue: startAmount, to: endAmount, mapToString: mapToString, animationStyle: animationStyle, duration: duration, completion: { [weak self] in
             completion?()
             // clear id after finishing
-            if let self { self.currentAnimatedModelID = nil }
+            self?.currentAnimatedModelID = nil
         })
     }
     
@@ -201,6 +198,7 @@ open class Label: UILabel {
     
     private var animation: CountingLabelAnimation?
     private var currentAnimatedModelID: String?
+    private var currentAnimatedTarget: Float?
     
     lazy var tapGesture: UITapGestureRecognizer = {
         let gesture = UITapGestureRecognizer(target: self, action: nil)
