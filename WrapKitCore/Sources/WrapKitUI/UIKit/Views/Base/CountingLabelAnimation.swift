@@ -60,6 +60,7 @@ class CountingLabelAnimation {
     }
     
     public func startAnimation(
+        id: String? = nil,
         fromValue: Float,
         to toValue: Float,
         mapToString: ((Float) -> TextOutputPresentableModel)?,
@@ -73,7 +74,7 @@ class CountingLabelAnimation {
         self.progress = 0
         self.duration = duration
         self.completion = completion
-        self.model = .animated(fromValue, toValue, mapToString: mapToString, animationStyle: animationStyle, duration: duration, completion: completion)
+        self.model = .animated(id: id, fromValue, toValue, mapToString: mapToString, animationStyle: animationStyle, duration: duration, completion: completion)
         self.lastUpdate = Date.timeIntervalSinceReferenceDate
         
         // Set up circular progress view if needed
@@ -131,11 +132,16 @@ class CountingLabelAnimation {
         label?.display(model: getCurrentCounterValue())
     }
     
-    deinit {
+    func cancel() {
         timer?.invalidate()
         timer = nil
         progressView?.removeFromSuperview()
+        progressView = nil
+        completion = nil
+        model = nil
     }
+    
+    deinit { cancel() }
 }
 #endif
 
