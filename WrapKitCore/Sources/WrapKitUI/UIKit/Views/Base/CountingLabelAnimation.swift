@@ -111,6 +111,9 @@ class CountingLabelAnimation {
             userInfo: nil,
             repeats: true
         )
+        if let timer {
+            RunLoop.current.add(timer, forMode: .common)
+        }
     }
     
     @objc func updateValue() {
@@ -144,4 +147,3 @@ class CountingLabelAnimation {
     deinit { cancel() }
 }
 #endif
-

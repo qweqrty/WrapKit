@@ -40,7 +40,6 @@ public final class LoggerHTTPClient: HTTPClient {
         Self.requests.set(model: requests)
         print(request.cURL())
         return decoratee.dispatch(request) { [weak self] result in
-            var requests = Self.requests.get()
             switch result {
             case .success((let data, let response)):
                 let message = self?.message(from: response, data: data) ?? "Something went wrong"
@@ -89,7 +88,7 @@ public final class LoggerHTTPClient: HTTPClient {
     }
 }
 
-fileprivate extension URLRequest {
+public extension URLRequest {
     func cURL(pretty: Bool = false) -> String {
         let newLine = pretty ? "\\\n" : ""
         let method = (pretty ? "--request " : "-X ") + "\(self.httpMethod ?? "GET") \(newLine)"
