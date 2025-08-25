@@ -22,7 +22,6 @@ open class Textview: UITextView, UITextViewDelegate {
     
     private var padding: UIEdgeInsets
     private var isValidState = true
-    public var maxInputTextLength: Int?
     
     public lazy var placeholderLabel = Label(font: font!, textColor: .gray)
     public var textDidChange: (() -> Void)?
