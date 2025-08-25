@@ -62,6 +62,7 @@ extension ChunkedTextField: TextInputOutput {
     public func display(onTapBackspace: (() -> Void)?) {}
     public func display(inputType: KeyboardType) {}
     public func display(trailingSymbol: String?) {}
+    public func display(maxInputTextLength: Int?) {}
 }
 
 public class ChunkedTextField: ViewUIKit {

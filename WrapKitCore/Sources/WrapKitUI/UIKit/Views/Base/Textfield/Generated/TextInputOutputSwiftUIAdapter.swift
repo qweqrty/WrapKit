@@ -254,6 +254,15 @@ public class TextInputOutputSwiftUIAdapter: ObservableObject, TextInputOutput {
             toolbarModel: toolbarModel
         )
     }
+    @Published public var displayMaxInputTextLengthState: DisplayMaxInputTextLengthState? = nil
+    public struct DisplayMaxInputTextLengthState {
+        public let maxInputTextLength: Int?
+    }
+    public func display(maxInputTextLength: Int?) {
+        displayMaxInputTextLengthState = .init(
+            maxInputTextLength: maxInputTextLength
+        )
+    }
     @Published public var makeAccessoryViewAccessoryViewHeightConstraintsState: MakeAccessoryViewAccessoryViewHeightConstraintsState? = nil
     public struct MakeAccessoryViewAccessoryViewHeightConstraintsState {
         public let accessoryView: UIView

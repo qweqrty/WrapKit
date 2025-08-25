@@ -152,6 +152,11 @@ extension MainQueueDispatchDecorator: TextInputOutput where T: TextInputOutput {
             self?.decoratee.display(toolbarModel: toolbarModel)
         }
     }
+    public func display(maxInputTextLength: Int?) {
+        dispatch { [weak self] in
+            self?.decoratee.display(maxInputTextLength: maxInputTextLength)
+        }
+    }
     public func makeAccessoryView(accessoryView: UIView, height: CGFloat = 60, constraints: ((UIView, UIView) -> [NSLayoutConstraint])? = nil) {
         dispatch { [weak self] in
             self?.decoratee.makeAccessoryView(accessoryView: accessoryView, height: height, constraints: constraints)
