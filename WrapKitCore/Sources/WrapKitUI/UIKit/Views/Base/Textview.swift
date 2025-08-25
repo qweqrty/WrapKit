@@ -136,7 +136,6 @@ public extension Textview {
 }
 
 extension Textview: TextInputOutput {
-   
     public func display(inputView: TextInputPresentableModel.InputView?) {
         guard let inputView else {
             self.inputView = nil
@@ -288,5 +287,6 @@ extension Textview: TextInputOutput {
     }
     
     public func display(trailingSymbol: String?) {}
+    public func display(maxInputTextLength: Int?) {}
 }
 #endif

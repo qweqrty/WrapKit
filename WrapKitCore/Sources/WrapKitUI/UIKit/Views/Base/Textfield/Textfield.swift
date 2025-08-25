@@ -112,6 +112,7 @@ public protocol TextInputOutput: AnyObject {
     func display(inputType: KeyboardType)
     func display(trailingSymbol: String?)
     func display(toolbarModel: ButtonPresentableModel?)
+    func display(maxInputTextLength: Int?)
 }
 
 public struct TextInputPresentableModel: HashableWithReflection {
@@ -174,6 +175,7 @@ public struct TextInputPresentableModel: HashableWithReflection {
     public var onResignFirstResponder: (() -> Void)?
     public var onTapBackspace: (() -> Void)?
     public var didChangeText: [((String?) -> Void)]?
+    public var maxInputTextLength: Int?
     
     public init(
         text: String? = nil,
@@ -194,7 +196,8 @@ public struct TextInputPresentableModel: HashableWithReflection {
         onBecomeFirstResponder: (() -> Void)? = nil,
         onResignFirstResponder: (() -> Void)? = nil,
         onTapBackspace: (() -> Void)? = nil,
-        didChangeText: [(String?) -> Void]? = nil
+        didChangeText: [(String?) -> Void]? = nil,
+        maxInputTextLength: Int? = nil
     ) {
         self.text = text
         self.mask = mask
@@ -215,6 +218,7 @@ public struct TextInputPresentableModel: HashableWithReflection {
         self.inputView = inputView
         self.trailingSymbol = trailingSymbol
         self.toolbarModel = toolbarModel
+        self.maxInputTextLength = maxInputTextLength
     }
 }
 
@@ -282,11 +286,16 @@ extension Textfield: TextInputOutput {
         display(toolbarModel: model.toolbarModel)
         display(inputView: model.inputView)
         display(trailingSymbol: model.trailingSymbol)
+        display(maxInputTextLength: model.maxInputTextLength)
         
         if model.toolbarModel == nil, model.inputView == nil {
             self.inputAccessoryView = nil
             self.reloadInputViews()
         }
+    }
+    
+    public func display(maxInputTextLength: Int?) {
+        self.maxInputTextLength = maxInputTextLength
     }
     
     public func display(inputView: TextInputPresentableModel.InputView?) {
@@ -443,6 +452,7 @@ open class Textfield: UITextField {
     }
     
     private var isValidState = true
+    public var maxInputTextLength: Int?
     
     public var padding: UIEdgeInsets = .zero
     public var midPadding: CGFloat = 0
@@ -622,13 +632,25 @@ open class Textfield: UITextField {
     }
     
     @objc private func textFieldDidChange() {
-        didChangeText.forEach {
-            if let delegate = self.delegate as? MaskedTextfieldDelegate {
-                $0(delegate.fullText)
-            } else {
-                $0(self.text)
-            }
+        var currentText: String?
+                
+        if let delegate = self.delegate as? MaskedTextfieldDelegate {
+            currentText = delegate.fullText
+        } else {
+            currentText = self.text
         }
+
+        /// erase by maxLength
+        if let maxInputTextLength, let text = currentText, text.count > maxInputTextLength {
+            let limited = String(text.prefix(maxInputTextLength))
+            self.text = limited
+            if let delegate = self.delegate as? MaskedTextfieldDelegate {
+                delegate.fullText = limited
+            }
+            currentText = limited
+        }
+
+        didChangeText.forEach { $0(currentText) }
     }
     
     @objc private func textFieldDidChangeClear() {
