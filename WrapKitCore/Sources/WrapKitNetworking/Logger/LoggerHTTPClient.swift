@@ -50,15 +50,15 @@ public final class LoggerHTTPClient: HTTPClient {
         requests?.append(log)
         Self.requests.set(model: requests)
         print(request.cURL())
-        return decoratee.dispatch(request) { [weak self] result in
+        return decoratee.dispatch(request) { result in
             switch result {
             case .success((let data, let response)):
-                let message = self?.message(from: response, data: data) ?? "Something went wrong"
+                let message = Self.message(from: response, data: data)
                 log.response.set(model: .init(data: data, response: response, error: nil))
                 completion(.success((data, response)))
                 print(message)
             case .failure(let error):
-                let message = self?.message(error: error) ?? "Something went wrong"
+                let message = Self.message(error: error)
                 log.response.set(model: .init(data: nil, response: nil, error: error))
                 print(message)
                 completion(.failure(error))
@@ -66,7 +66,7 @@ public final class LoggerHTTPClient: HTTPClient {
         }
     }
     
-    private func message(from response: HTTPURLResponse? = nil, data: Data? = nil, error: Error? = nil, request: URLRequest? = nil) -> String {
+    public static func message(from response: HTTPURLResponse? = nil, data: Data? = nil, error: Error? = nil, request: URLRequest? = nil) -> String {
         if (error as? URLError)?.code == .cancelled, let request = request {
             return printCancelled(request)
         }
@@ -85,7 +85,7 @@ public final class LoggerHTTPClient: HTTPClient {
         return responseLog
     }
     
-    private func printCancelled(_ request: URLRequest) -> String {
+    static func printCancelled(_ request: URLRequest) -> String {
         let urlString = request.url?.absoluteString.truncatedForCancelled() ?? "N/A"
         let method = request.httpMethod ?? "N/A"
         let headers = request.allHTTPHeaderFields?.mapValues { $0.truncatedForCancelled() } ?? [:]
