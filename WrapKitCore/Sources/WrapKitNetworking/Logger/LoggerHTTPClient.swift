@@ -17,10 +17,21 @@ public final class LoggerHTTPClient: HTTPClient {
     public typealias Result = HTTPClient.Result
     
     public struct Log: HashableWithReflection {
+        public struct Response: HashableWithReflection {
+            public let data: Data?
+            public let response: HTTPURLResponse?
+            public let error: Error?
+            
+            public init(data: Data?, response: HTTPURLResponse?, error: Error?) {
+                self.data = data
+                self.response = response
+                self.error = error
+            }
+        }
         public let request: URLRequest
-        public let response = InMemoryStorage<String>(model: nil)
+        public let response = InMemoryStorage<Response>(model: nil)
         
-        public init(request: URLRequest, response: String?) {
+        public init(request: URLRequest, response: Response?) {
             self.request = request
             self.response.set(model: response)
         }
@@ -43,12 +54,12 @@ public final class LoggerHTTPClient: HTTPClient {
             switch result {
             case .success((let data, let response)):
                 let message = self?.message(from: response, data: data) ?? "Something went wrong"
-                log.response.set(model: message)
+                log.response.set(model: .init(data: data, response: response, error: nil))
                 completion(.success((data, response)))
                 print(message)
             case .failure(let error):
                 let message = self?.message(error: error) ?? "Something went wrong"
-                log.response.set(model: message)
+                log.response.set(model: .init(data: nil, response: nil, error: error))
                 print(message)
                 completion(.failure(error))
             }
