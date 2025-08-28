@@ -59,7 +59,15 @@ public class AuthenticatedHTTPClientDecorator: HTTPClient {
                 if self.isAuthenticated((data, response)) {
                     completion(.success((data, response)))
                 } else if isRetryNeeded {
-                    self.refreshTokenAndRetry(request, completion: completion, compositeTask: compositeTask)
+                    self.refreshToken(completion: { [weak self] isSuccess in
+                        if isSuccess {
+                            self?.retryRequest(request, completion: completion, compositeTask: compositeTask)
+                        } else if let newToken = self?.accessTokenStorage.get(), !newToken.isEmpty, newToken != token {
+                            self?.retryRequest(request, completion: completion, compositeTask: compositeTask)
+                        } else {
+                            self?.onNotAuthenticated?()
+                        }
+                    }, compositeTask: compositeTask)
                 } else {
                     self.onNotAuthenticated?()
                 }
@@ -70,22 +78,24 @@ public class AuthenticatedHTTPClientDecorator: HTTPClient {
         compositeTask.add(firstTask)
         return compositeTask
     }
-
-    private func refreshTokenAndRetry(
-        _ request: URLRequest,
-        completion: @escaping (HTTPClient.Result) -> Void,
+    
+    public func refreshToken(
+        completion: @escaping (Bool) -> Void,
         compositeTask: CompositeHTTPClientTask
     ) {
         guard let tokenRefresher = tokenRefresher else {
-            onNotAuthenticated?()
+            completion(false)
             return
         }
 
         if let ongoingRefresh = synchronizedTokenAccess({ Self.ongoingRefresh }) {
             ongoingRefresh
                 .handle(
-                    onSuccess: { [weak self] newToken in
-                        self?.retryRequest(request, with: newToken, completion: completion, compositeTask: compositeTask)
+                    onSuccess: { newToken in
+                        completion(true)
+                    },
+                    onError: { _ in
+                        completion(false)
                     }
                 )
             return
@@ -104,24 +114,27 @@ public class AuthenticatedHTTPClientDecorator: HTTPClient {
         synchronizedTokenAccess { Self.ongoingRefresh = refreshPublisher }
 
         refreshPublisher
+            .flatMap(accessTokenStorage.set)
+            .eraseToAnyPublisher()
             .handle(
-                onSuccess: { [weak self] newToken in
-                    self?.accessTokenStorage.set(model: newToken)
-                    self?.retryRequest(request, with: newToken, completion: completion, compositeTask: compositeTask)
+                onSuccess: { isSuccess in
+                    completion(isSuccess)
                 },
-                onError: { [weak self] error in
-                    self?.onNotAuthenticated?()
+                onError: { _ in
+                    completion(false)
                 }
             )
     }
 
     private func retryRequest(
         _ request: URLRequest,
-        with token: String,
         completion: @escaping (HTTPClient.Result) -> Void,
         compositeTask: CompositeHTTPClientTask
     ) {
-        // Use the new token directly instead of fetching from storage
+        guard let token = accessTokenStorage.get() else {
+            onNotAuthenticated?()
+            return
+        }
         let enrichedRequest = enrichRequestWithToken(request, token)
         
         let newTask = decoratee.dispatch(enrichedRequest) { [weak self] result in
