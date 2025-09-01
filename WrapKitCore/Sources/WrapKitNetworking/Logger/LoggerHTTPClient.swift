@@ -46,8 +46,8 @@ public final class LoggerHTTPClient: HTTPClient {
     
     public func dispatch(_ request: URLRequest, completion: @escaping (Result) -> Void) -> any HTTPClientTask {
         let log = Log(request: request, response: nil)
-        var requests = Self.requests.get()
-        requests?.append(log)
+        var requests = Self.requests.get() ?? []
+        requests.append(log)
         Self.requests.set(model: requests)
         print(request.cURL())
         return decoratee.dispatch(request) { result in

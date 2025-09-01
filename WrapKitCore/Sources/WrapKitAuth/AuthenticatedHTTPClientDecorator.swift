@@ -58,11 +58,13 @@ public class AuthenticatedHTTPClientDecorator: HTTPClient {
             case .success(let (data, response)):
                 if self.isAuthenticated((data, response)) {
                     completion(.success((data, response)))
+                } else if let currentToken = accessTokenStorage.get(), currentToken != token {
+                    let task = dispatch(request, completion: completion, isRetryNeeded: true)
+                    task.resume()
+                    compositeTask.add(task)
                 } else if isRetryNeeded {
-                    self.refreshToken(completion: { [weak self] newToken in
+                    refreshToken(completion: { [weak self] newToken in
                         if newToken != nil {
-                            self?.retryRequest(request, completion: completion, compositeTask: compositeTask)
-                        } else if let currentToken = self?.accessTokenStorage.get(), currentToken != newToken, !newToken.isEmpty {
                             self?.retryRequest(request, completion: completion, compositeTask: compositeTask)
                         } else {
                             self?.onNotAuthenticated?()
