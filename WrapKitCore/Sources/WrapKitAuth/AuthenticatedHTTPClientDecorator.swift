@@ -59,10 +59,10 @@ public class AuthenticatedHTTPClientDecorator: HTTPClient {
                 if self.isAuthenticated((data, response)) {
                     completion(.success((data, response)))
                 } else if isRetryNeeded {
-                    self.refreshToken(completion: { [weak self] isSuccess in
-                        if isSuccess {
+                    self.refreshToken(completion: { [weak self] newToken in
+                        if newToken != nil {
                             self?.retryRequest(request, completion: completion, compositeTask: compositeTask)
-                        } else if let newToken = self?.accessTokenStorage.get(), !newToken.isEmpty, newToken != token {
+                        } else if let currentToken = self?.accessTokenStorage.get(), currentToken != newToken, !newToken.isEmpty {
                             self?.retryRequest(request, completion: completion, compositeTask: compositeTask)
                         } else {
                             self?.onNotAuthenticated?()
@@ -80,11 +80,11 @@ public class AuthenticatedHTTPClientDecorator: HTTPClient {
     }
     
     public func refreshToken(
-        completion: @escaping (Bool) -> Void,
+        completion: @escaping (String?) -> Void,
         compositeTask: CompositeHTTPClientTask
     ) {
         guard let tokenRefresher = tokenRefresher else {
-            completion(false)
+            completion(nil)
             return
         }
 
@@ -92,10 +92,10 @@ public class AuthenticatedHTTPClientDecorator: HTTPClient {
             ongoingRefresh
                 .handle(
                     onSuccess: { newToken in
-                        completion(true)
+                        completion(newToken)
                     },
                     onError: { _ in
-                        completion(false)
+                        completion(nil)
                     }
                 )
             return
@@ -114,14 +114,20 @@ public class AuthenticatedHTTPClientDecorator: HTTPClient {
         synchronizedTokenAccess { Self.ongoingRefresh = refreshPublisher }
 
         refreshPublisher
-            .flatMap(accessTokenStorage.set)
+            .flatMap { [weak self] newToken in
+                guard let self else {
+                    self?.accessTokenStorage.set(model: newToken)
+                    return Just(newToken).setFailureType(to: ServiceError.self).eraseToAnyPublisher()
+                }
+                return accessTokenStorage.set(model: newToken).map { _ in newToken }.setFailureType(to: ServiceError.self).eraseToAnyPublisher()
+            }
             .eraseToAnyPublisher()
             .handle(
-                onSuccess: { isSuccess in
-                    completion(isSuccess)
+                onSuccess: { newToken in
+                    completion(newToken)
                 },
                 onError: { _ in
-                    completion(false)
+                    completion(nil)
                 }
             )
     }
