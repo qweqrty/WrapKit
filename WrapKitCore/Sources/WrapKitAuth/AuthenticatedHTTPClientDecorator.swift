@@ -56,13 +56,16 @@ public class AuthenticatedHTTPClientDecorator: HTTPClient {
             guard let self = self else { return }
             switch result {
             case .success(let (data, response)):
+                let currentToken = synchronizedTokenAccess { self.accessTokenStorage.get() } // Add sync
                 if self.isAuthenticated((data, response)) {
                     completion(.success((data, response)))
+                } else if currentToken != token && !currentToken.isEmpty {
+                    let task = dispatch(request, completion: completion, isRetryNeeded: true)
+                    task.resume()
+                    compositeTask.add(task)
                 } else if isRetryNeeded {
-                    self.refreshToken(completion: { [weak self] newToken in
-                        if newToken != nil {
-                            self?.retryRequest(request, completion: completion, compositeTask: compositeTask)
-                        } else if let currentToken = self?.accessTokenStorage.get(), currentToken != newToken, !newToken.isEmpty {
+                    refreshToken(completion: { [weak self] newToken in
+                        if let newToken = newToken, !newToken.isEmpty {
                             self?.retryRequest(request, completion: completion, compositeTask: compositeTask)
                         } else {
                             self?.onNotAuthenticated?()
@@ -101,27 +104,38 @@ public class AuthenticatedHTTPClientDecorator: HTTPClient {
             return
         }
 
-        let refreshPublisher = Future<String, ServiceError> { promise in
-            tokenRefresher.refresh { result in
-                promise(result)
+        var publisherToSubscribe: AnyPublisher<String, ServiceError>?
+        tokenLock.sync {
+            if Self.ongoingRefresh == nil {
+                let refreshPublisher = Future<String, ServiceError> { promise in
+                    tokenRefresher.refresh { result in
+                        promise(result)
+                    }
+                }
+                .flatMap { [weak self] newToken -> AnyPublisher<String, ServiceError> in
+                    guard let self else {
+                        self?.accessTokenStorage.set(model: newToken)
+                        return Just(newToken).setFailureType(to: ServiceError.self).eraseToAnyPublisher()
+                    }
+                    return accessTokenStorage.set(model: newToken)
+                        .map { _ in newToken }
+                        .setFailureType(to: ServiceError.self)
+                        .eraseToAnyPublisher()
+                }
+                .handleEvents(receiveCompletion: { _ in
+                    self.synchronizedTokenAccess { Self.ongoingRefresh = nil }
+                })
+                .eraseToAnyPublisher()
+
+                Self.ongoingRefresh = refreshPublisher
+                publisherToSubscribe = refreshPublisher
+            } else {
+                publisherToSubscribe = Self.ongoingRefresh
             }
         }
-        .handleEvents(receiveCompletion: { [weak self] _ in
-            self?.synchronizedTokenAccess { Self.ongoingRefresh = nil }
-        })
-        .eraseToAnyPublisher()
 
-        synchronizedTokenAccess { Self.ongoingRefresh = refreshPublisher }
-
-        refreshPublisher
-            .flatMap { [weak self] newToken in
-                guard let self else {
-                    self?.accessTokenStorage.set(model: newToken)
-                    return Just(newToken).setFailureType(to: ServiceError.self).eraseToAnyPublisher()
-                }
-                return accessTokenStorage.set(model: newToken).map { _ in newToken }.setFailureType(to: ServiceError.self).eraseToAnyPublisher()
-            }
-            .eraseToAnyPublisher()
+        guard let publisherToSubscribe = publisherToSubscribe else { return }
+        publisherToSubscribe
             .handle(
                 onSuccess: { newToken in
                     completion(newToken)
@@ -137,10 +151,11 @@ public class AuthenticatedHTTPClientDecorator: HTTPClient {
         completion: @escaping (HTTPClient.Result) -> Void,
         compositeTask: CompositeHTTPClientTask
     ) {
-        guard let token = accessTokenStorage.get() else {
+        guard let token = synchronizedTokenAccess({ accessTokenStorage.get() }), !token.isEmpty else { // Add sync and empty check
             onNotAuthenticated?()
             return
         }
+        
         let enrichedRequest = enrichRequestWithToken(request, token)
         
         let newTask = decoratee.dispatch(enrichedRequest) { [weak self] result in
@@ -159,7 +174,7 @@ public class AuthenticatedHTTPClientDecorator: HTTPClient {
         compositeTask.add(newTask)
         newTask.resume()
     }
-    
+
     @discardableResult
     private func synchronizedTokenAccess<T>(_ block: () -> T) -> T {
         return tokenLock.sync {
