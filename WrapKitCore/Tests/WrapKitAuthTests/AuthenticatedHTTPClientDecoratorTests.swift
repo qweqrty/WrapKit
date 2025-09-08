@@ -375,7 +375,7 @@ class AuthenticatedHTTPClientDecoratorTests: XCTestCase {
         let tokenRefresherSpy = TokenRefresherSpy()
         let (sut, storage, httpClientSpy, _) = makeSUT(
             tokenRefresher: tokenRefresherSpy,
-            isAuthenticated: { response in response.1.statusCode != 401 }
+            isAuthenticated: { _, response in response.statusCode != 401 }
         )
         
         storage.set(model: "valid_token")
@@ -387,32 +387,37 @@ class AuthenticatedHTTPClientDecoratorTests: XCTestCase {
         let exp2 = expectation(description: "Wait for request 2")
         
         sut.dispatch(request1) { result in
-            if case let .success(response) = result {
-                XCTAssertEqual(response.response.url, URL(string: "http://test.com/1")!)
+            if case .success((_, let response)) = result {
+                XCTAssertEqual(response.url, URL(string: "http://test.com/1")!)
             }
             exp1.fulfill()
         }.resume()
         
         sut.dispatch(request2) { result in
-            if case let .success(response) = result {
-                XCTAssertEqual(response.response.url, URL(string: "http://test.com/2")!)
+            if case .success((_, let response)) = result {
+                XCTAssertEqual(response.url, URL(string: "http://test.com/2")!)
             }
             exp2.fulfill()
         }.resume()
         
+        // Complete both originals as 401 *before* refresh
         httpClientSpy.completes(withStatusCode: 401, data: Data(), at: 0)
-        tokenRefresherSpy.complete(with: .success("new_token"))
         httpClientSpy.completes(withStatusCode: 401, data: Data(), at: 1)
-        tokenRefresherSpy.complete(with: .success("new_token1"))
         
+        XCTAssertEqual(tokenRefresherSpy.refreshCalledCount, 1, "Expected single refresh")
+        
+        // Single refresh completion
+        tokenRefresherSpy.complete(with: .success("new_token"))
+        
+        // Complete both retries
         httpClientSpy.completes(withStatusCode: 200, data: Data("data1".utf8), at: 2)
-        httpClientSpy.completes(withStatusCode: 200, data: Data("data1".utf8), at: 3)
+        httpClientSpy.completes(withStatusCode: 200, data: Data("data2".utf8), at: 3)
         
         wait(for: [exp1, exp2], timeout: 2.0)
         
         XCTAssertEqual(httpClientSpy.requestedURLRequests.count, 4)
         XCTAssertEqual(httpClientSpy.requestedURLRequests[2].value(forHTTPHeaderField: "Authorization"), "new_token")
-        XCTAssertEqual(httpClientSpy.requestedURLRequests[3].value(forHTTPHeaderField: "Authorization"), "new_token1")
+        XCTAssertEqual(httpClientSpy.requestedURLRequests[3].value(forHTTPHeaderField: "Authorization"), "new_token") // Same token!
     }
     
     func test_noRaceConditionWhenMultipleRequestsUseSameToken() {
