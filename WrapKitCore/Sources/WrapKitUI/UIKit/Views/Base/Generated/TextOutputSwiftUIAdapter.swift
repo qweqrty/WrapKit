@@ -51,15 +51,17 @@ public class TextOutputSwiftUIAdapter: ObservableObject, TextOutput {
             attributes: attributes
         )
     }
-    @Published public var displayHtmlStringAttributesState: DisplayHtmlStringAttributesState? = nil
-    public struct DisplayHtmlStringAttributesState {
+    @Published public var displayHtmlStringFontColorState: DisplayHtmlStringFontColorState? = nil
+    public struct DisplayHtmlStringFontColorState {
         public let htmlString: String?
-        public let attributes: TextAttributes
+        public let font: Font
+        public let color: Color
     }
-    public func display(htmlString: String?, attributes: TextAttributes) {
-        displayHtmlStringAttributesState = .init(
+    public func display(htmlString: String?, font: Font, color: Color) {
+        displayHtmlStringFontColorState = .init(
             htmlString: htmlString, 
-            attributes: attributes
+            font: font, 
+            color: color
         )
     }
     @Published public var displayIdStartAmountEndAmountMapToStringAnimationStyleDurationCompletionState: DisplayIdStartAmountEndAmountMapToStringAnimationStyleDurationCompletionState? = nil
