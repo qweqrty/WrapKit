@@ -37,9 +37,9 @@ extension MainQueueDispatchDecorator: TextOutput where T: TextOutput {
             self?.decoratee.display(attributes: attributes)
         }
     }
-    public func display(attributedString: NSAttributedString?) {
+    public func display(htmlString: String?, attributes: TextAttributes) {
         dispatch { [weak self] in
-            self?.decoratee.display(attributedString: attributedString)
+            self?.decoratee.display(htmlString: htmlString, attributes: attributes)
         }
     }
     public func display(id: String?, from startAmount: Float, to endAmount: Float, mapToString: ((Float) -> TextOutputPresentableModel)?, animationStyle: LabelAnimationStyle, duration: TimeInterval, completion: (() -> Void)?) {

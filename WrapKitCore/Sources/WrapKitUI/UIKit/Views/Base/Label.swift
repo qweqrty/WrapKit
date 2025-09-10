@@ -22,7 +22,7 @@ public protocol TextOutput: AnyObject {
     func display(model: TextOutputPresentableModel?)
     func display(text: String?)
     func display(attributes: [TextAttributes])
-    func display(attributedString: NSAttributedString?)
+    func display(htmlString: String?, attributes: TextAttributes)
     func display(id: String?, from startAmount: Float, to endAmount: Float, mapToString: ((Float) -> TextOutputPresentableModel)?, animationStyle: LabelAnimationStyle, duration: TimeInterval, completion: (() -> Void)?)
     func display(isHidden: Bool)
 }
@@ -30,7 +30,7 @@ public protocol TextOutput: AnyObject {
 public indirect enum TextOutputPresentableModel: HashableWithReflection {
     case text(String?)
     case attributes([TextAttributes])
-    case attributedString(NSAttributedString?)
+    case attributedString(String?, TextAttributes)
     case animated(
         id: String? = nil,
         Float,
@@ -67,8 +67,8 @@ extension Label: TextOutput {
             display(model: model)
             self.cornerStyle = style
             self.textInsets = insets.asUIEdgeInsets
-        case .attributedString(let attributedText):
-            display(attributedString: attributedText)
+        case .attributedString(let attributedText, let attributes):
+            display(htmlString: attributedText, attributes: attributes)
         }
     }
     
@@ -78,10 +78,12 @@ extension Label: TextOutput {
         self.text = text?.removingPercentEncoding ?? text
     }
     
-    public func display(attributedString: NSAttributedString?) {
-        isHidden = attributedString != nil
+    public func display(htmlString: String?, attributes: TextAttributes) {
+        isHidden = htmlString != nil
         clearAnimationModel()
-        self.attributedText = attributedString
+        self.attributedText = htmlString?.asHtmlAttributedString
+        self.font = attributes.font
+        self.textColor = attributes.color
     }
     
     public func display(attributes: [TextAttributes]) {
