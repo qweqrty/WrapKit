@@ -37,6 +37,11 @@ extension MainQueueDispatchDecorator: TextOutput where T: TextOutput {
             self?.decoratee.display(attributes: attributes)
         }
     }
+    public func display(attributedString: NSAttributedString?) {
+        dispatch { [weak self] in
+            self?.decoratee.display(attributedString: attributedString)
+        }
+    }
     public func display(id: String?, from startAmount: Float, to endAmount: Float, mapToString: ((Float) -> TextOutputPresentableModel)?, animationStyle: LabelAnimationStyle, duration: TimeInterval, completion: (() -> Void)?) {
         dispatch { [weak self] in
             self?.decoratee.display(id: id, from: startAmount, to: endAmount, mapToString: mapToString, animationStyle: animationStyle, duration: duration, completion: completion)

@@ -22,6 +22,7 @@ public protocol TextOutput: AnyObject {
     func display(model: TextOutputPresentableModel?)
     func display(text: String?)
     func display(attributes: [TextAttributes])
+    func display(attributedString: NSAttributedString?)
     func display(id: String?, from startAmount: Float, to endAmount: Float, mapToString: ((Float) -> TextOutputPresentableModel)?, animationStyle: LabelAnimationStyle, duration: TimeInterval, completion: (() -> Void)?)
     func display(isHidden: Bool)
 }
@@ -29,6 +30,7 @@ public protocol TextOutput: AnyObject {
 public indirect enum TextOutputPresentableModel: HashableWithReflection {
     case text(String?)
     case attributes([TextAttributes])
+    case attributedString(NSAttributedString?)
     case animated(
         id: String? = nil,
         Float,
@@ -65,6 +67,8 @@ extension Label: TextOutput {
             display(model: model)
             self.cornerStyle = style
             self.textInsets = insets.asUIEdgeInsets
+        case .attributedString(let attributedText):
+            display(attributedString: attributedText)
         }
     }
     
@@ -72,7 +76,12 @@ extension Label: TextOutput {
         isHidden = text.isEmpty
         clearAnimationModel()
         self.text = text?.removingPercentEncoding ?? text
-        
+    }
+    
+    public func display(attributedString: NSAttributedString?) {
+        isHidden = attributedString != nil
+        clearAnimationModel()
+        self.attributedText = attributedString
     }
     
     public func display(attributes: [TextAttributes]) {

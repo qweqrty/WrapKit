@@ -51,6 +51,15 @@ public class TextOutputSwiftUIAdapter: ObservableObject, TextOutput {
             attributes: attributes
         )
     }
+    @Published public var displayAttributedStringState: DisplayAttributedStringState? = nil
+    public struct DisplayAttributedStringState {
+        public let attributedString: NSAttributedString?
+    }
+    public func display(attributedString: NSAttributedString?) {
+        displayAttributedStringState = .init(
+            attributedString: attributedString
+        )
+    }
     @Published public var displayIdStartAmountEndAmountMapToStringAnimationStyleDurationCompletionState: DisplayIdStartAmountEndAmountMapToStringAnimationStyleDurationCompletionState? = nil
     public struct DisplayIdStartAmountEndAmountMapToStringAnimationStyleDurationCompletionState {
         public let id: String?
