@@ -28,6 +28,7 @@ public final class LoggerHTTPClient: HTTPClient {
                 self.error = error
             }
         }
+        public let uuid = UUID()
         public let request: URLRequest
         public let response = InMemoryStorage<Response>(model: nil)
         
@@ -46,8 +47,8 @@ public final class LoggerHTTPClient: HTTPClient {
     
     public func dispatch(_ request: URLRequest, completion: @escaping (Result) -> Void) -> any HTTPClientTask {
         let log = Log(request: request, response: nil)
-        var requests = Self.requests.get()
-        requests?.append(log)
+        var requests = Self.requests.get() ?? []
+        requests.append(log)
         Self.requests.set(model: requests)
         print(request.cURL())
         return decoratee.dispatch(request) { result in
@@ -143,23 +144,24 @@ fileprivate extension String {
     }
 }
 
-// Pretty print JSON
 public extension Data {
-    func prettyPrintedJSONString(maxLength: Int = 1024 * 10, completion: @escaping (String) -> Void) {
+    func prettyPrintedJSONString(maxDisplayLength: Int = 1000, completion: @escaping (String) -> Void) {
         DispatchQueue.global(qos: .userInitiated).async {
-            let result: String
-            if self.count > maxLength {
-                result = "Data too large (\(self.count) bytes)"
-            } else if let object = try? JSONSerialization.jsonObject(with: self, options: []),
-                      let data = try? JSONSerialization.data(withJSONObject: object, options: [.prettyPrinted]),
-                      let prettyString = String(data: data, encoding: .utf8) {
+            let startTime = Date()
+            var result: String
+            
+            if let object = try? JSONSerialization.jsonObject(with: self, options: []),
+               let data = try? JSONSerialization.data(withJSONObject: object, options: [.prettyPrinted]),
+               let prettyString = String(data: data, encoding: .utf8) {
                 result = prettyString
             } else {
-                result = String(data: self, encoding: .utf8) ?? "N/A"
+                result = String(data: self, encoding: .utf8) ?? ""
             }
             
+            let displayString = result.prefix(maxDisplayLength) + (result.count > maxDisplayLength ? "..." : "")
+            
             DispatchQueue.main.async {
-                completion(result)
+                completion(String(displayString))
             }
         }
     }

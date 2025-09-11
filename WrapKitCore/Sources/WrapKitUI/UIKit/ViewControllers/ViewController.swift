@@ -90,10 +90,18 @@ open class ViewController<ContentView: UIView>: UIViewController {
                 return
             }
             
-            let countToRemove = min(removingNavStackCountOnAppear, viewControllersToRemain.count - 1)
+            guard let lastViewController = viewControllersToRemain.last else {
+                LifeCycleViewOutput?.viewDidAppear()
+                return
+            }
+            
+            viewControllersToRemain.removeLast()
+            
+            let countToRemove = min(removingNavStackCountOnAppear, viewControllersToRemain.count)
             
             if countToRemove > 0 {
                 viewControllersToRemain.removeLast(countToRemove)
+                viewControllersToRemain.append(lastViewController)
                 navigationController?.setViewControllers(viewControllersToRemain, animated: false)
             }
         }
