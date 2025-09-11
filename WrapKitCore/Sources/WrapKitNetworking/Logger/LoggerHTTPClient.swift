@@ -53,36 +53,46 @@ public final class LoggerHTTPClient: HTTPClient {
         return decoratee.dispatch(request) { result in
             switch result {
             case .success((let data, let response)):
-                let message = Self.message(from: response, data: data)
+                Self.message(from: response, data: data) { message in
+                    print(message)
+                }
                 log.response.set(model: .init(data: data, response: response, error: nil))
                 completion(.success((data, response)))
-                print(message)
             case .failure(let error):
-                let message = Self.message(error: error)
+                Self.message(error: error) { message in
+                    print(message)
+                }
                 log.response.set(model: .init(data: nil, response: nil, error: error))
-                print(message)
                 completion(.failure(error))
             }
         }
     }
     
-    public static func message(from response: HTTPURLResponse? = nil, data: Data? = nil, error: Error? = nil, request: URLRequest? = nil) -> String {
+    public static func message(from response: HTTPURLResponse? = nil, data: Data? = nil, error: Error? = nil, request: URLRequest? = nil, completion: ((String) -> Void)?) {
         if (error as? URLError)?.code == .cancelled, let request = request {
-            return printCancelled(request)
+            completion?(printCancelled(request))
+            return
         }
         let urlString = response?.url?.absoluteString ?? "N/A"
         let statusCode = (response)?.statusCode.description ?? "N/A"
         let headers = (response)?.allHeaderFields as? [String: Any] ?? [:]
-        let body = data?.prettyPrintedJSONString ?? "N/A"
-        
         var responseLog = "📥 Incoming Response: \(urlString)"
         responseLog += "\nStatus Code: \(statusCode)"
         responseLog += "\nHeaders: \(headers)"
-        responseLog += "\nBody: \(body)"
         if let error = error {
             responseLog += "\nError: \(error.localizedDescription)"
         }
-        return responseLog
+        if let data {
+            data.prettyPrintedJSONString(completion: { string in
+                var responseLog = "📥 Incoming Response: \(urlString)"
+                responseLog += "\nStatus Code: \(statusCode)"
+                responseLog += "\nHeaders: \(headers)"
+                responseLog += "\nBody: \(string)"
+                completion?(responseLog)
+            })
+        } else {
+            completion?(responseLog)
+        }
     }
     
     static func printCancelled(_ request: URLRequest) -> String {
@@ -134,13 +144,23 @@ fileprivate extension String {
 }
 
 // Pretty print JSON
-fileprivate extension Data {
-    var prettyPrintedJSONString: String? {
-        guard let object = try? JSONSerialization.jsonObject(with: self, options: []),
-              let data = try? JSONSerialization.data(withJSONObject: object, options: [.prettyPrinted]),
-              let prettyString = String(data: data, encoding: .utf8) else {
-            return String(data: self, encoding: .utf8) ?? "N/A"
+public extension Data {
+    func prettyPrintedJSONString(maxLength: Int = 1024 * 10, completion: @escaping (String) -> Void) {
+        DispatchQueue.global(qos: .userInitiated).async {
+            let result: String
+            if self.count > maxLength {
+                result = "Data too large (\(self.count) bytes)"
+            } else if let object = try? JSONSerialization.jsonObject(with: self, options: []),
+                      let data = try? JSONSerialization.data(withJSONObject: object, options: [.prettyPrinted]),
+                      let prettyString = String(data: data, encoding: .utf8) {
+                result = prettyString
+            } else {
+                result = String(data: self, encoding: .utf8) ?? "N/A"
+            }
+            
+            DispatchQueue.main.async {
+                completion(result)
+            }
         }
-        return prettyString
     }
 }
