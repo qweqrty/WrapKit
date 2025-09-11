@@ -60,10 +60,23 @@ public class AuthenticatedHTTPClientDecorator: HTTPClient {
             guard let self = self else { return }
             switch result {
             case .success(let (data, response)):
+                let currentToken = synchronizedTokenAccess { self.accessTokenStorage.get() } // Add sync
                 if self.isAuthenticated((data, response)) {
                     completion(.success((data, response)))
+                } else if currentToken != token && !currentToken.isEmpty {
+                    let task = dispatch(request, completion: completion, isRetryNeeded: true)
+                    task.resume()
+                    compositeTask.add(task)
                 } else if isRetryNeeded {
-                    self.refreshTokenAndRetry(request, completion: completion, compositeTask: compositeTask)
+                    refreshToken(completion: { [weak self] newToken in
+                        if let newToken = newToken, !newToken.isEmpty {
+                            self?.retryRequest(request, completion: completion, compositeTask: compositeTask)
+                        } else {
+                            self?.refreshTokenStorage.clear()
+                            self?.accessTokenStorage.clear()
+                            self?.onNotAuthenticated?()
+                        }
+                    }, compositeTask: compositeTask)
                 } else {
                     refreshTokenStorage.clear()
                     accessTokenStorage.clear()
@@ -76,60 +89,83 @@ public class AuthenticatedHTTPClientDecorator: HTTPClient {
         compositeTask.add(firstTask)
         return compositeTask
     }
-
-    private func refreshTokenAndRetry(
-        _ request: URLRequest,
-        completion: @escaping (HTTPClient.Result) -> Void,
+    
+    public func refreshToken(
+        completion: @escaping (String?) -> Void,
         compositeTask: CompositeHTTPClientTask
     ) {
         guard let tokenRefresher = tokenRefresher else {
-            onNotAuthenticated?()
+            completion(nil)
             return
         }
 
         if let ongoingRefresh = synchronizedTokenAccess({ Self.ongoingRefresh }) {
             ongoingRefresh
                 .handle(
-                    onSuccess: { [weak self] newToken in
-                        self?.retryRequest(request, with: newToken, completion: completion, compositeTask: compositeTask)
+                    onSuccess: { newToken in
+                        completion(newToken)
+                    },
+                    onError: { _ in
+                        completion(nil)
                     }
                 )
             return
         }
 
-        let refreshPublisher = Future<String, ServiceError> { promise in
-            tokenRefresher.refresh { result in
-                promise(result)
+        var publisherToSubscribe: AnyPublisher<String, ServiceError>?
+        tokenLock.sync {
+            if Self.ongoingRefresh == nil {
+                let refreshPublisher = Future<String, ServiceError> { promise in
+                    tokenRefresher.refresh { result in
+                        promise(result)
+                    }
+                }
+                .flatMap { [weak self] newToken -> AnyPublisher<String, ServiceError> in
+                    guard let self else {
+                        self?.accessTokenStorage.set(model: newToken)
+                        return Just(newToken).setFailureType(to: ServiceError.self).eraseToAnyPublisher()
+                    }
+                    return accessTokenStorage.set(model: newToken)
+                        .map { _ in newToken }
+                        .setFailureType(to: ServiceError.self)
+                        .eraseToAnyPublisher()
+                }
+                .handleEvents(receiveCompletion: { _ in
+                    self.synchronizedTokenAccess { Self.ongoingRefresh = nil }
+                })
+                .eraseToAnyPublisher()
+
+                Self.ongoingRefresh = refreshPublisher
+                publisherToSubscribe = refreshPublisher
+            } else {
+                publisherToSubscribe = Self.ongoingRefresh
             }
         }
-        .handleEvents(receiveCompletion: { [weak self] _ in
-            self?.synchronizedTokenAccess { Self.ongoingRefresh = nil }
-        })
-        .eraseToAnyPublisher()
 
-        synchronizedTokenAccess { Self.ongoingRefresh = refreshPublisher }
-
-        refreshPublisher
+        guard let publisherToSubscribe = publisherToSubscribe else { return }
+        publisherToSubscribe
             .handle(
-                onSuccess: { [weak self] newToken in
-                    self?.accessTokenStorage.set(model: newToken)
-                    self?.retryRequest(request, with: newToken, completion: completion, compositeTask: compositeTask)
+                onSuccess: { newToken in
+                    completion(newToken)
                 },
-                onError: { [weak self] error in
+                onError: { [weak self] _ in
                     self?.refreshTokenStorage.clear()
                     self?.accessTokenStorage.clear()
-                    self?.onNotAuthenticated?()
+                    completion(nil)
                 }
             )
     }
 
     private func retryRequest(
         _ request: URLRequest,
-        with token: String,
         completion: @escaping (HTTPClient.Result) -> Void,
         compositeTask: CompositeHTTPClientTask
     ) {
-        // Use the new token directly instead of fetching from storage
+        guard let token = synchronizedTokenAccess({ accessTokenStorage.get() }), !token.isEmpty else { // Add sync and empty check
+            onNotAuthenticated?()
+            return
+        }
+        
         let enrichedRequest = enrichRequestWithToken(request, token)
         
         let newTask = decoratee.dispatch(enrichedRequest) { [weak self] result in
@@ -150,7 +186,7 @@ public class AuthenticatedHTTPClientDecorator: HTTPClient {
         compositeTask.add(newTask)
         newTask.resume()
     }
-    
+
     @discardableResult
     private func synchronizedTokenAccess<T>(_ block: () -> T) -> T {
         return tokenLock.sync {
