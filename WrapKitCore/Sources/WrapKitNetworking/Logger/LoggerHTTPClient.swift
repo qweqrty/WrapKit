@@ -28,12 +28,13 @@ public final class LoggerHTTPClient: HTTPClient {
                 self.error = error
             }
         }
-        public let uuid = UUID()
+        public let uuid: UUID
         public let date = Date()
         public let request: URLRequest
         public let response = InMemoryStorage<Response>(model: nil)
         
-        public init(request: URLRequest, response: Response?) {
+        public init(uuid: UUID = UUID(), request: URLRequest, response: Response?) {
+            self.uuid = uuid
             self.request = request
             self.response.set(model: response)
         }
