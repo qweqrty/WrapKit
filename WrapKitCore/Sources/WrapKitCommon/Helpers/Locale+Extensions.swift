@@ -8,7 +8,25 @@
 import Foundation
 
 public extension Locale {
-    static var currentLanguageCode: String {
-        Locale.preferredLanguages.first.flatMap { Locale(identifier: $0).languageCode } ?? Locale.current.languageCode ?? "en"
+      
+    enum KyrgyzLangCode {
+        case ky
+        case kg
+    }
+    
+    static func currentLanguageCode(_ kyrgyzLangCode: KyrgyzLangCode = .ky) -> String {
+        let systemCode = Locale.preferredLanguages.first
+            .flatMap { Locale(identifier: $0).languageCode }
+            ?? Locale.current.languageCode
+            ?? "en"
+        
+        if systemCode == "ky" {
+            switch kyrgyzLangCode {
+            case .ky: return "ky"
+            case .kg: return "kg"
+            }
+        }
+        
+        return systemCode
     }
 }
