@@ -8,7 +8,7 @@
 import Foundation
 
 public extension Locale {
-    enum KyrgyzLangCode {
+    enum KyrgyzLangCode: String {
         case ky
         case kg
     }
@@ -20,10 +20,7 @@ public extension Locale {
         ?? "en"
         
         if systemCode == "ky" || systemCode == "kg" {
-            switch kyrgyzLangCode {
-            case .ky: return "ky"
-            case .kg: return "kg"
-            }
+            return kyrgyzLangCode.rawValue
         }
         
         return systemCode
