@@ -7,7 +7,7 @@
 
 import Foundation
 
-extension DiffableCollectionViewDataSource: TableOutput { 
+extension DiffableCollectionViewDataSource: TableOutput {
     public func display(trailingSwipeActionsForIndexPath: ((IndexPath) -> [TableContextualAction<Cell>])?) {
                 
     }
@@ -48,7 +48,6 @@ extension DiffableCollectionViewDataSource: TableOutput {
                 didSelectAt = { indexPath, cell in
                     sections.item(at: indexPath.section)?.cells.item(at: indexPath.row)?.onTap?(indexPath, cell)
                 }
-                collectionView?.reloadData()
             }
         }
     }
@@ -99,16 +98,20 @@ public class DiffableCollectionViewDataSource<Header, Cell: Hashable, Footer>: U
         collectionView.delegate = self
     }
     
-    public func updateItems(_ items: [[Cell]]) {
-        DispatchQueue.main.async { [weak self] in
-            var snapshot = NSDiffableDataSourceSnapshot<Int, Cell>()
-            let items = items.enumerated()
-            snapshot.appendSections(items.map { $0.offset })
-            items.forEach { offset, element in
-                let uniqueItems = element.uniqued
-                snapshot.appendItems(uniqueItems, toSection: offset)
-            }
-            self?.apply(snapshot, animatingDifferences: true)
+    // MARK: - Snapshot Management
+    private func updateItems(_ items: [[Cell]]) {
+        var snapshot = NSDiffableDataSourceSnapshot<Int, Cell>()
+        let items = items.enumerated()
+        snapshot.appendSections(items.map(\.offset))
+        items.forEach { offset, element in
+            let uniqueItems = element.uniqued
+            snapshot.appendItems(uniqueItems, toSection: offset)
+        }
+        if #available(iOS 15.0, *) {
+            applySnapshotUsingReloadData(snapshot)
+        } else {
+//             TODO: CHECK CRASH ON IOS 14
+        apply(snapshot, animatingDifferences: true)
         }
     }
     
