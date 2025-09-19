@@ -153,22 +153,23 @@ fileprivate extension String {
 }
 
 public extension Data {
-    func prettyPrintedJSONString(maxDisplayLength: Int = 1000, completion: @escaping (String) -> Void) {
+    func prettyPrintedJSONString(completion: @escaping (String) -> Void) {
         DispatchQueue.global(qos: .userInitiated).async {
-            var result: String
-            
-            if let object = try? JSONSerialization.jsonObject(with: self, options: []),
-               let data = try? JSONSerialization.data(withJSONObject: object, options: [.prettyPrinted]),
-               let prettyString = String(data: data, encoding: .utf8) {
-                result = prettyString
-            } else {
-                result = String(data: self, encoding: .utf8) ?? ""
-            }
-            
-            let displayString = result.prefix(maxDisplayLength) + (result.count > maxDisplayLength ? "..." : "")
-            
-            DispatchQueue.main.async {
-                completion(String(displayString))
+            do {
+                let jsonObject = try JSONSerialization.jsonObject(with: self, options: .mutableContainers)
+                let prettyData = try JSONSerialization.data(withJSONObject: jsonObject, options: .prettyPrinted)
+                
+                if let prettyString = String(data: prettyData, encoding: .utf8) {
+                    DispatchQueue.main.async {
+                        completion(prettyString)
+                    }
+                }
+            } catch {
+                if let string = NSString(data: self, encoding: String.Encoding.utf8.rawValue) {
+                    DispatchQueue.main.async {
+                        completion(String(string))
+                    }
+                }
             }
         }
     }
