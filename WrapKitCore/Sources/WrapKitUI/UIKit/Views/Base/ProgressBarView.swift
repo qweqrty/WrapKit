@@ -52,6 +52,7 @@ open class ProgressBarView: UIView {
         let view = UIProgressView()
         view.progressTintColor = .clear
         view.trackTintColor = .clear
+        view.progressViewStyle = .bar
         view.clipsToBounds = true
         return view
     }()
