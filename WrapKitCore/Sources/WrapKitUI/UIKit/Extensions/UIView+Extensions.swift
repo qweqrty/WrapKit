@@ -81,7 +81,7 @@ public extension UIView {
         path: CGPath? = nil,
         shadowColor: UIColor,
         shadowOpacity: Float = 0.07,
-        shadowOffset: CGSize = CGSize(width: 0, height: 2),
+        shadowOffset: CGSize = CGSize(width: -0.5, height: -0.5),
         shadowRadius: CGFloat = 4,
         scale: Bool = true,
         shouldRasterize: Bool = false
@@ -92,8 +92,13 @@ public extension UIView {
             self?.layer.shadowOpacity = shadowOpacity
             self?.layer.shadowOffset = shadowOffset
             self?.layer.shadowRadius = shadowRadius
+            if let bounds = self?.bounds {
+                let bounds = CGRect(x: bounds.minX-0.5, y: bounds.minY-0.5, width: bounds.width + 1, height: bounds.height + 1)
+                self?.layer.shadowPath = path ?? UIBezierPath(rect: bounds).cgPath
+            } else {
+                self?.layer.shadowPath = path ?? UIBezierPath(rect: .zero).cgPath
+            }
             
-            self?.layer.shadowPath = path ?? UIBezierPath(rect: self?.bounds ?? .zero).cgPath
             self?.layer.shouldRasterize = false
             self?.layer.rasterizationScale = scale ? UIScreen.main.scale : 1
         }
