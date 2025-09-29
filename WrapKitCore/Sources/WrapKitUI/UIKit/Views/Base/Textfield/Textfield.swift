@@ -484,6 +484,7 @@ open class Textfield: UITextField {
                 builder.remove(menu: .standardEdit)
                 builder.remove(menu: .format)
                 builder.remove(menu: .lookup)
+                builder.remove(menu: .autoFill)
             }
             disabledMenus.forEach {
                 builder.remove(menu: $0)
