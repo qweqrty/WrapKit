@@ -166,6 +166,10 @@ extension Textview: TextInputOutput {
                 self?.endEditing(true)
             }
             self.inputAccessoryView = makeAccessoryView(accessoryView: button)
+        case .custom(let model):
+            let pickerView = PickerView()
+            pickerView.display(model: model)
+            self.inputView = pickerView
         }
         self.reloadInputViews()
     }

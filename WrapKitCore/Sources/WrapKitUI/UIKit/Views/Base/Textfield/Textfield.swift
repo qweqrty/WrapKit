@@ -151,6 +151,7 @@ public struct TextInputPresentableModel: HashableWithReflection {
             }
         }
         case date(DatePickerPresentableModel)
+        case custom(PickerViewPresentableModel)
     }
     public struct Mask {
         public let mask: Masking
@@ -330,6 +331,10 @@ extension Textfield: TextInputOutput {
                 self?.endEditing(true)
             }
             self.inputAccessoryView = makeAccessoryView(accessoryView: button)
+        case .custom(let model):
+            let pickerView = PickerView()
+            pickerView.display(model: model)
+            self.inputView = pickerView
         }
         self.reloadInputViews()
     }
