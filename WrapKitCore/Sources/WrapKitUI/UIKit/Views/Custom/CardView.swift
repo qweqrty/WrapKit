@@ -173,8 +173,10 @@ import SwiftUI
 
 extension CardView: CardViewOutput {
     public func display(style: CardViewPresentableModel.Style?) {
+        if let style = style {
+            self.style = style
+        }
         guard let style = style else { return }
-        
         backgroundColor = style.backgroundColor
         vStackView.layoutMargins = style.vStacklayoutMargins.asUIEdgeInsets
         hStackView.layoutMargins = style.hStacklayoutMargins.asUIEdgeInsets
@@ -320,6 +322,7 @@ extension CardView: CardViewOutput {
 }
 
 open class CardView: ViewUIKit {
+    private var style: CardViewPresentableModel.Style?
     public let vStackView = StackView(axis: .vertical, contentInset: .init(top: 0, left: 8, bottom: 0, right: 8))
     public let hStackView = StackView(axis: .horizontal, spacing: 14)
     public private(set) var backgroundImageView = ImageView()
@@ -395,6 +398,11 @@ open class CardView: ViewUIKit {
         setupSubviews()
         setupConstraints()
         setupPriorities()
+    }
+    
+    open override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        self.display(style: style)
     }
     
     public init(style: CardViewPresentableModel.Style, buildImage: (() -> ImageView)? = nil) {
