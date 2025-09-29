@@ -203,7 +203,7 @@ public class DiffableTableViewDataSource<Header, Cell: Hashable, Footer>: NSObje
     
     public func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         guard let model = sections.item(at: section)?.header else { return .leastNonzeroMagnitude }
-        return heightForHeaderInSection?(section, model) ?? .leastNonzeroMagnitude
+        return heightForHeaderInSection?(section, model) ?? UITableView.automaticDimension
     }
     
     public func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
@@ -213,7 +213,7 @@ public class DiffableTableViewDataSource<Header, Cell: Hashable, Footer>: NSObje
     
     public func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
         guard let model = sections.item(at: section)?.footer else { return .leastNonzeroMagnitude }
-        return heightForFooterInSection?(section, model) ?? .leastNonzeroMagnitude
+        return heightForFooterInSection?(section, model) ?? UITableView.automaticDimension
     }
     
     deinit {
