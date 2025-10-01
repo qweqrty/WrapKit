@@ -54,14 +54,14 @@ public class TextOutputSwiftUIAdapter: ObservableObject, TextOutput {
     @Published public var displayIdStartAmountEndAmountMapToStringAnimationStyleDurationCompletionState: DisplayIdStartAmountEndAmountMapToStringAnimationStyleDurationCompletionState? = nil
     public struct DisplayIdStartAmountEndAmountMapToStringAnimationStyleDurationCompletionState {
         public let id: String?
-        public let startAmount: Float
-        public let endAmount: Float
-        public let mapToString: ((Float) -> TextOutputPresentableModel)?
+        public let startAmount: Double
+        public let endAmount: Double
+        public let mapToString: ((Double) -> TextOutputPresentableModel)?
         public let animationStyle: LabelAnimationStyle
         public let duration: TimeInterval
         public let completion: (() -> Void)?
     }
-    public func display(id: String?, from startAmount: Float, to endAmount: Float, mapToString: ((Float) -> TextOutputPresentableModel)?, animationStyle: LabelAnimationStyle, duration: TimeInterval, completion: (() -> Void)?) {
+    public func display(id: String?, from startAmount: Double, to endAmount: Double, mapToString: ((Double) -> TextOutputPresentableModel)?, animationStyle: LabelAnimationStyle, duration: TimeInterval, completion: (() -> Void)?) {
         displayIdStartAmountEndAmountMapToStringAnimationStyleDurationCompletionState = .init(
             id: id, 
             startAmount: startAmount, 

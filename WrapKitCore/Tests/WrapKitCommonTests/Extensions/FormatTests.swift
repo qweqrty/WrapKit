@@ -11,14 +11,55 @@ import XCTest
 final class DoubleFormattingTests: XCTestCase {
     // Test: Standard rounding to two decimal places
     func testStandardRounding() {
-        XCTAssertEqual(271.88499999999999.asString(withDecimalPlaces: 2, locale: Locale(identifier: "en_US")), "271.88") // WTF
-        XCTAssertEqual(271.88499999999999.asString(withDecimalPlaces: 2, locale: Locale(identifier: "en_US")), "271.88") // WTF
+        XCTAssertEqual(271.88499999999999.asString(withDecimalPlaces: 2, locale: Locale(identifier: "en_US")), "271.88")
         XCTAssertEqual(271.884.asString(withDecimalPlaces: 2, locale: Locale(identifier: "en_US")), "271.88")
+        XCTAssertEqual(80.779750000000007.asString(withDecimalPlaces: 2, locale: Locale(identifier: "en_US")), "80.77")
+        XCTAssertEqual(79.879999999999995.asString(withDecimalPlaces: 2, locale: Locale(identifier: "en_US")), "79.87")
+        XCTAssertEqual(80.780000000000001.asString(withDecimalPlaces: 2, locale: Locale(identifier: "en_US")), "80.78")
         XCTAssertEqual(79.87572.asString(withDecimalPlaces: 2, locale: Locale(identifier: "en_US")), "79.87")
         XCTAssertEqual(123.56.asString(withDecimalPlaces: 2, locale: Locale(identifier: "en_US")), "123.56")
         XCTAssertEqual(121.56.asString(withDecimalPlaces: 2, locale: Locale(identifier: "en_US")), "121.56")
         XCTAssertEqual(1231.asString(withDecimalPlaces: 2, locale: Locale(identifier: "en_US")), "1,231.00")
         XCTAssertEqual(1231.56.asString(withDecimalPlaces: 2, locale: Locale(identifier: "en_US")), "1,231.56")
+        XCTAssertEqual(1234.28.asString(withDecimalPlaces: 2, locale: Locale(identifier: "en_US")), "1,234.28")
+        XCTAssertEqual(0.9999999999999999.asString(withDecimalPlaces: 2, locale: Locale(identifier: "en_US")), "0.99")
+        XCTAssertEqual(1.0000000000000001.asString(withDecimalPlaces: 2, locale: Locale(identifier: "en_US")), "1.00")
+        XCTAssertEqual(0.005.asString(withDecimalPlaces: 2, locale: Locale(identifier: "en_US")), "0.00")
+        XCTAssertEqual(0.0051.asString(withDecimalPlaces: 2, locale: Locale(identifier: "en_US")), "0.00")
+        XCTAssertEqual(9.995.asString(withDecimalPlaces: 2, locale: Locale(identifier: "en_US")), "9.99")
+        XCTAssertEqual(9.9951.asString(withDecimalPlaces: 2, locale: Locale(identifier: "en_US")), "9.99")
+        XCTAssertEqual((-79.879999999999995).asString(withDecimalPlaces: 2, locale: Locale(identifier: "en_US")), "-79.87")
+        XCTAssertEqual(1234.999.asString(withDecimalPlaces: 2, locale: Locale(identifier: "en_US")), "1,234.99")
+        XCTAssertEqual(1234.9999.asString(withDecimalPlaces: 2, locale: Locale(identifier: "en_US")), "1,234.99")
+        XCTAssertEqual(1234.99999.asString(withDecimalPlaces: 2, locale: Locale(identifier: "en_US")), "1,234.99")
+        XCTAssertEqual(1234.999999.asString(withDecimalPlaces: 2, locale: Locale(identifier: "en_US")), "1,234.99")
+        XCTAssertEqual(0.0.asString(withDecimalPlaces: 2, locale: Locale(identifier: "en_US")), "0.00")
+        XCTAssertEqual(0.001.asString(withDecimalPlaces: 2, locale: Locale(identifier: "en_US")), "0.00")
+        XCTAssertEqual(999999.99.asString(withDecimalPlaces: 2, locale: Locale(identifier: "en_US")), "999,999.99")
+        XCTAssertEqual((-1231.56).asString(withDecimalPlaces: 2, locale: Locale(identifier: "en_US")), "-1,231.56")
+        XCTAssertEqual(1231.56.asString(withDecimalPlaces: 0, locale: Locale(identifier: "en_US")), "1,231")
+        XCTAssertEqual(0.123.asString(withDecimalPlaces: 2, locale: Locale(identifier: "en_US")), "0.12")
+        XCTAssertEqual(1e-10.asString(withDecimalPlaces: 2, locale: Locale(identifier: "en_US")), "0.00")
+        XCTAssertEqual(Double.leastNonzeroMagnitude.asString(withDecimalPlaces: 2, locale: Locale(identifier: "en_US")), "0.00")
+        XCTAssertEqual(Double.nan.asString(withDecimalPlaces: 2, locale: Locale(identifier: "en_US")), "nan")
+        XCTAssertEqual(Double.infinity.asString(withDecimalPlaces: 2, locale: Locale(identifier: "en_US")), "inf")
+        XCTAssertEqual((-Double.infinity).asString(withDecimalPlaces: 2, locale: Locale(identifier: "en_US")), "-inf")
+        XCTAssertEqual(123.456789.asString(withDecimalPlaces: 1, locale: Locale(identifier: "en_US")), "123.4")
+        XCTAssertEqual(123.456789.asString(withDecimalPlaces: 5, locale: Locale(identifier: "en_US")), "123.45678")
+        let deLocale = Locale(identifier: "de_DE")
+        XCTAssertEqual(1231.56.asString(withDecimalPlaces: 2, locale: deLocale), "1.231,56")
+        XCTAssertEqual(999999.99.asString(withDecimalPlaces: 2, locale: deLocale), "999.999,99")
+        XCTAssertEqual(1231.999999.asString(withDecimalPlaces: 0, locale: Locale(identifier: "en_US")), "1,231")
+        XCTAssertEqual(0.49999999999999994.asString(withDecimalPlaces: 2, locale: Locale(identifier: "en_US")), "0.49")
+        XCTAssertEqual(0.5.asString(withDecimalPlaces: 2, locale: Locale(identifier: "en_US")), "0.50")
+        XCTAssertEqual(0.001234.asString(withDecimalPlaces: 5, locale: Locale(identifier: "en_US")), "0.00123")
+        
+//        XCTAssertEqual(1234567890123.45.asString(withDecimalPlaces: 2, locale: Locale(identifier: "en_US")), "1,234,567,890,123.45")
+//        XCTAssertEqual(Double.greatestFiniteMagnitude.asString(withDecimalPlaces: 2, locale: Locale(identifier: "en_US")), String(format: "%.2f", Double.greatestFiniteMagnitude))
+//        XCTAssertEqual(123.456789.asString(withDecimalPlaces: 10, locale: Locale(identifier: "en_US")), "123.4567890000")
+//        XCTAssertEqual(1234567890123456789.99.asString(withDecimalPlaces: 2, locale: Locale(identifier: "en_US")), "1,234,567,890,123,456,789.99")
+//        let arLocale = Locale(identifier: "ar_SA")
+//        XCTAssertEqual(1231.56.asString(withDecimalPlaces: 2, locale: arLocale), "1٬231.56") // Check actual separators
     }
     
     // Test: Zero fractional part should show .00

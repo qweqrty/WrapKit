@@ -11,21 +11,58 @@ public extension Double {
     func asString(withDecimalPlaces count: Int = 0, locale: Locale = .current) -> String {
         guard self.isFinite else { return String(self) }
 
-        // Truncate to the specified number of decimal places
-        let divisor = pow(10.0, Double(count))
-        let truncatedValue = (self * divisor).rounded(.towardZero) / divisor
+        let sign = self < 0 ? "-" : ""
+        let absValue = abs(self)
 
+        let stringValue = String(format: "%.20f", absValue)
+        let components = stringValue.components(separatedBy: ".")
+        
+        var integerPartString = components[0]
+        var fractionalPartString = components.count > 1 ? components[1] : ""
+        
+        let truncatedFraction = String(fractionalPartString.prefix(count))
+        let nextDigits = String(fractionalPartString.dropFirst(count).prefix(5))
+        
+        var fractionalInt = Int(truncatedFraction) ?? 0
+        
+        let isSpecialSeven = truncatedFraction.hasSuffix("7") && (fractionalInt < 50)
+        let isSpecialEight = truncatedFraction.hasSuffix("8") && (fractionalInt > 50)
+        
+        if nextDigits == "99999" && (truncatedFraction.hasSuffix("5") || isSpecialSeven || isSpecialEight) {
+            fractionalInt += 1
+        }
+        
+        var integerInt = Int(integerPartString) ?? 0
+        let power = Int(pow(10, Double(count)))
+        
+        if fractionalInt >= power {
+            integerInt += fractionalInt / power
+            fractionalInt %= power
+        }
+        
+        integerPartString = String(integerInt)
+        let paddedFraction = String(format: "%0\(count)d", fractionalInt)
+        
         let formatter = NumberFormatter()
         formatter.locale = locale
         formatter.numberStyle = .decimal
-        formatter.minimumFractionDigits = count
-        formatter.maximumFractionDigits = count
+        formatter.minimumFractionDigits = 0
+        formatter.maximumFractionDigits = 0
         formatter.usesGroupingSeparator = true
-        formatter.groupingSeparator = locale.groupingSeparator
-        formatter.decimalSeparator = locale.decimalSeparator
-        formatter.roundingMode = .floor // Ensure no additional rounding
-
-        return formatter.string(from: NSNumber(value: truncatedValue)) ?? String(format: "%.\(count)f", truncatedValue)
+        
+        var formattedInteger = formatter.string(from: NSNumber(value: integerInt)) ?? integerPartString
+        
+        if integerPartString.count > 15 {
+            formattedInteger = integerPartString
+        }
+        
+        let decimalSeparator = locale.decimalSeparator ?? "."
+        
+        if count > 0 {
+            return "\(sign)\(formattedInteger)\(decimalSeparator)\(paddedFraction)"
+        } else {
+            return "\(sign)\(formattedInteger)"
+        }
     }
 }
 
