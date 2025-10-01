@@ -14,6 +14,7 @@ final class DoubleFormattingTests: XCTestCase {
         XCTAssertEqual(271.88499999999999.asString(withDecimalPlaces: 2, locale: Locale(identifier: "en_US")), "271.88") // WTF
         XCTAssertEqual(271.88499999999999.asString(withDecimalPlaces: 2, locale: Locale(identifier: "en_US")), "271.88") // WTF
         XCTAssertEqual(271.884.asString(withDecimalPlaces: 2, locale: Locale(identifier: "en_US")), "271.88")
+        XCTAssertEqual(80.779750000000007.asString(withDecimalPlaces: 2, locale: Locale(identifier: "en_US")), "80.77")
         XCTAssertEqual(79.87572.asString(withDecimalPlaces: 2, locale: Locale(identifier: "en_US")), "79.87")
         XCTAssertEqual(123.56.asString(withDecimalPlaces: 2, locale: Locale(identifier: "en_US")), "123.56")
         XCTAssertEqual(121.56.asString(withDecimalPlaces: 2, locale: Locale(identifier: "en_US")), "121.56")
