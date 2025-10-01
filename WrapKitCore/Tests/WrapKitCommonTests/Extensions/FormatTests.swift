@@ -11,9 +11,10 @@ import XCTest
 final class DoubleFormattingTests: XCTestCase {
     // Test: Standard rounding to two decimal places
     func testStandardRounding() {
-//        XCTAssertEqual(271.88499999999999.asString(withDecimalPlaces: 2, locale: Locale(identifier: "en_US")), "271.88") // WTF
-//        XCTAssertEqual(271.88499999999999.asString(withDecimalPlaces: 2, locale: Locale(identifier: "en_US")), "271.88") // WTF
+        XCTAssertEqual(271.88499999999999.asString(withDecimalPlaces: 2, locale: Locale(identifier: "en_US")), "271.88") // WTF
+        XCTAssertEqual(271.88499999999999.asString(withDecimalPlaces: 2, locale: Locale(identifier: "en_US")), "271.88") // WTF
         XCTAssertEqual(271.884.asString(withDecimalPlaces: 2, locale: Locale(identifier: "en_US")), "271.88")
+        XCTAssertEqual(79.87572.asString(withDecimalPlaces: 2, locale: Locale(identifier: "en_US")), "79.87")
         XCTAssertEqual(123.56.asString(withDecimalPlaces: 2, locale: Locale(identifier: "en_US")), "123.56")
         XCTAssertEqual(121.56.asString(withDecimalPlaces: 2, locale: Locale(identifier: "en_US")), "121.56")
         XCTAssertEqual(1231.asString(withDecimalPlaces: 2, locale: Locale(identifier: "en_US")), "1,231.00")
