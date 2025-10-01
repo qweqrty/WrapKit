@@ -22,11 +22,11 @@ class CountingLabelAnimation {
         self.label = label
     }
     
-    public var floatLimit: Float? = nil
+    public var floatLimit: Double? = nil
     
-    var startNumber: Float? = 0.0
-    var endNumber: Float? = 0.0
-    var mapToString: ((Float) -> TextOutputPresentableModel)?
+    var startNumber: Double? = 0.0
+    var endNumber: Double? = 0.0
+    var mapToString: ((Double) -> TextOutputPresentableModel)?
     let counterVelocity: Float = 5
     
     var progress: TimeInterval!
@@ -44,7 +44,7 @@ class CountingLabelAnimation {
         if progress >= duration {
             return mapToString?(endNumber) ?? .text("")
         }
-        let percentage = Float(progress / duration)
+        let percentage = progress / duration
         // Linear interpolation (remove easing for linear animation)
         let currentValue = startNumber + (percentage * (endNumber - startNumber))
         return mapToString?(currentValue) ?? .text("")
@@ -61,9 +61,9 @@ class CountingLabelAnimation {
     
     public func startAnimation(
         id: String? = nil,
-        fromValue: Float,
-        to toValue: Float,
-        mapToString: ((Float) -> TextOutputPresentableModel)?,
+        fromValue: Double,
+        to toValue: Double,
+        mapToString: ((Double) -> TextOutputPresentableModel)?,
         animationStyle: LabelAnimationStyle = .none,
         duration: TimeInterval = 1.0,
         completion: (() -> Void)? = nil
