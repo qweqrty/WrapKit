@@ -402,7 +402,7 @@ open class CardView: ViewUIKit {
     
     open override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         super.traitCollectionDidChange(previousTraitCollection)
-        self.display(style: style)
+        layer.borderColor = style?.borderColor?.cgColor
     }
     
     public init(style: CardViewPresentableModel.Style, buildImage: (() -> ImageView)? = nil) {
