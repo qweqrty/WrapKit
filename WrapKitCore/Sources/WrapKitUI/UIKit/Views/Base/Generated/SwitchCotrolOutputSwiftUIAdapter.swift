@@ -53,9 +53,9 @@ public class SwitchCotrolOutputSwiftUIAdapter: ObservableObject, SwitchCotrolOut
     }
     @Published public var displayStyleState: DisplayStyleState? = nil
     public struct DisplayStyleState {
-        public let style: SwitchControlPresentableModel.Style
+        public let style: SwitchControlPresentableModel.Style?
     }
-    public func display(style: SwitchControlPresentableModel.Style) {
+    public func display(style: SwitchControlPresentableModel.Style?) {
         displayStyleState = .init(
             style: style
         )
@@ -76,17 +76,6 @@ public class SwitchCotrolOutputSwiftUIAdapter: ObservableObject, SwitchCotrolOut
     public func display(isHidden: Bool) {
         displayIsHiddenState = .init(
             isHidden: isHidden
-        )
-    }
-    @Published public var displayIsLoadingShimmerStyleState: DisplayIsLoadingShimmerStyleState? = nil
-    public struct DisplayIsLoadingShimmerStyleState {
-        public let isLoading: Bool
-        public let shimmerStyle: ShimmerView.Style?
-    }
-    public func display(isLoading: Bool, shimmerStyle: ShimmerView.Style?) {
-        displayIsLoadingShimmerStyleState = .init(
-            isLoading: isLoading, 
-            shimmerStyle: shimmerStyle
         )
     }
 }
