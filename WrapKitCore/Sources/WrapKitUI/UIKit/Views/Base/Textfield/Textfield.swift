@@ -174,6 +174,7 @@ public struct TextInputPresentableModel: HashableWithReflection {
     public let toolbarModel: ButtonPresentableModel?
     public let trailingSymbol: String?
     public let autocapitalizationType: TextAutocapitalizationType?
+    public let inputType: KeyboardType?
     public var leadingViewOnPress: (() -> Void)?
     public var trailingViewOnPress: (() -> Void)?
     public var onPress: (() -> Void)?
@@ -196,6 +197,7 @@ public struct TextInputPresentableModel: HashableWithReflection {
         toolbarModel: ButtonPresentableModel? = nil,
         trailingSymbol: String? = nil,
         autocapitalizationType: TextAutocapitalizationType = .none,
+        inputType: KeyboardType? = nil,
         leadingViewOnPress: (() -> Void)? = nil,
         trailingViewOnPress: (() -> Void)? = nil,
         onPress: (() -> Void)? = nil,
@@ -225,6 +227,7 @@ public struct TextInputPresentableModel: HashableWithReflection {
         self.trailingSymbol = trailingSymbol
         self.toolbarModel = toolbarModel
         self.autocapitalizationType = autocapitalizationType
+        self.inputType = inputType
     }
 }
 
@@ -299,6 +302,10 @@ extension Textfield: TextInputOutput {
         }
         if let autocapitalizationType = model.autocapitalizationType {
             self.autocapitalizationType = autocapitalizationType
+        }
+        
+        if let inputType = model.inputType {
+            display(inputType: inputType)
         }
     }
     
