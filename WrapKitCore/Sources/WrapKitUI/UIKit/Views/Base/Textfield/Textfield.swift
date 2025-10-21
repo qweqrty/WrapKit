@@ -7,6 +7,12 @@
 
 import Foundation
 
+#if canImport(UIKit)
+import UIKit
+public typealias TextAutocapitalizationType = UITextAutocapitalizationType
+#endif
+// TODO: UITextAutocapitalizationType in SwiftUI and AppKit
+
 public struct TextfieldAppearance {
     public init(
         colors: TextfieldAppearance.Colors,
@@ -145,6 +151,7 @@ public struct TextInputPresentableModel: HashableWithReflection {
             }
         }
         case date(DatePickerPresentableModel)
+        case custom(PickerViewPresentableModel)
     }
     public struct Mask {
         public let mask: Masking
@@ -166,6 +173,7 @@ public struct TextInputPresentableModel: HashableWithReflection {
     public let inputView: InputView?
     public let toolbarModel: ButtonPresentableModel?
     public let trailingSymbol: String?
+    public let autocapitalizationType: TextAutocapitalizationType?
     public var leadingViewOnPress: (() -> Void)?
     public var trailingViewOnPress: (() -> Void)?
     public var onPress: (() -> Void)?
@@ -187,6 +195,7 @@ public struct TextInputPresentableModel: HashableWithReflection {
         inputView: InputView? = nil,
         toolbarModel: ButtonPresentableModel? = nil,
         trailingSymbol: String? = nil,
+        autocapitalizationType: TextAutocapitalizationType = .none,
         leadingViewOnPress: (() -> Void)? = nil,
         trailingViewOnPress: (() -> Void)? = nil,
         onPress: (() -> Void)? = nil,
@@ -215,13 +224,14 @@ public struct TextInputPresentableModel: HashableWithReflection {
         self.inputView = inputView
         self.trailingSymbol = trailingSymbol
         self.toolbarModel = toolbarModel
+        self.autocapitalizationType = autocapitalizationType
     }
 }
 
 #if canImport(UIKit)
 import UIKit
 
-public extension Textfield {
+public extension TextInputOutput {
     func makeAccessoryView(
         accessoryView: UIView,
         height: CGFloat = 60,
@@ -287,6 +297,9 @@ extension Textfield: TextInputOutput {
             self.inputAccessoryView = nil
             self.reloadInputViews()
         }
+        if let autocapitalizationType = model.autocapitalizationType {
+            self.autocapitalizationType = autocapitalizationType
+        }
     }
     
     public func display(inputView: TextInputPresentableModel.InputView?) {
@@ -318,6 +331,10 @@ extension Textfield: TextInputOutput {
                 self?.endEditing(true)
             }
             self.inputAccessoryView = makeAccessoryView(accessoryView: button)
+        case .custom(let model):
+            let pickerView = PickerView()
+            pickerView.display(model: model)
+            self.inputView = pickerView
         }
         self.reloadInputViews()
     }
@@ -467,6 +484,7 @@ open class Textfield: UITextField {
                 builder.remove(menu: .standardEdit)
                 builder.remove(menu: .format)
                 builder.remove(menu: .lookup)
+                builder.remove(menu: .autoFill)
             }
             disabledMenus.forEach {
                 builder.remove(menu: $0)

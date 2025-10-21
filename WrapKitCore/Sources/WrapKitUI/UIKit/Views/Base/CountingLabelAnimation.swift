@@ -22,11 +22,11 @@ class CountingLabelAnimation {
         self.label = label
     }
     
-    public var floatLimit: Float? = nil
+    public var floatLimit: Double? = nil
     
-    var startNumber: Float? = 0.0
-    var endNumber: Float? = 0.0
-    var mapToString: ((Float) -> TextOutputPresentableModel)?
+    var startNumber: Double? = 0.0
+    var endNumber: Double? = 0.0
+    var mapToString: ((Double) -> TextOutputPresentableModel)?
     let counterVelocity: Float = 5
     
     var progress: TimeInterval!
@@ -44,7 +44,7 @@ class CountingLabelAnimation {
         if progress >= duration {
             return mapToString?(endNumber) ?? .text("")
         }
-        let percentage = Float(progress / duration)
+        let percentage = progress / duration
         // Linear interpolation (remove easing for linear animation)
         let currentValue = startNumber + (percentage * (endNumber - startNumber))
         return mapToString?(currentValue) ?? .text("")
@@ -60,9 +60,10 @@ class CountingLabelAnimation {
     }
     
     public func startAnimation(
-        fromValue: Float,
-        to toValue: Float,
-        mapToString: ((Float) -> TextOutputPresentableModel)?,
+        id: String? = nil,
+        fromValue: Double,
+        to toValue: Double,
+        mapToString: ((Double) -> TextOutputPresentableModel)?,
         animationStyle: LabelAnimationStyle = .none,
         duration: TimeInterval = 1.0,
         completion: (() -> Void)? = nil
@@ -73,7 +74,7 @@ class CountingLabelAnimation {
         self.progress = 0
         self.duration = duration
         self.completion = completion
-        self.model = .animated(fromValue, toValue, mapToString: mapToString, animationStyle: animationStyle, duration: duration, completion: completion)
+        self.model = .animated(id: id, fromValue, toValue, mapToString: mapToString, animationStyle: animationStyle, duration: duration, completion: completion)
         self.lastUpdate = Date.timeIntervalSinceReferenceDate
         
         // Set up circular progress view if needed
@@ -110,6 +111,9 @@ class CountingLabelAnimation {
             userInfo: nil,
             repeats: true
         )
+        if let timer {
+            RunLoop.current.add(timer, forMode: .common)
+        }
     }
     
     @objc func updateValue() {
@@ -131,11 +135,15 @@ class CountingLabelAnimation {
         label?.display(model: getCurrentCounterValue())
     }
     
-    deinit {
+    func cancel() {
         timer?.invalidate()
         timer = nil
         progressView?.removeFromSuperview()
+        progressView = nil
+        completion = nil
+        model = nil
     }
+    
+    deinit { cancel() }
 }
 #endif
-

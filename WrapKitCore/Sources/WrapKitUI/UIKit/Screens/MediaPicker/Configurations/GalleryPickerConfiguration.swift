@@ -16,7 +16,7 @@ public struct GalleryPickerConfiguration {
     }
     
     public let title: String
-    public let desiredResultType: DesiredResultType
+    public let desiredResultType: MediaPickerManager.DesiredResultType
     public let type: FilterType
     public let selectionLimit: Int
     
@@ -24,7 +24,7 @@ public struct GalleryPickerConfiguration {
         title: String,
         type: FilterType = .images,
         selectionLimit: Int = 1,
-        desiredResultType: DesiredResultType = .image
+        desiredResultType: MediaPickerManager.DesiredResultType = .image
     ) {
         self.type = type
         self.selectionLimit = selectionLimit
@@ -32,8 +32,6 @@ public struct GalleryPickerConfiguration {
         self.title = title
     }
 }
-
-#if canImport(UIKit)
 
 extension GalleryPickerConfiguration {
     var asPHPickerConfiguration: PHPickerConfiguration {
@@ -67,7 +65,7 @@ extension GalleryPickerConfiguration {
 }
 
 extension UIImage {
-    func convertToData(type: DesiredResultType.DataType) -> Data? {
+    func convertToData(type: MediaPickerManager.DesiredResultType.DataType) -> Data? {
         switch type {
         case .png:
             return self.pngData()
@@ -97,4 +95,3 @@ extension PHPickerResult {
         .eraseToAnyPublisher()
     }
 }
-#endif

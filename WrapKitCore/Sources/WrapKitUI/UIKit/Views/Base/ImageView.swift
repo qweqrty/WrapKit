@@ -57,7 +57,6 @@ public struct ImageViewPresentableModel: HashableWithReflection {
 
 #if canImport(UIKit)
 import UIKit
-import SwiftUICore
 
 open class ImageView: UIImageView {
     public var currentAnimator: UIViewPropertyAnimator?

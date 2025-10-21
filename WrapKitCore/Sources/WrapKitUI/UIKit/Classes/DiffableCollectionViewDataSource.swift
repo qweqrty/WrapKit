@@ -36,11 +36,13 @@ public extension DiffableCollectionViewDataSource {
     func display(commitEditing: ((TableEditingStyle, IndexPath) -> Void)?) {}
 }
 
+#if canImport(UIKit)
+import UIKit
+
 public final class DiffableCollectionViewDataSource<Header, Cell: Hashable, Footer>:
     UICollectionViewDiffableDataSource<Int, Cell>,
     UICollectionViewDelegateFlowLayout,
-    TableOutput
-{
+    TableOutput {
     public typealias Header = Header
     public typealias Cell = Cell
     public typealias Footer = Footer
@@ -262,3 +264,4 @@ public final class DiffableCollectionViewDataSource<Header, Cell: Hashable, Foot
         collectionView.scrollToItem(at: targetIndexPath, at: scrollPosition, animated: true)
     }
 }
+#endif
