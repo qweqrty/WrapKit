@@ -9,18 +9,19 @@ import Foundation
 import SwiftUI
 
 public struct SUILabel: View {
+
     @ObservedObject var adapter: TextOutputSwiftUIAdapter
+
+    public init(adapter: TextOutputSwiftUIAdapter) {
+        self.adapter = adapter
+    }
 
     public var body: some View {
         Group {
             if let isHidden = adapter.displayIsHiddenState?.isHidden, isHidden {
-                SwiftUICore.EmptyView()
+                SwiftUI.EmptyView()
             } else if let attributes = adapter.displayAttributesState?.attributes {
-#if canImport(UIKit)
-                AttributedText(attributes: attributes)
-#else
-                // TODO: SUIAttributedText
-#endif
+                buildSwiftUIViewFromAttributes(from: attributes)
             } else {
                 Text(displayText)
             }
@@ -36,10 +37,86 @@ public struct SUILabel: View {
         return ""
     }
 
-    public init(adapter: TextOutputSwiftUIAdapter) {
-        self.adapter = adapter
+    // MARK: - Rendering decision helpers
+
+    private func needsUIKit(_ attributes: [TextAttributes]) -> Bool {
+        // SwiftUI's AttributedString cannot embed images or attach per-range tap handlers.
+        // If any attribute contains an image or tap action, use the UIKit path.
+        attributes.contains(where: { $0.leadingImage != nil || $0.trailingImage != nil || $0.onTap != nil })
+    }
+
+    // MARK: - SwiftUI AttributedString builder (text-only)
+
+    // Standardize to a single concrete return type using AnyView to fix opaque type mismatch.
+    private func buildSwiftUIViewFromAttributes(from attributes: [TextAttributes]) -> Text {
+        var result: [Text] = []
+
+        for item in attributes {
+            if let image = item.leadingImage {
+                let imageResized = image.resized(rect: item.leadingImageBounds)
+                let view = Text(SwiftUI.Image(uiImage: imageResized))
+                result.append(view)
+            }
+            if #available(iOS 15, *) {
+                let textView = Text(AttributedString(makeNSAttributedString(item)))
+                result.append(textView)
+            } else {
+                let textView = Text(makeNSAttributedString(item).string)
+                    .ifLet(item.font) { $0.font(SwiftUIFont($1 as CTFont)) }
+                    .ifLet(item.color) { $0.foregroundColor(SwiftUIColor($1)) }
+//                    .ifLet(item.underlineStyle, transform: { $0.underline() }) // available only from iOS 16
+                    .ifLet(item.textAlignment) { $0.multilineTextAlignment($1.suiTextAlignment) }
+                as! Text
+
+                result.append(textView)
+            }
+            if let image = item.trailingImage {
+                let imageResized = image.resized(rect: item.trailingImageBounds)
+                let imageView = SwiftUI.Image(uiImage: imageResized)
+//                    .ifLet(item.trailingImageBounds) { view, bounds in
+//                        view.frame(width: bounds.width, height: bounds.height)
+////                    .scaledToFit()
+//                    } as! SwiftUIImage
+                let view = Text(imageView)
+                result.append(view)
+            }
+        }
+
+        return result.reduce(Text(""), +)
+    }
+
+    private func makeNSAttributedString(_ current: TextAttributes) -> NSAttributedString {
+//        return attributes.reduce(into: NSMutableAttributedString()) { result, current in
+            return NSAttributedString(
+                current.text,
+                font: current.font, // ?? font,
+                color: current.color, // ?? textColor,
+                lineSpacing: 4,
+                underlineStyle: current.underlineStyle ?? [],
+                textAlignment: current.textAlignment, // ?? textAlignment,
+                leadingImage: current.leadingImage,
+                leadingImageBounds: current.leadingImageBounds,
+                trailingImage: current.trailingImage,
+                trailingImageBounds: current.trailingImageBounds
+            )
+//            result.append(item)
+//        }
     }
 }
+
+extension NSTextAlignment {
+    var suiTextAlignment: SwiftUI.TextAlignment {
+        switch self {
+        case .left: .leading
+        case .center: .center
+        case .right: .trailing
+        case .justified: .center
+        case .natural: .center
+        @unknown default: fatalError()
+        }
+    }
+}
+
 #if canImport(UIKit)
 import UIKit
 
@@ -182,4 +259,75 @@ private class TapableLabel: UILabel {
         }
     }
 }
+
+/// UIViewRepresentable by reusing Label.swift
+private struct FallbackText: UIViewRepresentable {
+//    typealias UIViewType = Label
+    let attributes: [TextAttributes]
+
+    func makeUIView(context: Context) -> Label {
+        return Label()
+    }
+
+    func updateUIView(_ uiView: Label, context: Context) {
+        uiView.display(attributes: attributes)
+    }
+}
+
+#endif
+
+#if os(macOS)
+import Cocoa
+
+extension NSImage {
+    /// Resizes the NSImage to the specified size.
+    /// - Parameter targetSize: The desired size for the resized image.
+    /// - Returns: A new NSImage instance with the resized image, or nil if the original image data is unavailable.
+    func resized(to targetSize: NSSize) -> NSImage? {
+        return resized(rect: .init(size: targetSize))
+    }
+
+    func resized(rect: CGRect) -> UIImage {
+        let newImage = NSImage(size: targetSize)
+        newImage.lockFocus()
+
+        // Get the current graphics context
+        guard let context = NSGraphicsContext.current else {
+            newImage.unlockFocus()
+            return nil
+        }
+
+        // Set interpolation quality for smoother scaling
+        context.imageInterpolation = .high
+
+        // Draw the original image into the new context, scaled to the target size
+        self.draw(
+            in: NSRect(origin: rect.origin, size: rect.size),
+            from: NSRect(origin: .zero, size: self.size),
+            operation: .sourceOver,
+            fraction: 1.0
+        )
+
+        newImage.unlockFocus()
+        return newImage
+    }
+}
+
+#elseif os(iOS) || os(tvOS) || os(watchOS)
+
+extension UIImage {
+    func resized(rect: CGRect) -> UIImage {
+        // bounds: rect - not works, so we have to calc targetSize
+//        return UIGraphicsImageRenderer(bounds: rect).image { _ in
+//            draw(in: rect)
+//        }
+//        .withRenderingMode(renderingMode)
+        let targetSize = CGSize(width: rect.origin.x + rect.width, height: rect.origin.y + rect.size.height)
+        return UIGraphicsImageRenderer(size: targetSize).image { _ in
+            draw(in: rect)
+        }
+        .withRenderingMode(renderingMode)
+    }
+}
+
 #endif

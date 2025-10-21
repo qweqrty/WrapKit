@@ -9,26 +9,33 @@
 import UIKit
 
 public extension NSAttributedString {
-    convenience init(_ text: String,
-                     font: UIFont,
-                     color: UIColor,
-                     lineSpacing: CGFloat = 0,
-                     underlineStyle: NSUnderlineStyle? = nil,
-                     textAlignment: NSTextAlignment,
-                     leadingImage: UIImage? = nil,
-                     leadingImageBounds: CGRect = .zero,
-                     trailingImage: UIImage? = nil,
-                     trailingImageBounds: CGRect = .zero) {
+    convenience init(
+        _ text: String,
+        font: UIFont?,
+        color: UIColor?,
+        lineSpacing: CGFloat = 0,
+        underlineStyle: NSUnderlineStyle? = nil,
+        textAlignment: NSTextAlignment?,
+        leadingImage: UIImage? = nil,
+        leadingImageBounds: CGRect = .zero,
+        trailingImage: UIImage? = nil,
+        trailingImageBounds: CGRect = .zero
+    ) {
         
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.lineSpacing = lineSpacing
-        paragraphStyle.alignment = textAlignment
-
+        if let textAlignment {
+            paragraphStyle.alignment = textAlignment
+        }
         var attributes: [NSAttributedString.Key: Any] = [
-            .font: font,
-            .foregroundColor: color,
             .paragraphStyle: paragraphStyle
         ]
+        if let font {
+            attributes[.font] = font
+        }
+        if let color {
+            attributes[.foregroundColor] = color
+        }
 
         if let underline = underlineStyle {
             attributes[.underlineStyle] = underline.rawValue

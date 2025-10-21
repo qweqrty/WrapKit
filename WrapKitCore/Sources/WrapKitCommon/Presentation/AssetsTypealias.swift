@@ -27,6 +27,8 @@ public typealias SwiftUIColor = SwiftUI.Color
 public typealias SwiftUIImage = SwiftUI.Image
 @available(iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 public typealias SwiftUIFont = SwiftUI.Font
+@available(iOS 13.0, tvOS 13.0, watchOS 6.0, *)
+public typealias SwiftUIText = SwiftUI.Text
 
 #endif
 

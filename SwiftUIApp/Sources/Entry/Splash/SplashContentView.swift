@@ -27,16 +27,20 @@ public struct SplashContentView: View {
             applicationLifecycleOutput: applicationLifecycleOutput
         ) {
             ZStack {
-                Color.red.ignoresSafeArea()
+                Color.red.ignoresSafeArea().opacity(0.2)
 
-                VStack {
+                ScrollView(.vertical) {
                     SUILabel(adapter: adapter)
                       .frame(maxWidth: .infinity, alignment: .leading)
-                      .padding(.horizontal)
+                      .padding(.horizontal, .zero)
 
                     Spacer()
                 }
             }
         }
     }
+}
+
+#Preview {
+    EntryViewSwiftUIFactory().makeSplashScreen()
 }
