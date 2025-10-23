@@ -22,6 +22,7 @@ public struct SUILabel: View {
                 SwiftUI.EmptyView()
             } else if let attributes = adapter.displayAttributesState?.attributes {
                 buildSwiftUIViewFromAttributes(from: attributes)
+//                AttributedText(attributes: attributes)
             } else {
                 Text(displayText)
             }
@@ -52,16 +53,27 @@ public struct SUILabel: View {
         var result: [Text] = []
 
         for item in attributes {
+            let maxImageHeight = item.leadingImageBounds.size.height + abs(item.leadingImageBounds.origin.y)
+            + item.trailingImageBounds.size.height + abs(item.trailingImageBounds.origin.y)
+            let maxImageYOffset = abs(min(item.leadingImageBounds.maxY, item.trailingImageBounds.maxY, 0))
+            print("maxImageYOffset \(maxImageYOffset), \(item.leadingImageBounds.maxY), \(item.trailingImageBounds.maxY)")
             if let image = item.leadingImage {
-                let imageResized = image.resized(rect: item.leadingImageBounds)
+                let imageResized = image.resized(rect: item.leadingImageBounds, maxHeight: maxImageHeight)
                 let view = Text(SwiftUI.Image(uiImage: imageResized))
                 result.append(view)
             }
             if #available(iOS 15, *) {
-                let textView = Text(AttributedString(makeNSAttributedString(item)))
+                var attributedString = AttributedString(makeNSAttributedString(item))
+                attributedString.baselineOffset = maxImageYOffset
+                var textView = Text(attributedString)
+                if #available(iOS 16, *), let pattern = item.underlineStyle?.suiTextLineStylePattern {
+                    textView = textView.underline(pattern: pattern)
+                }
+//                    .baselineOffset(maxImageYOffset)
                 result.append(textView)
             } else {
                 let textView = Text(makeNSAttributedString(item).string)
+                    .baselineOffset(maxImageYOffset)
                     .ifLet(item.font) { $0.font(SwiftUIFont($1 as CTFont)) }
                     .ifLet(item.color) { $0.foregroundColor(SwiftUIColor($1)) }
 //                    .ifLet(item.underlineStyle, transform: { $0.underline() }) // available only from iOS 16
@@ -71,7 +83,7 @@ public struct SUILabel: View {
                 result.append(textView)
             }
             if let image = item.trailingImage {
-                let imageResized = image.resized(rect: item.trailingImageBounds)
+                let imageResized = image.resized(rect: item.trailingImageBounds, maxHeight: maxImageHeight)
                 let imageView = SwiftUI.Image(uiImage: imageResized)
 //                    .ifLet(item.trailingImageBounds) { view, bounds in
 //                        view.frame(width: bounds.width, height: bounds.height)
@@ -92,7 +104,7 @@ public struct SUILabel: View {
                 font: current.font, // ?? font,
                 color: current.color, // ?? textColor,
                 lineSpacing: 4,
-                underlineStyle: current.underlineStyle ?? [],
+                underlineStyle: current.underlineStyle,
                 textAlignment: current.textAlignment, // ?? textAlignment,
                 leadingImage: current.leadingImage,
                 leadingImageBounds: current.leadingImageBounds,
@@ -261,17 +273,25 @@ private class TapableLabel: UILabel {
 }
 
 /// UIViewRepresentable by reusing Label.swift
-private struct FallbackText: UIViewRepresentable {
-//    typealias UIViewType = Label
-    let attributes: [TextAttributes]
+public struct FallbackLabel: UIViewRepresentable {
+    
+    @ObservedObject var adapter: TextOutputSwiftUIAdapter
 
-    func makeUIView(context: Context) -> Label {
+    public init(adapter: TextOutputSwiftUIAdapter) {
+        self.adapter = adapter
+    }
+
+    public func makeUIView(context: Context) -> Label {
+//        context.coordinator.label = label
         return Label()
     }
 
-    func updateUIView(_ uiView: Label, context: Context) {
-        uiView.display(attributes: attributes)
+    public func updateUIView(_ uiView: Label, context: Context) {
+        uiView.display(attributes: adapter.displayAttributesState?.attributes ?? [])
     }
+    
+//    public func makeCoordinator() -> Coordinator { Coordinator() }
+//    public class Coordinator {  }
 }
 
 #endif
@@ -281,14 +301,11 @@ import Cocoa
 
 extension NSImage {
     /// Resizes the NSImage to the specified size.
-    /// - Parameter targetSize: The desired size for the resized image.
+    /// - Parameter rect: The desired size for the resized image.
     /// - Returns: A new NSImage instance with the resized image, or nil if the original image data is unavailable.
-    func resized(to targetSize: NSSize) -> NSImage? {
-        return resized(rect: .init(size: targetSize))
-    }
 
-    func resized(rect: CGRect) -> UIImage {
-        let newImage = NSImage(size: targetSize)
+    func resized(rect: CGRect) -> NSImage? {
+        let newImage = NSImage(size: rect.size)
         newImage.lockFocus()
 
         // Get the current graphics context
@@ -315,18 +332,35 @@ extension NSImage {
 
 #elseif os(iOS) || os(tvOS) || os(watchOS)
 
-extension UIImage {
-    func resized(rect: CGRect) -> UIImage {
-        // bounds: rect - not works, so we have to calc targetSize
-//        return UIGraphicsImageRenderer(bounds: rect).image { _ in
-//            draw(in: rect)
-//        }
-//        .withRenderingMode(renderingMode)
-        let targetSize = CGSize(width: rect.origin.x + rect.width, height: rect.origin.y + rect.size.height)
+public extension UIImage {
+    func resized(rect: CGRect, maxHeight: CGFloat) -> UIImage {
+        print("UIImage resized rect: \(rect), maxHeight: \(maxHeight)")
+        guard !rect.isEmpty else { return self }
+        let targetSize = CGSize(width: abs(rect.origin.x) + rect.width, height: maxHeight)
+//        let targetSize = CGSize(width: abs(rect.origin.x) + rect.width, height: rect.origin.y + rect.size.height)
+        let x = rect.origin.x < .zero ? abs(rect.origin.x) : .zero
+        let y = (maxHeight - rect.size.height) / 2 - rect.origin.y
+        let resultRect = CGRect(x: x, y: y, width: rect.width, height: rect.height)
+        print("targetSize: \(targetSize), draw(in: \(resultRect)")
         return UIGraphicsImageRenderer(size: targetSize).image { _ in
-            draw(in: rect)
+            draw(in: resultRect)
+//            draw(at: CGPoint.init(x: rect.origin.x, y: rect.origin.y))
         }
         .withRenderingMode(renderingMode)
+    }
+}
+
+extension NSUnderlineStyle {
+    @available(iOS 15.0, *)
+    var suiTextLineStylePattern: Text.LineStyle.Pattern? {
+        switch self {
+        case .single: return .solid
+        case .patternDot: return .dot
+        case .patternDash: return .dash
+        case .patternDashDot: return .dashDot
+        case .patternDashDotDot: return .dashDotDot
+        default: return nil
+        }
     }
 }
 

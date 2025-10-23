@@ -30,11 +30,25 @@ public struct SplashContentView: View {
                 Color.red.ignoresSafeArea().opacity(0.2)
 
                 ScrollView(.vertical) {
-                    SUILabel(adapter: adapter)
-                      .frame(maxWidth: .infinity, alignment: .leading)
-                      .padding(.horizontal, .zero)
-
-                    Spacer()
+                    VStack(alignment: .leading) {
+                        SUILabel(adapter: adapter)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.horizontal, .zero)
+                        
+                        
+                        Text(
+                            Image(uiImage: ImageFactory.systemImage(named: "mail")!
+                                .resized(rect: CGRect(x: 0, y: 0, width: 45, height: 55), maxHeight: 100))
+                        ) + Text("The quick fox").baselineOffset(20) + Text(
+                            Image(uiImage: ImageFactory.systemImage(named: "arrow.right")!
+                                .resized(rect: CGRect(x: -30, y: -40, width: 15, height: 15), maxHeight: 100))
+                        ) + Text(Image(systemName: "star"))
+                        
+//                        FallbackLabel(adapter: adapter)
+//                            .frame(width: 300, alignment: .leading)
+////                            .frame(maxWidth: .infinity, alignment: .leading)
+//                            .padding(.horizontal, .zero)
+                    }
                 }
             }
         }

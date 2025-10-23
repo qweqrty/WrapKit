@@ -54,7 +54,7 @@ public class SplashPresenter: LifeCycleViewOutput, ApplicationLifecycleOutput {
                     underlineStyle: .patternDashDotDot
                 ),
                 .init(
-                    text: "darkGray 16-200 (.patternDashDotDot) \n\n",
+                    text: "darkGray 16-200 (.patternDot) \n\n",
                     color: .darkGray,
                     font: .systemFont(ofSize: 16, weight: Font.Weight(rawValue: 200)),
                     underlineStyle: .patternDot
