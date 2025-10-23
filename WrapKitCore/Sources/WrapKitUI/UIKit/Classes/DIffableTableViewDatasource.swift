@@ -46,11 +46,18 @@ public struct TableSection<Header, Cell: Hashable, Footer>: HashableWithReflecti
     public var header: Header?
     public var cells: [CellModel<Cell>]
     public var footer: Footer?
-    
-    public init(header: Header? = nil, cells: [CellModel<Cell>], footer: Footer? = nil) {
+    public var carouselConfig: CarouselConfig?
+
+    public init(
+        header: Header? = nil,
+        cells: [CellModel<Cell>],
+        footer: Footer? = nil,
+        carouselConfig: CarouselConfig? = nil
+    ) {
         self.header = header
         self.cells = cells
         self.footer = footer
+        self.carouselConfig = carouselConfig
     }
 }
 

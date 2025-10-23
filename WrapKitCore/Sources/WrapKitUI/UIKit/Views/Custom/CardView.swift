@@ -405,6 +405,12 @@ open class CardView: ViewUIKit {
         layer.borderColor = style?.borderColor?.cgColor
     }
     
+    open override func layoutSubviews() {
+        super.layoutSubviews()
+        
+        layer.borderColor = style?.borderColor?.cgColor
+    }
+    
     public init(style: CardViewPresentableModel.Style, buildImage: (() -> ImageView)? = nil) {
         if let buildImage {
             self.leadingImageView = buildImage()
