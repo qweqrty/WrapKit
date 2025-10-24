@@ -13,9 +13,13 @@ public extension View {
     ///   - condition: The condition to evaluate.
     ///   - transform: The transform to apply to the source `View`.
     /// - Returns: Either the original `View` or the modified `View` if the condition is `true`.
-    @ViewBuilder func `if`<Content: View>(_ condition: Bool, transform: (Self) -> Content) -> some View {
+    @ViewBuilder
+    func `if`<Content: View>(
+        _ condition: Bool,
+        @ViewBuilder modifier: (Self) -> Content
+    ) -> some View {
         if condition {
-            transform(self)
+            modifier(self)
         } else {
             self
         }
@@ -26,11 +30,35 @@ public extension View {
     ///   - value: The optional value.
     ///   - transform: The transform to apply to the source `View`.
     /// - Returns: Either the original `View` or the modified `View` if the  value is `not nil`.
-    @ViewBuilder func `ifLet`<Content: View, T: Any>(_ value: T?, transform: (Self, T) -> Content) -> some View {
-        if let v = value {
-            transform(self, v)
+    @ViewBuilder
+    func `ifLet`<Content: View, T: Any>(
+        _ value: T?,
+        @ViewBuilder modifier: (Self, T) -> Content
+    ) -> some View {
+        if let value {
+            modifier(self, value)
+            self
+        }
+    }
+    
+    func `ifLet`<T: Any>(
+        _ value: T?,
+        modifier: (Self, T) -> Self
+    ) -> Self {
+        if let value {
+            modifier(self, value)
         } else {
             self
         }
+    }
+    
+    @ViewBuilder
+    func modify<T: View>(@ViewBuilder _ modifier: (Self) -> T) -> some View {
+        modifier(self)
+    }
+    
+    @ViewBuilder
+    func modify(@ViewBuilder _ modifier: (Self) -> Self) -> Self {
+        modifier(self)
     }
 }
