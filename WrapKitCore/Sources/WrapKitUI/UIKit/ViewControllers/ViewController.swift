@@ -12,6 +12,7 @@ public protocol LifeCycleViewOutput: AnyObject {
     func viewWillDisappear()
     func viewDidAppear()
     func viewDidDisappear()
+    func viewDidLayoutSubviews()
 }
 
 public protocol ApplicationLifecycleOutput: AnyObject {
@@ -108,6 +109,16 @@ open class ViewController<ContentView: UIView>: UIViewController {
         
         LifeCycleViewOutput?.viewDidAppear()
     }
+    
+    open override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        LifeCycleViewOutput?.viewDidDisappear()
+    }
+    
+    open override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        LifeCycleViewOutput?.viewDidLayoutSubviews()
+    }
 
     // MARK: - App Lifecycle Notifications
     private func registerForAppLifecycleNotifications() {
@@ -157,6 +168,7 @@ public extension LifeCycleViewOutput {
     func viewWillDisappear() {}
     func viewDidAppear() {}
     func viewDidDisappear() {}
+    func viewDidLayoutSubviews() {}
 }
 
 // Default implementations for ApplicationLifecycleOutput
