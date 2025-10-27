@@ -58,15 +58,21 @@ public struct SUILabel: View {
             if let image = item.leadingImage {
                 let bounds = resizeImageBoundsSUI(item.leadingImageBounds)
                 let imageResized = image.resized(rect: bounds.rect, container: bounds.size)
-                let view = Text(SwiftUI.Image(uiImage: imageResized))
+                let view = Text(SwiftUIImage(uiImage: imageResized))
                     .baselineOffset(item.leadingImageBounds.origin.y)
                 result.append(view)
             }
             
-            if #available(iOS 15, macOS 12.0, tvOS 15.0, watchOS 8.0, *) {
+            if #available(iOS 15, macOS 12, tvOS 15, watchOS 8, *) {
                 let attributedString = AttributedString(makeNSAttributedString(item))
                 let textView = Text(attributedString)
-                    .ifLet(item.underlineStyle) { $0.underlineIfAvailable($1) } // fix NSUnderlineStyle in SwiftUI
+                    .ifLet(item.underlineStyle) { // fix NSUnderlineStyle in SwiftUI
+                        if #available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *), let pattern = $1.suiTextLineStylePattern {
+                            $0.underline(pattern: pattern)
+                        } else {
+                            $0
+                        }
+                    }
                 result.append(textView)
             } else {
                 let textView: Text = Text(item.text)
@@ -84,7 +90,7 @@ public struct SUILabel: View {
             if let image = item.trailingImage {
                 let bounds = resizeImageBoundsSUI(item.trailingImageBounds)
                 let imageResized = image.resized(rect: bounds.rect, container: bounds.size)
-                let imageView = SwiftUI.Image(uiImage: imageResized)
+                let imageView = SwiftUIImage(uiImage: imageResized)
                 let view = Text(imageView)
                     .baselineOffset(item.trailingImageBounds.origin.y)
                 result.append(view)
@@ -104,8 +110,8 @@ public struct SUILabel: View {
 
     private func makeNSAttributedString(_ item: TextAttributes) -> NSAttributedString {
         var underlineStyle = item.underlineStyle
-        if #available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *) {
-            underlineStyle = nil // broken in SwiftUI, need to remove
+        if #available(iOS 16, macOS 13, tvOS 16, watchOS 9, *) {
+            underlineStyle = nil // broken in SwiftUI, had to remove from iOS 16
         }
         return NSAttributedString(
             item.text,
@@ -360,16 +366,6 @@ extension NSTextAlignment {
         case .justified: .center
         case .natural: .center
         @unknown default: fatalError()
-        }
-    }
-}
-
-public extension Text {
-    func underlineIfAvailable(_ pattern: NSUnderlineStyle) -> Self {
-        if #available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *), let pattern = pattern.suiTextLineStylePattern {
-            self.underline(pattern: pattern)
-        } else {
-            self
         }
     }
 }

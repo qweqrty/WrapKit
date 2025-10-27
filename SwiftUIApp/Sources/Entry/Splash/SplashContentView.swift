@@ -50,7 +50,6 @@ public struct SplashContentView: View {
                          )
                          .color(Color.blue)
                          .font(SwiftUIFont(FontFactory.italic(size: 15)))
-                         .underlineIfAvailable(.patternDash)
                         
                         if #available(iOS 15, *) {
                             Text(
