@@ -102,9 +102,10 @@ public struct SUILabel: View {
     
     private func resizeImageBoundsSUI(_ rect: CGRect) -> (rect: CGRect, size: CGSize) {
         print("resizeImageBoundsSUI height \(rect.height) width \(rect.width) | size: \(rect.size)")
-        let targetSize = CGSize(width: abs(rect.origin.x) + rect.width, height: rect.size.height)
+        let targetSize = CGSize(width: abs(rect.origin.x) + rect.width, height: rect.size.height + abs(rect.origin.y))
         let x = rect.origin.x < .zero ? abs(rect.origin.x) : .zero
-        let resultRect = CGRect(x: x, y: .zero, width: rect.width, height: rect.height)
+        let y = abs(rect.origin.y) // rect.origin.y > .zero ? abs(rect.origin.y) : .zero
+        let resultRect = CGRect(x: x, y: y, width: rect.width, height: rect.height)
         return (resultRect, targetSize)
     }
 

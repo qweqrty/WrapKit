@@ -33,7 +33,7 @@ public struct SplashContentView: View {
                     
                     Text(
                         SwiftUIImage(
-                            image: ImageFactory.systemImage(named: "mail")? //  ?? UIImage())
+                            image: ImageFactory.systemImage(named: "mail")?
                                 .resized(rect: CGRect(x: 0, y: 20, width: 45, height: 55), container: CGSize(width: 75, height: 75))
                             ?? Image()
                         )
@@ -49,7 +49,7 @@ public struct SplashContentView: View {
                             ?? Image()
                         )
                     )
-                    .baselineOffset(-20) + Text(Image(systemName: "star"))
+                    .baselineOffset(-40) + Text(Image(systemName: "star"))
                     + Text(
                         "blue italic"
                     )
