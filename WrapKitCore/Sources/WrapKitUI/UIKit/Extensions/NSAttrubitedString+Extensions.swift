@@ -37,8 +37,8 @@ public extension NSAttributedString {
             attributes[.foregroundColor] = color
         }
 
-        if let underline = underlineStyle {
-            attributes[.underlineStyle] = underline.rawValue
+        if let underlineStyle {
+            attributes[.underlineStyle] = underlineStyle.rawValue
         }
         
         let attributedString = NSMutableAttributedString(string: "", attributes: attributes)

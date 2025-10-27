@@ -38,9 +38,8 @@ public struct SplashContentView: View {
                             Image(uiImage: ImageFactory.systemImage(named: "mail") ?? UIImage())
                             // .resized(rect: CGRect(x: 0, y: 0, width: 45, height: 55), maxHeight: 100) ?? UIImage())
                         )
-                        .font(SwiftUIFont.system(size: 20, weight: .bold))
+                        .font(SwiftUIFont.system(size: 22, weight: .bold))
                         .baselineOffset(20) + Text("The quick fox")
-                            .underlineIfAvailable(.patternDashDotDot)
                         + Text(
                             Image(uiImage: ImageFactory.systemImage(named: "arrow.right") ?? UIImage())
                             // .resized(rect: CGRect(x: -30, y: -40, width: 15, height: 15), maxHeight: 100) ?? UIImage())
@@ -52,6 +51,14 @@ public struct SplashContentView: View {
                          .color(Color.blue)
                          .font(SwiftUIFont(FontFactory.italic(size: 15)))
                          .underlineIfAvailable(.patternDash)
+                        
+                        if #available(iOS 15, *) {
+                            Text(
+                                AttributedString(NSAttributedString(string: "NSUnderlineStyle.double", attributes: [.underlineStyle: NSUnderlineStyle.double]))
+                            )
+                            .color(Color.blue)
+                            .font(SwiftUIFont(FontFactory.italic(size: 15)))
+                        }
                         
 //                        FallbackLabel(adapter: adapter)
 //                            .frame(width: 300, alignment: .leading)

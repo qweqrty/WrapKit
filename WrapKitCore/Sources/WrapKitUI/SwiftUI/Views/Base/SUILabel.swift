@@ -62,20 +62,25 @@ public struct SUILabel: View {
                     .baselineOffset(item.leadingImageBounds.origin.y)
                 result.append(view)
             }
-            if #available(iOS 15, *) {
+            
+            if #available(iOS 15, macOS 12.0, tvOS 15.0, watchOS 8.0, *) {
                 let attributedString = AttributedString(makeNSAttributedString(item))
                 let textView = Text(attributedString)
+                    .ifLet(item.underlineStyle) { $0.underlineIfAvailable($1) } // fix NSUnderlineStyle in SwiftUI
                 result.append(textView)
             } else {
-                    let textView: Text = Text(item.text)
+                let textView: Text = Text(item.text)
                     .ifLet(item.font) { $0.font(SwiftUIFont($1)) }
                     .ifLet(item.color) { $0.foregroundColor(SwiftUIColor($1)) }
-                    .ifLet(item.underlineStyle) { $0.underlineIfAvailable($1) } // available only from iOS 16
+//                    .ifLet(item.underlineStyle) { $0.underlineIfAvailable($1) } // available only from iOS 16
 //                    .ifLet(item.textAlignment) { $0.multilineTextAlignment($1.suiTextAlignment) }
 //                as! Text
 
                 result.append(textView)
             }
+            // SwiftUI’s Text doesn’t use a true multi-line text layout engine yet (like NSTextStorage + NSTextContainer); it batches attributed runs but applies one paragraph layout per whole Text view.
+            // TODO: handle with VStack with dynamic child Views
+            
             if let image = item.trailingImage {
                 let bounds = resizeImageBoundsSUI(item.trailingImageBounds)
                 let imageResized = image.resized(rect: bounds.rect, container: bounds.size)
@@ -97,35 +102,23 @@ public struct SUILabel: View {
         return (resultRect, targetSize)
     }
 
-    private func makeNSAttributedString(_ current: TextAttributes) -> NSAttributedString {
-//        return attributes.reduce(into: NSMutableAttributedString()) { result, current in
-            return NSAttributedString(
-                current.text,
-                font: current.font, // ?? font,
-                color: current.color, // ?? textColor,
-                lineSpacing: 4,
-                underlineStyle: current.underlineStyle,
-                textAlignment: current.textAlignment, // ?? textAlignment,
-                leadingImage: current.leadingImage,
-                leadingImageBounds: current.leadingImageBounds,
-                trailingImage: current.trailingImage,
-                trailingImageBounds: current.trailingImageBounds
-            )
-//            result.append(item)
-//        }
-    }
-}
-
-extension NSTextAlignment {
-    var suiTextAlignment: SwiftUI.TextAlignment {
-        switch self {
-        case .left: .leading
-        case .center: .center
-        case .right: .trailing
-        case .justified: .center
-        case .natural: .center
-        @unknown default: fatalError()
+    private func makeNSAttributedString(_ item: TextAttributes) -> NSAttributedString {
+        var underlineStyle = item.underlineStyle
+        if #available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *) {
+            underlineStyle = nil // broken in SwiftUI, need to remove
         }
+        return NSAttributedString(
+            item.text,
+            font: item.font, // ?? font,
+            color: item.color, // ?? textColor,
+            lineSpacing: 4,
+            underlineStyle: underlineStyle,
+            textAlignment: item.textAlignment, // ?? textAlignment,
+            leadingImage: item.leadingImage,
+            leadingImageBounds: item.leadingImageBounds,
+            trailingImage: item.trailingImage,
+            trailingImageBounds: item.trailingImageBounds
+        )
     }
 }
 
@@ -342,11 +335,13 @@ public extension UIImage {
     }
 }
 
+#endif
+
 extension NSUnderlineStyle {
     @available(iOS 15.0, *)
     var suiTextLineStylePattern: Text.LineStyle.Pattern? {
         switch self {
-        case .single: return .solid
+        case .single, .double, .byWord: return .solid
         case .patternDot: return .dot
         case .patternDash: return .dash
         case .patternDashDot: return .dashDot
@@ -356,7 +351,18 @@ extension NSUnderlineStyle {
     }
 }
 
-#endif
+extension NSTextAlignment {
+    var suiTextAlignment: SwiftUI.TextAlignment {
+        switch self {
+        case .left: .leading
+        case .center: .center
+        case .right: .trailing
+        case .justified: .center
+        case .natural: .center
+        @unknown default: fatalError()
+        }
+    }
+}
 
 public extension Text {
     func underlineIfAvailable(_ pattern: NSUnderlineStyle) -> Self {
