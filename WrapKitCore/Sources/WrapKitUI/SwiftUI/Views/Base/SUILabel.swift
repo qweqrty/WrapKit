@@ -54,25 +54,21 @@ public struct SUILabel: View {
         var result: [Text] = []
 
         for item in attributes {
-            print("leadingImageBounds \(item.leadingImageBounds), trailingImageBounds \(item.trailingImageBounds)")
             if let image = item.leadingImage {
-                let bounds = resizeImageBoundsSUI(item.leadingImageBounds)
-                let imageResized = image.resized(rect: bounds.rect, container: bounds.size)
-                let view = Text(SwiftUIImage(uiImage: imageResized))
-                    .baselineOffset(item.leadingImageBounds.origin.y)
+                let view = buildSUIImageInText(bounds: item.leadingImageBounds, image: image)
                 result.append(view)
             }
             
             if #available(iOS 15, macOS 12, tvOS 15, watchOS 8, *) {
                 let attributedString = AttributedString(makeNSAttributedString(item))
-                let textView = Text(attributedString)
-                    .ifLet(item.underlineStyle) { // fix NSUnderlineStyle in SwiftUI
-                        if #available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *), let pattern = $1.suiTextLineStylePattern {
-                            $0.underline(pattern: pattern)
-                        } else {
-                            $0
-                        }
+                let textView = Text(attributedString).ifLet(item.underlineStyle) {
+                    // fix NSUnderlineStyle in SwiftUI
+                    if #available(iOS 16, macOS 13, tvOS 16, watchOS 9, *), let pattern = $1.suiTextLineStylePattern {
+                        $0.underline(pattern: pattern)
+                    } else {
+                        $0
                     }
+                }
                 result.append(textView)
             } else {
                 let textView: Text = Text(item.text)
@@ -88,11 +84,7 @@ public struct SUILabel: View {
             // TODO: handle with VStack with dynamic child Views
             
             if let image = item.trailingImage {
-                let bounds = resizeImageBoundsSUI(item.trailingImageBounds)
-                let imageResized = image.resized(rect: bounds.rect, container: bounds.size)
-                let imageView = SwiftUIImage(uiImage: imageResized)
-                let view = Text(imageView)
-                    .baselineOffset(item.trailingImageBounds.origin.y)
+                let view = buildSUIImageInText(bounds: item.trailingImageBounds, image: image)
                 result.append(view)
             }
         }
@@ -100,11 +92,19 @@ public struct SUILabel: View {
         return result.reduce(Text(""), +)
     }
     
+    private func buildSUIImageInText(bounds source: CGRect, image: Image) -> Text {
+        let bounds = resizeImageBoundsSUI(source)
+        let imageResized = image.resized(rect: bounds.rect, container: bounds.size)
+        let image = SwiftUIImage(image: imageResized)
+        return Text(image)
+            .baselineOffset(source.origin.y)
+    }
+    
     private func resizeImageBoundsSUI(_ rect: CGRect) -> (rect: CGRect, size: CGSize) {
-        let absX = abs(rect.origin.x)
-        let targetSize = CGSize(width: absX + rect.width, height: rect.size.width)
+        print("resizeImageBoundsSUI height \(rect.height) width \(rect.width) | size: \(rect.size)")
+        let targetSize = CGSize(width: abs(rect.origin.x) + rect.width, height: rect.size.height)
         let x = rect.origin.x < .zero ? abs(rect.origin.x) : .zero
-        let resultRect = CGRect(x: x, y: 1, width: rect.width, height: rect.height)
+        let resultRect = CGRect(x: x, y: .zero, width: rect.width, height: rect.height)
         return (resultRect, targetSize)
     }
 
@@ -293,24 +293,34 @@ public struct FallbackLabel: UIViewRepresentable {
 //    public class Coordinator {  }
 }
 
+// temporarily public
+public extension UIImage {
+    func resized(rect: CGRect, container: CGSize) -> UIImage {
+        return UIGraphicsImageRenderer(size: container).image { _ in
+            draw(in: rect)
+        }
+        .withRenderingMode(renderingMode)
+    }
+}
+
 #endif
 
-#if os(macOS)
+#if canImport(Cocoa)
 import Cocoa
-
-extension NSImage {
+// temporarily public
+public extension NSImage {
     /// Resizes the NSImage to the specified size.
     /// - Parameter rect: The desired size for the resized image.
     /// - Returns: A new NSImage instance with the resized image, or nil if the original image data is unavailable.
 
-    func resized(rect: CGRect, container: CGSize) -> NSImage? {
+    func resized(rect: CGRect, container: CGSize) -> NSImage {
         let newImage = NSImage(size: container)
         newImage.lockFocus()
 
         // Get the current graphics context
         guard let context = NSGraphicsContext.current else {
             newImage.unlockFocus()
-            return nil
+            return self
         }
 
         // Set interpolation quality for smoother scaling
@@ -328,23 +338,10 @@ extension NSImage {
         return newImage
     }
 }
-
-#elseif os(iOS) || os(tvOS) || os(watchOS)
-
-public extension UIImage {
-    func resized(rect: CGRect, container: CGSize) -> UIImage {
-        print("resized rect: \(rect), container: \(container)")
-        return UIGraphicsImageRenderer(size: container).image { _ in
-            draw(in: rect)
-        }
-        .withRenderingMode(renderingMode)
-    }
-}
-
 #endif
 
 extension NSUnderlineStyle {
-    @available(iOS 15.0, *)
+    @available(iOS 15, macOS 12, tvOS 15, watchOS 8, *)
     var suiTextLineStylePattern: Text.LineStyle.Pattern? {
         switch self {
         case .single, .double, .byWord: return .solid
