@@ -29,8 +29,7 @@ public class TokenRefresherImpl<RefreshRequest, RefreshResponse>: TokenRefresher
         refreshService: any Service<RefreshRequest, RefreshResponse>,
         mapRefreshRequest: @escaping (String) -> RefreshRequest,
         mapResponseToAccess: ((RefreshResponse) -> String)?,
-        mapResponseToRefresh: ((RefreshResponse) -> String?)? = nil,
-        lock: NSLock
+        mapResponseToRefresh: ((RefreshResponse) -> String?)? = nil
     ) {
         self.refreshTokenStorage = refreshTokenStorage
         self.refreshService = refreshService
