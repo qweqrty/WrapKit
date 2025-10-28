@@ -37,6 +37,7 @@ public extension View {
     ) -> some View {
         if let value {
             modifier(self, value)
+        } else {
             self
         }
     }

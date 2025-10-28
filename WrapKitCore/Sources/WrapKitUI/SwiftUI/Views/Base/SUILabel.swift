@@ -22,7 +22,6 @@ public struct SUILabel: View {
                 SwiftUI.EmptyView()
             } else if let attributes = adapter.displayAttributesState?.attributes {
                 buildSwiftUIViewFromAttributes(from: attributes)
-//                AttributedText(attributes: attributes)
             } else {
                 Text(displayText)
             }
@@ -74,9 +73,6 @@ public struct SUILabel: View {
                 let textView: Text = Text(item.text)
                     .ifLet(item.font) { $0.font(SwiftUIFont($1)) }
                     .ifLet(item.color) { $0.foregroundColor(SwiftUIColor($1)) }
-//                    .ifLet(item.underlineStyle) { $0.underlineIfAvailable($1) } // available only from iOS 16
-//                    .ifLet(item.textAlignment) { $0.multilineTextAlignment($1.suiTextAlignment) }
-//                as! Text
 
                 result.append(textView)
             }
@@ -88,9 +84,11 @@ public struct SUILabel: View {
             }
         }
         
+        let resultText = result.reduce(Text(""), +)
+        
         let textAlignment = attributes.first(where: { $0.textAlignment != nil })?.textAlignment?.suiTextAlignment
-
-        return result.reduce(Text(""), +)
+        
+        return resultText
             .ifLet(textAlignment, modifier: { $0.multilineTextAlignment($1) })
     }
     
