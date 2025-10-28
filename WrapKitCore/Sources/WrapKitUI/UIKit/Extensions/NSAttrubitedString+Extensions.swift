@@ -76,7 +76,7 @@ public extension NSAttributedString {
 }
 #endif
 
-#if canImport(AppKit)
+#if canImport(AppKit) && !targetEnvironment(macCatalyst)
 import AppKit
 
 public extension NSAttributedString {

@@ -80,16 +80,18 @@ public struct SUILabel: View {
 
                 result.append(textView)
             }
-            // SwiftUI’s Text doesn’t use a true multi-line text layout engine yet (like NSTextStorage + NSTextContainer); it batches attributed runs but applies one paragraph layout per whole Text view.
-            // TODO: handle with VStack with dynamic child Views
             
+            // SwiftUI’s Text doesn’t use a true multi-line text layout engine yet (like NSTextStorage + NSTextContainer); it batches attributed runs but applies one paragraph layout per whole Text view.
             if let image = item.trailingImage {
                 let view = buildSUIImageInText(bounds: item.trailingImageBounds, image: image)
                 result.append(view)
             }
         }
+        
+        let textAlignment = attributes.first(where: { $0.textAlignment != nil })?.textAlignment?.suiTextAlignment
 
         return result.reduce(Text(""), +)
+            .ifLet(textAlignment, modifier: { $0.multilineTextAlignment($1) })
     }
     
     private func buildSUIImageInText(bounds source: CGRect, image: Image) -> Text {
@@ -101,7 +103,6 @@ public struct SUILabel: View {
     }
     
     private func resizeImageBoundsSUI(_ rect: CGRect) -> (rect: CGRect, size: CGSize) {
-        print("resizeImageBoundsSUI height \(rect.height) width \(rect.width) | size: \(rect.size)")
         let targetSize = CGSize(width: abs(rect.origin.x) + rect.width, height: rect.size.height + abs(rect.origin.y))
         let x = rect.origin.x < .zero ? abs(rect.origin.x) : .zero
         let y = abs(rect.origin.y) // rect.origin.y > .zero ? abs(rect.origin.y) : .zero
@@ -306,7 +307,7 @@ public extension UIImage {
 
 #endif
 
-#if canImport(Cocoa)
+#if canImport(Cocoa) && !targetEnvironment(macCatalyst)
 import Cocoa
 // temporarily public
 public extension NSImage {
@@ -327,13 +328,14 @@ public extension NSImage {
         // Set interpolation quality for smoother scaling
         context.imageInterpolation = .high
 
-        // Draw the original image into the new context, scaled to the target size
-        self.draw(
-            in: NSRect(origin: rect.origin, size: rect.size),
-            from: NSRect(origin: .zero, size: self.size),
-            operation: .sourceOver,
-            fraction: 1.0
+        // Apply the offset by adjusting the targetRect for the drawing
+        let adjustedRect = NSRect(
+            x: rect.origin.x,
+            y: container.height - rect.origin.y - rect.height, // Adjust y-axis for the flipped coordinate system
+            width: rect.width,
+            height: rect.height
         )
+        self.draw(in: adjustedRect)
 
         newImage.unlockFocus()
         return newImage
@@ -361,8 +363,8 @@ extension NSTextAlignment {
         case .left: .leading
         case .center: .center
         case .right: .trailing
-        case .justified: .center
-        case .natural: .center
+        case .justified: .leading // not available in SwiftUI
+        case .natural: .center // currently do not need to handle RTL
         @unknown default: fatalError()
         }
     }

@@ -9,10 +9,10 @@ import SwiftUI
 
 public extension SwiftUIImage {
     init(image: Image) {
-#if canImport(AppKit)
-        self.init(nsImage: image)
-#elseif canImport(UIKit)
+#if canImport(UIKit)
         self.init(uiImage: image)
+#elseif canImport(AppKit)
+        self.init(nsImage: image)
 #endif
     }
 }
