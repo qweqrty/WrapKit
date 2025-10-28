@@ -37,6 +37,11 @@ extension MainQueueDispatchDecorator: DatePickerViewOutput where T: DatePickerVi
             self?.decoratee.display(setDate: setDate, animated: animated)
         }
     }
+    public func display(model: DatePickerPresentableModel) {
+        dispatch { [weak self] in
+            self?.decoratee.display(model: model)
+        }
+    }
 
 }
 #endif

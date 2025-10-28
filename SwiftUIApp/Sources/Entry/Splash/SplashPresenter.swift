@@ -17,7 +17,6 @@ public class SplashPresenter: LifeCycleViewOutput, ApplicationLifecycleOutput {
     public init() {
         
     }
-    
     // MARK: - View Lifecycle
     public func viewDidLoad() {
         print("SplashPresenter: viewDidLoad()")

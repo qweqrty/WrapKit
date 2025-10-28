@@ -46,11 +46,18 @@ public struct TableSection<Header, Cell: Hashable, Footer>: HashableWithReflecti
     public var header: Header?
     public var cells: [CellModel<Cell>]
     public var footer: Footer?
-    
-    public init(header: Header? = nil, cells: [CellModel<Cell>], footer: Footer? = nil) {
+    public var carouselConfig: CarouselConfig?
+
+    public init(
+        header: Header? = nil,
+        cells: [CellModel<Cell>],
+        footer: Footer? = nil,
+        carouselConfig: CarouselConfig? = nil
+    ) {
         self.header = header
         self.cells = cells
         self.footer = footer
+        self.carouselConfig = carouselConfig
     }
 }
 
@@ -68,12 +75,11 @@ public protocol TableOutput<Header, Cell, Footer>: AnyObject {
 }
 
 #if canImport(UIKit)
+import Foundation
 import UIKit
 
-@available(iOS 13.0, *)
-public class DiffableTableViewDataSource<Header, Cell: Hashable, Footer>: UITableViewDiffableDataSource<Int, Cell>, UITableViewDelegate {
+public class DiffableTableViewDataSource<Header, Cell: Hashable, Footer>: NSObject, UITableViewDataSource, UITableViewDelegate {
     // MARK: - Properties
-    public var didSelectAt: ((IndexPath, Cell) -> Void)?
     public var configureCell: ((UITableView, IndexPath, Cell) -> UITableViewCell)?
     public var viewForHeaderInSection: ((UITableView, _ atSection: Int, _ header: Header) -> UIView)?
     public var heightForHeaderInSection: ((_ atSection: Int, _ model: Header) -> CGFloat)?
@@ -95,35 +101,55 @@ public class DiffableTableViewDataSource<Header, Cell: Hashable, Footer>: UITabl
     private var trailingSwipeActionsConfigurationForRowAt: ((IndexPath) -> UISwipeActionsConfiguration?)?
     private var leadingSwipeActionsConfigurationForRowAt: ((IndexPath) -> UISwipeActionsConfiguration?)?
     
-    var headers = [Int: Header]()
-    var footers = [Int: Footer]()
+    private var sections: [TableSection<Header, Cell, Footer>] = []
     
     // MARK: - Initializer
     public init(tableView: UITableView, configureCell: ((UITableView, IndexPath, Cell) -> UITableViewCell)?) {
         self.tableView = tableView
         self.configureCell = configureCell
-        super.init(tableView: tableView) { tableView, indexPath, item in
-            configureCell?(tableView, indexPath, item)
-        }
-        defaultRowAnimation = .fade
+        super.init()
         tableView.delegate = self
         tableView.dataSource = self
     }
     
-    // MARK: - UITableViewDiffableDataSource Methods
-    override public func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
+    // MARK: - UITableViewDataSource Methods
+    public func numberOfSections(in tableView: UITableView) -> Int {
+        return sections.count
+    }
+    
+    public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return sections.item(at: section)?.cells.count ?? 0
+    }
+    
+    public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        guard let cellModel = sections.item(at: indexPath.section)?.cells.item(at: indexPath.row)?.cell else {
+            return UITableViewCell()
+        }
+        return configureCell?(tableView, indexPath, cellModel) ?? UITableViewCell()
+    }
+    
+    public func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
         return canMoveHandler?(indexPath) ?? false
     }
     
-    override public func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
+    public func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
         moveHandler?(sourceIndexPath, destinationIndexPath)
+        // Update internal data structure
+        guard let sourceSection = sections.item(at: sourceIndexPath.section),
+              let cell = sourceSection.cells.item(at: sourceIndexPath.row) else { return }
+        
+        sections[sourceIndexPath.section].cells.remove(at: sourceIndexPath.row)
+        if sections.count <= destinationIndexPath.section {
+            sections.append(TableSection(cells: []))
+        }
+        sections[destinationIndexPath.section].cells.insert(cell, at: destinationIndexPath.row)
     }
     
-    override public func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
+    public func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
         return canEditHandler?(indexPath) ?? true
     }
     
-    override public func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+    public func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         let customStyle: TableEditingStyle
         switch editingStyle {
         case .delete:
@@ -134,23 +160,6 @@ public class DiffableTableViewDataSource<Header, Cell: Hashable, Footer>: UITabl
             customStyle = .none
         }
         commitEditingHandler?(customStyle, indexPath)
-    }
-    
-    // MARK: - Snapshot Management
-    private func updateItems(_ items: [[Cell]]) {
-        var snapshot = NSDiffableDataSourceSnapshot<Int, Cell>()
-        let items = items.enumerated()
-        snapshot.appendSections(items.map(\.offset))
-        items.forEach { offset, element in
-            let uniqueItems = element.uniqued
-            snapshot.appendItems(uniqueItems, toSection: offset)
-        }
-        if #available(iOS 15.0, *) {
-            applySnapshotUsingReloadData(snapshot)
-        } else {
-//             TODO: CHECK CRASH ON IOS 14
-        apply(snapshot, animatingDifferences: true)
-        }
     }
     
     // MARK: - UITableViewDelegate Methods
@@ -168,8 +177,8 @@ public class DiffableTableViewDataSource<Header, Cell: Hashable, Footer>: UITabl
     
     public func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        guard let selectedModel = itemIdentifier(for: indexPath) else { return }
-        didSelectAt?(indexPath, selectedModel)
+        guard let selectedModel = sections.item(at: indexPath.section)?.cells.item(at: indexPath.row)?.cell else { return }
+        sections.item(at: indexPath.section)?.cells.item(at: indexPath.row)?.onTap?(indexPath, selectedModel)
     }
     
     public func scrollViewDidScroll(_ scrollView: UIScrollView) {
@@ -195,27 +204,26 @@ public class DiffableTableViewDataSource<Header, Cell: Hashable, Footer>: UITabl
     
     // MARK: - Header/Footer Views
     public func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        guard let model = headers[section] else { return UIView() }
+        guard let model = sections.item(at: section)?.header else { return UIView() }
         return viewForHeaderInSection?(tableView, section, model) ?? UIView()
     }
     
     public func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        guard let model = headers[section] else { return .leastNonzeroMagnitude }
-        return heightForHeaderInSection?(section, model) ?? .leastNonzeroMagnitude
+        guard let model = sections.item(at: section)?.header else { return .leastNonzeroMagnitude }
+        return heightForHeaderInSection?(section, model) ?? UITableView.automaticDimension
     }
     
     public func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
-        guard let model = footers[section] else { return UIView() }
+        guard let model = sections.item(at: section)?.footer else { return UIView() }
         return viewForFooterInSection?(tableView, section, model) ?? UIView()
     }
     
     public func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
-        guard let model = footers[section] else { return .leastNonzeroMagnitude }
-        return heightForFooterInSection?(section, model) ?? .leastNonzeroMagnitude
+        guard let model = sections.item(at: section)?.footer else { return .leastNonzeroMagnitude }
+        return heightForFooterInSection?(section, model) ?? UITableView.automaticDimension
     }
     
     deinit {
-        didSelectAt = nil
         configureCell = nil
         viewForHeaderInSection = nil
         heightForHeaderInSection = nil
@@ -242,9 +250,12 @@ extension DiffableTableViewDataSource: TableOutput & HiddableOutput {
                     style: action.style.asUIContextualActionStyle,
                     title: action.title
                 ) { [weak self] _, _, completion in
-                    if let model = self?.itemIdentifier(for: indexPath) {
-                        action.onPress?(model)
+                    guard let self = self,
+                          let model = self.sections.item(at: indexPath.section)?.cells.item(at: indexPath.row)?.cell else {
+                        completion(false)
+                        return
                     }
+                    action.onPress?(model)
                     completion(true)
                 }
                 if let backgroundColor = action.backgroundColor {
@@ -268,9 +279,12 @@ extension DiffableTableViewDataSource: TableOutput & HiddableOutput {
                     style: action.style.asUIContextualActionStyle,
                     title: action.title
                 ) { [weak self] _, _, completion in
-                    if let model = self?.itemIdentifier(for: indexPath) {
-                        action.onPress?(model)
+                    guard let self = self,
+                          let model = self.sections.item(at: indexPath.section)?.cells.item(at: indexPath.row)?.cell else {
+                        completion(false)
+                        return
                     }
+                    action.onPress?(model)
                     completion(true)
                 }
                 if let backgroundColor = action.backgroundColor {
@@ -288,22 +302,9 @@ extension DiffableTableViewDataSource: TableOutput & HiddableOutput {
     }
     
     public func display(sections: [TableSection<Header, Cell, Footer>]) {
-        DispatchQueue.global().async { [weak self] in
-            self?.headers.removeAll()
-            self?.footers.removeAll()
-            
-            sections.enumerated().forEach { offset, section in
-                self?.headers[offset] = section.header
-                self?.footers[offset] = section.footer
-            }
-            
-            DispatchQueue.main.async { [weak self] in
-                guard let self = self else { return }
-                self.updateItems(sections.map { $0.cells.map(\.cell) })
-                didSelectAt = { indexPath, cell in
-                    sections.item(at: indexPath.section)?.cells.item(at: indexPath.row)?.onTap?(indexPath, cell)
-                }
-            }
+        self.sections = sections
+        DispatchQueue.main.async { [weak self] in
+            self?.tableView?.reloadData()
         }
     }
     
@@ -332,5 +333,4 @@ private extension TableContextualAction.Style {
         }
     }
 }
-
 #endif

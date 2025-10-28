@@ -12,6 +12,7 @@ public protocol LifeCycleViewOutput: AnyObject {
     func viewWillDisappear()
     func viewDidAppear()
     func viewDidDisappear()
+    func viewDidLayoutSubviews()
 }
 
 public protocol ApplicationLifecycleOutput: AnyObject {
@@ -27,9 +28,11 @@ public protocol ApplicationLifecycleOutput: AnyObject {
 import UIKit
 
 open class ViewController<ContentView: UIView>: UIViewController {
-    public let contentView: ContentView
     private let LifeCycleViewOutput: LifeCycleViewOutput?
     private let ApplicationLifecycleOutput: ApplicationLifecycleOutput?
+    
+    public let contentView: ContentView
+    public var removingNavStackCountOnAppear: Int = 0
     public var interactivePopGestureRecognizer: UIGestureRecognizerDelegate?
 
     public init(contentView: ContentView, lifeCycleViewOutput: LifeCycleViewOutput? = nil, applicationLifecycleOutput: ApplicationLifecycleOutput? = nil) {
@@ -81,12 +84,40 @@ open class ViewController<ContentView: UIView>: UIViewController {
 
     open override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
+        
+        if removingNavStackCountOnAppear > 0, var viewControllersToRemain = navigationController?.viewControllers {
+            guard viewControllersToRemain.count > 0 else {
+                LifeCycleViewOutput?.viewDidAppear()
+                return
+            }
+            
+            guard let lastViewController = viewControllersToRemain.last else {
+                LifeCycleViewOutput?.viewDidAppear()
+                return
+            }
+            
+            viewControllersToRemain.removeLast()
+            
+            let countToRemove = min(removingNavStackCountOnAppear, viewControllersToRemain.count)
+            
+            if countToRemove > 0 {
+                viewControllersToRemain.removeLast(countToRemove)
+                viewControllersToRemain.append(lastViewController)
+                navigationController?.setViewControllers(viewControllersToRemain, animated: false)
+            }
+        }
+        
         LifeCycleViewOutput?.viewDidAppear()
     }
-
+    
     open override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         LifeCycleViewOutput?.viewDidDisappear()
+    }
+    
+    open override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        LifeCycleViewOutput?.viewDidLayoutSubviews()
     }
 
     // MARK: - App Lifecycle Notifications
@@ -137,6 +168,7 @@ public extension LifeCycleViewOutput {
     func viewWillDisappear() {}
     func viewDidAppear() {}
     func viewDidDisappear() {}
+    func viewDidLayoutSubviews() {}
 }
 
 // Default implementations for ApplicationLifecycleOutput

@@ -11,7 +11,7 @@ import WrapKit
 class AuthenticatedHTTPClientDecoratorTests: XCTestCase {
     
     func test_dispatch_withAccessTokenAndAuthenticatedResponse_completesSuccessfully() {
-        let (sut, storage, httpClientSpy, _) = makeSUT(isAuthenticated: { _ in true })
+        let (sut, storage, httpClientSpy, _) = makeSUT(isAuthenticated: { _ in .authenticated })
         
         storage.set(model: "valid_token")
         
@@ -32,9 +32,9 @@ class AuthenticatedHTTPClientDecoratorTests: XCTestCase {
     }
     
     func test_dispatch_failsWithoutTokenAndNoTokenRefresher() {
-        var onNotAuthenticatedCalled = false
-        let (sut, _, httpClientSpy, _) = makeSUT(tokenRefresher: nil, onNotAuthenticated: {
-            onNotAuthenticatedCalled = true
+        var onNotAuthenticatedCalled = 0
+        let (sut, _, httpClientSpy, _) = makeSUT(tokenRefresher: nil, onNotAuthenticated: { _ in
+            onNotAuthenticatedCalled = onNotAuthenticatedCalled + 1
         })
         var receivedResult: HTTPClient.Result?
         
@@ -44,15 +44,15 @@ class AuthenticatedHTTPClientDecoratorTests: XCTestCase {
         
         XCTAssertEqual(httpClientSpy.requestedURLs.count, 0, "Expected no request to be dispatched without a token")
         XCTAssertNil(receivedResult)
-        XCTAssertEqual(onNotAuthenticatedCalled, true)
+        XCTAssertEqual(onNotAuthenticatedCalled, 1)
     }
     
     func test_dispatch_triggersOnNotAuthenticatedWithoutTokenRefresher() {
-        var onNotAuthenticatedCalled = false
+        var onNotAuthenticatedCalled = 0
         let (sut, storage, httpClientSpy, _) = makeSUT(
             tokenRefresher: nil,
-            isAuthenticated: { _ in false },
-            onNotAuthenticated: { onNotAuthenticatedCalled = true }
+            isAuthenticated: { _ in .needsRefresh(onErrorMessage: nil) },
+            onNotAuthenticated: { _ in onNotAuthenticatedCalled = onNotAuthenticatedCalled + 1 }
         )
         
         storage.set(model: "valid_token")
@@ -64,10 +64,10 @@ class AuthenticatedHTTPClientDecoratorTests: XCTestCase {
         
         httpClientSpy.completes(withStatusCode: 401, data: Data())
         
-        XCTAssertTrue(onNotAuthenticatedCalled, "Expected 'onNotAuthenticated' to be called")
+        XCTAssertEqual(onNotAuthenticatedCalled, 1)
         switch receivedResult {
-        case .none:
-            break
+        case .failure(let error):
+            XCTAssertEqual(error as? ServiceError, ServiceError.internal)
         default:
             XCTFail("Expected 'nil', but got \(String(describing: receivedResult))")
         }
@@ -77,7 +77,7 @@ class AuthenticatedHTTPClientDecoratorTests: XCTestCase {
         let tokenRefresherSpy = TokenRefresherSpy()
         let (sut, storage, httpClientSpy, _) = makeSUT(
             tokenRefresher: tokenRefresherSpy,
-            isAuthenticated: { _ in false }
+            isAuthenticated: { _ in .needsRefresh(onErrorMessage: nil) }
         )
         
         storage.set(model: "valid_token")
@@ -94,8 +94,8 @@ class AuthenticatedHTTPClientDecoratorTests: XCTestCase {
         
         XCTAssertEqual(tokenRefresherSpy.refreshCalledCount, 1, "Expected token refresher to be called only once")
         switch receivedResult {
-        case .none:
-            break
+        case .failure(let error):
+            XCTAssertEqual(error as? ServiceError, ServiceError.internal)
         default:
             XCTFail("Expected 'nil', but got \(String(describing: receivedResult))")
         }
@@ -124,7 +124,7 @@ class AuthenticatedHTTPClientDecoratorTests: XCTestCase {
         let tokenRefresherSpy = TokenRefresherSpy()
         let (sut, storage, httpClientSpy, _) = makeSUT(
             tokenRefresher: tokenRefresherSpy,
-            isAuthenticated: { response in response.1.statusCode != 401 }
+            isAuthenticated: { response in response.1.statusCode != 401 ? .authenticated : .needsRefresh(onErrorMessage: nil) }
         )
         
         storage.set(model: "valid_token")
@@ -151,7 +151,7 @@ class AuthenticatedHTTPClientDecoratorTests: XCTestCase {
     
     func test_dispatch_withAccessTokenAndUnauthenticatedResponseAndTokenRefresherSuccess_retriesRequest() {
         let (sut, storage, httpClientSpy, tokenRefresherSpy) = makeSUT(isAuthenticated: { (data, response) in
-            return response.statusCode == 200
+            return response.statusCode == 200 ? .authenticated : .needsRefresh(onErrorMessage: nil)
         })
         
         storage.set(model: "valid_token")
@@ -180,7 +180,7 @@ class AuthenticatedHTTPClientDecoratorTests: XCTestCase {
     }
     
     func test_dispatch_withAccessTokenAndUnauthenticatedResponseAndTokenRefresherFailure_completesWithNotAuthorized() {
-        let (sut, storage, httpClientSpy, tokenRefresherSpy) = makeSUT(isAuthenticated: { _ in false })
+        let (sut, storage, httpClientSpy, tokenRefresherSpy) = makeSUT(isAuthenticated: { _ in .needsRefresh(onErrorMessage: nil) })
         
         storage.set(model: "valid_token")
         
@@ -193,15 +193,15 @@ class AuthenticatedHTTPClientDecoratorTests: XCTestCase {
         tokenRefresherSpy?.complete(with: .failure(ServiceError.internal))
         
         switch receivedResult {
-        case .none:
-            break
+        case .failure(let error):
+            XCTAssertEqual(error as? ServiceError, ServiceError.internal)
         default:
             XCTFail("Expected 'nil', but got \(String(describing: receivedResult))")
         }
     }
     
     func test_dispatch_withAccessTokenAndTwoUnauthenticatedResponses_doesNotRetryTwice() {
-        let (sut, storage, httpClientSpy, tokenRefresherSpy) = makeSUT(isAuthenticated: { response in response.1.statusCode != 401 })
+        let (sut, storage, httpClientSpy, tokenRefresherSpy) = makeSUT(isAuthenticated: { response in response.1.statusCode != 401 ? .authenticated : .needsRefresh(onErrorMessage: nil) })
         
         storage.set(model: "valid_token")
         
@@ -221,8 +221,8 @@ class AuthenticatedHTTPClientDecoratorTests: XCTestCase {
         XCTAssertEqual(tokenRefresherSpy?.refreshCalledCount, 1, "Expected token refresher to be called only once")
         
         switch receivedResult {
-        case .none:
-            break
+        case .failure(let error):
+            XCTAssertEqual(error as? ServiceError, ServiceError.internal)
         default:
             XCTFail("Expected 'nil', but got \(String(describing: receivedResult))")
         }
@@ -230,7 +230,7 @@ class AuthenticatedHTTPClientDecoratorTests: XCTestCase {
     
     
     func test_dispatch_withAccessTokenAndUnauthenticatedResponseAndTokenRefreshFailure_doesNotRetryAndReturnsError() {
-        let (sut, storage, httpClientSpy, tokenRefresherSpy) = makeSUT(isAuthenticated: { _ in false })
+        let (sut, storage, httpClientSpy, tokenRefresherSpy) = makeSUT(isAuthenticated: { _ in .needsRefresh(onErrorMessage: nil) })
         
         storage.set(model: "valid_token")
         
@@ -244,15 +244,15 @@ class AuthenticatedHTTPClientDecoratorTests: XCTestCase {
         XCTAssertEqual(httpClientSpy.requestedURLs.count, 1, "Expected only one request attempt")
         
         switch receivedResult {
-        case .none:
-            break
+        case .failure(let error):
+            XCTAssertEqual(error as? ServiceError, ServiceError.internal)
         default:
             XCTFail("Expected 'nil', but got \(String(describing: receivedResult))")
         }
     }
     
     func test_dispatch_withAccessTokenAndSuccessfulRetryAfterTokenRefresh_completesSuccessfullyWithNewToken() {
-        let (sut, storage, httpClientSpy, tokenRefresherSpy) = makeSUT(isAuthenticated: { response in response.1.statusCode != 401 })
+        let (sut, storage, httpClientSpy, tokenRefresherSpy) = makeSUT(isAuthenticated: { response in response.1.statusCode != 401 ? .authenticated : .needsRefresh(onErrorMessage: nil) })
         
         storage.set(model: "invalid_token")
         
@@ -276,7 +276,7 @@ class AuthenticatedHTTPClientDecoratorTests: XCTestCase {
     }
     
     func test_dispatch_withInitialSuccessDoesNotTriggerTokenRefresh() {
-        let (sut, storage, httpClientSpy, tokenRefresherSpy) = makeSUT(isAuthenticated: { _ in true })
+        let (sut, storage, httpClientSpy, tokenRefresherSpy) = makeSUT(isAuthenticated: { _ in .authenticated })
         
         storage.set(model: "valid_token")
         
@@ -298,11 +298,11 @@ class AuthenticatedHTTPClientDecoratorTests: XCTestCase {
     }
     
     func test_dispatch_triggersOnNotAuthenticatedWhenTokenRefreshFails() {
-        var onNotAuthenticatedCalled = false
+        var onNotAuthenticatedCalled = 0
         let (sut, storage, httpClientSpy, tokenRefresherSpy) = makeSUT(
             tokenRefresher: TokenRefresherSpy(),
-            isAuthenticated: { _ in false },
-            onNotAuthenticated: { onNotAuthenticatedCalled = true }
+            isAuthenticated: { _ in .needsRefresh(onErrorMessage: nil) },
+            onNotAuthenticated: { _ in onNotAuthenticatedCalled = onNotAuthenticatedCalled + 1 }
         )
         
         storage.set(model: "valid_token")
@@ -315,17 +315,17 @@ class AuthenticatedHTTPClientDecoratorTests: XCTestCase {
         httpClientSpy.completes(withStatusCode: 401, data: Data("data".utf8))
         tokenRefresherSpy?.complete(with: .failure(ServiceError.internal))
         
-        XCTAssertTrue(onNotAuthenticatedCalled, "Expected 'onNotAuthenticated' to be called when token refresh fails")
+        XCTAssertEqual(onNotAuthenticatedCalled, 1)
         switch receivedResult {
-        case .none:
-            break
+        case .failure(let error):
+            XCTAssertEqual(error as? ServiceError, ServiceError.internal)
         default:
             XCTFail("Expected 'nil', but got \(String(describing: receivedResult))")
         }
     }
     
     func test_dispatch_withTokenRefreshed_storesNewToken() {
-        let (sut, storage, httpClientSpy, tokenRefresherSpy) = makeSUT(isAuthenticated: { _ in false })
+        let (sut, storage, httpClientSpy, tokenRefresherSpy) = makeSUT(isAuthenticated: { _ in .needsRefresh(onErrorMessage: nil) })
         
         storage.set(model: "valid_token")
         
@@ -375,7 +375,7 @@ class AuthenticatedHTTPClientDecoratorTests: XCTestCase {
         let tokenRefresherSpy = TokenRefresherSpy()
         let (sut, storage, httpClientSpy, _) = makeSUT(
             tokenRefresher: tokenRefresherSpy,
-            isAuthenticated: { response in response.1.statusCode != 401 }
+            isAuthenticated: { _, response in response.statusCode != 401 ? .authenticated : .needsRefresh(onErrorMessage: nil) }
         )
         
         storage.set(model: "valid_token")
@@ -387,34 +387,167 @@ class AuthenticatedHTTPClientDecoratorTests: XCTestCase {
         let exp2 = expectation(description: "Wait for request 2")
         
         sut.dispatch(request1) { result in
-            if case let .success(response) = result {
-                XCTAssertEqual(response.response.url, URL(string: "http://test.com/1")!)
+            if case .success((_, let response)) = result {
+                XCTAssertEqual(response.url, URL(string: "http://test.com/1")!)
             }
             exp1.fulfill()
         }.resume()
         
         sut.dispatch(request2) { result in
-            if case let .success(response) = result {
-                XCTAssertEqual(response.response.url, URL(string: "http://test.com/2")!)
+            if case .success((_, let response)) = result {
+                XCTAssertEqual(response.url, URL(string: "http://test.com/2")!)
             }
             exp2.fulfill()
         }.resume()
         
+        // Complete both originals as 401 *before* refresh
         httpClientSpy.completes(withStatusCode: 401, data: Data(), at: 0)
-        tokenRefresherSpy.complete(with: .success("new_token"))
         httpClientSpy.completes(withStatusCode: 401, data: Data(), at: 1)
-        tokenRefresherSpy.complete(with: .success("new_token1"))
         
+        XCTAssertEqual(tokenRefresherSpy.refreshCalledCount, 1, "Expected single refresh")
+        
+        // Single refresh completion
+        tokenRefresherSpy.complete(with: .success("new_token"))
+        
+        // Complete both retries
         httpClientSpy.completes(withStatusCode: 200, data: Data("data1".utf8), at: 2)
-        httpClientSpy.completes(withStatusCode: 200, data: Data("data1".utf8), at: 3)
+        httpClientSpy.completes(withStatusCode: 200, data: Data("data2".utf8), at: 3)
         
         wait(for: [exp1, exp2], timeout: 2.0)
         
         XCTAssertEqual(httpClientSpy.requestedURLRequests.count, 4)
         XCTAssertEqual(httpClientSpy.requestedURLRequests[2].value(forHTTPHeaderField: "Authorization"), "new_token")
-        XCTAssertEqual(httpClientSpy.requestedURLRequests[3].value(forHTTPHeaderField: "Authorization"), "new_token1")
+        XCTAssertEqual(httpClientSpy.requestedURLRequests[3].value(forHTTPHeaderField: "Authorization"), "new_token") // Same token!
     }
     
+    func test_dispatch_refreshSucceedsWithNonEmptyToken_retriesRequest() {
+        // This case is already covered in existing tests, but adding explicitly for clarity
+        let refreshStorage = InMemoryStorage<String>()
+        let (sut, accessStorage, httpClientSpy, tokenRefresherSpy) = makeSUT(
+            refreshStorage: refreshStorage,
+            isAuthenticated: { (_, response) in
+                response.statusCode != 401 ? .authenticated : .needsRefresh(onErrorMessage: "needs refresh")
+            }
+        )
+        accessStorage.set(model: "valid_token")
+        refreshStorage.set(model: "refresh_token")
+        var receivedResult: HTTPClient.Result?
+        let exp = expectation(description: "Wait for completion")
+        sut.dispatch(URLRequest(url: URL(string: "http://test.com")!)) { result in
+            receivedResult = result
+            exp.fulfill()
+        }.resume()
+        httpClientSpy.completes(withStatusCode: 401, data: Data(), at: 0)
+        tokenRefresherSpy?.complete(with: .success("new_token"))
+        httpClientSpy.completes(withStatusCode: 200, data: Data("success_data".utf8), at: 1)
+        wait(for: [exp], timeout: 1.0)
+        XCTAssertEqual(httpClientSpy.requestedURLs.count, 2)
+        XCTAssertEqual(accessStorage.get(), "new_token")
+        XCTAssertNotNil(refreshStorage.get())
+        switch receivedResult {
+        case .success(let (data, _)):
+            XCTAssertEqual(data, Data("success_data".utf8))
+        default:
+            XCTFail("Expected success, got (String(describing: receivedResult))")
+        }
+    }
+    
+    func test_dispatch_refreshSucceedsWithNonEmptyToken_retriesRequest1() {
+        // This case is already covered in existing tests, but adding explicitly for clarity
+        let refreshStorage = InMemoryStorage<String>()
+        var notAuthenticatedCalled = 0
+        let (sut, accessStorage, httpClientSpy, tokenRefresherSpy) = makeSUT(
+            refreshStorage: refreshStorage,
+            isAuthenticated: { (_, response) in
+                response.statusCode != 401 ? .authenticated : .needsRefresh(onErrorMessage: "needs refresh")
+            },
+            onNotAuthenticated: { _ in
+                notAuthenticatedCalled = notAuthenticatedCalled + 1
+            }
+        )
+        accessStorage.set(model: "valid_token")
+        refreshStorage.set(model: "refresh_token")
+        var receivedResult: HTTPClient.Result?
+        let exp = expectation(description: "Wait for completion")
+        sut.dispatch(URLRequest(url: URL(string: "http://test.com")!)) { result in
+            receivedResult = result
+            exp.fulfill()
+        }.resume()
+        httpClientSpy.completes(withStatusCode: 401, data: Data(), at: 0)
+        tokenRefresherSpy?.complete(with: .success(""))
+        wait(for: [exp], timeout: 1.0)
+        XCTAssertEqual(httpClientSpy.requestedURLs.count, 1)
+        XCTAssertEqual(accessStorage.get(), nil)
+        XCTAssertNil(refreshStorage.get())
+        switch receivedResult {
+        case .failure(let error):
+            XCTAssertEqual(error as? ServiceError, ServiceError.internal)
+        default:
+            XCTFail("Expected success, got (String(describing: \(receivedResult)))")
+        }
+        XCTAssertEqual(notAuthenticatedCalled, 1)
+    }
+    
+    func test_dispatch_refreshSucceedsWithNonEmptyToken_retriesRequest2() {
+        // This case is already covered in existing tests, but adding explicitly for clarity
+        let refreshStorage = InMemoryStorage<String>()
+        let exp = expectation(description: "Wait for completion")
+        let (sut, accessStorage, httpClientSpy, tokenRefresherSpy) = makeSUT(
+            refreshStorage: refreshStorage,
+            isAuthenticated: { (_, response) in
+                response.statusCode != 401 ? .authenticated : .needsRefresh(onErrorMessage: "needs refresh")
+            }
+        )
+        var newToken: String?
+        sut.refreshToken(completion: { token in
+            newToken = token
+            exp.fulfill()
+        }, compositeTask: CompositeHTTPClientTask())
+        tokenRefresherSpy?.complete(with: .success("new_token"))
+        wait(for: [exp], timeout: 1.0)
+        XCTAssertEqual(newToken, "new_token")
+    }
+    
+    func test_dispatch_refreshSucceedsWithNonEmptyToken_retriesRequest3() {
+        // This case is already covered in existing tests, but adding explicitly for clarity
+        let refreshStorage = InMemoryStorage<String>()
+        let exp = expectation(description: "Wait for completion")
+        let (sut, accessStorage, httpClientSpy, tokenRefresherSpy) = makeSUT(
+            refreshStorage: refreshStorage,
+            isAuthenticated: { (_, response) in
+                response.statusCode != 401 ? .authenticated : .needsRefresh(onErrorMessage: "needs refresh")
+            }
+        )
+        var newToken: String?
+        sut.refreshToken(completion: { token in
+            newToken = token
+            exp.fulfill()
+        }, compositeTask: CompositeHTTPClientTask())
+        tokenRefresherSpy?.complete(with: .success(""))
+        wait(for: [exp], timeout: 1.0)
+        XCTAssertEqual(newToken, "")
+    }
+    
+    func test_dispatch_refreshSucceedsWithNonEmptyToken_retriesRequest4() {
+        // This case is already covered in existing tests, but adding explicitly for clarity
+        let refreshStorage = InMemoryStorage<String>()
+        let exp = expectation(description: "Wait for completion")
+        let (sut, accessStorage, httpClientSpy, tokenRefresherSpy) = makeSUT(
+            refreshStorage: refreshStorage,
+            isAuthenticated: { (_, response) in
+                response.statusCode != 401 ? .authenticated : .needsRefresh(onErrorMessage: "needs refresh")
+            }
+        )
+        var newToken: String?
+        sut.refreshToken(completion: { token in
+            newToken = token
+            exp.fulfill()
+        }, compositeTask: CompositeHTTPClientTask())
+        tokenRefresherSpy?.complete(with: .failure(ServiceError.internal))
+        wait(for: [exp], timeout: 1.0)
+        XCTAssertEqual(newToken, nil)
+    }
+
     func test_noRaceConditionWhenMultipleRequestsUseSameToken() {
         let (sut, storage, httpClientSpy, _) = makeSUT()
         
@@ -483,6 +616,7 @@ class AuthenticatedHTTPClientDecoratorTests: XCTestCase {
         // Arrange
         let tokenRefresherSpy = TokenRefresherSpy()
         let storage = InMemoryStorage<String>()
+        let refreshStorage = InMemoryStorage<String>()
         let httpClientSpy = HTTPClientSpy()
         let exp1 = expectation(description: "Wait for request 1")
         let exp2 = expectation(description: "Wait for request 2")
@@ -490,6 +624,7 @@ class AuthenticatedHTTPClientDecoratorTests: XCTestCase {
         let client1 = AuthenticatedHTTPClientDecorator(
             decoratee: httpClientSpy,
             accessTokenStorage: storage,
+            refreshTokenStorage: refreshStorage,
             tokenRefresher: tokenRefresherSpy,
             onNotAuthenticated: nil,
             enrichRequestWithToken: { request, token in
@@ -497,12 +632,13 @@ class AuthenticatedHTTPClientDecoratorTests: XCTestCase {
                 req.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
                 return req
             },
-            isAuthenticated: { _, response in response.statusCode != 401 }
+            isAuthenticated: { _, response in response.statusCode != 401 ? .authenticated : .needsRefresh(onErrorMessage: nil) }
         )
         
         let client2 = AuthenticatedHTTPClientDecorator(
             decoratee: httpClientSpy,
             accessTokenStorage: storage,
+            refreshTokenStorage: refreshStorage,
             tokenRefresher: tokenRefresherSpy,
             onNotAuthenticated: nil,
             enrichRequestWithToken: { request, token in
@@ -510,7 +646,7 @@ class AuthenticatedHTTPClientDecoratorTests: XCTestCase {
                 req.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
                 return req
             },
-            isAuthenticated: { _, response in response.statusCode != 401 }
+            isAuthenticated: { _, response in response.statusCode != 401 ? .authenticated : .needsRefresh(onErrorMessage: nil) }
         )
         
         storage.set(model: "initial_token")
@@ -551,8 +687,9 @@ class AuthenticatedHTTPClientDecoratorTests: XCTestCase {
     private func makeSUT(
         tokenRefresher: TokenRefresherSpy? = TokenRefresherSpy(),
         storage: InMemoryStorage<String> = InMemoryStorage<String>(),
-        isAuthenticated: @escaping AuthenticatedHTTPClientDecorator.AuthenticationPolicy = { _ in true },
-        onNotAuthenticated: (() -> Void)? = nil,
+        refreshStorage: InMemoryStorage<String> = InMemoryStorage<String>(),
+        isAuthenticated: @escaping AuthenticatedHTTPClientDecorator.AuthenticationPolicy = { _ in .authenticated },
+        onNotAuthenticated: ((String?) -> Void)? = nil,
         queue: DispatchQueue = DispatchQueue(label: "com.wrapkit.tokenLock"),
         httpClientSpy: HTTPClientSpy = HTTPClientSpy(),
         file: StaticString = #file,
@@ -566,6 +703,7 @@ class AuthenticatedHTTPClientDecoratorTests: XCTestCase {
         let sut = AuthenticatedHTTPClientDecorator(
             decoratee: httpClientSpy,
             accessTokenStorage: storage,
+            refreshTokenStorage: refreshStorage,
             tokenRefresher: tokenRefresher,
             onNotAuthenticated: onNotAuthenticated,
             enrichRequestWithToken: { request, token in

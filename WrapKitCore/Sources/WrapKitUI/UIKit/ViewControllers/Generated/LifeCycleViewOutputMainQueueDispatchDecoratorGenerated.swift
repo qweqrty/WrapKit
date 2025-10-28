@@ -44,6 +44,11 @@ extension MainQueueDispatchDecorator: LifeCycleViewOutput where T: LifeCycleView
             self?.decoratee.viewDidDisappear()
         }
     }
+    public func viewDidLayoutSubviews() {
+        dispatch { [weak self] in
+            self?.decoratee.viewDidLayoutSubviews()
+        }
+    }
     public func composed(with output: LifeCycleViewOutput) {
         dispatch { [weak self] in
             self?.decoratee.composed(with: output)

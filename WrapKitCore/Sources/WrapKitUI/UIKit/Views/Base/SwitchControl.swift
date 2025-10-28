@@ -8,23 +8,21 @@ import Foundation
 
 public protocol SwitchCotrolOutput: AnyObject {
     func display(model: SwitchControlPresentableModel?)
-    func display(onPress: ((SwitchCotrolOutput) -> Void)?)
+    func display(onPress: ((SwitchCotrolOutput & LoadingOutput) -> Void)?)
     func display(isOn: Bool)
-    func display(style: SwitchControlPresentableModel.Style)
+    func display(style: SwitchControlPresentableModel.Style?)
     func display(isEnabled: Bool)
     func display(isHidden: Bool)
-    
-    func display(isLoading: Bool, shimmerStyle: ShimmerStyle?)
 }
 
 public struct SwitchControlPresentableModel {
-    public let onPress: ((SwitchCotrolOutput) -> Void)?
+    public let onPress: ((SwitchCotrolOutput & LoadingOutput) -> Void)?
     public let isOn: Bool?
     public let isEnabled: Bool?
     public let style: Style?
     
     public init(
-        onPress: ((SwitchCotrolOutput) -> Void)? = nil,
+        onPress: ((SwitchCotrolOutput & LoadingOutput) -> Void)? = nil,
         isOn: Bool? = nil,
         isEnabled: Bool? = nil,
         style: Style? = nil
@@ -40,17 +38,20 @@ public struct SwitchControlPresentableModel {
         public let thumbTintColor: Color
         public let backgroundColor: Color
         public let cornerRadius: CGFloat
-        
+        public let shimmerStyle: ShimmerStyle?
+
         public init(
             tintColor: Color,
             thumbTintColor: Color,
             backgroundColor: Color,
-            cornerRadius: CGFloat
+            cornerRadius: CGFloat,
+            shimmerStyle: ShimmerStyle? = nil
         ) {
             self.tintColor = tintColor
             self.thumbTintColor = thumbTintColor
             self.backgroundColor = backgroundColor
             self.cornerRadius = cornerRadius
+            self.shimmerStyle = shimmerStyle
         }
     }
 }
@@ -59,7 +60,13 @@ public struct SwitchControlPresentableModel {
 import UIKit
 
 open class SwitchControl: UISwitch {
-    public var onPress: ((SwitchCotrolOutput) -> Void)?
+    public var onPress: ((SwitchCotrolOutput & LoadingOutput) -> Void)?
+    public var isLoading: Bool?
+    private var switchStyle: SwitchControlPresentableModel.Style? {
+        didSet {
+            display(style: switchStyle)
+        }
+    }
     
     public init() {
         super.init(frame: .zero)
@@ -69,6 +76,7 @@ open class SwitchControl: UISwitch {
     public init(style: SwitchControlPresentableModel.Style) {
         super.init(frame: .zero)
         addTarget(self, action: #selector(didPress), for: .valueChanged)
+        self.switchStyle = style
         display(style: style)
     }
     
@@ -87,18 +95,20 @@ extension SwitchControl: SwitchCotrolOutput {
         isHidden = model == nil
         if let isOn = model?.isOn { display(isOn: isOn) }
         if let isEnabled = model?.isEnabled { display(isEnabled: isEnabled) }
-        if let style = model?.style { display(style: style) }
+        if let style = model?.style {
+            switchStyle = style
+        }
         display(onPress: model?.onPress)
     }
     
-    public func display(style: SwitchControlPresentableModel.Style) {
-        tintColor = style.tintColor
-        thumbTintColor = style.thumbTintColor
-        backgroundColor = style.backgroundColor
-        cornerRadius = style.cornerRadius
+    public func display(style: SwitchControlPresentableModel.Style?) {
+        onTintColor = style?.tintColor
+        thumbTintColor = style?.thumbTintColor
+        backgroundColor = style?.backgroundColor
+        cornerRadius = style?.cornerRadius ?? 0
     }
     
-    public func display(onPress: ((SwitchCotrolOutput) -> Void)?) {
+    public func display(onPress: ((SwitchCotrolOutput & LoadingOutput) -> Void)?) {
         self.onPress = onPress
     }
     
@@ -113,17 +123,17 @@ extension SwitchControl: SwitchCotrolOutput {
     public func display(isHidden: Bool) {
         self.isHidden = isHidden
     }
-    
-    public func display(isLoading: Bool, shimmerStyle: ShimmerStyle?) {
-        var shimmerView: ShimmerView? = nil
-        if let shimmerStyle {
-            shimmerView = ShimmerView(backgroundColor: shimmerStyle.backgroundColor)
-            shimmerView?.style = shimmerStyle
+}
+
+extension SwitchControl: LoadingOutput {
+    public func display(isLoading: Bool) {
+        if isLoading {
+            let shimmerView = ShimmerView(backgroundColor: switchStyle?.backgroundColor ?? .clear)
+            shimmerView.style = switchStyle?.shimmerStyle
+            showShimmer(shimmerView, heightMultiplier: 1, widthMultiplier: 1.1)
+        } else {
+            hideShimmer()
         }
-        
-        isLoading
-        ? self.showShimmer(shimmerView, heightMultiplier: 1, widthMultiplier: 1.1)
-        : self.hideShimmer()
     }
 }
 #endif

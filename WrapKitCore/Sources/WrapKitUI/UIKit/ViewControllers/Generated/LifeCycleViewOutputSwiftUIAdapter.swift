@@ -56,6 +56,13 @@ public class LifeCycleViewOutputSwiftUIAdapter: ObservableObject, LifeCycleViewO
         viewDidDisappearState = .init(
         )
     }
+    @Published public var viewDidLayoutSubviewsState: ViewDidLayoutSubviewsState? = nil
+    public struct ViewDidLayoutSubviewsState {
+    }
+    public func viewDidLayoutSubviews() {
+        viewDidLayoutSubviewsState = .init(
+        )
+    }
     @Published public var composedOutputState: ComposedOutputState? = nil
     public struct ComposedOutputState {
         public let output: LifeCycleViewOutput
