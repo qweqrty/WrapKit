@@ -31,6 +31,9 @@ extension WeakRefVirtualProxy: DatePickerViewOutput where T: DatePickerViewOutpu
     public func display(setDate: Date, animated: Bool) {
         object?.display(setDate: setDate, animated: animated)
     }
+    public func display(model: DatePickerPresentableModel) {
+        object?.display(model: model)
+    }
 
 }
 #endif

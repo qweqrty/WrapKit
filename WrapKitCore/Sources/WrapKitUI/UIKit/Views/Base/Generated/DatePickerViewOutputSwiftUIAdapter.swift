@@ -53,4 +53,13 @@ public class DatePickerViewOutputSwiftUIAdapter: ObservableObject, DatePickerVie
             animated: animated
         )
     }
+    @Published public var displayModelState: DisplayModelState? = nil
+    public struct DisplayModelState {
+        public let model: DatePickerPresentableModel
+    }
+    public func display(model: DatePickerPresentableModel) {
+        displayModelState = .init(
+            model: model
+        )
+    }
 }
