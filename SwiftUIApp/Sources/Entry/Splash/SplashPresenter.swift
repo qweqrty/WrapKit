@@ -20,7 +20,11 @@ public class SplashPresenter: LifeCycleViewOutput, ApplicationLifecycleOutput {
     // MARK: - View Lifecycle
     public func viewDidLoad() {
         print("SplashPresenter: viewDidLoad()")
-        textOutput?.display(text: "display(text: String) implementation - `The quick brown fox jumps over the lazy dog`")
+        setupTextOutput()
+        setupImageOutput()
+    }
+    
+    private func setupTextOutput() {
         textOutput?.display(
             attributes: [
                 .init(
@@ -80,11 +84,10 @@ public class SplashPresenter: LifeCycleViewOutput, ApplicationLifecycleOutput {
                 )
             ]
         )
-        
-        showImage()
+
     }
     
-    private func showImage() {
+    private func setupImageOutput() {
         let urlStringLight = "https://developer.apple.com/assets/elements/icons/swift/swift-64x64_2x.png"
         let urlStringDark = "https://uxwing.com/wp-content/themes/uxwing/download/web-app-development/dark-mode-icon.png"
         
