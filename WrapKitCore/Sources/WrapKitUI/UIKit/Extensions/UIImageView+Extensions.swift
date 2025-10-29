@@ -48,23 +48,23 @@ public extension ImageView {
             case .success(let image):
                 self?.animatedSet(image.image, closure: closure)
 
-                KingfisherManager.shared.retrieveImage(with: url, options: [.callbackQueue(.mainCurrentOrAsync), .forceRefresh] + kingfisherOptions) { [weak self, url] result in
+                self?.kf.setImage(with: url, options: [.callbackQueue(.mainCurrentOrAsync), .forceRefresh] + kingfisherOptions, completionHandler: { result in
                     switch result {
-                    case .success(let image):
-                        self?.animatedSet(image.image, closure: closure)
+                    case .success(let result):
+                        self?.viewWhileLoadingView?.isHidden = true
                     case .failure:
                         self?.showFallbackView(url)
                     }
-                }
+                })
             case.failure:
-                KingfisherManager.shared.retrieveImage(with: url, options: [.callbackQueue(.mainCurrentOrAsync)] + kingfisherOptions) { [weak self, url] result in
+                self?.kf.setImage(with: url, options: [.callbackQueue(.mainCurrentOrAsync)] + kingfisherOptions, completionHandler: { result in
                     switch result {
-                    case .success(let image):
-                        self?.animatedSet(image.image, closure: closure)
+                    case .success(let result):
+                        self?.viewWhileLoadingView?.isHidden = true
                     case .failure:
                         self?.showFallbackView(url)
                     }
-                }
+                })
             }
         }
     }
