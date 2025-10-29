@@ -72,25 +72,25 @@ public class SplashPresenter: LifeCycleViewOutput, ApplicationLifecycleOutput {
                     onTap: { print("on tap full text") }
                 ),
                 .init(
-                    text: "\njumps over the lazy dog cvdsf asdf asdf asdf asdfhaslkdfjh alsdkjfh alsdkjf",
+                    text: "\nline _ one _ ",
                     color: .gray,
                     font: .boldSystemFont(ofSize: 26),
                     underlineStyle: .thick,
-                    textAlignment: .natural
+                    textAlignment: .left
                 ),
                 .init(
-                    text: "\njumps over the lazy dog cvdsf asdf asdf asdf asdfhaslkdfjh alsdkjfh alsdkjf",
+                    text: "line _ two ___ ",
                     color: .gray,
                     font: .boldSystemFont(ofSize: 26),
-                    underlineStyle: .thick,
-                    textAlignment: .natural
+                    underlineStyle: .byWord,
+                    textAlignment: .right
                 ),
                 .init(
-                    text: "\njumps over the lazy dog cvdsf asdf asdf asdf asdfhaslkdfjh alsdkjfh alsdkjf",
+                    text: "\\n\nline _ three\n\\n",
                     color: .gray,
                     font: .boldSystemFont(ofSize: 26),
-                    underlineStyle: .thick,
-                    textAlignment: .natural
+                    underlineStyle: .double,
+                    textAlignment: .right
                 ),
             ]
         )

@@ -27,8 +27,16 @@ public struct SplashContentView: View {
             applicationLifecycleOutput: applicationLifecycleOutput
         ) {
             ScrollView(.vertical) {
-                SUILabel(adapter: adapter)
-                    .frame(maxWidth: .infinity)
+                VStack {
+                    SUILabel(adapter: adapter)
+                        .frame(maxWidth: .infinity)
+                    
+                    Divider()
+#if canImport(UIKit)
+                    FallbackLabel(adapter: adapter)
+                        .frame(maxWidth: .infinity)
+#endif
+                }
             }
             .frame(maxWidth: .infinity)
             .background(
