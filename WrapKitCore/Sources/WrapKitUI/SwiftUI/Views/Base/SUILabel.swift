@@ -60,14 +60,7 @@ public struct SUILabel: View {
             
             if #available(iOS 15, macOS 12, tvOS 15, watchOS 8, *) {
                 let attributedString = AttributedString(makeNSAttributedString(item))
-                let textView = Text(attributedString).ifLet(item.underlineStyle) {
-                    // fix NSUnderlineStyle in SwiftUI
-                    if #available(iOS 16, macOS 13, tvOS 16, watchOS 9, *), let pattern = $1.suiTextLineStylePattern {
-                        $0.underline(pattern: pattern)
-                    } else {
-                        $0
-                    }
-                }
+                let textView = Text(attributedString)
                 result.append(textView)
             } else {
                 let textView: Text = Text(item.text)
@@ -107,12 +100,12 @@ public struct SUILabel: View {
         let resultRect = CGRect(x: x, y: y, width: rect.width, height: rect.height)
         return (resultRect, targetSize)
     }
+    
+    private let unsupportedUnderlines: [NSUnderlineStyle] = [.thick, .double, .byWord]
 
     private func makeNSAttributedString(_ item: TextAttributes) -> NSAttributedString {
         var underlineStyle = item.underlineStyle
-        if #available(iOS 16, macOS 13, tvOS 16, watchOS 9, *) {
-            underlineStyle = nil // broken in SwiftUI, had to remove from iOS 16
-        }
+        if let style = underlineStyle, unsupportedUnderlines.contains(style) { underlineStyle = [.single] }
         return NSAttributedString(
             item.text,
             font: item.font, // ?? font,

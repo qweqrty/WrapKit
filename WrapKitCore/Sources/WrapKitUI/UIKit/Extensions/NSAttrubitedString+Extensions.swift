@@ -37,7 +37,7 @@ public extension NSAttributedString {
         }
 
         if let underlineStyle {
-            attributes[.underlineStyle] = underlineStyle.rawValue
+            attributes[.underlineStyle] = underlineStyle.rawValue | NSUnderlineStyle.single.rawValue // others not working without, only with OR
         }
         
         let attributedString = NSMutableAttributedString(string: "", attributes: attributes)

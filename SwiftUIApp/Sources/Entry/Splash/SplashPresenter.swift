@@ -77,7 +77,21 @@ public class SplashPresenter: LifeCycleViewOutput, ApplicationLifecycleOutput {
                     font: .boldSystemFont(ofSize: 26),
                     underlineStyle: .thick,
                     textAlignment: .natural
-                )
+                ),
+                .init(
+                    text: "\njumps over the lazy dog cvdsf asdf asdf asdf asdfhaslkdfjh alsdkjfh alsdkjf",
+                    color: .gray,
+                    font: .boldSystemFont(ofSize: 26),
+                    underlineStyle: .thick,
+                    textAlignment: .natural
+                ),
+                .init(
+                    text: "\njumps over the lazy dog cvdsf asdf asdf asdf asdfhaslkdfjh alsdkjfh alsdkjf",
+                    color: .gray,
+                    font: .boldSystemFont(ofSize: 26),
+                    underlineStyle: .thick,
+                    textAlignment: .natural
+                ),
             ]
         )
     }
