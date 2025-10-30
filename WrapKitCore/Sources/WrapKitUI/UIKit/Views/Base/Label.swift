@@ -103,6 +103,10 @@ extension Label: TextOutput {
 open class Label: UILabel {
     public var textInsets: UIEdgeInsets = .zero
     public var cornerStyle: CornerStyle?
+    
+    let layoutManager = NSLayoutManager()
+    let textContainer = NSTextContainer(size: CGSize.zero)
+    var textStorage = NSTextStorage()
 
     public init(
         backgroundColor: UIColor? = .clear,
@@ -132,7 +136,12 @@ open class Label: UILabel {
         self.numberOfLines = numberOfLines
         self.cornerStyle = cornerStyle
         self.textInsets = textInsets
+        
         addGestureRecognizer(tapGesture)
+        textContainer.lineFragmentPadding = 0.0
+        textContainer.lineBreakMode = self.lineBreakMode
+        textContainer.maximumNumberOfLines = self.numberOfLines
+        layoutManager.addTextContainer(textContainer)
     }
     
     override init(frame: CGRect) {
@@ -146,7 +155,12 @@ open class Label: UILabel {
         self.minimumScaleFactor = 0
         self.adjustsFontSizeToFitWidth = false
         self.isUserInteractionEnabled = true
+        
         addGestureRecognizer(tapGesture)
+        textContainer.lineFragmentPadding = 0.0
+        textContainer.lineBreakMode = self.lineBreakMode
+        textContainer.maximumNumberOfLines = self.numberOfLines
+        layoutManager.addTextContainer(textContainer)
     }
     
     open override func layoutSubviews() {
@@ -161,6 +175,8 @@ open class Label: UILabel {
             layer.cornerRadius = 0
         }
         clipsToBounds = true
+        
+        textContainer.size = bounds.size
     }
     
     open override func drawText(in rect: CGRect) {
@@ -198,27 +214,10 @@ open class Label: UILabel {
                 attributedText = nil
                 return
             }
-            
-            let combinedAttributedString = NSMutableAttributedString()
-            for (index, current) in attributes.enumerated() {
-                combinedAttributedString.append(
-                    NSAttributedString(
-                        current.text,
-                        font: current.font ?? font,
-                        color: current.color ?? textColor,
-                        lineSpacing: 4,
-                        underlineStyle: current.underlineStyle ?? [],
-                        textAlignment: current.textAlignment ?? textAlignment,
-                        leadingImage: current.leadingImage,
-                        leadingImageBounds: current.leadingImageBounds,
-                        trailingImage: current.trailingImage,
-                        trailingImageBounds: current.trailingImageBounds
-                    )
-                )
-                let currentLocation = combinedAttributedString.length - current.text.count
-                attributes[index].range = NSRange(location: currentLocation, length: current.text.count)
-            }
+            let combinedAttributedString = attributes.makeNSAttributedString(font: font, textColor: textColor, textAlignment: textAlignment)
             attributedText = combinedAttributedString
+            self.textStorage = NSTextStorage(attributedString: combinedAttributedString)
+            self.textStorage.addLayoutManager(layoutManager)
         }
     }
     
@@ -256,9 +255,25 @@ public extension Label {
 extension Label: UIGestureRecognizerDelegate {
     open override func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
         guard gestureRecognizer == tapGesture else { return true }
+        
+        // Configure the text container
+        textContainer.lineFragmentPadding = 0.0
+        textContainer.lineBreakMode = self.lineBreakMode
+        textContainer.maximumNumberOfLines = self.numberOfLines
+        textContainer.size = self.bounds.size
+        
+        let point = gestureRecognizer.location(in: self)
+        
         for attribute in attributes {
             guard let range = attribute.range else { continue }
-            if tapGesture.didTapAttributedTextInLabel(label: self, textAlignment: attribute.textAlignment ?? textAlignment, inRange: range), let onTap = attribute.onTap {
+            if NSLayoutManager.didTapAttributedTextInLabel(
+                point: point,
+                layoutManager: layoutManager,
+                textStorage: textStorage,
+                textContainer: textContainer,
+                textAlignment: attribute.textAlignment ?? textAlignment,
+                inRange: range
+            ), let onTap = attribute.onTap {
                 onTap()
                 return true
             }

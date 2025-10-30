@@ -55,3 +55,46 @@ public struct TextAttributes {
     public let onTap: (() -> Void)?
     var range: NSRange?
 }
+
+public extension TextAttributes {
+    func makeNSAttributedString(
+        unsupportedUnderlines: [NSUnderlineStyle] = [],
+        font: Font? = nil,
+        textColor: Color? = nil,
+        textAlignment: TextAlignment? = nil
+    ) -> NSAttributedString {
+        var underlineStyle = self.underlineStyle
+        if let style = underlineStyle, unsupportedUnderlines.contains(style) { underlineStyle = .single } // others not working without, only with OR
+        return NSAttributedString(
+            self.text,
+            font: self.font ?? font,
+            color: self.color ?? textColor,
+            lineSpacing: 4,
+            underlineStyle: underlineStyle,
+            textAlignment: self.textAlignment ?? textAlignment,
+            leadingImage: self.leadingImage,
+            leadingImageBounds: self.leadingImageBounds,
+            trailingImage: self.trailingImage,
+            trailingImageBounds: self.trailingImageBounds
+        )
+    }
+}
+
+public extension [TextAttributes] {
+    mutating func makeNSAttributedString(
+        unsupportedUnderlines: [NSUnderlineStyle] = [],
+        font: Font? = nil,
+        textColor: Color? = nil,
+        textAlignment: TextAlignment? = nil
+    ) -> NSAttributedString {
+        let combinedAttributedString = NSMutableAttributedString()
+        for (index, current) in self.enumerated() {
+            let attrString = current.makeNSAttributedString(unsupportedUnderlines: unsupportedUnderlines, font: font, textColor: textColor, textAlignment: textAlignment)
+            combinedAttributedString.append(attrString)
+            
+            let currentLocation = combinedAttributedString.length - attrString.length
+            self[index].range = NSRange(location: currentLocation, length: attrString.length)
+        }
+        return combinedAttributedString
+    }
+}

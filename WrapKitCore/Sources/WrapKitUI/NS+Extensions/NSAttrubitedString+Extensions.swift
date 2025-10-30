@@ -140,3 +140,10 @@ public extension NSAttributedString {
     }
 }
 #endif
+
+public extension NSMutableAttributedString {
+    func appending(_ other: NSAttributedString) -> Self {
+        self.append(other)
+        return self
+    }
+}

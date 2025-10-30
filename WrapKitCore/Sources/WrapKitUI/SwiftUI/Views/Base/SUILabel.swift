@@ -60,7 +60,7 @@ public struct SUILabel: View {
             }
             
             if #available(iOS 15, macOS 12, tvOS 15, watchOS 8, *) {
-                let attributedString = AttributedString(makeNSAttributedString(item))
+                let attributedString = AttributedString(item.makeNSAttributedString(unsupportedUnderlines: unsupportedUnderlines))
                 let textView = Text(attributedString)
                 result.append(textView)
             } else {
@@ -80,13 +80,21 @@ public struct SUILabel: View {
         
         let resultText = result.reduce(Text(""), +)
         
-        let textAlignment = attributes.first(where: { $0.textAlignment != nil })?.textAlignment?.suiTextAlignment
+        let textAlignment = attributes.first(where: { $0.textAlignment != nil })?.textAlignment
+        let suiTextAlignment = textAlignment?.suiTextAlignment
         
         return resultText
-            .ifLet(textAlignment, modifier: { $0.multilineTextAlignment($1) })
-            .onTapGestureLocation { point in
-                
-            }
+//            .ifLet(suiTextAlignment, modifier: { $0.multilineTextAlignment($1) })
+//            .overlay {
+//                if #available(iOS 15, macOS 12, tvOS 15, watchOS 8, *) {
+//                    LinkTapOverlay(attributes: attributes, textAlignment: textAlignment)
+//                }
+//            }
+            .background( // TODO: check on iOS 14
+                GeometryReader { geometry in
+                    LinkTapOverlay(attributes: attributes, textAlignment: textAlignment)
+                }
+            )
     }
     
     private func buildSUIImageInText(bounds source: CGRect, image: Image) -> Text {
@@ -100,29 +108,12 @@ public struct SUILabel: View {
     private func resizeImageBoundsSUI(_ rect: CGRect) -> (rect: CGRect, size: CGSize) {
         let targetSize = CGSize(width: abs(rect.origin.x) + rect.width, height: rect.size.height + abs(rect.origin.y))
         let x = rect.origin.x < .zero ? abs(rect.origin.x) : .zero
-        let y = abs(rect.origin.y) // rect.origin.y > .zero ? abs(rect.origin.y) : .zero
+        let y = abs(rect.origin.y) // needed to fix image placement with Text.baselineOffset
         let resultRect = CGRect(x: x, y: y, width: rect.width, height: rect.height)
         return (resultRect, targetSize)
     }
     
     private let unsupportedUnderlines: [NSUnderlineStyle] = [.thick, .double, .byWord]
-
-    private func makeNSAttributedString(_ item: TextAttributes) -> NSAttributedString {
-        var underlineStyle = item.underlineStyle
-        if let style = underlineStyle, unsupportedUnderlines.contains(style) { underlineStyle = .single } // others not working without, only with OR
-        return NSAttributedString(
-            item.text,
-            font: item.font, // ?? font,
-            color: item.color, // ?? textColor,
-            lineSpacing: 4,
-            underlineStyle: underlineStyle,
-            textAlignment: item.textAlignment, // ?? textAlignment,
-            leadingImage: item.leadingImage,
-            leadingImageBounds: item.leadingImageBounds,
-            trailingImage: item.trailingImage,
-            trailingImageBounds: item.trailingImageBounds
-        )
-    }
 }
 
 #if canImport(UIKit)
@@ -163,6 +154,112 @@ public extension UIImage {
     }
 }
 
+private struct LinkTapOverlay: UIViewRepresentable {
+    private(set) var attributes: [TextAttributes]
+    let attributedString: NSAttributedString
+    let textAlignment: TextAlignment
+    
+    init(
+        attributes: [TextAttributes],
+//        font: Font,
+//        textColor: Color,
+        textAlignment: TextAlignment? = nil
+    ) {
+        self.attributes = attributes
+        self.textAlignment = textAlignment ?? .left
+        self.attributedString = self.attributes.makeNSAttributedString(textAlignment: textAlignment)
+    }
+
+    func makeUIView(context: Context) -> LinkTapOverlayView {
+        let view = LinkTapOverlayView { size in
+            context.coordinator.textContainer.size = size
+        }
+        view.isUserInteractionEnabled = true
+        let tapGesture = UITapGestureRecognizer(target: context.coordinator, action: #selector(Coordinator.didTapLabel))
+        tapGesture.delegate = context.coordinator
+        view.addGestureRecognizer(tapGesture)
+
+        return view
+    }
+
+    func updateUIView(_ uiView: LinkTapOverlayView, context: Context) {
+        context.coordinator.fillAtrributedString(attributedString)
+    }
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(self)
+    }
+
+    final class Coordinator: NSObject, UIGestureRecognizerDelegate {
+        private let overlay: LinkTapOverlay
+
+        private let layoutManager = NSLayoutManager()
+        let textContainer = NSTextContainer(size: .zero)
+        private var textStorage: NSTextStorage = .init()
+
+        init(_ overlay: LinkTapOverlay) {
+            self.overlay = overlay
+
+            textContainer.lineFragmentPadding = 0
+            textContainer.lineBreakMode = .byWordWrapping
+            textContainer.maximumNumberOfLines = 0
+            layoutManager.addTextContainer(textContainer)
+        }
+        
+        func fillAtrributedString(_ attributedString: NSAttributedString) {
+            self.textStorage = NSTextStorage(attributedString: attributedString)
+            self.textStorage.addLayoutManager(layoutManager)
+        }
+
+        func gestureRecognizer(_ gesture: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+            guard let view = gesture.view else { return false }
+            let location = touch.location(in: view)
+            return tappable(location: location) != nil
+        }
+
+        @objc func didTapLabel(_ gesture: UITapGestureRecognizer) {
+            guard let view = gesture.view else { return }
+            let location = gesture.location(in: view)
+            tappable(location: location)?()
+        }
+
+        private func tappable(location: CGPoint) -> (() -> Void)? {
+            for attribute in overlay.attributes {
+                guard let range = attribute.range else { continue }
+                if NSLayoutManager.didTapAttributedTextInLabel(
+                    point: location,
+                    layoutManager: layoutManager,
+                    textStorage: textStorage,
+                    textContainer: textContainer,
+                    textAlignment: overlay.textAlignment,
+                    inRange: range
+                ) {
+                    return attribute.onTap
+                }
+            }
+            return nil
+        }
+    }
+}
+
+private class LinkTapOverlayView: UIView {
+    var onUpdateBounds: ((CGSize) -> Void)?
+    
+    init(onUpdateBounds: @escaping ((CGSize) -> Void)) {
+        self.onUpdateBounds = onUpdateBounds
+        super.init(frame: .zero)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        onUpdateBounds?(bounds.size)
+    }
+}
+
 #endif
 
 #if canImport(Cocoa) && !targetEnvironment(macCatalyst)
@@ -200,20 +297,6 @@ public extension NSImage {
     }
 }
 #endif
-
-extension NSUnderlineStyle {
-    @available(iOS 15, macOS 12, tvOS 15, watchOS 8, *)
-    var suiTextLineStylePattern: Text.LineStyle.Pattern? {
-        switch self {
-        case .single, .double, .byWord: return .solid
-        case .patternDot: return .dot
-        case .patternDash: return .dash
-        case .patternDashDot: return .dashDot
-        case .patternDashDotDot: return .dashDotDot
-        default: return nil
-        }
-    }
-}
 
 extension NSTextAlignment {
     var suiTextAlignment: SwiftUI.TextAlignment {
