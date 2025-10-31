@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import CoreGraphics
 
 public enum VideoQualityType: Int {
     case typeHigh = 0
@@ -16,7 +17,23 @@ public enum VideoQualityType: Int {
     case typeIFrame960x540 = 5
 }
 
-public struct CameraPickerConfiguration {
+public enum CameraCaptureMode: Int {
+    case photo = 0
+    case video = 1
+}
+
+public enum CameraDevice: Int {
+    case rear = 0
+    case front = 1
+}
+
+public enum CameraFlashMode: Int {
+    case off = -1
+    case auto = 0
+    case on = 1
+}
+
+public struct CameraPickerConfiguration<T> {
     
     public let title: String
     public let mediaTypes: [String]
@@ -24,29 +41,29 @@ public struct CameraPickerConfiguration {
     public let videoMaximumDuration: TimeInterval
     public let videoQuality: VideoQualityType
     public let showsCameraControls: Bool
-    public let cameraOverlayView: ViewUIKit?
-    public let cameraViewTransform: CGAffineTransform
     
     /// For video, make sure to include mediaTypes "public.video"
-    public let cameraCaptureMode: UIImagePickerController.CameraCaptureMode
+    public let cameraCaptureMode: CameraCaptureMode
+    public let cameraOverlayView: T?
+    public let cameraViewTransform: CGAffineTransform
+    public let cameraDevice: CameraDevice
+    public let cameraFlashMode: CameraFlashMode
     
-    public let cameraDevice: UIImagePickerController.CameraDevice
-    public let cameraFlashMode: UIImagePickerController.CameraFlashMode
-    public let desiredResultType: MediaPickerManager.DesiredResultType
+    public let desiredResultType: DesiredResultType
     
     public init(
         title: String,
-        desiredResultType: MediaPickerManager.DesiredResultType = .url,
-        mediaTypes: [String] = [MediaPickerManager.Constants.imageIdent],
+        desiredResultType: DesiredResultType = .url,
+        mediaTypes: [String] = [MediaPickerConstants.imageIdent],
         allowsEditing: Bool = false,
         videoMaximumDuration: TimeInterval = 10,
         videoQuality: VideoQualityType = .typeMedium,
         showsCameraControls: Bool = true,
-        cameraOverlayView: ViewUIKit? = nil,
+        cameraOverlayView: T? = nil,
         cameraViewTransform: CGAffineTransform = .identity,
-        cameraCaptureMode: UIImagePickerController.CameraCaptureMode = .photo,
-        cameraDevice: UIImagePickerController.CameraDevice = .front,
-        cameraFlashMode: UIImagePickerController.CameraFlashMode = .auto
+        cameraCaptureMode: CameraCaptureMode = .photo,
+        cameraDevice: CameraDevice = .front,
+        cameraFlashMode: CameraFlashMode = .auto
     ) {
         self.mediaTypes = mediaTypes
         self.allowsEditing = allowsEditing
@@ -73,20 +90,19 @@ extension CameraPickerConfiguration {
         picker.mediaTypes = mediaTypes
         picker.allowsEditing = allowsEditing
         picker.videoMaximumDuration = videoMaximumDuration
-        picker.videoQuality = videoQuality.asUIImagePickerControllerQualityType
+        picker.videoQuality = videoQuality.asUIImagePickerQualityType
         picker.showsCameraControls = showsCameraControls
-        picker.cameraOverlayView = cameraOverlayView
+        picker.cameraOverlayView = cameraOverlayView as? UIView
         picker.cameraViewTransform = cameraViewTransform
-        picker.cameraCaptureMode = cameraCaptureMode /// For video, make sure to include mediaTypes "public.video"
-        picker.cameraDevice = cameraDevice
-        picker.cameraFlashMode = cameraFlashMode
-       
+        picker.cameraCaptureMode = cameraCaptureMode.asUIImagePickerCameraCaptureMode /// For video, make sure to include mediaTypes "public.video"
+        picker.cameraDevice = cameraDevice.asUIImagePickerCameraDevice
+        picker.cameraFlashMode = cameraFlashMode.asUIImagePickerCameraFlashMode
         return picker
     }
 }
 
 extension VideoQualityType {
-    var asUIImagePickerControllerQualityType: UIImagePickerController.QualityType {
+    var asUIImagePickerQualityType: UIImagePickerController.QualityType {
         switch self {
         case .typeHigh:
                 .typeHigh
@@ -100,6 +116,41 @@ extension VideoQualityType {
                 .typeIFrame1280x720
         case .typeIFrame960x540:
                 .typeIFrame960x540
+        }
+    }
+}
+
+extension CameraCaptureMode {
+    var asUIImagePickerCameraCaptureMode: UIImagePickerController.CameraCaptureMode {
+        switch self {
+        case .photo:
+                .photo
+        case .video:
+                .video
+        }
+    }
+}
+
+extension CameraDevice {
+    var asUIImagePickerCameraDevice: UIImagePickerController.CameraDevice {
+        switch self {
+        case .rear:
+                .rear
+        case .front:
+                .front
+        }
+    }
+}
+
+extension CameraFlashMode {
+    var asUIImagePickerCameraFlashMode: UIImagePickerController.CameraFlashMode {
+        switch self {
+        case .off:
+                .off
+        case .auto:
+                .auto
+        case .on:
+                .on
         }
     }
 }
