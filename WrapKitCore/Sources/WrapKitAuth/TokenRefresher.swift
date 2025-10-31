@@ -8,8 +8,18 @@
 import Foundation
 import Combine
 
+public struct Tokens {
+    public let accessToken: String
+    public let refreshToken: String?
+    
+    public init(accessToken: String, refreshToken: String? = nil) {
+        self.accessToken = accessToken
+        self.refreshToken = refreshToken
+    }
+}
+
 public protocol TokenRefresher {
-    func refresh(completion: @escaping (Result<String, ServiceError>) -> Void)
+    func refresh(completion: @escaping (Result<Tokens, ServiceError>) -> Void)
 }
 
 public class TokenRefresherImpl<RefreshRequest, RefreshResponse>: TokenRefresher {
@@ -21,7 +31,7 @@ public class TokenRefresherImpl<RefreshRequest, RefreshResponse>: TokenRefresher
     
     private var isAuthenticating = false
     private var authenticationLock = DispatchQueue(label: "com.tokenRefresher.lock")
-    private var pendingCompletions: [(Result<String, ServiceError>) -> Void] = []
+    private var pendingCompletions: [(Result<Tokens, ServiceError>) -> Void] = []
     private var cancellables = Set<AnyCancellable>()
     
     public init(
@@ -37,39 +47,39 @@ public class TokenRefresherImpl<RefreshRequest, RefreshResponse>: TokenRefresher
         self.mapResponseToAccess = mapResponseToAccess
         self.mapResponseToRefresh = mapResponseToRefresh
     }
-
-    public func refresh(completion: @escaping (Result<String, ServiceError>) -> Void) {
+    
+    public func refresh(completion: @escaping (Result<Tokens, ServiceError>) -> Void) {
         var shouldStartAuthentication = false
-
+        
         authenticationLock.sync {
             if isAuthenticating {
                 pendingCompletions.append(completion)
                 return
             }
-
+            
             isAuthenticating = true
             shouldStartAuthentication = true
             pendingCompletions.append(completion)
         }
-
+        
         guard shouldStartAuthentication else { return }
-
+        
         guard let refreshToken = refreshTokenStorage.get() else {
             completeAll(with: .failure(.internal))
             return
         }
-
+        
         let refreshRequest = mapRefreshRequest(refreshToken)
-
+        
         refreshService.make(request: refreshRequest)
             .handle(
                 onSuccess: { [weak self] response in
-                    guard let self else { return }
-                    guard let newToken = self.mapResponseToAccess?(response) else { return }
-                    if let newRefreshToken = self.mapResponseToRefresh?(response) {
-                        self.refreshTokenStorage.set(model: newRefreshToken)
+                    guard let self, let newAccess = self.mapResponseToAccess?(response), !newAccess.isEmpty else {
+                        self?.completeAll(with: .failure(.internal))
+                        return
                     }
-                    self.completeAll(with: .success(newToken))
+                    let newRefresh = self.mapResponseToRefresh?(response)
+                    self.completeAll(with: .success(Tokens(accessToken: newAccess, refreshToken: newRefresh)))
                 },
                 onError: { [weak self] error in
                     self?.completeAll(with: .failure(error))
@@ -77,15 +87,15 @@ public class TokenRefresherImpl<RefreshRequest, RefreshResponse>: TokenRefresher
             )
     }
     
-    private func completeAll(with result: Result<String, ServiceError>) {
-        var completions: [(Result<String, ServiceError>) -> Void] = [] // Initialize as mutable
-
+    private func completeAll(with result: Result<Tokens, ServiceError>) {
+        var completions: [(Result<Tokens, ServiceError>) -> Void] = []
+        
         authenticationLock.sync {
             isAuthenticating = false
             completions = pendingCompletions
             pendingCompletions.removeAll()
         }
-
+        
         completions.forEach { $0(result) }
     }
 }
