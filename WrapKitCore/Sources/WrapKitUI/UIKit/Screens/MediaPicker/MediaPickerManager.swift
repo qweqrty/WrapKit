@@ -100,14 +100,14 @@ public final class MediaPickerManager: NSObject,
         let picker = PHPickerViewController(configuration: configuration.asPHPickerConfiguration)
         desiredResultType = configuration.desiredResultType
         picker.delegate = self
-        picker.presentationController?.delegate = self //as? any UIAdaptivePresentationControllerDelegate
+        picker.presentationController?.delegate = self
         presentingController?.present(picker, animated: true)
     }
     
     private func presentDocumentPicker(_ configuration: DocumentPickerConfiguration) {
         let documentPicker = configuration.asDocumentPicker
-        documentPicker.delegate = self //as? any UIDocumentPickerDelegate
-        documentPicker.presentationController?.delegate = self //as? any UIAdaptivePresentationControllerDelegate
+        documentPicker.delegate = self
+        documentPicker.presentationController?.delegate = self
         desiredResultType = configuration.desiredResultType
         presentingController?.present(documentPicker, animated: true)
     }
