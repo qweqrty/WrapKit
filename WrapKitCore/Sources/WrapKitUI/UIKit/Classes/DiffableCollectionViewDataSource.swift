@@ -43,13 +43,11 @@ public final class DiffableCollectionViewDataSource<Header, Cell: Hashable, Foot
     NSObject,
     UICollectionViewDataSource,
     UICollectionViewDelegateFlowLayout,
-    TableOutput
-{
+    TableOutput {
     public typealias Header = Header
     public typealias Cell = Cell
     public typealias Footer = Footer
     
-    public var didSelectAt: ((IndexPath, Cell) -> Void)?
     public var configureCell: ((UICollectionView, IndexPath, Cell) -> UICollectionViewCell)?
     public var viewForHeaderInSection: ((UICollectionView, Int, Header) -> UICollectionReusableView)?
     public var sizeForHeaderInSection: ((Int, Header) -> CGSize)?
@@ -141,7 +139,7 @@ public final class DiffableCollectionViewDataSource<Header, Cell: Hashable, Foot
     public func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         collectionView.deselectItem(at: indexPath, animated: true)
         guard let model = sections.item(at: indexPath.section)?.cells.item(at: indexPath.item) else { return }
-        didSelectAt?(indexPath, model.cell)
+        model.onTap?(indexPath, model.cell)
     }
 
     // MARK: - Flow Layout
