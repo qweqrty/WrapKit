@@ -5,7 +5,7 @@
 //  Created by Gulzat Zheenbek kyzy on 16/6/25.
 //
 
-public protocol MediaPickerFlow {
+public protocol MediaPickerFlow<View> {
     associatedtype View
     
     func showMediaPicker(
