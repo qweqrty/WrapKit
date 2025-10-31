@@ -14,13 +14,15 @@ public class AuthenticatedHTTPClientDecorator: HTTPClient {
         case needsRefresh(onErrorMessage: String?)
         case logout(message: String?)
     }
+    public static let tokenLock = DispatchQueue(label: "com.wrapkit.tokenLock")
     public static var ongoingRefresh: AnyPublisher<Tokens, ServiceError>?
+    public static var hasHandledUnauthenticated = false
     
     public typealias EnrichRequestWithToken = ((URLRequest, String) -> URLRequest)
     public typealias AuthenticationPolicy = (((Data, HTTPURLResponse)) -> AuthenticationPolicyResult)
     
     private let decoratee: HTTPClient
-    private let tokenLock: DispatchQueue
+    
     private let accessTokenStorage: any Storage<String>
     private let refreshTokenStorage: any Storage<String>
     private var tokenRefresher: TokenRefresher
@@ -28,7 +30,6 @@ public class AuthenticatedHTTPClientDecorator: HTTPClient {
     private let enrichRequestWithToken: EnrichRequestWithToken
     private let isAuthenticated: AuthenticationPolicy
     
-    private var hasHandledUnauthenticated = false
     private var cancellables = Set<AnyCancellable>()
     
     public init(
@@ -38,8 +39,7 @@ public class AuthenticatedHTTPClientDecorator: HTTPClient {
         tokenRefresher: TokenRefresher,
         onNotAuthenticated: ((String?) -> Void)? = nil,
         enrichRequestWithToken: @escaping EnrichRequestWithToken,
-        isAuthenticated: @escaping AuthenticationPolicy,
-        tokenLock: DispatchQueue = DispatchQueue(label: "com.wrapkit.tokenLock")
+        isAuthenticated: @escaping AuthenticationPolicy
     ) {
         self.decoratee = decoratee
         self.accessTokenStorage = accessTokenStorage
@@ -48,13 +48,12 @@ public class AuthenticatedHTTPClientDecorator: HTTPClient {
         self.onNotAuthenticated = onNotAuthenticated
         self.enrichRequestWithToken = enrichRequestWithToken
         self.isAuthenticated = isAuthenticated
-        self.tokenLock = tokenLock
         
         accessTokenStorage.publisher
             .sink { [weak self] value in
                 if let value = value, !value.isEmpty {
-                    self?.tokenLock.sync {
-                        self?.hasHandledUnauthenticated = false
+                    Self.tokenLock.sync {
+                        Self.hasHandledUnauthenticated = false
                     }
                 }
             }
@@ -130,7 +129,7 @@ public class AuthenticatedHTTPClientDecorator: HTTPClient {
         }
         
         var publisherToSubscribe: AnyPublisher<Tokens, ServiceError>?
-        tokenLock.sync {
+        Self.tokenLock.sync {
             if Self.ongoingRefresh == nil {
                 let refreshPublisher = Future<Tokens, ServiceError> { [weak self] promise in
                     self?.tokenRefresher.refresh { result in
@@ -221,9 +220,9 @@ public class AuthenticatedHTTPClientDecorator: HTTPClient {
     }
     
     private func handleUnauthenticated(message: String?) {
-        tokenLock.sync {
-            guard !hasHandledUnauthenticated else { return }
-            hasHandledUnauthenticated = true
+        Self.tokenLock.sync {
+            guard !Self.hasHandledUnauthenticated else { return }
+            Self.hasHandledUnauthenticated = true
             
             accessTokenStorage.clear()
             refreshTokenStorage.clear()
@@ -233,7 +232,7 @@ public class AuthenticatedHTTPClientDecorator: HTTPClient {
     
     @discardableResult
     private func synchronizedTokenAccess<T>(_ block: () -> T) -> T {
-        return tokenLock.sync {
+        return Self.tokenLock.sync {
             return block()
         }
     }
