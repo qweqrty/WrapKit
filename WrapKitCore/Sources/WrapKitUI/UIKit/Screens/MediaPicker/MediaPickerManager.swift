@@ -26,8 +26,8 @@ public struct MediaPickerConstants {
     public static let videoIdent = "public.movie"
 }
 
-public enum MediaPickerSource<T> {
-    case camera(CameraPickerConfiguration<T>)
+public enum MediaPickerSource {
+    case camera(CameraPickerConfiguration)
     case gallery(GalleryPickerConfiguration)
     case file(DocumentPickerConfiguration)
 }
@@ -41,7 +41,7 @@ public enum MediaPickerResultType {
 #if canImport(UIKit)
 import UIKit
 
-public final class MediaPickerManager<T>: NSObject,
+public final class MediaPickerManager: NSObject,
                                           UIImagePickerControllerDelegate,
                                           UINavigationControllerDelegate,
                                           UIAdaptivePresentationControllerDelegate,
@@ -76,7 +76,7 @@ public final class MediaPickerManager<T>: NSObject,
         }
     }
     
-    func presentPicker(source: MediaPickerSource<T>, completion: @escaping (MediaPickerResultType?) -> Void) {
+    func presentPicker(source: MediaPickerSource, completion: @escaping (MediaPickerResultType?) -> Void) {
         self.completion = completion
         
         switch source {
@@ -89,7 +89,7 @@ public final class MediaPickerManager<T>: NSObject,
         }
     }
     
-    func presentCamera(_ configuration: CameraPickerConfiguration<T>) {
+    func presentCamera(_ configuration: CameraPickerConfiguration) {
         let picker = configuration.asImagePicker
         picker.delegate = self
         desiredResultType = configuration.desiredResultType
@@ -100,14 +100,14 @@ public final class MediaPickerManager<T>: NSObject,
         let picker = PHPickerViewController(configuration: configuration.asPHPickerConfiguration)
         desiredResultType = configuration.desiredResultType
         picker.delegate = self
-        picker.presentationController?.delegate = self as? any UIAdaptivePresentationControllerDelegate
+        picker.presentationController?.delegate = self //as? any UIAdaptivePresentationControllerDelegate
         presentingController?.present(picker, animated: true)
     }
     
     private func presentDocumentPicker(_ configuration: DocumentPickerConfiguration) {
         let documentPicker = configuration.asDocumentPicker
-        documentPicker.delegate = self as? any UIDocumentPickerDelegate
-        documentPicker.presentationController?.delegate = self as? any UIAdaptivePresentationControllerDelegate
+        documentPicker.delegate = self //as? any UIDocumentPickerDelegate
+        documentPicker.presentationController?.delegate = self //as? any UIAdaptivePresentationControllerDelegate
         desiredResultType = configuration.desiredResultType
         presentingController?.present(documentPicker, animated: true)
     }

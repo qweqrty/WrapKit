@@ -6,10 +6,9 @@
 //
 
 public protocol MediaPickerFlow {
-    associatedtype View
     
     func showMediaPicker(
-        sourceTypes: [MediaPickerSource<View>],
+        sourceTypes: [MediaPickerSource],
         localizable: MediaPickerLocalizable,
         callback: ((MediaPickerResultType?) -> Void)?
     )
@@ -20,21 +19,23 @@ public protocol MediaPickerFlow {
 #if canImport(UIKit)
 import UIKit
 
-public class MediaPickerFlowiOS<View>: MediaPickerFlow {
+extension UIView: CameraGenericView {}
+
+public class MediaPickerFlowiOS: MediaPickerFlow {
     
     public weak var navigationController: UINavigationController?
-    public let factory: any MediaPickerFactory<UIViewController, UIView>
+    public let factory: any MediaPickerFactory<UIViewController>
     
     public init(
         navigationController: UINavigationController?,
-        factory: any MediaPickerFactory<UIViewController, UIView>
+        factory: any MediaPickerFactory<UIViewController>
     ) {
         self.navigationController = navigationController
         self.factory = factory
     }
     
     public func showMediaPicker(
-        sourceTypes: [MediaPickerSource<UIView>],
+        sourceTypes: [MediaPickerSource],
         localizable: MediaPickerLocalizable,
         callback: ((MediaPickerResultType?) -> Void)?
     ) {
