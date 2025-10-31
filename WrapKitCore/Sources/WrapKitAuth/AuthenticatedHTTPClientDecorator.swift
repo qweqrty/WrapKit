@@ -80,7 +80,6 @@ public class AuthenticatedHTTPClientDecorator: HTTPClient {
             guard let self = self else { return }
             switch result {
             case .success(let (data, response)):
-                let currentToken = synchronizedTokenAccess { self.accessTokenStorage.get() } // Add sync
                 let result = self.isAuthenticated((data, response))
                 switch result {
                 case .authenticated:
