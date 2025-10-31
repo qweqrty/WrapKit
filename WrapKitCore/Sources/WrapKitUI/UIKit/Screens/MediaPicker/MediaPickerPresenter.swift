@@ -29,6 +29,7 @@ public struct MediaPickerLocalizable {
     }
 }
 
+#if canImport(UIKit)
 public class MediaPickerPresenter {
    
     public var alertView: AlertOutput?
@@ -36,15 +37,15 @@ public class MediaPickerPresenter {
     public var pickerManager: MediaPickerManager?
     
     public let localizable: MediaPickerLocalizable
-    private let flow: MediaPickerFlow
-    private let sourceTypes: [MediaPickerManager.Source]
-    private let callback: ((MediaPickerManager.ResultType?) -> Void)?
+    private let flow: any MediaPickerFlow
+    private let sourceTypes: [MediaPickerSource]
+    private let callback: ((MediaPickerResultType?) -> Void)?
    
     public init(
-        flow: MediaPickerFlow,
-        sourceTypes: [MediaPickerManager.Source],
+        flow: any MediaPickerFlow,
+        sourceTypes: [MediaPickerSource],
         localizable: MediaPickerLocalizable,
-        callback: ((MediaPickerManager.ResultType?) -> Void)?
+        callback: ((MediaPickerResultType?) -> Void)?
     ) {
         self.flow = flow
         self.sourceTypes = sourceTypes
@@ -94,7 +95,6 @@ extension MediaPickerPresenter: LifeCycleViewOutput {
     }
 }
 
-#if canImport(UIKit)
 import UIKit
 
 extension MediaPickerPresenter {
@@ -124,7 +124,7 @@ extension MediaPickerPresenter {
         }
     }
     
-    private func presentPicker(source: MediaPickerManager.Source) {
+    private func presentPicker(source: MediaPickerSource) {
         pickerManager?.presentPicker(source: source) { [weak self] result in
             self?.callback?(result ?? nil)
             self?.flow.finish()
@@ -152,4 +152,3 @@ extension MediaPickerPresenter {
     }
 }
 #endif
-

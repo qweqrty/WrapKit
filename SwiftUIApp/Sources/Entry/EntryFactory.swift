@@ -28,6 +28,10 @@ struct EntryViewSwiftUIFactory: EntryViewFactory {
             .adapter
             .weakReferenced
             .mainQueueDispatched
+        presenter.imageViewOutput = contentView
+            .imageViewAdapter
+            .weakReferenced
+            .mainQueueDispatched
         return AnyView(contentView)
     }
 }
