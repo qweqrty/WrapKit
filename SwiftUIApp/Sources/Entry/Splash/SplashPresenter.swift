@@ -23,6 +23,7 @@ public class SplashPresenter: LifeCycleViewOutput, ApplicationLifecycleOutput {
         textOutput?.display(text: "display(text: String) implementation - `The quick brown fox jumps over the lazy dog`")
         textOutput?.display(
             attributes: [
+                .init(text: "first line"),
                 .init(
                     text: "green bold 20 (.byWord) \n\n",
                     color: .green,
@@ -51,13 +52,15 @@ public class SplashPresenter: LifeCycleViewOutput, ApplicationLifecycleOutput {
                     text: "brown 30-500 (.patternDashDotDot) zxcvz gtfrgh vbnbvgn \n\n",
                     color: .brown,
                     font: .systemFont(ofSize: 30, weight: Font.Weight(rawValue: 500)),
-                    underlineStyle: .patternDashDotDot
+                    underlineStyle: .patternDashDotDot,
+                    onTap: { print("didTap: brown patternDashDotDot ") }
                 ),
                 .init(
                     text: "darkGray 16-200 (.patternDot) \n\n",
                     color: .darkGray,
                     font: .systemFont(ofSize: 16, weight: Font.Weight(rawValue: 200)),
-                    underlineStyle: .patternDot
+                    underlineStyle: .patternDot,
+                    onTap: { print("didTap: patternDot ") }
                 ),
                 .init(
                     text: "The quick brown fox ",
@@ -69,29 +72,8 @@ public class SplashPresenter: LifeCycleViewOutput, ApplicationLifecycleOutput {
                     leadingImageBounds: .init(x: 30, y: 40, width: 45, height: 56),
                     trailingImage: ImageFactory.systemImage(named: "arrow.right"),
                     trailingImageBounds: .init(x: -30, y: -40, width: 15, height: 15),
-                    onTap: { print("on tap full text") }
-                ),
-                .init(
-                    text: "\nline _ one _ ",
-                    color: .gray,
-                    font: .boldSystemFont(ofSize: 26),
-                    underlineStyle: .thick,
-                    textAlignment: .left
-                ),
-                .init(
-                    text: "line _ two ___ ",
-                    color: .gray,
-                    font: .boldSystemFont(ofSize: 26),
-                    underlineStyle: .byWord,
-                    textAlignment: .right
-                ),
-                .init(
-                    text: "\\n\nline _ three\n\\n",
-                    color: .gray,
-                    font: .boldSystemFont(ofSize: 26),
-                    underlineStyle: .double,
-                    textAlignment: .right
-                ),
+                    onTap: { print("didTap: The quick brown fox ") }
+                )
             ]
         )
     }

@@ -75,8 +75,12 @@ open class ViewController<ContentView: UIView>: UIViewController {
     open override func viewDidLoad() {
         super.viewDidLoad()
         LifeCycleViewOutput?.viewDidLoad()
-        view.addSubview(contentView)
-        contentView.fillSuperview()
+//        view.addSubview(contentView)
+//        contentView.fillSuperviewSafeAreaLayoutGuide()
+    }
+    
+    open override func loadView() {
+        self.view = contentView
     }
 
     open override func viewDidAppear(_ animated: Bool) {

@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftUI
+import CoreText
 
 public struct SUILabel: View {
 
@@ -60,7 +61,8 @@ public struct SUILabel: View {
             }
             
             if #available(iOS 15, macOS 12, tvOS 15, watchOS 8, *) {
-                let attributedString = AttributedString(item.makeNSAttributedString(unsupportedUnderlines: unsupportedUnderlines))
+                let nsAttributedString = item.makeNSAttributedString(unsupportedUnderlines: unsupportedUnderlines)
+                let attributedString = AttributedString(nsAttributedString)
                 let textView = Text(attributedString)
                 result.append(textView)
             } else {
@@ -81,20 +83,35 @@ public struct SUILabel: View {
         let resultText = result.reduce(Text(""), +)
         
         let textAlignment = attributes.first(where: { $0.textAlignment != nil })?.textAlignment
-        let suiTextAlignment = textAlignment?.suiTextAlignment
         
         return resultText
-//            .ifLet(suiTextAlignment, modifier: { $0.multilineTextAlignment($1) })
-//            .overlay {
-//                if #available(iOS 15, macOS 12, tvOS 15, watchOS 8, *) {
-//                    LinkTapOverlay(attributes: attributes, textAlignment: textAlignment)
+//            .modify {
+//                if #available(macOS 12, iOS 15, tvOS 15, watchOS 8, *) {
+//                    $0.environment(\.openURL, OpenURLAction { url in
+//                        if let id = url.host {
+////                            getTapHandler(for: id)?()
+//                        }
+//                        return .discarded
+//                    })
+//                } else {
+//                    
 //                }
 //            }
-            .background( // TODO: check on iOS 14
-                GeometryReader { geometry in
-                    LinkTapOverlay(attributes: attributes, textAlignment: textAlignment)
+            .ifLet(textAlignment?.suiTextAlignment, modifier: { $0.multilineTextAlignment($1) })
+            .modify {
+                if #available(iOS 15, macOS 12, tvOS 15, watchOS 8, *) {
+                    $0.overlay {
+                        LinkTapOverlay(attributes: attributes, textAlignment: textAlignment)
+                    }
+                } else {
+                    $0.background( // TODO: check on iOS 14
+                        GeometryReader { geometry in
+                            LinkTapOverlay(attributes: attributes, textAlignment: textAlignment)
+                        }
+                    )
                 }
-            )
+            }
+            
     }
     
     private func buildSUIImageInText(bounds source: CGRect, image: Image) -> Text {
