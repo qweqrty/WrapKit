@@ -12,7 +12,8 @@ public struct SplashContentView: View {
     private let lifeCycleOutput: LifeCycleViewOutput?
     private let applicationLifecycleOutput: ApplicationLifecycleOutput?
     public let adapter = TextOutputSwiftUIAdapter()
-
+    public let imageViewAdapter = ImageViewOutputSwiftUIAdapter()
+    
     public init(
         lifeCycleOutput: LifeCycleViewOutput? = nil,
         applicationLifecycleOutput: ApplicationLifecycleOutput? = nil
@@ -30,11 +31,19 @@ public struct SplashContentView: View {
                 Color.red.ignoresSafeArea()
 
                 VStack {
-                    SUILabel(adapter: adapter)
-                      .frame(maxWidth: .infinity, alignment: .leading)
-                      .padding(.horizontal)
+                    ZStack {
+                        Color.red.ignoresSafeArea()
+                      //  SUILabel(adapter: textOutputAdapter)
+                       //                      .frame(maxWidth: .infinity, alignment: .leading)
+                       //                      .padding(.horizontal)
+                    }
 
                     Spacer()
+                    
+                    ZStack {
+                        Color.white
+                        SUIImageView(adapter: imageViewAdapter)
+                    }
                 }
             }
         }
