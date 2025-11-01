@@ -254,6 +254,15 @@ public class TextInputOutputSwiftUIAdapter: ObservableObject, TextInputOutput {
             toolbarModel: toolbarModel
         )
     }
+    @Published public var displayIsClearButtonActiveState: DisplayIsClearButtonActiveState? = nil
+    public struct DisplayIsClearButtonActiveState {
+        public let isClearButtonActive: Bool
+    }
+    public func display(isClearButtonActive: Bool) {
+        displayIsClearButtonActiveState = .init(
+            isClearButtonActive: isClearButtonActive
+        )
+    }
     @Published public var makeAccessoryViewAccessoryViewHeightConstraintsState: MakeAccessoryViewAccessoryViewHeightConstraintsState? = nil
     public struct MakeAccessoryViewAccessoryViewHeightConstraintsState {
         public let accessoryView: UIView

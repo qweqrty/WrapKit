@@ -292,5 +292,6 @@ extension Textview: TextInputOutput {
     }
     
     public func display(trailingSymbol: String?) {}
+    public func display(isClearButtonActive: Bool) { }
 }
 #endif
