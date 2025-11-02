@@ -52,8 +52,18 @@ open class WebViewPresenter: WebViewInput {
         }
     }
     
+    public func handleNavigation(to url: URL) {
+        view?.display(url: url)
+    }
+    
     public func decideNavigation(for url: URL, trigger: WebViewNavigationTrigger) -> WebViewNavigationDecision {
-        return navigationPolicy?.decideNavigation(for: url, trigger: trigger) ?? .allow
+        let decision = navigationPolicy?.decideNavigation(for: url, trigger: trigger) ?? .allow
+        
+        if decision == .allow && trigger == .linkActivated {
+            handleNavigation(to: url)
+        }
+        
+        return decision
     }
 }
 
