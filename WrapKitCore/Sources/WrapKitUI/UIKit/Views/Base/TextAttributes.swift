@@ -19,6 +19,7 @@ public typealias TextAlignment = NSTextAlignment
 
 public struct TextAttributes {
     public init(
+        id: String = UUID().uuidString,
         text: String,
         color: Color? = nil,
         font: Font? = nil,
@@ -30,6 +31,7 @@ public struct TextAttributes {
         trailingImageBounds: CGRect = .zero,
         onTap: (() -> Void)? = nil
     ) {
+        self.id = id
         self.text = text
         self.color = color
         self.font = font
@@ -43,6 +45,7 @@ public struct TextAttributes {
         self.trailingImageBounds = trailingImageBounds
     }
 
+    public var id: String
     public var text: String
     public let color: Color?
     public let underlineStyle: UnderlineStyle?

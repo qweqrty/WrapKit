@@ -10,6 +10,7 @@ import SwiftUI
 import CoreText
 
 public struct SUILabel: View {
+    private let tappableUrlMask = "tappable://"
 
     @ObservedObject var adapter: TextOutputSwiftUIAdapter
 
@@ -62,14 +63,15 @@ public struct SUILabel: View {
             
             if #available(iOS 15, macOS 12, tvOS 15, watchOS 8, *) {
                 let nsAttributedString = item.makeNSAttributedString(unsupportedUnderlines: unsupportedUnderlines)
-                let attributedString = AttributedString(nsAttributedString)
+                var attributedString = AttributedString(nsAttributedString)
+                attributedString.link = URL(string: tappableUrlMask + item.id)
                 let textView = Text(attributedString)
                 result.append(textView)
             } else {
                 let textView: Text = Text(item.text)
                     .ifLet(item.font) { $0.font(SwiftUIFont($1)) }
                     .ifLet(item.color) { $0.foregroundColor(SwiftUIColor($1)) }
-
+                    .ifLet(item.underlineStyle) { view, _ in view.underline() } // underline pattern only works from iOS 16
                 result.append(textView)
             }
             
@@ -85,33 +87,17 @@ public struct SUILabel: View {
         let textAlignment = attributes.first(where: { $0.textAlignment != nil })?.textAlignment
         
         return resultText
-//            .modify {
-//                if #available(macOS 12, iOS 15, tvOS 15, watchOS 8, *) {
-//                    $0.environment(\.openURL, OpenURLAction { url in
-//                        if let id = url.host {
-////                            getTapHandler(for: id)?()
-//                        }
-//                        return .discarded
-//                    })
-//                } else {
-//                    
-//                }
-//            }
-            .ifLet(textAlignment?.suiTextAlignment, modifier: { $0.multilineTextAlignment($1) })
             .modify {
-                if #available(iOS 15, macOS 12, tvOS 15, watchOS 8, *) {
-                    $0.overlay {
-                        LinkTapOverlay(attributes: attributes, textAlignment: textAlignment)
-                    }
-                } else {
-                    $0.background( // TODO: check on iOS 14
-                        GeometryReader { geometry in
-                            LinkTapOverlay(attributes: attributes, textAlignment: textAlignment)
+                if #available(macOS 12, iOS 15, tvOS 15, watchOS 8, *) {
+                    $0.environment(\.openURL, OpenURLAction { url in
+                        if let id = url.host {
+                            getTapHandler(id: id)?()
                         }
-                    )
+                        return .discarded
+                    })
                 }
             }
-            
+            .ifLet(textAlignment?.suiTextAlignment, modifier: { $0.multilineTextAlignment($1) })
     }
     
     private func buildSUIImageInText(bounds source: CGRect, image: Image) -> Text {
@@ -131,6 +117,10 @@ public struct SUILabel: View {
     }
     
     private let unsupportedUnderlines: [NSUnderlineStyle] = [.thick, .double, .byWord]
+    
+    private func getTapHandler(id: String) -> (() -> Void)? {
+        adapter.displayAttributesState?.attributes.first(where: { $0.id == id })?.onTap
+    }
 }
 
 #if canImport(UIKit)
@@ -161,8 +151,7 @@ public struct FallbackLabel: UIViewRepresentable {
 //    public class Coordinator { }
 }
 
-// temporarily public
-public extension UIImage {
+extension UIImage {
     func resized(rect: CGRect, container: CGSize) -> UIImage {
         return UIGraphicsImageRenderer(size: container).image { _ in
             draw(in: rect)
@@ -170,7 +159,7 @@ public extension UIImage {
         .withRenderingMode(renderingMode)
     }
 }
-
+// Problems: works with UIKit, not macOS. wrong tap position, not compatible with SwiftUI
 private struct LinkTapOverlay: UIViewRepresentable {
     private(set) var attributes: [TextAttributes]
     let attributedString: NSAttributedString

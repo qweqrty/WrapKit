@@ -27,18 +27,10 @@ public struct SplashContentView: View {
             applicationLifecycleOutput: applicationLifecycleOutput
         ) {
             ScrollView(.vertical) {
-                VStack(alignment: .leading, spacing: .zero) {
-                    SUILabel(adapter: adapter)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
-                        .background(Color.blue.opacity(0.2))
-#if canImport(UIKit)
-//                    FallbackLabel(adapter: adapter)
-//                        .frame(maxWidth: .infinity, alignment: .leading)
-#endif
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+                SUILabel(adapter: adapter)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+                    .background(Color.blue.opacity(0.2))
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
             .background(
                 Color.red.ignoresSafeArea().opacity(0.2)
             )
@@ -66,7 +58,6 @@ public struct SplashContentView: View {
 }
 
 private final class ExampleViewController: ViewController<UIScrollView> {
-//    let label = Textview(appearance: TextfieldAppearance.init(colors: .init(textColor: .black, selectedBorderColor: .clear, selectedBackgroundColor: .clear, selectedErrorBorderColor: .clear, errorBorderColor: .clear, errorBackgroundColor: .clear, deselectedBorderColor: .clear, deselectedBackgroundColor: .clear, disabledTextColor: .gray, disabledBackgroundColor: .clear), font: .boldSystemFont(ofSize: 16)), cornerRadius: 0, contentInset: .zero)
     let label = Label()
     
     override func viewDidLoad() {
