@@ -7,7 +7,7 @@
 
 import Foundation
 
-public protocol ImageViewOutput: AnyObject {
+public protocol ImageViewOutput: HiddableOutput {
     func display(model: ImageViewPresentableModel?)
     func display(image: ImageEnum?)
     func display(size: CGSize?)
@@ -18,7 +18,6 @@ public protocol ImageViewOutput: AnyObject {
     func display(borderColor: Color?)
     func display(cornerRadius: CGFloat?)
     func display(alpha: CGFloat?)
-    func display(isHidden: Bool)
 }
 
 public struct ImageViewPresentableModel: HashableWithReflection {

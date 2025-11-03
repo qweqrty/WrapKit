@@ -44,6 +44,26 @@ public class {{ type.name }}SwiftUIAdapter{% for associatedType in type.associat
     {% if method.isStatic %}
     {% else %}
     @Published public var {{ method.callName }}{% for param in method.parameters %}{{ param.name|upperFirstLetter }}{% endfor %}State: {{ method.callName|upperFirstLetter }}{% for param in method.parameters %}{{ param.name|upperFirstLetter }}{% endfor %}State? = nil
+    
+        {% if method.parameters.count == 1 && method.parameters.first?.isOptional == true %}
+    public struct {{ method.callName|upperFirstLetter }}{% for param in method.parameters %}{{ param.name|upperFirstLetter }}{% endfor %}State {
+        {% for param in method.parameters %}
+        public let {{ param.name }}: {{ param.typeName.replacingOccurrences(of: "?", with: "") }}
+        {% endfor %}
+    }
+    public func {{ method.name }} {
+        guard let {% method.parameters.first!.name %} else {
+            // HiddableOutput
+            return
+        }
+        displayNilState = false
+        {{ method.callName }}{% for param in method.parameters %}{{ param.name|upperFirstLetter }}{% endfor %}State = .init(
+            {% for param in method.parameters %}
+            {{ param.name }}: {{ param.name }}{% if not forloop.last %}, {% endif %}
+            {% endfor %}
+        )
+    }
+        {% else %}
     public struct {{ method.callName|upperFirstLetter }}{% for param in method.parameters %}{{ param.name|upperFirstLetter }}{% endfor %}State {
         {% for param in method.parameters %}
         public let {{ param.name }}: {{ param.typeName }}
@@ -56,6 +76,8 @@ public class {{ type.name }}SwiftUIAdapter{% for associatedType in type.associat
             {% endfor %}
         )
     }
+        {% endif %}
+        
     {% endif %}
     {% endfor %}
 }
