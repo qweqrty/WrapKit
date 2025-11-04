@@ -44,6 +44,8 @@ class ImageViewSnapshotTests: XCTestCase {
         }
         
         wait(for: [exp], timeout: 5.0)
+        
+        print(sut.image != nil ? "image" : "nil")
         // THEN
         record(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "IMAGE_VIEW_URLSTRING_LIGHT")
         record(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "IMAGE_VIEW_URLSTRING_DARK")
