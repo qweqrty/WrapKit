@@ -13,6 +13,9 @@ import Foundation
 #if canImport(UIKit)
 import UIKit
 #endif
+#if canImport(SwiftUI)
+import SwiftUI
+#endif
 
 extension HeaderOutput {
     public var weakReferenced: any HeaderOutput {

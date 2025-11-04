@@ -17,6 +17,9 @@ import Foundation
 #if canImport(UIKit)
 import UIKit
 #endif
+#if canImport(SwiftUI)
+import SwiftUI
+#endif
 public class ButtonOutputSwiftUIAdapter: ObservableObject, ButtonOutput {
 
     // Initializer
@@ -26,9 +29,14 @@ public class ButtonOutputSwiftUIAdapter: ObservableObject, ButtonOutput {
 
     @Published public var displayModelState: DisplayModelState? = nil
     public struct DisplayModelState {
-        public let model: ButtonPresentableModel?
+        public let model: ButtonPresentableModel
     }
     public func display(model: ButtonPresentableModel?) {
+        guard let model else {
+            display(isHidden: true)
+            return
+        }
+        display(isHidden: false)
         displayModelState = .init(
             model: model
         )

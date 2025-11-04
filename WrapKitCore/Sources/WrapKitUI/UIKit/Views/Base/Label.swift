@@ -23,6 +23,7 @@ public protocol TextOutput: HiddableOutput {
     func display(text: String?)
     func display(attributes: [TextAttributes])
     func display(from startAmount: Float, to endAmount: Float, mapToString: ((Float) -> TextOutputPresentableModel)?, animationStyle: LabelAnimationStyle, duration: TimeInterval, completion: (() -> Void)?)
+    func display(isHidden: Bool)
 }
 
 public indirect enum TextOutputPresentableModel: HashableWithReflection {

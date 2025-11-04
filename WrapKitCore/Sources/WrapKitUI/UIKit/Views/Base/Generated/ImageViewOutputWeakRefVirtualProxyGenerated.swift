@@ -13,6 +13,9 @@ import Foundation
 #if canImport(UIKit)
 import UIKit
 #endif
+#if canImport(SwiftUI)
+import SwiftUI
+#endif
 
 extension ImageViewOutput {
     public var weakReferenced: any ImageViewOutput {
@@ -51,6 +54,9 @@ extension WeakRefVirtualProxy: ImageViewOutput where T: ImageViewOutput {
     }
     public func display(alpha: CGFloat?) {
         object?.display(alpha: alpha)
+    }
+    public func display(isHidden: Bool) {
+        object?.display(isHidden: isHidden)
     }
 
 }

@@ -7,7 +7,7 @@
 
 import Foundation
 
-public protocol HeaderOutput: AnyObject {
+public protocol HeaderOutput: HiddableOutput {
     func display(model: HeaderPresentableModel?)
     func display(style: HeaderPresentableModel.Style?)
     func display(centerView: HeaderPresentableModel.CenterView?)

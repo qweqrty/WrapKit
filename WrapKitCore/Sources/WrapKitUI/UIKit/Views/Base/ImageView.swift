@@ -18,6 +18,7 @@ public protocol ImageViewOutput: HiddableOutput {
     func display(borderColor: Color?)
     func display(cornerRadius: CGFloat?)
     func display(alpha: CGFloat?)
+    func display(isHidden: Bool)
 }
 
 public struct ImageViewPresentableModel: HashableWithReflection {

@@ -38,7 +38,7 @@ public struct ButtonStyle {
     }
 }
 
-public protocol ButtonOutput: AnyObject {
+public protocol ButtonOutput: HiddableOutput {
     func display(model: ButtonPresentableModel?)
     func display(enabled: Bool)
     func display(image: Image?)

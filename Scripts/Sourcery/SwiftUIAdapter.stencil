@@ -41,29 +41,23 @@ public class {{ type.name }}SwiftUIAdapter{% for associatedType in type.associat
     }
 
     {% for method in type.methods %}
-    {% if method.isStatic %}
-    {% else %}
+    {% if not method.isStatic %}
     @Published public var {{ method.callName }}{% for param in method.parameters %}{{ param.name|upperFirstLetter }}{% endfor %}State: {{ method.callName|upperFirstLetter }}{% for param in method.parameters %}{{ param.name|upperFirstLetter }}{% endfor %}State? = nil
-    
-        {% if method.parameters.count == 1 && method.parameters.first?.isOptional == true %}
+    {% if type.implements.HiddableOutput and method.parameters.count == 1 and method.parameters.first.isOptional and (method.parameters.first.name == "model" or method.parameters.first.name == "text" or method.parameters.first.name == "attributes") %}
     public struct {{ method.callName|upperFirstLetter }}{% for param in method.parameters %}{{ param.name|upperFirstLetter }}{% endfor %}State {
-        {% for param in method.parameters %}
-        public let {{ param.name }}: {{ param.typeName.replacingOccurrences(of: "?", with: "") }}
-        {% endfor %}
+        public let {{ method.parameters.first.name }}: {{ method.parameters.first.unwrappedTypeName }}
     }
     public func {{ method.name }} {
-        guard let {% method.parameters.first!.name %} else {
-            // HiddableOutput
+        guard let {{ method.parameters.first.name }} else {
+            display(isHidden: true)
             return
         }
-        displayNilState = false
+        display(isHidden: false)
         {{ method.callName }}{% for param in method.parameters %}{{ param.name|upperFirstLetter }}{% endfor %}State = .init(
-            {% for param in method.parameters %}
-            {{ param.name }}: {{ param.name }}{% if not forloop.last %}, {% endif %}
-            {% endfor %}
+            {{ method.parameters.first.name }}: {{ method.parameters.first.name }}
         )
     }
-        {% else %}
+    {% else %}
     public struct {{ method.callName|upperFirstLetter }}{% for param in method.parameters %}{{ param.name|upperFirstLetter }}{% endfor %}State {
         {% for param in method.parameters %}
         public let {{ param.name }}: {{ param.typeName }}
@@ -76,8 +70,7 @@ public class {{ type.name }}SwiftUIAdapter{% for associatedType in type.associat
             {% endfor %}
         )
     }
-        {% endif %}
-        
+    {% endif %}
     {% endif %}
     {% endfor %}
 }
