@@ -8,8 +8,8 @@
 import Foundation
 
 public protocol ImageViewOutput: AnyObject {
-    func display(model: ImageViewPresentableModel?)
-    func display(image: ImageEnum?)
+    func display(model: ImageViewPresentableModel?, completion: ((Image?) -> Void)?)
+    func display(image: ImageEnum?, completion: ((Image?) -> Void)?)
     func display(size: CGSize?)
     func display(onPress: (() -> Void)?)
     func display(onLongPress: (() -> Void)?)
@@ -19,6 +19,16 @@ public protocol ImageViewOutput: AnyObject {
     func display(cornerRadius: CGFloat?)
     func display(alpha: CGFloat?)
     func display(isHidden: Bool)
+}
+
+public extension ImageViewOutput {
+    func display(model: ImageViewPresentableModel?) {
+        display(model: model, completion: nil)
+    }
+    
+    func display(image: ImageEnum?) {
+        display(image: image, completion: nil)
+    }
 }
 
 public struct ImageViewPresentableModel: HashableWithReflection {
@@ -228,12 +238,12 @@ open class ImageView: UIImageView {
 }
 
 extension ImageView: ImageViewOutput {
-    public func display(model: ImageViewPresentableModel?) {
+    public func display(model: ImageViewPresentableModel?, completion: ((Image?) -> Void)? = nil) {
         isHidden = model == nil
         display(onPress: model?.onPress)
         display(onLongPress: model?.onLongPress)
         hideShimmer()
-        if let image = model?.image { display(image: image) }
+        if let image = model?.image { display(image: image, completion: completion) }
         if let size = model?.size {
             display(size: size)
         }
@@ -290,8 +300,8 @@ extension ImageView: ImageViewOutput {
         self.layer.cornerRadius = cornerRadius
     }
     
-    public func display(image: ImageEnum?) {
-        self.setImage(image)
+    public func display(image: ImageEnum?, completion: ((Image?) -> Void)?) {
+        self.setImage(image, closure: completion)
     }
     
     public func display(onPress: (() -> Void)?) {

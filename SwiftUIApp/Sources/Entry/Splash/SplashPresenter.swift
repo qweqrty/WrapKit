@@ -92,6 +92,7 @@ public class SplashPresenter: LifeCycleViewOutput, ApplicationLifecycleOutput {
         let urlStringDark = "https://uxwing.com/wp-content/themes/uxwing/download/web-app-development/dark-mode-icon.png"
         
         setImageAsset()
+//        setImageURL()
         ///
         func setImageAsset() {
             imageViewOutput?.display(
@@ -114,22 +115,22 @@ public class SplashPresenter: LifeCycleViewOutput, ApplicationLifecycleOutput {
         
         func setImageData() {
             /// uncomment thic code to get data from image
-            //        if let nsImage = NSImage(named: "mini"),
-            //           let tiffData = nsImage.tiffRepresentation,
-            //           let bitmap = NSBitmapImageRep(data: tiffData),
-            //           let pngData = bitmap.representation(using: .png, properties: [:]) {
-            //
-            //            let fileURL = FileManager.default
-            //                .urls(for: .documentDirectory, in: .userDomainMask)[0]
-            //                .appendingPathComponent("savedImage.png")
-            //
-            //            do {
-            //                try pngData.write(to: fileURL)
-            //                print("Image saved to: \(fileURL)")
-            //            } catch {
-            //                print("Error saving image: \(error)")
-            //            }
-            //        }
+//                    if let nsImage = NSImage(named: "mini"),
+//                       let tiffData = nsImage.tiffRepresentation,
+//                       let bitmap = NSBitmapImageRep(data: tiffData),
+//                       let pngData = bitmap.representation(using: .png, properties: [:]) {
+//            
+//                        let fileURL = FileManager.default
+//                            .urls(for: .documentDirectory, in: .userDomainMask)[0]
+//                            .appendingPathComponent("savedImage.png")
+//            
+//                        do {
+//                            try pngData.write(to: fileURL)
+//                            print("Image saved to: \(fileURL)")
+//                        } catch {
+//                            print("Error saving image: \(error)")
+//                        }
+//                    }
             
             let fileURL = FileManager.default
                 .urls(for: .documentDirectory, in: .userDomainMask)[0]
