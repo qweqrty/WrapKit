@@ -11,7 +11,7 @@ let project = Project(
             bundleId: wrapKit.bundleId,
             deploymentTargets: .all,
             sources: [.glob("Sources/**", excluding: ["**/Project.swift", "**/*Tests.swift"])],
-            resources: ["Sources/Assets/"], // invalid link
+            resources: ["Sources/Assets.xcassets"],
             scripts: [Scripts.swiftlint],
             dependencies: [
                 .external(name: "Kingfisher"),

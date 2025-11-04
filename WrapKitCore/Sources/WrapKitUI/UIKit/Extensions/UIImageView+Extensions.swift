@@ -46,12 +46,14 @@ public extension ImageView {
         KingfisherManager.shared.cache.retrieveImage(forKey: url.absoluteString, options: [.callbackQueue(.mainCurrentOrAsync)]) { [weak self] result in
             switch result {
             case .success(let image):
+                
                 self?.animatedSet(image.image, closure: closure)
 
                 self?.kf.setImage(with: url, options: [.callbackQueue(.mainCurrentOrAsync), .forceRefresh] + kingfisherOptions, completionHandler: { result in
                     switch result {
                     case .success(let result):
                         self?.viewWhileLoadingView?.isHidden = true
+                        closure?(result.image)
                     case .failure:
                         self?.showFallbackView(url)
                     }
@@ -61,6 +63,7 @@ public extension ImageView {
                     switch result {
                     case .success(let result):
                         self?.viewWhileLoadingView?.isHidden = true
+                        closure?(result.image) 
                     case .failure:
                         self?.showFallbackView(url)
                     }

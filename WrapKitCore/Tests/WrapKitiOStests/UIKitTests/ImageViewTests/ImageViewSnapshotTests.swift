@@ -16,37 +16,43 @@ class ImageViewSnapshotTests: XCTestCase {
         // GIVEN
         let sut = makeSUT()
         let exp = expectation(description: "Wait for completion")
+        
 //        // WHEN
-//        let image = UIImage(systemName: "pencil")
-        let image = Image(named: "mini")
+        let image = WrapKitAsset.mini.image
         
         sut.display(image: .asset(image), completion: { _ in
             exp.fulfill()
         })
         wait(for: [exp], timeout: 1.0)
+        
         // THEN
-        record(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "IMAGE_VIEW_DEFAULT_STATE_LIGHT")
-        record(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "IMAGE_VIEW_DEFAULT_STATE_DARK")
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "IMAGE_VIEW_DEFAULT_STATE_LIGHT")
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "IMAGE_VIEW_DEFAULT_STATE_DARK")
     }
     
     // TODO: - from urlString doesnt work
-//    func test_ImageView_from_urlString() {
-//        // GIVEN
-//        let sut = makeSUT()
-//        let exp = expectation(description: "Wait for completion")
-//        
-//        // WHEN
-//        let urlString = "https://developer.apple.com/assets/elements/icons/swift/swift-64x64_2x.png"
-//        
-//        sut.display(image: .urlString(urlString, urlString)) { _ in
-//            exp.fulfill()
-//        }
-//        
-//        wait(for: [exp], timeout: 5.0)
-//        // THEN
-//        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "IMAGE_VIEW_URLSTRING_LIGHT")
-//        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "IMAGE_VIEW_URLSTRING_DARK")
-//    }
+    func test_ImageView_from_urlString() {
+        // GIVEN
+        let sut = makeSUT()
+        let exp = expectation(description: "Wait for completion")
+        
+        // WHEN
+        let urlString = "https://developer.apple.com/assets/elements/icons/swift/swift-64x64_2x.png"
+        
+        sut.display(image: .urlString(urlString, urlString)) { _ in
+            exp.fulfill()
+        }
+        
+        wait(for: [exp], timeout: 5.0)
+        // THEN
+        record(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "IMAGE_VIEW_URLSTRING_LIGHT")
+        record(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "IMAGE_VIEW_URLSTRING_DARK")
+        
+//        sut.cancelCurrentAnimation()
+//        sut.onPress = nil
+//        sut.onLongPress = nil
+//        sut.kf.cancelDownloadTask()
+    }
     
     // TODO: - from URL doesnt work
     func test_ImageView_from_url() {
