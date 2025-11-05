@@ -28,7 +28,7 @@ public class TextOutputSwiftUIAdapter: ObservableObject, TextOutput {
     public struct DisplayModelState {
         public let model: TextOutputPresentableModel?
     }
-    public func display(model: TextOutputPresentableModel?, completion: ((Label?) -> Void)?) {
+    public func display(model: TextOutputPresentableModel?) {
         displayModelState = .init(
             model: model
         )
@@ -46,7 +46,7 @@ public class TextOutputSwiftUIAdapter: ObservableObject, TextOutput {
     public struct DisplayAttributesState {
         public let attributes: [TextAttributes]
     }
-    public func display(attributes: [TextAttributes], completion: ((Label?) -> Void)?) {
+    public func display(attributes: [TextAttributes]) {
         displayAttributesState = .init(
             attributes: attributes
         )

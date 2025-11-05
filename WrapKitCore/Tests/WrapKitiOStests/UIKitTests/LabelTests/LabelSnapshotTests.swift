@@ -71,7 +71,7 @@ class LabelSnapshotTests: XCTestCase {
         
         let secondText = TextAttributes(text: "Second Text")
         
-        sut.display(attributes: [secondText], completion: nil)
+        sut.display(attributes: [secondText])
         
         // THEN
         assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "LABEL_MULTIPLE_DISPLAY_LIGHT")
@@ -167,6 +167,7 @@ class LabelSnapshotTests: XCTestCase {
         assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "LABEL_TITLE_WITH_SINGLELINE_DARK")
     }
     
+    // TODO: - strange double line layout
     func test_labelOutput_with_doubleLineText_attributes() {
         //GIVEN
         let sut = makeSUT()
@@ -320,7 +321,7 @@ class LabelSnapshotTests: XCTestCase {
         
         let third_attr = TextAttributes(text: "Third") { [weak sut] in
             let updatedThird = TextAttributes(text: "Updated Third!")
-            sut?.display(attributes: [first_attr, second_attr, updatedThird], completion: nil)
+            sut?.display(attributes: [first_attr, second_attr, updatedThird])
             exp.fulfill()
         }
         
@@ -369,34 +370,34 @@ class LabelSnapshotTests: XCTestCase {
     }
     
     func test_labelOutput_default_TextAttribute_behavior() {
-        //GIVEN
+        // GIVEN
         let sut = makeSUT()
     
         sut.textColor = .red
         sut.font = .systemFont(ofSize: 16)
         sut.textAlignment = .right
         
-        //WHEN
+        // WHEN
         let bold = TextAttributes(text: "Text attribute with color", color: .blue)
         let regular = TextAttributes(text: "Text attribute with default label color")
         
         sut.display(model: .attributes([bold, regular]))
         
-        //THEN
+        // THEN
         assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "LABEL_TEXTATTRIBUTE_DEFAULT_BEHAVIOR_FONT_LIGHT")
         assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "LABEL_TEXTATTRIBUTE_DEFAULT_BEHAVIOR_FONT_DARK")
     }
     
     func test_labelOutput_with_cornerStyle_and_insets() {
+        // GIVEN
         let sut = makeSUT()
         
-        sut.display(model: .textStyled(text: .text("Hello"), cornerStyle: .fixed(20), insets: .init(top: 20, leading: 50, bottom: 20, trailing: 20))) { _ in
-            
-            sut.backgroundColor = .cyan
-        }
+        // THEN
+        sut.display(model: .textStyled(text: .text("Hello"), cornerStyle: .fixed(20), insets: .init(top: 20, leading: 50, bottom: 20, trailing: 20)))
         
-        record(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "LABEL_CORNERSTYLE_INSETS_LIGHT")
-        record(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "LABEL_CORNERSTYLE_INSETS_DARK")
+        // THEN
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "LABEL_CORNERSTYLE_INSETS_LIGHT")
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "LABEL_CORNERSTYLE_INSETS_DARK")
     }
 }
 extension LabelSnapshotTests {
