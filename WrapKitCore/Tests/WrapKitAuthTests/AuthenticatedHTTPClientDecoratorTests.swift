@@ -775,8 +775,7 @@ class AuthenticatedHTTPClientDecoratorTests: XCTestCase {
                 req.setValue(token, forHTTPHeaderField: "Authorization")
                 return req
             },
-            isAuthenticated: isAuthenticated,
-            tokenLock: queue
+            isAuthenticated: isAuthenticated
         )
         checkForMemoryLeaks(sut, file: file, line: line)
         checkForMemoryLeaks(storage, file: file, line: line)
