@@ -12,31 +12,41 @@ import CoreText
 public struct SUILabel: View {
     private let tappableUrlMask = "tappable://"
 
-    @ObservedObject var adapter: TextOutputSwiftUIAdapter
+    @ObservedObject var stateModel: SUILabelStateModel
 
     public init(adapter: TextOutputSwiftUIAdapter) {
-        self.adapter = adapter
+        self.stateModel = .init(adapter: adapter)
     }
 
     public var body: some View {
         Group {
-            if let isHidden = adapter.displayIsHiddenState?.isHidden, isHidden {
-                SwiftUI.EmptyView()
-            } else if let attributes = adapter.displayAttributesState?.attributes {
-                buildSwiftUIViewFromAttributes(from: attributes)
-            } else {
-                Text(displayText)
+            if !stateModel.isHidden {
+                buildViewFromTextOutput(stateModel.presentable)
             }
         }
     }
-
-    private var displayText: String {
-        if let text = adapter.displayTextState?.text {
-            return text
-        } else if case let .text(text)? = adapter.displayModelState?.model {
-            return text ?? ""
+    
+    @ViewBuilder
+    private func buildViewFromTextOutput(_ model: TextOutputPresentableModel) -> some View {
+        switch stateModel.presentable {
+        case .text(let text):
+            if let text = text?.removingPercentEncoding, !text.isEmpty {
+                Text(text)
+            }
+        case .attributes(let attributes):
+            if !attributes.isEmpty {
+                buildSwiftUIViewFromAttributes(from: attributes)
+            }
+        case .animated(let float, let float2, let mapToString, let animationStyle, let duration, let completion):
+            SwiftUI.EmptyView()
+        case .textStyled(let text, let cornerStyle, let insets):
+            AnyView(
+                buildViewFromTextOutput(text)
+                    .if(!insets.isZero) { $0.padding(insets.asSUIEdgeInsets) }
+                    .ifLet(cornerStyle) { $0.cornerStyle($1) }
+                )
         }
-        return ""
+//        }
     }
 
     // MARK: - Rendering decision helpers
@@ -51,8 +61,8 @@ public struct SUILabel: View {
     // MARK: - SwiftUI AttributedString builder (text-only)
 
     // Standardize to a single concrete return type using AnyView to fix opaque type mismatch.
-    
     private func buildSwiftUIViewFromAttributes(from attributes: [TextAttributes]) -> some View {
+//        guard !attributes.isEmpty else { return SwiftUI.EmptyView() }
         var result: [Text] = []
 
         for item in attributes {
@@ -91,7 +101,7 @@ public struct SUILabel: View {
                 if #available(macOS 12, iOS 15, tvOS 15, watchOS 8, *) {
                     $0.environment(\.openURL, OpenURLAction { url in
                         if let id = url.host {
-                            getTapHandler(id: id)?()
+                            attributes.first(where: { $0.id == id })?.onTap?()
                         }
                         return .discarded
                     })
@@ -117,10 +127,6 @@ public struct SUILabel: View {
     }
     
     private let unsupportedUnderlines: [NSUnderlineStyle] = [.thick, .double, .byWord]
-    
-    private func getTapHandler(id: String) -> (() -> Void)? {
-        adapter.displayAttributesState?.attributes.first(where: { $0.id == id })?.onTap
-    }
 }
 
 #if canImport(UIKit)
