@@ -46,28 +46,25 @@ public extension ImageView {
         KingfisherManager.shared.cache.retrieveImage(forKey: url.absoluteString, options: [.callbackQueue(.mainCurrentOrAsync)]) { [weak self] result in
             switch result {
             case .success(let image):
-                
                 self?.animatedSet(image.image, closure: closure)
 
-                self?.kf.setImage(with: url, options: [.callbackQueue(.mainCurrentOrAsync), .forceRefresh] + kingfisherOptions, completionHandler: { result in
+                KingfisherManager.shared.retrieveImage(with: url, options: [.callbackQueue(.mainCurrentOrAsync), .forceRefresh] + kingfisherOptions) { [weak self, url] result in
                     switch result {
-                    case .success(let result):
-                        self?.viewWhileLoadingView?.isHidden = true
-                        closure?(result.image)
+                    case .success(let image):
+                        self?.animatedSet(image.image, closure: closure)
                     case .failure:
                         self?.showFallbackView(url)
                     }
-                })
+                }
             case.failure:
-                self?.kf.setImage(with: url, options: [.callbackQueue(.mainCurrentOrAsync)] + kingfisherOptions, completionHandler: { result in
+                KingfisherManager.shared.retrieveImage(with: url, options: [.callbackQueue(.mainCurrentOrAsync)] + kingfisherOptions) { [weak self, url] result in
                     switch result {
-                    case .success(let result):
-                        self?.viewWhileLoadingView?.isHidden = true
-                        closure?(result.image) 
+                    case .success(let image):
+                        self?.animatedSet(image.image, closure: closure)
                     case .failure:
                         self?.showFallbackView(url)
                     }
-                })
+                }
             }
         }
     }
@@ -89,11 +86,11 @@ public extension ImageView {
 
         currentAnimator = UIViewPropertyAnimator(duration: 0.3, curve: .easeInOut) { [weak self] in
             self?.image = image
-            closure?(image)
         }
         currentAnimator?.addCompletion { [weak self] _ in
             self?.currentAnimator = nil
             self?.viewWhileLoadingView?.isHidden = true
+            closure?(image)
         }
 
         // Start the animation

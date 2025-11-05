@@ -156,7 +156,15 @@ open class ImageView: UIImageView {
         super.traitCollectionDidChange(previousTraitCollection)
         
         switch currentImageEnum {
-        case .url, .urlString:
+        case .url(let lightUrl, let darkUrl): // changed
+            if lightUrl == darkUrl {
+                return
+            }
+            setImage(currentImageEnum)
+        case .urlString(let light, let dark): // changed
+            if light == dark {
+                return
+            }
             setImage(currentImageEnum)
         case .asset, .data:
             if #available(iOS 13.0, *), let image = self.image, image.renderingMode == .alwaysTemplate {
