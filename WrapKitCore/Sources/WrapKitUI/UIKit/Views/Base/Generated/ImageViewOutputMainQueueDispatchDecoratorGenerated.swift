@@ -13,9 +13,6 @@ import Foundation
 #if canImport(UIKit)
 import UIKit
 #endif
-#if canImport(SwiftUICore)
-import SwiftUICore
-#endif
 
 extension ImageViewOutput {
     public var mainQueueDispatched: any ImageViewOutput {

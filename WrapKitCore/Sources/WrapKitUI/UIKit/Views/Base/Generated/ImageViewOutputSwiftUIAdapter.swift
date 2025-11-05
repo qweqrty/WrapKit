@@ -17,9 +17,6 @@ import Foundation
 #if canImport(UIKit)
 import UIKit
 #endif
-#if canImport(SwiftUICore)
-import SwiftUICore
-#endif
 public class ImageViewOutputSwiftUIAdapter: ObservableObject, ImageViewOutput {
 
     // Initializer

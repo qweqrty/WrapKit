@@ -17,7 +17,7 @@ public struct DocumentPickerConfiguration {
     public let multipleSelection: Bool
     public let showFileExtensions: Bool
     public let directoryURL: URL?
-    public let desiredResultType: DesiredResultType
+    public let desiredResultType: MediaPickerManager.DesiredResultType
  
     public init(
         title: String,
@@ -26,7 +26,7 @@ public struct DocumentPickerConfiguration {
         multipleSelection: Bool = false,
         showFileExtensions: Bool = false,
         directoryURL: URL? = nil,
-        desiredResultType: DesiredResultType = .url
+        desiredResultType: MediaPickerManager.DesiredResultType = .url
     ) {
         self.contentTypes = contentTypes
         self.asCopy = asCopy

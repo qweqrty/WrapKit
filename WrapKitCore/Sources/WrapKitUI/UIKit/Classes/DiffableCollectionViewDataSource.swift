@@ -40,67 +40,53 @@ public extension DiffableCollectionViewDataSource {
 import UIKit
 
 public final class DiffableCollectionViewDataSource<Header, Cell: Hashable, Footer>:
-    UICollectionViewDiffableDataSource<Int, Cell>,
+    NSObject,
+    UICollectionViewDataSource,
     UICollectionViewDelegateFlowLayout,
     TableOutput {
     public typealias Header = Header
     public typealias Cell = Cell
     public typealias Footer = Footer
     
-    public var didSelectAt: ((IndexPath, Cell) -> Void)?
     public var configureCell: ((UICollectionView, IndexPath, Cell) -> UICollectionViewCell)?
-    public var viewForHeaderInSection: ((UICollectionView, _ atSection: Int, _ header: Header) -> UICollectionReusableView)?
-    public var sizeForHeaderInSection: ((_ atSection: Int, _ model: Header) -> CGSize)?
+    public var viewForHeaderInSection: ((UICollectionView, Int, Header) -> UICollectionReusableView)?
+    public var sizeForHeaderInSection: ((Int, Header) -> CGSize)?
     public var viewForFooterInSection: ((UICollectionView, Int, Footer) -> UICollectionReusableView)?
-    public var sizeForFooterInSection: ((_ atSection: Int, _ model: Footer) -> CGSize)?
+    public var sizeForFooterInSection: ((Int, Footer) -> CGSize)?
     public var minimumLineSpacingForSectionAt: ((Int) -> CGFloat) = { _ in 0 }
     public var sizeForItemAt: ((IndexPath) -> CGSize)?
     public var didScrollTo: ((IndexPath) -> Void)?
     public var didScrollViewDidScroll: ((UIScrollView) -> Void)?
-    public var didMoveItem: ((_ atIndexPath: IndexPath, _ toIndexPath: IndexPath) -> Void)?
+    public var didMoveItem: ((IndexPath, IndexPath) -> Void)?
     public var loadNextPage: (() -> Void)?
     public var showLoader = false
-    
+
     private weak var collectionView: UICollectionView?
     private var headers = [Int: Header]()
     private var footers = [Int: Footer]()
     private var carouselConfigs = [Int: CarouselConfig]()
     private var scrollTimers: [Int: Timer] = [:]
     
-    private var lastSections: [TableSection<Header, Cell, Footer>] = []
-    
-    public init(
-        collectionView: UICollectionView,
-        configureCell: @escaping (UICollectionView, IndexPath, Cell) -> UICollectionViewCell
-    ) {
-        super.init(collectionView: collectionView, cellProvider: { collectionView, indexPath, item in
-            return configureCell(collectionView, indexPath, item)
-        })
-        
-        supplementaryViewProvider = { [weak self] collectionView, kind, indexPath in
-            guard let self else { return nil }
-            if kind == UICollectionView.elementKindSectionHeader, let model = self.headers[indexPath.section] {
-                return self.viewForHeaderInSection?(collectionView, indexPath.section, model)
-            } else if kind == UICollectionView.elementKindSectionFooter, let model = self.footers[indexPath.section] {
-                return self.viewForFooterInSection?(collectionView, indexPath.section, model)
-            }
-            return nil
-        }
-        
+    private var sections: [TableSection<Header, Cell, Footer>] = []
+
+    // MARK: - Init
+    public init(collectionView: UICollectionView,
+                configureCell: @escaping (UICollectionView, IndexPath, Cell) -> UICollectionViewCell) {
+        super.init()
         self.collectionView = collectionView
         self.configureCell = configureCell
         
         collectionView.dataSource = self
         collectionView.delegate = self
     }
-    
+
     deinit {
         invalidateAllTimers()
     }
-    
+
+    // MARK: - Display
     public func display(sections: [TableSection<Header, Cell, Footer>]) {
-        lastSections = sections
-        
+        self.sections = sections
         headers.removeAll()
         footers.removeAll()
         carouselConfigs.removeAll()
@@ -113,34 +99,50 @@ public final class DiffableCollectionViewDataSource<Header, Cell: Hashable, Foot
             }
         }
         
-        var snapshot = NSDiffableDataSourceSnapshot<Int, Cell>()
-        snapshot.appendSections(Array(0..<sections.count))
-        
-        sections.enumerated().forEach { idx, section in
-            let uniqueCells = section.cells.map(\.cell).uniqued
-            snapshot.appendItems(uniqueCells, toSection: idx)
-        }
-        
-        apply(snapshot, animatingDifferences: true) { [weak self] in
-            self?.reconfigureAutoscrollTimers()
-        }
-        
-        didSelectAt = { [weak self] indexPath, cell in
-            guard
-                let self,
-                let section = self.lastSections.item(at: indexPath.section),
-                let model = section.cells.item(at: indexPath.item)
-            else { return }
-            model.onTap?(indexPath, cell)
-        }
+        collectionView?.reloadData()
+        reconfigureAutoscrollTimers()
+    }
+
+    // MARK: - UICollectionViewDataSource
+    public func numberOfSections(in collectionView: UICollectionView) -> Int {
+        sections.count
     }
     
+    public func collectionView(_ collectionView: UICollectionView,
+                               numberOfItemsInSection section: Int) -> Int {
+        sections.item(at: section)?.cells.count ?? 0
+    }
+    
+    public func collectionView(_ collectionView: UICollectionView,
+                               cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        guard let model = sections.item(at: indexPath.section)?.cells.item(at: indexPath.item) else {
+            return UICollectionViewCell()
+        }
+        return configureCell?(collectionView, indexPath, model.cell) ?? UICollectionViewCell()
+    }
+
+    // MARK: - Supplementary Views
+    public func collectionView(_ collectionView: UICollectionView,
+                               viewForSupplementaryElementOfKind kind: String,
+                               at indexPath: IndexPath) -> UICollectionReusableView {
+        if kind == UICollectionView.elementKindSectionHeader,
+           let header = headers[indexPath.section] {
+            return viewForHeaderInSection?(collectionView, indexPath.section, header) ?? UICollectionReusableView()
+        } else if kind == UICollectionView.elementKindSectionFooter,
+                  let footer = footers[indexPath.section] {
+            return viewForFooterInSection?(collectionView, indexPath.section, footer) ?? UICollectionReusableView()
+        }
+        return UICollectionReusableView()
+    }
+
+    // MARK: - UICollectionViewDelegate
     public func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         collectionView.deselectItem(at: indexPath, animated: true)
-        guard let selectedModel = itemIdentifier(for: indexPath) else { return }
-        didSelectAt?(indexPath, selectedModel)
+        guard let model = sections.item(at: indexPath.section)?.cells.item(at: indexPath.item) else { return }
+        model.onTap?(indexPath, model.cell)
     }
-    
+
+    // MARK: - Flow Layout
     public func collectionView(_ collectionView: UICollectionView,
                                layout collectionViewLayout: UICollectionViewLayout,
                                sizeForItemAt indexPath: IndexPath) -> CGSize {
@@ -151,17 +153,11 @@ public final class DiffableCollectionViewDataSource<Header, Cell: Hashable, Foot
     
     public func collectionView(_ collectionView: UICollectionView,
                                layout collectionViewLayout: UICollectionViewLayout,
-                               minimumLineSpacingForSectionAt section: Int) -> CGFloat {
-        minimumLineSpacingForSectionAt(section)
-    }
-    
-    public func collectionView(_ collectionView: UICollectionView,
-                               layout collectionViewLayout: UICollectionViewLayout,
                                referenceSizeForHeaderInSection section: Int) -> CGSize {
         guard let model = headers[section] else { return .zero }
         return sizeForHeaderInSection?(section, model) ?? .zero
     }
-    
+
     public func collectionView(_ collectionView: UICollectionView,
                                layout collectionViewLayout: UICollectionViewLayout,
                                referenceSizeForFooterInSection section: Int) -> CGSize {
@@ -169,13 +165,13 @@ public final class DiffableCollectionViewDataSource<Header, Cell: Hashable, Foot
         return sizeForFooterInSection?(section, model) ?? .zero
     }
     
-    public override func collectionView(_ collectionView: UICollectionView,
-                                        moveItemAt sourceIndexPath: IndexPath,
-                                        to destinationIndexPath: IndexPath) {
-        super.collectionView(collectionView, moveItemAt: sourceIndexPath, to: destinationIndexPath)
-        didMoveItem?(sourceIndexPath, destinationIndexPath)
+    public func collectionView(_ collectionView: UICollectionView,
+                               layout collectionViewLayout: UICollectionViewLayout,
+                               minimumLineSpacingForSectionAt section: Int) -> CGFloat {
+        minimumLineSpacingForSectionAt(section)
     }
-    
+
+    // MARK: - ScrollView Delegate
     public func scrollViewDidScroll(_ scrollView: UIScrollView) {
         didScrollViewDidScroll?(scrollView)
         
@@ -200,11 +196,10 @@ public final class DiffableCollectionViewDataSource<Header, Cell: Hashable, Foot
             resumeTimersIfNeeded()
         }
     }
-    
+
+    // MARK: - Carousel Autoscroll
     private func reconfigureAutoscrollTimers() {
         invalidateAllTimers()
-        
-        guard collectionView != nil else { return }
         
         for (section, config) in carouselConfigs where config.isAutoscrollEnabled {
             let timer = Timer.scheduledTimer(withTimeInterval: config.scrollInterval, repeats: true) { [weak self] _ in
@@ -224,13 +219,13 @@ public final class DiffableCollectionViewDataSource<Header, Cell: Hashable, Foot
             scrollTimers[section]?.fireDate = .distantFuture
         }
     }
-    
+
     private func resumeTimersIfNeeded() {
         for (section, config) in carouselConfigs where config.pauseWhileDragging {
             scrollTimers[section]?.fireDate = Date().addingTimeInterval(config.scrollInterval)
         }
     }
-    
+
     private func scrollToNextItem(in section: Int, endless: Bool) {
         guard let collectionView = self.collectionView else { return }
         

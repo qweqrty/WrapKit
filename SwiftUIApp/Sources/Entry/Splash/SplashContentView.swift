@@ -11,8 +11,7 @@ import WrapKit
 public struct SplashContentView: View {
     private let lifeCycleOutput: LifeCycleViewOutput?
     private let applicationLifecycleOutput: ApplicationLifecycleOutput?
-    public let textOutputAdapter = TextOutputSwiftUIAdapter()
-    public let imageViewAdapter = ImageViewOutputSwiftUIAdapter()
+    public let adapter = TextOutputSwiftUIAdapter()
 
     public init(
         lifeCycleOutput: LifeCycleViewOutput? = nil,
@@ -45,6 +44,10 @@ public struct SplashContentView: View {
                         SUIImageView(adapter: imageViewAdapter)
                     }
                    
+                    SUILabel(adapter: adapter)
+                      .frame(maxWidth: .infinity, alignment: .leading)
+                      .padding(.horizontal)
+
                     Spacer()
                 }
             }
