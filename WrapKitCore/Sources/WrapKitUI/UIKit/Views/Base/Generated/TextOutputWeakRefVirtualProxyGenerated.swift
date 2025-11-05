@@ -22,14 +22,14 @@ extension TextOutput {
 
 extension WeakRefVirtualProxy: TextOutput where T: TextOutput {
 
-    public func display(model: TextOutputPresentableModel?) {
-        object?.display(model: model)
+    public func display(model: TextOutputPresentableModel?, completion: ((Label?) -> Void)?) {
+        object?.display(model: model, completion: completion)
     }
     public func display(text: String?) {
         object?.display(text: text)
     }
-    public func display(attributes: [TextAttributes]) {
-        object?.display(attributes: attributes)
+    public func display(attributes: [TextAttributes], completion: ((Label?) -> Void)?) {
+        object?.display(attributes: attributes, completion: completion)
     }
     public func display(id: String?, from startAmount: Double, to endAmount: Double, mapToString: ((Double) -> TextOutputPresentableModel)?, animationStyle: LabelAnimationStyle, duration: TimeInterval, completion: (() -> Void)?) {
         object?.display(id: id, from: startAmount, to: endAmount, mapToString: mapToString, animationStyle: animationStyle, duration: duration, completion: completion)

@@ -19,11 +19,21 @@ public enum LabelAnimationStyle {
 }
 
 public protocol TextOutput: AnyObject {
-    func display(model: TextOutputPresentableModel?)
+    func display(model: TextOutputPresentableModel?, completion: ((Label?) -> Void)?)
     func display(text: String?)
-    func display(attributes: [TextAttributes])
+    func display(attributes: [TextAttributes], completion: ((Label?) -> Void)?)
     func display(id: String?, from startAmount: Double, to endAmount: Double, mapToString: ((Double) -> TextOutputPresentableModel)?, animationStyle: LabelAnimationStyle, duration: TimeInterval, completion: (() -> Void)?)
     func display(isHidden: Bool)
+}
+
+public extension TextOutput {
+    func display(model: TextOutputPresentableModel?) {
+        display(model: model, completion: nil)
+    }
+
+    func display(attributes: [TextAttributes], completion: ((Label?) -> Void)?) {
+        display(attributes: attributes, completion: nil)
+    }
 }
 
 public indirect enum TextOutputPresentableModel: HashableWithReflection {
@@ -49,7 +59,8 @@ public indirect enum TextOutputPresentableModel: HashableWithReflection {
 import UIKit
 
 extension Label: TextOutput {
-    public func display(model: TextOutputPresentableModel?) {
+    
+    public func display(model: TextOutputPresentableModel?, completion: ((Label?) -> Void)?) {
         isHidden = model == nil
         guard let model = model else { return }
         clearAnimationModel()
@@ -58,11 +69,11 @@ extension Label: TextOutput {
         case .text(let text):
             display(text: text)
         case .attributes(let attributes):
-            display(attributes: attributes)
+            display(attributes: attributes, completion: completion)
         case .animated(let id, let startAmount, let endAmount, let mapToString, let animationStyle, let duration, let completion):
             display(id: id, from: startAmount, to: endAmount, mapToString: mapToString, animationStyle: animationStyle, duration: duration, completion: completion)
         case .textStyled(let model, let style, let insets):
-            display(model: model)
+            display(model: model, completion: completion)
             self.cornerStyle = style
             self.textInsets = insets.asUIEdgeInsets
         }
@@ -75,7 +86,7 @@ extension Label: TextOutput {
         
     }
     
-    public func display(attributes: [TextAttributes]) {
+    public func display(attributes: [TextAttributes], completion: ((Label?) -> Void)?) {
         isHidden = attributes.isEmpty
         clearAnimationModel()
         self.attributes = attributes.map { attribute in

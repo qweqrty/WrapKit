@@ -22,9 +22,9 @@ extension TextOutput {
 
 extension MainQueueDispatchDecorator: TextOutput where T: TextOutput {
 
-    public func display(model: TextOutputPresentableModel?) {
+    public func display(model: TextOutputPresentableModel?, completion: ((Label?) -> Void)?) {
         dispatch { [weak self] in
-            self?.decoratee.display(model: model)
+            self?.decoratee.display(model: model, completion: completion)
         }
     }
     public func display(text: String?) {
@@ -32,9 +32,9 @@ extension MainQueueDispatchDecorator: TextOutput where T: TextOutput {
             self?.decoratee.display(text: text)
         }
     }
-    public func display(attributes: [TextAttributes]) {
+    public func display(attributes: [TextAttributes], completion: ((Label?) -> Void)?) {
         dispatch { [weak self] in
-            self?.decoratee.display(attributes: attributes)
+            self?.decoratee.display(attributes: attributes, completion: completion)
         }
     }
     public func display(id: String?, from startAmount: Double, to endAmount: Double, mapToString: ((Double) -> TextOutputPresentableModel)?, animationStyle: LabelAnimationStyle, duration: TimeInterval, completion: (() -> Void)?) {

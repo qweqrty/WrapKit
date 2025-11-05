@@ -10,7 +10,7 @@ import XCTest
 import WrapKitTestUtils
 
 class LabelSnapshotTests: XCTestCase {
-    func test_label_default_state() {
+    func test_labelOutput_default_state() {
         // GIVEN
         let sut = makeSUT()
         
@@ -22,7 +22,7 @@ class LabelSnapshotTests: XCTestCase {
         assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "LABEL_DEFAULT_STATE_DARK")
     }
     
-    func test_label_long_text() {
+    func test_labelOutput_long_text() {
         //GIVEN
         let sut = makeSUT()
         
@@ -34,7 +34,7 @@ class LabelSnapshotTests: XCTestCase {
         assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "LABEL_LONG_TITLE_DARK")
     }
     
-    func test_label_hidden_text() {
+    func test_labelOutput_hidden_text() {
         //GIVEN
         let sut = makeSUT()
         
@@ -47,7 +47,7 @@ class LabelSnapshotTests: XCTestCase {
         assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "LABEL_TITLE_HIDDEN_DARK")
     }
     
-    func test_label_withInsets() {
+    func test_labelOutput_withInsets() {
         // GIVEN
         let sut = makeSUT()
         
@@ -62,7 +62,7 @@ class LabelSnapshotTests: XCTestCase {
     }
     
     // MARK: - attributedText перезаписывает обычный text
-    func tests_with_multiple_display() {
+    func tests_labelOutput_multiple_display() {
         // GIVEN
         let sut = makeSUT()
         
@@ -70,7 +70,8 @@ class LabelSnapshotTests: XCTestCase {
         sut.display(text: "First text")
         
         let secondText = TextAttributes(text: "Second Text")
-        sut.display(attributes: [secondText])
+        
+        sut.display(attributes: [secondText], completion: nil)
         
         // THEN
         assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "LABEL_MULTIPLE_DISPLAY_LIGHT")
@@ -78,7 +79,7 @@ class LabelSnapshotTests: XCTestCase {
     }
     
     // MARK: - Corener Style tests
-    func test_label_with_automaticCornerStyle() {
+    func test_labelOutput_with_automaticCornerStyle() {
         // GIVEN
         let sut = makeSUT()
         
@@ -92,7 +93,7 @@ class LabelSnapshotTests: XCTestCase {
         assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "LABEL_CORNER_AUTOMATIC_DARK")
     }
     
-    func test_label_with_fixedCornerStyle() {
+    func test_labelOutput_with_fixedCornerStyle() {
         // GIVEN
         let sut = makeSUT()
         
@@ -106,7 +107,7 @@ class LabelSnapshotTests: XCTestCase {
         assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "LABEL_CORNER_FIXED_DARK")
     }
     
-    func test_label_with_noneCornerStyle() {
+    func test_labelOutput_with_noneCornerStyle() {
         // GIVEN
         let sut = makeSUT()
         
@@ -121,7 +122,7 @@ class LabelSnapshotTests: XCTestCase {
     }
     
     //MARK: - Tests for display with TextAttributes
-    func test_label_with_color() {
+    func test_labelOutput_with_color() {
         //GIVEN
         let sut = makeSUT()
         
@@ -136,7 +137,7 @@ class LabelSnapshotTests: XCTestCase {
         assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "LABEL_TITLE_WITH_COLOR_DARK")
     }
     
-    func test_label_with_font_attributes() {
+    func test_labelOutput_with_font_attributes() {
         //GIVEN
         let sut = makeSUT()
         
@@ -151,7 +152,7 @@ class LabelSnapshotTests: XCTestCase {
         assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "LABEL_TITLE_WITH_FONT_DARK")
     }
     
-    func test_label_with_singleLineText_attributes() {
+    func test_labelOutput_with_singleLineText_attributes() {
         //GIVEN
         let sut = makeSUT()
         
@@ -166,7 +167,7 @@ class LabelSnapshotTests: XCTestCase {
         assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "LABEL_TITLE_WITH_SINGLELINE_DARK")
     }
     
-    func test_label_with_doubleLineText_attributes() {
+    func test_labelOutput_with_doubleLineText_attributes() {
         //GIVEN
         let sut = makeSUT()
         
@@ -182,7 +183,7 @@ class LabelSnapshotTests: XCTestCase {
     }
     
     // TODO: - byWord doesnt work.
-    func test_label_with_byWordText_attributes() {
+    func test_labelOutput_with_byWordText_attributes() {
         //GIVEN
         let sut = makeSUT()
         
@@ -197,7 +198,7 @@ class LabelSnapshotTests: XCTestCase {
     }
     
     // TODO: - Dash doesnt work.
-    func test_label_with_patternDashText_attributes() {
+    func test_labelOutput_with_patternDashText_attributes() {
         //GIVEN
         let sut = makeSUT()
         
@@ -212,7 +213,7 @@ class LabelSnapshotTests: XCTestCase {
     }
     
     // TODO: - DashDot doesnt work.
-    func test_label_with_patternDashDotText_attributes() {
+    func test_labelOutput_with_patternDashDotText_attributes() {
         //GIVEN
         let sut = makeSUT()
         
@@ -227,7 +228,7 @@ class LabelSnapshotTests: XCTestCase {
     }
     
     // TODO: - DashDotDot doesnt work.
-    func test_label_with_patterntDashDotDotText_attributes() {
+    func test_labelOutput_with_patterntDashDotDotText_attributes() {
         //GIVEN
         let sut = makeSUT()
         
@@ -242,7 +243,7 @@ class LabelSnapshotTests: XCTestCase {
     }
     
     // TODO: - Dot doesnt work.
-    func test_label_with_patterntDotText_attributes() {
+    func test_labelOutput_with_patterntDotText_attributes() {
         //GIVEN
         let sut = makeSUT()
         
@@ -256,7 +257,7 @@ class LabelSnapshotTests: XCTestCase {
         assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "LABEL_TITLE_WITH_DOT_DARK")
     }
     
-    func test_label_with_thickUnderline_attributes() {
+    func test_labelOutput_with_thickUnderline_attributes() {
         //GIVEN
         let sut = makeSUT()
         
@@ -271,7 +272,7 @@ class LabelSnapshotTests: XCTestCase {
     }
     
     // TODO: - leading image doesnt work.
-    func test_label_with_leadingImage_attributes() {
+    func test_labelOutput_with_leadingImage_attributes() {
         //GIVEN
         let sut = makeSUT()
         
@@ -286,7 +287,7 @@ class LabelSnapshotTests: XCTestCase {
     }
     
     // TODO: - trailing image doesnt work.
-    func test_label_with_trailingImage_attributes() {
+    func test_labelOutput_with_trailingImage_attributes() {
         //GIVEN
         let sut = makeSUT()
         
@@ -301,7 +302,102 @@ class LabelSnapshotTests: XCTestCase {
     }
     
     // MARK: - Tests for label taps
-    func 
+    func test_labelOutput_textAttributesOnTap() {
+        // GIVEN
+        let sut = makeSUT()
+        let exp = expectation(description: "Wait for completion")
+        exp.expectedFulfillmentCount = 3
+    
+        // WHEN
+        let first_attr = TextAttributes(text: "First") { [weak sut] in
+            sut?.backgroundColor = .red
+            exp.fulfill()
+        }
+        let second_attr = TextAttributes(text: "Second") { [weak sut] in
+            sut?.cornerStyle = .fixed(20)
+            exp.fulfill()
+        }
+        
+        let third_attr = TextAttributes(text: "Third") { [weak sut] in
+            let updatedThird = TextAttributes(text: "Updated Third!")
+            sut?.display(attributes: [first_attr, second_attr, updatedThird], completion: nil)
+            exp.fulfill()
+        }
+        
+        sut.display(model: .attributes([first_attr, second_attr, third_attr]))
+        
+        first_attr.onTap?()
+        second_attr.onTap?()
+        third_attr.onTap?()
+        
+        wait(for: [exp], timeout: 1.0)
+        
+        // THEN
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "LABEL_TITLE_WITH_TEXTATTRIBUTES_ONTAP_LIGHT")
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "LABEL_TITLE_WITH_TEXTATTRIBUTES_ONTAP_DARK")
+    }
+    
+    func test_labelOutput_displayAnimatedNumber() {
+        // GIVEN
+        let sut = makeSUT()
+        let exp = expectation(description: "Wait for animation completion")
+
+        let mapToString: (Double) -> TextOutputPresentableModel = { value in
+            return .text(String(format: "%.0f", value))
+        }
+
+        // WHEN
+        sut.display(
+            id: "testAnimation",
+            from: 0,
+            to: 100,
+            mapToString: mapToString,
+            animationStyle: .none,
+            duration: 0.1
+        ) { [weak sut] in
+            sut?.backgroundColor = .cyan
+            exp.fulfill()
+        }
+
+        wait(for: [exp], timeout: 2.0)
+        
+        // THEN
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)),
+               named: "LABEL_ANIMATED_FINAL_STATE_LIGHT")
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)),
+               named: "LABEL_ANIMATED_FINAL_STATE_DARK")
+    }
+    
+    func test_labelOutput_default_TextAttribute_behavior() {
+        //GIVEN
+        let sut = makeSUT()
+    
+        sut.textColor = .red
+        sut.font = .systemFont(ofSize: 16)
+        sut.textAlignment = .right
+        
+        //WHEN
+        let bold = TextAttributes(text: "Text attribute with color", color: .blue)
+        let regular = TextAttributes(text: "Text attribute with default label color")
+        
+        sut.display(model: .attributes([bold, regular]))
+        
+        //THEN
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "LABEL_TEXTATTRIBUTE_DEFAULT_BEHAVIOR_FONT_LIGHT")
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "LABEL_TEXTATTRIBUTE_DEFAULT_BEHAVIOR_FONT_DARK")
+    }
+    
+    func test_labelOutput_with_cornerStyle_and_insets() {
+        let sut = makeSUT()
+        
+        sut.display(model: .textStyled(text: .text("Hello"), cornerStyle: .fixed(20), insets: .init(top: 20, leading: 50, bottom: 20, trailing: 20))) { _ in
+            
+            sut.backgroundColor = .cyan
+        }
+        
+        record(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "LABEL_CORNERSTYLE_INSETS_LIGHT")
+        record(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "LABEL_CORNERSTYLE_INSETS_DARK")
+    }
 }
 extension LabelSnapshotTests {
     func makeSUT(
