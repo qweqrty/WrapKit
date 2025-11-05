@@ -459,20 +459,20 @@ class AuthenticatedHTTPClientDecoratorTests: XCTestCase {
     
 //    func test_noRaceConditionWhenMultipleRequestsUseSameToken() {
 //        let (sut, storage, httpClientSpy, _) = makeSUT()
-//        
+//
 //        storage.set(model: "valid_token")
-//        
+//
 //        let request1 = URLRequest(url: URL(string: "http://test.com/1")!)
 //        let request2 = URLRequest(url: URL(string: "http://test.com/2")!)
 //        let request3 = URLRequest(url: URL(string: "http://test.com/3")!)
-//        
+//
 //        let dispatchExp = expectation(description: "Wait for all requests to be dispatched")
 //        dispatchExp.expectedFulfillmentCount = 3
-//        
+//
 //        let exp1 = expectation(description: "Wait for request 1")
 //        let exp2 = expectation(description: "Wait for request 2")
 //        let exp3 = expectation(description: "Wait for request 3")
-//        
+//
 //        DispatchQueue.global().async {
 //            sut.dispatch(request1) { result in
 //                if case .success = result {
@@ -481,7 +481,7 @@ class AuthenticatedHTTPClientDecoratorTests: XCTestCase {
 //            }.resume()
 //            dispatchExp.fulfill()
 //        }
-//        
+//
 //        DispatchQueue.global().async {
 //            sut.dispatch(request2) { result in
 //                if case .success = result {
@@ -490,7 +490,7 @@ class AuthenticatedHTTPClientDecoratorTests: XCTestCase {
 //            }.resume()
 //            dispatchExp.fulfill()
 //        }
-//        
+//
 //        DispatchQueue.global().async {
 //            sut.dispatch(request3) { result in
 //                if case .success = result {
@@ -499,18 +499,18 @@ class AuthenticatedHTTPClientDecoratorTests: XCTestCase {
 //            }.resume()
 //            dispatchExp.fulfill()
 //        }
-//        
+//
 //        // Wait until all requests are dispatched
 //        wait(for: [dispatchExp], timeout: 2.0)
-//        
+//
 //        // Now complete the requests after ensuring they exist in `httpClientSpy.messages`
 //        httpClientSpy.completes(withStatusCode: 200, data: Data("data1".utf8), at: 0)
 //        httpClientSpy.completes(withStatusCode: 200, data: Data("data2".utf8), at: 1)
 //        httpClientSpy.completes(withStatusCode: 200, data: Data("data3".utf8), at: 2)
-//        
+//
 //        // Wait for all requests to complete
 //        wait(for: [exp1, exp2, exp3], timeout: 2.0)
-//        
+//
 //        // Assertions
 //        XCTAssertEqual(httpClientSpy.requestedURLRequests.count, 3)
 //        XCTAssertEqual(httpClientSpy.requestedURLRequests[0].value(forHTTPHeaderField: "Authorization"), "valid_token")
@@ -775,8 +775,7 @@ class AuthenticatedHTTPClientDecoratorTests: XCTestCase {
                 req.setValue(token, forHTTPHeaderField: "Authorization")
                 return req
             },
-            isAuthenticated: isAuthenticated,
-            tokenLock: queue
+            isAuthenticated: isAuthenticated
         )
         checkForMemoryLeaks(sut, file: file, line: line)
         checkForMemoryLeaks(storage, file: file, line: line)

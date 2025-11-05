@@ -1,0 +1,208 @@
+//
+//  ImageViewSnapshotTests.swift
+//  WrapKit
+//
+//  Created by sunflow on 3/11/25.
+//
+
+import WrapKit
+import XCTest
+import WrapKitTestUtils
+import Kingfisher
+
+private enum ImageTestLinks: String {
+    case light = "https://developer.apple.com/assets/elements/icons/swift/swift-64x64_2x.png"
+    case dark = "https://uxwing.com/wp-content/themes/uxwing/download/web-app-development/dark-mode-icon.png"
+}
+
+class ImageViewSnapshotTests: XCTestCase {
+    override class func setUp() {
+            super.setUp()
+            
+            KingfisherManager.shared.cache.clearCache()
+            KingfisherManager.shared.cache.clearMemoryCache()
+            KingfisherManager.shared.cache.clearDiskCache()
+        }
+    
+    func test_imageView_defaultState() {
+        // GIVEN
+        let sut = makeSUT()
+        let exp = expectation(description: "Wait for completion")
+        
+//        // WHEN
+        let image = UIImage(named: "mini")
+        sut.display(image: .asset(image), completion: { _ in
+            exp.fulfill()
+        })
+        
+        wait(for: [exp], timeout: 1.0)
+        
+        // THEN
+        record(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "IMAGE_VIEW_DEFAULT_STATE_LIGHT")
+        record(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "IMAGE_VIEW_DEFAULT_STATE_DARK")
+    }
+    
+    func test_ImageView_from_urlString_light() {
+        // GIVEN
+        let sut = makeSUT()
+        let exp = expectation(description: "Wait for completion")
+        
+        // WHEN
+        let urlString = ImageTestLinks.light.rawValue
+        sut.display(image: .urlString(urlString, urlString)) { _ in
+            exp.fulfill()
+        }
+        
+        wait(for: [exp], timeout: 5.0)
+        
+        // THEN
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "IMAGE_VIEW_URLSTRING_LIGHT")
+    }
+
+    func test_ImageView_from_urlString_dark() {
+        // GIVEN
+        let sut = makeSUT()
+        let exp = expectation(description: "Wait for completion")
+        
+        // WHEN
+        let urlString = ImageTestLinks.dark.rawValue
+        sut.display(image: .urlString(urlString, urlString)) { _ in
+            exp.fulfill()
+        }
+        
+        wait(for: [exp], timeout: 5.0)
+        
+        // THEN
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "IMAGE_VIEW_URLSTRING_DARK")
+    }
+    
+    func test_ImageView_from_url_light() {
+        // GIVEN
+        let sut = makeSUT()
+        let exp = expectation(description: "Wait for completion")
+        
+        // WHEN
+        let url = URL(string: ImageTestLinks.light.rawValue)!
+        sut.display(image: .url(url, url)) { image in
+            exp.fulfill()
+        }
+        
+        wait(for: [exp], timeout: 5.0)
+        
+        // THEN
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "IMAGE_VIEW_URL_LIGHT")
+    }
+    
+    func test_ImageView_from_url_dark() {
+        // GIVEN
+        let sut = makeSUT()
+        let exp = expectation(description: "Wait for completion")
+        
+        // WHEN
+        let url = URL(string: ImageTestLinks.dark.rawValue)!
+        
+        sut.display(image: .url(url, url)) { image in
+            exp.fulfill()
+        }
+        
+        wait(for: [exp], timeout: 5.0)
+        
+        // THEN
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "IMAGE_VIEW_URl_DARK")
+    }
+    
+    func test_imageView_contentMode_is_fit() {
+        // GIVEN
+        let sut = makeSUT()
+        
+        // WHEN
+        let image = UIImage(named: "mini")
+        sut.display(image: .asset(image))
+        sut.display(contentModeIsFit: true)
+        
+        // THEN
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "IMAGE_VIEW_FITCONTENTMODE_LIGHT")
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "IMAGE_VIEW_FITCONTENTMODE_DARK")
+    }
+    
+    func test_imageView_with_borderdWidth() {
+        // GIVEN
+        let sut = makeSUT()
+        
+        // WHEN
+        sut.display(borderWidth: 2.0)
+        
+        // THEN
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "IMAGE_VIEW_BORDERWIDTH_LIGHT")
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "IMAGE_VIEW_BORDERWIDTH_DARK")
+    }
+    
+    func test_imageView_with_borderColor() {
+        // GIVEN
+        let sut = makeSUT()
+        
+        // WHEN
+        sut.display(borderColor: .red)
+        sut.display(borderWidth: 2.0)
+        sut.backgroundColor = .cyan
+        
+        // THEN
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "IMAGE_VIEW_BORDERCOLOR_LIGHT")
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "IMAGE_VIEW_BORDERCOLOR_DARK")
+    }
+    
+    func test_imageView_with_cornerRadius() {
+        // GIVEN
+        let sut = makeSUT()
+        
+        // WHEN
+        sut.display(cornerRadius: 50)
+        sut.backgroundColor = .cyan
+        
+        // THEN
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "IMAGE_VIEW_CORNERRADIUS_LIGHT")
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "IMAGE_VIEW_CORNERRADIUS_DARK")
+    }
+    
+    func test_imageView_with_alpha() {
+        // GIVEN
+        let sut = makeSUT()
+        
+        // WHEN
+        sut.display(alpha: 0.3)
+        sut.backgroundColor = .cyan
+        
+        // THEN
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "IMAGE_VIEW_ALPHA_LIGHT")
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "IMAGE_VIEW_ALPHA_DARK")
+    }
+    
+    func test_imageView_with_hidden() {
+        // GIVEN
+        let sut = makeSUT()
+        
+        // WHEN
+        sut.display(isHidden: false)
+        sut.backgroundColor = .cyan
+        
+        // THEN
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "IMAGE_VIEW_HIDDEN_LIGHT")
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "IMAGE_VIEW_HIDDEN_DARK")
+    }
+}
+
+extension ImageViewSnapshotTests {
+    func makeSUT(
+        file: StaticString = #file,
+        line: UInt = #line
+    ) -> ImageView {
+        let sut = ImageView()
+        
+        sut.frame = .init(origin: .zero, size: SnapshotConfiguration.size)
+        checkForMemoryLeaks(sut, file: file, line: line)
+        return sut
+    }
+}
+
+fileprivate extension CardViewPresentableModel.Style {
+}

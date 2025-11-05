@@ -86,11 +86,11 @@ public extension ImageView {
 
         currentAnimator = UIViewPropertyAnimator(duration: 0.3, curve: .easeInOut) { [weak self] in
             self?.image = image
-            closure?(image)
         }
         currentAnimator?.addCompletion { [weak self] _ in
             self?.currentAnimator = nil
             self?.viewWhileLoadingView?.isHidden = true
+            closure?(image)
         }
 
         // Start the animation

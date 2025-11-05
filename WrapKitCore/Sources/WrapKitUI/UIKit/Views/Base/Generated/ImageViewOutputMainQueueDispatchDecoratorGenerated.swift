@@ -13,6 +13,9 @@ import Foundation
 #if canImport(UIKit)
 import UIKit
 #endif
+#if canImport(SwiftUICore)
+import SwiftUICore
+#endif
 
 extension ImageViewOutput {
     public var mainQueueDispatched: any ImageViewOutput {
@@ -22,14 +25,14 @@ extension ImageViewOutput {
 
 extension MainQueueDispatchDecorator: ImageViewOutput where T: ImageViewOutput {
 
-    public func display(model: ImageViewPresentableModel?) {
+    public func display(model: ImageViewPresentableModel?, completion: ((Image?) -> Void)?) {
         dispatch { [weak self] in
-            self?.decoratee.display(model: model)
+            self?.decoratee.display(model: model, completion: completion)
         }
     }
-    public func display(image: ImageEnum?) {
+    public func display(image: ImageEnum?, completion: ((Image?) -> Void)?) {
         dispatch { [weak self] in
-            self?.decoratee.display(image: image)
+            self?.decoratee.display(image: image, completion: completion)
         }
     }
     public func display(size: CGSize?) {
@@ -75,6 +78,16 @@ extension MainQueueDispatchDecorator: ImageViewOutput where T: ImageViewOutput {
     public func display(isHidden: Bool) {
         dispatch { [weak self] in
             self?.decoratee.display(isHidden: isHidden)
+        }
+    }
+    public func display(model: ImageViewPresentableModel?) {
+        dispatch { [weak self] in
+            self?.decoratee.display(model: model)
+        }
+    }
+    public func display(image: ImageEnum?) {
+        dispatch { [weak self] in
+            self?.decoratee.display(image: image)
         }
     }
 

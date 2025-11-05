@@ -8,8 +8,8 @@
 import Foundation
 
 public protocol ImageViewOutput: AnyObject {
-    func display(model: ImageViewPresentableModel?)
-    func display(image: ImageEnum?)
+    func display(model: ImageViewPresentableModel?, completion: ((Image?) -> Void)?)
+    func display(image: ImageEnum?, completion: ((Image?) -> Void)?)
     func display(size: CGSize?)
     func display(onPress: (() -> Void)?)
     func display(onLongPress: (() -> Void)?)
@@ -19,6 +19,16 @@ public protocol ImageViewOutput: AnyObject {
     func display(cornerRadius: CGFloat?)
     func display(alpha: CGFloat?)
     func display(isHidden: Bool)
+}
+
+public extension ImageViewOutput {
+    func display(model: ImageViewPresentableModel?) {
+        display(model: model, completion: nil)
+    }
+    
+    func display(image: ImageEnum?) {
+        display(image: image, completion: nil)
+    }
 }
 
 public struct ImageViewPresentableModel: HashableWithReflection {
@@ -57,6 +67,7 @@ public struct ImageViewPresentableModel: HashableWithReflection {
 
 #if canImport(UIKit)
 import UIKit
+import SwiftUICore
 
 open class ImageView: UIImageView {
     public var currentAnimator: UIViewPropertyAnimator?
@@ -145,7 +156,15 @@ open class ImageView: UIImageView {
         super.traitCollectionDidChange(previousTraitCollection)
         
         switch currentImageEnum {
-        case .url, .urlString:
+        case .url(let lightUrl, let darkUrl): // changed
+            if lightUrl == darkUrl {
+                return
+            }
+            setImage(currentImageEnum)
+        case .urlString(let light, let dark): // changed
+            if light == dark {
+                return
+            }
             setImage(currentImageEnum)
         case .asset, .data:
             if #available(iOS 13.0, *), let image = self.image, image.renderingMode == .alwaysTemplate {
@@ -227,12 +246,12 @@ open class ImageView: UIImageView {
 }
 
 extension ImageView: ImageViewOutput {
-    public func display(model: ImageViewPresentableModel?) {
+    public func display(model: ImageViewPresentableModel?, completion: ((Image?) -> Void)? = nil) {
         isHidden = model == nil
         display(onPress: model?.onPress)
         display(onLongPress: model?.onLongPress)
         hideShimmer()
-        if let image = model?.image { display(image: image) }
+        if let image = model?.image { display(image: image, completion: completion) }
         if let size = model?.size {
             display(size: size)
         }
@@ -289,8 +308,8 @@ extension ImageView: ImageViewOutput {
         self.layer.cornerRadius = cornerRadius
     }
     
-    public func display(image: ImageEnum?) {
-        self.setImage(image)
+    public func display(image: ImageEnum?, completion: ((Image?) -> Void)?) {
+        self.setImage(image, closure: completion)
     }
     
     public func display(onPress: (() -> Void)?) {
