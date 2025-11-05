@@ -30,7 +30,7 @@ class ImageViewSnapshotTests: XCTestCase {
         let exp = expectation(description: "Wait for completion")
         
 //        // WHEN
-        let image = UIImage(named: "mini")
+        let image = UIImage(systemName: "star")
         sut.display(image: .asset(image), completion: { _ in
             exp.fulfill()
         })
@@ -38,8 +38,8 @@ class ImageViewSnapshotTests: XCTestCase {
         wait(for: [exp], timeout: 1.0)
         
         // THEN
-        record(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "IMAGE_VIEW_DEFAULT_STATE_LIGHT")
-        record(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "IMAGE_VIEW_DEFAULT_STATE_DARK")
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "IMAGE_VIEW_DEFAULT_STATE_LIGHT")
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "IMAGE_VIEW_DEFAULT_STATE_DARK")
     }
     
     func test_ImageView_from_urlString_light() {
@@ -116,7 +116,7 @@ class ImageViewSnapshotTests: XCTestCase {
         let sut = makeSUT()
         
         // WHEN
-        let image = UIImage(named: "mini")
+        let image = UIImage(systemName: "star")
         sut.display(image: .asset(image))
         sut.display(contentModeIsFit: true)
         
@@ -188,6 +188,71 @@ class ImageViewSnapshotTests: XCTestCase {
         // THEN
         assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "IMAGE_VIEW_HIDDEN_LIGHT")
         assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "IMAGE_VIEW_HIDDEN_DARK")
+    }
+    
+    //MARK: - touches simulation
+    func test_imageView_onPress_visualState() {
+        // GIVEN
+        let sut = makeSUT()
+        
+        // WHEN
+        sut.display(onPress: {
+            
+        })
+        
+        let image = UIImage(systemName: "star.fill")
+        sut.display(image: .asset(image))
+        
+        sut.touchesBegan(Set(), with: nil)
+        
+        // THEN
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "IMAGE_VIEW_ONPRESS_PRESSED_LIGHT")
+        
+        sut.touchesEnded(Set(), with: nil)
+        
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "IMAGE_VIEW_ONPRESS_RELEASED_LIGHT")
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "IMAGE_VIEW_ONPRESS_RELEASED_DARK")
+    }
+    
+    // MARK: - Completion calling directly
+    func test_imageView_direct_onPress() {
+        // GIVEN
+        let sut = makeSUT()
+        let exp = expectation(description: "Wait for animation completion")
+        
+        // WHEN
+        sut.display(onPress: { [weak sut] in
+            sut?.backgroundColor = .red
+            exp.fulfill()
+        })
+        
+        sut.onPress?()
+        
+        wait(for: [exp], timeout: 1.0)
+        
+        // THEN
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "IMAGE_VIEW_ONPRESS_DIRECT_LIGHT")
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "IMAGE_VIEW_ONPRESS_DIRECT_DARK")
+    }
+    
+    func test_imageView_direct_onLongPress() {
+        // GIVEN
+        let sut = makeSUT()
+        let exp = expectation(description: "Wait for onLongPress")
+        
+        // WHEN
+        sut.display(onLongPress: { [weak sut] in
+            sut?.backgroundColor = .systemYellow
+            exp.fulfill()
+        })
+        
+        sut.onLongPress?()
+        
+        wait(for: [exp], timeout: 1.0)
+        
+        // THEN
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "IMAGE_VIEW_ONLONGPRESS_STATIC_LIGHT")
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "IMAGE_VIEW_ONLONGPRESS_STATIC_DARK")
     }
 }
 
