@@ -299,6 +299,9 @@ class LabelSnapshotTests: XCTestCase {
         assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "LABEL_TITLE_WITH_TRAILINGIMAGE_LIGHT")
         assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "LABEL_TITLE_WITH_TRAILINGIMAGE_DARK")
     }
+    
+    // MARK: - Tests for label taps
+    func 
 }
 extension LabelSnapshotTests {
     func makeSUT(
