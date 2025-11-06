@@ -23,12 +23,11 @@ public extension ImageView {
         case .asset(let image):
             self.animatedSet(image, closure: closure)
         case .url(let lightUrl, let darkUrl):
-            let url = traitCollection.userInterfaceStyle == .dark ? (darkUrl ?? lightUrl) : (lightUrl ?? darkUrl)
+            let url = traitCollection.userInterfaceStyle == .dark ? darkUrl : lightUrl
             self.loadImage(url, kingfisherOptions: kingfisherOptions, closure: closure)
         case .urlString(let lightString, let darkString):
-            let string = traitCollection.userInterfaceStyle == .dark ? (darkString ?? lightString) : (lightString ?? darkString)
-            guard let url = URL(string: string ?? "") else { return }
-            self.loadImage(url, kingfisherOptions: kingfisherOptions, closure: closure)
+            let string = traitCollection.userInterfaceStyle == .dark ? darkString : lightString
+            self.loadImage(URL(string: string ?? ""), kingfisherOptions: kingfisherOptions, closure: closure)
         case .data(let data):
             guard let data else { return }
             self.animatedSet(UIImage(data: data), closure: closure)
@@ -38,7 +37,10 @@ public extension ImageView {
     }
     
     private func loadImage(_ url: URL?, kingfisherOptions: KingfisherOptionsInfo, closure: ((Image?) -> Void)? = nil) {
-        guard let url = url else { return }
+        guard let url = url else {
+            animatedSet(wrongUrlPlaceholderImage, closure: closure)
+            return
+        }
         if let fallbackView {
             fallbackView.isHidden = true
         }

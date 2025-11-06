@@ -182,6 +182,7 @@ open class Button: UIButton {
     public var pressedTextColor: UIColor?
     public var pressedBackgroundColor: UIColor?
     public var pressAnimations = Set<PressAnimation>()
+    public var wrongUrlPlaceholderImage: UIImage?
     open var anchoredConstraints: AnchoredConstraints?
     
     private func updateSpacings() {
@@ -328,4 +329,3 @@ open class Button: UIButton {
     }
 }
 #endif
-
