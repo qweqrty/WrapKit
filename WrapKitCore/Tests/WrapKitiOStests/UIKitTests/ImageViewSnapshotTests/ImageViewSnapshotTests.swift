@@ -76,6 +76,18 @@ class ImageViewSnapshotTests: XCTestCase {
         assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "IMAGE_VIEW_URLSTRING_DARK")
     }
     
+    func test_ImageView_with_no_urlString() {
+        // GIVEN
+        let sut = makeSUT()
+        
+        // WHEN
+        sut.display(image: .urlString(nil, nil))
+        
+        // THEN
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "IMAGE_VIEW_NO_URLSTRING_LIGHT")
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "IMAGE_VIEW_NO_URLSTRING_DARK")
+    }
+    
     func test_ImageView_from_url_light() {
         // GIVEN
         let sut = makeSUT()
@@ -91,6 +103,18 @@ class ImageViewSnapshotTests: XCTestCase {
         
         // THEN
         assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "IMAGE_VIEW_URL_LIGHT")
+    }
+    
+    func test_ImageView_with_no_url() {
+        // GIVEN
+        let sut = makeSUT()
+        
+        // WHEN
+        sut.display(image: .url(nil, nil))
+        
+        // THEN
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "IMAGE_VIEW_NO_URL_LIGHT")
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "IMAGE_VIEW_NO_URL_DARK")
     }
     
     func test_ImageView_from_url_dark() {
