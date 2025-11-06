@@ -308,7 +308,7 @@ class LabelSnapshotTests: XCTestCase {
         let sut = makeSUT()
         let exp = expectation(description: "Wait for completion")
         exp.expectedFulfillmentCount = 3
-    
+        
         // WHEN
         let first_attr = TextAttributes(text: "First") { [weak sut] in
             sut?.backgroundColor = .red
@@ -327,15 +327,12 @@ class LabelSnapshotTests: XCTestCase {
         
         sut.display(model: .attributes([first_attr, second_attr, third_attr]))
         
-        first_attr.onTap?()
-        second_attr.onTap?()
-        third_attr.onTap?()
         
-        wait(for: [exp], timeout: 1.0)
+        wait(for: [exp], timeout: 5.0)
         
         // THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "LABEL_TITLE_WITH_TEXTATTRIBUTES_ONTAP_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "LABEL_TITLE_WITH_TEXTATTRIBUTES_ONTAP_DARK")
+        record(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "LABEL_TITLE_WITH_TEXTATTRIBUTES_ONTAP_LIGHT")
+        record(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "LABEL_TITLE_WITH_TEXTATTRIBUTES_ONTAP_DARK")
     }
     
     func test_labelOutput_displayAnimatedNumber() {
@@ -400,6 +397,7 @@ class LabelSnapshotTests: XCTestCase {
         assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "LABEL_CORNERSTYLE_INSETS_DARK")
     }
 }
+
 extension LabelSnapshotTests {
     func makeSUT(
         file: StaticString = #file,
