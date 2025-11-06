@@ -261,7 +261,7 @@ open class Button: UIButton {
         
         switch currentImageEnum {
         case .url, .urlString:
-            setImage(currentImageEnum)
+            setImage(currentImageEnum, completion: nil)
         default:
             break
         }

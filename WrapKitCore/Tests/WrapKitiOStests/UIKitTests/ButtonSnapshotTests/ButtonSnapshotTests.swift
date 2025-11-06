@@ -9,6 +9,11 @@ import WrapKit
 import XCTest
 import WrapKitTestUtils
 
+private enum ImageTestLinks: String {
+    case light = "https://developer.apple.com/assets/elements/icons/swift/swift-64x64_2x.png"
+    case dark = "https://uxwing.com/wp-content/themes/uxwing/download/web-app-development/dark-mode-icon.png"
+}
+
 class ButtonSnapshotTests: XCTestCase {
     func test_buttonOutput_default_state() {
         // GIVEN
@@ -47,6 +52,121 @@ class ButtonSnapshotTests: XCTestCase {
         // THEN
         assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "BUTTON_IMAGE_STATE_LIGHT")
         assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "BUTTON_IMAGE_STATE_DARK")
+    }
+    
+    // MARK: - Set image tests
+    func test_buttonOutput_image_assets() {
+        // GIVEN
+        let sut = makeSUT()
+        let exp = expectation(description: "Wait for complition")
+        
+        // WHEN
+        let image = UIImage(systemName: "star.fill")
+        
+        sut.setImage(.asset(image)) { _ in
+            exp.fulfill()
+        }
+        
+        wait(for: [exp], timeout: 1.0)
+        
+        // THEN
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "BUTTON_IMAGE_ASSET_LIGHT")
+    }
+    
+    func test_buttonOutput_imageURL_state_light() {
+        // GIVEN
+        let sut = makeSUT()
+        let exp = expectation(description: "Wait for complition")
+        
+        // WHEN
+        let light = URL(string: ImageTestLinks.light.rawValue)
+        
+        sut.setImage(.url(light, light)) { _ in
+            exp.fulfill()
+        }
+        
+        wait(for: [exp], timeout: 5.0)
+        
+        // THEN
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "BUTTON_IMAGE_URL_STATE_LIGHT")
+    }
+    
+    func test_buttonOutput_imageURL_state_dark() {
+        // GIVEN
+        let sut = makeSUT()
+        let exp = expectation(description: "Wait for complition")
+        
+        // WHEN
+        let light = URL(string: ImageTestLinks.dark.rawValue)
+        
+        sut.setImage(.url(light, light)) { _ in
+            exp.fulfill()
+        }
+        
+        wait(for: [exp], timeout: 5.0)
+        
+        // THEN
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "BUTTON_IMAGE_URL_STATE_DARK")
+    }
+    
+    func test_buttonOutput_imageURLString_state_light() {
+        // GIVEN
+        let sut = makeSUT()
+        let exp = expectation(description: "Wait for complition")
+        
+        // WHEN
+        let light = ImageTestLinks.light.rawValue
+        
+        sut.setImage(.urlString(light, light)) { _ in
+            exp.fulfill()
+        }
+        
+        wait(for: [exp], timeout: 5.0)
+        
+        // THEN
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "BUTTON_IMAGE_URLSTRING_STATE_LIGHT")
+    }
+    
+    func test_buttonOutput_imageURLString_state_dark() {
+        // GIVEN
+        let sut = makeSUT()
+        let exp = expectation(description: "Wait for complition")
+        
+        // WHEN
+        let dark = ImageTestLinks.dark.rawValue
+        
+        sut.setImage(.urlString(dark, dark)) { _ in
+            exp.fulfill()
+        }
+        
+        wait(for: [exp], timeout: 5.0)
+        
+        // THEN
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "BUTTON_IMAGE_URLSTRING_STATE_DARK")
+    }
+    
+    func test_buttonOutput_noUrl() {
+        // GIVEN
+        let sut = makeSUT()
+        
+        // WHEN
+        sut.setImage(.url(nil, nil), completion: nil)
+        
+        // THEN
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "BUTTON_IMAGE_NOURL_LIGHT")
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "BUTTON_IMAGE_NOURL_DARK")
+    }
+    
+    func test_buttonOutput_noURLString() {
+        // GIVEN
+        let sut = makeSUT()
+        
+        // WHEN
+        sut.setImage(.urlString(nil, nil), completion: nil)
+        
+        // THEN
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "BUTTON_IMAGE_NOURSTRINGL_LIGHT")
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "BUTTON_IMAGE_NOURLSTRING_DARK")
     }
     
     func test_buttonOutput_with_spacing() {
