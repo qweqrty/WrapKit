@@ -141,6 +141,8 @@ open class ImageView: UIImageView {
         }
     }
     
+    public var wrongUrlPlaceholderImage: UIImage?
+    
     open override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         super.traitCollectionDidChange(previousTraitCollection)
         
