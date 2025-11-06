@@ -10,7 +10,7 @@ import Foundation
 #if canImport(UIKit)
 import UIKit
 
-class CountingLabelAnimation {
+final class CountingLabelAnimation {
     private let timeStep: TimeInterval = 0.01
     
     private weak var label: Label?
@@ -102,7 +102,7 @@ class CountingLabelAnimation {
             progress = 0
         }
         
-        timer?.invalidate()
+        timer?.invalidate() // TODO: replace with CADisplayLink for more smooth animation
         timer = Timer.scheduledTimer(
             timeInterval: 0.01,
             target: self,

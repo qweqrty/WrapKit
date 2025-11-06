@@ -5,7 +5,7 @@
 //  Created by Dastan Mamyrov on 5/11/25.
 //
 
-import SwiftUI
+#if canImport(Combine)
 import Combine
 
 public final class SUILabelStateModel: ObservableObject {
@@ -51,3 +51,5 @@ public final class SUILabelStateModel: ObservableObject {
     }
     
 }
+
+#endif

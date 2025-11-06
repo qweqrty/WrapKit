@@ -284,21 +284,14 @@ extension Label: UIGestureRecognizerDelegate {
 
 extension TextOutputPresentableModel {
     func width(usingFont font: Font) -> CGFloat {
-        var string: String?
-        switch self {
-        case .attributes(let attributes):
-            string = attributes.map { $0.text }.joined()
+        let attributedString: NSAttributedString = switch self {
+        case .attributes(var attributes):
+            attributes.makeNSAttributedString(font: font)
         case .text(let text):
-            string = text
+            NSAttributedString(string: text ?? "", attributes: [.font: font])
         default:
-            return 0
+            NSAttributedString()
         }
-        
-        let attributedString = NSAttributedString(
-            string: string ?? "",
-            attributes: [.font: font]
-        )
-        
         let size = attributedString.size()
         return ceil(size.width)
     }

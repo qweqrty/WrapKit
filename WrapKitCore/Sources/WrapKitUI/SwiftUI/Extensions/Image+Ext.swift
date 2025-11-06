@@ -5,6 +5,7 @@
 //  Created by Dastan Mamyrov on 27/10/25.
 //
 
+#if canImport(SwiftUI)
 import SwiftUI
 
 public extension SwiftUIImage {
@@ -16,3 +17,5 @@ public extension SwiftUIImage {
 #endif
     }
 }
+
+#endif

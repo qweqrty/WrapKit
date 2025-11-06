@@ -6,29 +6,32 @@
 //
 
 import Foundation
+#if canImport(SwiftUI)
 import SwiftUI
 import CoreText
 
 public struct SUILabel: View {
-    private let tappableUrlMask = "tappable://"
-
     @ObservedObject var stateModel: SUILabelStateModel
-
+    
     public init(adapter: TextOutputSwiftUIAdapter) {
         self.stateModel = .init(adapter: adapter)
     }
-
-    public var body: some View {
-        Group {
-            if !stateModel.isHidden {
-                buildViewFromTextOutput(stateModel.presentable)
-            }
-        }
-    }
     
     @ViewBuilder
-    private func buildViewFromTextOutput(_ model: TextOutputPresentableModel) -> some View {
-        switch stateModel.presentable {
+    public var body: some View {
+        if !stateModel.isHidden {
+            SUILabelView(model: stateModel.presentable)
+        }
+    }
+}
+
+public struct SUILabelView: View {
+    let model: TextOutputPresentableModel
+    
+    @State private var animationProgress: CGFloat = 100
+    
+    public var body: some View {
+        switch model {
         case .text(let text):
             if let text = text?.removingPercentEncoding, !text.isEmpty {
                 Text(text)
@@ -37,16 +40,42 @@ public struct SUILabel: View {
             if !attributes.isEmpty {
                 buildSwiftUIViewFromAttributes(from: attributes)
             }
-        case .animated(let float, let float2, let mapToString, let animationStyle, let duration, let completion):
-            SwiftUI.EmptyView()
-        case .textStyled(let text, let cornerStyle, let insets):
-            AnyView(
-                buildViewFromTextOutput(text)
-                    .if(!insets.isZero) { $0.padding(insets.asSUIEdgeInsets) }
-                    .ifLet(cornerStyle) { $0.cornerStyle($1) }
+        case .animated(let from, let to, let mapToString, let animationStyle, let duration, let completion):
+
+            ZStack {
+                if case let .circle(color) = animationStyle {
+                    SUICircularProgressView(color: color, from: 1, to: 0, duration: duration, completion: completion)
+                        .padding(8)
+                }
+                
+                SUILabelView(
+                    model: mapToString?(from + (Float(animationProgress) * (to - from))) ?? .text("")
                 )
+//                .modify {
+//                    if #available(iOS 16.0, *) {
+//                        $0.contentTransition(.numericText()).animation(.linear(duration: duration))
+//                    }
+//                }
+//                .onAppear {
+//                    withAnimation(.linear(duration: duration)) {
+//                        animationProgress = 1
+//                    }
+//                }
+                
+//                SUILabelView(model: data).backgroundView {
+//                }
+            }
+            .onAppear {
+                withAnimation(.linear(duration: duration)) {
+                    animationProgress = 1
+                }
+            }
+        case .textStyled(let text, let cornerStyle, let insets):
+            SUILabelView(model: text)
+                .if(!insets.isZero) { $0.padding(insets.asSUIEdgeInsets) }
+//                .background(SwiftUIColor.green)
+                .ifLet(cornerStyle) { $0.cornerStyle($1) }
         }
-//        }
     }
 
     // MARK: - Rendering decision helpers
@@ -127,80 +156,8 @@ public struct SUILabel: View {
     }
     
     private let unsupportedUnderlines: [NSUnderlineStyle] = [.thick, .double, .byWord]
-}
-
-#if canImport(UIKit)
-import UIKit
-
-/// UIViewRepresentable by reusing Label.swift
-public struct FallbackLabel: UIViewRepresentable {
     
-    @ObservedObject var adapter: TextOutputSwiftUIAdapter
-
-    public init(adapter: TextOutputSwiftUIAdapter) {
-        self.adapter = adapter
-    }
-
-    public func makeUIView(context: Context) -> Label {
-        let label = Label()
-        label.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
-        label.setContentHuggingPriority(.defaultHigh, for: .vertical)
-//        context.coordinator.label = label
-        return label
-    }
-
-    public func updateUIView(_ uiView: Label, context: Context) {
-        uiView.display(attributes: adapter.displayAttributesState?.attributes ?? [])
-    }
-    
-//    public func makeCoordinator() -> Coordinator { Coordinator() }
-//    public class Coordinator { }
-}
-
-extension UIImage {
-    func resized(rect: CGRect, container: CGSize) -> UIImage {
-        return UIGraphicsImageRenderer(size: container).image { _ in
-            draw(in: rect)
-        }
-        .withRenderingMode(renderingMode)
-    }
-}
-
-#endif
-
-#if canImport(Cocoa) && !targetEnvironment(macCatalyst)
-import Cocoa
-// temporarily public
-public extension NSImage {
-    /// Resizes the NSImage to the specified size.
-    /// - Parameter rect: The desired size for the resized image.
-    /// - Returns: A new NSImage instance with the resized image, or nil if the original image data is unavailable.
-
-    func resized(rect: CGRect, container: CGSize) -> NSImage {
-        let newImage = NSImage(size: container)
-        newImage.lockFocus()
-
-        // Get the current graphics context
-        guard let context = NSGraphicsContext.current else {
-            newImage.unlockFocus()
-            return self
-        }
-
-        // Set interpolation quality for smoother scaling
-        context.imageInterpolation = .high
-
-        // Apply the offset by adjusting the targetRect for the drawing
-        let adjustedRect = NSRect(
-            x: rect.origin.x,
-            y: container.height - rect.origin.y - rect.height, // Adjust y-axis for the flipped coordinate system
-            width: rect.width,
-            height: rect.height
-        )
-        self.draw(in: adjustedRect)
-
-        newImage.unlockFocus()
-        return newImage
-    }
+    private let tappableUrlMask = "tappable://"
 }
 #endif
 
@@ -214,5 +171,22 @@ extension NSTextAlignment {
         case .natural: .center // currently do not need to handle RTL
         @unknown default: fatalError()
         }
+    }
+}
+
+@available(iOS 17.0, *)
+#Preview {
+    @Previewable @State var animationProgress: Double = 0.1
+    
+    VStack {
+        SUILabelView(
+            model: .animated(
+                100, 225,
+                mapToString: { .text("\($0)") },
+                animationStyle: .circle(lineColor: .red),
+                duration: 5,
+                completion: { print("completed") }
+            )
+        ).frame(height: 100)
     }
 }
