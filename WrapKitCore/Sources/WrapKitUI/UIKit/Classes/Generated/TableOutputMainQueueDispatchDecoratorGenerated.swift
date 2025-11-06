@@ -35,6 +35,11 @@ extension MainQueueDispatchDecorator: TableOutput where T: TableOutput {
             self?.decoratee.display(trailingSwipeActionsForIndexPath: trailingSwipeActionsForIndexPath)
         }
     }
+    public func display(expandTrailingActionsAt indexPath: IndexPath) {
+        dispatch { [weak self] in
+            self?.decoratee.display(expandTrailingActionsAt: indexPath)
+        }
+    }
     public func display(leadingSwipeActionsForIndexPath: ((IndexPath) -> [TableContextualAction<Cell>])?) {
         dispatch { [weak self] in
             self?.decoratee.display(leadingSwipeActionsForIndexPath: leadingSwipeActionsForIndexPath)
