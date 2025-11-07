@@ -15,7 +15,7 @@ private enum ImageTestLinks: String {
     case dark = "https://uxwing.com/wp-content/themes/uxwing/download/web-app-development/dark-mode-icon.png"
 }
 
-class ImageViewSnapshotTests: XCTestCase {
+final class ImageViewSnapshotTests: XCTestCase {
     override class func setUp() {
             super.setUp()
             
