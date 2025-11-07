@@ -79,7 +79,7 @@ class ImageViewSnapshotTests: XCTestCase {
     func test_ImageView_with_no_urlString() {
         // GIVEN
         let sut = makeSUT()
-        
+        sut.wrongUrlPlaceholderImage = UIImage(systemName: "xmark")!
         // WHEN
         sut.display(image: .urlString(nil, nil))
         
@@ -108,6 +108,7 @@ class ImageViewSnapshotTests: XCTestCase {
     func test_ImageView_with_no_url() {
         // GIVEN
         let sut = makeSUT()
+        sut.wrongUrlPlaceholderImage = UIImage(systemName: "xmark")!
         
         // WHEN
         sut.display(image: .url(nil, nil))
@@ -115,6 +116,37 @@ class ImageViewSnapshotTests: XCTestCase {
         // THEN
         assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "IMAGE_VIEW_NO_URL_LIGHT")
         assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "IMAGE_VIEW_NO_URL_DARK")
+    }
+    
+    func test_ImageView_viewWhileLoadingView() {
+        // GIVEN
+        let sut = makeSUT()
+        sut.viewWhileLoadingView = ViewUIKit(backgroundColor: .blue)
+        
+        // WHEN
+        let url = URL(string: ImageTestLinks.light.rawValue)!
+        sut.display(image: .url(url, url))
+        
+        // THEN
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "IMAGE_VIEW_VIEWWHILELOADINGVIEW_LIGHT")
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "IMAGE_VIEW_VIEWWHILELOADINGVIEW_DARK")
+    }
+    
+    func test_ImageView_fallbackView() {
+        // GIVEN
+        let sut = makeSUT()
+        sut.fallbackView = ViewUIKit(backgroundColor: .red)
+        
+        // WHEN
+        let url = URL(string: "wrong url")!
+        sut.display(image: .url(url, url))
+        
+        // Подождать чуть-чуть, пока UI обновится
+        RunLoop.main.run(until: Date().addingTimeInterval(0.5))
+        
+        // THEN
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "IMAGE_VIEW_FALLBACKVIEW_LIGHT")
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "IMAGE_VIEW_FALLBACKVIEW_DARK")
     }
     
     func test_ImageView_from_url_dark() {
