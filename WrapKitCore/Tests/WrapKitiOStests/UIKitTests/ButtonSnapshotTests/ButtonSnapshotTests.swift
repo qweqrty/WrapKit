@@ -341,6 +341,19 @@ class ButtonSnapshotTests: XCTestCase {
         assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "BUTTON_STYLE_CORNER_RADIUS_STATE_LIGHT")
         assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "BUTTON_STYLE_CORNER_RADIUS_STATE_DARK")
     }
+    
+    func test_buttonOutput_with_no_url() {
+        // GIVEN
+        let sut = makeSUT()
+        sut.wrongUrlPlaceholderImage = UIImage(systemName: "xmark")!
+        
+        // WHEN
+        sut.setImage(.url(nil, nil), completion: nil)
+        
+        // THEN
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "BUTTON_OUTPUT_NO_URL_LIGHT")
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "BUTTON_OUTPUT_NO_URL_DARK")
+    }
 }
 
 extension ButtonSnapshotTests {
