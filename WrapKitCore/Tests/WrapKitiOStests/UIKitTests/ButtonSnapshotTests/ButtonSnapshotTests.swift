@@ -14,7 +14,7 @@ private enum ImageTestLinks: String {
     case dark = "https://uxwing.com/wp-content/themes/uxwing/download/web-app-development/dark-mode-icon.png"
 }
 
-class ButtonSnapshotTests: XCTestCase {
+final class ButtonSnapshotTests: XCTestCase {
     func test_buttonOutput_default_state() {
         // GIVEN
         let sut = makeSUT()
