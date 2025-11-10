@@ -224,7 +224,7 @@ final class TextViewSnapshotTests: XCTestCase {
         assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "TEXTVIEW_WITH_PLACEHOLDER_DARK")
     }
     
-    // TODO: - do it
+    // TODO: - its better make unit test for this case
     func test_TextView_with_securityTextEntry() {
         // GIVEN
         let sut = makeSUT()
@@ -232,7 +232,6 @@ final class TextViewSnapshotTests: XCTestCase {
         // WHEN
         sut.display(text: "password123")
         sut.display(isSecureTextEntry: false)
-        _ = sut.becomeFirstResponder()
         
         // THEN
         assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "TEXTVIEW_WITH_SECURITY_TEXT_ENTRY_LIGHT")
@@ -282,7 +281,7 @@ final class TextViewSnapshotTests: XCTestCase {
         assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "TEXTVIEW_ONPASTE_DARK")
     }
     
-    // TODO: - do it
+    // TODO: - No realization for textView
     func test_TextView_onTapBackspace() {
         // GIVEN
         let sut = makeSUT()
@@ -303,6 +302,34 @@ final class TextViewSnapshotTests: XCTestCase {
         // THEN
         assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "TEXTVIEW_ONTAPBACKSPACE_LIGHT")
         assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "TEXTVIEW_ONTAPBACKSPACE_DARK")
+    }
+    
+    // TODO: - There are no realization for textView
+    func test_TextView_clearButtonActive() {
+        // GIVEN
+        let sut = makeSUT()
+        
+        // WHEN
+        sut.display(text: "Clear button")
+        sut.display(isClearButtonActive: true)
+        
+        // THEN
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "TEXTVIEW_CLEABUTTONACTIVE_LIGHT")
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "TEXTVIEW_CLEABUTTONACTIVE_DARK")
+    }
+    
+    // TODO: - There are no realization for textView
+    func test_TextView_trailingSymbol() {
+        // GIVEN
+        let sut = makeSUT()
+        
+        // WHEN
+        sut.display(text: "Clear button")
+        sut.display(trailingSymbol: "X")
+        
+        // THEN
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "TEXTVIEW_TRAILINGSYMBOL_LIGHT")
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "TEXTVIEW_TRAILINGSYMBOL_DARK")
     }
 }
 
