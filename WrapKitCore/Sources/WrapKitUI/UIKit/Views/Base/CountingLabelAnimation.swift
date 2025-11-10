@@ -11,11 +11,8 @@ import Foundation
 import UIKit
 
 final class CountingLabelAnimation {
-    private let timeStep: TimeInterval = 0.01
-    
     private weak var label: Label?
     private var paymentFormat: String = ""
-    public var model: TextOutputPresentableModel? // Added to store model
     private var progressView: CircularProgressView? // For circular animation
     
     public required init(label: Label) {
@@ -24,34 +21,20 @@ final class CountingLabelAnimation {
     
     public var floatLimit: Float? = nil
     
-    var startNumber: Float? = 0.0
-    var endNumber: Float? = 0.0
-    var mapToString: ((Float) -> TextOutputPresentableModel)?
-    let counterVelocity: Float = 5
+    private var startNumber: Float = 0.0
+    private var endNumber: Float = 0.0
+    private var mapToString: ((Float) -> TextOutputPresentableModel)?
+    private let counterVelocity: Float = 5
     
-    var progress: TimeInterval!
-    var duration: TimeInterval = 1
-    var lastUpdate: TimeInterval!
-    var completion: (() -> Void)? // Added for completion closure
+    private var duration: TimeInterval = 1
+    private var lastUpdate: TimeInterval!
+    private var completion: (() -> Void)? // Added for completion closure
     
-    var timer: Timer?
+    private var timer: DisplayLinkManager?
     
     public var animatedTextMaxWidth: CGFloat?
     
-    func getCurrentCounterValue() -> TextOutputPresentableModel {
-        let startNumber = startNumber ?? 0
-        let endNumber = endNumber ?? 0
-        if progress >= duration {
-            return mapToString?(endNumber) ?? .text("")
-        }
-        let percentage = Float(progress / duration)
-        // Linear interpolation (remove easing for linear animation)
-        let currentValue = startNumber + (percentage * (endNumber - startNumber))
-        return mapToString?(currentValue) ?? .text("")
-    }
-    
     func getEndCounterValue() -> TextOutputPresentableModel {
-        let endNumber = endNumber ?? 0
         return mapToString?(endNumber) ?? .text("")
     }
     
@@ -70,11 +53,8 @@ final class CountingLabelAnimation {
         self.startNumber = fromValue
         self.endNumber = toValue
         self.mapToString = mapToString
-        self.progress = 0
         self.duration = duration
         self.completion = completion
-        self.model = .animated(fromValue, toValue, mapToString: mapToString, animationStyle: animationStyle, duration: duration, completion: completion)
-        self.lastUpdate = Date.timeIntervalSinceReferenceDate
         
         // Set up circular progress view if needed
         if case .circle(let lineColor) = animationStyle, let label = label {
@@ -92,47 +72,33 @@ final class CountingLabelAnimation {
             }
         }
         if let label {
-            while progress < duration {
-                progress = min(progress + timeStep, duration)
-                animatedTextMaxWidth = max(
-                    animatedTextMaxWidth ?? 0,
-                    getCurrentCounterValue().width(usingFont: label.font)
-                )
-            }
-            progress = 0
+            animatedTextMaxWidth = max(
+                mapToString?(fromValue).width(usingFont: label.font) ?? 0,
+                mapToString?(toValue).width(usingFont: label.font) ?? 0
+            )
         }
         
-        timer?.invalidate() // TODO: replace with CADisplayLink for more smooth animation
-        timer = Timer.scheduledTimer(
-            timeInterval: 0.01,
-            target: self,
-            selector: #selector(updateValue),
-            userInfo: nil,
-            repeats: true
-        )
+        timer?.stopAnimation()
+        timer?.startAnimation(duration: duration) { [unowned self] progress in
+            let currentValue = self.startNumber + (Float(progress) * (self.endNumber - self.startNumber))
+            let view = mapToString?(currentValue) ?? .text("")
+            self.label?.display(model: view)
+        }
     }
     
-    @objc func updateValue() {
-        let now = Date.timeIntervalSinceReferenceDate
-        progress = min(progress + timeStep, duration)
-        lastUpdate = now
-        
-        if progress >= duration {
-            timer?.invalidate()
-            progressView?.removeFromSuperview()
-            progressView = nil
-            label?.display(model: getEndCounterValue())
-            completion?()
-            model = nil
-            timer = nil
-            return
-        }
-        
-        label?.display(model: getCurrentCounterValue())
+    func invalidate() {
+        timer?.stopAnimation()
+        timer = nil
+        progressView?.removeFromSuperview()
+    }
+    
+    func resetAnimatedTextMaxWidth() {
+        guard timer == nil else { return }
+        animatedTextMaxWidth = nil
     }
     
     deinit {
-        timer?.invalidate()
+        timer?.stopAnimation()
         timer = nil
         progressView?.removeFromSuperview()
     }

@@ -222,9 +222,7 @@ open class Label: UILabel {
     }
     
     private func clearAnimationModel() {
-        if animation?.timer == nil {
-            animation?.animatedTextMaxWidth = nil
-        }
+        animation?.resetAnimatedTextMaxWidth()
     }
     
     public required init?(coder aDecoder: NSCoder) {
@@ -232,7 +230,7 @@ open class Label: UILabel {
     }
     
     deinit {
-        animation?.timer?.invalidate()
+        animation?.invalidate()
         animation = nil
     }
 }
