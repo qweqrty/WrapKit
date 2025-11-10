@@ -25,10 +25,10 @@ public struct SUILabel: View {
     }
 }
 
-public struct SUILabelView: View {
+public struct SUILabelView: View, Animatable {
     let model: TextOutputPresentableModel
     
-    @State private var animationProgress: CGFloat = 100
+    @StateObject private var displayLinkManager = SUIDisplayLinkManager()
     
     public var body: some View {
         switch model {
@@ -36,10 +36,12 @@ public struct SUILabelView: View {
             if let text = text?.removingPercentEncoding, !text.isEmpty {
                 Text(text)
             }
+            
         case .attributes(let attributes):
             if !attributes.isEmpty {
                 buildSwiftUIViewFromAttributes(from: attributes)
             }
+            
         case .animated(let from, let to, let mapToString, let animationStyle, let duration, let completion):
 
             ZStack {
@@ -49,27 +51,22 @@ public struct SUILabelView: View {
                 }
                 
                 SUILabelView(
-                    model: mapToString?(from + (Float(animationProgress) * (to - from))) ?? .text("")
+                    model: mapToString?(from + (Float(displayLinkManager.progress) * (to - from))) ?? .text("")
                 )
 //                .modify {
 //                    if #available(iOS 16.0, *) {
-//                        $0.contentTransition(.numericText()).animation(.linear(duration: duration))
+//                        $0.monospacedDigit()
 //                    }
 //                }
-//                .onAppear {
-//                    withAnimation(.linear(duration: duration)) {
-//                        animationProgress = 1
-//                    }
-//                }
+                .onAppear {
+                    displayLinkManager.stopAnimation()
+                    displayLinkManager.startAnimation(duration: duration)
+                }
                 
 //                SUILabelView(model: data).backgroundView {
 //                }
             }
-            .onAppear {
-                withAnimation(.linear(duration: duration)) {
-                    animationProgress = 1
-                }
-            }
+            
         case .textStyled(let text, let cornerStyle, let insets):
             SUILabelView(model: text)
                 .if(!insets.isZero) { $0.padding(insets.asSUIEdgeInsets) }
@@ -181,8 +178,8 @@ extension NSTextAlignment {
     VStack {
         SUILabelView(
             model: .animated(
-                100, 225,
-                mapToString: { .text("\($0)") },
+                1.2, 225,
+                mapToString: { .text($0.asString()) },
                 animationStyle: .circle(lineColor: .red),
                 duration: 5,
                 completion: { print("completed") }

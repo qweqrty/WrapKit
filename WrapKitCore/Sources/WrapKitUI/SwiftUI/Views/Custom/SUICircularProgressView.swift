@@ -45,19 +45,10 @@ struct SUICircularProgressView: View {
             .rotationEffect(startAngle)
             .padding(lineWidth/2)
             .onAppear {
-                if #available(iOS 17.0, *) {
-                    withAnimation(.linear(duration: animationDuration)) {
-                        animationProgress = animationEnd
-                    } completion: {
-                        completion?()
-                    }
-                } else {
-                    withAnimation(.linear(duration: animationDuration)) {
-                        animationProgress = animationEnd
-                    }
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                        completion?()
-                    }
+                withAnimationCompletion(.linear(duration: animationDuration), duration: animationDuration) {
+                    animationProgress = animationEnd
+                } completion: {
+                    completion?()
                 }
             }
     }
