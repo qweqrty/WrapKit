@@ -38,13 +38,13 @@ public struct SwitchControlPresentableModel {
         public let thumbTintColor: Color
         public let backgroundColor: Color
         public let cornerRadius: CGFloat
-        public let shimmerStyle: ShimmerStyle?
+        public let shimmerStyle: ShimmerView.Style?
         public init(
             tintColor: Color,
             thumbTintColor: Color,
             backgroundColor: Color,
             cornerRadius: CGFloat,
-            shimmerStyle: ShimmerStyle? = nil
+            shimmerStyle: ShimmerView.Style? = nil
         ) {
             self.tintColor = tintColor
             self.thumbTintColor = thumbTintColor
