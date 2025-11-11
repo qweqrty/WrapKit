@@ -146,6 +146,7 @@ open class Label: UILabel {
         self.cornerStyle = cornerStyle
         self.textInsets = textInsets
         addGestureRecognizer(tapGesture)
+        addGestureRecognizer(longTapGesture)
     }
     
     override init(frame: CGRect) {
@@ -160,6 +161,7 @@ open class Label: UILabel {
         self.adjustsFontSizeToFitWidth = false
         self.isUserInteractionEnabled = true
         addGestureRecognizer(tapGesture)
+        addGestureRecognizer(longTapGesture)
     }
     
     open override func layoutSubviews() {
@@ -203,6 +205,12 @@ open class Label: UILabel {
     
     lazy var tapGesture: UITapGestureRecognizer = {
         let gesture = UITapGestureRecognizer(target: self, action: nil)
+        gesture.delegate = self
+        return gesture
+    }()
+    
+    lazy var longTapGesture: UILongPressGestureRecognizer = {
+        let gesture = UILongPressGestureRecognizer(target: self, action: nil)
         gesture.delegate = self
         return gesture
     }()
@@ -270,15 +278,30 @@ public extension Label {
 
 extension Label: UIGestureRecognizerDelegate {
     open override func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
-        guard gestureRecognizer == tapGesture else { return true }
-        for attribute in attributes {
-            guard let range = attribute.range else { continue }
-            if tapGesture.didTapAttributedTextInLabel(label: self, textAlignment: attribute.textAlignment ?? textAlignment, inRange: range), let onTap = attribute.onTap {
-                onTap()
-                return true
+        if gestureRecognizer == tapGesture {
+            for attribute in attributes {
+                guard let range = attribute.range else { continue }
+                if tapGesture.didTapAttributedTextInLabel(label: self, textAlignment: attribute.textAlignment ?? textAlignment, inRange: range),
+                   let onTap = attribute.onTap {
+                    onTap()
+                    return true
+                }
             }
+            return false
         }
-        return false
+        
+        if gestureRecognizer == longTapGesture {
+            for attribute in attributes {
+                guard let range = attribute.range else { continue }
+                if tapGesture.didTapAttributedTextInLabel(label: self, textAlignment: attribute.textAlignment ?? textAlignment, inRange: range),
+                   let onLongTap = attribute.onLongTap {
+                    onLongTap()
+                    return true
+                }
+            }
+            return false
+        }
+        return true
     }
 }
 

@@ -28,7 +28,8 @@ public struct TextAttributes {
         leadingImageBounds: CGRect = .zero,
         trailingImage: Image? = nil,
         trailingImageBounds: CGRect = .zero,
-        onTap: (() -> Void)? = nil
+        onTap: (() -> Void)? = nil,
+        onLongTap: (() -> Void)? = nil
     ) {
         self.text = text
         self.color = color
@@ -41,6 +42,7 @@ public struct TextAttributes {
         self.leadingImageBounds = leadingImageBounds
         self.trailingImage = trailingImage
         self.trailingImageBounds = trailingImageBounds
+        self.onLongTap = onLongTap
     }
 
     public var text: String
@@ -53,5 +55,6 @@ public struct TextAttributes {
     public let trailingImage: Image?
     public let trailingImageBounds: CGRect
     public let onTap: (() -> Void)?
+    public let onLongTap: (() -> Void)?
     var range: NSRange?
 }
