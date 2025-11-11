@@ -541,6 +541,7 @@ final class CardViewSnapshotTests: XCTestCase {
         assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "CARDVIEW_WITH_SWITCHCONTROL_DARK")
     }
     
+    // TODO: - need to simulate real tap
     func test_CardView_onPress() {
         // GIVEN
         let sut = makeSUT()
@@ -582,6 +583,7 @@ final class CardViewSnapshotTests: XCTestCase {
         assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "CARDVIEW_WITH_ONPRESS_DARK")
     }
     
+    // TODO: - need to simulate real tap
     func test_CardView_onLongPress() {
         // GIVEN
         let sut = makeSUT()
