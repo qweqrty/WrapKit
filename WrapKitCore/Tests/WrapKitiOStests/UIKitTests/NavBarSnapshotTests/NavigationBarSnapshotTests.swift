@@ -30,7 +30,6 @@ class NavigationBarSnapshotTests: XCTestCase {
         assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "NAVBAR_DEFAULT_STATE_DARK")
     }
     
-    // TODO: - second value doesnt appear
     func test_navigationBar_with_centerView_keyValue() {
         // GIVEN
         let sut = makeSUT()
@@ -45,12 +44,13 @@ class NavigationBarSnapshotTests: XCTestCase {
             secondaryColor: .green)
         )
         
+        sut.display(centerView: .keyValue(.init(.text("First"), .text("Second"))))
+        
         // THEN
         assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "NAVBAR_WITH_CENTERVIEW_KEYVALUE_LIGHT")
         assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "NAVBAR_WITH_CENTERVIEW_KEYVALUE_DARK")
     }
     
-    // TODO: - title doesnt appear
     func test_navigationBar_with_centerView_titleImage() {
         // GIVEN
         let sut = makeSUT()
@@ -95,7 +95,7 @@ class NavigationBarSnapshotTests: XCTestCase {
         sut.display(leadingCard: .init(backgroundImage: .init(image: .asset(Image(systemName: "star.fill"))), title: .text("Title")))
         
         // THEN
-        record(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "NAVBAR_WITH_LEADINGCARD_BACKGROUNDIMAGE_TITLE_LIGHT")
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "NAVBAR_WITH_LEADINGCARD_BACKGROUNDIMAGE_TITLE_LIGHT")
         assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "NAVBAR_WITH_LEADINGCARD_BACKGROUNDIMAGE_TITLE_DARK")
     }
     
@@ -115,14 +115,14 @@ class NavigationBarSnapshotTests: XCTestCase {
         
         sut.display(
             leadingCard: .init(
-                backgroundImage: .init(size: CGSize(width: 24, height: 24),
-                                       image: .asset(Image(systemName: "star.fill"))),trailingTitles:
-                        .init(.text("Title"),
-                              .text("Subtitle"))))
-        
+                backgroundImage: .init(
+                    size: CGSize(width: 24, height: 24),
+                    image: .asset(Image(systemName: "star.fill"))),
+                trailingTitles: .init(.text("Title"), .text("Subtitle"))))
+
         // THEN
-        record(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "NAVBAR_WITH_LEADINGCARD_TRAILINGTITLES_LIGHT")
-        record(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "NAVBAR_WITH_LEADINGCARD_TRAILINGTITLES_DARK")
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "NAVBAR_WITH_LEADINGCARD_TRAILINGTITLES_LIGHT")
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "NAVBAR_WITH_LEADINGCARD_TRAILINGTITLES_DARK")
     }
     
     // MARK: - func display(secondaryTrailingImage:) tests
@@ -275,8 +275,290 @@ class NavigationBarSnapshotTests: XCTestCase {
         sut.secondaryTrailingImageWrapperView.contentView.onPress?()
         
         // THEN
-        record(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "NAVBAR_WITH_TERTIARY_SECONDARY_TRAILINGIMAGE_LIGHT")
-        record(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "NAVBAR_WITH_TERTIARY_SECONDARY_TRAILINGIMAGE_DARK")
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "NAVBAR_WITH_TERTIARY_SECONDARY_TRAILINGIMAGE_LIGHT")
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "NAVBAR_WITH_TERTIARY_SECONDARY_TRAILINGIMAGE_DARK")
+    }
+    
+    func test_navigationBar_hidden_state() {
+        // GIVEN
+        let sut = makeSUT()
+        
+        // WHEN
+        sut.display(style: .init(
+            backgroundColor: .red,
+            horizontalSpacing: 1.0,
+            primeFont: .boldSystemFont(ofSize: 24),
+            primeColor: .blue,
+            secondaryFont: .systemFont(ofSize: 14),
+            secondaryColor: .green)
+        )
+        
+        sut.display(isHidden: true)
+        
+        // THEN
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "NAVBAR_HIDDEN_STATE_LIGHT")
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "NAVBAR_HIDDEN_STATE_DARK")
+    }
+    
+    func test_navigationBar_with_leadingCard_leadingTrailingTitles() {
+        // GIVEN
+        let sut = makeSUT()
+        
+        // WHEN
+        sut.display(style: .init(
+            backgroundColor: .red,
+            horizontalSpacing: 1.0,
+            primeFont: .boldSystemFont(ofSize: 24),
+            primeColor: .blue,
+            secondaryFont: .systemFont(ofSize: 14),
+            secondaryColor: .green)
+        )
+        
+        sut.display(
+            leadingCard: .init(
+                title: .text("Title"),
+                leadingTitles: .init(.text("First title"), .text("Second title")),
+                trailingTitles: .init(.text("First title"), .text("Second title"))
+            )
+        )
+        
+        // THEN
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "NAVBAR_WITH_LEADINGCARD_LEADING_TRAILING_TITLES_LIGHT")
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "NAVBAR_WITH_LEADINGCARD_LEADING_TRAILING_TITLES__DARK")
+    }
+    
+    func test_navigationBar_with_leadingCard_leadingTrailingImages() {
+        // GIVEN
+        let sut = makeSUT()
+        
+        // WHEN
+        sut.display(style: .init(
+            backgroundColor: .red,
+            horizontalSpacing: 1.0,
+            primeFont: .boldSystemFont(ofSize: 24),
+            primeColor: .blue,
+            secondaryFont: .systemFont(ofSize: 14),
+            secondaryColor: .green)
+        )
+        
+        let image = Image(systemName: "star.fill")
+        
+        sut.display(
+            leadingCard: .init(
+                title: .text("Title"),
+                leadingImage: .init(image: .asset(image)),
+                trailingImage: .init(image: .asset(image))
+            )
+        )
+        
+        // THEN
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "NAVBAR_WITH_LEADINGCARD_LEADING_TRAILING_IMAGES_LIGHT")
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "NAVBAR_WITH_LEADINGCARD_LEADING_TRAILING_IMAGES__DARK")
+    }
+    
+    func test_navigationBar_with_leadingCard_subtitle() {
+        // GIVEN
+        let sut = makeSUT()
+        
+        // WHEN
+        sut.display(style: .init(
+            backgroundColor: .red,
+            horizontalSpacing: 1.0,
+            primeFont: .boldSystemFont(ofSize: 24),
+            primeColor: .blue,
+            secondaryFont: .systemFont(ofSize: 14),
+            secondaryColor: .green)
+        )
+        
+        sut.display(
+            leadingCard: .init(
+                title: .text("Title"),
+                subTitle: .text("Subtitle")
+            )
+        )
+        
+        // THEN
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "NAVBAR_WITH_LEADINGCARD_SUBTITLE_LIGHT")
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "NAVBAR_WITH_LEADINGCARD_SUBTITLE__DARK")
+    }
+    
+    func test_navigationBar_with_leadingCard_valueTitle() {
+        // GIVEN
+        let sut = makeSUT()
+        
+        // WHEN
+        sut.display(style: .init(
+            backgroundColor: .red,
+            horizontalSpacing: 1.0,
+            primeFont: .boldSystemFont(ofSize: 24),
+            primeColor: .blue,
+            secondaryFont: .systemFont(ofSize: 14),
+            secondaryColor: .green)
+        )
+        
+        sut.display(
+            leadingCard: .init(
+                title: .text("Title"),
+                valueTitle: .text("Value title")
+            )
+        )
+        
+        // THEN
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "NAVBAR_WITH_LEADINGCARD_VALUETITLE_LIGHT")
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "NAVBAR_WITH_LEADINGCARD_VALUETITLE_DARK")
+    }
+    
+    // TODO: - bottom image doesnt appear
+    func test_navigationBar_with_leadingCard_bottomImage() {
+        // GIVEN
+        let sut = makeSUT()
+        
+        // WHEN
+        sut.display(style: .init(
+            backgroundColor: .red,
+            horizontalSpacing: 1.0,
+            primeFont: .boldSystemFont(ofSize: 24),
+            primeColor: .blue,
+            secondaryFont: .systemFont(ofSize: 14),
+            secondaryColor: .green)
+        )
+        
+        let image = Image(systemName: "star.fill")
+        
+        sut.display(
+            leadingCard: .init(
+                title: .text("Title"),
+                valueTitle: .text("Value title"),
+                bottomImage: .init(image: .asset(image))
+            )
+        )
+        
+        // THEN
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "NAVBAR_WITH_LEADINGCARD_BOTTOMIMAGE_LIGHT")
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "NAVBAR_WITH_LEADINGCARD_BOTTOMIMAGE_DARK")
+    }
+    
+    func test_navigationBar_with_leadingCard_bottomSeparator() {
+        // GIVEN
+        let sut = makeSUT()
+        
+        // WHEN
+        sut.display(style: .init(
+            backgroundColor: .red,
+            horizontalSpacing: 1.0,
+            primeFont: .boldSystemFont(ofSize: 24),
+            primeColor: .blue,
+            secondaryFont: .systemFont(ofSize: 14),
+            secondaryColor: .green)
+        )
+        
+        sut.display(
+            leadingCard: .init(
+                title: .text("Title"),
+                valueTitle: .text("Value title"),
+                bottomSeparator: .init(color: .black, height: 2)
+            )
+        )
+        
+        // THEN
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "NAVBAR_WITH_LEADINGCARD_BOTTOMSEPARATOR_LIGHT")
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "NAVBAR_WITH_LEADINGCARD_BOTTOMSEPARATOR_DARK")
+    }
+    
+    func test_navigationBar_with_leadingCard_switchControl() {
+        // GIVEN
+        let sut = makeSUT()
+        
+        // WHEN
+        sut.display(style: .init(
+            backgroundColor: .red,
+            horizontalSpacing: 1.0,
+            primeFont: .boldSystemFont(ofSize: 24),
+            primeColor: .blue,
+            secondaryFont: .systemFont(ofSize: 14),
+            secondaryColor: .green)
+        )
+        
+        sut.display(
+            leadingCard: .init(
+                title: .text("Title"),
+                valueTitle: .text("Value title"),
+                switchControl: .init(
+                    isOn: true,
+                    isEnabled: true,
+                    style: .init(
+                        tintColor: .black,
+                        thumbTintColor: .red,
+                        backgroundColor: .clear,
+                        cornerRadius: 10))
+            )
+        )
+        
+        // THEN
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "NAVBAR_WITH_LEADINGCARD_SWITCHCONTROL_LIGHT")
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "NAVBAR_WITH_LEADINGCARD_SWITCHCONTROL_DARK")
+    }
+    
+    func test_navigationBar_with_leadingCard_onPress() {
+        // GIVEN
+        let sut = makeSUT()
+        
+        // WHEN
+        sut.display(style: .init(
+            backgroundColor: .red,
+            horizontalSpacing: 1.0,
+            primeFont: .boldSystemFont(ofSize: 24),
+            primeColor: .blue,
+            secondaryFont: .systemFont(ofSize: 14),
+            secondaryColor: .green)
+        )
+        
+        sut.display(
+            leadingCard: .init(
+                title: .text("Title"),
+                valueTitle: .text("Value title"),
+                onPress: { [weak sut] in
+                    sut?.backgroundColor = .yellow
+                }
+            )
+        )
+        
+        sut.leadingCardView.onPress?()
+        
+        // THEN
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "NAVBAR_WITH_LEADINGCARD_ONPRESS_LIGHT")
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "NAVBAR_WITH_LEADINGCARD_ONPRESS_DARK")
+    }
+    
+    func test_navigationBar_with_leadingCard_onLongPress() {
+        // GIVEN
+        let sut = makeSUT()
+        
+        // WHEN
+        sut.display(style: .init(
+            backgroundColor: .red,
+            horizontalSpacing: 1.0,
+            primeFont: .boldSystemFont(ofSize: 24),
+            primeColor: .blue,
+            secondaryFont: .systemFont(ofSize: 14),
+            secondaryColor: .green)
+        )
+        
+        sut.display(
+            leadingCard: .init(
+                title: .text("Title"),
+                valueTitle: .text("Value title"),
+                onLongPress: { [weak sut] in
+                    sut?.backgroundColor = .yellow
+                }
+            )
+        )
+        
+        sut.leadingCardView.onPress?()
+        
+        // THEN
+        record(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "NAVBAR_WITH_LEADINGCARD_ONLONGPRESS_LIGHT")
+        record(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "NAVBAR_WITH_LEADINGCARD_ONLONGPRESS_DARK")
     }
     
 }
