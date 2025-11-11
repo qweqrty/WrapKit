@@ -12,6 +12,7 @@ import XCTest
 final class CardViewSnapshotTests: XCTestCase {
     
     private let image = Image(systemName: "star.fill")
+    private let secondImage = Image(systemName: "star")
     
     func test_CardView_default_state() {
         // GIVEN
@@ -314,6 +315,348 @@ final class CardViewSnapshotTests: XCTestCase {
         // THEN
         assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "CARDVIEW_WITH_TRAILINGIMAGE_LIGHT")
         assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "CARDVIEW_WITH_TRAILINGIMAGE_DARK")
+    }
+    
+    func test_CardView_with_secondaryTrailingImage() {
+        // GIVEN
+        let sut = makeSUT()
+        
+        // WHEN
+        sut.display(style: .init(
+            backgroundColor: .systemRed,
+            vStacklayoutMargins: .init(top: 5, leading: 5, bottom: 5, trailing: 5),
+            hStacklayoutMargins: .zero,
+            hStackViewDistribution: .fillEqually,
+            leadingTitleKeyTextColor: .blue,
+            titleKeyTextColor: .brown,
+            trailingTitleKeyTextColor: .black,
+            titleValueTextColor: .cyan,
+            subTitleTextColor: .gray,
+            leadingTitleKeyLabelFont: .boldSystemFont(ofSize: 22),
+            titleKeyLabelFont: .systemFont(ofSize: 14),
+            trailingTitleKeyLabelFont: .boldSystemFont(ofSize: 22),
+            titleValueLabelFont: .systemFont(ofSize: 14),
+            subTitleLabelFont: .systemFont(ofSize: 14, weight: .light),
+            cornerRadius: 20,
+            stackSpace: 5.0,
+            hStackViewSpacing: 2.0,
+            titleKeyNumberOfLines: 0,
+            titleValueNumberOfLines: 0,
+            borderColor: .green,
+            borderWidth: 4
+        ))
+        
+        sut.display(secondaryTrailingImage: .init(image: .asset(secondImage)))
+        
+        // THEN
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "CARDVIEW_WITH_SECONDARYTRAILINGIMAGE_LIGHT")
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "CARDVIEW_WITH_SECONDARYTRAILINGIMAGE_DARK")
+    }
+    
+    func test_CardView_with_subTitle() {
+        // GIVEN
+        let sut = makeSUT()
+        
+        // WHEN
+        sut.display(style: .init(
+            backgroundColor: .systemRed,
+            vStacklayoutMargins: .init(top: 5, leading: 5, bottom: 5, trailing: 5),
+            hStacklayoutMargins: .zero,
+            hStackViewDistribution: .fillEqually,
+            leadingTitleKeyTextColor: .blue,
+            titleKeyTextColor: .brown,
+            trailingTitleKeyTextColor: .black,
+            titleValueTextColor: .cyan,
+            subTitleTextColor: .green,
+            leadingTitleKeyLabelFont: .boldSystemFont(ofSize: 22),
+            titleKeyLabelFont: .systemFont(ofSize: 14),
+            trailingTitleKeyLabelFont: .boldSystemFont(ofSize: 22),
+            titleValueLabelFont: .systemFont(ofSize: 14),
+            subTitleLabelFont: .systemFont(ofSize: 14, weight: .light),
+            cornerRadius: 20,
+            stackSpace: 5.0,
+            hStackViewSpacing: 2.0,
+            titleKeyNumberOfLines: 0,
+            titleValueNumberOfLines: 0,
+            borderColor: .green,
+            borderWidth: 4
+        ))
+        
+        sut.display(subTitle: .text("Subtitle"))
+        
+        // THEN
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "CARDVIEW_WITH_SUBTITLE_LIGHT")
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "CARDVIEW_WITH_SUBTITLE_DARK")
+    }
+    
+    func test_CardView_with_valueTitle() {
+        // GIVEN
+        let sut = makeSUT()
+        
+        // WHEN
+        sut.display(style: .init(
+            backgroundColor: .systemRed,
+            vStacklayoutMargins: .zero,
+            hStacklayoutMargins: .zero,
+            hStackViewDistribution: .fillEqually,
+            leadingTitleKeyTextColor: .blue,
+            titleKeyTextColor: .brown,
+            trailingTitleKeyTextColor: .black,
+            titleValueTextColor: .cyan,
+            subTitleTextColor: .green,
+            leadingTitleKeyLabelFont: .boldSystemFont(ofSize: 22),
+            titleKeyLabelFont: .systemFont(ofSize: 14),
+            trailingTitleKeyLabelFont: .boldSystemFont(ofSize: 22),
+            titleValueLabelFont: .systemFont(ofSize: 14),
+            subTitleLabelFont: .systemFont(ofSize: 14, weight: .light),
+            cornerRadius: 20,
+            stackSpace: 5.0,
+            hStackViewSpacing: 2.0,
+            titleKeyNumberOfLines: 0,
+            titleValueNumberOfLines: 0,
+            borderColor: .green,
+            borderWidth: 4
+        ))
+        
+        sut.display(valueTitle: .text("Value title"))
+        
+        // THEN
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "CARDVIEW_WITH_VALUETITLE_LIGHT")
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "CARDVIEW_WITH_VALUETITLE_DARK")
+    }
+    
+    func test_CardView_with_title_value_subtitle() {
+        // GIVEN
+        let sut = makeSUT()
+        
+        // WHEN
+        sut.display(style: .init(
+            backgroundColor: .systemRed,
+            vStacklayoutMargins: .zero,
+            hStacklayoutMargins: .zero,
+            hStackViewDistribution: .fillEqually,
+            leadingTitleKeyTextColor: .blue,
+            titleKeyTextColor: .brown,
+            trailingTitleKeyTextColor: .black,
+            titleValueTextColor: .cyan,
+            subTitleTextColor: .green,
+            leadingTitleKeyLabelFont: .boldSystemFont(ofSize: 22),
+            titleKeyLabelFont: .systemFont(ofSize: 14),
+            trailingTitleKeyLabelFont: .boldSystemFont(ofSize: 22),
+            titleValueLabelFont: .systemFont(ofSize: 14),
+            subTitleLabelFont: .systemFont(ofSize: 14, weight: .light),
+            cornerRadius: 20,
+            stackSpace: 5.0,
+            hStackViewSpacing: 2.0,
+            titleKeyNumberOfLines: 0,
+            titleValueNumberOfLines: 0,
+            borderColor: .green,
+            borderWidth: 4
+        ))
+        
+        sut.display(title: .text("Title"))
+        sut.display(subTitle: .text("Subtitle"))
+        sut.display(valueTitle: .text("Value title"))
+        
+        // THEN
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "CARDVIEW_WITH_SUBVALUETITLES_LIGHT")
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "CARDVIEW_WITH_SUBVALUETITLES_DARK")
+    }
+    
+    func test_CardView_with_bottomSeparator() {
+        // GIVEN
+        let sut = makeSUT()
+        
+        // WHEN
+        sut.display(style: .init(
+            backgroundColor: .systemRed,
+            vStacklayoutMargins: .zero,
+            hStacklayoutMargins: .zero,
+            hStackViewDistribution: .fillEqually,
+            leadingTitleKeyTextColor: .blue,
+            titleKeyTextColor: .black,
+            trailingTitleKeyTextColor: .black,
+            titleValueTextColor: .cyan,
+            subTitleTextColor: .green,
+            leadingTitleKeyLabelFont: .boldSystemFont(ofSize: 22),
+            titleKeyLabelFont: .systemFont(ofSize: 14),
+            trailingTitleKeyLabelFont: .boldSystemFont(ofSize: 22),
+            titleValueLabelFont: .systemFont(ofSize: 14),
+            subTitleLabelFont: .systemFont(ofSize: 14, weight: .light),
+            cornerRadius: 20,
+            stackSpace: 5.0,
+            hStackViewSpacing: 2.0,
+            titleKeyNumberOfLines: 0,
+            titleValueNumberOfLines: 0,
+            borderColor: .green,
+            borderWidth: 0
+        ))
+        
+        sut.display(title: .text("Title"))
+        sut.display(bottomSeparator: .init(color: .lightGray, height: 4))
+        
+        // THEN
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "CARDVIEW_WITH_BOTTOMSEPARATOR_LIGHT")
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "CARDVIEW_WITH_BOTTOMSEPARATOR_DARK")
+    }
+    
+    func test_CardView_with_switchControl() {
+        // GIVEN
+        let sut = makeSUT()
+        
+        // WHEN
+        sut.display(style: .init(
+            backgroundColor: .systemRed,
+            vStacklayoutMargins: .zero,
+            hStacklayoutMargins: .zero,
+            hStackViewDistribution: .fillEqually,
+            leadingTitleKeyTextColor: .blue,
+            titleKeyTextColor: .black,
+            trailingTitleKeyTextColor: .black,
+            titleValueTextColor: .cyan,
+            subTitleTextColor: .green,
+            leadingTitleKeyLabelFont: .boldSystemFont(ofSize: 22),
+            titleKeyLabelFont: .systemFont(ofSize: 14),
+            trailingTitleKeyLabelFont: .boldSystemFont(ofSize: 22),
+            titleValueLabelFont: .systemFont(ofSize: 14),
+            subTitleLabelFont: .systemFont(ofSize: 14, weight: .light),
+            cornerRadius: 20,
+            stackSpace: 5.0,
+            hStackViewSpacing: 2.0,
+            titleKeyNumberOfLines: 0,
+            titleValueNumberOfLines: 0,
+            borderColor: .green,
+            borderWidth: 0
+        ))
+        
+        sut.display(title: .text("Title"))
+        sut.display(switchControl: .init(
+            isOn: true,
+            isEnabled: true,
+            style: .init(tintColor: .blue, thumbTintColor: .green, backgroundColor: .white, cornerRadius: 10)
+        ))
+        
+        // THEN
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "CARDVIEW_WITH_SWITCHCONTROL_LIGHT")
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "CARDVIEW_WITH_SWITCHCONTROL_DARK")
+    }
+    
+    func test_CardView_onPress() {
+        // GIVEN
+        let sut = makeSUT()
+        
+        // WHEN
+        sut.display(style: .init(
+            backgroundColor: .systemRed,
+            vStacklayoutMargins: .zero,
+            hStacklayoutMargins: .zero,
+            hStackViewDistribution: .fillEqually,
+            leadingTitleKeyTextColor: .blue,
+            titleKeyTextColor: .black,
+            trailingTitleKeyTextColor: .black,
+            titleValueTextColor: .cyan,
+            subTitleTextColor: .green,
+            leadingTitleKeyLabelFont: .boldSystemFont(ofSize: 22),
+            titleKeyLabelFont: .systemFont(ofSize: 14),
+            trailingTitleKeyLabelFont: .boldSystemFont(ofSize: 22),
+            titleValueLabelFont: .systemFont(ofSize: 14),
+            subTitleLabelFont: .systemFont(ofSize: 14, weight: .light),
+            cornerRadius: 20,
+            stackSpace: 5.0,
+            hStackViewSpacing: 2.0,
+            titleKeyNumberOfLines: 0,
+            titleValueNumberOfLines: 0,
+            borderColor: .green,
+            borderWidth: 0
+        ))
+        
+        sut.display(title: .text("Title"))
+        sut.display(onPress: { [weak sut] in
+            sut?.backgroundColor = .systemGreen
+        })
+        
+        sut.onPress?()
+        
+        // THEN
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "CARDVIEW_WITH_ONPRESS_LIGHT")
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "CARDVIEW_WITH_ONPRESS_DARK")
+    }
+    
+    func test_CardView_onLongPress() {
+        // GIVEN
+        let sut = makeSUT()
+        
+        // WHEN
+        sut.display(style: .init(
+            backgroundColor: .systemRed,
+            vStacklayoutMargins: .zero,
+            hStacklayoutMargins: .zero,
+            hStackViewDistribution: .fillEqually,
+            leadingTitleKeyTextColor: .blue,
+            titleKeyTextColor: .black,
+            trailingTitleKeyTextColor: .black,
+            titleValueTextColor: .cyan,
+            subTitleTextColor: .green,
+            leadingTitleKeyLabelFont: .boldSystemFont(ofSize: 22),
+            titleKeyLabelFont: .systemFont(ofSize: 14),
+            trailingTitleKeyLabelFont: .boldSystemFont(ofSize: 22),
+            titleValueLabelFont: .systemFont(ofSize: 14),
+            subTitleLabelFont: .systemFont(ofSize: 14, weight: .light),
+            cornerRadius: 20,
+            stackSpace: 5.0,
+            hStackViewSpacing: 2.0,
+            titleKeyNumberOfLines: 0,
+            titleValueNumberOfLines: 0,
+            borderColor: .green,
+            borderWidth: 0
+        ))
+        
+        sut.display(title: .text("Title"))
+        sut.display(onLongPress: { [weak sut] in
+            sut?.backgroundColor = .systemGreen
+        })
+        
+        sut.onLongPress?()
+        
+        // THEN
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "CARDVIEW_WITH_ONLONGPRESS_LIGHT")
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "CARDVIEW_WITH_ONLONGPRESS_DARK")
+    }
+    
+    func test_CardView_isHidden() {
+        // GIVEN
+        let sut = makeSUT()
+        
+        // WHEN
+        sut.display(style: .init(
+            backgroundColor: .systemRed,
+            vStacklayoutMargins: .init(top: 5, leading: 5, bottom: 5, trailing: 5),
+            hStacklayoutMargins: .zero,
+            hStackViewDistribution: .fillEqually,
+            leadingTitleKeyTextColor: .blue,
+            titleKeyTextColor: .brown,
+            trailingTitleKeyTextColor: .black,
+            titleValueTextColor: .cyan,
+            subTitleTextColor: .gray,
+            leadingTitleKeyLabelFont: .boldSystemFont(ofSize: 22),
+            titleKeyLabelFont: .systemFont(ofSize: 14),
+            trailingTitleKeyLabelFont: .boldSystemFont(ofSize: 22),
+            titleValueLabelFont: .systemFont(ofSize: 14),
+            subTitleLabelFont: .systemFont(ofSize: 14, weight: .light),
+            cornerRadius: 20,
+            stackSpace: 5.0,
+            hStackViewSpacing: 2.0,
+            titleKeyNumberOfLines: 0,
+            titleValueNumberOfLines: 0,
+            borderColor: .green,
+            borderWidth: 4
+        ))
+        
+        sut.display(isHidden: true)
+        
+        // THEN
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "CARDVIEW_ISHIDDEN_LIGHT")
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "CARDVIEW_ISHIDDEN_DARK")
     }
 }
 
