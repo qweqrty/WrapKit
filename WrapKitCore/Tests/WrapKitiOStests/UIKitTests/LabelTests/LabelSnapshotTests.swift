@@ -349,7 +349,6 @@ class LabelSnapshotTests: XCTestCase {
 
         // WHEN
         sut.display(
-            id: "testAnimation",
             from: 0,
             to: 100,
             mapToString: mapToString,

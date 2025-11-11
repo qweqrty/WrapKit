@@ -52,7 +52,6 @@ extension Label: TextOutput {
     public func display(model: TextOutputPresentableModel?) {
         isHidden = model == nil
         guard let model = model else { return }
-        clearAnimationModel()
         hideShimmer()
         switch model {
         case .text(let text):
@@ -70,14 +69,11 @@ extension Label: TextOutput {
     
     public func display(text: String?) {
         isHidden = text.isEmpty
-        clearAnimationModel()
         self.text = text?.removingPercentEncoding ?? text
-        
     }
     
     public func display(attributes: [TextAttributes]) {
         isHidden = attributes.isEmpty
-        clearAnimationModel()
         self.attributes = attributes.map { attribute in
             var updatedAttribute = attribute
             updatedAttribute.text = attribute.text.removingPercentEncoding ?? attribute.text
@@ -98,8 +94,10 @@ extension Label: TextOutput {
         animation = CountingLabelAnimation(label: self)
         currentAnimatedTarget = endAmount
         
-        clearAnimationModel()
-        animation?.startAnimation(fromValue: startAmount, to: endAmount, mapToString: mapToString, animationStyle: animationStyle, duration: duration, completion: { completion?() })
+        animation?.startAnimation(fromValue: startAmount, to: endAmount, mapToString: mapToString, animationStyle: animationStyle, duration: duration, completion: { [weak self] in
+            self?.clearAnimationModel()
+            completion?()
+        })
     }
     
     public func display(isHidden: Bool) {

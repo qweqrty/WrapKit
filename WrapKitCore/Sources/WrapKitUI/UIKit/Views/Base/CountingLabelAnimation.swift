@@ -30,7 +30,7 @@ final class CountingLabelAnimation {
     
     private var timer: DisplayLinkManager = .init()
     
-    public var animatedTextMaxWidth: CGFloat?
+    public private(set) var animatedTextMaxWidth: CGFloat?
     
     public func setupPaymentFormat(format: String) {
         paymentFormat = format
