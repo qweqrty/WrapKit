@@ -263,13 +263,4 @@ public class TextInputOutputSwiftUIAdapter: ObservableObject, TextInputOutput {
             isClearButtonActive: isClearButtonActive
         )
     }
-    @Published public var displayToolbarModelState: DisplayToolbarModelState? = nil
-    public struct DisplayToolbarModelState {
-        public let toolbarModel: ButtonPresentableModel?
-    }
-    public func display(toolbarModel: ButtonPresentableModel?) {
-        displayToolbarModelState = .init(
-            toolbarModel: toolbarModel
-        )
-    }
 }

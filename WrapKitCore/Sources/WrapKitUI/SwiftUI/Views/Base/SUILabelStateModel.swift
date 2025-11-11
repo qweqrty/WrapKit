@@ -36,7 +36,7 @@ public final class SUILabelStateModel: ObservableObject {
                 self.presentable = .attributes(value.attributes)
             }
             .store(in: &cancellables)
-        adapter.$displayStartAmountEndAmountMapToStringAnimationStyleDurationCompletionState
+        adapter.$displayIdStartAmountEndAmountMapToStringAnimationStyleDurationCompletionState
             .sink { [weak self] value in
                 guard let self, let value else { return }
                 self.presentable = .animated(value.startAmount, value.endAmount, mapToString: value.mapToString, animationStyle: value.animationStyle, duration: value.duration, completion: value.completion)

@@ -21,8 +21,8 @@ final class CountingLabelAnimation {
     
     public var floatLimit: Double? = nil
     
-    private var startNumber: Double? = 0.0
-    private var endNumber: Double? = 0.0
+    private var startNumber: Double = 0.0
+    private var endNumber: Double = 0.0
     private var mapToString: ((Double) -> TextOutputPresentableModel)?
     private let counterVelocity: Float = 5
 
@@ -33,10 +33,6 @@ final class CountingLabelAnimation {
     private var timer: DisplayLinkManager?
     
     public var animatedTextMaxWidth: CGFloat?
-
-    func getEndCounterValue() -> TextOutputPresentableModel {
-        return mapToString?(endNumber) ?? .text("")
-    }
     
     public func setupPaymentFormat(format: String) {
         paymentFormat = format
@@ -82,10 +78,10 @@ final class CountingLabelAnimation {
         
         timer?.stopAnimation()
         timer?.startAnimation(duration: duration) { [unowned self] progress in
-            let currentValue = self.startNumber + (Float(progress) * (self.endNumber - self.startNumber))
+            let currentValue = self.startNumber + (progress * (self.endNumber - self.startNumber))
             let view = mapToString?(currentValue) ?? .text("")
             self.label?.display(model: view)
-        } // TODO: check RunLoop.common
+        }
     }
     
     func invalidate() {
@@ -105,7 +101,6 @@ final class CountingLabelAnimation {
         progressView?.removeFromSuperview()
         progressView = nil
         completion = nil
-        model = nil
     }
 
     deinit { cancel() }

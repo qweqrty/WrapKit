@@ -103,9 +103,6 @@ extension WeakRefVirtualProxy: TextInputOutput where T: TextInputOutput {
     public func display(isClearButtonActive: Bool) {
         object?.display(isClearButtonActive: isClearButtonActive)
     }
-    public func display(toolbarModel: ButtonPresentableModel?) {
-        object?.display(toolbarModel: toolbarModel)
-    }
 
 }
 #endif

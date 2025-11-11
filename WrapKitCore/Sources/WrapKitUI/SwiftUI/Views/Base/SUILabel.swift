@@ -32,18 +32,15 @@ public struct SUILabelView: View, Animatable {
     
     public var body: some View {
         switch model {
-        case .text(let text):
-            if let text = text?.removingPercentEncoding, !text.isEmpty {
+        case .text(let string):
+            if let text = string?.removingPercentEncoding, !text.isEmpty {
                 Text(text)
             }
-            
         case .attributes(let attributes):
             if !attributes.isEmpty {
                 buildSwiftUIViewFromAttributes(from: attributes)
             }
-            
-        case .animated(let from, let to, let mapToString, let animationStyle, let duration, let completion):
-
+        case .animated(let id, let from, let to, let mapToString, let animationStyle, let duration, let completion):
             ZStack {
                 if case let .circle(color) = animationStyle {
                     SUICircularProgressView(color: color, from: 1, to: 0, duration: duration, completion: completion)
@@ -51,7 +48,7 @@ public struct SUILabelView: View, Animatable {
                 }
                 
                 SUILabelView(
-                    model: mapToString?(from + (Float(displayLinkManager.progress) * (to - from))) ?? .text("")
+                    model: mapToString?(from + (displayLinkManager.progress * (to - from))) ?? .text("")
                 )
 //                .modify {
 //                    if #available(iOS 16.0, *) {
@@ -66,7 +63,6 @@ public struct SUILabelView: View, Animatable {
 //                SUILabelView(model: data).backgroundView {
 //                }
             }
-            
         case .textStyled(let text, let cornerStyle, let insets):
             SUILabelView(model: text)
                 .if(!insets.isZero) { $0.padding(insets.asSUIEdgeInsets) }
