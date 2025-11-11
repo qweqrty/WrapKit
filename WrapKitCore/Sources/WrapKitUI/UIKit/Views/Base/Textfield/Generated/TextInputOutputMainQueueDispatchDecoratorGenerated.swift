@@ -152,6 +152,16 @@ extension MainQueueDispatchDecorator: TextInputOutput where T: TextInputOutput {
             self?.decoratee.display(toolbarModel: toolbarModel)
         }
     }
+    public func display(isClearButtonActive: Bool) {
+        dispatch { [weak self] in
+            self?.decoratee.display(isClearButtonActive: isClearButtonActive)
+        }
+    }
+    public func display(toolbarModel: ButtonPresentableModel?) {
+        dispatch { [weak self] in
+            self?.decoratee.display(toolbarModel: toolbarModel)
+        }
+    }
 
 }
 #endif

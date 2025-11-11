@@ -34,6 +34,9 @@ extension WeakRefVirtualProxy: LifeCycleViewOutput where T: LifeCycleViewOutput 
     public func viewDidDisappear() {
         object?.viewDidDisappear()
     }
+    public func viewDidLayoutSubviews() {
+        object?.viewDidLayoutSubviews()
+    }
     public func composed(with output: LifeCycleViewOutput) {
         object?.composed(with: output)
     }

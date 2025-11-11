@@ -22,7 +22,7 @@ public protocol TextOutput: HiddableOutput {
     func display(model: TextOutputPresentableModel?)
     func display(text: String?)
     func display(attributes: [TextAttributes])
-    func display(from startAmount: Float, to endAmount: Float, mapToString: ((Float) -> TextOutputPresentableModel)?, animationStyle: LabelAnimationStyle, duration: TimeInterval, completion: (() -> Void)?)
+    func display(id: String?, from startAmount: Double, to endAmount: Double, mapToString: ((Double) -> TextOutputPresentableModel)?, animationStyle: LabelAnimationStyle, duration: TimeInterval, completion: (() -> Void)?)
     func display(isHidden: Bool)
 }
 
@@ -30,9 +30,10 @@ public indirect enum TextOutputPresentableModel: HashableWithReflection {
     case text(String?)
     case attributes([TextAttributes])
     case animated(
-        Float,
-        Float,
-        mapToString: ((Float) -> TextOutputPresentableModel)?,
+        id: String? = nil,
+        Double,
+        Double,
+        mapToString: ((Double) -> TextOutputPresentableModel)?,
         animationStyle: LabelAnimationStyle,
         duration: TimeInterval,
         completion: (() -> Void)?
@@ -48,6 +49,7 @@ public indirect enum TextOutputPresentableModel: HashableWithReflection {
 import UIKit
 
 extension Label: TextOutput {
+    
     public func display(model: TextOutputPresentableModel?) {
         isHidden = model == nil
         guard let model = model else { return }
@@ -58,8 +60,8 @@ extension Label: TextOutput {
             display(text: text)
         case .attributes(let attributes):
             display(attributes: attributes)
-        case .animated(let startAmount, let endAmount, let mapToString, let animationStyle, let duration, let completion):
-            display(from: startAmount, to: endAmount, mapToString: mapToString, animationStyle: animationStyle, duration: duration, completion: completion)
+        case .animated(let id, let startAmount, let endAmount, let mapToString, let animationStyle, let duration, let completion):
+            display(id: id, from: startAmount, to: endAmount, mapToString: mapToString, animationStyle: animationStyle, duration: duration, completion: completion)
         case .textStyled(let model, let style, let insets):
             display(model: model)
             self.cornerStyle = style
@@ -84,15 +86,26 @@ extension Label: TextOutput {
         }
     }
     
-    public func display(from startAmount: Float, to endAmount: Float, mapToString: ((Float) -> TextOutputPresentableModel)?) {
-        clearAnimationModel()
-        display(from: startAmount, to: endAmount, mapToString: mapToString, animationStyle: .none, duration: 1.0, completion: nil)
+    public func display(id: String? = nil, from startAmount: Double, to endAmount: Double, mapToString: ((Double) -> TextOutputPresentableModel)?) {
+        display(id: id, from: startAmount, to: endAmount, mapToString: mapToString, animationStyle: .none, duration: 1.0, completion: nil)
     }
     
-    public func display(from startAmount: Float, to endAmount: Float, mapToString: ((Float) -> TextOutputPresentableModel)?, animationStyle: LabelAnimationStyle = .none, duration: TimeInterval = 1.0, completion: (() -> Void)? = nil) {
-        animation = .init(label: self)
+    public func display(id: String? = nil, from startAmount: Double, to endAmount: Double, mapToString: ((Double) -> TextOutputPresentableModel)?, animationStyle: LabelAnimationStyle = .none, duration: TimeInterval = 1.0, completion: (() -> Void)? = nil) {
+        if let id, id == currentAnimatedModelID, endAmount == currentAnimatedTarget {
+            return
+        }
+        
+        animation?.cancel()
+        animation = CountingLabelAnimation(label: self)
+        currentAnimatedModelID = id
+        currentAnimatedTarget = endAmount
+        
         clearAnimationModel()
-        animation?.startAnimation(fromValue: startAmount, to: endAmount, mapToString: mapToString, animationStyle: animationStyle, duration: duration, completion: completion)
+        animation?.startAnimation(fromValue: startAmount, to: endAmount, mapToString: mapToString, animationStyle: animationStyle, duration: duration, completion: { [weak self] in
+            completion?()
+            // clear id after finishing
+            self?.currentAnimatedModelID = nil
+        })
     }
     
     public func display(isHidden: Bool) {
@@ -201,6 +214,8 @@ open class Label: UILabel {
     }
     
     private var animation: CountingLabelAnimation?
+    private var currentAnimatedModelID: String?
+    private var currentAnimatedTarget: Double?
     
     lazy var tapGesture: UITapGestureRecognizer = {
         let gesture = UITapGestureRecognizer(target: self, action: nil)

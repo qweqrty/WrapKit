@@ -19,13 +19,13 @@ final class CountingLabelAnimation {
         self.label = label
     }
     
-    public var floatLimit: Float? = nil
+    public var floatLimit: Double? = nil
     
-    private var startNumber: Float = 0.0
-    private var endNumber: Float = 0.0
-    private var mapToString: ((Float) -> TextOutputPresentableModel)?
+    private var startNumber: Double? = 0.0
+    private var endNumber: Double? = 0.0
+    private var mapToString: ((Double) -> TextOutputPresentableModel)?
     private let counterVelocity: Float = 5
-    
+
     private var duration: TimeInterval = 1
     private var lastUpdate: TimeInterval!
     private var completion: (() -> Void)? // Added for completion closure
@@ -33,7 +33,7 @@ final class CountingLabelAnimation {
     private var timer: DisplayLinkManager?
     
     public var animatedTextMaxWidth: CGFloat?
-    
+
     func getEndCounterValue() -> TextOutputPresentableModel {
         return mapToString?(endNumber) ?? .text("")
     }
@@ -43,9 +43,10 @@ final class CountingLabelAnimation {
     }
     
     public func startAnimation(
-        fromValue: Float,
-        to toValue: Float,
-        mapToString: ((Float) -> TextOutputPresentableModel)?,
+        id: String? = nil,
+        fromValue: Double,
+        to toValue: Double,
+        mapToString: ((Double) -> TextOutputPresentableModel)?,
         animationStyle: LabelAnimationStyle = .none,
         duration: TimeInterval = 1.0,
         completion: (() -> Void)? = nil
@@ -55,6 +56,7 @@ final class CountingLabelAnimation {
         self.mapToString = mapToString
         self.duration = duration
         self.completion = completion
+        self.lastUpdate = Date.timeIntervalSinceReferenceDate
         
         // Set up circular progress view if needed
         if case .circle(let lineColor) = animationStyle, let label = label {
@@ -83,7 +85,7 @@ final class CountingLabelAnimation {
             let currentValue = self.startNumber + (Float(progress) * (self.endNumber - self.startNumber))
             let view = mapToString?(currentValue) ?? .text("")
             self.label?.display(model: view)
-        }
+        } // TODO: check RunLoop.common
     }
     
     func invalidate() {
@@ -91,17 +93,21 @@ final class CountingLabelAnimation {
         timer = nil
         progressView?.removeFromSuperview()
     }
-    
+
     func resetAnimatedTextMaxWidth() {
         guard timer == nil else { return }
         animatedTextMaxWidth = nil
     }
     
-    deinit {
+    func cancel() {
         timer?.stopAnimation()
         timer = nil
         progressView?.removeFromSuperview()
+        progressView = nil
+        completion = nil
+        model = nil
     }
+
+    deinit { cancel() }
 }
 #endif
-

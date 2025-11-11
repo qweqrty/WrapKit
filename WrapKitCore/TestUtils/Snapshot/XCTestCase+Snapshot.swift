@@ -9,28 +9,17 @@ public extension XCTestCase {
         let snapshotData = makeSnapshotData(for: snapshot, file: file, line: line)
         
         guard let storedSnapshotData = try? Data(contentsOf: snapshotURL) else {
-            XCTFail("Failed to load stored snapshot at URL: \(snapshotURL). Use the `record` method to store a snapshot before asserting.", file: file, line: line)
+            XCTFail("Failed to load stored snapshot at URL: \(snapshotURL). Use the record method to store a snapshot before asserting.", file: file, line: line)
             return
         }
         
-        if snapshotData == storedSnapshotData {
-            return
-        }
-        guard let storedSnapshot = UIImage(data: storedSnapshotData),
-              let similarity = snapshot.compareWith(image: storedSnapshot) else {
-            XCTFail("Failed to load images or calculate MSE.", file: file, line: line)
-            return
-        }
-        
-        switch similarity {
-        case 99.99...100:
-            return
-        default:
+        if snapshotData != storedSnapshotData {
             let temporarySnapshotURL = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
                 .appendingPathComponent(snapshotURL.lastPathComponent)
             
             try? snapshotData?.write(to: temporarySnapshotURL)
-            XCTFail("Images are different.: \(100 - similarity) %, New snapshot URL: \(temporarySnapshotURL), Stored snapshot URL: \(snapshotURL)", file: file, line: line)
+            
+            XCTFail("New snapshot does not match stored snapshot. New snapshot URL: \(temporarySnapshotURL), Stored snapshot URL: \(snapshotURL)", file: file, line: line)
         }
     }
     

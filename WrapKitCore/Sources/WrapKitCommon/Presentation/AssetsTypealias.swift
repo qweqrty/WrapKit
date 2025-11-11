@@ -39,6 +39,15 @@ public enum ImageEnum: HashableWithReflection {
     case urlString(String?, String? = nil) // Light, Dark
 }
 
+public extension Color {
+    static func dynamicColor(light: Color, dark: Color) -> Color {
+    guard #available(iOS 13.0, *) else { return light }
+    return UIColor { traits in
+      traits.userInterfaceStyle == .dark ? dark : light
+    }
+  }
+}
+
 public extension IndexPath {
     var unifiedIndex: Int {
         #if os(macOS)

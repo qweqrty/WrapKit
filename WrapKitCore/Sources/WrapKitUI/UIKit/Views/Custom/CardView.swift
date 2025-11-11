@@ -48,6 +48,8 @@ public struct CardViewPresentableModel: HashableWithReflection {
         public let hStackViewSpacing: CGFloat
         public let titleKeyNumberOfLines: Int
         public let titleValueNumberOfLines: Int
+        public let borderColor: Color?
+        public let borderWidth: CGFloat?
         
         public init(
             backgroundColor: Color,
@@ -68,7 +70,9 @@ public struct CardViewPresentableModel: HashableWithReflection {
             stackSpace: CGFloat,
             hStackViewSpacing: CGFloat,
             titleKeyNumberOfLines: Int,
-            titleValueNumberOfLines: Int
+            titleValueNumberOfLines: Int,
+            borderColor: Color? = nil,
+            borderWidth: CGFloat? = nil
         ) {
             self.backgroundColor = backgroundColor
             self.vStacklayoutMargins = vStacklayoutMargins
@@ -89,6 +93,8 @@ public struct CardViewPresentableModel: HashableWithReflection {
             self.hStackViewSpacing = hStackViewSpacing
             self.titleKeyNumberOfLines = titleKeyNumberOfLines
             self.titleValueNumberOfLines = titleValueNumberOfLines
+            self.borderColor = borderColor
+            self.borderWidth = borderWidth
         }
     }
 
@@ -167,8 +173,10 @@ import SwiftUI
 
 extension CardView: CardViewOutput {
     public func display(style: CardViewPresentableModel.Style?) {
+        if let style = style {
+            self.style = style
+        }
         guard let style = style else { return }
-        
         backgroundColor = style.backgroundColor
         vStackView.layoutMargins = style.vStacklayoutMargins.asUIEdgeInsets
         hStackView.layoutMargins = style.hStacklayoutMargins.asUIEdgeInsets
@@ -189,6 +197,8 @@ extension CardView: CardViewOutput {
         titleViews.keyLabel.numberOfLines = style.titleKeyNumberOfLines
         titleViews.valueLabel.numberOfLines = style.titleValueNumberOfLines
         cornerRadius = style.cornerRadius
+        layer.borderColor = style.borderColor?.cgColor
+        layer.borderWidth = style.borderWidth ?? 0
     }
     
     public func display(leadingTitles: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>?) {
@@ -215,6 +225,7 @@ extension CardView: CardViewOutput {
     
     public func display(title: TextOutputPresentableModel?) {
         titleViews.keyLabel.display(model: title)
+        titleViewsWrapperView.isHidden = titleViews.keyLabel.isHidden && titleViews.valueLabel.isHidden
     }
     
     public func display(leadingImage: ImageViewPresentableModel?) {
@@ -243,6 +254,7 @@ extension CardView: CardViewOutput {
     
     public func display(valueTitle: TextOutputPresentableModel?) {
         titleViews.valueLabel.display(model: valueTitle)
+        titleViewsWrapperView.isHidden = titleViews.keyLabel.isHidden && titleViews.valueLabel.isHidden
     }
     
     public func display(bottomSeparator: CardViewPresentableModel.BottomSeparator?) {
@@ -312,6 +324,7 @@ extension CardView: CardViewOutput {
 }
 
 open class CardView: ViewUIKit {
+    private var style: CardViewPresentableModel.Style?
     public let vStackView = StackView(axis: .vertical, contentInset: .init(top: 0, left: 8, bottom: 0, right: 8))
     public let hStackView = StackView(axis: .horizontal, spacing: 14)
     public private(set) var backgroundImageView = ImageView()
@@ -387,6 +400,17 @@ open class CardView: ViewUIKit {
         setupSubviews()
         setupConstraints()
         setupPriorities()
+    }
+    
+    open override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        layer.borderColor = style?.borderColor?.cgColor
+    }
+    
+    open override func layoutSubviews() {
+        super.layoutSubviews()
+        
+        layer.borderColor = style?.borderColor?.cgColor
     }
     
     public init(style: CardViewPresentableModel.Style, buildImage: (() -> ImageView)? = nil) {

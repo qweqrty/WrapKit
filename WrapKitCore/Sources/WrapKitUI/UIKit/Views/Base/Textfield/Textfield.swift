@@ -7,6 +7,12 @@
 
 import Foundation
 
+#if canImport(UIKit)
+import UIKit
+public typealias TextAutocapitalizationType = UITextAutocapitalizationType
+#endif
+// TODO: UITextAutocapitalizationType in SwiftUI and AppKit
+
 public struct TextfieldAppearance {
     public init(
         colors: TextfieldAppearance.Colors,
@@ -112,6 +118,7 @@ public protocol TextInputOutput: AnyObject {
     func display(inputType: KeyboardType)
     func display(trailingSymbol: String?)
     func display(toolbarModel: ButtonPresentableModel?)
+    func display(isClearButtonActive: Bool)
 }
 
 public struct TextInputPresentableModel: HashableWithReflection {
@@ -145,6 +152,7 @@ public struct TextInputPresentableModel: HashableWithReflection {
             }
         }
         case date(DatePickerPresentableModel)
+        case custom(PickerViewPresentableModel)
     }
     public struct Mask {
         public let mask: Masking
@@ -166,6 +174,8 @@ public struct TextInputPresentableModel: HashableWithReflection {
     public let inputView: InputView?
     public let toolbarModel: ButtonPresentableModel?
     public let trailingSymbol: String?
+    public let autocapitalizationType: TextAutocapitalizationType?
+    public let inputType: KeyboardType?
     public var leadingViewOnPress: (() -> Void)?
     public var trailingViewOnPress: (() -> Void)?
     public var onPress: (() -> Void)?
@@ -187,6 +197,8 @@ public struct TextInputPresentableModel: HashableWithReflection {
         inputView: InputView? = nil,
         toolbarModel: ButtonPresentableModel? = nil,
         trailingSymbol: String? = nil,
+        autocapitalizationType: TextAutocapitalizationType = .none,
+        inputType: KeyboardType? = nil,
         leadingViewOnPress: (() -> Void)? = nil,
         trailingViewOnPress: (() -> Void)? = nil,
         onPress: (() -> Void)? = nil,
@@ -215,6 +227,8 @@ public struct TextInputPresentableModel: HashableWithReflection {
         self.inputView = inputView
         self.trailingSymbol = trailingSymbol
         self.toolbarModel = toolbarModel
+        self.autocapitalizationType = autocapitalizationType
+        self.inputType = inputType
     }
 }
 
@@ -287,6 +301,13 @@ extension Textfield: TextInputOutput {
             self.inputAccessoryView = nil
             self.reloadInputViews()
         }
+        if let autocapitalizationType = model.autocapitalizationType {
+            self.autocapitalizationType = autocapitalizationType
+        }
+        
+        if let inputType = model.inputType {
+            display(inputType: inputType)
+        }
     }
     
     public func display(inputView: TextInputPresentableModel.InputView?) {
@@ -318,6 +339,10 @@ extension Textfield: TextInputOutput {
                 self?.endEditing(true)
             }
             self.inputAccessoryView = makeAccessoryView(accessoryView: button)
+        case .custom(let model):
+            let pickerView = PickerView()
+            pickerView.display(model: model)
+            self.inputView = pickerView
         }
         self.reloadInputViews()
     }
@@ -420,6 +445,10 @@ extension Textfield: TextInputOutput {
         delegate.trailingSymbol = trailingSymbol
         delegate.refreshMask()
     }
+    
+    public func display(isClearButtonActive: Bool) {
+        self.isClearButtonActive = isClearButtonActive
+    }
 }
 
 open class Textfield: UITextField {
@@ -443,6 +472,7 @@ open class Textfield: UITextField {
     }
     
     private var isValidState = true
+    private var isClearButtonActive = true
     
     public var padding: UIEdgeInsets = .zero
     public var midPadding: CGFloat = 0
@@ -467,6 +497,7 @@ open class Textfield: UITextField {
                 builder.remove(menu: .standardEdit)
                 builder.remove(menu: .format)
                 builder.remove(menu: .lookup)
+                builder.remove(menu: .autoFill)
             }
             disabledMenus.forEach {
                 builder.remove(menu: $0)
@@ -575,6 +606,7 @@ open class Textfield: UITextField {
                 }
             }
             didChangeTextClear = { [weak self] text in
+                guard self?.isClearButtonActive ?? true else { return }
                 let text = self?.maskedTextfieldDelegate?.onlySpecifiersIfMaskedText ?? text ?? ""
                 self?.trailingView?.isHidden = text.isEmpty
             }
