@@ -19,29 +19,7 @@ final class CardViewSnapshotTests: XCTestCase {
         let sut = makeSUT()
         
         // WHEN
-        sut.display(style: .init(
-            backgroundColor: .systemRed,
-            vStacklayoutMargins: .init(top: 5, leading: 5, bottom: 5, trailing: 5),
-            hStacklayoutMargins: .zero,
-            hStackViewDistribution: .fillEqually,
-            leadingTitleKeyTextColor: .blue,
-            titleKeyTextColor: .brown,
-            trailingTitleKeyTextColor: .black,
-            titleValueTextColor: .cyan,
-            subTitleTextColor: .gray,
-            leadingTitleKeyLabelFont: .boldSystemFont(ofSize: 22),
-            titleKeyLabelFont: .systemFont(ofSize: 14),
-            trailingTitleKeyLabelFont: .boldSystemFont(ofSize: 22),
-            titleValueLabelFont: .systemFont(ofSize: 14),
-            subTitleLabelFont: .systemFont(ofSize: 14, weight: .light),
-            cornerRadius: 20,
-            stackSpace: 5.0,
-            hStackViewSpacing: 2.0,
-            titleKeyNumberOfLines: 0,
-            titleValueNumberOfLines: 0,
-            borderColor: .green,
-            borderWidth: 4
-        ))
+        sut.display(style: makeDefaultStyle())
         
         // THEN
         assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "CARDVIEW_DEFAULT_STATE_LIGHT")
@@ -53,30 +31,7 @@ final class CardViewSnapshotTests: XCTestCase {
         let sut = makeSUT()
         
         // WHEN
-        sut.display(style: .init(
-            backgroundColor: .systemRed,
-            vStacklayoutMargins: .init(top: 5, leading: 5, bottom: 5, trailing: 5),
-            hStacklayoutMargins: .zero,
-            hStackViewDistribution: .fillEqually,
-            leadingTitleKeyTextColor: .blue,
-            titleKeyTextColor: .brown,
-            trailingTitleKeyTextColor: .black,
-            titleValueTextColor: .cyan,
-            subTitleTextColor: .gray,
-            leadingTitleKeyLabelFont: .boldSystemFont(ofSize: 22),
-            titleKeyLabelFont: .systemFont(ofSize: 14),
-            trailingTitleKeyLabelFont: .boldSystemFont(ofSize: 22),
-            titleValueLabelFont: .systemFont(ofSize: 14),
-            subTitleLabelFont: .systemFont(ofSize: 14, weight: .light),
-            cornerRadius: 20,
-            stackSpace: 5.0,
-            hStackViewSpacing: 2.0,
-            titleKeyNumberOfLines: 0,
-            titleValueNumberOfLines: 0,
-            borderColor: .green,
-            borderWidth: 4
-        ))
-        
+        sut.display(style: makeDefaultStyle())
         sut.display(backgroundImage: .init(image: .asset(image)))
         
         // THEN
@@ -89,30 +44,7 @@ final class CardViewSnapshotTests: XCTestCase {
         let sut = makeSUT()
         
         // WHEN
-        sut.display(style: .init(
-            backgroundColor: .systemRed,
-            vStacklayoutMargins: .init(top: 5, leading: 5, bottom: 5, trailing: 5),
-            hStacklayoutMargins: .zero,
-            hStackViewDistribution: .fillEqually,
-            leadingTitleKeyTextColor: .blue,
-            titleKeyTextColor: .brown,
-            trailingTitleKeyTextColor: .black,
-            titleValueTextColor: .cyan,
-            subTitleTextColor: .gray,
-            leadingTitleKeyLabelFont: .boldSystemFont(ofSize: 22),
-            titleKeyLabelFont: .systemFont(ofSize: 14),
-            trailingTitleKeyLabelFont: .boldSystemFont(ofSize: 22),
-            titleValueLabelFont: .systemFont(ofSize: 14),
-            subTitleLabelFont: .systemFont(ofSize: 14, weight: .light),
-            cornerRadius: 20,
-            stackSpace: 5.0,
-            hStackViewSpacing: 2.0,
-            titleKeyNumberOfLines: 0,
-            titleValueNumberOfLines: 0,
-            borderColor: .green,
-            borderWidth: 4
-        ))
-        
+        sut.display(style: makeDefaultStyle())
         sut.display(backgroundImage: .init(image: .asset(image), contentModeIsFit: false))
         
         // THEN
@@ -176,30 +108,7 @@ final class CardViewSnapshotTests: XCTestCase {
         let sut = makeSUT()
         
         // WHEN
-        sut.display(style: .init(
-            backgroundColor: .systemRed,
-            vStacklayoutMargins: .init(top: 5, leading: 5, bottom: 5, trailing: 5),
-            hStacklayoutMargins: .zero,
-            hStackViewDistribution: .fillEqually,
-            leadingTitleKeyTextColor: .blue,
-            titleKeyTextColor: .brown,
-            trailingTitleKeyTextColor: .black,
-            titleValueTextColor: .cyan,
-            subTitleTextColor: .gray,
-            leadingTitleKeyLabelFont: .boldSystemFont(ofSize: 22),
-            titleKeyLabelFont: .systemFont(ofSize: 14),
-            trailingTitleKeyLabelFont: .boldSystemFont(ofSize: 22),
-            titleValueLabelFont: .systemFont(ofSize: 14),
-            subTitleLabelFont: .systemFont(ofSize: 14, weight: .light),
-            cornerRadius: 20,
-            stackSpace: 5.0,
-            hStackViewSpacing: 2.0,
-            titleKeyNumberOfLines: 0,
-            titleValueNumberOfLines: 0,
-            borderColor: .green,
-            borderWidth: 4
-        ))
-        
+        sut.display(style: makeDefaultStyle())
         sut.display(leadingTitles:
                 .init(.text("First"), .text("Second"))
         )
@@ -214,30 +123,7 @@ final class CardViewSnapshotTests: XCTestCase {
         let sut = makeSUT()
         
         // WHEN
-        sut.display(style: .init(
-            backgroundColor: .systemRed,
-            vStacklayoutMargins: .init(top: 5, leading: 5, bottom: 5, trailing: 5),
-            hStacklayoutMargins: .zero,
-            hStackViewDistribution: .fillEqually,
-            leadingTitleKeyTextColor: .blue,
-            titleKeyTextColor: .brown,
-            trailingTitleKeyTextColor: .black,
-            titleValueTextColor: .cyan,
-            subTitleTextColor: .gray,
-            leadingTitleKeyLabelFont: .boldSystemFont(ofSize: 22),
-            titleKeyLabelFont: .systemFont(ofSize: 14),
-            trailingTitleKeyLabelFont: .boldSystemFont(ofSize: 22),
-            titleValueLabelFont: .systemFont(ofSize: 14),
-            subTitleLabelFont: .systemFont(ofSize: 14, weight: .light),
-            cornerRadius: 20,
-            stackSpace: 5.0,
-            hStackViewSpacing: 2.0,
-            titleKeyNumberOfLines: 0,
-            titleValueNumberOfLines: 0,
-            borderColor: .green,
-            borderWidth: 4
-        ))
-        
+        sut.display(style: makeDefaultStyle())
         sut.display(trailingTitles: .init(.text("First"), .text("Second")))
         
         // THEN
@@ -250,30 +136,7 @@ final class CardViewSnapshotTests: XCTestCase {
         let sut = makeSUT()
         
         // WHEN
-        sut.display(style: .init(
-            backgroundColor: .systemRed,
-            vStacklayoutMargins: .init(top: 5, leading: 5, bottom: 5, trailing: 5),
-            hStacklayoutMargins: .zero,
-            hStackViewDistribution: .fillEqually,
-            leadingTitleKeyTextColor: .blue,
-            titleKeyTextColor: .brown,
-            trailingTitleKeyTextColor: .black,
-            titleValueTextColor: .cyan,
-            subTitleTextColor: .gray,
-            leadingTitleKeyLabelFont: .boldSystemFont(ofSize: 22),
-            titleKeyLabelFont: .systemFont(ofSize: 14),
-            trailingTitleKeyLabelFont: .boldSystemFont(ofSize: 22),
-            titleValueLabelFont: .systemFont(ofSize: 14),
-            subTitleLabelFont: .systemFont(ofSize: 14, weight: .light),
-            cornerRadius: 20,
-            stackSpace: 5.0,
-            hStackViewSpacing: 2.0,
-            titleKeyNumberOfLines: 0,
-            titleValueNumberOfLines: 0,
-            borderColor: .green,
-            borderWidth: 4
-        ))
-        
+        sut.display(style: makeDefaultStyle())
         sut.display(leadingImage: .init(image: .asset(image)))
         
         // THEN
@@ -286,30 +149,7 @@ final class CardViewSnapshotTests: XCTestCase {
         let sut = makeSUT()
         
         // WHEN
-        sut.display(style: .init(
-            backgroundColor: .systemRed,
-            vStacklayoutMargins: .init(top: 5, leading: 5, bottom: 5, trailing: 5),
-            hStacklayoutMargins: .zero,
-            hStackViewDistribution: .fillEqually,
-            leadingTitleKeyTextColor: .blue,
-            titleKeyTextColor: .brown,
-            trailingTitleKeyTextColor: .black,
-            titleValueTextColor: .cyan,
-            subTitleTextColor: .gray,
-            leadingTitleKeyLabelFont: .boldSystemFont(ofSize: 22),
-            titleKeyLabelFont: .systemFont(ofSize: 14),
-            trailingTitleKeyLabelFont: .boldSystemFont(ofSize: 22),
-            titleValueLabelFont: .systemFont(ofSize: 14),
-            subTitleLabelFont: .systemFont(ofSize: 14, weight: .light),
-            cornerRadius: 20,
-            stackSpace: 5.0,
-            hStackViewSpacing: 2.0,
-            titleKeyNumberOfLines: 0,
-            titleValueNumberOfLines: 0,
-            borderColor: .green,
-            borderWidth: 4
-        ))
-        
+        sut.display(style: makeDefaultStyle())
         sut.display(trailingImage: .init(image: .asset(image)))
         
         // THEN
@@ -322,30 +162,7 @@ final class CardViewSnapshotTests: XCTestCase {
         let sut = makeSUT()
         
         // WHEN
-        sut.display(style: .init(
-            backgroundColor: .systemRed,
-            vStacklayoutMargins: .init(top: 5, leading: 5, bottom: 5, trailing: 5),
-            hStacklayoutMargins: .zero,
-            hStackViewDistribution: .fillEqually,
-            leadingTitleKeyTextColor: .blue,
-            titleKeyTextColor: .brown,
-            trailingTitleKeyTextColor: .black,
-            titleValueTextColor: .cyan,
-            subTitleTextColor: .gray,
-            leadingTitleKeyLabelFont: .boldSystemFont(ofSize: 22),
-            titleKeyLabelFont: .systemFont(ofSize: 14),
-            trailingTitleKeyLabelFont: .boldSystemFont(ofSize: 22),
-            titleValueLabelFont: .systemFont(ofSize: 14),
-            subTitleLabelFont: .systemFont(ofSize: 14, weight: .light),
-            cornerRadius: 20,
-            stackSpace: 5.0,
-            hStackViewSpacing: 2.0,
-            titleKeyNumberOfLines: 0,
-            titleValueNumberOfLines: 0,
-            borderColor: .green,
-            borderWidth: 4
-        ))
-        
+        sut.display(style: makeDefaultStyle())
         sut.display(secondaryTrailingImage: .init(image: .asset(secondImage)))
         
         // THEN
@@ -358,29 +175,7 @@ final class CardViewSnapshotTests: XCTestCase {
         let sut = makeSUT()
         
         // WHEN
-        sut.display(style: .init(
-            backgroundColor: .systemRed,
-            vStacklayoutMargins: .init(top: 5, leading: 5, bottom: 5, trailing: 5),
-            hStacklayoutMargins: .zero,
-            hStackViewDistribution: .fillEqually,
-            leadingTitleKeyTextColor: .blue,
-            titleKeyTextColor: .brown,
-            trailingTitleKeyTextColor: .black,
-            titleValueTextColor: .cyan,
-            subTitleTextColor: .green,
-            leadingTitleKeyLabelFont: .boldSystemFont(ofSize: 22),
-            titleKeyLabelFont: .systemFont(ofSize: 14),
-            trailingTitleKeyLabelFont: .boldSystemFont(ofSize: 22),
-            titleValueLabelFont: .systemFont(ofSize: 14),
-            subTitleLabelFont: .systemFont(ofSize: 14, weight: .light),
-            cornerRadius: 20,
-            stackSpace: 5.0,
-            hStackViewSpacing: 2.0,
-            titleKeyNumberOfLines: 0,
-            titleValueNumberOfLines: 0,
-            borderColor: .green,
-            borderWidth: 4
-        ))
+        sut.display(style: makeDefaultStyle())
         
         sut.display(subTitle: .text("Subtitle"))
         
@@ -394,30 +189,7 @@ final class CardViewSnapshotTests: XCTestCase {
         let sut = makeSUT()
         
         // WHEN
-        sut.display(style: .init(
-            backgroundColor: .systemRed,
-            vStacklayoutMargins: .zero,
-            hStacklayoutMargins: .zero,
-            hStackViewDistribution: .fillEqually,
-            leadingTitleKeyTextColor: .blue,
-            titleKeyTextColor: .brown,
-            trailingTitleKeyTextColor: .black,
-            titleValueTextColor: .cyan,
-            subTitleTextColor: .green,
-            leadingTitleKeyLabelFont: .boldSystemFont(ofSize: 22),
-            titleKeyLabelFont: .systemFont(ofSize: 14),
-            trailingTitleKeyLabelFont: .boldSystemFont(ofSize: 22),
-            titleValueLabelFont: .systemFont(ofSize: 14),
-            subTitleLabelFont: .systemFont(ofSize: 14, weight: .light),
-            cornerRadius: 20,
-            stackSpace: 5.0,
-            hStackViewSpacing: 2.0,
-            titleKeyNumberOfLines: 0,
-            titleValueNumberOfLines: 0,
-            borderColor: .green,
-            borderWidth: 4
-        ))
-        
+        sut.display(style: makeDefaultStyle())
         sut.display(valueTitle: .text("Value title"))
         
         // THEN
@@ -430,30 +202,7 @@ final class CardViewSnapshotTests: XCTestCase {
         let sut = makeSUT()
         
         // WHEN
-        sut.display(style: .init(
-            backgroundColor: .systemRed,
-            vStacklayoutMargins: .zero,
-            hStacklayoutMargins: .zero,
-            hStackViewDistribution: .fillEqually,
-            leadingTitleKeyTextColor: .blue,
-            titleKeyTextColor: .brown,
-            trailingTitleKeyTextColor: .black,
-            titleValueTextColor: .cyan,
-            subTitleTextColor: .green,
-            leadingTitleKeyLabelFont: .boldSystemFont(ofSize: 22),
-            titleKeyLabelFont: .systemFont(ofSize: 14),
-            trailingTitleKeyLabelFont: .boldSystemFont(ofSize: 22),
-            titleValueLabelFont: .systemFont(ofSize: 14),
-            subTitleLabelFont: .systemFont(ofSize: 14, weight: .light),
-            cornerRadius: 20,
-            stackSpace: 5.0,
-            hStackViewSpacing: 2.0,
-            titleKeyNumberOfLines: 0,
-            titleValueNumberOfLines: 0,
-            borderColor: .green,
-            borderWidth: 4
-        ))
-        
+        sut.display(style: makeDefaultStyle())
         sut.display(title: .text("Title"))
         sut.display(subTitle: .text("Subtitle"))
         sut.display(valueTitle: .text("Value title"))
@@ -505,29 +254,7 @@ final class CardViewSnapshotTests: XCTestCase {
         let sut = makeSUT()
         
         // WHEN
-        sut.display(style: .init(
-            backgroundColor: .systemRed,
-            vStacklayoutMargins: .zero,
-            hStacklayoutMargins: .zero,
-            hStackViewDistribution: .fillEqually,
-            leadingTitleKeyTextColor: .blue,
-            titleKeyTextColor: .black,
-            trailingTitleKeyTextColor: .black,
-            titleValueTextColor: .cyan,
-            subTitleTextColor: .green,
-            leadingTitleKeyLabelFont: .boldSystemFont(ofSize: 22),
-            titleKeyLabelFont: .systemFont(ofSize: 14),
-            trailingTitleKeyLabelFont: .boldSystemFont(ofSize: 22),
-            titleValueLabelFont: .systemFont(ofSize: 14),
-            subTitleLabelFont: .systemFont(ofSize: 14, weight: .light),
-            cornerRadius: 20,
-            stackSpace: 5.0,
-            hStackViewSpacing: 2.0,
-            titleKeyNumberOfLines: 0,
-            titleValueNumberOfLines: 0,
-            borderColor: .green,
-            borderWidth: 0
-        ))
+        sut.display(style: makeDefaultStyle())
         
         sut.display(title: .text("Title"))
         sut.display(switchControl: .init(
@@ -547,29 +274,7 @@ final class CardViewSnapshotTests: XCTestCase {
         let sut = makeSUT()
         
         // WHEN
-        sut.display(style: .init(
-            backgroundColor: .systemRed,
-            vStacklayoutMargins: .zero,
-            hStacklayoutMargins: .zero,
-            hStackViewDistribution: .fillEqually,
-            leadingTitleKeyTextColor: .blue,
-            titleKeyTextColor: .black,
-            trailingTitleKeyTextColor: .black,
-            titleValueTextColor: .cyan,
-            subTitleTextColor: .green,
-            leadingTitleKeyLabelFont: .boldSystemFont(ofSize: 22),
-            titleKeyLabelFont: .systemFont(ofSize: 14),
-            trailingTitleKeyLabelFont: .boldSystemFont(ofSize: 22),
-            titleValueLabelFont: .systemFont(ofSize: 14),
-            subTitleLabelFont: .systemFont(ofSize: 14, weight: .light),
-            cornerRadius: 20,
-            stackSpace: 5.0,
-            hStackViewSpacing: 2.0,
-            titleKeyNumberOfLines: 0,
-            titleValueNumberOfLines: 0,
-            borderColor: .green,
-            borderWidth: 0
-        ))
+        sut.display(style: makeDefaultStyle())
         
         sut.display(title: .text("Title"))
         sut.display(onPress: { [weak sut] in
@@ -589,29 +294,7 @@ final class CardViewSnapshotTests: XCTestCase {
         let sut = makeSUT()
         
         // WHEN
-        sut.display(style: .init(
-            backgroundColor: .systemRed,
-            vStacklayoutMargins: .zero,
-            hStacklayoutMargins: .zero,
-            hStackViewDistribution: .fillEqually,
-            leadingTitleKeyTextColor: .blue,
-            titleKeyTextColor: .black,
-            trailingTitleKeyTextColor: .black,
-            titleValueTextColor: .cyan,
-            subTitleTextColor: .green,
-            leadingTitleKeyLabelFont: .boldSystemFont(ofSize: 22),
-            titleKeyLabelFont: .systemFont(ofSize: 14),
-            trailingTitleKeyLabelFont: .boldSystemFont(ofSize: 22),
-            titleValueLabelFont: .systemFont(ofSize: 14),
-            subTitleLabelFont: .systemFont(ofSize: 14, weight: .light),
-            cornerRadius: 20,
-            stackSpace: 5.0,
-            hStackViewSpacing: 2.0,
-            titleKeyNumberOfLines: 0,
-            titleValueNumberOfLines: 0,
-            borderColor: .green,
-            borderWidth: 0
-        ))
+        sut.display(style: makeDefaultStyle())
         
         sut.display(title: .text("Title"))
         sut.display(onLongPress: { [weak sut] in
@@ -630,7 +313,30 @@ final class CardViewSnapshotTests: XCTestCase {
         let sut = makeSUT()
         
         // WHEN
-        sut.display(style: .init(
+        sut.display(style: makeDefaultStyle())
+        
+        sut.display(isHidden: true)
+        
+        // THEN
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "CARDVIEW_ISHIDDEN_LIGHT")
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "CARDVIEW_ISHIDDEN_DARK")
+    }
+}
+
+extension CardViewSnapshotTests {
+    func makeSUT(
+        file: StaticString = #file,
+        line: UInt = #line
+    ) -> CardView {
+        let sut = CardView()
+        
+        checkForMemoryLeaks(sut, file: file, line: line)
+        sut.frame = .init(origin: .zero, size: SnapshotConfiguration.size)
+        return sut
+    }
+    
+    func makeDefaultStyle() -> CardViewPresentableModel.Style {
+        return .init(
             backgroundColor: .systemRed,
             vStacklayoutMargins: .init(top: 5, leading: 5, bottom: 5, trailing: 5),
             hStacklayoutMargins: .zero,
@@ -652,25 +358,6 @@ final class CardViewSnapshotTests: XCTestCase {
             titleValueNumberOfLines: 0,
             borderColor: .green,
             borderWidth: 4
-        ))
-        
-        sut.display(isHidden: true)
-        
-        // THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "CARDVIEW_ISHIDDEN_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "CARDVIEW_ISHIDDEN_DARK")
-    }
-}
-
-extension CardViewSnapshotTests {
-    func makeSUT(
-        file: StaticString = #file,
-        line: UInt = #line
-    ) -> CardView {
-        let sut = CardView()
-        
-        checkForMemoryLeaks(sut, file: file, line: line)
-        sut.frame = .init(origin: .zero, size: SnapshotConfiguration.size)
-        return sut
+        )
     }
 }
