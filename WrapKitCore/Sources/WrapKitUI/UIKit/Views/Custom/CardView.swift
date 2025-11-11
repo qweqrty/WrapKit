@@ -225,6 +225,7 @@ extension CardView: CardViewOutput {
     
     public func display(title: TextOutputPresentableModel?) {
         titleViews.keyLabel.display(model: title)
+        titleViewsWrapperView.isHidden = titleViews.keyLabel.isHidden && titleViews.valueLabel.isHidden
     }
     
     public func display(leadingImage: ImageViewPresentableModel?) {
@@ -253,6 +254,7 @@ extension CardView: CardViewOutput {
     
     public func display(valueTitle: TextOutputPresentableModel?) {
         titleViews.valueLabel.display(model: valueTitle)
+        titleViewsWrapperView.isHidden = titleViews.keyLabel.isHidden && titleViews.valueLabel.isHidden
     }
     
     public func display(bottomSeparator: CardViewPresentableModel.BottomSeparator?) {

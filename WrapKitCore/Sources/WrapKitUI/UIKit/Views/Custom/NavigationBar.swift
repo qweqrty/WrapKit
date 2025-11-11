@@ -112,8 +112,6 @@ extension NavigationBar: HeaderOutput {
             backgroundColor = style.backgroundColor
             leadingStackView.spacing = style.horizontalSpacing
             trailingStackView.spacing = style.horizontalSpacing * 1.5
-            mainStackViewConstraints?.leading?.constant = 8
-            mainStackViewConstraints?.trailing?.constant = -8
             
             leadingCardView.leadingImageView.tintColor = style.primeColor
             primeTrailingImageWrapperView.contentView.tintColor = style.primeColor
@@ -131,6 +129,7 @@ extension NavigationBar: HeaderOutput {
     }
     
     public func display(leadingCard: CardViewPresentableModel?) {
+        leadingCardGlassEffectView.isHidden = leadingCard == nil
         leadingCardView.display(model: leadingCard)
     }
     
@@ -165,7 +164,8 @@ open class NavigationBar: UIView {
     public lazy var trailingStackView = StackView(axis: .horizontal, spacing: 12)
     public lazy var mainStackView = StackView(axis: .horizontal, spacing: 8)
     
-    public lazy var leadingCardView = makeLeadingCardView(isHidden: false)
+    public lazy var leadingCardGlassEffectView = makeLeadingCardGlassEffectView()
+    public lazy var leadingCardView = makeLeadingCardView(isHidden: true)
     public lazy var secondaryLeadingCardView = makeLeadingCardView(isHidden: true)
     public lazy var titleViews = VKeyValueFieldView(
         keyLabel: Label(font: .systemFont(ofSize: 18), textColor: .black, textAlignment: .center, numberOfLines: 1),
@@ -191,6 +191,7 @@ open class NavigationBar: UIView {
     }
     
     private func setupSubviews() {
+        layer.zPosition = 100
         addSubviews(mainStackView)
         leadingStackWrapperView.addSubview(leadingStackView)
         trailingStackWrapperView.addSubview(trailingStackView)
@@ -198,7 +199,13 @@ open class NavigationBar: UIView {
         mainStackView.addArrangedSubview(leadingStackWrapperView)
         mainStackView.addArrangedSubview(centerView)
         mainStackView.addArrangedSubview(trailingStackWrapperView)
-        leadingStackView.addArrangedSubview(leadingCardView)
+        leadingStackView.addArrangedSubview(leadingCardGlassEffectView)
+        if let leadingCardGlassEffectView = (leadingCardGlassEffectView as? UIVisualEffectView) {
+            leadingCardGlassEffectView.contentView.addSubview(leadingCardView)
+        } else {
+            leadingCardGlassEffectView.addSubview(leadingCardView)
+        }
+        
         centerView.addSubview(titleViews)
         centerView.addSubview(centerTitledImageView)
         trailingStackView.addArrangedSubview(primeTrailingImageWrapperView)
@@ -214,6 +221,8 @@ open class NavigationBar: UIView {
             .bottom(leadingStackWrapperView.bottomAnchor)
         )
         
+        leadingCardView.fillSuperview()
+        
         trailingStackView.anchor(
             .top(trailingStackWrapperView.topAnchor),
             .leadingGreaterThanEqual(trailingStackWrapperView.leadingAnchor),
@@ -222,13 +231,13 @@ open class NavigationBar: UIView {
         )
         
         mainStackViewConstraints = mainStackView.anchor(
-            .top(safeAreaLayoutGuide.topAnchor),
-            .leading(leadingAnchor, constant: 12),
-            .trailing(trailingAnchor, constant: 12),
-            .height(52),
-            .bottom(bottomAnchor)
+            .top(safeAreaLayoutGuide.topAnchor, constant: 4),
+            .leading(leadingAnchor, constant: 8),
+            .trailing(trailingAnchor, constant: 8),
+            .height(44),
+            .bottom(bottomAnchor, constant: 4)
         )
-
+        
         trailingStackWrapperView.setContentCompressionResistancePriority(.required, for: .horizontal)
         leadingStackWrapperView.setContentCompressionResistancePriority(.required, for: .horizontal)
         leadingStackWrapperView.anchor(.widthTo(trailingStackWrapperView.widthAnchor, 1, priority: .defaultLow))
@@ -248,10 +257,24 @@ open class NavigationBar: UIView {
 }
 
 private extension NavigationBar {
+    func makeLeadingCardGlassEffectView() -> UIView {
+        if #available(iOS 26.0, *) {
+            let glassEffect = UIGlassEffect(style: .regular)
+            glassEffect.isInteractive = true
+            let glassEffectView = UIVisualEffectView(effect: glassEffect)
+            glassEffectView.layer.cornerRadius = 22
+            glassEffectView.layer.cornerCurve = .continuous
+            glassEffectView.isHidden = true
+            return glassEffectView
+        } else {
+            return UIView()
+        }
+    }
+    
     func makeLeadingCardView(isHidden: Bool) -> CardView {
         let view = CardView()
         view.isHidden = isHidden
-        view.vStackView.layoutMargins = .zero
+        view.vStackView.layoutMargins = .init(top: 0, left: 10, bottom: 0, right: 10)
         view.hStackView.spacing = 8
         view.bottomSeparatorView.isHidden = true
         view.trailingImageWrapperView.isHidden = true
@@ -277,7 +300,7 @@ private extension NavigationBar {
     }
     
     func makeWrappedImageView() -> WrapperView<Button> {
-        return WrapperView(
+        let view = WrapperView(
             contentView: Button(),
             isHidden: true,
             contentViewConstraints: {
@@ -290,6 +313,10 @@ private extension NavigationBar {
                 )
             }
         )
+        if #available(iOS 26.0, *) {
+            view.contentView.configuration = .glass()
+        }
+        return view
     }
 }
 #endif
