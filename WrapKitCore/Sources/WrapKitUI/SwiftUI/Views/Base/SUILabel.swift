@@ -40,7 +40,7 @@ public struct SUILabelView: View, Animatable {
             if !attributes.isEmpty {
                 buildSwiftUIViewFromAttributes(from: attributes)
             }
-        case .animated(let id, let from, let to, let mapToString, let animationStyle, let duration, let completion):
+        case .animated(let from, let to, let mapToString, let animationStyle, let duration, let completion):
             ZStack {
                 if case let .circle(color) = animationStyle {
                     SUICircularProgressView(color: color, from: 1, to: 0, duration: duration, completion: completion)

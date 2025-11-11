@@ -10,33 +10,22 @@ import SwiftUI
 
 @MainActor
 final class SUIDisplayLinkManager: ObservableObject {
-    private var displayLink: CADisplayLink?
-    private var startTime: TimeInterval = .zero
-    private var animationDuration: TimeInterval = .zero
+    private let manager = DisplayLinkManager()
 
     @Published var progress: Double = .zero
 
     func startAnimation(duration: TimeInterval = 0) {
-        self.animationDuration = duration
-        displayLink = CADisplayLink(target: self, selector: #selector(updateAnimation))
-        displayLink?.add(to: .main, forMode: .common)
-        startTime = CACurrentMediaTime()
-    }
-
-    @objc private func updateAnimation(displayLink: CADisplayLink) {
-        let elapsedTime = CACurrentMediaTime() - startTime
-        if elapsedTime < animationDuration {
-            progress = min(1.0, elapsedTime / animationDuration)
-        } else {
-            progress = 1.0
-            stopAnimation()
+        manager.startAnimation(duration: duration) { [weak self] progress in
+            self?.progress = progress
         }
     }
 
     func stopAnimation() {
-        displayLink?.invalidate()
-        displayLink = nil
-        startTime = .zero
+        manager.stopAnimation()
+    }
+    
+    deinit {
+        manager.stopAnimation()
     }
 }
 
@@ -55,6 +44,7 @@ final class DisplayLinkManager {
     func startAnimation(duration: TimeInterval = 0, onUpdateProgress: ((Double) -> Void)? = nil) {
         self.animationDuration = duration
         self.onUpdateProgress = onUpdateProgress
+        displayLink?.invalidate()
         displayLink = CADisplayLink(target: self, selector: #selector(updateAnimation))
         displayLink?.add(to: .main, forMode: .common)
         startTime = CACurrentMediaTime()
@@ -74,6 +64,12 @@ final class DisplayLinkManager {
         displayLink?.invalidate()
         displayLink = nil
         startTime = .zero
+        animationDuration = .zero
+    }
+    
+    deinit {
+        displayLink?.invalidate()
+        displayLink = nil
     }
 }
 

@@ -17,6 +17,7 @@ struct SUICircularProgressView: View {
     private let animationEnd: CGFloat
     private let animationDuration: TimeInterval
     private let completion: (() -> Void)?
+    private let clockwise: Bool
     
     init(
         color: Color,
@@ -24,6 +25,7 @@ struct SUICircularProgressView: View {
         from: CGFloat,
         to: CGFloat,
         duration: TimeInterval,
+        clockwise: Bool = true,
         completion: (() -> Void)?
     ) {
         self.color = color
@@ -32,6 +34,7 @@ struct SUICircularProgressView: View {
         self.animationEnd = to
         self.animationProgress = from
         self.animationDuration = duration
+        self.clockwise = clockwise
         self.completion = completion
     }
     
@@ -43,6 +46,9 @@ struct SUICircularProgressView: View {
             .stroke(style: StrokeStyle(lineWidth: lineWidth, lineCap: .round, lineJoin: .round))
             .foregroundColor(SwiftUIColor(color))
             .rotationEffect(startAngle)
+            .if(clockwise) {// Flip horizontally for counter-clockwise
+                $0.rotation3DEffect(.degrees(180), axis: (x: 1, y: 0, z: 0))
+            }
             .padding(lineWidth/2)
             .onAppear {
                 withAnimationCompletion(.linear(duration: animationDuration), duration: animationDuration) {

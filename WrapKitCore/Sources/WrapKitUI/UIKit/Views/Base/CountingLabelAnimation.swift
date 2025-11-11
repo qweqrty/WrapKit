@@ -19,8 +19,6 @@ final class CountingLabelAnimation {
         self.label = label
     }
     
-    public var floatLimit: Double? = nil
-    
     private var startNumber: Double = 0.0
     private var endNumber: Double = 0.0
     private var mapToString: ((Double) -> TextOutputPresentableModel)?
@@ -30,7 +28,7 @@ final class CountingLabelAnimation {
     private var lastUpdate: TimeInterval!
     private var completion: (() -> Void)? // Added for completion closure
     
-    private var timer: DisplayLinkManager?
+    private var timer: DisplayLinkManager = .init()
     
     public var animatedTextMaxWidth: CGFloat?
     
@@ -39,7 +37,6 @@ final class CountingLabelAnimation {
     }
     
     public func startAnimation(
-        id: String? = nil,
         fromValue: Double,
         to toValue: Double,
         mapToString: ((Double) -> TextOutputPresentableModel)?,
@@ -69,15 +66,19 @@ final class CountingLabelAnimation {
                 progressView.animateProgress(from: 1.0, to: 0.0, duration: duration, completion: nil)
             }
         }
-        if let label {
+        if let label, let mapToString {
+            let integerDigits = String(Int(max(fromValue, toValue))).count
+            let widestString = String(repeating: "8", count: integerDigits) + ".88"
+            let widestNumber = Double(widestString) ?? .zero
+                
             animatedTextMaxWidth = max(
-                mapToString?(fromValue).width(usingFont: label.font) ?? 0,
-                mapToString?(toValue).width(usingFont: label.font) ?? 0
+                mapToString(fromValue).width(usingFont: label.font),
+                mapToString(toValue).width(usingFont: label.font),
+                mapToString(widestNumber).width(usingFont: label.font)
             )
         }
         
-        timer?.stopAnimation()
-        timer?.startAnimation(duration: duration) { [unowned self] progress in
+        timer.startAnimation(duration: duration) { [unowned self] progress in
             let currentValue = self.startNumber + (progress * (self.endNumber - self.startNumber))
             let view = mapToString?(currentValue) ?? .text("")
             self.label?.display(model: view)
@@ -85,19 +86,16 @@ final class CountingLabelAnimation {
     }
     
     func invalidate() {
-        timer?.stopAnimation()
-        timer = nil
+        timer.stopAnimation()
         progressView?.removeFromSuperview()
     }
 
     func resetAnimatedTextMaxWidth() {
-        guard timer == nil else { return }
         animatedTextMaxWidth = nil
     }
     
     func cancel() {
-        timer?.stopAnimation()
-        timer = nil
+        timer.stopAnimation()
         progressView?.removeFromSuperview()
         progressView = nil
         completion = nil
