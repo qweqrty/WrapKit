@@ -20,7 +20,7 @@ public protocol MediaPickerFlow {
 #if canImport(UIKit)
 import UIKit
 
-public class MediaPickerFlowiOS<View>: MediaPickerFlow {
+public final class MediaPickerFlowiOS: MediaPickerFlow {
     
     public weak var navigationController: UINavigationController?
     public let factory: any MediaPickerFactory<UIViewController, UIView>
