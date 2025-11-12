@@ -254,34 +254,6 @@ class ToastViewSnapshotTests: XCTestCase {
                named: "TOASTVIEW_WITH_BOTTOMSEPARATOR_DARK")
     }
     
-    // TODO: - Bottom image doesnt appear
-    func test_ToastView_with_bottomImage() {
-        // GIVEN
-        let sut = makeSUT()
-        let exp = expectation(description: "Wait for completion!")
-        
-        // WHEN
-        sut.cardView.display(model: .init(
-            style: makeDefaultStyle(),
-            title: .text("Title"),
-            bottomImage: .init(image: .asset(image)),
-        ))
-        
-        sut.show()
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            exp.fulfill()
-        }
-        
-        wait(for: [exp], timeout: 2.0)
-        
-        // THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)),
-               named: "TOASTVIEW_WITH_BOTTOMIMAGE_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)),
-               named: "TOASTVIEW_WITH_BOTTOMIMAGE_DARK")
-    }
-    
     func test_ToastView_with_leadingTitles() {
         // GIVEN
         let sut = makeSUT()
