@@ -8,6 +8,7 @@
 import WrapKit
 import XCTest
 import WrapKitTestUtils
+import SnapshotTesting
 
 class LabelSnapshotTests: XCTestCase {
     func test_labelOutput_default_state() {

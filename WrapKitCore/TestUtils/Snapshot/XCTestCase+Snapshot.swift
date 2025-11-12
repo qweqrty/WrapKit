@@ -9,17 +9,29 @@ public extension XCTestCase {
         let snapshotData = makeSnapshotData(for: snapshot, file: file, line: line)
         
         guard let storedSnapshotData = try? Data(contentsOf: snapshotURL) else {
-            XCTFail("Failed to load stored snapshot at URL: \(snapshotURL). Use the record method to store a snapshot before asserting.", file: file, line: line)
+            XCTFail("Failed to load stored snapshot at URL: \(snapshotURL). Use the `record` method to store a snapshot before asserting.", file: file, line: line)
             return
         }
         
-        if snapshotData != storedSnapshotData {
+        if snapshotData == storedSnapshotData {
+            return
+        }
+        guard let storedSnapshot = UIImage(data: storedSnapshotData),
+              let similarity = snapshot.compareWith(image: storedSnapshot)
+        else {
+            XCTFail("Failed to load images or calculate MSE.", file: file, line: line)
+            return
+        }
+        
+        switch similarity {
+        case 99.97...100:
+            return
+        default:
             let temporarySnapshotURL = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
                 .appendingPathComponent(snapshotURL.lastPathComponent)
             
             try? snapshotData?.write(to: temporarySnapshotURL)
-            
-            XCTFail("New snapshot does not match stored snapshot. New snapshot URL: \(temporarySnapshotURL), Stored snapshot URL: \(snapshotURL)", file: file, line: line)
+            XCTFail("Images are different.: \(100-similarity) %, New snapshot URL: \(temporarySnapshotURL), Stored snapshot URL: \(snapshotURL)", file: file, line: line)
         }
     }
     
@@ -71,19 +83,22 @@ extension UIImage {
         
         let colorSpace = CGColorSpaceCreateDeviceRGB()
         let rawData = UnsafeMutablePointer<UInt8>.allocate(capacity: height * bytesPerRow)
-        let context = CGContext(data: rawData,
-                                width: width,
-                                height: height,
-                                bitsPerComponent: bitsPerComponent,
-                                bytesPerRow: bytesPerRow,
-                                space: colorSpace,
-                                bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)
+        let context = CGContext(
+            data: rawData,
+            width: width,
+            height: height,
+            bitsPerComponent: bitsPerComponent,
+            bytesPerRow: bytesPerRow,
+            space: colorSpace,
+            bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+        )
         
         context?.draw(cgImage, in: CGRect(x: 0, y: 0, width: width, height: height))
         
         return Array(UnsafeBufferPointer(start: rawData, count: height * bytesPerRow))
     }
     
+    // TODO: try to use more advanced https://github.com/pointfreeco/swift-snapshot-testing/pull/664/files
     // Function to calculate similarity percentage based on Mean Squared Error
     func compareWith(image: UIImage) -> Double? {
         guard let pixelData1 = self.pixelData(),
@@ -93,7 +108,7 @@ extension UIImage {
         var mse: Double = 0.0
         let pixelCount = pixelData1.count / 4
         
-        for i in 0..<pixelData1.count {
+        fastForEach(in: 0..<pixelData1.count) { i in
             let difference = Double(pixelData1[i]) - Double(pixelData2[i])
             mse += difference * difference
         }
@@ -105,6 +120,17 @@ extension UIImage {
         
         return similarity
     }
+    
+    /// When the compiler doesn't have optimizations enabled, like in test targets, a `while` loop is significantly faster than a `for` loop
+    /// for iterating through the elements of a memory buffer. Details can be found in [SR-6983](https://github.com/apple/swift/issues/49531)
+    func fastForEach(in range: Range<Int>, _ body: (Int) -> Void) {
+        var index = range.lowerBound
+        while index < range.upperBound {
+            body(index)
+            index += 1
+        }
+    }
 }
+
 #endif
 #endif
