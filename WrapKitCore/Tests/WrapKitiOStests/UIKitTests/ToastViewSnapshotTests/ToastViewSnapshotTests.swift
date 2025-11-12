@@ -9,7 +9,7 @@ import WrapKit
 import WrapKitTestUtils
 import XCTest
 
-class ToastViewSnapshotTests: XCTestCase {
+final class ToastViewSnapshotTests: XCTestCase {
     
     private let image = UIImage(systemName: "star.fill")
     
