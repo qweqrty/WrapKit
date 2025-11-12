@@ -28,9 +28,12 @@ public struct SplashContentView: View {
         ) {
             ScrollView(.vertical) {
                 SUILabel(adapter: adapter)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .frame(maxHeight: .infinity, alignment: .center)
                     .background(Color.blue.opacity(0.2))
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .frame(maxHeight: .infinity, alignment: .center)
             .background(
                 Color.red.ignoresSafeArea().opacity(0.2)
             )

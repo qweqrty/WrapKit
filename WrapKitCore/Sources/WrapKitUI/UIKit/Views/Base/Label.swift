@@ -40,7 +40,8 @@ public indirect enum TextOutputPresentableModel: HashableWithReflection {
     case textStyled(
         text: TextOutputPresentableModel,
         cornerStyle: CornerStyle?,
-        insets: EdgeInsets
+        insets: EdgeInsets,
+        backgroundColor: Color? = nil
     )
 }
 
@@ -60,10 +61,11 @@ extension Label: TextOutput {
             display(attributes: attributes)
         case .animated(let startAmount, let endAmount, let mapToString, let animationStyle, let duration, let completion):
             display(from: startAmount, to: endAmount, mapToString: mapToString, animationStyle: animationStyle, duration: duration, completion: completion)
-        case .textStyled(let model, let style, let insets):
+        case .textStyled(let model, let style, let insets, let backgroundColor):
             display(model: model)
             self.cornerStyle = style
             self.textInsets = insets.asUIEdgeInsets
+            self.backgroundColor = backgroundColor
         }
     }
     
@@ -173,7 +175,7 @@ open class Label: UILabel {
         guard let cornerStyle = cornerStyle else { return }
         switch cornerStyle {
         case .automatic:
-            layer.cornerRadius = bounds.height / 2
+            layer.cornerRadius = min(bounds.height, bounds.width) / 2
         case .fixed(let radius):
             layer.cornerRadius = radius
         case .none:

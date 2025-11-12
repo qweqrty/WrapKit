@@ -43,29 +43,39 @@ public extension NSAttributedString {
         let attributedString = NSMutableAttributedString(string: "", attributes: attributes)
         
         if let image = leadingImage {
-            let attachment = NSTextAttachment()
-            attachment.image = image
-            attachment.bounds = leadingImageBounds == .zero ? CGRect(x: 0, y: 0, width: image.size.width, height: image.size.height) : leadingImageBounds
-
-            let attachmentString = NSAttributedString(attachment: attachment)
-            attributedString.append(attachmentString)
-            attributedString.append(NSAttributedString(string: " "))
+            let attachment = NSAttributedString.createAttachment(image: image, bounds: leadingImageBounds)
+            attributedString.append(attachment)
         }
 
         let mainString = NSMutableAttributedString(string: text, attributes: attributes)
         attributedString.append(mainString)
         
         if let image = trailingImage {
-            let attachment = NSTextAttachment()
-            attachment.image = image
-            attachment.bounds = trailingImageBounds == .zero ? CGRect(x: 0, y: 0, width: image.size.width, height: image.size.height) : trailingImageBounds
-
-            let attachmentString = NSAttributedString(attachment: attachment)
-            attributedString.append(NSAttributedString(string: " "))
-            attributedString.append(attachmentString)
+            let attachment = NSAttributedString.createAttachment(image: image, bounds: trailingImageBounds)
+            attributedString.append(attachment)
         }
 
         self.init(attributedString: attributedString)
+    }
+    
+    static func createAttachment(image: Image, bounds: CGRect) -> NSAttributedString {
+        let attributedString = NSMutableAttributedString()
+        let attachment = NSTextAttachment()
+        attachment.image = image
+        attachment.bounds = bounds == .zero ? CGRect(x: 0, y: 0, width: image.size.width, height: image.size.height) : bounds
+        let horizontalPaddingAttachment = NSTextAttachment() // needed to work from iOS 15 changes
+        horizontalPaddingAttachment.bounds = CGRect(x: 0, y: 0, width: bounds.origin.x, height: 0)
+
+        if bounds.origin.x < .zero {
+            attributedString.append(NSAttributedString(attachment: horizontalPaddingAttachment))
+        }
+        let attachmentString = NSAttributedString(attachment: attachment)
+        attributedString.append(attachmentString)
+        if bounds.origin.x > .zero {
+            attributedString.append(NSAttributedString(attachment: horizontalPaddingAttachment))
+        }
+        attributedString.append(NSAttributedString(string: " "))
+        return attributedString
     }
     
     static func combined(_ attributedStrings: NSAttributedString...) -> NSAttributedString {

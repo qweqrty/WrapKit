@@ -50,23 +50,15 @@ public struct SUILabelView: View, Animatable {
                 SUILabelView(
                     model: mapToString?(from + (displayLinkManager.progress * (to - from))) ?? .text("")
                 )
-//                .modify {
-//                    if #available(iOS 16.0, *) {
-//                        $0.monospacedDigit()
-//                    }
-//                }
                 .onAppear {
                     displayLinkManager.stopAnimation()
                     displayLinkManager.startAnimation(duration: duration)
                 }
-                
-//                SUILabelView(model: data).backgroundView {
-//                }
             }
-        case .textStyled(let text, let cornerStyle, let insets):
+        case .textStyled(let text, let cornerStyle, let insets, let backgroundColor):
             SUILabelView(model: text)
                 .if(!insets.isZero) { $0.padding(insets.asSUIEdgeInsets) }
-//                .background(SwiftUIColor.green)
+                .ifLet(backgroundColor) { $0.background(SwiftUIColor($1)) }
                 .ifLet(cornerStyle) { $0.cornerStyle($1) }
         }
     }
@@ -171,15 +163,96 @@ extension NSTextAlignment {
 #Preview {
     @Previewable @State var animationProgress: Double = 0.1
     
-    VStack {
-        SUILabelView(
-            model: .animated(
-                1.2, 225,
-                mapToString: { .text($0.asString()) },
-                animationStyle: .circle(lineColor: .red),
-                duration: 5,
-                completion: { print("completed") }
+    ScrollView(.vertical) {
+        VStack(alignment: .leading) {
+            SUILabelView(
+                model: .text("Hello, World!")
             )
-        ).frame(height: 100)
+            
+            SUILabelView(
+                model: .animated(
+                    1.2, 225,
+                    mapToString: { .text($0.asString()) },
+                    animationStyle: .circle(lineColor: .red),
+                    duration: 5,
+                    completion: { print("completed") }
+                )
+            )
+            .frame(height: 100)
+            
+            SUILabelView(
+                model: .textStyled(
+                    text: .text("some text"), cornerStyle: .automatic,
+                    insets: .init(all: 8)
+                )
+            )
+            
+            SUILabelView(
+                model: .textStyled(
+                    text: .attributes([.init(text: "cornerStyle: .automatic", color: .gray)]),
+                    cornerStyle: .automatic,
+                    insets: .init(all: 8),
+                    backgroundColor: .blue
+                )
+            )
+            
+            SUILabelView(model: .attributes(
+                [
+                    .init(text: "first line"),
+                    .init(
+                        text: "green bold 20 (.byWord) \n\n",
+                        color: .green,
+                        font: .boldSystemFont(ofSize: 20),
+                        underlineStyle: .byWord
+                    ),
+                    .init(
+                        text: "yellow bold 25 (.double) \n\n",
+                        color: .yellow,
+                        font: .boldSystemFont(ofSize: 25),
+                        underlineStyle: .double
+                    ),
+                    .init(
+                        text: "blue italic 15 (.patternDash) \n\n",
+                        color: .blue,
+                        font: FontFactory.italic(size: 15),
+                        underlineStyle: .patternDash
+                    ),
+                    .init(
+                        text: "cyan default 25 (.patternDashDot) asdf xcvxcv asdfsdf \n\n",
+                        color: .cyan,
+                        font: .systemFont(ofSize: 25),
+                        underlineStyle: .patternDashDot
+                    ),
+                    .init(
+                        text: "brown 30-500 (.patternDashDotDot) zxcvz gtfrgh vbnbvgn \n\n",
+                        color: .brown,
+                        font: .systemFont(ofSize: 30, weight: Font.Weight(rawValue: 500)),
+                        underlineStyle: .patternDashDotDot,
+                        onTap: { print("didTap: brown patternDashDotDot ") }
+                    ),
+                    .init(
+                        text: "darkGray 16-200 (.patternDot) \n\n",
+                        color: .darkGray,
+                        font: .systemFont(ofSize: 16, weight: Font.Weight(rawValue: 200)),
+                        underlineStyle: .patternDot,
+                        onTap: { print("didTap: patternDot ") }
+                    ),
+                    .init(
+                        text: "The quick brown fox ",
+                        color: .black,
+                        font: .boldSystemFont(ofSize: 25),
+                        underlineStyle: .single,
+                        textAlignment: .left,
+                        leadingImage: ImageFactory.systemImage(named: "mail"),
+                        leadingImageBounds: .init(x: 30, y: 40, width: 45, height: 56),
+                        trailingImage: ImageFactory.systemImage(named: "arrow.right"),
+                        trailingImageBounds: .init(x: -30, y: -40, width: 15, height: 15),
+                        onTap: { print("didTap: The quick brown fox ") }
+                    )
+                ]
+            ))
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .frame(maxHeight: .infinity, alignment: .center)
     }
 }
