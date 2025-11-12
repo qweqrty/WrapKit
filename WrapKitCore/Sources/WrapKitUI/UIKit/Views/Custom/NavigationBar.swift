@@ -235,7 +235,7 @@ open class NavigationBar: UIView {
             .leading(leadingAnchor, constant: 8),
             .trailing(trailingAnchor, constant: 8),
             .height(44),
-            .bottom(bottomAnchor, constant: 4)
+            .bottom(bottomAnchor, constant: 8)
         )
         
         trailingStackWrapperView.setContentCompressionResistancePriority(.required, for: .horizontal)
