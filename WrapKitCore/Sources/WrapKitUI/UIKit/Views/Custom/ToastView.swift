@@ -228,7 +228,14 @@ open class ToastView: UIView {
     }
 
     public func show() {
-        guard let window = UIApplication.shared.windows.first else { return }
+        let window: UIWindow
+        if let appWindow = UIApplication.shared.windows.first {
+            window = appWindow
+        } else {
+            let tempWindow = UIWindow(frame: UIScreen.main.bounds)
+            tempWindow.makeKeyAndVisible()
+            window = tempWindow
+        }
         window.addSubview(self)
         translatesAutoresizingMaskIntoConstraints = false
         switch position {
