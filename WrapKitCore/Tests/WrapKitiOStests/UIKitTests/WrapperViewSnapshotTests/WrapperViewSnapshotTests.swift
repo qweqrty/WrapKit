@@ -208,7 +208,7 @@ extension WrapperViewSnapshotTests {
             .top(container.topAnchor, constant: 0, priority: .required),
             .leading(container.leadingAnchor, constant: 0, priority: .required),
             .trailing(container.trailingAnchor, constant: 0, priority: .required),
-            .height(10, priority: .required)
+            .height(200, priority: .required)
         )
         
         container.layoutIfNeeded()
