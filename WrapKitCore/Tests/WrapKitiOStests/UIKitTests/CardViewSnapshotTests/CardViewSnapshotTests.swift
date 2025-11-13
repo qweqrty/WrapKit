@@ -16,45 +16,45 @@ final class CardViewSnapshotTests: XCTestCase {
     
     func test_CardView_default_state() {
         // GIVEN
-        let sut = makeSUT()
+        let (sut, container) = makeSUT()
         
         // WHEN
         sut.display(style: makeDefaultStyle())
         
         // THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "CARDVIEW_DEFAULT_STATE_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "CARDVIEW_DEFAULT_STATE_DARK")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "CARDVIEW_DEFAULT_STATE_LIGHT")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "CARDVIEW_DEFAULT_STATE_DARK")
     }
     
     func test_CardView_with_backgroundImage() {
         // GIVEN
-        let sut = makeSUT()
+        let (sut, container) = makeSUT()
         
         // WHEN
         sut.display(style: makeDefaultStyle())
         sut.display(backgroundImage: .init(image: .asset(image)))
         
         // THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "CARDVIEW_WITH_BACKGROUNDIMAGE_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "CARDVIEW_WITH_BACKGROUNDIMAGE_DARK")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "CARDVIEW_WITH_BACKGROUNDIMAGE_LIGHT")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "CARDVIEW_WITH_BACKGROUNDIMAGE_DARK")
     }
     
     func test_CardView_with_backgroundImage_contentModeIsFit_false() {
         // GIVEN
-        let sut = makeSUT()
+        let (sut, container) = makeSUT()
         
         // WHEN
         sut.display(style: makeDefaultStyle())
         sut.display(backgroundImage: .init(image: .asset(image), contentModeIsFit: false))
         
         // THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "CARDVIEW_WITH_BACKGROUNDIMAGE_CONTENTMODE_ISFIT_FALSELIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "CARDVIEW_WITH_BACKGROUNDIMAGE_CONTENTMODEISFIT_FALSE_DARK")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "CARDVIEW_WITH_BACKGROUNDIMAGE_CONTENTMODE_ISFIT_FALSELIGHT")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "CARDVIEW_WITH_BACKGROUNDIMAGE_CONTENTMODEISFIT_FALSE_DARK")
     }
     
     func test_CardView_with_backgroundImage_borederWidth_and_color() {
         // GIVEN
-        let sut = makeSUT()
+        let (sut, container) = makeSUT()
         
         // WHEN
         sut.display(backgroundImage: .init(size: .init(width: 24, height: 24),
@@ -63,13 +63,13 @@ final class CardViewSnapshotTests: XCTestCase {
                                            borderColor: .black))
         
         // THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "CARDVIEW_WITH_BACKGROUNDIMAGE_BORDERWIDTH_AND_COLOR_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "CARDVIEW_WITH_BACKGROUNDIMAGE_BORDERWIDTH_AND_COLOR_DARK")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "CARDVIEW_WITH_BACKGROUNDIMAGE_BORDERWIDTH_AND_COLOR_LIGHT")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "CARDVIEW_WITH_BACKGROUNDIMAGE_BORDERWIDTH_AND_COLOR_DARK")
     }
     
     func test_CardView_with_backgroundImage_cornderRadius() {
         // GIVEN
-        let sut = makeSUT()
+        let (sut, container) = makeSUT()
         
         // WHEN
         let image = Image(systemName: "star.fill")
@@ -81,13 +81,13 @@ final class CardViewSnapshotTests: XCTestCase {
                                           ))
         
         // THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "CARDVIEW_WITH_BACKGROUNDIMAGE_CORNERRADIUS_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "CARDVIEW_WITH_BACKGROUNDIMAGE_CORNERRADIUS_DARK")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "CARDVIEW_WITH_BACKGROUNDIMAGE_CORNERRADIUS_LIGHT")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "CARDVIEW_WITH_BACKGROUNDIMAGE_CORNERRADIUS_DARK")
     }
     
     func test_CardView_with_backgroundImage_alpha() {
         // GIVEN
-        let sut = makeSUT()
+        let (sut, container) = makeSUT()
         
         // WHEN
         sut.display(backgroundImage: .init(size: .init(width: 24, height: 24),
@@ -99,13 +99,13 @@ final class CardViewSnapshotTests: XCTestCase {
                                           ))
         
         // THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "CARDVIEW_WITH_BACKGROUNDIMAGE_ALPHA_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "CARDVIEW_WITH_BACKGROUNDIMAGE_ALPHA_DARK")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "CARDVIEW_WITH_BACKGROUNDIMAGE_ALPHA_LIGHT")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "CARDVIEW_WITH_BACKGROUNDIMAGE_ALPHA_DARK")
     }
     
     func test_CardView_with_leadingTitles() {
         // GIVEN
-        let sut = makeSUT()
+        let (sut, container) = makeSUT()
         
         // WHEN
         sut.display(style: makeDefaultStyle())
@@ -114,65 +114,65 @@ final class CardViewSnapshotTests: XCTestCase {
         )
         
         // THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "CARDVIEW_WITH_LEADINGTITLES_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "CARDVIEW_WITH_LEAIDNGTITLES_DARK")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "CARDVIEW_WITH_LEADINGTITLES_LIGHT")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "CARDVIEW_WITH_LEAIDNGTITLES_DARK")
     }
     
     func test_CardView_with_trailingTitles() {
         // GIVEN
-        let sut = makeSUT()
+        let (sut, container) = makeSUT()
         
         // WHEN
         sut.display(style: makeDefaultStyle())
         sut.display(trailingTitles: .init(.text("First"), .text("Second")))
         
         // THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "CARDVIEW_WITH_TRAILINGTITLES_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "CARDVIEW_WITH_TRAILINGTITLES_DARK")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "CARDVIEW_WITH_TRAILINGTITLES_LIGHT")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "CARDVIEW_WITH_TRAILINGTITLES_DARK")
     }
     
     func test_CardView_with_leadingImage() {
         // GIVEN
-        let sut = makeSUT()
+        let (sut, container) = makeSUT()
         
         // WHEN
         sut.display(style: makeDefaultStyle())
         sut.display(leadingImage: .init(image: .asset(image)))
         
         // THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "CARDVIEW_WITH_LEADINGIMAGE_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "CARDVIEW_WITH_LEADINGIMAGE_DARK")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "CARDVIEW_WITH_LEADINGIMAGE_LIGHT")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "CARDVIEW_WITH_LEADINGIMAGE_DARK")
     }
     
     func test_CardView_with_trailingImage() {
         // GIVEN
-        let sut = makeSUT()
+        let (sut, container) = makeSUT()
         
         // WHEN
         sut.display(style: makeDefaultStyle())
         sut.display(trailingImage: .init(image: .asset(image)))
         
         // THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "CARDVIEW_WITH_TRAILINGIMAGE_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "CARDVIEW_WITH_TRAILINGIMAGE_DARK")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "CARDVIEW_WITH_TRAILINGIMAGE_LIGHT")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "CARDVIEW_WITH_TRAILINGIMAGE_DARK")
     }
     
     func test_CardView_with_secondaryTrailingImage() {
         // GIVEN
-        let sut = makeSUT()
+        let (sut, container) = makeSUT()
         
         // WHEN
         sut.display(style: makeDefaultStyle())
         sut.display(secondaryTrailingImage: .init(image: .asset(secondImage)))
         
         // THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "CARDVIEW_WITH_SECONDARYTRAILINGIMAGE_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "CARDVIEW_WITH_SECONDARYTRAILINGIMAGE_DARK")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "CARDVIEW_WITH_SECONDARYTRAILINGIMAGE_LIGHT")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "CARDVIEW_WITH_SECONDARYTRAILINGIMAGE_DARK")
     }
     
     func test_CardView_with_subTitle() {
         // GIVEN
-        let sut = makeSUT()
+        let (sut, container) = makeSUT()
         
         // WHEN
         sut.display(style: makeDefaultStyle())
@@ -180,26 +180,26 @@ final class CardViewSnapshotTests: XCTestCase {
         sut.display(subTitle: .text("Subtitle"))
         
         // THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "CARDVIEW_WITH_SUBTITLE_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "CARDVIEW_WITH_SUBTITLE_DARK")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "CARDVIEW_WITH_SUBTITLE_LIGHT")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "CARDVIEW_WITH_SUBTITLE_DARK")
     }
     
     func test_CardView_with_valueTitle() {
         // GIVEN
-        let sut = makeSUT()
+        let (sut, container) = makeSUT()
         
         // WHEN
         sut.display(style: makeDefaultStyle())
         sut.display(valueTitle: .text("Value title"))
         
         // THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "CARDVIEW_WITH_VALUETITLE_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "CARDVIEW_WITH_VALUETITLE_DARK")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "CARDVIEW_WITH_VALUETITLE_LIGHT")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "CARDVIEW_WITH_VALUETITLE_DARK")
     }
     
     func test_CardView_with_title_value_subtitle() {
         // GIVEN
-        let sut = makeSUT()
+        let (sut, container) = makeSUT()
         
         // WHEN
         sut.display(style: makeDefaultStyle())
@@ -208,13 +208,13 @@ final class CardViewSnapshotTests: XCTestCase {
         sut.display(valueTitle: .text("Value title"))
         
         // THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "CARDVIEW_WITH_SUBVALUETITLES_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "CARDVIEW_WITH_SUBVALUETITLES_DARK")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "CARDVIEW_WITH_SUBVALUETITLES_LIGHT")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "CARDVIEW_WITH_SUBVALUETITLES_DARK")
     }
     
     func test_CardView_with_bottomSeparator() {
         // GIVEN
-        let sut = makeSUT()
+        let (sut, container) = makeSUT()
         
         // WHEN
         sut.display(style: .init(
@@ -245,13 +245,13 @@ final class CardViewSnapshotTests: XCTestCase {
         sut.display(bottomSeparator: .init(color: .lightGray, height: 4))
         
         // THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "CARDVIEW_WITH_BOTTOMSEPARATOR_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "CARDVIEW_WITH_BOTTOMSEPARATOR_DARK")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "CARDVIEW_WITH_BOTTOMSEPARATOR_LIGHT")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "CARDVIEW_WITH_BOTTOMSEPARATOR_DARK")
     }
     
     func test_CardView_with_switchControl() {
         // GIVEN
-        let sut = makeSUT()
+        let (sut, container) = makeSUT()
         
         // WHEN
         sut.display(style: makeDefaultStyle())
@@ -264,14 +264,14 @@ final class CardViewSnapshotTests: XCTestCase {
         ))
         
         // THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "CARDVIEW_WITH_SWITCHCONTROL_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "CARDVIEW_WITH_SWITCHCONTROL_DARK")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "CARDVIEW_WITH_SWITCHCONTROL_LIGHT")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "CARDVIEW_WITH_SWITCHCONTROL_DARK")
     }
     
     // TODO: - need to simulate real tap
     func test_CardView_onPress() {
         // GIVEN
-        let sut = makeSUT()
+        let (sut, container) = makeSUT()
         
         // WHEN
         sut.display(style: makeDefaultStyle())
@@ -284,14 +284,14 @@ final class CardViewSnapshotTests: XCTestCase {
         sut.onPress?()
         
         // THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "CARDVIEW_WITH_ONPRESS_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "CARDVIEW_WITH_ONPRESS_DARK")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "CARDVIEW_WITH_ONPRESS_LIGHT")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "CARDVIEW_WITH_ONPRESS_DARK")
     }
     
     // TODO: - need to simulate real tap
     func test_CardView_onLongPress() {
         // GIVEN
-        let sut = makeSUT()
+        let (sut, container) = makeSUT()
         
         // WHEN
         sut.display(style: makeDefaultStyle())
@@ -304,13 +304,13 @@ final class CardViewSnapshotTests: XCTestCase {
         sut.onLongPress?()
         
         // THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "CARDVIEW_WITH_ONLONGPRESS_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "CARDVIEW_WITH_ONLONGPRESS_DARK")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "CARDVIEW_WITH_ONLONGPRESS_LIGHT")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "CARDVIEW_WITH_ONLONGPRESS_DARK")
     }
     
     func test_CardView_isHidden() {
         // GIVEN
-        let sut = makeSUT()
+        let (sut, container) = makeSUT()
         
         // WHEN
         sut.display(style: makeDefaultStyle())
@@ -318,8 +318,8 @@ final class CardViewSnapshotTests: XCTestCase {
         sut.display(isHidden: true)
         
         // THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "CARDVIEW_ISHIDDEN_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "CARDVIEW_ISHIDDEN_DARK")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "CARDVIEW_ISHIDDEN_LIGHT")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "CARDVIEW_ISHIDDEN_DARK")
     }
 }
 
@@ -327,12 +327,20 @@ extension CardViewSnapshotTests {
     func makeSUT(
         file: StaticString = #file,
         line: UInt = #line
-    ) -> CardView {
+    ) -> (sut: CardView, container: UIView) {
         let sut = CardView()
+        let container = makeContainer()
+        
+        container.addSubview(sut)
+        sut.anchor(
+            .top(container.topAnchor, constant: 0, priority: .required),
+            .leading(container.leadingAnchor, constant: 0, priority: .required),
+            .trailing(container.trailingAnchor, constant: 0, priority: .required),
+            .height(200, priority: .required)
+        )
         
         checkForMemoryLeaks(sut, file: file, line: line)
-        sut.frame = .init(origin: .zero, size: SnapshotConfiguration.size)
-        return sut
+        return (sut, container)
     }
     
     func makeDefaultStyle() -> CardViewPresentableModel.Style {
@@ -359,5 +367,12 @@ extension CardViewSnapshotTests {
             borderColor: .green,
             borderWidth: 4
         )
+    }
+    
+    func makeContainer() -> UIView {
+        let container = UIView()
+        container.frame = CGRect(x: 0, y: 0, width: 390, height: 300)
+        container.backgroundColor = .clear
+        return container
     }
 }
