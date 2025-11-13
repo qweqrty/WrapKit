@@ -122,11 +122,10 @@ final class SearchBarSnapshotTests: XCTestCase {
                     placeholder: .init(color: .black, font: .systemFont(ofSize: 22))
                 ))
         
+        // WHEN
         let rightView = Button(style: .init(backgroundColor: .red, titleColor: .black), title: "Right view")
         
         let (sut, container) = makeSUT(textField: textField, rightView: rightView)
-        
-        // WHEN
         
         // THEN
         assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
@@ -155,12 +154,10 @@ final class SearchBarSnapshotTests: XCTestCase {
                     placeholder: .init(color: .black, font: .systemFont(ofSize: 22))
                 ))
         
+        // WHEN
         let rightView = Button(style: .init(backgroundColor: .red, titleColor: .black), title: "Right view")
         let leftView = Button(style: .init(backgroundColor: .red, titleColor: .black), title: "Left view")
-        
         let (sut, container) = makeSUT(leftView: leftView, textField: textField, rightView: rightView)
-        
-        // WHEN
         
         // THEN
         assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
