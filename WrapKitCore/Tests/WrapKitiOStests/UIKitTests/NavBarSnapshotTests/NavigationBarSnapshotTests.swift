@@ -13,7 +13,7 @@ class NavigationBarSnapshotTests: XCTestCase {
     
     func test_navigationBar_defaul_state() {
         // GIVEN
-        let sut = makeSUT()
+        let (sut, container) = makeSUT()
         
         // WHEN
         sut.display(style: .init(
@@ -26,13 +26,13 @@ class NavigationBarSnapshotTests: XCTestCase {
         )
         
         // THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "NAVBAR_DEFAULT_STATE_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "NAVBAR_DEFAULT_STATE_DARK")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "NAVBAR_DEFAULT_STATE_LIGHT")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "NAVBAR_DEFAULT_STATE_DARK")
     }
     
     func test_navigationBar_with_centerView_keyValue() {
         // GIVEN
-        let sut = makeSUT()
+        let (sut, container) = makeSUT()
         
         // WHEN
         sut.display(style: .init(
@@ -47,13 +47,13 @@ class NavigationBarSnapshotTests: XCTestCase {
         sut.display(centerView: .keyValue(.init(.text("First"), .text("Second"))))
         
         // THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "NAVBAR_WITH_CENTERVIEW_KEYVALUE_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "NAVBAR_WITH_CENTERVIEW_KEYVALUE_DARK")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "NAVBAR_WITH_CENTERVIEW_KEYVALUE_LIGHT")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "NAVBAR_WITH_CENTERVIEW_KEYVALUE_DARK")
     }
     
     func test_navigationBar_with_centerView_titleImage() {
         // GIVEN
-        let sut = makeSUT()
+        let (sut, container) = makeSUT()
         
         // WHEN
         sut.display(style: .init(
@@ -73,14 +73,14 @@ class NavigationBarSnapshotTests: XCTestCase {
                       .text("Title"))))
         
         // THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "NAVBAR_WITH_CENTERVIEW_TITLEDIMAGE_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "NAVBAR_WITH_CENTERVIEW_TITLEDIMAGE_DARK")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "NAVBAR_WITH_CENTERVIEW_TITLEDIMAGE_LIGHT")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "NAVBAR_WITH_CENTERVIEW_TITLEDIMAGE_DARK")
     }
     
     // TODO: - maybe wrong title apperance. need to ask
     func test_navigationBar_with_leadingCard_backgoundImage() {
         // GIVEN
-        let sut = makeSUT()
+        let (sut, container) = makeSUT()
         
         // WHEN
         sut.display(style: .init(
@@ -95,13 +95,13 @@ class NavigationBarSnapshotTests: XCTestCase {
         sut.display(leadingCard: .init(backgroundImage: .init(image: .asset(Image(systemName: "star.fill"))), title: .text("Title")))
         
         // THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "NAVBAR_WITH_LEADINGCARD_BACKGROUNDIMAGE_TITLE_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "NAVBAR_WITH_LEADINGCARD_BACKGROUNDIMAGE_TITLE_DARK")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "NAVBAR_WITH_LEADINGCARD_BACKGROUNDIMAGE_TITLE_LIGHT")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "NAVBAR_WITH_LEADINGCARD_BACKGROUNDIMAGE_TITLE_DARK")
     }
     
     func test_navigationBar_with_leadingCard_trailingTitles() {
         // GIVEN
-        let sut = makeSUT()
+        let (sut, container) = makeSUT()
         
         // WHEN
         sut.display(style: .init(
@@ -121,14 +121,14 @@ class NavigationBarSnapshotTests: XCTestCase {
                 trailingTitles: .init(.text("Title"), .text("Subtitle"))))
 
         // THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "NAVBAR_WITH_LEADINGCARD_TRAILINGTITLES_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "NAVBAR_WITH_LEADINGCARD_TRAILINGTITLES_DARK")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "NAVBAR_WITH_LEADINGCARD_TRAILINGTITLES_LIGHT")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "NAVBAR_WITH_LEADINGCARD_TRAILINGTITLES_DARK")
     }
     
     // MARK: - func display(secondaryTrailingImage:) tests
     func test_navigationBar_with_secondaryTrailingImage() {
         // GIVEN
-        let sut = makeSUT()
+        let (sut, container) = makeSUT()
         
         // WHEN
         sut.display(style: .init(
@@ -144,13 +144,13 @@ class NavigationBarSnapshotTests: XCTestCase {
         sut.display(secondaryTrailingImage: .some(.init(title: "Image", image: image, height: 24)))
         
         // THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "NAVBAR_WITH_SECONDARY_TRAILING_IMAGE_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "NAVBAR_WITH_SECONDARY_TRAILING_IMAGE_DARK")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "NAVBAR_WITH_SECONDARY_TRAILING_IMAGE_LIGHT")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "NAVBAR_WITH_SECONDARY_TRAILING_IMAGE_DARK")
     }
     
     func test_navigationBar_with_secondaryTrailingImage_onPress() {
         // GIVEN
-        let sut = makeSUT()
+        let (sut, container) = makeSUT()
         
         // WHEN
         sut.display(style: .init(
@@ -175,13 +175,13 @@ class NavigationBarSnapshotTests: XCTestCase {
         sut.secondaryTrailingImageWrapperView.contentView.onPress?()
         
         // THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "NAVBAR_WITH_SECONDARY_TRAILING_IMAGE_ONTAP_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "NAVBAR_WITH_SECONDARY_TRAILING_IMAGE_ONTAP_DARK")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "NAVBAR_WITH_SECONDARY_TRAILING_IMAGE_ONTAP_LIGHT")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "NAVBAR_WITH_SECONDARY_TRAILING_IMAGE_ONTAP_DARK")
     }
     
     func test_navigationBar_with_tertiaryTrailingImage() {
         // GIVEN
-        let sut = makeSUT()
+        let (sut, container) = makeSUT()
         
         // WHEN
         sut.display(style: .init(
@@ -203,13 +203,13 @@ class NavigationBarSnapshotTests: XCTestCase {
         sut.secondaryTrailingImageWrapperView.contentView.onPress?()
         
         // THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "NAVBAR_WITH_TERTIARY_TRAILINGIMAGE_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "NAVBAR_WITH_TERTIARY_TRAILINGIMAGE_DARK")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "NAVBAR_WITH_TERTIARY_TRAILINGIMAGE_LIGHT")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "NAVBAR_WITH_TERTIARY_TRAILINGIMAGE_DARK")
     }
     
     func test_navigationBar_with_tertiaryTrailingImage_onPress() {
         // GIVEN
-        let sut = makeSUT()
+        let (sut, container) = makeSUT()
         
         // WHEN
         sut.display(style: .init(
@@ -234,13 +234,13 @@ class NavigationBarSnapshotTests: XCTestCase {
         sut.tertiaryTrailingImageWrapperView.contentView.onPress?()
         
         // THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "NAVBAR_WITH_TERTIARY_TRAILINGIMAGE_ONPRESS_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "NAVBAR_WITH_TERTIARY_TRAILINGIMAGE_ONPRESS_DARK")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "NAVBAR_WITH_TERTIARY_TRAILINGIMAGE_ONPRESS_LIGHT")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "NAVBAR_WITH_TERTIARY_TRAILINGIMAGE_ONPRESS_DARK")
     }
     
     func test_navigationBar_with_tertiaryAndSecondary_trailingImages() {
         // GIVEN
-        let sut = makeSUT()
+        let (sut, container) = makeSUT()
         
         // WHEN
         sut.display(style: .init(
@@ -275,13 +275,13 @@ class NavigationBarSnapshotTests: XCTestCase {
         sut.secondaryTrailingImageWrapperView.contentView.onPress?()
         
         // THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "NAVBAR_WITH_TERTIARY_SECONDARY_TRAILINGIMAGE_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "NAVBAR_WITH_TERTIARY_SECONDARY_TRAILINGIMAGE_DARK")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "NAVBAR_WITH_TERTIARY_SECONDARY_TRAILINGIMAGE_LIGHT")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "NAVBAR_WITH_TERTIARY_SECONDARY_TRAILINGIMAGE_DARK")
     }
     
     func test_navigationBar_hidden_state() {
         // GIVEN
-        let sut = makeSUT()
+        let (sut, container) = makeSUT()
         
         // WHEN
         sut.display(style: .init(
@@ -296,13 +296,13 @@ class NavigationBarSnapshotTests: XCTestCase {
         sut.display(isHidden: true)
         
         // THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "NAVBAR_HIDDEN_STATE_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "NAVBAR_HIDDEN_STATE_DARK")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "NAVBAR_HIDDEN_STATE_LIGHT")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "NAVBAR_HIDDEN_STATE_DARK")
     }
     
     func test_navigationBar_with_leadingCard_leadingTrailingTitles() {
         // GIVEN
-        let sut = makeSUT()
+        let (sut, container) = makeSUT()
         
         // WHEN
         sut.display(style: .init(
@@ -323,13 +323,13 @@ class NavigationBarSnapshotTests: XCTestCase {
         )
         
         // THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "NAVBAR_WITH_LEADINGCARD_LEADING_TRAILING_TITLES_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "NAVBAR_WITH_LEADINGCARD_LEADING_TRAILING_TITLES__DARK")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "NAVBAR_WITH_LEADINGCARD_LEADING_TRAILING_TITLES_LIGHT")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "NAVBAR_WITH_LEADINGCARD_LEADING_TRAILING_TITLES__DARK")
     }
     
     func test_navigationBar_with_leadingCard_leadingTrailingImages() {
         // GIVEN
-        let sut = makeSUT()
+        let (sut, container) = makeSUT()
         
         // WHEN
         sut.display(style: .init(
@@ -352,13 +352,13 @@ class NavigationBarSnapshotTests: XCTestCase {
         )
         
         // THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "NAVBAR_WITH_LEADINGCARD_LEADING_TRAILING_IMAGES_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "NAVBAR_WITH_LEADINGCARD_LEADING_TRAILING_IMAGES__DARK")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "NAVBAR_WITH_LEADINGCARD_LEADING_TRAILING_IMAGES_LIGHT")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "NAVBAR_WITH_LEADINGCARD_LEADING_TRAILING_IMAGES__DARK")
     }
     
     func test_navigationBar_with_leadingCard_subtitle() {
         // GIVEN
-        let sut = makeSUT()
+        let (sut, container) = makeSUT()
         
         // WHEN
         sut.display(style: .init(
@@ -378,13 +378,13 @@ class NavigationBarSnapshotTests: XCTestCase {
         )
         
         // THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "NAVBAR_WITH_LEADINGCARD_SUBTITLE_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "NAVBAR_WITH_LEADINGCARD_SUBTITLE__DARK")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "NAVBAR_WITH_LEADINGCARD_SUBTITLE_LIGHT")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "NAVBAR_WITH_LEADINGCARD_SUBTITLE__DARK")
     }
     
     func test_navigationBar_with_leadingCard_valueTitle() {
         // GIVEN
-        let sut = makeSUT()
+        let (sut, container) = makeSUT()
         
         // WHEN
         sut.display(style: .init(
@@ -404,14 +404,14 @@ class NavigationBarSnapshotTests: XCTestCase {
         )
         
         // THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "NAVBAR_WITH_LEADINGCARD_VALUETITLE_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "NAVBAR_WITH_LEADINGCARD_VALUETITLE_DARK")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "NAVBAR_WITH_LEADINGCARD_VALUETITLE_LIGHT")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "NAVBAR_WITH_LEADINGCARD_VALUETITLE_DARK")
     }
     
     // TODO: - bottom image doesnt appear
     func test_navigationBar_with_leadingCard_bottomImage() {
         // GIVEN
-        let sut = makeSUT()
+        let (sut, container) = makeSUT()
         
         // WHEN
         sut.display(style: .init(
@@ -434,13 +434,13 @@ class NavigationBarSnapshotTests: XCTestCase {
         )
         
         // THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "NAVBAR_WITH_LEADINGCARD_BOTTOMIMAGE_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "NAVBAR_WITH_LEADINGCARD_BOTTOMIMAGE_DARK")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "NAVBAR_WITH_LEADINGCARD_BOTTOMIMAGE_LIGHT")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "NAVBAR_WITH_LEADINGCARD_BOTTOMIMAGE_DARK")
     }
     
     func test_navigationBar_with_leadingCard_bottomSeparator() {
         // GIVEN
-        let sut = makeSUT()
+        let (sut, container) = makeSUT()
         
         // WHEN
         sut.display(style: .init(
@@ -461,13 +461,13 @@ class NavigationBarSnapshotTests: XCTestCase {
         )
         
         // THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "NAVBAR_WITH_LEADINGCARD_BOTTOMSEPARATOR_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "NAVBAR_WITH_LEADINGCARD_BOTTOMSEPARATOR_DARK")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "NAVBAR_WITH_LEADINGCARD_BOTTOMSEPARATOR_LIGHT")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "NAVBAR_WITH_LEADINGCARD_BOTTOMSEPARATOR_DARK")
     }
     
     func test_navigationBar_with_leadingCard_switchControl() {
         // GIVEN
-        let sut = makeSUT()
+        let (sut, container) = makeSUT()
         
         // WHEN
         sut.display(style: .init(
@@ -495,13 +495,13 @@ class NavigationBarSnapshotTests: XCTestCase {
         )
         
         // THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "NAVBAR_WITH_LEADINGCARD_SWITCHCONTROL_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "NAVBAR_WITH_LEADINGCARD_SWITCHCONTROL_DARK")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "NAVBAR_WITH_LEADINGCARD_SWITCHCONTROL_LIGHT")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "NAVBAR_WITH_LEADINGCARD_SWITCHCONTROL_DARK")
     }
     
     func test_navigationBar_with_leadingCard_onPress() {
         // GIVEN
-        let sut = makeSUT()
+        let (sut, container) = makeSUT()
         
         // WHEN
         sut.display(style: .init(
@@ -526,13 +526,13 @@ class NavigationBarSnapshotTests: XCTestCase {
         sut.leadingCardView.onPress?()
         
         // THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "NAVBAR_WITH_LEADINGCARD_ONPRESS_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "NAVBAR_WITH_LEADINGCARD_ONPRESS_DARK")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "NAVBAR_WITH_LEADINGCARD_ONPRESS_LIGHT")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "NAVBAR_WITH_LEADINGCARD_ONPRESS_DARK")
     }
     
     func test_navigationBar_with_leadingCard_onLongPress() {
         // GIVEN
-        let sut = makeSUT()
+        let (sut, container) = makeSUT()
         
         // WHEN
         sut.display(style: .init(
@@ -554,24 +554,40 @@ class NavigationBarSnapshotTests: XCTestCase {
             )
         )
         
-        sut.leadingCardView.onPress?()
+        sut.leadingCardView.onLongPress?()
         
         // THEN
-        record(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "NAVBAR_WITH_LEADINGCARD_ONLONGPRESS_LIGHT")
-        record(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "NAVBAR_WITH_LEADINGCARD_ONLONGPRESS_DARK")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "NAVBAR_WITH_LEADINGCARD_ONLONGPRESS_LIGHT")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "NAVBAR_WITH_LEADINGCARD_ONLONGPRESS_DARK")
     }
     
 }
 
 extension NavigationBarSnapshotTests {
     func makeSUT(
-            file: StaticString = #file,
-            line: UInt = #line
-        ) -> NavigationBar {
-            let sut = NavigationBar()
-            
-            sut.frame = .init(origin: .zero, size: SnapshotConfiguration.size)
-            checkForMemoryLeaks(sut, file: file, line: line)
-            return sut
-        }
+        file: StaticString = #file,
+        line: UInt = #line
+    ) -> (sut: NavigationBar, container: UIView) {
+        let sut = NavigationBar()
+        let container = makeContainer()
+        
+        container.addSubview(sut)
+        sut.anchor(
+            .top(container.topAnchor, constant: 0, priority: .required),
+            .leading(container.leadingAnchor, constant: 0, priority: .required),
+            .trailing(container.trailingAnchor, constant: 0, priority: .required),
+        )
+        
+        container.layoutIfNeeded()
+        
+        checkForMemoryLeaks(sut, file: file, line: line)
+        return (sut, container)
+    }
+    
+    func makeContainer() -> UIView {
+        let container = UIView()
+        container.frame = CGRect(x: 0, y: 0, width: 390, height: 300)
+        container.backgroundColor = .clear
+        return container
+    }
 }
