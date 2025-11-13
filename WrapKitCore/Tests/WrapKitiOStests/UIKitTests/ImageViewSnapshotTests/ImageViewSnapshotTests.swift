@@ -26,7 +26,7 @@ final class ImageViewSnapshotTests: XCTestCase {
     
     func test_imageView_defaultState() {
         // GIVEN
-        let sut = makeSUT()
+        let (sut, container) = makeSUT()
         let exp = expectation(description: "Wait for completion")
         
 //        // WHEN
@@ -38,13 +38,13 @@ final class ImageViewSnapshotTests: XCTestCase {
         wait(for: [exp], timeout: 1.0)
         
         // THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "IMAGE_VIEW_DEFAULT_STATE_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "IMAGE_VIEW_DEFAULT_STATE_DARK")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "IMAGE_VIEW_DEFAULT_STATE_LIGHT")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "IMAGE_VIEW_DEFAULT_STATE_DARK")
     }
     
     func test_ImageView_from_urlString_light() {
         // GIVEN
-        let sut = makeSUT()
+        let (sut, container) = makeSUT()
         let exp = expectation(description: "Wait for completion")
         
         // WHEN
@@ -56,12 +56,12 @@ final class ImageViewSnapshotTests: XCTestCase {
         wait(for: [exp], timeout: 5.0)
         
         // THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "IMAGE_VIEW_URLSTRING_LIGHT")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "IMAGE_VIEW_URLSTRING_LIGHT")
     }
 
     func test_ImageView_from_urlString_dark() {
         // GIVEN
-        let sut = makeSUT()
+        let (sut, container) = makeSUT()
         let exp = expectation(description: "Wait for completion")
         
         // WHEN
@@ -73,24 +73,24 @@ final class ImageViewSnapshotTests: XCTestCase {
         wait(for: [exp], timeout: 5.0)
         
         // THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "IMAGE_VIEW_URLSTRING_DARK")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "IMAGE_VIEW_URLSTRING_DARK")
     }
     
     func test_ImageView_with_no_urlString() {
         // GIVEN
-        let sut = makeSUT()
+        let (sut, container) = makeSUT()
         sut.wrongUrlPlaceholderImage = UIImage(systemName: "xmark")!
         // WHEN
         sut.display(image: .urlString(nil, nil))
         
         // THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "IMAGE_VIEW_NO_URLSTRING_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "IMAGE_VIEW_NO_URLSTRING_DARK")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "IMAGE_VIEW_NO_URLSTRING_LIGHT")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "IMAGE_VIEW_NO_URLSTRING_DARK")
     }
     
     func test_ImageView_from_url_light() {
         // GIVEN
-        let sut = makeSUT()
+        let (sut, container) = makeSUT()
         let exp = expectation(description: "Wait for completion")
         
         // WHEN
@@ -102,25 +102,25 @@ final class ImageViewSnapshotTests: XCTestCase {
         wait(for: [exp], timeout: 5.0)
         
         // THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "IMAGE_VIEW_URL_LIGHT")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "IMAGE_VIEW_URL_LIGHT")
     }
     
     func test_ImageView_with_no_url() {
         // GIVEN
-        let sut = makeSUT()
+        let (sut, container) = makeSUT()
         sut.wrongUrlPlaceholderImage = UIImage(systemName: "xmark")!
         
         // WHEN
         sut.display(image: .url(nil, nil))
         
         // THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "IMAGE_VIEW_NO_URL_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "IMAGE_VIEW_NO_URL_DARK")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "IMAGE_VIEW_NO_URL_LIGHT")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "IMAGE_VIEW_NO_URL_DARK")
     }
     
     func test_ImageView_viewWhileLoadingView() {
         // GIVEN
-        let sut = makeSUT()
+        let (sut, container) = makeSUT()
         sut.viewWhileLoadingView = ViewUIKit(backgroundColor: .blue)
         
         // WHEN
@@ -128,13 +128,13 @@ final class ImageViewSnapshotTests: XCTestCase {
         sut.display(image: .url(url, url))
         
         // THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "IMAGE_VIEW_VIEWWHILELOADINGVIEW_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "IMAGE_VIEW_VIEWWHILELOADINGVIEW_DARK")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "IMAGE_VIEW_VIEWWHILELOADINGVIEW_LIGHT")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "IMAGE_VIEW_VIEWWHILELOADINGVIEW_DARK")
     }
     
     func test_ImageView_fallbackView() {
         // GIVEN
-        let sut = makeSUT()
+        let (sut, container) = makeSUT()
         sut.fallbackView = ViewUIKit(backgroundColor: .red)
         
         // WHEN
@@ -145,13 +145,13 @@ final class ImageViewSnapshotTests: XCTestCase {
         RunLoop.main.run(until: Date().addingTimeInterval(0.5))
         
         // THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "IMAGE_VIEW_FALLBACKVIEW_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "IMAGE_VIEW_FALLBACKVIEW_DARK")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "IMAGE_VIEW_FALLBACKVIEW_LIGHT")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "IMAGE_VIEW_FALLBACKVIEW_DARK")
     }
     
     func test_ImageView_from_url_dark() {
         // GIVEN
-        let sut = makeSUT()
+        let (sut, container) = makeSUT()
         let exp = expectation(description: "Wait for completion")
         
         // WHEN
@@ -164,12 +164,12 @@ final class ImageViewSnapshotTests: XCTestCase {
         wait(for: [exp], timeout: 5.0)
         
         // THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "IMAGE_VIEW_URl_DARK")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "IMAGE_VIEW_URl_DARK")
     }
     
     func test_imageView_contentMode_is_fit() {
         // GIVEN
-        let sut = makeSUT()
+        let (sut, container) = makeSUT()
         
         // WHEN
         let image = UIImage(systemName: "star")
@@ -177,25 +177,25 @@ final class ImageViewSnapshotTests: XCTestCase {
         sut.display(contentModeIsFit: true)
         
         // THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "IMAGE_VIEW_FITCONTENTMODE_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "IMAGE_VIEW_FITCONTENTMODE_DARK")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "IMAGE_VIEW_FITCONTENTMODE_LIGHT")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "IMAGE_VIEW_FITCONTENTMODE_DARK")
     }
     
     func test_imageView_with_borderdWidth() {
         // GIVEN
-        let sut = makeSUT()
+        let (sut, container) = makeSUT()
         
         // WHEN
         sut.display(borderWidth: 2.0)
         
         // THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "IMAGE_VIEW_BORDERWIDTH_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "IMAGE_VIEW_BORDERWIDTH_DARK")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "IMAGE_VIEW_BORDERWIDTH_LIGHT")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "IMAGE_VIEW_BORDERWIDTH_DARK")
     }
     
     func test_imageView_with_borderColor() {
         // GIVEN
-        let sut = makeSUT()
+        let (sut, container) = makeSUT()
         
         // WHEN
         sut.display(borderColor: .red)
@@ -203,53 +203,53 @@ final class ImageViewSnapshotTests: XCTestCase {
         sut.backgroundColor = .cyan
         
         // THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "IMAGE_VIEW_BORDERCOLOR_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "IMAGE_VIEW_BORDERCOLOR_DARK")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "IMAGE_VIEW_BORDERCOLOR_LIGHT")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "IMAGE_VIEW_BORDERCOLOR_DARK")
     }
     
     func test_imageView_with_cornerRadius() {
         // GIVEN
-        let sut = makeSUT()
+        let (sut, container) = makeSUT()
         
         // WHEN
         sut.display(cornerRadius: 50)
         sut.backgroundColor = .cyan
         
         // THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "IMAGE_VIEW_CORNERRADIUS_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "IMAGE_VIEW_CORNERRADIUS_DARK")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "IMAGE_VIEW_CORNERRADIUS_LIGHT")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "IMAGE_VIEW_CORNERRADIUS_DARK")
     }
     
     func test_imageView_with_alpha() {
         // GIVEN
-        let sut = makeSUT()
+        let (sut, container) = makeSUT()
         
         // WHEN
         sut.display(alpha: 0.3)
         sut.backgroundColor = .cyan
         
         // THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "IMAGE_VIEW_ALPHA_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "IMAGE_VIEW_ALPHA_DARK")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "IMAGE_VIEW_ALPHA_LIGHT")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "IMAGE_VIEW_ALPHA_DARK")
     }
     
     func test_imageView_with_hidden() {
         // GIVEN
-        let sut = makeSUT()
+        let (sut, container) = makeSUT()
         
         // WHEN
         sut.display(isHidden: false)
         sut.backgroundColor = .cyan
         
         // THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "IMAGE_VIEW_HIDDEN_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "IMAGE_VIEW_HIDDEN_DARK")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "IMAGE_VIEW_HIDDEN_LIGHT")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "IMAGE_VIEW_HIDDEN_DARK")
     }
     
     //MARK: - touches simulation
     func test_imageView_onPress_visualState() {
         // GIVEN
-        let sut = makeSUT()
+        let (sut, container) = makeSUT()
         
         // WHEN
         sut.display(onPress: {
@@ -262,18 +262,18 @@ final class ImageViewSnapshotTests: XCTestCase {
         sut.touchesBegan(Set(), with: nil)
         
         // THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "IMAGE_VIEW_ONPRESS_PRESSED_LIGHT")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "IMAGE_VIEW_ONPRESS_PRESSED_LIGHT")
         
         sut.touchesEnded(Set(), with: nil)
         
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "IMAGE_VIEW_ONPRESS_RELEASED_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "IMAGE_VIEW_ONPRESS_RELEASED_DARK")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "IMAGE_VIEW_ONPRESS_RELEASED_LIGHT")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "IMAGE_VIEW_ONPRESS_RELEASED_DARK")
     }
     
     // MARK: - Completion calling directly
     func test_imageView_direct_onPress() {
         // GIVEN
-        let sut = makeSUT()
+        let (sut, container) = makeSUT()
         let exp = expectation(description: "Wait for animation completion")
         
         // WHEN
@@ -287,13 +287,13 @@ final class ImageViewSnapshotTests: XCTestCase {
         wait(for: [exp], timeout: 1.0)
         
         // THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "IMAGE_VIEW_ONPRESS_DIRECT_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "IMAGE_VIEW_ONPRESS_DIRECT_DARK")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "IMAGE_VIEW_ONPRESS_DIRECT_LIGHT")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "IMAGE_VIEW_ONPRESS_DIRECT_DARK")
     }
     
     func test_imageView_direct_onLongPress() {
         // GIVEN
-        let sut = makeSUT()
+        let (sut, container) = makeSUT()
         let exp = expectation(description: "Wait for onLongPress")
         
         // WHEN
@@ -307,8 +307,8 @@ final class ImageViewSnapshotTests: XCTestCase {
         wait(for: [exp], timeout: 1.0)
         
         // THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "IMAGE_VIEW_ONLONGPRESS_STATIC_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "IMAGE_VIEW_ONLONGPRESS_STATIC_DARK")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "IMAGE_VIEW_ONLONGPRESS_STATIC_LIGHT")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "IMAGE_VIEW_ONLONGPRESS_STATIC_DARK")
     }
 }
 
@@ -316,12 +316,29 @@ extension ImageViewSnapshotTests {
     func makeSUT(
         file: StaticString = #file,
         line: UInt = #line
-    ) -> ImageView {
+    ) -> (sut: ImageView, container: UIView) {
         let sut = ImageView()
+        let container = makeContainer()
         
-        sut.frame = .init(origin: .zero, size: SnapshotConfiguration.size)
+        container.addSubview(sut)
+        sut.anchor(
+            .top(container.topAnchor, constant: 0, priority: .required),
+            .leading(container.leadingAnchor, constant: 0, priority: .required),
+            .trailing(container.trailingAnchor, constant: 0, priority: .required),
+            .height(150, priority: .required)
+        )
+        
+        container.layoutIfNeeded()
+        
         checkForMemoryLeaks(sut, file: file, line: line)
-        return sut
+        return (sut, container)
+    }
+    
+    func makeContainer() -> UIView {
+        let container = UIView()
+        container.frame = CGRect(x: 0, y: 0, width: 390, height: 300)
+        container.backgroundColor = .clear
+        return container
     }
 }
 

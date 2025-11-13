@@ -1,4 +1,4 @@
-// Generated using Sourcery 2.2.6 — https://github.com/krzysztofzablocki/Sourcery
+// Generated using Sourcery 2.3.0 — https://github.com/krzysztofzablocki/Sourcery
 // DO NOT EDIT
 // swiftlint:disable:this file_name
 // swiftlint:disable all
@@ -14,7 +14,7 @@ import Foundation
 import UIKit
 #endif
 #if canImport(SwiftUICore)
-import SwiftUICore
+import SwiftUI
 #endif
 
 extension ImageViewOutput {
