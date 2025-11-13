@@ -12,15 +12,11 @@ import XCTest
 final class ProgressBarSnapshotTests: XCTestCase {
     func test_progressBar_defaul_state() {
         // GIVEN
-        let container = makeContainer()
-        let sut = makeSUT()
+        let (sut, container) = makeSUT()
         
         // WHEN
-        sut.display(style: .init(backgroundColor: .systemRed))
+        sut.display(style: .init(backgroundColor: .systemRed, height: 5.0))
         sut.display(progress: 0.0)
-        
-        container.addSubview(sut)
-        sut.fillSuperview(padding: .init(top: 8, left: 8, bottom: 8, right: 8))
         
         // THEN
         assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
@@ -31,15 +27,11 @@ final class ProgressBarSnapshotTests: XCTestCase {
     
     func test_progressBar_with_progressBar_color() {
         // GIVEN
-        let container = makeContainer()
-        let sut = makeSUT()
+        let (sut, container) = makeSUT()
         
         // WHEN
-        sut.display(style: .init(backgroundColor: .systemRed))
+        sut.display(style: .init(backgroundColor: .systemRed, height: 5.0))
         sut.display(progress: 100.0)
-        
-        container.addSubview(sut)
-        sut.fillSuperview(padding: .init(top: 8, left: 8, bottom: 8, right: 8))
         
         // THEN
         assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
@@ -53,7 +45,7 @@ final class ProgressBarSnapshotTests: XCTestCase {
         let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 375, height: 300))
         window.backgroundColor = .systemBackground
         window.makeKeyAndVisible()
-        let sut = makeSUT()
+        let (sut, _) = makeSUT()
         
         // WHEN
         sut.display(style: .init(backgroundColor: .systemRed, height: 50))
@@ -79,8 +71,7 @@ final class ProgressBarSnapshotTests: XCTestCase {
     
     func test_progressBar_with_cornerRadius() {
         // GIVEN
-        let container = makeContainer()
-        let sut = makeSUT()
+        let (sut, container) = makeSUT()
         
         // WHEN
         sut.display(style: .init(
@@ -89,13 +80,6 @@ final class ProgressBarSnapshotTests: XCTestCase {
             height: 10,
             cornerRadius: 10))
         sut.display(progress: 50.0)
-        
-        container.addSubview(sut)
-        sut.anchor(
-            .top(container.topAnchor, constant: 10, priority: .required),
-            .leading(container.leadingAnchor, constant: 10, priority: .required),
-            .trailing(container.trailingAnchor, constant: 10, priority: .required)
-        )
         
         // THEN
         assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
@@ -106,19 +90,11 @@ final class ProgressBarSnapshotTests: XCTestCase {
     
     func test_progressBar_hidden() {
         // GIVEN
-        let container = makeContainer()
-        let sut = makeSUT()
+        let (sut, container) = makeSUT()
         
         // WHEN
         sut.display(progress: 50.0)
         sut.display(isHidden: true)
-        
-        container.addSubview(sut)
-        sut.anchor(
-            .top(container.topAnchor, constant: 10, priority: .required),
-            .leading(container.leadingAnchor, constant: 10, priority: .required),
-            .trailing(container.trailingAnchor, constant: 10, priority: .required)
-        )
         
         // THEN
         assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
@@ -132,17 +108,26 @@ extension ProgressBarSnapshotTests {
     func makeSUT(
         file: StaticString = #file,
         line: UInt = #line
-    ) -> ProgressBarView {
+    ) -> (sut: ProgressBarView, container: UIView) {
         let sut = ProgressBarView()
+        let container = makeContainer()
+        
+        container.addSubview(sut)
+        sut.anchor(
+            .top(container.topAnchor, constant: 0, priority: .required),
+            .leading(container.leadingAnchor, constant: 0, priority: .required),
+            .trailing(container.trailingAnchor, constant: 0, priority: .required),
+        )
+        
+        container.layoutIfNeeded()
         
         checkForMemoryLeaks(sut, file: file, line: line)
-        sut.frame = .init(origin: .zero, size: SnapshotConfiguration.size)
-        return sut
+        return (sut, container)
     }
     
     func makeContainer() -> UIView {
         let container = UIView()
-        container.frame = CGRect(x: 0, y: 0, width: 375, height: 300)
+        container.frame = CGRect(x: 0, y: 0, width: 390, height: 300)
         container.backgroundColor = .clear
         return container
     }
