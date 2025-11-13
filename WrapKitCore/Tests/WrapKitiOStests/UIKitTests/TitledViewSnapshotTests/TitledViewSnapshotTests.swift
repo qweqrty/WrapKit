@@ -12,18 +12,10 @@ import XCTest
 final class TitledViewSnapshotTests: XCTestCase {
     func test_titledView_defaul_state() {
         // GIVEN
-        let container = makeContainer()
-        let sut = makeSUT()
+        let (sut, container) = makeSUT()
         
         // WHEN
         sut.display(titles: .init(.text("First title"), .text("Second title")))
-        
-        container.addSubview(sut)
-        sut.anchor(
-            .top(container.topAnchor, constant: 10, priority: .required),
-            .leading(container.leadingAnchor, constant: 10, priority: .required),
-            .trailing(container.trailingAnchor, constant: 10, priority: .required)
-        )
         
         // THEN
         assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
@@ -34,19 +26,11 @@ final class TitledViewSnapshotTests: XCTestCase {
     
     func test_titledView_with_bottomTitles() {
         // GIVEN
-        let container = makeContainer()
-        let sut = makeSUT()
+        let (sut, container) = makeSUT()
         
         // WHEN
         sut.display(titles: .init(.text("First title"), .text("Second title")))
         sut.display(bottomTitles: .init(.text("First bottom"), .text("Second bottom")))
-        
-        container.addSubview(sut)
-        sut.anchor(
-            .top(container.topAnchor, constant: 10, priority: .required),
-            .leading(container.leadingAnchor, constant: 10, priority: .required),
-            .trailing(container.trailingAnchor, constant: 10, priority: .required)
-        )
         
         // THEN
         assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
@@ -57,19 +41,11 @@ final class TitledViewSnapshotTests: XCTestCase {
     
     func test_titledView_with_leadingBottomTitle() {
         // GIVEN
-        let container = makeContainer()
-        let sut = makeSUT()
+        let (sut, container) = makeSUT()
         
         // WHEN
         sut.display(titles: .init(.text("First title"), .text("Second title")))
         sut.display(leadingBottomTitle: .text("Leading bottom title"))
-        
-        container.addSubview(sut)
-        sut.anchor(
-            .top(container.topAnchor, constant: 10, priority: .required),
-            .leading(container.leadingAnchor, constant: 10, priority: .required),
-            .trailing(container.trailingAnchor, constant: 10, priority: .required)
-        )
         
         // THEN
         assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
@@ -80,19 +56,11 @@ final class TitledViewSnapshotTests: XCTestCase {
     
     func test_titledView_with_trailingBottomTitle() {
         // GIVEN
-        let container = makeContainer()
-        let sut = makeSUT()
+        let (sut, container) = makeSUT()
         
         // WHEN
         sut.display(titles: .init(.text("First title"), .text("Second title")))
         sut.display(trailingBottomTitle: .text("Trailing bottom title"))
-        
-        container.addSubview(sut)
-        sut.anchor(
-            .top(container.topAnchor, constant: 10, priority: .required),
-            .leading(container.leadingAnchor, constant: 10, priority: .required),
-            .trailing(container.trailingAnchor, constant: 10, priority: .required)
-        )
         
         // THEN
         assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
@@ -103,19 +71,11 @@ final class TitledViewSnapshotTests: XCTestCase {
     
     func test_titledView_with_isHidden() {
         // GIVEN
-        let container = makeContainer()
-        let sut = makeSUT()
+        let (sut, container) = makeSUT()
         
         // WHEN
         sut.display(titles: .init(.text("First title"), .text("Second title")))
         sut.display(isHidden: true)
-        
-        container.addSubview(sut)
-        sut.anchor(
-            .top(container.topAnchor, constant: 10, priority: .required),
-            .leading(container.leadingAnchor, constant: 10, priority: .required),
-            .trailing(container.trailingAnchor, constant: 10, priority: .required)
-        )
         
         // THEN
         assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
@@ -129,17 +89,26 @@ extension TitledViewSnapshotTests {
     func makeSUT(
         file: StaticString = #file,
         line: UInt = #line
-    ) -> TitledView<UIView> {
+    ) -> (sut: TitledView<UIView>, container: UIView) {
         let sut = TitledView()
+        let container = makeContainer()
+        
+        container.addSubview(sut)
+        sut.anchor(
+            .top(container.topAnchor, constant: 0, priority: .required),
+            .leading(container.leadingAnchor, constant: 0, priority: .required),
+            .trailing(container.trailingAnchor, constant: 0, priority: .required),
+        )
+        
+        container.layoutIfNeeded()
         
         checkForMemoryLeaks(sut, file: file, line: line)
-        sut.frame = .init(origin: .zero, size: SnapshotConfiguration.size)
-        return sut
+        return (sut, container)
     }
     
     func makeContainer() -> UIView {
         let container = UIView()
-        container.frame = CGRect(x: 0, y: 0, width: 375, height: 300)
+        container.frame = CGRect(x: 0, y: 0, width: 390, height: 300)
         container.backgroundColor = .clear
         return container
     }
