@@ -12,8 +12,6 @@ import XCTest
 final class SearchBarSnapshotTests: XCTestCase {
     func test_SearchBar_defaul_state() {
         // GIVEN
-        let container = makeContainer()
-        
         let textField = Textfield(appearance:
                 .init(
                     colors: .init(
@@ -32,16 +30,9 @@ final class SearchBarSnapshotTests: XCTestCase {
                     placeholder: .init(color: .systemGray, font: .systemFont(ofSize: 22))
                 ))
         
-        let sut = makeSUT(textField: textField)
-        
         // WHEN
-        container.addSubview(sut)
-        sut.anchor(
-            .top(container.topAnchor, constant: 10, priority: .required),
-            .leading(container.leadingAnchor, constant: 10, priority: .required),
-            .trailing(container.trailingAnchor, constant: 10, priority: .required)
-        )
-        
+        let (sut, container) = makeSUT(textField: textField)
+
         // THEN
         assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
                named: "SEARCHBAR_DEFAULT_STATE_LIGHT")
@@ -51,8 +42,6 @@ final class SearchBarSnapshotTests: XCTestCase {
     
     func test_SearchBar_with_placeholder() {
         // GIVEN
-        let container = makeContainer()
-        
         let textField = Textfield(appearance:
                 .init(
                     colors: .init(
@@ -71,16 +60,9 @@ final class SearchBarSnapshotTests: XCTestCase {
                     placeholder: .init(color: .black, font: .systemFont(ofSize: 22))
                 ))
         
-        let sut = makeSUT(textField: textField)
-        sut.textfield.placeholder = "type here..."
-        
         // WHEN
-        container.addSubview(sut)
-        sut.anchor(
-            .top(container.topAnchor, constant: 10, priority: .required),
-            .leading(container.leadingAnchor, constant: 10, priority: .required),
-            .trailing(container.trailingAnchor, constant: 10, priority: .required)
-        )
+        let (sut, container) = makeSUT(textField: textField)
+        sut.textfield.placeholder = "type here..."
         
         // THEN
         assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
@@ -91,8 +73,6 @@ final class SearchBarSnapshotTests: XCTestCase {
     
     func test_SearchBar_with_leftView() {
         // GIVEN
-        let container = makeContainer()
-        
         let textField = Textfield(appearance:
                 .init(
                     colors: .init(
@@ -111,17 +91,9 @@ final class SearchBarSnapshotTests: XCTestCase {
                     placeholder: .init(color: .black, font: .systemFont(ofSize: 22))
                 ))
         
-        let leftVIew = Button(style: .init(backgroundColor: .red, titleColor: .black), title: "Left view")
-        
-        let sut = makeSUT(leftView: leftVIew, textField: textField)
-        
         // WHEN
-        container.addSubview(sut)
-        sut.anchor(
-            .top(container.topAnchor, constant: 10, priority: .required),
-            .leading(container.leadingAnchor, constant: 10, priority: .required),
-            .trailing(container.trailingAnchor, constant: 10, priority: .required)
-        )
+        let leftVIew = Button(style: .init(backgroundColor: .red, titleColor: .black), title: "Left view")
+        let (sut, container) = makeSUT(leftView: leftVIew, textField: textField)
         
         // THEN
         assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
@@ -132,8 +104,6 @@ final class SearchBarSnapshotTests: XCTestCase {
     
     func test_SearchBar_with_rightView() {
         // GIVEN
-        let container = makeContainer()
-        
         let textField = Textfield(appearance:
                 .init(
                     colors: .init(
@@ -154,15 +124,9 @@ final class SearchBarSnapshotTests: XCTestCase {
         
         let rightView = Button(style: .init(backgroundColor: .red, titleColor: .black), title: "Right view")
         
-        let sut = makeSUT(textField: textField, rightView: rightView)
+        let (sut, container) = makeSUT(textField: textField, rightView: rightView)
         
         // WHEN
-        container.addSubview(sut)
-        sut.anchor(
-            .top(container.topAnchor, constant: 10, priority: .required),
-            .leading(container.leadingAnchor, constant: 10, priority: .required),
-            .trailing(container.trailingAnchor, constant: 10, priority: .required)
-        )
         
         // THEN
         assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
@@ -173,8 +137,6 @@ final class SearchBarSnapshotTests: XCTestCase {
     
     func test_SearchBar_with_rightView_leftView() {
         // GIVEN
-        let container = makeContainer()
-        
         let textField = Textfield(appearance:
                 .init(
                     colors: .init(
@@ -196,15 +158,9 @@ final class SearchBarSnapshotTests: XCTestCase {
         let rightView = Button(style: .init(backgroundColor: .red, titleColor: .black), title: "Right view")
         let leftView = Button(style: .init(backgroundColor: .red, titleColor: .black), title: "Left view")
         
-        let sut = makeSUT(leftView: leftView, textField: textField, rightView: rightView)
+        let (sut, container) = makeSUT(leftView: leftView, textField: textField, rightView: rightView)
         
         // WHEN
-        container.addSubview(sut)
-        sut.anchor(
-            .top(container.topAnchor, constant: 10, priority: .required),
-            .leading(container.leadingAnchor, constant: 10, priority: .required),
-            .trailing(container.trailingAnchor, constant: 10, priority: .required)
-        )
         
         // THEN
         assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
@@ -220,21 +176,29 @@ extension SearchBarSnapshotTests {
         textField: Textfield,
         spacing: CGFloat = 0,
         rightView: Button = Button(isHidden: true),
-        
         file: StaticString = #file,
         line: UInt = #line
-    ) -> SearchBar {
+    ) -> (sut: SearchBar, container: UIView) {
         
         let sut = SearchBar(leftView: leftView, textfield: textField, rightView: rightView, spacing: spacing)
+        let container = makeContainer()
         
-        sut.frame = .init(origin: .zero, size: SnapshotConfiguration.size)
+        container.addSubview(sut)
+        sut.anchor(
+            .top(container.topAnchor, constant: 0, priority: .required),
+            .leading(container.leadingAnchor, constant: 0, priority: .required),
+            .trailing(container.trailingAnchor, constant: 0, priority: .required),
+        )
+        
+        container.layoutIfNeeded()
+        
         checkForMemoryLeaks(sut, file: file, line: line)
-        return sut
+        return (sut, container)
     }
     
     func makeContainer() -> UIView {
         let container = UIView()
-        container.frame = CGRect(x: 0, y: 0, width: 375, height: 300)
+        container.frame = CGRect(x: 0, y: 0, width: 390, height: 300)
         container.backgroundColor = .clear
         return container
     }
