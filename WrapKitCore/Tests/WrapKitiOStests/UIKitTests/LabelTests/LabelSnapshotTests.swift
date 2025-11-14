@@ -22,6 +22,18 @@ class LabelSnapshotTests: XCTestCase {
         assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "LABEL_DEFAULT_STATE_DARK")
     }
     
+    func test_fail_labelOutput_default_state() {
+        // GIVEN
+        let sut = makeSUT()
+        
+        // WHEN
+        sut.display(model: .text("nothing"))
+        
+        // THEN
+        assertFail(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "LABEL_DEFAULT_STATE_LIGHT")
+        assertFail(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "LABEL_DEFAULT_STATE_DARK")
+    }
+    
     func test_labelOutput_long_text() {
         //GIVEN
         let sut = makeSUT()
