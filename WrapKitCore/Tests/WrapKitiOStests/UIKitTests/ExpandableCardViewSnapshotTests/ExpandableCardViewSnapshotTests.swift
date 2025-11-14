@@ -11,11 +11,14 @@ import XCTest
 
 final class ExpandableCardViewSnapshotTests: XCTestCase {
     func test_expandableCardView_default_state() {
+        // GIVEN
         let (sut, container) = makeSUT()
         
+        // WHEN
         sut.primeCardView.backgroundColor = .systemRed
         sut.secondaryCardView.backgroundColor = .systemBlue
         
+        // THEN
         assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
                named: "EXPANDABLECARDVIEW_DEFAULT_STATE_LIGHT")
         assert(snapshot: container.snapshot(for: .iPhone(style: .dark)),
@@ -23,8 +26,10 @@ final class ExpandableCardViewSnapshotTests: XCTestCase {
     }
     
     func test_expandableCardView_only_prime_card_visible() {
+        // GIVEN
         let (sut, container) = makeSUT()
         
+        // WHEN
         sut.primeCardView.backgroundColor = .white
         sut.primeCardView.layer.cornerRadius = 12
         sut.primeCardView.layer.shadowColor = UIColor.black.cgColor
@@ -34,6 +39,7 @@ final class ExpandableCardViewSnapshotTests: XCTestCase {
         
         // Secondary card is hidden by default
         
+        // THEN
         assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
                named: "EXPANDABLECARDVIEW_ONLY_PRIME_VISIBLE_LIGHT")
         assert(snapshot: container.snapshot(for: .iPhone(style: .dark)),
@@ -41,8 +47,10 @@ final class ExpandableCardViewSnapshotTests: XCTestCase {
     }
     
     func test_expandableCardView_both_cards_visible() {
+        // GIVEN
         let (sut, container) = makeSUT()
         
+        // WHEN
         sut.primeCardView.backgroundColor = .white
         sut.primeCardView.layer.cornerRadius = 12
         
@@ -52,6 +60,7 @@ final class ExpandableCardViewSnapshotTests: XCTestCase {
         
         sut.stackView.spacing = 8
         
+        // THEN
         assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
                named: "EXPANDABLECARDVIEW_BOTH_VISIBLE_LIGHT")
         assert(snapshot: container.snapshot(for: .iPhone(style: .dark)),
@@ -59,14 +68,17 @@ final class ExpandableCardViewSnapshotTests: XCTestCase {
     }
     
     func test_expandableCardView_expanded_with_spacing() {
+        // GIVEN
         let (sut, container) = makeSUT()
         
+        // WHEN
         sut.primeCardView.backgroundColor = .systemBlue
         sut.secondaryCardView.backgroundColor = .systemGreen
         sut.secondaryCardView.isHidden = false
         
         sut.stackView.spacing = 50
         
+        // THEN
         assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
                named: "EXPANDABLECARDVIEW_WITH_SPACING_LIGHT")
         assert(snapshot: container.snapshot(for: .iPhone(style: .dark)),
@@ -74,14 +86,17 @@ final class ExpandableCardViewSnapshotTests: XCTestCase {
     }
     
     func test_expandableCardView_expanded_no_spacing() {
+        // GIVEN
         let (sut, container) = makeSUT()
         
+        // WHEN
         sut.primeCardView.backgroundColor = .systemBlue
         sut.secondaryCardView.backgroundColor = .systemGreen
         sut.secondaryCardView.isHidden = false
         
         sut.stackView.spacing = 0
         
+        // THEN
         assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
                named: "EXPANDABLECARDVIEW_NO_SPACING_LIGHT")
         assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
@@ -89,8 +104,10 @@ final class ExpandableCardViewSnapshotTests: XCTestCase {
     }
     
     func test_expandableCardView_display_only_prime_model() {
+        // GIVEN
         let (sut, container) = makeSUT()
         
+        // WHEN
         let primeModel = CardViewPresentableModel(
             id: "prime",
             style: .init(
@@ -118,6 +135,7 @@ final class ExpandableCardViewSnapshotTests: XCTestCase {
         
         sut.display(model: .init(primeModel, nil))
         
+        // THEN
         assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
                named: "EXPANDABLECARDVIEW_DISPLAY_PRIME_ONLY_LIGHT")
         assert(snapshot: container.snapshot(for: .iPhone(style: .dark)),
@@ -125,8 +143,10 @@ final class ExpandableCardViewSnapshotTests: XCTestCase {
     }
     
     func test_expandableCardView_display_both_models() {
+        // GIVEN
         let (sut, container) = makeSUT()
         
+        // WHEN
         let primeModel = CardViewPresentableModel(
             id: "prime",
             style: .init(
@@ -180,6 +200,7 @@ final class ExpandableCardViewSnapshotTests: XCTestCase {
         sut.stackView.spacing = 10
         sut.display(model: .init(primeModel, secondaryModel))
         
+        // THEN
         assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
                named: "EXPANDABLECARDVIEW_DISPLAY_BOTH_LIGHT")
         assert(snapshot: container.snapshot(for: .iPhone(style: .dark)),
@@ -187,8 +208,10 @@ final class ExpandableCardViewSnapshotTests: XCTestCase {
     }
     
     func test_expandableCardView_different_card_heights() {
+        // GIVEN
         let (sut, container) = makeSUT()
         
+        // WHEN
         sut.primeCardView.backgroundColor = .systemBlue
         sut.primeCardView.constrainHeight(60)
         
@@ -198,6 +221,7 @@ final class ExpandableCardViewSnapshotTests: XCTestCase {
         
         sut.stackView.spacing = 8
         
+        // THEN
         assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
                named: "EXPANDABLECARDVIEW_DIFFERENT_HEIGHTS_LIGHT")
         assert(snapshot: container.snapshot(for: .iPhone(style: .dark)),
@@ -205,9 +229,11 @@ final class ExpandableCardViewSnapshotTests: XCTestCase {
     }
     
     func test_expandableCardView_with_content() {
+        // GIVEN
         let (sut, container) = makeSUT()
         let image = Image(systemName: "star.fill")
         
+        // WHEN
         let primeModel = CardViewPresentableModel(
             id: "prime",
             style: .init(
@@ -273,6 +299,7 @@ final class ExpandableCardViewSnapshotTests: XCTestCase {
         
         sut.layoutIfNeeded()
         
+        // THEN
         assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
                named: "EXPANDABLECARDVIEW_WITH_CONTENT_LIGHT")
         assert(snapshot: container.snapshot(for: .iPhone(style: .dark)),
