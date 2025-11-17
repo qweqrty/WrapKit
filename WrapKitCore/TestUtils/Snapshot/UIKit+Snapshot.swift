@@ -14,7 +14,7 @@ public extension UIView {
 }
 
 public struct SnapshotConfiguration {
-    public static let size = CGSize(width: 390, height: 844)
+    public static let size = CGSize(width: 1170 / UIScreen.main.scale, height: 2532 / UIScreen.main.scale)
     
     public let size: CGSize
     public let safeAreaInsets: UIEdgeInsets
@@ -75,15 +75,10 @@ private final class SnapshotWindow: UIWindow {
     }
     
     convenience init(configuration: SnapshotConfiguration, rootView: UIView) {
-        self.init(frame: CGRect(origin: .zero, size: configuration.size))
-        self.configuration = configuration
         let viewController = UIViewController()
         viewController.view.addSubview(rootView)
-        self.rootViewController = viewController
-        self.isHidden = false
-        rootView.layoutMargins = configuration.layoutMargins
+        self.init(configuration: configuration, root: viewController)
     }
-    
     
     override var safeAreaInsets: UIEdgeInsets {
         configuration.safeAreaInsets
@@ -94,8 +89,20 @@ private final class SnapshotWindow: UIWindow {
     }
     
     public func snapshot() -> UIImage {
-        let renderer = UIGraphicsImageRenderer(bounds: bounds, format: .init(for: traitCollection))
+        return self.asImage(scale: traitCollection.displayScale)
+    }
+}
+
+extension UIView {
+    func asImage(scale: CGFloat = UIScreen.main.scale) -> UIImage {
+        let format = UIGraphicsImageRendererFormat(for: traitCollection)
+        format.scale = scale // This ensures the correct resolution (1x, 2x, 3x, etc.)
+        format.preferredRange = .extended // .standard // disable HDR
+        format.opaque = false
+        let renderer = UIGraphicsImageRenderer(bounds: bounds, format: format)
         return renderer.image { action in
+            let colorSpace = CGColorSpaceCreateDeviceRGB() // Default sRGB color space (IEC61966-2.1)
+            action.cgContext.setFillColorSpace(colorSpace)
             layer.render(in: action.cgContext)
         }
     }
