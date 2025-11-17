@@ -14,7 +14,7 @@ public extension UIView {
 }
 
 public struct SnapshotConfiguration {
-    public static let size = CGSize(width: 1170 / UIScreen.main.scale , height: 2532 / UIScreen.main.scale) // CGSize(width: 390, height: 844)
+    public static let size = CGSize(width: 1170 / UIScreen.main.scale, height: 2532 / UIScreen.main.scale) // CGSize(width: 390, height: 844)
     
     public let size: CGSize
     public let safeAreaInsets: UIEdgeInsets
