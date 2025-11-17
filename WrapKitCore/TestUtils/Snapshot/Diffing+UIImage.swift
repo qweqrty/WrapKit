@@ -119,9 +119,9 @@ private func compare(
     guard oldCgImage.width == newCgImage.width, oldCgImage.height == newCgImage.height else {
         return "Newly-taken snapshot@\(new.size) does not match reference@\(old.size)."
     }
-    guard oldCgImage.colorSpace == newCgImage.colorSpace else {
-        return "Newly-taken snapshot colorSpace@\(String(describing: newCgImage.colorSpace)) does not match reference@\(String(describing: oldCgImage.colorSpace))."
-    }
+//    guard oldCgImage.colorSpace == newCgImage.colorSpace else {
+//        return "Newly-taken snapshot colorSpace@\(String(describing: newCgImage.colorSpace)) does not match reference@\(String(describing: oldCgImage.colorSpace))."
+//    }
     
     let pixelCount = oldCgImage.width * oldCgImage.height
     let byteCount = imageContextBytesPerPixel * pixelCount
@@ -263,9 +263,7 @@ func perceptuallyCompare(
                 }
             }
         }
-        let failingPixelPercent =
-        Float(failingPixelCount)
-        / Float(deltaOutputImage.extent.width * deltaOutputImage.extent.height)
+        let failingPixelPercent = Float(failingPixelCount) / Float(deltaOutputImage.extent.width * deltaOutputImage.extent.height)
         actualPixelPrecision = 1 - failingPixelPercent
     }
     

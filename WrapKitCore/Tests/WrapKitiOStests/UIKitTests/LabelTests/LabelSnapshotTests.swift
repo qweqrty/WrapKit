@@ -375,8 +375,7 @@ class LabelSnapshotTests: XCTestCase {
         wait(for: [exp], timeout: 2.0)
         
         // THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)),
-               named: "LABEL_ANIMATED_FINAL_STATE_LIGHT")
+        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "LABEL_ANIMATED_FINAL_STATE_LIGHT")
         assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)),
                named: "LABEL_ANIMATED_FINAL_STATE_DARK")
     }
