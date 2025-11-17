@@ -30,6 +30,13 @@ final class SwitchControlSnapshotTests: XCTestCase {
         let (sut, container) = makeSUT()
         
         // WHEN
+        sut.display(style: .init(
+            tintColor: .red,
+            thumbTintColor: .clear,
+            backgroundColor: .clear,
+            cornerRadius: 0,
+            shimmerStyle: nil))
+        
         sut.display(isOn: false)
         sut.display(isEnabled: true)
         
