@@ -268,6 +268,25 @@ final class CardViewSnapshotTests: XCTestCase {
         assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "CARDVIEW_WITH_SWITCHCONTROL_DARK")
     }
     
+    func test_CardView_with_switchControl_isFalse() {
+        // GIVEN
+        let (sut, container) = makeSUT()
+        
+        // WHEN
+        sut.display(style: makeDefaultStyle())
+        
+        sut.display(title: .text("Title"))
+        sut.display(switchControl: .init(
+            isOn: false,
+            isEnabled: true,
+            style: .init(tintColor: .blue, thumbTintColor: .green, backgroundColor: .white, cornerRadius: 10)
+        ))
+        
+        // THEN
+        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "CARDVIEW_WITH_SWITCHCONTROL_ISFALSE_LIGHT")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "CARDVIEW_WITH_SWITCHCONTROL_ISFALSE_DARK")
+    }
+    
     // TODO: - need to simulate real tap
     func test_CardView_onPress() {
         // GIVEN
