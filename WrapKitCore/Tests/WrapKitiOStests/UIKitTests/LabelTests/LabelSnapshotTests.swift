@@ -97,7 +97,7 @@ class LabelSnapshotTests: XCTestCase {
         
         // WHEN
         sut.cornerStyle = .automatic
-        sut.backgroundColor = .systemBlue
+        sut.backgroundColor = .blue
         sut.display(model: .text("Rounded"))
         
         // THEN
@@ -111,7 +111,7 @@ class LabelSnapshotTests: XCTestCase {
         
         // WHEN
         sut.cornerStyle = .fixed(100)
-        sut.backgroundColor = .systemBlue
+        sut.backgroundColor = .blue
         sut.display(model: .text("Rounded"))
         
         // THEN
@@ -125,7 +125,7 @@ class LabelSnapshotTests: XCTestCase {
         
         // WHEN
         sut.cornerStyle = .none
-        sut.backgroundColor = .systemBlue
+        sut.backgroundColor = .blue
         sut.display(model: .text("Rounded"))
         
         // THEN
@@ -139,8 +139,8 @@ class LabelSnapshotTests: XCTestCase {
         let sut = makeSUT()
         
         //WHEN
-        let blue = TextAttributes(text: "Blue", color: .systemBlue)
-        let yellow = TextAttributes(text: "Yellow", color: .systemYellow)
+        let blue = TextAttributes(text: "Blue", color: .blue)
+        let yellow = TextAttributes(text: "Yellow", color: .yellow)
         
         sut.display(model: .attributes([blue, yellow]))
         
