@@ -360,7 +360,7 @@ extension Textfield: TextInputOutput {
     }
     
     public func display(text: String?) {
-        self.text = text?.removingPercentEncoding ?? text
+        self.text = text?.removingPercentEncoding ?? ""
     }
     
     public func display(mask: TextInputPresentableModel.Mask) {

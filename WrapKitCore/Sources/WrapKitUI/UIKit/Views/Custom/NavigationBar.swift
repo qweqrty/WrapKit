@@ -232,8 +232,8 @@ open class NavigationBar: UIView {
         
         mainStackViewConstraints = mainStackView.anchor(
             .top(safeAreaLayoutGuide.topAnchor, constant: 4),
-            .leading(leadingAnchor, constant: 8),
-            .trailing(trailingAnchor, constant: 8),
+            .leading(leadingAnchor, constant: 16),
+            .trailing(trailingAnchor, constant: 16),
             .height(44),
             .bottom(bottomAnchor, constant: 8)
         )

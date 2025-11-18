@@ -101,7 +101,7 @@ extension UIView {
         format.opaque = false
         let renderer = UIGraphicsImageRenderer(bounds: bounds, format: format)
         return renderer.image { action in
-            let colorSpace = CGColorSpaceCreateDeviceRGB() // Default sRGB color space (IEC61966-2.1)
+            let colorSpace = CGColorSpace(name: CGColorSpace.sRGB) ?? CGColorSpaceCreateDeviceRGB() // Default sRGB color space (IEC61966-2.1)
             action.cgContext.setFillColorSpace(colorSpace)
             layer.render(in: action.cgContext)
         }

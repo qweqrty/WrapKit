@@ -13,7 +13,9 @@ public struct Diffing<Value> {
     
     /// Compares two values. If the values do not match, returns a failure message and artifacts
     /// describing the failure.
-    public var diff: (Value, Value) -> (message: String, artifacts: (image: Value, diff: Value))?
+    public var diff: (Value, Value) -> (message: String, artifacts: Artifacts)?
+    
+    public typealias Artifacts = (image: Value, diff: Value)
     
     /// Creates a new `Diffing` on `Value`.
     ///
@@ -24,7 +26,7 @@ public struct Diffing<Value> {
     public init(
         toData: @escaping (_ value: Value) -> Data,
         fromData: @escaping (_ data: Data) -> Value,
-        diff: @escaping (_ lhs: Value, _ rhs: Value) -> (message: String, artifacts: (image: Value, diff: Value))?
+        diff: @escaping (_ lhs: Value, _ rhs: Value) -> (message: String, artifacts: Artifacts)?
     ) {
         self.toData = toData
         self.fromData = fromData
