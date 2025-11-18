@@ -13,13 +13,19 @@ class LabelSnapshotTests: XCTestCase {
     func test_labelOutput_default_state() {
         // GIVEN
         let sut = makeSUT()
-        
         // WHEN
         sut.display(model: .text("default"))
         
         // THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "LABEL_DEFAULT_STATE_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "LABEL_DEFAULT_STATE_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS26_LABEL_DEFAULT_STATE_LIGHT")
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS26_LABEL_DEFAULT_STATE_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_LABEL_DEFAULT_STATE_LIGHT")
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_LABEL_DEFAULT_STATE_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_fail_labelOutput_default_state() {
@@ -30,8 +36,15 @@ class LabelSnapshotTests: XCTestCase {
         sut.display(model: .text("nothing"))
         
         // THEN
-        assertFail(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "LABEL_DEFAULT_STATE_LIGHT")
-        assertFail(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "LABEL_DEFAULT_STATE_DARK")
+        if #available(iOS 26, *) {
+            assertFail(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS26_LABEL_DEFAULT_STATE_LIGHT")
+            assertFail(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS26_LABEL_DEFAULT_STATE_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assertFail(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_LABEL_DEFAULT_STATE_LIGHT")
+            assertFail(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_LABEL_DEFAULT_STATE_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_labelOutput_long_text() {
@@ -41,9 +54,15 @@ class LabelSnapshotTests: XCTestCase {
         // WHEN
         sut.display(model: .text("This is really long text that should wrap and check for number of lines"))
         
-        // THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "LABEL_LONG_TITLE_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "LABEL_LONG_TITLE_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS26_LABEL_LONG_TITLE_LIGHT")
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS26_LABEL_LONG_TITLE_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_LABEL_LONG_TITLE_LIGHT")
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_LABEL_LONG_TITLE_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_labelOutput_hidden_text() {
@@ -54,9 +73,15 @@ class LabelSnapshotTests: XCTestCase {
         sut.display(text: "Hidden")
         sut.display(isHidden: false)
         
-        //THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "LABEL_TITLE_HIDDEN_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "LABEL_TITLE_HIDDEN_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS26_LABEL_TITLE_HIDDEN_LIGHT")
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS26_LABEL_TITLE_HIDDEN_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_LABEL_TITLE_HIDDEN_LIGHT")
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_LABEL_TITLE_HIDDEN_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_labelOutput_withInsets() {
@@ -69,8 +94,15 @@ class LabelSnapshotTests: XCTestCase {
         sut.display(model: .text("Insetted text"))
         
         // THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "LABEL_INSETS_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "LABEL_INSETS_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS26_LABEL_INSETS_LIGHT")
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS26_LABEL_INSETS_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_LABEL_INSETS_LIGHT")
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_LABEL_INSETS_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     // MARK: - attributedText перезаписывает обычный text
@@ -86,8 +118,15 @@ class LabelSnapshotTests: XCTestCase {
         sut.display(attributes: [secondText])
         
         // THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "LABEL_MULTIPLE_DISPLAY_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "LABEL_MULTIPLE_DISPLAY_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS26_LABEL_MULTIPLE_DISPLAY_LIGHT")
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS26_LABEL_MULTIPLE_DISPLAY_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_LABEL_MULTIPLE_DISPLAY_LIGHT")
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_LABEL_MULTIPLE_DISPLAY_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     // MARK: - Corener Style tests
@@ -101,8 +140,15 @@ class LabelSnapshotTests: XCTestCase {
         sut.display(model: .text("Rounded"))
         
         // THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "LABEL_CORNER_AUTOMATIC_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "LABEL_CORNER_AUTOMATIC_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS26_LABEL_CORNER_AUTOMATIC_LIGHT")
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS26_LABEL_CORNER_AUTOMATIC_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_LABEL_CORNER_AUTOMATIC_LIGHT")
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_LABEL_CORNER_AUTOMATIC_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_labelOutput_with_fixedCornerStyle() {
@@ -115,8 +161,15 @@ class LabelSnapshotTests: XCTestCase {
         sut.display(model: .text("Rounded"))
         
         // THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "LABEL_CORNER_FIXED_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "LABEL_CORNER_FIXED_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS26_LABEL_CORNER_FIXED_LIGHT")
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS26_LABEL_CORNER_FIXED_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_LABEL_CORNER_FIXED_LIGHT")
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_LABEL_CORNER_FIXED_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_labelOutput_with_noneCornerStyle() {
@@ -124,13 +177,20 @@ class LabelSnapshotTests: XCTestCase {
         let sut = makeSUT()
         
         // WHEN
-        sut.cornerStyle = .none
+        sut.cornerStyle = CornerStyle.none
         sut.backgroundColor = .blue
         sut.display(model: .text("Rounded"))
         
         // THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "LABEL_CORNER_NONE_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "LABEL_CORNER_NONE_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS26_LABEL_CORNER_NONE_LIGHT")
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS26_LABEL_CORNER_NONE_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_LABEL_CORNER_NONE_LIGHT")
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_LABEL_CORNER_NONE_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     //MARK: - Tests for display with TextAttributes
@@ -144,9 +204,16 @@ class LabelSnapshotTests: XCTestCase {
         
         sut.display(model: .attributes([blue, yellow]))
         
-        //THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "LABEL_TITLE_WITH_COLOR_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "LABEL_TITLE_WITH_COLOR_DARK")
+        // THEN
+        if #available(iOS 26, *) {
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS26_LABEL_TITLE_WITH_COLOR_LIGHT")
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS26_LABEL_TITLE_WITH_COLOR_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_LABEL_TITLE_WITH_COLOR_LIGHT")
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_LABEL_TITLE_WITH_COLOR_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_labelOutput_with_font_attributes() {
@@ -158,10 +225,17 @@ class LabelSnapshotTests: XCTestCase {
         let regular = TextAttributes(text: "Regular", font: .systemFont(ofSize: 16))
         
         sut.display(model: .attributes([bold, regular]))
-        
-        //THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "LABEL_TITLE_WITH_FONT_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "LABEL_TITLE_WITH_FONT_DARK")
+
+        // THEN
+        if #available(iOS 26, *) {
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS26_LABEL_TITLE_WITH_FONT_LIGHT")
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS26_LABEL_TITLE_WITH_FONT_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_LABEL_TITLE_WITH_FONT_LIGHT")
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_LABEL_TITLE_WITH_FONT_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_labelOutput_with_singleLineText_attributes() {
@@ -174,9 +248,16 @@ class LabelSnapshotTests: XCTestCase {
         
         sut.display(model: .attributes([single, line]))
         
-        //THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "LABEL_TITLE_WITH_SINGLELINE_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "LABEL_TITLE_WITH_SINGLELINE_DARK")
+        // THEN
+        if #available(iOS 26, *) {
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS26_LABEL_TITLE_WITH_SINGLELINE_LIGHT")
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS26_LABEL_TITLE_WITH_SINGLELINE_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_LABEL_TITLE_WITH_SINGLELINE_LIGHT")
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_LABEL_TITLE_WITH_SINGLELINE_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     // TODO: - strange double line layout
@@ -190,9 +271,16 @@ class LabelSnapshotTests: XCTestCase {
         
         sut.display(model: .attributes([double, line]))
         
-        //THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "LABEL_TITLE_WITH_DOUBLELINE_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "LABEL_TITLE_WITH_DOUBLELINE_DARK")
+        // THEN
+        if #available(iOS 26, *) {
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS26_LABEL_TITLE_WITH_DOUBLELINE_LIGHT")
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS26_LABEL_TITLE_WITH_DOUBLELINE_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_LABEL_TITLE_WITH_DOUBLELINE_LIGHT")
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_LABEL_TITLE_WITH_DOUBLELINE_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     // TODO: - byWord doesnt work.
@@ -205,9 +293,16 @@ class LabelSnapshotTests: XCTestCase {
         
         sut.display(model: .attributes([byWord]))
         
-        //THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "LABEL_TITLE_WITH_BYWORD_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "LABEL_TITLE_WITH_BYWORD_DARK")
+        // THEN
+        if #available(iOS 26, *) {
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS26_LABEL_TITLE_WITH_BYWORD_LIGHT")
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS26_LABEL_TITLE_WITH_BYWORD_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_LABEL_TITLE_WITH_BYWORD_LIGHT")
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_LABEL_TITLE_WITH_BYWORD_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     // TODO: - Dash doesnt work.
@@ -220,9 +315,16 @@ class LabelSnapshotTests: XCTestCase {
         
         sut.display(model: .attributes([dashed]))
         
-        //THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "LABEL_TITLE_WITH_DASH_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "LABEL_TITLE_WITH_DASH_DARK")
+        // THEN
+        if #available(iOS 26, *) {
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS26_LABEL_TITLE_WITH_DASH_LIGHT")
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS26_LABEL_TITLE_WITH_DASH_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_LABEL_TITLE_WITH_DASH_LIGHT")
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_LABEL_TITLE_WITH_DASH_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     // TODO: - DashDot doesnt work.
@@ -235,9 +337,16 @@ class LabelSnapshotTests: XCTestCase {
         
         sut.display(model: .attributes([dashDot]))
         
-        //THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "LABEL_TITLE_WITH_DASHDOT_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "LABEL_TITLE_WITH_DASHDOT_DARK")
+        // THEN
+        if #available(iOS 26, *) {
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS26_LABEL_TITLE_WITH_DASHDOT_LIGHT")
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS26_LABEL_TITLE_WITH_DASHDOT_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_LABEL_TITLE_WITH_DASHDOT_LIGHT")
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_LABEL_TITLE_WITH_DASHDOT_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     // TODO: - DashDotDot doesnt work.
@@ -250,9 +359,16 @@ class LabelSnapshotTests: XCTestCase {
         
         sut.display(model: .attributes([dashDotDot]))
         
-        //THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "LABEL_TITLE_WITH_DASHDOTDOT_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "LABEL_TITLE_WITH_DASHDOTDOT_DARK")
+        // THEN
+        if #available(iOS 26, *) {
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS26_LABEL_TITLE_WITH_DASHDOTDOT_LIGHT")
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS26_LABEL_TITLE_WITH_DASHDOTDOT_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_LABEL_TITLE_WITH_DASHDOTDOT_LIGHT")
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_LABEL_TITLE_WITH_DASHDOTDOT_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     // TODO: - Dot doesnt work.
@@ -265,9 +381,16 @@ class LabelSnapshotTests: XCTestCase {
         
         sut.display(model: .attributes([dot]))
         
-        //THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "LABEL_TITLE_WITH_DOT_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "LABEL_TITLE_WITH_DOT_DARK")
+        // THEN
+        if #available(iOS 26, *) {
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS26_LABEL_TITLE_WITH_DOT_LIGHT")
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS26_LABEL_TITLE_WITH_DOT_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_LABEL_TITLE_WITH_DOT_LIGHT")
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_LABEL_TITLE_WITH_DOT_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_labelOutput_with_thickUnderline_attributes() {
@@ -279,9 +402,16 @@ class LabelSnapshotTests: XCTestCase {
         
         sut.display(model: .attributes([thick]))
         
-        //THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "LABEL_TITLE_WITH_THICK_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "LABEL_TITLE_WITH_THICK_DARK")
+        // THEN
+        if #available(iOS 26, *) {
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS26_LABEL_TITLE_WITH_THICK_LIGHT")
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS26_LABEL_TITLE_WITH_THICK_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_LABEL_TITLE_WITH_THICK_LIGHT")
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_LABEL_TITLE_WITH_THICK_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     // TODO: - leading image doesnt work.
@@ -293,10 +423,17 @@ class LabelSnapshotTests: XCTestCase {
         let leadingImage = TextAttributes(text: "Text with leading image", leadingImage: UIImage(named: "mini"))
         
         sut.display(model: .attributes([leadingImage]))
-        
-        //THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "LABEL_TITLE_WITH_LEADINGIMAGE_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "LABEL_TITLE_WITH_LEADINGIMAGE_DARK")
+
+        // THEN
+        if #available(iOS 26, *) {
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS26_LABEL_TITLE_WITH_LEADINGIMAGE_LIGHT")
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS26_LABEL_TITLE_WITH_LEADINGIMAGE_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_LABEL_TITLE_WITH_LEADINGIMAGE_LIGHT")
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_LABEL_TITLE_WITH_LEADINGIMAGE_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     // TODO: - trailing image doesnt work.
@@ -309,9 +446,16 @@ class LabelSnapshotTests: XCTestCase {
         
         sut.display(model: .attributes([trailingImage]))
         
-        //THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "LABEL_TITLE_WITH_TRAILINGIMAGE_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "LABEL_TITLE_WITH_TRAILINGIMAGE_DARK")
+        // THEN
+        if #available(iOS 26, *) {
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS26_LABEL_TITLE_WITH_TRAILINGIMAGE_LIGHT")
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS26_LABEL_TITLE_WITH_TRAILINGIMAGE_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_LABEL_TITLE_WITH_TRAILINGIMAGE_LIGHT")
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_LABEL_TITLE_WITH_TRAILINGIMAGE_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     // MARK: - Tests for label taps
@@ -346,8 +490,15 @@ class LabelSnapshotTests: XCTestCase {
         wait(for: [exp], timeout: 1.0)
         
         // THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "LABEL_TITLE_WITH_TEXTATTRIBUTES_ONTAP_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "LABEL_TITLE_WITH_TEXTATTRIBUTES_ONTAP_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS26_LABEL_TITLE_WITH_TEXTATTRIBUTES_ONTAP_LIGHT")
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS26_LABEL_TITLE_WITH_TEXTATTRIBUTES_ONTAP_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_LABEL_TITLE_WITH_TEXTATTRIBUTES_ONTAP_LIGHT")
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_LABEL_TITLE_WITH_TEXTATTRIBUTES_ONTAP_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_labelOutput_displayAnimatedNumber() {
@@ -375,9 +526,15 @@ class LabelSnapshotTests: XCTestCase {
         wait(for: [exp], timeout: 2.0)
         
         // THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "LABEL_ANIMATED_FINAL_STATE_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)),
-               named: "LABEL_ANIMATED_FINAL_STATE_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS26_LABEL_ANIMATED_FINAL_STATE_LIGHT")
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS26_LABEL_ANIMATED_FINAL_STATE_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_LABEL_ANIMATED_FINAL_STATE_LIGHT")
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_LABEL_ANIMATED_FINAL_STATE_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_labelOutput_default_TextAttribute_behavior() {
@@ -395,8 +552,15 @@ class LabelSnapshotTests: XCTestCase {
         sut.display(model: .attributes([bold, regular]))
         
         // THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "LABEL_TEXTATTRIBUTE_DEFAULT_BEHAVIOR_FONT_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "LABEL_TEXTATTRIBUTE_DEFAULT_BEHAVIOR_FONT_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS26_LABEL_TEXTATTRIBUTE_DEFAULT_BEHAVIOR_FONT_LIGHT")
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS26_LABEL_TEXTATTRIBUTE_DEFAULT_BEHAVIOR_FONT_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_LABEL_TEXTATTRIBUTE_DEFAULT_BEHAVIOR_FONT_LIGHT")
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_LABEL_TEXTATTRIBUTE_DEFAULT_BEHAVIOR_FONT_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_labelOutput_with_cornerStyle_and_insets() {
@@ -407,8 +571,15 @@ class LabelSnapshotTests: XCTestCase {
         sut.display(model: .textStyled(text: .text("Hello"), cornerStyle: .fixed(20), insets: .init(top: 20, leading: 50, bottom: 20, trailing: 20)))
         
         // THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "LABEL_CORNERSTYLE_INSETS_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "LABEL_CORNERSTYLE_INSETS_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS26_LABEL_CORNERSTYLE_INSETS_LIGHT")
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS26_LABEL_CORNERSTYLE_INSETS_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_LABEL_CORNERSTYLE_INSETS_LIGHT")
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_LABEL_CORNERSTYLE_INSETS_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
 }
 extension LabelSnapshotTests {
