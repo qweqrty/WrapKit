@@ -28,17 +28,29 @@ final class SwitchControlSnapshotTests: XCTestCase {
     func test_switchControl_isOn_false() {
         // GIVEN
         let (sut, container) = makeSUT()
+        let exp = expectation(description: "Wait for expectation")
         
-        // WHEN
         sut.display(style: .init(
             tintColor: .red,
-            thumbTintColor: .clear,
-            backgroundColor: .clear,
+            thumbTintColor: .black,
+            backgroundColor: .cyan,
             cornerRadius: 0,
             shimmerStyle: nil))
+        // WHEN
         
         sut.display(isOn: false)
-        sut.display(isEnabled: true)
+        
+        container.setNeedsLayout()
+        container.layoutIfNeeded()
+        
+        sut.setNeedsLayout()
+        sut.layoutIfNeeded()
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            exp.fulfill()
+        }
+        
+        wait(for: [exp], timeout: 5.0)
         
         // THEN
         assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
@@ -177,8 +189,8 @@ extension SwitchControlSnapshotTests {
         container.addSubview(sut)
         sut.anchor(
             .top(container.topAnchor, constant: 0, priority: .required),
-            .width(100, priority: .required),
-            .height(30, priority: .required)
+            .width(200, priority: .required),
+            .height(50, priority: .required)
         )
         
         container.layoutIfNeeded()
