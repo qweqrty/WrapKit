@@ -29,7 +29,7 @@ extension Diffing where Value == UIImage {
             guard let message = compare(
                 old, new, precision: precision, perceptualPrecision: perceptualPrecision
             ) else { return nil }
-            let difference = diff(old, new)
+            let difference = diffInverse(old, new) ?? diffOverlap(old, new)
             return (message, (new, difference))
 //            let oldAttachment = XCTAttachment(image: old)
 //            oldAttachment.name = "reference"
@@ -55,49 +55,63 @@ extension Diffing where Value == UIImage {
         return label.asImage()
     }
     
-    private static func diff(_ old: Value, _ new: Value) -> Value {
+    private static func diffOverlap(_ old: Value, _ new: Value) -> Value {
+        let width = max(old.size.width, new.size.width)
+        let height = max(old.size.height, new.size.height)
+        let size = CGSize(width: width, height: height)
         let format = UIGraphicsImageRendererFormat()
         format.scale = 1 // old.scale
-        format.preferredRange = .standard // disable HDR
+        format.preferredRange = .extended // .standard // disable HDR
         format.opaque = false
-//        print("asImage scale is \(UIScreen.main.scale) format: \(format.scale)")
-        return UIGraphicsImageRenderer(size: old.size, format: format).image { context in
-            let colorSpace = CGColorSpaceCreateDeviceRGB() // Default sRGB color space (IEC61966-2.1)
+        //        print("asImage scale is \(UIScreen.main.scale) format: \(format.scale)")
+        return UIGraphicsImageRenderer(size: size, format: format).image { context in
+            let colorSpace = imageContextColorSpace // Default sRGB color space (IEC61966-2.1)
             context.cgContext.setFillColorSpace(colorSpace)
-            old.draw(in: CGRect.init(origin: .zero, size: old.size))
-            old.draw(in: CGRect.init(origin: .zero, size: old.size), blendMode: .difference, alpha: 1)
+            old.draw(in: CGRect.init(origin: .zero, size: size))
+            old.draw(in: CGRect.init(origin: .zero, size: size), blendMode: .difference, alpha: 1)
         }
+    }
+    
+    private static func diffInverse(_ old: Value, _ new: Value) -> Value? {
+        guard let oldCgImage = old.cgImage, let newCgImage = new.cgImage
+        else { return nil }
+        guard let contextOld = context(for: oldCgImage),
+              let contextNew = context(for: newCgImage)
+        else { return nil }
+        // Get the pixel data from the context
+        guard let dataOld = contextOld.data, let dataNew = contextNew.data else { return nil }
+        let pixelBufferOld = dataOld.assumingMemoryBound(to: UInt8.self)
+        let pixelBufferNew = dataNew.assumingMemoryBound(to: UInt8.self)
+        // Create a new context for the difference image
+        guard let diffContext = context(for: oldCgImage, draw: false) else { return nil }
+        // Iterate through pixels and draw differences
+        let width = min(oldCgImage.width, newCgImage.width)
+        let height = min(oldCgImage.height, newCgImage.height)
+        for y in 0..<height {
+            for x in 0..<width {
+                let offset = (y * width + x) * 4
+                let r1 = pixelBufferOld[offset]
+                let g1 = pixelBufferOld[offset + 1]
+                let b1 = pixelBufferOld[offset + 2]
+                let a1 = pixelBufferOld[offset + 3]
+                let r2 = pixelBufferNew[offset]
+                let g2 = pixelBufferNew[offset + 1]
+                let b2 = pixelBufferNew[offset + 2]
+                let a2 = pixelBufferNew[offset + 3]
+                
+                if r1 != r2 || g1 != g2 || b1 != b2 || a1 != a2 {
+                    diffContext.setFillColor(red: 1.0, green: 0.0, blue: 0.0, alpha: 1.0) // Red for difference
+                    diffContext.fill(CGRect(x: x, y: height - y - 1, width: 1, height: 1))
+                }
+            }
+        }
+        guard let outputCGImage = diffContext.makeImage() else { return nil }
+        return UIImage(cgImage: outputCGImage)
     }
 }
 
-//extension Snapshotting where Value == UIImage, Format == UIImage {
-//    /// A snapshot strategy for comparing images based on pixel equality.
-//    public static var image: Snapshotting {
-//        return .image()
-//    }
-//    
-//    /// A snapshot strategy for comparing images based on pixel equality.
-//    ///
-//    /// - Parameters:
-//    ///   - precision: The percentage of pixels that must match.
-//    ///   - perceptualPrecision: The percentage a pixel must match the source pixel to be considered a
-//    ///     match. 98-99% mimics
-//    ///     [the precision](http://zschuessler.github.io/DeltaE/learn/#toc-defining-delta-e) of the
-//    ///     human eye.
-//    ///   - scale: The scale of the reference image stored on disk.
-//    public static func image(
-//        precision: Float = 1, perceptualPrecision: Float = 1, scale: CGFloat? = nil
-//    ) -> Snapshotting {
-//        return .init(
-//            pathExtension: "png",
-//            diffing: .image(
-//                precision: precision, perceptualPrecision: perceptualPrecision, scale: scale)
-//        )
-//    }
-//}
-
 // remap snapshot & reference to same colorspace
-private let imageContextColorSpace = CGColorSpace(name: CGColorSpace.sRGB)
+private let imageContextColorSpace = CGColorSpace(name: CGColorSpace.sRGB) ?? CGColorSpaceCreateDeviceRGB()
 private let imageContextBitsPerComponent = 8
 private let imageContextBytesPerPixel = 4
 
@@ -174,22 +188,21 @@ private func compare(
     return nil
 }
 
-private func context(for cgImage: CGImage, data: UnsafeMutableRawPointer? = nil) -> CGContext? {
+private func context(for cgImage: CGImage, data: UnsafeMutableRawPointer? = nil, draw: Bool = true) -> CGContext? {
     let bytesPerRow = cgImage.width * imageContextBytesPerPixel
-    guard
-        let colorSpace = imageContextColorSpace,
-        let context = CGContext(
-            data: data,
-            width: cgImage.width,
-            height: cgImage.height,
-            bitsPerComponent: imageContextBitsPerComponent,
-            bytesPerRow: bytesPerRow,
-            space: colorSpace,
-            bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
-        )
+    guard let context = CGContext(
+        data: data,
+        width: cgImage.width,
+        height: cgImage.height,
+        bitsPerComponent: imageContextBitsPerComponent,
+        bytesPerRow: bytesPerRow,
+        space: imageContextColorSpace,
+        bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+    )
     else { return nil }
-    
-    context.draw(cgImage, in: CGRect(x: 0, y: 0, width: cgImage.width, height: cgImage.height))
+    if draw {
+        context.draw(cgImage, in: CGRect(x: 0, y: 0, width: cgImage.width, height: cgImage.height))
+    }
     return context
 }
 
