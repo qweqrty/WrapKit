@@ -1,0 +1,91 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [ main ]  # Runs on pushes to main branch
+  pull_request:
+    branches: [ main ]  # Runs on pull requests to main
+
+jobs:
+  generate-build-test:
+    runs-on: macos-latest  # GitHub's free macOS VM (macOS 15 with Xcode 16.4+)
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4  # Downloads your repo
+
+      - name: Update Homebrew
+        run: brew update --preinstall  # Prepares Homebrew without auto-updating formulas
+
+      - name: Cache Tuist
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/Library/Caches/Homebrew/tuist--*
+            ~/Library/Caches/Homebrew/downloads/*--tuist-*
+          key: ${{ runner.os }}-homebrew-tuist-${{ hashFiles('**/tuist-formula.txt') }}
+          restore-keys: ${{ runner.os }}-homebrew-tuist-
+
+      - name: Cache SwiftGen
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/Library/Caches/Homebrew/swiftgen--*
+            ~/Library/Caches/Homebrew/downloads/*--swiftgen-*
+          key: ${{ runner.os }}-homebrew-swiftgen-${{ hashFiles('**/swiftgen-formula.txt') }}
+          restore-keys: ${{ runner.os }}-homebrew-swiftgen-
+
+      - name: Cache Sourcery
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/Library/Caches/Homebrew/sourcery--*
+            ~/Library/Caches/Homebrew/downloads/*--sourcery-*
+          key: ${{ runner.os }}-homebrew-sourcery-2.2.6-${{ hashFiles('**/sourcery-formula.txt') }}
+          restore-keys: ${{ runner.os }}-homebrew-sourcery-2.2.6-
+
+      - name: Cache SwiftLint
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/Library/Caches/Homebrew/swiftlint--*
+            ~/Library/Caches/Homebrew/downloads/*--swiftlint-*
+          key: ${{ runner.os }}-homebrew-swiftlint-${{ hashFiles('**/swiftlint-formula.txt') }}
+          restore-keys: ${{ runner.os }}-homebrew-swiftlint-
+
+      - name: Install Tools
+        run: |
+          # Hash formulas for cache keys (run after update)
+          cat "$(brew --repository)/Library/Taps/homebrew/homebrew-core/Formula/t/tuist.rb" > tuist-formula.txt
+          cat "$(brew --repository)/Library/Taps/homebrew/homebrew-core/Formula/s/swiftgen.rb" > swiftgen-formula.txt
+          cat "$(brew --repository)/Library/Taps/homebrew/homebrew-core/Formula/s/swiftlint.rb" > swiftlint-formula.txt
+          
+          # Install standard tools (cached if unchanged)
+          brew install tuist swiftgen swiftlint
+          
+          # For Sourcery 2.2.6 (custom version)
+          brew extract --version=2.2.6 sourcery local-tap
+          brew tap local-tap
+          brew install sourcery@2.2.6
+          
+          # Hash the custom formula for cache
+          cat "$(brew --repository)/Library/Taps/local-tap/Formula/sourcery@2.2.6.rb" > sourcery-formula.txt
+
+      - name: Run Makefile for Generation
+        run: make project  # Runs run-sourcery, tuist-setup, tuist-generate
+
+      - name: Run Makefile for Build
+        run: make build  # Runs run-sourcery, tuist-setup
+
+      - name: Ensure iOS Simulators Are Installed
+        run: |
+          # Download iOS platforms if missing (includes simulators for 18.x; iOS 26 not available yet)
+          xcodebuild -downloadPlatform iOS
+          # List available runtimes to verify
+          xcrun simctl list runtimes
+
+      - name: Run Tests on iOS 18.3.1
+        run: |
+          xcodebuild clean test -workspace WrapKit.xcworkspace -scheme WrapKit -destination "platform=iOS Simulator,name=iPhone 16e,OS=18.3.1"
+      - name: Run Tests on iOS 26.1
+        run: |
+          xcodebuild clean test -workspace WrapKit.xcworkspace -scheme WrapKit -destination "platform=iOS Simulator,name=iPhone 17 pro,OS=26.1"
