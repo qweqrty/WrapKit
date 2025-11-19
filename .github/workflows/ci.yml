@@ -15,7 +15,7 @@ jobs:
       WORKSPACE_NAME: "WrapKit.xcworkspace"
       IOS_VERSION: "18.5"
       IOS_VERSION_DEVICE: "iPhone 16 Pro"
-      LATEST_IOS_VERSION: "26.0.1"
+      LATEST_IOS_VERSION: "26.1"
       LATEST_IOS_VERSION_DEVICE: "iPhone 17 Pro"
       DERIVED_DATA_PATH: DerivedData
 
