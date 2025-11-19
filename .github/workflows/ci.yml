@@ -42,9 +42,18 @@ jobs:
       # -----------------------------
       # Ensure iOS Simulators
       # -----------------------------
-      - name: Ensure iOS Simulators
+      - name: List Available Simulators / Devices
         run: |
+          echo "=== Runtimes ==="
           xcrun simctl list runtimes
+
+          echo ""
+          echo "=== Devices ==="
+          xcrun simctl list devices
+
+          echo ""
+          echo "=== Device Types ==="
+          xcrun simctl list devicetypes
 
       # -----------------------------
       # Run Tests
