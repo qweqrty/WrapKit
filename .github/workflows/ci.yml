@@ -88,4 +88,4 @@ jobs:
           xcodebuild clean test -workspace WrapKit.xcworkspace -scheme WrapKit -destination "platform=iOS Simulator,name=iPhone 16e,OS=18.3.1"
       - name: Run Tests on iOS 26.1
         run: |
-          xcodebuild clean test -workspace WrapKit.xcworkspace -scheme WrapKit -destination "platform=iOS Simulator,name=iPhone 17 pro,OS=26.1"
+          xcodebuild clean test -workspace WrapKit.xcworkspace -scheme WrapKit -destination "platform=iOS Simulator,name=iPhone 17 pro,OS=26.1" 
