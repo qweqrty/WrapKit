@@ -12,6 +12,8 @@ import XCTest
 class NavigationBarSnapshotTests: XCTestCase {
     
     func test_navigationBar_defaul_state() {
+        let snapshotName = "NAVBAR_DEFAULT_STATE"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         
@@ -26,11 +28,20 @@ class NavigationBarSnapshotTests: XCTestCase {
         )
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "NAVBAR_DEFAULT_STATE_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "NAVBAR_DEFAULT_STATE_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_navigationBar_with_centerView_keyValue() {
+        let snapshotName = "NAVBAR_WITH_CENTERVIEW_KEYVALUE"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         
@@ -47,11 +58,20 @@ class NavigationBarSnapshotTests: XCTestCase {
         sut.display(centerView: .keyValue(.init(.text("First"), .text("Second"))))
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "NAVBAR_WITH_CENTERVIEW_KEYVALUE_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "NAVBAR_WITH_CENTERVIEW_KEYVALUE_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_navigationBar_with_centerView_titleImage() {
+        let snapshotName = "NAVBAR_WITH_CENTERVIEW_TITLEDIMAGE"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         
@@ -73,12 +93,21 @@ class NavigationBarSnapshotTests: XCTestCase {
                       .text("Title"))))
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "NAVBAR_WITH_CENTERVIEW_TITLEDIMAGE_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "NAVBAR_WITH_CENTERVIEW_TITLEDIMAGE_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     // TODO: - maybe wrong title apperance. need to ask
     func test_navigationBar_with_leadingCard_backgoundImage() {
+        let snapshotName = "NAVBAR_WITH_LEADINGCARD_BACKGROUNDIMAGE_TITLE"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         
@@ -95,11 +124,20 @@ class NavigationBarSnapshotTests: XCTestCase {
         sut.display(leadingCard: .init(backgroundImage: .init(image: .asset(Image(systemName: "star.fill"))), title: .text("Title")))
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "NAVBAR_WITH_LEADINGCARD_BACKGROUNDIMAGE_TITLE_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "NAVBAR_WITH_LEADINGCARD_BACKGROUNDIMAGE_TITLE_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_navigationBar_with_leadingCard_trailingTitles() {
+        let snapshotName = "NAVBAR_WITH_LEADINGCARD_TRAILINGTITLES"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         
@@ -121,12 +159,21 @@ class NavigationBarSnapshotTests: XCTestCase {
                 trailingTitles: .init(.text("Title"), .text("Subtitle"))))
 
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "NAVBAR_WITH_LEADINGCARD_TRAILINGTITLES_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "NAVBAR_WITH_LEADINGCARD_TRAILINGTITLES_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     // MARK: - func display(secondaryTrailingImage:) tests
     func test_navigationBar_with_secondaryTrailingImage() {
+        let snapshotName = "NAVBAR_WITH_SECONDARY_TRAILING_IMAGE"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         
@@ -144,11 +191,20 @@ class NavigationBarSnapshotTests: XCTestCase {
         sut.display(secondaryTrailingImage: .some(.init(title: "Image", image: image, height: 24)))
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "NAVBAR_WITH_SECONDARY_TRAILING_IMAGE_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "NAVBAR_WITH_SECONDARY_TRAILING_IMAGE_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_navigationBar_with_secondaryTrailingImage_onPress() {
+        let snapshotName = "NAVBAR_WITH_SECONDARY_TRAILING_IMAGE_ON_PRESS"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         
@@ -175,11 +231,20 @@ class NavigationBarSnapshotTests: XCTestCase {
         sut.secondaryTrailingImageWrapperView.contentView.onPress?()
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "NAVBAR_WITH_SECONDARY_TRAILING_IMAGE_ONTAP_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "NAVBAR_WITH_SECONDARY_TRAILING_IMAGE_ONTAP_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_navigationBar_with_tertiaryTrailingImage() {
+        let snapshotName = "NAVBAR_WITH_TERTIARY_TRAILINGIMAGE"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         
@@ -203,11 +268,20 @@ class NavigationBarSnapshotTests: XCTestCase {
         sut.secondaryTrailingImageWrapperView.contentView.onPress?()
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "NAVBAR_WITH_TERTIARY_TRAILINGIMAGE_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "NAVBAR_WITH_TERTIARY_TRAILINGIMAGE_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_navigationBar_with_tertiaryTrailingImage_onPress() {
+        let snapshotName = "NAVBAR_WITH_TERTIARY_TRAILINGIMAGE_ONPRESS"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         
@@ -234,11 +308,20 @@ class NavigationBarSnapshotTests: XCTestCase {
         sut.tertiaryTrailingImageWrapperView.contentView.onPress?()
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "NAVBAR_WITH_TERTIARY_TRAILINGIMAGE_ONPRESS_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "NAVBAR_WITH_TERTIARY_TRAILINGIMAGE_ONPRESS_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_navigationBar_with_tertiaryAndSecondary_trailingImages() {
+        let snapshotName = "NAVBAR_WITH_TERTIARY_SECONDARY_TRAILINGIMAGES"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         
@@ -275,11 +358,20 @@ class NavigationBarSnapshotTests: XCTestCase {
         sut.secondaryTrailingImageWrapperView.contentView.onPress?()
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "NAVBAR_WITH_TERTIARY_SECONDARY_TRAILINGIMAGE_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "NAVBAR_WITH_TERTIARY_SECONDARY_TRAILINGIMAGE_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_navigationBar_hidden_state() {
+        let snapshotName = "NAVBAR_HIDDEN_STATE"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         
@@ -296,11 +388,20 @@ class NavigationBarSnapshotTests: XCTestCase {
         sut.display(isHidden: true)
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "NAVBAR_HIDDEN_STATE_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "NAVBAR_HIDDEN_STATE_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_navigationBar_with_leadingCard_leadingTrailingTitles() {
+        let snapshotName = "NAVBAR_WITH_LEADINGCARD_LEADING_TRAILING_TITLES"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         
@@ -323,11 +424,20 @@ class NavigationBarSnapshotTests: XCTestCase {
         )
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "NAVBAR_WITH_LEADINGCARD_LEADING_TRAILING_TITLES_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "NAVBAR_WITH_LEADINGCARD_LEADING_TRAILING_TITLES__DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_navigationBar_with_leadingCard_leadingTrailingImages() {
+        let snapshotName = "NAVBAR_WITH_LEADINGCARD_LEADING_TRAILING_IMAGES"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         
@@ -352,11 +462,20 @@ class NavigationBarSnapshotTests: XCTestCase {
         )
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "NAVBAR_WITH_LEADINGCARD_LEADING_TRAILING_IMAGES_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "NAVBAR_WITH_LEADINGCARD_LEADING_TRAILING_IMAGES__DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_navigationBar_with_leadingCard_subtitle() {
+        let snapshotName = "NAVBAR_WITH_LEADINGCARD_SUBTITLE"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         
@@ -378,11 +497,20 @@ class NavigationBarSnapshotTests: XCTestCase {
         )
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "NAVBAR_WITH_LEADINGCARD_SUBTITLE_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "NAVBAR_WITH_LEADINGCARD_SUBTITLE__DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_navigationBar_with_leadingCard_valueTitle() {
+        let snapshotName = "NAVBAR_WITH_LEADINGCARD_VALUETITLE"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         
@@ -404,12 +532,21 @@ class NavigationBarSnapshotTests: XCTestCase {
         )
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "NAVBAR_WITH_LEADINGCARD_VALUETITLE_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "NAVBAR_WITH_LEADINGCARD_VALUETITLE_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     // TODO: - bottom image doesnt appear
     func test_navigationBar_with_leadingCard_bottomImage() {
+        let snapshotName = "NAVBAR_WITH_LEADINGCARD_BOTTOMIMAGE"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         
@@ -434,11 +571,20 @@ class NavigationBarSnapshotTests: XCTestCase {
         )
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "NAVBAR_WITH_LEADINGCARD_BOTTOMIMAGE_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "NAVBAR_WITH_LEADINGCARD_BOTTOMIMAGE_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_navigationBar_with_leadingCard_bottomSeparator() {
+        let snapshotName = "NAVBAR_WITH_LEADINGCARD_BOTTOMSEPARATOR"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         
@@ -461,11 +607,20 @@ class NavigationBarSnapshotTests: XCTestCase {
         )
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "NAVBAR_WITH_LEADINGCARD_BOTTOMSEPARATOR_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "NAVBAR_WITH_LEADINGCARD_BOTTOMSEPARATOR_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_navigationBar_with_leadingCard_switchControl() {
+        let snapshotName = "NAVBAR_WITH_LEADINGCARD_SWITCHCONTROL"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         
@@ -495,11 +650,20 @@ class NavigationBarSnapshotTests: XCTestCase {
         )
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "NAVBAR_WITH_LEADINGCARD_SWITCHCONTROL_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "NAVBAR_WITH_LEADINGCARD_SWITCHCONTROL_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_navigationBar_with_leadingCard_onPress() {
+        let snapshotName = "NAVBAR_WITH_LEADINGCARD_ONPRESS"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         
@@ -526,11 +690,20 @@ class NavigationBarSnapshotTests: XCTestCase {
         sut.leadingCardView.onPress?()
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "NAVBAR_WITH_LEADINGCARD_ONPRESS_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "NAVBAR_WITH_LEADINGCARD_ONPRESS_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_navigationBar_with_leadingCard_onLongPress() {
+        let snapshotName = "NAVBAR_WITH_LEADINGCARD_ONLONGPRESS"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         
@@ -557,8 +730,15 @@ class NavigationBarSnapshotTests: XCTestCase {
         sut.leadingCardView.onLongPress?()
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "NAVBAR_WITH_LEADINGCARD_ONLONGPRESS_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "NAVBAR_WITH_LEADINGCARD_ONLONGPRESS_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
 }
