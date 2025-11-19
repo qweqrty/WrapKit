@@ -38,7 +38,6 @@ jobs:
       # -----------------------------
       - name: Ensure iOS Simulators
         run: |
-          xcodebuild -downloadPlatform iOS
           xcrun simctl list runtimes
 
       # -----------------------------
