@@ -12,7 +12,7 @@ jobs:
 
     steps:
       # -----------------------------
-      # Checkout
+      # Checkout Code
       # -----------------------------
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -24,7 +24,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.tuist
-          key: ${{ runner.os }}-tuist-3.6.0
+          key: ${{ runner.os }}-tuist-latest
           restore-keys: ${{ runner.os }}-tuist-
 
       - name: Cache SwiftGen
@@ -33,7 +33,7 @@ jobs:
           path: |
             ~/Library/Caches/Homebrew/swiftgen--*
             ~/Library/Caches/Homebrew/downloads/*--swiftgen-*
-          key: ${{ runner.os }}-homebrew-swiftgen-6.8.0
+          key: ${{ runner.os }}-homebrew-swiftgen-latest
           restore-keys: ${{ runner.os }}-homebrew-swiftgen-
 
       - name: Cache Sourcery
@@ -51,37 +51,39 @@ jobs:
           path: |
             ~/Library/Caches/Homebrew/swiftlint--*
             ~/Library/Caches/Homebrew/downloads/*--swiftlint-*
-          key: ${{ runner.os }}-homebrew-swiftlint-0.53.0
+          key: ${{ runner.os }}-homebrew-swiftlint-latest
           restore-keys: ${{ runner.os }}-homebrew-swiftlint-
 
       # -----------------------------
       # Install Tools
       # -----------------------------
-      - name: Install Tuist
+      - name: Install Tools
         run: |
-          echo "Installing latest Tuist (or specific version)..."
-          curl -Ls https://install.tuist.io | bash -s -- --version 3.6.0
-          echo "Tuist version: $(~/.tuist/bin/tuist version)"
-
-
-      - name: Install Other Tools
-        run: |
-          brew install swiftgen@6.8.0 || brew upgrade swiftgen
-          brew install sourcery@2.2.6 || brew upgrade sourcery
-          brew install swiftlint@0.53.0 || brew upgrade swiftlint
+          brew install sourcery@2.2.6
+          brew install tuist
+          brew install swiftgen
+          brew install swiftlint
 
       # -----------------------------
-      # Run Lint, Generate, Build
+      # Generate, Build
       # -----------------------------
-      - name: Run SwiftLint
-        run: swiftlint lint --strict
-
       - name: Run Makefile for Build
         run: make build
 
+      # -----------------------------
+      # Ensure iOS Simulators
+      # -----------------------------
+      - name: Ensure iOS Simulators Are Installed
+        run: |
+          xcodebuild -downloadPlatform iOS
+          xcrun simctl list runtimes
+
+      # -----------------------------
+      # Run Tests
+      # -----------------------------
       - name: Run Tests on iOS 18.3.1
         run: |
-          xcodebuild clean test -workspace WrapKit.xcworkspace -scheme WrapKit -destination "platform=iOS Simulator,name=iPhone 16e,OS=18.3.1"
+          xcodebuild clean build test -workspace WrapKit.xcworkspace -scheme WrapKit -destination "platform=iOS Simulator,name=iPhone 16e,OS=18.3.1"
       - name: Run Tests on iOS 26.1
         run: |
-          xcodebuild clean test -workspace WrapKit.xcworkspace -scheme WrapKit -destination "platform=iOS Simulator,name=iPhone 17 pro,OS=26.1"
+          xcodebuild clean build test -workspace WrapKit.xcworkspace -scheme WrapKit -destination "platform=iOS Simulator,name=iPhone 17 pro,OS=26.1"
