@@ -35,10 +35,11 @@ public extension URLRequest {
 
 public extension String {
     var asUrl: URL? {
-        if let url = URL(string: self) {
+        let trimmed = trimmingCharacters(in: .whitespacesAndNewlines)
+        if let url = URL(string: trimmed) {
             return url
         } else {
-            if let urlEscapedString = addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
+            if let urlEscapedString = trimmed.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
                let escapedURL = URL(string: urlEscapedString) {
                 return escapedURL
             }

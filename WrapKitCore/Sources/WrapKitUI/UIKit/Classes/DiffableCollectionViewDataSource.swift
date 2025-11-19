@@ -27,15 +27,6 @@ private extension Array where Element: Hashable {
     }
 }
 
-public extension DiffableCollectionViewDataSource {
-    func display(trailingSwipeActionsForIndexPath: ((IndexPath) -> [TableContextualAction<Cell>])?) {}
-    func display(leadingSwipeActionsForIndexPath: ((IndexPath) -> [TableContextualAction<Cell>])?) {}
-    func display(move: ((IndexPath, IndexPath) -> Void)?) {}
-    func display(canMove: ((IndexPath) -> Bool)?) {}
-    func display(canEdit: ((IndexPath) -> Bool)?) {}
-    func display(commitEditing: ((TableEditingStyle, IndexPath) -> Void)?) {}
-}
-
 #if canImport(UIKit)
 import UIKit
 
@@ -258,5 +249,16 @@ public final class DiffableCollectionViewDataSource<Header, Cell: Hashable, Foot
         
         collectionView.scrollToItem(at: targetIndexPath, at: scrollPosition, animated: true)
     }
+}
+
+// MARK: TODO - segregate
+public extension DiffableCollectionViewDataSource {
+    func display(trailingSwipeActionsForIndexPath: ((IndexPath) -> [TableContextualAction<Cell>])?) {}
+    func display(leadingSwipeActionsForIndexPath: ((IndexPath) -> [TableContextualAction<Cell>])?) {}
+    func display(move: ((IndexPath, IndexPath) -> Void)?) {}
+    func display(canMove: ((IndexPath) -> Bool)?) {}
+    func display(canEdit: ((IndexPath) -> Bool)?) {}
+    func display(commitEditing: ((TableEditingStyle, IndexPath) -> Void)?) {}
+    func display(expandTrailingActionsAt indexPath: IndexPath) {}
 }
 #endif

@@ -31,6 +31,9 @@ extension WeakRefVirtualProxy: TableOutput where T: TableOutput {
     public func display(trailingSwipeActionsForIndexPath: ((IndexPath) -> [TableContextualAction<Cell>])?) {
         object?.display(trailingSwipeActionsForIndexPath: trailingSwipeActionsForIndexPath)
     }
+    public func display(expandTrailingActionsAt indexPath: IndexPath) {
+        object?.display(expandTrailingActionsAt: indexPath)
+    }
     public func display(leadingSwipeActionsForIndexPath: ((IndexPath) -> [TableContextualAction<Cell>])?) {
         object?.display(leadingSwipeActionsForIndexPath: leadingSwipeActionsForIndexPath)
     }
