@@ -65,4 +65,3 @@ jobs:
       - name: Run Tests on $LATEST_IOS_VERSION
         run: |
           xcodebuild clean build test -workspace $SCHEME_NAME.xcworkspace -scheme $SCHEME_NAME -destination "platform=iOS Simulator,name=$LATEST_IOS_VERSION_DEVICE,OS=$LATEST_IOS_VERSION"
-
