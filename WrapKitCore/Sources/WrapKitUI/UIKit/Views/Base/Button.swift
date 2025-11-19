@@ -16,6 +16,7 @@ public struct ButtonStyle {
     public let pressedTintColor: Color?
     public let font: Font?
     public let cornerRadius: CGFloat
+    public let wrongUrlPlaceholderImage: Image?
     
     public init(
         backgroundColor: Color? = nil,
@@ -25,7 +26,8 @@ public struct ButtonStyle {
         pressedColor: Color? = nil,
         pressedTintColor: Color? = nil,
         font: Font? = nil,
-        cornerRadius: CGFloat = 12
+        cornerRadius: CGFloat = 12,
+        wrongUrlPlaceholderImage: Image? = nil
     ) {
         self.backgroundColor = backgroundColor
         self.titleColor = titleColor
@@ -35,6 +37,7 @@ public struct ButtonStyle {
         self.font = font
         self.borderWidth = borderWidth
         self.cornerRadius = cornerRadius
+        self.wrongUrlPlaceholderImage = wrongUrlPlaceholderImage
     }
 }
 
@@ -123,6 +126,7 @@ extension Button: ButtonOutput {
         self.layer.borderColor = style.borderColor?.cgColor
         self.layer.borderWidth = style.borderWidth
         self.layer.cornerRadius = style.cornerRadius
+        self.wrongUrlPlaceholderImage = style.wrongUrlPlaceholderImage
     }
     
     public func display(title: String?) {
