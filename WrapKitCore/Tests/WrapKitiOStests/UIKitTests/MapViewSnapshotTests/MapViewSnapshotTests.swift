@@ -13,20 +13,27 @@ final class MapViewSnapshotTests: XCTestCase {
     func test_mapView_default_state() {
         // GIVEN
         let (sut, container) = makeSUT()
+        let snapshotName = "MAPVIEW_DEFAULT_STATE"
         
         // WHEN
         sut.contentView.backgroundColor = .systemBlue
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
-               named: "MAPVIEW_DEFAULT_STATE_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)),
-               named: "MAPVIEW_DEFAULT_STATE_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_mapView_with_map_background() {
         // GIVEN
         let (sut, container) = makeSUT()
+        let snapshotName = "MAPVIEW_WITH_MAP_BACKGROUND"
         
         // WHEN
         let gradientLayer = CAGradientLayer()
@@ -38,15 +45,21 @@ final class MapViewSnapshotTests: XCTestCase {
         sut.contentView.layer.insertSublayer(gradientLayer, at: 0)
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
-               named: "MAPVIEW_WITH_MAP_BACKGROUND_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)),
-               named: "MAPVIEW_WITH_MAP_BACKGROUND_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_mapView_location_button_visible() {
         // GIVEN
         let (sut, container) = makeSUT()
+        let snapshotName = "MAPVIEW_LOCATION_BUTTON_VISIBLE"
         
         // WHEN
         sut.contentView.backgroundColor = .systemGray5
@@ -55,15 +68,21 @@ final class MapViewSnapshotTests: XCTestCase {
         sut.locationView.layer.borderColor = UIColor.black.cgColor
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
-               named: "MAPVIEW_LOCATION_BUTTON_VISIBLE_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)),
-               named: "MAPVIEW_LOCATION_BUTTON_VISIBLE_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_mapView_zoom_buttons_visible() {
         // GIVEN
         let (sut, container) = makeSUT()
+        let snapshotName = "MAPVIEW_ZOOM_BUTTONS_VISIBLE"
         
         // WHEN
         sut.contentView.backgroundColor = .systemGray5
@@ -72,15 +91,21 @@ final class MapViewSnapshotTests: XCTestCase {
         sut.actionsStackView.backgroundColor = .white
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
-               named: "MAPVIEW_ZOOM_BUTTONS_VISIBLE_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)),
-               named: "MAPVIEW_ZOOM_BUTTONS_VISIBLE_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_mapView_location_button_hidden() {
         // GIVEN
         let (sut, container) = makeSUT()
+        let snapshotName = "MAPVIEW_LOCATION_BUTTON_HIDDEN"
         
         // WHEN
         sut.contentView.backgroundColor = .systemGray5
@@ -88,15 +113,21 @@ final class MapViewSnapshotTests: XCTestCase {
         sut.actionsStackView.backgroundColor = .white
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
-               named: "MAPVIEW_LOCATION_BUTTON_HIDDEN_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)),
-               named: "MAPVIEW_LOCATION_BUTTON_HIDDEN_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_mapView_zoom_controls_hidden() {
         // GIVEN
         let (sut, container) = makeSUT()
+        let snapshotName = "MAPVIEW_ZOOM_CONTROLS_HIDDEN"
         
         // WHEN
         sut.contentView.backgroundColor = .systemGray5
@@ -104,15 +135,21 @@ final class MapViewSnapshotTests: XCTestCase {
         sut.actionsStackView.isHidden = true
         
         // THEN
-        record(snapshot: container.snapshot(for: .iPhone(style: .light)),
-               named: "MAPVIEW_ZOOM_CONTROLS_HIDDEN_LIGHT")
-        record(snapshot: container.snapshot(for: .iPhone(style: .dark)),
-               named: "MAPVIEW_ZOOM_CONTROLS_HIDDEN_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_mapView_all_controls_hidden() {
         // GIVEN
         let (sut, container) = makeSUT()
+        let snapshotName = "MAPVIEW_ALL_CONTROLS_HIDDEN"
         
         // WHEN
         sut.contentView.backgroundColor = .systemGray5
@@ -120,15 +157,21 @@ final class MapViewSnapshotTests: XCTestCase {
         sut.actionsStackView.isHidden = true
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
-               named: "MAPVIEW_ALL_CONTROLS_HIDDEN_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)),
-               named: "MAPVIEW_ALL_CONTROLS_HIDDEN_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_mapView_separator_visible() {
         // GIven
         let (sut, container) = makeSUT()
+        let snapshotName = "MAPVIEW_SEPARATOR_VISIBLE"
         
         // WHEN
         sut.contentView.backgroundColor = .systemGray5
@@ -136,15 +179,21 @@ final class MapViewSnapshotTests: XCTestCase {
         sut.separatorView.backgroundColor = .systemRed
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
-               named: "MAPVIEW_SEPARATOR_VISIBLE_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)),
-               named: "MAPVIEW_SEPARATOR_VISIBLE_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_mapView_separator_hidden() {
         // GIVEN
         let (sut, container) = makeSUT()
+        let snapshotName = "MAPVIEW_SEPARATOR_HIDDEN"
         
         // WHEN
         sut.contentView.backgroundColor = .systemGray5
@@ -154,15 +203,21 @@ final class MapViewSnapshotTests: XCTestCase {
         container.layoutIfNeeded()
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
-               named: "MAPVIEW_SEPARATOR_HIDDEN_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)),
-               named: "MAPVIEW_SEPARATOR_HIDDEN_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_mapView_with_simulated_map_content() {
         // GIVEN
         let (sut, container) = makeSUT()
+        let snapshotName = "MAPVIEW_WITH_PINS"
         
         // WHEN
         sut.contentView.backgroundColor = .systemTeal.withAlphaComponent(0.2)
@@ -186,10 +241,15 @@ final class MapViewSnapshotTests: XCTestCase {
         container.layoutIfNeeded()
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
-               named: "MAPVIEW_WITH_PINS_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
-               named: "MAPVIEW_WITH_PINS_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
 }
