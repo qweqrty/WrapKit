@@ -2,27 +2,31 @@ name: CI Pipeline
 
 on:
   push:
-    branches: [ main ]  # Runs on pushes to main branch
+    branches: [ main ]
   pull_request:
-    branches: [ main ]  # Runs on pull requests to main
+    branches: [ main ]
 
 jobs:
   generate-build-test:
-    runs-on: macos-latest  # GitHub's free macOS VM (macOS 15 with Xcode 16.4+)
+    runs-on: macos-latest
+
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4  # Downloads your repo
+        uses: actions/checkout@v4
 
       - name: Update Homebrew
-        run: brew update --auto-update
+        run: brew update
 
+      # -----------------------------
+      # CACHING
+      # -----------------------------
       - name: Cache Tuist
         uses: actions/cache@v4
         with:
           path: |
             ~/Library/Caches/Homebrew/tuist--*
             ~/Library/Caches/Homebrew/downloads/*--tuist-*
-          key: ${{ runner.os }}-homebrew-tuist-${{ hashFiles('**/tuist-formula.txt') }}
+          key: ${{ runner.os }}-homebrew-tuist-3.6.0
           restore-keys: ${{ runner.os }}-homebrew-tuist-
 
       - name: Cache SwiftGen
@@ -31,7 +35,7 @@ jobs:
           path: |
             ~/Library/Caches/Homebrew/swiftgen--*
             ~/Library/Caches/Homebrew/downloads/*--swiftgen-*
-          key: ${{ runner.os }}-homebrew-swiftgen-${{ hashFiles('**/swiftgen-formula.txt') }}
+          key: ${{ runner.os }}-homebrew-swiftgen-6.8.0
           restore-keys: ${{ runner.os }}-homebrew-swiftgen-
 
       - name: Cache Sourcery
@@ -40,8 +44,8 @@ jobs:
           path: |
             ~/Library/Caches/Homebrew/sourcery--*
             ~/Library/Caches/Homebrew/downloads/*--sourcery-*
-          key: ${{ runner.os }}-homebrew-sourcery-2.2.6-${{ hashFiles('**/sourcery-formula.txt') }}
-          restore-keys: ${{ runner.os }}-homebrew-sourcery-2.2.6-
+          key: ${{ runner.os }}-homebrew-sourcery-2.2.6
+          restore-keys: ${{ runner.os }}-homebrew-sourcery-
 
       - name: Cache SwiftLint
         uses: actions/cache@v4
@@ -49,38 +53,38 @@ jobs:
           path: |
             ~/Library/Caches/Homebrew/swiftlint--*
             ~/Library/Caches/Homebrew/downloads/*--swiftlint-*
-          key: ${{ runner.os }}-homebrew-swiftlint-${{ hashFiles('**/swiftlint-formula.txt') }}
+          key: ${{ runner.os }}-homebrew-swiftlint-0.53.0
           restore-keys: ${{ runner.os }}-homebrew-swiftlint-
 
+      # -----------------------------
+      # INSTALL TOOLS
+      # -----------------------------
       - name: Install Tools
         run: |
-          # Hash formulas for cache keys (run after update)
-          cat "$(brew --repository)/Library/Taps/homebrew/homebrew-core/Formula/t/tuist.rb" > tuist-formula.txt
-          cat "$(brew --repository)/Library/Taps/homebrew/homebrew-core/Formula/s/swiftgen.rb" > swiftgen-formula.txt
-          cat "$(brew --repository)/Library/Taps/homebrew/homebrew-core/Formula/s/swiftlint.rb" > swiftlint-formula.txt
-          
-          # Install standard tools (cached if unchanged)
-          brew install tuist swiftgen swiftlint
-          
-          # For Sourcery 2.2.6 (custom version)
-          brew extract --version=2.2.6 sourcery local-tap
-          brew tap local-tap
-          brew install sourcery@2.2.6
-          
-          # Hash the custom formula for cache
-          cat "$(brew --repository)/Library/Taps/local-tap/Formula/sourcery@2.2.6.rb" > sourcery-formula.txt
+          brew install tuist@3.6.0 || brew upgrade tuist
+          brew install swiftgen@6.8.0 || brew upgrade swiftgen
+          brew tap homebrew/cask
+          brew install sourcery@2.2.6 || brew upgrade sourcery
+          brew install swiftlint@0.53.0 || brew upgrade swiftlint
+
+      # -----------------------------
+      # RUN LINT, GENERATE, BUILD
+      # -----------------------------
+      - name: Run SwiftLint
+        run: swiftlint lint --strict
 
       - name: Run Makefile for Generation
-        run: make project  # Runs run-sourcery, tuist-setup, tuist-generate
+        run: make project
 
       - name: Run Makefile for Build
-        run: make build  # Runs run-sourcery, tuist-setup
+        run: make build
 
+      # -----------------------------
+      # SIMULATOR AND TESTS
+      # -----------------------------
       - name: Ensure iOS Simulators Are Installed
         run: |
-          # Download iOS platforms if missing (includes simulators for 18.x; iOS 26 not available yet)
           xcodebuild -downloadPlatform iOS
-          # List available runtimes to verify
           xcrun simctl list runtimes
 
       - name: Run Tests on iOS 18.3.1
