@@ -13,21 +13,30 @@ final class SwitchControlSnapshotTests: XCTestCase {
     func test_switchControl_default_state() {
         // GIVEN
         let (sut, container) = makeSUT()
-        
+        let snapshotName = "SWITCHCONTROL_DEFAUlT_STATE"
         // WHEN
         sut.display(isOn: true)
         sut.display(isEnabled: true)
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
-               named: "SWITCHCONTROL_DEFAUlt_STATE_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)),
-               named: "SWITCHCONTROL_DEFAUlt_STATE_DARK")
+        if #available(iOS 26, *) {
+            record(snapshot: container.snapshot(for: .iPhone(style: .light)),
+                   named: "iOS26_\(snapshotName)_LIGHT")
+            record(snapshot: container.snapshot(for: .iPhone(style: .dark)),
+                   named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            record(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            record(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_switchControl_isOn_false() {
         // GIVEN
         let (sut, container) = makeSUT()
+        let snapshotName = "SWITCHCONTROL_ISON_FALSE"
+        
         let exp = expectation(description: "Wait for expectation")
         
         sut.display(style: .init(
@@ -53,17 +62,24 @@ final class SwitchControlSnapshotTests: XCTestCase {
         wait(for: [exp], timeout: 5.0)
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
-               named: "SWITCHCONTROL_ISON_FALSE_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)),
-               named: "SWITCHCONTROL_ISON_FALSE_DARK")
+        if #available(iOS 26, *) {
+            record(snapshot: container.snapshot(for: .iPhone(style: .light)),
+                   named: "iOS26_\(snapshotName)_LIGHT")
+            record(snapshot: container.snapshot(for: .iPhone(style: .dark)),
+                   named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            record(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            record(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     // MARK: - Style tests
     func test_switchControl_with_tintColor() {
         // GIVEN
         let (sut, container) = makeSUT()
-        
+        let snapshotName = "SWITCHCONTROL_WITH_TINTCOLOR"
         // WHEN
         sut.display(style: .init(
             tintColor: .red,
@@ -74,16 +90,23 @@ final class SwitchControlSnapshotTests: XCTestCase {
         sut.display(isOn: true)
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
-               named: "SWITCHCONTROL_WITH_TINTCOLOR_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)),
-               named: "SWITCHCONTROL_WITH_TINTCOLOR_DARK")
+        if #available(iOS 26, *) {
+            record(snapshot: container.snapshot(for: .iPhone(style: .light)),
+                   named: "iOS26_\(snapshotName)_LIGHT")
+            record(snapshot: container.snapshot(for: .iPhone(style: .dark)),
+                   named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            record(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            record(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_switchControl_with_thumbTintColor() {
         // GIVEN
         let (sut, container) = makeSUT()
-        
+        let snapshotName = "SWITCHCONTROL_WITH_THUMBTINTCOLOR"
         // WHEN
         sut.display(style: .init(
             tintColor: .red,
@@ -97,15 +120,23 @@ final class SwitchControlSnapshotTests: XCTestCase {
         sut.backgroundColor = .blue
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
-               named: "SWITCHCONTROL_WITH_THUMBTINTCOLOR_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)),
-               named: "SWITCHCONTROL_WITH_THUMBTINTCOLOR_DARK")
+        if #available(iOS 26, *) {
+            record(snapshot: container.snapshot(for: .iPhone(style: .light)),
+                   named: "iOS26_\(snapshotName)_LIGHT")
+            record(snapshot: container.snapshot(for: .iPhone(style: .dark)),
+                   named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            record(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            record(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_switchControl_with_backgroundColor() {
         // GIVEN
         let (sut, container) = makeSUT()
+        let snapshotName = "SWITCHCONTROL_WITH_BACKGROUNDCOLOR"
         
         // WHEN
         sut.display(style: .init(
@@ -120,15 +151,23 @@ final class SwitchControlSnapshotTests: XCTestCase {
         sut.backgroundColor = .blue
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
-               named: "SWITCHCONTROL_WITH_BACKGROUNDCOLOR_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)),
-               named: "SWITCHCONTROL_WITH_BACKGROUNDCOLOR_DARK")
+        if #available(iOS 26, *) {
+            record(snapshot: container.snapshot(for: .iPhone(style: .light)),
+                   named: "iOS26_\(snapshotName)_LIGHT")
+            record(snapshot: container.snapshot(for: .iPhone(style: .dark)),
+                   named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            record(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            record(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_switchControl_with_cornerRadius() {
         // GIVEN
         let (sut, container) = makeSUT()
+        let snapshotName = "SWITCHCONTROL_WITH_CORNERRADIUS"
         
         // WHEN
         sut.display(style: .init(
@@ -143,15 +182,23 @@ final class SwitchControlSnapshotTests: XCTestCase {
         sut.backgroundColor = .blue
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
-               named: "SWITCHCONTROL_WITH_CORNERRADIUS_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)),
-               named: "SWITCHCONTROL_WITH_CORNERRADIUS_DARK")
+        if #available(iOS 26, *) {
+            record(snapshot: container.snapshot(for: .iPhone(style: .light)),
+                   named: "iOS26_\(snapshotName)_LIGHT")
+            record(snapshot: container.snapshot(for: .iPhone(style: .dark)),
+                   named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            record(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            record(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_switchControl_with_shimmerStyle() {
         // GIVEN
         let (sut, container) = makeSUT()
+        let snapshotName = "SWITCHCONTROL_WITH_SHIMMERSTYLE"
         
         // WHEN
         let style = ShimmerView.Style(
@@ -170,10 +217,17 @@ final class SwitchControlSnapshotTests: XCTestCase {
         sut.display(isLoading: true)
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
-               named: "SWITCHCONTROL_WITH_SHIMMERSTYLE_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)),
-               named: "SWITCHCONTROL_WITH_SHIMMERSTYLE_DARK")
+        if #available(iOS 26, *) {
+            record(snapshot: container.snapshot(for: .iPhone(style: .light)),
+                   named: "iOS26_\(snapshotName)_LIGHT")
+            record(snapshot: container.snapshot(for: .iPhone(style: .dark)),
+                   named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            record(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            record(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
 }
 
