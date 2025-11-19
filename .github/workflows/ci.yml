@@ -71,6 +71,9 @@ jobs:
           xcodebuild clean build \
             -workspace "$WORKSPACE_NAME" \
             -scheme "$SCHEME_NAME" \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGN_IDENTITY="" \
+            DEVELOPMENT_TEAM="" \
             -derivedDataPath "$DERIVED_DATA_PATH" \
             -destination "generic/platform=iOS Simulator"
 
@@ -85,6 +88,9 @@ jobs:
             -derivedDataPath "$DERIVED_DATA_PATH" \
             -destination "platform=iOS Simulator,name=$IOS_VERSION_DEVICE,OS=$IOS_VERSION" \
             -skipBuild
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGN_IDENTITY="" \
+            DEVELOPMENT_TEAM="" \
 
       # -----------------------------
       # Test iOS 26.0.1 (skip build)
@@ -97,3 +103,6 @@ jobs:
             -derivedDataPath "$DERIVED_DATA_PATH" \
             -destination "platform=iOS Simulator,name=$LATEST_IOS_VERSION_DEVICE,OS=$LATEST_IOS_VERSION" \
             -skipBuild
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGN_IDENTITY="" \
+            DEVELOPMENT_TEAM="" \
