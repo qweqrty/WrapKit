@@ -11,6 +11,8 @@ import XCTest
 
 final class SearchBarSnapshotTests: XCTestCase {
     func test_SearchBar_defaul_state() {
+        let snapshotName = "SEARCHBAR_DEFAULT_STATE"
+        
         // GIVEN
         let textField = Textfield(appearance:
                 .init(
@@ -31,16 +33,23 @@ final class SearchBarSnapshotTests: XCTestCase {
                 ))
         
         // WHEN
-        let (sut, container) = makeSUT(textField: textField)
+        let (_, container) = makeSUT(textField: textField)
 
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
-               named: "SEARCHBAR_DEFAULT_STATE_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)),
-               named: "SEARCHBAR_DEFAULT_STATE_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_SearchBar_with_placeholder() {
+        let snapshotName = "SEARCHBAR_WITH_PLACEHOLDER"
+        
         // GIVEN
         let textField = Textfield(appearance:
                 .init(
@@ -65,13 +74,20 @@ final class SearchBarSnapshotTests: XCTestCase {
         sut.textfield.placeholder = "type here..."
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
-               named: "SEARCHBAR_WITH_PLACEHOLDER_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)),
-               named: "SEARCHBAR_WITH_PLACEHOLDER_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_SearchBar_with_leftView() {
+        let snapshotName = "SEARCHBAR_WITH_LEFTVIEW"
+        
         // GIVEN
         let textField = Textfield(appearance:
                 .init(
@@ -96,13 +112,20 @@ final class SearchBarSnapshotTests: XCTestCase {
         let (sut, container) = makeSUT(leftView: leftVIew, textField: textField)
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
-               named: "SEARCHBAR_WITH_LEFTVIEW_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)),
-               named: "SEARCHBAR_WITH_LEFTVIEW_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_SearchBar_with_rightView() {
+        let snapshotName = "SEARCHBAR_WITH_RIGHT_VIEW"
+        
         // GIVEN
         let textField = Textfield(appearance:
                 .init(
@@ -128,13 +151,20 @@ final class SearchBarSnapshotTests: XCTestCase {
         let (sut, container) = makeSUT(textField: textField, rightView: rightView)
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
-               named: "SEARCHBAR_WITH_RIGHTVIEW_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)),
-               named: "SEARCHBAR_WITH_RIGHTVIEW_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_SearchBar_with_rightView_leftView() {
+        let snapshotName = "SEARCHBAR_WITH_RIGHT_LEFT_VIEWS_VIEW"
+        
         // GIVEN
         let textField = Textfield(appearance:
                 .init(
@@ -160,10 +190,15 @@ final class SearchBarSnapshotTests: XCTestCase {
         let (sut, container) = makeSUT(leftView: leftView, textField: textField, rightView: rightView)
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
-               named: "SEARCHBAR_WITH_RIGHT_LEFT_VIEWS_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)),
-               named: "SEARCHBAR_WITH_RIGHT_LEFT_VIEWS_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
 }
 
