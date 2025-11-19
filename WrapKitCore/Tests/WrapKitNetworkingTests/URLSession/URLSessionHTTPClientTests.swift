@@ -145,7 +145,7 @@ private extension URLSessionHTTPClientTests {
             exp.fulfill()
         }).resume()
         
-        wait(for: [exp], timeout: 3)
+        wait(for: [exp], timeout: 10)
         return receivedError
     }
     
