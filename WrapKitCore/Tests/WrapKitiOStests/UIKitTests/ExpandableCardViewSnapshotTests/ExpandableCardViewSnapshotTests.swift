@@ -13,21 +13,28 @@ final class ExpandableCardViewSnapshotTests: XCTestCase {
     func test_expandableCardView_default_state() {
         // GIVEN
         let (sut, container) = makeSUT()
+        let snapshotName = "EXPANDABLECARDVIEW_DEFAULT_STATE"
         
         // WHEN
         sut.primeCardView.backgroundColor = .systemRed
         sut.secondaryCardView.backgroundColor = .systemBlue
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
-               named: "EXPANDABLECARDVIEW_DEFAULT_STATE_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)),
-               named: "EXPANDABLECARDVIEW_DEFAULT_STATE_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_expandableCardView_only_prime_card_visible() {
         // GIVEN
         let (sut, container) = makeSUT()
+        let snapshotName = "EXPANDABLECARDVIEW_ONLY_PRIME_VISIBLE"
         
         // WHEN
         sut.primeCardView.backgroundColor = .white
@@ -40,15 +47,21 @@ final class ExpandableCardViewSnapshotTests: XCTestCase {
         // Secondary card is hidden by default
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
-               named: "EXPANDABLECARDVIEW_ONLY_PRIME_VISIBLE_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)),
-               named: "EXPANDABLECARDVIEW_ONLY_PRIME_VISIBLE_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_expandableCardView_both_cards_visible() {
         // GIVEN
         let (sut, container) = makeSUT()
+        let snapshotName = "EXPANDABLECARDVIEW_BOTH_VISIBLE"
         
         // WHEN
         sut.primeCardView.backgroundColor = .white
@@ -61,15 +74,21 @@ final class ExpandableCardViewSnapshotTests: XCTestCase {
         sut.stackView.spacing = 8
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
-               named: "EXPANDABLECARDVIEW_BOTH_VISIBLE_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)),
-               named: "EXPANDABLECARDVIEW_BOTH_VISIBLE_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_expandableCardView_expanded_with_spacing() {
         // GIVEN
         let (sut, container) = makeSUT()
+        let snapshotName = "EXPANDABLECARDVIEW_WITH_SPACING"
         
         // WHEN
         sut.primeCardView.backgroundColor = .systemBlue
@@ -79,15 +98,21 @@ final class ExpandableCardViewSnapshotTests: XCTestCase {
         sut.stackView.spacing = 50
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
-               named: "EXPANDABLECARDVIEW_WITH_SPACING_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)),
-               named: "EXPANDABLECARDVIEW_WITH_SPACING_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_expandableCardView_expanded_no_spacing() {
         // GIVEN
         let (sut, container) = makeSUT()
+        let snapshotName = "EXPANDABLECARDVIEW_NO_SPACING"
         
         // WHEN
         sut.primeCardView.backgroundColor = .systemBlue
@@ -97,15 +122,21 @@ final class ExpandableCardViewSnapshotTests: XCTestCase {
         sut.stackView.spacing = 0
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
-               named: "EXPANDABLECARDVIEW_NO_SPACING_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
-               named: "EXPANDABLECARDVIEW_NO_SPACING_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_expandableCardView_display_only_prime_model() {
         // GIVEN
         let (sut, container) = makeSUT()
+        let snapshotName = "EXPANABLE_CARD_VIEW_DISPLAY_ONLY_PRIME_MODEL"
         
         // WHEN
         let primeModel = CardViewPresentableModel(
@@ -136,15 +167,21 @@ final class ExpandableCardViewSnapshotTests: XCTestCase {
         sut.display(model: .init(primeModel, nil))
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
-               named: "EXPANDABLECARDVIEW_DISPLAY_PRIME_ONLY_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)),
-               named: "EXPANDABLECARDVIEW_DISPLAY_PRIME_ONLY_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_expandableCardView_display_both_models() {
         // GIVEN
         let (sut, container) = makeSUT()
+        let snapshotName = "EXPANDABLECARDVIEW_DISPLAY_BOTH"
         
         // WHEN
         let primeModel = CardViewPresentableModel(
@@ -201,15 +238,21 @@ final class ExpandableCardViewSnapshotTests: XCTestCase {
         sut.display(model: .init(primeModel, secondaryModel))
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
-               named: "EXPANDABLECARDVIEW_DISPLAY_BOTH_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)),
-               named: "EXPANDABLECARDVIEW_DISPLAY_BOTH_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_expandableCardView_different_card_heights() {
         // GIVEN
         let (sut, container) = makeSUT()
+        let snapshotName = "EXPANDABLECARDVIEW_DIFFERENT_HEIGHTS"
         
         // WHEN
         sut.primeCardView.backgroundColor = .systemBlue
@@ -222,16 +265,22 @@ final class ExpandableCardViewSnapshotTests: XCTestCase {
         sut.stackView.spacing = 8
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
-               named: "EXPANDABLECARDVIEW_DIFFERENT_HEIGHTS_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)),
-               named: "EXPANDABLECARDVIEW_DIFFERENT_HEIGHTS_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_expandableCardView_with_content() {
         // GIVEN
         let (sut, container) = makeSUT()
         let image = Image(systemName: "star.fill")
+        let snapshotName = "EXPANDABLECARDVIEW_WITH_CONTENT"
         
         // WHEN
         let primeModel = CardViewPresentableModel(
@@ -300,10 +349,15 @@ final class ExpandableCardViewSnapshotTests: XCTestCase {
         sut.layoutIfNeeded()
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
-               named: "EXPANDABLECARDVIEW_WITH_CONTENT_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)),
-               named: "EXPANDABLECARDVIEW_WITH_CONTENT_dARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
 }
 
