@@ -14,6 +14,8 @@ final class ToastViewSnapshotTests: XCTestCase {
     private let image = UIImage(systemName: "star.fill")
     
     func test_ToastView_default_state() {
+        let snapshotName = "TOASTVIEW_DEFAULT_STATE"
+        
         // GIVEN
         let sut = makeSUT()
         let exp = expectation(description: "Wait for completion!")
@@ -33,13 +35,20 @@ final class ToastViewSnapshotTests: XCTestCase {
         wait(for: [exp], timeout: 2.0)
         
         // THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)),
-               named: "TOASTVIEW_DEFAULT_STATE_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)),
-               named: "TOASTVIEW_DEFAULT_STATE_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_ToastView_with_leadingImage() {
+        let snapshotName = "TOASTVIEW_WITH_LEADINGIMAGE"
+        
         // GIVEN
         let sut = makeSUT()
         let exp = expectation(description: "Wait for completion!")
@@ -64,14 +73,21 @@ final class ToastViewSnapshotTests: XCTestCase {
         wait(for: [exp], timeout: 2.0)
         
         // THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)),
-               named: "TOASTVIEW_WITH_LEADINGIMAGE_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)),
-               named: "TOASTVIEW_WITH_LEADINGIMAGE_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     // TODO: = title doesnt wrap to multiple lines
     func test_ToastView_with_long_text() {
+        let snapshotName = "TOASTVIEW_WITH_LONGTEXT"
+        
         // GIVEN
         let sut = makeSUT()
         let exp = expectation(description: "Wait for completion!")
@@ -95,13 +111,20 @@ final class ToastViewSnapshotTests: XCTestCase {
         wait(for: [exp], timeout: 2.0)
         
         // THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)),
-               named: "TOASTVIEW_WITH_LONGTEXT_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)),
-               named: "TOASTVIEW_WITH_LONGTEXT_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_ToastView_with_subTitle() {
+        let snapshotName = "TOASTVIEW_WITH_SUBTITLE"
+        
         // GIVEN
         let sut = makeSUT()
         let exp = expectation(description: "Wait for completion!")
@@ -126,13 +149,20 @@ final class ToastViewSnapshotTests: XCTestCase {
         wait(for: [exp], timeout: 2.0)
         
         // THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)),
-               named: "TOASTVIEW_WITH_SUBTITLE_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)),
-               named: "TOASTVIEW_WITH_SUBTITLE_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_ToastView_with_valueTitle() {
+        let snapshotName = "TOASTVIEW_WITH_VALUETITLE"
+        
         // GIVEN
         let sut = makeSUT()
         let exp = expectation(description: "Wait for completion!")
@@ -157,13 +187,20 @@ final class ToastViewSnapshotTests: XCTestCase {
         wait(for: [exp], timeout: 2.0)
         
         // THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)),
-               named: "TOASTVIEW_WITH_VALUETITLE_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)),
-               named: "TOASTVIEW_WITH_VALUETITLE_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_ToastView_with_trailingImage() {
+        let snapshotName = "TOASTVIEW_WITH_TRAILINGIMAGE"
+        
         // GIVEN
         let sut = makeSUT()
         let exp = expectation(description: "Wait for completion!")
@@ -188,13 +225,20 @@ final class ToastViewSnapshotTests: XCTestCase {
         wait(for: [exp], timeout: 2.0)
         
         // THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)),
-               named: "TOASTVIEW_WITH_TRAILINGIMAGE_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)),
-               named: "TOASTVIEW_WITH_TRAILINGIMAGE_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_ToastView_with_switchControl() {
+        let snapshotName = "TOASTVIEW_WITH_SWITCHCONTROL"
+        
         // GIVEN
         let sut = makeSUT()
         let exp = expectation(description: "Wait for completion!")
@@ -221,13 +265,20 @@ final class ToastViewSnapshotTests: XCTestCase {
         wait(for: [exp], timeout: 2.0)
         
         // THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)),
-               named: "TOASTVIEW_WITH_SWITCHCONTROL_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)),
-               named: "TOASTVIEW_WITH_SWITCHCONTROL_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_ToastView_with_bottomSeparator() {
+        let snapshotName = "TOASTVIEW_WITH_BOTTOMSEPARATOR"
+        
         // GIVEN
         let sut = makeSUT()
         let exp = expectation(description: "Wait for completion!")
@@ -248,13 +299,20 @@ final class ToastViewSnapshotTests: XCTestCase {
         wait(for: [exp], timeout: 2.0)
         
         // THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)),
-               named: "TOASTVIEW_WITH_BOTTOMSEPARATOR_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)),
-               named: "TOASTVIEW_WITH_BOTTOMSEPARATOR_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_ToastView_with_leadingTitles() {
+        let snapshotName = "TOASTVIEW_WITH_lEADINGTITLES"
+        
         // GIVEN
         let sut = makeSUT()
         let exp = expectation(description: "Wait for completion!")
@@ -275,13 +333,20 @@ final class ToastViewSnapshotTests: XCTestCase {
         wait(for: [exp], timeout: 2.0)
         
         // THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)),
-               named: "TOASTVIEW_WITH_lEADINGTITLES_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)),
-               named: "TOASTVIEW_WITH_lEADINGTITLES_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_ToastView_with_trailingTitles() {
+        let snapshotName = "TOASTVIEW_WITH_TRAILINGTITLES"
+        
         // GIVEN
         let sut = makeSUT()
         let exp = expectation(description: "Wait for completion!")
@@ -302,13 +367,20 @@ final class ToastViewSnapshotTests: XCTestCase {
         wait(for: [exp], timeout: 2.0)
         
         // THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)),
-               named: "TOASTVIEW_WITH_TRAILINGTITLES_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)),
-               named: "TOASTVIEW_WITH_TRAILINGTITLES_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_ToastView_with_secondaryLeadingImage() {
+        let snapshotName = "TOASTVIEW_WITH_SECONDARYLEADINGIMAGE"
+        
         // GIVEN
         let sut = makeSUT()
         let exp = expectation(description: "Wait for completion!")
@@ -329,13 +401,20 @@ final class ToastViewSnapshotTests: XCTestCase {
         wait(for: [exp], timeout: 2.0)
         
         // THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)),
-               named: "TOASTVIEW_WITH_SECONDARYLEADINGIMAGE_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)),
-               named: "TOASTVIEW_WITH_SECONDARYLEADINGIMAGE_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_ToastView_with_secondaryTrailingImage() {
+        let snapshotName = "TOASTVIEW_WITH_SECONDARYTRAILINGIMAGE"
+        
         // GIVEN
         let sut = makeSUT()
         let exp = expectation(description: "Wait for completion!")
@@ -356,10 +435,15 @@ final class ToastViewSnapshotTests: XCTestCase {
         wait(for: [exp], timeout: 2.0)
         
         // THEN
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .light)),
-               named: "TOASTVIEW_WITH_SECONDARYTRAILINGIMAGE_LIGHT")
-        assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)),
-               named: "TOASTVIEW_WITH_SECONDARYTRAILINGIMAGE_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
 }
 
