@@ -16,6 +16,8 @@ private enum ImageTestLinks: String {
 
 final class ButtonSnapshotTests: XCTestCase {
     func test_buttonOutput_default_state() {
+        let snapshotName = "BUTTON_DEFAULT_STATE"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         
@@ -24,11 +26,20 @@ final class ButtonSnapshotTests: XCTestCase {
         sut.display(style: .init(backgroundColor: .cyan))
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "BUTTON_DEFAULT_STATE_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "BUTTON_DEFAULT_STATE_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_buttonOutput_enabled_state() {
+        let snapshotName = "BUTTON_ENABLED_STATE"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         
@@ -38,11 +49,20 @@ final class ButtonSnapshotTests: XCTestCase {
         sut.display(style: .init(backgroundColor: .cyan))
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "BUTTON_ENABLED_STATE_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "BUTTON_ENABLED_STATE_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_buttonOutput_image_state() {
+        let snapshotName = "BUTTON_IMAGE_STATE"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         
@@ -52,12 +72,21 @@ final class ButtonSnapshotTests: XCTestCase {
         sut.display(style: .init(backgroundColor: .cyan))
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "BUTTON_IMAGE_STATE_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "BUTTON_IMAGE_STATE_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     // MARK: - Set image tests
     func test_buttonOutput_image_assets() {
+        let snapshotName = "BUTTON_IMAGE_ASSET"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         let exp = expectation(description: "Wait for complition")
@@ -73,10 +102,18 @@ final class ButtonSnapshotTests: XCTestCase {
         wait(for: [exp], timeout: 1.0)
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "BUTTON_IMAGE_ASSET_LIGHT")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_buttonOutput_imageURL_state_light() {
+        let snapshotName = "BUTTON_IMAGE_URL_STATE"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         let exp = expectation(description: "Wait for complition")
@@ -92,10 +129,18 @@ final class ButtonSnapshotTests: XCTestCase {
         wait(for: [exp], timeout: 5.0)
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "BUTTON_IMAGE_URL_STATE_LIGHT")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_buttonOutput_imageURL_state_dark() {
+        let snapshotName = "BUTTON_IMAGE_URL_STATE"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         let exp = expectation(description: "Wait for complition")
@@ -111,10 +156,18 @@ final class ButtonSnapshotTests: XCTestCase {
         wait(for: [exp], timeout: 5.0)
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "BUTTON_IMAGE_URL_STATE_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_buttonOutput_imageURLString_state_light() {
+        let snapshotName = "BUTTON_IMAGE_URLSTRING_STATE"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         let exp = expectation(description: "Wait for complition")
@@ -130,10 +183,18 @@ final class ButtonSnapshotTests: XCTestCase {
         wait(for: [exp], timeout: 5.0)
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "BUTTON_IMAGE_URLSTRING_STATE_LIGHT")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_buttonOutput_imageURLString_state_dark() {
+        let snapshotName = "BUTTON_IMAGE_URLSTRING_STATE"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         let exp = expectation(description: "Wait for complition")
@@ -149,10 +210,18 @@ final class ButtonSnapshotTests: XCTestCase {
         wait(for: [exp], timeout: 5.0)
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "BUTTON_IMAGE_URLSTRING_STATE_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_buttonOutput_noUrl() {
+        let snapshotName = "BUTTON_IMAGE_NOURL"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         
@@ -161,11 +230,20 @@ final class ButtonSnapshotTests: XCTestCase {
         sut.display(style: .init(backgroundColor: .cyan))
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "BUTTON_IMAGE_NOURL_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "BUTTON_IMAGE_NOURL_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_buttonOutput_noURLString() {
+        let snapshotName = "BUTTON_IMAGE_NOURLSTRING"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         
@@ -174,11 +252,20 @@ final class ButtonSnapshotTests: XCTestCase {
         sut.display(style: .init(backgroundColor: .cyan))
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "BUTTON_IMAGE_NOURSTRINGL_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "BUTTON_IMAGE_NOURLSTRING_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_buttonOutput_with_spacing() {
+        let snapshotName = "BUTTON_WITH_SPACING"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         
@@ -192,11 +279,20 @@ final class ButtonSnapshotTests: XCTestCase {
         sut.display(style: .init(backgroundColor: .cyan))
 
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "BUTTON_WITH_SPACING_STATE_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "BUTTON_WITH_SPACING_STATE_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_buttonOutput_with_onPress() {
+        let snapshotName = "BUTTON_WITH_TAP"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         
@@ -210,11 +306,20 @@ final class ButtonSnapshotTests: XCTestCase {
         sut.onPress?()
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "BUTTON_WITH_TAP_STATE_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "BUTTON_WITH_TAP_STATE_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_buttonOutput_with_height() {
+        let snapshotName = "BUTTON_WITH_HEIGHT"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         
@@ -229,11 +334,20 @@ final class ButtonSnapshotTests: XCTestCase {
         sut.display(style: .init(backgroundColor: .cyan))
 
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "BUTTON_WITH_HEIGHT_STATE_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "BUTTON_WITH_HEIGHT_STATE_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_buttonOutput_isHidden() {
+        let snapshotName = "BUTTON_ISHIDDEN"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         
@@ -243,12 +357,21 @@ final class ButtonSnapshotTests: XCTestCase {
         sut.display(isHidden: false)
 
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "BUTTON_ISHIDDEN_STATE_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "BUTTON_ISHIDDEN_STATE_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     // MARK: - ButtonStyle tests
     func test_buttonOutput_style_backgroundColor() {
+        let snapshotName = "BUTTON_STYLE_BACKGROUN_COLOR_STATE"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         
@@ -256,11 +379,20 @@ final class ButtonSnapshotTests: XCTestCase {
         sut.display(style: .init(backgroundColor: .systemRed))
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "BUTTON_STYLE_BACKGROUN_DCOLOR_STATE_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "BUTTON_STYLE_BACKGROUN_DCOLOR_STATE_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_buttonOutput_style_titleColor() {
+        let snapshotName = "BUTTON_STYLE_TITLE_COLOR_STATE"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         
@@ -269,11 +401,20 @@ final class ButtonSnapshotTests: XCTestCase {
         sut.display(style: .init(backgroundColor: .cyan, titleColor: .red))
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "BUTTON_STYLE_TITLE_COLOR_STATE_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "BUTTON_STYLE_TITLE_COLOR_STATE_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_buttonOutput_style_borderWidth() {
+        let snapshotName = "BUTTON_STYLE_BORDER_WIDTH_STATE"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         
@@ -287,12 +428,21 @@ final class ButtonSnapshotTests: XCTestCase {
         sut.display(title: "BUTTON WITH BORDER")
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "BUTTON_STYLE_BORDER_WIDTH_STATE_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "BUTTON_STYLE_BORDER_WIDTH_STATE_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     // TODO: - Do it
     func test_buttonOutput_style_pressedColor() {
+        let snapshotName = "BUTTON_STYLE_PRESSED_COLOR_STATE"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         
@@ -306,11 +456,20 @@ final class ButtonSnapshotTests: XCTestCase {
         
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "BUTTON_STYLE_PRESSED_COLOR_STATE_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "BUTTON_STYLE_PRESSED_COLOR_STATE_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_buttonOutput_style_pressedTintColor() {
+        let snapshotName = "BUTTON_STYLE_PRESSED_TINTCOLOR_STATE"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         
@@ -325,11 +484,20 @@ final class ButtonSnapshotTests: XCTestCase {
         sut.touchesBegan([UITouch()], with: nil)
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "BUTTON_STYLE_PRESSED_TINTCOLOR_STATE_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "BUTTON_STYLE_PRESSED_TINTCOLOR_STATE_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_buttonOutput_style_font() {
+        let snapshotName = "BUTTON_STYLE_FONT_STATE"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         
@@ -338,11 +506,20 @@ final class ButtonSnapshotTests: XCTestCase {
         sut.display(title: "BUTTON WITH FONT")
 
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "BUTTON_STYLE_FONT_STATE_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "BUTTON_STYLE_FONT_STATE_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_buttonOutput_style_cornerRadius() {
+        let snapshotName = "BUTTON_STYLE_CORNER_RADIUS_STATE"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         
@@ -351,11 +528,20 @@ final class ButtonSnapshotTests: XCTestCase {
         sut.display(style: .init(backgroundColor: .cyan, cornerRadius: 40))
 
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "BUTTON_STYLE_CORNER_RADIUS_STATE_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "BUTTON_STYLE_CORNER_RADIUS_STATE_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_buttonOutput_with_no_url() {
+        let snapshotName = "BUTTON_OUTPUT_NO_URL"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         sut.wrongUrlPlaceholderImage = UIImage(systemName: "xmark")!
@@ -365,8 +551,15 @@ final class ButtonSnapshotTests: XCTestCase {
         sut.setImage(.url(nil, nil), completion: nil)
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "BUTTON_OUTPUT_NO_URL_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "BUTTON_OUTPUT_NO_URL_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
 }
 
