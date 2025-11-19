@@ -59,7 +59,7 @@ jobs:
       # -----------------------------
       - name: Install Tools
         run: |
-          brew install sourcery@2.2.6
+          brew install sourcery
           brew install tuist
           brew install swiftgen
           brew install swiftlint
