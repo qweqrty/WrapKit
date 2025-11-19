@@ -18,43 +18,6 @@ jobs:
         uses: actions/checkout@v4
 
       # -----------------------------
-      # Cache Tools
-      # -----------------------------
-      - name: Cache Tuist
-        uses: actions/cache@v4
-        with:
-          path: ~/.tuist
-          key: ${{ runner.os }}-tuist-latest
-          restore-keys: ${{ runner.os }}-tuist-
-
-      - name: Cache SwiftGen
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/Library/Caches/Homebrew/swiftgen--*
-            ~/Library/Caches/Homebrew/downloads/*--swiftgen-*
-          key: ${{ runner.os }}-homebrew-swiftgen-latest
-          restore-keys: ${{ runner.os }}-homebrew-swiftgen-
-
-      - name: Cache Sourcery
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/Library/Caches/Homebrew/sourcery--*
-            ~/Library/Caches/Homebrew/downloads/*--sourcery-*
-          key: ${{ runner.os }}-homebrew-sourcery-2.2.6
-          restore-keys: ${{ runner.os }}-homebrew-sourcery-
-
-      - name: Cache SwiftLint
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/Library/Caches/Homebrew/swiftlint--*
-            ~/Library/Caches/Homebrew/downloads/*--swiftlint-*
-          key: ${{ runner.os }}-homebrew-swiftlint-latest
-          restore-keys: ${{ runner.os }}-homebrew-swiftlint-
-
-      # -----------------------------
       # Install Tools
       # -----------------------------
       - name: Install Tools
@@ -83,8 +46,12 @@ jobs:
       # -----------------------------
       - name: Run Tests on iOS >= 18.3
         run: |
-          # Pick first available simulator >= 18.3
-          DEVICE_18=$(xcrun simctl list devices available | grep "iOS 18" | grep -v unavailable | head -n1 | awk -F '[()]' '{print $2}')
+          # Pick first iPhone simulator >= 18.3
+          DEVICE_18=$(xcrun simctl list devices | grep -E "iPhone.*iOS 18\.[4-9]|iOS 18\.[0-9]+" | grep -v unavailable | head -n1 | awk -F '[()]' '{print $2}')
+          if [ -z "$DEVICE_18" ]; then
+            echo "No suitable iOS 18 simulator found"
+            exit 1
+          fi
           echo "Using simulator $DEVICE_18 for iOS >= 18.3"
           xcodebuild clean build test \
             -workspace WrapKit.xcworkspace \
@@ -93,10 +60,14 @@ jobs:
 
       - name: Run Tests on iOS >= 26.1
         run: |
-          # Pick first available simulator >= 26.1
-          DEVICE_26=$(xcrun simctl list devices available | grep "iOS 26" | grep -v unavailable | head -n1 | awk -F '[()]' '{print $2}')
+          DEVICE_26=$(xcrun simctl list devices | grep -E "iPhone.*iOS 26\.[0-9]+" | grep -v unavailable | head -n1 | awk -F '[()]' '{print $2}')
+          if [ -z "$DEVICE_26" ]; then
+            echo "No suitable iOS 26 simulator found"
+            exit 1
+          fi
           echo "Using simulator $DEVICE_26 for iOS >= 26.1"
           xcodebuild clean build test \
             -workspace WrapKit.xcworkspace \
             -scheme WrapKit \
             -destination "id=$DEVICE_26"
+
