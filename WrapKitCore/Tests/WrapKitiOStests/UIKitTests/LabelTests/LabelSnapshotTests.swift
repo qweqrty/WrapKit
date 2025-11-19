@@ -163,7 +163,7 @@ class LabelSnapshotTests: XCTestCase {
         let snapshotName = "LABEL_CORNER_FIXED"
         
         // WHEN
-        sut.cornerStyle = .fixed(100)
+        sut.cornerStyle = .fixed(30)
         sut.backgroundColor = .blue
         sut.display(model: .text("Rounded"))
         
