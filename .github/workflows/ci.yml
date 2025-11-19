@@ -65,15 +65,15 @@ jobs:
           brew install swiftlint
 
       # -----------------------------
-      # Generate, Build
+      # Generate / Build
       # -----------------------------
       - name: Run Makefile for Build
-        run: make build
+        run: make project
 
       # -----------------------------
       # Ensure iOS Simulators
       # -----------------------------
-      - name: Ensure iOS Simulators Are Installed
+      - name: Ensure iOS Simulators
         run: |
           xcodebuild -downloadPlatform iOS
           xcrun simctl list runtimes
@@ -81,9 +81,22 @@ jobs:
       # -----------------------------
       # Run Tests
       # -----------------------------
-      - name: Run Tests on iOS 18.3.1
+      - name: Run Tests on iOS >= 18.3
         run: |
-          xcodebuild clean build test -workspace WrapKit.xcworkspace -scheme WrapKit -destination "platform=iOS Simulator,name=iPhone 16e,OS=18.3.1"
-      - name: Run Tests on iOS 26.1
+          # Pick first available simulator >= 18.3
+          DEVICE_18=$(xcrun simctl list devices available | grep "iOS 18" | grep -v unavailable | head -n1 | awk -F '[()]' '{print $2}')
+          echo "Using simulator $DEVICE_18 for iOS >= 18.3"
+          xcodebuild clean build test \
+            -workspace WrapKit.xcworkspace \
+            -scheme WrapKit \
+            -destination "id=$DEVICE_18"
+
+      - name: Run Tests on iOS >= 26.1
         run: |
-          xcodebuild clean build test -workspace WrapKit.xcworkspace -scheme WrapKit -destination "platform=iOS Simulator,name=iPhone 17 pro,OS=26.1"
+          # Pick first available simulator >= 26.1
+          DEVICE_26=$(xcrun simctl list devices available | grep "iOS 26" | grep -v unavailable | head -n1 | awk -F '[()]' '{print $2}')
+          echo "Using simulator $DEVICE_26 for iOS >= 26.1"
+          xcodebuild clean build test \
+            -workspace WrapKit.xcworkspace \
+            -scheme WrapKit \
+            -destination "id=$DEVICE_26"
