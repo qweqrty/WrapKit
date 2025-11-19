@@ -42,6 +42,15 @@ public class TableOutputSwiftUIAdapter<Cell: Hashable,Footer: Any,Header: Any>: 
             trailingSwipeActionsForIndexPath: trailingSwipeActionsForIndexPath
         )
     }
+    @Published public var displayIndexPathState: DisplayIndexPathState? = nil
+    public struct DisplayIndexPathState {
+        public let indexPath: IndexPath
+    }
+    public func display(expandTrailingActionsAt indexPath: IndexPath) {
+        displayIndexPathState = .init(
+            indexPath: indexPath
+        )
+    }
     @Published public var displayLeadingSwipeActionsForIndexPathState: DisplayLeadingSwipeActionsForIndexPathState? = nil
     public struct DisplayLeadingSwipeActionsForIndexPathState {
         public let leadingSwipeActionsForIndexPath: ((IndexPath) -> [TableContextualAction<Cell>])?
