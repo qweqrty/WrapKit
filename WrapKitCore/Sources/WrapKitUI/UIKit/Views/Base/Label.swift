@@ -167,7 +167,7 @@ open class Label: UILabel {
         guard let cornerStyle = cornerStyle else { return }
         switch cornerStyle {
         case .automatic:
-            layer.cornerRadius = bounds.height / 2
+            layer.cornerRadius = min(bounds.height, bounds.width) / 2
         case .fixed(let radius):
             layer.cornerRadius = radius
         case .none:
