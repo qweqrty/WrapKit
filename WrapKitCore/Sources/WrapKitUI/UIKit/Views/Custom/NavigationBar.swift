@@ -258,7 +258,7 @@ open class NavigationBar: UIView {
 
 private extension NavigationBar {
     func makeLeadingCardGlassEffectView() -> UIView {
-        if #available(iOS 26.0, *) {
+        if #available(iOS 26, macOS 26, tvOS 26, watchOS 26, *) {
             let glassEffect = UIGlassEffect(style: .regular)
             glassEffect.isInteractive = true
             let glassEffectView = UIVisualEffectView(effect: glassEffect)
@@ -313,7 +313,7 @@ private extension NavigationBar {
                 )
             }
         )
-        if #available(iOS 26.0, *) {
+        if #available(iOS 26, macOS 26, tvOS 26, watchOS 26, *) {
             view.contentView.configuration = .glass()
         }
         return view
