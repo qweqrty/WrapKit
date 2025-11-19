@@ -11,6 +11,8 @@ import WrapKitTestUtils
 
 final class TextViewSnapshotTests: XCTestCase {
     func test_Textview_default_state() {
+        let snapshotName = "TEXTVIEW_DEFAULT_STATE"
+        
         // GIVEn
         let (sut, container) = makeSUT()
         
@@ -18,12 +20,21 @@ final class TextViewSnapshotTests: XCTestCase {
         sut.display(text: "DEFAULT STATE")
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "TEXTVIEW_DEFAULT_STATE_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "TEXTVIEW_DEFAULT_STATE_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     // MARK: - display(mask:) tests
     func test_Textview_mask_as_placeholder() {
+        let snapshotName = "TEXTVIEW_MASK_PLACEHOLDER"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         
@@ -40,11 +51,20 @@ final class TextViewSnapshotTests: XCTestCase {
         sut.display(placeholder: result.input + result.maskToInput)
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "TEXTVIEW_MASK_PLACEHOLDER_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "TEXTVIEW_MASK_PLACEHOLDER_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_Textview_with_masked_text() {
+        let snapshotName = "TEXTVIEW_MASKED_INPUT"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         
@@ -75,11 +95,20 @@ final class TextViewSnapshotTests: XCTestCase {
         }
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "TEXTVIEW_MASKED_INPUT_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "TEXTVIEW_MASKED_INPUT_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_Textview_mask_pattern() {
+        let snapshotName = "TEXTVIEW_MASK_PATTERN"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         
@@ -109,11 +138,20 @@ final class TextViewSnapshotTests: XCTestCase {
         sut.display(placeholder: result.input + result.maskToInput)
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "TEXTVIEW_MASK_PATTERN_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "TEXTVIEW_MASK_PATTERN_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_Textview_mask_with_color() {
+        let snapshotName = "TEXTVIEW_MASK_COLOR"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         
@@ -132,12 +170,21 @@ final class TextViewSnapshotTests: XCTestCase {
         sut.placeholderLabel.textColor = .systemRed
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "TEXTVIEW_MASK_COLOR_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "TEXTVIEW_MASK_COLOR_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     // MARK: - display(isValid:) tests
     func test_TextView_invalid_state() {
+        let snapshotName = "TEXTVIEW_INVALID_STATE"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         
@@ -147,11 +194,20 @@ final class TextViewSnapshotTests: XCTestCase {
         sut.updateAppearance(isValid: false)
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "TEXTVIEW_INVALID_STATE_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "TEXTVIEW_INVALID_STATE_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_TextView_valid_state() {
+        let snapshotName = "TEXTVIEW_VALID_STATE"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         
@@ -161,11 +217,20 @@ final class TextViewSnapshotTests: XCTestCase {
         sut.updateAppearance(isValid: true)
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "TEXTVIEW_VALID_STATE_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "TEXTVIEW_VALID_STATE_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_TextView_valid_to_invalid_transition() {
+        let snapshotName = "TEXTVIEW_VALIDATION_TRANSITION"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         sut.display(text: "test@email")
@@ -178,11 +243,20 @@ final class TextViewSnapshotTests: XCTestCase {
         sut.updateAppearance(isValid: false)
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "TEXTVIEW_VALIDATION_TRANSITION_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "TEXTVIEW_VALIDATION_TRANSITION_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_TextView_invalid_with_placeholder() {
+        let snapshotName = "TEXTVIEW_INVALID_PLACEHOLDER"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         
@@ -192,12 +266,21 @@ final class TextViewSnapshotTests: XCTestCase {
         sut.updateAppearance(isValid: false)
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "TEXTVIEW_INVALID_PLACEHOLDER_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "TEXTVIEW_INVALID_PLACEHOLDER_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     // TODO: - Wron appearance. placeholder is visible even if text exists
     func test_TextView_invalid_with_text_and_placeholder() {
+        let snapshotName = "TEXTVIEW_INVALID_WITH_TEXT_AND_PLACEHOLDER"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         
@@ -208,12 +291,21 @@ final class TextViewSnapshotTests: XCTestCase {
         sut.updateAppearance(isValid: false)
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "TEXTVIEW_INVALID_WITH_TEXT_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "TEXTVIEW_INVALID_WITH_TEXT_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     // MARK: - display(placeholder:) tests
     func test_TextView_with_placeholder() {
+        let snapshotName = "TEXTVIEW_WITH_PLACEHOLDER"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         
@@ -221,12 +313,21 @@ final class TextViewSnapshotTests: XCTestCase {
         sut.display(placeholder: "Placeholder")
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "TEXTVIEW_WITH_PLACEHOLDER_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "TEXTVIEW_WITH_PLACEHOLDER_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     // TODO: - its better make unit test for this case
     func test_TextView_with_securityTextEntry() {
+        let snapshotName = "TEXTVIEW_WITH_SECURITY_TEXT_ENTRY"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         
@@ -235,11 +336,20 @@ final class TextViewSnapshotTests: XCTestCase {
         sut.display(isSecureTextEntry: false)
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "TEXTVIEW_WITH_SECURITY_TEXT_ENTRY_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "TEXTVIEW_WITH_SECURITY_TEXT_ENTRY_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_TextView_onPress() {
+        let snapshotName = "TEXTVIEW_ONPRESS"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         let exp = expectation(description: "Wait for completion")
@@ -256,11 +366,20 @@ final class TextViewSnapshotTests: XCTestCase {
         wait(for: [exp], timeout: 1.0)
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "TEXTVIEW_ONPRESS_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "TEXTVIEW_ONPRESS_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_TextView_onPaste() {
+        let snapshotName = "TEXTVIEW_ONPASTE"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         let exp = expectation(description: "Wait for completion")
@@ -278,12 +397,21 @@ final class TextViewSnapshotTests: XCTestCase {
         wait(for: [exp], timeout: 1.0)
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "TEXTVIEW_ONPASTE_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "TEXTVIEW_ONPASTE_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     // TODO: - No realization for textView
     func test_TextView_onTapBackspace() {
+        let snapshotName = "TEXTVIEW_ONTAPBACKSPACE"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         let exp = expectation(description: "Wait for completion")
@@ -301,12 +429,21 @@ final class TextViewSnapshotTests: XCTestCase {
         wait(for: [exp], timeout: 1.0)
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "TEXTVIEW_ONTAPBACKSPACE_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "TEXTVIEW_ONTAPBACKSPACE_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     // TODO: - There are no realization for textView
     func test_TextView_clearButtonActive() {
+        let snapshotName = "TEXTVIEW_CLEARBUTTONACTIVE"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         
@@ -315,12 +452,21 @@ final class TextViewSnapshotTests: XCTestCase {
         sut.display(isClearButtonActive: true)
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "TEXTVIEW_CLEABUTTONACTIVE_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "TEXTVIEW_CLEABUTTONACTIVE_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     // TODO: - There are no realization for textView
     func test_TextView_trailingSymbol() {
+        let snapshotName = "TEXTVIEW_TRAILINGSYMBOL"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         
@@ -329,8 +475,15 @@ final class TextViewSnapshotTests: XCTestCase {
         sut.display(trailingSymbol: "X")
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "TEXTVIEW_TRAILINGSYMBOL_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "TEXTVIEW_TRAILINGSYMBOL_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
 }
 
