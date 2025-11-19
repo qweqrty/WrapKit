@@ -13,22 +13,30 @@ final class WrapperViewSnapshotTests: XCTestCase {
     func test_wrapperView_defaul_state() {
         // GIVEN
         let (sut, container) = makeSUT()
+        let snapshotName = "WRAPPERVIEW_DEFAULT_STATE"
         
         // WHEN
         sut.contentView.backgroundColor = .yellow
         sut.backgroundColor = .red
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
-               named: "WRAPPERVIEW_DEFAULT_STATE_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)),
-               named: "WRAPPERVIEW_DEFAULT_STATE_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_wrapperView_with_content() {
         // GIVEN
         let (sut, container) = makeSUT()
         let label = Label()
+        
+        let snapshotName = "WRAPPERVIEW_WITH_CONTENT"
         
         // WHEN
         label.text = "Content to show!"
@@ -39,16 +47,23 @@ final class WrapperViewSnapshotTests: XCTestCase {
         sut.contentView.addSubview(label)
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
-               named: "WRAPPERVIEW_WITH_CONTENT_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)),
-               named: "WRAPPERVIEW_WITH_CONTENT_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_wrapperView_with_multiline_text() {
         // GIVEN
         let (sut, container) = makeSUT()
         let label = Label()
+        
+        let snapshotName = "WRAPPERVIEW_MULTILINE_TEXT"
         
         // WHEN
         label.text = "This is a longer text that should wrap to multiple lines in the wrapper view"
@@ -60,29 +75,42 @@ final class WrapperViewSnapshotTests: XCTestCase {
         label.fillSuperview(padding: .init(top: 10, left: 10, bottom: 10, right: 10))
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
-               named: "WRAPPERVIEW_MULTILINE_TEXT_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)),
-               named: "WRAPPERVIEW_MULTILINE_TEXT_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_wrapperView_hidden_state() {
         let (sut, container) = makeSUT()
+        let snapshotName = "WRAPPERVIEW_HIDDEN_STATE"
         
         sut.contentView.backgroundColor = .yellow
         sut.backgroundColor = .red
         sut.isHidden = true
         
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
-               named: "WRAPPERVIEW_HIDDEN_STATE_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)),
-               named: "WRAPPERVIEW_HIDDEN_STATE_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_wrapperView_with_button() {
         // GIVEN
         let (sut, container) = makeSUT()
         let button = Button(type: .system)
+        
+        let snapshotName = "WRAPPERVIEW_WITH_BUTTON"
         
         // WHEN
         let image = Image(systemName: "star.fill")
@@ -98,60 +126,84 @@ final class WrapperViewSnapshotTests: XCTestCase {
         container.layoutIfNeeded()
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
-               named: "WRAPPERVIEW_WITH_BUTTON_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)),
-               named: "WRAPPERVIEW_WITH_BUTTON_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_wrapperView_no_padding() {
         // GIVEN
         let (sut, container) = makeSUT(padding: .init(top: 0, left: 0, bottom: 0, right: 0))
+        let snapshotName = "WRAPPERVIEW_NO_PADDING"
         
         // WHEN
         sut.contentView.backgroundColor = .yellow
         sut.backgroundColor = .red
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
-               named: "WRAPPERVIEW_NO_PADDING_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)),
-               named: "WRAPPERVIEW_NO_PADDING_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_wrapperView_large_padding() {
         // GIVEN
         let (sut, container) = makeSUT(padding: .init(top: 60, left: 60, bottom: 60, right: 60))
+        let snapshotName = "WRAPPERVIEW_LARGE_PADDING"
         
         // WHEN
         sut.contentView.backgroundColor = .yellow
         sut.backgroundColor = .red
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
-               named: "WRAPPERVIEW_LARGE_PADDING_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)),
-               named: "WRAPPERVIEW_LARGE_PADDING_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_wrapperView_asymmetric_padding() {
         // GIVEN
         let (sut, container) = makeSUT(padding: .init(top: 0, left: 20, bottom: 45, right: 85))
+        let snapshotName = "WRAPPERVIEW_ASYMMETRIC_PADDING"
         
         // WHEN
         sut.contentView.backgroundColor = .yellow
         sut.backgroundColor = .red
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
-               named: "WRAPPERVIEW_ASYMMETRIC_PADDING_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)),
-               named: "WRAPPERVIEW_ASYMMETRIC_PADDING_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_wrapperView_with_rounded_corners() {
         // GIVEN
         let (sut, container) = makeSUT()
+        let snapshotName = "WRAPPERVIEW_ROUNDED_CORNERS"
         
         // WHEN
         sut.contentView.backgroundColor = .yellow
@@ -162,15 +214,21 @@ final class WrapperViewSnapshotTests: XCTestCase {
         sut.layer.masksToBounds = true
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
-               named: "WRAPPERVIEW_ROUNDED_CORNERS_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)),
-               named: "WRAPPERVIEW_ROUNDED_CORNERS_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_wrapperView_with_border() {
         // GIVEN
         let (sut, container) = makeSUT()
+        let snapshotName = "WRAPPERVIEW_WITH_BORDER"
         
         // WHEN
         sut.contentView.backgroundColor = .yellow
@@ -181,10 +239,15 @@ final class WrapperViewSnapshotTests: XCTestCase {
         sut.layer.borderWidth = 3
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
-               named: "WRAPPERVIEW_WITH_BORDER_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)),
-               named: "WRAPPERVIEW_WITH_BORDER_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
 }
 
