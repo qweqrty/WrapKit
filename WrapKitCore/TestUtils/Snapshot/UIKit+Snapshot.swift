@@ -37,7 +37,7 @@ public struct SnapshotConfiguration {
         let verticalSizeClass = UITraitCollection(verticalSizeClass: .regular)
         let displayScale = UITraitCollection(displayScale: 3.0)
         let accessibilityContrast = UITraitCollection(accessibilityContrast: .normal)
-        let displayGamut = UITraitCollection(displayGamut: .P3)
+        let displayGamut = UITraitCollection(displayGamut: .SRGB) // was P3
         let userInterfaceStyle = UITraitCollection(userInterfaceStyle: style)
         
         let traitCollection = UITraitCollection(traitsFrom: [

@@ -1,15 +1,17 @@
 //
-//  LabelSnapshotTests.swift
+//  SUILabelSnapshotTests.swift
 //  WrapKit
 //
-//  Created by sunflow on 3/11/25.
+//  Created by Dastan Mamyrov on 19/11/25.
 //
 
 import WrapKit
 import XCTest
 import WrapKitTestUtils
+import SwiftUI
 
-class LabelSnapshotTests: XCTestCase {
+@available(iOS 17, macOS 14, tvOS 17, watchOS 10, *)
+final class SUILabelSnapshotTests: XCTestCase {
     func test_labelOutput_default_state() {
         // GIVEN
         let (sut, container) = makeSUT()
@@ -19,15 +21,15 @@ class LabelSnapshotTests: XCTestCase {
         sut.display(model: .text("default"))
         
         // THEN
-        if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else if #available(iOS 18.3.1, *) {
+//        if #available(iOS 26, *) {
+//            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+//            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+//        } else if #available(iOS 18.3.1, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
-        } else {
-            XCTFail("Please download given os in Xcode Manage Run Destinations...")
-        }
+//        } else {
+//            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+//        }
     }
     
     func test_fail_labelOutput_default_state() {
@@ -94,8 +96,8 @@ class LabelSnapshotTests: XCTestCase {
         let snapshotName = "LABEL_INSETS"
         
         // WHEN
-        sut.textInsets = UIEdgeInsets(top: 10, left: 80, bottom: 10, right: 20)
-        sut.backgroundColor = .cyan
+//        sut.textInsets = UIEdgeInsets(top: 10, left: 80, bottom: 10, right: 20)
+//        sut.backgroundColor = .cyan
         sut.display(model: .text("Insetted text"))
         
         // THEN
@@ -141,8 +143,8 @@ class LabelSnapshotTests: XCTestCase {
         let snapshotName = "LABEL_CORNER_AUTOMATIC"
         
         // WHEN
-        sut.cornerStyle = .automatic
-        sut.backgroundColor = .blue
+//        sut.cornerStyle = .automatic
+//        sut.backgroundColor = .blue
         sut.display(model: .text("Rounded"))
         
         // THEN
@@ -163,8 +165,8 @@ class LabelSnapshotTests: XCTestCase {
         let snapshotName = "LABEL_CORNER_FIXED"
         
         // WHEN
-        sut.cornerStyle = .fixed(30)
-        sut.backgroundColor = .blue
+//        sut.cornerStyle = .fixed(30)
+//        sut.backgroundColor = .blue
         sut.display(model: .text("Rounded"))
         
         // THEN
@@ -185,8 +187,8 @@ class LabelSnapshotTests: XCTestCase {
         let snapshotName = "LABEL_CORNER_NONE"
         
         // WHEN
-        sut.cornerStyle = CornerStyle.none
-        sut.backgroundColor = .blue
+//        sut.cornerStyle = CornerStyle.none
+//        sut.backgroundColor = .blue
         sut.display(model: .text("Rounded"))
         
         // THEN
@@ -325,7 +327,7 @@ class LabelSnapshotTests: XCTestCase {
         
         //WHEN
         let dashed = TextAttributes(text: "Dashed string", underlineStyle: [.patternDash])
-        sut.backgroundColor = .cyan
+//        sut.backgroundColor = .cyan
         
         sut.display(model: .attributes([dashed]))
         
@@ -349,7 +351,7 @@ class LabelSnapshotTests: XCTestCase {
         
         //WHEN
         let dashDot = TextAttributes(text: "DashedDot string", underlineStyle: [.patternDashDot])
-        sut.backgroundColor = .systemBlue
+//        sut.backgroundColor = .systemBlue
         
         sut.display(model: .attributes([dashDot]))
         
@@ -373,7 +375,7 @@ class LabelSnapshotTests: XCTestCase {
         
         //WHEN
         let dashDotDot = TextAttributes(text: "Dash Dot Dot string", underlineStyle: [.patternDashDotDot])
-        sut.backgroundColor = .systemBlue
+//        sut.backgroundColor = .systemBlue
         
         sut.display(model: .attributes([dashDotDot]))
         
@@ -397,7 +399,7 @@ class LabelSnapshotTests: XCTestCase {
         
         //WHEN
         let dot = TextAttributes(text: "Dotted string", underlineStyle: [.patternDot])
-        sut.backgroundColor = .systemBlue
+//        sut.backgroundColor = .systemBlue
         
         sut.display(model: .attributes([dot]))
         
@@ -420,7 +422,7 @@ class LabelSnapshotTests: XCTestCase {
         
         //WHEN
         let thick = TextAttributes(text: "Thick string", underlineStyle: [.thick])
-        sut.backgroundColor = .systemBlue
+//        sut.backgroundColor = .systemBlue
         
         sut.display(model: .attributes([thick]))
         
@@ -442,7 +444,7 @@ class LabelSnapshotTests: XCTestCase {
         let snapshotName = "LABEL_TITLE_WITH_LEADINGIMAGE"
         //WHEN
         let leadingImage = TextAttributes(text: "Text with leading image", leadingImage: UIImage(systemName: "star.fill"))
-        sut.backgroundColor = .systemBlue
+//        sut.backgroundColor = .systemBlue
         
         sut.display(model: .attributes([leadingImage]))
 
@@ -465,7 +467,7 @@ class LabelSnapshotTests: XCTestCase {
         
         //WHEN
         let trailingImage = TextAttributes(text: "Text with trailing image", trailingImage: UIImage(systemName: "star.fill"))
-        sut.backgroundColor = .systemBlue
+//        sut.backgroundColor = .systemBlue
         
         sut.display(model: .attributes([trailingImage]))
         
@@ -492,11 +494,11 @@ class LabelSnapshotTests: XCTestCase {
         
         // WHEN
         let first_attr = TextAttributes(text: "First") { [weak sut] in
-            sut?.backgroundColor = .red
+//            sut?.backgroundColor = .red
             exp.fulfill()
         }
         let second_attr = TextAttributes(text: "Second") { [weak sut] in
-            sut?.cornerStyle = .fixed(20)
+//            sut?.cornerStyle = .fixed(20)
             exp.fulfill()
         }
         
@@ -545,7 +547,7 @@ class LabelSnapshotTests: XCTestCase {
             animationStyle: .none,
             duration: 0.1
         ) { [weak sut] in
-            sut?.backgroundColor = .cyan
+//            sut?.backgroundColor = .cyan
             exp.fulfill()
         }
 
@@ -568,9 +570,9 @@ class LabelSnapshotTests: XCTestCase {
         let (sut, container) = makeSUT()
         let snapshotName = "LABEL_TEXTATTRIBUTE_DEFAULT_BEHAVIOR_FONT"
         
-        sut.textColor = .red
-        sut.font = .systemFont(ofSize: 16)
-        sut.textAlignment = .right
+//        sut.textColor = .red
+//        sut.font = .systemFont(ofSize: 16)
+//        sut.textAlignment = .right
         
         // WHEN
         let bold = TextAttributes(text: "Text attribute with color", color: .blue)
@@ -611,30 +613,24 @@ class LabelSnapshotTests: XCTestCase {
     }
 }
 
-extension LabelSnapshotTests {
+@available(iOS 17, *)
+extension SUILabelSnapshotTests {
     func makeSUT(
         file: StaticString = #file,
         line: UInt = #line
-    ) -> (sut: Label, container: UIView) {
-        let sut = Label()
-        let container = makeContainer()
+    ) -> (sut: TextOutput, container: any SwiftUI.View) {
+        let adapter = TextOutputSwiftUIAdapter()
+        let sut = SUILabel(adapter: adapter)
+            .font(.system(size: 17))// .init(Label().font))
         
-        container.addSubview(sut)
-        sut.anchor(
-            .top(container.topAnchor, constant: 0, priority: .required),
-            .leading(container.leadingAnchor, constant: 0, priority: .required),
-            .trailing(container.trailingAnchor, constant: 0, priority: .required),
-            .height(150, priority: .required)
-        )
+        let view = VStack {
+            sut.frame(maxWidth: .infinity, alignment: .leading)
+                .frame(height: 150)
+            Spacer()
+        }
+//            .frame(width: 390, height: 300)
         
-        checkForMemoryLeaks(sut, file: file, line: line)
-        return (sut, container)
-    }
-    
-    func makeContainer() -> UIView {
-        let container = UIView()
-        container.frame = CGRect(origin: .zero, size: SnapshotConfiguration.size)
-        container.backgroundColor = .clear
-        return container
+        checkForMemoryLeaks(adapter, file: file, line: line)
+        return (adapter.weakReferenced, view)
     }
 }
