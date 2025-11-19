@@ -11,23 +11,27 @@ jobs:
     runs-on: macos-latest
 
     steps:
+      # -----------------------------
+      # Checkout
+      # -----------------------------
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      # -----------------------------
+      # Homebrew Update
+      # -----------------------------
       - name: Update Homebrew
         run: brew update
 
       # -----------------------------
-      # CACHING
+      # Cache Tools
       # -----------------------------
       - name: Cache Tuist
         uses: actions/cache@v4
         with:
-          path: |
-            ~/Library/Caches/Homebrew/tuist--*
-            ~/Library/Caches/Homebrew/downloads/*--tuist-*
-          key: ${{ runner.os }}-homebrew-tuist-3.6.0
-          restore-keys: ${{ runner.os }}-homebrew-tuist-
+          path: ~/.tuist
+          key: ${{ runner.os }}-tuist-3.6.0
+          restore-keys: ${{ runner.os }}-tuist-
 
       - name: Cache SwiftGen
         uses: actions/cache@v4
@@ -57,35 +61,28 @@ jobs:
           restore-keys: ${{ runner.os }}-homebrew-swiftlint-
 
       # -----------------------------
-      # INSTALL TOOLS
+      # Install Tools
       # -----------------------------
-      - name: Install Tools
+      - name: Install Tuist
         run: |
-          brew install tuist@3.6.0 || brew upgrade tuist
+          echo "Installing Tuist 3.6.0..."
+          TUIST_VERSION=3.6.0 curl -Ls https://install.tuist.io | bash
+          echo "Tuist version: $(~/.tuist/bin/tuist version)"
+
+      - name: Install Other Tools
+        run: |
           brew install swiftgen@6.8.0 || brew upgrade swiftgen
-          brew tap homebrew/cask
           brew install sourcery@2.2.6 || brew upgrade sourcery
           brew install swiftlint@0.53.0 || brew upgrade swiftlint
 
       # -----------------------------
-      # RUN LINT, GENERATE, BUILD
+      # Run Lint, Generate, Build
       # -----------------------------
       - name: Run SwiftLint
         run: swiftlint lint --strict
 
-      - name: Run Makefile for Generation
-        run: make project
-
       - name: Run Makefile for Build
         run: make build
-
-      # -----------------------------
-      # SIMULATOR AND TESTS
-      # -----------------------------
-      - name: Ensure iOS Simulators Are Installed
-        run: |
-          xcodebuild -downloadPlatform iOS
-          xcrun simctl list runtimes
 
       - name: Run Tests on iOS 18.3.1
         run: |
