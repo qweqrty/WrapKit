@@ -15,6 +15,8 @@ final class CardViewSnapshotTests: XCTestCase {
     private let secondImage = Image(systemName: "star")
     
     func test_CardView_default_state() {
+        let snapshotName = "CARDVIEW_DEFAULT_STATE"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         
@@ -22,11 +24,20 @@ final class CardViewSnapshotTests: XCTestCase {
         sut.display(style: makeDefaultStyle())
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "CARDVIEW_DEFAULT_STATE_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "CARDVIEW_DEFAULT_STATE_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_CardView_with_backgroundImage() {
+        let snapshotName = "CARDVIEW_WITH_BACKGROUNDIMAGE"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         
@@ -35,11 +46,20 @@ final class CardViewSnapshotTests: XCTestCase {
         sut.display(backgroundImage: .init(image: .asset(image)))
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "CARDVIEW_WITH_BACKGROUNDIMAGE_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "CARDVIEW_WITH_BACKGROUNDIMAGE_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_CardView_with_backgroundImage_contentModeIsFit_false() {
+        let snapshotName = "CARDVIEW_WITH_BACKGROUNDIMAGE_CONTENTMODE_ISFIT_FALSE"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         
@@ -48,11 +68,20 @@ final class CardViewSnapshotTests: XCTestCase {
         sut.display(backgroundImage: .init(image: .asset(image), contentModeIsFit: false))
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "CARDVIEW_WITH_BACKGROUNDIMAGE_CONTENTMODE_ISFIT_FALSELIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "CARDVIEW_WITH_BACKGROUNDIMAGE_CONTENTMODEISFIT_FALSE_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_CardView_with_backgroundImage_borederWidth_and_color() {
+        let snapshotName = "CARDVIEW_WITH_BACKGROUNDIMAGE_BORDERWIDTH_AND_COLOR"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         
@@ -63,11 +92,20 @@ final class CardViewSnapshotTests: XCTestCase {
                                            borderColor: .black))
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "CARDVIEW_WITH_BACKGROUNDIMAGE_BORDERWIDTH_AND_COLOR_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "CARDVIEW_WITH_BACKGROUNDIMAGE_BORDERWIDTH_AND_COLOR_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_CardView_with_backgroundImage_cornderRadius() {
+        let snapshotName = "CARDVIEW_WITH_BACKGROUNDIMAGE_CORNERRADIUS"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         
@@ -81,11 +119,20 @@ final class CardViewSnapshotTests: XCTestCase {
                                           ))
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "CARDVIEW_WITH_BACKGROUNDIMAGE_CORNERRADIUS_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "CARDVIEW_WITH_BACKGROUNDIMAGE_CORNERRADIUS_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_CardView_with_backgroundImage_alpha() {
+        let snapshotName = "CARDVIEW_WITH_BACKGROUNDIMAGE_ALPHA"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         
@@ -99,11 +146,20 @@ final class CardViewSnapshotTests: XCTestCase {
                                           ))
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "CARDVIEW_WITH_BACKGROUNDIMAGE_ALPHA_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "CARDVIEW_WITH_BACKGROUNDIMAGE_ALPHA_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_CardView_with_leadingTitles() {
+        let snapshotName = "CARDVIEW_WITH_LEADINGTITLES"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         
@@ -114,11 +170,20 @@ final class CardViewSnapshotTests: XCTestCase {
         )
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "CARDVIEW_WITH_LEADINGTITLES_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "CARDVIEW_WITH_LEAIDNGTITLES_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_CardView_with_trailingTitles() {
+        let snapshotName = "CARDVIEW_WITH_TRAILINGTITLES"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         
@@ -127,11 +192,20 @@ final class CardViewSnapshotTests: XCTestCase {
         sut.display(trailingTitles: .init(.text("First"), .text("Second")))
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "CARDVIEW_WITH_TRAILINGTITLES_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "CARDVIEW_WITH_TRAILINGTITLES_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_CardView_with_leadingImage() {
+        let snapshotName = "CARDVIEW_WITH_LEADINGIMAGE"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         
@@ -140,11 +214,20 @@ final class CardViewSnapshotTests: XCTestCase {
         sut.display(leadingImage: .init(image: .asset(image)))
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "CARDVIEW_WITH_LEADINGIMAGE_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "CARDVIEW_WITH_LEADINGIMAGE_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_CardView_with_trailingImage() {
+        let snapshotName = "CARDVIEW_WITH_TRAILINGIMAGE"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         
@@ -153,11 +236,20 @@ final class CardViewSnapshotTests: XCTestCase {
         sut.display(trailingImage: .init(image: .asset(image)))
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "CARDVIEW_WITH_TRAILINGIMAGE_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "CARDVIEW_WITH_TRAILINGIMAGE_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_CardView_with_secondaryTrailingImage() {
+        let snapshotName = "CARDVIEW_WITH_SECONDARYTRAILINGIMAGE"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         
@@ -166,11 +258,20 @@ final class CardViewSnapshotTests: XCTestCase {
         sut.display(secondaryTrailingImage: .init(image: .asset(secondImage)))
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "CARDVIEW_WITH_SECONDARYTRAILINGIMAGE_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "CARDVIEW_WITH_SECONDARYTRAILINGIMAGE_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_CardView_with_subTitle() {
+        let snapshotName = "CARDVIEW_WITH_SUBTITLE"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         
@@ -180,11 +281,20 @@ final class CardViewSnapshotTests: XCTestCase {
         sut.display(subTitle: .text("Subtitle"))
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "CARDVIEW_WITH_SUBTITLE_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "CARDVIEW_WITH_SUBTITLE_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_CardView_with_valueTitle() {
+        let snapshotName = "CARDVIEW_WITH_VALUETITLE"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         
@@ -193,11 +303,20 @@ final class CardViewSnapshotTests: XCTestCase {
         sut.display(valueTitle: .text("Value title"))
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "CARDVIEW_WITH_VALUETITLE_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "CARDVIEW_WITH_VALUETITLE_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_CardView_with_title_value_subtitle() {
+        let snapshotName = "CARDVIEW_WITH_SUBTITLE"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         
@@ -208,11 +327,20 @@ final class CardViewSnapshotTests: XCTestCase {
         sut.display(valueTitle: .text("Value title"))
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "CARDVIEW_WITH_SUBVALUETITLES_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "CARDVIEW_WITH_SUBVALUETITLES_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_CardView_with_bottomSeparator() {
+        let snapshotName = "CARDVIEW_WITH_BOTTOM_SEPARATOR"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         
@@ -245,11 +373,20 @@ final class CardViewSnapshotTests: XCTestCase {
         sut.display(bottomSeparator: .init(color: .lightGray, height: 4))
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "CARDVIEW_WITH_BOTTOMSEPARATOR_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "CARDVIEW_WITH_BOTTOMSEPARATOR_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_CardView_with_switchControl() {
+        let snapshotName = "CARDVIEW_WITH_SWITCHCONTROL"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         
@@ -264,11 +401,20 @@ final class CardViewSnapshotTests: XCTestCase {
         ))
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "CARDVIEW_WITH_SWITCHCONTROL_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "CARDVIEW_WITH_SWITCHCONTROL_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_CardView_with_switchControl_isFalse() {
+        let snapshotName = "CARDVIEW_WITH_SWITCHCONTROL_ISFALSE"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         
@@ -283,12 +429,21 @@ final class CardViewSnapshotTests: XCTestCase {
         ))
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "CARDVIEW_WITH_SWITCHCONTROL_ISFALSE_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "CARDVIEW_WITH_SWITCHCONTROL_ISFALSE_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     // TODO: - need to simulate real tap
     func test_CardView_onPress() {
+        let snapshotName = "CARDVIEW_WITH_ONPRESS"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         
@@ -303,12 +458,21 @@ final class CardViewSnapshotTests: XCTestCase {
         sut.onPress?()
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "CARDVIEW_WITH_ONPRESS_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "CARDVIEW_WITH_ONPRESS_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     // TODO: - need to simulate real tap
     func test_CardView_onLongPress() {
+        let snapshotName = "CARDVIEW_WITH_ONLONGPRESS"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         
@@ -323,11 +487,20 @@ final class CardViewSnapshotTests: XCTestCase {
         sut.onLongPress?()
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "CARDVIEW_WITH_ONLONGPRESS_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "CARDVIEW_WITH_ONLONGPRESS_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_CardView_isHidden() {
+        let snapshotName = "CARDVIEW_ISHIDDEN"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         
@@ -337,8 +510,15 @@ final class CardViewSnapshotTests: XCTestCase {
         sut.display(isHidden: true)
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "CARDVIEW_ISHIDDEN_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "CARDVIEW_ISHIDDEN_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
 }
 
