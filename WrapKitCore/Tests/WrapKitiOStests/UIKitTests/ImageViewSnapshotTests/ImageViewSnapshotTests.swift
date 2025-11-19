@@ -25,6 +25,8 @@ final class ImageViewSnapshotTests: XCTestCase {
         }
     
     func test_imageView_defaultState() {
+        let snapshotName = "IMAGE_VIEW_DEFAULT_STATE"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         let exp = expectation(description: "Wait for completion")
@@ -38,11 +40,20 @@ final class ImageViewSnapshotTests: XCTestCase {
         wait(for: [exp], timeout: 1.0)
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "IMAGE_VIEW_DEFAULT_STATE_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "IMAGE_VIEW_DEFAULT_STATE_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_ImageView_from_urlString_light() {
+        let snapshotName = "IMAGE_VIEW_URLSTRING_LIGHT"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         let exp = expectation(description: "Wait for completion")
@@ -56,10 +67,18 @@ final class ImageViewSnapshotTests: XCTestCase {
         wait(for: [exp], timeout: 5.0)
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "IMAGE_VIEW_URLSTRING_LIGHT")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
 
     func test_ImageView_from_urlString_dark() {
+        let snapshotName = "IMAGE_VIEW_URLSTRING_DARK"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         let exp = expectation(description: "Wait for completion")
@@ -73,10 +92,18 @@ final class ImageViewSnapshotTests: XCTestCase {
         wait(for: [exp], timeout: 5.0)
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "IMAGE_VIEW_URLSTRING_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_ImageView_with_no_urlString() {
+        let snapshotName = "IMAGE_VIEW_NO_URLSTRING"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         sut.wrongUrlPlaceholderImage = UIImage(systemName: "xmark")!
@@ -84,11 +111,20 @@ final class ImageViewSnapshotTests: XCTestCase {
         sut.display(image: .urlString(nil, nil))
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "IMAGE_VIEW_NO_URLSTRING_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "IMAGE_VIEW_NO_URLSTRING_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_ImageView_from_url_light() {
+        let snapshotName = "IMAGE_VIEW_URL_LIGHT"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         let exp = expectation(description: "Wait for completion")
@@ -102,10 +138,18 @@ final class ImageViewSnapshotTests: XCTestCase {
         wait(for: [exp], timeout: 5.0)
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "IMAGE_VIEW_URL_LIGHT")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_ImageView_with_no_url() {
+        let snapshotName = "IMAGE_VIEW_NO_URL"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         sut.wrongUrlPlaceholderImage = UIImage(systemName: "xmark")!
@@ -114,11 +158,20 @@ final class ImageViewSnapshotTests: XCTestCase {
         sut.display(image: .url(nil, nil))
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "IMAGE_VIEW_NO_URL_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "IMAGE_VIEW_NO_URL_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_ImageView_viewWhileLoadingView() {
+        let snapshotName = "IMAGE_VIEW_VIEWWHILELOADINGVIEW"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         sut.viewWhileLoadingView = ViewUIKit(backgroundColor: .blue)
@@ -128,11 +181,20 @@ final class ImageViewSnapshotTests: XCTestCase {
         sut.display(image: .url(url, url))
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "IMAGE_VIEW_VIEWWHILELOADINGVIEW_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "IMAGE_VIEW_VIEWWHILELOADINGVIEW_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_ImageView_fallbackView() {
+        let snapshotName = "IMAGE_VIEW_FALLBACKVIEW"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         sut.fallbackView = ViewUIKit(backgroundColor: .red)
@@ -145,11 +207,20 @@ final class ImageViewSnapshotTests: XCTestCase {
         RunLoop.main.run(until: Date().addingTimeInterval(0.5))
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "IMAGE_VIEW_FALLBACKVIEW_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "IMAGE_VIEW_FALLBACKVIEW_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_ImageView_from_url_dark() {
+        let snapshotName = "IMAGE_VIEW_URl_DARK"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         let exp = expectation(description: "Wait for completion")
@@ -164,10 +235,18 @@ final class ImageViewSnapshotTests: XCTestCase {
         wait(for: [exp], timeout: 5.0)
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "IMAGE_VIEW_URl_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_imageView_contentMode_is_fit() {
+        let snapshotName = "IMAGE_VIEW_FITCONTENTMODE"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         
@@ -177,11 +256,20 @@ final class ImageViewSnapshotTests: XCTestCase {
         sut.display(contentModeIsFit: true)
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "IMAGE_VIEW_FITCONTENTMODE_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "IMAGE_VIEW_FITCONTENTMODE_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_imageView_with_borderdWidth() {
+        let snapshotName = "IMAGE_VIEW_BORDERWIDTH"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         
@@ -189,11 +277,20 @@ final class ImageViewSnapshotTests: XCTestCase {
         sut.display(borderWidth: 2.0)
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "IMAGE_VIEW_BORDERWIDTH_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "IMAGE_VIEW_BORDERWIDTH_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_imageView_with_borderColor() {
+        let snapshotName = "IMAGE_VIEW_BORDERCOLOR"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         
@@ -203,11 +300,20 @@ final class ImageViewSnapshotTests: XCTestCase {
         sut.backgroundColor = .cyan
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "IMAGE_VIEW_BORDERCOLOR_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "IMAGE_VIEW_BORDERCOLOR_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_imageView_with_cornerRadius() {
+        let snapshotName = "IMAGE_VIEW_CORNERRADIUS"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         
@@ -216,11 +322,20 @@ final class ImageViewSnapshotTests: XCTestCase {
         sut.backgroundColor = .cyan
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "IMAGE_VIEW_CORNERRADIUS_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "IMAGE_VIEW_CORNERRADIUS_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_imageView_with_alpha() {
+        let snapshotName = "IMAGE_VIEW_ALPHA"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         
@@ -229,11 +344,20 @@ final class ImageViewSnapshotTests: XCTestCase {
         sut.backgroundColor = .cyan
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "IMAGE_VIEW_ALPHA_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "IMAGE_VIEW_ALPHA_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_imageView_with_hidden() {
+        let snapshotName = "IMAGE_VIEW_HIDDEN"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         
@@ -242,12 +366,22 @@ final class ImageViewSnapshotTests: XCTestCase {
         sut.backgroundColor = .cyan
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "IMAGE_VIEW_HIDDEN_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "IMAGE_VIEW_HIDDEN_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     //MARK: - touches simulation
     func test_imageView_onPress_visualState() {
+        let snapshotName = "IMAGE_VIEW_ONPRESS"
+        let releasedSnapshotName = "IMAGE_VIEW_ONPRESS_RELEASED"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         
@@ -262,16 +396,31 @@ final class ImageViewSnapshotTests: XCTestCase {
         sut.touchesBegan(Set(), with: nil)
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "IMAGE_VIEW_ONPRESS_PRESSED_LIGHT")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
         
         sut.touchesEnded(Set(), with: nil)
         
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "IMAGE_VIEW_ONPRESS_RELEASED_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "IMAGE_VIEW_ONPRESS_RELEASED_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(releasedSnapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(releasedSnapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(releasedSnapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(releasedSnapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     // MARK: - Completion calling directly
     func test_imageView_direct_onPress() {
+        let snapshotName = "IMAGE_VIEW_ONPRESS_DIRECT"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         let exp = expectation(description: "Wait for animation completion")
@@ -287,11 +436,20 @@ final class ImageViewSnapshotTests: XCTestCase {
         wait(for: [exp], timeout: 1.0)
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "IMAGE_VIEW_ONPRESS_DIRECT_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "IMAGE_VIEW_ONPRESS_DIRECT_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_imageView_direct_onLongPress() {
+        let snapshotName = "IMAGE_VIEW_ONLONGPRESS_DIRECT"
+        
         // GIVEN
         let (sut, container) = makeSUT()
         let exp = expectation(description: "Wait for onLongPress")
@@ -307,8 +465,15 @@ final class ImageViewSnapshotTests: XCTestCase {
         wait(for: [exp], timeout: 1.0)
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "IMAGE_VIEW_ONLONGPRESS_STATIC_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "IMAGE_VIEW_ONLONGPRESS_STATIC_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
 }
 
