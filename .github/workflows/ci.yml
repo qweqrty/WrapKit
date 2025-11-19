@@ -8,61 +8,92 @@ on:
 
 jobs:
   generate-build-test:
-    runs-on: macos-26 # https://github.com/actions/runner-images/blob/main/images/macos/macos-26-arm64-Readme.md
+    runs-on: macos-26
+
     env:
       SCHEME_NAME: "WrapKit"
+      WORKSPACE_NAME: "WrapKit.xcworkspace"
       IOS_VERSION: "18.5"
       IOS_VERSION_DEVICE: "iPhone 16 Pro"
       LATEST_IOS_VERSION: "26.0.1"
       LATEST_IOS_VERSION_DEVICE: "iPhone 17 Pro"
+      DERIVED_DATA_PATH: DerivedData
 
     steps:
       # -----------------------------
       # Checkout Code
       # -----------------------------
-      - name: Checkout Code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       # -----------------------------
-      # Install Tools
+      # Cache Homebrew
+      # -----------------------------
+      - name: Cache Homebrew
+        uses: actions/cache@v4
+        with:
+          path: ~/Library/Caches/Homebrew
+          key: ${{ runner.os }}-brew-cache-v1
+
+      # -----------------------------
+      # Cache Tuist Generated Project
+      # -----------------------------
+      - name: Cache Tuist
+        uses: actions/cache@v4
+        with:
+          path: .tuist
+          key: tuist-cache-${{ runner.os }}
+
+      # -----------------------------
+      # Install Tools (Fast)
       # -----------------------------
       - name: Install Tools
         run: |
-          brew install sourcery
-          brew install tuist
-          brew install swiftgen
-          brew install swiftlint
+          brew update --quiet
+          brew install --quiet sourcery tuist swiftgen swiftlint
 
       # -----------------------------
-      # Generate / Build
+      # Generate Xcode Project (Tuist)
       # -----------------------------
-      - name: Run Makefile for Build
-        run: make project
+      - name: Generate Project with Tuist
+        run: tuist generate --no-open
 
       # -----------------------------
-      # Ensure iOS Simulators
+      # List Simulators (Quick Debug)
       # -----------------------------
-      - name: List Available Simulators / Devices
+      - name: List Available Simulators
+        run: xcrun simctl list devices
+
+      # -----------------------------
+      # Build once (reuse for test runs)
+      # -----------------------------
+      - name: Build (single build)
         run: |
-          echo "=== Runtimes ==="
-          xcrun simctl list runtimes
-
-          echo ""
-          echo "=== Devices ==="
-          xcrun simctl list devices
-
-          echo ""
-          echo "=== Device Types ==="
-          xcrun simctl list devicetypes
+          xcodebuild clean build \
+            -workspace "$WORKSPACE_NAME" \
+            -scheme "$SCHEME_NAME" \
+            -derivedDataPath "$DERIVED_DATA_PATH" \
+            -destination "generic/platform=iOS Simulator"
 
       # -----------------------------
-      # Run Tests
-      # List of available os in docs https://github.com/actions/runner-images/blob/main/images/macos/macos-26-arm64-Readme.md 
+      # Test iOS 18.5 (skip build)
       # -----------------------------
       - name: Run Tests on $IOS_VERSION
         run: |
-          xcodebuild clean build test -workspace $SCHEME_NAME.xcworkspace -scheme $SCHEME_NAME -destination "platform=iOS Simulator,name=$IOS_VERSION_DEVICE,OS=$IOS_VERSION"
+          xcodebuild test \
+            -workspace "$WORKSPACE_NAME" \
+            -scheme "$SCHEME_NAME" \
+            -derivedDataPath "$DERIVED_DATA_PATH" \
+            -destination "platform=iOS Simulator,name=$IOS_VERSION_DEVICE,OS=$IOS_VERSION" \
+            -skipBuild
+
+      # -----------------------------
+      # Test iOS 26.0.1 (skip build)
+      # -----------------------------
       - name: Run Tests on $LATEST_IOS_VERSION
         run: |
-          xcodebuild clean build test -workspace $SCHEME_NAME.xcworkspace -scheme $SCHEME_NAME -destination "platform=iOS Simulator,name=$LATEST_IOS_VERSION_DEVICE,OS=$LATEST_IOS_VERSION"
-
+          xcodebuild test \
+            -workspace "$WORKSPACE_NAME" \
+            -scheme "$SCHEME_NAME" \
+            -derivedDataPath "$DERIVED_DATA_PATH" \
+            -destination "platform=iOS Simulator,name=$LATEST_IOS_VERSION_DEVICE,OS=$LATEST_IOS_VERSION" \
+            -skipBuild
