@@ -12,7 +12,7 @@ jobs:
     env:
       SCHEME_NAME: "WrapKit"
       IOS_VERSION: "18.4"
-      LATEST_IOS_VERSION: "26.0.1"
+      LATEST_IOS_VERSION: "26.0"
     steps:
       # -----------------------------
       # Checkout Code
