@@ -13,75 +13,105 @@ final class TitledViewSnapshotTests: XCTestCase {
     func test_titledView_defaul_state() {
         // GIVEN
         let (sut, container) = makeSUT()
+        let snapshotName = "TITLEDVIEW_DEFAULT_STATE"
         
         // WHEN
         sut.display(titles: .init(.text("First title"), .text("Second title")))
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
-               named: "TITLEDVIEW_DEFAULT_STATE_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)),
-               named: "TITLEDVIEW_DEFAULT_STATE_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_titledView_with_bottomTitles() {
         // GIVEN
         let (sut, container) = makeSUT()
+        let snapshotName = "TITLEDVIEW_WITH_BOTTOMTTILES"
         
         // WHEN
         sut.display(titles: .init(.text("First title"), .text("Second title")))
         sut.display(bottomTitles: .init(.text("First bottom"), .text("Second bottom")))
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
-               named: "TITLEDVIEW_WITH_BOTTOMTTILES_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)),
-               named: "TITLEDVIEW_WITH_BOTTOMTTILES_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_titledView_with_leadingBottomTitle() {
         // GIVEN
         let (sut, container) = makeSUT()
+        let snapshotName = "TITLEDVIEW_WITH_LEADINGBOTTOMM_TITLE"
         
         // WHEN
         sut.display(titles: .init(.text("First title"), .text("Second title")))
         sut.display(leadingBottomTitle: .text("Leading bottom title"))
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
-               named: "TITLEDVIEW_WITH_LEADINGBOTTOMM_TITLE_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)),
-               named: "TITLEDVIEW_WITH_LEADINGBOTTOMM_TITLE_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_titledView_with_trailingBottomTitle() {
         // GIVEN
         let (sut, container) = makeSUT()
+        let snapshotName = "TITLEDVIEW_WITH_TRAILINGBOTTOMM_TITLE"
         
         // WHEN
         sut.display(titles: .init(.text("First title"), .text("Second title")))
         sut.display(trailingBottomTitle: .text("Trailing bottom title"))
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
-               named: "TITLEDVIEW_WITH_TRAILINGBOTTOMM_TITLE_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)),
-               named: "TITLEDVIEW_WITH_TRAILINGBOTTOMM_TITLE_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_titledView_with_isHidden() {
         // GIVEN
         let (sut, container) = makeSUT()
+        let snapshotName = "TITLEDVIEW_HIDDEN"
         
         // WHEN
         sut.display(titles: .init(.text("First title"), .text("Second title")))
         sut.display(isHidden: true)
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
-               named: "TITLEDVIEW_HIDDEN_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)),
-               named: "TITLEDVIEW_HIDDEN_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
 }
 
