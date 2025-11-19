@@ -13,32 +13,45 @@ final class ShimmerViewSnapshotTests: XCTestCase {
     func test_shimmerView_initial_state() {
         // GIVEN
         let (_, container) = makeSUT()
+        let snapshotName = "SHIMMERVIEW_INITIAL_STATE"
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
-               named: "SHIMMERVIEW_INITIAL_STATE_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)),
-               named: "SHIMMERVIEW_INITIAL_STATE_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_shimmerView_with_background_color() {
         // GIVEN
         let (sut, container) = makeSUT()
+        let snapshotName = "SHIMMERVIEW_WITH_BACKGROUND"
         
         // WHEN
         sut.backgroundColor = .systemGray6
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
-               named: "SHIMMERVIEW_WITH_BACKGROUND_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)),
-               named: "SHIMMERVIEW_WITH_BACKGROUND_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     // MARK: - Gradient Configuration Tests
     func test_shimmerView_custom_gradient_colors() {
         // GIVEN
         let (sut, container) = makeSUT()
+        let snapshotName = "SHIMMERVIEW_CUSTOM_GRADIENT_COLORS"
         
         // WHEN
         sut.backgroundColor = .systemBlue.withAlphaComponent(0.3)
@@ -46,15 +59,21 @@ final class ShimmerViewSnapshotTests: XCTestCase {
         sut.gradientColorTwo = .white.withAlphaComponent(0.8)
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
-               named: "SHIMMERVIEW_CUSTOM_GRADIENT_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)),
-               named: "SHIMMERVIEW_CUSTOM_GRADIENT_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_shimmerView_colored_gradient() {
         // GIVEN
         let (sut, container) = makeSUT()
+        let snapshotName = "SHIMMERVIEW_COLORED_GRADIENT"
         
         // WHEN
         sut.backgroundColor = .systemPurple.withAlphaComponent(0.2)
@@ -62,15 +81,21 @@ final class ShimmerViewSnapshotTests: XCTestCase {
         sut.gradientColorTwo = .systemPurple.withAlphaComponent(0.6)
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
-               named: "SHIMMERVIEW_COLORED_GRADIENT_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)),
-               named: "SHIMMERVIEW_COLORED_GRADIENT_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_shimmerView_with_style() {
         // GIVEN
         let (sut, container) = makeSUT()
+        let snapshotName = "SHIMMERVIEW_WITH_STYLE"
         
         // WHEN
         let style = ShimmerView.Style(
@@ -83,15 +108,21 @@ final class ShimmerViewSnapshotTests: XCTestCase {
         sut.style = style
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
-               named: "SHIMMERVIEW_WITH_STYLE_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)),
-               named: "SHIMMERVIEW_WITH_STYLE_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_shimmerView_pill_shape() {
         // GIVEN
         let (sut, container) = makeSUT()
+        let snapshotName = "SHIMMERVIEW_PILL_SHAPE"
         
         // WHEN
         sut.backgroundColor = .systemGray6
@@ -99,15 +130,22 @@ final class ShimmerViewSnapshotTests: XCTestCase {
         sut.layer.masksToBounds = true
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
-               named: "SHIMMERVIEW_PILL_SHAPE_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)),
-               named: "SHIMMERVIEW_PILL_SHAPE_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     // MARK: - Real-World Use Cases
     func test_shimmerView_skeleton_card() {
         // GIVEN
+        let snapshotName = "SHIMMERVIEW_SKELETON_CARD"
+        
         let container = makeContainer()
         let cardView = UIView()
         cardView.backgroundColor = .white
@@ -169,10 +207,15 @@ final class ShimmerViewSnapshotTests: XCTestCase {
         container.layoutIfNeeded()
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
-               named: "SHIMMERVIEW_SKELETON_CARD_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)),
-               named: "SHIMMERVIEW_SKELETON_CARD_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
 }
 
