@@ -13,21 +13,28 @@ final class EmptyViewSnapshotTests: XCTestCase {
     func test_emptyView_default_state() {
         // GIVEN
         let (sut, container) = makeSUT()
+        let snapshotName = "EMPTYVIEW_DEFAULT_STATE"
         
         // WHEN
         sut.display(title: .text("Empty view"))
         sut.backgroundColor = .cyan
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
-               named: "EMPTYVIEW_DEFAULT_STATE_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)),
-               named: "EMPTYVIEW_DEFAULT_STATE_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_emptyView_with_subTitle() {
         // GIVEN
         let (sut, container) = makeSUT()
+        let snapshotName = "EMPTYVIEW_WITH_SUBTITLE"
         
         // WHEN
         sut.display(title: .text("Empty view"))
@@ -35,15 +42,21 @@ final class EmptyViewSnapshotTests: XCTestCase {
         sut.backgroundColor = .cyan
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
-               named: "EMPTYVIEW_WITH_SUBTITLE_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)),
-               named: "EMPTYVIEW_WITH_SUBTITLE_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_emptyView_with_Button() {
         // GIVEN
         let (sut, container) = makeSUT()
+        let snapshotName = "EMPTYVIEW_WITH_BUTTON"
         
         let image = Image(systemName: "star.fill")
         let buttonStyle = ButtonStyle(
@@ -73,15 +86,21 @@ final class EmptyViewSnapshotTests: XCTestCase {
         sut.backgroundColor = .cyan
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
-               named: "EMPTYVIEW_WITH_BUTTON_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)),
-               named: "EMPTYVIEW_WITH_BUTTON_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_emptyView_with_Image() {
         // GIVEN
         let (sut, container) = makeSUT()
+        let snapshotName = "EMPTYVIEW_WITH_IMAGE"
         
         let image = Image(systemName: "star.fill")
         let imageModel = ImageViewPresentableModel(image: .asset(image))
@@ -92,30 +111,42 @@ final class EmptyViewSnapshotTests: XCTestCase {
         sut.backgroundColor = .cyan
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
-               named: "EMPTYVIEW_WITH_IMAGE_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)),
-               named: "EMPTYVIEW_WITH_IMAGE_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_emptyView_with_hidden() {
         // GIVEN
         let (sut, container) = makeSUT()
+        let snapshotName = "EMPTYVIEW_WITH_HIDDEN"
         
         // WHEN
         sut.backgroundColor = .cyan
         sut.display(isHidden: true)
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
-               named: "EMPTYVIEW_WITH_HIDDEN_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)),
-               named: "EMPTYVIEW_WITH_HIDDEN_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
     
     func test_emptyView_with_model() {
         // GIVEN
         let (sut, container) = makeSUT()
+        let snapshotName = "EMPTYVIEW_WITH_MODEL"
         
         let image = Image(systemName: "star.fill")
         let imageModel = ImageViewPresentableModel(image: .asset(image))
@@ -154,10 +185,15 @@ final class EmptyViewSnapshotTests: XCTestCase {
         sut.display(model: model)
         
         // THEN
-        assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
-               named: "EMPTYVIEW_WITH_MODEL_LIGHT")
-        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)),
-               named: "EMPTYVIEW_WITH_MODEL_DARK")
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
     }
 }
 
