@@ -39,8 +39,9 @@ public indirect enum TextOutputPresentableModel: HashableWithReflection {
     )
     case textStyled(
         text: TextOutputPresentableModel,
-        cornerStyle: CornerStyle?,
-        insets: EdgeInsets,
+        cornerStyle: CornerStyle? = nil,
+        insets: EdgeInsets = .zero,
+        height: CGFloat? = nil,
         backgroundColor: Color? = nil
     )
 }
@@ -61,7 +62,7 @@ extension Label: TextOutput {
             display(attributes: attributes)
         case .animated(let startAmount, let endAmount, let mapToString, let animationStyle, let duration, let completion):
             display(from: startAmount, to: endAmount, mapToString: mapToString, animationStyle: animationStyle, duration: duration, completion: completion)
-        case .textStyled(let model, let style, let insets, let backgroundColor):
+        case .textStyled(let model, let style, let insets, let height, let backgroundColor):
             display(model: model)
             self.cornerStyle = style
             self.textInsets = insets.asUIEdgeInsets

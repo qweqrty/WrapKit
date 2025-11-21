@@ -28,6 +28,10 @@ public struct SUILabel: View {
 public struct SUILabelView: View, Animatable {
     let model: TextOutputPresentableModel
     
+    public init(model: TextOutputPresentableModel) {
+        self.model = model
+    }
+    
     @StateObject private var displayLinkManager = SUIDisplayLinkManager()
     
     public var body: some View {
@@ -55,9 +59,11 @@ public struct SUILabelView: View, Animatable {
                     displayLinkManager.startAnimation(duration: duration)
                 }
             }
-        case .textStyled(let text, let cornerStyle, let insets, let backgroundColor):
+        case .textStyled(let text, let cornerStyle, let insets, let height, let backgroundColor):
             SUILabelView(model: text)
                 .if(!insets.isZero) { $0.padding(insets.asSUIEdgeInsets) }
+                .ifLet(height) { $0.frame(height: $1, alignment: .center) }
+                .frame(maxWidth: .infinity, alignment: .leading)
                 .ifLet(backgroundColor) { $0.background(SwiftUIColor($1)) }
                 .ifLet(cornerStyle) { $0.cornerStyle($1) }
         }
@@ -86,7 +92,7 @@ public struct SUILabelView: View, Animatable {
             }
             
             if #available(iOS 15, macOS 12, tvOS 15, watchOS 8, *) {
-                let nsAttributedString = item.makeNSAttributedString(unsupportedUnderlines: unsupportedUnderlines)
+                let nsAttributedString = item.makeNSAttributedString(unsupportedUnderlines: unsupportedUnderlines, textColor: .label)
                 var attributedString = AttributedString(nsAttributedString)
                 attributedString.link = URL(string: tappableUrlMask + item.id)
                 let textView = Text(attributedString)

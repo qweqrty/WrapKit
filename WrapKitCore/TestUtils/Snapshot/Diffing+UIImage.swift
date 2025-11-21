@@ -100,7 +100,8 @@ extension Diffing where Value == UIImage {
                 let a2 = pixelBufferNew[offset + 3]
                 
                 if r1 != r2 || g1 != g2 || b1 != b2 || a1 != a2 {
-                    diffContext.setFillColor(red: 1.0, green: 0.0, blue: 0.0, alpha: 1.0) // Red for difference
+                    let isOverlap = a1 == 0
+                    diffContext.setFillColor(red: isOverlap ? 0 : 1, green: 0, blue: isOverlap ? 1 : 0, alpha: 1)
                     diffContext.fill(CGRect(x: x, y: height - y - 1, width: 1, height: 1))
                 }
             }

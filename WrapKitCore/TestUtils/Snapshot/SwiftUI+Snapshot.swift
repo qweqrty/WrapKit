@@ -4,14 +4,18 @@ import SwiftUI
 @available(iOS 17.0, macOS 14.0, tvOS 17.0, watchOS 10.0, *)
 public extension View {
     func snapshot(for configuration: SUISnapshotConfiguration) -> UIImage {
-        let view = build(configuration: configuration)
-//#if canImport(UIKit)
-//        return UIHostingController(rootView: self).snapshot(for: .iPhone(style: configuration.colorScheme.style))
-//#else
+        let view = self.build(configuration: configuration)
+#if canImport(UIKit)
+        let viewController = UIHostingController(rootView: view.ignoresSafeArea(.all))
+        viewController.view.backgroundColor = .clear
+        return viewController.snapshot(for: .iPhone(style: configuration.colorScheme.style))
+#else
         return view.snapshot()
-//#endif
+#endif
     }
 }
+//let maxSize = CGSize(width: 0.0, height: 0.0)
+//            config.size = hostingController.sizeThatFits(in: maxSize)
 
 public struct SUISnapshotConfiguration {
     public static let size = CGSize(width: 1170 / UIScreen.main.scale, height: 2532 / UIScreen.main.scale)
@@ -55,14 +59,11 @@ extension ColorScheme {
 public extension View {
     @ViewBuilder
     func build(configuration: SUISnapshotConfiguration) -> some View {
-//        ZStack {
-//            self
-//        }
         self
-        .frame(width: configuration.size.width, height: configuration.size.height)
-//        .safeAreaPadding(configuration.safeAreaInsets)
-        .contentMargins(.all, configuration.layoutMargins, for: .automatic)
-        .colorScheme(configuration.colorScheme)
+            .frame(width: configuration.size.width, height: configuration.size.height)
+//            .safeAreaPadding(configuration.safeAreaInsets)
+            .contentMargins(.all, configuration.layoutMargins, for: .automatic)
+            .colorScheme(configuration.colorScheme)
     }
 }
 
@@ -71,16 +72,21 @@ public extension View {
     func snapshot() -> UIImage {
         let renderer = ImageRenderer(content: self)
         renderer.scale = UIScreen.main.scale
-//        renderer.colorMode = .linear
         if #available(iOS 26.0, *) {
             renderer.allowedDynamicRange = .standard
         }
+        renderer.proposedSize = .init(SUISnapshotConfiguration.size)
+        
         renderer.render { size, contextClosure in
-            if #available(iOS 26.0, *), let context = CGContext(width: Int(SUISnapshotConfiguration.sizePx.width), height: Int(SUISnapshotConfiguration.sizePx.height)) {
-                contextClosure(context)
-            }
+//            if #available(iOS 26.0, *), let context = CGContext(width: Int(SUISnapshotConfiguration.sizePx.width), height: Int(SUISnapshotConfiguration.sizePx.height)) {
+//                context.setShouldAntialias(true)
+//                context.setAllowsAntialiasing(true)
+//                context.interpolationQuality = .high
+//                let colorSpace = CGColorSpace(name: CGColorSpace.sRGB) ?? CGColorSpaceCreateDeviceRGB() // Default sRGB color space (IEC61966-2.1)
+//                context.setFillColorSpace(colorSpace)
+//                contextClosure(context)
+//            }
         }
-
         return renderer.uiImage ?? UIImage()
     }
 }
