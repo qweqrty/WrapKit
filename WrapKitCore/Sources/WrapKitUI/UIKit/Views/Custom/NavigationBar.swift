@@ -230,13 +230,23 @@ open class NavigationBar: UIView {
             .bottom(trailingStackWrapperView.bottomAnchor)
         )
         
-        mainStackViewConstraints = mainStackView.anchor(
-            .top(safeAreaLayoutGuide.topAnchor, constant: 4),
-            .leading(leadingAnchor, constant: 16),
-            .trailing(trailingAnchor, constant: 16),
-            .height(44),
-            .bottom(bottomAnchor, constant: 8)
-        )
+        if #available(iOS 26, *) {
+            mainStackViewConstraints = mainStackView.anchor(
+                .top(safeAreaLayoutGuide.topAnchor, constant: 4),
+                .leading(leadingAnchor, constant: 16),
+                .trailing(trailingAnchor, constant: 16),
+                .height(44),
+                .bottom(bottomAnchor, constant: 8)
+            )
+        } else {
+            mainStackViewConstraints = mainStackView.anchor(
+                .top(safeAreaLayoutGuide.topAnchor, constant: 4),
+                .leading(leadingAnchor, constant: 8),
+                .trailing(trailingAnchor, constant: 8),
+                .height(44),
+                .bottom(bottomAnchor, constant: 8)
+            )
+        }
         
         trailingStackWrapperView.setContentCompressionResistancePriority(.required, for: .horizontal)
         leadingStackWrapperView.setContentCompressionResistancePriority(.required, for: .horizontal)
