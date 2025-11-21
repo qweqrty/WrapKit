@@ -3,9 +3,10 @@ import SwiftUI
 
 @available(iOS 17.0, macOS 14.0, tvOS 17.0, watchOS 10.0, *)
 public extension View {
-    func snapshot(for configuration: SUISnapshotConfiguration) -> UIImage {
+    func snapshot(for configuration: SUISnapshotConfiguration, useUIKit: Bool = false) -> UIImage {
         let view = self.build(configuration: configuration)
 #if canImport(UIKit)
+        guard useUIKit else { return view.snapshot() }
         let viewController = UIHostingController(rootView: view.ignoresSafeArea(.all))
         viewController.view.backgroundColor = .clear
         return viewController.snapshot(for: .iPhone(style: configuration.colorScheme.style))

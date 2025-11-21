@@ -64,7 +64,8 @@ public extension TextAttributes {
         unsupportedUnderlines: [NSUnderlineStyle] = [],
         font: Font? = nil,
         textColor: Color? = nil,
-        textAlignment: TextAlignment? = nil
+        textAlignment: TextAlignment? = nil,
+        lineSpacing: CGFloat = 4
     ) -> NSAttributedString {
         var underlineStyle = self.underlineStyle
         if let style = underlineStyle, unsupportedUnderlines.contains(style) { underlineStyle = .single } // others not working without, only with OR
@@ -72,7 +73,7 @@ public extension TextAttributes {
             self.text,
             font: self.font ?? font,
             color: self.color ?? textColor,
-            lineSpacing: 4,
+            lineSpacing: lineSpacing,
             underlineStyle: underlineStyle,
             textAlignment: self.textAlignment ?? textAlignment,
             leadingImage: self.leadingImage,

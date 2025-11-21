@@ -12,10 +12,10 @@ import SwiftUI
 /// UIViewRepresentable by reusing Label.swift
 public struct SUIRepresentableLabel: UIViewRepresentable {
     
-    @ObservedObject var adapter: TextOutputSwiftUIAdapter
+    @ObservedObject var stateModel: SUILabelStateModel
 
     public init(adapter: TextOutputSwiftUIAdapter) {
-        self.adapter = adapter
+        self.stateModel = .init(adapter: adapter)
     }
 
     public func makeUIView(context: Context) -> Label {
@@ -27,7 +27,16 @@ public struct SUIRepresentableLabel: UIViewRepresentable {
     }
 
     public func updateUIView(_ uiView: Label, context: Context) {
-        uiView.display(attributes: adapter.displayAttributesState?.attributes ?? [])
+        switch stateModel.presentable {
+        case .text(let string):
+            uiView.display(text: string)
+        case .attributes(let array):
+            uiView.display(attributes: array)
+        case .animated(let from, let to, let mapToString, let animationStyle, let duration, let completion):
+            uiView.display(from: from, to: to, mapToString: mapToString, animationStyle: animationStyle, duration: duration, completion: completion)
+        case .textStyled(let text, let cornerStyle, let insets, let height, let backgroundColor):
+            uiView.display(model: .textStyled(text: text, cornerStyle: cornerStyle, insets: insets, height: height, backgroundColor: backgroundColor))
+        }
     }
     
 //    public func makeCoordinator() -> Coordinator { Coordinator() }
