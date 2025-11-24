@@ -22,12 +22,10 @@ class LabelSnapshotTests: XCTestCase {
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else if #available(iOS 18.3.1, *) {
+        } else {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
-        } else {
-            XCTFail("Please download given os in Xcode Manage Run Destinations...")
-        }
+        } 
     }
     
     func test_fail_labelOutput_default_state() {
@@ -42,12 +40,10 @@ class LabelSnapshotTests: XCTestCase {
         if #available(iOS 26, *) {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else if #available(iOS 18.3.1, *) {
+        } else {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
-        } else {
-            XCTFail("Please download given os in Xcode Manage Run Destinations...")
-        }
+        } 
     }
     
     func test_labelOutput_long_text() {
@@ -61,12 +57,10 @@ class LabelSnapshotTests: XCTestCase {
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else if #available(iOS 18.3.1, *) {
+        } else {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
-        } else {
-            XCTFail("Please download given os in Xcode Manage Run Destinations...")
-        }
+        } 
     }
     
     func test_labelOutput_hidden_text() {
@@ -80,12 +74,10 @@ class LabelSnapshotTests: XCTestCase {
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else if #available(iOS 18.3.1, *) {
+        } else {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
-        } else {
-            XCTFail("Please download given os in Xcode Manage Run Destinations...")
-        }
+        } 
     }
     
     func test_labelOutput_withInsets() {
@@ -102,12 +94,10 @@ class LabelSnapshotTests: XCTestCase {
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else if #available(iOS 18.3.1, *) {
+        } else {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
-        } else {
-            XCTFail("Please download given os in Xcode Manage Run Destinations...")
-        }
+        } 
     }
     
     // MARK: - attributedText перезаписывает обычный text
@@ -126,12 +116,10 @@ class LabelSnapshotTests: XCTestCase {
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else if #available(iOS 18.3.1, *) {
+        } else {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
-        } else {
-            XCTFail("Please download given os in Xcode Manage Run Destinations...")
-        }
+        } 
     }
     
     // MARK: - Corener Style tests
@@ -149,12 +137,10 @@ class LabelSnapshotTests: XCTestCase {
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else if #available(iOS 18.3.1, *) {
+        } else {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
-        } else {
-            XCTFail("Please download given os in Xcode Manage Run Destinations...")
-        }
+        } 
     }
     
     func test_labelOutput_with_fixedCornerStyle() {
@@ -171,12 +157,10 @@ class LabelSnapshotTests: XCTestCase {
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else if #available(iOS 18.3.1, *) {
+        } else {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
-        } else {
-            XCTFail("Please download given os in Xcode Manage Run Destinations...")
-        }
+        } 
     }
     
     func test_labelOutput_with_noneCornerStyle() {
@@ -193,12 +177,10 @@ class LabelSnapshotTests: XCTestCase {
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else if #available(iOS 18.3.1, *) {
+        } else {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
-        } else {
-            XCTFail("Please download given os in Xcode Manage Run Destinations...")
-        }
+        } 
     }
     
     //MARK: - Tests for display with TextAttributes
@@ -217,12 +199,10 @@ class LabelSnapshotTests: XCTestCase {
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else if #available(iOS 18.3.1, *) {
+        } else {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
-        } else {
-            XCTFail("Please download given os in Xcode Manage Run Destinations...")
-        }
+        } 
     }
     
     func test_labelOutput_with_font_attributes() {
@@ -240,12 +220,10 @@ class LabelSnapshotTests: XCTestCase {
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else if #available(iOS 18.3.1, *) {
+        } else {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
-        } else {
-            XCTFail("Please download given os in Xcode Manage Run Destinations...")
-        }
+        } 
     }
     
     func test_labelOutput_with_singleLineText_attributes() {
@@ -262,12 +240,10 @@ class LabelSnapshotTests: XCTestCase {
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else if #available(iOS 18.3.1, *) {
+        } else {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
-        } else {
-            XCTFail("Please download given os in Xcode Manage Run Destinations...")
-        }
+        } 
     }
     
     // TODO: - strange double line layout
@@ -286,12 +262,10 @@ class LabelSnapshotTests: XCTestCase {
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else if #available(iOS 18.3.1, *) {
+        } else {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
-        } else {
-            XCTFail("Please download given os in Xcode Manage Run Destinations...")
-        }
+        } 
     }
     
     // TODO: - byWord doesnt work.
@@ -309,12 +283,10 @@ class LabelSnapshotTests: XCTestCase {
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else if #available(iOS 18.3.1, *) {
+        } else {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
-        } else {
-            XCTFail("Please download given os in Xcode Manage Run Destinations...")
-        }
+        } 
     }
     
     // TODO: - Dash doesnt work.
@@ -333,12 +305,10 @@ class LabelSnapshotTests: XCTestCase {
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else if #available(iOS 18.3.1, *) {
+        } else {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
-        } else {
-            XCTFail("Please download given os in Xcode Manage Run Destinations...")
-        }
+        } 
     }
     
     // TODO: - DashDot doesnt work.
@@ -357,12 +327,10 @@ class LabelSnapshotTests: XCTestCase {
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else if #available(iOS 18.3.1, *) {
+        } else {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
-        } else {
-            XCTFail("Please download given os in Xcode Manage Run Destinations...")
-        }
+        } 
     }
     
     // TODO: - DashDotDot doesnt work.
@@ -381,12 +349,10 @@ class LabelSnapshotTests: XCTestCase {
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else if #available(iOS 18.3.1, *) {
+        } else {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
-        } else {
-            XCTFail("Please download given os in Xcode Manage Run Destinations...")
-        }
+        } 
     }
     
     // TODO: - Dot doesnt work.
@@ -405,12 +371,10 @@ class LabelSnapshotTests: XCTestCase {
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else if #available(iOS 18.3.1, *) {
+        } else {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
-        } else {
-            XCTFail("Please download given os in Xcode Manage Run Destinations...")
-        }
+        } 
     }
     
     func test_labelOutput_with_thickUnderline_attributes() {
@@ -428,12 +392,10 @@ class LabelSnapshotTests: XCTestCase {
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else if #available(iOS 18.3.1, *) {
+        } else {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
-        } else {
-            XCTFail("Please download given os in Xcode Manage Run Destinations...")
-        }
+        } 
     }
     
     func test_labelOutput_with_leadingImage_attributes() {
@@ -450,12 +412,10 @@ class LabelSnapshotTests: XCTestCase {
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else if #available(iOS 18.3.1, *) {
+        } else {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
-        } else {
-            XCTFail("Please download given os in Xcode Manage Run Destinations...")
-        }
+        } 
     }
     
     func test_labelOutput_with_trailingImage_attributes() {
@@ -473,12 +433,10 @@ class LabelSnapshotTests: XCTestCase {
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else if #available(iOS 18.3.1, *) {
+        } else {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
-        } else {
-            XCTFail("Please download given os in Xcode Manage Run Destinations...")
-        }
+        } 
     }
     
     // MARK: - Tests for label taps
@@ -518,12 +476,10 @@ class LabelSnapshotTests: XCTestCase {
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else if #available(iOS 18.3.1, *) {
+        } else {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
-        } else {
-            XCTFail("Please download given os in Xcode Manage Run Destinations...")
-        }
+        } 
     }
     
     func test_labelOutput_displayAnimatedNumber() {
@@ -556,12 +512,10 @@ class LabelSnapshotTests: XCTestCase {
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName))_DARK")
-        } else if #available(iOS 18.3.1, *) {
+        } else {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
-        } else {
-            XCTFail("Please download given os in Xcode Manage Run Destinations...")
-        }
+        } 
     }
     
     func test_labelOutput_default_TextAttribute_behavior() {
@@ -583,12 +537,10 @@ class LabelSnapshotTests: XCTestCase {
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else if #available(iOS 18.3.1, *) {
+        } else {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
-        } else {
-            XCTFail("Please download given os in Xcode Manage Run Destinations...")
-        }
+        } 
     }
     
     func test_labelOutput_with_cornerStyle_and_insets() {
@@ -603,12 +555,10 @@ class LabelSnapshotTests: XCTestCase {
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else if #available(iOS 18.3.1, *) {
+        } else {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
-        } else {
-            XCTFail("Please download given os in Xcode Manage Run Destinations...")
-        }
+        } 
     }
 }
 
