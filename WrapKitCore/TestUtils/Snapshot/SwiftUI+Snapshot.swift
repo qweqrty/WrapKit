@@ -74,21 +74,42 @@ public extension View {
         let renderer = ImageRenderer(content: self)
         renderer.scale = UIScreen.main.scale
         if #available(iOS 26.0, *) {
-            renderer.allowedDynamicRange = .standard
+            renderer.allowedDynamicRange = .high
         }
         renderer.proposedSize = .init(SUISnapshotConfiguration.size)
         
-        renderer.render { size, contextClosure in
-//            if #available(iOS 26.0, *), let context = CGContext(width: Int(SUISnapshotConfiguration.sizePx.width), height: Int(SUISnapshotConfiguration.sizePx.height)) {
-//                context.setShouldAntialias(true)
-//                context.setAllowsAntialiasing(true)
-//                context.interpolationQuality = .high
-//                let colorSpace = CGColorSpace(name: CGColorSpace.sRGB) ?? CGColorSpaceCreateDeviceRGB() // Default sRGB color space (IEC61966-2.1)
-//                context.setFillColorSpace(colorSpace)
-//                contextClosure(context)
-//            }
+        // Use UIGraphicsImageRenderer for proper anti-aliasing
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = UIScreen.main.scale
+        format.opaque = false
+        format.preferredRange = .standard
+        
+        let image = UIGraphicsImageRenderer(size: SUISnapshotConfiguration.size, format: format).image { rendererContext in
+            let context = rendererContext.cgContext
+            
+            // Flip the coordinate system to match ImageRenderer's top-left origin
+            context.translateBy(x: 0, y: SUISnapshotConfiguration.size.height)
+            context.scaleBy(x: 1, y: -1)
+            
+            // Configure anti-aliasing
+            context.setShouldAntialias(true)
+            context.setAllowsAntialiasing(true)
+            context.setShouldSmoothFonts(true)
+            context.setAllowsFontSmoothing(true)
+            context.interpolationQuality = .high
+            context.setTextDrawingMode(.fill)
+            let colorSpace = CGColorSpaceCreateDeviceRGB() // Default sRGB color space (IEC61966-2.1)
+            context.setFillColorSpace(colorSpace)
+            
+            // Render SwiftUI view into this context
+            renderer.render { size, render in
+                render(context)
+            }
         }
-        return renderer.uiImage ?? UIImage()
+        
+        return image
+        
+//        return renderer.uiImage ?? image
     }
 }
 

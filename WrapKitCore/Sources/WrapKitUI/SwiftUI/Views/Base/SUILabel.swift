@@ -92,7 +92,7 @@ public struct SUILabelView: View, Animatable {
             }
             
             if #available(iOS 15, macOS 12, tvOS 15, watchOS 8, *) {
-                let nsAttributedString = item.makeNSAttributedString(unsupportedUnderlines: unsupportedUnderlines, textColor: .label)
+                let nsAttributedString = item.makeNSAttributedString(unsupportedUnderlines: unsupportedUnderlines, textColor: .label, lineSpacing: item.lineSpacing)
                 var attributedString = AttributedString(nsAttributedString)
                 attributedString.link = URL(string: tappableUrlMask + item.id)
                 let textView = Text(attributedString)
@@ -127,11 +127,23 @@ public struct SUILabelView: View, Animatable {
                     })
                 }
             }
-            .ifLet(textAlignment?.suiTextAlignment, modifier: { $0.multilineTextAlignment($1) })
+            .ifLet(textAlignment) {
+                $0.multilineTextAlignment($1.suiTextAlignment)
+                    .frame(maxWidth: .infinity, alignment: $1.suiAlignment)
+            }
+            .ifLet(attributes.first?.lineSpacing) {
+                if $1 > .zero {
+                    $0.lineSpacing($1 - 0.2) // somehow SwiftUI linespacing makes bigger than UIKit
+                } else {
+                    $0
+                }
+            }
     }
     
     private func buildSUIImageInText(bounds source: CGRect, image: Image) -> Text {
-        let bounds = resizeImageBoundsSUI(source)
+//        guard !source.isEmpty else { return Text(SwiftUIImage(image: image)) } // not respecting image original size
+        let rect = source.isEmpty ? CGRect(origin: .zero, size: image.size) : source
+        let bounds = resizeImageBoundsSUI(rect)
         let imageResized = image.resized(rect: bounds.rect, container: bounds.size)
         let image = SwiftUIImage(image: imageResized)
         return Text(image)
@@ -154,6 +166,16 @@ public struct SUILabelView: View, Animatable {
 
 extension NSTextAlignment {
     var suiTextAlignment: SwiftUI.TextAlignment {
+        switch self {
+        case .left: .leading
+        case .center: .center
+        case .right: .trailing
+        case .justified: .leading // not available in SwiftUI
+        case .natural: .center // currently do not need to handle RTL
+        @unknown default: fatalError()
+        }
+    }
+    var suiAlignment: SwiftUI.Alignment {
         switch self {
         case .left: .leading
         case .center: .center
@@ -257,6 +279,15 @@ extension NSTextAlignment {
                     )
                 ]
             ))
+            
+            SUILabelView(model: .textStyled(
+                text: .attributes([TextAttributes(
+                    text: "Text with leading image",
+                    leadingImage: ImageFactory.systemImage(named: "star.fill")
+                )]),
+                cornerStyle: nil, insets: .zero, height: 150, backgroundColor: .systemBlue
+            ))
+            
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .frame(maxHeight: .infinity, alignment: .center)

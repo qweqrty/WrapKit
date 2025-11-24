@@ -100,10 +100,16 @@ extension UIView {
         format.preferredRange = .extended // .standard // disable HDR
         format.opaque = false
         let renderer = UIGraphicsImageRenderer(bounds: bounds, format: format)
-        return renderer.image { action in
-            let colorSpace = CGColorSpace(name: CGColorSpace.sRGB) ?? CGColorSpaceCreateDeviceRGB() // Default sRGB color space (IEC61966-2.1)
-            action.cgContext.setFillColorSpace(colorSpace)
-            layer.render(in: action.cgContext)
+        return renderer.image { context in
+            context.cgContext.setShouldAntialias(true)
+            context.cgContext.setAllowsAntialiasing(true)
+            context.cgContext.setShouldSmoothFonts(true)
+            context.cgContext.setAllowsFontSmoothing(true)
+            context.cgContext.interpolationQuality = .high
+            context.cgContext.setTextDrawingMode(.fill)
+            let colorSpace = CGColorSpaceCreateDeviceRGB() // Default sRGB color space (IEC61966-2.1)
+            context.cgContext.setFillColorSpace(colorSpace)
+            layer.render(in: context.cgContext)
         }
     }
 }

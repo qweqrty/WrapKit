@@ -23,6 +23,7 @@ public struct TextAttributes {
         text: String,
         color: Color? = nil,
         font: Font? = nil,
+        lineSpacing: CGFloat = 4,
         underlineStyle: UnderlineStyle? = nil,
         textAlignment: TextAlignment? = nil,
         leadingImage: Image? = nil,
@@ -35,6 +36,7 @@ public struct TextAttributes {
         self.text = text
         self.color = color
         self.font = font
+        self.lineSpacing = lineSpacing
         self.onTap = onTap
         self.range = nil
         self.underlineStyle = underlineStyle
@@ -48,8 +50,9 @@ public struct TextAttributes {
     public var id: String
     public var text: String
     public let color: Color?
-    public let underlineStyle: UnderlineStyle?
     public let font: Font?
+    public let lineSpacing: CGFloat
+    public let underlineStyle: UnderlineStyle?
     public let textAlignment: TextAlignment?
     public let leadingImage: Image?
     public let leadingImageBounds: CGRect
@@ -65,7 +68,7 @@ public extension TextAttributes {
         font: Font? = nil,
         textColor: Color? = nil,
         textAlignment: TextAlignment? = nil,
-        lineSpacing: CGFloat = 4
+        lineSpacing: CGFloat
     ) -> NSAttributedString {
         var underlineStyle = self.underlineStyle
         if let style = underlineStyle, unsupportedUnderlines.contains(style) { underlineStyle = .single } // others not working without, only with OR
@@ -93,7 +96,7 @@ public extension [TextAttributes] {
     ) -> NSAttributedString {
         let combinedAttributedString = NSMutableAttributedString()
         for (index, current) in self.enumerated() {
-            let attrString = current.makeNSAttributedString(unsupportedUnderlines: unsupportedUnderlines, font: font, textColor: textColor, textAlignment: textAlignment)
+            let attrString = current.makeNSAttributedString(unsupportedUnderlines: unsupportedUnderlines, font: font, textColor: textColor, textAlignment: textAlignment, lineSpacing: self[index].lineSpacing)
             combinedAttributedString.append(attrString)
             
             let currentLocation = combinedAttributedString.length - attrString.length

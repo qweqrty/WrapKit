@@ -114,7 +114,7 @@ extension Diffing where Value == UIImage {
 }
 
 // remap snapshot & reference to same colorspace
-private let imageContextColorSpace = CGColorSpace(name: CGColorSpace.sRGB) ?? CGColorSpaceCreateDeviceRGB()
+private let imageContextColorSpace = CGColorSpaceCreateDeviceRGB()
 private let imageContextBitsPerComponent = 8
 private let imageContextBytesPerPixel = 4
 
