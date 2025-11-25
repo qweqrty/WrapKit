@@ -55,8 +55,8 @@ public struct SUILabelView: View, Animatable {
                     model: mapToString?(from + (displayLinkManager.progress * (to - from))) ?? .text("")
                 )
                 .onAppear {
-                    displayLinkManager.stopAnimation()
-                    displayLinkManager.startAnimation(duration: duration)
+                    guard duration > 0 else { return }
+                    displayLinkManager.startAnimation(duration: duration, completion: completion)
                 }
             }
         case .textStyled(let text, let cornerStyle, let insets, let height, let backgroundColor):

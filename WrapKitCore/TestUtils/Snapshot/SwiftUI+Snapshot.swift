@@ -7,13 +7,28 @@ public extension View {
         let view = self.build(configuration: configuration)
 #if canImport(UIKit)
         guard useUIKit else { return view.snapshot() }
-        let viewController = UIHostingController(rootView: view.ignoresSafeArea(.all))
-        viewController.view.backgroundColor = .clear
-        return viewController.snapshot(for: .iPhone(style: configuration.colorScheme.style))
+        return inHostController()
+            .snapshot(for: .iPhone(style: configuration.colorScheme.style))
 #else
         return view.snapshot()
 #endif
     }
+#if canImport(UIKit)
+    func inHostController(forceRender: Bool = true) -> UIViewController {
+        let viewController = UIHostingController(rootView: self.ignoresSafeArea(.all))
+        viewController.view.backgroundColor = .clear
+        if forceRender {
+            viewController.forceRender()
+        }
+        return viewController
+    }
+#endif
+}
+
+extension UIHostingController {
+  fileprivate func forceRender() {
+    _render(seconds: 0)
+  }
 }
 //let maxSize = CGSize(width: 0.0, height: 0.0)
 //            config.size = hostingController.sizeThatFits(in: maxSize)

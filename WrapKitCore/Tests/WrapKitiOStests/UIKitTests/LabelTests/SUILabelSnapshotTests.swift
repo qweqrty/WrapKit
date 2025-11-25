@@ -482,14 +482,16 @@ final class SUILabelSnapshotTests: XCTestCase {
     func test_labelOutput_displayAnimatedNumber() {
         // GIVEN
         let (sut, container) = makeSUT()
+        let host = container.inHostController()
+        
         let snapshotName = "LABEL_ANIMATED_FINAL_STATE"
         
         let exp = expectation(description: "Wait for animation completion")
 
         let mapToString: (Double) -> TextOutputPresentableModel = { value in
-            return .textStyled(text: .text(String(format: "%.0f", value)), cornerStyle: nil, insets: .zero, height: nil, backgroundColor: .cyan)
+            return .textStyled(text: .text(String(format: "%.0f", value)), cornerStyle: nil, insets: .zero, height: 150, backgroundColor: .cyan)
         }
-
+        
         // WHEN
         sut.display(
             from: 0,
@@ -497,17 +499,15 @@ final class SUILabelSnapshotTests: XCTestCase {
             mapToString: mapToString,
             animationStyle: .none,
             duration: 0.1
-        ) { [weak sut] in
-//            sut?.backgroundColor = .cyan
+        ) {
             exp.fulfill()
         }
-
-        wait(for: [exp], timeout: 1.0)
+        wait(for: [exp], timeout: 0.3)
         
         // THEN
         if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName))_DARK")
+            assert(snapshot: host.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: host.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
         } else {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")

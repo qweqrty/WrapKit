@@ -14,10 +14,18 @@ final class SUIDisplayLinkManager: ObservableObject {
 
     @Published var progress: Double = .zero
 
-    func startAnimation(duration: TimeInterval = 0) {
-        manager.startAnimation(duration: duration) { [weak self] progress in
-            self?.progress = progress
+    func startAnimation(duration: TimeInterval = 0, completion: (() -> Void)? = nil) {
+        guard duration > 0 else {
+            progress = 1
+            completion?()
+            return
         }
+//        guard progress == 0 || progress == 1 else { return }
+        manager.startAnimation(
+            duration: duration,
+            onUpdateProgress: { [weak self] in self?.progress = $0 },
+            completion: completion
+        )
     }
 
     func stopAnimation() {
@@ -40,10 +48,16 @@ final class DisplayLinkManager {
     private var animationDuration: TimeInterval = .zero
     
     private var onUpdateProgress: ((Double) -> Void)?
+    private var completion: (() -> Void)? = nil
 
-    func startAnimation(duration: TimeInterval = 0, onUpdateProgress: ((Double) -> Void)? = nil) {
+    func startAnimation(
+        duration: TimeInterval = 0,
+        onUpdateProgress: ((Double) -> Void)? = nil,
+        completion: (() -> Void)? = nil
+    ) {
         self.animationDuration = duration
         self.onUpdateProgress = onUpdateProgress
+        self.completion = completion
         displayLink?.invalidate()
         displayLink = CADisplayLink(target: self, selector: #selector(updateAnimation))
         displayLink?.add(to: .main, forMode: .common)
@@ -56,6 +70,7 @@ final class DisplayLinkManager {
             onUpdateProgress?(min(1.0, elapsedTime / animationDuration))
         } else {
             onUpdateProgress?(1.0)
+            completion?()
             stopAnimation()
         }
     }
