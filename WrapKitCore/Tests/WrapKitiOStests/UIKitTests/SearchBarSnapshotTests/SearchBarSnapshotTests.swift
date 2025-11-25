@@ -39,11 +39,44 @@ final class SearchBarSnapshotTests: XCTestCase {
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else if #available(iOS 18.3.1, *) {
+        } else {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        }
+    }
+    
+    func test_fail_SearchBar_defaul_state() {
+        let snapshotName = "SEARCHBAR_DEFAULT_STATE"
+        
+        // GIVEN
+        let textField = Textfield(appearance:
+                .init(
+                    colors: .init(
+                        textColor: .black,
+                        selectedBorderColor: .green,
+                        selectedBackgroundColor: .cyan,
+                        selectedErrorBorderColor: .red,
+                        errorBorderColor: .systemRed,
+                        errorBackgroundColor: .yellow,
+                        deselectedBorderColor: .blue,
+                        deselectedBackgroundColor: .blue,
+                        disabledTextColor: .brown,
+                        disabledBackgroundColor: .purple),
+                    font: .systemFont(ofSize: 32),
+                    border: .init(idleBorderWidth: 0, selectedBorderWidth: 0),
+                    placeholder: .init(color: .systemGray, font: .systemFont(ofSize: 22))
+                ))
+        
+        // WHEN
+        let (_, container) = makeSUT(textField: textField)
+
+        // THEN
+        if #available(iOS 26, *) {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
         }
     }
     
@@ -77,11 +110,45 @@ final class SearchBarSnapshotTests: XCTestCase {
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else if #available(iOS 18.3.1, *) {
+        } else {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        }
+    }
+    
+    func test_fail_SearchBar_with_placeholder() {
+        let snapshotName = "SEARCHBAR_WITH_PLACEHOLDER"
+        
+        // GIVEN
+        let textField = Textfield(appearance:
+                .init(
+                    colors: .init(
+                        textColor: .black,
+                        selectedBorderColor: .green,
+                        selectedBackgroundColor: .cyan,
+                        selectedErrorBorderColor: .red,
+                        errorBorderColor: .systemRed,
+                        errorBackgroundColor: .yellow,
+                        deselectedBorderColor: .cyan,
+                        deselectedBackgroundColor: .systemBlue,
+                        disabledTextColor: .brown,
+                        disabledBackgroundColor: .purple),
+                    font: .systemFont(ofSize: 32),
+                    border: .init(idleBorderWidth: 0, selectedBorderWidth: 0),
+                    placeholder: .init(color: .black, font: .systemFont(ofSize: 22))
+                ))
+        
+        // WHEN
+        let (sut, container) = makeSUT(textField: textField)
+        sut.textfield.placeholder = "type here...."
+        
+        // THEN
+        if #available(iOS 26, *) {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
         }
     }
     
@@ -109,17 +176,51 @@ final class SearchBarSnapshotTests: XCTestCase {
         
         // WHEN
         let leftVIew = Button(style: .init(backgroundColor: .red, titleColor: .black), title: "Left view")
-        let (sut, container) = makeSUT(leftView: leftVIew, textField: textField)
+        let (_, container) = makeSUT(leftView: leftVIew, textField: textField)
         
         // THEN
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else if #available(iOS 18.3.1, *) {
+        } else {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        }
+    }
+    
+    func test_fail_SearchBar_with_leftView() {
+        let snapshotName = "SEARCHBAR_WITH_LEFTVIEW"
+        
+        // GIVEN
+        let textField = Textfield(appearance:
+                .init(
+                    colors: .init(
+                        textColor: .black,
+                        selectedBorderColor: .green,
+                        selectedBackgroundColor: .cyan,
+                        selectedErrorBorderColor: .red,
+                        errorBorderColor: .systemRed,
+                        errorBackgroundColor: .yellow,
+                        deselectedBorderColor: .cyan,
+                        deselectedBackgroundColor: .systemBlue,
+                        disabledTextColor: .brown,
+                        disabledBackgroundColor: .purple),
+                    font: .systemFont(ofSize: 32),
+                    border: .init(idleBorderWidth: 0, selectedBorderWidth: 0),
+                    placeholder: .init(color: .black, font: .systemFont(ofSize: 22))
+                ))
+        
+        // WHEN
+        let leftVIew = Button(style: .init(backgroundColor: .systemRed, titleColor: .black), title: "Left view")
+        let (_, container) = makeSUT(leftView: leftVIew, textField: textField)
+        
+        // THEN
+        if #available(iOS 26, *) {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
         }
     }
     
@@ -148,17 +249,52 @@ final class SearchBarSnapshotTests: XCTestCase {
         // WHEN
         let rightView = Button(style: .init(backgroundColor: .red, titleColor: .black), title: "Right view")
         
-        let (sut, container) = makeSUT(textField: textField, rightView: rightView)
+        let (_, container) = makeSUT(textField: textField, rightView: rightView)
         
         // THEN
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else if #available(iOS 18.3.1, *) {
+        } else {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        }
+    }
+    
+    func test_fail_SearchBar_with_rightView() {
+        let snapshotName = "SEARCHBAR_WITH_RIGHT_VIEW"
+        
+        // GIVEN
+        let textField = Textfield(appearance:
+                .init(
+                    colors: .init(
+                        textColor: .black,
+                        selectedBorderColor: .green,
+                        selectedBackgroundColor: .cyan,
+                        selectedErrorBorderColor: .red,
+                        errorBorderColor: .systemRed,
+                        errorBackgroundColor: .yellow,
+                        deselectedBorderColor: .cyan,
+                        deselectedBackgroundColor: .systemBlue,
+                        disabledTextColor: .brown,
+                        disabledBackgroundColor: .purple),
+                    font: .systemFont(ofSize: 32),
+                    border: .init(idleBorderWidth: 0, selectedBorderWidth: 0),
+                    placeholder: .init(color: .black, font: .systemFont(ofSize: 22))
+                ))
+        
+        // WHEN
+        let rightView = Button(style: .init(backgroundColor: .systemRed, titleColor: .black), title: "Right view")
+        
+        let (_, container) = makeSUT(textField: textField, rightView: rightView)
+        
+        // THEN
+        if #available(iOS 26, *) {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
         }
     }
     
@@ -187,17 +323,52 @@ final class SearchBarSnapshotTests: XCTestCase {
         // WHEN
         let rightView = Button(style: .init(backgroundColor: .red, titleColor: .black), title: "Right view")
         let leftView = Button(style: .init(backgroundColor: .red, titleColor: .black), title: "Left view")
-        let (sut, container) = makeSUT(leftView: leftView, textField: textField, rightView: rightView)
+        let (_, container) = makeSUT(leftView: leftView, textField: textField, rightView: rightView)
         
         // THEN
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else if #available(iOS 18.3.1, *) {
+        } else {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        }
+    }
+    
+    func test_fail_SearchBar_with_rightView_leftView() {
+        let snapshotName = "SEARCHBAR_WITH_RIGHT_LEFT_VIEWS_VIEW"
+        
+        // GIVEN
+        let textField = Textfield(appearance:
+                .init(
+                    colors: .init(
+                        textColor: .black,
+                        selectedBorderColor: .green,
+                        selectedBackgroundColor: .cyan,
+                        selectedErrorBorderColor: .red,
+                        errorBorderColor: .systemRed,
+                        errorBackgroundColor: .yellow,
+                        deselectedBorderColor: .cyan,
+                        deselectedBackgroundColor: .systemBlue,
+                        disabledTextColor: .brown,
+                        disabledBackgroundColor: .purple),
+                    font: .systemFont(ofSize: 32),
+                    border: .init(idleBorderWidth: 0, selectedBorderWidth: 0),
+                    placeholder: .init(color: .black, font: .systemFont(ofSize: 22))
+                ))
+        
+        // WHEN
+        let rightView = Button(style: .init(backgroundColor: .systemRed, titleColor: .black), title: "Right view")
+        let leftView = Button(style: .init(backgroundColor: .systemRed, titleColor: .black), title: "Left view")
+        let (_, container) = makeSUT(leftView: leftView, textField: textField, rightView: rightView)
+        
+        // THEN
+        if #available(iOS 26, *) {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
         }
     }
 }
