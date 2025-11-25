@@ -32,6 +32,28 @@ final class ProgressBarSnapshotTests: XCTestCase {
         }
     }
     
+    func test_fail_progressBar_defaul_state() {
+        let snapshotName = "PROGRESSBAR_DEFAULT_STATE"
+        
+        // GIVEN
+        let (sut, container) = makeSUT()
+        
+        // WHEN
+        sut.display(style: .init(backgroundColor: .red, height: 5.0))
+        sut.display(progress: 0.0)
+        
+        // THEN
+        if #available(iOS 26, *) {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
+    }
+    
     func test_progressBar_with_progressBar_color() {
         let snapshotName = "PROGRESSBAR_WITH_PROGRESSBAR_COLOR"
         // GIVEN
@@ -48,6 +70,27 @@ final class ProgressBarSnapshotTests: XCTestCase {
         } else if #available(iOS 18.3.1, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
+    }
+    
+    func test_fail_progressBar_with_progressBar_color() {
+        let snapshotName = "PROGRESSBAR_WITH_PROGRESSBAR_COLOR"
+        // GIVEN
+        let (sut, container) = makeSUT()
+        
+        // WHEN
+        sut.display(style: .init(backgroundColor: .red, height: 5.0))
+        sut.display(progress: 100.0)
+        
+        // THEN
+        if #available(iOS 26, *) {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
         } else {
             XCTFail("Please download given os in Xcode Manage Run Destinations...")
         }
@@ -89,6 +132,42 @@ final class ProgressBarSnapshotTests: XCTestCase {
         window.resignKey()
     }
     
+    func test_fail_progressBar_with_height() {
+        let snapshotName = "PROGRESSBAR_WITH_HEIGHT"
+        
+        // GIVEN
+        let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 375, height: 300))
+        window.backgroundColor = .systemBackground
+        window.makeKeyAndVisible()
+        let (sut, _) = makeSUT()
+        
+        // WHEN
+        sut.display(style: .init(backgroundColor: .systemRed, height: 51))
+        sut.display(progress: 100.0)
+        
+        window.addSubview(sut)
+        sut.anchor(
+            .top(window.topAnchor, constant: 10, priority: .required),
+            .leading(window.leadingAnchor, constant: 10, priority: .required),
+            .trailing(window.trailingAnchor, constant: 10, priority: .required)
+        )
+        
+        // THEN
+        if #available(iOS 26, *) {
+            assertFail(snapshot: window.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: window.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assertFail(snapshot: window.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assertFail(snapshot: window.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
+        
+        sut.removeFromSuperview()
+        window.isHidden = true
+        window.resignKey()
+    }
+    
     func test_progressBar_with_cornerRadius() {
         let snapshotName = "PROGRESSBAR_WITH_CORNDERRADIUS"
         
@@ -115,6 +194,32 @@ final class ProgressBarSnapshotTests: XCTestCase {
         }
     }
     
+    func test_fail_progressBar_with_cornerRadius() {
+        let snapshotName = "PROGRESSBAR_WITH_CORNDERRADIUS"
+        
+        // GIVEN
+        let (sut, container) = makeSUT()
+        
+        // WHEN
+        sut.display(style: .init(
+            backgroundColor: .systemRed,
+            progressBarColor: .cyan,
+            height: 10,
+            cornerRadius: 11))
+        sut.display(progress: 50.0)
+        
+        // THEN
+        if #available(iOS 26, *) {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
+    }
+    
     func test_progressBar_hidden() {
         let snapshotName = "PROGRESSBAR_HIDDEN"
         
@@ -132,6 +237,28 @@ final class ProgressBarSnapshotTests: XCTestCase {
         } else if #available(iOS 18.3.1, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        } else {
+            XCTFail("Please download given os in Xcode Manage Run Destinations...")
+        }
+    }
+    
+    func test_fail_progressBar_hidden() {
+        let snapshotName = "PROGRESSBAR_HIDDEN"
+        
+        // GIVEN
+        let (sut, container) = makeSUT()
+        
+        // WHEN
+        sut.display(progress: 50.0)
+        sut.display(isHidden: false)
+        
+        // THEN
+        if #available(iOS 26, *) {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else if #available(iOS 18.3.1, *) {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
         } else {
             XCTFail("Please download given os in Xcode Manage Run Destinations...")
         }
