@@ -19,7 +19,8 @@ public extension NSAttributedString {
         leadingImage: UIImage? = nil,
         leadingImageBounds: CGRect = .zero,
         trailingImage: UIImage? = nil,
-        trailingImageBounds: CGRect = .zero
+        trailingImageBounds: CGRect = .zero,
+        link: URL? = nil
     ) {
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.lineSpacing = lineSpacing
@@ -38,6 +39,11 @@ public extension NSAttributedString {
 
         if let underlineStyle {
             attributes[.underlineStyle] = underlineStyle.rawValue | NSUnderlineStyle.single.rawValue // others not working without, only with OR
+        }
+        print("underlineStyle \(underlineStyle)")
+        attributes[.baselineOffset] = 2 // to match UIKit underline offset
+        if let link {
+            attributes[.link] = link
         }
         
         let attributedString = NSMutableAttributedString(string: "", attributes: attributes)

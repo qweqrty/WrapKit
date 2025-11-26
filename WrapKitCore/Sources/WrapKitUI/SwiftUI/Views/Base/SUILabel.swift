@@ -80,11 +80,9 @@ public struct SUILabelView: View, Animatable {
 
     // MARK: - SwiftUI AttributedString builder (text-only)
 
-    // Standardize to a single concrete return type using AnyView to fix opaque type mismatch.
     private func buildSwiftUIViewFromAttributes(from attributes: [TextAttributes]) -> some View {
-//        guard !attributes.isEmpty else { return SwiftUI.EmptyView() }
         var result: [Text] = []
-
+        
         for item in attributes {
             if let image = item.leadingImage {
                 let view = buildSUIImageInText(bounds: item.leadingImageBounds, image: image)
@@ -92,16 +90,21 @@ public struct SUILabelView: View, Animatable {
             }
             
             if #available(iOS 15, macOS 12, tvOS 15, watchOS 8, *) {
-                let nsAttributedString = item.makeNSAttributedString(unsupportedUnderlines: unsupportedUnderlines, textColor: .label, lineSpacing: item.lineSpacing)
-                var attributedString = AttributedString(nsAttributedString)
-                attributedString.link = URL(string: tappableUrlMask + item.id)
+                let nsAttributedString = item.makeNSAttributedString(
+                    unsupportedUnderlines: unsupportedUnderlines,
+                    textColor: .label,
+                    link: URL(string: tappableUrlMask + item.id)
+                )
+                let attributedString = AttributedString(nsAttributedString)
                 let textView = Text(attributedString)
                 result.append(textView)
             } else {
                 let textView: Text = Text(item.text)
                     .ifLet(item.font) { $0.font(SwiftUIFont($1)) }
                     .ifLet(item.color) { $0.foregroundColor(SwiftUIColor($1)) }
-                    .ifLet(item.underlineStyle) { view, _ in view.underline() } // underline pattern only works from iOS 16
+                    .ifLet(item.underlineStyle) { view, _ in
+                        view.underline() // #available(iOS 16, macOS 13, tvOS 16, watchOS 9, *)
+                    }
                 result.append(textView)
             }
             
@@ -112,13 +115,11 @@ public struct SUILabelView: View, Animatable {
             }
         }
         
-        let resultText = result.reduce(Text(""), +)
-        
         let textAlignment = attributes.first(where: { $0.textAlignment != nil })?.textAlignment
         
-        return resultText
+        return result.reduce(Text(""), +)
             .modify {
-                if #available(macOS 12, iOS 15, tvOS 15, watchOS 8, *) {
+                if #available(iOS 15, macOS 12, tvOS 15, watchOS 8, *) {
                     $0.environment(\.openURL, OpenURLAction { url in
                         if let id = url.host {
                             attributes.first(where: { $0.id == id })?.onTap?()
@@ -187,10 +188,21 @@ extension NSTextAlignment {
     }
 }
 
-@available(iOS 17.0, *)
+extension NSUnderlineStyle {
+    @available(iOS 15, macOS 12, tvOS 15, watchOS 8, *)
+    var suiStyle: SwiftUI.Text.LineStyle.Pattern {
+        switch self {
+        case .patternDash: return .dash
+        case .patternDashDot: return .dashDot
+        case .patternDashDotDot: return .dashDotDot
+        case .patternDot: return .dot
+        default: return .solid
+        }
+    }
+}
+
+@available(iOS 16.0, *)
 #Preview {
-    @Previewable @State var animationProgress: Double = 0.1
-    
     ScrollView(.vertical) {
         VStack(alignment: .leading) {
             SUILabelView(
@@ -223,6 +235,15 @@ extension NSTextAlignment {
                     backgroundColor: .blue
                 )
             )
+            SUILabelView(model: .attributes([
+                .init(text: "first line"),
+                .init(
+                    text: "green bold 20 (.byWord) \n\n",
+                    color: .green,
+                    font: .boldSystemFont(ofSize: 20),
+                    underlineStyle: .byWord
+                )
+            ]))
             
             SUILabelView(model: .attributes(
                 [
@@ -292,4 +313,36 @@ extension NSTextAlignment {
         .frame(maxWidth: .infinity, alignment: .leading)
         .frame(maxHeight: .infinity, alignment: .center)
     }
+}
+
+@available(iOS 16.0, *)
+#Preview {
+    Text("text")
+        .underline(pattern: Text.LineStyle.Pattern.solid)
+        .baselineOffset(12)
+    
+    Text(
+        AttributedString(
+            TextAttributes(text: "some", lineSpacing: 12).makeNSAttributedString()
+        )
+    )
+    .underline(pattern: Text.LineStyle.Pattern.solid)
+    .font(.system(size: 20))
+    .baselineOffset(12)
+    
+    Text(
+        AttributedString(
+            TextAttributes(
+                text: "green bold 20 (.byWord) \n\n",
+                color: .green,
+                font: .boldSystemFont(ofSize: 20),
+                lineSpacing: 20,
+                underlineStyle: NSUnderlineStyle.double,
+                onTap: { print("didTap: green bold 20 .double ") }
+            ).makeNSAttributedString()
+        )
+    )
+    .underline(pattern: Text.LineStyle.Pattern.solid)
+    .font(.system(size: 20))
+    .baselineOffset(12)
 }

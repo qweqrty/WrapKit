@@ -65,10 +65,10 @@ public struct TextAttributes {
 public extension TextAttributes {
     func makeNSAttributedString(
         unsupportedUnderlines: [NSUnderlineStyle] = [],
-        font: Font? = nil,
-        textColor: Color? = nil,
+        font: Font = .systemFont(ofSize: 20),
+        textColor: Color = .label,
         textAlignment: TextAlignment? = nil,
-        lineSpacing: CGFloat
+        link: URL? = nil // needed for onTap in SwiftUI
     ) -> NSAttributedString {
         var underlineStyle = self.underlineStyle
         if let style = underlineStyle, unsupportedUnderlines.contains(style) { underlineStyle = .single } // others not working without, only with OR
@@ -76,13 +76,14 @@ public extension TextAttributes {
             self.text,
             font: self.font ?? font,
             color: self.color ?? textColor,
-            lineSpacing: lineSpacing,
+            lineSpacing: self.lineSpacing,
             underlineStyle: underlineStyle,
             textAlignment: self.textAlignment ?? textAlignment,
             leadingImage: self.leadingImage,
             leadingImageBounds: self.leadingImageBounds,
             trailingImage: self.trailingImage,
-            trailingImageBounds: self.trailingImageBounds
+            trailingImageBounds: self.trailingImageBounds,
+            link: link
         )
     }
 }
@@ -90,13 +91,18 @@ public extension TextAttributes {
 public extension [TextAttributes] {
     mutating func makeNSAttributedString(
         unsupportedUnderlines: [NSUnderlineStyle] = [],
-        font: Font? = nil,
-        textColor: Color? = nil,
+        font: Font,
+        textColor: Color = .label,
         textAlignment: TextAlignment? = nil
     ) -> NSAttributedString {
         let combinedAttributedString = NSMutableAttributedString()
         for (index, current) in self.enumerated() {
-            let attrString = current.makeNSAttributedString(unsupportedUnderlines: unsupportedUnderlines, font: font, textColor: textColor, textAlignment: textAlignment, lineSpacing: self[index].lineSpacing)
+            let attrString = current.makeNSAttributedString(
+                unsupportedUnderlines: unsupportedUnderlines,
+                font: font,
+                textColor: textColor,
+                textAlignment: textAlignment
+            )
             combinedAttributedString.append(attrString)
             
             let currentLocation = combinedAttributedString.length - attrString.length

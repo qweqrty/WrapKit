@@ -40,22 +40,23 @@ final class SUILabelSnapshotTests: XCTestCase {
         assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
     }
     
-//    func test_labelOutput_long_text() { // strange, cannot reduce default SwiftUI Text lineSpacing to negative value to match UIKit
-//        //GIVEN
-//        let (sut, container) = makeSUT()
-//        let snapshotName = "LABEL_LONG_TITLE"
-//        
-//        // WHEN
-//        sut.display(model: .text("This is really long text that should wrap and check for number of lines"))
-//
-////        if #available(iOS 26, *) {
-////            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-////            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-////        } else {
-//            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
-//            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
-////        }
-//    }
+    // strange, cannot reduce default SwiftUI Text lineSpacing to negative value to match UIKit
+    func test_labelOutput_long_text() {
+        //GIVEN
+        let (sut, container) = makeSUT()
+        let snapshotName = "LABEL_LONG_TITLE"
+        
+        // WHEN
+        sut.display(model: .text("This is really long text that should wrap and check for number of lines"))
+
+//        if #available(iOS 26, *) {
+//            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+//            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+//        } else {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+//        }
+    }
     
     func test_labelOutput_hidden_text() {
         //GIVEN
@@ -209,6 +210,7 @@ final class SUILabelSnapshotTests: XCTestCase {
         assert(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS18.3.1_\(snapshotName)_DARK")
     }
     
+    // SwiftUI solid underline not matching by thickness
 //    func test_labelOutput_with_singleLineText_attributes() {
 //        //GIVEN
 //        let (sut, container) = makeSUT()
@@ -228,8 +230,8 @@ final class SUILabelSnapshotTests: XCTestCase {
 //            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
 ////        }
 //    }
-//    
-//    // TODO: - strange double line layout
+    
+    // SwiftUI does not have double underline
 //    func test_labelOutput_with_doubleLineText_attributes() {
 //        //GIVEN
 //        let (sut, container) = makeSUT()
@@ -242,144 +244,125 @@ final class SUILabelSnapshotTests: XCTestCase {
 //        sut.display(model: .attributes([double, line]))
 //        
 //        // THEN
-//        if #available(iOS 26, *) {
-//            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-//            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-//        } else if #available(iOS 18.3.1, *) {
-//            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)LIGHT")
+////        if #available(iOS 26, *) { //TODO: update old snapshots, they did not had patterns, new does
+////            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+////            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+////        } else {
+//            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
 //            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
-//        } else {
-//            XCTFail("Please download given os in Xcode Manage Run Destinations...")
-//        }
+////        }
 //    }
-//    
-//    // TODO: - byWord doesnt work.
+    
+    // SwiftUI single underline not matching by thickness
 //    func test_labelOutput_with_byWordText_attributes() {
 //        //GIVEN
 //        let (sut, container) = makeSUT()
 //        let snapshotName = "LABEL_TITLE_WITH_BYWORD"
 //        
 //        //WHEN
-//        let byWord = TextAttributes(text: "Single line By Word", underlineStyle: [.single, .byWord])
+//        let byWord = TextAttributes(text: "Single line By Word", underlineStyle: [.single])
+////        let byWord = TextAttributes(text: "Single line By Word", underlineStyle: [.single, .byWord]) //TODO: handle multiple styles at once
 //        
 //        sut.display(model: .attributes([byWord]))
-//        
-//        // THEN
-//        if #available(iOS 26, *) {
-//            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-//            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-//        } else if #available(iOS 18.3.1, *) {
-//            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
-//            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
-//        } else {
-//            XCTFail("Please download given os in Xcode Manage Run Destinations...")
-//        }
-//    }
-//    
-//    // TODO: - Dash doesnt work.
-//    func test_labelOutput_with_patternDashText_attributes() {
-//        //GIVEN
-//        let (sut, container) = makeSUT()
-//        let snapshotName = "LABEL_TITLE_WITH_DASH"
-//        
-//        //WHEN
-//        let dashed = TextAttributes(text: "Dashed string", underlineStyle: [.patternDash])
-////        sut.backgroundColor = .cyan
-//        
-//        sut.display(model: .textStyled(text: .attributes([dashed]), cornerStyle: nil, insets: .zero, height: 150, backgroundColor: .cyan))
-//        
-//        // THEN
-//        if #available(iOS 26, *) {
-//            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-//            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-//        } else if #available(iOS 18.3.1, *) {
-//            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
-//            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
-//        } else {
-//            XCTFail("Please download given os in Xcode Manage Run Destinations...")
-//        }
-//    }
-//    
-//    // TODO: - DashDot doesnt work.
-//    func test_labelOutput_with_patternDashDotText_attributes() {
-//        //GIVEN
-//        let (sut, container) = makeSUT()
-//        let snapshotName = "LABEL_TITLE_WITH_DASHDOT"
-//        
-//        //WHEN
-//        let dashDot = TextAttributes(text: "DashedDot string", underlineStyle: [.patternDashDot])
-////        sut.backgroundColor = .systemBlue
-//        
-//        sut.display(model: .textStyled(text: .attributes([dashDot]), cornerStyle: nil, insets: .zero, height: 150, backgroundColor: .systemBlue))
-//        
-//        // THEN
-//        if #available(iOS 26, *) {
-//            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-//            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-//        } else if #available(iOS 18.3.1, *) {
-//            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
-//            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
-//        } else {
-//            XCTFail("Please download given os in Xcode Manage Run Destinations...")
-//        }
-//    }
-//    
-//    // TODO: - DashDotDot doesnt work.
-//    func test_labelOutput_with_patterntDashDotDotText_attributes() {
-//        //GIVEN
-//        let (sut, container) = makeSUT()
-//        let snapshotName = "LABEL_TITLE_WITH_DASHDOTDOT"
-//        
-//        //WHEN
-//        let dashDotDot = TextAttributes(text: "Dash Dot Dot string", underlineStyle: [.patternDashDotDot])
-////        sut.backgroundColor = .systemBlue
-//        
-//        sut.display(model: .textStyled(text: .attributes([dashDotDot]), cornerStyle: nil, insets: .zero, height: 150, backgroundColor: .systemBlue))
 //        
 //        // THEN
 ////        if #available(iOS 26, *) {
 ////            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
 ////            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-////        } else if #available(iOS 18.3.1, *) {
+////        } else { 
 //            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
 //            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
-////        } else {
-////            XCTFail("Please download given os in Xcode Manage Run Destinations...")
 ////        }
 //    }
-//    
-//    // TODO: - Dot doesnt work.
-//    func test_labelOutput_with_patterntDotText_attributes() {
-//        //GIVEN
-//        let (sut, container) = makeSUT()
-//        let snapshotName = "LABEL_TITLE_WITH_DOT"
-//        
-//        //WHEN
-//        let dot = TextAttributes(text: "Dotted string", underlineStyle: [.patternDot])
-////        sut.backgroundColor = .systemBlue
-//        
-//        sut.display(model: .textStyled(text: .attributes([dot]), cornerStyle: nil, insets: .zero, height: 150, backgroundColor: .systemBlue))
-//        
-//        // THEN
-//        if #available(iOS 26, *) {
-//            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-//            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-//        } else if #available(iOS 18.3.1, *) {
-//            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
-//            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
-//        } else {
-//            XCTFail("Please download given os in Xcode Manage Run Destinations...")
-//        }
-//    }
-//    
+    
+    func test_labelOutput_with_patternDashText_attributes() {
+        //GIVEN
+        let (sut, container) = makeSUT()
+        let snapshotName = "LABEL_TITLE_WITH_DASH"
+        
+        //WHEN
+        let dashed = TextAttributes(text: "Dashed string", underlineStyle: [.patternDash])
+        
+        sut.display(model: .textStyled(text: .attributes([dashed]), cornerStyle: nil, insets: .zero, height: 150, backgroundColor: .cyan))
+        
+        // THEN
+        if #available(iOS 26, *) { //TODO: update old snapshots, they did not had patterns, new does
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else { // ios 26 differs systemBlue, cyan color
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        }
+    }
+    
+    func test_labelOutput_with_patternDashDotText_attributes() {
+        //GIVEN
+        let (sut, container) = makeSUT()
+        let snapshotName = "LABEL_TITLE_WITH_DASHDOT"
+        
+        //WHEN
+        let dashDot = TextAttributes(text: "DashedDot string", underlineStyle: [.patternDashDot])
+        
+        sut.display(model: .textStyled(text: .attributes([dashDot]), cornerStyle: nil, insets: .zero, height: 150, backgroundColor: .systemBlue))
+        
+        // THEN
+        if #available(iOS 26, *) { //TODO: update old snapshots, they did not had patterns, new does
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else { // ios 26 differs systemBlue, cyan color
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        }
+    }
+    
+    func test_labelOutput_with_patterntDashDotDotText_attributes() {
+        //GIVEN
+        let (sut, container) = makeSUT()
+        let snapshotName = "LABEL_TITLE_WITH_DASHDOTDOT"
+        
+        //WHEN
+        let dashDotDot = TextAttributes(text: "Dash Dot Dot string", underlineStyle: [.patternDashDotDot])
+        
+        sut.display(model: .textStyled(text: .attributes([dashDotDot]), cornerStyle: nil, insets: .zero, height: 150, backgroundColor: .systemBlue))
+        
+        // THEN
+        if #available(iOS 26, *) { //TODO: update old snapshots, they did not had patterns, new does
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else { // ios 26 differs systemBlue, cyan color
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        }
+    }
+    
+    func test_labelOutput_with_patterntDotText_attributes() {
+        //GIVEN
+        let (sut, container) = makeSUT()
+        let snapshotName = "LABEL_TITLE_WITH_DOT"
+        
+        //WHEN
+        let dot = TextAttributes(text: "Dotted string", underlineStyle: [.patternDot])
+        
+        sut.display(model: .textStyled(text: .attributes([dot]), cornerStyle: nil, insets: .zero, height: 150, backgroundColor: .systemBlue))
+        
+        // THEN
+        if #available(iOS 26, *) { //TODO: update old snapshots, they did not had patterns, new does
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else { // ios 26 differs systemBlue, cyan color
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        }
+    }
+    
+    // SwiftUI does not have thick
 //    func test_labelOutput_with_thickUnderline_attributes() {
 //        //GIVEN
 //        let (sut, container) = makeSUT()
 //        let snapshotName = "LABEL_TITLE_WITH_THICK"
 //        
 //        //WHEN
-//        let thick = TextAttributes(text: "Thick string", underlineStyle: [.thick])
-////        sut.backgroundColor = .systemBlue
+//        let thick = TextAttributes(text: "Thick string", lineSpacing: 2, underlineStyle: [.thick])
 //        
 //        sut.display(model: .textStyled(text: .attributes([thick]), cornerStyle: nil, insets: .zero, height: 150, backgroundColor: .systemBlue))
 //        
@@ -387,11 +370,9 @@ final class SUILabelSnapshotTests: XCTestCase {
 //        if #available(iOS 26, *) {
 //            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
 //            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-//        } else if #available(iOS 18.3.1, *) {
+//        } else { // ios 26 differs systemBlue, cyan color
 //            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
 //            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
-//        } else {
-//            XCTFail("Please download given os in Xcode Manage Run Destinations...")
 //        }
 //    }
     
@@ -559,7 +540,7 @@ extension SUILabelSnapshotTests {
         
         let view = VStack(spacing: .zero) {
             SUILabel(adapter: adapter)
-                .font(.system(size: 20).leading(.loose))
+                .font(.system(size: 20))
                 .frame(height: 150, alignment: .center)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 
