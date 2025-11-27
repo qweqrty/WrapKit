@@ -366,7 +366,7 @@ class LabelSnapshotTests: XCTestCase {
     }
     
     // TODO: - DashDotDot doesnt work.
-    func test_labelOutput_with_patterntDashDotDotText_attributes() {
+    func test_labelOutput_with_patternDashDotDotText_attributes() {
         //GIVEN
         let (sut, container) = makeSUT()
         let snapshotName = "LABEL_TITLE_WITH_DASHDOTDOT"
@@ -390,7 +390,7 @@ class LabelSnapshotTests: XCTestCase {
     }
     
     // TODO: - Dot doesnt work.
-    func test_labelOutput_with_patterntDotText_attributes() {
+    func test_labelOutput_with_patternDotText_attributes() {
         //GIVEN
         let (sut, container) = makeSUT()
         let snapshotName = "LABEL_TITLE_WITH_DOT"

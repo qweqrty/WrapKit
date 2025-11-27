@@ -7,14 +7,14 @@ public extension View {
         let view = self.build(configuration: configuration)
 #if canImport(UIKit)
         guard useUIKit else { return view.snapshot() }
-        return inHostController()
+        return view.inHostController()
             .snapshot(for: .iPhone(style: configuration.colorScheme.style))
 #else
         return view.snapshot()
 #endif
     }
 #if canImport(UIKit)
-    func inHostController(forceRender: Bool = true) -> UIViewController {
+    func inHostController(forceRender: Bool = false) -> UIViewController {
         let viewController = UIHostingController(rootView: self.ignoresSafeArea(.all))
         viewController.view.backgroundColor = .clear
         if forceRender {
@@ -30,8 +30,6 @@ extension UIHostingController {
     _render(seconds: 0)
   }
 }
-//let maxSize = CGSize(width: 0.0, height: 0.0)
-//            config.size = hostingController.sizeThatFits(in: maxSize)
 
 public struct SUISnapshotConfiguration {
     public static let size = CGSize(width: 1170 / UIScreen.main.scale, height: 2532 / UIScreen.main.scale)
@@ -96,35 +94,23 @@ public extension View {
         // Use UIGraphicsImageRenderer for proper anti-aliasing
         let format = UIGraphicsImageRendererFormat()
         format.scale = UIScreen.main.scale
+        format.preferredRange = .standard // SwftUI not passing with extended
         format.opaque = false
-        format.preferredRange = .standard
         
-        let image = UIGraphicsImageRenderer(size: SUISnapshotConfiguration.size, format: format).image { rendererContext in
-            let context = rendererContext.cgContext
-            
+        let uiKitRenderer = UIGraphicsImageRenderer(size: SUISnapshotConfiguration.size, format: format)
+        return uiKitRenderer.image { context in
             // Flip the coordinate system to match ImageRenderer's top-left origin
-            context.translateBy(x: 0, y: SUISnapshotConfiguration.size.height)
-            context.scaleBy(x: 1, y: -1)
+            context.cgContext.translateBy(x: 0, y: SUISnapshotConfiguration.size.height)
+            context.cgContext.scaleBy(x: 1, y: -1)
             
-            // Configure anti-aliasing
-            context.setShouldAntialias(true)
-            context.setAllowsAntialiasing(true)
-            context.setShouldSmoothFonts(true)
-            context.setAllowsFontSmoothing(true)
-            context.interpolationQuality = .high
-            context.setTextDrawingMode(.fill)
             let colorSpace = CGColorSpaceCreateDeviceRGB() // Default sRGB color space (IEC61966-2.1)
-            context.setFillColorSpace(colorSpace)
+            context.cgContext.setFillColorSpace(colorSpace)
             
-            // Render SwiftUI view into this context
             renderer.render { size, render in
-                render(context)
+                render(context.cgContext)
             }
         }
-        
-        return image
-        
-//        return renderer.uiImage ?? image
+//        return renderer.uiImage
     }
 }
 

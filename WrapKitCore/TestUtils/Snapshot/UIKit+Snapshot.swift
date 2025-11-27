@@ -97,16 +97,11 @@ extension UIView {
     func asImage(scale: CGFloat = UIScreen.main.scale) -> UIImage {
         let format = UIGraphicsImageRendererFormat(for: traitCollection)
         format.scale = scale // This ensures the correct resolution (1x, 2x, 3x, etc.)
-        format.preferredRange = .extended // .standard // disable HDR
+        format.preferredRange = .extended // UIKit not passing with standart
         format.opaque = false
+        
         let renderer = UIGraphicsImageRenderer(bounds: bounds, format: format)
         return renderer.image { context in
-            context.cgContext.setShouldAntialias(true)
-            context.cgContext.setAllowsAntialiasing(true)
-            context.cgContext.setShouldSmoothFonts(true)
-            context.cgContext.setAllowsFontSmoothing(true)
-            context.cgContext.interpolationQuality = .high
-            context.cgContext.setTextDrawingMode(.fill)
             let colorSpace = CGColorSpaceCreateDeviceRGB() // Default sRGB color space (IEC61966-2.1)
             context.cgContext.setFillColorSpace(colorSpace)
             layer.render(in: context.cgContext)

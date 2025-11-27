@@ -61,7 +61,7 @@ extension Diffing where Value == UIImage {
         let size = CGSize(width: width, height: height)
         let format = UIGraphicsImageRendererFormat()
         format.scale = 1 // old.scale
-        format.preferredRange = .extended // .standard // disable HDR
+        format.preferredRange = .automatic // .standard // disable HDR
         format.opaque = false
         //        print("asImage scale is \(UIScreen.main.scale) format: \(format.scale)")
         return UIGraphicsImageRenderer(size: size, format: format).image { context in

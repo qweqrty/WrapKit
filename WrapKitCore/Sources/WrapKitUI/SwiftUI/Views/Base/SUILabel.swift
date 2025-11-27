@@ -8,7 +8,6 @@
 import Foundation
 #if canImport(SwiftUI)
 import SwiftUI
-import CoreText
 
 public struct SUILabel: View {
     @ObservedObject var stateModel: SUILabelStateModel
@@ -69,15 +68,6 @@ public struct SUILabelView: View, Animatable {
         }
     }
 
-    // MARK: - Rendering decision helpers
-
-    private func needsUIKit(_ attributes: [TextAttributes]) -> Bool {
-        // SwiftUI's AttributedString cannot embed images or attach per-range tap handlers.
-        // If any attribute contains an image or tap action, use the UIKit path.
-//        attributes.contains(where: { $0.leadingImage != nil || $0.trailingImage != nil || $0.onTap != nil })
-        attributes.contains(where: { $0.onTap != nil })
-    }
-
     // MARK: - SwiftUI AttributedString builder (text-only)
 
     private func buildSwiftUIViewFromAttributes(from attributes: [TextAttributes]) -> some View {
@@ -90,10 +80,10 @@ public struct SUILabelView: View, Animatable {
             }
             
             if #available(iOS 15, macOS 12, tvOS 15, watchOS 8, *) {
+                let url: URL? = item.onTap == nil ? nil : URL(string: tappableUrlMask + item.id)
                 let nsAttributedString = item.makeNSAttributedString(
                     unsupportedUnderlines: unsupportedUnderlines,
-                    textColor: .label,
-                    link: URL(string: tappableUrlMask + item.id)
+                    link: url
                 )
                 let attributedString = AttributedString(nsAttributedString)
                 let textView = Text(attributedString)
@@ -235,15 +225,6 @@ extension NSUnderlineStyle {
                     backgroundColor: .blue
                 )
             )
-            SUILabelView(model: .attributes([
-                .init(text: "first line"),
-                .init(
-                    text: "green bold 20 (.byWord) \n\n",
-                    color: .green,
-                    font: .boldSystemFont(ofSize: 20),
-                    underlineStyle: .byWord
-                )
-            ]))
             
             SUILabelView(model: .attributes(
                 [
@@ -319,7 +300,7 @@ extension NSUnderlineStyle {
 #Preview {
     Text("text")
         .underline(pattern: Text.LineStyle.Pattern.solid)
-        .baselineOffset(12)
+        .baselineOffset(2)
     
     Text(
         AttributedString(
@@ -328,21 +309,29 @@ extension NSUnderlineStyle {
     )
     .underline(pattern: Text.LineStyle.Pattern.solid)
     .font(.system(size: 20))
-    .baselineOffset(12)
+    .baselineOffset(2)
     
     Text(
         AttributedString(
             TextAttributes(
-                text: "green bold 20 (.byWord) \n\n",
-                color: .green,
-                font: .boldSystemFont(ofSize: 20),
-                lineSpacing: 20,
-                underlineStyle: NSUnderlineStyle.double,
-                onTap: { print("didTap: green bold 20 .double ") }
-            ).makeNSAttributedString()
+                text: "Dash Dot Dot string",
+                color: .black,
+                font: .systemFont(ofSize: 20),
+                underlineStyle: [.patternDashDotDot],
+            ).makeNSAttributedString(
+                textColor: .label,
+                link: nil
+            )
         )
     )
-    .underline(pattern: Text.LineStyle.Pattern.solid)
-    .font(.system(size: 20))
-    .baselineOffset(12)
+    SUILabelView(model: .attributes([
+        TextAttributes(text: "Dash Dot Dot string", underlineStyle: [.patternDashDotDot]),
+    ]))
+    
+    SUILabelView(model: .textStyled(
+        text: .attributes([
+            TextAttributes(text: "Dash Dot Dot string", underlineStyle: [.patternDashDotDot])
+        ]),
+        cornerStyle: nil, insets: .zero, height: 150, backgroundColor: .systemBlue
+    ))
 }
