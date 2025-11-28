@@ -21,11 +21,20 @@ public class MaskedTextfieldDelegate: NSObject, UITextFieldDelegate {
     public var trailingSymbol: String?
     
     private weak var textfield: Textfield?
+    private var isUpdatingSelection = false // ДОБАВЛЕНО
+    private var isUpdatingUI = false // ДОБАВЛЕНО
     
     public var onlySpecifiersIfMaskedText: String { format.mask.extractUserInput(from: fullText) }
     public lazy var fullText: String = format.mask.applied(to: "").input {
         didSet {
+            guard !isUpdatingUI else {
+                return
+            }
             guard let textfield = textfield else { return }
+            
+            isUpdatingUI = true // ДОБАВЛЕНО
+            defer { isUpdatingUI = false } // ДОБАВЛЕНО
+            
             let mask = format.mask.applied(to: fullText)
             if mask.input.isEmpty && !(textfield.placeholder?.isEmpty ?? true) && !textfield.isFirstResponder {
                 textfield.attributedText = nil
@@ -36,8 +45,11 @@ public class MaskedTextfieldDelegate: NSObject, UITextFieldDelegate {
                     .init(trailingWithString, font: textfield.font ?? .systemFont(ofSize: 17), color: format.maskedTextColor, textAlignment: textfield.textAlignment)
                 )
             }
+            
+            isUpdatingSelection = true // ДОБАВЛЕНО
             let newPosition = textfield.position(from: textfield.beginningOfDocument, offset: mask.input.count) ?? textfield.beginningOfDocument
             textfield.selectedTextRange = textfield.textRange(from: newPosition, to: newPosition)
+            isUpdatingSelection = false // ДОБАВЛЕНО
         }
     }
     
@@ -104,16 +116,23 @@ public class MaskedTextfieldDelegate: NSObject, UITextFieldDelegate {
     }
     
     public func textFieldDidChangeSelection(_ textField: UITextField) {
+        guard !isUpdatingSelection else {
+            return
+        }
+        guard !isUpdatingUI else {
+            return
+        }
         guard let selectedTextRange = textField.selectedTextRange else { return }
-        
         let endOffset = textField.offset(from: textField.beginningOfDocument, to: selectedTextRange.end)
         
         let fullTextCount = fullText.count
         
         if endOffset > fullTextCount {
+            isUpdatingSelection = true
             let mask = format.mask.applied(to: fullText)
             let newPosition = textField.position(from: textField.beginningOfDocument, offset: mask.input.count) ?? textField.beginningOfDocument
             textField.selectedTextRange = textField.textRange(from: newPosition, to: newPosition)
+            isUpdatingSelection = false
         }
     }
 }
