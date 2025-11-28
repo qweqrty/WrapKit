@@ -39,9 +39,10 @@ public extension NSAttributedString {
 
         if let underlineStyle {
             attributes[.underlineStyle] = underlineStyle.rawValue | NSUnderlineStyle.single.rawValue // others not working without, only with OR
+            if underlineStyle != .single {
+                attributes[.baselineOffset] = 2 // to match UIKit underline offset
+            }
         }
-        print("underlineStyle \(underlineStyle)")
-        attributes[.baselineOffset] = 2 // to match UIKit underline offset
         if let link {
             attributes[.link] = link
         }
