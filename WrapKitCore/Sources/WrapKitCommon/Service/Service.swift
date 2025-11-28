@@ -104,7 +104,7 @@ public extension AnyPublisher {
         }
 }
 
-private extension AnyPublisher {
+extension AnyPublisher {
     @discardableResult
     func subscribe() -> AnyPublisher<Output, Failure> {
         let id = UUID()
