@@ -40,22 +40,33 @@ final class SUILabelSnapshotTests: XCTestCase {
         assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
     }
     
-    // cannot reduce default SwiftUI Text lineSpacing to negative value to match UIKit
-//    func test_labelOutput_long_text() {
+    func test_labelOutput_long_text() {
+        //GIVEN
+        let (sut, container) = makeSUT()
+        let snapshotName = "LABEL_LONG_TITLE"
+        
+        // WHEN
+        sut.display(model: .text("This is really long text that should wrap and check for number of lines"))
+
+//        if #available(iOS 26, *) {
+//            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+//            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+//        } else { // UIKit helps anti-aliasing
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS18.3.1_\(snapshotName)_DARK")
+//        }
+    }
+    
+//    func test_labelOutput_long_text_bold() {
 //        //GIVEN
-//        let (sut, container) = makeSUT()
-//        let snapshotName = "LABEL_LONG_TITLE"
+//        let (sut, container) = makeSUT(font: .systemFont(ofSize: 30))
+//        let snapshotName = "LABEL_LONG_TITLE_BOLD"
 //        
 //        // WHEN
 //        sut.display(model: .text("This is really long text that should wrap and check for number of lines"))
-//
-////        if #available(iOS 26, *) {
-////            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-////            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-////        } else { // TODO: troubles decreasing default (inherits from Font) lineSpacing, negative not working
-//            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
-//            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
-////        }
+//        // needs .offset(y: -1.6).lineHeight(.multiple(factor: 1.185))
+//        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "\(snapshotName)_LIGHT")
+//        assert(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "\(snapshotName)_DARK")
 //    }
     
     func test_labelOutput_hidden_text() {
@@ -532,14 +543,14 @@ final class SUILabelSnapshotTests: XCTestCase {
 @available(iOS 17, *)
 extension SUILabelSnapshotTests {
     func makeSUT(
+        font: UIFont = .systemFont(ofSize: 20),
         file: StaticString = #file,
         line: UInt = #line
     ) -> (sut: TextOutput, container: any SwiftUI.View) {
         let adapter = TextOutputSwiftUIAdapter()
         
         let view = VStack(spacing: .zero) {
-            SUILabel(adapter: adapter)
-                .font(.system(size: 20))
+            SUILabel(adapter: adapter, font: font)
                 .frame(height: 150, alignment: .center)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 

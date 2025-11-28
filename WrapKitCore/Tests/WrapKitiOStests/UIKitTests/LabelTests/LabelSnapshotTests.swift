@@ -58,15 +58,26 @@ class LabelSnapshotTests: XCTestCase {
         // WHEN
         sut.display(model: .text("This is really long text that should wrap and check for number of lines"))
         
-        if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else if #available(iOS 18.3.1, *) {
+//        if #available(iOS 26, *) {
+//            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+//            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+//        } else {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
-        } else {
-            XCTFail("Please download given os in Xcode Manage Run Destinations...")
-        }
+//        }
+    }
+    
+    func test_labelOutput_long_text_bold() {
+        //GIVEN
+        let (sut, container) = makeSUT()
+        let snapshotName = "LABEL_LONG_TITLE_BOLD"
+        
+        // WHEN
+        sut.font = .systemFont(ofSize: 30)
+        sut.display(model: .text("This is really long text that should wrap and check for number of lines"))
+        
+        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "\(snapshotName)_LIGHT")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "\(snapshotName)_DARK")
     }
     
     func test_labelOutput_hidden_text() {

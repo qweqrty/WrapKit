@@ -12,14 +12,20 @@ import SwiftUI
 public struct SUILabel: View {
     @ObservedObject var stateModel: SUILabelStateModel
     
-    public init(adapter: TextOutputSwiftUIAdapter) {
+    private let defaultFont: Font
+    
+    public init(
+        adapter: TextOutputSwiftUIAdapter,
+        font: Font = .systemFont(ofSize: 20)
+    ) {
         self.stateModel = .init(adapter: adapter)
+        self.defaultFont = font
     }
     
     @ViewBuilder
     public var body: some View {
         if !stateModel.isHidden {
-            SUILabelView(model: stateModel.presentable)
+            SUILabelView(model: stateModel.presentable, font: defaultFont)
         }
     }
 }
@@ -27,8 +33,21 @@ public struct SUILabel: View {
 public struct SUILabelView: View, Animatable {
     let model: TextOutputPresentableModel
     
-    public init(model: TextOutputPresentableModel) {
+    private let defaultFont: Font
+    private let suiFont: SwiftUIFont
+    
+    private let simpleTextYOffset: CGFloat
+    private let simpleTextLineHeightMultiple: CGFloat
+    
+    public init(
+        model: TextOutputPresentableModel,
+        font: Font = .systemFont(ofSize: 20)
+    ) {
         self.model = model
+        self.defaultFont = font
+        self.suiFont = SwiftUIFont(font)
+        simpleTextYOffset = defaultFont.lineHeight / 20
+        simpleTextLineHeightMultiple = (defaultFont.lineHeight / defaultFont.pointSize) - (defaultFont.pointSize / 1000) // 1.17 for 20, 1.185 for 30
     }
     
     @StateObject private var displayLinkManager = SUIDisplayLinkManager()
@@ -38,6 +57,11 @@ public struct SUILabelView: View, Animatable {
         case .text(let string):
             if let text = string?.removingPercentEncoding, !text.isEmpty {
                 Text(text)
+                    .font(suiFont)
+                    .offset(y: -simpleTextYOffset)
+                    .modify { if #available(iOS 26.0, *) {
+                        $0.lineHeight(.multiple(factor: simpleTextLineHeightMultiple))
+                    } }
             }
         case .attributes(let attributes):
             if !attributes.isEmpty {
@@ -51,7 +75,8 @@ public struct SUILabelView: View, Animatable {
                 }
                 
                 SUILabelView(
-                    model: mapToString?(from + (displayLinkManager.progress * (to - from))) ?? .text("")
+                    model: mapToString?(from + (displayLinkManager.progress * (to - from))) ?? .text(""),
+                    font: defaultFont
                 )
                 .onAppear {
                     guard duration > 0 else { return }
@@ -59,7 +84,7 @@ public struct SUILabelView: View, Animatable {
                 }
             }
         case .textStyled(let text, let cornerStyle, let insets, let height, let backgroundColor):
-            SUILabelView(model: text)
+            SUILabelView(model: text, font: defaultFont)
                 .if(!insets.isZero) { $0.padding(insets.asSUIEdgeInsets) }
                 .ifLet(height) { $0.frame(height: $1, alignment: .center) }
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -87,6 +112,7 @@ public struct SUILabelView: View, Animatable {
                 )
                 let attributedString = AttributedString(nsAttributedString)
                 let textView = Text(attributedString)
+                    .font(suiFont)
                 result.append(textView)
             } else {
                 let textView: Text = Text(item.text)
@@ -108,16 +134,14 @@ public struct SUILabelView: View, Animatable {
         let textAlignment = attributes.first(where: { $0.textAlignment != nil })?.textAlignment
         
         return result.reduce(Text(""), +)
-            .modify {
-                if #available(iOS 15, macOS 12, tvOS 15, watchOS 8, *) {
-                    $0.environment(\.openURL, OpenURLAction { url in
-                        if let id = url.host {
-                            attributes.first(where: { $0.id == id })?.onTap?()
-                        }
-                        return .discarded
-                    })
-                }
-            }
+            .modify { if #available(iOS 15, macOS 12, tvOS 15, watchOS 8, *) {
+                $0.environment(\.openURL, OpenURLAction { url in
+                    if let id = url.host {
+                        attributes.first(where: { $0.id == id })?.onTap?()
+                    }
+                    return .discarded
+                })
+            } }
             .ifLet(textAlignment) {
                 $0.multilineTextAlignment($1.suiTextAlignment)
                     .frame(maxWidth: .infinity, alignment: $1.suiAlignment)
@@ -298,40 +322,32 @@ extension NSUnderlineStyle {
 
 @available(iOS 16.0, *)
 #Preview {
-    Text("text")
-        .underline(pattern: Text.LineStyle.Pattern.solid)
-        .baselineOffset(2)
-    
-    Text(
-        AttributedString(
-            TextAttributes(text: "some", lineSpacing: 12).makeNSAttributedString()
-        )
+    SUILabelView(
+        model: .text("This is really long text that should wrap and check for number of lines")
     )
-    .underline(pattern: Text.LineStyle.Pattern.solid)
     .font(.system(size: 20))
-    .baselineOffset(2)
+    .offset(y: -1.2)
+    .modify { if #available(iOS 26.0, *) {
+        $0.lineHeight(.multiple(factor: 1.17))
+    } }
+    .frame(height: 150, alignment: .center)
+    .frame(maxWidth: .infinity, alignment: .leading)
     
-    Text(
-        AttributedString(
-            TextAttributes(
-                text: "Dash Dot Dot string",
-                color: .black,
-                font: .systemFont(ofSize: 20),
-                underlineStyle: [.patternDashDotDot],
-            ).makeNSAttributedString(
-                textColor: .label,
-                link: nil
-            )
-        )
+    SUILabelView(
+        model: .text("This is really long text that should wrap and check for number of lines")
     )
-    SUILabelView(model: .attributes([
-        TextAttributes(text: "Dash Dot Dot string", underlineStyle: [.patternDashDotDot]),
-    ]))
+    .font(.system(size: 30))
+    .offset(y: -1.2)
+    .modify { if #available(iOS 26.0, *) {
+        $0.lineHeight(.multiple(factor: 1.17))
+    } }
+    .frame(height: 150, alignment: .center)
+    .frame(maxWidth: .infinity, alignment: .leading)
     
-    SUILabelView(model: .textStyled(
-        text: .attributes([
-            TextAttributes(text: "Dash Dot Dot string", underlineStyle: [.patternDashDotDot])
-        ]),
-        cornerStyle: nil, insets: .zero, height: 150, backgroundColor: .systemBlue
-    ))
+    SUILabelView(
+        model: .text("This is really long text that should wrap and check for number of lines This is really long text that should wrap and check for number of lines")
+    )
+    .font(.system(size: 20))
+    .lineSpacing(2)
+    .frame(maxWidth: .infinity, alignment: .leading)
 }
