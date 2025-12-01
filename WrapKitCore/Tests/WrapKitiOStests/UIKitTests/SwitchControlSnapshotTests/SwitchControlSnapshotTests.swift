@@ -24,11 +24,9 @@ final class SwitchControlSnapshotTests: XCTestCase {
                    named: "iOS26_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)),
                    named: "iOS26_\(snapshotName)_DARK")
-        } else if #available(iOS 18.3.1, *) {
+        } else {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
-        } else {
-            XCTFail("Please download given os in Xcode Manage Run Destinations...")
         }
     }
     
@@ -46,11 +44,9 @@ final class SwitchControlSnapshotTests: XCTestCase {
                    named: "iOS26_\(snapshotName)_LIGHT")
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)),
                    named: "iOS26_\(snapshotName)_DARK")
-        } else if #available(iOS 18.3.1, *) {
+        } else {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
-        } else {
-            XCTFail("Please download given os in Xcode Manage Run Destinations...")
         }
     }
     
@@ -90,11 +86,9 @@ final class SwitchControlSnapshotTests: XCTestCase {
                    named: "iOS26_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)),
                    named: "iOS26_\(snapshotName)_DARK")
-        } else if #available(iOS 18.3.1, *) {
+        } else {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
-        } else {
-            XCTFail("Please download given os in Xcode Manage Run Destinations...")
         }
     }
     
@@ -133,11 +127,9 @@ final class SwitchControlSnapshotTests: XCTestCase {
                    named: "iOS26_\(snapshotName)_LIGHT")
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)),
                    named: "iOS26_\(snapshotName)_DARK")
-        } else if #available(iOS 18.3.1, *) {
+        } else {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
-        } else {
-            XCTFail("Please download given os in Xcode Manage Run Destinations...")
         }
     }
     
@@ -161,11 +153,9 @@ final class SwitchControlSnapshotTests: XCTestCase {
                    named: "iOS26_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)),
                    named: "iOS26_\(snapshotName)_DARK")
-        } else if #available(iOS 18.3.1, *) {
+        } else {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
-        } else {
-            XCTFail("Please download given os in Xcode Manage Run Destinations...")
         }
     }
     
@@ -188,11 +178,9 @@ final class SwitchControlSnapshotTests: XCTestCase {
                    named: "iOS26_\(snapshotName)_LIGHT")
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)),
                    named: "iOS26_\(snapshotName)_DARK")
-        } else if #available(iOS 18.3.1, *) {
+        } else {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
-        } else {
-            XCTFail("Please download given os in Xcode Manage Run Destinations...")
         }
     }
     
@@ -218,11 +206,9 @@ final class SwitchControlSnapshotTests: XCTestCase {
                    named: "iOS26_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)),
                    named: "iOS26_\(snapshotName)_DARK")
-        } else if #available(iOS 18.3.1, *) {
+        } else {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
-        } else {
-            XCTFail("Please download given os in Xcode Manage Run Destinations...")
         }
     }
     
@@ -240,7 +226,7 @@ final class SwitchControlSnapshotTests: XCTestCase {
         sut.display(isOn: true)
         sut.display(isEnabled: true)
         
-        sut.backgroundColor = .blue
+        sut.backgroundColor = .systemBlue
         
         // THEN
         if #available(iOS 26, *) {
@@ -248,11 +234,9 @@ final class SwitchControlSnapshotTests: XCTestCase {
                    named: "iOS26_\(snapshotName)_LIGHT")
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)),
                    named: "iOS26_\(snapshotName)_DARK")
-        } else if #available(iOS 18.3.1, *) {
+        } else {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
-        } else {
-            XCTFail("Please download given os in Xcode Manage Run Destinations...")
         }
     }
     
@@ -279,11 +263,9 @@ final class SwitchControlSnapshotTests: XCTestCase {
                    named: "iOS26_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)),
                    named: "iOS26_\(snapshotName)_DARK")
-        } else if #available(iOS 18.3.1, *) {
+        } else {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
-        } else {
-            XCTFail("Please download given os in Xcode Manage Run Destinations...")
         }
     }
     
@@ -310,11 +292,9 @@ final class SwitchControlSnapshotTests: XCTestCase {
                    named: "iOS26_\(snapshotName)_LIGHT")
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)),
                    named: "iOS26_\(snapshotName)_DARK")
-        } else if #available(iOS 18.3.1, *) {
+        } else {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
-        } else {
-            XCTFail("Please download given os in Xcode Manage Run Destinations...")
         }
     }
     
@@ -341,11 +321,9 @@ final class SwitchControlSnapshotTests: XCTestCase {
                    named: "iOS26_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)),
                    named: "iOS26_\(snapshotName)_DARK")
-        } else if #available(iOS 18.3.1, *) {
+        } else {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
-        } else {
-            XCTFail("Please download given os in Xcode Manage Run Destinations...")
         }
     }
     
@@ -372,11 +350,9 @@ final class SwitchControlSnapshotTests: XCTestCase {
                    named: "iOS26_\(snapshotName)_LIGHT")
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)),
                    named: "iOS26_\(snapshotName)_DARK")
-        } else if #available(iOS 18.3.1, *) {
+        } else {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
-        } else {
-            XCTFail("Please download given os in Xcode Manage Run Destinations...")
         }
     }
     
@@ -407,11 +383,9 @@ final class SwitchControlSnapshotTests: XCTestCase {
                    named: "iOS26_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)),
                    named: "iOS26_\(snapshotName)_DARK")
-        } else if #available(iOS 18.3.1, *) {
+        } else {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
-        } else {
-            XCTFail("Please download given os in Xcode Manage Run Destinations...")
         }
     }
     
@@ -428,10 +402,10 @@ final class SwitchControlSnapshotTests: XCTestCase {
             cornerRadius: 11)
         
         sut.display(style: .init(
-            tintColor: .systemGreen,
-            thumbTintColor: .blue,
+            tintColor: .clear,
+            thumbTintColor: .clear,
             backgroundColor: .clear,
-            cornerRadius: 10,
+            cornerRadius: 11,
             shimmerStyle: style))
         
         sut.display(isLoading: true)
@@ -442,11 +416,9 @@ final class SwitchControlSnapshotTests: XCTestCase {
                    named: "iOS26_\(snapshotName)_LIGHT")
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)),
                    named: "iOS26_\(snapshotName)_DARK")
-        } else if #available(iOS 18.3.1, *) {
+        } else {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
-        } else {
-            XCTFail("Please download given os in Xcode Manage Run Destinations...")
         }
     }
 }
