@@ -21,8 +21,8 @@ public class MaskedTextfieldDelegate: NSObject, UITextFieldDelegate {
     public var trailingSymbol: String?
     
     private weak var textfield: Textfield?
-    private var isUpdatingSelection = false // ДОБАВЛЕНО
-    private var isUpdatingUI = false // ДОБАВЛЕНО
+    private var isUpdatingSelection = false
+    private var isUpdatingUI = false
     
     public var onlySpecifiersIfMaskedText: String { format.mask.extractUserInput(from: fullText) }
     public lazy var fullText: String = format.mask.applied(to: "").input {
@@ -32,8 +32,8 @@ public class MaskedTextfieldDelegate: NSObject, UITextFieldDelegate {
             }
             guard let textfield = textfield else { return }
             
-            isUpdatingUI = true // ДОБАВЛЕНО
-            defer { isUpdatingUI = false } // ДОБАВЛЕНО
+            isUpdatingUI = true
+            defer { isUpdatingUI = false }
             
             let mask = format.mask.applied(to: fullText)
             if mask.input.isEmpty && !(textfield.placeholder?.isEmpty ?? true) && !textfield.isFirstResponder {
@@ -46,10 +46,10 @@ public class MaskedTextfieldDelegate: NSObject, UITextFieldDelegate {
                 )
             }
             
-            isUpdatingSelection = true // ДОБАВЛЕНО
+            isUpdatingSelection = true
             let newPosition = textfield.position(from: textfield.beginningOfDocument, offset: mask.input.count) ?? textfield.beginningOfDocument
             textfield.selectedTextRange = textfield.textRange(from: newPosition, to: newPosition)
-            isUpdatingSelection = false // ДОБАВЛЕНО
+            isUpdatingSelection = false
         }
     }
     
@@ -86,7 +86,7 @@ public class MaskedTextfieldDelegate: NSObject, UITextFieldDelegate {
             textField.text = ""
         } else {
             if string.count > 1 {
-                onPaste(fullText + string)
+                onPaste(string)
             } else {
                 setupMask(mask: string.isEmpty ? format.mask.removeCharacters(from: fullText, in: range) : format.mask.applied(to: fullText + string))
             }
@@ -105,6 +105,15 @@ public class MaskedTextfieldDelegate: NSObject, UITextFieldDelegate {
         let maskedText = format.mask.applied(to: newText)
         
         self.fullText = maskedText.input
+        
+        DispatchQueue.main.async { [weak self, weak textfield] in
+            guard let self = self, let textfield = textfield else { return }
+            self.isUpdatingSelection = true
+            let mask = self.format.mask.applied(to: self.fullText)
+            let newPosition = textfield.position(from: textfield.beginningOfDocument, offset: mask.input.count) ?? textfield.beginningOfDocument
+            textfield.selectedTextRange = textfield.textRange(from: newPosition, to: newPosition)
+            self.isUpdatingSelection = false
+        }
     }
     
     public func textFieldDidBeginEditing(_ textField: UITextField) {
