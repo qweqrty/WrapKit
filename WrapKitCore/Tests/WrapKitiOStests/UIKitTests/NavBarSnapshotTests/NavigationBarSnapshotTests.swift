@@ -1219,7 +1219,7 @@ class NavigationBarSnapshotTests: XCTestCase {
                     isOn: true,
                     isEnabled: true,
                     style: .init(
-                        tintColor: .black,
+                        tintColor: .blue,
                         thumbTintColor: .systemRed,
                         backgroundColor: .clear,
                         cornerRadius: 10))
