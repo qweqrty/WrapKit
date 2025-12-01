@@ -83,6 +83,7 @@ public extension AnyPublisher {
             onCompletion: (() -> Void)? = nil
         ) -> AnyPublisher<Output, Failure> {
             self
+                .receive(on: RunLoop.main)
                 .handleEvents(
                 receiveOutput: { output in
                     onSuccess?(output)
@@ -103,7 +104,7 @@ public extension AnyPublisher {
         }
 }
 
-private extension AnyPublisher {
+extension AnyPublisher {
     @discardableResult
     func subscribe() -> AnyPublisher<Output, Failure> {
         let id = UUID()
