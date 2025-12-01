@@ -563,7 +563,7 @@ final class CardViewSnapshotTests: XCTestCase {
     }
     
     func test_CardView_with_title_value_subtitle() {
-        let snapshotName = "CARDVIEW_WITH_SUBTITLE"
+        let snapshotName = "CARDVIEW_WITH_TITLE_VALUE_SUBTITLE"
         
         // GIVEN
         let (sut, container) = makeSUT()
@@ -585,7 +585,7 @@ final class CardViewSnapshotTests: XCTestCase {
     }
     
     func test_fail_CardView_with_title_value_subtitle() {
-        let snapshotName = "CARDVIEW_WITH_SUBTITLE"
+        let snapshotName = "CARDVIEW_WITH_TITLE_VALUE_SUBTITLE"
         
         // GIVEN
         let (sut, container) = makeSUT()
