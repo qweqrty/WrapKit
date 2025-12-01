@@ -77,12 +77,11 @@ final class CountingLabelAnimation {
                 mapToString(widestNumber).width(usingFont: label.font)
             )
         }
-        
-        timer.startAnimation(duration: duration) { [unowned self] progress in
+        timer.startAnimation(duration: duration, onUpdateProgress: { [unowned self] progress in
             let currentValue = self.startNumber + (progress * (self.endNumber - self.startNumber))
             let view = mapToString?(currentValue) ?? .text("")
             self.label?.display(model: view)
-        }
+        }, completion: completion)
     }
     
     func invalidate() {

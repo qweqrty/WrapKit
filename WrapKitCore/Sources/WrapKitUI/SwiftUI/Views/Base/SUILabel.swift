@@ -46,8 +46,12 @@ public struct SUILabelView: View, Animatable {
         self.model = model
         self.defaultFont = font
         self.suiFont = SwiftUIFont(font)
-        simpleTextYOffset = defaultFont.lineHeight / 20
-        simpleTextLineHeightMultiple = (defaultFont.lineHeight / defaultFont.pointSize) - (defaultFont.pointSize / 1000) // 1.17 for 20, 1.185 for 30
+        simpleTextYOffset = font.lineHeight / min(20 + (max(0, font.pointSize - 30) * 0.5), 25)
+        simpleTextLineHeightMultiple = 1.139 + (0.0015 * font.pointSize) // 1.131 + (0.0015 * font.pointSize)
+        
+        // TODO: not handled font higher than 30, formula below breaks on 10-20-40 except 30
+//        let size = font.lineHeight
+//        simpleTextLineHeightMultiple = -0.00002333 * size * size + 0.002367 * size + 1.1277
     }
     
     @StateObject private var displayLinkManager = SUIDisplayLinkManager()

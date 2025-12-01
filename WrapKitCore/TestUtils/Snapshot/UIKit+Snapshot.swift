@@ -97,7 +97,7 @@ extension UIView {
     func asImage(scale: CGFloat = UIScreen.main.scale) -> UIImage {
         let format = UIGraphicsImageRendererFormat(for: traitCollection)
         format.scale = scale // This ensures the correct resolution (1x, 2x, 3x, etc.)
-        format.preferredRange = .extended // UIKit not passing with standart
+        format.preferredRange =  .extended // UIKit not passing with standart
         format.opaque = false
         
         let renderer = UIGraphicsImageRenderer(bounds: bounds, format: format)

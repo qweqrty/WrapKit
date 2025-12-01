@@ -62,11 +62,13 @@ extension Label: TextOutput {
             display(attributes: attributes)
         case .animated(let startAmount, let endAmount, let mapToString, let animationStyle, let duration, let completion):
             display(from: startAmount, to: endAmount, mapToString: mapToString, animationStyle: animationStyle, duration: duration, completion: completion)
-        case .textStyled(let model, let style, let insets, let height, let backgroundColor):
+        case .textStyled(let model, let style, let insets, _, let backgroundColor):
             display(model: model)
             self.cornerStyle = style
             self.textInsets = insets.asUIEdgeInsets
-            self.backgroundColor = backgroundColor
+            if let backgroundColor {
+                self.backgroundColor = backgroundColor
+            }
         }
     }
     

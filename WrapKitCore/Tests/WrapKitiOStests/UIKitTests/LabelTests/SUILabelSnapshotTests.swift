@@ -42,7 +42,7 @@ final class SUILabelSnapshotTests: XCTestCase {
     
     func test_labelOutput_long_text() {
         //GIVEN
-        let (sut, container) = makeSUT()
+        let (sut, container) = makeSUT(font: .systemFont(ofSize: 20))
         let snapshotName = "LABEL_LONG_TITLE"
         
         // WHEN
@@ -57,17 +57,28 @@ final class SUILabelSnapshotTests: XCTestCase {
 //        }
     }
     
-//    func test_labelOutput_long_text_bold() {
-//        //GIVEN
-//        let (sut, container) = makeSUT(font: .systemFont(ofSize: 30))
-//        let snapshotName = "LABEL_LONG_TITLE_BOLD"
-//        
-//        // WHEN
-//        sut.display(model: .text("This is really long text that should wrap and check for number of lines"))
-//        // needs .offset(y: -1.6).lineHeight(.multiple(factor: 1.185))
-//        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "\(snapshotName)_LIGHT")
-//        assert(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "\(snapshotName)_DARK")
-//    }
+    func test_labelOutput_long_text_30() {
+        //GIVEN
+        let (sut, container) = makeSUT(font: .systemFont(ofSize: 30))
+        let snapshotName = "LABEL_LONG_TITLE_30"
+        
+        // WHEN
+        sut.display(model: .text("This is really long text that should wrap and check for number of lines"))
+        // needs .offset(y: -1.6).lineHeight(.multiple(factor: 1.185))
+        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "\(snapshotName)_LIGHT")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "\(snapshotName)_DARK")
+    }
+    
+    func test_labelOutput_long_text_10() {
+        //GIVEN
+        let (sut, container) = makeSUT(font: .systemFont(ofSize: 10))
+        let snapshotName = "LABEL_LONG_TITLE_10"
+        
+        // WHEN
+        sut.display(model: .text("This is really long text that should wrap and check for number of lines and more and more and more and more and more"))
+        assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "\(snapshotName)_LIGHT")
+        assert(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "\(snapshotName)_DARK")
+    }
     
     func test_labelOutput_hidden_text() {
         //GIVEN

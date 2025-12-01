@@ -71,7 +71,7 @@ public extension NSAttributedString {
         attachment.image = image
         attachment.bounds = bounds == .zero ? CGRect(x: 0, y: 0, width: image.size.width, height: image.size.height) : bounds
         let horizontalPaddingAttachment = NSTextAttachment() // needed to work from iOS 15 changes
-        horizontalPaddingAttachment.bounds = CGRect(x: 0, y: 0, width: bounds.origin.x, height: 0)
+        horizontalPaddingAttachment.bounds = CGRect(x: 0, y: 0, width: abs(bounds.origin.x), height: 0)
 
         if bounds.origin.x < .zero {
             attributedString.append(NSAttributedString(attachment: horizontalPaddingAttachment))
