@@ -507,7 +507,6 @@ final class TextViewSnapshotTests: XCTestCase {
         }
     }
     
-    // TODO: - Wron appearance. placeholder is visible even if text exists
     func test_TextView_invalid_with_text_and_placeholder() {
         let snapshotName = "TEXTVIEW_INVALID_WITH_TEXT_AND_PLACEHOLDER"
         
