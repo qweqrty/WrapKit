@@ -12,6 +12,7 @@ import XCTest
 final class ToastViewSnapshotTests: XCTestCase {
     
     private let image = UIImage(systemName: "star.fill")
+    private let failImage = UIImage(systemName: "star")
     
     func test_ToastView_default_state() {
         let snapshotName = "TOASTVIEW_DEFAULT_STATE"
@@ -21,11 +22,19 @@ final class ToastViewSnapshotTests: XCTestCase {
         let exp = expectation(description: "Wait for completion!")
         
         // WHEN
-        sut.cardView.display(model: .init(
+        let cardModel = CardViewPresentableModel(
             style: makeDefaultStyle(),
             title: .text("Toast Message")
+        )
+        
+        let toast = CommonToast.custom(.init(
+            common: .init(
+                cardViewModel: cardModel,
+                position: .top
+            )
         ))
         
+        sut.display(toast)
         sut.show()
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
@@ -36,12 +45,14 @@ final class ToastViewSnapshotTests: XCTestCase {
         
         // THEN
         if #available(iOS 26, *) {
-            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+            assert(snapshot: sut.superview!.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: sut.superview!.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
-            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+            assert(snapshot: sut.superview!.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: sut.superview!.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
         }
+        
+        sut.removeFromSuperview()
     }
     
     func test_fail_ToastView_default_state() {
@@ -52,11 +63,19 @@ final class ToastViewSnapshotTests: XCTestCase {
         let exp = expectation(description: "Wait for completion!")
         
         // WHEN
-        sut.cardView.display(model: .init(
+        let cardModel = CardViewPresentableModel(
             style: makeDefaultStyle(),
             title: .text("Toast Message.")
+        )
+        
+        let toast = CommonToast.custom(.init(
+            common: .init(
+                cardViewModel: cardModel,
+                position: .top
+            )
         ))
         
+        sut.display(toast)
         sut.show()
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
@@ -67,12 +86,14 @@ final class ToastViewSnapshotTests: XCTestCase {
         
         // THEN
         if #available(iOS 26, *) {
-            assertFail(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+            assertFail(snapshot: sut.superview!.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: sut.superview!.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assertFail(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
-            assertFail(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+            assertFail(snapshot: sut.superview!.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assertFail(snapshot: sut.superview!.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
         }
+        
+        sut.removeFromSuperview()
     }
     
     func test_ToastView_with_leadingImage() {
@@ -83,16 +104,22 @@ final class ToastViewSnapshotTests: XCTestCase {
         let exp = expectation(description: "Wait for completion!")
         
         // WHEN
-        sut.cardView.display(model: .init(
+        let cardModel = CardViewPresentableModel(
             style: makeDefaultStyle(),
             title: .text("Toast Message"),
             leadingImage: .init(
                 size: .init(width: 32, height: 32),
                 image: .asset(image),
                 borderColor: .red,
-            )
         ))
         
+        let toast = CommonToast.custom(.init(
+            common: .init(
+                cardViewModel: cardModel,
+                position: .top)
+        ))
+        
+        sut.display(toast)
         sut.show()
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
@@ -103,12 +130,14 @@ final class ToastViewSnapshotTests: XCTestCase {
         
         // THEN
         if #available(iOS 26, *) {
-            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+            assert(snapshot: sut.superview!.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: sut.superview!.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
-            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+            assert(snapshot: sut.superview!.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: sut.superview!.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
         }
+        
+        sut.removeFromSuperview()
     }
     
     func test_fail_ToastView_with_leadingImage() {
@@ -131,6 +160,22 @@ final class ToastViewSnapshotTests: XCTestCase {
             )
         ))
         
+        let cardModel = CardViewPresentableModel(
+            style: makeDefaultStyle(),
+            title: .text("Toast Message"),
+            leadingImage: .init(
+                size: .init(width: 32, height: 32),
+                image: .asset(image),
+                borderColor: .red,
+        ))
+        
+        let toast = CommonToast.custom(.init(
+            common: .init(
+                cardViewModel: cardModel,
+                position: .top)
+        ))
+        
+        sut.display(toast)
         sut.show()
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
@@ -141,12 +186,14 @@ final class ToastViewSnapshotTests: XCTestCase {
         
         // THEN
         if #available(iOS 26, *) {
-            assertFail(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+            assertFail(snapshot: sut.superview!.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: sut.superview!.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assertFail(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
-            assertFail(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+            assertFail(snapshot: sut.superview!.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assertFail(snapshot: sut.superview!.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
         }
+        
+        sut.removeFromSuperview()
     }
     
     // TODO: = title doesnt wrap to multiple lines
@@ -158,15 +205,19 @@ final class ToastViewSnapshotTests: XCTestCase {
         let exp = expectation(description: "Wait for completion!")
         
         // WHEN
-        sut.cardView.display(model: .init(
+        let cardModel = CardViewPresentableModel(
             style: makeDefaultStyle(),
-            title: .text("This is a very long toast message that should wrap to multiple lines"),
-            leadingImage: .init(
-                size: .init(width: 32, height: 32),
-                image: .asset(image),
-            ),
-        ))
+            title: .text("This is a very long toast message that should wrap to multiple lines")
+        )
         
+        let toast = CommonToast.custom(.init(
+            common: .init(
+                cardViewModel: cardModel,
+                position: .top
+            )
+        ))
+
+        sut.display(toast)
         sut.show()
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
@@ -177,12 +228,14 @@ final class ToastViewSnapshotTests: XCTestCase {
         
         // THEN
         if #available(iOS 26, *) {
-            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+            assert(snapshot: sut.superview!.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: sut.superview!.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
-            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+            assert(snapshot: sut.superview!.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: sut.superview!.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
         }
+        
+        sut.removeFromSuperview()
     }
     
     func test_fail_ToastView_with_long_text() {
@@ -193,15 +246,19 @@ final class ToastViewSnapshotTests: XCTestCase {
         let exp = expectation(description: "Wait for completion!")
         
         // WHEN
-        sut.cardView.display(model: .init(
+        let cardModel = CardViewPresentableModel(
             style: makeDefaultStyle(),
-            title: .text(".This is a very long toast message that should wrap to multiple lines"),
-            leadingImage: .init(
-                size: .init(width: 32, height: 32),
-                image: .asset(image),
-            ),
-        ))
+            title: .text("This is a very long toast message that should wrap to multiple lines.")
+        )
         
+        let toast = CommonToast.custom(.init(
+            common: .init(
+                cardViewModel: cardModel,
+                position: .top
+            )
+        ))
+
+        sut.display(toast)
         sut.show()
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
@@ -212,12 +269,14 @@ final class ToastViewSnapshotTests: XCTestCase {
         
         // THEN
         if #available(iOS 26, *) {
-            assertFail(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+            assertFail(snapshot: sut.superview!.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: sut.superview!.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assertFail(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
-            assertFail(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+            assertFail(snapshot: sut.superview!.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assertFail(snapshot: sut.superview!.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
         }
+        
+        sut.removeFromSuperview()
     }
     
     func test_ToastView_with_subTitle() {
@@ -228,16 +287,19 @@ final class ToastViewSnapshotTests: XCTestCase {
         let exp = expectation(description: "Wait for completion!")
         
         // WHEN
-        sut.cardView.display(model: .init(
+        let cardModel = CardViewPresentableModel(
             style: makeDefaultStyle(),
             title: .text("Title"),
-            leadingImage: .init(
-                size: .init(width: 32, height: 32),
-                image: .asset(image),
-            ),
-            subTitle: .text("Subtitile")
+            subTitle: .text("Subtitle")
+        )
+        
+        let toast = CommonToast.custom(.init(
+            common: .init(
+                cardViewModel: cardModel,
+                position: .top)
         ))
         
+        sut.display(toast)
         sut.show()
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
@@ -248,12 +310,14 @@ final class ToastViewSnapshotTests: XCTestCase {
         
         // THEN
         if #available(iOS 26, *) {
-            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+            assert(snapshot: sut.superview!.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: sut.superview!.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
-            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+            assert(snapshot: sut.superview!.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: sut.superview!.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
         }
+        
+        sut.removeFromSuperview()
     }
     
     func test_fail_ToastView_with_subTitle() {
@@ -264,16 +328,19 @@ final class ToastViewSnapshotTests: XCTestCase {
         let exp = expectation(description: "Wait for completion!")
         
         // WHEN
-        sut.cardView.display(model: .init(
+        let cardModel = CardViewPresentableModel(
             style: makeDefaultStyle(),
             title: .text("Title"),
-            leadingImage: .init(
-                size: .init(width: 32, height: 32),
-                image: .asset(image),
-            ),
-            subTitle: .text("Subtitile.")
+            subTitle: .text("Subtitle.")
+        )
+        
+        let toast = CommonToast.custom(.init(
+            common: .init(
+                cardViewModel: cardModel,
+                position: .top)
         ))
         
+        sut.display(toast)
         sut.show()
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
@@ -284,12 +351,14 @@ final class ToastViewSnapshotTests: XCTestCase {
         
         // THEN
         if #available(iOS 26, *) {
-            assertFail(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+            assertFail(snapshot: sut.superview!.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: sut.superview!.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assertFail(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
-            assertFail(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+            assertFail(snapshot: sut.superview!.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assertFail(snapshot: sut.superview!.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
         }
+        
+        sut.removeFromSuperview()
     }
     
     func test_ToastView_with_valueTitle() {
@@ -300,16 +369,18 @@ final class ToastViewSnapshotTests: XCTestCase {
         let exp = expectation(description: "Wait for completion!")
         
         // WHEN
-        sut.cardView.display(model: .init(
+        let cardModel = CardViewPresentableModel(
             style: makeDefaultStyle(),
             title: .text("Title"),
-            leadingImage: .init(
-                size: .init(width: 32, height: 32),
-                image: .asset(image),
-            ),
             valueTitle: .text("Value title")
-        ))
+        )
         
+        let toast = CommonToast.custom(.init(
+            common: .init(
+                cardViewModel: cardModel,
+                position: .top)))
+        
+        sut.display(toast)
         sut.show()
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
@@ -320,12 +391,14 @@ final class ToastViewSnapshotTests: XCTestCase {
         
         // THEN
         if #available(iOS 26, *) {
-            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+            assert(snapshot: sut.superview!.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: sut.superview!.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
-            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+            assert(snapshot: sut.superview!.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: sut.superview!.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
         }
+        
+        sut.removeFromSuperview()
     }
     
     func test_fail_ToastView_with_valueTitle() {
@@ -336,16 +409,18 @@ final class ToastViewSnapshotTests: XCTestCase {
         let exp = expectation(description: "Wait for completion!")
         
         // WHEN
-        sut.cardView.display(model: .init(
+        let cardModel = CardViewPresentableModel(
             style: makeDefaultStyle(),
             title: .text("Title"),
-            leadingImage: .init(
-                size: .init(width: 32, height: 32),
-                image: .asset(image),
-            ),
             valueTitle: .text("Value title.")
-        ))
+        )
         
+        let toast = CommonToast.custom(.init(
+            common: .init(
+                cardViewModel: cardModel,
+                position: .top)))
+        
+        sut.display(toast)
         sut.show()
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
@@ -356,12 +431,14 @@ final class ToastViewSnapshotTests: XCTestCase {
         
         // THEN
         if #available(iOS 26, *) {
-            assertFail(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+            assertFail(snapshot: sut.superview!.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: sut.superview!.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assertFail(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
-            assertFail(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+            assertFail(snapshot: sut.superview!.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assertFail(snapshot: sut.superview!.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
         }
+        
+        sut.removeFromSuperview()
     }
     
     func test_ToastView_with_trailingImage() {
@@ -372,16 +449,23 @@ final class ToastViewSnapshotTests: XCTestCase {
         let exp = expectation(description: "Wait for completion!")
         
         // WHEN
-        sut.cardView.display(model: .init(
+        let cardModel = CardViewPresentableModel(
             style: makeDefaultStyle(),
             title: .text("Title"),
             trailingImage: .init(
                 size: .init(width: 32, height: 32),
                 image: .asset(image),
-            ),
-            subTitle: .text("Subtitile")
+            )
+        )
+        
+        let toast = CommonToast.custom(.init(
+            common: .init(
+                cardViewModel: cardModel,
+                position: .top
+            )
         ))
         
+        sut.display(toast)
         sut.show()
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
@@ -392,12 +476,14 @@ final class ToastViewSnapshotTests: XCTestCase {
         
         // THEN
         if #available(iOS 26, *) {
-            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+            assert(snapshot: sut.superview!.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: sut.superview!.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
-            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+            assert(snapshot: sut.superview!.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: sut.superview!.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
         }
+        
+        sut.removeFromSuperview()
     }
     
     func test_fail_ToastView_with_trailingImage() {
@@ -408,16 +494,23 @@ final class ToastViewSnapshotTests: XCTestCase {
         let exp = expectation(description: "Wait for completion!")
         
         // WHEN
-        sut.cardView.display(model: .init(
+        let cardModel = CardViewPresentableModel(
             style: makeDefaultStyle(),
             title: .text("Title"),
             trailingImage: .init(
-                size: .init(width: 33, height: 32),
-                image: .asset(image),
-            ),
-            subTitle: .text("Subtitile")
+                size: .init(width: 32, height: 32),
+                image: .asset(failImage),
+            )
+        )
+        
+        let toast = CommonToast.custom(.init(
+            common: .init(
+                cardViewModel: cardModel,
+                position: .top
+            )
         ))
         
+        sut.display(toast)
         sut.show()
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
@@ -428,12 +521,14 @@ final class ToastViewSnapshotTests: XCTestCase {
         
         // THEN
         if #available(iOS 26, *) {
-            assertFail(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+            assertFail(snapshot: sut.superview!.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: sut.superview!.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assertFail(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
-            assertFail(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+            assertFail(snapshot: sut.superview!.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assertFail(snapshot: sut.superview!.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
         }
+        
+        sut.removeFromSuperview()
     }
     
     func test_ToastView_with_switchControl() {
@@ -444,7 +539,7 @@ final class ToastViewSnapshotTests: XCTestCase {
         let exp = expectation(description: "Wait for completion!")
         
         // WHEN
-        sut.cardView.display(model: .init(
+        let cardModel = CardViewPresentableModel(
             style: makeDefaultStyle(),
             title: .text("Title"),
             switchControl: .init(
@@ -454,8 +549,16 @@ final class ToastViewSnapshotTests: XCTestCase {
                              thumbTintColor: .systemBlue,
                              backgroundColor: .systemBackground,
                              cornerRadius: 10))
+        )
+        
+        let toast = CommonToast.custom(.init(
+            common: .init(
+                cardViewModel: cardModel,
+                position: .top
+            )
         ))
         
+        sut.display(toast)
         sut.show()
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
@@ -466,12 +569,14 @@ final class ToastViewSnapshotTests: XCTestCase {
         
         // THEN
         if #available(iOS 26, *) {
-            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+            assert(snapshot: sut.superview!.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: sut.superview!.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
-            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+            assert(snapshot: sut.superview!.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: sut.superview!.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
         }
+        
+        sut.removeFromSuperview()
     }
     
     func test_fail_ToastView_with_switchControl() {
@@ -482,7 +587,7 @@ final class ToastViewSnapshotTests: XCTestCase {
         let exp = expectation(description: "Wait for completion!")
         
         // WHEN
-        sut.cardView.display(model: .init(
+        let cardModel = CardViewPresentableModel(
             style: makeDefaultStyle(),
             title: .text("Title"),
             switchControl: .init(
@@ -492,8 +597,16 @@ final class ToastViewSnapshotTests: XCTestCase {
                              thumbTintColor: .systemBlue,
                              backgroundColor: .systemBackground,
                              cornerRadius: 10))
+        )
+        
+        let toast = CommonToast.custom(.init(
+            common: .init(
+                cardViewModel: cardModel,
+                position: .top
+            )
         ))
         
+        sut.display(toast)
         sut.show()
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
@@ -504,12 +617,14 @@ final class ToastViewSnapshotTests: XCTestCase {
         
         // THEN
         if #available(iOS 26, *) {
-            assertFail(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+            assertFail(snapshot: sut.superview!.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: sut.superview!.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assertFail(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
-            assertFail(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+            assertFail(snapshot: sut.superview!.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assertFail(snapshot: sut.superview!.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
         }
+        
+        sut.removeFromSuperview()
     }
     
     func test_ToastView_with_bottomSeparator() {
@@ -520,12 +635,20 @@ final class ToastViewSnapshotTests: XCTestCase {
         let exp = expectation(description: "Wait for completion!")
         
         // WHEN
-        sut.cardView.display(model: .init(
+        let cardModel = CardViewPresentableModel(
             style: makeDefaultStyle(),
             title: .text("Title"),
             bottomSeparator: .init(color: .black, height: 2.0)
+        )
+        
+        let toast = CommonToast.custom(.init(
+            common: .init(
+                cardViewModel: cardModel,
+                position: .top
+            )
         ))
         
+        sut.display(toast)
         sut.show()
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
@@ -536,12 +659,14 @@ final class ToastViewSnapshotTests: XCTestCase {
         
         // THEN
         if #available(iOS 26, *) {
-            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+            assert(snapshot: sut.superview!.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: sut.superview!.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
-            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+            assert(snapshot: sut.superview!.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: sut.superview!.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
         }
+        
+        sut.removeFromSuperview()
     }
     
     func test_fail_ToastView_with_bottomSeparator() {
@@ -552,12 +677,20 @@ final class ToastViewSnapshotTests: XCTestCase {
         let exp = expectation(description: "Wait for completion!")
         
         // WHEN
-        sut.cardView.display(model: .init(
+        let cardModel = CardViewPresentableModel(
             style: makeDefaultStyle(),
             title: .text("Title"),
             bottomSeparator: .init(color: .black, height: 1.0)
+        )
+        
+        let toast = CommonToast.custom(.init(
+            common: .init(
+                cardViewModel: cardModel,
+                position: .top
+            )
         ))
         
+        sut.display(toast)
         sut.show()
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
@@ -568,12 +701,14 @@ final class ToastViewSnapshotTests: XCTestCase {
         
         // THEN
         if #available(iOS 26, *) {
-            assertFail(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+            assertFail(snapshot: sut.superview!.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: sut.superview!.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assertFail(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
-            assertFail(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+            assertFail(snapshot: sut.superview!.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assertFail(snapshot: sut.superview!.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
         }
+        
+        sut.removeFromSuperview()
     }
     
     func test_ToastView_with_leadingTitles() {
@@ -584,12 +719,20 @@ final class ToastViewSnapshotTests: XCTestCase {
         let exp = expectation(description: "Wait for completion!")
         
         // WHEN
-        sut.cardView.display(model: .init(
+        let cardModel = CardViewPresentableModel(
             style: makeDefaultStyle(),
             title: .text("Title"),
             leadingTitles: .init(.text("First title"), .text("Second title"))
+        )
+        
+        let toast = CommonToast.custom(.init(
+            common: .init(
+                cardViewModel: cardModel,
+                position: .top
+            )
         ))
         
+        sut.display(toast)
         sut.show()
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
@@ -600,12 +743,14 @@ final class ToastViewSnapshotTests: XCTestCase {
         
         // THEN
         if #available(iOS 26, *) {
-            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+            assert(snapshot: sut.superview!.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: sut.superview!.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
-            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+            assert(snapshot: sut.superview!.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: sut.superview!.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
         }
+        
+        sut.removeFromSuperview()
     }
     
     func test_fail_ToastView_with_leadingTitles() {
@@ -616,12 +761,20 @@ final class ToastViewSnapshotTests: XCTestCase {
         let exp = expectation(description: "Wait for completion!")
         
         // WHEN
-        sut.cardView.display(model: .init(
+        let cardModel = CardViewPresentableModel(
             style: makeDefaultStyle(),
             title: .text("Title"),
             leadingTitles: .init(.text("First title."), .text("Second title"))
+        )
+        
+        let toast = CommonToast.custom(.init(
+            common: .init(
+                cardViewModel: cardModel,
+                position: .top
+            )
         ))
         
+        sut.display(toast)
         sut.show()
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
@@ -632,12 +785,14 @@ final class ToastViewSnapshotTests: XCTestCase {
         
         // THEN
         if #available(iOS 26, *) {
-            assertFail(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+            assertFail(snapshot: sut.superview!.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: sut.superview!.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assertFail(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
-            assertFail(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+            assertFail(snapshot: sut.superview!.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assertFail(snapshot: sut.superview!.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
         }
+        
+        sut.removeFromSuperview()
     }
     
     func test_ToastView_with_trailingTitles() {
@@ -648,12 +803,20 @@ final class ToastViewSnapshotTests: XCTestCase {
         let exp = expectation(description: "Wait for completion!")
         
         // WHEN
-        sut.cardView.display(model: .init(
+        let cardModel = CardViewPresentableModel(
             style: makeDefaultStyle(),
             title: .text("Title"),
-            trailingTitles: .init(.text("First title"), .text("Second title"))
+            trailingTitles: .init(.text("First title."), .text("Second title"))
+        )
+        
+        let toast = CommonToast.custom(.init(
+            common: .init(
+                cardViewModel: cardModel,
+                position: .top
+            )
         ))
         
+        sut.display(toast)
         sut.show()
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
@@ -664,12 +827,14 @@ final class ToastViewSnapshotTests: XCTestCase {
         
         // THEN
         if #available(iOS 26, *) {
-            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+            assert(snapshot: sut.superview!.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: sut.superview!.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
-            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+            assert(snapshot: sut.superview!.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: sut.superview!.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
         }
+        
+        sut.removeFromSuperview()
     }
     
     func test_fail_ToastView_with_trailingTitles() {
@@ -680,12 +845,20 @@ final class ToastViewSnapshotTests: XCTestCase {
         let exp = expectation(description: "Wait for completion!")
         
         // WHEN
-        sut.cardView.display(model: .init(
+        let cardModel = CardViewPresentableModel(
             style: makeDefaultStyle(),
             title: .text("Title"),
-            trailingTitles: .init(.text("First title."), .text("Second title"))
+            trailingTitles: .init(.text("First title"), .text("Second title"))
+        )
+        
+        let toast = CommonToast.custom(.init(
+            common: .init(
+                cardViewModel: cardModel,
+                position: .top
+            )
         ))
         
+        sut.display(toast)
         sut.show()
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
@@ -696,12 +869,14 @@ final class ToastViewSnapshotTests: XCTestCase {
         
         // THEN
         if #available(iOS 26, *) {
-            assertFail(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+            assertFail(snapshot: sut.superview!.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: sut.superview!.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assertFail(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
-            assertFail(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+            assertFail(snapshot: sut.superview!.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assertFail(snapshot: sut.superview!.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
         }
+        
+        sut.removeFromSuperview()
     }
     
     func test_ToastView_with_secondaryLeadingImage() {
@@ -712,12 +887,20 @@ final class ToastViewSnapshotTests: XCTestCase {
         let exp = expectation(description: "Wait for completion!")
         
         // WHEN
-        sut.cardView.display(model: .init(
+        let cardModel = CardViewPresentableModel(
             style: makeDefaultStyle(),
             title: .text("Title"),
             secondaryLeadingImage: .init(image: .asset(image))
+        )
+        
+        let toast = CommonToast.custom(.init(
+            common: .init(
+                cardViewModel: cardModel,
+                position: .top
+            )
         ))
         
+        sut.display(toast)
         sut.show()
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
@@ -728,12 +911,14 @@ final class ToastViewSnapshotTests: XCTestCase {
         
         // THEN
         if #available(iOS 26, *) {
-            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+            assert(snapshot: sut.superview!.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: sut.superview!.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
-            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+            assert(snapshot: sut.superview!.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: sut.superview!.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
         }
+        
+        sut.removeFromSuperview()
     }
     
     func test_fail_ToastView_with_secondaryLeadingImage() {
@@ -745,12 +930,20 @@ final class ToastViewSnapshotTests: XCTestCase {
         let image = Image(systemName: "star")
         
         // WHEN
-        sut.cardView.display(model: .init(
+        let cardModel = CardViewPresentableModel(
             style: makeDefaultStyle(),
             title: .text("Title"),
-            secondaryLeadingImage: .init(image: .asset(image))
+            secondaryLeadingImage: .init(image: .asset(failImage))
+        )
+        
+        let toast = CommonToast.custom(.init(
+            common: .init(
+                cardViewModel: cardModel,
+                position: .top
+            )
         ))
         
+        sut.display(toast)
         sut.show()
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
@@ -761,12 +954,14 @@ final class ToastViewSnapshotTests: XCTestCase {
         
         // THEN
         if #available(iOS 26, *) {
-            assertFail(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+            assertFail(snapshot: sut.superview!.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: sut.superview!.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assertFail(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
-            assertFail(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+            assertFail(snapshot: sut.superview!.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assertFail(snapshot: sut.superview!.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
         }
+        
+        sut.removeFromSuperview()
     }
     
     func test_ToastView_with_secondaryTrailingImage() {
@@ -777,12 +972,20 @@ final class ToastViewSnapshotTests: XCTestCase {
         let exp = expectation(description: "Wait for completion!")
         
         // WHEN
-        sut.cardView.display(model: .init(
+        let cardModel = CardViewPresentableModel(
             style: makeDefaultStyle(),
             title: .text("Title"),
             secondaryTrailingImage: .init(image: .asset(image))
+        )
+        
+        let toast = CommonToast.custom(.init(
+            common: .init(
+                cardViewModel: cardModel,
+                position: .top
+            )
         ))
         
+        sut.display(toast)
         sut.show()
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
@@ -793,12 +996,14 @@ final class ToastViewSnapshotTests: XCTestCase {
         
         // THEN
         if #available(iOS 26, *) {
-            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+            assert(snapshot: sut.superview!.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: sut.superview!.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assert(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
-            assert(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+            assert(snapshot: sut.superview!.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: sut.superview!.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
         }
+        
+        sut.removeFromSuperview()
     }
     
     func test_fail_ToastView_with_secondaryTrailingImage() {
@@ -811,12 +1016,20 @@ final class ToastViewSnapshotTests: XCTestCase {
         let image = Image(systemName: "star")
         
         // WHEN
-        sut.cardView.display(model: .init(
+        let cardModel = CardViewPresentableModel(
             style: makeDefaultStyle(),
             title: .text("Title"),
-            secondaryTrailingImage: .init(image: .asset(image))
+            secondaryTrailingImage: .init(image: .asset(failImage))
+        )
+        
+        let toast = CommonToast.custom(.init(
+            common: .init(
+                cardViewModel: cardModel,
+                position: .top
+            )
         ))
         
+        sut.display(toast)
         sut.show()
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
@@ -827,12 +1040,14 @@ final class ToastViewSnapshotTests: XCTestCase {
         
         // THEN
         if #available(iOS 26, *) {
-            assertFail(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+            assertFail(snapshot: sut.superview!.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: sut.superview!.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assertFail(snapshot: sut.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
-            assertFail(snapshot: sut.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+            assertFail(snapshot: sut.superview!.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assertFail(snapshot: sut.superview!.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
         }
+        
+        sut.removeFromSuperview()
     }
 }
 
@@ -844,7 +1059,6 @@ extension ToastViewSnapshotTests {
         let sut = ToastView(duration: nil, position: .top)
         
         checkForMemoryLeaks(sut, file: file, line: line)
-        sut.frame = .init(origin: .zero, size: SnapshotConfiguration.size)
         return sut
     }
     

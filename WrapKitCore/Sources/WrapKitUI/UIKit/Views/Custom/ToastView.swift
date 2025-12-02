@@ -326,6 +326,78 @@ open class ToastView: UIView {
     }
 }
 
+extension ToastView: CommonToastOutput {
+    public func display(_ toast: CommonToast) {
+        switch toast {
+        case .error(let toastModel):
+            configureToast(toastModel, type: .error)
+        case .success(let toastModel):
+            configureToast(toastModel, type: .success)
+        case .warning(let toastModel):
+            configureToast(toastModel, type: .warning)
+        case .custom(let customToast):
+            configureCustomToast(customToast)
+        }
+    }
+    
+    public func hide() {
+        hide(after: 0)
+    }
+    
+    private func configureToast(_ toast: CommonToast.Toast, type: ToastType) {
+        var model = toast.cardViewModel
+        
+        switch type {
+        case .error:
+            model.leadingImage = .init(
+                size: .init(width: 32, height: 32),
+                image: .asset(Image(named: "checkmark.circle.fill")),
+            )
+        case .success:
+            model.leadingImage = .init(
+                size: .init(width: 32, height: 32),
+                image: .asset(Image(named: "checkmark.circle.fill")),
+            )
+        case .warning:
+            model.leadingImage = .init(
+                size: .init(width: 32, height: 32),
+                image: .asset(Image(named: "checkmark.circle.fill")),
+            )
+        }
+        
+        cardView.display(model: model)
+        
+        if let shadowColor = toast.shadowColor {
+            self.shadowColor = shadowColor
+        }
+    }
+    
+    private func configureCustomToast(_ customToast: CommonToast.CustomToast) {
+        var model = customToast.common.cardViewModel
+        
+        if let image = customToast.image {
+            model.leadingImage = .init(
+                size: .init(width: 32, height: 32),
+                image: image
+            )
+        }
+        
+        if let backgroundColor = customToast.backgroundColor {
+            model.style?.backgroundColor = backgroundColor
+        }
+        
+        cardView.display(model: model)
+        
+        if let shadowColor = customToast.common.shadowColor {
+            self.shadowColor = shadowColor
+        }
+    }
+    
+    private enum ToastType {
+        case error, success, warning
+    }
+}
+
 extension ToastView: UIGestureRecognizerDelegate {
     public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
         return true
