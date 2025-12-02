@@ -111,10 +111,14 @@ public struct SUILabelView: View, Animatable {
             if #available(iOS 15, macOS 12, tvOS 15, watchOS 8, *) {
                 let url: URL? = item.onTap == nil ? nil : URL(string: tappableUrlMask + item.id)
                 let nsAttributedString = item.makeNSAttributedString(
-                    unsupportedUnderlines: unsupportedUnderlines,
+                    font: defaultFont,
                     link: url
                 )
-                let attributedString = AttributedString(nsAttributedString)
+                var attributedString = AttributedString(nsAttributedString)
+                if let style = item.underlineStyle, unsupportedUnderlines.contains(style) {
+                    attributedString.underlineStyle = .single
+                } // others not working without, only with OR
+                print("attributedString \(attributedString)")
                 let textView = Text(attributedString)
                     .font(suiFont)
                 result.append(textView)

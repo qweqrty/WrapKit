@@ -36,10 +36,12 @@ public extension NSAttributedString {
         if let color {
             attributes[.foregroundColor] = color
         }
-
+        attributes[.underlineStyle] = underlineStyle?.rawValue
         if let underlineStyle {
-            attributes[.underlineStyle] = underlineStyle.rawValue | NSUnderlineStyle.single.rawValue // others not working without, only with OR
-            if underlineStyle != .single {
+            if !underlineStyle.contains(.thick) {
+                attributes[.underlineStyle] = underlineStyle.rawValue | NSUnderlineStyle.single.rawValue // others not working without, only with OR
+            }
+            if !underlineStyle.contains(.single) && !underlineStyle.contains(.thick) {
                 attributes[.baselineOffset] = 2 // to match UIKit underline offset
             }
         }
@@ -52,6 +54,7 @@ public extension NSAttributedString {
         if let image = leadingImage {
             let attachment = NSAttributedString.createAttachment(image: image, bounds: leadingImageBounds)
             attributedString.append(attachment)
+            attributedString.append(NSAttributedString(string: " "))
         }
 
         let mainString = NSMutableAttributedString(string: text, attributes: attributes)
@@ -59,6 +62,7 @@ public extension NSAttributedString {
         
         if let image = trailingImage {
             let attachment = NSAttributedString.createAttachment(image: image, bounds: trailingImageBounds)
+            attributedString.append(NSAttributedString(string: " "))
             attributedString.append(attachment)
         }
 
@@ -81,7 +85,6 @@ public extension NSAttributedString {
         if bounds.origin.x > .zero {
             attributedString.append(NSAttributedString(attachment: horizontalPaddingAttachment))
         }
-        attributedString.append(NSAttributedString(string: " "))
         return attributedString
     }
     

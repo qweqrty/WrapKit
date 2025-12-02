@@ -64,14 +64,11 @@ public struct TextAttributes {
 
 public extension TextAttributes {
     func makeNSAttributedString(
-        unsupportedUnderlines: [NSUnderlineStyle] = [],
         font: Font = .systemFont(ofSize: 20),
         textColor: Color = .label,
         textAlignment: TextAlignment? = nil,
         link: URL? = nil // needed for onTap in SwiftUI
     ) -> NSAttributedString {
-        var underlineStyle = self.underlineStyle
-        if let style = underlineStyle, unsupportedUnderlines.contains(style) { underlineStyle = .single } // others not working without, only with OR
         return NSAttributedString(
             self.text,
             font: self.font ?? font,
@@ -90,7 +87,6 @@ public extension TextAttributes {
 
 public extension [TextAttributes] {
     mutating func makeNSAttributedString(
-        unsupportedUnderlines: [NSUnderlineStyle] = [],
         font: Font,
         textColor: Color = .label,
         textAlignment: TextAlignment? = nil
@@ -98,7 +94,6 @@ public extension [TextAttributes] {
         let combinedAttributedString = NSMutableAttributedString()
         for (index, current) in self.enumerated() {
             let attrString = current.makeNSAttributedString(
-                unsupportedUnderlines: unsupportedUnderlines,
                 font: font,
                 textColor: textColor,
                 textAlignment: textAlignment
