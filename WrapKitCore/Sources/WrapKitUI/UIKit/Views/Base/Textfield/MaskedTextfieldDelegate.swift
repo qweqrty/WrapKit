@@ -85,8 +85,8 @@ public class MaskedTextfieldDelegate: NSObject, UITextFieldDelegate {
         if string.isEmpty && backspacePressClearsText {
             textField.text = ""
         } else {
-            if string.count > 1 {
-                onPaste(fullText + string)
+            if string.count >= 9 {
+                onPaste(string)
             } else {
                 setupMask(mask: string.isEmpty ? format.mask.removeCharacters(from: fullText, in: range) : format.mask.applied(to: fullText + string))
             }
