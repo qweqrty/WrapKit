@@ -10,12 +10,14 @@ import XCTest
 import WrapKitTestUtils
 import Kingfisher
 
-private enum ImageTestLinks: String {
-    case light = "https://developer.apple.com/assets/elements/icons/swift/swift-64x64_2x.png"
-    case dark = "https://uxwing.com/wp-content/themes/uxwing/download/web-app-development/dark-mode-icon.png"
-}
-
 final class ImageViewSnapshotTests: XCTestCase {
+    
+    private let light = "https://developer.apple.com/assets/elements/icons/swift/swift-64x64_2x.png"
+    private let dark = "https://uxwing.com/wp-content/themes/uxwing/download/web-app-development/dark-mode-icon.png"
+    private let apiRandomImage = "https://picsum.photos/200/300"
+    private let cachedImageTest1 = "https://picsum.photos/seed/test1/200/300"
+    private let cachedImageTest2 = "https://picsum.photos/seed/test2/200/300"
+    
     override class func setUp() {
             super.setUp()
             
@@ -74,6 +76,91 @@ final class ImageViewSnapshotTests: XCTestCase {
         }
     }
     
+    // MARK: - Check it
+    func test_imageView_withCachedImage_light() {
+        let snapshotName = "IMAGE_VIEW_WITH_CACHED_IMAGE"
+        
+        // GIVEN
+        let (sut, container) = makeSUT()
+        sut.viewWhileLoadingView = ViewUIKit(backgroundColor: .blue)
+        
+        let firstUrl = URL(string: cachedImageTest1)!
+        let secondUrl = URL(string: cachedImageTest2)!
+        
+        let firstLoadExp = expectation(description: "First image load")
+        sut.display(image: .url(firstUrl, firstUrl)) { _ in
+            firstLoadExp.fulfill()
+        }
+        wait(for: [firstLoadExp], timeout: 5.0)
+        
+        // first image snapshot
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
+                   named: "iOS26_\(snapshotName)_FIRST_LOADED_LIGHT")
+        } else {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
+                   named: "iOS18.3.1_\(snapshotName)_FIRST_LOADED_LIGHT")
+        }
+        
+        guard let cachedImage = sut.image else {
+            XCTFail("First image should be loaded")
+            return
+        }
+        
+        KingfisherManager.shared.cache.store(
+            cachedImage,
+            forKey: secondUrl.absoluteString,
+            toDisk: true
+        ) { _ in
+            
+        }
+        
+        Thread.sleep(forTimeInterval: 0.5)
+        
+        KingfisherManager.shared.cache.clearMemoryCache()
+        sut.image = nil
+        
+        let secondLoadExp = expectation(description: "Second image load")
+        
+        sut.display(image: .url(secondUrl, secondUrl))
+        
+        // loading view snapshot
+        DispatchQueue.main.async {
+            if #available(iOS 26, *) {
+                self.assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
+                           named: "iOS26_\(snapshotName)_LOADINGVIEW_LIGHT")
+            } else {
+                self.assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
+                           named: "iOS18.3.1_\(snapshotName)_LOADINGVIEW_LIGHT")
+            }
+        }
+        
+        // image from cache snapshot
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+            if #available(iOS 26, *) {
+                self.assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
+                           named: "iOS26_\(snapshotName)_FROM_CACHE_LIGHT")
+            } else {
+                self.assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
+                           named: "iOS18.3.1_\(snapshotName)_FROM_CACHE_LIGHT")
+            }
+        }
+        
+        // second image snapshot
+        DispatchQueue.main.asyncAfter(deadline: .now() + 5.0) {
+            if #available(iOS 26, *) {
+                self.assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
+                           named: "iOS26_\(snapshotName)_UPDATED_LIGHT")
+            } else {
+                self.assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
+                           named: "iOS18.3.1_\(snapshotName)_UPDATED_LIGHT")
+            }
+            secondLoadExp.fulfill()
+        }
+        
+        wait(for: [secondLoadExp], timeout: 10.0)
+    }
+    
     func test_ImageView_from_urlString_light() {
         let snapshotName = "IMAGE_VIEW_URLSTRING_LIGHT"
         
@@ -82,7 +169,7 @@ final class ImageViewSnapshotTests: XCTestCase {
         let exp = expectation(description: "Wait for completion")
         
         // WHEN
-        let urlString = ImageTestLinks.light.rawValue
+        let urlString = light
         sut.display(image: .urlString(urlString, urlString)) { _ in
             exp.fulfill()
         }
@@ -105,7 +192,7 @@ final class ImageViewSnapshotTests: XCTestCase {
         let exp = expectation(description: "Wait for completion")
         
         // WHEN
-        let urlString = ImageTestLinks.light.rawValue
+        let urlString = light
         sut.display(image: .urlString(urlString, urlString)) { [weak sut] _ in
             sut?.backgroundColor = .red
             exp.fulfill()
@@ -129,7 +216,7 @@ final class ImageViewSnapshotTests: XCTestCase {
         let exp = expectation(description: "Wait for completion")
         
         // WHEN
-        let urlString = ImageTestLinks.dark.rawValue
+        let urlString = light
         sut.display(image: .urlString(urlString, urlString)) { _ in
             exp.fulfill()
         }
@@ -152,7 +239,7 @@ final class ImageViewSnapshotTests: XCTestCase {
         let exp = expectation(description: "Wait for completion")
         
         // WHEN
-        let urlString = ImageTestLinks.dark.rawValue
+        let urlString = light
         sut.display(image: .urlString(urlString, urlString)) { [weak sut] _ in
             sut?.backgroundColor = .red
             exp.fulfill()
@@ -214,7 +301,7 @@ final class ImageViewSnapshotTests: XCTestCase {
         let exp = expectation(description: "Wait for completion")
         
         // WHEN
-        let url = URL(string: ImageTestLinks.light.rawValue)!
+        let url = URL(string: light)!
         sut.display(image: .url(url, url)) { image in
             exp.fulfill()
         }
@@ -237,7 +324,7 @@ final class ImageViewSnapshotTests: XCTestCase {
         let exp = expectation(description: "Wait for completion")
         
         // WHEN
-        let url = URL(string: ImageTestLinks.light.rawValue)!
+        let url = URL(string: light)!
         sut.display(image: .url(url, url)) { [weak sut] _ in
             sut?.backgroundColor = .red
             exp.fulfill()
@@ -301,7 +388,7 @@ final class ImageViewSnapshotTests: XCTestCase {
         sut.viewWhileLoadingView = ViewUIKit(backgroundColor: .blue)
         
         // WHEN
-        let url = URL(string: ImageTestLinks.light.rawValue)!
+        let url = URL(string: light)!
         sut.display(image: .url(url, url))
         
         // THEN
@@ -322,7 +409,7 @@ final class ImageViewSnapshotTests: XCTestCase {
         sut.viewWhileLoadingView = ViewUIKit(backgroundColor: .cyan)
         
         // WHEN
-        let url = URL(string: ImageTestLinks.light.rawValue)!
+        let url = URL(string: light)!
         sut.display(image: .url(url, url))
         
         // THEN
@@ -390,7 +477,7 @@ final class ImageViewSnapshotTests: XCTestCase {
         let exp = expectation(description: "Wait for completion")
         
         // WHEN
-        let url = URL(string: ImageTestLinks.dark.rawValue)!
+        let url = URL(string: light)!
         
         sut.display(image: .url(url, url)) { image in
             exp.fulfill()
@@ -414,7 +501,7 @@ final class ImageViewSnapshotTests: XCTestCase {
         let exp = expectation(description: "Wait for completion")
         
         // WHEN
-        let url = URL(string: ImageTestLinks.dark.rawValue)!
+        let url = URL(string: light)!
         
         sut.display(image: .url(url, url)) { [weak sut] _ in
             sut?.backgroundColor = .red
