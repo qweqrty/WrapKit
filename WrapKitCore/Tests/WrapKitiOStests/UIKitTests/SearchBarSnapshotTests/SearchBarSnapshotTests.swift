@@ -14,26 +14,12 @@ final class SearchBarSnapshotTests: XCTestCase {
         let snapshotName = "SEARCHBAR_DEFAULT_STATE"
         
         // GIVEN
-        let textField = Textfield(appearance:
-                .init(
-                    colors: .init(
-                        textColor: .black,
-                        selectedBorderColor: .green,
-                        selectedBackgroundColor: .cyan,
-                        selectedErrorBorderColor: .red,
-                        errorBorderColor: .systemRed,
-                        errorBackgroundColor: .yellow,
-                        deselectedBorderColor: .cyan,
-                        deselectedBackgroundColor: .systemBlue,
-                        disabledTextColor: .brown,
-                        disabledBackgroundColor: .purple),
-                    font: .systemFont(ofSize: 32),
-                    border: .init(idleBorderWidth: 0, selectedBorderWidth: 0),
-                    placeholder: .init(color: .systemGray, font: .systemFont(ofSize: 22))
-                ))
+        let (sut, container) = makeSUT()
         
         // WHEN
-        let (_, container) = makeSUT(textField: textField)
+        let model = SearchBarPresentableModel(textField: .init(text: "Some text"))
+        
+        sut.display(model: model)
 
         // THEN
         if #available(iOS 26, *) {
@@ -49,26 +35,12 @@ final class SearchBarSnapshotTests: XCTestCase {
         let snapshotName = "SEARCHBAR_DEFAULT_STATE"
         
         // GIVEN
-        let textField = Textfield(appearance:
-                .init(
-                    colors: .init(
-                        textColor: .black,
-                        selectedBorderColor: .green,
-                        selectedBackgroundColor: .cyan,
-                        selectedErrorBorderColor: .red,
-                        errorBorderColor: .systemRed,
-                        errorBackgroundColor: .yellow,
-                        deselectedBorderColor: .blue,
-                        deselectedBackgroundColor: .blue,
-                        disabledTextColor: .brown,
-                        disabledBackgroundColor: .purple),
-                    font: .systemFont(ofSize: 32),
-                    border: .init(idleBorderWidth: 0, selectedBorderWidth: 0),
-                    placeholder: .init(color: .systemGray, font: .systemFont(ofSize: 22))
-                ))
+        let (sut, container) = makeSUT()
         
         // WHEN
-        let (_, container) = makeSUT(textField: textField)
+        let model = SearchBarPresentableModel(textField: .init(text: "Some text."))
+        
+        sut.display(model: model)
 
         // THEN
         if #available(iOS 26, *) {
@@ -84,27 +56,10 @@ final class SearchBarSnapshotTests: XCTestCase {
         let snapshotName = "SEARCHBAR_WITH_PLACEHOLDER"
         
         // GIVEN
-        let textField = Textfield(appearance:
-                .init(
-                    colors: .init(
-                        textColor: .black,
-                        selectedBorderColor: .green,
-                        selectedBackgroundColor: .cyan,
-                        selectedErrorBorderColor: .red,
-                        errorBorderColor: .systemRed,
-                        errorBackgroundColor: .yellow,
-                        deselectedBorderColor: .cyan,
-                        deselectedBackgroundColor: .systemBlue,
-                        disabledTextColor: .brown,
-                        disabledBackgroundColor: .purple),
-                    font: .systemFont(ofSize: 32),
-                    border: .init(idleBorderWidth: 0, selectedBorderWidth: 0),
-                    placeholder: .init(color: .black, font: .systemFont(ofSize: 22))
-                ))
+        let (sut, container) = makeSUT()
         
         // WHEN
-        let (sut, container) = makeSUT(textField: textField)
-        sut.textfield.placeholder = "type here..."
+        sut.display(placeholder: "Search...")
         
         // THEN
         if #available(iOS 26, *) {
@@ -120,27 +75,10 @@ final class SearchBarSnapshotTests: XCTestCase {
         let snapshotName = "SEARCHBAR_WITH_PLACEHOLDER"
         
         // GIVEN
-        let textField = Textfield(appearance:
-                .init(
-                    colors: .init(
-                        textColor: .black,
-                        selectedBorderColor: .green,
-                        selectedBackgroundColor: .cyan,
-                        selectedErrorBorderColor: .red,
-                        errorBorderColor: .systemRed,
-                        errorBackgroundColor: .yellow,
-                        deselectedBorderColor: .cyan,
-                        deselectedBackgroundColor: .systemBlue,
-                        disabledTextColor: .brown,
-                        disabledBackgroundColor: .purple),
-                    font: .systemFont(ofSize: 32),
-                    border: .init(idleBorderWidth: 0, selectedBorderWidth: 0),
-                    placeholder: .init(color: .black, font: .systemFont(ofSize: 22))
-                ))
+        let (sut, container) = makeSUT()
         
         // WHEN
-        let (sut, container) = makeSUT(textField: textField)
-        sut.textfield.placeholder = "type here...."
+        sut.display(placeholder: "Search....")
         
         // THEN
         if #available(iOS 26, *) {
@@ -156,27 +94,12 @@ final class SearchBarSnapshotTests: XCTestCase {
         let snapshotName = "SEARCHBAR_WITH_LEFTVIEW"
         
         // GIVEN
-        let textField = Textfield(appearance:
-                .init(
-                    colors: .init(
-                        textColor: .black,
-                        selectedBorderColor: .green,
-                        selectedBackgroundColor: .cyan,
-                        selectedErrorBorderColor: .red,
-                        errorBorderColor: .systemRed,
-                        errorBackgroundColor: .yellow,
-                        deselectedBorderColor: .cyan,
-                        deselectedBackgroundColor: .systemBlue,
-                        disabledTextColor: .brown,
-                        disabledBackgroundColor: .purple),
-                    font: .systemFont(ofSize: 32),
-                    border: .init(idleBorderWidth: 0, selectedBorderWidth: 0),
-                    placeholder: .init(color: .black, font: .systemFont(ofSize: 22))
-                ))
+        let (sut, container) = makeSUT()
         
         // WHEN
-        let leftVIew = Button(style: .init(backgroundColor: .red, titleColor: .black), title: "Left view")
-        let (_, container) = makeSUT(leftView: leftVIew, textField: textField)
+        let buttonStyle = ButtonStyle(backgroundColor: .red, titleColor: .black)
+        let buttonModel = ButtonPresentableModel(title: "Left View", style: buttonStyle)
+        sut.display(leftView: buttonModel)
         
         // THEN
         if #available(iOS 26, *) {
@@ -192,27 +115,12 @@ final class SearchBarSnapshotTests: XCTestCase {
         let snapshotName = "SEARCHBAR_WITH_LEFTVIEW"
         
         // GIVEN
-        let textField = Textfield(appearance:
-                .init(
-                    colors: .init(
-                        textColor: .black,
-                        selectedBorderColor: .green,
-                        selectedBackgroundColor: .cyan,
-                        selectedErrorBorderColor: .red,
-                        errorBorderColor: .systemRed,
-                        errorBackgroundColor: .yellow,
-                        deselectedBorderColor: .cyan,
-                        deselectedBackgroundColor: .systemBlue,
-                        disabledTextColor: .brown,
-                        disabledBackgroundColor: .purple),
-                    font: .systemFont(ofSize: 32),
-                    border: .init(idleBorderWidth: 0, selectedBorderWidth: 0),
-                    placeholder: .init(color: .black, font: .systemFont(ofSize: 22))
-                ))
+        let (sut, container) = makeSUT()
         
         // WHEN
-        let leftVIew = Button(style: .init(backgroundColor: .systemRed, titleColor: .black), title: "Left view")
-        let (_, container) = makeSUT(leftView: leftVIew, textField: textField)
+        let buttonStyle = ButtonStyle(backgroundColor: .systemRed, titleColor: .black)
+        let buttonModel = ButtonPresentableModel(title: "Left View", style: buttonStyle)
+        sut.display(leftView: buttonModel)
         
         // THEN
         if #available(iOS 26, *) {
@@ -228,28 +136,12 @@ final class SearchBarSnapshotTests: XCTestCase {
         let snapshotName = "SEARCHBAR_WITH_RIGHT_VIEW"
         
         // GIVEN
-        let textField = Textfield(appearance:
-                .init(
-                    colors: .init(
-                        textColor: .black,
-                        selectedBorderColor: .green,
-                        selectedBackgroundColor: .cyan,
-                        selectedErrorBorderColor: .red,
-                        errorBorderColor: .systemRed,
-                        errorBackgroundColor: .yellow,
-                        deselectedBorderColor: .cyan,
-                        deselectedBackgroundColor: .systemBlue,
-                        disabledTextColor: .brown,
-                        disabledBackgroundColor: .purple),
-                    font: .systemFont(ofSize: 32),
-                    border: .init(idleBorderWidth: 0, selectedBorderWidth: 0),
-                    placeholder: .init(color: .black, font: .systemFont(ofSize: 22))
-                ))
+        let (sut, container) = makeSUT()
         
         // WHEN
-        let rightView = Button(style: .init(backgroundColor: .red, titleColor: .black), title: "Right view")
-        
-        let (_, container) = makeSUT(textField: textField, rightView: rightView)
+        let buttonStyle = ButtonStyle(backgroundColor: .blue, titleColor: .black)
+        let buttonModel = ButtonPresentableModel(title: "Right View", style: buttonStyle)
+        sut.display(rightView: buttonModel)
         
         // THEN
         if #available(iOS 26, *) {
@@ -265,28 +157,12 @@ final class SearchBarSnapshotTests: XCTestCase {
         let snapshotName = "SEARCHBAR_WITH_RIGHT_VIEW"
         
         // GIVEN
-        let textField = Textfield(appearance:
-                .init(
-                    colors: .init(
-                        textColor: .black,
-                        selectedBorderColor: .green,
-                        selectedBackgroundColor: .cyan,
-                        selectedErrorBorderColor: .red,
-                        errorBorderColor: .systemRed,
-                        errorBackgroundColor: .yellow,
-                        deselectedBorderColor: .cyan,
-                        deselectedBackgroundColor: .systemBlue,
-                        disabledTextColor: .brown,
-                        disabledBackgroundColor: .purple),
-                    font: .systemFont(ofSize: 32),
-                    border: .init(idleBorderWidth: 0, selectedBorderWidth: 0),
-                    placeholder: .init(color: .black, font: .systemFont(ofSize: 22))
-                ))
+        let (sut, container) = makeSUT()
         
         // WHEN
-        let rightView = Button(style: .init(backgroundColor: .systemRed, titleColor: .black), title: "Right view")
-        
-        let (_, container) = makeSUT(textField: textField, rightView: rightView)
+        let buttonStyle = ButtonStyle(backgroundColor: .systemBlue, titleColor: .black)
+        let buttonModel = ButtonPresentableModel(title: "Right View", style: buttonStyle)
+        sut.display(rightView: buttonModel)
         
         // THEN
         if #available(iOS 26, *) {
@@ -302,28 +178,19 @@ final class SearchBarSnapshotTests: XCTestCase {
         let snapshotName = "SEARCHBAR_WITH_RIGHT_LEFT_VIEWS_VIEW"
         
         // GIVEN
-        let textField = Textfield(appearance:
-                .init(
-                    colors: .init(
-                        textColor: .black,
-                        selectedBorderColor: .green,
-                        selectedBackgroundColor: .cyan,
-                        selectedErrorBorderColor: .red,
-                        errorBorderColor: .systemRed,
-                        errorBackgroundColor: .yellow,
-                        deselectedBorderColor: .cyan,
-                        deselectedBackgroundColor: .systemBlue,
-                        disabledTextColor: .brown,
-                        disabledBackgroundColor: .purple),
-                    font: .systemFont(ofSize: 32),
-                    border: .init(idleBorderWidth: 0, selectedBorderWidth: 0),
-                    placeholder: .init(color: .black, font: .systemFont(ofSize: 22))
-                ))
+        let (sut, container) = makeSUT()
         
         // WHEN
-        let rightView = Button(style: .init(backgroundColor: .red, titleColor: .black), title: "Right view")
-        let leftView = Button(style: .init(backgroundColor: .red, titleColor: .black), title: "Left view")
-        let (_, container) = makeSUT(leftView: leftView, textField: textField, rightView: rightView)
+        let buttonStyle = ButtonStyle(backgroundColor: .yellow, titleColor: .black)
+        let leftButtonModel = ButtonPresentableModel(title: "Left View", style: buttonStyle)
+        let rightButtonModel = ButtonPresentableModel(title: "Right View", style: buttonStyle)
+        
+        sut.display(model: .init(
+            textField: .init(),
+            leftView: leftButtonModel,
+            rightView: rightButtonModel,
+            placeholder: "Type here...")
+        )
         
         // THEN
         if #available(iOS 26, *) {
@@ -339,28 +206,19 @@ final class SearchBarSnapshotTests: XCTestCase {
         let snapshotName = "SEARCHBAR_WITH_RIGHT_LEFT_VIEWS_VIEW"
         
         // GIVEN
-        let textField = Textfield(appearance:
-                .init(
-                    colors: .init(
-                        textColor: .black,
-                        selectedBorderColor: .green,
-                        selectedBackgroundColor: .cyan,
-                        selectedErrorBorderColor: .red,
-                        errorBorderColor: .systemRed,
-                        errorBackgroundColor: .yellow,
-                        deselectedBorderColor: .cyan,
-                        deselectedBackgroundColor: .systemBlue,
-                        disabledTextColor: .brown,
-                        disabledBackgroundColor: .purple),
-                    font: .systemFont(ofSize: 32),
-                    border: .init(idleBorderWidth: 0, selectedBorderWidth: 0),
-                    placeholder: .init(color: .black, font: .systemFont(ofSize: 22))
-                ))
+        let (sut, container) = makeSUT()
         
         // WHEN
-        let rightView = Button(style: .init(backgroundColor: .systemRed, titleColor: .black), title: "Right view")
-        let leftView = Button(style: .init(backgroundColor: .systemRed, titleColor: .black), title: "Left view")
-        let (_, container) = makeSUT(leftView: leftView, textField: textField, rightView: rightView)
+        let buttonStyle = ButtonStyle(backgroundColor: .systemYellow, titleColor: .black)
+        let leftButtonModel = ButtonPresentableModel(title: "Left View", style: buttonStyle)
+        let rightButtonModel = ButtonPresentableModel(title: "Right View", style: buttonStyle)
+        
+        sut.display(model: .init(
+            textField: .init(),
+            leftView: leftButtonModel,
+            rightView: rightButtonModel,
+            placeholder: "Type here...")
+        )
         
         // THEN
         if #available(iOS 26, *) {
@@ -376,14 +234,31 @@ final class SearchBarSnapshotTests: XCTestCase {
 extension SearchBarSnapshotTests {
     func makeSUT(
         leftView: Button = Button(isHidden: true),
-        textField: Textfield,
         spacing: CGFloat = 0,
         rightView: Button = Button(isHidden: true),
         file: StaticString = #file,
         line: UInt = #line
     ) -> (sut: SearchBar, container: UIView) {
         
-        let sut = SearchBar(leftView: leftView, textfield: textField, rightView: rightView, spacing: spacing)
+        let textField = Textfield(appearance:
+                .init(
+                    colors: .init(
+                        textColor: .black,
+                        selectedBorderColor: .green,
+                        selectedBackgroundColor: .cyan,
+                        selectedErrorBorderColor: .red,
+                        errorBorderColor: .systemRed,
+                        errorBackgroundColor: .yellow,
+                        deselectedBorderColor: .cyan,
+                        deselectedBackgroundColor: .systemBlue,
+                        disabledTextColor: .brown,
+                        disabledBackgroundColor: .purple),
+                    font: .systemFont(ofSize: 32),
+                    border: .init(idleBorderWidth: 0, selectedBorderWidth: 0),
+                    placeholder: .init(color: .systemGray, font: .systemFont(ofSize: 22))
+                ))
+        
+        let sut = SearchBar(textfield: textField)
         let container = makeContainer()
         
         container.addSubview(sut)
