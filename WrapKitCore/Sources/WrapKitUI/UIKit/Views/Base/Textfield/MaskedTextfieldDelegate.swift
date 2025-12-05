@@ -85,13 +85,28 @@ public class MaskedTextfieldDelegate: NSObject, UITextFieldDelegate {
         if string.isEmpty && backspacePressClearsText {
             textField.text = ""
         } else {
-            if string.count >= 9 {
-                onPaste(string)
+            let maxSpecifiersLength = format.mask.maxSpecifiersLength()
+            let currentUserInput = format.mask.extractUserInput(from: fullText)
+            let availablePositions = maxSpecifiersLength - currentUserInput.count
+            
+            let cleanString = format.mask.removeLiterals(from: string.replacingOccurrences(of: " ", with: ""))
+            
+            if cleanString.count >= maxSpecifiersLength {
+                onPaste(cleanString)
+            }
+            
+            else if cleanString.count > availablePositions {
+                let combinedInput = currentUserInput + cleanString
+                onPaste(combinedInput)
             } else {
-                setupMask(mask: string.isEmpty ? format.mask.removeCharacters(from: fullText, in: range) : format.mask.applied(to: fullText + string))
+                if string.isEmpty {
+                    setupMask(mask: format.mask.removeCharacters(from: fullText, in: range))
+                } else {
+                    let newInput = currentUserInput + string
+                    setupMask(mask: format.mask.applied(to: newInput))
+                }
             }
         }
-        
         textField.sendActions(for: .editingChanged)
         return false
     }
