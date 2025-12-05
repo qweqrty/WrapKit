@@ -8,6 +8,7 @@
 import WrapKit
 import XCTest
 import WrapKitTestUtils
+import Kingfisher
 
 private enum ImageTestLinks: String {
     case light = "https://developer.apple.com/assets/elements/icons/swift/swift-64x64_2x.png"
@@ -15,6 +16,17 @@ private enum ImageTestLinks: String {
 }
 
 final class ButtonSnapshotTests: XCTestCase {
+    
+    override class func tearDown() {
+        super.tearDown()
+        
+        KingfisherManager.shared.cache.clearMemoryCache()
+        KingfisherManager.shared.cache.clearCache()
+        KingfisherManager.shared.cache.clearDiskCache()
+        KingfisherManager.shared.cache.cleanExpiredCache()
+        KingfisherManager.shared.cache.cleanExpiredMemoryCache()
+        KingfisherManager.shared.cache.cleanExpiredDiskCache()
+    }
     func test_buttonOutput_default_state() {
         let snapshotName = "BUTTON_DEFAULT_STATE"
         
