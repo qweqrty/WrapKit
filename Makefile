@@ -4,8 +4,8 @@ SOURCERY_ADAPTER_SCRIPT=./Scripts/Sourcery/SwiftUIAdapterGenerator.sh
 TUIST_COMMANDS="tuist clean; tuist install; tuist generate"
 
 # Default target
-project: run-sourcery tuist-setup
-build: run-sourcery tuist-generate
+project: run-sourcery tuist-setup tuist-generate
+build: run-sourcery tuist-setup
 
 # Run Tuist clean, install, and generate commands
 tuist-setup:
@@ -16,10 +16,6 @@ tuist-setup:
 	fi
 	@if ! tuist install; then \
 		echo "Tuist install failed. Check if you have the correct environment for your project."; \
-		exit 1; \
-	fi
-	@if ! tuist generate; then \
-		echo "Tuist generate failed. Ensure your project configuration is valid."; \
 		exit 1; \
 	fi
 	@echo "Tuist setup completed successfully."
