@@ -12,7 +12,7 @@ jobs:
     env:
       SCHEME_NAME: "WrapKit"
       IOS_VERSION: "18.5"
-      IOS_VERSION_DEVICE: "iPhone 16 Pro"
+      IOS_VERSION_DEVICE: "iPhone 15 Pro"
       LATEST_IOS_VERSION: "26.1"
       LATEST_IOS_VERSION_DEVICE: "iPhone 17 Pro"
 
