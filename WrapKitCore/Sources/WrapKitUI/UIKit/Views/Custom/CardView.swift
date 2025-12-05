@@ -29,7 +29,7 @@ public protocol CardViewOutput: AnyObject {
 
 public struct CardViewPresentableModel: HashableWithReflection {
     public struct Style {
-        public let backgroundColor: Color
+        public var backgroundColor: Color
         public let vStacklayoutMargins: EdgeInsets
         public let hStacklayoutMargins: EdgeInsets
         public let hStackViewDistribution: StackViewDistribution
@@ -111,12 +111,12 @@ public struct CardViewPresentableModel: HashableWithReflection {
     }
 
     public let id: String
-    public let style: Style?
+    public var style: Style?
     public let backgroundImage: ImageViewPresentableModel?
     public let title: TextOutputPresentableModel?
     public let leadingTitles: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>?
     public let trailingTitles: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>?
-    public let leadingImage: ImageViewPresentableModel?
+    public var leadingImage: ImageViewPresentableModel?
     public let secondaryLeadingImage: ImageViewPresentableModel?
     public let trailingImage: ImageViewPresentableModel?
     public let secondaryTrailingImage: ImageViewPresentableModel?
@@ -338,14 +338,14 @@ open class CardView: ViewUIKit {
     public let leadingTitleViewsWrapperView = UIView(isHidden: true)
     public let leadingTitleViews = VKeyValueFieldView(
         keyLabel: Label(font: .systemFont(ofSize: 16), textColor: .black, textAlignment: .center),
-        valueLabel: Label(isHidden: true, font: .systemFont(ofSize: 16), textColor: .black, textAlignment: .center),
+        valueLabel: Label(isHidden: true, font: .systemFont(ofSize: 16), textColor: .black),
         spacing: 0
     )
     
     public let trailingTitleViewsWrapperView = UIView(isHidden: true)
     public let trailingTitleViews = VKeyValueFieldView(
         keyLabel: Label(font: .systemFont(ofSize: 16), textColor: .black, textAlignment: .center),
-        valueLabel: Label(isHidden: true, font: .systemFont(ofSize: 16), textColor: .black, textAlignment: .center),
+        valueLabel: Label(isHidden: true, font: .systemFont(ofSize: 16), textColor: .black),
         spacing: 0
     )
     
