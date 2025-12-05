@@ -221,7 +221,9 @@ extension Textview: TextInputOutput {
     }
     
     public func display(text: String?) {
-        self.text = text?.removingPercentEncoding ?? ""
+        let decodedText = text?.removingPercentEncoding ?? ""
+        self.text = decodedText
+        placeholderLabel.isHidden = !decodedText.isEmpty
     }
     
     public func display(mask: TextInputPresentableModel.Mask) { }
