@@ -32,10 +32,13 @@ public extension Button {
             let string = UserInterfaceStyle.current == .light ? lightString : darkString
             self.loadImage(URL(string: string ?? ""), kingfisherOptions: kingfisherOptions, completion: completion)
         case .data(let data):
-            guard let data else { return }
+            guard let data else {
+                completion?(nil)
+                return
+            }
             self.animatedSet(UIImage(data: data), completion: completion)
         case .none:
-            break
+            completion?(nil)
         }
     }
     
@@ -47,13 +50,14 @@ public extension Button {
         KingfisherManager.shared.cache.retrieveImage(forKey: url.absoluteString, options: [.callbackQueue(.mainCurrentOrAsync)]) { [weak self] result in
             switch result {
             case .success(let image):
-                self?.animatedSet(image.image, completion: completion)
+                self?.animatedSet(image.image, completion: nil)
 
                 KingfisherManager.shared.retrieveImage(with: url, options: [.callbackQueue(.mainCurrentOrAsync), .forceRefresh] + kingfisherOptions) { [weak self] result in
                     switch result {
                     case .success(let image):
                         self?.animatedSet(image.image, completion: completion)
                     case .failure:
+                        completion?(nil)
                         return
                     }
                 }
@@ -63,6 +67,7 @@ public extension Button {
                     case .success(let image):
                         self?.animatedSet(image.image, completion: completion)
                     case .failure:
+                        completion?(nil)
                         return
                     }
                 }

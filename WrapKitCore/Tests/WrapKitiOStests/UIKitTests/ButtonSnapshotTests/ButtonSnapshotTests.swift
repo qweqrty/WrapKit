@@ -17,9 +17,8 @@ private enum ImageTestLinks: String {
 
 final class ButtonSnapshotTests: XCTestCase {
     
-    override class func tearDown() {
-        super.tearDown()
-        
+    override class func setUp() {
+        super.setUp()
         KingfisherManager.shared.cache.clearMemoryCache()
         KingfisherManager.shared.cache.clearCache()
         KingfisherManager.shared.cache.clearDiskCache()
@@ -27,6 +26,7 @@ final class ButtonSnapshotTests: XCTestCase {
         KingfisherManager.shared.cache.cleanExpiredMemoryCache()
         KingfisherManager.shared.cache.cleanExpiredDiskCache()
     }
+    
     func test_buttonOutput_default_state() {
         let snapshotName = "BUTTON_DEFAULT_STATE"
         
