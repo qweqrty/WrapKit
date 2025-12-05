@@ -34,8 +34,6 @@ open class ToastView: UIView {
 
     private var gestureDirection: DirectionType?
     
-    public weak var testContainer: UIView?
-
     public init(duration: TimeInterval? = 3.0, position: CommonToast.Position) {
         self.duration = duration
         self.position = position
@@ -229,39 +227,31 @@ open class ToastView: UIView {
         }
     }
     
-    public func show() {
-        let container: UIView
-        if let testContainer = testContainer {
-            container = testContainer
+    public func show(appWindow: UIWindow? = UIApplication.shared.windows.first, completion: (() -> Void)? = nil) {
+        let window: UIWindow
+        if let appWindow = appWindow {
+            window = appWindow
         } else {
-            let window: UIWindow
-            if let appWindow = UIApplication.shared.windows.first {
-                window = appWindow
-            } else {
-                let tempWindow = UIWindow(frame: UIScreen.main.bounds)
-                tempWindow.makeKeyAndVisible()
-                window = tempWindow
-            }
-            container = window
+            let tempWindow = UIWindow(frame: UIScreen.main.bounds)
+            tempWindow.makeKeyAndVisible()
+            window = tempWindow
         }
-        
-        container.addSubview(self)
+        window.addSubview(self)
         translatesAutoresizingMaskIntoConstraints = false
-        
         switch position {
         case .top:
-            bottomConstraint = bottomAnchor.constraint(equalTo: container.topAnchor, constant: 0)
+            bottomConstraint = bottomAnchor.constraint(equalTo: window.topAnchor, constant: 0)
             bottomConstraint?.isActive = true
         case .bottom:
-            bottomConstraint = topAnchor.constraint(equalTo: container.bottomAnchor, constant: 0)
+            bottomConstraint = topAnchor.constraint(equalTo: window.bottomAnchor, constant: 0)
             bottomConstraint?.isActive = true
         }
-        centerXAnchor.constraint(equalTo: container.centerXAnchor).isActive = true
-        widthAnchor.constraint(equalTo: container.widthAnchor, constant: -spacing * 2).isActive = true
-        
+        centerXAnchor.constraint(equalTo: window.centerXAnchor).isActive = true
+        widthAnchor.constraint(equalTo: window.widthAnchor, constant: -spacing * 2).isActive = true
+
         layoutIfNeeded()
-        container.layoutIfNeeded()
-        
+        window.layoutIfNeeded()
+
         switch position {
         case .top:
             showConstant = 20 + safeAreaInsets.top + frame.height
@@ -272,11 +262,11 @@ open class ToastView: UIView {
             withDuration: 0.15,
             delay: 0,
             options: [.curveEaseInOut, .allowUserInteraction],
-            animations: {
-                self.alpha = 1
-                self.bottomConstraint?.constant = self.showConstant
-                self.layoutIfNeeded()
-                self.superview?.layoutIfNeeded()
+            animations: { [weak self] in
+                self?.alpha = 1
+                self?.bottomConstraint?.constant = self?.showConstant ?? 0
+                self?.layoutIfNeeded()
+                self?.superview?.layoutIfNeeded()
             },
             completion: { [weak self] finished in
                 guard let self = self else { return }
@@ -285,11 +275,11 @@ open class ToastView: UIView {
                 self.startHideTimer()
                 self.layoutIfNeeded()
                 self.superview?.layoutIfNeeded()
-                container.bringSubviewToFront(self)
+                window.bringSubviewToFront(self)
+                completion?()
             }
         )
     }
-
     private func startHideTimer() {
         guard let remainingTime else { return }
         hideTimer = Timer.scheduledTimer(withTimeInterval: remainingTime, repeats: false) { [weak self] _ in

@@ -14,25 +14,28 @@ final class ToastViewSnapshotTests: XCTestCase {
     private let image = UIImage(systemName: "star.fill")
     private let failImage = UIImage(systemName: "star")
     
-    private var testContainer: UIView!
+    private var testContainer: UIWindow!
     
     override func setUp() {
         super.setUp()
-        testContainer = UIView(frame: CGRect(x: 0, y: 0, width: 375, height: 812))
+        testContainer = UIWindow(frame: CGRect(x: 0, y: 0, width: 375, height: 812))
+        testContainer.makeKeyAndVisible()
         testContainer.backgroundColor = .white
     }
     
     override func tearDown() {
+        testContainer.layer.removeAllAnimations()
+        testContainer.windowScene = nil
+        
         super.tearDown()
-        testContainer = nil
     }
-    
+
     func test_ToastView_default_state() {
         let snapshotName = "TOASTVIEW_DEFAULT_STATE"
         
         // GIVEN
         let sut = makeSUT()
-        sut.testContainer = testContainer
+        
         let exp = expectation(description: "Wait for completion!")
         
         // WHEN
@@ -49,9 +52,7 @@ final class ToastViewSnapshotTests: XCTestCase {
         ))
         
         sut.display(toast)
-        sut.show()
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+        sut.show(appWindow: testContainer) {
             exp.fulfill()
         }
         
@@ -74,7 +75,7 @@ final class ToastViewSnapshotTests: XCTestCase {
         
         // GIVEN
         let sut = makeSUT()
-        sut.testContainer = testContainer
+        
         let exp = expectation(description: "Wait for completion!")
         
         // WHEN
@@ -91,9 +92,7 @@ final class ToastViewSnapshotTests: XCTestCase {
         ))
         
         sut.display(toast)
-        sut.show()
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+        sut.show(appWindow: testContainer) {
             exp.fulfill()
         }
         
@@ -116,7 +115,7 @@ final class ToastViewSnapshotTests: XCTestCase {
         
         // GIVEN
         let sut = makeSUT()
-        sut.testContainer = testContainer
+        
         let exp = expectation(description: "Wait for completion!")
         
         // WHEN
@@ -136,9 +135,7 @@ final class ToastViewSnapshotTests: XCTestCase {
         ))
         
         sut.display(toast)
-        sut.show()
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+        sut.show(appWindow: testContainer) {
             exp.fulfill()
         }
         
@@ -161,7 +158,7 @@ final class ToastViewSnapshotTests: XCTestCase {
         
         // GIVEN
         let sut = makeSUT()
-        sut.testContainer = testContainer
+        
         let exp = expectation(description: "Wait for completion!")
         
         let image = Image(systemName: "star")
@@ -193,9 +190,7 @@ final class ToastViewSnapshotTests: XCTestCase {
         ))
         
         sut.display(toast)
-        sut.show()
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+        sut.show(appWindow: testContainer) {
             exp.fulfill()
         }
         
@@ -219,7 +214,7 @@ final class ToastViewSnapshotTests: XCTestCase {
         
         // GIVEN
         let sut = makeSUT()
-        sut.testContainer = testContainer
+        
         let exp = expectation(description: "Wait for completion!")
         
         // WHEN
@@ -236,9 +231,7 @@ final class ToastViewSnapshotTests: XCTestCase {
         ))
 
         sut.display(toast)
-        sut.show()
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+        sut.show(appWindow: testContainer) {
             exp.fulfill()
         }
         
@@ -261,7 +254,7 @@ final class ToastViewSnapshotTests: XCTestCase {
         
         // GIVEN
         let sut = makeSUT()
-        sut.testContainer = testContainer
+        
         let exp = expectation(description: "Wait for completion!")
         
         // WHEN
@@ -278,9 +271,7 @@ final class ToastViewSnapshotTests: XCTestCase {
         ))
 
         sut.display(toast)
-        sut.show()
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+        sut.show(appWindow: testContainer) {
             exp.fulfill()
         }
         
@@ -303,7 +294,7 @@ final class ToastViewSnapshotTests: XCTestCase {
         
         // GIVEN
         let sut = makeSUT()
-        sut.testContainer = testContainer
+        
         let exp = expectation(description: "Wait for completion!")
         
         // WHEN
@@ -320,9 +311,7 @@ final class ToastViewSnapshotTests: XCTestCase {
         ))
         
         sut.display(toast)
-        sut.show()
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+        sut.show(appWindow: testContainer) {
             exp.fulfill()
         }
         
@@ -345,7 +334,7 @@ final class ToastViewSnapshotTests: XCTestCase {
         
         // GIVEN
         let sut = makeSUT()
-        sut.testContainer = testContainer
+        
         let exp = expectation(description: "Wait for completion!")
         
         // WHEN
@@ -362,9 +351,7 @@ final class ToastViewSnapshotTests: XCTestCase {
         ))
         
         sut.display(toast)
-        sut.show()
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+        sut.show(appWindow: testContainer) {
             exp.fulfill()
         }
         
@@ -387,7 +374,7 @@ final class ToastViewSnapshotTests: XCTestCase {
         
         // GIVEN
         let sut = makeSUT()
-        sut.testContainer = testContainer
+        
         let exp = expectation(description: "Wait for completion!")
         
         // WHEN
@@ -403,9 +390,7 @@ final class ToastViewSnapshotTests: XCTestCase {
                 position: .top)))
         
         sut.display(toast)
-        sut.show()
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+        sut.show(appWindow: testContainer) {
             exp.fulfill()
         }
        
@@ -428,7 +413,7 @@ final class ToastViewSnapshotTests: XCTestCase {
         
         // GIVEN
         let sut = makeSUT()
-        sut.testContainer = testContainer
+        
         let exp = expectation(description: "Wait for completion!")
         
         // WHEN
@@ -444,9 +429,7 @@ final class ToastViewSnapshotTests: XCTestCase {
                 position: .top)))
         
         sut.display(toast)
-        sut.show()
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+        sut.show(appWindow: testContainer) {
             exp.fulfill()
         }
        
@@ -469,7 +452,7 @@ final class ToastViewSnapshotTests: XCTestCase {
         
         // GIVEN
         let sut = makeSUT()
-        sut.testContainer = testContainer
+        
         let exp = expectation(description: "Wait for completion!")
         
         // WHEN
@@ -490,9 +473,7 @@ final class ToastViewSnapshotTests: XCTestCase {
         ))
         
         sut.display(toast)
-        sut.show()
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+        sut.show(appWindow: testContainer) {
             exp.fulfill()
         }
         
@@ -515,7 +496,7 @@ final class ToastViewSnapshotTests: XCTestCase {
         
         // GIVEN
         let sut = makeSUT()
-        sut.testContainer = testContainer
+        
         let exp = expectation(description: "Wait for completion!")
         
         // WHEN
@@ -536,9 +517,7 @@ final class ToastViewSnapshotTests: XCTestCase {
         ))
         
         sut.display(toast)
-        sut.show()
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+        sut.show(appWindow: testContainer) {
             exp.fulfill()
         }
         
@@ -561,7 +540,7 @@ final class ToastViewSnapshotTests: XCTestCase {
         
         // GIVEN
         let sut = makeSUT()
-        sut.testContainer = testContainer
+        
         let exp = expectation(description: "Wait for completion!")
         
         // WHEN
@@ -585,9 +564,7 @@ final class ToastViewSnapshotTests: XCTestCase {
         ))
         
         sut.display(toast)
-        sut.show()
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+        sut.show(appWindow: testContainer) {
             exp.fulfill()
         }
         
@@ -610,7 +587,7 @@ final class ToastViewSnapshotTests: XCTestCase {
         
         // GIVEN
         let sut = makeSUT()
-        sut.testContainer = testContainer
+        
         let exp = expectation(description: "Wait for completion!")
         
         // WHEN
@@ -634,9 +611,7 @@ final class ToastViewSnapshotTests: XCTestCase {
         ))
         
         sut.display(toast)
-        sut.show()
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+        sut.show(appWindow: testContainer) {
             exp.fulfill()
         }
         
@@ -659,7 +634,7 @@ final class ToastViewSnapshotTests: XCTestCase {
         
         // GIVEN
         let sut = makeSUT()
-        sut.testContainer = testContainer
+        
         let exp = expectation(description: "Wait for completion!")
         
         // WHEN
@@ -677,9 +652,7 @@ final class ToastViewSnapshotTests: XCTestCase {
         ))
         
         sut.display(toast)
-        sut.show()
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+        sut.show(appWindow: testContainer) {
             exp.fulfill()
         }
         
@@ -702,7 +675,7 @@ final class ToastViewSnapshotTests: XCTestCase {
         
         // GIVEN
         let sut = makeSUT()
-        sut.testContainer = testContainer
+        
         let exp = expectation(description: "Wait for completion!")
         
         // WHEN
@@ -720,9 +693,7 @@ final class ToastViewSnapshotTests: XCTestCase {
         ))
         
         sut.display(toast)
-        sut.show()
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+        sut.show(appWindow: testContainer) {
             exp.fulfill()
         }
         
@@ -745,7 +716,6 @@ final class ToastViewSnapshotTests: XCTestCase {
         
         // GIVEN
         let sut = makeSUT()
-        sut.testContainer = testContainer
         let exp = expectation(description: "Wait for completion!")
         
         // WHEN
@@ -763,9 +733,7 @@ final class ToastViewSnapshotTests: XCTestCase {
         ))
         
         sut.display(toast)
-        sut.show()
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+        sut.show(appWindow: testContainer) {
             exp.fulfill()
         }
         
@@ -788,7 +756,7 @@ final class ToastViewSnapshotTests: XCTestCase {
         
         // GIVEN
         let sut = makeSUT()
-        sut.testContainer = testContainer
+        
         let exp = expectation(description: "Wait for completion!")
         
         // WHEN
@@ -806,9 +774,7 @@ final class ToastViewSnapshotTests: XCTestCase {
         ))
         
         sut.display(toast)
-        sut.show()
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+        sut.show(appWindow: testContainer) {
             exp.fulfill()
         }
         
@@ -831,7 +797,7 @@ final class ToastViewSnapshotTests: XCTestCase {
         
         // GIVEN
         let sut = makeSUT()
-        sut.testContainer = testContainer
+        
         let exp = expectation(description: "Wait for completion!")
         
         // WHEN
@@ -849,9 +815,7 @@ final class ToastViewSnapshotTests: XCTestCase {
         ))
         
         sut.display(toast)
-        sut.show()
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+        sut.show(appWindow: testContainer) {
             exp.fulfill()
         }
         
@@ -874,7 +838,7 @@ final class ToastViewSnapshotTests: XCTestCase {
         
         // GIVEN
         let sut = makeSUT()
-        sut.testContainer = testContainer
+        
         let exp = expectation(description: "Wait for completion!")
         
         // WHEN
@@ -892,9 +856,7 @@ final class ToastViewSnapshotTests: XCTestCase {
         ))
         
         sut.display(toast)
-        sut.show()
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+        sut.show(appWindow: testContainer) {
             exp.fulfill()
         }
         
@@ -917,7 +879,7 @@ final class ToastViewSnapshotTests: XCTestCase {
         
         // GIVEN
         let sut = makeSUT()
-        sut.testContainer = testContainer
+        
         let exp = expectation(description: "Wait for completion!")
         
         // WHEN
@@ -935,9 +897,7 @@ final class ToastViewSnapshotTests: XCTestCase {
         ))
         
         sut.display(toast)
-        sut.show()
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+        sut.show(appWindow: testContainer) {
             exp.fulfill()
         }
         
@@ -960,7 +920,7 @@ final class ToastViewSnapshotTests: XCTestCase {
         
         // GIVEN
         let sut = makeSUT()
-        sut.testContainer = testContainer
+        
         let exp = expectation(description: "Wait for completion!")
         let image = Image(systemName: "star")
         
@@ -979,9 +939,7 @@ final class ToastViewSnapshotTests: XCTestCase {
         ))
         
         sut.display(toast)
-        sut.show()
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+        sut.show(appWindow: testContainer) {
             exp.fulfill()
         }
         
@@ -1004,7 +962,7 @@ final class ToastViewSnapshotTests: XCTestCase {
         
         // GIVEN
         let sut = makeSUT()
-        sut.testContainer = testContainer
+        
         let exp = expectation(description: "Wait for completion!")
         
         // WHEN
@@ -1022,9 +980,7 @@ final class ToastViewSnapshotTests: XCTestCase {
         ))
         
         sut.display(toast)
-        sut.show()
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+        sut.show(appWindow: testContainer) {
             exp.fulfill()
         }
         
@@ -1047,7 +1003,7 @@ final class ToastViewSnapshotTests: XCTestCase {
         
         // GIVEN
         let sut = makeSUT()
-        sut.testContainer = testContainer
+        
         let exp = expectation(description: "Wait for completion!")
         
         let image = Image(systemName: "star")
@@ -1067,9 +1023,7 @@ final class ToastViewSnapshotTests: XCTestCase {
         ))
         
         sut.display(toast)
-        sut.show()
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+        sut.show(appWindow: testContainer) {
             exp.fulfill()
         }
         
