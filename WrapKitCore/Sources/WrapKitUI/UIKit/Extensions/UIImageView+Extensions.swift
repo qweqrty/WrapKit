@@ -29,16 +29,19 @@ public extension ImageView {
             let string = traitCollection.userInterfaceStyle == .dark ? darkString : lightString
             self.loadImage(URL(string: string ?? ""), kingfisherOptions: kingfisherOptions, closure: closure)
         case .data(let data):
-            guard let data else { return }
+            guard let data else {
+                closure?(nil)
+                return
+            }
             self.animatedSet(UIImage(data: data), closure: closure)
         case .none:
-            break
+            closure?(nil)
         }
     }
     
     private func loadImage(_ url: URL?, kingfisherOptions: KingfisherOptionsInfo, closure: ((Image?) -> Void)? = nil) {
         guard let url = url else {
-            animatedSet(wrongUrlPlaceholderImage, closure: closure)
+            animatedSet(wrongUrlPlaceholderImage, closure: nil)
             return
         }
         if let fallbackView {
@@ -56,6 +59,7 @@ public extension ImageView {
                         self?.animatedSet(image.image, closure: closure)
                     case .failure:
                         self?.showFallbackView(url)
+                        closure?(nil)
                     }
                 }
             case.failure:
@@ -65,6 +69,7 @@ public extension ImageView {
                         self?.animatedSet(image.image, closure: closure)
                     case .failure:
                         self?.showFallbackView(url)
+                        closure?(nil)
                     }
                 }
             }

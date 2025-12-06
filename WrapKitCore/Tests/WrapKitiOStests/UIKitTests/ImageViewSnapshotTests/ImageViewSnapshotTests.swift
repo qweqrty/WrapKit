@@ -19,12 +19,14 @@ final class ImageViewSnapshotTests: XCTestCase {
     private let cachedImageTest2 = "https://picsum.photos/seed/test2/200/300"
     
     override class func setUp() {
-            super.setUp()
-            
-            KingfisherManager.shared.cache.clearCache()
-            KingfisherManager.shared.cache.clearMemoryCache()
-            KingfisherManager.shared.cache.clearDiskCache()
-        }
+        super.setUp()
+        KingfisherManager.shared.cache.clearMemoryCache()
+        KingfisherManager.shared.cache.clearCache()
+        KingfisherManager.shared.cache.clearDiskCache()
+        KingfisherManager.shared.cache.cleanExpiredCache()g
+        KingfisherManager.shared.cache.cleanExpiredMemoryCache()
+        KingfisherManager.shared.cache.cleanExpiredDiskCache()
+    }
     
     func test_imageView_defaultState() {
         let snapshotName = "IMAGE_VIEW_DEFAULT_STATE"
