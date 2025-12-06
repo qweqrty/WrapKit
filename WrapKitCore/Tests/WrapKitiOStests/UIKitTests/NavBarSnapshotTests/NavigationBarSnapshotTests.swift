@@ -403,7 +403,7 @@ class NavigationBarSnapshotTests: XCTestCase {
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
         }
     }
-    
+
     func test_fail_navigationBar_with_secondaryTrailingImage_onPress() {
         let snapshotName = "NAVBAR_WITH_SECONDARY_TRAILING_IMAGE_ON_PRESS"
         
