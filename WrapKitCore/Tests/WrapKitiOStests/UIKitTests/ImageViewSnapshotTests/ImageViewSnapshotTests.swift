@@ -218,7 +218,7 @@ final class ImageViewSnapshotTests: XCTestCase {
         let exp = expectation(description: "Wait for completion")
         
         // WHEN
-        let urlString = light
+        let urlString = dark
         sut.display(image: .urlString(urlString, urlString)) { _ in
             exp.fulfill()
         }
@@ -479,7 +479,7 @@ final class ImageViewSnapshotTests: XCTestCase {
         let exp = expectation(description: "Wait for completion")
         
         // WHEN
-        let url = URL(string: light)!
+        let url = URL(string: dark)!
         
         sut.display(image: .url(url, url)) { image in
             exp.fulfill()
