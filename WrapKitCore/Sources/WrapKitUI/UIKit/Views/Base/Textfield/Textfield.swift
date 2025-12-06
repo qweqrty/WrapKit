@@ -472,6 +472,7 @@ open class Textfield: UITextField {
     }
     
     private var isValidState = true
+    private var isPressHandled = false
     private var isClearButtonActive = true
     
     public var padding: UIEdgeInsets = .zero
@@ -621,15 +622,22 @@ open class Textfield: UITextField {
     
     open override func point(inside point: CGPoint, with event: UIEvent?) -> Bool {
         if let trailingView = trailingView, trailingView.frame.contains(point) {
-            return true
-        } else if let leadingView = leadingView, leadingView.frame.contains(point) {
-            return true
-        }
-        let isTouchInside = super.point(inside: point, with: event)
-        if isTouchInside {
-            onPress?()
-        }
-        return isTouchInside
+                return true
+            } else if let leadingView = leadingView, leadingView.frame.contains(point) {
+                return true
+            }
+
+            let isTouchInside = super.point(inside: point, with: event)
+            if isTouchInside, !isPressHandled {
+                isPressHandled = true
+                onPress?()
+                
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
+                    self?.isPressHandled = false
+                }
+            }
+
+            return isTouchInside
     }
     
     open override func deleteBackward() {
