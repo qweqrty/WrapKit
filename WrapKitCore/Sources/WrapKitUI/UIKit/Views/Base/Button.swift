@@ -122,7 +122,7 @@ extension Button: ButtonOutput {
         self.textBackgroundColor = style.backgroundColor
         self.backgroundColor = style.backgroundColor
         self.pressedTextColor = style.pressedTintColor
-        self.pressedBackgroundColor = style.backgroundColor
+        self.pressedBackgroundColor = style.pressedColor
         self.layer.borderColor = style.borderColor?.cgColor
         self.layer.borderWidth = style.borderWidth
         self.layer.cornerRadius = style.cornerRadius
@@ -265,7 +265,7 @@ open class Button: UIButton {
         
         switch currentImageEnum {
         case .url, .urlString:
-            setImage(currentImageEnum)
+            setImage(currentImageEnum, completion: nil)
         default:
             break
         }
@@ -304,6 +304,7 @@ open class Button: UIButton {
                 }
             }
             self?.backgroundColor = self?.pressedBackgroundColor ?? self?.textBackgroundColor
+            
             self?.setTitleColor(self?.pressedTextColor ?? self?.textColor, for: .normal)
         }
         super.touchesBegan(touches, with: event)
