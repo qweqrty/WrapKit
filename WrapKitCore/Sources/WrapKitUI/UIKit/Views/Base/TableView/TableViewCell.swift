@@ -45,4 +45,20 @@ open class TableViewCell<ContentView: UIView>: UITableViewCell {
     }
 }
 
+public extension TableViewCell {
+    func setFirstLast(indexPath: IndexPath, in tableView: UITableView, cornerRadius: CGFloat) {
+        let isLast = indexPath.row == tableView.numberOfRows(inSection: indexPath.section) - 1
+        let isFirst = indexPath.row == 0
+        if isFirst && isLast {
+            mainContentView.cornerRadius = cornerRadius
+        } else if isFirst {
+            mainContentView.round(corners: [.layerMinXMinYCorner, .layerMaxXMinYCorner], radius: cornerRadius)
+        } else if isLast {
+            mainContentView.round(corners: [.layerMinXMaxYCorner, .layerMaxXMaxYCorner], radius: cornerRadius)
+        } else {
+            mainContentView.cornerRadius = 0
+        }
+    }
+}
+
 #endif

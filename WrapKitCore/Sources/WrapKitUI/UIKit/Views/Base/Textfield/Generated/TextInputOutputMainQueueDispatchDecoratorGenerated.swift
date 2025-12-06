@@ -152,6 +152,16 @@ extension MainQueueDispatchDecorator: TextInputOutput where T: TextInputOutput {
             self?.decoratee.display(toolbarModel: toolbarModel)
         }
     }
+    public func display(isClearButtonActive: Bool) {
+        dispatch { [weak self] in
+            self?.decoratee.display(isClearButtonActive: isClearButtonActive)
+        }
+    }
+    public func makeAccessoryView(accessoryView: UIView, height: CGFloat = 60, constraints: ((UIView, UIView) -> [NSLayoutConstraint])? = nil) {
+        dispatch { [weak self] in
+            self?.decoratee.makeAccessoryView(accessoryView: accessoryView, height: height, constraints: constraints)
+        }
+    }
 
 }
 #endif

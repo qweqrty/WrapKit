@@ -105,6 +105,12 @@ open class LottieView: UIView, LottieViewOutput {
     }
 }
 
+extension LottieView: HiddableOutput {
+    public func display(isHidden: Bool) {
+        self.isHidden = isHidden
+    }
+}
+
 extension LottieAnimationView {
     convenience init?(assetName: String, bundle: Bundle) {
         // Try to fetch the data from XCAssets

@@ -17,8 +17,8 @@ import Foundation
 #if canImport(UIKit)
 import UIKit
 #endif
-#if canImport(SwiftUICore)
-import SwiftUICore
+#if canImport(SwiftUI)
+import SwiftUI
 #endif
 public class ImageViewOutputSwiftUIAdapter: ObservableObject, ImageViewOutput {
 
@@ -27,22 +27,26 @@ public class ImageViewOutputSwiftUIAdapter: ObservableObject, ImageViewOutput {
     ) {
     }
 
-    @Published public var displayModelState: DisplayModelState? = nil
-    public struct DisplayModelState {
+    @Published public var displayModelCompletionState: DisplayModelCompletionState? = nil
+    public struct DisplayModelCompletionState {
         public let model: ImageViewPresentableModel?
+        public let completion: ((Image?) -> Void)?
     }
-    public func display(model: ImageViewPresentableModel?) {
-        displayModelState = .init(
-            model: model
+    public func display(model: ImageViewPresentableModel?, completion: ((Image?) -> Void)?) {
+        displayModelCompletionState = .init(
+            model: model, 
+            completion: completion
         )
     }
-    @Published public var displayImageState: DisplayImageState? = nil
-    public struct DisplayImageState {
+    @Published public var displayImageCompletionState: DisplayImageCompletionState? = nil
+    public struct DisplayImageCompletionState {
         public let image: ImageEnum?
+        public let completion: ((Image?) -> Void)?
     }
-    public func display(image: ImageEnum?) {
-        displayImageState = .init(
-            image: image
+    public func display(image: ImageEnum?, completion: ((Image?) -> Void)?) {
+        displayImageCompletionState = .init(
+            image: image, 
+            completion: completion
         )
     }
     @Published public var displaySizeState: DisplaySizeState? = nil
@@ -124,6 +128,24 @@ public class ImageViewOutputSwiftUIAdapter: ObservableObject, ImageViewOutput {
     public func display(isHidden: Bool) {
         displayIsHiddenState = .init(
             isHidden: isHidden
+        )
+    }
+    @Published public var displayModelState: DisplayModelState? = nil
+    public struct DisplayModelState {
+        public let model: ImageViewPresentableModel?
+    }
+    public func display(model: ImageViewPresentableModel?) {
+        displayModelState = .init(
+            model: model
+        )
+    }
+    @Published public var displayImageState: DisplayImageState? = nil
+    public struct DisplayImageState {
+        public let image: ImageEnum?
+    }
+    public func display(image: ImageEnum?) {
+        displayImageState = .init(
+            image: image
         )
     }
 }

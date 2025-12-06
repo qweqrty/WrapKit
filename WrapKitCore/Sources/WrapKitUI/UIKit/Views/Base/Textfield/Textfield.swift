@@ -118,6 +118,7 @@ public protocol TextInputOutput: AnyObject {
     func display(inputType: KeyboardType)
     func display(trailingSymbol: String?)
     func display(toolbarModel: ButtonPresentableModel?)
+    func display(isClearButtonActive: Bool)
 }
 
 public struct TextInputPresentableModel: HashableWithReflection {
@@ -234,7 +235,7 @@ public struct TextInputPresentableModel: HashableWithReflection {
 #if canImport(UIKit)
 import UIKit
 
-public extension Textfield {
+public extension TextInputOutput {
     func makeAccessoryView(
         accessoryView: UIView,
         height: CGFloat = 60,
@@ -359,7 +360,7 @@ extension Textfield: TextInputOutput {
     }
     
     public func display(text: String?) {
-        self.text = text?.removingPercentEncoding ?? text
+        self.text = text?.removingPercentEncoding ?? ""
     }
     
     public func display(mask: TextInputPresentableModel.Mask) {
@@ -444,6 +445,10 @@ extension Textfield: TextInputOutput {
         delegate.trailingSymbol = trailingSymbol
         delegate.refreshMask()
     }
+    
+    public func display(isClearButtonActive: Bool) {
+        self.isClearButtonActive = isClearButtonActive
+    }
 }
 
 open class Textfield: UITextField {
@@ -468,6 +473,7 @@ open class Textfield: UITextField {
     
     private var isValidState = true
     private var isPressHandled = false
+    private var isClearButtonActive = true
     
     public var padding: UIEdgeInsets = .zero
     public var midPadding: CGFloat = 0
@@ -601,6 +607,7 @@ open class Textfield: UITextField {
                 }
             }
             didChangeTextClear = { [weak self] text in
+                guard self?.isClearButtonActive ?? true else { return }
                 let text = self?.maskedTextfieldDelegate?.onlySpecifiersIfMaskedText ?? text ?? ""
                 self?.trailingView?.isHidden = text.isEmpty
             }

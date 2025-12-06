@@ -221,7 +221,9 @@ extension Textview: TextInputOutput {
     }
     
     public func display(text: String?) {
-        self.text = text?.removingPercentEncoding ?? text
+        let decodedText = text?.removingPercentEncoding ?? ""
+        self.text = decodedText
+        placeholderLabel.isHidden = !decodedText.isEmpty
     }
     
     public func display(mask: TextInputPresentableModel.Mask) { }
@@ -292,30 +294,6 @@ extension Textview: TextInputOutput {
     }
     
     public func display(trailingSymbol: String?) {}
-}
-
-public extension Textview {
-    func makeAccessoryView(
-        accessoryView: UIView,
-        height: CGFloat = 60,
-        constraints: ((UIView, UIView) -> [NSLayoutConstraint])? = nil
-    ) -> UIView {
-        let container = UIView(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: height))
-        container.backgroundColor = .systemGroupedBackground
-        
-        container.addSubview(accessoryView)
-        accessoryView.translatesAutoresizingMaskIntoConstraints = false
-    
-        let defaultConstraints: (UIView, UIView) -> [NSLayoutConstraint] = { container, view in
-            return [
-                view.centerYAnchor.constraint(equalTo: container.centerYAnchor),
-                view.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -16),
-                view.heightAnchor.constraint(equalToConstant: 36),
-                view.widthAnchor.constraint(equalToConstant: 80)
-            ]
-        }
-        NSLayoutConstraint.activate((constraints ?? defaultConstraints)(container, accessoryView))
-        return container
-    }
+    public func display(isClearButtonActive: Bool) { }
 }
 #endif

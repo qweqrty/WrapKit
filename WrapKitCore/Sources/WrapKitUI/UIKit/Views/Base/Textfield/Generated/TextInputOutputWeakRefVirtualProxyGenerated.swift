@@ -100,6 +100,12 @@ extension WeakRefVirtualProxy: TextInputOutput where T: TextInputOutput {
     public func display(toolbarModel: ButtonPresentableModel?) {
         object?.display(toolbarModel: toolbarModel)
     }
+    public func display(isClearButtonActive: Bool) {
+        object?.display(isClearButtonActive: isClearButtonActive)
+    }
+    public func makeAccessoryView(accessoryView: UIView, height: CGFloat = 60, constraints: ((UIView, UIView) -> [NSLayoutConstraint])? = nil) {
+        object?.makeAccessoryView(accessoryView: accessoryView, height: height, constraints: constraints)
+    }
 
 }
 #endif
