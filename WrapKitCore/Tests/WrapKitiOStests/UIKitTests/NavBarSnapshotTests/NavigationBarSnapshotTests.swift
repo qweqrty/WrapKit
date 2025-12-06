@@ -185,7 +185,6 @@ class NavigationBarSnapshotTests: XCTestCase {
         }
     }
     
-    // TODO: - maybe wrong title apperance. need to ask
     func test_navigationBar_with_leadingCard_backgoundImage() {
         let snapshotName = "NAVBAR_WITH_LEADINGCARD_BACKGROUNDIMAGE_TITLE"
         
