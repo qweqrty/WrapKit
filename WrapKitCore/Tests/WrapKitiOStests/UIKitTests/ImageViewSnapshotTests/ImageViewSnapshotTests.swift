@@ -23,7 +23,7 @@ final class ImageViewSnapshotTests: XCTestCase {
         KingfisherManager.shared.cache.clearMemoryCache()
         KingfisherManager.shared.cache.clearCache()
         KingfisherManager.shared.cache.clearDiskCache()
-        KingfisherManager.shared.cache.cleanExpiredCache()g
+        KingfisherManager.shared.cache.cleanExpiredCache()
         KingfisherManager.shared.cache.cleanExpiredMemoryCache()
         KingfisherManager.shared.cache.cleanExpiredDiskCache()
     }
