@@ -92,34 +92,20 @@ final class ProgressBarSnapshotTests: XCTestCase {
         let snapshotName = "PROGRESSBAR_WITH_HEIGHT"
         
         // GIVEN
-        let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 375, height: 300))
-        window.backgroundColor = .systemBackground
-        window.makeKeyAndVisible()
-        let (sut, _) = makeSUT()
+        let (sut, container) = makeSUT()
         
         // WHEN
         sut.display(style: .init(backgroundColor: .systemRed, height: 50))
         sut.display(progress: 100.0)
         
-        window.addSubview(sut)
-        sut.anchor(
-            .top(window.topAnchor, constant: 10, priority: .required),
-            .leading(window.leadingAnchor, constant: 10, priority: .required),
-            .trailing(window.trailingAnchor, constant: 10, priority: .required)
-        )
-        
         // THEN
         if #available(iOS 26, *) {
-            assert(snapshot: window.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: window.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assert(snapshot: window.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
-            assert(snapshot: window.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
         }
-        
-        sut.removeFromSuperview()
-        window.isHidden = true
-        window.resignKey()
     }
     
     func test_fail_progressBar_with_height() {
