@@ -43,11 +43,7 @@ final class LabelSnapshotTests: XCTestCase {
         } else {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
-<<<<<<< HEAD
-        } 
-=======
         }
->>>>>>> main
     }
     
     func test_labelOutput_long_text() {
@@ -64,9 +60,6 @@ final class LabelSnapshotTests: XCTestCase {
         } else {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
-<<<<<<< HEAD
-        } 
-=======
         }
     }
     
@@ -85,7 +78,6 @@ final class LabelSnapshotTests: XCTestCase {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
         }
->>>>>>> main
     }
     
     func test_labelOutput_hidden_text() {
@@ -102,9 +94,6 @@ final class LabelSnapshotTests: XCTestCase {
         } else {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
-<<<<<<< HEAD
-        } 
-=======
         }
     }
     
@@ -123,7 +112,6 @@ final class LabelSnapshotTests: XCTestCase {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
         }
->>>>>>> main
     }
     
     func test_labelOutput_withInsets() {
@@ -185,11 +173,7 @@ final class LabelSnapshotTests: XCTestCase {
         } else {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
-<<<<<<< HEAD
-        } 
-=======
         }
->>>>>>> main
     }
     
     func tests_fail_labelOutput_multiple_display() {
