@@ -1,0 +1,60 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  generate-build-test:
+    runs-on: macos-26 # https://github.com/actions/runner-images/blob/main/images/macos/macos-26-arm64-Readme.md
+    env:
+      SCHEME_NAME: "WrapKit"
+      IOS_VERSION: "18.5"
+      IOS_VERSION_DEVICE: "iPhone 16 Pro"
+      LATEST_IOS_VERSION: "26.1"
+      LATEST_IOS_VERSION_DEVICE: "iPhone 17 Pro"
+
+    steps:
+      # -----------------------------
+      # Checkout Code
+      # -----------------------------
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # -----------------------------
+      # Install Tools
+      # -----------------------------
+      - name: Install Tools
+        run: |
+          brew install sourcery
+          brew install tuist
+          brew install swiftgen
+          brew install swiftlint
+
+      # -----------------------------
+      # Generate / Build
+      # -----------------------------
+      - name: Run Makefile for Build
+        run: make project
+
+      # -----------------------------
+      # Ensure iOS Simulators
+      # -----------------------------
+      - name: List Available Simulators / Devices
+        run: |
+          echo "=== Devices ==="
+          xcrun simctl list devices
+
+      # -----------------------------
+      # Run Tests
+      # List of available os in docs https://github.com/actions/runner-images/blob/main/images/macos/macos-26-arm64-Readme.md 
+      # -----------------------------
+      - name: Run Tests on $IOS_VERSION
+        run: |
+          xcodebuild clean build test -workspace $SCHEME_NAME.xcworkspace -scheme $SCHEME_NAME -destination "platform=iOS Simulator,name=$IOS_VERSION_DEVICE,OS=$IOS_VERSION"
+      - name: Run Tests on $LATEST_IOS_VERSION
+        run: |
+          xcodebuild clean build test -workspace $SCHEME_NAME.xcworkspace -scheme $SCHEME_NAME -destination "platform=iOS Simulator,name=$LATEST_IOS_VERSION_DEVICE,OS=$LATEST_IOS_VERSION"
+          
