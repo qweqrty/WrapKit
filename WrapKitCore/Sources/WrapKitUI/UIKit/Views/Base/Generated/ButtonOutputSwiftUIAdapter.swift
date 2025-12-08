@@ -105,13 +105,4 @@ public class ButtonOutputSwiftUIAdapter: ObservableObject, ButtonOutput {
             isHidden: isHidden
         )
     }
-    @Published public var displayIsLoadingState: DisplayIsLoadingState? = nil
-    public struct DisplayIsLoadingState {
-        public let isLoading: Bool
-    }
-    public func display(isLoading: Bool) {
-        displayIsLoadingState = .init(
-            isLoading: isLoading
-        )
-    }
 }
