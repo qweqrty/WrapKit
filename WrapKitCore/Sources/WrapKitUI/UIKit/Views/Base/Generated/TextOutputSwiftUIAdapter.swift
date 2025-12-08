@@ -1,4 +1,4 @@
-// Generated using Sourcery 2.2.6 — https://github.com/krzysztofzablocki/Sourcery
+// Generated using Sourcery 2.3.0 — https://github.com/krzysztofzablocki/Sourcery
 // DO NOT EDIT
 // swiftlint:disable:this file_name
 // swiftlint:disable all
@@ -54,14 +54,14 @@ public class TextOutputSwiftUIAdapter: ObservableObject, TextOutput {
     @Published public var displayIdStartAmountEndAmountMapToStringAnimationStyleDurationCompletionState: DisplayIdStartAmountEndAmountMapToStringAnimationStyleDurationCompletionState? = nil
     public struct DisplayIdStartAmountEndAmountMapToStringAnimationStyleDurationCompletionState {
         public let id: String?
-        public let startAmount: Double
-        public let endAmount: Double
-        public let mapToString: ((Double) -> TextOutputPresentableModel)?
+        public let startAmount: Decimal
+        public let endAmount: Decimal
+        public let mapToString: ((Decimal) -> TextOutputPresentableModel)?
         public let animationStyle: LabelAnimationStyle
         public let duration: TimeInterval
         public let completion: (() -> Void)?
     }
-    public func display(id: String?, from startAmount: Double, to endAmount: Double, mapToString: ((Double) -> TextOutputPresentableModel)?, animationStyle: LabelAnimationStyle, duration: TimeInterval, completion: (() -> Void)?) {
+    public func display(id: String?, from startAmount: Decimal, to endAmount: Decimal, mapToString: ((Decimal) -> TextOutputPresentableModel)?, animationStyle: LabelAnimationStyle, duration: TimeInterval, completion: (() -> Void)?) {
         displayIdStartAmountEndAmountMapToStringAnimationStyleDurationCompletionState = .init(
             id: id, 
             startAmount: startAmount, 
