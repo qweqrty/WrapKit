@@ -17,6 +17,7 @@ public struct ButtonStyle {
     public let font: Font?
     public let cornerRadius: CGFloat
     public let wrongUrlPlaceholderImage: Image?
+    public let loadingIndicatorColor: Color?
     
     public init(
         backgroundColor: Color? = nil,
@@ -27,7 +28,8 @@ public struct ButtonStyle {
         pressedTintColor: Color? = nil,
         font: Font? = nil,
         cornerRadius: CGFloat = 12,
-        wrongUrlPlaceholderImage: Image? = nil
+        wrongUrlPlaceholderImage: Image? = nil,
+        loadingIndicatorColor: Color? = nil
     ) {
         self.backgroundColor = backgroundColor
         self.titleColor = titleColor
@@ -38,6 +40,7 @@ public struct ButtonStyle {
         self.borderWidth = borderWidth
         self.cornerRadius = cornerRadius
         self.wrongUrlPlaceholderImage = wrongUrlPlaceholderImage
+        self.loadingIndicatorColor = loadingIndicatorColor
     }
 }
 
@@ -51,6 +54,7 @@ public protocol ButtonOutput: AnyObject {
     func display(onPress: (() -> Void)?)
     func display(height: CGFloat)
     func display(isHidden: Bool)
+    func display(isLoading: Bool)
 }
 
 public struct ButtonPresentableModel {
@@ -127,6 +131,7 @@ extension Button: ButtonOutput {
         self.layer.borderWidth = style.borderWidth
         self.layer.cornerRadius = style.cornerRadius
         self.wrongUrlPlaceholderImage = style.wrongUrlPlaceholderImage
+        self.loadingIndicatorColor = style.loadingIndicatorColor
     }
     
     public func display(title: String?) {
@@ -144,6 +149,12 @@ extension Button: ButtonOutput {
     public func display(isHidden: Bool) {
         self.isHidden = isHidden
     }
+    
+    public func display(isLoading: Bool) {
+        titleLabel?.alpha = isLoading ? 0 : 1
+        imageView?.alpha = isLoading ? 0 : 1
+        loadingOutput.display(isLoading: isLoading)
+    }
 }
 
 public enum PressAnimation: HashableWithReflection {
@@ -153,6 +164,12 @@ public enum PressAnimation: HashableWithReflection {
 open class Button: UIButton {
     var currentAnimator: UIViewPropertyAnimator?
     public var currentImageEnum: ImageEnum?
+    
+    private lazy var loadingOutput = CommonLoadingiOSAdapter.NVActivityLoader(
+        onView: self,
+        loadingViewColor: loadingIndicatorColor ?? .red,
+        wrapperViewColor: .clear
+    )
     
     public var onPress: (() -> Void)? {
         didSet {
@@ -183,6 +200,8 @@ open class Button: UIButton {
             backgroundColor = textBackgroundColor
         }
     }
+    
+    public var loadingIndicatorColor: UIColor?
     public var pressedTextColor: UIColor?
     public var pressedBackgroundColor: UIColor?
     public var pressAnimations = Set<PressAnimation>()
