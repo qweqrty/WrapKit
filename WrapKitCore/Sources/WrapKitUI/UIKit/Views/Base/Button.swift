@@ -54,7 +54,6 @@ public protocol ButtonOutput: AnyObject {
     func display(onPress: (() -> Void)?)
     func display(height: CGFloat)
     func display(isHidden: Bool)
-    func display(isLoading: Bool)
 }
 
 public struct ButtonPresentableModel {
@@ -149,12 +148,6 @@ extension Button: ButtonOutput {
     public func display(isHidden: Bool) {
         self.isHidden = isHidden
     }
-    
-    public func display(isLoading: Bool) {
-        titleLabel?.alpha = isLoading ? 0 : 1
-        imageView?.alpha = isLoading ? 0 : 1
-        loadingOutput.display(isLoading: isLoading)
-    }
 }
 
 public enum PressAnimation: HashableWithReflection {
@@ -164,12 +157,6 @@ public enum PressAnimation: HashableWithReflection {
 open class Button: UIButton {
     var currentAnimator: UIViewPropertyAnimator?
     public var currentImageEnum: ImageEnum?
-    
-    private lazy var loadingOutput = CommonLoadingiOSAdapter.NVActivityLoader(
-        onView: self,
-        loadingViewColor: loadingIndicatorColor ?? .red,
-        wrapperViewColor: .clear
-    )
     
     public var onPress: (() -> Void)? {
         didSet {
@@ -200,7 +187,7 @@ open class Button: UIButton {
             backgroundColor = textBackgroundColor
         }
     }
-    
+    public var isLoading: Bool?
     public var loadingIndicatorColor: UIColor?
     public var pressedTextColor: UIColor?
     public var pressedBackgroundColor: UIColor?
@@ -352,4 +339,21 @@ open class Button: UIButton {
         titleLabel?.alpha = enabled ? 1.0 : 0.5
     }
 }
+
+extension Button: LoadingOutput {
+    
+    public func display(isLoading: Bool) {
+        self.isLoading = isLoading
+        titleLabel?.alpha = isLoading ? 0 : 1
+        imageView?.alpha = isLoading ? 0 : 1
+        let loader = CommonLoadingiOSAdapter.NVActivityLoader(
+            onView: self,
+            loadingViewColor: loadingIndicatorColor ?? .red,
+            wrapperViewColor: .clear
+        )
+        
+        loader.display(isLoading: isLoading)
+    }
+}
+
 #endif
