@@ -110,6 +110,11 @@ extension MainQueueDispatchDecorator: CardViewOutput where T: CardViewOutput {
             self?.decoratee.display(isHidden: isHidden)
         }
     }
+    public func display(isUserInteractionEnabled: Bool?) {
+        dispatch { [weak self] in
+            self?.decoratee.display(isUserInteractionEnabled: isUserInteractionEnabled)
+        }
+    }
 
 }
 #endif
