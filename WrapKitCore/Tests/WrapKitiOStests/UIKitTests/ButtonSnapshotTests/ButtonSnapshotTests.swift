@@ -1027,6 +1027,84 @@ final class ButtonSnapshotTests: XCTestCase {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
         }
     }
+    
+    func test_buttonOutput_isLoading_state() {
+        let snapshotName = "BUTTON_OUTPUT_ISLOADING_STATE"
+        
+        // GIVEN
+        let (sut, container) = makeSUT()
+        
+        // WHEN
+        let style = ButtonStyle(
+            backgroundColor: .systemBlue,
+            loadingIndicatorColor: .red
+        )
+        
+        sut.display(title: "Button title")
+        sut.display(style: style)
+        sut.display(isLoading: true)
+        
+        // THEN
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        }
+    }
+    
+    func test_fail_buttonOutput_isLoading_state() {
+        let snapshotName = "BUTTON_OUTPUT_ISLOADING_STATE"
+        
+        // GIVEN
+        let (sut, container) = makeSUT()
+        
+        // WHEN
+        let style = ButtonStyle(
+            backgroundColor: .systemBlue,
+            loadingIndicatorColor: .red
+        )
+        
+        sut.display(title: "Button title")
+        sut.display(style: style)
+        sut.display(isLoading: false)
+        
+        // THEN
+        if #available(iOS 26, *) {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        }
+    }
+    
+    func test_buttonOutput_isLoading_state_false() {
+        let snapshotName = "BUTTON_OUTPUT_ISLOADING_STATE_FALSE"
+        
+        // GIVEN
+        let (sut, container) = makeSUT()
+        
+        // WHEN
+        let style = ButtonStyle(
+            backgroundColor: .systemBlue,
+            loadingIndicatorColor: .red
+        )
+        
+        sut.display(title: "Button title")
+        sut.display(style: style)
+        sut.display(isLoading: false)
+        
+        // THEN
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        }
+    }
 }
 
 extension ButtonSnapshotTests {
