@@ -25,6 +25,7 @@ public protocol CardViewOutput: AnyObject {
     func display(onPress: (() -> Void)?)
     func display(onLongPress: (() -> Void)?)
     func display(isHidden: Bool)
+    func display(isUserInteractionEnabled: Bool?)
 }
 
 public struct CardViewPresentableModel: HashableWithReflection {
@@ -127,6 +128,7 @@ public struct CardViewPresentableModel: HashableWithReflection {
     public let switchControl: SwitchControlPresentableModel?
     public let onPress: (() -> Void)?
     public let onLongPress: (() -> Void)?
+    public let isUserInteractionEnabled: Bool?
     
     public init(
         id: String = UUID().uuidString,
@@ -145,7 +147,8 @@ public struct CardViewPresentableModel: HashableWithReflection {
         bottomSeparator: BottomSeparator? = nil,
         switchControl: SwitchControlPresentableModel? = nil,
         onPress: (() -> Void)? = nil,
-        onLongPress: (() -> Void)? = nil
+        onLongPress: (() -> Void)? = nil,
+        isUserInteractionEnabled: Bool? = nil
     ) {
         self.id = id
         self.style = style
@@ -164,6 +167,7 @@ public struct CardViewPresentableModel: HashableWithReflection {
         self.switchControl = switchControl
         self.onPress = onPress
         self.onLongPress = onLongPress
+        self.isUserInteractionEnabled = isUserInteractionEnabled
     }
 }
 
@@ -276,6 +280,11 @@ extension CardView: CardViewOutput {
         }
     }
     
+    public func display(isUserInteractionEnabled: Bool?) {
+        guard let isEnabled = isUserInteractionEnabled else { return }
+        self.isUserInteractionEnabled = isEnabled
+    }
+    
     public func display(model: CardViewPresentableModel?) {
         isHidden = model == nil
         guard let model = model else { return }
@@ -320,6 +329,8 @@ extension CardView: CardViewOutput {
         
         display(onPress: model.onPress)
         display(onLongPress: model.onLongPress)
+        
+        display(isUserInteractionEnabled: model.isUserInteractionEnabled)
     }
 }
 
