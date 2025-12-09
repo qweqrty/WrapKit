@@ -17,6 +17,7 @@ public struct ButtonStyle {
     public let font: Font?
     public let cornerRadius: CGFloat
     public let wrongUrlPlaceholderImage: Image?
+    public let loadingIndicatorColor: Color?
     
     public init(
         backgroundColor: Color? = nil,
@@ -27,7 +28,8 @@ public struct ButtonStyle {
         pressedTintColor: Color? = nil,
         font: Font? = nil,
         cornerRadius: CGFloat = 12,
-        wrongUrlPlaceholderImage: Image? = nil
+        wrongUrlPlaceholderImage: Image? = nil,
+        loadingIndicatorColor: Color? = nil
     ) {
         self.backgroundColor = backgroundColor
         self.titleColor = titleColor
@@ -38,6 +40,7 @@ public struct ButtonStyle {
         self.borderWidth = borderWidth
         self.cornerRadius = cornerRadius
         self.wrongUrlPlaceholderImage = wrongUrlPlaceholderImage
+        self.loadingIndicatorColor = loadingIndicatorColor
     }
 }
 
@@ -127,6 +130,7 @@ extension Button: ButtonOutput {
         self.layer.borderWidth = style.borderWidth
         self.layer.cornerRadius = style.cornerRadius
         self.wrongUrlPlaceholderImage = style.wrongUrlPlaceholderImage
+        self.loadingIndicatorColor = style.loadingIndicatorColor
     }
     
     public func display(title: String?) {
@@ -183,6 +187,8 @@ open class Button: UIButton {
             backgroundColor = textBackgroundColor
         }
     }
+    public var isLoading: Bool?
+    public var loadingIndicatorColor: UIColor?
     public var pressedTextColor: UIColor?
     public var pressedBackgroundColor: UIColor?
     public var pressAnimations = Set<PressAnimation>()
@@ -333,4 +339,21 @@ open class Button: UIButton {
         titleLabel?.alpha = enabled ? 1.0 : 0.5
     }
 }
+
+extension Button: LoadingOutput {
+    
+    public func display(isLoading: Bool) {
+        self.isLoading = isLoading
+        titleLabel?.alpha = isLoading ? 0 : 1
+        imageView?.alpha = isLoading ? 0 : 1
+        let loader = CommonLoadingiOSAdapter.NVActivityLoader(
+            onView: self,
+            loadingViewColor: loadingIndicatorColor ?? .red,
+            wrapperViewColor: .clear
+        )
+        
+        loader.display(isLoading: isLoading)
+    }
+}
+
 #endif
