@@ -346,6 +346,7 @@ extension Button: LoadingOutput {
         self.isLoading = isLoading
         titleLabel?.alpha = isLoading ? 0 : 1
         imageView?.alpha = isLoading ? 0 : 1
+        isUserInteractionEnabled = !isLoading
         let loader = CommonLoadingiOSAdapter.NVActivityLoader(
             onView: self,
             loadingViewColor: loadingIndicatorColor ?? .red,
