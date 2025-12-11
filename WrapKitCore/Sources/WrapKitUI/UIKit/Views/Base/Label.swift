@@ -72,7 +72,8 @@ extension Label: TextOutput {
         case .animatedDecimal(let id, let startAmount, let endAmount, let mapToString, let animationStyle, let duration, let completion):
             display(id: id, from: startAmount, to: endAmount, mapToString: mapToString, animationStyle: animationStyle, duration: duration, completion: completion)
         case .animated(let id, let from, let to, let mapToString, let animationStyle, let duration, let completion):
-            display(id: id, from: from.asDecimal(), to: to.asDecimal(), mapToString: mapToString, animationStyle: animationStyle, duration: duration, completion: completion)
+            let mapper: ((Decimal) -> TextOutputPresentableModel)? = if let mapToString { { mapToString($0.doubleValue) } } else { nil }
+            display(id: id, from: from.asDecimal(), to: to.asDecimal(), mapToString: mapper, animationStyle: animationStyle, duration: duration, completion: completion)
         case .textStyled(let model, let style, let insets):
             display(model: model)
             self.cornerStyle = style
