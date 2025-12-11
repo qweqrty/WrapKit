@@ -103,6 +103,7 @@ open class ViewController<ContentView: UIView>: UIViewController {
             if countToRemove > 0 {
                 viewControllersToRemain.removeLast(countToRemove)
                 viewControllersToRemain.append(lastViewController)
+                removingNavStackCountOnAppear = 0
                 navigationController?.setViewControllers(viewControllersToRemain, animated: false)
             }
         }
