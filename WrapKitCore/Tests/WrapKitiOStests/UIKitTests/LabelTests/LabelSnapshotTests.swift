@@ -915,8 +915,8 @@ final class LabelSnapshotTests: XCTestCase {
         
         let exp = expectation(description: "Wait for animation completion")
 
-        let mapToString: (Double) -> TextOutputPresentableModel = { value in
-            return .text(String(format: "%.0f", value))
+        let mapToString: (Decimal) -> TextOutputPresentableModel = { value in
+            return .text(String(format: "%.0f", value.doubleValue))
         }
 
         // WHEN
@@ -951,8 +951,8 @@ final class LabelSnapshotTests: XCTestCase {
         
         let exp = expectation(description: "Wait for animation completion")
 
-        let mapToString: (Double) -> TextOutputPresentableModel = { value in
-            return .text(String(format: "%.0f", value))
+        let mapToString: (Decimal) -> TextOutputPresentableModel = { value in
+            return .text(String(format: "%.0f", value.doubleValue))
         }
 
         // WHEN

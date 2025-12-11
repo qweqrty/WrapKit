@@ -15,7 +15,7 @@ public struct SUILabel: View {
     public var body: some View {
         Group {
             if let isHidden = adapter.displayIsHiddenState?.isHidden, isHidden {
-                SwiftUICore.EmptyView()
+                SwiftUI.EmptyView()
             } else if let attributes = adapter.displayAttributesState?.attributes {
                 AttributedText(attributes: attributes)
             } else {

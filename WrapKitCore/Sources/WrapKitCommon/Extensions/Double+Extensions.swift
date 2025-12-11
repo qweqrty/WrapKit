@@ -8,7 +8,18 @@
 import Foundation
 
 public extension Double {
-    func asString(withDecimalPlaces count: Int = 0, locale: Locale = .current) -> String {
+    @available(
+        *,
+         deprecated,
+         renamed: "Decimal.asString(withDecimalPlaces:decimalSeparator:groupingSeparator:locale:)",
+         message: "Double gives inaccurate floating point for large numbers or large fraction parts. Use Decimal instead."
+    )
+    func asString(
+        withDecimalPlaces count: Int = 0,
+        decimalSeparator: String? = nil,
+        groupingSeparator: String? = nil,
+        locale: Locale = .current
+    ) -> String {
         // special non-finite values
         if self.isNaN { return String(Double.nan) }
         if self.isInfinite { return String(self) } // "inf" or "-inf"
@@ -44,9 +55,17 @@ public extension Double {
         formatter.locale = locale
         formatter.numberStyle = .decimal
         formatter.minimumFractionDigits = 0
-        formatter.maximumFractionDigits = 0
+        formatter.maximumFractionDigits = count
+        formatter.roundingMode = .down // truncate
         formatter.usesGroupingSeparator = true
-
+        if let groupingSeparator {
+            formatter.groupingSeparator = groupingSeparator
+        }
+        if let decimalSeparator {
+            formatter.decimalSeparator = decimalSeparator
+        }
+        formatter.groupingSize = 3
+        
         // Use NSDecimalNumber(string:) so very large integers are handled reliably
         let intNumber = NSDecimalNumber(string: intPartRaw)
         var formattedInteger = formatter.string(from: intNumber) ?? intPartRaw
@@ -85,8 +104,7 @@ public extension Double {
 public extension Float {
     func asString(withDecimalPlaces count: Int = 0, locale: Locale = .current) -> String {
         guard self.isFinite else { return String(self) }
-        
-        return Double(self).asString(withDecimalPlaces: 2, locale: locale)
+        return Double(self).asString(withDecimalPlaces: count, locale: locale)
     }
 }
 
