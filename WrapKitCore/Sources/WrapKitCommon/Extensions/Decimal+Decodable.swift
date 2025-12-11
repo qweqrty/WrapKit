@@ -9,13 +9,13 @@ import Foundation
 
 @propertyWrapper
 public struct PreciseDecimal: Codable {
-    var wrappedValue: Decimal
+    public private(set) var wrappedValue: Decimal
     
-    init(wrappedValue: Decimal) {
+    public init(wrappedValue: Decimal) {
         self.wrappedValue = wrappedValue
     }
     
-    init(from decoder: Decoder) throws {
+    public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
         
         if let stringValue = try? container.decode(String.self),
@@ -30,7 +30,7 @@ public struct PreciseDecimal: Codable {
         }
     }
     
-    func encode(to encoder: Encoder) throws {
+    public func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
         // Encode as string to preserve precision
         try container.encode(wrappedValue.description)
