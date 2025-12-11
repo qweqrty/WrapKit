@@ -71,4 +71,4 @@ jobs:
           name: snapshot-test-failures
           path: /tmp/*/
           if-no-files-found: ignore
-          retention-days: 30
+          retention-days: 10
