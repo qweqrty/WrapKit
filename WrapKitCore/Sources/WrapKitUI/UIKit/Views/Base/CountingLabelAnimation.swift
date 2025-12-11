@@ -74,7 +74,7 @@ class CountingLabelAnimation {
         self.progress = 0
         self.duration = duration
         self.completion = completion
-        self.model = .animated(id: id, fromValue, toValue, mapToString: mapToString, animationStyle: animationStyle, duration: duration, completion: completion)
+        self.model = .animatedDecimal(id: id, from: fromValue, to: toValue, mapToString: mapToString, animationStyle: animationStyle, duration: duration, completion: completion)
         self.lastUpdate = Date.timeIntervalSinceReferenceDate
         
         // Set up circular progress view if needed

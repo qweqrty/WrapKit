@@ -13,6 +13,12 @@ public extension String {
     }
 }
 
+public extension Double {
+    func asDecimal() -> Decimal {
+        Decimal(self)
+    }
+}
+
 public extension Decimal {
     var nsDecimal: NSDecimalNumber {
         self as NSDecimalNumber

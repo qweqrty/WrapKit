@@ -29,11 +29,20 @@ public protocol TextOutput: AnyObject {
 public indirect enum TextOutputPresentableModel: HashableWithReflection {
     case text(String?)
     case attributes([TextAttributes])
+    case animatedDecimal(
+        id: String? = nil,
+        from: Decimal,
+        to: Decimal,
+        mapToString: ((Decimal) -> TextOutputPresentableModel)?,
+        animationStyle: LabelAnimationStyle,
+        duration: TimeInterval,
+        completion: (() -> Void)?
+    )
     case animated(
         id: String? = nil,
-        Decimal,
-        Decimal,
-        mapToString: ((Decimal) -> TextOutputPresentableModel)?,
+        Double,
+        Double,
+        mapToString: ((Double) -> TextOutputPresentableModel)?,
         animationStyle: LabelAnimationStyle,
         duration: TimeInterval,
         completion: (() -> Void)?
@@ -60,8 +69,10 @@ extension Label: TextOutput {
             display(text: text)
         case .attributes(let attributes):
             display(attributes: attributes)
-        case .animated(let id, let startAmount, let endAmount, let mapToString, let animationStyle, let duration, let completion):
+        case .animatedDecimal(let id, let startAmount, let endAmount, let mapToString, let animationStyle, let duration, let completion):
             display(id: id, from: startAmount, to: endAmount, mapToString: mapToString, animationStyle: animationStyle, duration: duration, completion: completion)
+        case .animated(let id, let from, let to, let mapToString, let animationStyle, let duration, let completion):
+            display(id: id, from: from.asDecimal(), to: to.asDecimal(), mapToString: mapToString, animationStyle: animationStyle, duration: duration, completion: completion)
         case .textStyled(let model, let style, let insets):
             display(model: model)
             self.cornerStyle = style

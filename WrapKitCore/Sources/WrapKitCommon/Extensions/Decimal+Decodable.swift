@@ -9,7 +9,7 @@ import Foundation
 
 @propertyWrapper
 public struct PreciseDecimal: Decodable, Hashable, Equatable {
-    public private(set) var wrappedValue: Decimal
+    public var wrappedValue: Decimal
     
     public init(wrappedValue: Decimal) {
         self.wrappedValue = wrappedValue
@@ -32,7 +32,7 @@ public struct PreciseDecimal: Decodable, Hashable, Equatable {
 
 @propertyWrapper
 public struct PreciseDecimalOptional: Decodable, Hashable, Equatable {
-    public private(set) var wrappedValue: Decimal?
+    public var wrappedValue: Decimal?
     
     public init(wrappedValue: Decimal?) {
         self.wrappedValue = wrappedValue
