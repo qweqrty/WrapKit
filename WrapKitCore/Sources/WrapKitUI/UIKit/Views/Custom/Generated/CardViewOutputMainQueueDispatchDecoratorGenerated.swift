@@ -1,4 +1,4 @@
-// Generated using Sourcery 2.3.0 — https://github.com/krzysztofzablocki/Sourcery
+// Generated using Sourcery 2.2.6 — https://github.com/krzysztofzablocki/Sourcery
 // DO NOT EDIT
 // swiftlint:disable:this file_name
 // swiftlint:disable all
@@ -108,6 +108,11 @@ extension MainQueueDispatchDecorator: CardViewOutput where T: CardViewOutput {
     public func display(isHidden: Bool) {
         dispatch { [weak self] in
             self?.decoratee.display(isHidden: isHidden)
+        }
+    }
+    public func display(isUserInteractionEnabled: Bool?) {
+        dispatch { [weak self] in
+            self?.decoratee.display(isUserInteractionEnabled: isUserInteractionEnabled)
         }
     }
 

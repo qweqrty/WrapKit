@@ -1,4 +1,4 @@
-// Generated using Sourcery 2.3.0 — https://github.com/krzysztofzablocki/Sourcery
+// Generated using Sourcery 2.2.6 — https://github.com/krzysztofzablocki/Sourcery
 // DO NOT EDIT
 // swiftlint:disable:this file_name
 // swiftlint:disable all
@@ -178,6 +178,15 @@ public class CardViewOutputSwiftUIAdapter: ObservableObject, CardViewOutput {
     public func display(isHidden: Bool) {
         displayIsHiddenState = .init(
             isHidden: isHidden
+        )
+    }
+    @Published public var displayIsUserInteractionEnabledState: DisplayIsUserInteractionEnabledState? = nil
+    public struct DisplayIsUserInteractionEnabledState {
+        public let isUserInteractionEnabled: Bool?
+    }
+    public func display(isUserInteractionEnabled: Bool?) {
+        displayIsUserInteractionEnabledState = .init(
+            isUserInteractionEnabled: isUserInteractionEnabled
         )
     }
 }
