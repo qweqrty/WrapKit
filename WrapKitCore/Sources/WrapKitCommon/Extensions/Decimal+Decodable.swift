@@ -8,7 +8,7 @@
 import Foundation
 
 @propertyWrapper
-struct PreciseDecimal: Codable {
+public struct PreciseDecimal: Codable {
     var wrappedValue: Decimal
     
     init(wrappedValue: Decimal) {
