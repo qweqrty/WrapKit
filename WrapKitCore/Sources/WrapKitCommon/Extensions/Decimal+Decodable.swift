@@ -8,7 +8,7 @@
 import Foundation
 
 @propertyWrapper
-public struct PreciseDecimal: Codable {
+public struct PreciseDecimal: Decodable, Hashable, Equatable {
     public private(set) var wrappedValue: Decimal
     
     public init(wrappedValue: Decimal) {
@@ -28,16 +28,10 @@ public struct PreciseDecimal: Codable {
             self.wrappedValue = Decimal(doubleValue)
         }
     }
-    
-    public func encode(to encoder: Encoder) throws {
-        var container = encoder.singleValueContainer()
-        // Encode as string to preserve precision
-        try container.encode(wrappedValue.description)
-    }
 }
 
 @propertyWrapper
-public struct PreciseDecimalOptional: Codable {
+public struct PreciseDecimalOptional: Decodable, Hashable, Equatable {
     public private(set) var wrappedValue: Decimal?
     
     public init(wrappedValue: Decimal?) {
@@ -58,15 +52,6 @@ public struct PreciseDecimalOptional: Codable {
             self.wrappedValue = Decimal(doubleValue)
         } else {
             self.wrappedValue = nil
-        }
-    }
-    
-    func encode(to encoder: Encoder) throws {
-        var container = encoder.singleValueContainer()
-        if let value = wrappedValue {
-            try container.encode(value.description)
-        } else {
-            try container.encodeNil()
         }
     }
 }
