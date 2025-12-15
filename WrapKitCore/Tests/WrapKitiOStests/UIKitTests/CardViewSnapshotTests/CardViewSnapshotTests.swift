@@ -701,7 +701,7 @@ final class CardViewSnapshotTests: XCTestCase {
         let (sut, container) = makeSUT()
         
         // WHEN
-        sut.display(style: makeDefaultStyle())
+        sut.display(style: makeSwitchControlStyle())
         
         sut.display(title: .text("Title"))
         sut.display(switchControl: .init(
@@ -727,7 +727,7 @@ final class CardViewSnapshotTests: XCTestCase {
         let (sut, container) = makeSUT()
         
         // WHEN
-        sut.display(style: makeDefaultStyle())
+        sut.display(style: makeSwitchControlStyle())
         
         sut.display(title: .text("Title"))
         sut.display(switchControl: .init(
@@ -753,7 +753,7 @@ final class CardViewSnapshotTests: XCTestCase {
         let (sut, container) = makeSUT()
         
         // WHEN
-        sut.display(style: makeDefaultStyle())
+        sut.display(style: makeSwitchControlStyle())
         
         sut.display(title: .text("Title"))
         sut.display(switchControl: .init(
@@ -999,6 +999,32 @@ extension CardViewSnapshotTests {
             vStacklayoutMargins: .init(top: 5, leading: 5, bottom: 5, trailing: 5),
             hStacklayoutMargins: .zero,
             hStackViewDistribution: .fillEqually,
+            leadingTitleKeyTextColor: .blue,
+            titleKeyTextColor: .brown,
+            trailingTitleKeyTextColor: .black,
+            titleValueTextColor: .cyan,
+            subTitleTextColor: .gray,
+            leadingTitleKeyLabelFont: .boldSystemFont(ofSize: 22),
+            titleKeyLabelFont: .systemFont(ofSize: 14),
+            trailingTitleKeyLabelFont: .boldSystemFont(ofSize: 22),
+            titleValueLabelFont: .systemFont(ofSize: 14),
+            subTitleLabelFont: .systemFont(ofSize: 14, weight: .light),
+            cornerRadius: 20,
+            stackSpace: 5.0,
+            hStackViewSpacing: 2.0,
+            titleKeyNumberOfLines: 0,
+            titleValueNumberOfLines: 0,
+            borderColor: .green,
+            borderWidth: 4
+        )
+    }
+    
+    func makeSwitchControlStyle() -> CardViewPresentableModel.Style {
+        return .init(
+            backgroundColor: .systemRed,
+            vStacklayoutMargins: .init(top: 5, leading: 5, bottom: 5, trailing: 5),
+            hStacklayoutMargins: .zero,
+            hStackViewDistribution: .fill,
             leadingTitleKeyTextColor: .blue,
             titleKeyTextColor: .brown,
             trailingTitleKeyTextColor: .black,
