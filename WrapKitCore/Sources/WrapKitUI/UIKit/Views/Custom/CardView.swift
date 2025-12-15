@@ -25,11 +25,12 @@ public protocol CardViewOutput: AnyObject {
     func display(onPress: (() -> Void)?)
     func display(onLongPress: (() -> Void)?)
     func display(isHidden: Bool)
+    func display(isUserInteractionEnabled: Bool?)
 }
 
 public struct CardViewPresentableModel: HashableWithReflection {
     public struct Style {
-        public let backgroundColor: Color
+        public var backgroundColor: Color
         public let vStacklayoutMargins: EdgeInsets
         public let hStacklayoutMargins: EdgeInsets
         public let hStackViewDistribution: StackViewDistribution
@@ -111,12 +112,12 @@ public struct CardViewPresentableModel: HashableWithReflection {
     }
 
     public let id: String
-    public let style: Style?
+    public var style: Style?
     public let backgroundImage: ImageViewPresentableModel?
     public let title: TextOutputPresentableModel?
     public let leadingTitles: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>?
     public let trailingTitles: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>?
-    public let leadingImage: ImageViewPresentableModel?
+    public var leadingImage: ImageViewPresentableModel?
     public let secondaryLeadingImage: ImageViewPresentableModel?
     public let trailingImage: ImageViewPresentableModel?
     public let secondaryTrailingImage: ImageViewPresentableModel?
@@ -127,6 +128,7 @@ public struct CardViewPresentableModel: HashableWithReflection {
     public let switchControl: SwitchControlPresentableModel?
     public let onPress: (() -> Void)?
     public let onLongPress: (() -> Void)?
+    public let isUserInteractionEnabled: Bool?
     
     public init(
         id: String = UUID().uuidString,
@@ -145,7 +147,8 @@ public struct CardViewPresentableModel: HashableWithReflection {
         bottomSeparator: BottomSeparator? = nil,
         switchControl: SwitchControlPresentableModel? = nil,
         onPress: (() -> Void)? = nil,
-        onLongPress: (() -> Void)? = nil
+        onLongPress: (() -> Void)? = nil,
+        isUserInteractionEnabled: Bool? = nil
     ) {
         self.id = id
         self.style = style
@@ -164,6 +167,7 @@ public struct CardViewPresentableModel: HashableWithReflection {
         self.switchControl = switchControl
         self.onPress = onPress
         self.onLongPress = onLongPress
+        self.isUserInteractionEnabled = isUserInteractionEnabled
     }
 }
 
@@ -276,6 +280,11 @@ extension CardView: CardViewOutput {
         }
     }
     
+    public func display(isUserInteractionEnabled: Bool?) {
+        guard let isEnabled = isUserInteractionEnabled else { return }
+        self.isUserInteractionEnabled = isEnabled
+    }
+    
     public func display(model: CardViewPresentableModel?) {
         isHidden = model == nil
         guard let model = model else { return }
@@ -320,6 +329,8 @@ extension CardView: CardViewOutput {
         
         display(onPress: model.onPress)
         display(onLongPress: model.onLongPress)
+        
+        display(isUserInteractionEnabled: model.isUserInteractionEnabled)
     }
 }
 
@@ -338,14 +349,14 @@ open class CardView: ViewUIKit {
     public let leadingTitleViewsWrapperView = UIView(isHidden: true)
     public let leadingTitleViews = VKeyValueFieldView(
         keyLabel: Label(font: .systemFont(ofSize: 16), textColor: .black, textAlignment: .center),
-        valueLabel: Label(isHidden: true, font: .systemFont(ofSize: 16), textColor: .black, textAlignment: .center),
+        valueLabel: Label(isHidden: true, font: .systemFont(ofSize: 16), textColor: .black),
         spacing: 0
     )
     
     public let trailingTitleViewsWrapperView = UIView(isHidden: true)
     public let trailingTitleViews = VKeyValueFieldView(
         keyLabel: Label(font: .systemFont(ofSize: 16), textColor: .black, textAlignment: .center),
-        valueLabel: Label(isHidden: true, font: .systemFont(ofSize: 16), textColor: .black, textAlignment: .center),
+        valueLabel: Label(isHidden: true, font: .systemFont(ofSize: 16), textColor: .black),
         spacing: 0
     )
     

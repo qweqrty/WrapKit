@@ -180,4 +180,13 @@ public class CardViewOutputSwiftUIAdapter: ObservableObject, CardViewOutput {
             isHidden: isHidden
         )
     }
+    @Published public var displayIsUserInteractionEnabledState: DisplayIsUserInteractionEnabledState? = nil
+    public struct DisplayIsUserInteractionEnabledState {
+        public let isUserInteractionEnabled: Bool?
+    }
+    public func display(isUserInteractionEnabled: Bool?) {
+        displayIsUserInteractionEnabledState = .init(
+            isUserInteractionEnabled: isUserInteractionEnabled
+        )
+    }
 }

@@ -112,7 +112,9 @@ extension SwitchControl: SwitchCotrolOutput {
     }
     
     public func display(isOn: Bool) {
-        self.isOn = isOn
+        if self.isTracking { return }
+
+        setOn(isOn, animated: true)
     }
     
     public func display(isEnabled: Bool) {

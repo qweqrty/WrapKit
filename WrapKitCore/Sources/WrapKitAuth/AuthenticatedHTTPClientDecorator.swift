@@ -50,7 +50,7 @@ public class AuthenticatedHTTPClientDecorator: HTTPClient {
         self.isAuthenticated = isAuthenticated
         
         accessTokenStorage.publisher
-            .sink { [weak self] value in
+            .sink { value in
                 if let value = value, !value.isEmpty {
                     Self.tokenLock.sync {
                         Self.hasHandledUnauthenticated = false
@@ -116,15 +116,19 @@ public class AuthenticatedHTTPClientDecorator: HTTPClient {
         
         if let ongoingRefresh = synchronizedTokenAccess({ Self.ongoingRefresh }) {
             ongoingRefresh
-                .handle(
-                    onSuccess: { tokens in
-                        completion?(tokens)
-                    },
-                    onError: { [weak self] _ in
+                .handleEvents(
+                receiveOutput: { tokens in
+                    completion?(tokens)
+                },
+                receiveCompletion: { [weak self] result in
+                    if case .failure(_) = result {
                         self?.handleUnauthenticated(message: message)
                         completion?(nil)
                     }
-                )
+                }
+            )
+            .eraseToAnyPublisher()
+            .subscribe()
             return
         }
         
@@ -169,8 +173,8 @@ public class AuthenticatedHTTPClientDecorator: HTTPClient {
         
         guard let publisherToSubscribe = publisherToSubscribe else { return }
         publisherToSubscribe
-            .handle(
-                onSuccess: { [weak self] tokens in
+            .handleEvents(
+                receiveOutput: { [weak self] tokens in
                     if tokens.accessToken.isEmpty {
                         self?.handleUnauthenticated(message: message)
                         completion?(nil)
@@ -178,11 +182,15 @@ public class AuthenticatedHTTPClientDecorator: HTTPClient {
                         completion?(tokens)
                     }
                 },
-                onError: { [weak self] _ in
-                    self?.handleUnauthenticated(message: message)
-                    completion?(nil)
+                receiveCompletion: { [weak self] result in
+                    if case .failure(_) = result {
+                        self?.handleUnauthenticated(message: message)
+                        completion?(nil)
+                    }
                 }
             )
+            .eraseToAnyPublisher()
+            .subscribe()
     }
     
     private func retryRequest(
