@@ -1,0 +1,71 @@
+{% for type in types.protocols where type.name|hasSuffix:"Output" %}
+// sourcery:file:{{ type.path|dirname }}/Generated/{{ type.name }}SpyGenerated.swift
+// swiftlint:disable:this file_name
+// swiftlint:disable all
+// swift-format-ignore-file
+// swiftformat:disable all
+#if canImport(XCTest)
+import XCTest
+#endif
+#if canImport(WrapKit)
+import WrapKit
+#endif
+{% for importName in type.allImports %}
+#if canImport({{ importName }})
+import {{ importName }}
+#endif
+{% endfor %}
+
+final class {{ type.name }}Spy: {{ type.name }} {
+    enum Message: HashableWithReflection {
+        {% for method in type.methods %}
+        case {{ method.callName }}({% for param in method.parameters %}{% if param.argumentLabel %}{{ param.argumentLabel }}: {% else %}_ : {% endif %}{{ param.typeName }}{% if not forloop.last %}, {% endif %}{% endfor %})
+        {% endfor %}
+        {% for variable in type.variables where variable.writeAccess != "private" and variable.writeAccess != "fileprivate" %}
+        case set{{ variable.name|upperFirstLetter }}({{ variable.typeName }})
+        {% endfor %}
+    }
+
+    private(set) var messages: [Message] = []
+
+    // MARK: - Captured values
+    {% for method in type.methods %}
+    {% for param in method.parameters %}
+    private(set) var captured{{ method.callName|upperFirstLetter }}{{ param.name|upperFirstLetter }}: [{{ param.typeName }}] = []
+    {% endfor %}
+    {% endfor %}
+
+    {% for variable in type.variables where variable.writeAccess != "private" and variable.writeAccess != "fileprivate" %}
+    private(set) var captured{{ variable.name|upperFirstLetter }}: [{{ variable.typeName }}] = []
+    {% endfor %}
+
+    // MARK: - {{ type.name }} methods
+    {% for method in type.methods %}
+    {% if method.isStatic %}
+    // Static method: {{ method.name }}
+    {% else %}
+    func {{ method.name }} {
+        {% for param in method.parameters %}
+        captured{{ method.callName|upperFirstLetter }}{{ param.name|upperFirstLetter }}.append({{ param.name }})
+        {% endfor %}
+        messages.append(.{{ method.callName }}({% for param in method.parameters %}{% if param.argumentLabel %}{{ param.argumentLabel }}: {% endif %}{{ param.name }}{% if not forloop.last %}, {% endif %}{% endfor %}))
+    }
+    {% endif %}
+    {% endfor %}
+
+    // MARK: - Properties
+    {% for variable in type.variables %}
+    {% if variable.writeAccess == "private" or variable.writeAccess == "fileprivate" %}
+    var {{ variable.name }}: {{ variable.typeName }}{% if variable.defaultValue %} = {{ variable.defaultValue }}{% endif %}
+    {% else %}
+    var {{ variable.name }}: {{ variable.typeName }}{% if variable.defaultValue %} = {{ variable.defaultValue }}{% endif %} {
+        didSet {
+            captured{{ variable.name|upperFirstLetter }}.append({{ variable.name }})
+            messages.append(.set{{ variable.name|upperFirstLetter }}({{ variable.name }}))
+        }
+    }
+    {% endif %}
+    {% endfor %}
+}
+// sourcery:end
+{% endfor %}

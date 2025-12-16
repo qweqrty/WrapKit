@@ -1,0 +1,53 @@
+// Generated using Sourcery 2.3.0 — https://github.com/krzysztofzablocki/Sourcery
+// DO NOT EDIT
+// swiftlint:disable:this file_name
+// swiftlint:disable all
+// swift-format-ignore-file
+// swiftformat:disable all
+#if canImport(XCTest)
+import XCTest
+#endif
+#if canImport(WrapKit)
+import WrapKit
+#endif
+#if canImport(Foundation)
+import Foundation
+#endif
+
+final class WebViewOutputSpy: WebViewOutput {
+    enum Message: HashableWithReflection {
+        case display(url: URL)
+        case display(refreshModel: WebViewStyle.Refresh)
+        case display(backgroundColor: Color?)
+        case display(isProgressBarNeeded: Bool)
+    }
+
+    private(set) var messages: [Message] = []
+
+    // MARK: - Captured values
+    private(set) var capturedDisplayUrl: [URL] = []
+    private(set) var capturedDisplayRefreshModel: [WebViewStyle.Refresh] = []
+    private(set) var capturedDisplayBackgroundColor: [Color?] = []
+    private(set) var capturedDisplayIsProgressBarNeeded: [Bool] = []
+
+
+    // MARK: - WebViewOutput methods
+    func display(url: URL) {
+        capturedDisplayUrl.append(url)
+        messages.append(.display(url: url))
+    }
+    func display(refreshModel: WebViewStyle.Refresh) {
+        capturedDisplayRefreshModel.append(refreshModel)
+        messages.append(.display(refreshModel: refreshModel))
+    }
+    func display(backgroundColor: Color?) {
+        capturedDisplayBackgroundColor.append(backgroundColor)
+        messages.append(.display(backgroundColor: backgroundColor))
+    }
+    func display(isProgressBarNeeded: Bool) {
+        capturedDisplayIsProgressBarNeeded.append(isProgressBarNeeded)
+        messages.append(.display(isProgressBarNeeded: isProgressBarNeeded))
+    }
+
+    // MARK: - Properties
+}
