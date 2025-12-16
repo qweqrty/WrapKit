@@ -19,8 +19,8 @@ public final class CommonToastOutputSpy: CommonToastOutput {
     public init() {}
 
     public enum Message: HashableWithReflection {
-        case display(_ : CommonToast)
-        case hide()
+        case display(toast: CommonToast)
+        case hide
     }
 
     public private(set) var messages: [Message] = []
@@ -32,10 +32,10 @@ public final class CommonToastOutputSpy: CommonToastOutput {
     // MARK: - CommonToastOutput methods
     public func display(_ toast: CommonToast) {
         capturedDisplayToast.append(toast)
-        messages.append(.display(toast))
+        messages.append(.display(toast: toast))
     }
     public func hide() {
-        messages.append(.hide())
+        messages.append(.hide)
     }
 
     // MARK: - Properties

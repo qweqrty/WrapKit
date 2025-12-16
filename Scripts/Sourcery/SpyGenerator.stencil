@@ -22,7 +22,11 @@ public final class {{ type.name }}Spy: {{ type.name }} {
 
     public enum Message: HashableWithReflection {
         {% for method in type.methods %}
-        case {{ method.callName }}({% for param in method.parameters %}{% if param.argumentLabel %}{{ param.argumentLabel }}: {% else %}_ : {% endif %}{{ param.typeName }}{% if not forloop.last %}, {% endif %}{% endfor %})
+        {% if method.parameters.count == 0 %}
+        case {{ method.callName }}
+        {% else %}
+        case {{ method.callName }}({% for param in method.parameters %}{{ param.argumentLabel|default:param.name }}: {{ param.typeName }}{% if not forloop.last %}, {% endif %}{% endfor %})
+        {% endif %}
         {% endfor %}
         {% for variable in type.variables where variable.writeAccess != "private" and variable.writeAccess != "fileprivate" %}
         case set{{ variable.name|upperFirstLetter }}({{ variable.typeName }})
@@ -51,7 +55,11 @@ public final class {{ type.name }}Spy: {{ type.name }} {
         {% for param in method.parameters %}
         captured{{ method.callName|upperFirstLetter }}{{ param.name|upperFirstLetter }}.append({{ param.name }})
         {% endfor %}
-        messages.append(.{{ method.callName }}({% for param in method.parameters %}{% if param.argumentLabel %}{{ param.argumentLabel }}: {% endif %}{{ param.name }}{% if not forloop.last %}, {% endif %}{% endfor %}))
+        {% if method.parameters.count == 0 %}
+        messages.append(.{{ method.callName }})
+        {% else %}
+        messages.append(.{{ method.callName }}({% for param in method.parameters %}{{ param.argumentLabel|default:param.name }}: {{ param.name }}{% if not forloop.last %}, {% endif %}{% endfor %}))
+        {% endif %}
     }
     {% endif %}
     {% endfor %}
@@ -59,9 +67,9 @@ public final class {{ type.name }}Spy: {{ type.name }} {
     // MARK: - Properties
     {% for variable in type.variables %}
     {% if variable.writeAccess == "private" or variable.writeAccess == "fileprivate" %}
-    var {{ variable.name }}: {{ variable.typeName }}{% if variable.defaultValue %} = {{ variable.defaultValue }}{% endif %}
+    public var {{ variable.name }}: {{ variable.typeName }}{% if variable.defaultValue %} = {{ variable.defaultValue }}{% endif %}
     {% else %}
-    var {{ variable.name }}: {{ variable.typeName }}{% if variable.defaultValue %} = {{ variable.defaultValue }}{% endif %} {
+    public var {{ variable.name }}: {{ variable.typeName }}{% if variable.defaultValue %} = {{ variable.defaultValue }}{% endif %} {
         didSet {
             captured{{ variable.name|upperFirstLetter }}.append({{ variable.name }})
             messages.append(.set{{ variable.name|upperFirstLetter }}({{ variable.name }}))

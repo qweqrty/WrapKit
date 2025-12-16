@@ -19,10 +19,10 @@ public final class ApplicationLifecycleOutputSpy: ApplicationLifecycleOutput {
     public init() {}
 
     public enum Message: HashableWithReflection {
-        case applicationWillEnterForeground()
-        case applicationDidEnterBackground()
-        case applicationDidBecomeActive()
-        case applicationWillResignActive()
+        case applicationWillEnterForeground
+        case applicationDidEnterBackground
+        case applicationDidBecomeActive
+        case applicationWillResignActive
         case applicationDidChange(userInterfaceStyle: UserInterfaceStyle)
         case composed(with: ApplicationLifecycleOutput)
     }
@@ -36,16 +36,16 @@ public final class ApplicationLifecycleOutputSpy: ApplicationLifecycleOutput {
 
     // MARK: - ApplicationLifecycleOutput methods
     public func applicationWillEnterForeground() {
-        messages.append(.applicationWillEnterForeground())
+        messages.append(.applicationWillEnterForeground)
     }
     public func applicationDidEnterBackground() {
-        messages.append(.applicationDidEnterBackground())
+        messages.append(.applicationDidEnterBackground)
     }
     public func applicationDidBecomeActive() {
-        messages.append(.applicationDidBecomeActive())
+        messages.append(.applicationDidBecomeActive)
     }
     public func applicationWillResignActive() {
-        messages.append(.applicationWillResignActive())
+        messages.append(.applicationWillResignActive)
     }
     public func applicationDidChange(userInterfaceStyle: UserInterfaceStyle) {
         capturedApplicationDidChangeUserInterfaceStyle.append(userInterfaceStyle)

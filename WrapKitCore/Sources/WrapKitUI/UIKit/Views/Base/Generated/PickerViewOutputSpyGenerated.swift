@@ -52,25 +52,25 @@ public final class PickerViewOutputSpy: PickerViewOutput {
     }
 
     // MARK: - Properties
-    var componentsCount: (() -> Int?)? {
+    public var componentsCount: (() -> Int?)? {
         didSet {
             capturedComponentsCount.append(componentsCount)
             messages.append(.setComponentsCount(componentsCount))
         }
     }
-    var rowsCount: (() -> Int)? {
+    public var rowsCount: (() -> Int)? {
         didSet {
             capturedRowsCount.append(rowsCount)
             messages.append(.setRowsCount(rowsCount))
         }
     }
-    var titleForRowAt: ((Int) -> String?)? {
+    public var titleForRowAt: ((Int) -> String?)? {
         didSet {
             capturedTitleForRowAt.append(titleForRowAt)
             messages.append(.setTitleForRowAt(titleForRowAt))
         }
     }
-    var didSelectAt: ((Int) -> Void)? {
+    public var didSelectAt: ((Int) -> Void)? {
         didSet {
             capturedDidSelectAt.append(didSelectAt)
             messages.append(.setDidSelectAt(didSelectAt))

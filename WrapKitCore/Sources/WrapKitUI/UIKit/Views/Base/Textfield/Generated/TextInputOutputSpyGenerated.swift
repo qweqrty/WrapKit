@@ -24,8 +24,8 @@ public final class TextInputOutputSpy: TextInputOutput {
     public enum Message: HashableWithReflection {
         case display(model: TextInputPresentableModel?)
         case display(text: String?)
-        case startEditing()
-        case stopEditing()
+        case startEditing
+        case stopEditing
         case display(mask: TextInputPresentableModel.Mask)
         case display(isValid: Bool)
         case display(isEnabledForEditing: Bool)
@@ -95,10 +95,10 @@ public final class TextInputOutputSpy: TextInputOutput {
         messages.append(.display(text: text))
     }
     public func startEditing() {
-        messages.append(.startEditing())
+        messages.append(.startEditing)
     }
     public func stopEditing() {
-        messages.append(.stopEditing())
+        messages.append(.stopEditing)
     }
     public func display(mask: TextInputPresentableModel.Mask) {
         capturedDisplayMask.append(mask)

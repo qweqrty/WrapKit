@@ -64,7 +64,7 @@ public final class RefreshControlOutputSpy: RefreshControlOutput {
     }
 
     // MARK: - Properties
-    var onRefresh: [(() -> Void)?]? {
+    public var onRefresh: [(() -> Void)?]? {
         didSet {
             capturedOnRefresh.append(onRefresh)
             messages.append(.setOnRefresh(onRefresh))

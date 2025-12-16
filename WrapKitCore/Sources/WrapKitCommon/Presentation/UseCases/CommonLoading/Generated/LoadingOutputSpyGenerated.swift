@@ -48,7 +48,7 @@ public final class LoadingOutputSpy: LoadingOutput {
     // Static method: NVActivityLoader(onView: UIView, type: NVActivityIndicatorType = .circleStrokeSpin, size: CGSize = .init(width: 80, height: 80), padding: UIEdgeInsets = .init(top: 25, left: 25, bottom: 25, right: 25), loadingViewColor: UIColor, wrapperViewColor: UIColor)
 
     // MARK: - Properties
-    var isLoading: Bool? {
+    public var isLoading: Bool? {
         didSet {
             capturedIsLoading.append(isLoading)
             messages.append(.setIsLoading(isLoading))

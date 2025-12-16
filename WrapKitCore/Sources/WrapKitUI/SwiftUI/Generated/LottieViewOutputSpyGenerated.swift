@@ -46,7 +46,7 @@ public final class LottieViewOutputSpy: LottieViewOutput {
     }
 
     // MARK: - Properties
-    var currentAnimationName: String? {
+    public var currentAnimationName: String? {
         didSet {
             capturedCurrentAnimationName.append(currentAnimationName)
             messages.append(.setCurrentAnimationName(currentAnimationName))

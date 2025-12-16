@@ -19,12 +19,12 @@ public final class LifeCycleViewOutputSpy: LifeCycleViewOutput {
     public init() {}
 
     public enum Message: HashableWithReflection {
-        case viewDidLoad()
-        case viewWillAppear()
-        case viewWillDisappear()
-        case viewDidAppear()
-        case viewDidDisappear()
-        case viewDidLayoutSubviews()
+        case viewDidLoad
+        case viewWillAppear
+        case viewWillDisappear
+        case viewDidAppear
+        case viewDidDisappear
+        case viewDidLayoutSubviews
         case composed(with: LifeCycleViewOutput)
         case withAnalytics(eventName: String, parameters: [String: Any], analytics: AnalyticsTracker)
     }
@@ -40,22 +40,22 @@ public final class LifeCycleViewOutputSpy: LifeCycleViewOutput {
 
     // MARK: - LifeCycleViewOutput methods
     public func viewDidLoad() {
-        messages.append(.viewDidLoad())
+        messages.append(.viewDidLoad)
     }
     public func viewWillAppear() {
-        messages.append(.viewWillAppear())
+        messages.append(.viewWillAppear)
     }
     public func viewWillDisappear() {
-        messages.append(.viewWillDisappear())
+        messages.append(.viewWillDisappear)
     }
     public func viewDidAppear() {
-        messages.append(.viewDidAppear())
+        messages.append(.viewDidAppear)
     }
     public func viewDidDisappear() {
-        messages.append(.viewDidDisappear())
+        messages.append(.viewDidDisappear)
     }
     public func viewDidLayoutSubviews() {
-        messages.append(.viewDidLayoutSubviews())
+        messages.append(.viewDidLayoutSubviews)
     }
     public func composed(with output: LifeCycleViewOutput) {
         capturedComposedOutput.append(output)
