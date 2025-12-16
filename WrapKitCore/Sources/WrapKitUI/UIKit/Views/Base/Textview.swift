@@ -213,18 +213,6 @@ extension Textview: TextInputOutput {
         self.reloadInputViews()
     }
     
-    public func display(toolbarModel: ButtonPresentableModel?) {
-        guard let toolbarModel else { return }
-        let button = Button()
-        button.display(model: toolbarModel)
-        button.onPress = { [weak self] in
-            toolbarModel.onPress?()
-            self?.endEditing(true)
-        }
-        self.inputAccessoryView = makeAccessoryView(accessoryView: button)
-        self.reloadInputViews()
-    }
-    
     public func startEditing() {
         becomeFirstResponder()
     }

@@ -257,31 +257,6 @@ public struct TextInputPresentableModel: HashableWithReflection {
 
 #if canImport(UIKit)
 import UIKit
-// TODO: remove after fixing CommunicationServicesDetailContentView
-public extension TextInputOutput {
-    func makeAccessoryView(
-        accessoryView: UIView,
-        height: CGFloat = 60,
-        constraints: ((UIView, UIView) -> [NSLayoutConstraint])? = nil
-    ) -> UIView {
-        let container = UIView(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: height))
-        container.backgroundColor = .systemGroupedBackground
-        
-        container.addSubview(accessoryView)
-        accessoryView.translatesAutoresizingMaskIntoConstraints = false
-    
-        let defaultConstraints: (UIView, UIView) -> [NSLayoutConstraint] = { container, view in
-            return [
-                view.centerYAnchor.constraint(equalTo: container.centerYAnchor),
-                view.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -16),
-                view.heightAnchor.constraint(equalToConstant: 36),
-                view.widthAnchor.constraint(equalToConstant: 80)
-            ]
-        }
-        NSLayoutConstraint.activate((constraints ?? defaultConstraints)(container, accessoryView))
-        return container
-    }
-}
 
 public extension Textfield {
     func makeAccessoryView(
