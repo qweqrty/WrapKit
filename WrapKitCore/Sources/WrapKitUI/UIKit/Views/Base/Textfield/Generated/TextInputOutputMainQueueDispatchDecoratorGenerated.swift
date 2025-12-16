@@ -157,5 +157,6 @@ extension MainQueueDispatchDecorator: TextInputOutput where T: TextInputOutput {
             self?.decoratee.display(isClearButtonActive: isClearButtonActive)
         }
     }
+
 }
 #endif
