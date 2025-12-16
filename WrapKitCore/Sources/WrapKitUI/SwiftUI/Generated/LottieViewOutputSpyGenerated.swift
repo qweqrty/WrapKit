@@ -23,7 +23,7 @@ import Lottie
 import UIKit
 #endif
 
-final class LottieViewOutputSpy: LottieViewOutput {
+public final class LottieViewOutputSpy: LottieViewOutput {
     enum Message: HashableWithReflection {
         case display(model: LottieViewPresentableModel)
         case setCurrentAnimationName(String?)

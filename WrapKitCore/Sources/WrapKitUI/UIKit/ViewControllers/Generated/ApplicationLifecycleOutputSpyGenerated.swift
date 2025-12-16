@@ -14,7 +14,7 @@ import WrapKit
 import UIKit
 #endif
 
-final class ApplicationLifecycleOutputSpy: ApplicationLifecycleOutput {
+public final class ApplicationLifecycleOutputSpy: ApplicationLifecycleOutput {
     enum Message: HashableWithReflection {
         case applicationWillEnterForeground()
         case applicationDidEnterBackground()

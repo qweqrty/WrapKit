@@ -14,7 +14,7 @@ import WrapKit
 import UIKit
 #endif
 
-final class AlertOutputSpy: AlertOutput {
+public final class AlertOutputSpy: AlertOutput {
     enum Message: HashableWithReflection {
         case showAlert(model: AlertPresentableModel?)
         case showActionSheet(model: AlertPresentableModel?)

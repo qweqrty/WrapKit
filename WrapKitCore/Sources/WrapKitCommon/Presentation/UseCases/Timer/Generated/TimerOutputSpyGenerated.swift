@@ -14,7 +14,7 @@ import WrapKit
 import Foundation
 #endif
 
-final class TimerOutputSpy: TimerOutput {
+public final class TimerOutputSpy: TimerOutput {
     enum Message: HashableWithReflection {
         case display(timerInput: TimerInput, secondsRemaining: Int?)
     }

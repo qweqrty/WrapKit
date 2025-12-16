@@ -14,7 +14,7 @@ import WrapKit
 import Foundation
 #endif
 
-final class WebViewOutputSpy: WebViewOutput {
+public final class WebViewOutputSpy: WebViewOutput {
     enum Message: HashableWithReflection {
         case display(url: URL)
         case display(refreshModel: WebViewStyle.Refresh)

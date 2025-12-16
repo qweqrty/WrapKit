@@ -20,7 +20,7 @@ import UIKit
 import Combine
 #endif
 
-final class ExpandableCardViewOutputSpy: ExpandableCardViewOutput {
+public final class ExpandableCardViewOutputSpy: ExpandableCardViewOutput {
     enum Message: HashableWithReflection {
         case display(model: Pair<CardViewPresentableModel, CardViewPresentableModel?>)
         case display(isHidden: Bool)

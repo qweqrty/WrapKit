@@ -17,7 +17,7 @@ import Foundation
 import UIKit
 #endif
 
-final class DatePickerViewOutputSpy: DatePickerViewOutput {
+public final class DatePickerViewOutputSpy: DatePickerViewOutput {
     enum Message: HashableWithReflection {
         case display(dateChanged: ((Date) -> Void)?)
         case display(date: Date)

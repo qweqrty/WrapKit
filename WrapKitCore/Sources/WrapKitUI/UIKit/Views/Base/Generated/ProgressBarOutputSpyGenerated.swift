@@ -20,7 +20,7 @@ import UIKit
 import SwiftUI
 #endif
 
-final class ProgressBarOutputSpy: ProgressBarOutput {
+public final class ProgressBarOutputSpy: ProgressBarOutput {
     enum Message: HashableWithReflection {
         case display(model: ProgressBarPresentableModel?)
         case display(progress: CGFloat)

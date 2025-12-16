@@ -17,7 +17,7 @@ import Foundation
 import UIKit
 #endif
 
-final class TextOutputSpy: TextOutput {
+public final class TextOutputSpy: TextOutput {
     enum Message: HashableWithReflection {
         case display(model: TextOutputPresentableModel?)
         case display(text: String?)

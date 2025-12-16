@@ -17,7 +17,7 @@ import Foundation
 import UIKit
 #endif
 
-final class PickerViewOutputSpy: PickerViewOutput {
+public final class PickerViewOutputSpy: PickerViewOutput {
     enum Message: HashableWithReflection {
         case display(model: PickerViewPresentableModel?)
         case display(selectedRow: PickerViewPresentableModel.SelectedRow?)

@@ -20,7 +20,7 @@ import UIKit
 import SwiftUI
 #endif
 
-final class CardViewOutputSpy: CardViewOutput {
+public final class CardViewOutputSpy: CardViewOutput {
     enum Message: HashableWithReflection {
         case display(model: CardViewPresentableModel?)
         case display(style: CardViewPresentableModel.Style?)

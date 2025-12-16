@@ -17,7 +17,7 @@ import Foundation
 import UIKit
 #endif
 
-final class ImageViewOutputSpy: ImageViewOutput {
+public final class ImageViewOutputSpy: ImageViewOutput {
     enum Message: HashableWithReflection {
         case display(model: ImageViewPresentableModel?)
         case display(image: ImageEnum?)

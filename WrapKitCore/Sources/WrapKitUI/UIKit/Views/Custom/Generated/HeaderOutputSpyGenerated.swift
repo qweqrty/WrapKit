@@ -17,7 +17,7 @@ import Foundation
 import UIKit
 #endif
 
-final class HeaderOutputSpy: HeaderOutput {
+public final class HeaderOutputSpy: HeaderOutput {
     enum Message: HashableWithReflection {
         case display(model: HeaderPresentableModel?)
         case display(style: HeaderPresentableModel.Style?)

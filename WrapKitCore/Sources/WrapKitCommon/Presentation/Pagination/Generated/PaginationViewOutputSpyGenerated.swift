@@ -17,7 +17,7 @@ import Foundation
 import Combine
 #endif
 
-final class PaginationViewOutputSpy: PaginationViewOutput {
+public final class PaginationViewOutputSpy: PaginationViewOutput {
     enum Message: HashableWithReflection {
         case display(model: [PresentableItem], hasMore: Bool)
         case display(isLoadingFirstPage: Bool)

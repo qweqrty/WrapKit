@@ -17,7 +17,7 @@ import Foundation
 import UIKit
 #endif
 
-final class TableOutputSpy: TableOutput {
+public final class TableOutputSpy: TableOutput {
     enum Message: HashableWithReflection {
         case display(sections: [TableSection<Header, Cell, Footer>])
         case display(trailingSwipeActionsForIndexPath: ((IndexPath) -> [TableContextualAction<Cell>])?)

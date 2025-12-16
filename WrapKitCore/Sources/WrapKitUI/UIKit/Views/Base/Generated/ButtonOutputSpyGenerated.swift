@@ -17,7 +17,7 @@ import Foundation
 import UIKit
 #endif
 
-final class ButtonOutputSpy: ButtonOutput {
+public final class ButtonOutputSpy: ButtonOutput {
     enum Message: HashableWithReflection {
         case display(model: ButtonPresentableModel?)
         case display(enabled: Bool)

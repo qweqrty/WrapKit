@@ -14,7 +14,7 @@ import WrapKit
 import Foundation
 #endif
 
-final class CommonToastOutputSpy: CommonToastOutput {
+public final class CommonToastOutputSpy: CommonToastOutput {
     enum Message: HashableWithReflection {
         case display(_ : CommonToast)
         case hide()

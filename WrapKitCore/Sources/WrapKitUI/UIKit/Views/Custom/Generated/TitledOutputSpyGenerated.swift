@@ -17,7 +17,7 @@ import UIKit
 import SwiftUI
 #endif
 
-final class TitledOutputSpy: TitledOutput {
+public final class TitledOutputSpy: TitledOutput {
     enum Message: HashableWithReflection {
         case display(model: TitledViewPresentableModel?)
         case display(titles: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>)

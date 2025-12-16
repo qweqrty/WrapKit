@@ -14,7 +14,7 @@ import WrapKit
 import Foundation
 #endif
 
-final class SelectionOutputSpy: SelectionOutput {
+public final class SelectionOutputSpy: SelectionOutput {
     enum Message: HashableWithReflection {
         case display(items: [TableSection<Void, SelectionType.SelectionCellPresentableModel, Void>], selectedCountTitle: String)
         case display(shouldShowSearchBar: Bool)

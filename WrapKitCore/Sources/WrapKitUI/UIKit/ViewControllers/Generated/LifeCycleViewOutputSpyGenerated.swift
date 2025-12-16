@@ -14,7 +14,7 @@ import WrapKit
 import UIKit
 #endif
 
-final class LifeCycleViewOutputSpy: LifeCycleViewOutput {
+public final class LifeCycleViewOutputSpy: LifeCycleViewOutput {
     enum Message: HashableWithReflection {
         case viewDidLoad()
         case viewWillAppear()

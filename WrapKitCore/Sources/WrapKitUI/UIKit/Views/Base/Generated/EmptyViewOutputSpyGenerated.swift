@@ -17,7 +17,7 @@ import Foundation
 import UIKit
 #endif
 
-final class EmptyViewOutputSpy: EmptyViewOutput {
+public final class EmptyViewOutputSpy: EmptyViewOutput {
     enum Message: HashableWithReflection {
         case display(model: EmptyViewPresentableModel?)
         case display(title: TextOutputPresentableModel?)

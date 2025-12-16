@@ -17,7 +17,7 @@ import SwiftUI
 import UIKit
 #endif
 
-final class HiddableOutputSpy: HiddableOutput {
+public final class HiddableOutputSpy: HiddableOutput {
     enum Message: HashableWithReflection {
         case display(isHidden: Bool)
     }
