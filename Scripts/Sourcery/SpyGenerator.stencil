@@ -16,7 +16,12 @@ import {{ importName }}
 #endif
 {% endfor %}
 
+
+{% if type.associatedTypes.count > 0 %}
+public class {{ type.name }}Spy{% for associatedType in type.associatedTypes|sortedValuesByKeys %}{% if forloop.first %}<{% endif %}{{ associatedType.name }}: {{ associatedType.typeName }}{% if not forloop.last %}{% if type.associatedTypes.count > 1 %},{% endif %}{% endif %}{% if forloop.last %}>{% endif %}{% endfor %}: {{ type.name }} {
+{% else %}
 public final class {{ type.name }}Spy: {{ type.name }} {
+{% endif %}
 
     public init() {}
 

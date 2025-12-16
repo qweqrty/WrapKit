@@ -23,6 +23,7 @@ import Lottie
 import UIKit
 #endif
 
+
 public final class LottieViewOutputSpy: LottieViewOutput {
 
     public init() {}

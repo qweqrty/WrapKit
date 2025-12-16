@@ -17,7 +17,8 @@ import Foundation
 import Combine
 #endif
 
-public final class PaginationViewOutputSpy: PaginationViewOutput {
+
+public class PaginationViewOutputSpy<PresentableItem: Any>: PaginationViewOutput {
 
     public init() {}
 

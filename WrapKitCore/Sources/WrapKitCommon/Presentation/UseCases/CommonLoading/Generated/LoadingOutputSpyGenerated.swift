@@ -17,6 +17,7 @@ import Foundation
 import UIKit
 #endif
 
+
 public final class LoadingOutputSpy: LoadingOutput {
 
     public init() {}

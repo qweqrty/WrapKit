@@ -14,6 +14,7 @@ import WrapKit
 import Foundation
 #endif
 
+
 public final class CommonToastOutputSpy: CommonToastOutput {
 
     public init() {}

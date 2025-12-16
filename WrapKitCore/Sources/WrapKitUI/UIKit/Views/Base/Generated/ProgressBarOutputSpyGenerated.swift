@@ -20,6 +20,7 @@ import UIKit
 import SwiftUI
 #endif
 
+
 public final class ProgressBarOutputSpy: ProgressBarOutput {
 
     public init() {}

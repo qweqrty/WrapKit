@@ -14,6 +14,7 @@ import WrapKit
 import Foundation
 #endif
 
+
 public final class WebViewOutputSpy: WebViewOutput {
 
     public init() {}

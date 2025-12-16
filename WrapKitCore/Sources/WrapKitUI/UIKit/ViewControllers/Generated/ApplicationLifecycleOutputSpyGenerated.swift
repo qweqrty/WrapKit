@@ -14,6 +14,7 @@ import WrapKit
 import UIKit
 #endif
 
+
 public final class ApplicationLifecycleOutputSpy: ApplicationLifecycleOutput {
 
     public init() {}

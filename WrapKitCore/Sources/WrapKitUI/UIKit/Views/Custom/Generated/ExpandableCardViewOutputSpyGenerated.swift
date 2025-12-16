@@ -20,6 +20,7 @@ import UIKit
 import Combine
 #endif
 
+
 public final class ExpandableCardViewOutputSpy: ExpandableCardViewOutput {
 
     public init() {}
