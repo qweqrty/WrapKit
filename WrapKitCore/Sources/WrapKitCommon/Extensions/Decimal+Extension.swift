@@ -32,6 +32,18 @@ public extension Decimal {
         nsDecimal.intValue
     }
     
+    var roundedDouble: Double {
+        let string = nsDecimal.stringValue
+        return Double(string) ?? doubleValue
+    }
+    
+    func rounded(withDecimalPlaces count: Int = 2) -> Decimal {
+        var rounded = self
+        var original = self
+        NSDecimalRound(&rounded, &original, count, .down)
+        return rounded
+    }
+    
     func asString(
         withDecimalPlaces count: Int = 0,
         decimalSeparator: String? = nil,
