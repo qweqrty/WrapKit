@@ -19,6 +19,15 @@ public extension ImageView {
     
     private func handleImage(_ image: ImageEnum?, kingfisherOptions: KingfisherOptionsInfo = [], closure: ((Image?) -> Void)? = nil) {
         currentImageEnum = image
+        
+        if image == nil {
+            kf.cancelDownloadTask()
+            cancelCurrentAnimation()
+            self.image = nil
+            closure?(nil)
+            return
+        }
+        
         switch image {
         case .asset(let image):
             self.animatedSet(image, closure: closure)
@@ -35,6 +44,9 @@ public extension ImageView {
             }
             self.animatedSet(UIImage(data: data), closure: closure)
         case .none:
+            kf.cancelDownloadTask()
+            cancelCurrentAnimation()
+            self.image = nil
             closure?(nil)
         }
     }
@@ -44,34 +56,45 @@ public extension ImageView {
             animatedSet(wrongUrlPlaceholderImage, closure: nil)
             return
         }
+        
+        kf.cancelDownloadTask()
+        
         if let fallbackView {
             fallbackView.isHidden = true
         }
         viewWhileLoadingView?.isHidden = false
-        KingfisherManager.shared.cache.retrieveImage(forKey: url.absoluteString, options: [.callbackQueue(.mainCurrentOrAsync)]) { [weak self] result in
+        
+        let loadingURL = url
+        
+        KingfisherManager.shared.retrieveImage(
+            with: url,
+            options: [.callbackQueue(.mainCurrentOrAsync), .forceRefresh] + kingfisherOptions
+        ) { [weak self] result in
+            guard let self = self else { return }
+            
+            let isCurrentURL: Bool = {
+                switch self.currentImageEnum {
+                case .url(let lightUrl, let darkUrl):
+                    return loadingURL == lightUrl || loadingURL == darkUrl
+                case .urlString(let lightString, let darkString):
+                    let lightURL = lightString.flatMap { URL(string: $0) }
+                    let darkURL = darkString.flatMap { URL(string: $0) }
+                    return loadingURL == lightURL || loadingURL == darkURL
+                case .asset, .data, .none:
+                    return false
+                }
+            }()
+            
+            guard isCurrentURL else {
+                return
+            }
+            
             switch result {
             case .success(let image):
-                self?.animatedSet(image.image, closure: closure)
-
-                KingfisherManager.shared.retrieveImage(with: url, options: [.callbackQueue(.mainCurrentOrAsync), .forceRefresh] + kingfisherOptions) { [weak self, url] result in
-                    switch result {
-                    case .success(let image):
-                        self?.animatedSet(image.image, closure: closure)
-                    case .failure:
-                        self?.showFallbackView(url)
-                        closure?(nil)
-                    }
-                }
-            case.failure:
-                KingfisherManager.shared.retrieveImage(with: url, options: [.callbackQueue(.mainCurrentOrAsync)] + kingfisherOptions) { [weak self, url] result in
-                    switch result {
-                    case .success(let image):
-                        self?.animatedSet(image.image, closure: closure)
-                    case .failure:
-                        self?.showFallbackView(url)
-                        closure?(nil)
-                    }
-                }
+                self.animatedSet(image.image, closure: closure)
+            case .failure:
+                self.showFallbackView(loadingURL)
+                closure?(nil)
             }
         }
     }
