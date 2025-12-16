@@ -38,6 +38,7 @@ public indirect enum TextOutputPresentableModel: HashableWithReflection {
         duration: TimeInterval,
         completion: (() -> Void)?
     )
+    @available(*, deprecated, message: "Animated double is going to be deprecated. Use animatedDecimal instead")
     case animated(
         id: String? = nil,
         Double,

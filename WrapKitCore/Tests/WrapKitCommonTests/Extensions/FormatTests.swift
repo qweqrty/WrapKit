@@ -1,7 +1,7 @@
 import Foundation
 import XCTest
 
-final class DoubleFormattingTests: XCTestCase {
+final class DecimalFormattingTests: XCTestCase {
     func testOne() {
         assertDecimal(Decimal.leastNonzeroMagnitude, "0.00")
         assertDecimal(Decimal.nan, "nan")
@@ -37,7 +37,7 @@ final class DoubleFormattingTests: XCTestCase {
         assertDecimal("1.34", "1.34")
         assertDecimal("0.73", "0.73")
         assertDecimal("80.779750000000007", "80.77")
-        assertDecimal("79.879999999999995", "79.87") // Decimal bug
+        assertDecimal("79.879999999999995", "79.87")
         assertDecimal("80.780000000000001", "80.78")
         assertDecimal("79.87572", "79.87")
         assertDecimal("123.56", "123.56")
@@ -45,14 +45,14 @@ final class DoubleFormattingTests: XCTestCase {
         assertDecimal("1231", withDecimalPlaces: 2, "1,231.00")
         assertDecimal("1231.56", "1,231.56")
         assertDecimal("1234.28", "1,234.28")
-        assertDecimal("0.9999999999999999", "0.99")  // Decimal bug
-        assertDecimal("-79.879999999999995", "-79.87")  // Decimal bug
+        assertDecimal("0.9999999999999999", "0.99")
+        assertDecimal("-79.879999999999995", "-79.87")
         assertDecimal("1.0000000000000001", withDecimalPlaces: 2, "1.00")
         assertDecimal("0.005", "0.00")
         assertDecimal("0.0051", "0.00")
         assertDecimal("9.995", "9.99")
         assertDecimal("9.9951", "9.99")
-        assertDecimal("-79.879999999999995", "-79.87")  // Decimal bug
+        assertDecimal("-79.879999999999995", "-79.87")
         assertDecimal("1234.999", "1,234.99")
         assertDecimal("1234.9999", "1,234.99")
         assertDecimal("1234.99999", "1,234.99")
@@ -74,7 +74,7 @@ final class DoubleFormattingTests: XCTestCase {
         assertDecimal("1231.56", withDecimalPlaces: 2, locale: deLocale, "1.231,56")
         assertDecimal("999999.99", withDecimalPlaces: 2, locale: deLocale, "999.999,99")
         assertDecimal("1231.999999", withDecimalPlaces: 0, "1,231")
-        assertDecimal("0.49999999999999994", "0.49")  // Decimal bug
+        assertDecimal("0.49999999999999994", "0.49")
         assertDecimal("0.5", "0.50")
         assertDecimal("0.001234", withDecimalPlaces: 5, locale: Locale(identifier: "en_US"), "0.00123")
         
@@ -103,9 +103,16 @@ final class DoubleFormattingTests: XCTestCase {
         assertDecimal("1.0", "1.00")
         
         assertDecimal("1234567890123.45", "1,234,567,890,123.45")
+        assertDecimal("1.123456789012345678901234567890123456789", withDecimalPlaces: 10, "1.1234567890")
+
 //        XCTAssertEqual(Double.greatestFiniteMagnitude.asString(withDecimalPlaces: 2), String(format: "%.2f", Double.greatestFiniteMagnitude))
         assertDecimal("123.456789", withDecimalPlaces: 10, "123.4567890000")
         assertDecimal("1234567890123456789.99", "1,234,567,890,123,456,789.99")
+        assertDecimal(Decimal(Double(0.1)), "0.10")
+        assertDecimal(Decimal(Double(0.9999999999999998)), "0.99")
+        assertDecimal(Decimal(Double(2.675)), "2.67") // classic banker's rounding case
+        assertDecimal(Decimal(-0.000001), withDecimalPlaces: 2, "0.00")
+
 //        let arLocale = Locale(identifier: "ar_SA")
 //        assertDecimal("1231.56", withDecimalPlaces: 2, locale: arLocale, "1٬231.56") // Check actual separators
     }
@@ -169,7 +176,6 @@ final class DoubleFormattingTests: XCTestCase {
     }
     // Test: NaN value should return a string representation of NaN
     func testNaNDecimal() {
-        let value = Decimal.nan
         assertDecimal(.nan, withDecimalPlaces: 2, locale: Locale(identifier: "en_US"), String(Double.nan))
     }
     

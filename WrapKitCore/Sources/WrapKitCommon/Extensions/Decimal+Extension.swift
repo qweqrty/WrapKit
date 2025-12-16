@@ -61,7 +61,7 @@ public extension Decimal {
         locale: Locale = .current
     ) -> String {
         if self.isNaN { return String(Double.nan) }
-        // Format integer part with grouping according to locale
+
         let formatter = NumberFormatter()
         formatter.locale = locale
         formatter.numberStyle = .decimal
@@ -69,14 +69,25 @@ public extension Decimal {
         formatter.maximumFractionDigits = maximumFractionDigits
         formatter.roundingMode = .down // truncate
         formatter.usesGroupingSeparator = true
-        if let groupingSeparator {
-            formatter.groupingSeparator = groupingSeparator
-        }
-        if let decimalSeparator {
-            formatter.decimalSeparator = decimalSeparator
-        }
+        if let groupingSeparator { formatter.groupingSeparator = groupingSeparator }
+        if let decimalSeparator { formatter.decimalSeparator = decimalSeparator }
         formatter.groupingSize = 3
         
-        return formatter.string(from: NSDecimalNumber(decimal: self)) ?? String(format: "%.\(minimumFractionDigits)f", NSDecimalNumber(decimal: self))
+        let number = NSDecimalNumber(decimal: self)
+        let formatted = formatter.string(from: number)
+            ?? String(format: "%.\(minimumFractionDigits)f", number.doubleValue)
+
+        // ---- FIX NEGATIVE ZERO ----
+        // Strip the minus if value is actually zero
+        if formatted.hasPrefix("-") {
+            // Detect: "-0", "-0.0", "-0.00", "-0.000000"
+            let noMinus = String(formatted.dropFirst())
+            if let numeric = Decimal(string: noMinus), numeric == 0 {
+                return noMinus // return "0.xx" without minus
+            }
+        }
+
+        return formatted
     }
+
 }

@@ -147,9 +147,9 @@ extension MainQueueDispatchDecorator: TextInputOutput where T: TextInputOutput {
             self?.decoratee.display(trailingSymbol: trailingSymbol)
         }
     }
-    public func display(toolbarModel: ButtonPresentableModel?) {
+    public func display(inputAccessoryView: TextInputPresentableModel.AccessoryViewPresentableModel?) {
         dispatch { [weak self] in
-            self?.decoratee.display(toolbarModel: toolbarModel)
+            self?.decoratee.display(inputAccessoryView: inputAccessoryView)
         }
     }
     public func display(isClearButtonActive: Bool) {
