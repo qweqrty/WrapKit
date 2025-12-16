@@ -4,12 +4,7 @@
 // swiftlint:disable all
 // swift-format-ignore-file
 // swiftformat:disable all
-#if canImport(XCTest)
-import XCTest
-#endif
-#if canImport(WrapKit)
-import WrapKit
-#endif
+
 #if canImport(Foundation)
 import Foundation
 #endif
@@ -22,7 +17,6 @@ import Lottie
 #if canImport(UIKit)
 import UIKit
 #endif
-
 
 public final class LottieViewOutputSpy: LottieViewOutput {
 

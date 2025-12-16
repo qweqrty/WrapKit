@@ -4,18 +4,12 @@
 // swiftlint:disable all
 // swift-format-ignore-file
 // swiftformat:disable all
-#if canImport(XCTest)
-import XCTest
-#endif
-#if canImport(WrapKit)
-import WrapKit
-#endif
+
 {% for importName in type.allImports %}
 #if canImport({{ importName }})
 import {{ importName }}
 #endif
 {% endfor %}
-
 
 {% if type.associatedTypes.count > 0 %}
 public class {{ type.name }}Spy{% for associatedType in type.associatedTypes|sortedValuesByKeys %}{% if forloop.first %}<{% endif %}{{ associatedType.name }}: {{ associatedType.typeName }}{% if not forloop.last %}{% if type.associatedTypes.count > 1 %},{% endif %}{% endif %}{% if forloop.last %}>{% endif %}{% endfor %}: {{ type.name }} {
