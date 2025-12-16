@@ -245,13 +245,13 @@ public class TextInputOutputSwiftUIAdapter: ObservableObject, TextInputOutput {
             trailingSymbol: trailingSymbol
         )
     }
-    @Published public var displayToolbarModelState: DisplayToolbarModelState? = nil
-    public struct DisplayToolbarModelState {
-        public let toolbarModel: ButtonPresentableModel?
+    @Published public var displayInputAccessoryViewState: DisplayInputAccessoryViewState? = nil
+    public struct DisplayInputAccessoryViewState {
+        public let inputAccessoryView: TextInputPresentableModel.AccessoryViewPresentableModel?
     }
-    public func display(toolbarModel: ButtonPresentableModel?) {
-        displayToolbarModelState = .init(
-            toolbarModel: toolbarModel
+    public func display(inputAccessoryView: TextInputPresentableModel.AccessoryViewPresentableModel?) {
+        displayInputAccessoryViewState = .init(
+            inputAccessoryView: inputAccessoryView
         )
     }
     @Published public var displayIsClearButtonActiveState: DisplayIsClearButtonActiveState? = nil

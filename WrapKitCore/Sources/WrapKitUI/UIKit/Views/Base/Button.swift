@@ -58,6 +58,7 @@ public protocol ButtonOutput: AnyObject {
 
 public struct ButtonPresentableModel {
     public let height: CGFloat?
+    public let width: CGFloat?
     public let title: String?
     public let image: Image?
     public let spacing: CGFloat?
@@ -70,6 +71,7 @@ public struct ButtonPresentableModel {
         image: Image? = nil,
         spacing: CGFloat? = nil,
         height: CGFloat? = nil,
+        width: CGFloat? = nil,
         style: ButtonStyle? = nil,
         enabled: Bool? = nil,
         onPress: (() -> Void)? = nil
@@ -79,6 +81,7 @@ public struct ButtonPresentableModel {
         self.onPress = onPress
         self.title = title
         self.height = height
+        self.width = width
         self.style = style
         self.enabled = enabled
     }
