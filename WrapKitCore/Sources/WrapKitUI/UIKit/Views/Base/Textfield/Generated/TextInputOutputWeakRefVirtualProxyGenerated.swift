@@ -97,8 +97,8 @@ extension WeakRefVirtualProxy: TextInputOutput where T: TextInputOutput {
     public func display(trailingSymbol: String?) {
         object?.display(trailingSymbol: trailingSymbol)
     }
-    public func display(toolbarModel: ButtonPresentableModel?) {
-        object?.display(toolbarModel: toolbarModel)
+    public func display(inputAccessoryView: TextInputPresentableModel.AccessoryViewPresentableModel?) {
+        object?.display(inputAccessoryView: inputAccessoryView)
     }
     public func display(isClearButtonActive: Bool) {
         object?.display(isClearButtonActive: isClearButtonActive)
