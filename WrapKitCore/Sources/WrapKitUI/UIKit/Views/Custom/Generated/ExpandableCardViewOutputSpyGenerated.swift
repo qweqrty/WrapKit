@@ -34,11 +34,11 @@ public final class ExpandableCardViewOutputSpy: ExpandableCardViewOutput {
 
 
     // MARK: - ExpandableCardViewOutput methods
-    func display(model: Pair<CardViewPresentableModel, CardViewPresentableModel?>) {
+    public func display(model: Pair<CardViewPresentableModel, CardViewPresentableModel?>) {
         capturedDisplayModel.append(model)
         messages.append(.display(model: model))
     }
-    func display(isHidden: Bool) {
+    public func display(isHidden: Bool) {
         capturedDisplayIsHidden.append(isHidden)
         messages.append(.display(isHidden: isHidden))
     }

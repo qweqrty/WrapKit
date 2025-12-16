@@ -41,31 +41,31 @@ public final class StackViewOutputSpy: StackViewOutput {
 
 
     // MARK: - StackViewOutput methods
-    func display(model: StackViewPresentableModel) {
+    public func display(model: StackViewPresentableModel) {
         capturedDisplayModel.append(model)
         messages.append(.display(model: model))
     }
-    func display(spacing: CGFloat?) {
+    public func display(spacing: CGFloat?) {
         capturedDisplaySpacing.append(spacing)
         messages.append(.display(spacing: spacing))
     }
-    func display(axis: StackViewAxis) {
+    public func display(axis: StackViewAxis) {
         capturedDisplayAxis.append(axis)
         messages.append(.display(axis: axis))
     }
-    func display(distribution: StackViewDistribution) {
+    public func display(distribution: StackViewDistribution) {
         capturedDisplayDistribution.append(distribution)
         messages.append(.display(distribution: distribution))
     }
-    func display(alignment: StackViewAlignment) {
+    public func display(alignment: StackViewAlignment) {
         capturedDisplayAlignment.append(alignment)
         messages.append(.display(alignment: alignment))
     }
-    func display(layoutMargins: EdgeInsets) {
+    public func display(layoutMargins: EdgeInsets) {
         capturedDisplayLayoutMargins.append(layoutMargins)
         messages.append(.display(layoutMargins: layoutMargins))
     }
-    func display(isHidden: Bool) {
+    public func display(isHidden: Bool) {
         capturedDisplayIsHidden.append(isHidden)
         messages.append(.display(isHidden: isHidden))
     }

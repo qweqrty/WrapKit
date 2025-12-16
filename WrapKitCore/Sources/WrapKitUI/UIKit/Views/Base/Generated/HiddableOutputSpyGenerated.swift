@@ -29,7 +29,7 @@ public final class HiddableOutputSpy: HiddableOutput {
 
 
     // MARK: - HiddableOutput methods
-    func display(isHidden: Bool) {
+    public func display(isHidden: Bool) {
         capturedDisplayIsHidden.append(isHidden)
         messages.append(.display(isHidden: isHidden))
     }

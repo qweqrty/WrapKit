@@ -37,7 +37,7 @@ public final class LottieViewOutputSpy: LottieViewOutput {
     private(set) var capturedCurrentAnimationName: [String?] = []
 
     // MARK: - LottieViewOutput methods
-    func display(model: LottieViewPresentableModel) {
+    public func display(model: LottieViewPresentableModel) {
         capturedDisplayModel.append(model)
         messages.append(.display(model: model))
     }

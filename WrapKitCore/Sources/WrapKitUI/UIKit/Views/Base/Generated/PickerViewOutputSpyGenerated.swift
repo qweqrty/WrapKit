@@ -39,11 +39,11 @@ public final class PickerViewOutputSpy: PickerViewOutput {
     private(set) var capturedDidSelectAt: [((Int) -> Void)?] = []
 
     // MARK: - PickerViewOutput methods
-    func display(model: PickerViewPresentableModel?) {
+    public func display(model: PickerViewPresentableModel?) {
         capturedDisplayModel.append(model)
         messages.append(.display(model: model))
     }
-    func display(selectedRow: PickerViewPresentableModel.SelectedRow?) {
+    public func display(selectedRow: PickerViewPresentableModel.SelectedRow?) {
         capturedDisplaySelectedRow.append(selectedRow)
         messages.append(.display(selectedRow: selectedRow))
     }

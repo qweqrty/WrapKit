@@ -30,15 +30,15 @@ public final class AlertOutputSpy: AlertOutput {
 
 
     // MARK: - AlertOutput methods
-    func showAlert(model: AlertPresentableModel?) {
+    public func showAlert(model: AlertPresentableModel?) {
         capturedShowAlertModel.append(model)
         messages.append(.showAlert(model: model))
     }
-    func showActionSheet(model: AlertPresentableModel?) {
+    public func showActionSheet(model: AlertPresentableModel?) {
         capturedShowActionSheetModel.append(model)
         messages.append(.showActionSheet(model: model))
     }
-    func showTextFieldAlert(model: AlertPresentableModel?) {
+    public func showTextFieldAlert(model: AlertPresentableModel?) {
         capturedShowTextFieldAlertModel.append(model)
         messages.append(.showTextFieldAlert(model: model))
     }

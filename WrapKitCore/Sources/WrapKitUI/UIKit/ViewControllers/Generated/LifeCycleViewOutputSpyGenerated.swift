@@ -36,29 +36,29 @@ public final class LifeCycleViewOutputSpy: LifeCycleViewOutput {
 
 
     // MARK: - LifeCycleViewOutput methods
-    func viewDidLoad() {
+    public func viewDidLoad() {
         messages.append(.viewDidLoad())
     }
-    func viewWillAppear() {
+    public func viewWillAppear() {
         messages.append(.viewWillAppear())
     }
-    func viewWillDisappear() {
+    public func viewWillDisappear() {
         messages.append(.viewWillDisappear())
     }
-    func viewDidAppear() {
+    public func viewDidAppear() {
         messages.append(.viewDidAppear())
     }
-    func viewDidDisappear() {
+    public func viewDidDisappear() {
         messages.append(.viewDidDisappear())
     }
-    func viewDidLayoutSubviews() {
+    public func viewDidLayoutSubviews() {
         messages.append(.viewDidLayoutSubviews())
     }
-    func composed(with output: LifeCycleViewOutput) {
+    public func composed(with output: LifeCycleViewOutput) {
         capturedComposedOutput.append(output)
         messages.append(.composed(with: output))
     }
-    func withAnalytics(eventName: String, parameters: [String: Any], analytics: AnalyticsTracker) {
+    public func withAnalytics(eventName: String, parameters: [String: Any], analytics: AnalyticsTracker) {
         capturedWithAnalyticsEventName.append(eventName)
         capturedWithAnalyticsParameters.append(parameters)
         capturedWithAnalyticsAnalytics.append(analytics)

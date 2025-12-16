@@ -43,19 +43,19 @@ public final class TextOutputSpy: TextOutput {
 
 
     // MARK: - TextOutput methods
-    func display(model: TextOutputPresentableModel?) {
+    public func display(model: TextOutputPresentableModel?) {
         capturedDisplayModel.append(model)
         messages.append(.display(model: model))
     }
-    func display(text: String?) {
+    public func display(text: String?) {
         capturedDisplayText.append(text)
         messages.append(.display(text: text))
     }
-    func display(attributes: [TextAttributes]) {
+    public func display(attributes: [TextAttributes]) {
         capturedDisplayAttributes.append(attributes)
         messages.append(.display(attributes: attributes))
     }
-    func display(id: String?, from startAmount: Double, to endAmount: Double, mapToString: ((Double) -> TextOutputPresentableModel)?, animationStyle: LabelAnimationStyle, duration: TimeInterval, completion: (() -> Void)?) {
+    public func display(id: String?, from startAmount: Double, to endAmount: Double, mapToString: ((Double) -> TextOutputPresentableModel)?, animationStyle: LabelAnimationStyle, duration: TimeInterval, completion: (() -> Void)?) {
         capturedDisplayId.append(id)
         capturedDisplayStartAmount.append(startAmount)
         capturedDisplayEndAmount.append(endAmount)
@@ -65,7 +65,7 @@ public final class TextOutputSpy: TextOutput {
         capturedDisplayCompletion.append(completion)
         messages.append(.display(id: id, from: startAmount, to: endAmount, mapToString: mapToString, animationStyle: animationStyle, duration: duration, completion: completion))
     }
-    func display(isHidden: Bool) {
+    public func display(isHidden: Bool) {
         capturedDisplayIsHidden.append(isHidden)
         messages.append(.display(isHidden: isHidden))
     }

@@ -38,19 +38,19 @@ public final class ProgressBarOutputSpy: ProgressBarOutput {
 
 
     // MARK: - ProgressBarOutput methods
-    func display(model: ProgressBarPresentableModel?) {
+    public func display(model: ProgressBarPresentableModel?) {
         capturedDisplayModel.append(model)
         messages.append(.display(model: model))
     }
-    func display(progress: CGFloat) {
+    public func display(progress: CGFloat) {
         capturedDisplayProgress.append(progress)
         messages.append(.display(progress: progress))
     }
-    func display(style: ProgressBarStyle?) {
+    public func display(style: ProgressBarStyle?) {
         capturedDisplayStyle.append(style)
         messages.append(.display(style: style))
     }
-    func display(isHidden: Bool) {
+    public func display(isHidden: Bool) {
         capturedDisplayIsHidden.append(isHidden)
         messages.append(.display(isHidden: isHidden))
     }

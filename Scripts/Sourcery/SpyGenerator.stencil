@@ -44,7 +44,7 @@ public final class {{ type.name }}Spy: {{ type.name }} {
     {% if method.isStatic %}
     // Static method: {{ method.name }}
     {% else %}
-    func {{ method.name }} {
+    public func {{ method.name }} {
         {% for param in method.parameters %}
         captured{{ method.callName|upperFirstLetter }}{{ param.name|upperFirstLetter }}.append({{ param.name }})
         {% endfor %}

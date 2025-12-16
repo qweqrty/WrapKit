@@ -32,19 +32,19 @@ public final class WebViewOutputSpy: WebViewOutput {
 
 
     // MARK: - WebViewOutput methods
-    func display(url: URL) {
+    public func display(url: URL) {
         capturedDisplayUrl.append(url)
         messages.append(.display(url: url))
     }
-    func display(refreshModel: WebViewStyle.Refresh) {
+    public func display(refreshModel: WebViewStyle.Refresh) {
         capturedDisplayRefreshModel.append(refreshModel)
         messages.append(.display(refreshModel: refreshModel))
     }
-    func display(backgroundColor: Color?) {
+    public func display(backgroundColor: Color?) {
         capturedDisplayBackgroundColor.append(backgroundColor)
         messages.append(.display(backgroundColor: backgroundColor))
     }
-    func display(isProgressBarNeeded: Bool) {
+    public func display(isProgressBarNeeded: Bool) {
         capturedDisplayIsProgressBarNeeded.append(isProgressBarNeeded)
         messages.append(.display(isProgressBarNeeded: isProgressBarNeeded))
     }

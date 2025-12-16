@@ -38,24 +38,24 @@ public final class PaginationViewOutputSpy: PaginationViewOutput {
 
 
     // MARK: - PaginationViewOutput methods
-    func display(model: [PresentableItem], hasMore: Bool) {
+    public func display(model: [PresentableItem], hasMore: Bool) {
         capturedDisplayModel.append(model)
         capturedDisplayHasMore.append(hasMore)
         messages.append(.display(model: model, hasMore: hasMore))
     }
-    func display(isLoadingFirstPage: Bool) {
+    public func display(isLoadingFirstPage: Bool) {
         capturedDisplayIsLoadingFirstPage.append(isLoadingFirstPage)
         messages.append(.display(isLoadingFirstPage: isLoadingFirstPage))
     }
-    func display(isLoadingSubsequentPage: Bool) {
+    public func display(isLoadingSubsequentPage: Bool) {
         capturedDisplayIsLoadingSubsequentPage.append(isLoadingSubsequentPage)
         messages.append(.display(isLoadingSubsequentPage: isLoadingSubsequentPage))
     }
-    func display(errorAtFirstPage: ServiceError) {
+    public func display(errorAtFirstPage: ServiceError) {
         capturedDisplayErrorAtFirstPage.append(errorAtFirstPage)
         messages.append(.display(errorAtFirstPage: errorAtFirstPage))
     }
-    func display(errorAtSubsequentPage: ServiceError) {
+    public func display(errorAtSubsequentPage: ServiceError) {
         capturedDisplayErrorAtSubsequentPage.append(errorAtSubsequentPage)
         messages.append(.display(errorAtSubsequentPage: errorAtSubsequentPage))
     }

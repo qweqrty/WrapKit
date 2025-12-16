@@ -43,35 +43,35 @@ public final class HeaderOutputSpy: HeaderOutput {
 
 
     // MARK: - HeaderOutput methods
-    func display(model: HeaderPresentableModel?) {
+    public func display(model: HeaderPresentableModel?) {
         capturedDisplayModel.append(model)
         messages.append(.display(model: model))
     }
-    func display(style: HeaderPresentableModel.Style?) {
+    public func display(style: HeaderPresentableModel.Style?) {
         capturedDisplayStyle.append(style)
         messages.append(.display(style: style))
     }
-    func display(centerView: HeaderPresentableModel.CenterView?) {
+    public func display(centerView: HeaderPresentableModel.CenterView?) {
         capturedDisplayCenterView.append(centerView)
         messages.append(.display(centerView: centerView))
     }
-    func display(leadingCard: CardViewPresentableModel?) {
+    public func display(leadingCard: CardViewPresentableModel?) {
         capturedDisplayLeadingCard.append(leadingCard)
         messages.append(.display(leadingCard: leadingCard))
     }
-    func display(primeTrailingImage: ButtonPresentableModel?) {
+    public func display(primeTrailingImage: ButtonPresentableModel?) {
         capturedDisplayPrimeTrailingImage.append(primeTrailingImage)
         messages.append(.display(primeTrailingImage: primeTrailingImage))
     }
-    func display(secondaryTrailingImage: ButtonPresentableModel?) {
+    public func display(secondaryTrailingImage: ButtonPresentableModel?) {
         capturedDisplaySecondaryTrailingImage.append(secondaryTrailingImage)
         messages.append(.display(secondaryTrailingImage: secondaryTrailingImage))
     }
-    func display(tertiaryTrailingImage: ButtonPresentableModel?) {
+    public func display(tertiaryTrailingImage: ButtonPresentableModel?) {
         capturedDisplayTertiaryTrailingImage.append(tertiaryTrailingImage)
         messages.append(.display(tertiaryTrailingImage: tertiaryTrailingImage))
     }
-    func display(isHidden: Bool) {
+    public func display(isHidden: Bool) {
         capturedDisplayIsHidden.append(isHidden)
         messages.append(.display(isHidden: isHidden))
     }

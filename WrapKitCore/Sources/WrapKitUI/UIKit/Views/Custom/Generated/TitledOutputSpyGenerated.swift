@@ -41,31 +41,31 @@ public final class TitledOutputSpy: TitledOutput {
 
 
     // MARK: - TitledOutput methods
-    func display(model: TitledViewPresentableModel?) {
+    public func display(model: TitledViewPresentableModel?) {
         capturedDisplayModel.append(model)
         messages.append(.display(model: model))
     }
-    func display(titles: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>) {
+    public func display(titles: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>) {
         capturedDisplayTitles.append(titles)
         messages.append(.display(titles: titles))
     }
-    func display(bottomTitles: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>) {
+    public func display(bottomTitles: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>) {
         capturedDisplayBottomTitles.append(bottomTitles)
         messages.append(.display(bottomTitles: bottomTitles))
     }
-    func display(leadingBottomTitle: TextOutputPresentableModel?) {
+    public func display(leadingBottomTitle: TextOutputPresentableModel?) {
         capturedDisplayLeadingBottomTitle.append(leadingBottomTitle)
         messages.append(.display(leadingBottomTitle: leadingBottomTitle))
     }
-    func display(trailingBottomTitle: TextOutputPresentableModel?) {
+    public func display(trailingBottomTitle: TextOutputPresentableModel?) {
         capturedDisplayTrailingBottomTitle.append(trailingBottomTitle)
         messages.append(.display(trailingBottomTitle: trailingBottomTitle))
     }
-    func display(isUserInteractionEnabled: Bool) {
+    public func display(isUserInteractionEnabled: Bool) {
         capturedDisplayIsUserInteractionEnabled.append(isUserInteractionEnabled)
         messages.append(.display(isUserInteractionEnabled: isUserInteractionEnabled))
     }
-    func display(isHidden: Bool) {
+    public func display(isHidden: Bool) {
         capturedDisplayIsHidden.append(isHidden)
         messages.append(.display(isHidden: isHidden))
     }

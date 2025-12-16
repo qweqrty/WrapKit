@@ -31,11 +31,11 @@ public final class SegmentedControlOutputSpy: SegmentedControlOutput {
 
 
     // MARK: - SegmentedControlOutput methods
-    func display(appearence: SegmentedControlAppearance) {
+    public func display(appearence: SegmentedControlAppearance) {
         capturedDisplayAppearence.append(appearence)
         messages.append(.display(appearence: appearence))
     }
-    func display(segments: [SegmentControlModel]) {
+    public func display(segments: [SegmentControlModel]) {
         capturedDisplaySegments.append(segments)
         messages.append(.display(segments: segments))
     }

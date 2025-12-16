@@ -39,27 +39,27 @@ public final class EmptyViewOutputSpy: EmptyViewOutput {
 
 
     // MARK: - EmptyViewOutput methods
-    func display(model: EmptyViewPresentableModel?) {
+    public func display(model: EmptyViewPresentableModel?) {
         capturedDisplayModel.append(model)
         messages.append(.display(model: model))
     }
-    func display(title: TextOutputPresentableModel?) {
+    public func display(title: TextOutputPresentableModel?) {
         capturedDisplayTitle.append(title)
         messages.append(.display(title: title))
     }
-    func display(subtitle: TextOutputPresentableModel?) {
+    public func display(subtitle: TextOutputPresentableModel?) {
         capturedDisplaySubtitle.append(subtitle)
         messages.append(.display(subtitle: subtitle))
     }
-    func display(buttonModel: ButtonPresentableModel?) {
+    public func display(buttonModel: ButtonPresentableModel?) {
         capturedDisplayButtonModel.append(buttonModel)
         messages.append(.display(buttonModel: buttonModel))
     }
-    func display(image: ImageViewPresentableModel?) {
+    public func display(image: ImageViewPresentableModel?) {
         capturedDisplayImage.append(image)
         messages.append(.display(image: image))
     }
-    func display(isHidden: Bool) {
+    public func display(isHidden: Bool) {
         capturedDisplayIsHidden.append(isHidden)
         messages.append(.display(isHidden: isHidden))
     }

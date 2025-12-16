@@ -27,7 +27,7 @@ public final class TimerOutputSpy: TimerOutput {
 
 
     // MARK: - TimerOutput methods
-    func display(timerInput: TimerInput, secondsRemaining: Int?) {
+    public func display(timerInput: TimerInput, secondsRemaining: Int?) {
         capturedDisplayTimerInput.append(timerInput)
         capturedDisplaySecondsRemaining.append(secondsRemaining)
         messages.append(.display(timerInput: timerInput, secondsRemaining: secondsRemaining))

@@ -45,39 +45,39 @@ public final class ButtonOutputSpy: ButtonOutput {
 
 
     // MARK: - ButtonOutput methods
-    func display(model: ButtonPresentableModel?) {
+    public func display(model: ButtonPresentableModel?) {
         capturedDisplayModel.append(model)
         messages.append(.display(model: model))
     }
-    func display(enabled: Bool) {
+    public func display(enabled: Bool) {
         capturedDisplayEnabled.append(enabled)
         messages.append(.display(enabled: enabled))
     }
-    func display(image: Image?) {
+    public func display(image: Image?) {
         capturedDisplayImage.append(image)
         messages.append(.display(image: image))
     }
-    func display(style: ButtonStyle?) {
+    public func display(style: ButtonStyle?) {
         capturedDisplayStyle.append(style)
         messages.append(.display(style: style))
     }
-    func display(title: String?) {
+    public func display(title: String?) {
         capturedDisplayTitle.append(title)
         messages.append(.display(title: title))
     }
-    func display(spacing: CGFloat) {
+    public func display(spacing: CGFloat) {
         capturedDisplaySpacing.append(spacing)
         messages.append(.display(spacing: spacing))
     }
-    func display(onPress: (() -> Void)?) {
+    public func display(onPress: (() -> Void)?) {
         capturedDisplayOnPress.append(onPress)
         messages.append(.display(onPress: onPress))
     }
-    func display(height: CGFloat) {
+    public func display(height: CGFloat) {
         capturedDisplayHeight.append(height)
         messages.append(.display(height: height))
     }
-    func display(isHidden: Bool) {
+    public func display(isHidden: Bool) {
         capturedDisplayIsHidden.append(isHidden)
         messages.append(.display(isHidden: isHidden))
     }

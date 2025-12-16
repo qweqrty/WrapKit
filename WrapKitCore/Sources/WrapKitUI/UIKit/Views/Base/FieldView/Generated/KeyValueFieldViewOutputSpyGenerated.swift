@@ -35,19 +35,19 @@ public final class KeyValueFieldViewOutputSpy: KeyValueFieldViewOutput {
 
 
     // MARK: - KeyValueFieldViewOutput methods
-    func display(model: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>?) {
+    public func display(model: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>?) {
         capturedDisplayModel.append(model)
         messages.append(.display(model: model))
     }
-    func display(keyTitle: TextOutputPresentableModel?) {
+    public func display(keyTitle: TextOutputPresentableModel?) {
         capturedDisplayKeyTitle.append(keyTitle)
         messages.append(.display(keyTitle: keyTitle))
     }
-    func display(valueTitle: TextOutputPresentableModel?) {
+    public func display(valueTitle: TextOutputPresentableModel?) {
         capturedDisplayValueTitle.append(valueTitle)
         messages.append(.display(valueTitle: valueTitle))
     }
-    func display(bottomImage: ImageViewPresentableModel?) {
+    public func display(bottomImage: ImageViewPresentableModel?) {
         capturedDisplayBottomImage.append(bottomImage)
         messages.append(.display(bottomImage: bottomImage))
     }

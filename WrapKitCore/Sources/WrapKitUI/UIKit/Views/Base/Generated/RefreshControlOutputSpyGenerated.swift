@@ -39,23 +39,23 @@ public final class RefreshControlOutputSpy: RefreshControlOutput {
     private(set) var capturedOnRefresh: [[(() -> Void)?]?] = []
 
     // MARK: - RefreshControlOutput methods
-    func display(model: RefreshControlPresentableModel?) {
+    public func display(model: RefreshControlPresentableModel?) {
         capturedDisplayModel.append(model)
         messages.append(.display(model: model))
     }
-    func display(style: RefreshControlPresentableModel.Style) {
+    public func display(style: RefreshControlPresentableModel.Style) {
         capturedDisplayStyle.append(style)
         messages.append(.display(style: style))
     }
-    func display(onRefresh: (() -> Void)?) {
+    public func display(onRefresh: (() -> Void)?) {
         capturedDisplayOnRefresh.append(onRefresh)
         messages.append(.display(onRefresh: onRefresh))
     }
-    func display(appendingOnRefresh: (() -> Void)?) {
+    public func display(appendingOnRefresh: (() -> Void)?) {
         capturedDisplayAppendingOnRefresh.append(appendingOnRefresh)
         messages.append(.display(appendingOnRefresh: appendingOnRefresh))
     }
-    func display(isLoading: Bool) {
+    public func display(isLoading: Bool) {
         capturedDisplayIsLoading.append(isLoading)
         messages.append(.display(isLoading: isLoading))
     }

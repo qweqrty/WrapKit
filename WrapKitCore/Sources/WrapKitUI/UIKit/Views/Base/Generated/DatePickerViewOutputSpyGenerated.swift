@@ -36,20 +36,20 @@ public final class DatePickerViewOutputSpy: DatePickerViewOutput {
 
 
     // MARK: - DatePickerViewOutput methods
-    func display(dateChanged: ((Date) -> Void)?) {
+    public func display(dateChanged: ((Date) -> Void)?) {
         capturedDisplayDateChanged.append(dateChanged)
         messages.append(.display(dateChanged: dateChanged))
     }
-    func display(date: Date) {
+    public func display(date: Date) {
         capturedDisplayDate.append(date)
         messages.append(.display(date: date))
     }
-    func display(setDate: Date, animated: Bool) {
+    public func display(setDate: Date, animated: Bool) {
         capturedDisplaySetDate.append(setDate)
         capturedDisplayAnimated.append(animated)
         messages.append(.display(setDate: setDate, animated: animated))
     }
-    func display(model: DatePickerPresentableModel) {
+    public func display(model: DatePickerPresentableModel) {
         capturedDisplayModel.append(model)
         messages.append(.display(model: model))
     }

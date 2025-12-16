@@ -83,113 +83,113 @@ public final class TextInputOutputSpy: TextInputOutput {
 
 
     // MARK: - TextInputOutput methods
-    func display(model: TextInputPresentableModel?) {
+    public func display(model: TextInputPresentableModel?) {
         capturedDisplayModel.append(model)
         messages.append(.display(model: model))
     }
-    func display(text: String?) {
+    public func display(text: String?) {
         capturedDisplayText.append(text)
         messages.append(.display(text: text))
     }
-    func startEditing() {
+    public func startEditing() {
         messages.append(.startEditing())
     }
-    func stopEditing() {
+    public func stopEditing() {
         messages.append(.stopEditing())
     }
-    func display(mask: TextInputPresentableModel.Mask) {
+    public func display(mask: TextInputPresentableModel.Mask) {
         capturedDisplayMask.append(mask)
         messages.append(.display(mask: mask))
     }
-    func display(isValid: Bool) {
+    public func display(isValid: Bool) {
         capturedDisplayIsValid.append(isValid)
         messages.append(.display(isValid: isValid))
     }
-    func display(isEnabledForEditing: Bool) {
+    public func display(isEnabledForEditing: Bool) {
         capturedDisplayIsEnabledForEditing.append(isEnabledForEditing)
         messages.append(.display(isEnabledForEditing: isEnabledForEditing))
     }
-    func display(isTextSelectionDisabled: Bool) {
+    public func display(isTextSelectionDisabled: Bool) {
         capturedDisplayIsTextSelectionDisabled.append(isTextSelectionDisabled)
         messages.append(.display(isTextSelectionDisabled: isTextSelectionDisabled))
     }
-    func display(placeholder: String?) {
+    public func display(placeholder: String?) {
         capturedDisplayPlaceholder.append(placeholder)
         messages.append(.display(placeholder: placeholder))
     }
-    func display(isUserInteractionEnabled: Bool) {
+    public func display(isUserInteractionEnabled: Bool) {
         capturedDisplayIsUserInteractionEnabled.append(isUserInteractionEnabled)
         messages.append(.display(isUserInteractionEnabled: isUserInteractionEnabled))
     }
-    func display(isSecureTextEntry: Bool) {
+    public func display(isSecureTextEntry: Bool) {
         capturedDisplayIsSecureTextEntry.append(isSecureTextEntry)
         messages.append(.display(isSecureTextEntry: isSecureTextEntry))
     }
-    func display(leadingViewOnPress: (() -> Void)?) {
+    public func display(leadingViewOnPress: (() -> Void)?) {
         capturedDisplayLeadingViewOnPress.append(leadingViewOnPress)
         messages.append(.display(leadingViewOnPress: leadingViewOnPress))
     }
-    func display(trailingViewOnPress: (() -> Void)?) {
+    public func display(trailingViewOnPress: (() -> Void)?) {
         capturedDisplayTrailingViewOnPress.append(trailingViewOnPress)
         messages.append(.display(trailingViewOnPress: trailingViewOnPress))
     }
-    func display(onPress: (() -> Void)?) {
+    public func display(onPress: (() -> Void)?) {
         capturedDisplayOnPress.append(onPress)
         messages.append(.display(onPress: onPress))
     }
-    func display(onPaste: ((String?) -> Void)?) {
+    public func display(onPaste: ((String?) -> Void)?) {
         capturedDisplayOnPaste.append(onPaste)
         messages.append(.display(onPaste: onPaste))
     }
-    func display(onBecomeFirstResponder: (() -> Void)?) {
+    public func display(onBecomeFirstResponder: (() -> Void)?) {
         capturedDisplayOnBecomeFirstResponder.append(onBecomeFirstResponder)
         messages.append(.display(onBecomeFirstResponder: onBecomeFirstResponder))
     }
-    func display(onResignFirstResponder: (() -> Void)?) {
+    public func display(onResignFirstResponder: (() -> Void)?) {
         capturedDisplayOnResignFirstResponder.append(onResignFirstResponder)
         messages.append(.display(onResignFirstResponder: onResignFirstResponder))
     }
-    func display(onTapBackspace: (() -> Void)?) {
+    public func display(onTapBackspace: (() -> Void)?) {
         capturedDisplayOnTapBackspace.append(onTapBackspace)
         messages.append(.display(onTapBackspace: onTapBackspace))
     }
-    func display(didChangeText: [((String?) -> Void)]) {
+    public func display(didChangeText: [((String?) -> Void)]) {
         capturedDisplayDidChangeText.append(didChangeText)
         messages.append(.display(didChangeText: didChangeText))
     }
-    func display(trailingViewIsHidden: Bool) {
+    public func display(trailingViewIsHidden: Bool) {
         capturedDisplayTrailingViewIsHidden.append(trailingViewIsHidden)
         messages.append(.display(trailingViewIsHidden: trailingViewIsHidden))
     }
-    func display(leadingViewIsHidden: Bool) {
+    public func display(leadingViewIsHidden: Bool) {
         capturedDisplayLeadingViewIsHidden.append(leadingViewIsHidden)
         messages.append(.display(leadingViewIsHidden: leadingViewIsHidden))
     }
-    func display(isHidden: Bool) {
+    public func display(isHidden: Bool) {
         capturedDisplayIsHidden.append(isHidden)
         messages.append(.display(isHidden: isHidden))
     }
-    func display(inputView: TextInputPresentableModel.InputView?) {
+    public func display(inputView: TextInputPresentableModel.InputView?) {
         capturedDisplayInputView.append(inputView)
         messages.append(.display(inputView: inputView))
     }
-    func display(inputType: KeyboardType) {
+    public func display(inputType: KeyboardType) {
         capturedDisplayInputType.append(inputType)
         messages.append(.display(inputType: inputType))
     }
-    func display(trailingSymbol: String?) {
+    public func display(trailingSymbol: String?) {
         capturedDisplayTrailingSymbol.append(trailingSymbol)
         messages.append(.display(trailingSymbol: trailingSymbol))
     }
-    func display(toolbarModel: ButtonPresentableModel?) {
+    public func display(toolbarModel: ButtonPresentableModel?) {
         capturedDisplayToolbarModel.append(toolbarModel)
         messages.append(.display(toolbarModel: toolbarModel))
     }
-    func display(isClearButtonActive: Bool) {
+    public func display(isClearButtonActive: Bool) {
         capturedDisplayIsClearButtonActive.append(isClearButtonActive)
         messages.append(.display(isClearButtonActive: isClearButtonActive))
     }
-    func makeAccessoryView(accessoryView: UIView, height: CGFloat = 60, constraints: ((UIView, UIView) -> [NSLayoutConstraint])? = nil) {
+    public func makeAccessoryView(accessoryView: UIView, height: CGFloat = 60, constraints: ((UIView, UIView) -> [NSLayoutConstraint])? = nil) {
         capturedMakeAccessoryViewAccessoryView.append(accessoryView)
         capturedMakeAccessoryViewHeight.append(height)
         capturedMakeAccessoryViewConstraints.append(constraints)

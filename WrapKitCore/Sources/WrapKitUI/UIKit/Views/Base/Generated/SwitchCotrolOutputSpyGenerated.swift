@@ -39,27 +39,27 @@ public final class SwitchCotrolOutputSpy: SwitchCotrolOutput {
 
 
     // MARK: - SwitchCotrolOutput methods
-    func display(model: SwitchControlPresentableModel?) {
+    public func display(model: SwitchControlPresentableModel?) {
         capturedDisplayModel.append(model)
         messages.append(.display(model: model))
     }
-    func display(onPress: ((SwitchCotrolOutput & LoadingOutput) -> Void)?) {
+    public func display(onPress: ((SwitchCotrolOutput & LoadingOutput) -> Void)?) {
         capturedDisplayOnPress.append(onPress)
         messages.append(.display(onPress: onPress))
     }
-    func display(isOn: Bool) {
+    public func display(isOn: Bool) {
         capturedDisplayIsOn.append(isOn)
         messages.append(.display(isOn: isOn))
     }
-    func display(style: SwitchControlPresentableModel.Style?) {
+    public func display(style: SwitchControlPresentableModel.Style?) {
         capturedDisplayStyle.append(style)
         messages.append(.display(style: style))
     }
-    func display(isEnabled: Bool) {
+    public func display(isEnabled: Bool) {
         capturedDisplayIsEnabled.append(isEnabled)
         messages.append(.display(isEnabled: isEnabled))
     }
-    func display(isHidden: Bool) {
+    public func display(isHidden: Bool) {
         capturedDisplayIsHidden.append(isHidden)
         messages.append(.display(isHidden: isHidden))
     }

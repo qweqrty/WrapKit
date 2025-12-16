@@ -49,47 +49,47 @@ public final class ImageViewOutputSpy: ImageViewOutput {
 
 
     // MARK: - ImageViewOutput methods
-    func display(model: ImageViewPresentableModel?) {
+    public func display(model: ImageViewPresentableModel?) {
         capturedDisplayModel.append(model)
         messages.append(.display(model: model))
     }
-    func display(image: ImageEnum?) {
+    public func display(image: ImageEnum?) {
         capturedDisplayImage.append(image)
         messages.append(.display(image: image))
     }
-    func display(size: CGSize?) {
+    public func display(size: CGSize?) {
         capturedDisplaySize.append(size)
         messages.append(.display(size: size))
     }
-    func display(onPress: (() -> Void)?) {
+    public func display(onPress: (() -> Void)?) {
         capturedDisplayOnPress.append(onPress)
         messages.append(.display(onPress: onPress))
     }
-    func display(onLongPress: (() -> Void)?) {
+    public func display(onLongPress: (() -> Void)?) {
         capturedDisplayOnLongPress.append(onLongPress)
         messages.append(.display(onLongPress: onLongPress))
     }
-    func display(contentModeIsFit: Bool) {
+    public func display(contentModeIsFit: Bool) {
         capturedDisplayContentModeIsFit.append(contentModeIsFit)
         messages.append(.display(contentModeIsFit: contentModeIsFit))
     }
-    func display(borderWidth: CGFloat?) {
+    public func display(borderWidth: CGFloat?) {
         capturedDisplayBorderWidth.append(borderWidth)
         messages.append(.display(borderWidth: borderWidth))
     }
-    func display(borderColor: Color?) {
+    public func display(borderColor: Color?) {
         capturedDisplayBorderColor.append(borderColor)
         messages.append(.display(borderColor: borderColor))
     }
-    func display(cornerRadius: CGFloat?) {
+    public func display(cornerRadius: CGFloat?) {
         capturedDisplayCornerRadius.append(cornerRadius)
         messages.append(.display(cornerRadius: cornerRadius))
     }
-    func display(alpha: CGFloat?) {
+    public func display(alpha: CGFloat?) {
         capturedDisplayAlpha.append(alpha)
         messages.append(.display(alpha: alpha))
     }
-    func display(isHidden: Bool) {
+    public func display(isHidden: Bool) {
         capturedDisplayIsHidden.append(isHidden)
         messages.append(.display(isHidden: isHidden))
     }

@@ -32,23 +32,23 @@ public final class ApplicationLifecycleOutputSpy: ApplicationLifecycleOutput {
 
 
     // MARK: - ApplicationLifecycleOutput methods
-    func applicationWillEnterForeground() {
+    public func applicationWillEnterForeground() {
         messages.append(.applicationWillEnterForeground())
     }
-    func applicationDidEnterBackground() {
+    public func applicationDidEnterBackground() {
         messages.append(.applicationDidEnterBackground())
     }
-    func applicationDidBecomeActive() {
+    public func applicationDidBecomeActive() {
         messages.append(.applicationDidBecomeActive())
     }
-    func applicationWillResignActive() {
+    public func applicationWillResignActive() {
         messages.append(.applicationWillResignActive())
     }
-    func applicationDidChange(userInterfaceStyle: UserInterfaceStyle) {
+    public func applicationDidChange(userInterfaceStyle: UserInterfaceStyle) {
         capturedApplicationDidChangeUserInterfaceStyle.append(userInterfaceStyle)
         messages.append(.applicationDidChange(userInterfaceStyle: userInterfaceStyle))
     }
-    func composed(with output: ApplicationLifecycleOutput) {
+    public func composed(with output: ApplicationLifecycleOutput) {
         capturedComposedOutput.append(output)
         messages.append(.composed(with: output))
     }

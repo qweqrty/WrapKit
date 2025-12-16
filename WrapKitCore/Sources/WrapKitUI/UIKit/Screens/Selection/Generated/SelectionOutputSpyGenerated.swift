@@ -29,12 +29,12 @@ public final class SelectionOutputSpy: SelectionOutput {
 
 
     // MARK: - SelectionOutput methods
-    func display(items: [TableSection<Void, SelectionType.SelectionCellPresentableModel, Void>], selectedCountTitle: String) {
+    public func display(items: [TableSection<Void, SelectionType.SelectionCellPresentableModel, Void>], selectedCountTitle: String) {
         capturedDisplayItems.append(items)
         capturedDisplaySelectedCountTitle.append(selectedCountTitle)
         messages.append(.display(items: items, selectedCountTitle: selectedCountTitle))
     }
-    func display(shouldShowSearchBar: Bool) {
+    public func display(shouldShowSearchBar: Bool) {
         capturedDisplayShouldShowSearchBar.append(shouldShowSearchBar)
         messages.append(.display(shouldShowSearchBar: shouldShowSearchBar))
     }

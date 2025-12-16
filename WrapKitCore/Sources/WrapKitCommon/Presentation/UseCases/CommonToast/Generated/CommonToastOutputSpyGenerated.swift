@@ -27,11 +27,11 @@ public final class CommonToastOutputSpy: CommonToastOutput {
 
 
     // MARK: - CommonToastOutput methods
-    func display(_ toast: CommonToast) {
+    public func display(_ toast: CommonToast) {
         capturedDisplayToast.append(toast)
         messages.append(.display(toast))
     }
-    func hide() {
+    public func hide() {
         messages.append(.hide())
     }
 

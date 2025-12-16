@@ -38,7 +38,7 @@ public final class LoadingOutputSpy: LoadingOutput {
     private(set) var capturedIsLoading: [Bool?] = []
 
     // MARK: - LoadingOutput methods
-    func display(isLoading: Bool) {
+    public func display(isLoading: Bool) {
         capturedDisplayIsLoading.append(isLoading)
         messages.append(.display(isLoading: isLoading))
     }
