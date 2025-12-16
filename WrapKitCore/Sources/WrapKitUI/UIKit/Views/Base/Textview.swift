@@ -128,8 +128,8 @@ public extension Textview {
             return [
                 view.centerYAnchor.constraint(equalTo: container.centerYAnchor),
                 view.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -16),
-                view.heightAnchor.constraint(equalToConstant: 36),
-                view.widthAnchor.constraint(equalToConstant: 80)
+                view.heightAnchor.constraint(equalToConstant: model.trailingButton?.height ?? 36),
+                view.widthAnchor.constraint(equalToConstant: model.trailingButton?.width ?? 80)
             ]
         }
         NSLayoutConstraint.activate((defaultConstraints)(container, trailingButton))
