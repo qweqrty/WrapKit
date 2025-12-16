@@ -18,15 +18,15 @@ public final class CommonToastOutputSpy: CommonToastOutput {
 
     public init() {}
 
-    enum Message: HashableWithReflection {
+    public enum Message: HashableWithReflection {
         case display(_ : CommonToast)
         case hide()
     }
 
-    private(set) var messages: [Message] = []
+    public private(set) var messages: [Message] = []
 
     // MARK: - Captured values
-    private(set) var capturedDisplayToast: [CommonToast] = []
+    public private(set) var capturedDisplayToast: [CommonToast] = []
 
 
     // MARK: - CommonToastOutput methods

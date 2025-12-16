@@ -21,7 +21,7 @@ public final class ImageViewOutputSpy: ImageViewOutput {
 
     public init() {}
 
-    enum Message: HashableWithReflection {
+    public enum Message: HashableWithReflection {
         case display(model: ImageViewPresentableModel?)
         case display(image: ImageEnum?)
         case display(size: CGSize?)
@@ -35,20 +35,20 @@ public final class ImageViewOutputSpy: ImageViewOutput {
         case display(isHidden: Bool)
     }
 
-    private(set) var messages: [Message] = []
+    public private(set) var messages: [Message] = []
 
     // MARK: - Captured values
-    private(set) var capturedDisplayModel: [ImageViewPresentableModel?] = []
-    private(set) var capturedDisplayImage: [ImageEnum?] = []
-    private(set) var capturedDisplaySize: [CGSize?] = []
-    private(set) var capturedDisplayOnPress: [(() -> Void)?] = []
-    private(set) var capturedDisplayOnLongPress: [(() -> Void)?] = []
-    private(set) var capturedDisplayContentModeIsFit: [Bool] = []
-    private(set) var capturedDisplayBorderWidth: [CGFloat?] = []
-    private(set) var capturedDisplayBorderColor: [Color?] = []
-    private(set) var capturedDisplayCornerRadius: [CGFloat?] = []
-    private(set) var capturedDisplayAlpha: [CGFloat?] = []
-    private(set) var capturedDisplayIsHidden: [Bool] = []
+    public private(set) var capturedDisplayModel: [ImageViewPresentableModel?] = []
+    public private(set) var capturedDisplayImage: [ImageEnum?] = []
+    public private(set) var capturedDisplaySize: [CGSize?] = []
+    public private(set) var capturedDisplayOnPress: [(() -> Void)?] = []
+    public private(set) var capturedDisplayOnLongPress: [(() -> Void)?] = []
+    public private(set) var capturedDisplayContentModeIsFit: [Bool] = []
+    public private(set) var capturedDisplayBorderWidth: [CGFloat?] = []
+    public private(set) var capturedDisplayBorderColor: [Color?] = []
+    public private(set) var capturedDisplayCornerRadius: [CGFloat?] = []
+    public private(set) var capturedDisplayAlpha: [CGFloat?] = []
+    public private(set) var capturedDisplayIsHidden: [Bool] = []
 
 
     // MARK: - ImageViewOutput methods

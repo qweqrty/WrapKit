@@ -21,7 +21,7 @@ public final class TextOutputSpy: TextOutput {
 
     public init() {}
 
-    enum Message: HashableWithReflection {
+    public enum Message: HashableWithReflection {
         case display(model: TextOutputPresentableModel?)
         case display(text: String?)
         case display(attributes: [TextAttributes])
@@ -29,20 +29,20 @@ public final class TextOutputSpy: TextOutput {
         case display(isHidden: Bool)
     }
 
-    private(set) var messages: [Message] = []
+    public private(set) var messages: [Message] = []
 
     // MARK: - Captured values
-    private(set) var capturedDisplayModel: [TextOutputPresentableModel?] = []
-    private(set) var capturedDisplayText: [String?] = []
-    private(set) var capturedDisplayAttributes: [[TextAttributes]] = []
-    private(set) var capturedDisplayId: [String?] = []
-    private(set) var capturedDisplayStartAmount: [Double] = []
-    private(set) var capturedDisplayEndAmount: [Double] = []
-    private(set) var capturedDisplayMapToString: [((Double) -> TextOutputPresentableModel)?] = []
-    private(set) var capturedDisplayAnimationStyle: [LabelAnimationStyle] = []
-    private(set) var capturedDisplayDuration: [TimeInterval] = []
-    private(set) var capturedDisplayCompletion: [(() -> Void)?] = []
-    private(set) var capturedDisplayIsHidden: [Bool] = []
+    public private(set) var capturedDisplayModel: [TextOutputPresentableModel?] = []
+    public private(set) var capturedDisplayText: [String?] = []
+    public private(set) var capturedDisplayAttributes: [[TextAttributes]] = []
+    public private(set) var capturedDisplayId: [String?] = []
+    public private(set) var capturedDisplayStartAmount: [Double] = []
+    public private(set) var capturedDisplayEndAmount: [Double] = []
+    public private(set) var capturedDisplayMapToString: [((Double) -> TextOutputPresentableModel)?] = []
+    public private(set) var capturedDisplayAnimationStyle: [LabelAnimationStyle] = []
+    public private(set) var capturedDisplayDuration: [TimeInterval] = []
+    public private(set) var capturedDisplayCompletion: [(() -> Void)?] = []
+    public private(set) var capturedDisplayIsHidden: [Bool] = []
 
 
     // MARK: - TextOutput methods

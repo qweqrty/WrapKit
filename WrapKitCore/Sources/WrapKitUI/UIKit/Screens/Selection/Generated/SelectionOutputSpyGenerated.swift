@@ -18,17 +18,17 @@ public final class SelectionOutputSpy: SelectionOutput {
 
     public init() {}
 
-    enum Message: HashableWithReflection {
+    public enum Message: HashableWithReflection {
         case display(items: [TableSection<Void, SelectionType.SelectionCellPresentableModel, Void>], selectedCountTitle: String)
         case display(shouldShowSearchBar: Bool)
     }
 
-    private(set) var messages: [Message] = []
+    public private(set) var messages: [Message] = []
 
     // MARK: - Captured values
-    private(set) var capturedDisplayItems: [[TableSection<Void, SelectionType.SelectionCellPresentableModel, Void>]] = []
-    private(set) var capturedDisplaySelectedCountTitle: [String] = []
-    private(set) var capturedDisplayShouldShowSearchBar: [Bool] = []
+    public private(set) var capturedDisplayItems: [[TableSection<Void, SelectionType.SelectionCellPresentableModel, Void>]] = []
+    public private(set) var capturedDisplaySelectedCountTitle: [String] = []
+    public private(set) var capturedDisplayShouldShowSearchBar: [Bool] = []
 
 
     // MARK: - SelectionOutput methods

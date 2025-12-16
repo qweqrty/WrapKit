@@ -21,7 +21,7 @@ public final class TextInputOutputSpy: TextInputOutput {
 
     public init() {}
 
-    enum Message: HashableWithReflection {
+    public enum Message: HashableWithReflection {
         case display(model: TextInputPresentableModel?)
         case display(text: String?)
         case startEditing()
@@ -52,37 +52,37 @@ public final class TextInputOutputSpy: TextInputOutput {
         case makeAccessoryView(accessoryView: UIView, height: CGFloat, constraints: ((UIView, UIView) -> [NSLayoutConstraint])?)
     }
 
-    private(set) var messages: [Message] = []
+    public private(set) var messages: [Message] = []
 
     // MARK: - Captured values
-    private(set) var capturedDisplayModel: [TextInputPresentableModel?] = []
-    private(set) var capturedDisplayText: [String?] = []
-    private(set) var capturedDisplayMask: [TextInputPresentableModel.Mask] = []
-    private(set) var capturedDisplayIsValid: [Bool] = []
-    private(set) var capturedDisplayIsEnabledForEditing: [Bool] = []
-    private(set) var capturedDisplayIsTextSelectionDisabled: [Bool] = []
-    private(set) var capturedDisplayPlaceholder: [String?] = []
-    private(set) var capturedDisplayIsUserInteractionEnabled: [Bool] = []
-    private(set) var capturedDisplayIsSecureTextEntry: [Bool] = []
-    private(set) var capturedDisplayLeadingViewOnPress: [(() -> Void)?] = []
-    private(set) var capturedDisplayTrailingViewOnPress: [(() -> Void)?] = []
-    private(set) var capturedDisplayOnPress: [(() -> Void)?] = []
-    private(set) var capturedDisplayOnPaste: [((String?) -> Void)?] = []
-    private(set) var capturedDisplayOnBecomeFirstResponder: [(() -> Void)?] = []
-    private(set) var capturedDisplayOnResignFirstResponder: [(() -> Void)?] = []
-    private(set) var capturedDisplayOnTapBackspace: [(() -> Void)?] = []
-    private(set) var capturedDisplayDidChangeText: [[((String?) -> Void)]] = []
-    private(set) var capturedDisplayTrailingViewIsHidden: [Bool] = []
-    private(set) var capturedDisplayLeadingViewIsHidden: [Bool] = []
-    private(set) var capturedDisplayIsHidden: [Bool] = []
-    private(set) var capturedDisplayInputView: [TextInputPresentableModel.InputView?] = []
-    private(set) var capturedDisplayInputType: [KeyboardType] = []
-    private(set) var capturedDisplayTrailingSymbol: [String?] = []
-    private(set) var capturedDisplayToolbarModel: [ButtonPresentableModel?] = []
-    private(set) var capturedDisplayIsClearButtonActive: [Bool] = []
-    private(set) var capturedMakeAccessoryViewAccessoryView: [UIView] = []
-    private(set) var capturedMakeAccessoryViewHeight: [CGFloat] = []
-    private(set) var capturedMakeAccessoryViewConstraints: [((UIView, UIView) -> [NSLayoutConstraint])?] = []
+    public private(set) var capturedDisplayModel: [TextInputPresentableModel?] = []
+    public private(set) var capturedDisplayText: [String?] = []
+    public private(set) var capturedDisplayMask: [TextInputPresentableModel.Mask] = []
+    public private(set) var capturedDisplayIsValid: [Bool] = []
+    public private(set) var capturedDisplayIsEnabledForEditing: [Bool] = []
+    public private(set) var capturedDisplayIsTextSelectionDisabled: [Bool] = []
+    public private(set) var capturedDisplayPlaceholder: [String?] = []
+    public private(set) var capturedDisplayIsUserInteractionEnabled: [Bool] = []
+    public private(set) var capturedDisplayIsSecureTextEntry: [Bool] = []
+    public private(set) var capturedDisplayLeadingViewOnPress: [(() -> Void)?] = []
+    public private(set) var capturedDisplayTrailingViewOnPress: [(() -> Void)?] = []
+    public private(set) var capturedDisplayOnPress: [(() -> Void)?] = []
+    public private(set) var capturedDisplayOnPaste: [((String?) -> Void)?] = []
+    public private(set) var capturedDisplayOnBecomeFirstResponder: [(() -> Void)?] = []
+    public private(set) var capturedDisplayOnResignFirstResponder: [(() -> Void)?] = []
+    public private(set) var capturedDisplayOnTapBackspace: [(() -> Void)?] = []
+    public private(set) var capturedDisplayDidChangeText: [[((String?) -> Void)]] = []
+    public private(set) var capturedDisplayTrailingViewIsHidden: [Bool] = []
+    public private(set) var capturedDisplayLeadingViewIsHidden: [Bool] = []
+    public private(set) var capturedDisplayIsHidden: [Bool] = []
+    public private(set) var capturedDisplayInputView: [TextInputPresentableModel.InputView?] = []
+    public private(set) var capturedDisplayInputType: [KeyboardType] = []
+    public private(set) var capturedDisplayTrailingSymbol: [String?] = []
+    public private(set) var capturedDisplayToolbarModel: [ButtonPresentableModel?] = []
+    public private(set) var capturedDisplayIsClearButtonActive: [Bool] = []
+    public private(set) var capturedMakeAccessoryViewAccessoryView: [UIView] = []
+    public private(set) var capturedMakeAccessoryViewHeight: [CGFloat] = []
+    public private(set) var capturedMakeAccessoryViewConstraints: [((UIView, UIView) -> [NSLayoutConstraint])?] = []
 
 
     // MARK: - TextInputOutput methods

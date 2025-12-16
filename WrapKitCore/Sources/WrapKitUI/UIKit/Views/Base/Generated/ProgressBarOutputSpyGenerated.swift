@@ -24,20 +24,20 @@ public final class ProgressBarOutputSpy: ProgressBarOutput {
 
     public init() {}
 
-    enum Message: HashableWithReflection {
+    public enum Message: HashableWithReflection {
         case display(model: ProgressBarPresentableModel?)
         case display(progress: CGFloat)
         case display(style: ProgressBarStyle?)
         case display(isHidden: Bool)
     }
 
-    private(set) var messages: [Message] = []
+    public private(set) var messages: [Message] = []
 
     // MARK: - Captured values
-    private(set) var capturedDisplayModel: [ProgressBarPresentableModel?] = []
-    private(set) var capturedDisplayProgress: [CGFloat] = []
-    private(set) var capturedDisplayStyle: [ProgressBarStyle?] = []
-    private(set) var capturedDisplayIsHidden: [Bool] = []
+    public private(set) var capturedDisplayModel: [ProgressBarPresentableModel?] = []
+    public private(set) var capturedDisplayProgress: [CGFloat] = []
+    public private(set) var capturedDisplayStyle: [ProgressBarStyle?] = []
+    public private(set) var capturedDisplayIsHidden: [Bool] = []
 
 
     // MARK: - ProgressBarOutput methods

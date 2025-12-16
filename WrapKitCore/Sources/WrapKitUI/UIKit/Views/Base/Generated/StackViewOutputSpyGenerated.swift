@@ -21,7 +21,7 @@ public final class StackViewOutputSpy: StackViewOutput {
 
     public init() {}
 
-    enum Message: HashableWithReflection {
+    public enum Message: HashableWithReflection {
         case display(model: StackViewPresentableModel)
         case display(spacing: CGFloat?)
         case display(axis: StackViewAxis)
@@ -31,16 +31,16 @@ public final class StackViewOutputSpy: StackViewOutput {
         case display(isHidden: Bool)
     }
 
-    private(set) var messages: [Message] = []
+    public private(set) var messages: [Message] = []
 
     // MARK: - Captured values
-    private(set) var capturedDisplayModel: [StackViewPresentableModel] = []
-    private(set) var capturedDisplaySpacing: [CGFloat?] = []
-    private(set) var capturedDisplayAxis: [StackViewAxis] = []
-    private(set) var capturedDisplayDistribution: [StackViewDistribution] = []
-    private(set) var capturedDisplayAlignment: [StackViewAlignment] = []
-    private(set) var capturedDisplayLayoutMargins: [EdgeInsets] = []
-    private(set) var capturedDisplayIsHidden: [Bool] = []
+    public private(set) var capturedDisplayModel: [StackViewPresentableModel] = []
+    public private(set) var capturedDisplaySpacing: [CGFloat?] = []
+    public private(set) var capturedDisplayAxis: [StackViewAxis] = []
+    public private(set) var capturedDisplayDistribution: [StackViewDistribution] = []
+    public private(set) var capturedDisplayAlignment: [StackViewAlignment] = []
+    public private(set) var capturedDisplayLayoutMargins: [EdgeInsets] = []
+    public private(set) var capturedDisplayIsHidden: [Bool] = []
 
 
     // MARK: - StackViewOutput methods

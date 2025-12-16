@@ -21,14 +21,14 @@ public final class HiddableOutputSpy: HiddableOutput {
 
     public init() {}
 
-    enum Message: HashableWithReflection {
+    public enum Message: HashableWithReflection {
         case display(isHidden: Bool)
     }
 
-    private(set) var messages: [Message] = []
+    public private(set) var messages: [Message] = []
 
     // MARK: - Captured values
-    private(set) var capturedDisplayIsHidden: [Bool] = []
+    public private(set) var capturedDisplayIsHidden: [Bool] = []
 
 
     // MARK: - HiddableOutput methods

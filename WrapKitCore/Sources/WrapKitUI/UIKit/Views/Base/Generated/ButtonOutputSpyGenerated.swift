@@ -21,7 +21,7 @@ public final class ButtonOutputSpy: ButtonOutput {
 
     public init() {}
 
-    enum Message: HashableWithReflection {
+    public enum Message: HashableWithReflection {
         case display(model: ButtonPresentableModel?)
         case display(enabled: Bool)
         case display(image: Image?)
@@ -33,18 +33,18 @@ public final class ButtonOutputSpy: ButtonOutput {
         case display(isHidden: Bool)
     }
 
-    private(set) var messages: [Message] = []
+    public private(set) var messages: [Message] = []
 
     // MARK: - Captured values
-    private(set) var capturedDisplayModel: [ButtonPresentableModel?] = []
-    private(set) var capturedDisplayEnabled: [Bool] = []
-    private(set) var capturedDisplayImage: [Image?] = []
-    private(set) var capturedDisplayStyle: [ButtonStyle?] = []
-    private(set) var capturedDisplayTitle: [String?] = []
-    private(set) var capturedDisplaySpacing: [CGFloat] = []
-    private(set) var capturedDisplayOnPress: [(() -> Void)?] = []
-    private(set) var capturedDisplayHeight: [CGFloat] = []
-    private(set) var capturedDisplayIsHidden: [Bool] = []
+    public private(set) var capturedDisplayModel: [ButtonPresentableModel?] = []
+    public private(set) var capturedDisplayEnabled: [Bool] = []
+    public private(set) var capturedDisplayImage: [Image?] = []
+    public private(set) var capturedDisplayStyle: [ButtonStyle?] = []
+    public private(set) var capturedDisplayTitle: [String?] = []
+    public private(set) var capturedDisplaySpacing: [CGFloat] = []
+    public private(set) var capturedDisplayOnPress: [(() -> Void)?] = []
+    public private(set) var capturedDisplayHeight: [CGFloat] = []
+    public private(set) var capturedDisplayIsHidden: [Bool] = []
 
 
     // MARK: - ButtonOutput methods

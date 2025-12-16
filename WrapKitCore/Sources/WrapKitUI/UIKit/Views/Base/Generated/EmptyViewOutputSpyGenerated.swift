@@ -21,7 +21,7 @@ public final class EmptyViewOutputSpy: EmptyViewOutput {
 
     public init() {}
 
-    enum Message: HashableWithReflection {
+    public enum Message: HashableWithReflection {
         case display(model: EmptyViewPresentableModel?)
         case display(title: TextOutputPresentableModel?)
         case display(subtitle: TextOutputPresentableModel?)
@@ -30,15 +30,15 @@ public final class EmptyViewOutputSpy: EmptyViewOutput {
         case display(isHidden: Bool)
     }
 
-    private(set) var messages: [Message] = []
+    public private(set) var messages: [Message] = []
 
     // MARK: - Captured values
-    private(set) var capturedDisplayModel: [EmptyViewPresentableModel?] = []
-    private(set) var capturedDisplayTitle: [TextOutputPresentableModel?] = []
-    private(set) var capturedDisplaySubtitle: [TextOutputPresentableModel?] = []
-    private(set) var capturedDisplayButtonModel: [ButtonPresentableModel?] = []
-    private(set) var capturedDisplayImage: [ImageViewPresentableModel?] = []
-    private(set) var capturedDisplayIsHidden: [Bool] = []
+    public private(set) var capturedDisplayModel: [EmptyViewPresentableModel?] = []
+    public private(set) var capturedDisplayTitle: [TextOutputPresentableModel?] = []
+    public private(set) var capturedDisplaySubtitle: [TextOutputPresentableModel?] = []
+    public private(set) var capturedDisplayButtonModel: [ButtonPresentableModel?] = []
+    public private(set) var capturedDisplayImage: [ImageViewPresentableModel?] = []
+    public private(set) var capturedDisplayIsHidden: [Bool] = []
 
 
     // MARK: - EmptyViewOutput methods

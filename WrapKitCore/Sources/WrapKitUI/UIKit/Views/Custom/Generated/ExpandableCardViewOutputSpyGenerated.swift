@@ -24,16 +24,16 @@ public final class ExpandableCardViewOutputSpy: ExpandableCardViewOutput {
 
     public init() {}
 
-    enum Message: HashableWithReflection {
+    public enum Message: HashableWithReflection {
         case display(model: Pair<CardViewPresentableModel, CardViewPresentableModel?>)
         case display(isHidden: Bool)
     }
 
-    private(set) var messages: [Message] = []
+    public private(set) var messages: [Message] = []
 
     // MARK: - Captured values
-    private(set) var capturedDisplayModel: [Pair<CardViewPresentableModel, CardViewPresentableModel?>] = []
-    private(set) var capturedDisplayIsHidden: [Bool] = []
+    public private(set) var capturedDisplayModel: [Pair<CardViewPresentableModel, CardViewPresentableModel?>] = []
+    public private(set) var capturedDisplayIsHidden: [Bool] = []
 
 
     // MARK: - ExpandableCardViewOutput methods

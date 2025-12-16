@@ -21,20 +21,20 @@ public final class KeyValueFieldViewOutputSpy: KeyValueFieldViewOutput {
 
     public init() {}
 
-    enum Message: HashableWithReflection {
+    public enum Message: HashableWithReflection {
         case display(model: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>?)
         case display(keyTitle: TextOutputPresentableModel?)
         case display(valueTitle: TextOutputPresentableModel?)
         case display(bottomImage: ImageViewPresentableModel?)
     }
 
-    private(set) var messages: [Message] = []
+    public private(set) var messages: [Message] = []
 
     // MARK: - Captured values
-    private(set) var capturedDisplayModel: [Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>?] = []
-    private(set) var capturedDisplayKeyTitle: [TextOutputPresentableModel?] = []
-    private(set) var capturedDisplayValueTitle: [TextOutputPresentableModel?] = []
-    private(set) var capturedDisplayBottomImage: [ImageViewPresentableModel?] = []
+    public private(set) var capturedDisplayModel: [Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>?] = []
+    public private(set) var capturedDisplayKeyTitle: [TextOutputPresentableModel?] = []
+    public private(set) var capturedDisplayValueTitle: [TextOutputPresentableModel?] = []
+    public private(set) var capturedDisplayBottomImage: [ImageViewPresentableModel?] = []
 
 
     // MARK: - KeyValueFieldViewOutput methods

@@ -24,7 +24,7 @@ public final class CardViewOutputSpy: CardViewOutput {
 
     public init() {}
 
-    enum Message: HashableWithReflection {
+    public enum Message: HashableWithReflection {
         case display(model: CardViewPresentableModel?)
         case display(style: CardViewPresentableModel.Style?)
         case display(backgroundImage: ImageViewPresentableModel?)
@@ -44,26 +44,26 @@ public final class CardViewOutputSpy: CardViewOutput {
         case display(isHidden: Bool)
     }
 
-    private(set) var messages: [Message] = []
+    public private(set) var messages: [Message] = []
 
     // MARK: - Captured values
-    private(set) var capturedDisplayModel: [CardViewPresentableModel?] = []
-    private(set) var capturedDisplayStyle: [CardViewPresentableModel.Style?] = []
-    private(set) var capturedDisplayBackgroundImage: [ImageViewPresentableModel?] = []
-    private(set) var capturedDisplayTitle: [TextOutputPresentableModel?] = []
-    private(set) var capturedDisplayLeadingTitles: [Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>?] = []
-    private(set) var capturedDisplayTrailingTitles: [Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>?] = []
-    private(set) var capturedDisplayLeadingImage: [ImageViewPresentableModel?] = []
-    private(set) var capturedDisplaySecondaryLeadingImage: [ImageViewPresentableModel?] = []
-    private(set) var capturedDisplayTrailingImage: [ImageViewPresentableModel?] = []
-    private(set) var capturedDisplaySecondaryTrailingImage: [ImageViewPresentableModel?] = []
-    private(set) var capturedDisplaySubTitle: [TextOutputPresentableModel?] = []
-    private(set) var capturedDisplayValueTitle: [TextOutputPresentableModel?] = []
-    private(set) var capturedDisplayBottomSeparator: [CardViewPresentableModel.BottomSeparator?] = []
-    private(set) var capturedDisplaySwitchControl: [SwitchControlPresentableModel?] = []
-    private(set) var capturedDisplayOnPress: [(() -> Void)?] = []
-    private(set) var capturedDisplayOnLongPress: [(() -> Void)?] = []
-    private(set) var capturedDisplayIsHidden: [Bool] = []
+    public private(set) var capturedDisplayModel: [CardViewPresentableModel?] = []
+    public private(set) var capturedDisplayStyle: [CardViewPresentableModel.Style?] = []
+    public private(set) var capturedDisplayBackgroundImage: [ImageViewPresentableModel?] = []
+    public private(set) var capturedDisplayTitle: [TextOutputPresentableModel?] = []
+    public private(set) var capturedDisplayLeadingTitles: [Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>?] = []
+    public private(set) var capturedDisplayTrailingTitles: [Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>?] = []
+    public private(set) var capturedDisplayLeadingImage: [ImageViewPresentableModel?] = []
+    public private(set) var capturedDisplaySecondaryLeadingImage: [ImageViewPresentableModel?] = []
+    public private(set) var capturedDisplayTrailingImage: [ImageViewPresentableModel?] = []
+    public private(set) var capturedDisplaySecondaryTrailingImage: [ImageViewPresentableModel?] = []
+    public private(set) var capturedDisplaySubTitle: [TextOutputPresentableModel?] = []
+    public private(set) var capturedDisplayValueTitle: [TextOutputPresentableModel?] = []
+    public private(set) var capturedDisplayBottomSeparator: [CardViewPresentableModel.BottomSeparator?] = []
+    public private(set) var capturedDisplaySwitchControl: [SwitchControlPresentableModel?] = []
+    public private(set) var capturedDisplayOnPress: [(() -> Void)?] = []
+    public private(set) var capturedDisplayOnLongPress: [(() -> Void)?] = []
+    public private(set) var capturedDisplayIsHidden: [Bool] = []
 
 
     // MARK: - CardViewOutput methods

@@ -18,15 +18,15 @@ public final class TimerOutputSpy: TimerOutput {
 
     public init() {}
 
-    enum Message: HashableWithReflection {
+    public enum Message: HashableWithReflection {
         case display(timerInput: TimerInput, secondsRemaining: Int?)
     }
 
-    private(set) var messages: [Message] = []
+    public private(set) var messages: [Message] = []
 
     // MARK: - Captured values
-    private(set) var capturedDisplayTimerInput: [TimerInput] = []
-    private(set) var capturedDisplaySecondsRemaining: [Int?] = []
+    public private(set) var capturedDisplayTimerInput: [TimerInput] = []
+    public private(set) var capturedDisplaySecondsRemaining: [Int?] = []
 
 
     // MARK: - TimerOutput methods

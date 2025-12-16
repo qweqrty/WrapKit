@@ -18,7 +18,7 @@ public final class LifeCycleViewOutputSpy: LifeCycleViewOutput {
 
     public init() {}
 
-    enum Message: HashableWithReflection {
+    public enum Message: HashableWithReflection {
         case viewDidLoad()
         case viewWillAppear()
         case viewWillDisappear()
@@ -29,13 +29,13 @@ public final class LifeCycleViewOutputSpy: LifeCycleViewOutput {
         case withAnalytics(eventName: String, parameters: [String: Any], analytics: AnalyticsTracker)
     }
 
-    private(set) var messages: [Message] = []
+    public private(set) var messages: [Message] = []
 
     // MARK: - Captured values
-    private(set) var capturedComposedOutput: [LifeCycleViewOutput] = []
-    private(set) var capturedWithAnalyticsEventName: [String] = []
-    private(set) var capturedWithAnalyticsParameters: [[String: Any]] = []
-    private(set) var capturedWithAnalyticsAnalytics: [AnalyticsTracker] = []
+    public private(set) var capturedComposedOutput: [LifeCycleViewOutput] = []
+    public private(set) var capturedWithAnalyticsEventName: [String] = []
+    public private(set) var capturedWithAnalyticsParameters: [[String: Any]] = []
+    public private(set) var capturedWithAnalyticsAnalytics: [AnalyticsTracker] = []
 
 
     // MARK: - LifeCycleViewOutput methods

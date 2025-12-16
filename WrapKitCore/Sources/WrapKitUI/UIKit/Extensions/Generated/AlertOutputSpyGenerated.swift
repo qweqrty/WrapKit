@@ -18,18 +18,18 @@ public final class AlertOutputSpy: AlertOutput {
 
     public init() {}
 
-    enum Message: HashableWithReflection {
+    public enum Message: HashableWithReflection {
         case showAlert(model: AlertPresentableModel?)
         case showActionSheet(model: AlertPresentableModel?)
         case showTextFieldAlert(model: AlertPresentableModel?)
     }
 
-    private(set) var messages: [Message] = []
+    public private(set) var messages: [Message] = []
 
     // MARK: - Captured values
-    private(set) var capturedShowAlertModel: [AlertPresentableModel?] = []
-    private(set) var capturedShowActionSheetModel: [AlertPresentableModel?] = []
-    private(set) var capturedShowTextFieldAlertModel: [AlertPresentableModel?] = []
+    public private(set) var capturedShowAlertModel: [AlertPresentableModel?] = []
+    public private(set) var capturedShowActionSheetModel: [AlertPresentableModel?] = []
+    public private(set) var capturedShowTextFieldAlertModel: [AlertPresentableModel?] = []
 
 
     // MARK: - AlertOutput methods

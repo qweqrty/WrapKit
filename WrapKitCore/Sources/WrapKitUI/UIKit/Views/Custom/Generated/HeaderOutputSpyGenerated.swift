@@ -21,7 +21,7 @@ public final class HeaderOutputSpy: HeaderOutput {
 
     public init() {}
 
-    enum Message: HashableWithReflection {
+    public enum Message: HashableWithReflection {
         case display(model: HeaderPresentableModel?)
         case display(style: HeaderPresentableModel.Style?)
         case display(centerView: HeaderPresentableModel.CenterView?)
@@ -32,17 +32,17 @@ public final class HeaderOutputSpy: HeaderOutput {
         case display(isHidden: Bool)
     }
 
-    private(set) var messages: [Message] = []
+    public private(set) var messages: [Message] = []
 
     // MARK: - Captured values
-    private(set) var capturedDisplayModel: [HeaderPresentableModel?] = []
-    private(set) var capturedDisplayStyle: [HeaderPresentableModel.Style?] = []
-    private(set) var capturedDisplayCenterView: [HeaderPresentableModel.CenterView?] = []
-    private(set) var capturedDisplayLeadingCard: [CardViewPresentableModel?] = []
-    private(set) var capturedDisplayPrimeTrailingImage: [ButtonPresentableModel?] = []
-    private(set) var capturedDisplaySecondaryTrailingImage: [ButtonPresentableModel?] = []
-    private(set) var capturedDisplayTertiaryTrailingImage: [ButtonPresentableModel?] = []
-    private(set) var capturedDisplayIsHidden: [Bool] = []
+    public private(set) var capturedDisplayModel: [HeaderPresentableModel?] = []
+    public private(set) var capturedDisplayStyle: [HeaderPresentableModel.Style?] = []
+    public private(set) var capturedDisplayCenterView: [HeaderPresentableModel.CenterView?] = []
+    public private(set) var capturedDisplayLeadingCard: [CardViewPresentableModel?] = []
+    public private(set) var capturedDisplayPrimeTrailingImage: [ButtonPresentableModel?] = []
+    public private(set) var capturedDisplaySecondaryTrailingImage: [ButtonPresentableModel?] = []
+    public private(set) var capturedDisplayTertiaryTrailingImage: [ButtonPresentableModel?] = []
+    public private(set) var capturedDisplayIsHidden: [Bool] = []
 
 
     // MARK: - HeaderOutput methods

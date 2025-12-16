@@ -18,7 +18,7 @@ public final class ApplicationLifecycleOutputSpy: ApplicationLifecycleOutput {
 
     public init() {}
 
-    enum Message: HashableWithReflection {
+    public enum Message: HashableWithReflection {
         case applicationWillEnterForeground()
         case applicationDidEnterBackground()
         case applicationDidBecomeActive()
@@ -27,11 +27,11 @@ public final class ApplicationLifecycleOutputSpy: ApplicationLifecycleOutput {
         case composed(with: ApplicationLifecycleOutput)
     }
 
-    private(set) var messages: [Message] = []
+    public private(set) var messages: [Message] = []
 
     // MARK: - Captured values
-    private(set) var capturedApplicationDidChangeUserInterfaceStyle: [UserInterfaceStyle] = []
-    private(set) var capturedComposedOutput: [ApplicationLifecycleOutput] = []
+    public private(set) var capturedApplicationDidChangeUserInterfaceStyle: [UserInterfaceStyle] = []
+    public private(set) var capturedComposedOutput: [ApplicationLifecycleOutput] = []
 
 
     // MARK: - ApplicationLifecycleOutput methods

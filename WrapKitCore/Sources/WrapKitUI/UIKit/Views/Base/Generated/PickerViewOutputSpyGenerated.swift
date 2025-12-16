@@ -21,7 +21,7 @@ public final class PickerViewOutputSpy: PickerViewOutput {
 
     public init() {}
 
-    enum Message: HashableWithReflection {
+    public enum Message: HashableWithReflection {
         case display(model: PickerViewPresentableModel?)
         case display(selectedRow: PickerViewPresentableModel.SelectedRow?)
         case setComponentsCount((() -> Int?)?)
@@ -30,16 +30,16 @@ public final class PickerViewOutputSpy: PickerViewOutput {
         case setDidSelectAt(((Int) -> Void)?)
     }
 
-    private(set) var messages: [Message] = []
+    public private(set) var messages: [Message] = []
 
     // MARK: - Captured values
-    private(set) var capturedDisplayModel: [PickerViewPresentableModel?] = []
-    private(set) var capturedDisplaySelectedRow: [PickerViewPresentableModel.SelectedRow?] = []
+    public private(set) var capturedDisplayModel: [PickerViewPresentableModel?] = []
+    public private(set) var capturedDisplaySelectedRow: [PickerViewPresentableModel.SelectedRow?] = []
 
-    private(set) var capturedComponentsCount: [(() -> Int?)?] = []
-    private(set) var capturedRowsCount: [(() -> Int)?] = []
-    private(set) var capturedTitleForRowAt: [((Int) -> String?)?] = []
-    private(set) var capturedDidSelectAt: [((Int) -> Void)?] = []
+    public private(set) var capturedComponentsCount: [(() -> Int?)?] = []
+    public private(set) var capturedRowsCount: [(() -> Int)?] = []
+    public private(set) var capturedTitleForRowAt: [((Int) -> String?)?] = []
+    public private(set) var capturedDidSelectAt: [((Int) -> Void)?] = []
 
     // MARK: - PickerViewOutput methods
     public func display(model: PickerViewPresentableModel?) {

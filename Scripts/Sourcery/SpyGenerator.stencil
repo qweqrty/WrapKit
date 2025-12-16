@@ -20,7 +20,7 @@ public final class {{ type.name }}Spy: {{ type.name }} {
 
     public init() {}
 
-    enum Message: HashableWithReflection {
+    public enum Message: HashableWithReflection {
         {% for method in type.methods %}
         case {{ method.callName }}({% for param in method.parameters %}{% if param.argumentLabel %}{{ param.argumentLabel }}: {% else %}_ : {% endif %}{{ param.typeName }}{% if not forloop.last %}, {% endif %}{% endfor %})
         {% endfor %}
@@ -29,17 +29,17 @@ public final class {{ type.name }}Spy: {{ type.name }} {
         {% endfor %}
     }
 
-    private(set) var messages: [Message] = []
+    public private(set) var messages: [Message] = []
 
     // MARK: - Captured values
     {% for method in type.methods %}
     {% for param in method.parameters %}
-    private(set) var captured{{ method.callName|upperFirstLetter }}{{ param.name|upperFirstLetter }}: [{{ param.typeName }}] = []
+    public private(set) var captured{{ method.callName|upperFirstLetter }}{{ param.name|upperFirstLetter }}: [{{ param.typeName }}] = []
     {% endfor %}
     {% endfor %}
 
     {% for variable in type.variables where variable.writeAccess != "private" and variable.writeAccess != "fileprivate" %}
-    private(set) var captured{{ variable.name|upperFirstLetter }}: [{{ variable.typeName }}] = []
+    public private(set) var captured{{ variable.name|upperFirstLetter }}: [{{ variable.typeName }}] = []
     {% endfor %}
 
     // MARK: - {{ type.name }} methods

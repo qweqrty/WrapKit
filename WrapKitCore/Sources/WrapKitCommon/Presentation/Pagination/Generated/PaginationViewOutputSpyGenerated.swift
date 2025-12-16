@@ -21,7 +21,7 @@ public final class PaginationViewOutputSpy: PaginationViewOutput {
 
     public init() {}
 
-    enum Message: HashableWithReflection {
+    public enum Message: HashableWithReflection {
         case display(model: [PresentableItem], hasMore: Bool)
         case display(isLoadingFirstPage: Bool)
         case display(isLoadingSubsequentPage: Bool)
@@ -29,15 +29,15 @@ public final class PaginationViewOutputSpy: PaginationViewOutput {
         case display(errorAtSubsequentPage: ServiceError)
     }
 
-    private(set) var messages: [Message] = []
+    public private(set) var messages: [Message] = []
 
     // MARK: - Captured values
-    private(set) var capturedDisplayModel: [[PresentableItem]] = []
-    private(set) var capturedDisplayHasMore: [Bool] = []
-    private(set) var capturedDisplayIsLoadingFirstPage: [Bool] = []
-    private(set) var capturedDisplayIsLoadingSubsequentPage: [Bool] = []
-    private(set) var capturedDisplayErrorAtFirstPage: [ServiceError] = []
-    private(set) var capturedDisplayErrorAtSubsequentPage: [ServiceError] = []
+    public private(set) var capturedDisplayModel: [[PresentableItem]] = []
+    public private(set) var capturedDisplayHasMore: [Bool] = []
+    public private(set) var capturedDisplayIsLoadingFirstPage: [Bool] = []
+    public private(set) var capturedDisplayIsLoadingSubsequentPage: [Bool] = []
+    public private(set) var capturedDisplayErrorAtFirstPage: [ServiceError] = []
+    public private(set) var capturedDisplayErrorAtSubsequentPage: [ServiceError] = []
 
 
     // MARK: - PaginationViewOutput methods

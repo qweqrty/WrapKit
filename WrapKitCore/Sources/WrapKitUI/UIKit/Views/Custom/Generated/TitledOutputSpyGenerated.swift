@@ -21,7 +21,7 @@ public final class TitledOutputSpy: TitledOutput {
 
     public init() {}
 
-    enum Message: HashableWithReflection {
+    public enum Message: HashableWithReflection {
         case display(model: TitledViewPresentableModel?)
         case display(titles: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>)
         case display(bottomTitles: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>)
@@ -31,16 +31,16 @@ public final class TitledOutputSpy: TitledOutput {
         case display(isHidden: Bool)
     }
 
-    private(set) var messages: [Message] = []
+    public private(set) var messages: [Message] = []
 
     // MARK: - Captured values
-    private(set) var capturedDisplayModel: [TitledViewPresentableModel?] = []
-    private(set) var capturedDisplayTitles: [Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>] = []
-    private(set) var capturedDisplayBottomTitles: [Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>] = []
-    private(set) var capturedDisplayLeadingBottomTitle: [TextOutputPresentableModel?] = []
-    private(set) var capturedDisplayTrailingBottomTitle: [TextOutputPresentableModel?] = []
-    private(set) var capturedDisplayIsUserInteractionEnabled: [Bool] = []
-    private(set) var capturedDisplayIsHidden: [Bool] = []
+    public private(set) var capturedDisplayModel: [TitledViewPresentableModel?] = []
+    public private(set) var capturedDisplayTitles: [Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>] = []
+    public private(set) var capturedDisplayBottomTitles: [Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>] = []
+    public private(set) var capturedDisplayLeadingBottomTitle: [TextOutputPresentableModel?] = []
+    public private(set) var capturedDisplayTrailingBottomTitle: [TextOutputPresentableModel?] = []
+    public private(set) var capturedDisplayIsUserInteractionEnabled: [Bool] = []
+    public private(set) var capturedDisplayIsHidden: [Bool] = []
 
 
     // MARK: - TitledOutput methods

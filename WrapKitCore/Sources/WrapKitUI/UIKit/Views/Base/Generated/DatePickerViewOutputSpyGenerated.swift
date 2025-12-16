@@ -21,21 +21,21 @@ public final class DatePickerViewOutputSpy: DatePickerViewOutput {
 
     public init() {}
 
-    enum Message: HashableWithReflection {
+    public enum Message: HashableWithReflection {
         case display(dateChanged: ((Date) -> Void)?)
         case display(date: Date)
         case display(setDate: Date, animated: Bool)
         case display(model: DatePickerPresentableModel)
     }
 
-    private(set) var messages: [Message] = []
+    public private(set) var messages: [Message] = []
 
     // MARK: - Captured values
-    private(set) var capturedDisplayDateChanged: [((Date) -> Void)?] = []
-    private(set) var capturedDisplayDate: [Date] = []
-    private(set) var capturedDisplaySetDate: [Date] = []
-    private(set) var capturedDisplayAnimated: [Bool] = []
-    private(set) var capturedDisplayModel: [DatePickerPresentableModel] = []
+    public private(set) var capturedDisplayDateChanged: [((Date) -> Void)?] = []
+    public private(set) var capturedDisplayDate: [Date] = []
+    public private(set) var capturedDisplaySetDate: [Date] = []
+    public private(set) var capturedDisplayAnimated: [Bool] = []
+    public private(set) var capturedDisplayModel: [DatePickerPresentableModel] = []
 
 
     // MARK: - DatePickerViewOutput methods

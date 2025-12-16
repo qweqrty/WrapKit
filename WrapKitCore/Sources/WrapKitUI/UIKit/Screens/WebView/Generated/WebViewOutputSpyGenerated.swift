@@ -18,20 +18,20 @@ public final class WebViewOutputSpy: WebViewOutput {
 
     public init() {}
 
-    enum Message: HashableWithReflection {
+    public enum Message: HashableWithReflection {
         case display(url: URL)
         case display(refreshModel: WebViewStyle.Refresh)
         case display(backgroundColor: Color?)
         case display(isProgressBarNeeded: Bool)
     }
 
-    private(set) var messages: [Message] = []
+    public private(set) var messages: [Message] = []
 
     // MARK: - Captured values
-    private(set) var capturedDisplayUrl: [URL] = []
-    private(set) var capturedDisplayRefreshModel: [WebViewStyle.Refresh] = []
-    private(set) var capturedDisplayBackgroundColor: [Color?] = []
-    private(set) var capturedDisplayIsProgressBarNeeded: [Bool] = []
+    public private(set) var capturedDisplayUrl: [URL] = []
+    public private(set) var capturedDisplayRefreshModel: [WebViewStyle.Refresh] = []
+    public private(set) var capturedDisplayBackgroundColor: [Color?] = []
+    public private(set) var capturedDisplayIsProgressBarNeeded: [Bool] = []
 
 
     // MARK: - WebViewOutput methods

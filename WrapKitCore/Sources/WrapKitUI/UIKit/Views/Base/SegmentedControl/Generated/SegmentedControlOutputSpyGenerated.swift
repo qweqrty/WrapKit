@@ -21,16 +21,16 @@ public final class SegmentedControlOutputSpy: SegmentedControlOutput {
 
     public init() {}
 
-    enum Message: HashableWithReflection {
+    public enum Message: HashableWithReflection {
         case display(appearence: SegmentedControlAppearance)
         case display(segments: [SegmentControlModel])
     }
 
-    private(set) var messages: [Message] = []
+    public private(set) var messages: [Message] = []
 
     // MARK: - Captured values
-    private(set) var capturedDisplayAppearence: [SegmentedControlAppearance] = []
-    private(set) var capturedDisplaySegments: [[SegmentControlModel]] = []
+    public private(set) var capturedDisplayAppearence: [SegmentedControlAppearance] = []
+    public private(set) var capturedDisplaySegments: [[SegmentControlModel]] = []
 
 
     // MARK: - SegmentedControlOutput methods

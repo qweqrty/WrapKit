@@ -21,7 +21,7 @@ public final class RefreshControlOutputSpy: RefreshControlOutput {
 
     public init() {}
 
-    enum Message: HashableWithReflection {
+    public enum Message: HashableWithReflection {
         case display(model: RefreshControlPresentableModel?)
         case display(style: RefreshControlPresentableModel.Style)
         case display(onRefresh: (() -> Void)?)
@@ -30,16 +30,16 @@ public final class RefreshControlOutputSpy: RefreshControlOutput {
         case setOnRefresh([(() -> Void)?]?)
     }
 
-    private(set) var messages: [Message] = []
+    public private(set) var messages: [Message] = []
 
     // MARK: - Captured values
-    private(set) var capturedDisplayModel: [RefreshControlPresentableModel?] = []
-    private(set) var capturedDisplayStyle: [RefreshControlPresentableModel.Style] = []
-    private(set) var capturedDisplayOnRefresh: [(() -> Void)?] = []
-    private(set) var capturedDisplayAppendingOnRefresh: [(() -> Void)?] = []
-    private(set) var capturedDisplayIsLoading: [Bool] = []
+    public private(set) var capturedDisplayModel: [RefreshControlPresentableModel?] = []
+    public private(set) var capturedDisplayStyle: [RefreshControlPresentableModel.Style] = []
+    public private(set) var capturedDisplayOnRefresh: [(() -> Void)?] = []
+    public private(set) var capturedDisplayAppendingOnRefresh: [(() -> Void)?] = []
+    public private(set) var capturedDisplayIsLoading: [Bool] = []
 
-    private(set) var capturedOnRefresh: [[(() -> Void)?]?] = []
+    public private(set) var capturedOnRefresh: [[(() -> Void)?]?] = []
 
     // MARK: - RefreshControlOutput methods
     public func display(model: RefreshControlPresentableModel?) {

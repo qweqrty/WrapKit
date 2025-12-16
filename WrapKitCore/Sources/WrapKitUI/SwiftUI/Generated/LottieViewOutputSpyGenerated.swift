@@ -27,17 +27,17 @@ public final class LottieViewOutputSpy: LottieViewOutput {
 
     public init() {}
 
-    enum Message: HashableWithReflection {
+    public enum Message: HashableWithReflection {
         case display(model: LottieViewPresentableModel)
         case setCurrentAnimationName(String?)
     }
 
-    private(set) var messages: [Message] = []
+    public private(set) var messages: [Message] = []
 
     // MARK: - Captured values
-    private(set) var capturedDisplayModel: [LottieViewPresentableModel] = []
+    public private(set) var capturedDisplayModel: [LottieViewPresentableModel] = []
 
-    private(set) var capturedCurrentAnimationName: [String?] = []
+    public private(set) var capturedCurrentAnimationName: [String?] = []
 
     // MARK: - LottieViewOutput methods
     public func display(model: LottieViewPresentableModel) {

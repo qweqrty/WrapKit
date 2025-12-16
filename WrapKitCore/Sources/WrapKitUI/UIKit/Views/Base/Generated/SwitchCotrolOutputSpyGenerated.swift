@@ -21,7 +21,7 @@ public final class SwitchCotrolOutputSpy: SwitchCotrolOutput {
 
     public init() {}
 
-    enum Message: HashableWithReflection {
+    public enum Message: HashableWithReflection {
         case display(model: SwitchControlPresentableModel?)
         case display(onPress: ((SwitchCotrolOutput & LoadingOutput) -> Void)?)
         case display(isOn: Bool)
@@ -30,15 +30,15 @@ public final class SwitchCotrolOutputSpy: SwitchCotrolOutput {
         case display(isHidden: Bool)
     }
 
-    private(set) var messages: [Message] = []
+    public private(set) var messages: [Message] = []
 
     // MARK: - Captured values
-    private(set) var capturedDisplayModel: [SwitchControlPresentableModel?] = []
-    private(set) var capturedDisplayOnPress: [((SwitchCotrolOutput & LoadingOutput) -> Void)?] = []
-    private(set) var capturedDisplayIsOn: [Bool] = []
-    private(set) var capturedDisplayStyle: [SwitchControlPresentableModel.Style?] = []
-    private(set) var capturedDisplayIsEnabled: [Bool] = []
-    private(set) var capturedDisplayIsHidden: [Bool] = []
+    public private(set) var capturedDisplayModel: [SwitchControlPresentableModel?] = []
+    public private(set) var capturedDisplayOnPress: [((SwitchCotrolOutput & LoadingOutput) -> Void)?] = []
+    public private(set) var capturedDisplayIsOn: [Bool] = []
+    public private(set) var capturedDisplayStyle: [SwitchControlPresentableModel.Style?] = []
+    public private(set) var capturedDisplayIsEnabled: [Bool] = []
+    public private(set) var capturedDisplayIsHidden: [Bool] = []
 
 
     // MARK: - SwitchCotrolOutput methods

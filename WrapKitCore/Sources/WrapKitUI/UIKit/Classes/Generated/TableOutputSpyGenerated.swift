@@ -21,7 +21,7 @@ public final class TableOutputSpy: TableOutput {
 
     public init() {}
 
-    enum Message: HashableWithReflection {
+    public enum Message: HashableWithReflection {
         case display(sections: [TableSection<Header, Cell, Footer>])
         case display(trailingSwipeActionsForIndexPath: ((IndexPath) -> [TableContextualAction<Cell>])?)
         case display(expandTrailingActionsAt: IndexPath)
@@ -32,17 +32,17 @@ public final class TableOutputSpy: TableOutput {
         case display(commitEditing: ((TableEditingStyle, IndexPath) -> Void)?)
     }
 
-    private(set) var messages: [Message] = []
+    public private(set) var messages: [Message] = []
 
     // MARK: - Captured values
-    private(set) var capturedDisplaySections: [[TableSection<Header, Cell, Footer>]] = []
-    private(set) var capturedDisplayTrailingSwipeActionsForIndexPath: [((IndexPath) -> [TableContextualAction<Cell>])?] = []
-    private(set) var capturedDisplayIndexPath: [IndexPath] = []
-    private(set) var capturedDisplayLeadingSwipeActionsForIndexPath: [((IndexPath) -> [TableContextualAction<Cell>])?] = []
-    private(set) var capturedDisplayMove: [((IndexPath, IndexPath) -> Void)?] = []
-    private(set) var capturedDisplayCanMove: [((IndexPath) -> Bool)?] = []
-    private(set) var capturedDisplayCanEdit: [((IndexPath) -> Bool)?] = []
-    private(set) var capturedDisplayCommitEditing: [((TableEditingStyle, IndexPath) -> Void)?] = []
+    public private(set) var capturedDisplaySections: [[TableSection<Header, Cell, Footer>]] = []
+    public private(set) var capturedDisplayTrailingSwipeActionsForIndexPath: [((IndexPath) -> [TableContextualAction<Cell>])?] = []
+    public private(set) var capturedDisplayIndexPath: [IndexPath] = []
+    public private(set) var capturedDisplayLeadingSwipeActionsForIndexPath: [((IndexPath) -> [TableContextualAction<Cell>])?] = []
+    public private(set) var capturedDisplayMove: [((IndexPath, IndexPath) -> Void)?] = []
+    public private(set) var capturedDisplayCanMove: [((IndexPath) -> Bool)?] = []
+    public private(set) var capturedDisplayCanEdit: [((IndexPath) -> Bool)?] = []
+    public private(set) var capturedDisplayCommitEditing: [((TableEditingStyle, IndexPath) -> Void)?] = []
 
 
     // MARK: - TableOutput methods
