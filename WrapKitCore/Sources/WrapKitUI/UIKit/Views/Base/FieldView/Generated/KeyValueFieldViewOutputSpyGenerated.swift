@@ -18,6 +18,9 @@ import SwiftUI
 #endif
 
 public final class KeyValueFieldViewOutputSpy: KeyValueFieldViewOutput {
+
+    public init() {}
+
     enum Message: HashableWithReflection {
         case display(model: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>?)
         case display(keyTitle: TextOutputPresentableModel?)

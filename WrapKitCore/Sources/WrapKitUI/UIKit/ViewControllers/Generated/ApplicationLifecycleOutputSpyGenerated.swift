@@ -15,6 +15,9 @@ import UIKit
 #endif
 
 public final class ApplicationLifecycleOutputSpy: ApplicationLifecycleOutput {
+
+    public init() {}
+
     enum Message: HashableWithReflection {
         case applicationWillEnterForeground()
         case applicationDidEnterBackground()

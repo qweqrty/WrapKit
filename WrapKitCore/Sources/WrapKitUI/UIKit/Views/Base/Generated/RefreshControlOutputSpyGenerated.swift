@@ -18,6 +18,9 @@ import UIKit
 #endif
 
 public final class RefreshControlOutputSpy: RefreshControlOutput {
+
+    public init() {}
+
     enum Message: HashableWithReflection {
         case display(model: RefreshControlPresentableModel?)
         case display(style: RefreshControlPresentableModel.Style)

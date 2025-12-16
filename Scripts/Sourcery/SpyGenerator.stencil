@@ -17,6 +17,9 @@ import {{ importName }}
 {% endfor %}
 
 public final class {{ type.name }}Spy: {{ type.name }} {
+
+    public init() {}
+
     enum Message: HashableWithReflection {
         {% for method in type.methods %}
         case {{ method.callName }}({% for param in method.parameters %}{% if param.argumentLabel %}{{ param.argumentLabel }}: {% else %}_ : {% endif %}{{ param.typeName }}{% if not forloop.last %}, {% endif %}{% endfor %})

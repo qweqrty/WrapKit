@@ -18,6 +18,9 @@ import UIKit
 #endif
 
 public final class HeaderOutputSpy: HeaderOutput {
+
+    public init() {}
+
     enum Message: HashableWithReflection {
         case display(model: HeaderPresentableModel?)
         case display(style: HeaderPresentableModel.Style?)

@@ -21,6 +21,9 @@ import SwiftUI
 #endif
 
 public final class CardViewOutputSpy: CardViewOutput {
+
+    public init() {}
+
     enum Message: HashableWithReflection {
         case display(model: CardViewPresentableModel?)
         case display(style: CardViewPresentableModel.Style?)

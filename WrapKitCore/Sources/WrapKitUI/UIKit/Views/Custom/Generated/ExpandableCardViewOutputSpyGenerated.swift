@@ -21,6 +21,9 @@ import Combine
 #endif
 
 public final class ExpandableCardViewOutputSpy: ExpandableCardViewOutput {
+
+    public init() {}
+
     enum Message: HashableWithReflection {
         case display(model: Pair<CardViewPresentableModel, CardViewPresentableModel?>)
         case display(isHidden: Bool)

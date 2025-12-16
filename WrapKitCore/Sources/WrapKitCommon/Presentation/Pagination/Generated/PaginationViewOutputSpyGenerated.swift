@@ -18,6 +18,9 @@ import Combine
 #endif
 
 public final class PaginationViewOutputSpy: PaginationViewOutput {
+
+    public init() {}
+
     enum Message: HashableWithReflection {
         case display(model: [PresentableItem], hasMore: Bool)
         case display(isLoadingFirstPage: Bool)

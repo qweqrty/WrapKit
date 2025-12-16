@@ -18,6 +18,9 @@ import UIKit
 #endif
 
 public final class StackViewOutputSpy: StackViewOutput {
+
+    public init() {}
+
     enum Message: HashableWithReflection {
         case display(model: StackViewPresentableModel)
         case display(spacing: CGFloat?)

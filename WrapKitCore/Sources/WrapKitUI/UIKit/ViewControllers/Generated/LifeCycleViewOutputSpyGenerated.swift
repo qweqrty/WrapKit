@@ -15,6 +15,9 @@ import UIKit
 #endif
 
 public final class LifeCycleViewOutputSpy: LifeCycleViewOutput {
+
+    public init() {}
+
     enum Message: HashableWithReflection {
         case viewDidLoad()
         case viewWillAppear()

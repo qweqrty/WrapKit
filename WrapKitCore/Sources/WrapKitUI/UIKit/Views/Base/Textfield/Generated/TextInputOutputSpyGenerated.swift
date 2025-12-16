@@ -18,6 +18,9 @@ import UIKit
 #endif
 
 public final class TextInputOutputSpy: TextInputOutput {
+
+    public init() {}
+
     enum Message: HashableWithReflection {
         case display(model: TextInputPresentableModel?)
         case display(text: String?)

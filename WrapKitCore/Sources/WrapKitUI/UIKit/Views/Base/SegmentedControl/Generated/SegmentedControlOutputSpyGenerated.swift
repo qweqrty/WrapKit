@@ -18,6 +18,9 @@ import UIKit
 #endif
 
 public final class SegmentedControlOutputSpy: SegmentedControlOutput {
+
+    public init() {}
+
     enum Message: HashableWithReflection {
         case display(appearence: SegmentedControlAppearance)
         case display(segments: [SegmentControlModel])

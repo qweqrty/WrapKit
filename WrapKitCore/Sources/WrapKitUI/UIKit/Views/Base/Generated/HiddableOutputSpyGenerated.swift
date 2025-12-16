@@ -18,6 +18,9 @@ import UIKit
 #endif
 
 public final class HiddableOutputSpy: HiddableOutput {
+
+    public init() {}
+
     enum Message: HashableWithReflection {
         case display(isHidden: Bool)
     }

@@ -15,6 +15,9 @@ import Foundation
 #endif
 
 public final class TimerOutputSpy: TimerOutput {
+
+    public init() {}
+
     enum Message: HashableWithReflection {
         case display(timerInput: TimerInput, secondsRemaining: Int?)
     }

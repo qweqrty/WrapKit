@@ -15,6 +15,9 @@ import Foundation
 #endif
 
 public final class SelectionOutputSpy: SelectionOutput {
+
+    public init() {}
+
     enum Message: HashableWithReflection {
         case display(items: [TableSection<Void, SelectionType.SelectionCellPresentableModel, Void>], selectedCountTitle: String)
         case display(shouldShowSearchBar: Bool)

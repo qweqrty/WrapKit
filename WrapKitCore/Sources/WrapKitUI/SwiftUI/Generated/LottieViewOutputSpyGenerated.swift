@@ -24,6 +24,9 @@ import UIKit
 #endif
 
 public final class LottieViewOutputSpy: LottieViewOutput {
+
+    public init() {}
+
     enum Message: HashableWithReflection {
         case display(model: LottieViewPresentableModel)
         case setCurrentAnimationName(String?)

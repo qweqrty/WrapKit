@@ -18,6 +18,9 @@ import UIKit
 #endif
 
 public final class LoadingOutputSpy: LoadingOutput {
+
+    public init() {}
+
     enum Message: HashableWithReflection {
         case display(isLoading: Bool)
         case NVActivityLoader(onView: UIView, type: NVActivityIndicatorType, size: CGSize, padding: UIEdgeInsets, loadingViewColor: UIColor, wrapperViewColor: UIColor)

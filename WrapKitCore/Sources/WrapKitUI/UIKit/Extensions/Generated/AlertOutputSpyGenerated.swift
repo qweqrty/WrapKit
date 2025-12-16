@@ -15,6 +15,9 @@ import UIKit
 #endif
 
 public final class AlertOutputSpy: AlertOutput {
+
+    public init() {}
+
     enum Message: HashableWithReflection {
         case showAlert(model: AlertPresentableModel?)
         case showActionSheet(model: AlertPresentableModel?)

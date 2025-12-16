@@ -15,6 +15,9 @@ import Foundation
 #endif
 
 public final class CommonToastOutputSpy: CommonToastOutput {
+
+    public init() {}
+
     enum Message: HashableWithReflection {
         case display(_ : CommonToast)
         case hide()

@@ -21,6 +21,9 @@ import SwiftUI
 #endif
 
 public final class ProgressBarOutputSpy: ProgressBarOutput {
+
+    public init() {}
+
     enum Message: HashableWithReflection {
         case display(model: ProgressBarPresentableModel?)
         case display(progress: CGFloat)

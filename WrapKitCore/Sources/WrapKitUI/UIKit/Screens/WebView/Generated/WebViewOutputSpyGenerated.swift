@@ -15,6 +15,9 @@ import Foundation
 #endif
 
 public final class WebViewOutputSpy: WebViewOutput {
+
+    public init() {}
+
     enum Message: HashableWithReflection {
         case display(url: URL)
         case display(refreshModel: WebViewStyle.Refresh)

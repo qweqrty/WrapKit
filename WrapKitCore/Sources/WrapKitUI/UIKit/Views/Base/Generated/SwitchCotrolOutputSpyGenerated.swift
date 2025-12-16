@@ -18,6 +18,9 @@ import UIKit
 #endif
 
 public final class SwitchCotrolOutputSpy: SwitchCotrolOutput {
+
+    public init() {}
+
     enum Message: HashableWithReflection {
         case display(model: SwitchControlPresentableModel?)
         case display(onPress: ((SwitchCotrolOutput & LoadingOutput) -> Void)?)
