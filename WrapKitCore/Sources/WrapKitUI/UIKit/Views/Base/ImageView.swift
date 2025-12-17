@@ -68,10 +68,12 @@ public struct ImageViewPresentableModel: HashableWithReflection {
 #if canImport(UIKit)
 import UIKit
 import SwiftUI
+import Kingfisher
 
 open class ImageView: UIImageView {
     public var currentAnimator: UIViewPropertyAnimator?
     public var currentImageEnum: ImageEnum?
+    public var currentLoadToken: UUID?
 
     open override var image: UIImage? {
         get {
@@ -80,6 +82,7 @@ open class ImageView: UIImageView {
         set {
             if newValue == nil {
                 cancelCurrentAnimation()
+                currentImageEnum = nil
                 super.image = nil
             } else {
                 super.image = newValue

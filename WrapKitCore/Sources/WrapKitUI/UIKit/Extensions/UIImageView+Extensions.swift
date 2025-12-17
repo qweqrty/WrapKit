@@ -18,7 +18,9 @@ public extension ImageView {
     }
     
     private func handleImage(_ image: ImageEnum?, kingfisherOptions: KingfisherOptionsInfo = [], closure: ((Image?) -> Void)? = nil) {
+        cancelCurrentDownload()
         currentImageEnum = image
+        
         switch image {
         case .asset(let image):
             self.animatedSet(image, closure: closure)
@@ -35,6 +37,8 @@ public extension ImageView {
             }
             self.animatedSet(UIImage(data: data), closure: closure)
         case .none:
+            cancelCurrentAnimation()
+            self.image = nil
             closure?(nil)
         }
     }
@@ -44,35 +48,66 @@ public extension ImageView {
             animatedSet(wrongUrlPlaceholderImage, closure: nil)
             return
         }
+        KingfisherManager.shared.downloader.cancel(url: url)
+        
         if let fallbackView {
             fallbackView.isHidden = true
         }
         viewWhileLoadingView?.isHidden = false
+        
         KingfisherManager.shared.cache.retrieveImage(forKey: url.absoluteString, options: [.callbackQueue(.mainCurrentOrAsync)]) { [weak self] result in
+            guard let self = self else { return }
+            
             switch result {
             case .success(let image):
-                self?.animatedSet(image.image, closure: closure)
-
-                KingfisherManager.shared.retrieveImage(with: url, options: [.callbackQueue(.mainCurrentOrAsync), .forceRefresh] + kingfisherOptions) { [weak self, url] result in
+                self.animatedSet(image.image, closure: closure)
+                KingfisherManager.shared.retrieveImage(with: url, options: [.callbackQueue(.mainCurrentOrAsync), .forceRefresh] + kingfisherOptions) { [weak self] result in
+                    guard let self = self else { return }
+                    
                     switch result {
                     case .success(let image):
-                        self?.animatedSet(image.image, closure: closure)
+                        self.animatedSet(image.image, closure: closure)
                     case .failure:
-                        self?.showFallbackView(url)
+                        self.showFallbackView(url)
                         closure?(nil)
                     }
                 }
-            case.failure:
-                KingfisherManager.shared.retrieveImage(with: url, options: [.callbackQueue(.mainCurrentOrAsync)] + kingfisherOptions) { [weak self, url] result in
+            case .failure:
+                KingfisherManager.shared.retrieveImage(with: url, options: [.callbackQueue(.mainCurrentOrAsync)] + kingfisherOptions) { [weak self] result in
+                    guard let self = self else { return }
+                    
                     switch result {
                     case .success(let image):
-                        self?.animatedSet(image.image, closure: closure)
+                        self.animatedSet(image.image, closure: closure)
                     case .failure:
-                        self?.showFallbackView(url)
+                        self.showFallbackView(url)
                         closure?(nil)
                     }
                 }
             }
+        }
+    }
+    
+    private func cancelCurrentDownload() {
+        guard let currentImageEnum = currentImageEnum else { return }
+        
+        switch currentImageEnum {
+        case .url(let lightUrl, let darkUrl):
+            if let url = lightUrl {
+                KingfisherManager.shared.downloader.cancel(url: url)
+            }
+            if let url = darkUrl {
+                KingfisherManager.shared.downloader.cancel(url: url)
+            }
+        case .urlString(let lightString, let darkString):
+            if let urlString = lightString, let url = URL(string: urlString) {
+                KingfisherManager.shared.downloader.cancel(url: url)
+            }
+            if let urlString = darkString, let url = URL(string: urlString) {
+                KingfisherManager.shared.downloader.cancel(url: url)
+            }
+        default:
+            break
         }
     }
     
@@ -90,7 +125,6 @@ public extension ImageView {
     
     private func animatedSet(_ image: UIImage?, closure: ((Image?) -> Void)? = nil) {
         cancelCurrentAnimation()
-
         currentAnimator = UIViewPropertyAnimator(duration: 0.3, curve: .easeInOut) { [weak self] in
             self?.image = image
         }
