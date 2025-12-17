@@ -20,6 +20,7 @@ final class ImageViewCancelDownloadTests: XCTestCase {
     }
     
     func test_imageView_setImageToNil_cancelsDownloadTask() {
+        // GIVEN
         let sut = makeSUT()
         guard let url = URL(string: testImageURL) else {
             XCTFail("Invalid URL")
@@ -27,12 +28,18 @@ final class ImageViewCancelDownloadTests: XCTestCase {
         }
         
         sut.display(image: .url(url, url))
-        wait(0.2)
+        
+        let expectation = expectation(description: "Wait for async dispatch")
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            expectation.fulfill()
+        }
+        wait(for: [expectation], timeout: 1.0)
         
         sut.display(image: nil)
         
-        XCTAssertNil(sut.kf.taskIdentifier)
-        XCTAssertNil(sut.image)
+        // THEN
+        XCTAssertNil(sut.kf.taskIdentifier, "Download task should be cancelled")
+        XCTAssertNil(sut.image, "Image should be nil")
     }
     
     func test_imageView_setImagePropertyToNil_cancelsDownloadTask() {
