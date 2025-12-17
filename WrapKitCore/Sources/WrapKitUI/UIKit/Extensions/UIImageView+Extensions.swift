@@ -93,13 +93,17 @@ public extension ImageView {
         
         switch currentImageEnum {
         case .url(let lightUrl, let darkUrl):
-            let url = traitCollection.userInterfaceStyle == .dark ? darkUrl : lightUrl
-            if let url = url {
+            if let url = lightUrl {
+                KingfisherManager.shared.downloader.cancel(url: url)
+            }
+            if let url = darkUrl {
                 KingfisherManager.shared.downloader.cancel(url: url)
             }
         case .urlString(let lightString, let darkString):
-            let string = traitCollection.userInterfaceStyle == .dark ? darkString : lightString
-            if let urlString = string, let url = URL(string: urlString) {
+            if let urlString = lightString, let url = URL(string: urlString) {
+                KingfisherManager.shared.downloader.cancel(url: url)
+            }
+            if let urlString = darkString, let url = URL(string: urlString) {
                 KingfisherManager.shared.downloader.cancel(url: url)
             }
         default:
