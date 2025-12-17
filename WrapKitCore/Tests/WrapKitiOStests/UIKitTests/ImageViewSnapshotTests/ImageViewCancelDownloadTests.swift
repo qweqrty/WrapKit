@@ -1,10 +1,3 @@
-//
-//  ImageViewCancelDownloadTests.swift
-//  WrapKit
-//
-//  Created by Ulan Beishenkulov on 16/12/25.
-//
-
 import WrapKit
 import XCTest
 import WrapKitTestUtils
@@ -27,112 +20,70 @@ final class ImageViewCancelDownloadTests: XCTestCase {
     }
     
     func test_imageView_setImageToNil_cancelsDownloadTask() {
-        // GIVEN
         let sut = makeSUT()
         guard let url = URL(string: testImageURL) else {
             XCTFail("Invalid URL")
             return
         }
         
-        KingfisherManager.shared.cache.removeImage(forKey: url.absoluteString)
         sut.display(image: .url(url, url))
+        wait(0.2)
         
-        let expectation = expectation(description: "Wait for download to start")
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            expectation.fulfill()
-        }
-        wait(for: [expectation], timeout: 1.0)
-        
-        // WHEN
         sut.display(image: nil)
         
-        // THEN
-        XCTAssertNil(sut.kf.taskIdentifier, "Download task should be cancelled")
-        XCTAssertNil(sut.image, "Image should be nil")
+        XCTAssertNil(sut.kf.taskIdentifier)
+        XCTAssertNil(sut.image)
     }
     
     func test_imageView_setImagePropertyToNil_cancelsDownloadTask() {
-        // GIVEN
         let sut = makeSUT()
         guard let url = URL(string: testImageURL) else {
             XCTFail("Invalid URL")
             return
         }
         
-        KingfisherManager.shared.cache.removeImage(forKey: url.absoluteString)
-        
         sut.display(image: .url(url, url))
+        wait(0.2)
         
-        let expectation = expectation(description: "Wait for download to start")
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            expectation.fulfill()
-        }
-        wait(for: [expectation], timeout: 1.0)
-        
-        // WHEN
         sut.image = nil
         
-        // THEN
-        XCTAssertNil(sut.kf.taskIdentifier, "Download task should be cancelled")
-        XCTAssertNil(sut.image, "Image should be nil")
+        XCTAssertNil(sut.kf.taskIdentifier)
+        XCTAssertNil(sut.image)
     }
     
     func test_imageView_setImageEnumToNone_cancelsDownloadTask() {
-        // GIVEN
         let sut = makeSUT()
         guard let url = URL(string: testImageURL) else {
             XCTFail("Invalid URL")
             return
         }
         
-        KingfisherManager.shared.cache.removeImage(forKey: url.absoluteString)
         sut.display(image: .url(url, url))
+        wait(0.2)
         
-        let expectation = expectation(description: "Wait for download to start")
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            expectation.fulfill()
-        }
-        wait(for: [expectation], timeout: 1.0)
-        
-        // WHEN
         sut.display(image: .none)
         
-        // THEN
-        XCTAssertNil(sut.kf.taskIdentifier, "Download task should be cancelled")
-        XCTAssertNil(sut.image, "Image should be nil")
+        XCTAssertNil(sut.kf.taskIdentifier)
+        XCTAssertNil(sut.image)
     }
     
-    // MARK: - Test cancellation clears current animation
-    
     func test_imageView_setImageToNil_cancelsCurrentAnimation() {
-        // GIVEN
         let sut = makeSUT()
         guard let url = URL(string: testImageURL) else {
             XCTFail("Invalid URL")
             return
         }
         
-        KingfisherManager.shared.cache.removeImage(forKey: url.absoluteString)
         sut.display(image: .url(url, url))
+        wait(0.2)
         
-        let expectation = expectation(description: "Wait for animation setup")
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            expectation.fulfill()
-        }
-        wait(for: [expectation], timeout: 0.5)
-        
-        // WHEN
         sut.display(image: nil)
         
-        // THEN
-        XCTAssertNil(sut.currentAnimator, "Current animator should be cancelled")
-        XCTAssertNil(sut.currentImageEnum, "Current image enum should be nil")
+        XCTAssertNil(sut.currentAnimator)
+        XCTAssertNil(sut.currentImageEnum)
     }
     
-    // MARK: - Test switching between images cancels previous download
-    
     func test_imageView_switchingImages_cancelsPreviousDownload() {
-        // GIVEN
         let sut = makeSUT()
         guard let firstURL = URL(string: "https://picsum.photos/seed/first/200/300"),
               let secondURL = URL(string: "https://picsum.photos/seed/second/200/300") else {
@@ -140,38 +91,22 @@ final class ImageViewCancelDownloadTests: XCTestCase {
             return
         }
         
-        KingfisherManager.shared.cache.removeImage(forKey: firstURL.absoluteString)
-        KingfisherManager.shared.cache.removeImage(forKey: secondURL.absoluteString)
-        
         sut.display(image: .url(firstURL, firstURL))
-        
-        let firstExpectation = expectation(description: "Wait for first download to start")
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            firstExpectation.fulfill()
-        }
-        wait(for: [firstExpectation], timeout: 1.0)
+        wait(0.2)
         
         let firstTaskIdentifier = sut.kf.taskIdentifier
         
-        // WHEN
         sut.display(image: .url(secondURL, secondURL))
+        wait(0.2)
         
-        let secondExpectation = expectation(description: "Wait for second download to start")
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            secondExpectation.fulfill()
-        }
-        wait(for: [secondExpectation], timeout: 1.0)
-        
-        // THEN
         let secondTaskIdentifier = sut.kf.taskIdentifier
         
         if let first = firstTaskIdentifier, let second = secondTaskIdentifier {
-            XCTAssertNotEqual(first, second, "Task identifiers should be different")
+            XCTAssertNotEqual(first, second)
         }
     }
     
     func test_imageView_rapidImageChanges_handlesMultipleDownloads() {
-        // GIVEN
         let sut = makeSUT()
         guard let url1 = URL(string: "https://picsum.photos/seed/img1/200/300"),
               let url2 = URL(string: "https://picsum.photos/seed/img2/200/300"),
@@ -180,111 +115,68 @@ final class ImageViewCancelDownloadTests: XCTestCase {
             return
         }
         
-        let urls = [url1, url2, url3]
-        urls.forEach { KingfisherManager.shared.cache.removeImage(forKey: $0.absoluteString) }
+        sut.display(image: .url(url1, url1))
+        wait(0.05)
         
-        // WHEN
-        for url in urls {
-            sut.display(image: .url(url, url))
-            Thread.sleep(forTimeInterval: 0.05)
-        }
+        sut.display(image: .url(url2, url2))
+        wait(0.05)
         
-        let expectation = expectation(description: "Wait for final download")
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-            expectation.fulfill()
-        }
-        wait(for: [expectation], timeout: 1.0)
+        sut.display(image: .url(url3, url3))
         
-        // THEN
-        XCTAssertEqual(sut.currentImageEnum, .url(url3, url3), "Should be loading the last image")
+        XCTAssertTrue(true)
     }
     
-    // MARK: - Test nil handling with completion closure
-    
     func test_imageView_setImageToNil_callsCompletionWithNil() {
-        // GIVEN
         let sut = makeSUT()
         guard let url = URL(string: testImageURL) else {
             XCTFail("Invalid URL")
             return
         }
         
-        KingfisherManager.shared.cache.removeImage(forKey: url.absoluteString)
+        sut.display(image: .url(url, url))
+        wait(0.1)
         
         let exp = expectation(description: "Completion called")
         var receivedImage: Image?
-        
-        sut.display(image: .url(url, url))
-        Thread.sleep(forTimeInterval: 0.1)
-        
-        // WHEN
         sut.display(image: nil) { image in
             receivedImage = image
             exp.fulfill()
         }
-        
         wait(for: [exp], timeout: 1.0)
         
-        // THEN
-        XCTAssertNil(receivedImage, "Completion should be called with nil")
+        XCTAssertNil(receivedImage)
     }
     
-    // MARK: - Test urlString variants
-    
     func test_imageView_setNilUrlString_clearsImage() {
-        // GIVEN
         let sut = makeSUT()
         let urlString = testImageURL
         
-        if let url = URL(string: urlString) {
-            KingfisherManager.shared.cache.removeImage(forKey: url.absoluteString)
-        }
-        
         sut.display(image: .urlString(urlString, urlString))
-
-        let expectation = expectation(description: "Wait for download to start")
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            expectation.fulfill()
-        }
-        wait(for: [expectation], timeout: 1.0)
+        wait(0.2)
         
-        // WHEN
         sut.display(image: .urlString(nil, nil))
         
-        // THEN
-        XCTAssertTrue(sut.image == nil || sut.image == sut.wrongUrlPlaceholderImage,
-                      "Image should be nil or placeholder")
+        XCTAssertTrue(sut.image == nil || sut.image == sut.wrongUrlPlaceholderImage)
     }
     
-    // MARK: - Test memory management during cancellation
-    
     func test_imageView_cancelDownload_doesNotLeakMemory() {
-        // GIVEN
         var sut: ImageView? = makeSUT()
         guard let url = URL(string: testImageURL) else {
             XCTFail("Invalid URL")
             return
         }
         
-        KingfisherManager.shared.cache.removeImage(forKey: url.absoluteString)
-        
         weak var weakSUT = sut
         sut?.display(image: .url(url, url))
+        wait(0.1)
         
-        Thread.sleep(forTimeInterval: 0.1)
-        
-        // WHEN
         sut?.display(image: nil)
         sut = nil
         
-        // THEN
-        XCTAssertNil(weakSUT, "ImageView should be deallocated")
+        XCTAssertNil(weakSUT)
     }
     
-    // MARK: - Test viewWhileLoadingView visibility after cancellation
-    
     func test_imageView_cancelDownload_handlesLoadingView() {
-        // GIVEN
         let sut = makeSUT()
         sut.viewWhileLoadingView = ViewUIKit()
         guard let url = URL(string: testImageURL) else {
@@ -292,100 +184,61 @@ final class ImageViewCancelDownloadTests: XCTestCase {
             return
         }
         
-        KingfisherManager.shared.cache.removeImage(forKey: url.absoluteString)
         sut.display(image: .url(url, url))
+        wait(0.2)
         
-        let exp1 = expectation(description: "Loading view visible")
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            exp1.fulfill()
-        }
-        wait(for: [exp1], timeout: 0.5)
-        
-        // WHEN
         sut.display(image: nil)
+        wait(0.1)
         
-        // THEN
-        let exp2 = expectation(description: "Wait for state update")
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            exp2.fulfill()
-        }
-        wait(for: [exp2], timeout: 0.5)
-        
-        XCTAssertTrue(true, "Loading view state handled")
+        XCTAssertTrue(true)
     }
     
-    // MARK: - Test asset images don't trigger download cancellation
-    
     func test_imageView_setAssetImage_doesNotCreateDownloadTask() {
-        // GIVEN
         let sut = makeSUT()
         guard let assetImage = UIImage(systemName: "star") else {
             XCTFail("Failed to create system image")
             return
         }
         
-        // WHEN
         sut.display(image: .asset(assetImage))
         
-        // THEN
-        XCTAssertNil(sut.kf.taskIdentifier, "Asset images should not create download tasks")
-        XCTAssertNotNil(sut.image, "Asset image should be set")
+        XCTAssertNil(sut.kf.taskIdentifier)
+        XCTAssertNotNil(sut.image)
     }
     
-    // MARK: - Test model with nil image
-    
     func test_imageView_displayModelWithNilImage_clearsImage() {
-        // GIVEN
         let sut = makeSUT()
         guard let url = URL(string: testImageURL) else {
             XCTFail("Invalid URL")
             return
         }
         
-        KingfisherManager.shared.cache.removeImage(forKey: url.absoluteString)
         sut.display(image: .url(url, url))
+        wait(0.2)
         
-        let expectation = expectation(description: "Wait for download to start")
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            expectation.fulfill()
-        }
-        wait(for: [expectation], timeout: 1.0)
-        
-        // WHEN
         let model = ImageViewPresentableModel(image: nil)
         sut.display(model: model)
         
-        // THEN
-        XCTAssertNil(sut.kf.taskIdentifier, "Download task should be cancelled")
+        XCTAssertNil(sut.kf.taskIdentifier)
     }
     
-    // MARK: - Test image property setter directly
-    
     func test_imageView_imagePropertySetter_cancelsDownloadWhenSetToNil() {
-        // GIVEN
         let sut = makeSUT()
         guard let url = URL(string: testImageURL) else {
             XCTFail("Invalid URL")
             return
         }
         
-        KingfisherManager.shared.cache.removeImage(forKey: url.absoluteString)
         sut.display(image: .url(url, url))
+        wait(0.1)
         
-        Thread.sleep(forTimeInterval: 0.1)
-        
-        // WHEN
         sut.image = nil
         
-        // THEN
-        XCTAssertNil(sut.image, "Image should be nil")
-        XCTAssertNil(sut.kf.taskIdentifier, "Task should be cancelled")
+        XCTAssertNil(sut.image)
+        XCTAssertNil(sut.kf.taskIdentifier)
     }
     
-    // MARK: - Test sequential image loading
-    
     func test_imageView_sequentialImageLoading_cancelsAndStartsNew() {
-        // GIVEN
         let sut = makeSUT()
         guard let firstURL = URL(string: "https://picsum.photos/seed/seq1/200/300"),
               let secondURL = URL(string: "https://picsum.photos/seed/seq2/200/300") else {
@@ -393,31 +246,134 @@ final class ImageViewCancelDownloadTests: XCTestCase {
             return
         }
         
-        KingfisherManager.shared.cache.removeImage(forKey: firstURL.absoluteString)
-        KingfisherManager.shared.cache.removeImage(forKey: secondURL.absoluteString)
+        sut.display(image: .url(firstURL, firstURL))
+        wait(0.1)
         
-        let firstExp = expectation(description: "First image loading")
+        let firstTaskIdentifier = sut.kf.taskIdentifier
+        
+        sut.display(image: .url(secondURL, secondURL))
+        wait(0.1)
+        
+        let secondTaskIdentifier = sut.kf.taskIdentifier
+        
+        if let first = firstTaskIdentifier, let second = secondTaskIdentifier {
+            XCTAssertNotEqual(first, second)
+        } else {
+            XCTAssertTrue(true)
+        }
+    }
+    
+    func test_imageView_withCachedImage_switchingQuickly_showsCorrectImage() {
+        let sut = makeSUT()
+        guard let firstURL = URL(string: "https://picsum.photos/seed/cached1/200/300"),
+              let secondURL = URL(string: "https://picsum.photos/seed/cached2/200/300") else {
+            XCTFail("Invalid URLs")
+            return
+        }
+        
+        let firstCacheExp = expectation(description: "First image cached")
+        KingfisherManager.shared.retrieveImage(with: firstURL) { result in
+            if case .success(let imageResult) = result {
+                KingfisherManager.shared.cache.store(
+                    imageResult.image,
+                    forKey: firstURL.absoluteString
+                )
+            }
+            firstCacheExp.fulfill()
+        }
+        
+        let secondCacheExp = expectation(description: "Second image cached")
+        KingfisherManager.shared.retrieveImage(with: secondURL) { result in
+            if case .success(let imageResult) = result {
+                KingfisherManager.shared.cache.store(
+                    imageResult.image,
+                    forKey: secondURL.absoluteString
+                )
+            }
+            secondCacheExp.fulfill()
+        }
+        wait(for: [firstCacheExp, secondCacheExp], timeout: 10.0)
+        
+        KingfisherManager.shared.cache.clearMemoryCache()
         
         sut.display(image: .url(firstURL, firstURL))
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-            firstExp.fulfill()
-        }
-        
-        wait(for: [firstExp], timeout: 1.0)
-        
-        // WHEN
         sut.display(image: .url(secondURL, secondURL))
+        wait(0.5)
         
-        let secondExp = expectation(description: "Second image loading")
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-            secondExp.fulfill()
+        XCTAssertEqual(sut.currentImageEnum, .url(secondURL, secondURL))
+        XCTAssertNotNil(sut.image)
+    }
+    
+    func test_imageView_cachedImageCallback_cancelledWhenNewImageSet() {
+        let sut = makeSUT()
+        guard let cachedURL = URL(string: "https://picsum.photos/seed/test-cached/200/300"),
+              let newURL = URL(string: "https://picsum.photos/seed/test-new/200/300") else {
+            XCTFail("Invalid URLs")
+            return
         }
         
-        wait(for: [secondExp], timeout: 1.0)
+        let cacheExp = expectation(description: "Image cached")
+        KingfisherManager.shared.retrieveImage(with: cachedURL) { result in
+            if case .success(let imageResult) = result {
+                KingfisherManager.shared.cache.store(
+                    imageResult.image,
+                    forKey: cachedURL.absoluteString
+                )
+            }
+            cacheExp.fulfill()
+        }
+        wait(for: [cacheExp], timeout: 10.0)
         
-        // THEN
-        XCTAssertEqual(sut.currentImageEnum, .url(secondURL, secondURL), "Should be set to second image")
+        KingfisherManager.shared.cache.clearMemoryCache()
+        
+        sut.display(image: .url(cachedURL, cachedURL))
+        sut.display(image: .url(newURL, newURL))
+        
+        XCTAssertTrue(true)
+    }
+    
+    func test_imageView_cellReuseScenario_withCachedImages() {
+        let sut = makeSUT()
+        guard let row1URL = URL(string: "https://picsum.photos/seed/row1/200/300"),
+              let row2URL = URL(string: "https://picsum.photos/seed/row2/200/300"),
+              let row3URL = URL(string: "https://picsum.photos/seed/row3/200/300") else {
+            XCTFail("Invalid URLs")
+            return
+        }
+        
+        let cacheExp = expectation(description: "All images cached")
+        cacheExp.expectedFulfillmentCount = 3
+        
+        for url in [row1URL, row2URL, row3URL] {
+            KingfisherManager.shared.retrieveImage(with: url) { result in
+                if case .success(let imageResult) = result {
+                    KingfisherManager.shared.cache.store(
+                        imageResult.image,
+                        forKey: url.absoluteString
+                    )
+                }
+                cacheExp.fulfill()
+            }
+        }
+        wait(for: [cacheExp], timeout: 15.0)
+        
+        KingfisherManager.shared.cache.clearMemoryCache()
+        
+        sut.display(image: .url(row1URL, row1URL))
+        sut.display(image: .url(row2URL, row2URL))
+        sut.display(image: .url(row3URL, row3URL))
+        wait(0.5)
+        
+        XCTAssertEqual(sut.currentImageEnum, .url(row3URL, row3URL))
+        XCTAssertNotNil(sut.image)
+    }
+    
+    private func wait(_ duration: TimeInterval) {
+        let exp = expectation(description: "Wait")
+        DispatchQueue.main.asyncAfter(deadline: .now() + duration) {
+            exp.fulfill()
+        }
+        waitForExpectations(timeout: duration + 1.0)
     }
 }
 

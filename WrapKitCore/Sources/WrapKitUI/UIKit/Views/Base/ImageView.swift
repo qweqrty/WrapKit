@@ -73,6 +73,7 @@ import Kingfisher
 open class ImageView: UIImageView {
     public var currentAnimator: UIViewPropertyAnimator?
     public var currentImageEnum: ImageEnum?
+    public var currentLoadToken: UUID?
 
     open override var image: UIImage? {
         get {
@@ -83,6 +84,7 @@ open class ImageView: UIImageView {
                 cancelCurrentAnimation()
                 kf.cancelDownloadTask()
                 currentImageEnum = nil
+                currentLoadToken = nil
                 super.image = nil
             } else {
                 super.image = newValue
@@ -93,7 +95,7 @@ open class ImageView: UIImageView {
     open var anchoredConstraints: AnchoredConstraints?
     
     public func cancelCurrentAnimation() {
-        currentAnimator?.stopAnimation(true) // Stop the animation and leave the view in its current state
+        currentAnimator?.stopAnimation(true)
         currentAnimator = nil
     }
     
@@ -161,12 +163,12 @@ open class ImageView: UIImageView {
         super.traitCollectionDidChange(previousTraitCollection)
         
         switch currentImageEnum {
-        case .url(let lightUrl, let darkUrl): // changed
+        case .url(let lightUrl, let darkUrl):
             if lightUrl == darkUrl {
                 return
             }
             setImage(currentImageEnum)
-        case .urlString(let light, let dark): // changed
+        case .urlString(let light, let dark):
             if light == dark {
                 return
             }
