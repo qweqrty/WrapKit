@@ -11,7 +11,9 @@ import WrapKit
 
 final class SelectionPresenterSpyTests: XCTestCase {
     func test_viewDidLoad_selectionOutput_shouldShowSearchBar() {
-        let (sut, _, _, viewSpy, _, _) = makeSUT()
+        let components = makeSUT()
+        let sut = components.sut
+        let viewSpy = components.viewSpy
         
         sut.viewDidLoad()
         
@@ -22,9 +24,11 @@ final class SelectionPresenterSpyTests: XCTestCase {
     
     func test_viewDidLoad_HeaderOutput_displayModel() {
         // GIVEN
-        let (sut, headerSpy, _, _, _, _) = makeSUT()
-        let expectedTitle = "Select"
+        let components = makeSUT()
+        let sut = components.sut
+        let headerSpy = components.headerSpy
         
+        let expectedTitle = "Select"
         
         // WHEN
         sut.viewDidLoad()
@@ -49,7 +53,9 @@ final class SelectionPresenterSpyTests: XCTestCase {
     
     func test_viewDidLoad_emptyViewOutput_displayModel() {
         // GIVEN
-        let (sut, headerSpy, resetButtonSpy, viewSpy, selectButtonSpy, emptyViewSpy) = makeSUT()
+        let components = makeSUT()
+        let sut = components.sut
+        let emptyViewSpy = components.emptyViewSpy
         
         // WHEN
         sut.viewDidLoad()
@@ -62,7 +68,10 @@ final class SelectionPresenterSpyTests: XCTestCase {
     
     func test_viewDidLoad_resetButtonOutput_displayModel() {
         // GIVEN
-        let (sut, _, resetButtonSpy, _, _, _) = makeSUT()
+        let components = makeSUT()
+        let sut = components.sut
+        let resetButtonSpy = components.resetSpy
+        
         let config = nurSelection()
         
         // WHEN
@@ -79,7 +88,10 @@ final class SelectionPresenterSpyTests: XCTestCase {
     
     func test_viewDidLoad_selectButtonOutput_displayModel() {
         // GIVEN
-        let (sut, headerSpy, resetButtonSpy, viewSpy, selectButtonSpy, emptyViewSpy) = makeSUT()
+        let components = makeSUT()
+        let sut = components.sut
+        let selectButtonSpy = components.selectButtonSpy
+        
         let config = nurSelection()
         
         // WHEN
@@ -111,7 +123,17 @@ final class SelectionPresenterSpyTests: XCTestCase {
 }
 
 fileprivate extension SelectionPresenterSpyTests {
-    func makeSUT() -> (sut: SelectionPresenter, headerSpy: HeaderOutputSpy, resetSpy: ButtonOutputSpy, viewSpy: SelectionOutputSpy, selectButtonSpy: ButtonOutputSpy, emptyViewSpy: EmptyViewOutputSpy) {
+    
+    struct SUTComponents {
+        let sut: SelectionPresenter
+        let headerSpy: HeaderOutputSpy
+        let resetSpy: ButtonOutputSpy
+        let viewSpy: SelectionOutputSpy
+        let selectButtonSpy: ButtonOutputSpy
+        let emptyViewSpy: EmptyViewOutputSpy
+    }
+    
+    func makeSUT() -> SUTComponents {
         
         let items = (1...16).map { index in
             SelectionType.SelectionCellPresentableModel(
@@ -165,7 +187,14 @@ fileprivate extension SelectionPresenterSpyTests {
             .weakReferenced
             .mainQueueDispatched
         
-        return (sut, headerSpy, resetButtonSpy, viewSpy, selectButtonSpy, emptyViewSpy)
+        return SUTComponents(
+            sut: sut,
+            headerSpy: headerSpy,
+            resetSpy: resetButtonSpy,
+            viewSpy: viewSpy,
+            selectButtonSpy: selectButtonSpy,
+            emptyViewSpy: emptyViewSpy
+        )
     }
     
     private func nurSelection(isMultiply: Bool = false) -> SelectionConfiguration{
