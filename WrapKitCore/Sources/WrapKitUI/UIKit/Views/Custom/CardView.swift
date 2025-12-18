@@ -448,13 +448,14 @@ open class CardView: ViewUIKit {
         subtitleLabel.setContentHuggingPriority(.required, for: .horizontal)
         subtitleLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
         subtitleLabel.setContentCompressionResistancePriority(.required, for: .vertical)
+        
         titleViews.keyLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
         titleViews.keyLabel.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
         titleViews.keyLabel.setContentCompressionResistancePriority(.required, for: .vertical)
         titleViews.valueLabel.setContentCompressionResistancePriority(.required, for: .vertical)
-        titleViewsWrapperView.setContentHuggingPriority(.defaultLow, for: .horizontal)
-        titleViewsWrapperView.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+        
         titleViewsWrapperView.setContentCompressionResistancePriority(.required, for: .vertical)
+        
         switchControl.setContentCompressionResistancePriority(.required, for: .horizontal)
         switchControl.setContentCompressionResistancePriority(.required, for: .vertical)
     }
