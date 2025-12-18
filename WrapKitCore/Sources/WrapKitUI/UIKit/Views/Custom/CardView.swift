@@ -44,6 +44,7 @@ public struct CardViewPresentableModel: HashableWithReflection {
         public let trailingTitleKeyLabelFont: Font
         public let titleValueLabelFont: Font
         public let subTitleLabelFont: Font
+        public let subtitleNumberOfLines: Int
         public let cornerRadius: CGFloat
         public let stackSpace: CGFloat
         public let hStackViewSpacing: CGFloat
@@ -67,6 +68,7 @@ public struct CardViewPresentableModel: HashableWithReflection {
             trailingTitleKeyLabelFont: Font,
             titleValueLabelFont: Font,
             subTitleLabelFont: Font,
+            subtitleNumberOfLines: Int = 1,
             cornerRadius: CGFloat,
             stackSpace: CGFloat,
             hStackViewSpacing: CGFloat,
@@ -89,6 +91,7 @@ public struct CardViewPresentableModel: HashableWithReflection {
             self.trailingTitleKeyLabelFont = trailingTitleKeyLabelFont
             self.titleValueLabelFont = titleValueLabelFont
             self.subTitleLabelFont = subTitleLabelFont
+            self.subtitleNumberOfLines = subtitleNumberOfLines
             self.cornerRadius = cornerRadius
             self.stackSpace = stackSpace
             self.hStackViewSpacing = hStackViewSpacing
@@ -200,6 +203,7 @@ extension CardView: CardViewOutput {
         titleViews.valueLabel.font = style.titleValueLabelFont
         titleViews.keyLabel.numberOfLines = style.titleKeyNumberOfLines
         titleViews.valueLabel.numberOfLines = style.titleValueNumberOfLines
+        subtitleLabel.numberOfLines = style.subtitleNumberOfLines
         cornerRadius = style.cornerRadius
         layer.borderColor = style.borderColor?.cgColor
         layer.borderWidth = style.borderWidth ?? 0
@@ -367,7 +371,7 @@ open class CardView: ViewUIKit {
         spacing: 0
     )
     
-    public let subtitleLabel = Label(font: .systemFont(ofSize: 16), textColor: .gray, numberOfLines: 1)
+    public let subtitleLabel = Label(font: .systemFont(ofSize: 16), textColor: .gray)
     
     public let trailingImageWrapperView = ViewUIKit(isHidden: true)
     public private(set) var trailingImageView = ImageView(image: UIImage(named: "rightArrow"), tintColor: .black)
@@ -443,10 +447,13 @@ open class CardView: ViewUIKit {
     private func setupPriorities() {
         subtitleLabel.setContentHuggingPriority(.required, for: .horizontal)
         subtitleLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
+        subtitleLabel.setContentCompressionResistancePriority(.required, for: .vertical)
         titleViews.keyLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
         titleViews.keyLabel.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
         titleViews.keyLabel.setContentCompressionResistancePriority(.required, for: .vertical)
         titleViews.valueLabel.setContentCompressionResistancePriority(.required, for: .vertical)
+        titleViewsWrapperView.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        titleViewsWrapperView.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         titleViewsWrapperView.setContentCompressionResistancePriority(.required, for: .vertical)
         switchControl.setContentCompressionResistancePriority(.required, for: .horizontal)
         switchControl.setContentCompressionResistancePriority(.required, for: .vertical)
