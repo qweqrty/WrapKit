@@ -4,25 +4,21 @@
 // swiftlint:disable all
 // swift-format-ignore-file
 // swiftformat:disable all
-
 #if canImport(Foundation)
 import Foundation
 #endif
 #if canImport(UIKit)
 import UIKit
 #endif
-
 public final class SwitchCotrolOutputSpy: SwitchCotrolOutput {
-
     public init() {}
-
     public enum Message: HashableWithReflection {
-        case display(model: SwitchControlPresentableModel?)
-        case display(onPress: ((SwitchCotrolOutput & LoadingOutput) -> Void)?)
-        case display(isOn: Bool)
-        case display(style: SwitchControlPresentableModel.Style?)
-        case display(isEnabled: Bool)
-        case display(isHidden: Bool)
+        case displayModel(model: SwitchControlPresentableModel?)
+        case displayOnPress(onPress: ((SwitchCotrolOutput & LoadingOutput) -> Void)?)
+        case displayIsOn(isOn: Bool)
+        case displayStyle(style: SwitchControlPresentableModel.Style?)
+        case displayIsEnabled(isEnabled: Bool)
+        case displayIsHidden(isHidden: Bool)
     }
 
     public private(set) var messages: [Message] = []
@@ -35,31 +31,30 @@ public final class SwitchCotrolOutputSpy: SwitchCotrolOutput {
     public private(set) var capturedDisplayIsEnabled: [Bool] = []
     public private(set) var capturedDisplayIsHidden: [Bool] = []
 
-
     // MARK: - SwitchCotrolOutput methods
     public func display(model: SwitchControlPresentableModel?) {
         capturedDisplayModel.append(model)
-        messages.append(.display(model: model))
+        messages.append(.displayModel(model: model))
     }
     public func display(onPress: ((SwitchCotrolOutput & LoadingOutput) -> Void)?) {
         capturedDisplayOnPress.append(onPress)
-        messages.append(.display(onPress: onPress))
+        messages.append(.displayOnPress(onPress: onPress))
     }
     public func display(isOn: Bool) {
         capturedDisplayIsOn.append(isOn)
-        messages.append(.display(isOn: isOn))
+        messages.append(.displayIsOn(isOn: isOn))
     }
     public func display(style: SwitchControlPresentableModel.Style?) {
         capturedDisplayStyle.append(style)
-        messages.append(.display(style: style))
+        messages.append(.displayStyle(style: style))
     }
     public func display(isEnabled: Bool) {
         capturedDisplayIsEnabled.append(isEnabled)
-        messages.append(.display(isEnabled: isEnabled))
+        messages.append(.displayIsEnabled(isEnabled: isEnabled))
     }
     public func display(isHidden: Bool) {
         capturedDisplayIsHidden.append(isHidden)
-        messages.append(.display(isHidden: isHidden))
+        messages.append(.displayIsHidden(isHidden: isHidden))
     }
 
     // MARK: - Properties

@@ -4,7 +4,6 @@
 // swiftlint:disable all
 // swift-format-ignore-file
 // swiftformat:disable all
-
 #if canImport(Foundation)
 import Foundation
 #endif
@@ -14,16 +13,13 @@ import UIKit
 #if canImport(SwiftUI)
 import SwiftUI
 #endif
-
 public final class ProgressBarOutputSpy: ProgressBarOutput {
-
     public init() {}
-
     public enum Message: HashableWithReflection {
-        case display(model: ProgressBarPresentableModel?)
-        case display(progress: CGFloat)
-        case display(style: ProgressBarStyle?)
-        case display(isHidden: Bool)
+        case displayModel(model: ProgressBarPresentableModel?)
+        case displayProgress(progress: CGFloat)
+        case displayStyle(style: ProgressBarStyle?)
+        case displayIsHidden(isHidden: Bool)
     }
 
     public private(set) var messages: [Message] = []
@@ -34,23 +30,22 @@ public final class ProgressBarOutputSpy: ProgressBarOutput {
     public private(set) var capturedDisplayStyle: [ProgressBarStyle?] = []
     public private(set) var capturedDisplayIsHidden: [Bool] = []
 
-
     // MARK: - ProgressBarOutput methods
     public func display(model: ProgressBarPresentableModel?) {
         capturedDisplayModel.append(model)
-        messages.append(.display(model: model))
+        messages.append(.displayModel(model: model))
     }
     public func display(progress: CGFloat) {
         capturedDisplayProgress.append(progress)
-        messages.append(.display(progress: progress))
+        messages.append(.displayProgress(progress: progress))
     }
     public func display(style: ProgressBarStyle?) {
         capturedDisplayStyle.append(style)
-        messages.append(.display(style: style))
+        messages.append(.displayStyle(style: style))
     }
     public func display(isHidden: Bool) {
         capturedDisplayIsHidden.append(isHidden)
-        messages.append(.display(isHidden: isHidden))
+        messages.append(.displayIsHidden(isHidden: isHidden))
     }
 
     // MARK: - Properties

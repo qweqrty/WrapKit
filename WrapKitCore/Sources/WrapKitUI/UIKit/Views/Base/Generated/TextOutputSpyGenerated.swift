@@ -4,24 +4,20 @@
 // swiftlint:disable all
 // swift-format-ignore-file
 // swiftformat:disable all
-
 #if canImport(Foundation)
 import Foundation
 #endif
 #if canImport(UIKit)
 import UIKit
 #endif
-
 public final class TextOutputSpy: TextOutput {
-
     public init() {}
-
     public enum Message: HashableWithReflection {
-        case display(model: TextOutputPresentableModel?)
-        case display(text: String?)
-        case display(attributes: [TextAttributes])
-        case display(id: String?, from: Double, to: Double, mapToString: ((Double) -> TextOutputPresentableModel)?, animationStyle: LabelAnimationStyle, duration: TimeInterval, completion: (() -> Void)?)
-        case display(isHidden: Bool)
+        case displayModel(model: TextOutputPresentableModel?)
+        case displayText(text: String?)
+        case displayAttributes(attributes: [TextAttributes])
+        case displayId(id: String?, from: Double, to: Double, mapToString: ((Double) -> TextOutputPresentableModel)?, animationStyle: LabelAnimationStyle, duration: TimeInterval, completion: (() -> Void)?)
+        case displayIsHidden(isHidden: Bool)
     }
 
     public private(set) var messages: [Message] = []
@@ -39,19 +35,18 @@ public final class TextOutputSpy: TextOutput {
     public private(set) var capturedDisplayCompletion: [(() -> Void)?] = []
     public private(set) var capturedDisplayIsHidden: [Bool] = []
 
-
     // MARK: - TextOutput methods
     public func display(model: TextOutputPresentableModel?) {
         capturedDisplayModel.append(model)
-        messages.append(.display(model: model))
+        messages.append(.displayModel(model: model))
     }
     public func display(text: String?) {
         capturedDisplayText.append(text)
-        messages.append(.display(text: text))
+        messages.append(.displayText(text: text))
     }
     public func display(attributes: [TextAttributes]) {
         capturedDisplayAttributes.append(attributes)
-        messages.append(.display(attributes: attributes))
+        messages.append(.displayAttributes(attributes: attributes))
     }
     public func display(id: String?, from startAmount: Double, to endAmount: Double, mapToString: ((Double) -> TextOutputPresentableModel)?, animationStyle: LabelAnimationStyle, duration: TimeInterval, completion: (() -> Void)?) {
         capturedDisplayId.append(id)
@@ -61,11 +56,11 @@ public final class TextOutputSpy: TextOutput {
         capturedDisplayAnimationStyle.append(animationStyle)
         capturedDisplayDuration.append(duration)
         capturedDisplayCompletion.append(completion)
-        messages.append(.display(id: id, from: startAmount, to: endAmount, mapToString: mapToString, animationStyle: animationStyle, duration: duration, completion: completion))
+        messages.append(.displayId(id: id, from: startAmount, to: endAmount, mapToString: mapToString, animationStyle: animationStyle, duration: duration, completion: completion))
     }
     public func display(isHidden: Bool) {
         capturedDisplayIsHidden.append(isHidden)
-        messages.append(.display(isHidden: isHidden))
+        messages.append(.displayIsHidden(isHidden: isHidden))
     }
 
     // MARK: - Properties

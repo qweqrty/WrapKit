@@ -4,24 +4,20 @@
 // swiftlint:disable all
 // swift-format-ignore-file
 // swiftformat:disable all
-
 #if canImport(Foundation)
 import Foundation
 #endif
 #if canImport(UIKit)
 import UIKit
 #endif
-
 public final class RefreshControlOutputSpy: RefreshControlOutput {
-
     public init() {}
-
     public enum Message: HashableWithReflection {
-        case display(model: RefreshControlPresentableModel?)
-        case display(style: RefreshControlPresentableModel.Style)
-        case display(onRefresh: (() -> Void)?)
-        case display(appendingOnRefresh: (() -> Void)?)
-        case display(isLoading: Bool)
+        case displayModel(model: RefreshControlPresentableModel?)
+        case displayStyle(style: RefreshControlPresentableModel.Style)
+        case displayOnRefresh(onRefresh: (() -> Void)?)
+        case displayAppendingOnRefresh(appendingOnRefresh: (() -> Void)?)
+        case displayIsLoading(isLoading: Bool)
         case setOnRefresh([(() -> Void)?]?)
     }
 
@@ -33,29 +29,28 @@ public final class RefreshControlOutputSpy: RefreshControlOutput {
     public private(set) var capturedDisplayOnRefresh: [(() -> Void)?] = []
     public private(set) var capturedDisplayAppendingOnRefresh: [(() -> Void)?] = []
     public private(set) var capturedDisplayIsLoading: [Bool] = []
-
     public private(set) var capturedOnRefresh: [[(() -> Void)?]?] = []
 
     // MARK: - RefreshControlOutput methods
     public func display(model: RefreshControlPresentableModel?) {
         capturedDisplayModel.append(model)
-        messages.append(.display(model: model))
+        messages.append(.displayModel(model: model))
     }
     public func display(style: RefreshControlPresentableModel.Style) {
         capturedDisplayStyle.append(style)
-        messages.append(.display(style: style))
+        messages.append(.displayStyle(style: style))
     }
     public func display(onRefresh: (() -> Void)?) {
         capturedDisplayOnRefresh.append(onRefresh)
-        messages.append(.display(onRefresh: onRefresh))
+        messages.append(.displayOnRefresh(onRefresh: onRefresh))
     }
     public func display(appendingOnRefresh: (() -> Void)?) {
         capturedDisplayAppendingOnRefresh.append(appendingOnRefresh)
-        messages.append(.display(appendingOnRefresh: appendingOnRefresh))
+        messages.append(.displayAppendingOnRefresh(appendingOnRefresh: appendingOnRefresh))
     }
     public func display(isLoading: Bool) {
         capturedDisplayIsLoading.append(isLoading)
-        messages.append(.display(isLoading: isLoading))
+        messages.append(.displayIsLoading(isLoading: isLoading))
     }
 
     // MARK: - Properties

@@ -4,20 +4,16 @@
 // swiftlint:disable all
 // swift-format-ignore-file
 // swiftformat:disable all
-
 #if canImport(Foundation)
 import Foundation
 #endif
-
 public final class WebViewOutputSpy: WebViewOutput {
-
     public init() {}
-
     public enum Message: HashableWithReflection {
-        case display(url: URL)
-        case display(refreshModel: WebViewStyle.Refresh)
-        case display(backgroundColor: Color?)
-        case display(isProgressBarNeeded: Bool)
+        case displayUrl(url: URL)
+        case displayRefreshModel(refreshModel: WebViewStyle.Refresh)
+        case displayBackgroundColor(backgroundColor: Color?)
+        case displayIsProgressBarNeeded(isProgressBarNeeded: Bool)
     }
 
     public private(set) var messages: [Message] = []
@@ -28,23 +24,22 @@ public final class WebViewOutputSpy: WebViewOutput {
     public private(set) var capturedDisplayBackgroundColor: [Color?] = []
     public private(set) var capturedDisplayIsProgressBarNeeded: [Bool] = []
 
-
     // MARK: - WebViewOutput methods
     public func display(url: URL) {
         capturedDisplayUrl.append(url)
-        messages.append(.display(url: url))
+        messages.append(.displayUrl(url: url))
     }
     public func display(refreshModel: WebViewStyle.Refresh) {
         capturedDisplayRefreshModel.append(refreshModel)
-        messages.append(.display(refreshModel: refreshModel))
+        messages.append(.displayRefreshModel(refreshModel: refreshModel))
     }
     public func display(backgroundColor: Color?) {
         capturedDisplayBackgroundColor.append(backgroundColor)
-        messages.append(.display(backgroundColor: backgroundColor))
+        messages.append(.displayBackgroundColor(backgroundColor: backgroundColor))
     }
     public func display(isProgressBarNeeded: Bool) {
         capturedDisplayIsProgressBarNeeded.append(isProgressBarNeeded)
-        messages.append(.display(isProgressBarNeeded: isProgressBarNeeded))
+        messages.append(.displayIsProgressBarNeeded(isProgressBarNeeded: isProgressBarNeeded))
     }
 
     // MARK: - Properties

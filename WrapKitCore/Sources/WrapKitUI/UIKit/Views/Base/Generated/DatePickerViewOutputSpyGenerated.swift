@@ -4,23 +4,19 @@
 // swiftlint:disable all
 // swift-format-ignore-file
 // swiftformat:disable all
-
 #if canImport(Foundation)
 import Foundation
 #endif
 #if canImport(UIKit)
 import UIKit
 #endif
-
 public final class DatePickerViewOutputSpy: DatePickerViewOutput {
-
     public init() {}
-
     public enum Message: HashableWithReflection {
-        case display(dateChanged: ((Date) -> Void)?)
-        case display(date: Date)
-        case display(setDate: Date, animated: Bool)
-        case display(model: DatePickerPresentableModel)
+        case displayDateChanged(dateChanged: ((Date) -> Void)?)
+        case displayDate(date: Date)
+        case displaySetDate(setDate: Date, animated: Bool)
+        case displayModel(model: DatePickerPresentableModel)
     }
 
     public private(set) var messages: [Message] = []
@@ -32,24 +28,23 @@ public final class DatePickerViewOutputSpy: DatePickerViewOutput {
     public private(set) var capturedDisplayAnimated: [Bool] = []
     public private(set) var capturedDisplayModel: [DatePickerPresentableModel] = []
 
-
     // MARK: - DatePickerViewOutput methods
     public func display(dateChanged: ((Date) -> Void)?) {
         capturedDisplayDateChanged.append(dateChanged)
-        messages.append(.display(dateChanged: dateChanged))
+        messages.append(.displayDateChanged(dateChanged: dateChanged))
     }
     public func display(date: Date) {
         capturedDisplayDate.append(date)
-        messages.append(.display(date: date))
+        messages.append(.displayDate(date: date))
     }
     public func display(setDate: Date, animated: Bool) {
         capturedDisplaySetDate.append(setDate)
         capturedDisplayAnimated.append(animated)
-        messages.append(.display(setDate: setDate, animated: animated))
+        messages.append(.displaySetDate(setDate: setDate, animated: animated))
     }
     public func display(model: DatePickerPresentableModel) {
         capturedDisplayModel.append(model)
-        messages.append(.display(model: model))
+        messages.append(.displayModel(model: model))
     }
 
     // MARK: - Properties

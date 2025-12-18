@@ -4,30 +4,26 @@
 // swiftlint:disable all
 // swift-format-ignore-file
 // swiftformat:disable all
-
 #if canImport(Foundation)
 import Foundation
 #endif
 #if canImport(UIKit)
 import UIKit
 #endif
-
 public final class ImageViewOutputSpy: ImageViewOutput {
-
     public init() {}
-
     public enum Message: HashableWithReflection {
-        case display(model: ImageViewPresentableModel?)
-        case display(image: ImageEnum?)
-        case display(size: CGSize?)
-        case display(onPress: (() -> Void)?)
-        case display(onLongPress: (() -> Void)?)
-        case display(contentModeIsFit: Bool)
-        case display(borderWidth: CGFloat?)
-        case display(borderColor: Color?)
-        case display(cornerRadius: CGFloat?)
-        case display(alpha: CGFloat?)
-        case display(isHidden: Bool)
+        case displayModel(model: ImageViewPresentableModel?)
+        case displayImage(image: ImageEnum?)
+        case displaySize(size: CGSize?)
+        case displayOnPress(onPress: (() -> Void)?)
+        case displayOnLongPress(onLongPress: (() -> Void)?)
+        case displayContentModeIsFit(contentModeIsFit: Bool)
+        case displayBorderWidth(borderWidth: CGFloat?)
+        case displayBorderColor(borderColor: Color?)
+        case displayCornerRadius(cornerRadius: CGFloat?)
+        case displayAlpha(alpha: CGFloat?)
+        case displayIsHidden(isHidden: Bool)
     }
 
     public private(set) var messages: [Message] = []
@@ -45,51 +41,50 @@ public final class ImageViewOutputSpy: ImageViewOutput {
     public private(set) var capturedDisplayAlpha: [CGFloat?] = []
     public private(set) var capturedDisplayIsHidden: [Bool] = []
 
-
     // MARK: - ImageViewOutput methods
     public func display(model: ImageViewPresentableModel?) {
         capturedDisplayModel.append(model)
-        messages.append(.display(model: model))
+        messages.append(.displayModel(model: model))
     }
     public func display(image: ImageEnum?) {
         capturedDisplayImage.append(image)
-        messages.append(.display(image: image))
+        messages.append(.displayImage(image: image))
     }
     public func display(size: CGSize?) {
         capturedDisplaySize.append(size)
-        messages.append(.display(size: size))
+        messages.append(.displaySize(size: size))
     }
     public func display(onPress: (() -> Void)?) {
         capturedDisplayOnPress.append(onPress)
-        messages.append(.display(onPress: onPress))
+        messages.append(.displayOnPress(onPress: onPress))
     }
     public func display(onLongPress: (() -> Void)?) {
         capturedDisplayOnLongPress.append(onLongPress)
-        messages.append(.display(onLongPress: onLongPress))
+        messages.append(.displayOnLongPress(onLongPress: onLongPress))
     }
     public func display(contentModeIsFit: Bool) {
         capturedDisplayContentModeIsFit.append(contentModeIsFit)
-        messages.append(.display(contentModeIsFit: contentModeIsFit))
+        messages.append(.displayContentModeIsFit(contentModeIsFit: contentModeIsFit))
     }
     public func display(borderWidth: CGFloat?) {
         capturedDisplayBorderWidth.append(borderWidth)
-        messages.append(.display(borderWidth: borderWidth))
+        messages.append(.displayBorderWidth(borderWidth: borderWidth))
     }
     public func display(borderColor: Color?) {
         capturedDisplayBorderColor.append(borderColor)
-        messages.append(.display(borderColor: borderColor))
+        messages.append(.displayBorderColor(borderColor: borderColor))
     }
     public func display(cornerRadius: CGFloat?) {
         capturedDisplayCornerRadius.append(cornerRadius)
-        messages.append(.display(cornerRadius: cornerRadius))
+        messages.append(.displayCornerRadius(cornerRadius: cornerRadius))
     }
     public func display(alpha: CGFloat?) {
         capturedDisplayAlpha.append(alpha)
-        messages.append(.display(alpha: alpha))
+        messages.append(.displayAlpha(alpha: alpha))
     }
     public func display(isHidden: Bool) {
         capturedDisplayIsHidden.append(isHidden)
-        messages.append(.display(isHidden: isHidden))
+        messages.append(.displayIsHidden(isHidden: isHidden))
     }
 
     // MARK: - Properties

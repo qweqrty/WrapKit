@@ -4,28 +4,24 @@
 // swiftlint:disable all
 // swift-format-ignore-file
 // swiftformat:disable all
-
 #if canImport(Foundation)
 import Foundation
 #endif
 #if canImport(UIKit)
 import UIKit
 #endif
-
 public final class ButtonOutputSpy: ButtonOutput {
-
     public init() {}
-
     public enum Message: HashableWithReflection {
-        case display(model: ButtonPresentableModel?)
-        case display(enabled: Bool)
-        case display(image: Image?)
-        case display(style: ButtonStyle?)
-        case display(title: String?)
-        case display(spacing: CGFloat)
-        case display(onPress: (() -> Void)?)
-        case display(height: CGFloat)
-        case display(isHidden: Bool)
+        case displayModel(model: ButtonPresentableModel?)
+        case displayEnabled(enabled: Bool)
+        case displayImage(image: Image?)
+        case displayStyle(style: ButtonStyle?)
+        case displayTitle(title: String?)
+        case displaySpacing(spacing: CGFloat)
+        case displayOnPress(onPress: (() -> Void)?)
+        case displayHeight(height: CGFloat)
+        case displayIsHidden(isHidden: Bool)
     }
 
     public private(set) var messages: [Message] = []
@@ -41,43 +37,42 @@ public final class ButtonOutputSpy: ButtonOutput {
     public private(set) var capturedDisplayHeight: [CGFloat] = []
     public private(set) var capturedDisplayIsHidden: [Bool] = []
 
-
     // MARK: - ButtonOutput methods
     public func display(model: ButtonPresentableModel?) {
         capturedDisplayModel.append(model)
-        messages.append(.display(model: model))
+        messages.append(.displayModel(model: model))
     }
     public func display(enabled: Bool) {
         capturedDisplayEnabled.append(enabled)
-        messages.append(.display(enabled: enabled))
+        messages.append(.displayEnabled(enabled: enabled))
     }
     public func display(image: Image?) {
         capturedDisplayImage.append(image)
-        messages.append(.display(image: image))
+        messages.append(.displayImage(image: image))
     }
     public func display(style: ButtonStyle?) {
         capturedDisplayStyle.append(style)
-        messages.append(.display(style: style))
+        messages.append(.displayStyle(style: style))
     }
     public func display(title: String?) {
         capturedDisplayTitle.append(title)
-        messages.append(.display(title: title))
+        messages.append(.displayTitle(title: title))
     }
     public func display(spacing: CGFloat) {
         capturedDisplaySpacing.append(spacing)
-        messages.append(.display(spacing: spacing))
+        messages.append(.displaySpacing(spacing: spacing))
     }
     public func display(onPress: (() -> Void)?) {
         capturedDisplayOnPress.append(onPress)
-        messages.append(.display(onPress: onPress))
+        messages.append(.displayOnPress(onPress: onPress))
     }
     public func display(height: CGFloat) {
         capturedDisplayHeight.append(height)
-        messages.append(.display(height: height))
+        messages.append(.displayHeight(height: height))
     }
     public func display(isHidden: Bool) {
         capturedDisplayIsHidden.append(isHidden)
-        messages.append(.display(isHidden: isHidden))
+        messages.append(.displayIsHidden(isHidden: isHidden))
     }
 
     // MARK: - Properties

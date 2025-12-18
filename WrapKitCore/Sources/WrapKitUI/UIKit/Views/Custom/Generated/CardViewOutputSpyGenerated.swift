@@ -4,7 +4,6 @@
 // swiftlint:disable all
 // swift-format-ignore-file
 // swiftformat:disable all
-
 #if canImport(Foundation)
 import Foundation
 #endif
@@ -14,29 +13,26 @@ import UIKit
 #if canImport(SwiftUI)
 import SwiftUI
 #endif
-
 public final class CardViewOutputSpy: CardViewOutput {
-
     public init() {}
-
     public enum Message: HashableWithReflection {
-        case display(model: CardViewPresentableModel?)
-        case display(style: CardViewPresentableModel.Style?)
-        case display(backgroundImage: ImageViewPresentableModel?)
-        case display(title: TextOutputPresentableModel?)
-        case display(leadingTitles: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>?)
-        case display(trailingTitles: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>?)
-        case display(leadingImage: ImageViewPresentableModel?)
-        case display(secondaryLeadingImage: ImageViewPresentableModel?)
-        case display(trailingImage: ImageViewPresentableModel?)
-        case display(secondaryTrailingImage: ImageViewPresentableModel?)
-        case display(subTitle: TextOutputPresentableModel?)
-        case display(valueTitle: TextOutputPresentableModel?)
-        case display(bottomSeparator: CardViewPresentableModel.BottomSeparator?)
-        case display(switchControl: SwitchControlPresentableModel?)
-        case display(onPress: (() -> Void)?)
-        case display(onLongPress: (() -> Void)?)
-        case display(isHidden: Bool)
+        case displayModel(model: CardViewPresentableModel?)
+        case displayStyle(style: CardViewPresentableModel.Style?)
+        case displayBackgroundImage(backgroundImage: ImageViewPresentableModel?)
+        case displayTitle(title: TextOutputPresentableModel?)
+        case displayLeadingTitles(leadingTitles: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>?)
+        case displayTrailingTitles(trailingTitles: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>?)
+        case displayLeadingImage(leadingImage: ImageViewPresentableModel?)
+        case displaySecondaryLeadingImage(secondaryLeadingImage: ImageViewPresentableModel?)
+        case displayTrailingImage(trailingImage: ImageViewPresentableModel?)
+        case displaySecondaryTrailingImage(secondaryTrailingImage: ImageViewPresentableModel?)
+        case displaySubTitle(subTitle: TextOutputPresentableModel?)
+        case displayValueTitle(valueTitle: TextOutputPresentableModel?)
+        case displayBottomSeparator(bottomSeparator: CardViewPresentableModel.BottomSeparator?)
+        case displaySwitchControl(switchControl: SwitchControlPresentableModel?)
+        case displayOnPress(onPress: (() -> Void)?)
+        case displayOnLongPress(onLongPress: (() -> Void)?)
+        case displayIsHidden(isHidden: Bool)
     }
 
     public private(set) var messages: [Message] = []
@@ -60,75 +56,74 @@ public final class CardViewOutputSpy: CardViewOutput {
     public private(set) var capturedDisplayOnLongPress: [(() -> Void)?] = []
     public private(set) var capturedDisplayIsHidden: [Bool] = []
 
-
     // MARK: - CardViewOutput methods
     public func display(model: CardViewPresentableModel?) {
         capturedDisplayModel.append(model)
-        messages.append(.display(model: model))
+        messages.append(.displayModel(model: model))
     }
     public func display(style: CardViewPresentableModel.Style?) {
         capturedDisplayStyle.append(style)
-        messages.append(.display(style: style))
+        messages.append(.displayStyle(style: style))
     }
     public func display(backgroundImage: ImageViewPresentableModel?) {
         capturedDisplayBackgroundImage.append(backgroundImage)
-        messages.append(.display(backgroundImage: backgroundImage))
+        messages.append(.displayBackgroundImage(backgroundImage: backgroundImage))
     }
     public func display(title: TextOutputPresentableModel?) {
         capturedDisplayTitle.append(title)
-        messages.append(.display(title: title))
+        messages.append(.displayTitle(title: title))
     }
     public func display(leadingTitles: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>?) {
         capturedDisplayLeadingTitles.append(leadingTitles)
-        messages.append(.display(leadingTitles: leadingTitles))
+        messages.append(.displayLeadingTitles(leadingTitles: leadingTitles))
     }
     public func display(trailingTitles: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>?) {
         capturedDisplayTrailingTitles.append(trailingTitles)
-        messages.append(.display(trailingTitles: trailingTitles))
+        messages.append(.displayTrailingTitles(trailingTitles: trailingTitles))
     }
     public func display(leadingImage: ImageViewPresentableModel?) {
         capturedDisplayLeadingImage.append(leadingImage)
-        messages.append(.display(leadingImage: leadingImage))
+        messages.append(.displayLeadingImage(leadingImage: leadingImage))
     }
     public func display(secondaryLeadingImage: ImageViewPresentableModel?) {
         capturedDisplaySecondaryLeadingImage.append(secondaryLeadingImage)
-        messages.append(.display(secondaryLeadingImage: secondaryLeadingImage))
+        messages.append(.displaySecondaryLeadingImage(secondaryLeadingImage: secondaryLeadingImage))
     }
     public func display(trailingImage: ImageViewPresentableModel?) {
         capturedDisplayTrailingImage.append(trailingImage)
-        messages.append(.display(trailingImage: trailingImage))
+        messages.append(.displayTrailingImage(trailingImage: trailingImage))
     }
     public func display(secondaryTrailingImage: ImageViewPresentableModel?) {
         capturedDisplaySecondaryTrailingImage.append(secondaryTrailingImage)
-        messages.append(.display(secondaryTrailingImage: secondaryTrailingImage))
+        messages.append(.displaySecondaryTrailingImage(secondaryTrailingImage: secondaryTrailingImage))
     }
     public func display(subTitle: TextOutputPresentableModel?) {
         capturedDisplaySubTitle.append(subTitle)
-        messages.append(.display(subTitle: subTitle))
+        messages.append(.displaySubTitle(subTitle: subTitle))
     }
     public func display(valueTitle: TextOutputPresentableModel?) {
         capturedDisplayValueTitle.append(valueTitle)
-        messages.append(.display(valueTitle: valueTitle))
+        messages.append(.displayValueTitle(valueTitle: valueTitle))
     }
     public func display(bottomSeparator: CardViewPresentableModel.BottomSeparator?) {
         capturedDisplayBottomSeparator.append(bottomSeparator)
-        messages.append(.display(bottomSeparator: bottomSeparator))
+        messages.append(.displayBottomSeparator(bottomSeparator: bottomSeparator))
     }
     public func display(switchControl: SwitchControlPresentableModel?) {
         capturedDisplaySwitchControl.append(switchControl)
-        messages.append(.display(switchControl: switchControl))
+        messages.append(.displaySwitchControl(switchControl: switchControl))
     }
     public func display(onPress: (() -> Void)?) {
         capturedDisplayOnPress.append(onPress)
-        messages.append(.display(onPress: onPress))
+        messages.append(.displayOnPress(onPress: onPress))
     }
     public func display(onLongPress: (() -> Void)?) {
         capturedDisplayOnLongPress.append(onLongPress)
-        messages.append(.display(onLongPress: onLongPress))
+        messages.append(.displayOnLongPress(onLongPress: onLongPress))
     }
     public func display(isHidden: Bool) {
         capturedDisplayIsHidden.append(isHidden)
-        messages.append(.display(isHidden: isHidden))
+        messages.append(.displayIsHidden(isHidden: isHidden))
     }
 
     // MARK: - Properties

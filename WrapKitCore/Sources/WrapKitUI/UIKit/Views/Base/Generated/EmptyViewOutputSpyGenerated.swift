@@ -4,25 +4,21 @@
 // swiftlint:disable all
 // swift-format-ignore-file
 // swiftformat:disable all
-
 #if canImport(Foundation)
 import Foundation
 #endif
 #if canImport(UIKit)
 import UIKit
 #endif
-
 public final class EmptyViewOutputSpy: EmptyViewOutput {
-
     public init() {}
-
     public enum Message: HashableWithReflection {
-        case display(model: EmptyViewPresentableModel?)
-        case display(title: TextOutputPresentableModel?)
-        case display(subtitle: TextOutputPresentableModel?)
-        case display(buttonModel: ButtonPresentableModel?)
-        case display(image: ImageViewPresentableModel?)
-        case display(isHidden: Bool)
+        case displayModel(model: EmptyViewPresentableModel?)
+        case displayTitle(title: TextOutputPresentableModel?)
+        case displaySubtitle(subtitle: TextOutputPresentableModel?)
+        case displayButtonModel(buttonModel: ButtonPresentableModel?)
+        case displayImage(image: ImageViewPresentableModel?)
+        case displayIsHidden(isHidden: Bool)
     }
 
     public private(set) var messages: [Message] = []
@@ -35,31 +31,30 @@ public final class EmptyViewOutputSpy: EmptyViewOutput {
     public private(set) var capturedDisplayImage: [ImageViewPresentableModel?] = []
     public private(set) var capturedDisplayIsHidden: [Bool] = []
 
-
     // MARK: - EmptyViewOutput methods
     public func display(model: EmptyViewPresentableModel?) {
         capturedDisplayModel.append(model)
-        messages.append(.display(model: model))
+        messages.append(.displayModel(model: model))
     }
     public func display(title: TextOutputPresentableModel?) {
         capturedDisplayTitle.append(title)
-        messages.append(.display(title: title))
+        messages.append(.displayTitle(title: title))
     }
     public func display(subtitle: TextOutputPresentableModel?) {
         capturedDisplaySubtitle.append(subtitle)
-        messages.append(.display(subtitle: subtitle))
+        messages.append(.displaySubtitle(subtitle: subtitle))
     }
     public func display(buttonModel: ButtonPresentableModel?) {
         capturedDisplayButtonModel.append(buttonModel)
-        messages.append(.display(buttonModel: buttonModel))
+        messages.append(.displayButtonModel(buttonModel: buttonModel))
     }
     public func display(image: ImageViewPresentableModel?) {
         capturedDisplayImage.append(image)
-        messages.append(.display(image: image))
+        messages.append(.displayImage(image: image))
     }
     public func display(isHidden: Bool) {
         capturedDisplayIsHidden.append(isHidden)
-        messages.append(.display(isHidden: isHidden))
+        messages.append(.displayIsHidden(isHidden: isHidden))
     }
 
     // MARK: - Properties

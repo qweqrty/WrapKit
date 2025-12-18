@@ -4,18 +4,14 @@
 // swiftlint:disable all
 // swift-format-ignore-file
 // swiftformat:disable all
-
 #if canImport(Foundation)
 import Foundation
 #endif
-
 public final class SelectionOutputSpy: SelectionOutput {
-
     public init() {}
-
     public enum Message: HashableWithReflection {
-        case display(items: [TableSection<Void, SelectionType.SelectionCellPresentableModel, Void>], selectedCountTitle: String)
-        case display(shouldShowSearchBar: Bool)
+        case displayItems(items: [TableSection<Void, SelectionType.SelectionCellPresentableModel, Void>], selectedCountTitle: String)
+        case displayShouldShowSearchBar(shouldShowSearchBar: Bool)
     }
 
     public private(set) var messages: [Message] = []
@@ -25,16 +21,15 @@ public final class SelectionOutputSpy: SelectionOutput {
     public private(set) var capturedDisplaySelectedCountTitle: [String] = []
     public private(set) var capturedDisplayShouldShowSearchBar: [Bool] = []
 
-
     // MARK: - SelectionOutput methods
     public func display(items: [TableSection<Void, SelectionType.SelectionCellPresentableModel, Void>], selectedCountTitle: String) {
         capturedDisplayItems.append(items)
         capturedDisplaySelectedCountTitle.append(selectedCountTitle)
-        messages.append(.display(items: items, selectedCountTitle: selectedCountTitle))
+        messages.append(.displayItems(items: items, selectedCountTitle: selectedCountTitle))
     }
     public func display(shouldShowSearchBar: Bool) {
         capturedDisplayShouldShowSearchBar.append(shouldShowSearchBar)
-        messages.append(.display(shouldShowSearchBar: shouldShowSearchBar))
+        messages.append(.displayShouldShowSearchBar(shouldShowSearchBar: shouldShowSearchBar))
     }
 
     // MARK: - Properties

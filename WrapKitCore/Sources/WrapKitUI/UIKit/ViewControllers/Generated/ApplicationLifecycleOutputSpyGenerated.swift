@@ -4,22 +4,18 @@
 // swiftlint:disable all
 // swift-format-ignore-file
 // swiftformat:disable all
-
 #if canImport(UIKit)
 import UIKit
 #endif
-
 public final class ApplicationLifecycleOutputSpy: ApplicationLifecycleOutput {
-
     public init() {}
-
     public enum Message: HashableWithReflection {
         case applicationWillEnterForeground
         case applicationDidEnterBackground
         case applicationDidBecomeActive
         case applicationWillResignActive
-        case applicationDidChange(userInterfaceStyle: UserInterfaceStyle)
-        case composed(with: ApplicationLifecycleOutput)
+        case applicationDidChangeUserInterfaceStyle(userInterfaceStyle: UserInterfaceStyle)
+        case composedOutput(with: ApplicationLifecycleOutput)
     }
 
     public private(set) var messages: [Message] = []
@@ -27,7 +23,6 @@ public final class ApplicationLifecycleOutputSpy: ApplicationLifecycleOutput {
     // MARK: - Captured values
     public private(set) var capturedApplicationDidChangeUserInterfaceStyle: [UserInterfaceStyle] = []
     public private(set) var capturedComposedOutput: [ApplicationLifecycleOutput] = []
-
 
     // MARK: - ApplicationLifecycleOutput methods
     public func applicationWillEnterForeground() {
@@ -44,11 +39,11 @@ public final class ApplicationLifecycleOutputSpy: ApplicationLifecycleOutput {
     }
     public func applicationDidChange(userInterfaceStyle: UserInterfaceStyle) {
         capturedApplicationDidChangeUserInterfaceStyle.append(userInterfaceStyle)
-        messages.append(.applicationDidChange(userInterfaceStyle: userInterfaceStyle))
+        messages.append(.applicationDidChangeUserInterfaceStyle(userInterfaceStyle: userInterfaceStyle))
     }
     public func composed(with output: ApplicationLifecycleOutput) {
         capturedComposedOutput.append(output)
-        messages.append(.composed(with: output))
+        messages.append(.composedOutput(with: output))
     }
 
     // MARK: - Properties

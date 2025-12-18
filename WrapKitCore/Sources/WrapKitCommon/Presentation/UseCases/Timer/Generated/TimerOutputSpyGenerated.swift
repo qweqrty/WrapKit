@@ -4,17 +4,13 @@
 // swiftlint:disable all
 // swift-format-ignore-file
 // swiftformat:disable all
-
 #if canImport(Foundation)
 import Foundation
 #endif
-
 public final class TimerOutputSpy: TimerOutput {
-
     public init() {}
-
     public enum Message: HashableWithReflection {
-        case display(timerInput: TimerInput, secondsRemaining: Int?)
+        case displayTimerInput(timerInput: TimerInput, secondsRemaining: Int?)
     }
 
     public private(set) var messages: [Message] = []
@@ -23,12 +19,11 @@ public final class TimerOutputSpy: TimerOutput {
     public private(set) var capturedDisplayTimerInput: [TimerInput] = []
     public private(set) var capturedDisplaySecondsRemaining: [Int?] = []
 
-
     // MARK: - TimerOutput methods
     public func display(timerInput: TimerInput, secondsRemaining: Int?) {
         capturedDisplayTimerInput.append(timerInput)
         capturedDisplaySecondsRemaining.append(secondsRemaining)
-        messages.append(.display(timerInput: timerInput, secondsRemaining: secondsRemaining))
+        messages.append(.displayTimerInput(timerInput: timerInput, secondsRemaining: secondsRemaining))
     }
 
     // MARK: - Properties

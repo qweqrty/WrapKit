@@ -4,17 +4,13 @@
 // swiftlint:disable all
 // swift-format-ignore-file
 // swiftformat:disable all
-
 #if canImport(Foundation)
 import Foundation
 #endif
-
 public final class CommonToastOutputSpy: CommonToastOutput {
-
     public init() {}
-
     public enum Message: HashableWithReflection {
-        case display(toast: CommonToast)
+        case displayToast(toast: CommonToast)
         case hide
     }
 
@@ -23,11 +19,10 @@ public final class CommonToastOutputSpy: CommonToastOutput {
     // MARK: - Captured values
     public private(set) var capturedDisplayToast: [CommonToast] = []
 
-
     // MARK: - CommonToastOutput methods
     public func display(_ toast: CommonToast) {
         capturedDisplayToast.append(toast)
-        messages.append(.display(toast: toast))
+        messages.append(.displayToast(toast: toast))
     }
     public func hide() {
         messages.append(.hide)

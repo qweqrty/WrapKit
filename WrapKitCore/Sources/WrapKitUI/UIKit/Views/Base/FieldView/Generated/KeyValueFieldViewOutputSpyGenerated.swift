@@ -4,23 +4,19 @@
 // swiftlint:disable all
 // swift-format-ignore-file
 // swiftformat:disable all
-
 #if canImport(UIKit)
 import UIKit
 #endif
 #if canImport(SwiftUI)
 import SwiftUI
 #endif
-
 public final class KeyValueFieldViewOutputSpy: KeyValueFieldViewOutput {
-
     public init() {}
-
     public enum Message: HashableWithReflection {
-        case display(model: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>?)
-        case display(keyTitle: TextOutputPresentableModel?)
-        case display(valueTitle: TextOutputPresentableModel?)
-        case display(bottomImage: ImageViewPresentableModel?)
+        case displayModel(model: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>?)
+        case displayKeyTitle(keyTitle: TextOutputPresentableModel?)
+        case displayValueTitle(valueTitle: TextOutputPresentableModel?)
+        case displayBottomImage(bottomImage: ImageViewPresentableModel?)
     }
 
     public private(set) var messages: [Message] = []
@@ -31,23 +27,22 @@ public final class KeyValueFieldViewOutputSpy: KeyValueFieldViewOutput {
     public private(set) var capturedDisplayValueTitle: [TextOutputPresentableModel?] = []
     public private(set) var capturedDisplayBottomImage: [ImageViewPresentableModel?] = []
 
-
     // MARK: - KeyValueFieldViewOutput methods
     public func display(model: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>?) {
         capturedDisplayModel.append(model)
-        messages.append(.display(model: model))
+        messages.append(.displayModel(model: model))
     }
     public func display(keyTitle: TextOutputPresentableModel?) {
         capturedDisplayKeyTitle.append(keyTitle)
-        messages.append(.display(keyTitle: keyTitle))
+        messages.append(.displayKeyTitle(keyTitle: keyTitle))
     }
     public func display(valueTitle: TextOutputPresentableModel?) {
         capturedDisplayValueTitle.append(valueTitle)
-        messages.append(.display(valueTitle: valueTitle))
+        messages.append(.displayValueTitle(valueTitle: valueTitle))
     }
     public func display(bottomImage: ImageViewPresentableModel?) {
         capturedDisplayBottomImage.append(bottomImage)
-        messages.append(.display(bottomImage: bottomImage))
+        messages.append(.displayBottomImage(bottomImage: bottomImage))
     }
 
     // MARK: - Properties

@@ -4,7 +4,6 @@
 // swiftlint:disable all
 // swift-format-ignore-file
 // swiftformat:disable all
-
 #if canImport(Foundation)
 import Foundation
 #endif
@@ -17,13 +16,10 @@ import Lottie
 #if canImport(UIKit)
 import UIKit
 #endif
-
 public final class LottieViewOutputSpy: LottieViewOutput {
-
     public init() {}
-
     public enum Message: HashableWithReflection {
-        case display(model: LottieViewPresentableModel)
+        case displayModel(model: LottieViewPresentableModel)
         case setCurrentAnimationName(String?)
     }
 
@@ -31,13 +27,12 @@ public final class LottieViewOutputSpy: LottieViewOutput {
 
     // MARK: - Captured values
     public private(set) var capturedDisplayModel: [LottieViewPresentableModel] = []
-
     public private(set) var capturedCurrentAnimationName: [String?] = []
 
     // MARK: - LottieViewOutput methods
     public func display(model: LottieViewPresentableModel) {
         capturedDisplayModel.append(model)
-        messages.append(.display(model: model))
+        messages.append(.displayModel(model: model))
     }
 
     // MARK: - Properties
