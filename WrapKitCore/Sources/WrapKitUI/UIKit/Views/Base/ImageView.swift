@@ -82,9 +82,7 @@ open class ImageView: UIImageView {
         set {
             if newValue == nil {
                 cancelCurrentAnimation()
-                kf.cancelDownloadTask()
                 currentImageEnum = nil
-                currentLoadToken = nil
                 super.image = nil
             } else {
                 super.image = newValue
@@ -95,7 +93,7 @@ open class ImageView: UIImageView {
     open var anchoredConstraints: AnchoredConstraints?
     
     public func cancelCurrentAnimation() {
-        currentAnimator?.stopAnimation(true)
+        currentAnimator?.stopAnimation(true) // Stop the animation and leave the view in its current state
         currentAnimator = nil
     }
     
@@ -163,12 +161,12 @@ open class ImageView: UIImageView {
         super.traitCollectionDidChange(previousTraitCollection)
         
         switch currentImageEnum {
-        case .url(let lightUrl, let darkUrl):
+        case .url(let lightUrl, let darkUrl): // changed
             if lightUrl == darkUrl {
                 return
             }
             setImage(currentImageEnum)
-        case .urlString(let light, let dark):
+        case .urlString(let light, let dark): // changed
             if light == dark {
                 return
             }

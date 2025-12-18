@@ -23,6 +23,8 @@ open class WebViewVC: ViewController<WebViewContentView> {
         self.presenter = presenter
         super.init(contentView: contentView, lifeCycleViewOutput: lifeCycleViewOutput)
         contentView.webView.navigationDelegate = self
+        contentView.webView.uiDelegate = self
+        contentView.webView.allowsBackForwardNavigationGestures = true
     }
     
     public required init?(coder: NSCoder) {
@@ -86,6 +88,20 @@ extension WebViewVC: WebViewOutput {
     }
 }
 
+extension WebViewVC: WKUIDelegate {
+    public func webView(
+        _ webView: WKWebView,
+        createWebViewWith configuration: WKWebViewConfiguration,
+        for navigationAction: WKNavigationAction,
+        windowFeatures: WKWindowFeatures
+    ) -> WKWebView? {
+        if navigationAction.targetFrame == nil {
+            webView.load(navigationAction.request)
+        }
+        return nil
+    }
+}
+
 extension WebViewVC: WKNavigationDelegate {
     public func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
         contentView.refreshControl.display(isLoading: false)
@@ -96,7 +112,11 @@ extension WebViewVC: WKNavigationDelegate {
     }
     
     public func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: any Error) {
-        contentView.refreshControl.display(isLoading: true)
+        contentView.refreshControl.display(isLoading: false)
+    }
+    
+    public func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
+        contentView.refreshControl.display(isLoading: false)
     }
     
     public func webView(_ webView: WKWebView, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping @MainActor (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {

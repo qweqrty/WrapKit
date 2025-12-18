@@ -797,7 +797,6 @@ final class ToastViewSnapshotTests: XCTestCase {
         
         // GIVEN
         let sut = makeSUT()
-        
         let exp = expectation(description: "Wait for completion!")
         
         // WHEN
