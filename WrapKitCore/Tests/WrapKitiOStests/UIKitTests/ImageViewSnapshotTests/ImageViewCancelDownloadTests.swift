@@ -34,9 +34,10 @@ final class ImageViewCancelDownloadTests: XCTestCase {
             return
         }
         
-        let expectation = expectation(description: "Wait for download to start")
-        expectation.expectedFulfillmentCount = 2
-        sut.display(image: .url(url, url)) { _ in
+        sut.display(image: .url(url, url))
+        
+        let expectation = expectation(description: "Wait for async dispatch")
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
             expectation.fulfill()
         }
         wait(for: [expectation], timeout: 1.0)

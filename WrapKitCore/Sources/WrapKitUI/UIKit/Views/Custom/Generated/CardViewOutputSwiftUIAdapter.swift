@@ -189,4 +189,13 @@ public class CardViewOutputSwiftUIAdapter: ObservableObject, CardViewOutput {
             isUserInteractionEnabled: isUserInteractionEnabled
         )
     }
+    @Published public var displayIsGradientBorderEnabledState: DisplayIsGradientBorderEnabledState? = nil
+    public struct DisplayIsGradientBorderEnabledState {
+        public let isGradientBorderEnabled: Bool
+    }
+    public func display(isGradientBorderEnabled: Bool) {
+        displayIsGradientBorderEnabledState = .init(
+            isGradientBorderEnabled: isGradientBorderEnabled
+        )
+    }
 }

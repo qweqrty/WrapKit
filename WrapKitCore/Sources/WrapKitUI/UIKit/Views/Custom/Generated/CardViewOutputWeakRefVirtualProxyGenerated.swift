@@ -79,6 +79,9 @@ extension WeakRefVirtualProxy: CardViewOutput where T: CardViewOutput {
     public func display(isUserInteractionEnabled: Bool?) {
         object?.display(isUserInteractionEnabled: isUserInteractionEnabled)
     }
+    public func display(isGradientBorderEnabled: Bool) {
+        object?.display(isGradientBorderEnabled: isGradientBorderEnabled)
+    }
 
 }
 #endif
