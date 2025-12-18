@@ -8,31 +8,31 @@
 import Foundation
 import WrapKit
 
-class HTTPClientSpy: HTTPClient {
-    typealias Result = HTTPClient.Result
+public class HTTPClientSpy: HTTPClient {
+    public typealias Result = HTTPClient.Result
     
-    private struct Task: HTTPClientTask {
-        let resumeCallback: () -> Void
-        let cancelCallback: () -> Void
-        func resume() { resumeCallback() }
-        func cancel() { cancelCallback() }
+    public struct Task: HTTPClientTask {
+        public let resumeCallback: () -> Void
+        public let cancelCallback: () -> Void
+        public func resume() { resumeCallback() }
+        public func cancel() { cancelCallback() }
     }
     
-    private var messages: [(requests: URLRequest, completion: (Result) -> Void)] = []
+    public private(set) var messages: [(requests: URLRequest, completion: (Result) -> Void)] = []
     private let queue = DispatchQueue(label: "com.httpclientspy.queue") // Serial queue for synchronization
-    private(set) var resumedURLs: [URL] = []
-    private(set) var cancelledURLs: [URL] = []
-    private(set) var completedResponses: [HTTPClient.Result] = []
+    public private(set) var resumedURLs: [URL] = []
+    public private(set) var cancelledURLs: [URL] = []
+    public private(set) var completedResponses: [HTTPClient.Result] = []
     
-    var requestedURLs: [URL] {
+    public var requestedURLs: [URL] {
         return messages.compactMap { $0.requests.url }
     }
     
-    var requestedURLRequests: [URLRequest] {
+    public var requestedURLRequests: [URLRequest] {
         return messages.map { $0.requests }
     }
     
-    func dispatch(_ request: URLRequest, completion: @escaping (Result) -> Void) -> HTTPClientTask {
+    public func dispatch(_ request: URLRequest, completion: @escaping (Result) -> Void) -> HTTPClientTask {
         queue.sync {
                     messages.append((request, completion))
                 }
@@ -43,14 +43,14 @@ class HTTPClientSpy: HTTPClient {
         })
     }
     
-    func completes(with error: Error, at index: Int = 0) {
+    public func completes(with error: Error, at index: Int = 0) {
         queue.sync {
             completedResponses.append(.failure(error))
             messages[index].completion(.failure(error))
         }
     }
     
-    func completes(withStatusCode code: Int, data: Data, at index: Int = 0) {
+    public func completes(withStatusCode code: Int, data: Data, at index: Int = 0) {
         queue.sync {
             let response = HTTPURLResponse(
                 url: self.requestedURLs[index],

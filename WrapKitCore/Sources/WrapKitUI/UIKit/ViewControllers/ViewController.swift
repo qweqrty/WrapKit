@@ -27,7 +27,7 @@ public protocol ApplicationLifecycleOutput: AnyObject {
 #if canImport(UIKit)
 import UIKit
 
-open class ViewController<ContentView: UIView>: UIViewController {
+open class ViewController<ContentView: UIView>: UIViewController, LifeCycleViewOutput, ApplicationLifecycleOutput {
     private let LifeCycleViewOutput: LifeCycleViewOutput?
     private let ApplicationLifecycleOutput: ApplicationLifecycleOutput?
     
@@ -136,19 +136,19 @@ open class ViewController<ContentView: UIView>: UIViewController {
         NotificationCenter.default.removeObserver(self, name: UIApplication.willResignActiveNotification, object: nil)
     }
 
-    @objc private func applicationWillEnterForeground() {
+    @objc public func applicationWillEnterForeground() {
         ApplicationLifecycleOutput?.applicationWillEnterForeground()
     }
 
-    @objc private func applicationDidEnterBackground() {
+    @objc public func applicationDidEnterBackground() {
         ApplicationLifecycleOutput?.applicationDidEnterBackground()
     }
 
-    @objc private func applicationDidBecomeActive() {
+    @objc public func applicationDidBecomeActive() {
         ApplicationLifecycleOutput?.applicationDidBecomeActive()
     }
 
-    @objc private func applicationWillResignActive() {
+    @objc public func applicationWillResignActive() {
         ApplicationLifecycleOutput?.applicationWillResignActive()
     }
 
