@@ -8,9 +8,11 @@
 #if canImport(Foundation)
 import Foundation
 #endif
+import WrapKit
 #if canImport(UIKit)
 import UIKit
 #endif
+import WrapKit
 
 public final class SearchBarOutputSpy: SearchBarOutput {
 
@@ -29,42 +31,41 @@ public final class SearchBarOutputSpy: SearchBarOutput {
     public private(set) var messages: [Message] = []
 
     // MARK: - Captured values
-    public private(set) var capturedDisplayModel: [SearchBarPresentableModel?] = []
-    public private(set) var capturedDisplayTextField: [TextInputPresentableModel?] = []
-    public private(set) var capturedDisplayLeftView: [ButtonPresentableModel?] = []
-    public private(set) var capturedDisplayRightView: [ButtonPresentableModel?] = []
-    public private(set) var capturedDisplayPlaceholder: [String?] = []
-    public private(set) var capturedDisplayBackgroundColor: [Color?] = []
-    public private(set) var capturedDisplaySpacing: [CGFloat] = []
-
+    public private(set) var capturedDisplayModel: [(SearchBarPresentableModel?)] = []
+    public private(set) var capturedDisplayTextField: [(TextInputPresentableModel?)] = []
+    public private(set) var capturedDisplayLeftView: [(ButtonPresentableModel?)] = []
+    public private(set) var capturedDisplayRightView: [(ButtonPresentableModel?)] = []
+    public private(set) var capturedDisplayPlaceholder: [(String?)] = []
+    public private(set) var capturedDisplayBackgroundColor: [(Color?)] = []
+    public private(set) var capturedDisplaySpacing: [(CGFloat)] = []
 
     // MARK: - SearchBarOutput methods
     public func display(model: SearchBarPresentableModel?) {
-        capturedDisplayModel.append(model)
+        capturedDisplayModel.append((model))
         messages.append(.displayModel(model: model))
     }
     public func display(textField: TextInputPresentableModel?) {
-        capturedDisplayTextField.append(textField)
+        capturedDisplayTextField.append((textField))
         messages.append(.displayTextField(textField: textField))
     }
     public func display(leftView: ButtonPresentableModel?) {
-        capturedDisplayLeftView.append(leftView)
+        capturedDisplayLeftView.append((leftView))
         messages.append(.displayLeftView(leftView: leftView))
     }
     public func display(rightView: ButtonPresentableModel?) {
-        capturedDisplayRightView.append(rightView)
+        capturedDisplayRightView.append((rightView))
         messages.append(.displayRightView(rightView: rightView))
     }
     public func display(placeholder: String?) {
-        capturedDisplayPlaceholder.append(placeholder)
+        capturedDisplayPlaceholder.append((placeholder))
         messages.append(.displayPlaceholder(placeholder: placeholder))
     }
     public func display(backgroundColor: Color?) {
-        capturedDisplayBackgroundColor.append(backgroundColor)
+        capturedDisplayBackgroundColor.append((backgroundColor))
         messages.append(.displayBackgroundColor(backgroundColor: backgroundColor))
     }
     public func display(spacing: CGFloat) {
-        capturedDisplaySpacing.append(spacing)
+        capturedDisplaySpacing.append((spacing))
         messages.append(.displaySpacing(spacing: spacing))
     }
 

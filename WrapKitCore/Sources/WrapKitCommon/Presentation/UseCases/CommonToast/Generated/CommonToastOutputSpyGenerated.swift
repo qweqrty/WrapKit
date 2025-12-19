@@ -8,6 +8,7 @@
 #if canImport(Foundation)
 import Foundation
 #endif
+import WrapKit
 
 public final class CommonToastOutputSpy: CommonToastOutput {
 
@@ -21,15 +22,16 @@ public final class CommonToastOutputSpy: CommonToastOutput {
     public private(set) var messages: [Message] = []
 
     // MARK: - Captured values
-    public private(set) var capturedDisplayToast: [CommonToast] = []
-
+    public private(set) var capturedDisplayToast: [(CommonToast)] = []
+    public private(set) var capturedHide: [Void] = []
 
     // MARK: - CommonToastOutput methods
     public func display(_ toast: CommonToast) {
-        capturedDisplayToast.append(toast)
+        capturedDisplayToast.append((toast))
         messages.append(.displayToast(toast: toast))
     }
     public func hide() {
+        capturedHide.append(())
         messages.append(.hide)
     }
 

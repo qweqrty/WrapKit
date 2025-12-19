@@ -8,9 +8,11 @@
 #if canImport(Foundation)
 import Foundation
 #endif
+import WrapKit
 #if canImport(UIKit)
 import UIKit
 #endif
+import WrapKit
 
 public final class StackViewOutputSpy: StackViewOutput {
 
@@ -29,42 +31,41 @@ public final class StackViewOutputSpy: StackViewOutput {
     public private(set) var messages: [Message] = []
 
     // MARK: - Captured values
-    public private(set) var capturedDisplayModel: [StackViewPresentableModel] = []
-    public private(set) var capturedDisplaySpacing: [CGFloat?] = []
-    public private(set) var capturedDisplayAxis: [StackViewAxis] = []
-    public private(set) var capturedDisplayDistribution: [StackViewDistribution] = []
-    public private(set) var capturedDisplayAlignment: [StackViewAlignment] = []
-    public private(set) var capturedDisplayLayoutMargins: [EdgeInsets] = []
-    public private(set) var capturedDisplayIsHidden: [Bool] = []
-
+    public private(set) var capturedDisplayModel: [(StackViewPresentableModel)] = []
+    public private(set) var capturedDisplaySpacing: [(CGFloat?)] = []
+    public private(set) var capturedDisplayAxis: [(StackViewAxis)] = []
+    public private(set) var capturedDisplayDistribution: [(StackViewDistribution)] = []
+    public private(set) var capturedDisplayAlignment: [(StackViewAlignment)] = []
+    public private(set) var capturedDisplayLayoutMargins: [(EdgeInsets)] = []
+    public private(set) var capturedDisplayIsHidden: [(Bool)] = []
 
     // MARK: - StackViewOutput methods
     public func display(model: StackViewPresentableModel) {
-        capturedDisplayModel.append(model)
+        capturedDisplayModel.append((model))
         messages.append(.displayModel(model: model))
     }
     public func display(spacing: CGFloat?) {
-        capturedDisplaySpacing.append(spacing)
+        capturedDisplaySpacing.append((spacing))
         messages.append(.displaySpacing(spacing: spacing))
     }
     public func display(axis: StackViewAxis) {
-        capturedDisplayAxis.append(axis)
+        capturedDisplayAxis.append((axis))
         messages.append(.displayAxis(axis: axis))
     }
     public func display(distribution: StackViewDistribution) {
-        capturedDisplayDistribution.append(distribution)
+        capturedDisplayDistribution.append((distribution))
         messages.append(.displayDistribution(distribution: distribution))
     }
     public func display(alignment: StackViewAlignment) {
-        capturedDisplayAlignment.append(alignment)
+        capturedDisplayAlignment.append((alignment))
         messages.append(.displayAlignment(alignment: alignment))
     }
     public func display(layoutMargins: EdgeInsets) {
-        capturedDisplayLayoutMargins.append(layoutMargins)
+        capturedDisplayLayoutMargins.append((layoutMargins))
         messages.append(.displayLayoutMargins(layoutMargins: layoutMargins))
     }
     public func display(isHidden: Bool) {
-        capturedDisplayIsHidden.append(isHidden)
+        capturedDisplayIsHidden.append((isHidden))
         messages.append(.displayIsHidden(isHidden: isHidden))
     }
 

@@ -8,9 +8,11 @@
 #if canImport(Foundation)
 import Foundation
 #endif
+import WrapKit
 #if canImport(UIKit)
 import UIKit
 #endif
+import WrapKit
 
 public final class RefreshControlOutputSpy: RefreshControlOutput {
 
@@ -28,40 +30,39 @@ public final class RefreshControlOutputSpy: RefreshControlOutput {
     public private(set) var messages: [Message] = []
 
     // MARK: - Captured values
-    public private(set) var capturedDisplayModel: [RefreshControlPresentableModel?] = []
-    public private(set) var capturedDisplayStyle: [RefreshControlPresentableModel.Style] = []
-    public private(set) var capturedDisplayOnRefresh: [(() -> Void)?] = []
-    public private(set) var capturedDisplayAppendingOnRefresh: [(() -> Void)?] = []
-    public private(set) var capturedDisplayIsLoading: [Bool] = []
-
-    public private(set) var capturedOnRefresh: [[(() -> Void)?]?] = []
+    public private(set) var capturedDisplayModel: [(RefreshControlPresentableModel?)] = []
+    public private(set) var capturedDisplayStyle: [(RefreshControlPresentableModel.Style)] = []
+    public private(set) var capturedDisplayOnRefresh: [((() -> Void)?)] = []
+    public private(set) var capturedDisplayAppendingOnRefresh: [((() -> Void)?)] = []
+    public private(set) var capturedDisplayIsLoading: [(Bool)] = []
+    public private(set) var capturedSetOnRefresh: [[(() -> Void)?]?] = []
 
     // MARK: - RefreshControlOutput methods
     public func display(model: RefreshControlPresentableModel?) {
-        capturedDisplayModel.append(model)
+        capturedDisplayModel.append((model))
         messages.append(.displayModel(model: model))
     }
     public func display(style: RefreshControlPresentableModel.Style) {
-        capturedDisplayStyle.append(style)
+        capturedDisplayStyle.append((style))
         messages.append(.displayStyle(style: style))
     }
     public func display(onRefresh: (() -> Void)?) {
-        capturedDisplayOnRefresh.append(onRefresh)
+        capturedDisplayOnRefresh.append((onRefresh))
         messages.append(.displayOnRefresh(onRefresh: onRefresh))
     }
     public func display(appendingOnRefresh: (() -> Void)?) {
-        capturedDisplayAppendingOnRefresh.append(appendingOnRefresh)
+        capturedDisplayAppendingOnRefresh.append((appendingOnRefresh))
         messages.append(.displayAppendingOnRefresh(appendingOnRefresh: appendingOnRefresh))
     }
     public func display(isLoading: Bool) {
-        capturedDisplayIsLoading.append(isLoading)
+        capturedDisplayIsLoading.append((isLoading))
         messages.append(.displayIsLoading(isLoading: isLoading))
     }
 
     // MARK: - Properties
     public var onRefresh: [(() -> Void)?]? {
         didSet {
-            capturedOnRefresh.append(onRefresh)
+            capturedSetOnRefresh.append(onRefresh)
             messages.append(.setOnRefresh(onRefresh))
         }
     }

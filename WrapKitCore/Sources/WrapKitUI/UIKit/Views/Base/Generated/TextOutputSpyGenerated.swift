@@ -8,9 +8,11 @@
 #if canImport(Foundation)
 import Foundation
 #endif
+import WrapKit
 #if canImport(UIKit)
 import UIKit
 #endif
+import WrapKit
 
 public final class TextOutputSpy: TextOutput {
 
@@ -27,44 +29,31 @@ public final class TextOutputSpy: TextOutput {
     public private(set) var messages: [Message] = []
 
     // MARK: - Captured values
-    public private(set) var capturedDisplayModel: [TextOutputPresentableModel?] = []
-    public private(set) var capturedDisplayText: [String?] = []
-    public private(set) var capturedDisplayAttributes: [[TextAttributes]] = []
-    public private(set) var capturedDisplayId: [String?] = []
-    public private(set) var capturedDisplayIdStartAmount: [Decimal] = []
-    public private(set) var capturedDisplayIdEndAmount: [Decimal] = []
-    public private(set) var capturedDisplayIdMapToString: [((Decimal) -> TextOutputPresentableModel)?] = []
-    public private(set) var capturedDisplayIdAnimationStyle: [LabelAnimationStyle] = []
-    public private(set) var capturedDisplayIdDuration: [TimeInterval] = []
-    public private(set) var capturedDisplayIdCompletion: [(() -> Void)?] = []
-    public private(set) var capturedDisplayIsHidden: [Bool] = []
-
+    public private(set) var capturedDisplayModel: [(TextOutputPresentableModel?)] = []
+    public private(set) var capturedDisplayText: [(String?)] = []
+    public private(set) var capturedDisplayAttributes: [([TextAttributes])] = []
+    public private(set) var capturedDisplayIdStartAmountEndAmountMapToStringAnimationStyleDurationCompletion: [(String?, Decimal, Decimal, ((Decimal) -> TextOutputPresentableModel)?, LabelAnimationStyle, TimeInterval, (() -> Void)?)] = []
+    public private(set) var capturedDisplayIsHidden: [(Bool)] = []
 
     // MARK: - TextOutput methods
     public func display(model: TextOutputPresentableModel?) {
-        capturedDisplayModel.append(model)
+        capturedDisplayModel.append((model))
         messages.append(.displayModel(model: model))
     }
     public func display(text: String?) {
-        capturedDisplayText.append(text)
+        capturedDisplayText.append((text))
         messages.append(.displayText(text: text))
     }
     public func display(attributes: [TextAttributes]) {
-        capturedDisplayAttributes.append(attributes)
+        capturedDisplayAttributes.append((attributes))
         messages.append(.displayAttributes(attributes: attributes))
     }
     public func display(id: String?, from startAmount: Decimal, to endAmount: Decimal, mapToString: ((Decimal) -> TextOutputPresentableModel)?, animationStyle: LabelAnimationStyle, duration: TimeInterval, completion: (() -> Void)?) {
-        capturedDisplayId.append(id)
-        capturedDisplayIdStartAmount.append(startAmount)
-        capturedDisplayIdEndAmount.append(endAmount)
-        capturedDisplayIdMapToString.append(mapToString)
-        capturedDisplayIdAnimationStyle.append(animationStyle)
-        capturedDisplayIdDuration.append(duration)
-        capturedDisplayIdCompletion.append(completion)
+        capturedDisplayIdStartAmountEndAmountMapToStringAnimationStyleDurationCompletion.append((id, startAmount, endAmount, mapToString, animationStyle, duration, completion))
         messages.append(.displayId(id: id, from: startAmount, to: endAmount, mapToString: mapToString, animationStyle: animationStyle, duration: duration, completion: completion))
     }
     public func display(isHidden: Bool) {
-        capturedDisplayIsHidden.append(isHidden)
+        capturedDisplayIsHidden.append((isHidden))
         messages.append(.displayIsHidden(isHidden: isHidden))
     }
 

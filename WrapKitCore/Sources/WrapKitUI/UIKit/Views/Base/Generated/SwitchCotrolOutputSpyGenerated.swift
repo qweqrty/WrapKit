@@ -8,9 +8,11 @@
 #if canImport(Foundation)
 import Foundation
 #endif
+import WrapKit
 #if canImport(UIKit)
 import UIKit
 #endif
+import WrapKit
 
 public final class SwitchCotrolOutputSpy: SwitchCotrolOutput {
 
@@ -28,37 +30,36 @@ public final class SwitchCotrolOutputSpy: SwitchCotrolOutput {
     public private(set) var messages: [Message] = []
 
     // MARK: - Captured values
-    public private(set) var capturedDisplayModel: [SwitchControlPresentableModel?] = []
-    public private(set) var capturedDisplayOnPress: [((SwitchCotrolOutput & LoadingOutput) -> Void)?] = []
-    public private(set) var capturedDisplayIsOn: [Bool] = []
-    public private(set) var capturedDisplayStyle: [SwitchControlPresentableModel.Style?] = []
-    public private(set) var capturedDisplayIsEnabled: [Bool] = []
-    public private(set) var capturedDisplayIsHidden: [Bool] = []
-
+    public private(set) var capturedDisplayModel: [(SwitchControlPresentableModel?)] = []
+    public private(set) var capturedDisplayOnPress: [(((SwitchCotrolOutput & LoadingOutput) -> Void)?)] = []
+    public private(set) var capturedDisplayIsOn: [(Bool)] = []
+    public private(set) var capturedDisplayStyle: [(SwitchControlPresentableModel.Style?)] = []
+    public private(set) var capturedDisplayIsEnabled: [(Bool)] = []
+    public private(set) var capturedDisplayIsHidden: [(Bool)] = []
 
     // MARK: - SwitchCotrolOutput methods
     public func display(model: SwitchControlPresentableModel?) {
-        capturedDisplayModel.append(model)
+        capturedDisplayModel.append((model))
         messages.append(.displayModel(model: model))
     }
     public func display(onPress: ((SwitchCotrolOutput & LoadingOutput) -> Void)?) {
-        capturedDisplayOnPress.append(onPress)
+        capturedDisplayOnPress.append((onPress))
         messages.append(.displayOnPress(onPress: onPress))
     }
     public func display(isOn: Bool) {
-        capturedDisplayIsOn.append(isOn)
+        capturedDisplayIsOn.append((isOn))
         messages.append(.displayIsOn(isOn: isOn))
     }
     public func display(style: SwitchControlPresentableModel.Style?) {
-        capturedDisplayStyle.append(style)
+        capturedDisplayStyle.append((style))
         messages.append(.displayStyle(style: style))
     }
     public func display(isEnabled: Bool) {
-        capturedDisplayIsEnabled.append(isEnabled)
+        capturedDisplayIsEnabled.append((isEnabled))
         messages.append(.displayIsEnabled(isEnabled: isEnabled))
     }
     public func display(isHidden: Bool) {
-        capturedDisplayIsHidden.append(isHidden)
+        capturedDisplayIsHidden.append((isHidden))
         messages.append(.displayIsHidden(isHidden: isHidden))
     }
 

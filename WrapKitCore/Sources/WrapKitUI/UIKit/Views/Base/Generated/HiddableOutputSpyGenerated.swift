@@ -8,9 +8,11 @@
 #if canImport(SwiftUI)
 import SwiftUI
 #endif
+import WrapKit
 #if canImport(UIKit)
 import UIKit
 #endif
+import WrapKit
 
 public final class HiddableOutputSpy: HiddableOutput {
 
@@ -23,12 +25,11 @@ public final class HiddableOutputSpy: HiddableOutput {
     public private(set) var messages: [Message] = []
 
     // MARK: - Captured values
-    public private(set) var capturedDisplayIsHidden: [Bool] = []
-
+    public private(set) var capturedDisplayIsHidden: [(Bool)] = []
 
     // MARK: - HiddableOutput methods
     public func display(isHidden: Bool) {
-        capturedDisplayIsHidden.append(isHidden)
+        capturedDisplayIsHidden.append((isHidden))
         messages.append(.displayIsHidden(isHidden: isHidden))
     }
 

@@ -8,9 +8,11 @@
 #if canImport(Foundation)
 import Foundation
 #endif
+import WrapKit
 #if canImport(UIKit)
 import UIKit
 #endif
+import WrapKit
 
 public final class SegmentedControlOutputSpy: SegmentedControlOutput {
 
@@ -24,17 +26,16 @@ public final class SegmentedControlOutputSpy: SegmentedControlOutput {
     public private(set) var messages: [Message] = []
 
     // MARK: - Captured values
-    public private(set) var capturedDisplayAppearence: [SegmentedControlAppearance] = []
-    public private(set) var capturedDisplaySegments: [[SegmentControlModel]] = []
-
+    public private(set) var capturedDisplayAppearence: [(SegmentedControlAppearance)] = []
+    public private(set) var capturedDisplaySegments: [([SegmentControlModel])] = []
 
     // MARK: - SegmentedControlOutput methods
     public func display(appearence: SegmentedControlAppearance) {
-        capturedDisplayAppearence.append(appearence)
+        capturedDisplayAppearence.append((appearence))
         messages.append(.displayAppearence(appearence: appearence))
     }
     public func display(segments: [SegmentControlModel]) {
-        capturedDisplaySegments.append(segments)
+        capturedDisplaySegments.append((segments))
         messages.append(.displaySegments(segments: segments))
     }
 

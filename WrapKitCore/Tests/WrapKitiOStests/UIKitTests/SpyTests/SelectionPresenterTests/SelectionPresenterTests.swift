@@ -1,5 +1,5 @@
 //
-//  SelectionPresenterSpyTests.swift
+//  SelectionPresenterTests.swift
 //  WrapKit
 //
 //  Created by Urmatbek Marat Uulu on 18/12/25.
@@ -9,7 +9,7 @@ import Foundation
 import XCTest
 import WrapKit
 
-final class SelectionPresenterSpyTests: XCTestCase {
+final class SelectionPresenterTests: XCTestCase {
     func test_viewDidLoad_selectionOutput_shouldShowSearchBar() {
         // GIVEN
         let components = makeSUT()
@@ -119,7 +119,7 @@ final class SelectionPresenterSpyTests: XCTestCase {
     
 }
 
-fileprivate extension SelectionPresenterSpyTests {
+fileprivate extension SelectionPresenterTests {
     
     struct SUTComponents {
         let sut: SelectionPresenter

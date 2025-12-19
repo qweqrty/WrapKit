@@ -8,6 +8,7 @@
 #if canImport(Foundation)
 import Foundation
 #endif
+import WrapKit
 
 public final class TimerOutputSpy: TimerOutput {
 
@@ -20,14 +21,11 @@ public final class TimerOutputSpy: TimerOutput {
     public private(set) var messages: [Message] = []
 
     // MARK: - Captured values
-    public private(set) var capturedDisplayTimerInput: [TimerInput] = []
-    public private(set) var capturedDisplayTimerInputSecondsRemaining: [Int?] = []
-
+    public private(set) var capturedDisplayTimerInputSecondsRemaining: [(TimerInput, Int?)] = []
 
     // MARK: - TimerOutput methods
     public func display(timerInput: TimerInput, secondsRemaining: Int?) {
-        capturedDisplayTimerInput.append(timerInput)
-        capturedDisplayTimerInputSecondsRemaining.append(secondsRemaining)
+        capturedDisplayTimerInputSecondsRemaining.append((timerInput, secondsRemaining))
         messages.append(.displayTimerInput(timerInput: timerInput, secondsRemaining: secondsRemaining))
     }
 

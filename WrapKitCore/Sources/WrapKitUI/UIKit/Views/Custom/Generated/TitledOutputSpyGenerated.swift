@@ -8,9 +8,11 @@
 #if canImport(UIKit)
 import UIKit
 #endif
+import WrapKit
 #if canImport(SwiftUI)
 import SwiftUI
 #endif
+import WrapKit
 
 public final class TitledOutputSpy: TitledOutput {
 
@@ -29,42 +31,41 @@ public final class TitledOutputSpy: TitledOutput {
     public private(set) var messages: [Message] = []
 
     // MARK: - Captured values
-    public private(set) var capturedDisplayModel: [TitledViewPresentableModel?] = []
-    public private(set) var capturedDisplayTitles: [Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>] = []
-    public private(set) var capturedDisplayBottomTitles: [Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>] = []
-    public private(set) var capturedDisplayLeadingBottomTitle: [TextOutputPresentableModel?] = []
-    public private(set) var capturedDisplayTrailingBottomTitle: [TextOutputPresentableModel?] = []
-    public private(set) var capturedDisplayIsUserInteractionEnabled: [Bool] = []
-    public private(set) var capturedDisplayIsHidden: [Bool] = []
-
+    public private(set) var capturedDisplayModel: [(TitledViewPresentableModel?)] = []
+    public private(set) var capturedDisplayTitles: [(Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>)] = []
+    public private(set) var capturedDisplayBottomTitles: [(Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>)] = []
+    public private(set) var capturedDisplayLeadingBottomTitle: [(TextOutputPresentableModel?)] = []
+    public private(set) var capturedDisplayTrailingBottomTitle: [(TextOutputPresentableModel?)] = []
+    public private(set) var capturedDisplayIsUserInteractionEnabled: [(Bool)] = []
+    public private(set) var capturedDisplayIsHidden: [(Bool)] = []
 
     // MARK: - TitledOutput methods
     public func display(model: TitledViewPresentableModel?) {
-        capturedDisplayModel.append(model)
+        capturedDisplayModel.append((model))
         messages.append(.displayModel(model: model))
     }
     public func display(titles: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>) {
-        capturedDisplayTitles.append(titles)
+        capturedDisplayTitles.append((titles))
         messages.append(.displayTitles(titles: titles))
     }
     public func display(bottomTitles: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>) {
-        capturedDisplayBottomTitles.append(bottomTitles)
+        capturedDisplayBottomTitles.append((bottomTitles))
         messages.append(.displayBottomTitles(bottomTitles: bottomTitles))
     }
     public func display(leadingBottomTitle: TextOutputPresentableModel?) {
-        capturedDisplayLeadingBottomTitle.append(leadingBottomTitle)
+        capturedDisplayLeadingBottomTitle.append((leadingBottomTitle))
         messages.append(.displayLeadingBottomTitle(leadingBottomTitle: leadingBottomTitle))
     }
     public func display(trailingBottomTitle: TextOutputPresentableModel?) {
-        capturedDisplayTrailingBottomTitle.append(trailingBottomTitle)
+        capturedDisplayTrailingBottomTitle.append((trailingBottomTitle))
         messages.append(.displayTrailingBottomTitle(trailingBottomTitle: trailingBottomTitle))
     }
     public func display(isUserInteractionEnabled: Bool) {
-        capturedDisplayIsUserInteractionEnabled.append(isUserInteractionEnabled)
+        capturedDisplayIsUserInteractionEnabled.append((isUserInteractionEnabled))
         messages.append(.displayIsUserInteractionEnabled(isUserInteractionEnabled: isUserInteractionEnabled))
     }
     public func display(isHidden: Bool) {
-        capturedDisplayIsHidden.append(isHidden)
+        capturedDisplayIsHidden.append((isHidden))
         messages.append(.displayIsHidden(isHidden: isHidden))
     }
 

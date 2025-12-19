@@ -8,6 +8,7 @@
 #if canImport(UIKit)
 import UIKit
 #endif
+import WrapKit
 
 public final class LifeCycleViewOutputSpy: LifeCycleViewOutput {
 
@@ -27,39 +28,46 @@ public final class LifeCycleViewOutputSpy: LifeCycleViewOutput {
     public private(set) var messages: [Message] = []
 
     // MARK: - Captured values
-    public private(set) var capturedComposedOutput: [LifeCycleViewOutput] = []
-    public private(set) var capturedWithAnalyticsEventName: [String] = []
-    public private(set) var capturedWithAnalyticsEventNameParameters: [[String: Any]] = []
-    public private(set) var capturedWithAnalyticsEventNameAnalytics: [AnalyticsTracker] = []
-
+    public private(set) var capturedViewDidLoad: [Void] = []
+    public private(set) var capturedViewWillAppear: [Void] = []
+    public private(set) var capturedViewWillDisappear: [Void] = []
+    public private(set) var capturedViewDidAppear: [Void] = []
+    public private(set) var capturedViewDidDisappear: [Void] = []
+    public private(set) var capturedViewDidLayoutSubviews: [Void] = []
+    public private(set) var capturedComposedOutput: [(LifeCycleViewOutput)] = []
+    public private(set) var capturedWithAnalyticsEventNameParametersAnalytics: [(String, [String: Any], AnalyticsTracker)] = []
 
     // MARK: - LifeCycleViewOutput methods
     public func viewDidLoad() {
+        capturedViewDidLoad.append(())
         messages.append(.viewDidLoad)
     }
     public func viewWillAppear() {
+        capturedViewWillAppear.append(())
         messages.append(.viewWillAppear)
     }
     public func viewWillDisappear() {
+        capturedViewWillDisappear.append(())
         messages.append(.viewWillDisappear)
     }
     public func viewDidAppear() {
+        capturedViewDidAppear.append(())
         messages.append(.viewDidAppear)
     }
     public func viewDidDisappear() {
+        capturedViewDidDisappear.append(())
         messages.append(.viewDidDisappear)
     }
     public func viewDidLayoutSubviews() {
+        capturedViewDidLayoutSubviews.append(())
         messages.append(.viewDidLayoutSubviews)
     }
     public func composed(with output: LifeCycleViewOutput) {
-        capturedComposedOutput.append(output)
+        capturedComposedOutput.append((output))
         messages.append(.composedOutput(with: output))
     }
     public func withAnalytics(eventName: String, parameters: [String: Any], analytics: AnalyticsTracker) {
-        capturedWithAnalyticsEventName.append(eventName)
-        capturedWithAnalyticsEventNameParameters.append(parameters)
-        capturedWithAnalyticsEventNameAnalytics.append(analytics)
+        capturedWithAnalyticsEventNameParametersAnalytics.append((eventName, parameters, analytics))
         messages.append(.withAnalyticsEventName(eventName: eventName, parameters: parameters, analytics: analytics))
     }
 

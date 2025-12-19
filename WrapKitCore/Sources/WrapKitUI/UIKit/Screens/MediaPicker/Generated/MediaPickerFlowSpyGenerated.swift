@@ -8,6 +8,7 @@
 #if canImport(UIKit)
 import UIKit
 #endif
+import WrapKit
 
 public final class MediaPickerFlowSpy: MediaPickerFlow {
 
@@ -21,19 +22,16 @@ public final class MediaPickerFlowSpy: MediaPickerFlow {
     public private(set) var messages: [Message] = []
 
     // MARK: - Captured values
-    public private(set) var capturedShowMediaPickerSourceTypes: [[MediaPickerManager.Source]] = []
-    public private(set) var capturedShowMediaPickerSourceTypesLocalizable: [MediaPickerLocalizable] = []
-    public private(set) var capturedShowMediaPickerSourceTypesCallback: [((MediaPickerManager.ResultType?) -> Void)?] = []
-
+    public private(set) var capturedShowMediaPickerSourceTypesLocalizableCallback: [([MediaPickerManager.Source], MediaPickerLocalizable, ((MediaPickerManager.ResultType?) -> Void)?)] = []
+    public private(set) var capturedFinish: [Void] = []
 
     // MARK: - MediaPickerFlow methods
     public func showMediaPicker(sourceTypes: [MediaPickerManager.Source], localizable: MediaPickerLocalizable, callback: ((MediaPickerManager.ResultType?) -> Void)?) {
-        capturedShowMediaPickerSourceTypes.append(sourceTypes)
-        capturedShowMediaPickerSourceTypesLocalizable.append(localizable)
-        capturedShowMediaPickerSourceTypesCallback.append(callback)
+        capturedShowMediaPickerSourceTypesLocalizableCallback.append((sourceTypes, localizable, callback))
         messages.append(.showMediaPickerSourceTypes(sourceTypes: sourceTypes, localizable: localizable, callback: callback))
     }
     public func finish() {
+        capturedFinish.append(())
         messages.append(.finish)
     }
 

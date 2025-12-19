@@ -8,15 +8,19 @@
 #if canImport(Foundation)
 import Foundation
 #endif
+import WrapKit
 #if canImport(SwiftUI)
 import SwiftUI
 #endif
+import WrapKit
 #if canImport(Lottie)
 import Lottie
 #endif
+import WrapKit
 #if canImport(UIKit)
 import UIKit
 #endif
+import WrapKit
 
 public final class LottieViewOutputSpy: LottieViewOutput {
 
@@ -30,20 +34,19 @@ public final class LottieViewOutputSpy: LottieViewOutput {
     public private(set) var messages: [Message] = []
 
     // MARK: - Captured values
-    public private(set) var capturedDisplayModel: [LottieViewPresentableModel] = []
-
-    public private(set) var capturedCurrentAnimationName: [String?] = []
+    public private(set) var capturedDisplayModel: [(LottieViewPresentableModel)] = []
+    public private(set) var capturedSetCurrentAnimationName: [String?] = []
 
     // MARK: - LottieViewOutput methods
     public func display(model: LottieViewPresentableModel) {
-        capturedDisplayModel.append(model)
+        capturedDisplayModel.append((model))
         messages.append(.displayModel(model: model))
     }
 
     // MARK: - Properties
     public var currentAnimationName: String? {
         didSet {
-            capturedCurrentAnimationName.append(currentAnimationName)
+            capturedSetCurrentAnimationName.append(currentAnimationName)
             messages.append(.setCurrentAnimationName(currentAnimationName))
         }
     }

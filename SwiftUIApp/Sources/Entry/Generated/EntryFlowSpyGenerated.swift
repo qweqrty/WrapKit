@@ -8,12 +8,15 @@
 #if canImport(Foundation)
 import Foundation
 #endif
+import WrapKit
 #if canImport(Combine)
 import Combine
 #endif
+import WrapKit
 #if canImport(SwiftUI)
 import SwiftUI
 #endif
+import WrapKit
 
 public final class EntryFlowSpy: EntryFlow {
 
@@ -26,10 +29,11 @@ public final class EntryFlowSpy: EntryFlow {
     public private(set) var messages: [Message] = []
 
     // MARK: - Captured values
-
+    public private(set) var capturedShowSplash: [Void] = []
 
     // MARK: - EntryFlow methods
     public func showSplash() {
+        capturedShowSplash.append(())
         messages.append(.showSplash)
     }
 
