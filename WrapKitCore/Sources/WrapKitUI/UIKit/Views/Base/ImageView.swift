@@ -68,8 +68,158 @@ public struct ImageViewPresentableModel: HashableWithReflection {
 
 #if canImport(UIKit)
 import UIKit
-import SwiftUI
 import Kingfisher
+
+public extension ImageView {
+    func setImage(
+        _ image: ImageEnum?,
+        animation: UIView.AnimationOptions = .transitionCrossDissolve,
+        closure: ((Image?) -> Void)? = nil
+    ) {
+        if Thread.isMainThread {
+            handleImage(image, closure: closure)
+         } else {
+             DispatchQueue.main.async { [weak self] in
+                 self?.handleImage(image, closure: closure)
+             }
+         }
+    }
+    
+    private func handleImage(_ image: ImageEnum?, kingfisherOptions: KingfisherOptionsInfo = [], closure: ((Image?) -> Void)? = nil) {
+        cancelCurrentDownload()
+        currentImageEnum = image
+        
+        switch image {
+        case .asset(let image):
+            self.animatedSet(image)
+            closure?(image)
+        case .url(let lightUrl, let darkUrl):
+            let url = traitCollection.userInterfaceStyle == .dark ? darkUrl : lightUrl
+            if let url = lightUrl { KingfisherManager.shared.downloader.cancel(url: url) }
+            if let url = darkUrl { KingfisherManager.shared.downloader.cancel(url: url) }
+            self.loadImage(url, kingfisherOptions: kingfisherOptions, closure: closure)
+        case .urlString(let lightString, let darkString):
+            let string = traitCollection.userInterfaceStyle == .dark ? darkString : lightString
+            if let url = URL(string: lightString ?? "") { KingfisherManager.shared.downloader.cancel(url: url) }
+            if let url = URL(string: darkString ?? "") { KingfisherManager.shared.downloader.cancel(url: url) }
+            self.loadImage(URL(string: string ?? ""), kingfisherOptions: kingfisherOptions, closure: closure)
+        case .data(let data):
+            guard let data else {
+                cancelCurrentAnimation()
+                self.image = nil
+                closure?(nil)
+                return
+            }
+            let image = UIImage(data: data)
+            self.animatedSet(image)
+            closure?(image)
+        case .none:
+            cancelCurrentAnimation()
+            self.image = nil
+            closure?(nil)
+        }
+    }
+    
+    private func loadImage(_ url: URL?, kingfisherOptions: KingfisherOptionsInfo, closure: ((Image?) -> Void)? = nil) {
+        guard let url = url else {
+            animatedSet(wrongUrlPlaceholderImage, completion: closure)
+            return
+        }
+        
+        if let fallbackView {
+            fallbackView.isHidden = true
+        }
+        viewWhileLoadingView?.isHidden = false
+        
+        KingfisherManager.shared.cache.retrieveImage(forKey: url.absoluteString, options: [.callbackQueue(.mainCurrentOrAsync)]) { [weak self] result in
+            guard let self = self else {
+                self?.animatedSet(nil, completion: closure)
+                return
+            }
+            
+            switch result {
+            case .success(let image):
+                self.animatedSet(image.image)
+                KingfisherManager.shared.retrieveImage(with: url, options: [.callbackQueue(.mainCurrentOrAsync), .forceRefresh] + kingfisherOptions) { [weak self] result in
+                    guard let self = self else {
+                        self?.animatedSet(nil, completion: closure)
+                        return
+                    }
+                    
+                    switch result {
+                    case .success(let image):
+                        self.animatedSet(image.image, completion: closure)
+                    case .failure:
+                        self.showFallbackView(url)
+                        closure?(image.image)
+                    }
+                }
+            case .failure:
+                KingfisherManager.shared.retrieveImage(with: url, options: [.callbackQueue(.mainCurrentOrAsync)] + kingfisherOptions) { [weak self] result in
+                    guard let self = self else { return }
+                    
+                    switch result {
+                    case .success(let image):
+                        self.animatedSet(image.image, completion: closure)
+                    case .failure:
+                        self.showFallbackView(url)
+                        closure?(nil)
+                    }
+                }
+            }
+        }
+    }
+    
+    private func cancelCurrentDownload() {
+        guard let currentImageEnum = currentImageEnum else { return }
+        
+        switch currentImageEnum {
+        case .url(let lightUrl, let darkUrl):
+            if let url = lightUrl {
+                KingfisherManager.shared.downloader.cancel(url: url)
+            }
+            if let url = darkUrl {
+                KingfisherManager.shared.downloader.cancel(url: url)
+            }
+        case .urlString(let lightString, let darkString):
+            if let urlString = lightString, let url = URL(string: urlString) {
+                KingfisherManager.shared.downloader.cancel(url: url)
+            }
+            if let urlString = darkString, let url = URL(string: urlString) {
+                KingfisherManager.shared.downloader.cancel(url: url)
+            }
+        default:
+            break
+        }
+    }
+    
+    private func showFallbackView(_ url: URL, kingfisherOptions: KingfisherOptionsInfo = []) {
+        viewWhileLoadingView?.isHidden = true
+        viewWhileLoadingView?.alpha = 0
+        guard let fallbackView else { return }
+        fallbackView.isHidden = false
+        fallbackView.animations.insert(.shrink)
+        fallbackView.onPress = { [weak self] in
+            self?.viewWhileLoadingView?.alpha = 1
+            self?.loadImage(url, kingfisherOptions: kingfisherOptions)
+        }
+    }
+    
+    private func animatedSet(_ image: UIImage?, completion: ((Image?) -> Void)? = nil) {
+        cancelCurrentAnimation()
+        currentAnimator = UIViewPropertyAnimator(duration: 0.3, curve: .easeInOut) { [weak self] in
+            self?.image = image
+        }
+        currentAnimator?.addCompletion { [weak self] _ in
+            self?.currentAnimator = nil
+            self?.viewWhileLoadingView?.isHidden = true
+            completion?(image)
+        }
+
+        // Start the animation
+        currentAnimator?.startAnimation()
+    }
+}
 
 open class ImageView: UIImageView {
     public var currentAnimator: UIViewPropertyAnimator?
