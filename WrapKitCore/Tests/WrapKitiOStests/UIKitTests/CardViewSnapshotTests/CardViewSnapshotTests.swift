@@ -33,6 +33,33 @@ final class CardViewSnapshotTests: XCTestCase {
         }
     }
     
+    func test_multipleSubtitle_cardView() {
+        let snapshotName = "CARDVIEW_MULTIPLE_SUBTITLE_ROW_STATE"
+        
+        // GIVEN
+        let (sut, container) = makeSUT()
+        
+        // WHEN
+        sut.display(model: .init(
+            style: makeMultipleSubtitleRowStyle(),
+            subTitle: .attributes([
+                .init(text: "CardView" + "\n"),
+                .init(text: "Subtitle" + "\n"),
+                .init(text: "Multiple" + "\n"),
+                .init(text: "Row" + "\n")
+            ])
+        ))
+        
+        // THEN
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.3.1_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.3.1_\(snapshotName)_DARK")
+        }
+    }
+    
     func test_fail_CardView_default_state() {
         let snapshotName = "CARDVIEW_DEFAULT_STATE"
         
@@ -983,6 +1010,33 @@ extension CardViewSnapshotTests {
             trailingTitleKeyLabelFont: .boldSystemFont(ofSize: 22),
             titleValueLabelFont: .systemFont(ofSize: 14),
             subTitleLabelFont: .systemFont(ofSize: 14, weight: .light),
+            cornerRadius: 20,
+            stackSpace: 5.0,
+            hStackViewSpacing: 2.0,
+            titleKeyNumberOfLines: 0,
+            titleValueNumberOfLines: 0,
+            borderColor: .green,
+            borderWidth: 4
+        )
+    }
+    
+    func makeMultipleSubtitleRowStyle() -> CardViewPresentableModel.Style {
+        return .init(
+            backgroundColor: .systemRed,
+            vStacklayoutMargins: .init(top: 5, leading: 5, bottom: 5, trailing: 5),
+            hStacklayoutMargins: .zero,
+            hStackViewDistribution: .fillEqually,
+            leadingTitleKeyTextColor: .blue,
+            titleKeyTextColor: .brown,
+            trailingTitleKeyTextColor: .black,
+            titleValueTextColor: .cyan,
+            subTitleTextColor: .gray,
+            leadingTitleKeyLabelFont: .boldSystemFont(ofSize: 22),
+            titleKeyLabelFont: .systemFont(ofSize: 14),
+            trailingTitleKeyLabelFont: .boldSystemFont(ofSize: 22),
+            titleValueLabelFont: .systemFont(ofSize: 14),
+            subTitleLabelFont: .systemFont(ofSize: 14, weight: .light),
+            subtitleNumberOfLines: 0,
             cornerRadius: 20,
             stackSpace: 5.0,
             hStackViewSpacing: 2.0,
