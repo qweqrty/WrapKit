@@ -2,6 +2,7 @@ import XCTest
 import Combine
 import Foundation
 import WrapKit
+import WrapKitTestUtils
 
 class HTTPClientCancelOngoingRequestsDecoratorTests: XCTestCase {
 

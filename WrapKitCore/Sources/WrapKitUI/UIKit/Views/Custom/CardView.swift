@@ -70,7 +70,7 @@ public struct CardViewPresentableModel: HashableWithReflection {
             trailingTitleKeyLabelFont: Font,
             titleValueLabelFont: Font,
             subTitleLabelFont: Font,
-            subtitleNumberOfLines: Int = 1,
+            subtitleNumberOfLines: Int = 0,
             cornerRadius: CGFloat,
             stackSpace: CGFloat,
             hStackViewSpacing: CGFloat,
@@ -467,8 +467,8 @@ open class CardView: ViewUIKit {
     }
     
     private func setupPriorities() {
-        subtitleLabel.setContentHuggingPriority(.required, for: .horizontal)
-        subtitleLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
+        subtitleLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        subtitleLabel.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
         subtitleLabel.setContentCompressionResistancePriority(.required, for: .vertical)
         
         titleViews.keyLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)

@@ -2,6 +2,7 @@ import XCTest
 import Foundation
 import Combine
 import WrapKit
+import WrapKitTestUtils
 
 class StoredHTTPClientDecoratorTests: XCTestCase {
 

@@ -25,7 +25,8 @@ public extension Button {
     private func handleImage(_ image: ImageEnum?, kingfisherOptions: KingfisherOptionsInfo = [], completion: ((Image?) -> Void)?) {
         switch image {
         case .asset(let image):
-            self.animatedSet(image, completion: completion)
+            self.animatedSet(image)
+            completion?(image)
         case .url(let lightUrl, let darkUrl):
             self.loadImage(UserInterfaceStyle.current == .light ? lightUrl : darkUrl, kingfisherOptions: kingfisherOptions, completion: completion)
         case .urlString(let lightString, let darkString):
@@ -36,7 +37,9 @@ public extension Button {
                 completion?(nil)
                 return
             }
-            self.animatedSet(UIImage(data: data), completion: completion)
+            let image = UIImage(data: data)
+            self.animatedSet(image)
+            completion?(image)
         case .none:
             completion?(nil)
         }
@@ -44,20 +47,22 @@ public extension Button {
     
     private func loadImage(_ url: URL?, kingfisherOptions: KingfisherOptionsInfo, completion: ((Image?) -> Void)?) {
         guard let url else {
-            self.animatedSet(wrongUrlPlaceholderImage, completion: completion)
+            self.animatedSet(wrongUrlPlaceholderImage)
+            completion?(wrongUrlPlaceholderImage)
             return
         }
         KingfisherManager.shared.cache.retrieveImage(forKey: url.absoluteString, options: [.callbackQueue(.mainCurrentOrAsync)]) { [weak self] result in
             switch result {
             case .success(let image):
-                self?.animatedSet(image.image, completion: nil)
+                self?.animatedSet(image.image)
 
                 KingfisherManager.shared.retrieveImage(with: url, options: [.callbackQueue(.mainCurrentOrAsync), .forceRefresh] + kingfisherOptions) { [weak self] result in
                     switch result {
                     case .success(let image):
-                        self?.animatedSet(image.image, completion: completion)
+                        self?.animatedSet(image.image)
+                        completion?(image.image)
                     case .failure:
-                        completion?(nil)
+                        completion?(image.image)
                         return
                     }
                 }
@@ -65,7 +70,8 @@ public extension Button {
                 KingfisherManager.shared.retrieveImage(with: url, options: [.callbackQueue(.mainCurrentOrAsync)] + kingfisherOptions) { [weak self] result in
                     switch result {
                     case .success(let image):
-                        self?.animatedSet(image.image, completion: completion)
+                        self?.animatedSet(image.image)
+                        completion?(image.image)
                     case .failure:
                         completion?(nil)
                         return
@@ -75,7 +81,7 @@ public extension Button {
         }
     }
     
-    private func animatedSet(_ image: UIImage?, completion: ((Image?) -> Void)?) {
+    private func animatedSet(_ image: UIImage?) {
         cancelCurrentAnimation()
 
         currentAnimator = UIViewPropertyAnimator(duration: 0.3, curve: .easeInOut) { [weak self] in
@@ -83,7 +89,6 @@ public extension Button {
         }
         currentAnimator?.addCompletion { [weak self] _ in
             self?.currentAnimator = nil
-            completion?(image)
         }
 
         // Start the animation

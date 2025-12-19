@@ -11,6 +11,8 @@ import WrapKit
 public class HTTPClientSpy: HTTPClient {
     public typealias Result = HTTPClient.Result
     
+    public init() { }
+    
     public struct Task: HTTPClientTask {
         public let resumeCallback: () -> Void
         public let cancelCallback: () -> Void
