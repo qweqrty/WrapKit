@@ -4,14 +4,18 @@
 // swiftlint:disable all
 // swift-format-ignore-file
 // swiftformat:disable all
+
 #if canImport(Foundation)
 import Foundation
 #endif
 #if canImport(UIKit)
 import UIKit
 #endif
+
 public final class LoadingOutputSpy: LoadingOutput {
+
     public init() {}
+
     public enum Message: HashableWithReflection {
         case displayIsLoading(isLoading: Bool)
         case NVActivityLoaderOnView(onView: UIView, type: NVActivityIndicatorType, size: CGSize, padding: UIEdgeInsets, loadingViewColor: UIColor, wrapperViewColor: UIColor)
@@ -28,6 +32,7 @@ public final class LoadingOutputSpy: LoadingOutput {
     public private(set) var capturedNVActivityLoaderPadding: [UIEdgeInsets] = []
     public private(set) var capturedNVActivityLoaderLoadingViewColor: [UIColor] = []
     public private(set) var capturedNVActivityLoaderWrapperViewColor: [UIColor] = []
+
     public private(set) var capturedIsLoading: [Bool?] = []
 
     // MARK: - LoadingOutput methods

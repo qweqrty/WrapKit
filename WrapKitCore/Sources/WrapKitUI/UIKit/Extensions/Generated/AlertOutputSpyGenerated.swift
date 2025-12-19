@@ -4,11 +4,15 @@
 // swiftlint:disable all
 // swift-format-ignore-file
 // swiftformat:disable all
+
 #if canImport(UIKit)
 import UIKit
 #endif
+
 public final class AlertOutputSpy: AlertOutput {
+
     public init() {}
+
     public enum Message: HashableWithReflection {
         case showAlertModel(model: AlertPresentableModel?)
         case showActionSheetModel(model: AlertPresentableModel?)
@@ -21,6 +25,7 @@ public final class AlertOutputSpy: AlertOutput {
     public private(set) var capturedShowAlertModel: [AlertPresentableModel?] = []
     public private(set) var capturedShowActionSheetModel: [AlertPresentableModel?] = []
     public private(set) var capturedShowTextFieldAlertModel: [AlertPresentableModel?] = []
+
 
     // MARK: - AlertOutput methods
     public func showAlert(model: AlertPresentableModel?) {

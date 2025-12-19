@@ -4,14 +4,18 @@
 // swiftlint:disable all
 // swift-format-ignore-file
 // swiftformat:disable all
+
 #if canImport(Foundation)
 import Foundation
 #endif
 #if canImport(UIKit)
 import UIKit
 #endif
+
 public final class SegmentedControlOutputSpy: SegmentedControlOutput {
+
     public init() {}
+
     public enum Message: HashableWithReflection {
         case displayAppearence(appearence: SegmentedControlAppearance)
         case displaySegments(segments: [SegmentControlModel])
@@ -22,6 +26,7 @@ public final class SegmentedControlOutputSpy: SegmentedControlOutput {
     // MARK: - Captured values
     public private(set) var capturedDisplayAppearence: [SegmentedControlAppearance] = []
     public private(set) var capturedDisplaySegments: [[SegmentControlModel]] = []
+
 
     // MARK: - SegmentedControlOutput methods
     public func display(appearence: SegmentedControlAppearance) {

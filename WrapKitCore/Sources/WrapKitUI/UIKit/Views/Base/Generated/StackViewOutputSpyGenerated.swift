@@ -4,14 +4,18 @@
 // swiftlint:disable all
 // swift-format-ignore-file
 // swiftformat:disable all
+
 #if canImport(Foundation)
 import Foundation
 #endif
 #if canImport(UIKit)
 import UIKit
 #endif
+
 public final class StackViewOutputSpy: StackViewOutput {
+
     public init() {}
+
     public enum Message: HashableWithReflection {
         case displayModel(model: StackViewPresentableModel)
         case displaySpacing(spacing: CGFloat?)
@@ -32,6 +36,7 @@ public final class StackViewOutputSpy: StackViewOutput {
     public private(set) var capturedDisplayAlignment: [StackViewAlignment] = []
     public private(set) var capturedDisplayLayoutMargins: [EdgeInsets] = []
     public private(set) var capturedDisplayIsHidden: [Bool] = []
+
 
     // MARK: - StackViewOutput methods
     public func display(model: StackViewPresentableModel) {

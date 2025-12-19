@@ -4,14 +4,18 @@
 // swiftlint:disable all
 // swift-format-ignore-file
 // swiftformat:disable all
+
 #if canImport(Foundation)
 import Foundation
 #endif
 #if canImport(UIKit)
 import UIKit
 #endif
+
 public final class EmptyViewOutputSpy: EmptyViewOutput {
+
     public init() {}
+
     public enum Message: HashableWithReflection {
         case displayModel(model: EmptyViewPresentableModel?)
         case displayTitle(title: TextOutputPresentableModel?)
@@ -30,6 +34,7 @@ public final class EmptyViewOutputSpy: EmptyViewOutput {
     public private(set) var capturedDisplayButtonModel: [ButtonPresentableModel?] = []
     public private(set) var capturedDisplayImage: [ImageViewPresentableModel?] = []
     public private(set) var capturedDisplayIsHidden: [Bool] = []
+
 
     // MARK: - EmptyViewOutput methods
     public func display(model: EmptyViewPresentableModel?) {

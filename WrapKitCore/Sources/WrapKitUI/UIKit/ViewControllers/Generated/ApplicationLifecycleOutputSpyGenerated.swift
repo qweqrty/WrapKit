@@ -4,11 +4,15 @@
 // swiftlint:disable all
 // swift-format-ignore-file
 // swiftformat:disable all
+
 #if canImport(UIKit)
 import UIKit
 #endif
+
 public final class ApplicationLifecycleOutputSpy: ApplicationLifecycleOutput {
+
     public init() {}
+
     public enum Message: HashableWithReflection {
         case applicationWillEnterForeground
         case applicationDidEnterBackground
@@ -23,6 +27,7 @@ public final class ApplicationLifecycleOutputSpy: ApplicationLifecycleOutput {
     // MARK: - Captured values
     public private(set) var capturedApplicationDidChangeUserInterfaceStyle: [UserInterfaceStyle] = []
     public private(set) var capturedComposedOutput: [ApplicationLifecycleOutput] = []
+
 
     // MARK: - ApplicationLifecycleOutput methods
     public func applicationWillEnterForeground() {

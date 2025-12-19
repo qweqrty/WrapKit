@@ -4,14 +4,18 @@
 // swiftlint:disable all
 // swift-format-ignore-file
 // swiftformat:disable all
+
 #if canImport(Foundation)
 import Foundation
 #endif
 #if canImport(UIKit)
 import UIKit
 #endif
+
 public final class PickerViewOutputSpy: PickerViewOutput {
+
     public init() {}
+
     public enum Message: HashableWithReflection {
         case displayModel(model: PickerViewPresentableModel?)
         case displaySelectedRow(selectedRow: PickerViewPresentableModel.SelectedRow?)
@@ -26,6 +30,7 @@ public final class PickerViewOutputSpy: PickerViewOutput {
     // MARK: - Captured values
     public private(set) var capturedDisplayModel: [PickerViewPresentableModel?] = []
     public private(set) var capturedDisplaySelectedRow: [PickerViewPresentableModel.SelectedRow?] = []
+
     public private(set) var capturedComponentsCount: [(() -> Int?)?] = []
     public private(set) var capturedRowsCount: [(() -> Int)?] = []
     public private(set) var capturedTitleForRowAt: [((Int) -> String?)?] = []

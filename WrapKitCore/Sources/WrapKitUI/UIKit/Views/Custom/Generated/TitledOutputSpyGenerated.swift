@@ -4,14 +4,18 @@
 // swiftlint:disable all
 // swift-format-ignore-file
 // swiftformat:disable all
+
 #if canImport(UIKit)
 import UIKit
 #endif
 #if canImport(SwiftUI)
 import SwiftUI
 #endif
+
 public final class TitledOutputSpy: TitledOutput {
+
     public init() {}
+
     public enum Message: HashableWithReflection {
         case displayModel(model: TitledViewPresentableModel?)
         case displayTitles(titles: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>)
@@ -32,6 +36,7 @@ public final class TitledOutputSpy: TitledOutput {
     public private(set) var capturedDisplayTrailingBottomTitle: [TextOutputPresentableModel?] = []
     public private(set) var capturedDisplayIsUserInteractionEnabled: [Bool] = []
     public private(set) var capturedDisplayIsHidden: [Bool] = []
+
 
     // MARK: - TitledOutput methods
     public func display(model: TitledViewPresentableModel?) {

@@ -4,11 +4,15 @@
 // swiftlint:disable all
 // swift-format-ignore-file
 // swiftformat:disable all
+
 #if canImport(Foundation)
 import Foundation
 #endif
+
 public final class SelectionOutputSpy: SelectionOutput {
+
     public init() {}
+
     public enum Message: HashableWithReflection {
         case displayItems(items: [TableSection<Void, SelectionType.SelectionCellPresentableModel, Void>], selectedCountTitle: String)
         case displayShouldShowSearchBar(shouldShowSearchBar: Bool)
@@ -20,6 +24,7 @@ public final class SelectionOutputSpy: SelectionOutput {
     public private(set) var capturedDisplayItems: [[TableSection<Void, SelectionType.SelectionCellPresentableModel, Void>]] = []
     public private(set) var capturedDisplaySelectedCountTitle: [String] = []
     public private(set) var capturedDisplayShouldShowSearchBar: [Bool] = []
+
 
     // MARK: - SelectionOutput methods
     public func display(items: [TableSection<Void, SelectionType.SelectionCellPresentableModel, Void>], selectedCountTitle: String) {

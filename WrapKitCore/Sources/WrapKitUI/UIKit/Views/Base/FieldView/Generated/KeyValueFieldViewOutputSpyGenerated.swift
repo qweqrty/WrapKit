@@ -4,14 +4,18 @@
 // swiftlint:disable all
 // swift-format-ignore-file
 // swiftformat:disable all
+
 #if canImport(UIKit)
 import UIKit
 #endif
 #if canImport(SwiftUI)
 import SwiftUI
 #endif
+
 public final class KeyValueFieldViewOutputSpy: KeyValueFieldViewOutput {
+
     public init() {}
+
     public enum Message: HashableWithReflection {
         case displayModel(model: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>?)
         case displayKeyTitle(keyTitle: TextOutputPresentableModel?)
@@ -26,6 +30,7 @@ public final class KeyValueFieldViewOutputSpy: KeyValueFieldViewOutput {
     public private(set) var capturedDisplayKeyTitle: [TextOutputPresentableModel?] = []
     public private(set) var capturedDisplayValueTitle: [TextOutputPresentableModel?] = []
     public private(set) var capturedDisplayBottomImage: [ImageViewPresentableModel?] = []
+
 
     // MARK: - KeyValueFieldViewOutput methods
     public func display(model: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>?) {

@@ -4,14 +4,18 @@
 // swiftlint:disable all
 // swift-format-ignore-file
 // swiftformat:disable all
+
 #if canImport(Foundation)
 import Foundation
 #endif
 #if canImport(UIKit)
 import UIKit
 #endif
+
 public final class ImageViewOutputSpy: ImageViewOutput {
+
     public init() {}
+
     public enum Message: HashableWithReflection {
         case displayModel(model: ImageViewPresentableModel?)
         case displayImage(image: ImageEnum?)
@@ -40,6 +44,7 @@ public final class ImageViewOutputSpy: ImageViewOutput {
     public private(set) var capturedDisplayCornerRadius: [CGFloat?] = []
     public private(set) var capturedDisplayAlpha: [CGFloat?] = []
     public private(set) var capturedDisplayIsHidden: [Bool] = []
+
 
     // MARK: - ImageViewOutput methods
     public func display(model: ImageViewPresentableModel?) {

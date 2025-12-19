@@ -105,21 +105,26 @@ final class SelectionPresenterSpyTests: XCTestCase {
         XCTAssertEqual(model?.height, 48)
     }
     
-    //    func test_viewDidLoad_selectionOutput_shouldSasdhowSearchBar() {
-    //        let (sut, headerSpy, resetButtonSpy, viewSpy, selectButtonSpy, emptyViewSpy) = makeSUT()
-    //        let config = nurSelection()
-    //
-    //        sut.viewDidLoad()
-    //
-    //        let expectedModel = HeaderPresentableModel(
-    //            style: config.navBar,
-    //            centerView: nil,
-    //            leadingCard: .init(title: .text("Select")),
-    //            primeTrailingImage: config.content.backButtonImage.map { .init(image: $0) }
-    //        )
-    //
-    //        XCTAssertEqual(headerSpy.messages.first, .displayModel(model: expectedModel) )
-    //    }
+        func test_viewDidLoad_selectionOutput_shouldSasdhowSearchBar() {
+            let components = makeSUT()
+            let sut = components.sut
+            let headerSpy = components.headerSpy
+            
+            let config = nurSelection()
+    
+            sut.viewDidLoad()
+    
+            headerSpy.capturedDisplayModel.first??.primeTrailingImage?.onPress?()
+            
+            let expectedModel = HeaderPresentableModel(
+                style: config.navBar,
+                centerView: nil,
+                leadingCard: .init(id: headerSpy.capturedDisplayModel.first??.leadingCard?.id ?? "", title: .text("Select")),
+                primeTrailingImage: config.content.backButtonImage.map { .init(image: $0, onPress: headerSpy.capturedDisplayModel.first??.primeTrailingImage?.onPress) }
+            )
+    
+            XCTAssertEqual(headerSpy.messages.first, .displayModel(model: expectedModel) )
+        }
 }
 
 fileprivate extension SelectionPresenterSpyTests {

@@ -4,14 +4,18 @@
 // swiftlint:disable all
 // swift-format-ignore-file
 // swiftformat:disable all
+
 #if canImport(Foundation)
 import Foundation
 #endif
 #if canImport(UIKit)
 import UIKit
 #endif
+
 public final class TextOutputSpy: TextOutput {
+
     public init() {}
+
     public enum Message: HashableWithReflection {
         case displayModel(model: TextOutputPresentableModel?)
         case displayText(text: String?)
@@ -34,6 +38,7 @@ public final class TextOutputSpy: TextOutput {
     public private(set) var capturedDisplayDuration: [TimeInterval] = []
     public private(set) var capturedDisplayCompletion: [(() -> Void)?] = []
     public private(set) var capturedDisplayIsHidden: [Bool] = []
+
 
     // MARK: - TextOutput methods
     public func display(model: TextOutputPresentableModel?) {

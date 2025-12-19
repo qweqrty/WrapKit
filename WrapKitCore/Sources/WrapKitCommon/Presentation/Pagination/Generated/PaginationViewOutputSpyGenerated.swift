@@ -4,14 +4,18 @@
 // swiftlint:disable all
 // swift-format-ignore-file
 // swiftformat:disable all
+
 #if canImport(Foundation)
 import Foundation
 #endif
 #if canImport(Combine)
 import Combine
 #endif
+
 public class PaginationViewOutputSpy<PresentableItem: Any>: PaginationViewOutput {
+
     public init() {}
+
     public enum Message: HashableWithReflection {
         case displayModel(model: [PresentableItem], hasMore: Bool)
         case displayIsLoadingFirstPage(isLoadingFirstPage: Bool)
@@ -29,6 +33,7 @@ public class PaginationViewOutputSpy<PresentableItem: Any>: PaginationViewOutput
     public private(set) var capturedDisplayIsLoadingSubsequentPage: [Bool] = []
     public private(set) var capturedDisplayErrorAtFirstPage: [ServiceError] = []
     public private(set) var capturedDisplayErrorAtSubsequentPage: [ServiceError] = []
+
 
     // MARK: - PaginationViewOutput methods
     public func display(model: [PresentableItem], hasMore: Bool) {

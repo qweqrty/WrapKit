@@ -4,6 +4,7 @@
 // swiftlint:disable all
 // swift-format-ignore-file
 // swiftformat:disable all
+
 #if canImport(Foundation)
 import Foundation
 #endif
@@ -13,8 +14,11 @@ import UIKit
 #if canImport(SwiftUI)
 import SwiftUI
 #endif
+
 public final class ProgressBarOutputSpy: ProgressBarOutput {
+
     public init() {}
+
     public enum Message: HashableWithReflection {
         case displayModel(model: ProgressBarPresentableModel?)
         case displayProgress(progress: CGFloat)
@@ -29,6 +33,7 @@ public final class ProgressBarOutputSpy: ProgressBarOutput {
     public private(set) var capturedDisplayProgress: [CGFloat] = []
     public private(set) var capturedDisplayStyle: [ProgressBarStyle?] = []
     public private(set) var capturedDisplayIsHidden: [Bool] = []
+
 
     // MARK: - ProgressBarOutput methods
     public func display(model: ProgressBarPresentableModel?) {

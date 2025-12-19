@@ -4,14 +4,18 @@
 // swiftlint:disable all
 // swift-format-ignore-file
 // swiftformat:disable all
+
 #if canImport(Foundation)
 import Foundation
 #endif
 #if canImport(UIKit)
 import UIKit
 #endif
+
 public final class TextInputOutputSpy: TextInputOutput {
+
     public init() {}
+
     public enum Message: HashableWithReflection {
         case displayModel(model: TextInputPresentableModel?)
         case displayText(text: String?)
@@ -74,6 +78,7 @@ public final class TextInputOutputSpy: TextInputOutput {
     public private(set) var capturedMakeAccessoryViewAccessoryView: [UIView] = []
     public private(set) var capturedMakeAccessoryViewHeight: [CGFloat] = []
     public private(set) var capturedMakeAccessoryViewConstraints: [((UIView, UIView) -> [NSLayoutConstraint])?] = []
+
 
     // MARK: - TextInputOutput methods
     public func display(model: TextInputPresentableModel?) {

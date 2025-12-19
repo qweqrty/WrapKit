@@ -4,14 +4,18 @@
 // swiftlint:disable all
 // swift-format-ignore-file
 // swiftformat:disable all
+
 #if canImport(Foundation)
 import Foundation
 #endif
 #if canImport(UIKit)
 import UIKit
 #endif
+
 public final class HeaderOutputSpy: HeaderOutput {
+
     public init() {}
+
     public enum Message: HashableWithReflection {
         case displayModel(model: HeaderPresentableModel?)
         case displayStyle(style: HeaderPresentableModel.Style?)
@@ -34,6 +38,7 @@ public final class HeaderOutputSpy: HeaderOutput {
     public private(set) var capturedDisplaySecondaryTrailingImage: [ButtonPresentableModel?] = []
     public private(set) var capturedDisplayTertiaryTrailingImage: [ButtonPresentableModel?] = []
     public private(set) var capturedDisplayIsHidden: [Bool] = []
+
 
     // MARK: - HeaderOutput methods
     public func display(model: HeaderPresentableModel?) {

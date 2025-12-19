@@ -4,11 +4,15 @@
 // swiftlint:disable all
 // swift-format-ignore-file
 // swiftformat:disable all
+
 #if canImport(Foundation)
 import Foundation
 #endif
+
 public final class WebViewOutputSpy: WebViewOutput {
+
     public init() {}
+
     public enum Message: HashableWithReflection {
         case displayUrl(url: URL)
         case displayRefreshModel(refreshModel: WebViewStyle.Refresh)
@@ -23,6 +27,7 @@ public final class WebViewOutputSpy: WebViewOutput {
     public private(set) var capturedDisplayRefreshModel: [WebViewStyle.Refresh] = []
     public private(set) var capturedDisplayBackgroundColor: [Color?] = []
     public private(set) var capturedDisplayIsProgressBarNeeded: [Bool] = []
+
 
     // MARK: - WebViewOutput methods
     public func display(url: URL) {

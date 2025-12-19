@@ -4,11 +4,15 @@
 // swiftlint:disable all
 // swift-format-ignore-file
 // swiftformat:disable all
+
 #if canImport(UIKit)
 import UIKit
 #endif
+
 public final class LifeCycleViewOutputSpy: LifeCycleViewOutput {
+
     public init() {}
+
     public enum Message: HashableWithReflection {
         case viewDidLoad
         case viewWillAppear
@@ -27,6 +31,7 @@ public final class LifeCycleViewOutputSpy: LifeCycleViewOutput {
     public private(set) var capturedWithAnalyticsEventName: [String] = []
     public private(set) var capturedWithAnalyticsParameters: [[String: Any]] = []
     public private(set) var capturedWithAnalyticsAnalytics: [AnalyticsTracker] = []
+
 
     // MARK: - LifeCycleViewOutput methods
     public func viewDidLoad() {

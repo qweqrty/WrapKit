@@ -4,6 +4,7 @@
 // swiftlint:disable all
 // swift-format-ignore-file
 // swiftformat:disable all
+
 #if canImport(Foundation)
 import Foundation
 #endif
@@ -13,8 +14,11 @@ import UIKit
 #if canImport(SwiftUI)
 import SwiftUI
 #endif
+
 public final class CardViewOutputSpy: CardViewOutput {
+
     public init() {}
+
     public enum Message: HashableWithReflection {
         case displayModel(model: CardViewPresentableModel?)
         case displayStyle(style: CardViewPresentableModel.Style?)
@@ -55,6 +59,7 @@ public final class CardViewOutputSpy: CardViewOutput {
     public private(set) var capturedDisplayOnPress: [(() -> Void)?] = []
     public private(set) var capturedDisplayOnLongPress: [(() -> Void)?] = []
     public private(set) var capturedDisplayIsHidden: [Bool] = []
+
 
     // MARK: - CardViewOutput methods
     public func display(model: CardViewPresentableModel?) {

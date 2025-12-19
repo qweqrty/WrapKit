@@ -4,14 +4,18 @@
 // swiftlint:disable all
 // swift-format-ignore-file
 // swiftformat:disable all
+
 #if canImport(Foundation)
 import Foundation
 #endif
 #if canImport(UIKit)
 import UIKit
 #endif
+
 public final class DatePickerViewOutputSpy: DatePickerViewOutput {
+
     public init() {}
+
     public enum Message: HashableWithReflection {
         case displayDateChanged(dateChanged: ((Date) -> Void)?)
         case displayDate(date: Date)
@@ -27,6 +31,7 @@ public final class DatePickerViewOutputSpy: DatePickerViewOutput {
     public private(set) var capturedDisplaySetDate: [Date] = []
     public private(set) var capturedDisplayAnimated: [Bool] = []
     public private(set) var capturedDisplayModel: [DatePickerPresentableModel] = []
+
 
     // MARK: - DatePickerViewOutput methods
     public func display(dateChanged: ((Date) -> Void)?) {

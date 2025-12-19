@@ -4,14 +4,18 @@
 // swiftlint:disable all
 // swift-format-ignore-file
 // swiftformat:disable all
+
 #if canImport(Foundation)
 import Foundation
 #endif
 #if canImport(UIKit)
 import UIKit
 #endif
+
 public final class SwitchCotrolOutputSpy: SwitchCotrolOutput {
+
     public init() {}
+
     public enum Message: HashableWithReflection {
         case displayModel(model: SwitchControlPresentableModel?)
         case displayOnPress(onPress: ((SwitchCotrolOutput & LoadingOutput) -> Void)?)
@@ -30,6 +34,7 @@ public final class SwitchCotrolOutputSpy: SwitchCotrolOutput {
     public private(set) var capturedDisplayStyle: [SwitchControlPresentableModel.Style?] = []
     public private(set) var capturedDisplayIsEnabled: [Bool] = []
     public private(set) var capturedDisplayIsHidden: [Bool] = []
+
 
     // MARK: - SwitchCotrolOutput methods
     public func display(model: SwitchControlPresentableModel?) {

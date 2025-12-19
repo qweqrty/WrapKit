@@ -4,14 +4,18 @@
 // swiftlint:disable all
 // swift-format-ignore-file
 // swiftformat:disable all
+
 #if canImport(Foundation)
 import Foundation
 #endif
 #if canImport(UIKit)
 import UIKit
 #endif
+
 public class TableOutputSpy<Cell: Hashable,Footer: Any,Header: Any>: TableOutput {
+
     public init() {}
+
     public enum Message: HashableWithReflection {
         case displaySections(sections: [TableSection<Header, Cell, Footer>])
         case displayTrailingSwipeActionsForIndexPath(trailingSwipeActionsForIndexPath: ((IndexPath) -> [TableContextualAction<Cell>])?)
@@ -34,6 +38,7 @@ public class TableOutputSpy<Cell: Hashable,Footer: Any,Header: Any>: TableOutput
     public private(set) var capturedDisplayCanMove: [((IndexPath) -> Bool)?] = []
     public private(set) var capturedDisplayCanEdit: [((IndexPath) -> Bool)?] = []
     public private(set) var capturedDisplayCommitEditing: [((TableEditingStyle, IndexPath) -> Void)?] = []
+
 
     // MARK: - TableOutput methods
     public func display(sections: [TableSection<Header, Cell, Footer>]) {

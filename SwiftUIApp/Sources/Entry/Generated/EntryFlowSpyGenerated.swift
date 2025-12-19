@@ -5,31 +5,32 @@
 // swift-format-ignore-file
 // swiftformat:disable all
 
+#if canImport(Foundation)
+import Foundation
+#endif
+#if canImport(Combine)
+import Combine
+#endif
 #if canImport(SwiftUI)
 import SwiftUI
 #endif
-#if canImport(UIKit)
-import UIKit
-#endif
 
-public final class HiddableOutputSpy: HiddableOutput {
+public final class EntryFlowSpy: EntryFlow {
 
     public init() {}
 
     public enum Message: HashableWithReflection {
-        case displayIsHidden(isHidden: Bool)
+        case showSplash
     }
 
     public private(set) var messages: [Message] = []
 
     // MARK: - Captured values
-    public private(set) var capturedDisplayIsHidden: [Bool] = []
 
 
-    // MARK: - HiddableOutput methods
-    public func display(isHidden: Bool) {
-        capturedDisplayIsHidden.append(isHidden)
-        messages.append(.displayIsHidden(isHidden: isHidden))
+    // MARK: - EntryFlow methods
+    public func showSplash() {
+        messages.append(.showSplash)
     }
 
     // MARK: - Properties

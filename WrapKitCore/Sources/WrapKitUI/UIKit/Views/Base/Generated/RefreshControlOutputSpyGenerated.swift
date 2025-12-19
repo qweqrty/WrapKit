@@ -4,14 +4,18 @@
 // swiftlint:disable all
 // swift-format-ignore-file
 // swiftformat:disable all
+
 #if canImport(Foundation)
 import Foundation
 #endif
 #if canImport(UIKit)
 import UIKit
 #endif
+
 public final class RefreshControlOutputSpy: RefreshControlOutput {
+
     public init() {}
+
     public enum Message: HashableWithReflection {
         case displayModel(model: RefreshControlPresentableModel?)
         case displayStyle(style: RefreshControlPresentableModel.Style)
@@ -29,6 +33,7 @@ public final class RefreshControlOutputSpy: RefreshControlOutput {
     public private(set) var capturedDisplayOnRefresh: [(() -> Void)?] = []
     public private(set) var capturedDisplayAppendingOnRefresh: [(() -> Void)?] = []
     public private(set) var capturedDisplayIsLoading: [Bool] = []
+
     public private(set) var capturedOnRefresh: [[(() -> Void)?]?] = []
 
     // MARK: - RefreshControlOutput methods

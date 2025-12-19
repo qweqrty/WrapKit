@@ -4,6 +4,7 @@
 // swiftlint:disable all
 // swift-format-ignore-file
 // swiftformat:disable all
+
 #if canImport(Foundation)
 import Foundation
 #endif
@@ -13,8 +14,11 @@ import UIKit
 #if canImport(Combine)
 import Combine
 #endif
+
 public final class ExpandableCardViewOutputSpy: ExpandableCardViewOutput {
+
     public init() {}
+
     public enum Message: HashableWithReflection {
         case displayModel(model: Pair<CardViewPresentableModel, CardViewPresentableModel?>)
         case displayIsHidden(isHidden: Bool)
@@ -25,6 +29,7 @@ public final class ExpandableCardViewOutputSpy: ExpandableCardViewOutput {
     // MARK: - Captured values
     public private(set) var capturedDisplayModel: [Pair<CardViewPresentableModel, CardViewPresentableModel?>] = []
     public private(set) var capturedDisplayIsHidden: [Bool] = []
+
 
     // MARK: - ExpandableCardViewOutput methods
     public func display(model: Pair<CardViewPresentableModel, CardViewPresentableModel?>) {

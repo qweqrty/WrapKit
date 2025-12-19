@@ -4,14 +4,18 @@
 // swiftlint:disable all
 // swift-format-ignore-file
 // swiftformat:disable all
+
 #if canImport(Foundation)
 import Foundation
 #endif
 #if canImport(UIKit)
 import UIKit
 #endif
+
 public final class ButtonOutputSpy: ButtonOutput {
+
     public init() {}
+
     public enum Message: HashableWithReflection {
         case displayModel(model: ButtonPresentableModel?)
         case displayEnabled(enabled: Bool)
@@ -36,6 +40,7 @@ public final class ButtonOutputSpy: ButtonOutput {
     public private(set) var capturedDisplayOnPress: [(() -> Void)?] = []
     public private(set) var capturedDisplayHeight: [CGFloat] = []
     public private(set) var capturedDisplayIsHidden: [Bool] = []
+
 
     // MARK: - ButtonOutput methods
     public func display(model: ButtonPresentableModel?) {
