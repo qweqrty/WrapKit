@@ -289,6 +289,8 @@ private extension NavigationBar {
         view.bottomSeparatorView.isHidden = true
         view.trailingImageWrapperView.isHidden = true
         view.subtitleLabel.isHidden = true
+        view.subtitleLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        view.subtitleLabel.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
         return view
     }
     
