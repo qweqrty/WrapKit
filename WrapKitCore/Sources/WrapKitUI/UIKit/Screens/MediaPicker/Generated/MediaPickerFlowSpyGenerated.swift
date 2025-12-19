@@ -21,14 +21,14 @@ public final class MediaPickerFlowSpy: MediaPickerFlow {
     public private(set) var messages: [Message] = []
 
     // MARK: - Captured values
-    public private(set) var capturedShowMediaPickerSourceTypesSourceTypes: [[MediaPickerManager.Source]] = []
+    public private(set) var capturedShowMediaPickerSourceTypes: [[MediaPickerManager.Source]] = []
     public private(set) var capturedShowMediaPickerSourceTypesLocalizable: [MediaPickerLocalizable] = []
     public private(set) var capturedShowMediaPickerSourceTypesCallback: [((MediaPickerManager.ResultType?) -> Void)?] = []
 
 
     // MARK: - MediaPickerFlow methods
     public func showMediaPicker(sourceTypes: [MediaPickerManager.Source], localizable: MediaPickerLocalizable, callback: ((MediaPickerManager.ResultType?) -> Void)?) {
-        capturedShowMediaPickerSourceTypesSourceTypes.append(sourceTypes)
+        capturedShowMediaPickerSourceTypes.append(sourceTypes)
         capturedShowMediaPickerSourceTypesLocalizable.append(localizable)
         capturedShowMediaPickerSourceTypesCallback.append(callback)
         messages.append(.showMediaPickerSourceTypes(sourceTypes: sourceTypes, localizable: localizable, callback: callback))

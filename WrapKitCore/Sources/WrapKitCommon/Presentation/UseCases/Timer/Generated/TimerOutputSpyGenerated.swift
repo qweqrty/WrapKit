@@ -20,13 +20,13 @@ public final class TimerOutputSpy: TimerOutput {
     public private(set) var messages: [Message] = []
 
     // MARK: - Captured values
-    public private(set) var capturedDisplayTimerInputTimerInput: [TimerInput] = []
+    public private(set) var capturedDisplayTimerInput: [TimerInput] = []
     public private(set) var capturedDisplayTimerInputSecondsRemaining: [Int?] = []
 
 
     // MARK: - TimerOutput methods
     public func display(timerInput: TimerInput, secondsRemaining: Int?) {
-        capturedDisplayTimerInputTimerInput.append(timerInput)
+        capturedDisplayTimerInput.append(timerInput)
         capturedDisplayTimerInputSecondsRemaining.append(secondsRemaining)
         messages.append(.displayTimerInput(timerInput: timerInput, secondsRemaining: secondsRemaining))
     }

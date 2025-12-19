@@ -22,14 +22,14 @@ public final class SelectionFlowSpy: SelectionFlow {
     public private(set) var messages: [Message] = []
 
     // MARK: - Captured values
-    public private(set) var capturedShowSelectionModelModel: [SelectionPresenterModel] = []
+    public private(set) var capturedShowSelectionModel: [SelectionPresenterModel] = []
     public private(set) var showSelectionModelGenericCallCount = 0
-    public private(set) var capturedCloseResultResult: [SelectionType?] = []
+    public private(set) var capturedCloseResult: [SelectionType?] = []
 
 
     // MARK: - SelectionFlow methods
     public func showSelection(model: SelectionPresenterModel) {
-        capturedShowSelectionModelModel.append(model)
+        capturedShowSelectionModel.append(model)
         messages.append(.showSelectionModel(model: model))
     }
     public func showSelection<Request, Response>(model: ServicedSelectionModel<Request, Response>) {
@@ -37,7 +37,7 @@ public final class SelectionFlowSpy: SelectionFlow {
         messages.append(.showSelectionModelGeneric)
     }
     public func close(with result: SelectionType?) {
-        capturedCloseResultResult.append(result)
+        capturedCloseResult.append(result)
         messages.append(.closeResult(with: result))
     }
 

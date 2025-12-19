@@ -25,8 +25,8 @@ public final class ApplicationLifecycleOutputSpy: ApplicationLifecycleOutput {
     public private(set) var messages: [Message] = []
 
     // MARK: - Captured values
-    public private(set) var capturedApplicationDidChangeUserInterfaceStyleUserInterfaceStyle: [UserInterfaceStyle] = []
-    public private(set) var capturedComposedOutputOutput: [ApplicationLifecycleOutput] = []
+    public private(set) var capturedApplicationDidChangeUserInterfaceStyle: [UserInterfaceStyle] = []
+    public private(set) var capturedComposedOutput: [ApplicationLifecycleOutput] = []
 
 
     // MARK: - ApplicationLifecycleOutput methods
@@ -43,11 +43,11 @@ public final class ApplicationLifecycleOutputSpy: ApplicationLifecycleOutput {
         messages.append(.applicationWillResignActive)
     }
     public func applicationDidChange(userInterfaceStyle: UserInterfaceStyle) {
-        capturedApplicationDidChangeUserInterfaceStyleUserInterfaceStyle.append(userInterfaceStyle)
+        capturedApplicationDidChangeUserInterfaceStyle.append(userInterfaceStyle)
         messages.append(.applicationDidChangeUserInterfaceStyle(userInterfaceStyle: userInterfaceStyle))
     }
     public func composed(with output: ApplicationLifecycleOutput) {
-        capturedComposedOutputOutput.append(output)
+        capturedComposedOutput.append(output)
         messages.append(.composedOutput(with: output))
     }
 

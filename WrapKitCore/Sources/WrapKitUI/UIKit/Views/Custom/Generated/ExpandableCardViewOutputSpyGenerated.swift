@@ -27,17 +27,17 @@ public final class ExpandableCardViewOutputSpy: ExpandableCardViewOutput {
     public private(set) var messages: [Message] = []
 
     // MARK: - Captured values
-    public private(set) var capturedDisplayModelModel: [Pair<CardViewPresentableModel, CardViewPresentableModel?>] = []
-    public private(set) var capturedDisplayIsHiddenIsHidden: [Bool] = []
+    public private(set) var capturedDisplayModel: [Pair<CardViewPresentableModel, CardViewPresentableModel?>] = []
+    public private(set) var capturedDisplayIsHidden: [Bool] = []
 
 
     // MARK: - ExpandableCardViewOutput methods
     public func display(model: Pair<CardViewPresentableModel, CardViewPresentableModel?>) {
-        capturedDisplayModelModel.append(model)
+        capturedDisplayModel.append(model)
         messages.append(.displayModel(model: model))
     }
     public func display(isHidden: Bool) {
-        capturedDisplayIsHiddenIsHidden.append(isHidden)
+        capturedDisplayIsHidden.append(isHidden)
         messages.append(.displayIsHidden(isHidden: isHidden))
     }
 

@@ -21,14 +21,14 @@ public final class WebViewFlowSpy: WebViewFlow {
     public private(set) var messages: [Message] = []
 
     // MARK: - Captured values
-    public private(set) var capturedNavigateToWebViewUrlUrl: [URL] = []
+    public private(set) var capturedNavigateToWebViewUrl: [URL] = []
     public private(set) var capturedNavigateToWebViewUrlStyle: [WebViewStyle] = []
     public private(set) var capturedNavigateToWebViewUrlNavigationPolicy: [WebViewNavigationPolicy?] = []
 
 
     // MARK: - WebViewFlow methods
     public func navigateToWebView(url: URL, style: WebViewStyle, navigationPolicy: WebViewNavigationPolicy?) {
-        capturedNavigateToWebViewUrlUrl.append(url)
+        capturedNavigateToWebViewUrl.append(url)
         capturedNavigateToWebViewUrlStyle.append(style)
         capturedNavigateToWebViewUrlNavigationPolicy.append(navigationPolicy)
         messages.append(.navigateToWebViewUrl(url: url, style: style, navigationPolicy: navigationPolicy))

@@ -21,12 +21,12 @@ public final class CommonToastOutputSpy: CommonToastOutput {
     public private(set) var messages: [Message] = []
 
     // MARK: - Captured values
-    public private(set) var capturedDisplayToastToast: [CommonToast] = []
+    public private(set) var capturedDisplayToast: [CommonToast] = []
 
 
     // MARK: - CommonToastOutput methods
     public func display(_ toast: CommonToast) {
-        capturedDisplayToastToast.append(toast)
+        capturedDisplayToast.append(toast)
         messages.append(.displayToast(toast: toast))
     }
     public func hide() {

@@ -44,102 +44,102 @@ public final class CardViewOutputSpy: CardViewOutput {
     public private(set) var messages: [Message] = []
 
     // MARK: - Captured values
-    public private(set) var capturedDisplayModelModel: [CardViewPresentableModel?] = []
-    public private(set) var capturedDisplayStyleStyle: [CardViewPresentableModel.Style?] = []
-    public private(set) var capturedDisplayBackgroundImageBackgroundImage: [ImageViewPresentableModel?] = []
-    public private(set) var capturedDisplayTitleTitle: [TextOutputPresentableModel?] = []
-    public private(set) var capturedDisplayLeadingTitlesLeadingTitles: [Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>?] = []
-    public private(set) var capturedDisplayTrailingTitlesTrailingTitles: [Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>?] = []
-    public private(set) var capturedDisplayLeadingImageLeadingImage: [ImageViewPresentableModel?] = []
-    public private(set) var capturedDisplaySecondaryLeadingImageSecondaryLeadingImage: [ImageViewPresentableModel?] = []
-    public private(set) var capturedDisplayTrailingImageTrailingImage: [ImageViewPresentableModel?] = []
-    public private(set) var capturedDisplaySecondaryTrailingImageSecondaryTrailingImage: [ImageViewPresentableModel?] = []
-    public private(set) var capturedDisplaySubTitleSubTitle: [TextOutputPresentableModel?] = []
-    public private(set) var capturedDisplayValueTitleValueTitle: [TextOutputPresentableModel?] = []
-    public private(set) var capturedDisplayBottomSeparatorBottomSeparator: [CardViewPresentableModel.BottomSeparator?] = []
-    public private(set) var capturedDisplaySwitchControlSwitchControl: [SwitchControlPresentableModel?] = []
-    public private(set) var capturedDisplayOnPressOnPress: [(() -> Void)?] = []
-    public private(set) var capturedDisplayOnLongPressOnLongPress: [(() -> Void)?] = []
-    public private(set) var capturedDisplayIsHiddenIsHidden: [Bool] = []
-    public private(set) var capturedDisplayIsUserInteractionEnabledIsUserInteractionEnabled: [Bool?] = []
-    public private(set) var capturedDisplayIsGradientBorderEnabledIsGradientBorderEnabled: [Bool] = []
+    public private(set) var capturedDisplayModel: [CardViewPresentableModel?] = []
+    public private(set) var capturedDisplayStyle: [CardViewPresentableModel.Style?] = []
+    public private(set) var capturedDisplayBackgroundImage: [ImageViewPresentableModel?] = []
+    public private(set) var capturedDisplayTitle: [TextOutputPresentableModel?] = []
+    public private(set) var capturedDisplayLeadingTitles: [Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>?] = []
+    public private(set) var capturedDisplayTrailingTitles: [Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>?] = []
+    public private(set) var capturedDisplayLeadingImage: [ImageViewPresentableModel?] = []
+    public private(set) var capturedDisplaySecondaryLeadingImage: [ImageViewPresentableModel?] = []
+    public private(set) var capturedDisplayTrailingImage: [ImageViewPresentableModel?] = []
+    public private(set) var capturedDisplaySecondaryTrailingImage: [ImageViewPresentableModel?] = []
+    public private(set) var capturedDisplaySubTitle: [TextOutputPresentableModel?] = []
+    public private(set) var capturedDisplayValueTitle: [TextOutputPresentableModel?] = []
+    public private(set) var capturedDisplayBottomSeparator: [CardViewPresentableModel.BottomSeparator?] = []
+    public private(set) var capturedDisplaySwitchControl: [SwitchControlPresentableModel?] = []
+    public private(set) var capturedDisplayOnPress: [(() -> Void)?] = []
+    public private(set) var capturedDisplayOnLongPress: [(() -> Void)?] = []
+    public private(set) var capturedDisplayIsHidden: [Bool] = []
+    public private(set) var capturedDisplayIsUserInteractionEnabled: [Bool?] = []
+    public private(set) var capturedDisplayIsGradientBorderEnabled: [Bool] = []
 
 
     // MARK: - CardViewOutput methods
     public func display(model: CardViewPresentableModel?) {
-        capturedDisplayModelModel.append(model)
+        capturedDisplayModel.append(model)
         messages.append(.displayModel(model: model))
     }
     public func display(style: CardViewPresentableModel.Style?) {
-        capturedDisplayStyleStyle.append(style)
+        capturedDisplayStyle.append(style)
         messages.append(.displayStyle(style: style))
     }
     public func display(backgroundImage: ImageViewPresentableModel?) {
-        capturedDisplayBackgroundImageBackgroundImage.append(backgroundImage)
+        capturedDisplayBackgroundImage.append(backgroundImage)
         messages.append(.displayBackgroundImage(backgroundImage: backgroundImage))
     }
     public func display(title: TextOutputPresentableModel?) {
-        capturedDisplayTitleTitle.append(title)
+        capturedDisplayTitle.append(title)
         messages.append(.displayTitle(title: title))
     }
     public func display(leadingTitles: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>?) {
-        capturedDisplayLeadingTitlesLeadingTitles.append(leadingTitles)
+        capturedDisplayLeadingTitles.append(leadingTitles)
         messages.append(.displayLeadingTitles(leadingTitles: leadingTitles))
     }
     public func display(trailingTitles: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>?) {
-        capturedDisplayTrailingTitlesTrailingTitles.append(trailingTitles)
+        capturedDisplayTrailingTitles.append(trailingTitles)
         messages.append(.displayTrailingTitles(trailingTitles: trailingTitles))
     }
     public func display(leadingImage: ImageViewPresentableModel?) {
-        capturedDisplayLeadingImageLeadingImage.append(leadingImage)
+        capturedDisplayLeadingImage.append(leadingImage)
         messages.append(.displayLeadingImage(leadingImage: leadingImage))
     }
     public func display(secondaryLeadingImage: ImageViewPresentableModel?) {
-        capturedDisplaySecondaryLeadingImageSecondaryLeadingImage.append(secondaryLeadingImage)
+        capturedDisplaySecondaryLeadingImage.append(secondaryLeadingImage)
         messages.append(.displaySecondaryLeadingImage(secondaryLeadingImage: secondaryLeadingImage))
     }
     public func display(trailingImage: ImageViewPresentableModel?) {
-        capturedDisplayTrailingImageTrailingImage.append(trailingImage)
+        capturedDisplayTrailingImage.append(trailingImage)
         messages.append(.displayTrailingImage(trailingImage: trailingImage))
     }
     public func display(secondaryTrailingImage: ImageViewPresentableModel?) {
-        capturedDisplaySecondaryTrailingImageSecondaryTrailingImage.append(secondaryTrailingImage)
+        capturedDisplaySecondaryTrailingImage.append(secondaryTrailingImage)
         messages.append(.displaySecondaryTrailingImage(secondaryTrailingImage: secondaryTrailingImage))
     }
     public func display(subTitle: TextOutputPresentableModel?) {
-        capturedDisplaySubTitleSubTitle.append(subTitle)
+        capturedDisplaySubTitle.append(subTitle)
         messages.append(.displaySubTitle(subTitle: subTitle))
     }
     public func display(valueTitle: TextOutputPresentableModel?) {
-        capturedDisplayValueTitleValueTitle.append(valueTitle)
+        capturedDisplayValueTitle.append(valueTitle)
         messages.append(.displayValueTitle(valueTitle: valueTitle))
     }
     public func display(bottomSeparator: CardViewPresentableModel.BottomSeparator?) {
-        capturedDisplayBottomSeparatorBottomSeparator.append(bottomSeparator)
+        capturedDisplayBottomSeparator.append(bottomSeparator)
         messages.append(.displayBottomSeparator(bottomSeparator: bottomSeparator))
     }
     public func display(switchControl: SwitchControlPresentableModel?) {
-        capturedDisplaySwitchControlSwitchControl.append(switchControl)
+        capturedDisplaySwitchControl.append(switchControl)
         messages.append(.displaySwitchControl(switchControl: switchControl))
     }
     public func display(onPress: (() -> Void)?) {
-        capturedDisplayOnPressOnPress.append(onPress)
+        capturedDisplayOnPress.append(onPress)
         messages.append(.displayOnPress(onPress: onPress))
     }
     public func display(onLongPress: (() -> Void)?) {
-        capturedDisplayOnLongPressOnLongPress.append(onLongPress)
+        capturedDisplayOnLongPress.append(onLongPress)
         messages.append(.displayOnLongPress(onLongPress: onLongPress))
     }
     public func display(isHidden: Bool) {
-        capturedDisplayIsHiddenIsHidden.append(isHidden)
+        capturedDisplayIsHidden.append(isHidden)
         messages.append(.displayIsHidden(isHidden: isHidden))
     }
     public func display(isUserInteractionEnabled: Bool?) {
-        capturedDisplayIsUserInteractionEnabledIsUserInteractionEnabled.append(isUserInteractionEnabled)
+        capturedDisplayIsUserInteractionEnabled.append(isUserInteractionEnabled)
         messages.append(.displayIsUserInteractionEnabled(isUserInteractionEnabled: isUserInteractionEnabled))
     }
     public func display(isGradientBorderEnabled: Bool) {
-        capturedDisplayIsGradientBorderEnabledIsGradientBorderEnabled.append(isGradientBorderEnabled)
+        capturedDisplayIsGradientBorderEnabled.append(isGradientBorderEnabled)
         messages.append(.displayIsGradientBorderEnabled(isGradientBorderEnabled: isGradientBorderEnabled))
     }
 

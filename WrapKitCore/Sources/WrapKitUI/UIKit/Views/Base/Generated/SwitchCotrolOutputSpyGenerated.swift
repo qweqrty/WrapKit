@@ -28,37 +28,37 @@ public final class SwitchCotrolOutputSpy: SwitchCotrolOutput {
     public private(set) var messages: [Message] = []
 
     // MARK: - Captured values
-    public private(set) var capturedDisplayModelModel: [SwitchControlPresentableModel?] = []
-    public private(set) var capturedDisplayOnPressOnPress: [((SwitchCotrolOutput & LoadingOutput) -> Void)?] = []
-    public private(set) var capturedDisplayIsOnIsOn: [Bool] = []
-    public private(set) var capturedDisplayStyleStyle: [SwitchControlPresentableModel.Style?] = []
-    public private(set) var capturedDisplayIsEnabledIsEnabled: [Bool] = []
-    public private(set) var capturedDisplayIsHiddenIsHidden: [Bool] = []
+    public private(set) var capturedDisplayModel: [SwitchControlPresentableModel?] = []
+    public private(set) var capturedDisplayOnPress: [((SwitchCotrolOutput & LoadingOutput) -> Void)?] = []
+    public private(set) var capturedDisplayIsOn: [Bool] = []
+    public private(set) var capturedDisplayStyle: [SwitchControlPresentableModel.Style?] = []
+    public private(set) var capturedDisplayIsEnabled: [Bool] = []
+    public private(set) var capturedDisplayIsHidden: [Bool] = []
 
 
     // MARK: - SwitchCotrolOutput methods
     public func display(model: SwitchControlPresentableModel?) {
-        capturedDisplayModelModel.append(model)
+        capturedDisplayModel.append(model)
         messages.append(.displayModel(model: model))
     }
     public func display(onPress: ((SwitchCotrolOutput & LoadingOutput) -> Void)?) {
-        capturedDisplayOnPressOnPress.append(onPress)
+        capturedDisplayOnPress.append(onPress)
         messages.append(.displayOnPress(onPress: onPress))
     }
     public func display(isOn: Bool) {
-        capturedDisplayIsOnIsOn.append(isOn)
+        capturedDisplayIsOn.append(isOn)
         messages.append(.displayIsOn(isOn: isOn))
     }
     public func display(style: SwitchControlPresentableModel.Style?) {
-        capturedDisplayStyleStyle.append(style)
+        capturedDisplayStyle.append(style)
         messages.append(.displayStyle(style: style))
     }
     public func display(isEnabled: Bool) {
-        capturedDisplayIsEnabledIsEnabled.append(isEnabled)
+        capturedDisplayIsEnabled.append(isEnabled)
         messages.append(.displayIsEnabled(isEnabled: isEnabled))
     }
     public func display(isHidden: Bool) {
-        capturedDisplayIsHiddenIsHidden.append(isHidden)
+        capturedDisplayIsHidden.append(isHidden)
         messages.append(.displayIsHidden(isHidden: isHidden))
     }
 

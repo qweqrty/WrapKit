@@ -39,66 +39,66 @@ public final class ImageViewOutputSpy: ImageViewOutput {
     public private(set) var messages: [Message] = []
 
     // MARK: - Captured values
-    public private(set) var capturedDisplayModelModel: [ImageViewPresentableModel?] = []
+    public private(set) var capturedDisplayModel: [ImageViewPresentableModel?] = []
     public private(set) var capturedDisplayModelCompletion: [((Image?) -> Void)?] = []
-    public private(set) var capturedDisplayImageImage: [ImageEnum?] = []
+    public private(set) var capturedDisplayImage: [ImageEnum?] = []
     public private(set) var capturedDisplayImageCompletion: [((Image?) -> Void)?] = []
-    public private(set) var capturedDisplaySizeSize: [CGSize?] = []
-    public private(set) var capturedDisplayOnPressOnPress: [(() -> Void)?] = []
-    public private(set) var capturedDisplayOnLongPressOnLongPress: [(() -> Void)?] = []
-    public private(set) var capturedDisplayContentModeIsFitContentModeIsFit: [Bool] = []
-    public private(set) var capturedDisplayBorderWidthBorderWidth: [CGFloat?] = []
-    public private(set) var capturedDisplayBorderColorBorderColor: [Color?] = []
-    public private(set) var capturedDisplayCornerRadiusCornerRadius: [CGFloat?] = []
-    public private(set) var capturedDisplayAlphaAlpha: [CGFloat?] = []
-    public private(set) var capturedDisplayIsHiddenIsHidden: [Bool] = []
+    public private(set) var capturedDisplaySize: [CGSize?] = []
+    public private(set) var capturedDisplayOnPress: [(() -> Void)?] = []
+    public private(set) var capturedDisplayOnLongPress: [(() -> Void)?] = []
+    public private(set) var capturedDisplayContentModeIsFit: [Bool] = []
+    public private(set) var capturedDisplayBorderWidth: [CGFloat?] = []
+    public private(set) var capturedDisplayBorderColor: [Color?] = []
+    public private(set) var capturedDisplayCornerRadius: [CGFloat?] = []
+    public private(set) var capturedDisplayAlpha: [CGFloat?] = []
+    public private(set) var capturedDisplayIsHidden: [Bool] = []
 
 
     // MARK: - ImageViewOutput methods
     public func display(model: ImageViewPresentableModel?, completion: ((Image?) -> Void)?) {
-        capturedDisplayModelModel.append(model)
+        capturedDisplayModel.append(model)
         capturedDisplayModelCompletion.append(completion)
         messages.append(.displayModel(model: model, completion: completion))
     }
     public func display(image: ImageEnum?, completion: ((Image?) -> Void)?) {
-        capturedDisplayImageImage.append(image)
+        capturedDisplayImage.append(image)
         capturedDisplayImageCompletion.append(completion)
         messages.append(.displayImage(image: image, completion: completion))
     }
     public func display(size: CGSize?) {
-        capturedDisplaySizeSize.append(size)
+        capturedDisplaySize.append(size)
         messages.append(.displaySize(size: size))
     }
     public func display(onPress: (() -> Void)?) {
-        capturedDisplayOnPressOnPress.append(onPress)
+        capturedDisplayOnPress.append(onPress)
         messages.append(.displayOnPress(onPress: onPress))
     }
     public func display(onLongPress: (() -> Void)?) {
-        capturedDisplayOnLongPressOnLongPress.append(onLongPress)
+        capturedDisplayOnLongPress.append(onLongPress)
         messages.append(.displayOnLongPress(onLongPress: onLongPress))
     }
     public func display(contentModeIsFit: Bool) {
-        capturedDisplayContentModeIsFitContentModeIsFit.append(contentModeIsFit)
+        capturedDisplayContentModeIsFit.append(contentModeIsFit)
         messages.append(.displayContentModeIsFit(contentModeIsFit: contentModeIsFit))
     }
     public func display(borderWidth: CGFloat?) {
-        capturedDisplayBorderWidthBorderWidth.append(borderWidth)
+        capturedDisplayBorderWidth.append(borderWidth)
         messages.append(.displayBorderWidth(borderWidth: borderWidth))
     }
     public func display(borderColor: Color?) {
-        capturedDisplayBorderColorBorderColor.append(borderColor)
+        capturedDisplayBorderColor.append(borderColor)
         messages.append(.displayBorderColor(borderColor: borderColor))
     }
     public func display(cornerRadius: CGFloat?) {
-        capturedDisplayCornerRadiusCornerRadius.append(cornerRadius)
+        capturedDisplayCornerRadius.append(cornerRadius)
         messages.append(.displayCornerRadius(cornerRadius: cornerRadius))
     }
     public func display(alpha: CGFloat?) {
-        capturedDisplayAlphaAlpha.append(alpha)
+        capturedDisplayAlpha.append(alpha)
         messages.append(.displayAlpha(alpha: alpha))
     }
     public func display(isHidden: Bool) {
-        capturedDisplayIsHiddenIsHidden.append(isHidden)
+        capturedDisplayIsHidden.append(isHidden)
         messages.append(.displayIsHidden(isHidden: isHidden))
     }
 

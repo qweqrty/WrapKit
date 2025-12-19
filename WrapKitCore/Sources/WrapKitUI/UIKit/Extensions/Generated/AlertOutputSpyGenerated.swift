@@ -22,22 +22,22 @@ public final class AlertOutputSpy: AlertOutput {
     public private(set) var messages: [Message] = []
 
     // MARK: - Captured values
-    public private(set) var capturedShowAlertModelModel: [AlertPresentableModel?] = []
-    public private(set) var capturedShowActionSheetModelModel: [AlertPresentableModel?] = []
-    public private(set) var capturedShowTextFieldAlertModelModel: [AlertPresentableModel?] = []
+    public private(set) var capturedShowAlertModel: [AlertPresentableModel?] = []
+    public private(set) var capturedShowActionSheetModel: [AlertPresentableModel?] = []
+    public private(set) var capturedShowTextFieldAlertModel: [AlertPresentableModel?] = []
 
 
     // MARK: - AlertOutput methods
     public func showAlert(model: AlertPresentableModel?) {
-        capturedShowAlertModelModel.append(model)
+        capturedShowAlertModel.append(model)
         messages.append(.showAlertModel(model: model))
     }
     public func showActionSheet(model: AlertPresentableModel?) {
-        capturedShowActionSheetModelModel.append(model)
+        capturedShowActionSheetModel.append(model)
         messages.append(.showActionSheetModel(model: model))
     }
     public func showTextFieldAlert(model: AlertPresentableModel?) {
-        capturedShowTextFieldAlertModelModel.append(model)
+        capturedShowTextFieldAlertModel.append(model)
         messages.append(.showTextFieldAlertModel(model: model))
     }
 

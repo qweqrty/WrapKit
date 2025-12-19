@@ -30,47 +30,47 @@ public class TableOutputSpy<Cell: Hashable,Footer: Any,Header: Any>: TableOutput
     public private(set) var messages: [Message] = []
 
     // MARK: - Captured values
-    public private(set) var capturedDisplaySectionsSections: [[TableSection<Header, Cell, Footer>]] = []
-    public private(set) var capturedDisplayTrailingSwipeActionsForIndexPathTrailingSwipeActionsForIndexPath: [((IndexPath) -> [TableContextualAction<Cell>])?] = []
-    public private(set) var capturedDisplayIndexPathIndexPath: [IndexPath] = []
-    public private(set) var capturedDisplayLeadingSwipeActionsForIndexPathLeadingSwipeActionsForIndexPath: [((IndexPath) -> [TableContextualAction<Cell>])?] = []
-    public private(set) var capturedDisplayMoveMove: [((IndexPath, IndexPath) -> Void)?] = []
-    public private(set) var capturedDisplayCanMoveCanMove: [((IndexPath) -> Bool)?] = []
-    public private(set) var capturedDisplayCanEditCanEdit: [((IndexPath) -> Bool)?] = []
-    public private(set) var capturedDisplayCommitEditingCommitEditing: [((TableEditingStyle, IndexPath) -> Void)?] = []
+    public private(set) var capturedDisplaySections: [[TableSection<Header, Cell, Footer>]] = []
+    public private(set) var capturedDisplayTrailingSwipeActionsForIndexPath: [((IndexPath) -> [TableContextualAction<Cell>])?] = []
+    public private(set) var capturedDisplayIndexPath: [IndexPath] = []
+    public private(set) var capturedDisplayLeadingSwipeActionsForIndexPath: [((IndexPath) -> [TableContextualAction<Cell>])?] = []
+    public private(set) var capturedDisplayMove: [((IndexPath, IndexPath) -> Void)?] = []
+    public private(set) var capturedDisplayCanMove: [((IndexPath) -> Bool)?] = []
+    public private(set) var capturedDisplayCanEdit: [((IndexPath) -> Bool)?] = []
+    public private(set) var capturedDisplayCommitEditing: [((TableEditingStyle, IndexPath) -> Void)?] = []
 
 
     // MARK: - TableOutput methods
     public func display(sections: [TableSection<Header, Cell, Footer>]) {
-        capturedDisplaySectionsSections.append(sections)
+        capturedDisplaySections.append(sections)
         messages.append(.displaySections(sections: sections))
     }
     public func display(trailingSwipeActionsForIndexPath: ((IndexPath) -> [TableContextualAction<Cell>])?) {
-        capturedDisplayTrailingSwipeActionsForIndexPathTrailingSwipeActionsForIndexPath.append(trailingSwipeActionsForIndexPath)
+        capturedDisplayTrailingSwipeActionsForIndexPath.append(trailingSwipeActionsForIndexPath)
         messages.append(.displayTrailingSwipeActionsForIndexPath(trailingSwipeActionsForIndexPath: trailingSwipeActionsForIndexPath))
     }
     public func display(expandTrailingActionsAt indexPath: IndexPath) {
-        capturedDisplayIndexPathIndexPath.append(indexPath)
+        capturedDisplayIndexPath.append(indexPath)
         messages.append(.displayIndexPath(expandTrailingActionsAt: indexPath))
     }
     public func display(leadingSwipeActionsForIndexPath: ((IndexPath) -> [TableContextualAction<Cell>])?) {
-        capturedDisplayLeadingSwipeActionsForIndexPathLeadingSwipeActionsForIndexPath.append(leadingSwipeActionsForIndexPath)
+        capturedDisplayLeadingSwipeActionsForIndexPath.append(leadingSwipeActionsForIndexPath)
         messages.append(.displayLeadingSwipeActionsForIndexPath(leadingSwipeActionsForIndexPath: leadingSwipeActionsForIndexPath))
     }
     public func display(move: ((IndexPath, IndexPath) -> Void)?) {
-        capturedDisplayMoveMove.append(move)
+        capturedDisplayMove.append(move)
         messages.append(.displayMove(move: move))
     }
     public func display(canMove: ((IndexPath) -> Bool)?) {
-        capturedDisplayCanMoveCanMove.append(canMove)
+        capturedDisplayCanMove.append(canMove)
         messages.append(.displayCanMove(canMove: canMove))
     }
     public func display(canEdit: ((IndexPath) -> Bool)?) {
-        capturedDisplayCanEditCanEdit.append(canEdit)
+        capturedDisplayCanEdit.append(canEdit)
         messages.append(.displayCanEdit(canEdit: canEdit))
     }
     public func display(commitEditing: ((TableEditingStyle, IndexPath) -> Void)?) {
-        capturedDisplayCommitEditingCommitEditing.append(commitEditing)
+        capturedDisplayCommitEditing.append(commitEditing)
         messages.append(.displayCommitEditing(commitEditing: commitEditing))
     }
 

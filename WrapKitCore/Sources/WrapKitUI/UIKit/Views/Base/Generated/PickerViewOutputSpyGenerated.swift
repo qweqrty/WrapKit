@@ -28,8 +28,8 @@ public final class PickerViewOutputSpy: PickerViewOutput {
     public private(set) var messages: [Message] = []
 
     // MARK: - Captured values
-    public private(set) var capturedDisplayModelModel: [PickerViewPresentableModel?] = []
-    public private(set) var capturedDisplaySelectedRowSelectedRow: [PickerViewPresentableModel.SelectedRow?] = []
+    public private(set) var capturedDisplayModel: [PickerViewPresentableModel?] = []
+    public private(set) var capturedDisplaySelectedRow: [PickerViewPresentableModel.SelectedRow?] = []
 
     public private(set) var capturedComponentsCount: [(() -> Int?)?] = []
     public private(set) var capturedRowsCount: [(() -> Int)?] = []
@@ -38,11 +38,11 @@ public final class PickerViewOutputSpy: PickerViewOutput {
 
     // MARK: - PickerViewOutput methods
     public func display(model: PickerViewPresentableModel?) {
-        capturedDisplayModelModel.append(model)
+        capturedDisplayModel.append(model)
         messages.append(.displayModel(model: model))
     }
     public func display(selectedRow: PickerViewPresentableModel.SelectedRow?) {
-        capturedDisplaySelectedRowSelectedRow.append(selectedRow)
+        capturedDisplaySelectedRow.append(selectedRow)
         messages.append(.displaySelectedRow(selectedRow: selectedRow))
     }
 

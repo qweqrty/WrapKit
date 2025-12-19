@@ -30,13 +30,13 @@ public final class LottieViewOutputSpy: LottieViewOutput {
     public private(set) var messages: [Message] = []
 
     // MARK: - Captured values
-    public private(set) var capturedDisplayModelModel: [LottieViewPresentableModel] = []
+    public private(set) var capturedDisplayModel: [LottieViewPresentableModel] = []
 
     public private(set) var capturedCurrentAnimationName: [String?] = []
 
     // MARK: - LottieViewOutput methods
     public func display(model: LottieViewPresentableModel) {
-        capturedDisplayModelModel.append(model)
+        capturedDisplayModel.append(model)
         messages.append(.displayModel(model: model))
     }
 
