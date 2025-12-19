@@ -95,9 +95,13 @@ public extension ImageView {
             closure?(image)
         case .url(let lightUrl, let darkUrl):
             let url = traitCollection.userInterfaceStyle == .dark ? darkUrl : lightUrl
+            if let url = lightUrl { KingfisherManager.shared.downloader.cancel(url: url) }
+            if let url = darkUrl { KingfisherManager.shared.downloader.cancel(url: url) }
             self.loadImage(url, kingfisherOptions: kingfisherOptions, closure: closure)
         case .urlString(let lightString, let darkString):
             let string = traitCollection.userInterfaceStyle == .dark ? darkString : lightString
+            if let url = URL(string: lightString ?? "") { KingfisherManager.shared.downloader.cancel(url: url) }
+            if let url = URL(string: darkString ?? "") { KingfisherManager.shared.downloader.cancel(url: url) }
             self.loadImage(URL(string: string ?? ""), kingfisherOptions: kingfisherOptions, closure: closure)
         case .data(let data):
             guard let data else {
@@ -118,11 +122,9 @@ public extension ImageView {
     
     private func loadImage(_ url: URL?, kingfisherOptions: KingfisherOptionsInfo, closure: ((Image?) -> Void)? = nil) {
         guard let url = url else {
-            animatedSet(wrongUrlPlaceholderImage)
-            closure?(nil)
+            animatedSet(wrongUrlPlaceholderImage, completion: closure)
             return
         }
-        KingfisherManager.shared.downloader.cancel(url: url)
         
         if let fallbackView {
             fallbackView.isHidden = true
@@ -131,7 +133,7 @@ public extension ImageView {
         
         KingfisherManager.shared.cache.retrieveImage(forKey: url.absoluteString, options: [.callbackQueue(.mainCurrentOrAsync)]) { [weak self] result in
             guard let self = self else {
-                closure?(nil)
+                self?.animatedSet(nil, completion: closure)
                 return
             }
             
@@ -140,14 +142,13 @@ public extension ImageView {
                 self.animatedSet(image.image)
                 KingfisherManager.shared.retrieveImage(with: url, options: [.callbackQueue(.mainCurrentOrAsync), .forceRefresh] + kingfisherOptions) { [weak self] result in
                     guard let self = self else {
-                        closure?(nil)
+                        self?.animatedSet(nil, completion: closure)
                         return
                     }
                     
                     switch result {
                     case .success(let image):
-                        self.animatedSet(image.image)
-                        closure?(image.image)
+                        self.animatedSet(image.image, completion: closure)
                     case .failure:
                         self.showFallbackView(url)
                         closure?(image.image)
@@ -159,8 +160,7 @@ public extension ImageView {
                     
                     switch result {
                     case .success(let image):
-                        self.animatedSet(image.image)
-                        closure?(image.image)
+                        self.animatedSet(image.image, completion: closure)
                     case .failure:
                         self.showFallbackView(url)
                         closure?(nil)
@@ -205,7 +205,7 @@ public extension ImageView {
         }
     }
     
-    private func animatedSet(_ image: UIImage?) {
+    private func animatedSet(_ image: UIImage?, completion: ((Image?) -> Void)? = nil) {
         cancelCurrentAnimation()
         currentAnimator = UIViewPropertyAnimator(duration: 0.3, curve: .easeInOut) { [weak self] in
             self?.image = image
@@ -213,6 +213,7 @@ public extension ImageView {
         currentAnimator?.addCompletion { [weak self] _ in
             self?.currentAnimator = nil
             self?.viewWhileLoadingView?.isHidden = true
+            completion?(image)
         }
 
         // Start the animation

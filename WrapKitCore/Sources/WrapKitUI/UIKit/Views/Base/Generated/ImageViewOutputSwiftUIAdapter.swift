@@ -17,9 +17,6 @@ import Foundation
 #if canImport(UIKit)
 import UIKit
 #endif
-#if canImport(SwiftUI)
-import SwiftUI
-#endif
 #if canImport(Kingfisher)
 import Kingfisher
 #endif
