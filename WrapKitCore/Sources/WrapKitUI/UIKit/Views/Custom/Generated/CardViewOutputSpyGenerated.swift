@@ -37,6 +37,8 @@ public final class CardViewOutputSpy: CardViewOutput {
         case displayOnPress(onPress: (() -> Void)?)
         case displayOnLongPress(onLongPress: (() -> Void)?)
         case displayIsHidden(isHidden: Bool)
+        case displayIsUserInteractionEnabled(isUserInteractionEnabled: Bool?)
+        case displayIsGradientBorderEnabled(isGradientBorderEnabled: Bool)
     }
 
     public private(set) var messages: [Message] = []
@@ -59,6 +61,8 @@ public final class CardViewOutputSpy: CardViewOutput {
     public private(set) var capturedDisplayOnPress: [(() -> Void)?] = []
     public private(set) var capturedDisplayOnLongPress: [(() -> Void)?] = []
     public private(set) var capturedDisplayIsHidden: [Bool] = []
+    public private(set) var capturedDisplayIsUserInteractionEnabled: [Bool?] = []
+    public private(set) var capturedDisplayIsGradientBorderEnabled: [Bool] = []
 
 
     // MARK: - CardViewOutput methods
@@ -129,6 +133,14 @@ public final class CardViewOutputSpy: CardViewOutput {
     public func display(isHidden: Bool) {
         capturedDisplayIsHidden.append(isHidden)
         messages.append(.displayIsHidden(isHidden: isHidden))
+    }
+    public func display(isUserInteractionEnabled: Bool?) {
+        capturedDisplayIsUserInteractionEnabled.append(isUserInteractionEnabled)
+        messages.append(.displayIsUserInteractionEnabled(isUserInteractionEnabled: isUserInteractionEnabled))
+    }
+    public func display(isGradientBorderEnabled: Bool) {
+        capturedDisplayIsGradientBorderEnabled.append(isGradientBorderEnabled)
+        messages.append(.displayIsGradientBorderEnabled(isGradientBorderEnabled: isGradientBorderEnabled))
     }
 
     // MARK: - Properties

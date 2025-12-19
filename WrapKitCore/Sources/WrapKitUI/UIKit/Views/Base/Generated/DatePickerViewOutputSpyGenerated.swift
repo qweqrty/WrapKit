@@ -29,7 +29,7 @@ public final class DatePickerViewOutputSpy: DatePickerViewOutput {
     public private(set) var capturedDisplayDateChanged: [((Date) -> Void)?] = []
     public private(set) var capturedDisplayDate: [Date] = []
     public private(set) var capturedDisplaySetDate: [Date] = []
-    public private(set) var capturedDisplayAnimated: [Bool] = []
+    public private(set) var capturedDisplaySetDateAnimated: [Bool] = []
     public private(set) var capturedDisplayModel: [DatePickerPresentableModel] = []
 
 
@@ -44,7 +44,7 @@ public final class DatePickerViewOutputSpy: DatePickerViewOutput {
     }
     public func display(setDate: Date, animated: Bool) {
         capturedDisplaySetDate.append(setDate)
-        capturedDisplayAnimated.append(animated)
+        capturedDisplaySetDateAnimated.append(animated)
         messages.append(.displaySetDate(setDate: setDate, animated: animated))
     }
     public func display(model: DatePickerPresentableModel) {

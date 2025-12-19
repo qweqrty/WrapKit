@@ -22,10 +22,11 @@ public protocol ImageViewOutput: AnyObject {
 }
 
 public extension ImageViewOutput {
+    // sourcery: skipSpy
     func display(model: ImageViewPresentableModel?) {
         display(model: model, completion: nil)
     }
-    
+    // sourcery: skipSpy
     func display(image: ImageEnum?) {
         display(image: image, completion: nil)
     }
