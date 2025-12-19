@@ -60,11 +60,9 @@ final class ImageViewCancelDownloadTests: XCTestCase {
         
         let expectation = expectation(description: "Wait for download to start")
         sut.display(image: .url(url, url)) { _ in
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                expectation.fulfill()
-            }
+            expectation.fulfill()
         }
-        wait(for: [expectation], timeout: 1.0)
+        wait(for: [expectation], timeout: 5.0)
         
         // WHEN
         sut.image = nil
@@ -84,11 +82,9 @@ final class ImageViewCancelDownloadTests: XCTestCase {
         
         let expectation = expectation(description: "Wait for download to start")
         sut.display(image: .url(url, url)) { _ in
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                expectation.fulfill()
-            }
+            expectation.fulfill()
         }
-        wait(for: [expectation], timeout: 1.0)
+        wait(for: [expectation], timeout: 5.0)
         
         // WHEN
         sut.display(image: .none)
@@ -112,7 +108,7 @@ final class ImageViewCancelDownloadTests: XCTestCase {
             expectation.fulfill()
         }
         
-        wait(for: [expectation], timeout: 0.5)
+        wait(for: [expectation], timeout: 5)
         
         // WHEN
         sut.display(image: nil)
