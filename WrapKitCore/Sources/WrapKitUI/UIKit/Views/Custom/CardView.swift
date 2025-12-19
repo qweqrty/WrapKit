@@ -70,7 +70,7 @@ public struct CardViewPresentableModel: HashableWithReflection {
             trailingTitleKeyLabelFont: Font,
             titleValueLabelFont: Font,
             subTitleLabelFont: Font,
-            subtitleNumberOfLines: Int = 1,
+            subtitleNumberOfLines: Int = 0,
             cornerRadius: CGFloat,
             stackSpace: CGFloat,
             hStackViewSpacing: CGFloat,
