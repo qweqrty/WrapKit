@@ -8,6 +8,7 @@
 #if canImport(UIKit)
 import UIKit
 #endif
+import WrapKit
 
 public final class ApplicationLifecycleOutputSpy: ApplicationLifecycleOutput {
 
@@ -25,29 +26,36 @@ public final class ApplicationLifecycleOutputSpy: ApplicationLifecycleOutput {
     public private(set) var messages: [Message] = []
 
     // MARK: - Captured values
-    public private(set) var capturedApplicationDidChangeUserInterfaceStyle: [UserInterfaceStyle] = []
-    public private(set) var capturedComposedOutput: [ApplicationLifecycleOutput] = []
-
+    public private(set) var capturedApplicationWillEnterForeground: [Void] = []
+    public private(set) var capturedApplicationDidEnterBackground: [Void] = []
+    public private(set) var capturedApplicationDidBecomeActive: [Void] = []
+    public private(set) var capturedApplicationWillResignActive: [Void] = []
+    public private(set) var capturedApplicationDidChangeUserInterfaceStyle: [(UserInterfaceStyle)] = []
+    public private(set) var capturedComposedOutput: [(ApplicationLifecycleOutput)] = []
 
     // MARK: - ApplicationLifecycleOutput methods
     public func applicationWillEnterForeground() {
+        capturedApplicationWillEnterForeground.append(())
         messages.append(.applicationWillEnterForeground)
     }
     public func applicationDidEnterBackground() {
+        capturedApplicationDidEnterBackground.append(())
         messages.append(.applicationDidEnterBackground)
     }
     public func applicationDidBecomeActive() {
+        capturedApplicationDidBecomeActive.append(())
         messages.append(.applicationDidBecomeActive)
     }
     public func applicationWillResignActive() {
+        capturedApplicationWillResignActive.append(())
         messages.append(.applicationWillResignActive)
     }
     public func applicationDidChange(userInterfaceStyle: UserInterfaceStyle) {
-        capturedApplicationDidChangeUserInterfaceStyle.append(userInterfaceStyle)
+        capturedApplicationDidChangeUserInterfaceStyle.append((userInterfaceStyle))
         messages.append(.applicationDidChangeUserInterfaceStyle(userInterfaceStyle: userInterfaceStyle))
     }
     public func composed(with output: ApplicationLifecycleOutput) {
-        capturedComposedOutput.append(output)
+        capturedComposedOutput.append((output))
         messages.append(.composedOutput(with: output))
     }
 

@@ -8,12 +8,15 @@
 #if canImport(Foundation)
 import Foundation
 #endif
+import WrapKit
 #if canImport(UIKit)
 import UIKit
 #endif
+import WrapKit
 #if canImport(SwiftUI)
 import SwiftUI
 #endif
+import WrapKit
 
 public final class ProgressBarOutputSpy: ProgressBarOutput {
 
@@ -29,27 +32,26 @@ public final class ProgressBarOutputSpy: ProgressBarOutput {
     public private(set) var messages: [Message] = []
 
     // MARK: - Captured values
-    public private(set) var capturedDisplayModel: [ProgressBarPresentableModel?] = []
-    public private(set) var capturedDisplayProgress: [CGFloat] = []
-    public private(set) var capturedDisplayStyle: [ProgressBarStyle?] = []
-    public private(set) var capturedDisplayIsHidden: [Bool] = []
-
+    public private(set) var capturedDisplayModel: [(ProgressBarPresentableModel?)] = []
+    public private(set) var capturedDisplayProgress: [(CGFloat)] = []
+    public private(set) var capturedDisplayStyle: [(ProgressBarStyle?)] = []
+    public private(set) var capturedDisplayIsHidden: [(Bool)] = []
 
     // MARK: - ProgressBarOutput methods
     public func display(model: ProgressBarPresentableModel?) {
-        capturedDisplayModel.append(model)
+        capturedDisplayModel.append((model))
         messages.append(.displayModel(model: model))
     }
     public func display(progress: CGFloat) {
-        capturedDisplayProgress.append(progress)
+        capturedDisplayProgress.append((progress))
         messages.append(.displayProgress(progress: progress))
     }
     public func display(style: ProgressBarStyle?) {
-        capturedDisplayStyle.append(style)
+        capturedDisplayStyle.append((style))
         messages.append(.displayStyle(style: style))
     }
     public func display(isHidden: Bool) {
-        capturedDisplayIsHidden.append(isHidden)
+        capturedDisplayIsHidden.append((isHidden))
         messages.append(.displayIsHidden(isHidden: isHidden))
     }
 

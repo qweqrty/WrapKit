@@ -10,29 +10,23 @@ import Foundation
 #endif
 import WrapKit
 
-public final class SelectionFlowSpy: SelectionFlow {
+public class ServicedSelectionFlowSpy<Request: Any,Response: Any>: ServicedSelectionFlow {
 
     public init() {}
 
     public enum Message: HashableWithReflection {
-        case showSelectionModel(model: SelectionPresenterModel)
-        case closeResult(with: SelectionType?)
+        case showSelectionModel(model: ServicedSelectionModel<Request, Response>)
     }
 
     public private(set) var messages: [Message] = []
 
     // MARK: - Captured values
-    public private(set) var capturedShowSelectionModel: [(SelectionPresenterModel)] = []
-    public private(set) var capturedCloseResult: [(SelectionType?)] = []
+    public private(set) var capturedShowSelectionModel: [(ServicedSelectionModel<Request, Response>)] = []
 
-    // MARK: - SelectionFlow methods
-    public func showSelection(model: SelectionPresenterModel) {
+    // MARK: - ServicedSelectionFlow methods
+    public func showSelection(model: ServicedSelectionModel<Request, Response>) {
         capturedShowSelectionModel.append((model))
         messages.append(.showSelectionModel(model: model))
-    }
-    public func close(with result: SelectionType?) {
-        capturedCloseResult.append((result))
-        messages.append(.closeResult(with: result))
     }
 
     // MARK: - Properties

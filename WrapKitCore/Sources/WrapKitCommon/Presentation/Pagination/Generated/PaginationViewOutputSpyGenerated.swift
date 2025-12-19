@@ -8,9 +8,11 @@
 #if canImport(Foundation)
 import Foundation
 #endif
+import WrapKit
 #if canImport(Combine)
 import Combine
 #endif
+import WrapKit
 
 public class PaginationViewOutputSpy<PresentableItem: Any>: PaginationViewOutput {
 
@@ -27,34 +29,31 @@ public class PaginationViewOutputSpy<PresentableItem: Any>: PaginationViewOutput
     public private(set) var messages: [Message] = []
 
     // MARK: - Captured values
-    public private(set) var capturedDisplayModel: [[PresentableItem]] = []
-    public private(set) var capturedDisplayHasMore: [Bool] = []
-    public private(set) var capturedDisplayIsLoadingFirstPage: [Bool] = []
-    public private(set) var capturedDisplayIsLoadingSubsequentPage: [Bool] = []
-    public private(set) var capturedDisplayErrorAtFirstPage: [ServiceError] = []
-    public private(set) var capturedDisplayErrorAtSubsequentPage: [ServiceError] = []
-
+    public private(set) var capturedDisplayModelHasMore: [([PresentableItem], Bool)] = []
+    public private(set) var capturedDisplayIsLoadingFirstPage: [(Bool)] = []
+    public private(set) var capturedDisplayIsLoadingSubsequentPage: [(Bool)] = []
+    public private(set) var capturedDisplayErrorAtFirstPage: [(ServiceError)] = []
+    public private(set) var capturedDisplayErrorAtSubsequentPage: [(ServiceError)] = []
 
     // MARK: - PaginationViewOutput methods
     public func display(model: [PresentableItem], hasMore: Bool) {
-        capturedDisplayModel.append(model)
-        capturedDisplayHasMore.append(hasMore)
+        capturedDisplayModelHasMore.append((model, hasMore))
         messages.append(.displayModel(model: model, hasMore: hasMore))
     }
     public func display(isLoadingFirstPage: Bool) {
-        capturedDisplayIsLoadingFirstPage.append(isLoadingFirstPage)
+        capturedDisplayIsLoadingFirstPage.append((isLoadingFirstPage))
         messages.append(.displayIsLoadingFirstPage(isLoadingFirstPage: isLoadingFirstPage))
     }
     public func display(isLoadingSubsequentPage: Bool) {
-        capturedDisplayIsLoadingSubsequentPage.append(isLoadingSubsequentPage)
+        capturedDisplayIsLoadingSubsequentPage.append((isLoadingSubsequentPage))
         messages.append(.displayIsLoadingSubsequentPage(isLoadingSubsequentPage: isLoadingSubsequentPage))
     }
     public func display(errorAtFirstPage: ServiceError) {
-        capturedDisplayErrorAtFirstPage.append(errorAtFirstPage)
+        capturedDisplayErrorAtFirstPage.append((errorAtFirstPage))
         messages.append(.displayErrorAtFirstPage(errorAtFirstPage: errorAtFirstPage))
     }
     public func display(errorAtSubsequentPage: ServiceError) {
-        capturedDisplayErrorAtSubsequentPage.append(errorAtSubsequentPage)
+        capturedDisplayErrorAtSubsequentPage.append((errorAtSubsequentPage))
         messages.append(.displayErrorAtSubsequentPage(errorAtSubsequentPage: errorAtSubsequentPage))
     }
 

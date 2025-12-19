@@ -33,6 +33,11 @@ public protocol SelectionFlow: AnyObject {
     typealias Model = SelectionConfiguration
     
     func showSelection(model: SelectionPresenterModel)
-    func showSelection<Request, Response>(model: ServicedSelectionModel<Request, Response>)
     func close(with result: SelectionType?)
+}
+
+public protocol ServicedSelectionFlow<Request, Response>: AnyObject {
+    associatedtype Request
+    associatedtype Response
+    func showSelection(model: ServicedSelectionModel<Request, Response>)
 }

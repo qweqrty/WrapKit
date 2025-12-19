@@ -8,6 +8,7 @@
 #if canImport(Foundation)
 import Foundation
 #endif
+import WrapKit
 
 public final class SelectionOutputSpy: SelectionOutput {
 
@@ -21,19 +22,16 @@ public final class SelectionOutputSpy: SelectionOutput {
     public private(set) var messages: [Message] = []
 
     // MARK: - Captured values
-    public private(set) var capturedDisplayItems: [[TableSection<Void, SelectionType.SelectionCellPresentableModel, Void>]] = []
-    public private(set) var capturedDisplaySelectedCountTitle: [String] = []
-    public private(set) var capturedDisplayShouldShowSearchBar: [Bool] = []
-
+    public private(set) var capturedDisplayItemsSelectedCountTitle: [([TableSection<Void, SelectionType.SelectionCellPresentableModel, Void>], String)] = []
+    public private(set) var capturedDisplayShouldShowSearchBar: [(Bool)] = []
 
     // MARK: - SelectionOutput methods
     public func display(items: [TableSection<Void, SelectionType.SelectionCellPresentableModel, Void>], selectedCountTitle: String) {
-        capturedDisplayItems.append(items)
-        capturedDisplaySelectedCountTitle.append(selectedCountTitle)
+        capturedDisplayItemsSelectedCountTitle.append((items, selectedCountTitle))
         messages.append(.displayItems(items: items, selectedCountTitle: selectedCountTitle))
     }
     public func display(shouldShowSearchBar: Bool) {
-        capturedDisplayShouldShowSearchBar.append(shouldShowSearchBar)
+        capturedDisplayShouldShowSearchBar.append((shouldShowSearchBar))
         messages.append(.displayShouldShowSearchBar(shouldShowSearchBar: shouldShowSearchBar))
     }
 

@@ -1,5 +1,5 @@
 //
-//  SelectionPresenterSpyTests.swift
+//  SelectionPresenterTests.swift
 //  WrapKit
 //
 //  Created by Urmatbek Marat Uulu on 18/12/25.
@@ -9,28 +9,30 @@ import Foundation
 import XCTest
 import WrapKit
 
-final class SelectionPresenterSpyTests: XCTestCase {
+final class SelectionPresenterTests: XCTestCase {
     func test_viewDidLoad_selectionOutput_shouldShowSearchBar() {
+        // GIVEN
         let components = makeSUT()
         let sut = components.sut
         let viewSpy = components.viewSpy
         
+        // WHEN
         sut.viewDidLoad()
         
+        // THEN
         XCTAssertEqual(viewSpy.messages.first, .displayShouldShowSearchBar(shouldShowSearchBar: true))
     }
     
     func test_viewDidLoad_headerOutput_displayModel() {
+        // GIVEN
         let components = makeSUT()
         let sut = components.sut
         let headerSpy = components.headerSpy
-        
         let config = nurSelection()
 
+        // WHEN
         sut.viewDidLoad()
 
-        headerSpy.capturedDisplayModel.first??.primeTrailingImage?.onPress?()
-        
         let expectedModel = HeaderPresentableModel(
             style: config.navBar,
             centerView: nil,
@@ -38,6 +40,7 @@ final class SelectionPresenterSpyTests: XCTestCase {
             primeTrailingImage: config.content.backButtonImage.map { .init(image: $0, onPress: headerSpy.capturedDisplayModel.first??.primeTrailingImage?.onPress) }
         )
 
+        // THEN
         XCTAssertEqual(headerSpy.messages.first, .displayModel(model: expectedModel) )
     }
     
@@ -116,7 +119,7 @@ final class SelectionPresenterSpyTests: XCTestCase {
     
 }
 
-fileprivate extension SelectionPresenterSpyTests {
+fileprivate extension SelectionPresenterTests {
     
     struct SUTComponents {
         let sut: SelectionPresenter

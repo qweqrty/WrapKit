@@ -9,6 +9,7 @@
 #if canImport({{ importName }})
 import {{ importName }}
 #endif
+import WrapKit
 {% endfor %}
 
 {% if type.associatedTypes.count > 0 %}
@@ -40,17 +41,18 @@ public final class {{ type.name }}Spy: {{ type.name }} {
 
     // MARK: - Captured values
     {% for method in type.methods %}
-    {% if not method.isGeneric %}
-    {% for param in method.parameters %}
-    public private(set) var captured{{ method.callName|upperFirstLetter }}{{ param.name|upperFirstLetter }}: [{{ param.typeName }}] = []
-    {% endfor %}
+    {% if method.parameters.count == 0 %}
+    public private(set) var captured{{ method.callName|upperFirstLetter }}: [Void] = []
     {% else %}
-    public private(set) var {{ method.callName }}{{ method.parameters.first.name|upperFirstLetter }}GenericCallCount = 0
+    {% if method.isGeneric %}
+    public private(set) var captured{{ method.callName|upperFirstLetter }}{% for param in method.parameters %}{{ param.name|upperFirstLetter }}{% endfor %}Generic: [({% for param in method.parameters %}{{ param.typeName }}{% if not forloop.last %}, {% endif %}{% endfor %})] = []
+    {% else %}
+    public private(set) var captured{{ method.callName|upperFirstLetter }}{% for param in method.parameters %}{{ param.name|upperFirstLetter }}{% endfor %}: [({% for param in method.parameters %}{{ param.typeName }}{% if not forloop.last %}, {% endif %}{% endfor %})] = []
+    {% endif %}
     {% endif %}
     {% endfor %}
-
     {% for variable in type.variables where variable.writeAccess != "private" and variable.writeAccess != "fileprivate" %}
-    public private(set) var captured{{ variable.name|upperFirstLetter }}: [{{ variable.typeName }}] = []
+    public private(set) var capturedSet{{ variable.name|upperFirstLetter }}: [{{ variable.typeName }}] = []
     {% endfor %}
 
     // MARK: - {{ type.name }} methods
@@ -60,12 +62,11 @@ public final class {{ type.name }}Spy: {{ type.name }} {
     {% else %}
     public func {{ method.name }} {
         {% if not method.isGeneric %}
-        {% for param in method.parameters %}
-        captured{{ method.callName|upperFirstLetter }}{{ param.name|upperFirstLetter }}.append({{ param.name }})
-        {% endfor %}
         {% if method.parameters.count == 0 %}
+        captured{{ method.callName|upperFirstLetter }}.append(())
         messages.append(.{{ method.callName }})
         {% else %}
+        captured{{ method.callName|upperFirstLetter }}{% for param in method.parameters %}{{ param.name|upperFirstLetter }}{% endfor %}.append(({% for param in method.parameters %}{{ param.name }}{% if not forloop.last %}, {% endif %}{% endfor %}))
         messages.append(.{{ method.callName }}{{ method.parameters.first.name|upperFirstLetter }}({% for param in method.parameters %}{{ param.argumentLabel|default:param.name }}: {{ param.name }}{% if not forloop.last %}, {% endif %}{% endfor %}))
         {% endif %}
         {% else %}
@@ -83,13 +84,12 @@ public final class {{ type.name }}Spy: {{ type.name }} {
     {% else %}
     public var {{ variable.name }}: {{ variable.typeName }}{% if variable.defaultValue %} = {{ variable.defaultValue }}{% endif %} {
         didSet {
-            captured{{ variable.name|upperFirstLetter }}.append({{ variable.name }})
+            capturedSet{{ variable.name|upperFirstLetter }}.append({{ variable.name }})
             messages.append(.set{{ variable.name|upperFirstLetter }}({{ variable.name }}))
         }
     }
     {% endif %}
     {% endfor %}
 }
-
 // sourcery:end
 {% endfor %}

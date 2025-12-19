@@ -8,12 +8,15 @@
 #if canImport(Foundation)
 import Foundation
 #endif
+import WrapKit
 #if canImport(UIKit)
 import UIKit
 #endif
+import WrapKit
 #if canImport(Combine)
 import Combine
 #endif
+import WrapKit
 
 public final class ExpandableCardViewOutputSpy: ExpandableCardViewOutput {
 
@@ -27,17 +30,16 @@ public final class ExpandableCardViewOutputSpy: ExpandableCardViewOutput {
     public private(set) var messages: [Message] = []
 
     // MARK: - Captured values
-    public private(set) var capturedDisplayModel: [Pair<CardViewPresentableModel, CardViewPresentableModel?>] = []
-    public private(set) var capturedDisplayIsHidden: [Bool] = []
-
+    public private(set) var capturedDisplayModel: [(Pair<CardViewPresentableModel, CardViewPresentableModel?>)] = []
+    public private(set) var capturedDisplayIsHidden: [(Bool)] = []
 
     // MARK: - ExpandableCardViewOutput methods
     public func display(model: Pair<CardViewPresentableModel, CardViewPresentableModel?>) {
-        capturedDisplayModel.append(model)
+        capturedDisplayModel.append((model))
         messages.append(.displayModel(model: model))
     }
     public func display(isHidden: Bool) {
-        capturedDisplayIsHidden.append(isHidden)
+        capturedDisplayIsHidden.append((isHidden))
         messages.append(.displayIsHidden(isHidden: isHidden))
     }
 

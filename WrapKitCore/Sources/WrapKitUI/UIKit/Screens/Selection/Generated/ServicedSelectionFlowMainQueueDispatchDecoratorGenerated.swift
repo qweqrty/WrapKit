@@ -11,22 +11,19 @@ import WrapKit
 import Foundation
 #endif
 
-extension SelectionFlow {
-    public var mainQueueDispatched: any SelectionFlow {
+extension ServicedSelectionFlow {
+    public var mainQueueDispatched: any ServicedSelectionFlow {
         MainQueueDispatchDecorator(decoratee: self)
     }
 }
 
-extension MainQueueDispatchDecorator: SelectionFlow where T: SelectionFlow {
+extension MainQueueDispatchDecorator: ServicedSelectionFlow where T: ServicedSelectionFlow {
+    public typealias Request = T.Request
+    public typealias Response = T.Response
 
-    public func showSelection(model: SelectionPresenterModel) {
+    public func showSelection(model: ServicedSelectionModel<Request, Response>) {
         dispatch { [weak self] in
             self?.decoratee.showSelection(model: model)
-        }
-    }
-    public func close(with result: SelectionType?) {
-        dispatch { [weak self] in
-            self?.decoratee.close(with: result)
         }
     }
 

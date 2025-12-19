@@ -8,9 +8,11 @@
 #if canImport(Foundation)
 import Foundation
 #endif
+import WrapKit
 #if canImport(UIKit)
 import UIKit
 #endif
+import WrapKit
 
 public final class DatePickerViewOutputSpy: DatePickerViewOutput {
 
@@ -26,29 +28,26 @@ public final class DatePickerViewOutputSpy: DatePickerViewOutput {
     public private(set) var messages: [Message] = []
 
     // MARK: - Captured values
-    public private(set) var capturedDisplayDateChanged: [((Date) -> Void)?] = []
-    public private(set) var capturedDisplayDate: [Date] = []
-    public private(set) var capturedDisplaySetDate: [Date] = []
-    public private(set) var capturedDisplayAnimated: [Bool] = []
-    public private(set) var capturedDisplayModel: [DatePickerPresentableModel] = []
-
+    public private(set) var capturedDisplayDateChanged: [(((Date) -> Void)?)] = []
+    public private(set) var capturedDisplayDate: [(Date)] = []
+    public private(set) var capturedDisplaySetDateAnimated: [(Date, Bool)] = []
+    public private(set) var capturedDisplayModel: [(DatePickerPresentableModel)] = []
 
     // MARK: - DatePickerViewOutput methods
     public func display(dateChanged: ((Date) -> Void)?) {
-        capturedDisplayDateChanged.append(dateChanged)
+        capturedDisplayDateChanged.append((dateChanged))
         messages.append(.displayDateChanged(dateChanged: dateChanged))
     }
     public func display(date: Date) {
-        capturedDisplayDate.append(date)
+        capturedDisplayDate.append((date))
         messages.append(.displayDate(date: date))
     }
     public func display(setDate: Date, animated: Bool) {
-        capturedDisplaySetDate.append(setDate)
-        capturedDisplayAnimated.append(animated)
+        capturedDisplaySetDateAnimated.append((setDate, animated))
         messages.append(.displaySetDate(setDate: setDate, animated: animated))
     }
     public func display(model: DatePickerPresentableModel) {
-        capturedDisplayModel.append(model)
+        capturedDisplayModel.append((model))
         messages.append(.displayModel(model: model))
     }
 
