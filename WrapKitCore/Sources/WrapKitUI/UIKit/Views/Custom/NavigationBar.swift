@@ -18,7 +18,7 @@ public protocol HeaderOutput: AnyObject {
     func display(isHidden: Bool)
 }
 
-public struct HeaderPresentableModel {
+public struct HeaderPresentableModel: HashableWithReflection {
     public struct Style {
         public let backgroundColor: Color
         public let horizontalSpacing: CGFloat
