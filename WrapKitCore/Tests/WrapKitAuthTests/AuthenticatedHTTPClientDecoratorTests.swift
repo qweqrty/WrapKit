@@ -8,6 +8,7 @@
 import XCTest
 import WrapKit
 import Combine
+import WrapKitTestUtils
 
 class AuthenticatedHTTPClientDecoratorTests: XCTestCase {
     
