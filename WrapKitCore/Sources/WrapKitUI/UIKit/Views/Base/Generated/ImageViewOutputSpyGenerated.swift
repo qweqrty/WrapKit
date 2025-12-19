@@ -11,14 +11,20 @@ import Foundation
 #if canImport(UIKit)
 import UIKit
 #endif
+#if canImport(SwiftUI)
+import SwiftUI
+#endif
+#if canImport(Kingfisher)
+import Kingfisher
+#endif
 
 public final class ImageViewOutputSpy: ImageViewOutput {
 
     public init() {}
 
     public enum Message: HashableWithReflection {
-        case displayModel(model: ImageViewPresentableModel?)
-        case displayImage(image: ImageEnum?)
+        case displayModel(model: ImageViewPresentableModel?, completion: ((Image?) -> Void)?)
+        case displayImage(image: ImageEnum?, completion: ((Image?) -> Void)?)
         case displaySize(size: CGSize?)
         case displayOnPress(onPress: (() -> Void)?)
         case displayOnLongPress(onLongPress: (() -> Void)?)
@@ -33,62 +39,66 @@ public final class ImageViewOutputSpy: ImageViewOutput {
     public private(set) var messages: [Message] = []
 
     // MARK: - Captured values
-    public private(set) var capturedDisplayModel: [ImageViewPresentableModel?] = []
-    public private(set) var capturedDisplayImage: [ImageEnum?] = []
-    public private(set) var capturedDisplaySize: [CGSize?] = []
-    public private(set) var capturedDisplayOnPress: [(() -> Void)?] = []
-    public private(set) var capturedDisplayOnLongPress: [(() -> Void)?] = []
-    public private(set) var capturedDisplayContentModeIsFit: [Bool] = []
-    public private(set) var capturedDisplayBorderWidth: [CGFloat?] = []
-    public private(set) var capturedDisplayBorderColor: [Color?] = []
-    public private(set) var capturedDisplayCornerRadius: [CGFloat?] = []
-    public private(set) var capturedDisplayAlpha: [CGFloat?] = []
-    public private(set) var capturedDisplayIsHidden: [Bool] = []
+    public private(set) var capturedDisplayModelModel: [ImageViewPresentableModel?] = []
+    public private(set) var capturedDisplayModelCompletion: [((Image?) -> Void)?] = []
+    public private(set) var capturedDisplayImageImage: [ImageEnum?] = []
+    public private(set) var capturedDisplayImageCompletion: [((Image?) -> Void)?] = []
+    public private(set) var capturedDisplaySizeSize: [CGSize?] = []
+    public private(set) var capturedDisplayOnPressOnPress: [(() -> Void)?] = []
+    public private(set) var capturedDisplayOnLongPressOnLongPress: [(() -> Void)?] = []
+    public private(set) var capturedDisplayContentModeIsFitContentModeIsFit: [Bool] = []
+    public private(set) var capturedDisplayBorderWidthBorderWidth: [CGFloat?] = []
+    public private(set) var capturedDisplayBorderColorBorderColor: [Color?] = []
+    public private(set) var capturedDisplayCornerRadiusCornerRadius: [CGFloat?] = []
+    public private(set) var capturedDisplayAlphaAlpha: [CGFloat?] = []
+    public private(set) var capturedDisplayIsHiddenIsHidden: [Bool] = []
 
 
     // MARK: - ImageViewOutput methods
-    public func display(model: ImageViewPresentableModel?) {
-        capturedDisplayModel.append(model)
-        messages.append(.displayModel(model: model))
+    public func display(model: ImageViewPresentableModel?, completion: ((Image?) -> Void)?) {
+        capturedDisplayModelModel.append(model)
+        capturedDisplayModelCompletion.append(completion)
+        messages.append(.displayModel(model: model, completion: completion))
     }
-    public func display(image: ImageEnum?) {
-        capturedDisplayImage.append(image)
-        messages.append(.displayImage(image: image))
+    public func display(image: ImageEnum?, completion: ((Image?) -> Void)?) {
+        capturedDisplayImageImage.append(image)
+        capturedDisplayImageCompletion.append(completion)
+        messages.append(.displayImage(image: image, completion: completion))
     }
     public func display(size: CGSize?) {
-        capturedDisplaySize.append(size)
+        capturedDisplaySizeSize.append(size)
         messages.append(.displaySize(size: size))
     }
     public func display(onPress: (() -> Void)?) {
-        capturedDisplayOnPress.append(onPress)
+        capturedDisplayOnPressOnPress.append(onPress)
         messages.append(.displayOnPress(onPress: onPress))
     }
     public func display(onLongPress: (() -> Void)?) {
-        capturedDisplayOnLongPress.append(onLongPress)
+        capturedDisplayOnLongPressOnLongPress.append(onLongPress)
         messages.append(.displayOnLongPress(onLongPress: onLongPress))
     }
     public func display(contentModeIsFit: Bool) {
-        capturedDisplayContentModeIsFit.append(contentModeIsFit)
+        capturedDisplayContentModeIsFitContentModeIsFit.append(contentModeIsFit)
         messages.append(.displayContentModeIsFit(contentModeIsFit: contentModeIsFit))
     }
     public func display(borderWidth: CGFloat?) {
-        capturedDisplayBorderWidth.append(borderWidth)
+        capturedDisplayBorderWidthBorderWidth.append(borderWidth)
         messages.append(.displayBorderWidth(borderWidth: borderWidth))
     }
     public func display(borderColor: Color?) {
-        capturedDisplayBorderColor.append(borderColor)
+        capturedDisplayBorderColorBorderColor.append(borderColor)
         messages.append(.displayBorderColor(borderColor: borderColor))
     }
     public func display(cornerRadius: CGFloat?) {
-        capturedDisplayCornerRadius.append(cornerRadius)
+        capturedDisplayCornerRadiusCornerRadius.append(cornerRadius)
         messages.append(.displayCornerRadius(cornerRadius: cornerRadius))
     }
     public func display(alpha: CGFloat?) {
-        capturedDisplayAlpha.append(alpha)
+        capturedDisplayAlphaAlpha.append(alpha)
         messages.append(.displayAlpha(alpha: alpha))
     }
     public func display(isHidden: Bool) {
-        capturedDisplayIsHidden.append(isHidden)
+        capturedDisplayIsHiddenIsHidden.append(isHidden)
         messages.append(.displayIsHidden(isHidden: isHidden))
     }
 

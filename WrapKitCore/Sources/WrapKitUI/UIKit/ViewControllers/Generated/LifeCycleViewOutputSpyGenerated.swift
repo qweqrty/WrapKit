@@ -27,10 +27,10 @@ public final class LifeCycleViewOutputSpy: LifeCycleViewOutput {
     public private(set) var messages: [Message] = []
 
     // MARK: - Captured values
-    public private(set) var capturedComposedOutput: [LifeCycleViewOutput] = []
-    public private(set) var capturedWithAnalyticsEventName: [String] = []
-    public private(set) var capturedWithAnalyticsParameters: [[String: Any]] = []
-    public private(set) var capturedWithAnalyticsAnalytics: [AnalyticsTracker] = []
+    public private(set) var capturedComposedOutputOutput: [LifeCycleViewOutput] = []
+    public private(set) var capturedWithAnalyticsEventNameEventName: [String] = []
+    public private(set) var capturedWithAnalyticsEventNameParameters: [[String: Any]] = []
+    public private(set) var capturedWithAnalyticsEventNameAnalytics: [AnalyticsTracker] = []
 
 
     // MARK: - LifeCycleViewOutput methods
@@ -53,13 +53,13 @@ public final class LifeCycleViewOutputSpy: LifeCycleViewOutput {
         messages.append(.viewDidLayoutSubviews)
     }
     public func composed(with output: LifeCycleViewOutput) {
-        capturedComposedOutput.append(output)
+        capturedComposedOutputOutput.append(output)
         messages.append(.composedOutput(with: output))
     }
     public func withAnalytics(eventName: String, parameters: [String: Any], analytics: AnalyticsTracker) {
-        capturedWithAnalyticsEventName.append(eventName)
-        capturedWithAnalyticsParameters.append(parameters)
-        capturedWithAnalyticsAnalytics.append(analytics)
+        capturedWithAnalyticsEventNameEventName.append(eventName)
+        capturedWithAnalyticsEventNameParameters.append(parameters)
+        capturedWithAnalyticsEventNameAnalytics.append(analytics)
         messages.append(.withAnalyticsEventName(eventName: eventName, parameters: parameters, analytics: analytics))
     }
 

@@ -23,27 +23,27 @@ public final class WebViewOutputSpy: WebViewOutput {
     public private(set) var messages: [Message] = []
 
     // MARK: - Captured values
-    public private(set) var capturedDisplayUrl: [URL] = []
-    public private(set) var capturedDisplayRefreshModel: [WebViewStyle.Refresh] = []
-    public private(set) var capturedDisplayBackgroundColor: [Color?] = []
-    public private(set) var capturedDisplayIsProgressBarNeeded: [Bool] = []
+    public private(set) var capturedDisplayUrlUrl: [URL] = []
+    public private(set) var capturedDisplayRefreshModelRefreshModel: [WebViewStyle.Refresh] = []
+    public private(set) var capturedDisplayBackgroundColorBackgroundColor: [Color?] = []
+    public private(set) var capturedDisplayIsProgressBarNeededIsProgressBarNeeded: [Bool] = []
 
 
     // MARK: - WebViewOutput methods
     public func display(url: URL) {
-        capturedDisplayUrl.append(url)
+        capturedDisplayUrlUrl.append(url)
         messages.append(.displayUrl(url: url))
     }
     public func display(refreshModel: WebViewStyle.Refresh) {
-        capturedDisplayRefreshModel.append(refreshModel)
+        capturedDisplayRefreshModelRefreshModel.append(refreshModel)
         messages.append(.displayRefreshModel(refreshModel: refreshModel))
     }
     public func display(backgroundColor: Color?) {
-        capturedDisplayBackgroundColor.append(backgroundColor)
+        capturedDisplayBackgroundColorBackgroundColor.append(backgroundColor)
         messages.append(.displayBackgroundColor(backgroundColor: backgroundColor))
     }
     public func display(isProgressBarNeeded: Bool) {
-        capturedDisplayIsProgressBarNeeded.append(isProgressBarNeeded)
+        capturedDisplayIsProgressBarNeededIsProgressBarNeeded.append(isProgressBarNeeded)
         messages.append(.displayIsProgressBarNeeded(isProgressBarNeeded: isProgressBarNeeded))
     }
 

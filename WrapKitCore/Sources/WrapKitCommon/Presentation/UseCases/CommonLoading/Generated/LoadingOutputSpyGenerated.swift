@@ -25,19 +25,19 @@ public final class LoadingOutputSpy: LoadingOutput {
     public private(set) var messages: [Message] = []
 
     // MARK: - Captured values
-    public private(set) var capturedDisplayIsLoading: [Bool] = []
-    public private(set) var capturedNVActivityLoaderOnView: [UIView] = []
-    public private(set) var capturedNVActivityLoaderType: [NVActivityIndicatorType] = []
-    public private(set) var capturedNVActivityLoaderSize: [CGSize] = []
-    public private(set) var capturedNVActivityLoaderPadding: [UIEdgeInsets] = []
-    public private(set) var capturedNVActivityLoaderLoadingViewColor: [UIColor] = []
-    public private(set) var capturedNVActivityLoaderWrapperViewColor: [UIColor] = []
+    public private(set) var capturedDisplayIsLoadingIsLoading: [Bool] = []
+    public private(set) var capturedNVActivityLoaderOnViewOnView: [UIView] = []
+    public private(set) var capturedNVActivityLoaderOnViewType: [NVActivityIndicatorType] = []
+    public private(set) var capturedNVActivityLoaderOnViewSize: [CGSize] = []
+    public private(set) var capturedNVActivityLoaderOnViewPadding: [UIEdgeInsets] = []
+    public private(set) var capturedNVActivityLoaderOnViewLoadingViewColor: [UIColor] = []
+    public private(set) var capturedNVActivityLoaderOnViewWrapperViewColor: [UIColor] = []
 
     public private(set) var capturedIsLoading: [Bool?] = []
 
     // MARK: - LoadingOutput methods
     public func display(isLoading: Bool) {
-        capturedDisplayIsLoading.append(isLoading)
+        capturedDisplayIsLoadingIsLoading.append(isLoading)
         messages.append(.displayIsLoading(isLoading: isLoading))
     }
     // Static method: NVActivityLoader(onView: UIView, type: NVActivityIndicatorType = .circleStrokeSpin, size: CGSize = .init(width: 80, height: 80), padding: UIEdgeInsets = .init(top: 25, left: 25, bottom: 25, right: 25), loadingViewColor: UIColor, wrapperViewColor: UIColor)

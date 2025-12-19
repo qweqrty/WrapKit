@@ -26,27 +26,27 @@ public final class KeyValueFieldViewOutputSpy: KeyValueFieldViewOutput {
     public private(set) var messages: [Message] = []
 
     // MARK: - Captured values
-    public private(set) var capturedDisplayModel: [Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>?] = []
-    public private(set) var capturedDisplayKeyTitle: [TextOutputPresentableModel?] = []
-    public private(set) var capturedDisplayValueTitle: [TextOutputPresentableModel?] = []
-    public private(set) var capturedDisplayBottomImage: [ImageViewPresentableModel?] = []
+    public private(set) var capturedDisplayModelModel: [Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>?] = []
+    public private(set) var capturedDisplayKeyTitleKeyTitle: [TextOutputPresentableModel?] = []
+    public private(set) var capturedDisplayValueTitleValueTitle: [TextOutputPresentableModel?] = []
+    public private(set) var capturedDisplayBottomImageBottomImage: [ImageViewPresentableModel?] = []
 
 
     // MARK: - KeyValueFieldViewOutput methods
     public func display(model: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>?) {
-        capturedDisplayModel.append(model)
+        capturedDisplayModelModel.append(model)
         messages.append(.displayModel(model: model))
     }
     public func display(keyTitle: TextOutputPresentableModel?) {
-        capturedDisplayKeyTitle.append(keyTitle)
+        capturedDisplayKeyTitleKeyTitle.append(keyTitle)
         messages.append(.displayKeyTitle(keyTitle: keyTitle))
     }
     public func display(valueTitle: TextOutputPresentableModel?) {
-        capturedDisplayValueTitle.append(valueTitle)
+        capturedDisplayValueTitleValueTitle.append(valueTitle)
         messages.append(.displayValueTitle(valueTitle: valueTitle))
     }
     public func display(bottomImage: ImageViewPresentableModel?) {
-        capturedDisplayBottomImage.append(bottomImage)
+        capturedDisplayBottomImageBottomImage.append(bottomImage)
         messages.append(.displayBottomImage(bottomImage: bottomImage))
     }
 

@@ -28,33 +28,33 @@ public final class RefreshControlOutputSpy: RefreshControlOutput {
     public private(set) var messages: [Message] = []
 
     // MARK: - Captured values
-    public private(set) var capturedDisplayModel: [RefreshControlPresentableModel?] = []
-    public private(set) var capturedDisplayStyle: [RefreshControlPresentableModel.Style] = []
-    public private(set) var capturedDisplayOnRefresh: [(() -> Void)?] = []
-    public private(set) var capturedDisplayAppendingOnRefresh: [(() -> Void)?] = []
-    public private(set) var capturedDisplayIsLoading: [Bool] = []
+    public private(set) var capturedDisplayModelModel: [RefreshControlPresentableModel?] = []
+    public private(set) var capturedDisplayStyleStyle: [RefreshControlPresentableModel.Style] = []
+    public private(set) var capturedDisplayOnRefreshOnRefresh: [(() -> Void)?] = []
+    public private(set) var capturedDisplayAppendingOnRefreshAppendingOnRefresh: [(() -> Void)?] = []
+    public private(set) var capturedDisplayIsLoadingIsLoading: [Bool] = []
 
     public private(set) var capturedOnRefresh: [[(() -> Void)?]?] = []
 
     // MARK: - RefreshControlOutput methods
     public func display(model: RefreshControlPresentableModel?) {
-        capturedDisplayModel.append(model)
+        capturedDisplayModelModel.append(model)
         messages.append(.displayModel(model: model))
     }
     public func display(style: RefreshControlPresentableModel.Style) {
-        capturedDisplayStyle.append(style)
+        capturedDisplayStyleStyle.append(style)
         messages.append(.displayStyle(style: style))
     }
     public func display(onRefresh: (() -> Void)?) {
-        capturedDisplayOnRefresh.append(onRefresh)
+        capturedDisplayOnRefreshOnRefresh.append(onRefresh)
         messages.append(.displayOnRefresh(onRefresh: onRefresh))
     }
     public func display(appendingOnRefresh: (() -> Void)?) {
-        capturedDisplayAppendingOnRefresh.append(appendingOnRefresh)
+        capturedDisplayAppendingOnRefreshAppendingOnRefresh.append(appendingOnRefresh)
         messages.append(.displayAppendingOnRefresh(appendingOnRefresh: appendingOnRefresh))
     }
     public func display(isLoading: Bool) {
-        capturedDisplayIsLoading.append(isLoading)
+        capturedDisplayIsLoadingIsLoading.append(isLoading)
         messages.append(.displayIsLoading(isLoading: isLoading))
     }
 

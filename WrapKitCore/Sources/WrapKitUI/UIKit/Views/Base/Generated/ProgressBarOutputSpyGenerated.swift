@@ -29,27 +29,27 @@ public final class ProgressBarOutputSpy: ProgressBarOutput {
     public private(set) var messages: [Message] = []
 
     // MARK: - Captured values
-    public private(set) var capturedDisplayModel: [ProgressBarPresentableModel?] = []
-    public private(set) var capturedDisplayProgress: [CGFloat] = []
-    public private(set) var capturedDisplayStyle: [ProgressBarStyle?] = []
-    public private(set) var capturedDisplayIsHidden: [Bool] = []
+    public private(set) var capturedDisplayModelModel: [ProgressBarPresentableModel?] = []
+    public private(set) var capturedDisplayProgressProgress: [CGFloat] = []
+    public private(set) var capturedDisplayStyleStyle: [ProgressBarStyle?] = []
+    public private(set) var capturedDisplayIsHiddenIsHidden: [Bool] = []
 
 
     // MARK: - ProgressBarOutput methods
     public func display(model: ProgressBarPresentableModel?) {
-        capturedDisplayModel.append(model)
+        capturedDisplayModelModel.append(model)
         messages.append(.displayModel(model: model))
     }
     public func display(progress: CGFloat) {
-        capturedDisplayProgress.append(progress)
+        capturedDisplayProgressProgress.append(progress)
         messages.append(.displayProgress(progress: progress))
     }
     public func display(style: ProgressBarStyle?) {
-        capturedDisplayStyle.append(style)
+        capturedDisplayStyleStyle.append(style)
         messages.append(.displayStyle(style: style))
     }
     public func display(isHidden: Bool) {
-        capturedDisplayIsHidden.append(isHidden)
+        capturedDisplayIsHiddenIsHidden.append(isHidden)
         messages.append(.displayIsHidden(isHidden: isHidden))
     }
 

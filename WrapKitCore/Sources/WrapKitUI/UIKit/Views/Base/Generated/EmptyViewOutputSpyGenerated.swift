@@ -28,37 +28,37 @@ public final class EmptyViewOutputSpy: EmptyViewOutput {
     public private(set) var messages: [Message] = []
 
     // MARK: - Captured values
-    public private(set) var capturedDisplayModel: [EmptyViewPresentableModel?] = []
-    public private(set) var capturedDisplayTitle: [TextOutputPresentableModel?] = []
-    public private(set) var capturedDisplaySubtitle: [TextOutputPresentableModel?] = []
-    public private(set) var capturedDisplayButtonModel: [ButtonPresentableModel?] = []
-    public private(set) var capturedDisplayImage: [ImageViewPresentableModel?] = []
-    public private(set) var capturedDisplayIsHidden: [Bool] = []
+    public private(set) var capturedDisplayModelModel: [EmptyViewPresentableModel?] = []
+    public private(set) var capturedDisplayTitleTitle: [TextOutputPresentableModel?] = []
+    public private(set) var capturedDisplaySubtitleSubtitle: [TextOutputPresentableModel?] = []
+    public private(set) var capturedDisplayButtonModelButtonModel: [ButtonPresentableModel?] = []
+    public private(set) var capturedDisplayImageImage: [ImageViewPresentableModel?] = []
+    public private(set) var capturedDisplayIsHiddenIsHidden: [Bool] = []
 
 
     // MARK: - EmptyViewOutput methods
     public func display(model: EmptyViewPresentableModel?) {
-        capturedDisplayModel.append(model)
+        capturedDisplayModelModel.append(model)
         messages.append(.displayModel(model: model))
     }
     public func display(title: TextOutputPresentableModel?) {
-        capturedDisplayTitle.append(title)
+        capturedDisplayTitleTitle.append(title)
         messages.append(.displayTitle(title: title))
     }
     public func display(subtitle: TextOutputPresentableModel?) {
-        capturedDisplaySubtitle.append(subtitle)
+        capturedDisplaySubtitleSubtitle.append(subtitle)
         messages.append(.displaySubtitle(subtitle: subtitle))
     }
     public func display(buttonModel: ButtonPresentableModel?) {
-        capturedDisplayButtonModel.append(buttonModel)
+        capturedDisplayButtonModelButtonModel.append(buttonModel)
         messages.append(.displayButtonModel(buttonModel: buttonModel))
     }
     public func display(image: ImageViewPresentableModel?) {
-        capturedDisplayImage.append(image)
+        capturedDisplayImageImage.append(image)
         messages.append(.displayImage(image: image))
     }
     public func display(isHidden: Bool) {
-        capturedDisplayIsHidden.append(isHidden)
+        capturedDisplayIsHiddenIsHidden.append(isHidden)
         messages.append(.displayIsHidden(isHidden: isHidden))
     }
 

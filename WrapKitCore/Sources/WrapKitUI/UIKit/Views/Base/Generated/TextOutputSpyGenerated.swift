@@ -20,51 +20,51 @@ public final class TextOutputSpy: TextOutput {
         case displayModel(model: TextOutputPresentableModel?)
         case displayText(text: String?)
         case displayAttributes(attributes: [TextAttributes])
-        case displayId(id: String?, from: Double, to: Double, mapToString: ((Double) -> TextOutputPresentableModel)?, animationStyle: LabelAnimationStyle, duration: TimeInterval, completion: (() -> Void)?)
+        case displayId(id: String?, from: Decimal, to: Decimal, mapToString: ((Decimal) -> TextOutputPresentableModel)?, animationStyle: LabelAnimationStyle, duration: TimeInterval, completion: (() -> Void)?)
         case displayIsHidden(isHidden: Bool)
     }
 
     public private(set) var messages: [Message] = []
 
     // MARK: - Captured values
-    public private(set) var capturedDisplayModel: [TextOutputPresentableModel?] = []
-    public private(set) var capturedDisplayText: [String?] = []
-    public private(set) var capturedDisplayAttributes: [[TextAttributes]] = []
-    public private(set) var capturedDisplayId: [String?] = []
-    public private(set) var capturedDisplayStartAmount: [Double] = []
-    public private(set) var capturedDisplayEndAmount: [Double] = []
-    public private(set) var capturedDisplayMapToString: [((Double) -> TextOutputPresentableModel)?] = []
-    public private(set) var capturedDisplayAnimationStyle: [LabelAnimationStyle] = []
-    public private(set) var capturedDisplayDuration: [TimeInterval] = []
-    public private(set) var capturedDisplayCompletion: [(() -> Void)?] = []
-    public private(set) var capturedDisplayIsHidden: [Bool] = []
+    public private(set) var capturedDisplayModelModel: [TextOutputPresentableModel?] = []
+    public private(set) var capturedDisplayTextText: [String?] = []
+    public private(set) var capturedDisplayAttributesAttributes: [[TextAttributes]] = []
+    public private(set) var capturedDisplayIdId: [String?] = []
+    public private(set) var capturedDisplayIdStartAmount: [Decimal] = []
+    public private(set) var capturedDisplayIdEndAmount: [Decimal] = []
+    public private(set) var capturedDisplayIdMapToString: [((Decimal) -> TextOutputPresentableModel)?] = []
+    public private(set) var capturedDisplayIdAnimationStyle: [LabelAnimationStyle] = []
+    public private(set) var capturedDisplayIdDuration: [TimeInterval] = []
+    public private(set) var capturedDisplayIdCompletion: [(() -> Void)?] = []
+    public private(set) var capturedDisplayIsHiddenIsHidden: [Bool] = []
 
 
     // MARK: - TextOutput methods
     public func display(model: TextOutputPresentableModel?) {
-        capturedDisplayModel.append(model)
+        capturedDisplayModelModel.append(model)
         messages.append(.displayModel(model: model))
     }
     public func display(text: String?) {
-        capturedDisplayText.append(text)
+        capturedDisplayTextText.append(text)
         messages.append(.displayText(text: text))
     }
     public func display(attributes: [TextAttributes]) {
-        capturedDisplayAttributes.append(attributes)
+        capturedDisplayAttributesAttributes.append(attributes)
         messages.append(.displayAttributes(attributes: attributes))
     }
-    public func display(id: String?, from startAmount: Double, to endAmount: Double, mapToString: ((Double) -> TextOutputPresentableModel)?, animationStyle: LabelAnimationStyle, duration: TimeInterval, completion: (() -> Void)?) {
-        capturedDisplayId.append(id)
-        capturedDisplayStartAmount.append(startAmount)
-        capturedDisplayEndAmount.append(endAmount)
-        capturedDisplayMapToString.append(mapToString)
-        capturedDisplayAnimationStyle.append(animationStyle)
-        capturedDisplayDuration.append(duration)
-        capturedDisplayCompletion.append(completion)
+    public func display(id: String?, from startAmount: Decimal, to endAmount: Decimal, mapToString: ((Decimal) -> TextOutputPresentableModel)?, animationStyle: LabelAnimationStyle, duration: TimeInterval, completion: (() -> Void)?) {
+        capturedDisplayIdId.append(id)
+        capturedDisplayIdStartAmount.append(startAmount)
+        capturedDisplayIdEndAmount.append(endAmount)
+        capturedDisplayIdMapToString.append(mapToString)
+        capturedDisplayIdAnimationStyle.append(animationStyle)
+        capturedDisplayIdDuration.append(duration)
+        capturedDisplayIdCompletion.append(completion)
         messages.append(.displayId(id: id, from: startAmount, to: endAmount, mapToString: mapToString, animationStyle: animationStyle, duration: duration, completion: completion))
     }
     public func display(isHidden: Bool) {
-        capturedDisplayIsHidden.append(isHidden)
+        capturedDisplayIsHiddenIsHidden.append(isHidden)
         messages.append(.displayIsHidden(isHidden: isHidden))
     }
 

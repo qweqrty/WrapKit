@@ -30,47 +30,47 @@ public final class HeaderOutputSpy: HeaderOutput {
     public private(set) var messages: [Message] = []
 
     // MARK: - Captured values
-    public private(set) var capturedDisplayModel: [HeaderPresentableModel?] = []
-    public private(set) var capturedDisplayStyle: [HeaderPresentableModel.Style?] = []
-    public private(set) var capturedDisplayCenterView: [HeaderPresentableModel.CenterView?] = []
-    public private(set) var capturedDisplayLeadingCard: [CardViewPresentableModel?] = []
-    public private(set) var capturedDisplayPrimeTrailingImage: [ButtonPresentableModel?] = []
-    public private(set) var capturedDisplaySecondaryTrailingImage: [ButtonPresentableModel?] = []
-    public private(set) var capturedDisplayTertiaryTrailingImage: [ButtonPresentableModel?] = []
-    public private(set) var capturedDisplayIsHidden: [Bool] = []
+    public private(set) var capturedDisplayModelModel: [HeaderPresentableModel?] = []
+    public private(set) var capturedDisplayStyleStyle: [HeaderPresentableModel.Style?] = []
+    public private(set) var capturedDisplayCenterViewCenterView: [HeaderPresentableModel.CenterView?] = []
+    public private(set) var capturedDisplayLeadingCardLeadingCard: [CardViewPresentableModel?] = []
+    public private(set) var capturedDisplayPrimeTrailingImagePrimeTrailingImage: [ButtonPresentableModel?] = []
+    public private(set) var capturedDisplaySecondaryTrailingImageSecondaryTrailingImage: [ButtonPresentableModel?] = []
+    public private(set) var capturedDisplayTertiaryTrailingImageTertiaryTrailingImage: [ButtonPresentableModel?] = []
+    public private(set) var capturedDisplayIsHiddenIsHidden: [Bool] = []
 
 
     // MARK: - HeaderOutput methods
     public func display(model: HeaderPresentableModel?) {
-        capturedDisplayModel.append(model)
+        capturedDisplayModelModel.append(model)
         messages.append(.displayModel(model: model))
     }
     public func display(style: HeaderPresentableModel.Style?) {
-        capturedDisplayStyle.append(style)
+        capturedDisplayStyleStyle.append(style)
         messages.append(.displayStyle(style: style))
     }
     public func display(centerView: HeaderPresentableModel.CenterView?) {
-        capturedDisplayCenterView.append(centerView)
+        capturedDisplayCenterViewCenterView.append(centerView)
         messages.append(.displayCenterView(centerView: centerView))
     }
     public func display(leadingCard: CardViewPresentableModel?) {
-        capturedDisplayLeadingCard.append(leadingCard)
+        capturedDisplayLeadingCardLeadingCard.append(leadingCard)
         messages.append(.displayLeadingCard(leadingCard: leadingCard))
     }
     public func display(primeTrailingImage: ButtonPresentableModel?) {
-        capturedDisplayPrimeTrailingImage.append(primeTrailingImage)
+        capturedDisplayPrimeTrailingImagePrimeTrailingImage.append(primeTrailingImage)
         messages.append(.displayPrimeTrailingImage(primeTrailingImage: primeTrailingImage))
     }
     public func display(secondaryTrailingImage: ButtonPresentableModel?) {
-        capturedDisplaySecondaryTrailingImage.append(secondaryTrailingImage)
+        capturedDisplaySecondaryTrailingImageSecondaryTrailingImage.append(secondaryTrailingImage)
         messages.append(.displaySecondaryTrailingImage(secondaryTrailingImage: secondaryTrailingImage))
     }
     public func display(tertiaryTrailingImage: ButtonPresentableModel?) {
-        capturedDisplayTertiaryTrailingImage.append(tertiaryTrailingImage)
+        capturedDisplayTertiaryTrailingImageTertiaryTrailingImage.append(tertiaryTrailingImage)
         messages.append(.displayTertiaryTrailingImage(tertiaryTrailingImage: tertiaryTrailingImage))
     }
     public func display(isHidden: Bool) {
-        capturedDisplayIsHidden.append(isHidden)
+        capturedDisplayIsHiddenIsHidden.append(isHidden)
         messages.append(.displayIsHidden(isHidden: isHidden))
     }
 

@@ -26,29 +26,29 @@ public final class DatePickerViewOutputSpy: DatePickerViewOutput {
     public private(set) var messages: [Message] = []
 
     // MARK: - Captured values
-    public private(set) var capturedDisplayDateChanged: [((Date) -> Void)?] = []
-    public private(set) var capturedDisplayDate: [Date] = []
-    public private(set) var capturedDisplaySetDate: [Date] = []
-    public private(set) var capturedDisplayAnimated: [Bool] = []
-    public private(set) var capturedDisplayModel: [DatePickerPresentableModel] = []
+    public private(set) var capturedDisplayDateChangedDateChanged: [((Date) -> Void)?] = []
+    public private(set) var capturedDisplayDateDate: [Date] = []
+    public private(set) var capturedDisplaySetDateSetDate: [Date] = []
+    public private(set) var capturedDisplaySetDateAnimated: [Bool] = []
+    public private(set) var capturedDisplayModelModel: [DatePickerPresentableModel] = []
 
 
     // MARK: - DatePickerViewOutput methods
     public func display(dateChanged: ((Date) -> Void)?) {
-        capturedDisplayDateChanged.append(dateChanged)
+        capturedDisplayDateChangedDateChanged.append(dateChanged)
         messages.append(.displayDateChanged(dateChanged: dateChanged))
     }
     public func display(date: Date) {
-        capturedDisplayDate.append(date)
+        capturedDisplayDateDate.append(date)
         messages.append(.displayDate(date: date))
     }
     public func display(setDate: Date, animated: Bool) {
-        capturedDisplaySetDate.append(setDate)
-        capturedDisplayAnimated.append(animated)
+        capturedDisplaySetDateSetDate.append(setDate)
+        capturedDisplaySetDateAnimated.append(animated)
         messages.append(.displaySetDate(setDate: setDate, animated: animated))
     }
     public func display(model: DatePickerPresentableModel) {
-        capturedDisplayModel.append(model)
+        capturedDisplayModelModel.append(model)
         messages.append(.displayModel(model: model))
     }
 

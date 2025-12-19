@@ -31,52 +31,52 @@ public final class ButtonOutputSpy: ButtonOutput {
     public private(set) var messages: [Message] = []
 
     // MARK: - Captured values
-    public private(set) var capturedDisplayModel: [ButtonPresentableModel?] = []
-    public private(set) var capturedDisplayEnabled: [Bool] = []
-    public private(set) var capturedDisplayImage: [Image?] = []
-    public private(set) var capturedDisplayStyle: [ButtonStyle?] = []
-    public private(set) var capturedDisplayTitle: [String?] = []
-    public private(set) var capturedDisplaySpacing: [CGFloat] = []
-    public private(set) var capturedDisplayOnPress: [(() -> Void)?] = []
-    public private(set) var capturedDisplayHeight: [CGFloat] = []
-    public private(set) var capturedDisplayIsHidden: [Bool] = []
+    public private(set) var capturedDisplayModelModel: [ButtonPresentableModel?] = []
+    public private(set) var capturedDisplayEnabledEnabled: [Bool] = []
+    public private(set) var capturedDisplayImageImage: [Image?] = []
+    public private(set) var capturedDisplayStyleStyle: [ButtonStyle?] = []
+    public private(set) var capturedDisplayTitleTitle: [String?] = []
+    public private(set) var capturedDisplaySpacingSpacing: [CGFloat] = []
+    public private(set) var capturedDisplayOnPressOnPress: [(() -> Void)?] = []
+    public private(set) var capturedDisplayHeightHeight: [CGFloat] = []
+    public private(set) var capturedDisplayIsHiddenIsHidden: [Bool] = []
 
 
     // MARK: - ButtonOutput methods
     public func display(model: ButtonPresentableModel?) {
-        capturedDisplayModel.append(model)
+        capturedDisplayModelModel.append(model)
         messages.append(.displayModel(model: model))
     }
     public func display(enabled: Bool) {
-        capturedDisplayEnabled.append(enabled)
+        capturedDisplayEnabledEnabled.append(enabled)
         messages.append(.displayEnabled(enabled: enabled))
     }
     public func display(image: Image?) {
-        capturedDisplayImage.append(image)
+        capturedDisplayImageImage.append(image)
         messages.append(.displayImage(image: image))
     }
     public func display(style: ButtonStyle?) {
-        capturedDisplayStyle.append(style)
+        capturedDisplayStyleStyle.append(style)
         messages.append(.displayStyle(style: style))
     }
     public func display(title: String?) {
-        capturedDisplayTitle.append(title)
+        capturedDisplayTitleTitle.append(title)
         messages.append(.displayTitle(title: title))
     }
     public func display(spacing: CGFloat) {
-        capturedDisplaySpacing.append(spacing)
+        capturedDisplaySpacingSpacing.append(spacing)
         messages.append(.displaySpacing(spacing: spacing))
     }
     public func display(onPress: (() -> Void)?) {
-        capturedDisplayOnPress.append(onPress)
+        capturedDisplayOnPressOnPress.append(onPress)
         messages.append(.displayOnPress(onPress: onPress))
     }
     public func display(height: CGFloat) {
-        capturedDisplayHeight.append(height)
+        capturedDisplayHeightHeight.append(height)
         messages.append(.displayHeight(height: height))
     }
     public func display(isHidden: Bool) {
-        capturedDisplayIsHidden.append(isHidden)
+        capturedDisplayIsHiddenIsHidden.append(isHidden)
         messages.append(.displayIsHidden(isHidden: isHidden))
     }
 

@@ -24,17 +24,17 @@ public final class SegmentedControlOutputSpy: SegmentedControlOutput {
     public private(set) var messages: [Message] = []
 
     // MARK: - Captured values
-    public private(set) var capturedDisplayAppearence: [SegmentedControlAppearance] = []
-    public private(set) var capturedDisplaySegments: [[SegmentControlModel]] = []
+    public private(set) var capturedDisplayAppearenceAppearence: [SegmentedControlAppearance] = []
+    public private(set) var capturedDisplaySegmentsSegments: [[SegmentControlModel]] = []
 
 
     // MARK: - SegmentedControlOutput methods
     public func display(appearence: SegmentedControlAppearance) {
-        capturedDisplayAppearence.append(appearence)
+        capturedDisplayAppearenceAppearence.append(appearence)
         messages.append(.displayAppearence(appearence: appearence))
     }
     public func display(segments: [SegmentControlModel]) {
-        capturedDisplaySegments.append(segments)
+        capturedDisplaySegmentsSegments.append(segments)
         messages.append(.displaySegments(segments: segments))
     }
 
