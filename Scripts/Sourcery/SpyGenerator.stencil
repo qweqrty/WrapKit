@@ -25,7 +25,7 @@ public final class {{ type.name }}Spy: {{ type.name }} {
         case {{ method.callName }}
         {% else %}
         {% if method.isGeneric %}
-        case {{ method.callName }}{{ method.parameters.first.name|upperFirstLetter }}
+        case {{ method.callName }}{{ method.parameters.first.name|upperFirstLetter }}Generic
         {% else %}
         case {{ method.callName }}{{ method.parameters.first.name|upperFirstLetter }}({% for param in method.parameters %}{{ param.argumentLabel|default:param.name }}: {{ param.typeName }}{% if not forloop.last %}, {% endif %}{% endfor %})
         {% endif %}
@@ -45,7 +45,7 @@ public final class {{ type.name }}Spy: {{ type.name }} {
     public private(set) var captured{{ method.callName|upperFirstLetter }}{{ param.name|upperFirstLetter }}: [{{ param.typeName }}] = []
     {% endfor %}
     {% else %}
-    public private(set) var {{ method.callName }}{{ method.parameters.first.name|upperFirstLetter }}CallCount = 0
+    public private(set) var {{ method.callName }}{{ method.parameters.first.name|upperFirstLetter }}GenericCallCount = 0
     {% endif %}
     {% endfor %}
 
@@ -69,8 +69,8 @@ public final class {{ type.name }}Spy: {{ type.name }} {
         messages.append(.{{ method.callName }}{{ method.parameters.first.name|upperFirstLetter }}({% for param in method.parameters %}{{ param.argumentLabel|default:param.name }}: {{ param.name }}{% if not forloop.last %}, {% endif %}{% endfor %}))
         {% endif %}
         {% else %}
-        {{ method.callName }}{{ method.parameters.first.name|upperFirstLetter }}CallCount += 1
-        messages.append(.{{ method.callName }}{{ method.parameters.first.name|upperFirstLetter }})
+        {{ method.callName }}{{ method.parameters.first.name|upperFirstLetter }}GenericCallCount += 1
+        messages.append(.{{ method.callName }}{{ method.parameters.first.name|upperFirstLetter }}Generic)
         {% endif %}
     }
     {% endif %}

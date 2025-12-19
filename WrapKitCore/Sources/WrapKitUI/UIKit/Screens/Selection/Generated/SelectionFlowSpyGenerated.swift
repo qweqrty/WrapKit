@@ -15,7 +15,7 @@ public final class SelectionFlowSpy: SelectionFlow {
 
     public enum Message: HashableWithReflection {
         case showSelectionModel(model: SelectionPresenterModel)
-        case showSelectionModel
+        case showSelectionModelGeneric
         case closeResult(with: SelectionType?)
     }
 
@@ -23,7 +23,7 @@ public final class SelectionFlowSpy: SelectionFlow {
 
     // MARK: - Captured values
     public private(set) var capturedShowSelectionModel: [SelectionPresenterModel] = []
-    public private(set) var showSelectionModelCallCount = 0
+    public private(set) var showSelectionModelGenericCallCount = 0
     public private(set) var capturedCloseResult: [SelectionType?] = []
 
 
@@ -33,8 +33,8 @@ public final class SelectionFlowSpy: SelectionFlow {
         messages.append(.showSelectionModel(model: model))
     }
     public func showSelection<Request, Response>(model: ServicedSelectionModel<Request, Response>) {
-        showSelectionModelCallCount += 1
-        messages.append(.showSelectionModel)
+        showSelectionModelGenericCallCount += 1
+        messages.append(.showSelectionModelGeneric)
     }
     public func close(with result: SelectionType?) {
         capturedCloseResult.append(result)

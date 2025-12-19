@@ -17,38 +17,28 @@ final class SelectionPresenterSpyTests: XCTestCase {
         
         sut.viewDidLoad()
         
-        XCTAssertEqual(viewSpy.capturedDisplayShouldShowSearchBar.count, 1)
-        XCTAssertEqual(viewSpy.capturedDisplayShouldShowSearchBar.first, true, "Should show search bar when items count > 15")
         XCTAssertEqual(viewSpy.messages.first, .displayShouldShowSearchBar(shouldShowSearchBar: true))
     }
     
-    func test_viewDidLoad_HeaderOutput_displayModel() {
-        // GIVEN
+    func test_viewDidLoad_headerOutput_displayModel() {
         let components = makeSUT()
         let sut = components.sut
         let headerSpy = components.headerSpy
         
-        let expectedTitle = "Select"
-        
-        // WHEN
+        let config = nurSelection()
+
         sut.viewDidLoad()
+
+        headerSpy.capturedDisplayModel.first??.primeTrailingImage?.onPress?()
         
-        // THEN
-        guard case let .displayModel(receivedModel) = headerSpy.messages.first else {
-            XCTFail("Ожидался вызов displayModel")
-            return
-        }
-        
-        if case let .text(title) = receivedModel?.leadingCard?.title {
-            XCTAssertEqual(title, expectedTitle)
-        } else {
-            XCTFail("Title should be: \(expectedTitle)")
-        }
-        
-        XCTAssertNotNil(receivedModel?.primeTrailingImage?.image, "Должна быть иконка обратного действия")
-        
-        let style = receivedModel?.style
-        XCTAssertEqual(style?.backgroundColor, .red)
+        let expectedModel = HeaderPresentableModel(
+            style: config.navBar,
+            centerView: nil,
+            leadingCard: .init(id: headerSpy.capturedDisplayModel.first??.leadingCard?.id ?? "", title: .text("Select")),
+            primeTrailingImage: config.content.backButtonImage.map { .init(image: $0, onPress: headerSpy.capturedDisplayModel.first??.primeTrailingImage?.onPress) }
+        )
+
+        XCTAssertEqual(headerSpy.messages.first, .displayModel(model: expectedModel) )
     }
     
     func test_viewDidLoad_emptyViewOutput_displayModel() {
@@ -61,9 +51,9 @@ final class SelectionPresenterSpyTests: XCTestCase {
         sut.viewDidLoad()
         
         // THEN
-        let model = emptyViewSpy.capturedDisplayModel.first ?? nil
+        let model = EmptyViewPresentableModel(title: .text("Empty View"))
         
-        XCTAssertEqual(model?.title, .text("Empty View"))
+        XCTAssertEqual(emptyViewSpy.messages.first, .displayModel(model: model))
     }
     
     func test_viewDidLoad_resetButtonOutput_displayModel() {
@@ -71,26 +61,33 @@ final class SelectionPresenterSpyTests: XCTestCase {
         let components = makeSUT()
         let sut = components.sut
         let resetButtonSpy = components.resetSpy
-        
         let config = nurSelection()
         
         // WHEN
         sut.viewDidLoad()
         
         // THEN
-        let model = resetButtonSpy.capturedDisplayModel.first ?? nil
+        let style = ButtonStyle(
+            borderWidth: 1,
+            cornerRadius: 16
+        )
         
-        XCTAssertEqual(model?.title, config.texts.resetTitle)
-        XCTAssertEqual(model?.enabled, false, "Button should be enabled")
-        XCTAssertEqual(model?.height, 48)
-        XCTAssertEqual(model?.style?.backgroundColor, config.resetButton?.backgroundColor)
+        let model = ButtonPresentableModel(
+            title: config.texts.resetTitle,
+            height: 48.0,
+            style: style,
+            enabled: false,
+            onPress: resetButtonSpy.capturedDisplayModel.first??.onPress
+        )
+        
+        XCTAssertEqual(resetButtonSpy.messages.first, .displayModel(model: model))
     }
     
-    func test_viewDidLoad_selectButtonOutput_displayModel() {
+    func test_viewDidLoad_searchButtonOutput_displayModel() {
         // GIVEN
         let components = makeSUT()
         let sut = components.sut
-        let selectButtonSpy = components.selectButtonSpy
+        let searchButtonSpy = components.searchButtonSpy
         
         let config = nurSelection()
         
@@ -98,33 +95,25 @@ final class SelectionPresenterSpyTests: XCTestCase {
         sut.viewDidLoad()
         
         // THEN
-        let model = selectButtonSpy.capturedDisplayModel.first ?? nil
+        let style = ButtonStyle(
+            backgroundColor: config.searchButton.backgroundColor,
+            titleColor: config.searchButton.textColor,
+            borderWidth: 0.0,
+            borderColor: config.searchButton.borderColor,
+            cornerRadius: 16.0
+        )
+
+        let model = ButtonPresentableModel(
+            title: config.texts.selectTitle,
+            height: 48.0,
+            style: style,
+            enabled: true,
+            onPress: searchButtonSpy.capturedDisplayModel.first??.onPress
+        )
         
-        XCTAssertEqual(model?.title, config.texts.selectTitle)
-        XCTAssertEqual(model?.enabled, true, "Button should be enabled")
-        XCTAssertEqual(model?.height, 48)
+        XCTAssertEqual(searchButtonSpy.messages.first, .displayModel(model: model))
     }
     
-        func test_viewDidLoad_selectionOutput_shouldSasdhowSearchBar() {
-            let components = makeSUT()
-            let sut = components.sut
-            let headerSpy = components.headerSpy
-            
-            let config = nurSelection()
-    
-            sut.viewDidLoad()
-    
-            headerSpy.capturedDisplayModel.first??.primeTrailingImage?.onPress?()
-            
-            let expectedModel = HeaderPresentableModel(
-                style: config.navBar,
-                centerView: nil,
-                leadingCard: .init(id: headerSpy.capturedDisplayModel.first??.leadingCard?.id ?? "", title: .text("Select")),
-                primeTrailingImage: config.content.backButtonImage.map { .init(image: $0, onPress: headerSpy.capturedDisplayModel.first??.primeTrailingImage?.onPress) }
-            )
-    
-            XCTAssertEqual(headerSpy.messages.first, .displayModel(model: expectedModel) )
-        }
 }
 
 fileprivate extension SelectionPresenterSpyTests {
@@ -134,7 +123,7 @@ fileprivate extension SelectionPresenterSpyTests {
         let headerSpy: HeaderOutputSpy
         let resetSpy: ButtonOutputSpy
         let viewSpy: SelectionOutputSpy
-        let selectButtonSpy: ButtonOutputSpy
+        let searchButtonSpy: ButtonOutputSpy
         let emptyViewSpy: EmptyViewOutputSpy
     }
     
@@ -163,12 +152,7 @@ fileprivate extension SelectionPresenterSpyTests {
             emptyViewPresentableModel: .init(title: .text("Empty View")),
             screenViewAnalytics: nil)
         
-        let factory = SelectionFactoryMock()
-        
-        let flow = SelectionFlowiOS(
-            configuration: nurSelection(),
-            navigationController: UINavigationController(),
-            factory: factory)
+        let flow = SelectionFlowSpy()
         
         let sut = SelectionPresenter(flow: flow.mainQueueDispatched, model: model, configuration: nurSelection())
         let headerSpy = HeaderOutputSpy()
@@ -197,7 +181,7 @@ fileprivate extension SelectionPresenterSpyTests {
             headerSpy: headerSpy,
             resetSpy: resetButtonSpy,
             viewSpy: viewSpy,
-            selectButtonSpy: selectButtonSpy,
+            searchButtonSpy: selectButtonSpy,
             emptyViewSpy: emptyViewSpy
         )
     }
@@ -280,22 +264,4 @@ fileprivate extension SelectionPresenterSpyTests {
         )
     }
     
-}
-
-fileprivate class SelectionFactoryMock: ISelectionFactory {
-    func resolveSelection(
-        configuration: SelectionConfiguration,
-        flow: SelectionFlow,
-        model: SelectionPresenterModel
-    ) -> UIViewController {
-        return UIViewController()
-    }
-    
-    func resolveSelection<Request, Response>(
-        configuration: SelectionConfiguration,
-        flow: SelectionFlow,
-        model: ServicedSelectionModel<Request, Response>
-    ) -> UIViewController {
-        return UIViewController()
-    }
 }
