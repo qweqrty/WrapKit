@@ -75,17 +75,4 @@ public class TableOutputSpy<Cell: Hashable,Footer: Any,Header: Any>: TableOutput
     }
 
     // MARK: - Properties
-
-    // MARK: - Reset
-    public func reset() {
-        messages.removeAll()
-        capturedDisplaySections.removeAll()
-        capturedDisplayTrailingSwipeActionsForIndexPath.removeAll()
-        capturedDisplayIndexPath.removeAll()
-        capturedDisplayLeadingSwipeActionsForIndexPath.removeAll()
-        capturedDisplayMove.removeAll()
-        capturedDisplayCanMove.removeAll()
-        capturedDisplayCanEdit.removeAll()
-        capturedDisplayCommitEditing.removeAll()
-    }
 }

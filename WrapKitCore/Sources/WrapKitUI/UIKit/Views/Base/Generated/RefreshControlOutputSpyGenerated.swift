@@ -65,15 +65,4 @@ public final class RefreshControlOutputSpy: RefreshControlOutput {
             messages.append(.setOnRefresh(onRefresh))
         }
     }
-
-    // MARK: - Reset
-    public func reset() {
-        messages.removeAll()
-        capturedDisplayModel.removeAll()
-        capturedDisplayStyle.removeAll()
-        capturedDisplayOnRefresh.removeAll()
-        capturedDisplayAppendingOnRefresh.removeAll()
-        capturedDisplayIsLoading.removeAll()
-        capturedOnRefresh.removeAll()
-    }
 }

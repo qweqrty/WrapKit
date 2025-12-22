@@ -38,12 +38,4 @@ public final class SelectionOutputSpy: SelectionOutput {
     }
 
     // MARK: - Properties
-
-    // MARK: - Reset
-    public func reset() {
-        messages.removeAll()
-        capturedDisplayItems.removeAll()
-        capturedDisplayItemsSelectedCountTitle.removeAll()
-        capturedDisplayShouldShowSearchBar.removeAll()
-    }
 }

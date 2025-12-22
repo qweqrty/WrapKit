@@ -69,16 +69,4 @@ public final class TitledOutputSpy: TitledOutput {
     }
 
     // MARK: - Properties
-
-    // MARK: - Reset
-    public func reset() {
-        messages.removeAll()
-        capturedDisplayModel.removeAll()
-        capturedDisplayTitles.removeAll()
-        capturedDisplayBottomTitles.removeAll()
-        capturedDisplayLeadingBottomTitle.removeAll()
-        capturedDisplayTrailingBottomTitle.removeAll()
-        capturedDisplayIsUserInteractionEnabled.removeAll()
-        capturedDisplayIsHidden.removeAll()
-    }
 }

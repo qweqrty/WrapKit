@@ -185,34 +185,4 @@ public final class TextInputOutputSpy: TextInputOutput {
     }
 
     // MARK: - Properties
-
-    // MARK: - Reset
-    public func reset() {
-        messages.removeAll()
-        capturedDisplayModel.removeAll()
-        capturedDisplayText.removeAll()
-        capturedDisplayMask.removeAll()
-        capturedDisplayIsValid.removeAll()
-        capturedDisplayIsEnabledForEditing.removeAll()
-        capturedDisplayIsTextSelectionDisabled.removeAll()
-        capturedDisplayPlaceholder.removeAll()
-        capturedDisplayIsUserInteractionEnabled.removeAll()
-        capturedDisplayIsSecureTextEntry.removeAll()
-        capturedDisplayLeadingViewOnPress.removeAll()
-        capturedDisplayTrailingViewOnPress.removeAll()
-        capturedDisplayOnPress.removeAll()
-        capturedDisplayOnPaste.removeAll()
-        capturedDisplayOnBecomeFirstResponder.removeAll()
-        capturedDisplayOnResignFirstResponder.removeAll()
-        capturedDisplayOnTapBackspace.removeAll()
-        capturedDisplayDidChangeText.removeAll()
-        capturedDisplayTrailingViewIsHidden.removeAll()
-        capturedDisplayLeadingViewIsHidden.removeAll()
-        capturedDisplayIsHidden.removeAll()
-        capturedDisplayInputView.removeAll()
-        capturedDisplayInputType.removeAll()
-        capturedDisplayTrailingSymbol.removeAll()
-        capturedDisplayInputAccessoryView.removeAll()
-        capturedDisplayIsClearButtonActive.removeAll()
-    }
 }

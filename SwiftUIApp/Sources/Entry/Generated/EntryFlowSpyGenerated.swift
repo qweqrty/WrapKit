@@ -34,9 +34,4 @@ public final class EntryFlowSpy: EntryFlow {
     }
 
     // MARK: - Properties
-
-    // MARK: - Reset
-    public func reset() {
-        messages.removeAll()
-    }
 }

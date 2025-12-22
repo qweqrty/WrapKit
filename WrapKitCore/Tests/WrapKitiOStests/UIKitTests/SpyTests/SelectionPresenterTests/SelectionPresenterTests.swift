@@ -129,9 +129,7 @@ final class SelectionPresenterTests: XCTestCase {
         sut.viewDidLoad()
         
         let onPress = resetButtonSpy.capturedDisplayModel.first??.onPress
-        
-        resetButtonSpy.reset()
-        
+                
         onPress?()
         
         // THEN
@@ -143,10 +141,10 @@ final class SelectionPresenterTests: XCTestCase {
             cornerRadius: 12
         )
         
-        XCTAssertEqual(resetButtonSpy.messages.first, .displayStyle(style: expectedStyle))
+        XCTAssertEqual(resetButtonSpy.messages[3], .displayStyle(style: expectedStyle))
     }
     
-    func test_viewDidLoad_selectButtonOutput_onPress() {
+    func test_viewDidLoad_selectButtonOutput_onPress_multipleSelection() {
         // GIVEN
         let components = makeSUT()
         let sut = components.sut
@@ -172,6 +170,52 @@ final class SelectionPresenterTests: XCTestCase {
         }
     }
     
+    func test_viewDidLoad_selectButtonOutput_onPress_singleSelection() {
+        // GIVEN
+        let components = makeSUT(isMultipleSelection: false)
+        let sut = components.sut
+        let selectButtonSpy = components.selectButton
+        let flowSpy = components.flowSpy
+        
+        sut.items[2].isSelected.set(model: true)
+        
+        // WHEN
+        sut.viewDidLoad()
+        
+        let onPress = selectButtonSpy.capturedDisplayModel.first??.onPress
+        onPress?()
+        
+        // THEN
+        if case .closeResult(let result)? = flowSpy.messages.first,
+           case .singleSelection(let item)? = result {
+            XCTAssertEqual(item.id, "3")
+        } else {
+            XCTFail("Expected flow.close to be called with singleSelection")
+        }
+    }
+    
+    func test_viewDidLoad_headerOutput_backButton_onPress() {
+        // GIVEN
+        let components = makeSUT()
+        let sut = components.sut
+        let headerSpy = components.headerSpy
+        let flowSpy = components.flowSpy
+        
+        // WHEN
+        sut.viewDidLoad()
+        
+        let onPress = headerSpy.capturedDisplayModel.first??.primeTrailingImage?.onPress
+        
+        onPress?()
+        
+        // THEN
+        if case .closeResult(let result)? = flowSpy.messages.first {
+            XCTAssertNil(result, "Expected flow.close to be called with nil")
+        } else {
+            XCTFail("Expected flow.close to be called")
+        }
+    }
+    
 }
 
 fileprivate extension SelectionPresenterTests {
@@ -186,7 +230,7 @@ fileprivate extension SelectionPresenterTests {
         let flowSpy: SelectionFlowSpy
     }
     
-    func makeSUT() -> SUTComponents {
+    func makeSUT(isMultipleSelection: Bool = true) -> SUTComponents {
         
         let items = (1...16).map { index in
             SelectionType.SelectionCellPresentableModel(
@@ -205,7 +249,7 @@ fileprivate extension SelectionPresenterTests {
         
         let model = SelectionPresenterModel(
             title: "Select",
-            isMultipleSelectionEnabled: true,
+            isMultipleSelectionEnabled: isMultipleSelection,
             items: items,
             callback: nil,
             emptyViewPresentableModel: .init(title: .text("Empty View")),

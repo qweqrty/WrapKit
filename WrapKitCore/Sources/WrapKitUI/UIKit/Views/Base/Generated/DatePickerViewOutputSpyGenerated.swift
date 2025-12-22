@@ -53,14 +53,4 @@ public final class DatePickerViewOutputSpy: DatePickerViewOutput {
     }
 
     // MARK: - Properties
-
-    // MARK: - Reset
-    public func reset() {
-        messages.removeAll()
-        capturedDisplayDateChanged.removeAll()
-        capturedDisplayDate.removeAll()
-        capturedDisplaySetDate.removeAll()
-        capturedDisplaySetDateAnimated.removeAll()
-        capturedDisplayModel.removeAll()
-    }
 }

@@ -54,13 +54,4 @@ public final class ProgressBarOutputSpy: ProgressBarOutput {
     }
 
     // MARK: - Properties
-
-    // MARK: - Reset
-    public func reset() {
-        messages.removeAll()
-        capturedDisplayModel.removeAll()
-        capturedDisplayProgress.removeAll()
-        capturedDisplayStyle.removeAll()
-        capturedDisplayIsHidden.removeAll()
-    }
 }

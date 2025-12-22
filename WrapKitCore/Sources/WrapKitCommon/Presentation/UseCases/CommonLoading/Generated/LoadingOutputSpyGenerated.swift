@@ -49,17 +49,4 @@ public final class LoadingOutputSpy: LoadingOutput {
             messages.append(.setIsLoading(isLoading))
         }
     }
-
-    // MARK: - Reset
-    public func reset() {
-        messages.removeAll()
-        capturedDisplayIsLoading.removeAll()
-        capturedNVActivityLoaderOnView.removeAll()
-        capturedNVActivityLoaderOnViewType.removeAll()
-        capturedNVActivityLoaderOnViewSize.removeAll()
-        capturedNVActivityLoaderOnViewPadding.removeAll()
-        capturedNVActivityLoaderOnViewLoadingViewColor.removeAll()
-        capturedNVActivityLoaderOnViewWrapperViewColor.removeAll()
-        capturedIsLoading.removeAll()
-    }
 }

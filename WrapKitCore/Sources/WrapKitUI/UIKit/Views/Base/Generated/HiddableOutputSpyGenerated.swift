@@ -33,10 +33,4 @@ public final class HiddableOutputSpy: HiddableOutput {
     }
 
     // MARK: - Properties
-
-    // MARK: - Reset
-    public func reset() {
-        messages.removeAll()
-        capturedDisplayIsHidden.removeAll()
-    }
 }

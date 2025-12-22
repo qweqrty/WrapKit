@@ -39,11 +39,4 @@ public final class SegmentedControlOutputSpy: SegmentedControlOutput {
     }
 
     // MARK: - Properties
-
-    // MARK: - Reset
-    public func reset() {
-        messages.removeAll()
-        capturedDisplayAppearence.removeAll()
-        capturedDisplaySegments.removeAll()
-    }
 }

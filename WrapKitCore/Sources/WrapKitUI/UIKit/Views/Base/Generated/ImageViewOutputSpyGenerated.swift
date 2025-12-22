@@ -100,22 +100,4 @@ public final class ImageViewOutputSpy: ImageViewOutput {
     }
 
     // MARK: - Properties
-
-    // MARK: - Reset
-    public func reset() {
-        messages.removeAll()
-        capturedDisplayModel.removeAll()
-        capturedDisplayModelCompletion.removeAll()
-        capturedDisplayImage.removeAll()
-        capturedDisplayImageCompletion.removeAll()
-        capturedDisplaySize.removeAll()
-        capturedDisplayOnPress.removeAll()
-        capturedDisplayOnLongPress.removeAll()
-        capturedDisplayContentModeIsFit.removeAll()
-        capturedDisplayBorderWidth.removeAll()
-        capturedDisplayBorderColor.removeAll()
-        capturedDisplayCornerRadius.removeAll()
-        capturedDisplayAlpha.removeAll()
-        capturedDisplayIsHidden.removeAll()
-    }
 }

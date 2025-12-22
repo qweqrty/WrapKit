@@ -81,18 +81,4 @@ public final class ButtonOutputSpy: ButtonOutput {
     }
 
     // MARK: - Properties
-
-    // MARK: - Reset
-    public func reset() {
-        messages.removeAll()
-        capturedDisplayModel.removeAll()
-        capturedDisplayEnabled.removeAll()
-        capturedDisplayImage.removeAll()
-        capturedDisplayStyle.removeAll()
-        capturedDisplayTitle.removeAll()
-        capturedDisplaySpacing.removeAll()
-        capturedDisplayOnPress.removeAll()
-        capturedDisplayHeight.removeAll()
-        capturedDisplayIsHidden.removeAll()
-    }
 }

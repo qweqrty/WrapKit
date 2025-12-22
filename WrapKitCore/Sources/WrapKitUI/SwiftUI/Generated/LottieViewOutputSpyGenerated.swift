@@ -47,11 +47,4 @@ public final class LottieViewOutputSpy: LottieViewOutput {
             messages.append(.setCurrentAnimationName(currentAnimationName))
         }
     }
-
-    // MARK: - Reset
-    public func reset() {
-        messages.removeAll()
-        capturedDisplayModel.removeAll()
-        capturedCurrentAnimationName.removeAll()
-    }
 }

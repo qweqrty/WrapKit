@@ -69,20 +69,4 @@ public final class TextOutputSpy: TextOutput {
     }
 
     // MARK: - Properties
-
-    // MARK: - Reset
-    public func reset() {
-        messages.removeAll()
-        capturedDisplayModel.removeAll()
-        capturedDisplayText.removeAll()
-        capturedDisplayAttributes.removeAll()
-        capturedDisplayId.removeAll()
-        capturedDisplayIdStartAmount.removeAll()
-        capturedDisplayIdEndAmount.removeAll()
-        capturedDisplayIdMapToString.removeAll()
-        capturedDisplayIdAnimationStyle.removeAll()
-        capturedDisplayIdDuration.removeAll()
-        capturedDisplayIdCompletion.removeAll()
-        capturedDisplayIsHidden.removeAll()
-    }
 }
