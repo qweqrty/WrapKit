@@ -268,17 +268,24 @@ open class NavigationBar: UIView {
 
 private extension NavigationBar {
     func makeLeadingCardGlassEffectView() -> UIView {
-        if #available(iOS 26, macOS 26, tvOS 26, watchOS 26, *) {
-            let glassEffect = UIGlassEffect(style: .regular)
-            glassEffect.isInteractive = true
-            let glassEffectView = UIVisualEffectView(effect: glassEffect)
-            glassEffectView.layer.cornerRadius = 22
-            glassEffectView.layer.cornerCurve = .continuous
-            glassEffectView.isHidden = true
-            return glassEffectView
+        if #available(iOS 26.0, macOS 26.0, tvOS 26.0, watchOS 26.0, *) {
+            return makeGlassEffectView()
         } else {
             return UIView()
         }
+    }
+
+    @available(iOS 26.0, macOS 26.0, tvOS 26.0, watchOS 26.0, *)
+    private func makeGlassEffectView() -> UIView {
+        let glassEffect = UIGlassEffect(style: .regular)
+        glassEffect.isInteractive = true
+
+        let glassEffectView = UIVisualEffectView(effect: glassEffect)
+        glassEffectView.layer.cornerRadius = 22
+        glassEffectView.layer.cornerCurve = .continuous
+        glassEffectView.isHidden = true
+
+        return glassEffectView
     }
     
     func makeLeadingCardView(isHidden: Bool) -> CardView {
@@ -325,10 +332,21 @@ private extension NavigationBar {
                 )
             }
         )
-        if #available(iOS 26, macOS 26, tvOS 26, watchOS 26, *) {
-            view.contentView.configuration = .glass()
-        }
+
+        applyGlassConfigurationIfAvailable(to: view.contentView)
+
         return view
+    }
+
+    private func applyGlassConfigurationIfAvailable(to button: Button) {
+        if #available(iOS 26.0, macOS 26.0, tvOS 26.0, watchOS 26.0, *) {
+            applyGlassConfiguration(button)
+        }
+    }
+    
+    @available(iOS 26.0, macOS 26.0, tvOS 26.0, watchOS 26.0, *)
+    private func applyGlassConfiguration(_ button: Button) {
+        button.configuration = .glass()
     }
 }
 #endif
