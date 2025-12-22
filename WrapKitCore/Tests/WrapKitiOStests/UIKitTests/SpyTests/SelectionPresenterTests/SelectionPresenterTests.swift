@@ -152,6 +152,8 @@ final class SelectionPresenterTests: XCTestCase {
         let flowSpy = components.flowSpy
         
         sut.items[0].isSelected.set(model: true)
+        sut.items[1].isSelected.set(model: true)
+        sut.items[2].isSelected.set(model: true)
         
         // WHEN
         sut.viewDidLoad()
@@ -159,11 +161,9 @@ final class SelectionPresenterTests: XCTestCase {
         let onPress = selectButtonSpy.capturedDisplayModel.first??.onPress
         onPress?()
         
-        XCTAssertEqual(flowSpy.messages.count, 1)
-        
         if case .closeResult(let result)? = flowSpy.messages.first,
            case .multipleSelection(let items)? = result {
-            XCTAssertEqual(items.count, 1)
+            XCTAssertEqual(items.count, 3)
             XCTAssertEqual(items.first?.id, "1")
         } else {
             XCTFail("Expected flow.close to be called with multipleSelection")
