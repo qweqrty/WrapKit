@@ -27,8 +27,7 @@ public class PaginationViewOutputSpy<PresentableItem: Any>: PaginationViewOutput
     public private(set) var messages: [Message] = []
 
     // MARK: - Captured values
-    public private(set) var capturedDisplayModel: [[PresentableItem]] = []
-    public private(set) var capturedDisplayModelHasMore: [Bool] = []
+    public private(set) var capturedDisplayModel: [(model: [PresentableItem], hasMore: Bool)] = []
     public private(set) var capturedDisplayIsLoadingFirstPage: [Bool] = []
     public private(set) var capturedDisplayIsLoadingSubsequentPage: [Bool] = []
     public private(set) var capturedDisplayErrorAtFirstPage: [ServiceError] = []
@@ -37,8 +36,7 @@ public class PaginationViewOutputSpy<PresentableItem: Any>: PaginationViewOutput
 
     // MARK: - PaginationViewOutput methods
     public func display(model: [PresentableItem], hasMore: Bool) {
-        capturedDisplayModel.append(model)
-        capturedDisplayModelHasMore.append(hasMore)
+        capturedDisplayModel.append((model: model, hasMore: hasMore))
         messages.append(.displayModel(model: model, hasMore: hasMore))
     }
     public func display(isLoadingFirstPage: Bool) {

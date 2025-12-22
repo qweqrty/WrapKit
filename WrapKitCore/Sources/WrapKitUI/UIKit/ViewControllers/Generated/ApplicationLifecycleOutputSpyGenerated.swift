@@ -25,21 +25,29 @@ public final class ApplicationLifecycleOutputSpy: ApplicationLifecycleOutput {
     public private(set) var messages: [Message] = []
 
     // MARK: - Captured values
+    public private(set) var capturedApplicationWillEnterForegroundCallCount = 0
+    public private(set) var capturedApplicationDidEnterBackgroundCallCount = 0
+    public private(set) var capturedApplicationDidBecomeActiveCallCount = 0
+    public private(set) var capturedApplicationWillResignActiveCallCount = 0
     public private(set) var capturedApplicationDidChangeUserInterfaceStyle: [UserInterfaceStyle] = []
     public private(set) var capturedComposedOutput: [ApplicationLifecycleOutput] = []
 
 
     // MARK: - ApplicationLifecycleOutput methods
     public func applicationWillEnterForeground() {
+        capturedApplicationWillEnterForegroundCallCount += 1
         messages.append(.applicationWillEnterForeground)
     }
     public func applicationDidEnterBackground() {
+        capturedApplicationDidEnterBackgroundCallCount += 1
         messages.append(.applicationDidEnterBackground)
     }
     public func applicationDidBecomeActive() {
+        capturedApplicationDidBecomeActiveCallCount += 1
         messages.append(.applicationDidBecomeActive)
     }
     public func applicationWillResignActive() {
+        capturedApplicationWillResignActiveCallCount += 1
         messages.append(.applicationWillResignActive)
     }
     public func applicationDidChange(userInterfaceStyle: UserInterfaceStyle) {

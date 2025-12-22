@@ -30,13 +30,7 @@ public final class TextOutputSpy: TextOutput {
     public private(set) var capturedDisplayModel: [TextOutputPresentableModel?] = []
     public private(set) var capturedDisplayText: [String?] = []
     public private(set) var capturedDisplayAttributes: [[TextAttributes]] = []
-    public private(set) var capturedDisplayId: [String?] = []
-    public private(set) var capturedDisplayIdStartAmount: [Decimal] = []
-    public private(set) var capturedDisplayIdEndAmount: [Decimal] = []
-    public private(set) var capturedDisplayIdMapToString: [((Decimal) -> TextOutputPresentableModel)?] = []
-    public private(set) var capturedDisplayIdAnimationStyle: [LabelAnimationStyle] = []
-    public private(set) var capturedDisplayIdDuration: [TimeInterval] = []
-    public private(set) var capturedDisplayIdCompletion: [(() -> Void)?] = []
+    public private(set) var capturedDisplayId: [(id: String?, from: Decimal, to: Decimal, mapToString: ((Decimal) -> TextOutputPresentableModel)?, animationStyle: LabelAnimationStyle, duration: TimeInterval, completion: (() -> Void)?)] = []
     public private(set) var capturedDisplayIsHidden: [Bool] = []
 
 
@@ -54,13 +48,7 @@ public final class TextOutputSpy: TextOutput {
         messages.append(.displayAttributes(attributes: attributes))
     }
     public func display(id: String?, from startAmount: Decimal, to endAmount: Decimal, mapToString: ((Decimal) -> TextOutputPresentableModel)?, animationStyle: LabelAnimationStyle, duration: TimeInterval, completion: (() -> Void)?) {
-        capturedDisplayId.append(id)
-        capturedDisplayIdStartAmount.append(startAmount)
-        capturedDisplayIdEndAmount.append(endAmount)
-        capturedDisplayIdMapToString.append(mapToString)
-        capturedDisplayIdAnimationStyle.append(animationStyle)
-        capturedDisplayIdDuration.append(duration)
-        capturedDisplayIdCompletion.append(completion)
+        capturedDisplayId.append((id: id, from: startAmount, to: endAmount, mapToString: mapToString, animationStyle: animationStyle, duration: duration, completion: completion))
         messages.append(.displayId(id: id, from: startAmount, to: endAmount, mapToString: mapToString, animationStyle: animationStyle, duration: duration, completion: completion))
     }
     public func display(isHidden: Bool) {

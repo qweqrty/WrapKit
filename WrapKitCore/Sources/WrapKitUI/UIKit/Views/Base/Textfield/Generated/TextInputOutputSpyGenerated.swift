@@ -51,6 +51,8 @@ public final class TextInputOutputSpy: TextInputOutput {
     // MARK: - Captured values
     public private(set) var capturedDisplayModel: [TextInputPresentableModel?] = []
     public private(set) var capturedDisplayText: [String?] = []
+    public private(set) var capturedStartEditingCallCount = 0
+    public private(set) var capturedStopEditingCallCount = 0
     public private(set) var capturedDisplayMask: [TextInputPresentableModel.Mask] = []
     public private(set) var capturedDisplayIsValid: [Bool] = []
     public private(set) var capturedDisplayIsEnabledForEditing: [Bool] = []
@@ -86,9 +88,11 @@ public final class TextInputOutputSpy: TextInputOutput {
         messages.append(.displayText(text: text))
     }
     public func startEditing() {
+        capturedStartEditingCallCount += 1
         messages.append(.startEditing)
     }
     public func stopEditing() {
+        capturedStopEditingCallCount += 1
         messages.append(.stopEditing)
     }
     public func display(mask: TextInputPresentableModel.Mask) {

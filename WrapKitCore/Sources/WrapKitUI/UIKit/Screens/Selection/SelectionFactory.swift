@@ -69,7 +69,6 @@ public class SelectionFactoryiOS: ISelectionFactory {
         return vc
     }
     
-    
     public func resolveSelection<Request, Response>(
         configuration: SelectionFlow.Model,
         flow: SelectionFlow,

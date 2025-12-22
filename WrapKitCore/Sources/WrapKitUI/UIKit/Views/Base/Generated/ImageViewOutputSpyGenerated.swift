@@ -36,10 +36,8 @@ public final class ImageViewOutputSpy: ImageViewOutput {
     public private(set) var messages: [Message] = []
 
     // MARK: - Captured values
-    public private(set) var capturedDisplayModel: [ImageViewPresentableModel?] = []
-    public private(set) var capturedDisplayModelCompletion: [((Image?) -> Void)?] = []
-    public private(set) var capturedDisplayImage: [ImageEnum?] = []
-    public private(set) var capturedDisplayImageCompletion: [((Image?) -> Void)?] = []
+    public private(set) var capturedDisplayModel: [(model: ImageViewPresentableModel?, completion: ((Image?) -> Void)?)] = []
+    public private(set) var capturedDisplayImage: [(image: ImageEnum?, completion: ((Image?) -> Void)?)] = []
     public private(set) var capturedDisplaySize: [CGSize?] = []
     public private(set) var capturedDisplayOnPress: [(() -> Void)?] = []
     public private(set) var capturedDisplayOnLongPress: [(() -> Void)?] = []
@@ -53,13 +51,11 @@ public final class ImageViewOutputSpy: ImageViewOutput {
 
     // MARK: - ImageViewOutput methods
     public func display(model: ImageViewPresentableModel?, completion: ((Image?) -> Void)?) {
-        capturedDisplayModel.append(model)
-        capturedDisplayModelCompletion.append(completion)
+        capturedDisplayModel.append((model: model, completion: completion))
         messages.append(.displayModel(model: model, completion: completion))
     }
     public func display(image: ImageEnum?, completion: ((Image?) -> Void)?) {
-        capturedDisplayImage.append(image)
-        capturedDisplayImageCompletion.append(completion)
+        capturedDisplayImage.append((image: image, completion: completion))
         messages.append(.displayImage(image: image, completion: completion))
     }
     public func display(size: CGSize?) {
