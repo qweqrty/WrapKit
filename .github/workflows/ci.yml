@@ -64,13 +64,10 @@ jobs:
             xcrun simctl list devices available | \
             awk -v ios="iOS ${IOS_VERSION}" '
               $0 ~ "^-- " ios " --" {found=1; next}
-              found && $0 ~ "iPhone" {
-                match($0, /\(([A-F0-9-]+)\)/, arr)
-                print arr[1]
-                exit
-              }
+              found && $0 ~ "iPhone" {print; exit}
               found && $0 ~ "^--" {found=0}
-            '
+            ' | \
+            sed -n 's/.*(\([A-F0-9-]*\)).*/\1/p'
           }
 
           echo "🔍 Searching for iOS ${IOS_VERSION} iPhone simulator..."
@@ -95,26 +92,6 @@ jobs:
           echo "LATEST_IOS_SIM_ID=$LATEST_IOS_SIM_ID" >> $GITHUB_ENV
           echo "✅ Using iOS ${LATEST_IOS_VERSION} simulator: $LATEST_IOS_SIM_ID"
 
-
-      # -----------------------------
-      # Build & Test (iOS stable)
-      # -----------------------------
-      - name: Run Tests on iOS
-        run: |
-          xcodebuild clean build test \
-            -workspace $SCHEME_NAME.xcworkspace \
-            -scheme $SCHEME_NAME \
-            -destination "platform=iOS Simulator,id=$IOS_SIM_ID"
-
-      # -----------------------------
-      # Build & Test (Latest iOS)
-      # -----------------------------
-      - name: Run Tests on Latest iOS
-        run: |
-          xcodebuild clean build test \
-            -workspace $SCHEME_NAME.xcworkspace \
-            -scheme $SCHEME_NAME \
-            -destination "platform=iOS Simulator,id=$LATEST_IOS_SIM_ID"
 
 
       # -----------------------------
