@@ -8,67 +8,119 @@ on:
 
 jobs:
   generate-build-test:
-    runs-on: macos-15 # https://github.com/actions/runner-images/blob/main/images/macos/macos-26-arm64-Readme.md
+    runs-on: macos-15
+
     env:
       SCHEME_NAME: "WrapKit"
+
       IOS_VERSION: "18.5"
       IOS_VERSION_DEVICE: "iPhone 16 Pro"
+
       LATEST_IOS_VERSION: "26.1"
       LATEST_IOS_VERSION_DEVICE: "iPhone 17 Pro"
 
     steps:
       # -----------------------------
-      # Checkout Code
+      # Checkout
       # -----------------------------
       - name: Checkout Code
         uses: actions/checkout@v4
 
       # -----------------------------
-      # Install Tools
+      # Install tools
       # -----------------------------
       - name: Install Tools
         run: |
-          brew install sourcery
-          brew install tuist
-          brew install swiftgen
-          brew install swiftlint
+          brew update
+          brew install sourcery tuist swiftgen swiftlint
+
       # -----------------------------
-      # Generate / Build
+      # Generate project
       # -----------------------------
-      - name: Run Makefile for Build
+      - name: Generate Project
         run: make project
 
       # -----------------------------
-      # Ensure iOS Simulators
+      # List simulators (debug)
       # -----------------------------
-      - name: List Available Simulators / Devices
+      - name: List Simulators
         run: |
-          echo "=== Devices ==="
-          xcrun simctl list devices
-          # -----------------------------
-      # Run Tests
-      # List of available os in docs https://github.com/actions/runner-images/blob/main/images/macos/macos-26-arm64-Readme.md
-      # -----------------------------
-      - name: Run Tests on $IOS_VERSION
-        run: |
-          xcodebuild clean build test -workspace $SCHEME_NAME.xcworkspace -scheme $SCHEME_NAME -destination "platform=iOS Simulator,name=$IOS_VERSION_DEVICE,OS=$IOS_VERSION"
+          xcrun simctl list devices available
 
       # -----------------------------
-      # Run Tests
-      # List of available os in docs https://github.com/actions/runner-images/blob/main/images/macos/macos-26-arm64-Readme.md
+      # Reset simulators (IMPORTANT)
       # -----------------------------
-      - name: Run Tests on $LATEST_IOS_VERSION
+      - name: Reset Simulators
         run: |
-          xcodebuild clean build test -workspace $SCHEME_NAME.xcworkspace -scheme $SCHEME_NAME -destination "platform=iOS Simulator,name=$LATEST_IOS_VERSION_DEVICE,OS=$LATEST_IOS_VERSION"
+          xcrun simctl shutdown all || true
+          xcrun simctl erase all || true
 
       # -----------------------------
-      # Upload Snapshot Artifacts
+      # Resolve Simulator UDIDs
       # -----------------------------
-      - name: Upload Snapshot Test Artifacts
+      - name: Resolve Simulator UDIDs
+        run: |
+          set -e
+
+          IOS_SIM_ID=$(xcrun simctl list devices available | \
+            grep "${IOS_VERSION_DEVICE} (" | \
+            grep "${IOS_VERSION}" | \
+            head -n 1 | \
+            sed -E 's/.*\(([A-F0-9-]+)\).*/\1/')
+
+          if [ -z "$IOS_SIM_ID" ]; then
+            echo "❌ iOS ${IOS_VERSION_DEVICE} ${IOS_VERSION} not found"
+            exit 1
+          fi
+
+          LATEST_IOS_SIM_ID=$(xcrun simctl list devices available | \
+            grep "${LATEST_IOS_VERSION_DEVICE} (" | \
+            grep "${LATEST_IOS_VERSION}" | \
+            head -n 1 | \
+            sed -E 's/.*\(([A-F0-9-]+)\).*/\1/')
+
+          if [ -z "$LATEST_IOS_SIM_ID" ]; then
+            echo "❌ iOS ${LATEST_IOS_VERSION_DEVICE} ${LATEST_IOS_VERSION} not found"
+            exit 1
+          fi
+
+          echo "IOS_SIM_ID=$IOS_SIM_ID" >> $GITHUB_ENV
+          echo "LATEST_IOS_SIM_ID=$LATEST_IOS_SIM_ID" >> $GITHUB_ENV
+
+          echo "✅ IOS_SIM_ID=$IOS_SIM_ID"
+          echo "✅ LATEST_IOS_SIM_ID=$LATEST_IOS_SIM_ID"
+
+      # -----------------------------
+      # Build & Test (iOS stable)
+      # -----------------------------
+      - name: Build & Test iOS ${{ env.IOS_VERSION }}
+        run: |
+          xcodebuild clean build test \
+            -workspace $SCHEME_NAME.xcworkspace \
+            -scheme $SCHEME_NAME \
+            -destination "id=$IOS_SIM_ID" \
+            -resultBundlePath TestResults-iOS-${IOS_VERSION}
+
+      # -----------------------------
+      # Build & Test (Latest iOS)
+      # -----------------------------
+      - name: Build & Test iOS ${{ env.LATEST_IOS_VERSION }}
+        run: |
+          xcodebuild clean build test \
+            -workspace $SCHEME_NAME.xcworkspace \
+            -scheme $SCHEME_NAME \
+            -destination "id=$LATEST_IOS_SIM_ID" \
+            -resultBundlePath TestResults-iOS-${LATEST_IOS_VERSION}
+
+      # -----------------------------
+      # Upload test artifacts
+      # -----------------------------
+      - name: Upload Test Results
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: snapshot-test-failures
-          path: /tmp/*/
-          if-no-files-found: ignore
-          retention-days: 10
+          name: xcode-test-results
+          path: |
+            TestResults-iOS-${{ env.IOS_VERSION }}
+            TestResults-iOS-${{ env.LATEST_IOS_VERSION }}
+          retention-days: 2
