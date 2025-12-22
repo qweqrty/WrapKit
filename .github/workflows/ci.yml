@@ -12,12 +12,8 @@ jobs:
 
     env:
       SCHEME_NAME: "WrapKit"
-
       IOS_VERSION: "18.5"
-      IOS_VERSION_DEVICE: "iPhone 16 Pro"
-
       LATEST_IOS_VERSION: "26.1"
-      LATEST_IOS_VERSION_DEVICE: "iPhone 17 Pro"
 
     steps:
       # -----------------------------
@@ -62,33 +58,38 @@ jobs:
         run: |
           set -e
 
+          echo "🔍 Searching for iOS ${IOS_VERSION} simulator..."
+
           IOS_SIM_ID=$(xcrun simctl list devices available | \
-            grep "${IOS_VERSION_DEVICE} (" | \
-            grep "${IOS_VERSION}" | \
+            grep -E "iPhone .* \(${IOS_VERSION}" | \
             head -n 1 | \
             sed -E 's/.*\(([A-F0-9-]+)\).*/\1/')
 
           if [ -z "$IOS_SIM_ID" ]; then
-            echo "❌ iOS ${IOS_VERSION_DEVICE} ${IOS_VERSION} not found"
-            exit 1
-          fi
-
-          LATEST_IOS_SIM_ID=$(xcrun simctl list devices available | \
-            grep "${LATEST_IOS_VERSION_DEVICE} (" | \
-            grep "${LATEST_IOS_VERSION}" | \
-            head -n 1 | \
-            sed -E 's/.*\(([A-F0-9-]+)\).*/\1/')
-
-          if [ -z "$LATEST_IOS_SIM_ID" ]; then
-            echo "❌ iOS ${LATEST_IOS_VERSION_DEVICE} ${LATEST_IOS_VERSION} not found"
+            echo "❌ No iPhone simulator found for iOS ${IOS_VERSION}"
+            xcrun simctl list devices available
             exit 1
           fi
 
           echo "IOS_SIM_ID=$IOS_SIM_ID" >> $GITHUB_ENV
-          echo "LATEST_IOS_SIM_ID=$LATEST_IOS_SIM_ID" >> $GITHUB_ENV
+          echo "✅ Using simulator UDID: $IOS_SIM_ID"
 
-          echo "✅ IOS_SIM_ID=$IOS_SIM_ID"
-          echo "✅ LATEST_IOS_SIM_ID=$LATEST_IOS_SIM_ID"
+
+          echo "🔍 Searching for latest iOS ${LATEST_IOS_VERSION} simulator..."
+
+          LATEST_IOS_SIM_ID=$(xcrun simctl list devices available | \
+            grep -E "iPhone .* \(${LATEST_IOS_VERSION}" | \
+            head -n 1 | \
+            sed -E 's/.*\(([A-F0-9-]+)\).*/\1/')
+
+          if [ -z "$LATEST_IOS_SIM_ID" ]; then
+            echo "❌ No iPhone simulator found for iOS ${LATEST_IOS_VERSION}"
+            xcrun simctl list devices available
+            exit 1
+          fi
+
+          echo "LATEST_IOS_SIM_ID=$LATEST_IOS_SIM_ID" >> $GITHUB_ENV
+          echo "✅ Using simulator UDID: $LATEST_IOS_SIM_ID"
 
       # -----------------------------
       # Build & Test (iOS stable)
