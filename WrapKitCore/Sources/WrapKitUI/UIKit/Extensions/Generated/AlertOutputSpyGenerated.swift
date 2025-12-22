@@ -42,4 +42,12 @@ public final class AlertOutputSpy: AlertOutput {
     }
 
     // MARK: - Properties
+
+    // MARK: - Reset
+    public func reset() {
+        messages.removeAll()
+        capturedShowAlertModel.removeAll()
+        capturedShowActionSheetModel.removeAll()
+        capturedShowTextFieldAlertModel.removeAll()
+    }
 }

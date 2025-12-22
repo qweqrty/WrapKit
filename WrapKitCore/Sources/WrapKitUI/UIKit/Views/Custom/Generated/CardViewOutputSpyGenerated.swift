@@ -144,4 +144,28 @@ public final class CardViewOutputSpy: CardViewOutput {
     }
 
     // MARK: - Properties
+
+    // MARK: - Reset
+    public func reset() {
+        messages.removeAll()
+        capturedDisplayModel.removeAll()
+        capturedDisplayStyle.removeAll()
+        capturedDisplayBackgroundImage.removeAll()
+        capturedDisplayTitle.removeAll()
+        capturedDisplayLeadingTitles.removeAll()
+        capturedDisplayTrailingTitles.removeAll()
+        capturedDisplayLeadingImage.removeAll()
+        capturedDisplaySecondaryLeadingImage.removeAll()
+        capturedDisplayTrailingImage.removeAll()
+        capturedDisplaySecondaryTrailingImage.removeAll()
+        capturedDisplaySubTitle.removeAll()
+        capturedDisplayValueTitle.removeAll()
+        capturedDisplayBottomSeparator.removeAll()
+        capturedDisplaySwitchControl.removeAll()
+        capturedDisplayOnPress.removeAll()
+        capturedDisplayOnLongPress.removeAll()
+        capturedDisplayIsHidden.removeAll()
+        capturedDisplayIsUserInteractionEnabled.removeAll()
+        capturedDisplayIsGradientBorderEnabled.removeAll()
+    }
 }

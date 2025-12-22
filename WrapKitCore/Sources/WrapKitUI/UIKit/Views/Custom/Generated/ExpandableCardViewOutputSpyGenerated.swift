@@ -42,4 +42,11 @@ public final class ExpandableCardViewOutputSpy: ExpandableCardViewOutput {
     }
 
     // MARK: - Properties
+
+    // MARK: - Reset
+    public func reset() {
+        messages.removeAll()
+        capturedDisplayModel.removeAll()
+        capturedDisplayIsHidden.removeAll()
+    }
 }

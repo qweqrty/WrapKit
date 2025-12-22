@@ -69,4 +69,16 @@ public final class StackViewOutputSpy: StackViewOutput {
     }
 
     // MARK: - Properties
+
+    // MARK: - Reset
+    public func reset() {
+        messages.removeAll()
+        capturedDisplayModel.removeAll()
+        capturedDisplaySpacing.removeAll()
+        capturedDisplayAxis.removeAll()
+        capturedDisplayDistribution.removeAll()
+        capturedDisplayAlignment.removeAll()
+        capturedDisplayLayoutMargins.removeAll()
+        capturedDisplayIsHidden.removeAll()
+    }
 }

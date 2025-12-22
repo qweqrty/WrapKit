@@ -63,4 +63,15 @@ public final class EmptyViewOutputSpy: EmptyViewOutput {
     }
 
     // MARK: - Properties
+
+    // MARK: - Reset
+    public func reset() {
+        messages.removeAll()
+        capturedDisplayModel.removeAll()
+        capturedDisplayTitle.removeAll()
+        capturedDisplaySubtitle.removeAll()
+        capturedDisplayButtonModel.removeAll()
+        capturedDisplayImage.removeAll()
+        capturedDisplayIsHidden.removeAll()
+    }
 }

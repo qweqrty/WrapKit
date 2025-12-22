@@ -48,4 +48,13 @@ public final class WebViewOutputSpy: WebViewOutput {
     }
 
     // MARK: - Properties
+
+    // MARK: - Reset
+    public func reset() {
+        messages.removeAll()
+        capturedDisplayUrl.removeAll()
+        capturedDisplayRefreshModel.removeAll()
+        capturedDisplayBackgroundColor.removeAll()
+        capturedDisplayIsProgressBarNeeded.removeAll()
+    }
 }

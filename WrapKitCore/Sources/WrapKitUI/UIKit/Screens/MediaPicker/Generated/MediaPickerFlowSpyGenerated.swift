@@ -38,4 +38,12 @@ public final class MediaPickerFlowSpy: MediaPickerFlow {
     }
 
     // MARK: - Properties
+
+    // MARK: - Reset
+    public func reset() {
+        messages.removeAll()
+        capturedShowMediaPickerSourceTypes.removeAll()
+        capturedShowMediaPickerSourceTypesLocalizable.removeAll()
+        capturedShowMediaPickerSourceTypesCallback.removeAll()
+    }
 }

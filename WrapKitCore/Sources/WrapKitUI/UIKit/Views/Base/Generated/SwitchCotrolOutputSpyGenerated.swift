@@ -63,4 +63,15 @@ public final class SwitchCotrolOutputSpy: SwitchCotrolOutput {
     }
 
     // MARK: - Properties
+
+    // MARK: - Reset
+    public func reset() {
+        messages.removeAll()
+        capturedDisplayModel.removeAll()
+        capturedDisplayOnPress.removeAll()
+        capturedDisplayIsOn.removeAll()
+        capturedDisplayStyle.removeAll()
+        capturedDisplayIsEnabled.removeAll()
+        capturedDisplayIsHidden.removeAll()
+    }
 }

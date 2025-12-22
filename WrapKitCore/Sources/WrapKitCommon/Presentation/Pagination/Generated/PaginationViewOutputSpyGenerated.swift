@@ -59,4 +59,15 @@ public class PaginationViewOutputSpy<PresentableItem: Any>: PaginationViewOutput
     }
 
     // MARK: - Properties
+
+    // MARK: - Reset
+    public func reset() {
+        messages.removeAll()
+        capturedDisplayModel.removeAll()
+        capturedDisplayModelHasMore.removeAll()
+        capturedDisplayIsLoadingFirstPage.removeAll()
+        capturedDisplayIsLoadingSubsequentPage.removeAll()
+        capturedDisplayErrorAtFirstPage.removeAll()
+        capturedDisplayErrorAtSubsequentPage.removeAll()
+    }
 }

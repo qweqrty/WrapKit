@@ -52,4 +52,11 @@ public final class ApplicationLifecycleOutputSpy: ApplicationLifecycleOutput {
     }
 
     // MARK: - Properties
+
+    // MARK: - Reset
+    public func reset() {
+        messages.removeAll()
+        capturedApplicationDidChangeUserInterfaceStyle.removeAll()
+        capturedComposedOutput.removeAll()
+    }
 }

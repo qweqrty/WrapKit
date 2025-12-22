@@ -32,4 +32,11 @@ public final class TimerOutputSpy: TimerOutput {
     }
 
     // MARK: - Properties
+
+    // MARK: - Reset
+    public func reset() {
+        messages.removeAll()
+        capturedDisplayTimerInput.removeAll()
+        capturedDisplayTimerInputSecondsRemaining.removeAll()
+    }
 }

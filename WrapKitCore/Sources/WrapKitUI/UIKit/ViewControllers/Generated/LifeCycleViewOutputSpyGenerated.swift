@@ -64,4 +64,13 @@ public final class LifeCycleViewOutputSpy: LifeCycleViewOutput {
     }
 
     // MARK: - Properties
+
+    // MARK: - Reset
+    public func reset() {
+        messages.removeAll()
+        capturedComposedOutput.removeAll()
+        capturedWithAnalyticsEventName.removeAll()
+        capturedWithAnalyticsEventNameParameters.removeAll()
+        capturedWithAnalyticsEventNameAnalytics.removeAll()
+    }
 }

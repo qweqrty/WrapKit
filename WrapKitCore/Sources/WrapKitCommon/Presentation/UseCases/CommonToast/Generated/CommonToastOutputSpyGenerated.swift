@@ -34,4 +34,10 @@ public final class CommonToastOutputSpy: CommonToastOutput {
     }
 
     // MARK: - Properties
+
+    // MARK: - Reset
+    public func reset() {
+        messages.removeAll()
+        capturedDisplayToast.removeAll()
+    }
 }

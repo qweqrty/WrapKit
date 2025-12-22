@@ -75,4 +75,17 @@ public final class HeaderOutputSpy: HeaderOutput {
     }
 
     // MARK: - Properties
+
+    // MARK: - Reset
+    public func reset() {
+        messages.removeAll()
+        capturedDisplayModel.removeAll()
+        capturedDisplayStyle.removeAll()
+        capturedDisplayCenterView.removeAll()
+        capturedDisplayLeadingCard.removeAll()
+        capturedDisplayPrimeTrailingImage.removeAll()
+        capturedDisplaySecondaryTrailingImage.removeAll()
+        capturedDisplayTertiaryTrailingImage.removeAll()
+        capturedDisplayIsHidden.removeAll()
+    }
 }

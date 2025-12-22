@@ -51,4 +51,13 @@ public final class KeyValueFieldViewOutputSpy: KeyValueFieldViewOutput {
     }
 
     // MARK: - Properties
+
+    // MARK: - Reset
+    public func reset() {
+        messages.removeAll()
+        capturedDisplayModel.removeAll()
+        capturedDisplayKeyTitle.removeAll()
+        capturedDisplayValueTitle.removeAll()
+        capturedDisplayBottomImage.removeAll()
+    }
 }

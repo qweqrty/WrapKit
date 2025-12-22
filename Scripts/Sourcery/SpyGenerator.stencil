@@ -91,6 +91,23 @@ public final class {{ type.name }}Spy: {{ type.name }} {
     }
     {% endif %}
     {% endfor %}
+
+    // MARK: - Reset
+    public func reset() {
+        messages.removeAll()
+        {% for method in type.methods where not method.annotations.skipSpy %}
+        {% if not method.isGeneric %}
+        {% for param in method.parameters %}
+        captured{{ method.callName|upperFirstLetter }}{{ method.parameters.first.name|upperFirstLetter }}{% if not forloop.first %}{{ param.name|upperFirstLetter }}{% endif %}.removeAll()
+        {% endfor %}
+        {% else %}
+        {{ method.callName }}{{ method.parameters.first.name|upperFirstLetter }}GenericCallCount = 0
+        {% endif %}
+        {% endfor %}
+        {% for variable in type.variables where variable.writeAccess != "private" and variable.writeAccess != "fileprivate" %}
+        captured{{ variable.name|upperFirstLetter }}.removeAll()
+        {% endfor %}
+    }
 }
 // sourcery:end
 {% endfor %}

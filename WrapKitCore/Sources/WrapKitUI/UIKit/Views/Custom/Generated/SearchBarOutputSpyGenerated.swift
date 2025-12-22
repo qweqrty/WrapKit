@@ -69,4 +69,16 @@ public final class SearchBarOutputSpy: SearchBarOutput {
     }
 
     // MARK: - Properties
+
+    // MARK: - Reset
+    public func reset() {
+        messages.removeAll()
+        capturedDisplayModel.removeAll()
+        capturedDisplayTextField.removeAll()
+        capturedDisplayLeftView.removeAll()
+        capturedDisplayRightView.removeAll()
+        capturedDisplayPlaceholder.removeAll()
+        capturedDisplayBackgroundColor.removeAll()
+        capturedDisplaySpacing.removeAll()
+    }
 }

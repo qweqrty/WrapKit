@@ -38,4 +38,12 @@ public final class WebViewFlowSpy: WebViewFlow {
     }
 
     // MARK: - Properties
+
+    // MARK: - Reset
+    public func reset() {
+        messages.removeAll()
+        capturedNavigateToWebViewUrl.removeAll()
+        capturedNavigateToWebViewUrlStyle.removeAll()
+        capturedNavigateToWebViewUrlNavigationPolicy.removeAll()
+    }
 }

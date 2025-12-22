@@ -71,4 +71,15 @@ public final class PickerViewOutputSpy: PickerViewOutput {
             messages.append(.setDidSelectAt(didSelectAt))
         }
     }
+
+    // MARK: - Reset
+    public func reset() {
+        messages.removeAll()
+        capturedDisplayModel.removeAll()
+        capturedDisplaySelectedRow.removeAll()
+        capturedComponentsCount.removeAll()
+        capturedRowsCount.removeAll()
+        capturedTitleForRowAt.removeAll()
+        capturedDidSelectAt.removeAll()
+    }
 }

@@ -42,4 +42,12 @@ public final class SelectionFlowSpy: SelectionFlow {
     }
 
     // MARK: - Properties
+
+    // MARK: - Reset
+    public func reset() {
+        messages.removeAll()
+        capturedShowSelectionModel.removeAll()
+        showSelectionModelGenericCallCount = 0
+        capturedCloseResult.removeAll()
+    }
 }
