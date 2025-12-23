@@ -33,12 +33,27 @@ public struct TableContextualAction<Cell> {
 }
 
 public struct CellModel<Cell: Hashable>: HashableWithReflection {
+
+    public let id: UUID?
     public let cell: Cell
-    public let onTap: ((_ atIndexPath: IndexPath, _ model: Cell) -> Void)?
-    
-    public init(cell: Cell, onTap: ((_ atIndexPath: IndexPath, _ model: Cell) -> Void)? = nil) {
+    public let onTap: ((IndexPath, Cell) -> Void)?
+
+    public init(
+        id: UUID? = nil,
+        cell: Cell,
+        onTap: ((IndexPath, Cell) -> Void)? = nil
+    ) {
+        self.id = id
         self.cell = cell
         self.onTap = onTap
+    }
+
+    public static func == (lhs: Self, rhs: Self) -> Bool {
+        lhs.id == rhs.id
+    }
+
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
     }
 }
 

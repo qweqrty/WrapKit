@@ -27,6 +27,27 @@ private extension Array where Element: Hashable {
     }
 }
 
+private extension CellModel {
+    func duplicatedForEndless() -> CellModel<Cell> {
+        CellModel(
+            id: UUID(),          // 👈 НОВЫЙ UUID
+            cell: cell,     // тот же контент
+            onTap: onTap
+        )
+    }
+}
+
+private enum ScrollState {
+    case idle
+    case dragging
+    case auto
+}
+
+private enum EndlessEdge {
+    case start
+    case end
+}
+
 #if canImport(UIKit)
 import UIKit
 
@@ -51,15 +72,19 @@ public final class DiffableCollectionViewDataSource<Header, Cell: Hashable, Foot
     public var didMoveItem: ((IndexPath, IndexPath) -> Void)?
     public var loadNextPage: (() -> Void)?
     public var showLoader = false
-
+    
+    private var scrollState: ScrollState = .idle
+    private var isApplyingEndless = false
     private weak var collectionView: UICollectionView?
     private var headers = [Int: Header]()
     private var footers = [Int: Footer]()
     private var carouselConfigs = [Int: CarouselConfig]()
     private var scrollTimers: [Int: Timer] = [:]
+    private var isJumping = false
+    private var endlessTwoItemSections = Set<Int>()
     
     private var sections: [TableSection<Header, Cell, Footer>] = []
-
+    
     // MARK: - Init
     public init(collectionView: UICollectionView,
                 configureCell: @escaping (UICollectionView, IndexPath, Cell) -> UICollectionViewCell) {
@@ -70,17 +95,20 @@ public final class DiffableCollectionViewDataSource<Header, Cell: Hashable, Foot
         collectionView.dataSource = self
         collectionView.delegate = self
     }
-
+    
     deinit {
         invalidateAllTimers()
     }
-
+    
     // MARK: - Display
     public func display(sections: [TableSection<Header, Cell, Footer>]) {
         self.sections = sections
         headers.removeAll()
         footers.removeAll()
         carouselConfigs.removeAll()
+        endlessTwoItemSections.removeAll()
+        
+        var renderedSections: [TableSection<Header, Cell, Footer>] = []
         
         sections.enumerated().forEach { idx, section in
             headers[idx] = section.header
@@ -88,12 +116,20 @@ public final class DiffableCollectionViewDataSource<Header, Cell: Hashable, Foot
             if let cfg = section.carouselConfig {
                 carouselConfigs[idx] = cfg
             }
+            
+            renderedSections.append(prepareSectionForEndless(section, at: idx))
         }
         
+        self.sections = renderedSections
         collectionView?.reloadData()
+        
+        DispatchQueue.main.async { [weak self] in
+            self?.adjustInitialOffsets()
+        }
+        
         reconfigureAutoscrollTimers()
     }
-
+    
     // MARK: - UICollectionViewDataSource
     public func numberOfSections(in collectionView: UICollectionView) -> Int {
         sections.count
@@ -111,7 +147,7 @@ public final class DiffableCollectionViewDataSource<Header, Cell: Hashable, Foot
         }
         return configureCell?(collectionView, indexPath, model.cell) ?? UICollectionViewCell()
     }
-
+    
     // MARK: - Supplementary Views
     public func collectionView(_ collectionView: UICollectionView,
                                viewForSupplementaryElementOfKind kind: String,
@@ -125,14 +161,14 @@ public final class DiffableCollectionViewDataSource<Header, Cell: Hashable, Foot
         }
         return UICollectionReusableView()
     }
-
+    
     // MARK: - UICollectionViewDelegate
     public func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         collectionView.deselectItem(at: indexPath, animated: true)
         guard let model = sections.item(at: indexPath.section)?.cells.item(at: indexPath.item) else { return }
         model.onTap?(indexPath, model.cell)
     }
-
+    
     // MARK: - Flow Layout
     public func collectionView(_ collectionView: UICollectionView,
                                layout collectionViewLayout: UICollectionViewLayout,
@@ -148,7 +184,7 @@ public final class DiffableCollectionViewDataSource<Header, Cell: Hashable, Foot
         guard let model = headers[section] else { return .zero }
         return sizeForHeaderInSection?(section, model) ?? .zero
     }
-
+    
     public func collectionView(_ collectionView: UICollectionView,
                                layout collectionViewLayout: UICollectionViewLayout,
                                referenceSizeForFooterInSection section: Int) -> CGSize {
@@ -161,33 +197,114 @@ public final class DiffableCollectionViewDataSource<Header, Cell: Hashable, Foot
                                minimumLineSpacingForSectionAt section: Int) -> CGFloat {
         minimumLineSpacingForSectionAt(section)
     }
-
+    
     // MARK: - ScrollView Delegate
     public func scrollViewDidScroll(_ scrollView: UIScrollView) {
         didScrollViewDidScroll?(scrollView)
-        
-        guard let collectionView = scrollView as? UICollectionView else { return }
-        let visibleRect = CGRect(origin: scrollView.contentOffset, size: scrollView.bounds.size)
-        let visiblePoint = CGPoint(x: visibleRect.midX, y: visibleRect.midY)
-        if let indexPath = collectionView.indexPathForItem(at: visiblePoint) {
-            didScrollTo?(indexPath)
-        }
-        
-        guard scrollView.isDragging else { return }
-        let position = scrollView.contentOffset.y
-        let contentHeight = scrollView.contentSize.height
-        let scrollViewHeight = scrollView.frame.size.height
-        if position > contentHeight - scrollViewHeight * 2 && showLoader {
-            loadNextPage?()
-        }
-        
-        if scrollView.isDragging {
-            pauseTimersIfNeeded()
-        } else {
-            resumeTimersIfNeeded()
+        guard let collectionView = scrollView as? UICollectionView,
+              let layout = collectionView.collectionViewLayout as? UICollectionViewFlowLayout,
+              !isApplyingEndless
+        else { return }
+
+        let isHorizontal = layout.scrollDirection == .horizontal
+        let offset = isHorizontal
+            ? scrollView.contentOffset.x
+            : scrollView.contentOffset.y
+
+        let pageSize = isHorizontal
+            ? collectionView.bounds.width
+            : collectionView.bounds.height
+
+        let maxOffset = pageSize * CGFloat(
+            max(0, collectionView.numberOfItems(inSection: currentEndlessSection(collectionView)) - 1)
+        )
+
+        if offset < 0 {
+            applyEndlessJump(to: .start, collectionView, isHorizontal, pageSize)
+        } else if offset > maxOffset {
+            applyEndlessJump(to: .end, collectionView, isHorizontal, pageSize)
         }
     }
 
+    private func currentEndlessSection(_ collectionView: UICollectionView) -> Int {
+        let center = CGPoint(
+            x: collectionView.contentOffset.x + collectionView.bounds.width / 2,
+            y: collectionView.contentOffset.y + collectionView.bounds.height / 2
+        )
+        return collectionView.indexPathForItem(at: center)?.section ?? 0
+    }
+
+    private func applyEndlessJump(
+        to edge: EndlessEdge,
+        _ collectionView: UICollectionView,
+        _ horizontal: Bool,
+        _ pageSize: CGFloat
+    ) {
+        guard let indexPath = collectionView.indexPathsForVisibleItems.first,
+              let cfg = carouselConfigs[indexPath.section],
+              cfg.isEndlessScrollEnabled
+        else { return }
+
+        let total = collectionView.numberOfItems(inSection: indexPath.section)
+        guard total > 1 else { return }
+
+        let targetItem: Int = {
+            switch edge {
+            case .start:
+                return total / 2
+            case .end:
+                return total / 2 - 1
+            }
+        }()
+
+        isApplyingEndless = true
+
+        UIView.performWithoutAnimation {
+            let offset = CGFloat(targetItem) * pageSize
+            if horizontal {
+                collectionView.contentOffset.x = offset
+            } else {
+                collectionView.contentOffset.y = offset
+            }
+        }
+
+        DispatchQueue.main.async {
+            self.isApplyingEndless = false
+        }
+    }
+
+    // MARK: - Endless Scroll
+    private func prepareSectionForEndless(_ section: TableSection<Header, Cell, Footer>, at index: Int) -> TableSection<Header, Cell, Footer> {
+        guard let cfg = section.carouselConfig, cfg.isEndlessScrollEnabled else { return section }
+        var copy = section
+         let cells = section.cells
+
+        guard cells.count >= 2 else {
+            return section
+        }
+        
+         let duplicated = cells.map { $0.duplicatedForEndless() }
+
+         copy.cells = cells + duplicated
+        
+        return copy
+    }
+    
+    private func adjustInitialOffsets() {
+        guard let cv = collectionView,
+              let layout = cv.collectionViewLayout as? UICollectionViewFlowLayout else { return }
+        
+        let pos: UICollectionView.ScrollPosition = layout.scrollDirection == .horizontal
+        ? .centeredHorizontally
+        : .centeredVertically
+        
+        for section in endlessTwoItemSections {
+            UIView.performWithoutAnimation {
+                cv.scrollToItem(at: IndexPath(item: 1, section: section), at: pos, animated: false)
+            }
+        }
+    }
+    
     // MARK: - Carousel Autoscroll
     private func reconfigureAutoscrollTimers() {
         invalidateAllTimers()
@@ -210,44 +327,43 @@ public final class DiffableCollectionViewDataSource<Header, Cell: Hashable, Foot
             scrollTimers[section]?.fireDate = .distantFuture
         }
     }
-
+    
     private func resumeTimersIfNeeded() {
         for (section, config) in carouselConfigs where config.pauseWhileDragging {
             scrollTimers[section]?.fireDate = Date().addingTimeInterval(config.scrollInterval)
         }
     }
-
+    
     private func scrollToNextItem(in section: Int, endless: Bool) {
-        guard let collectionView = self.collectionView else { return }
-        
+        guard let collectionView,
+              scrollState == .idle,
+              let layout = collectionView.collectionViewLayout as? UICollectionViewFlowLayout
+        else { return }
+
+        scrollState = .auto
+
+        let pageSize = layout.scrollDirection == .horizontal
+            ? collectionView.bounds.width
+            : collectionView.bounds.height
+
+        let offset = layout.scrollDirection == .horizontal
+            ? collectionView.contentOffset.x
+            : collectionView.contentOffset.y
+
+        let page = Int(round(offset / pageSize))
         let total = collectionView.numberOfItems(inSection: section)
-        guard total > 1 else { return }
-        
-        let visibleInSection = collectionView.indexPathsForVisibleItems
-            .filter { $0.section == section }
-            .sorted { $0.item < $1.item }
-        
-        guard let current = visibleInSection.first else { return }
-        
-        let nextItem = current.item + 1
-        let targetIndexPath: IndexPath
-        if nextItem >= total {
-            guard endless else { return }
-            targetIndexPath = IndexPath(item: 0, section: section)
-        } else {
-            targetIndexPath = IndexPath(item: nextItem, section: section)
-        }
-        
-        let scrollPosition: UICollectionView.ScrollPosition = {
-            if let layout = collectionView.collectionViewLayout as? UICollectionViewFlowLayout,
-               layout.scrollDirection == .horizontal {
-                return .centeredHorizontally
+
+        let next = page + 1 < total ? page + 1 : (endless ? 0 : page)
+
+        let targetOffset = CGFloat(next) * pageSize
+
+        UIView.animate(withDuration: 0.3) {
+            if layout.scrollDirection == .horizontal {
+                collectionView.contentOffset.x = targetOffset
             } else {
-                return .centeredVertically
+                collectionView.contentOffset.y = targetOffset
             }
-        }()
-        
-        collectionView.scrollToItem(at: targetIndexPath, at: scrollPosition, animated: true)
+        }
     }
 }
 
