@@ -27,6 +27,16 @@ private extension Array where Element: Hashable {
     }
 }
 
+private extension CellModel {
+    func duplicatedForEndless() -> CellModel<Cell> {
+        CellModel(
+            id: UUID(),          // 👈 НОВЫЙ UUID
+            cell: cell,     // тот же контент
+            onTap: onTap
+        )
+    }
+}
+
 private enum ScrollState {
     case idle
     case dragging

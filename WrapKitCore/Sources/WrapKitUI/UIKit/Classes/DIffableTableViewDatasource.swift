@@ -34,12 +34,12 @@ public struct TableContextualAction<Cell> {
 
 public struct CellModel<Cell: Hashable>: HashableWithReflection {
 
-    public let id: UUID
+    public let id: UUID?
     public let cell: Cell
     public let onTap: ((IndexPath, Cell) -> Void)?
 
     public init(
-        id: UUID = UUID(),
+        id: UUID? = nil,
         cell: Cell,
         onTap: ((IndexPath, Cell) -> Void)? = nil
     ) {
@@ -54,16 +54,6 @@ public struct CellModel<Cell: Hashable>: HashableWithReflection {
 
     public func hash(into hasher: inout Hasher) {
         hasher.combine(id)
-    }
-}
-
-public extension CellModel {
-    func duplicatedForEndless() -> CellModel<Cell> {
-        CellModel(
-            id: UUID(),          // 👈 НОВЫЙ UUID
-            cell: self.cell,     // тот же контент
-            onTap: self.onTap
-        )
     }
 }
 
