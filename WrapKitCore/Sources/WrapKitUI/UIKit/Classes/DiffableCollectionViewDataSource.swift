@@ -323,15 +323,23 @@ public final class DiffableCollectionViewDataSource<Header, Cell: Hashable, Foot
     }
     
     private func pauseTimersIfNeeded() {
-        for (section, config) in carouselConfigs where config.pauseWhileDragging {
-            scrollTimers[section]?.fireDate = .distantFuture
-        }
+        invalidateAllTimers()
     }
     
     private func resumeTimersIfNeeded() {
-        for (section, config) in carouselConfigs where config.pauseWhileDragging {
-            scrollTimers[section]?.fireDate = Date().addingTimeInterval(config.scrollInterval)
-        }
+        reconfigureAutoscrollTimers()
+    }
+    
+    // MARK: - UIScrollViewDelegate (Dragging)
+    public func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+        guard scrollView.isDragging else { return }
+        scrollState = .dragging
+        pauseTimersIfNeeded()
+    }
+
+    public func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+        scrollState = .idle
+        resumeTimersIfNeeded()
     }
     
     private func scrollToNextItem(in section: Int, endless: Bool) {
@@ -363,7 +371,11 @@ public final class DiffableCollectionViewDataSource<Header, Cell: Hashable, Foot
             } else {
                 collectionView.contentOffset.y = targetOffset
             }
+        } completion: { [weak self] finished in
+            guard finished else { return }
+            self?.scrollState = .idle
         }
+
     }
 }
 
