@@ -97,6 +97,13 @@ public class MockHTTPClient: HTTPClient {
             ) {
                 completion(.success((data: data, response: httpResponse)))
                 responseIndex += 1
+            } else if let response = responses.item(at: 0), let url = request.url, let data = response.json.data(using: .utf8), let httpResponse = HTTPURLResponse(
+                url: url,
+                statusCode: response.statusCode,
+                httpVersion: "1.1",
+                headerFields: ["Content-Type": "application/json"]
+            ) {
+                completion(.success((data: data, response: httpResponse)))
             } else {
                 completion(.failure(NSError(domain: NSURLErrorDomain, code: NSURLErrorDataNotAllowed, userInfo: nil)))
             }
