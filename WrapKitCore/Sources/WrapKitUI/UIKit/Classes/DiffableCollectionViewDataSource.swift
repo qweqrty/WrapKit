@@ -75,6 +75,7 @@ public final class DiffableCollectionViewDataSource<Header, Cell: Hashable, Foot
     
     private var scrollState: ScrollState = .idle
     private var isApplyingEndless = false
+    private var isPerformingEndlessReset = false
     private weak var collectionView: UICollectionView?
     private var headers = [Int: Header]()
     private var footers = [Int: Footer]()
@@ -277,15 +278,14 @@ public final class DiffableCollectionViewDataSource<Header, Cell: Hashable, Foot
     private func prepareSectionForEndless(_ section: TableSection<Header, Cell, Footer>, at index: Int) -> TableSection<Header, Cell, Footer> {
         guard let cfg = section.carouselConfig, cfg.isEndlessScrollEnabled else { return section }
         var copy = section
-         let cells = section.cells
+        let cells = section.cells
 
         guard cells.count >= 2 else {
             return section
         }
         
-         let duplicated = cells.map { $0.duplicatedForEndless() }
-
-         copy.cells = cells + duplicated
+        let duplicated = cells.map { $0.duplicatedForEndless() }
+        copy.cells = cells + duplicated
         
         return copy
     }
@@ -294,13 +294,9 @@ public final class DiffableCollectionViewDataSource<Header, Cell: Hashable, Foot
         guard let cv = collectionView,
               let layout = cv.collectionViewLayout as? UICollectionViewFlowLayout else { return }
         
-        let pos: UICollectionView.ScrollPosition = layout.scrollDirection == .horizontal
-        ? .centeredHorizontally
-        : .centeredVertically
-        
         for section in endlessTwoItemSections {
             UIView.performWithoutAnimation {
-                cv.scrollToItem(at: IndexPath(item: 1, section: section), at: pos, animated: false)
+                cv.scrollToItem(at: IndexPath(item: 0, section: section), at: .centeredHorizontally, animated: false)
             }
         }
     }
@@ -337,14 +333,28 @@ public final class DiffableCollectionViewDataSource<Header, Cell: Hashable, Foot
         pauseTimersIfNeeded()
     }
 
+    public func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+        if !decelerate {
+            scrollState = .idle
+            resumeTimersIfNeeded()
+        }
+    }
+
     public func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
         scrollState = .idle
         resumeTimersIfNeeded()
     }
     
+    public func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
+        if scrollState == .auto && !isPerformingEndlessReset {
+            scrollState = .idle
+        }
+    }
+    
     private func scrollToNextItem(in section: Int, endless: Bool) {
         guard let collectionView,
               scrollState == .idle,
+              !isPerformingEndlessReset,
               let layout = collectionView.collectionViewLayout as? UICollectionViewFlowLayout
         else { return }
 
@@ -358,24 +368,55 @@ public final class DiffableCollectionViewDataSource<Header, Cell: Hashable, Foot
             ? collectionView.contentOffset.x
             : collectionView.contentOffset.y
 
-        let page = Int(round(offset / pageSize))
+        let currentPage = Int(round(offset / pageSize))
         let total = collectionView.numberOfItems(inSection: section)
-
-        let next = page + 1 < total ? page + 1 : (endless ? 0 : page)
-
-        let targetOffset = CGFloat(next) * pageSize
-
-        UIView.animate(withDuration: 0.3) {
-            if layout.scrollDirection == .horizontal {
-                collectionView.contentOffset.x = targetOffset
-            } else {
-                collectionView.contentOffset.y = targetOffset
-            }
-        } completion: { [weak self] finished in
-            guard finished else { return }
-            self?.scrollState = .idle
+        
+        guard total > 0 else {
+            scrollState = .idle
+            return
         }
 
+        let nextPage = endless ? currentPage + 1 : min(currentPage + 1, total - 1)
+        
+        let needsReset = endless && nextPage >= total - 1
+        
+        guard nextPage < total else {
+            scrollState = .idle
+            return
+        }
+
+        let targetIndexPath = IndexPath(item: nextPage, section: section)
+        
+        collectionView.scrollToItem(
+            at: targetIndexPath,
+            at: layout.scrollDirection == .horizontal ? .centeredHorizontally : .centeredVertically,
+            animated: true
+        )
+        
+        if needsReset {
+            isPerformingEndlessReset = true
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
+                guard let self, let collectionView = self.collectionView else { return }
+                
+                let originalSetSize = total / 2
+                let equivalentItem = nextPage % originalSetSize
+                
+                self.isApplyingEndless = true
+                UIView.performWithoutAnimation {
+                    collectionView.scrollToItem(
+                        at: IndexPath(item: equivalentItem, section: section),
+                        at: layout.scrollDirection == .horizontal ? .centeredHorizontally : .centeredVertically,
+                        animated: false
+                    )
+                }
+                
+                DispatchQueue.main.async {
+                    self.isApplyingEndless = false
+                    self.isPerformingEndlessReset = false
+                    self.scrollState = .idle
+                }
+            }
+        }
     }
 }
 
