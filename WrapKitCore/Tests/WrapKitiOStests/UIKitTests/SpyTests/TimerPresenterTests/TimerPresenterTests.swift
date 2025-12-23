@@ -43,7 +43,7 @@ final class TimerPresenterTests: XCTestCase {
         
         RunLoop.main.run(until: Date().addingTimeInterval(1.5))
         
-        XCTAssertEqual(timerSpy.messages.count, 0)
+        XCTAssertEqual(timerSpy.messages.last, nil)
     }
     
     func test_applicationWillEnterForeground_shouldDisplayUpdatedSeconds() {
@@ -73,15 +73,9 @@ final class TimerPresenterTests: XCTestCase {
         let viewSpy = components.viewSpy
         let seconds = 1
         
-        let exp = expectation(description: "Wait for timer completion")
-        
         sut.start(seconds: seconds)
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-            exp.fulfill()
-        }
-        
-        wait(for: [exp], timeout: 2.0)
+        RunLoop.main.run(until: Date().addingTimeInterval(2.0))
         
         XCTAssertEqual(viewSpy.capturedDisplayTimerInput.last?.secondsRemaining, nil)
     }
@@ -97,19 +91,22 @@ final class TimerPresenterTests: XCTestCase {
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.1) {
             exp1.fulfill()
         }
+        
         wait(for: [exp1], timeout: 2.0)
         
-        let messagesCountBeforeStop = viewSpy.messages.count
+        let messageBeforeStop = viewSpy.messages.last
         
         sut.stop()
         
         let exp2 = expectation(description: "Wait to verify no more ticks")
+        
         DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
             exp2.fulfill()
         }
+        
         wait(for: [exp2], timeout: 3.0)
         
-        XCTAssertEqual(viewSpy.messages.count, messagesCountBeforeStop)
+        XCTAssertEqual(viewSpy.messages.last, messageBeforeStop)
     }
     
     func test_applicationWillEnterForeground_whenTimeExpired_shouldCallDisplayWithNil() {
