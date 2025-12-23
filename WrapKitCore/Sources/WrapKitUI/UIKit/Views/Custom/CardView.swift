@@ -17,6 +17,7 @@ public protocol CardViewOutput: AnyObject {
     func display(leadingImage: ImageViewPresentableModel?)
     func display(secondaryLeadingImage: ImageViewPresentableModel?)
     func display(trailingImage: ImageViewPresentableModel?)
+    func display(trailingImage: ImageViewPresentableModel?, leadingSpacing: CGFloat?)
     func display(secondaryTrailingImage: ImageViewPresentableModel?)
     func display(subTitle: TextOutputPresentableModel?)
     func display(valueTitle: TextOutputPresentableModel?)
@@ -197,7 +198,7 @@ extension CardView: CardViewOutput {
         hStackView.spacing = style.hStackViewSpacing
         hStackView.distribution = hStackView.mapDistribution(style.hStackViewDistribution)
         titleViews.stackView.spacing = style.stackSpace
-
+        
         leadingTitleViews.keyLabel.font = style.leadingTitleKeyLabelFont
         titleViews.keyLabel.font = style.titleKeyLabelFont
         leadingTitleViews.keyLabel.font = style.trailingTitleKeyLabelFont
@@ -254,12 +255,21 @@ extension CardView: CardViewOutput {
     }
     
     public func display(trailingImage: ImageViewPresentableModel?) {
-        trailingImageWrapperView.isHidden = trailingImage == nil
+        display(trailingImage: trailingImage, leadingSpacing: nil)
+    }
+    
+    public func display(trailingImage: ImageViewPresentableModel?, leadingSpacing: CGFloat?) {
+        trailingImageView.isHidden = trailingImage == nil
         trailingImageView.display(model: trailingImage)
+        if let leadingSpacing,
+           let index = hStackView.arrangedSubviews.firstIndex(of: trailingImageView),
+           let prevView = hStackView.arrangedSubviews.item(at: index - 1) {
+            hStackView.setCustomSpacing(leadingSpacing, after: prevView)
+        }
     }
     
     public func display(secondaryTrailingImage: ImageViewPresentableModel?) {
-        secondaryTrailingImageWrapperView.isHidden = secondaryTrailingImage == nil
+        secondaryTrailingImageView.isHidden = secondaryTrailingImage == nil
         secondaryTrailingImageView.display(model: secondaryTrailingImage)
     }
     
@@ -395,10 +405,11 @@ open class CardView: ViewUIKit {
     
     public let subtitleLabel = Label(font: .systemFont(ofSize: 16), textColor: .gray)
     
-    public let trailingImageWrapperView = ViewUIKit(isHidden: true)
+    public let trailingImagesStackView = StackView(axis: .horizontal, spacing: 14)
+//    public let trailingImageWrapperView = ViewUIKit(isHidden: true)
     public private(set) var trailingImageView = ImageView(image: UIImage(named: "rightArrow"), tintColor: .black)
     
-    public let secondaryTrailingImageWrapperView = UIView(isHidden: true)
+//    public let secondaryTrailingImageWrapperView = UIView(isHidden: true)
     public private(set) var secondaryTrailingImageView = ImageView()
     
     public let switchWrapperView = UIView(isHidden: true)
@@ -499,15 +510,13 @@ extension CardView {
         hStackView.addArrangedSubview(secondaryLeadingImageWrapperView)
         hStackView.addArrangedSubview(titleViewsWrapperView)
         hStackView.addArrangedSubview(subtitleLabel)
-        hStackView.addArrangedSubview(secondaryTrailingImageWrapperView)
-        hStackView.addArrangedSubview(trailingImageWrapperView)
+        hStackView.addArrangedSubview(trailingImagesStackView)
         hStackView.addArrangedSubview(switchWrapperView)
         hStackView.addArrangedSubview(trailingTitleViewsWrapperView)
         
         leadingImageWrapperView.addSubview(leadingImageView)
         secondaryLeadingImageWrapperView.addSubview(secondaryLeadingImageView)
-        trailingImageWrapperView.addSubview(trailingImageView)
-        secondaryTrailingImageWrapperView.addSubview(secondaryTrailingImageView)
+        trailingImagesStackView.addArrangedSubviews(trailingImageView, secondaryTrailingImageView)
         
         leadingTitleViewsWrapperView.addSubview(leadingTitleViews)
         titleViewsWrapperView.addSubview(titleViews)
@@ -564,27 +573,27 @@ extension CardView {
             .centerY(secondaryLeadingImageWrapperView.centerYAnchor)
         )
         
-        secondaryTrailingImageViewConstraints = secondaryTrailingImageView.anchor(
-            .topGreaterThanEqual(secondaryTrailingImageWrapperView.topAnchor),
-            .bottomLessThanEqual(secondaryTrailingImageWrapperView.bottomAnchor),
-            .top(secondaryTrailingImageWrapperView.topAnchor, priority: .defaultHigh),
-            .bottom(secondaryTrailingImageWrapperView.bottomAnchor, priority: .defaultHigh),
-            .leading(secondaryTrailingImageWrapperView.leadingAnchor),
-            .trailing(secondaryTrailingImageWrapperView.trailingAnchor),
-            .centerX(secondaryTrailingImageWrapperView.centerXAnchor),
-            .centerY(secondaryTrailingImageWrapperView.centerYAnchor)
-        )
-        
-        trailingImageViewConstraints = trailingImageView.anchor(
-            .topGreaterThanEqual(trailingImageWrapperView.topAnchor),
-            .bottomLessThanEqual(trailingImageWrapperView.bottomAnchor),
-            .top(trailingImageWrapperView.topAnchor, priority: .defaultHigh),
-            .bottom(trailingImageWrapperView.bottomAnchor, priority: .defaultHigh),
-            .leading(trailingImageWrapperView.leadingAnchor),
-            .trailing(trailingImageWrapperView.trailingAnchor),
-            .centerX(trailingImageWrapperView.centerXAnchor),
-            .centerY(trailingImageWrapperView.centerYAnchor)
-        )
+//        secondaryTrailingImageViewConstraints = secondaryTrailingImageView.anchor(
+//            .topGreaterThanEqual(secondaryTrailingImageWrapperView.topAnchor),
+//            .bottomLessThanEqual(secondaryTrailingImageWrapperView.bottomAnchor),
+//            .top(secondaryTrailingImageWrapperView.topAnchor, priority: .defaultHigh),
+//            .bottom(secondaryTrailingImageWrapperView.bottomAnchor, priority: .defaultHigh),
+//            .leading(secondaryTrailingImageWrapperView.leadingAnchor),
+//            .trailing(secondaryTrailingImageWrapperView.trailingAnchor),
+//            .centerX(secondaryTrailingImageWrapperView.centerXAnchor),
+//            .centerY(secondaryTrailingImageWrapperView.centerYAnchor)
+//        )
+//        
+//        trailingImageViewConstraints = trailingImageView.anchor(
+//            .topGreaterThanEqual(trailingImageWrapperView.topAnchor),
+//            .bottomLessThanEqual(trailingImageWrapperView.bottomAnchor),
+//            .top(trailingImageWrapperView.topAnchor, priority: .defaultHigh),
+//            .bottom(trailingImageWrapperView.bottomAnchor, priority: .defaultHigh),
+//            .leading(trailingImageWrapperView.leadingAnchor),
+//            .trailing(trailingImageWrapperView.trailingAnchor),
+//            .centerX(trailingImageWrapperView.centerXAnchor),
+//            .centerY(trailingImageWrapperView.centerYAnchor)
+//        )
         
         switchControlConstraints = switchControl.anchor(
             .topGreaterThanEqual(switchWrapperView.topAnchor),
@@ -638,7 +647,7 @@ struct CardViewWithoutLeadingImageRepresentable: UIViewRepresentable {
         view.titleViews.valueLabel.isHidden = false
         view.titleViews.stackView.spacing = 6
         view.trailingImageView.image = UIImage(systemName: "arrow.right")
-        view.trailingImageWrapperView.isHidden = false
+        view.trailingImageView.isHidden = false
         view.leadingImageWrapperView.isHidden = true
         view.subtitleLabel.isHidden = false
         view.subtitleLabel.text = "Subtitle label"
@@ -658,7 +667,7 @@ struct CardViewTitleViewKeyLabelTrailingImageRepresentable: UIViewRepresentable 
         view.titleViews.stackView.spacing = 4
         view.leadingImageWrapperView.isHidden = true
         view.trailingImageView.image = UIImage(systemName: "arrow.right")
-        view.trailingImageWrapperView.isHidden = false
+        view.trailingImageView.isHidden = false
         return view
     }
 
@@ -674,7 +683,7 @@ struct CardViewTitleViewKeyLabelSubtitleRepresentable: UIViewRepresentable {
         view.titleViews.keyLabel.text = "Key label"
         view.leadingImageView.image = UIImage(systemName: "mail")
         view.titleViews.stackView.spacing = 4
-        view.trailingImageWrapperView.isHidden = true
+        view.trailingImageView.isHidden = true
         view.subtitleLabel.isHidden = false
         view.subtitleLabel.text = "Subtitle label"
         return view
@@ -708,7 +717,7 @@ struct CardViewTitleViewValueLabelSubtitleRepresentable: UIViewRepresentable {
     func makeUIView(context: Context) -> CardView {
         let view = CardView()
         view.leadingImageView.image = UIImage(systemName: "mail")
-        view.trailingImageWrapperView.isHidden = true
+        view.trailingImageView.isHidden = true
         view.titleViews.valueLabel.isHidden = false
         view.titleViews.valueLabel.text = "Value label"
         view.titleViews.stackView.spacing = 4

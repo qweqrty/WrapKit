@@ -108,6 +108,17 @@ public class CardViewOutputSwiftUIAdapter: ObservableObject, CardViewOutput {
             trailingImage: trailingImage
         )
     }
+    @Published public var displayTrailingImageLeadingSpacingState: DisplayTrailingImageLeadingSpacingState? = nil
+    public struct DisplayTrailingImageLeadingSpacingState {
+        public let trailingImage: ImageViewPresentableModel?
+        public let leadingSpacing: CGFloat?
+    }
+    public func display(trailingImage: ImageViewPresentableModel?, leadingSpacing: CGFloat?) {
+        displayTrailingImageLeadingSpacingState = .init(
+            trailingImage: trailingImage, 
+            leadingSpacing: leadingSpacing
+        )
+    }
     @Published public var displaySecondaryTrailingImageState: DisplaySecondaryTrailingImageState? = nil
     public struct DisplaySecondaryTrailingImageState {
         public let secondaryTrailingImage: ImageViewPresentableModel?
