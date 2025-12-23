@@ -18,6 +18,7 @@ public protocol CardViewOutput: AnyObject {
     func display(secondaryLeadingImage: ImageViewPresentableModel?)
     func display(trailingImage: ImageViewPresentableModel?)
     func display(trailingImage: ImageViewPresentableModel?, leadingSpacing: CGFloat?)
+//    func display(trailingImages: [ImageViewPresentableModel]?)
     func display(secondaryTrailingImage: ImageViewPresentableModel?)
     func display(subTitle: TextOutputPresentableModel?)
     func display(valueTitle: TextOutputPresentableModel?)
@@ -266,6 +267,7 @@ extension CardView: CardViewOutput {
     
     public func display(trailingImage: ImageViewPresentableModel?, leadingSpacing: CGFloat?) {
         trailingImageView.isHidden = trailingImage == nil
+        trailingImagesStackView.isHidden = !trailingImagesStackView.arrangedSubviews.contains(where: { !$0.isHidden })
         trailingImageView.display(model: trailingImage)
         if let leadingSpacing,
            let index = hStackView.arrangedSubviews.firstIndex(of: trailingImageView),
@@ -276,6 +278,7 @@ extension CardView: CardViewOutput {
     
     public func display(secondaryTrailingImage: ImageViewPresentableModel?) {
         secondaryTrailingImageView.isHidden = secondaryTrailingImage == nil
+        trailingImagesStackView.isHidden = !trailingImagesStackView.arrangedSubviews.contains(where: { !$0.isHidden })
         secondaryTrailingImageView.display(model: secondaryTrailingImage)
     }
     
@@ -351,7 +354,10 @@ extension CardView: CardViewOutput {
         display(secondaryLeadingImage: model.secondaryLeadingImage)
         
         // TrailingImage
-        display(trailingImage: model.trailingImage)
+//        display(trailingImages: [model.secondaryTrailingImage, model.trailingImage], leadingSpacing: style?.trailingImagesSpacing)
+        
+        // TrailingImage
+        display(trailingImage: model.trailingImage, leadingSpacing: style?.trailingImageLeadingSpacing)
         
         // SecondaryTrailingImage
         display(secondaryTrailingImage: model.secondaryTrailingImage)
