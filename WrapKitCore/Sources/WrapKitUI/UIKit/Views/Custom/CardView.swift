@@ -18,6 +18,7 @@ public protocol CardViewOutput: AnyObject {
     func display(secondaryLeadingImage: ImageViewPresentableModel?)
     func display(trailingImage: ImageViewPresentableModel?)
     func display(trailingImage: ImageViewPresentableModel?, leadingSpacing: CGFloat?)
+//    func display(trailingImages: [ImageViewPresentableModel]?)
     func display(secondaryTrailingImage: ImageViewPresentableModel?)
     func display(subTitle: TextOutputPresentableModel?)
     func display(valueTitle: TextOutputPresentableModel?)
@@ -55,6 +56,8 @@ public struct CardViewPresentableModel: HashableWithReflection {
         public let borderColor: Color?
         public let borderWidth: CGFloat?
         public let gradientBorderColors: [Color]?
+        public let trailingImageLeadingSpacing: CGFloat?
+        public let trailingImagesSpacing: CGFloat
         
         public init(
             backgroundColor: Color,
@@ -79,7 +82,9 @@ public struct CardViewPresentableModel: HashableWithReflection {
             titleValueNumberOfLines: Int,
             borderColor: Color? = nil,
             borderWidth: CGFloat? = nil,
-            gradientBorderColors: [Color]? = nil
+            gradientBorderColors: [Color]? = nil,
+            trailingImageLeadingSpacing: CGFloat? = nil,
+            trailingImagesSpacing: CGFloat = 0
         ) {
             self.backgroundColor = backgroundColor
             self.vStacklayoutMargins = vStacklayoutMargins
@@ -104,6 +109,8 @@ public struct CardViewPresentableModel: HashableWithReflection {
             self.borderColor = borderColor
             self.borderWidth = borderWidth
             self.gradientBorderColors = gradientBorderColors
+            self.trailingImageLeadingSpacing = trailingImageLeadingSpacing
+            self.trailingImagesSpacing = trailingImagesSpacing
         }
     }
 
@@ -260,6 +267,7 @@ extension CardView: CardViewOutput {
     
     public func display(trailingImage: ImageViewPresentableModel?, leadingSpacing: CGFloat?) {
         trailingImageView.isHidden = trailingImage == nil
+        trailingImagesStackView.isHidden = !trailingImagesStackView.arrangedSubviews.contains(where: { !$0.isHidden })
         trailingImageView.display(model: trailingImage)
         if let leadingSpacing,
            let index = hStackView.arrangedSubviews.firstIndex(of: trailingImageView),
@@ -270,6 +278,7 @@ extension CardView: CardViewOutput {
     
     public func display(secondaryTrailingImage: ImageViewPresentableModel?) {
         secondaryTrailingImageView.isHidden = secondaryTrailingImage == nil
+        trailingImagesStackView.isHidden = !trailingImagesStackView.arrangedSubviews.contains(where: { !$0.isHidden })
         secondaryTrailingImageView.display(model: secondaryTrailingImage)
     }
     
@@ -345,7 +354,10 @@ extension CardView: CardViewOutput {
         display(secondaryLeadingImage: model.secondaryLeadingImage)
         
         // TrailingImage
-        display(trailingImage: model.trailingImage)
+//        display(trailingImages: [model.secondaryTrailingImage, model.trailingImage], leadingSpacing: style?.trailingImagesSpacing)
+        
+        // TrailingImage
+        display(trailingImage: model.trailingImage, leadingSpacing: style?.trailingImageLeadingSpacing)
         
         // SecondaryTrailingImage
         display(secondaryTrailingImage: model.secondaryTrailingImage)
