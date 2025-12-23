@@ -29,8 +29,8 @@ public final class LifeCycleViewOutputSpy: LifeCycleViewOutput {
     // MARK: - Captured values
     public private(set) var capturedComposedOutput: [LifeCycleViewOutput] = []
     public private(set) var capturedWithAnalyticsEventName: [String] = []
-    public private(set) var capturedWithAnalyticsParameters: [[String: Any]] = []
-    public private(set) var capturedWithAnalyticsAnalytics: [AnalyticsTracker] = []
+    public private(set) var capturedWithAnalyticsEventNameParameters: [[String: Any]] = []
+    public private(set) var capturedWithAnalyticsEventNameAnalytics: [AnalyticsTracker] = []
 
 
     // MARK: - LifeCycleViewOutput methods
@@ -58,8 +58,8 @@ public final class LifeCycleViewOutputSpy: LifeCycleViewOutput {
     }
     public func withAnalytics(eventName: String, parameters: [String: Any], analytics: AnalyticsTracker) {
         capturedWithAnalyticsEventName.append(eventName)
-        capturedWithAnalyticsParameters.append(parameters)
-        capturedWithAnalyticsAnalytics.append(analytics)
+        capturedWithAnalyticsEventNameParameters.append(parameters)
+        capturedWithAnalyticsEventNameAnalytics.append(analytics)
         messages.append(.withAnalyticsEventName(eventName: eventName, parameters: parameters, analytics: analytics))
     }
 

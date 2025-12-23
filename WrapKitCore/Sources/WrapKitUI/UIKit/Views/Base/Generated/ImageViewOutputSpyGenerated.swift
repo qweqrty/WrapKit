@@ -11,14 +11,17 @@ import Foundation
 #if canImport(UIKit)
 import UIKit
 #endif
+#if canImport(Kingfisher)
+import Kingfisher
+#endif
 
 public final class ImageViewOutputSpy: ImageViewOutput {
 
     public init() {}
 
     public enum Message: HashableWithReflection {
-        case displayModel(model: ImageViewPresentableModel?)
-        case displayImage(image: ImageEnum?)
+        case displayModel(model: ImageViewPresentableModel?, completion: ((Image?) -> Void)?)
+        case displayImage(image: ImageEnum?, completion: ((Image?) -> Void)?)
         case displaySize(size: CGSize?)
         case displayOnPress(onPress: (() -> Void)?)
         case displayOnLongPress(onLongPress: (() -> Void)?)
@@ -34,7 +37,9 @@ public final class ImageViewOutputSpy: ImageViewOutput {
 
     // MARK: - Captured values
     public private(set) var capturedDisplayModel: [ImageViewPresentableModel?] = []
+    public private(set) var capturedDisplayModelCompletion: [((Image?) -> Void)?] = []
     public private(set) var capturedDisplayImage: [ImageEnum?] = []
+    public private(set) var capturedDisplayImageCompletion: [((Image?) -> Void)?] = []
     public private(set) var capturedDisplaySize: [CGSize?] = []
     public private(set) var capturedDisplayOnPress: [(() -> Void)?] = []
     public private(set) var capturedDisplayOnLongPress: [(() -> Void)?] = []
@@ -47,13 +52,15 @@ public final class ImageViewOutputSpy: ImageViewOutput {
 
 
     // MARK: - ImageViewOutput methods
-    public func display(model: ImageViewPresentableModel?) {
+    public func display(model: ImageViewPresentableModel?, completion: ((Image?) -> Void)?) {
         capturedDisplayModel.append(model)
-        messages.append(.displayModel(model: model))
+        capturedDisplayModelCompletion.append(completion)
+        messages.append(.displayModel(model: model, completion: completion))
     }
-    public func display(image: ImageEnum?) {
+    public func display(image: ImageEnum?, completion: ((Image?) -> Void)?) {
         capturedDisplayImage.append(image)
-        messages.append(.displayImage(image: image))
+        capturedDisplayImageCompletion.append(completion)
+        messages.append(.displayImage(image: image, completion: completion))
     }
     public func display(size: CGSize?) {
         capturedDisplaySize.append(size)

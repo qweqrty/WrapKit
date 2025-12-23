@@ -20,7 +20,7 @@ public final class {{ type.name }}Spy: {{ type.name }} {
     public init() {}
 
     public enum Message: HashableWithReflection {
-        {% for method in type.methods %}
+        {% for method in type.methods where not method.annotations.skipSpy %}
         {% if method.parameters.count == 0 %}
         case {{ method.callName }}
         {% else %}
@@ -39,10 +39,11 @@ public final class {{ type.name }}Spy: {{ type.name }} {
     public private(set) var messages: [Message] = []
 
     // MARK: - Captured values
-    {% for method in type.methods %}
+    {% for method in type.methods where not method.annotations.skipSpy %}
     {% if not method.isGeneric %}
     {% for param in method.parameters %}
-    public private(set) var captured{{ method.callName|upperFirstLetter }}{{ param.name|upperFirstLetter }}: [{{ param.typeName }}] = []
+    {# Логика: captured + ИмяМетода + ИмяПервогоПараметра + (ИмяТекущегоПараметра если он не первый) #}
+    public private(set) var captured{{ method.callName|upperFirstLetter }}{{ method.parameters.first.name|upperFirstLetter }}{% if not forloop.first %}{{ param.name|upperFirstLetter }}{% endif %}: [{{ param.typeName }}] = []
     {% endfor %}
     {% else %}
     public private(set) var {{ method.callName }}{{ method.parameters.first.name|upperFirstLetter }}GenericCallCount = 0
@@ -54,15 +55,16 @@ public final class {{ type.name }}Spy: {{ type.name }} {
     {% endfor %}
 
     // MARK: - {{ type.name }} methods
-    {% for method in type.methods %}
+    {% for method in type.methods where not method.annotations.skipSpy %}
     {% if method.isStatic %}
     // Static method: {{ method.name }}
     {% else %}
     public func {{ method.name }} {
         {% if not method.isGeneric %}
         {% for param in method.parameters %}
-        captured{{ method.callName|upperFirstLetter }}{{ param.name|upperFirstLetter }}.append({{ param.name }})
+        captured{{ method.callName|upperFirstLetter }}{{ method.parameters.first.name|upperFirstLetter }}{% if not forloop.first %}{{ param.name|upperFirstLetter }}{% endif %}.append({{ param.name }})
         {% endfor %}
+        
         {% if method.parameters.count == 0 %}
         messages.append(.{{ method.callName }})
         {% else %}
@@ -90,6 +92,5 @@ public final class {{ type.name }}Spy: {{ type.name }} {
     {% endif %}
     {% endfor %}
 }
-
 // sourcery:end
 {% endfor %}

@@ -42,9 +42,8 @@ public final class TextInputOutputSpy: TextInputOutput {
         case displayInputView(inputView: TextInputPresentableModel.InputView?)
         case displayInputType(inputType: KeyboardType)
         case displayTrailingSymbol(trailingSymbol: String?)
-        case displayToolbarModel(toolbarModel: ButtonPresentableModel?)
+        case displayInputAccessoryView(inputAccessoryView: TextInputPresentableModel.AccessoryViewPresentableModel?)
         case displayIsClearButtonActive(isClearButtonActive: Bool)
-        case makeAccessoryViewAccessoryView(accessoryView: UIView, height: CGFloat, constraints: ((UIView, UIView) -> [NSLayoutConstraint])?)
     }
 
     public private(set) var messages: [Message] = []
@@ -73,11 +72,8 @@ public final class TextInputOutputSpy: TextInputOutput {
     public private(set) var capturedDisplayInputView: [TextInputPresentableModel.InputView?] = []
     public private(set) var capturedDisplayInputType: [KeyboardType] = []
     public private(set) var capturedDisplayTrailingSymbol: [String?] = []
-    public private(set) var capturedDisplayToolbarModel: [ButtonPresentableModel?] = []
+    public private(set) var capturedDisplayInputAccessoryView: [TextInputPresentableModel.AccessoryViewPresentableModel?] = []
     public private(set) var capturedDisplayIsClearButtonActive: [Bool] = []
-    public private(set) var capturedMakeAccessoryViewAccessoryView: [UIView] = []
-    public private(set) var capturedMakeAccessoryViewHeight: [CGFloat] = []
-    public private(set) var capturedMakeAccessoryViewConstraints: [((UIView, UIView) -> [NSLayoutConstraint])?] = []
 
 
     // MARK: - TextInputOutput methods
@@ -179,19 +175,13 @@ public final class TextInputOutputSpy: TextInputOutput {
         capturedDisplayTrailingSymbol.append(trailingSymbol)
         messages.append(.displayTrailingSymbol(trailingSymbol: trailingSymbol))
     }
-    public func display(toolbarModel: ButtonPresentableModel?) {
-        capturedDisplayToolbarModel.append(toolbarModel)
-        messages.append(.displayToolbarModel(toolbarModel: toolbarModel))
+    public func display(inputAccessoryView: TextInputPresentableModel.AccessoryViewPresentableModel?) {
+        capturedDisplayInputAccessoryView.append(inputAccessoryView)
+        messages.append(.displayInputAccessoryView(inputAccessoryView: inputAccessoryView))
     }
     public func display(isClearButtonActive: Bool) {
         capturedDisplayIsClearButtonActive.append(isClearButtonActive)
         messages.append(.displayIsClearButtonActive(isClearButtonActive: isClearButtonActive))
-    }
-    public func makeAccessoryView(accessoryView: UIView, height: CGFloat = 60, constraints: ((UIView, UIView) -> [NSLayoutConstraint])? = nil) {
-        capturedMakeAccessoryViewAccessoryView.append(accessoryView)
-        capturedMakeAccessoryViewHeight.append(height)
-        capturedMakeAccessoryViewConstraints.append(constraints)
-        messages.append(.makeAccessoryViewAccessoryView(accessoryView: accessoryView, height: height, constraints: constraints))
     }
 
     // MARK: - Properties

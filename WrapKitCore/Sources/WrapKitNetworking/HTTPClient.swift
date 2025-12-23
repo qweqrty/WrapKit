@@ -69,19 +69,29 @@ public class MockHTTPClient: HTTPClient {
         }
     }
     
-    private let responses: [Data]
+    public struct Response {
+        public let json: String
+        public let statusCode: Int
+        
+        public init(json: String, statusCode: Int = 200) {
+            self.json = json
+            self.statusCode = statusCode
+        }
+    }
+    
+    private let responses: [Response]
     private var responseIndex: Int = 0
     
-    public init(jsonStrings: [String]) {
-        self.responses = jsonStrings.compactMap { $0.data(using: .utf8) }
+    public init(responses: [Response]) {
+        self.responses = responses
     }
     
     public func dispatch(_ request: URLRequest, completion: @escaping (Result<(data: Data, response: HTTPURLResponse), Error>) -> Void) -> HTTPClientTask {
         let mockTask = MockHTTPClientTask { [weak self] in
             guard let self else { return }
-            if responseIndex < responses.count, let url = request.url, let data = responses.item(at: responseIndex), let httpResponse = HTTPURLResponse(
+            if let response = responses.item(at: responseIndex), let url = request.url, let data = response.json.data(using: .utf8), let httpResponse = HTTPURLResponse(
                 url: url,
-                statusCode: 200,
+                statusCode: response.statusCode,
                 httpVersion: "1.1",
                 headerFields: ["Content-Type": "application/json"]
             ) {

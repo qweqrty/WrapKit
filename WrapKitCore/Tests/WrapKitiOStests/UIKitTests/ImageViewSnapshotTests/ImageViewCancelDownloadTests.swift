@@ -33,14 +33,13 @@ final class ImageViewCancelDownloadTests: XCTestCase {
             XCTFail("Invalid URL")
             return
         }
-        
-        sut.display(image: .url(url, url))
-        
         let expectation = expectation(description: "Wait for async dispatch")
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+        
+        sut.display(image: .url(url, url), completion: { _ in
             expectation.fulfill()
-        }
-        wait(for: [expectation], timeout: 1.0)
+        })
+        
+        wait(for: [expectation], timeout: 5.0)
         
         // WHEN
         sut.display(image: nil)
@@ -60,11 +59,9 @@ final class ImageViewCancelDownloadTests: XCTestCase {
         
         let expectation = expectation(description: "Wait for download to start")
         sut.display(image: .url(url, url)) { _ in
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                expectation.fulfill()
-            }
+            expectation.fulfill()
         }
-        wait(for: [expectation], timeout: 1.0)
+        wait(for: [expectation], timeout: 5.0)
         
         // WHEN
         sut.image = nil
@@ -84,11 +81,9 @@ final class ImageViewCancelDownloadTests: XCTestCase {
         
         let expectation = expectation(description: "Wait for download to start")
         sut.display(image: .url(url, url)) { _ in
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                expectation.fulfill()
-            }
+            expectation.fulfill()
         }
-        wait(for: [expectation], timeout: 1.0)
+        wait(for: [expectation], timeout: 5.0)
         
         // WHEN
         sut.display(image: .none)
@@ -112,7 +107,7 @@ final class ImageViewCancelDownloadTests: XCTestCase {
             expectation.fulfill()
         }
         
-        wait(for: [expectation], timeout: 0.5)
+        wait(for: [expectation], timeout: 5)
         
         // WHEN
         sut.display(image: nil)
@@ -132,25 +127,21 @@ final class ImageViewCancelDownloadTests: XCTestCase {
             XCTFail("Invalid URLs")
             return
         }
-        
         let firstExpectation = expectation(description: "Wait for first download to start")
+        let secondExpectation = expectation(description: "Wait for second download to start")
+        
         sut.display(image: .url(firstURL, firstURL)) { _ in
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                firstExpectation.fulfill()
-            }
+            firstExpectation.fulfill()
         }
 
-        wait(for: [firstExpectation], timeout: 1.0)
+        wait(for: [firstExpectation], timeout: 5.0)
         
         let firstTaskIdentifier = sut.kf.taskIdentifier
         
-        let secondExpectation = expectation(description: "Wait for second download to start")
         sut.display(image: .url(secondURL, secondURL)) { _ in
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                secondExpectation.fulfill()
-            }
+            secondExpectation.fulfill()
         }
-        wait(for: [secondExpectation], timeout: 1.0)
+        wait(for: [secondExpectation], timeout: 5.0)
         
         // THEN
         let secondTaskIdentifier = sut.kf.taskIdentifier
@@ -185,7 +176,7 @@ final class ImageViewCancelDownloadTests: XCTestCase {
 //            Thread.sleep(forTimeInterval: 0.05)
 //        }
 //        
-//        wait(for: [expectation], timeout: 1.0)
+//        wait(for: [expectation], timeout: 5.0)
 //        
 //        // THEN
 //        XCTAssertEqual(sut.currentImageEnum, .url(url3, url3), "Should be loading the last image")
@@ -212,7 +203,7 @@ final class ImageViewCancelDownloadTests: XCTestCase {
             exp.fulfill()
         }
         
-        wait(for: [exp], timeout: 1.0)
+        wait(for: [exp], timeout: 5.0)
         
         // THEN
         XCTAssertNil(receivedImage, "Completion should be called with nil")
@@ -224,16 +215,13 @@ final class ImageViewCancelDownloadTests: XCTestCase {
         // GIVEN
         let sut = makeSUT()
         let urlString = testImageURL
-        
         let expectation = expectation(description: "Wait for download to start")
-        sut.display(image: .urlString(urlString, urlString)) { _ in
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                expectation.fulfill()
-            }
-        }
-        wait(for: [expectation], timeout: 1.0)
         
         // WHEN
+        sut.display(image: .urlString(urlString, urlString)) { _ in
+            expectation.fulfill()
+        }
+        wait(for: [expectation], timeout: 5.0)
         sut.display(image: .urlString(nil, nil))
         
         // THEN
@@ -263,36 +251,31 @@ final class ImageViewCancelDownloadTests: XCTestCase {
         XCTAssertNil(weakSUT, "ImageView should be deallocated")
     }
     
-//    func test_imageView_cancelDownload_handlesLoadingView() {
-//        // GIVEN
-//        let sut = makeSUT()
-//        sut.viewWhileLoadingView = ViewUIKit()
-//        guard let url = URL(string: testImageURL) else {
-//            XCTFail("Invalid URL")
-//            return
-//        }
-//        
-//        let exp1 = expectation(description: "Loading view visible")
-//        sut.display(image: .url(url, url)) { _ in
-//            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-//                exp1.fulfill()
-//            }
-//        }
-//        wait(for: [exp1], timeout: 0.5)
-//        
-//        // WHEN
-//        let exp2 = expectation(description: "Wait for state update")
-//        sut.display(image: nil) { _ in
-//            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-//                exp2.fulfill()
-//            }
-//        }
-//        
-//        // THEN
-//        wait(for: [exp2], timeout: 0.5)
-//        
-//        XCTAssertTrue(true, "Loading view state handled")
-//    }
+    func test_imageView_cancelDownload_handlesLoadingView() {
+        // GIVEN
+        let sut = makeSUT()
+        sut.viewWhileLoadingView = ViewUIKit()
+        guard let url = URL(string: testImageURL) else {
+            XCTFail("Invalid URL")
+            return
+        }
+        let exp1 = expectation(description: "Loading view visible")
+        let exp2 = expectation(description: "Wait for state update")
+
+        // WHEN
+        sut.display(image: .url(url, url)) { _ in
+            exp1.fulfill()
+        }
+        wait(for: [exp1], timeout: 5.0)
+        sut.display(image: nil) { _ in
+            exp2.fulfill()
+        }
+        
+        // THEN
+        wait(for: [exp2], timeout: 5.0)
+        
+        XCTAssertTrue(true, "Loading view state handled")
+    }
     
     func test_imageView_setAssetImage_doesNotCreateDownloadTask() {
         // GIVEN
@@ -312,29 +295,26 @@ final class ImageViewCancelDownloadTests: XCTestCase {
     
     // MARK: - Test model with nil image
     
-//    func test_imageView_displayModelWithNilImage_clearsImage() {
-//        // GIVEN
-//        let sut = makeSUT()
-//        guard let url = URL(string: testImageURL) else {
-//            XCTFail("Invalid URL")
-//            return
-//        }
-//        
-//        let expectation = expectation(description: "Wait for download to start")
-//        sut.display(image: .url(url, url)) { _ in
-//            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-//                expectation.fulfill()
-//            }
-//        }
-//        wait(for: [expectation], timeout: 1.0)
-//        
-//        // WHEN
-//        let model = ImageViewPresentableModel(image: nil)
-//        sut.display(model: model)
-//        
-//        // THEN
-//        XCTAssertNil(sut.kf.taskIdentifier, "Download task should be cancelled")
-//    }
+    func test_imageView_displayModelWithNilImage_clearsImage() {
+        // GIVEN
+        let sut = makeSUT()
+        guard let url = URL(string: testImageURL) else {
+            XCTFail("Invalid URL")
+            return
+        }
+        let expectation = expectation(description: "Wait for download to start")
+        
+        // WHEN
+        sut.display(image: .url(url, url)) { _ in
+            expectation.fulfill()
+        }
+        wait(for: [expectation], timeout: 5.0)
+        let model = ImageViewPresentableModel(image: nil)
+        sut.display(model: model)
+        
+        // THEN
+        XCTAssertNil(sut.kf.taskIdentifier, "Download task should be cancelled")
+    }
     
     // MARK: - Test image property setter directly
     
@@ -357,8 +337,7 @@ final class ImageViewCancelDownloadTests: XCTestCase {
         XCTAssertNil(sut.kf.taskIdentifier, "Task should be cancelled")
     }
     
-    // MARK: - Test sequential image loading
-    
+//    // MARK: - Test sequential image loading
 //    func test_imageView_sequentialImageLoading_cancelsAndStartsNew() {
 //            // GIVEN
 //            let sut = makeSUT()
@@ -376,7 +355,7 @@ final class ImageViewCancelDownloadTests: XCTestCase {
 //                firstExp.fulfill()
 //            }
 //            
-//            wait(for: [firstExp], timeout: 1.0)
+//            wait(for: [firstExp], timeout: 5.0)
 //            
 //            // WHEN
 //            let secondExp = expectation(description: "Second image loading")
@@ -384,7 +363,7 @@ final class ImageViewCancelDownloadTests: XCTestCase {
 //                secondExp.fulfill()
 //            }
 //            
-//            wait(for: [secondExp], timeout: 1.0)
+//            wait(for: [secondExp], timeout: 5.0)
 //            
 //            // THEN
 //            XCTAssertEqual(sut.currentImageEnum, .url(secondURL, secondURL), "Should be set to second image")
