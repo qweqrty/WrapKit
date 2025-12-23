@@ -52,6 +52,9 @@ extension WeakRefVirtualProxy: CardViewOutput where T: CardViewOutput {
     public func display(trailingImage: ImageViewPresentableModel?) {
         object?.display(trailingImage: trailingImage)
     }
+    public func display(trailingImage: ImageViewPresentableModel?, leadingSpacing: CGFloat?) {
+        object?.display(trailingImage: trailingImage, leadingSpacing: leadingSpacing)
+    }
     public func display(secondaryTrailingImage: ImageViewPresentableModel?) {
         object?.display(secondaryTrailingImage: secondaryTrailingImage)
     }

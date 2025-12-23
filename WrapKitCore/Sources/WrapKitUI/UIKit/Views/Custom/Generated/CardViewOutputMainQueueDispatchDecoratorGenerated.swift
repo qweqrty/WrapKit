@@ -70,6 +70,11 @@ extension MainQueueDispatchDecorator: CardViewOutput where T: CardViewOutput {
             self?.decoratee.display(trailingImage: trailingImage)
         }
     }
+    public func display(trailingImage: ImageViewPresentableModel?, leadingSpacing: CGFloat?) {
+        dispatch { [weak self] in
+            self?.decoratee.display(trailingImage: trailingImage, leadingSpacing: leadingSpacing)
+        }
+    }
     public func display(secondaryTrailingImage: ImageViewPresentableModel?) {
         dispatch { [weak self] in
             self?.decoratee.display(secondaryTrailingImage: secondaryTrailingImage)

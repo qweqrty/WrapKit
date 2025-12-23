@@ -32,6 +32,7 @@ public final class CardViewOutputSpy: CardViewOutput {
         case displayLeadingImage(leadingImage: ImageViewPresentableModel?)
         case displaySecondaryLeadingImage(secondaryLeadingImage: ImageViewPresentableModel?)
         case displayTrailingImage(trailingImage: ImageViewPresentableModel?)
+        case displayTrailingImage(trailingImage: ImageViewPresentableModel?, leadingSpacing: CGFloat?)
         case displaySecondaryTrailingImage(secondaryTrailingImage: ImageViewPresentableModel?)
         case displaySubTitle(subTitle: TextOutputPresentableModel?)
         case displayValueTitle(valueTitle: TextOutputPresentableModel?)
@@ -56,6 +57,8 @@ public final class CardViewOutputSpy: CardViewOutput {
     public private(set) var capturedDisplayLeadingImage: [ImageViewPresentableModel?] = []
     public private(set) var capturedDisplaySecondaryLeadingImage: [ImageViewPresentableModel?] = []
     public private(set) var capturedDisplayTrailingImage: [ImageViewPresentableModel?] = []
+    public private(set) var capturedDisplayTrailingImage: [ImageViewPresentableModel?] = []
+    public private(set) var capturedDisplayTrailingImageLeadingSpacing: [CGFloat?] = []
     public private(set) var capturedDisplaySecondaryTrailingImage: [ImageViewPresentableModel?] = []
     public private(set) var capturedDisplaySubTitle: [TextOutputPresentableModel?] = []
     public private(set) var capturedDisplayValueTitle: [TextOutputPresentableModel?] = []
@@ -104,6 +107,11 @@ public final class CardViewOutputSpy: CardViewOutput {
     public func display(trailingImage: ImageViewPresentableModel?) {
         capturedDisplayTrailingImage.append(trailingImage)
         messages.append(.displayTrailingImage(trailingImage: trailingImage))
+    }
+    public func display(trailingImage: ImageViewPresentableModel?, leadingSpacing: CGFloat?) {
+        capturedDisplayTrailingImage.append(trailingImage)
+        capturedDisplayTrailingImageLeadingSpacing.append(leadingSpacing)
+        messages.append(.displayTrailingImage(trailingImage: trailingImage, leadingSpacing: leadingSpacing))
     }
     public func display(secondaryTrailingImage: ImageViewPresentableModel?) {
         capturedDisplaySecondaryTrailingImage.append(secondaryTrailingImage)
