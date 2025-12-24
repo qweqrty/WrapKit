@@ -26,10 +26,12 @@ public final class EntryFlowSpy: EntryFlow {
     public private(set) var messages: [Message] = []
 
     // MARK: - Captured values
+    public private(set) var capturedShowSplashCallCount = 0
 
 
     // MARK: - EntryFlow methods
     public func showSplash() {
+        capturedShowSplashCallCount += 1
         messages.append(.showSplash)
     }
 

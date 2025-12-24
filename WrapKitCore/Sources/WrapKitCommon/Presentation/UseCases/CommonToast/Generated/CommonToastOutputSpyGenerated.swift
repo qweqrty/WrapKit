@@ -22,6 +22,7 @@ public final class CommonToastOutputSpy: CommonToastOutput {
 
     // MARK: - Captured values
     public private(set) var capturedDisplayToast: [CommonToast] = []
+    public private(set) var capturedHideCallCount = 0
 
 
     // MARK: - CommonToastOutput methods
@@ -30,6 +31,7 @@ public final class CommonToastOutputSpy: CommonToastOutput {
         messages.append(.displayToast(toast: toast))
     }
     public func hide() {
+        capturedHideCallCount += 1
         messages.append(.hide)
     }
 
