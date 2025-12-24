@@ -272,7 +272,7 @@ extension CardView: CardViewOutput {
     }
     
     public func display(trailingImage: ImageViewPresentableModel?, leadingSpacing: CGFloat?) {
-        trailingImageView.isHidden = trailingImage == nil
+        trailingImageWrapperView.isHidden = trailingImage == nil
         trailingImagesStackView.isHidden = !trailingImagesStackView.arrangedSubviews.contains(where: { !$0.isHidden })
         trailingImageView.display(model: trailingImage)
         if let leadingSpacing,
@@ -424,10 +424,10 @@ open class CardView: ViewUIKit {
     public let subtitleLabel = Label(font: .systemFont(ofSize: 16), textColor: .gray)
     
     public let trailingImagesStackView = StackView(axis: .horizontal, spacing: 14)
-//    public let trailingImageWrapperView = ViewUIKit(isHidden: true)
+    public let trailingImageWrapperView = ViewUIKit(isHidden: true)
     public private(set) var trailingImageView = ImageView(image: UIImage(named: "rightArrow"), tintColor: .black)
     
-//    public let secondaryTrailingImageWrapperView = UIView(isHidden: true)
+    public let secondaryTrailingImageWrapperView = UIView(isHidden: true)
     public private(set) var secondaryTrailingImageView = ImageView()
     
     public let switchWrapperView = UIView(isHidden: true)
@@ -534,7 +534,7 @@ extension CardView {
         
         leadingImageWrapperView.addSubview(leadingImageView)
         secondaryLeadingImageWrapperView.addSubview(secondaryLeadingImageView)
-        trailingImagesStackView.addArrangedSubviews(trailingImageView, secondaryTrailingImageView)
+        trailingImagesStackView.addArrangedSubviews(trailingImageWrapperView, secondaryTrailingImageWrapperView)
         
         leadingTitleViewsWrapperView.addSubview(leadingTitleViews)
         titleViewsWrapperView.addSubview(titleViews)
@@ -591,27 +591,27 @@ extension CardView {
             .centerY(secondaryLeadingImageWrapperView.centerYAnchor)
         )
         
-//        secondaryTrailingImageViewConstraints = secondaryTrailingImageView.anchor(
-//            .topGreaterThanEqual(secondaryTrailingImageWrapperView.topAnchor),
-//            .bottomLessThanEqual(secondaryTrailingImageWrapperView.bottomAnchor),
-//            .top(secondaryTrailingImageWrapperView.topAnchor, priority: .defaultHigh),
-//            .bottom(secondaryTrailingImageWrapperView.bottomAnchor, priority: .defaultHigh),
-//            .leading(secondaryTrailingImageWrapperView.leadingAnchor),
-//            .trailing(secondaryTrailingImageWrapperView.trailingAnchor),
-//            .centerX(secondaryTrailingImageWrapperView.centerXAnchor),
-//            .centerY(secondaryTrailingImageWrapperView.centerYAnchor)
-//        )
-//        
-//        trailingImageViewConstraints = trailingImageView.anchor(
-//            .topGreaterThanEqual(trailingImageWrapperView.topAnchor),
-//            .bottomLessThanEqual(trailingImageWrapperView.bottomAnchor),
-//            .top(trailingImageWrapperView.topAnchor, priority: .defaultHigh),
-//            .bottom(trailingImageWrapperView.bottomAnchor, priority: .defaultHigh),
-//            .leading(trailingImageWrapperView.leadingAnchor),
-//            .trailing(trailingImageWrapperView.trailingAnchor),
-//            .centerX(trailingImageWrapperView.centerXAnchor),
-//            .centerY(trailingImageWrapperView.centerYAnchor)
-//        )
+        secondaryTrailingImageViewConstraints = secondaryTrailingImageView.anchor(
+            .topGreaterThanEqual(secondaryTrailingImageWrapperView.topAnchor),
+            .bottomLessThanEqual(secondaryTrailingImageWrapperView.bottomAnchor),
+            .top(secondaryTrailingImageWrapperView.topAnchor, priority: .defaultHigh),
+            .bottom(secondaryTrailingImageWrapperView.bottomAnchor, priority: .defaultHigh),
+            .leading(secondaryTrailingImageWrapperView.leadingAnchor),
+            .trailing(secondaryTrailingImageWrapperView.trailingAnchor),
+            .centerX(secondaryTrailingImageWrapperView.centerXAnchor),
+            .centerY(secondaryTrailingImageWrapperView.centerYAnchor)
+        )
+        
+        trailingImageViewConstraints = trailingImageView.anchor(
+            .topGreaterThanEqual(trailingImageWrapperView.topAnchor),
+            .bottomLessThanEqual(trailingImageWrapperView.bottomAnchor),
+            .top(trailingImageWrapperView.topAnchor, priority: .defaultHigh),
+            .bottom(trailingImageWrapperView.bottomAnchor, priority: .defaultHigh),
+            .leading(trailingImageWrapperView.leadingAnchor),
+            .trailing(trailingImageWrapperView.trailingAnchor),
+            .centerX(trailingImageWrapperView.centerXAnchor),
+            .centerY(trailingImageWrapperView.centerYAnchor)
+        )
         
         switchControlConstraints = switchControl.anchor(
             .topGreaterThanEqual(switchWrapperView.topAnchor),
