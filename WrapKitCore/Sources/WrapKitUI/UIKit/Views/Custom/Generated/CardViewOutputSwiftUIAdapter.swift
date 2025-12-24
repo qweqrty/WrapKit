@@ -99,15 +99,6 @@ public class CardViewOutputSwiftUIAdapter: ObservableObject, CardViewOutput {
             secondaryLeadingImage: secondaryLeadingImage
         )
     }
-    @Published public var displayTrailingImageState: DisplayTrailingImageState? = nil
-    public struct DisplayTrailingImageState {
-        public let trailingImage: ImageViewPresentableModel?
-    }
-    public func display(trailingImage: ImageViewPresentableModel?) {
-        displayTrailingImageState = .init(
-            trailingImage: trailingImage
-        )
-    }
     @Published public var displayTrailingImageLeadingSpacingState: DisplayTrailingImageLeadingSpacingState? = nil
     public struct DisplayTrailingImageLeadingSpacingState {
         public let trailingImage: ImageViewPresentableModel?
@@ -207,6 +198,15 @@ public class CardViewOutputSwiftUIAdapter: ObservableObject, CardViewOutput {
     public func display(isGradientBorderEnabled: Bool) {
         displayIsGradientBorderEnabledState = .init(
             isGradientBorderEnabled: isGradientBorderEnabled
+        )
+    }
+    @Published public var displayTrailingImageState: DisplayTrailingImageState? = nil
+    public struct DisplayTrailingImageState {
+        public let trailingImage: ImageViewPresentableModel?
+    }
+    public func display(trailingImage: ImageViewPresentableModel?) {
+        displayTrailingImageState = .init(
+            trailingImage: trailingImage
         )
     }
 }

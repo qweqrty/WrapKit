@@ -16,7 +16,6 @@ public protocol CardViewOutput: AnyObject {
     func display(trailingTitles: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>?)
     func display(leadingImage: ImageViewPresentableModel?)
     func display(secondaryLeadingImage: ImageViewPresentableModel?)
-    func display(trailingImage: ImageViewPresentableModel?)
     func display(trailingImage: ImageViewPresentableModel?, leadingSpacing: CGFloat?)
 //    func display(trailingImages: [ImageViewPresentableModel]?)
     func display(secondaryTrailingImage: ImageViewPresentableModel?)
@@ -29,6 +28,13 @@ public protocol CardViewOutput: AnyObject {
     func display(isHidden: Bool)
     func display(isUserInteractionEnabled: Bool?)
     func display(isGradientBorderEnabled: Bool)
+}
+
+extension CardViewOutput {
+    // sourcery: ь skipSpy
+    func display(trailingImage: ImageViewPresentableModel?) {
+        display(trailingImage: trailingImage, leadingSpacing: nil)
+    }
 }
 
 public struct CardViewPresentableModel: HashableWithReflection {
