@@ -283,7 +283,7 @@ extension CardView: CardViewOutput {
     }
     
     public func display(secondaryTrailingImage: ImageViewPresentableModel?) {
-        secondaryTrailingImageView.isHidden = secondaryTrailingImage == nil
+        secondaryTrailingImageWrapperView.isHidden = secondaryTrailingImage == nil
         trailingImagesStackView.isHidden = !trailingImagesStackView.arrangedSubviews.contains(where: { !$0.isHidden })
         secondaryTrailingImageView.display(model: secondaryTrailingImage)
     }
@@ -645,7 +645,7 @@ struct CardViewFullRepresentable: UIViewRepresentable {
         view.titleViews.stackView.spacing = 6
         view.leadingImageView.image = UIImage(systemName: "mail")
         view.trailingImageView.image = UIImage(systemName: "arrow.right")
-        view.trailingImageView.isHidden = false
+        view.trailingImageWrapperView.isHidden = false
         view.subtitleLabel.isHidden = false
         view.subtitleLabel.text = "Subtitle label"
         return view
@@ -665,7 +665,7 @@ struct CardViewWithoutLeadingImageRepresentable: UIViewRepresentable {
         view.titleViews.valueLabel.isHidden = false
         view.titleViews.stackView.spacing = 6
         view.trailingImageView.image = UIImage(systemName: "arrow.right")
-        view.trailingImageView.isHidden = false
+        view.trailingImageWrapperView.isHidden = false
         view.leadingImageWrapperView.isHidden = true
         view.subtitleLabel.isHidden = false
         view.subtitleLabel.text = "Subtitle label"
@@ -685,7 +685,7 @@ struct CardViewTitleViewKeyLabelTrailingImageRepresentable: UIViewRepresentable 
         view.titleViews.stackView.spacing = 4
         view.leadingImageWrapperView.isHidden = true
         view.trailingImageView.image = UIImage(systemName: "arrow.right")
-        view.trailingImageView.isHidden = false
+        view.trailingImageWrapperView.isHidden = false
         return view
     }
 
@@ -701,7 +701,7 @@ struct CardViewTitleViewKeyLabelSubtitleRepresentable: UIViewRepresentable {
         view.titleViews.keyLabel.text = "Key label"
         view.leadingImageView.image = UIImage(systemName: "mail")
         view.titleViews.stackView.spacing = 4
-        view.trailingImageView.isHidden = true
+        view.trailingImageWrapperView.isHidden = true
         view.subtitleLabel.isHidden = false
         view.subtitleLabel.text = "Subtitle label"
         return view
@@ -721,7 +721,7 @@ struct CardViewTitleViewValueLabelRepresentable: UIViewRepresentable {
         view.titleViews.stackView.spacing = 4
         view.leadingImageWrapperView.isHidden = true
         view.trailingImageView.image = UIImage(systemName: "arrow.right")
-        view.trailingImageView.isHidden = false
+        view.trailingImageWrapperView.isHidden = false
         return view
     }
 
@@ -735,7 +735,7 @@ struct CardViewTitleViewValueLabelSubtitleRepresentable: UIViewRepresentable {
     func makeUIView(context: Context) -> CardView {
         let view = CardView()
         view.leadingImageView.image = UIImage(systemName: "mail")
-        view.trailingImageView.isHidden = true
+        view.trailingImageWrapperView.isHidden = true
         view.titleViews.valueLabel.isHidden = false
         view.titleViews.valueLabel.text = "Value label"
         view.titleViews.stackView.spacing = 4
