@@ -21,15 +21,13 @@ public final class SelectionOutputSpy: SelectionOutput {
     public private(set) var messages: [Message] = []
 
     // MARK: - Captured values
-    public private(set) var capturedDisplayItems: [[TableSection<Void, SelectionType.SelectionCellPresentableModel, Void>]] = []
-    public private(set) var capturedDisplayItemsSelectedCountTitle: [String] = []
+    public private(set) var capturedDisplayItems: [(items: [TableSection<Void, SelectionType.SelectionCellPresentableModel, Void>], selectedCountTitle: String)] = []
     public private(set) var capturedDisplayShouldShowSearchBar: [Bool] = []
 
 
     // MARK: - SelectionOutput methods
     public func display(items: [TableSection<Void, SelectionType.SelectionCellPresentableModel, Void>], selectedCountTitle: String) {
-        capturedDisplayItems.append(items)
-        capturedDisplayItemsSelectedCountTitle.append(selectedCountTitle)
+        capturedDisplayItems.append((items: items, selectedCountTitle: selectedCountTitle))
         messages.append(.displayItems(items: items, selectedCountTitle: selectedCountTitle))
     }
     public func display(shouldShowSearchBar: Bool) {

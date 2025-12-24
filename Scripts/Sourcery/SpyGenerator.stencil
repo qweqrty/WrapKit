@@ -25,9 +25,9 @@ public final class {{ type.name }}Spy: {{ type.name }} {
         case {{ method.callName }}
         {% else %}
         {% if method.isGeneric %}
-        case {{ method.callName }}{{ method.parameters.first.name|upperFirstLetter }}Generic
+        case {{ method.callName }}{% if method.parameters.count > 0 %}{{ method.parameters.first.name|upperFirstLetter }}{% endif %}Generic
         {% else %}
-        case {{ method.callName }}{{ method.parameters.first.name|upperFirstLetter }}({% for param in method.parameters %}{{ param.argumentLabel|default:param.name }}: {{ param.typeName }}{% if not forloop.last %}, {% endif %}{% endfor %})
+        case {{ method.callName }}{% if method.parameters.count > 0 %}{{ method.parameters.first.name|upperFirstLetter }}{% endif %}({% for param in method.parameters %}{{ param.argumentLabel|default:param.name }}: {{ param.typeName }}{% if not forloop.last %}, {% endif %}{% endfor %})
         {% endif %}
         {% endif %}
         {% endfor %}
@@ -41,12 +41,15 @@ public final class {{ type.name }}Spy: {{ type.name }} {
     // MARK: - Captured values
     {% for method in type.methods where not method.annotations.skipSpy %}
     {% if not method.isGeneric %}
-    {% for param in method.parameters %}
-    {# Логика: captured + ИмяМетода + ИмяПервогоПараметра + (ИмяТекущегоПараметра если он не первый) #}
-    public private(set) var captured{{ method.callName|upperFirstLetter }}{{ method.parameters.first.name|upperFirstLetter }}{% if not forloop.first %}{{ param.name|upperFirstLetter }}{% endif %}: [{{ param.typeName }}] = []
-    {% endfor %}
+    {% if method.parameters.count == 0 %}
+    public private(set) var captured{{ method.callName|upperFirstLetter }}CallCount = 0
+    {% elif method.parameters.count == 1 %}
+    public private(set) var captured{{ method.callName|upperFirstLetter }}{% if method.parameters.first.name %}{{ method.parameters.first.name|upperFirstLetter }}{% endif %}: [{{ method.parameters.first.typeName }}] = []
     {% else %}
-    public private(set) var {{ method.callName }}{{ method.parameters.first.name|upperFirstLetter }}GenericCallCount = 0
+    public private(set) var captured{{ method.callName|upperFirstLetter }}{% if method.parameters.first.name %}{{ method.parameters.first.name|upperFirstLetter }}{% endif %}: [({% for param in method.parameters %}{{ param.argumentLabel|default:param.name }}: {{ param.typeName }}{% if not forloop.last %}, {% endif %}{% endfor %})] = []
+    {% endif %}
+    {% else %}
+    public private(set) var {{ method.callName }}{% if method.parameters.count > 0 %}{{ method.parameters.first.name|upperFirstLetter }}{% endif %}GenericCallCount = 0
     {% endif %}
     {% endfor %}
 
@@ -61,18 +64,19 @@ public final class {{ type.name }}Spy: {{ type.name }} {
     {% else %}
     public func {{ method.name }} {
         {% if not method.isGeneric %}
-        {% for param in method.parameters %}
-        captured{{ method.callName|upperFirstLetter }}{{ method.parameters.first.name|upperFirstLetter }}{% if not forloop.first %}{{ param.name|upperFirstLetter }}{% endif %}.append({{ param.name }})
-        {% endfor %}
-        
         {% if method.parameters.count == 0 %}
+        captured{{ method.callName|upperFirstLetter }}CallCount += 1
         messages.append(.{{ method.callName }})
+        {% elif method.parameters.count == 1 %}
+        captured{{ method.callName|upperFirstLetter }}{% if method.parameters.first.name %}{{ method.parameters.first.name|upperFirstLetter }}{% endif %}.append({{ method.parameters.first.name }})
+        messages.append(.{{ method.callName }}{% if method.parameters.first.name %}{{ method.parameters.first.name|upperFirstLetter }}{% endif %}({{ method.parameters.first.argumentLabel|default:method.parameters.first.name }}: {{ method.parameters.first.name }}))
         {% else %}
-        messages.append(.{{ method.callName }}{{ method.parameters.first.name|upperFirstLetter }}({% for param in method.parameters %}{{ param.argumentLabel|default:param.name }}: {{ param.name }}{% if not forloop.last %}, {% endif %}{% endfor %}))
+        captured{{ method.callName|upperFirstLetter }}{% if method.parameters.first.name %}{{ method.parameters.first.name|upperFirstLetter }}{% endif %}.append(({% for param in method.parameters %}{{ param.argumentLabel|default:param.name }}: {{ param.name }}{% if not forloop.last %}, {% endif %}{% endfor %}))
+        messages.append(.{{ method.callName }}{% if method.parameters.first.name %}{{ method.parameters.first.name|upperFirstLetter }}{% endif %}({% for param in method.parameters %}{{ param.argumentLabel|default:param.name }}: {{ param.name }}{% if not forloop.last %}, {% endif %}{% endfor %}))
         {% endif %}
         {% else %}
-        {{ method.callName }}{{ method.parameters.first.name|upperFirstLetter }}GenericCallCount += 1
-        messages.append(.{{ method.callName }}{{ method.parameters.first.name|upperFirstLetter }}Generic)
+        {{ method.callName }}{% if method.parameters.count > 0 %}{{ method.parameters.first.name|upperFirstLetter }}{% endif %}GenericCallCount += 1
+        messages.append(.{{ method.callName }}{% if method.parameters.count > 0 %}{{ method.parameters.first.name|upperFirstLetter }}{% endif %}Generic)
         {% endif %}
     }
     {% endif %}

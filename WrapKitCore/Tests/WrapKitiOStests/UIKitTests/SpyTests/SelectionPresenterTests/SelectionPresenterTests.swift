@@ -1,5 +1,5 @@
 //
-//  SelectionPresenterSpyTests.swift
+//  SelectionPresenterTests.swift
 //  WrapKit
 //
 //  Created by Urmatbek Marat Uulu on 18/12/25.
@@ -9,7 +9,7 @@ import Foundation
 import XCTest
 import WrapKit
 
-final class SelectionPresenterSpyTests: XCTestCase {
+final class SelectionPresenterTests: XCTestCase {
     func test_viewDidLoad_selectionOutput_shouldShowSearchBar() {
         // GIVEN
         let components = makeSUT()
@@ -90,7 +90,7 @@ final class SelectionPresenterSpyTests: XCTestCase {
         // GIVEN
         let components = makeSUT()
         let sut = components.sut
-        let searchButtonSpy = components.searchButtonSpy
+        let searchButtonSpy = components.selectButton
         
         let config = nurSelection()
         
@@ -117,20 +117,120 @@ final class SelectionPresenterSpyTests: XCTestCase {
         XCTAssertEqual(searchButtonSpy.messages.first, .displayModel(model: model))
     }
     
+    func test_viewDidLoad_resetButtonOutput_onPress_shouldUpdateStyle() {
+        // GIVEN
+        let components = makeSUT()
+        let sut = components.sut
+        let resetButtonSpy = components.resetSpy
+        let config = nurSelection()
+        
+        // WHEN
+        sut.items[0].isSelected.set(model: true)
+        sut.viewDidLoad()
+        
+        let onPress = resetButtonSpy.capturedDisplayModel.first??.onPress
+                
+        onPress?()
+        
+        // THEN
+        let expectedStyle = ButtonStyle(
+            backgroundColor: config.resetButtonColors.inactiveBackgroundColor,
+            titleColor: config.resetButtonColors.inactiveTitleColor,
+            borderWidth: 0,
+            borderColor: config.resetButtonColors.inactiveBorderColor,
+            cornerRadius: 12
+        )
+        
+        XCTAssertEqual(resetButtonSpy.messages[3], .displayStyle(style: expectedStyle))
+    }
+    
+    func test_viewDidLoad_selectButtonOutput_onPress_multipleSelection() {
+        // GIVEN
+        let components = makeSUT()
+        let sut = components.sut
+        let selectButtonSpy = components.selectButton
+        let flowSpy = components.flowSpy
+        
+        sut.items[0].isSelected.set(model: true)
+        sut.items[1].isSelected.set(model: true)
+        sut.items[2].isSelected.set(model: true)
+        
+        // WHEN
+        sut.viewDidLoad()
+        
+        let onPress = selectButtonSpy.capturedDisplayModel.first??.onPress
+        onPress?()
+        
+        if case .closeResult(let result)? = flowSpy.messages.first,
+           case .multipleSelection(let items)? = result {
+            XCTAssertEqual(items.count, 3)
+            XCTAssertEqual(items.first?.id, "1")
+        } else {
+            XCTFail("Expected flow.close to be called with multipleSelection")
+        }
+    }
+    
+    func test_viewDidLoad_selectButtonOutput_onPress_singleSelection() {
+        // GIVEN
+        let components = makeSUT(isMultipleSelection: false)
+        let sut = components.sut
+        let selectButtonSpy = components.selectButton
+        let flowSpy = components.flowSpy
+        
+        sut.items[2].isSelected.set(model: true)
+        
+        // WHEN
+        sut.viewDidLoad()
+        
+        let onPress = selectButtonSpy.capturedDisplayModel.first??.onPress
+        onPress?()
+        
+        // THEN
+        if case .closeResult(let result)? = flowSpy.messages.first,
+           case .singleSelection(let item)? = result {
+            XCTAssertEqual(item.id, "3")
+        } else {
+            XCTFail("Expected flow.close to be called with singleSelection")
+        }
+    }
+    
+    func test_viewDidLoad_headerOutput_backButton_onPress() {
+        // GIVEN
+        let components = makeSUT()
+        let sut = components.sut
+        let headerSpy = components.headerSpy
+        let flowSpy = components.flowSpy
+        
+        // WHEN
+        sut.viewDidLoad()
+        
+        let onPress = headerSpy.capturedDisplayModel.first??.primeTrailingImage?.onPress
+        
+        onPress?()
+        
+        // THEN
+        if case .closeResult(let result)? = flowSpy.messages.first {
+            XCTAssertNil(result, "Expected flow.close to be called with nil")
+        } else {
+            XCTFail("Expected flow.close to be called")
+        }
+    }
+    
 }
 
-fileprivate extension SelectionPresenterSpyTests {
+fileprivate extension SelectionPresenterTests {
     
     struct SUTComponents {
         let sut: SelectionPresenter
         let headerSpy: HeaderOutputSpy
         let resetSpy: ButtonOutputSpy
         let viewSpy: SelectionOutputSpy
-        let searchButtonSpy: ButtonOutputSpy
+        let selectButton: ButtonOutputSpy
         let emptyViewSpy: EmptyViewOutputSpy
+        let flowSpy: SelectionFlowSpy
     }
     
-    func makeSUT() -> SUTComponents {
+    func makeSUT(isMultipleSelection: Bool = true) -> SUTComponents {
         
         let items = (1...16).map { index in
             SelectionType.SelectionCellPresentableModel(
@@ -149,7 +249,7 @@ fileprivate extension SelectionPresenterSpyTests {
         
         let model = SelectionPresenterModel(
             title: "Select",
-            isMultipleSelectionEnabled: true,
+            isMultipleSelectionEnabled: isMultipleSelection,
             items: items,
             callback: nil,
             emptyViewPresentableModel: .init(title: .text("Empty View")),
@@ -184,8 +284,9 @@ fileprivate extension SelectionPresenterSpyTests {
             headerSpy: headerSpy,
             resetSpy: resetButtonSpy,
             viewSpy: viewSpy,
-            searchButtonSpy: selectButtonSpy,
-            emptyViewSpy: emptyViewSpy
+            selectButton: selectButtonSpy,
+            emptyViewSpy: emptyViewSpy,
+            flowSpy: flow
         )
     }
     
@@ -219,7 +320,7 @@ fileprivate extension SelectionPresenterSpyTests {
                 labelFont: .boldSystemFont(ofSize: 14),
                 textColor: .black,
                 backgroundColor: .systemBackground,
-                borderColor: .clear
+                borderColor: .clear,
             ) : nil,
             searchButton: SelectionConfiguration.ActionButton.init(
                 labelFont: .boldSystemFont(ofSize: 14),

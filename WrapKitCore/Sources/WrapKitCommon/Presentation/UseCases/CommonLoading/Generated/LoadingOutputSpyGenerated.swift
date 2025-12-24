@@ -26,12 +26,7 @@ public final class LoadingOutputSpy: LoadingOutput {
 
     // MARK: - Captured values
     public private(set) var capturedDisplayIsLoading: [Bool] = []
-    public private(set) var capturedNVActivityLoaderOnView: [UIView] = []
-    public private(set) var capturedNVActivityLoaderOnViewType: [NVActivityIndicatorType] = []
-    public private(set) var capturedNVActivityLoaderOnViewSize: [CGSize] = []
-    public private(set) var capturedNVActivityLoaderOnViewPadding: [UIEdgeInsets] = []
-    public private(set) var capturedNVActivityLoaderOnViewLoadingViewColor: [UIColor] = []
-    public private(set) var capturedNVActivityLoaderOnViewWrapperViewColor: [UIColor] = []
+    public private(set) var capturedNVActivityLoaderOnView: [(onView: UIView, type: NVActivityIndicatorType, size: CGSize, padding: UIEdgeInsets, loadingViewColor: UIColor, wrapperViewColor: UIColor)] = []
 
     public private(set) var capturedIsLoading: [Bool?] = []
 

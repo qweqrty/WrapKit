@@ -27,29 +27,39 @@ public final class LifeCycleViewOutputSpy: LifeCycleViewOutput {
     public private(set) var messages: [Message] = []
 
     // MARK: - Captured values
+    public private(set) var capturedViewDidLoadCallCount = 0
+    public private(set) var capturedViewWillAppearCallCount = 0
+    public private(set) var capturedViewWillDisappearCallCount = 0
+    public private(set) var capturedViewDidAppearCallCount = 0
+    public private(set) var capturedViewDidDisappearCallCount = 0
+    public private(set) var capturedViewDidLayoutSubviewsCallCount = 0
     public private(set) var capturedComposedOutput: [LifeCycleViewOutput] = []
-    public private(set) var capturedWithAnalyticsEventName: [String] = []
-    public private(set) var capturedWithAnalyticsEventNameParameters: [[String: Any]] = []
-    public private(set) var capturedWithAnalyticsEventNameAnalytics: [AnalyticsTracker] = []
+    public private(set) var capturedWithAnalyticsEventName: [(eventName: String, parameters: [String: Any], analytics: AnalyticsTracker)] = []
 
 
     // MARK: - LifeCycleViewOutput methods
     public func viewDidLoad() {
+        capturedViewDidLoadCallCount += 1
         messages.append(.viewDidLoad)
     }
     public func viewWillAppear() {
+        capturedViewWillAppearCallCount += 1
         messages.append(.viewWillAppear)
     }
     public func viewWillDisappear() {
+        capturedViewWillDisappearCallCount += 1
         messages.append(.viewWillDisappear)
     }
     public func viewDidAppear() {
+        capturedViewDidAppearCallCount += 1
         messages.append(.viewDidAppear)
     }
     public func viewDidDisappear() {
+        capturedViewDidDisappearCallCount += 1
         messages.append(.viewDidDisappear)
     }
     public func viewDidLayoutSubviews() {
+        capturedViewDidLayoutSubviewsCallCount += 1
         messages.append(.viewDidLayoutSubviews)
     }
     public func composed(with output: LifeCycleViewOutput) {
@@ -57,9 +67,7 @@ public final class LifeCycleViewOutputSpy: LifeCycleViewOutput {
         messages.append(.composedOutput(with: output))
     }
     public func withAnalytics(eventName: String, parameters: [String: Any], analytics: AnalyticsTracker) {
-        capturedWithAnalyticsEventName.append(eventName)
-        capturedWithAnalyticsEventNameParameters.append(parameters)
-        capturedWithAnalyticsEventNameAnalytics.append(analytics)
+        capturedWithAnalyticsEventName.append((eventName: eventName, parameters: parameters, analytics: analytics))
         messages.append(.withAnalyticsEventName(eventName: eventName, parameters: parameters, analytics: analytics))
     }
 
