@@ -49,6 +49,25 @@ final class TimerPresenterTests: XCTestCase {
         wait(for: [exp], timeout: 7.0)
     }
     
+    func test_start_onSecondsRemaining_endsWithNil() {
+        let components = makeSUT()
+        let sut = components.sut
+
+        let exp = expectation(description: "Wait for nil")
+
+        sut.onSecondsRemaining = { value in
+            print(value)
+            if value == nil {
+                XCTAssertEqual(value, nil)
+                exp.fulfill()
+            }
+        }
+
+        sut.start(seconds: 5)
+
+        wait(for: [exp], timeout: 6)
+    }
+    
     func test_stop_shouldNotDisplaySecondsRemaining() {
         let components = makeSUT()
         let sut = components.sut
