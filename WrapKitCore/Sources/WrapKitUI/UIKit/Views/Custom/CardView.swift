@@ -38,7 +38,7 @@ extension CardViewOutput {
 }
 
 public struct CardViewPresentableModel: HashableWithReflection {
-    public struct Style {
+    public struct Style: HashableWithReflection {
         public var backgroundColor: Color
         public let vStacklayoutMargins: EdgeInsets
         public let hStacklayoutMargins: EdgeInsets
@@ -120,7 +120,7 @@ public struct CardViewPresentableModel: HashableWithReflection {
         }
     }
 
-    public struct BottomSeparator {
+    public struct BottomSeparator: HashableWithReflection {
         public let color: Color
         public let padding: EdgeInsets
         public let height: CGFloat
