@@ -1,10 +1,3 @@
-//
-//  UIView+Layout.swift
-//  WrapKit
-//
-//  Created by Stas Lee on 5/8/23.
-//
-
 #if canImport(UIKit)
 import Foundation
 import UIKit
@@ -16,6 +9,7 @@ public struct AnchoredConstraints {
                widthLessThanConstant,
                widthTo,
                heightTo,
+               heightLessThanOrEqualTo,
                widthLessThanOrEqualTo,
                heightToWidth,
                centerY,
@@ -41,6 +35,7 @@ public enum Anchor {
     case heightLessThanConstant(_ constant: CGFloat = 0)
     case widthGreaterThanConstant(_ constant: CGFloat = 0)
     case heightTo(_ anchor: NSLayoutDimension, _ multiplier: CGFloat = 1, priority: UILayoutPriority = .required)
+    case heightLessThanOrEqualTo(_ anchor: NSLayoutDimension, multiplier: CGFloat = 1, constant: CGFloat = 0, priority: UILayoutPriority = .required)
     case widthLessThanOrEqualTo(_ anchor: NSLayoutDimension, multiplier: CGFloat = 1, constant: CGFloat = 0, priority: UILayoutPriority = .required)
     case widthTo(_ anchor: NSLayoutDimension, _ multiplier: CGFloat = 1, priority: UILayoutPriority = .required)
     case centerX(_ top: NSLayoutXAxisAnchor, constant: CGFloat = 0)
@@ -167,6 +162,9 @@ public extension UIView {
             case .height(let constant, let priority):
                 anchoredConstraints.height = heightAnchor.constraint(equalToConstant: constant)
                 anchoredConstraints.height?.priority = priority
+            case .heightLessThanOrEqualTo(let anchor, let multiplier, let constant, let priority):
+                anchoredConstraints.heightLessThanOrEqualTo = heightAnchor.constraint(lessThanOrEqualTo: anchor, multiplier: multiplier, constant: constant)
+                anchoredConstraints.heightLessThanOrEqualTo?.priority = priority
             case .widthLessThanOrEqualTo(let anchor, let multiplier, let constant, let priority):
                 anchoredConstraints.widthLessThanOrEqualTo = widthAnchor.constraint(lessThanOrEqualTo: anchor, multiplier: multiplier, constant: constant)
                 anchoredConstraints.widthLessThanOrEqualTo?.priority = priority
@@ -201,6 +199,7 @@ public extension UIView {
             anchoredConstraints.leading,
             anchoredConstraints.heightTo,
             anchoredConstraints.heightLessThanConstant,
+            anchoredConstraints.heightLessThanOrEqualTo,
             anchoredConstraints.widthLessThanOrEqualTo,
             anchoredConstraints.heightGreaterThanConstant,
             anchoredConstraints.bottom,
@@ -217,101 +216,7 @@ public extension UIView {
     
     @discardableResult
     func anchor(_ anchors: Anchor...) -> AnchoredConstraints {
-        translatesAutoresizingMaskIntoConstraints = false
-        var anchoredConstraints = AnchoredConstraints()
-        anchors.forEach { anchor in
-            switch anchor {
-            case .widthLessThanConstant(let constant):
-                anchoredConstraints.widthLessThanConstant = widthAnchor.constraint(lessThanOrEqualToConstant: constant)
-            case .heightGreaterThanConstant(let constant):
-                anchoredConstraints.heightGreaterThanConstant = heightAnchor.constraint(greaterThanOrEqualToConstant: constant)
-            case .heightLessThanConstant(let constant):
-                anchoredConstraints.heightLessThanConstant = heightAnchor.constraint(lessThanOrEqualToConstant: constant)
-            case .widthGreaterThanConstant(let constant):
-                anchoredConstraints.widthGreaterThanConstant = widthAnchor.constraint(greaterThanOrEqualToConstant: constant)
-            case .centerX(let anchor, let constant):
-                anchoredConstraints.centerX = centerXAnchor.constraint(equalTo: anchor, constant: constant)
-            case .centerY(let anchor, let constant, let priority):
-                anchoredConstraints.centerY = centerYAnchor.constraint(equalTo: anchor, constant: constant)
-                anchoredConstraints.centerY?.priority = priority
-            case .top(let anchor, let constant, let priority):
-                anchoredConstraints.top = topAnchor.constraint(equalTo: anchor, constant: constant)
-                anchoredConstraints.top?.priority = priority
-            case .topLessThanEqual(let anchor, let constant, let priority):
-                anchoredConstraints.topLessThanEqual = topAnchor.constraint(lessThanOrEqualTo: anchor, constant: constant)
-                anchoredConstraints.topLessThanEqual?.priority = priority
-            case .topGreaterThanEqual(let anchor, let constant):
-                anchoredConstraints.topGreaterThanEqual = topAnchor.constraint(greaterThanOrEqualTo: anchor, constant: constant)
-            case .leading(let anchor, let constant, let priority):
-                anchoredConstraints.leading = leadingAnchor.constraint(equalTo: anchor, constant: constant)
-                anchoredConstraints.leading?.priority = priority
-            case .leadingGreaterThanEqual(let anchor, let constant):
-                anchoredConstraints.leading = leadingAnchor.constraint(greaterThanOrEqualTo: anchor, constant: constant)
-            case .leadingLessThanEqual(let anchor, let constant):
-                anchoredConstraints.leading = leadingAnchor.constraint(lessThanOrEqualTo: anchor, constant: constant)
-            case .bottom(let anchor, let constant, let priority):
-                anchoredConstraints.bottom = bottomAnchor.constraint(equalTo: anchor, constant: -constant)
-                anchoredConstraints.bottom?.priority = priority
-            case .bottomGreaterThanEqual(let anchor, let constant):
-                anchoredConstraints.bottom = bottomAnchor.constraint(greaterThanOrEqualTo: anchor, constant: -constant)
-            case .bottomLessThanEqual(let anchor, let constant):
-                anchoredConstraints.bottom = bottomAnchor.constraint(lessThanOrEqualTo: anchor, constant: -constant)
-            case .trailing(let anchor, let constant, let priority):
-                anchoredConstraints.trailing = trailingAnchor.constraint(equalTo: anchor, constant: -constant)
-                anchoredConstraints.trailing?.priority = priority
-            case .trailingGreaterThanEqual(let anchor, let constant):
-                anchoredConstraints.trailing = trailingAnchor.constraint(greaterThanOrEqualTo: anchor, constant: -constant)
-            case .trailingLessThanEqual(let anchor, let constant):
-                anchoredConstraints.trailing = trailingAnchor.constraint(lessThanOrEqualTo: anchor, constant: -constant)
-            case .height(let constant, let priority):
-                anchoredConstraints.height = heightAnchor.constraint(equalToConstant: constant)
-                anchoredConstraints.height?.priority = priority
-            case .widthLessThanOrEqualTo(let anchor, let multiplier, let constant, let priority):
-                anchoredConstraints.widthLessThanOrEqualTo = widthAnchor.constraint(lessThanOrEqualTo: anchor, multiplier: multiplier, constant: constant)
-                anchoredConstraints.widthLessThanOrEqualTo?.priority = priority
-            case .width(let constant, let priority):
-                anchoredConstraints.width = widthAnchor.constraint(equalToConstant: constant)
-                anchoredConstraints.width?.priority = priority
-            case .heightToWidth(let multiplier, let priority):
-                if multiplier > 0 {
-                    anchoredConstraints.heightToWidth = heightAnchor.constraint(equalTo: widthAnchor, multiplier: multiplier)
-                    anchoredConstraints.heightToWidth?.priority = priority
-                }
-            case .heightTo(let anchor, let multiplier, let priority):
-                if multiplier > 0 {
-                    anchoredConstraints.heightTo = heightAnchor.constraint(equalTo: anchor, multiplier: multiplier)
-                    anchoredConstraints.heightTo?.priority = priority
-                }
-            case .widthTo(let anchor, let multiplier, let priority):
-                if multiplier > 0 {
-                    anchoredConstraints.widthTo = widthAnchor.constraint(equalTo: anchor, multiplier: multiplier)
-                    anchoredConstraints.widthTo?.priority = priority
-                }
-            }
-        }
-        [
-            anchoredConstraints.centerY,
-            anchoredConstraints.centerX,
-            anchoredConstraints.top,
-            anchoredConstraints.widthLessThanConstant,
-            anchoredConstraints.topLessThanEqual,
-            anchoredConstraints.topGreaterThanEqual,
-            anchoredConstraints.widthGreaterThanConstant,
-            anchoredConstraints.leading,
-            anchoredConstraints.heightTo,
-            anchoredConstraints.heightLessThanConstant,
-            anchoredConstraints.widthLessThanOrEqualTo,
-            anchoredConstraints.heightGreaterThanConstant,
-            anchoredConstraints.bottom,
-            anchoredConstraints.trailing,
-            anchoredConstraints.width,
-            anchoredConstraints.height,
-            anchoredConstraints.widthTo,
-            anchoredConstraints.heightToWidth
-        ].forEach {
-            $0?.isActive = true
-        }
-        return anchoredConstraints
+        return anchor(anchors: Array(anchors))
     }
     
     @discardableResult
