@@ -534,7 +534,9 @@ extension CardView {
         
         leadingImageWrapperView.addSubview(leadingImageView)
         secondaryLeadingImageWrapperView.addSubview(secondaryLeadingImageView)
-        trailingImagesStackView.addArrangedSubviews(trailingImageWrapperView, secondaryTrailingImageWrapperView)
+        trailingImagesStackView.addArrangedSubviews(secondaryTrailingImageWrapperView, trailingImageWrapperView)
+        trailingImageWrapperView.addSubview(trailingImageView)
+        secondaryTrailingImageWrapperView.addSubview(secondaryTrailingImageView)
         
         leadingTitleViewsWrapperView.addSubview(leadingTitleViews)
         titleViewsWrapperView.addSubview(titleViews)
@@ -645,7 +647,7 @@ struct CardViewFullRepresentable: UIViewRepresentable {
         view.titleViews.stackView.spacing = 6
         view.leadingImageView.image = UIImage(systemName: "mail")
         view.trailingImageView.image = UIImage(systemName: "arrow.right")
-        view.trailingImageWrapperView.isHidden = false
+        view.trailingImageView.isHidden = false
         view.subtitleLabel.isHidden = false
         view.subtitleLabel.text = "Subtitle label"
         return view
@@ -721,7 +723,7 @@ struct CardViewTitleViewValueLabelRepresentable: UIViewRepresentable {
         view.titleViews.stackView.spacing = 4
         view.leadingImageWrapperView.isHidden = true
         view.trailingImageView.image = UIImage(systemName: "arrow.right")
-        view.trailingImageWrapperView.isHidden = false
+        view.trailingImageView.isHidden = false
         return view
     }
 
