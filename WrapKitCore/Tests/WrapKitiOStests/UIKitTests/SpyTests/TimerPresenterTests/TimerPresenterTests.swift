@@ -240,10 +240,12 @@ final class TimerPresenterTests: XCTestCase {
     }
     
     func test_stop_calledMultipleTimes_shouldNotProduceNewDisplayCalls() {
+        // GIVEN
         let components = makeSUT()
         let sut = components.sut
         let viewSpy = components.viewSpy
 
+        // WHEN
         sut.start(seconds: 5)
 
         let firstTick = expectation(description: "Wait first tick")
@@ -261,15 +263,112 @@ final class TimerPresenterTests: XCTestCase {
             waitAfterStop.fulfill()
         }
         wait(for: [waitAfterStop], timeout: 2.5)
-
-        print("AWD\(viewSpy.capturedDisplayTimerInput)")
         
+        // THEN
         XCTAssertEqual(viewSpy.capturedDisplayTimerInput.count, 2)
-//        XCTAssertEqual(viewSpy.capturedDisplayTimerInput.map { $0.secondsRemaining }, [4, 3])
+        XCTAssertEqual(viewSpy.capturedDisplayTimerInput.map { $0.secondsRemaining }, [4, 3])
     }
 
+    func test_applicationDidEnterBackground_calledMultipleTimes() {
+        // GIVEN
+        let components = makeSUT()
+        let sut = components.sut
+        let viewSpy = components.viewSpy
 
+        // WHEN
+        sut.start(seconds: 5)
 
+        let firstTick = expectation(description: "Wait first tick")
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.1) {
+            firstTick.fulfill()
+        }
+        wait(for: [firstTick], timeout: 2.0)
+
+        sut.stop()
+        sut.stop()
+        sut.stop()
+
+        let waitAfterStop = expectation(description: "Wait after stop")
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+            waitAfterStop.fulfill()
+        }
+        wait(for: [waitAfterStop], timeout: 2.5)
+        
+        // THEN
+        XCTAssertEqual(viewSpy.capturedDisplayTimerInput.count, 2)
+        XCTAssertEqual(viewSpy.capturedDisplayTimerInput.map { $0.secondsRemaining }, [4, 3])
+    }
+    
+    func test_applicationDidEnterBackground_calledMultipleTimes_shouldNotProduceNewDisplayCalls() {
+        // GIVEN
+        let components = makeSUT()
+        let sut = components.sut
+        let viewSpy = components.viewSpy
+
+        // WHEN
+        sut.start(seconds: 5)
+
+        let firstTick = expectation(description: "Wait first tick")
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.1) {
+            firstTick.fulfill()
+        }
+        wait(for: [firstTick], timeout: 2.0)
+
+        sut.applicationDidEnterBackground()
+        sut.applicationDidEnterBackground()
+        sut.applicationDidEnterBackground()
+
+        let waitBack = expectation(description: "Wait after background")
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+            waitBack.fulfill()
+        }
+        
+        wait(for: [waitBack], timeout: 2.5)
+
+        // THEN
+        XCTAssertEqual(viewSpy.capturedDisplayTimerInput.count, 2)
+        XCTAssertEqual(
+            viewSpy.capturedDisplayTimerInput.map { $0.secondsRemaining },
+            [4,3]
+        )
+    }
+
+    func test_applicationWillEnterForeground_calledMultipleTimes_shouldDisplaySameRemainingSeconds() {
+        // GIVEN
+        let components = makeSUT()
+        let sut = components.sut
+        let viewSpy = components.viewSpy
+
+         // WHEN
+        sut.start(seconds: 5)
+
+        let firstTick = expectation(description: "Wait first tick")
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            firstTick.fulfill()
+        }
+        wait(for: [firstTick], timeout: 2.0)
+
+        sut.applicationDidEnterBackground()
+        
+        let waitInBackground = expectation(description: "Wait in background")
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+            waitInBackground.fulfill()
+        }
+        wait(for: [waitInBackground], timeout: 3.0)
+
+        sut.applicationWillEnterForeground()
+        sut.applicationWillEnterForeground()
+        sut.applicationWillEnterForeground()
+
+        let lastTick = expectation(description: "Wait last tick")
+        DispatchQueue.main.asyncAfter(deadline: .now() + 6) {
+            lastTick.fulfill()
+        }
+        wait(for: [lastTick], timeout: 6.0)
+        
+        // THEN
+        XCTAssertEqual(viewSpy.capturedDisplayTimerInput.map { $0.secondsRemaining }, [4, 3, 1, nil])
+    }
 }
 
 extension TimerPresenterTests {
