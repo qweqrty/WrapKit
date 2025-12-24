@@ -17,6 +17,7 @@ final class TimerPresenterTests: XCTestCase {
         let seconds = 5
         
         let exp = expectation(description: "Wait for timer tick")
+        exp.expectedFulfillmentCount = 4
         var counter: Int? = seconds - 1
         
         sut.onSecondsRemaining = { secondsRemained in
@@ -33,6 +34,21 @@ final class TimerPresenterTests: XCTestCase {
         wait(for: [exp], timeout: 6.0)
     }
     
+    func test_start_timerOutput_display() {
+        let components = makeSUT()
+        let sut = components.sut
+        let viewSpy = components.viewSpy
+        let seconds = 5
+        let exp = expectation(description: "Wait in background")
+        sut.start(seconds: seconds)
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+            XCTAssertEqual(viewSpy.capturedDisplayTimerInput.map { $0.secondsRemaining }, [4, 3, 2, 1, nil])
+            exp.fulfill()
+        }
+        wait(for: [exp], timeout: 7.0)
+    }
+    
     func test_stop_shouldNotDisplaySecondsRemaining() {
         let components = makeSUT()
         let sut = components.sut
@@ -41,9 +57,14 @@ final class TimerPresenterTests: XCTestCase {
         sut.start(seconds: 5)
         sut.stop()
         
-        RunLoop.main.run(until: Date().addingTimeInterval(1.5))
+        let exp1 = expectation(description: "Wait for first tick")
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+            exp1.fulfill()
+        }
         
-        XCTAssertEqual(timerSpy.messages.last, nil)
+        wait(for: [exp1], timeout: 3.0)
+        
+        XCTAssertEqual(timerSpy.capturedDisplayTimerInput.last?.secondsRemaining, nil)
     }
     
     func test_applicationWillEnterForeground_shouldDisplayUpdatedSeconds() {
@@ -60,7 +81,12 @@ final class TimerPresenterTests: XCTestCase {
         sut.start(seconds: 10)
         sut.applicationDidEnterBackground()
 
-        RunLoop.main.run(until: Date().addingTimeInterval(2.0))
+        let exp1 = expectation(description: "Wait for first tick")
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+            exp1.fulfill()
+        }
+        
+        wait(for: [exp1], timeout: 3.0)
 
         sut.applicationWillEnterForeground()
 
@@ -75,7 +101,12 @@ final class TimerPresenterTests: XCTestCase {
         
         sut.start(seconds: seconds)
         
-        RunLoop.main.run(until: Date().addingTimeInterval(2.0))
+        let exp1 = expectation(description: "Wait for first tick")
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+            exp1.fulfill()
+        }
+        
+        wait(for: [exp1], timeout: 3.0)
         
         XCTAssertEqual(viewSpy.capturedDisplayTimerInput.last?.secondsRemaining, nil)
     }
@@ -84,29 +115,26 @@ final class TimerPresenterTests: XCTestCase {
         let components = makeSUT()
         let sut = components.sut
         let viewSpy = components.viewSpy
-        
+
         sut.start(seconds: 5)
-        
-        let exp1 = expectation(description: "Wait for first tick")
+
+        let firstTick = expectation(description: "Wait for first tick")
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.1) {
-            exp1.fulfill()
+            firstTick.fulfill()
         }
-        
-        wait(for: [exp1], timeout: 2.0)
-        
-        let messageBeforeStop = viewSpy.messages.last
-        
+        wait(for: [firstTick], timeout: 2)
+
         sut.stop()
-        
-        let exp2 = expectation(description: "Wait to verify no more ticks")
-        
+
+        let noMoreTicks = expectation(description: "No more ticks")
+
         DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-            exp2.fulfill()
+            noMoreTicks.fulfill()
         }
-        
-        wait(for: [exp2], timeout: 3.0)
-        
-        XCTAssertEqual(viewSpy.messages.last, messageBeforeStop)
+
+        wait(for: [noMoreTicks], timeout: 2.5)
+
+        XCTAssertEqual(viewSpy.capturedDisplayTimerInput.first?.secondsRemaining, 4)
     }
     
     func test_applicationWillEnterForeground_whenTimeExpired_shouldCallDisplayWithNil() {
@@ -125,7 +153,7 @@ final class TimerPresenterTests: XCTestCase {
         
         sut.applicationWillEnterForeground()
         
-        XCTAssertEqual(viewSpy.capturedDisplayTimerInput.last?.secondsRemaining, nil)
+        XCTAssertEqual(viewSpy.capturedDisplayTimerInput[0].secondsRemaining, nil)
     }
 }
 
@@ -135,15 +163,16 @@ extension TimerPresenterTests {
         let viewSpy: TimerOutputSpy
     }
     
-    func makeSUT() -> SUTComponents {
-        
+    func makeSUT(
+        file: StaticString = #file,
+        line: UInt = #line
+    ) -> SUTComponents {
         let viewSpy = TimerOutputSpy()
         let sut = TimerPresenter()
-        
         sut.view = viewSpy
-            .mainQueueDispatched
-            .weakReferenced
         
+        checkForMemoryLeaks(sut, file: file, line: line)
+        checkForMemoryLeaks(viewSpy, file: file, line: line)
         return SUTComponents(sut: sut, viewSpy: viewSpy)
     }
 }
