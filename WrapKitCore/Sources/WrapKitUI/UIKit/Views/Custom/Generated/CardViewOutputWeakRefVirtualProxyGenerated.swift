@@ -49,9 +49,6 @@ extension WeakRefVirtualProxy: CardViewOutput where T: CardViewOutput {
     public func display(secondaryLeadingImage: ImageViewPresentableModel?) {
         object?.display(secondaryLeadingImage: secondaryLeadingImage)
     }
-    public func display(trailingImage: ImageViewPresentableModel?) {
-        object?.display(trailingImage: trailingImage)
-    }
     public func display(trailingImage: ImageViewPresentableModel?, leadingSpacing: CGFloat?) {
         object?.display(trailingImage: trailingImage, leadingSpacing: leadingSpacing)
     }
@@ -84,6 +81,9 @@ extension WeakRefVirtualProxy: CardViewOutput where T: CardViewOutput {
     }
     public func display(isGradientBorderEnabled: Bool) {
         object?.display(isGradientBorderEnabled: isGradientBorderEnabled)
+    }
+    public func display(trailingImage: ImageViewPresentableModel?) {
+        object?.display(trailingImage: trailingImage)
     }
 
 }

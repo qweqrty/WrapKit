@@ -287,7 +287,7 @@ private extension NavigationBar {
         view.vStackView.layoutMargins = .init(top: 0, left: 10, bottom: 0, right: 10)
         view.hStackView.spacing = 8
         view.bottomSeparatorView.isHidden = true
-        view.trailingImageWrapperView.isHidden = true
+        view.trailingImagesStackView.isHidden = true
         view.subtitleLabel.isHidden = true
         view.subtitleLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
         view.subtitleLabel.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)

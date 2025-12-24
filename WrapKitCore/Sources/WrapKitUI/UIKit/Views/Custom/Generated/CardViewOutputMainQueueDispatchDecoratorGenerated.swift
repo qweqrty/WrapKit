@@ -65,11 +65,6 @@ extension MainQueueDispatchDecorator: CardViewOutput where T: CardViewOutput {
             self?.decoratee.display(secondaryLeadingImage: secondaryLeadingImage)
         }
     }
-    public func display(trailingImage: ImageViewPresentableModel?) {
-        dispatch { [weak self] in
-            self?.decoratee.display(trailingImage: trailingImage)
-        }
-    }
     public func display(trailingImage: ImageViewPresentableModel?, leadingSpacing: CGFloat?) {
         dispatch { [weak self] in
             self?.decoratee.display(trailingImage: trailingImage, leadingSpacing: leadingSpacing)
@@ -123,6 +118,11 @@ extension MainQueueDispatchDecorator: CardViewOutput where T: CardViewOutput {
     public func display(isGradientBorderEnabled: Bool) {
         dispatch { [weak self] in
             self?.decoratee.display(isGradientBorderEnabled: isGradientBorderEnabled)
+        }
+    }
+    public func display(trailingImage: ImageViewPresentableModel?) {
+        dispatch { [weak self] in
+            self?.decoratee.display(trailingImage: trailingImage)
         }
     }
 

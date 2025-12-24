@@ -28,7 +28,6 @@ public final class CardViewOutputSpy: CardViewOutput {
         case displayTrailingTitles(trailingTitles: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>?)
         case displayLeadingImage(leadingImage: ImageViewPresentableModel?)
         case displaySecondaryLeadingImage(secondaryLeadingImage: ImageViewPresentableModel?)
-        case displayTrailingImage(trailingImage: ImageViewPresentableModel?)
         case displayTrailingImage(trailingImage: ImageViewPresentableModel?, leadingSpacing: CGFloat?)
         case displaySecondaryTrailingImage(secondaryTrailingImage: ImageViewPresentableModel?)
         case displaySubTitle(subTitle: TextOutputPresentableModel?)
@@ -53,9 +52,7 @@ public final class CardViewOutputSpy: CardViewOutput {
     public private(set) var capturedDisplayTrailingTitles: [Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>?] = []
     public private(set) var capturedDisplayLeadingImage: [ImageViewPresentableModel?] = []
     public private(set) var capturedDisplaySecondaryLeadingImage: [ImageViewPresentableModel?] = []
-    public private(set) var capturedDisplayTrailingImage: [ImageViewPresentableModel?] = []
-    public private(set) var capturedDisplayTrailingImage: [ImageViewPresentableModel?] = []
-    public private(set) var capturedDisplayTrailingImageLeadingSpacing: [CGFloat?] = []
+    public private(set) var capturedDisplayTrailingImage: [(trailingImage: ImageViewPresentableModel?, leadingSpacing: CGFloat?)] = []
     public private(set) var capturedDisplaySecondaryTrailingImage: [ImageViewPresentableModel?] = []
     public private(set) var capturedDisplaySubTitle: [TextOutputPresentableModel?] = []
     public private(set) var capturedDisplayValueTitle: [TextOutputPresentableModel?] = []
@@ -101,13 +98,8 @@ public final class CardViewOutputSpy: CardViewOutput {
         capturedDisplaySecondaryLeadingImage.append(secondaryLeadingImage)
         messages.append(.displaySecondaryLeadingImage(secondaryLeadingImage: secondaryLeadingImage))
     }
-    public func display(trailingImage: ImageViewPresentableModel?) {
-        capturedDisplayTrailingImage.append(trailingImage)
-        messages.append(.displayTrailingImage(trailingImage: trailingImage))
-    }
     public func display(trailingImage: ImageViewPresentableModel?, leadingSpacing: CGFloat?) {
-        capturedDisplayTrailingImage.append(trailingImage)
-        capturedDisplayTrailingImageLeadingSpacing.append(leadingSpacing)
+        capturedDisplayTrailingImage.append((trailingImage: trailingImage, leadingSpacing: leadingSpacing))
         messages.append(.displayTrailingImage(trailingImage: trailingImage, leadingSpacing: leadingSpacing))
     }
     public func display(secondaryTrailingImage: ImageViewPresentableModel?) {
