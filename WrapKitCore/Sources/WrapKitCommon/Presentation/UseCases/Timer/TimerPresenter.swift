@@ -56,7 +56,7 @@ public class TimerPresenter: TimerInput {
         timer = nil
     }
     
-    public func applicationWillEnterForeground(){
+    public func applicationWillEnterForeground() {
         guard let backgroundStartTime = backgroundStartTime else { return }
         let timeSpentInBackground = Int(Date().timeIntervalSince(backgroundStartTime))
         secondsRemained = (secondsRemained ?? 0) - timeSpentInBackground
