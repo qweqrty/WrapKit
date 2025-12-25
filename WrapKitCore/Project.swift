@@ -28,7 +28,8 @@ let project = Project(
             sources: [.glob("TestUtils/**", excluding: ["**/Project.swift", "**/*Tests.swift"])],
             scripts: [Scripts.swiftlint],
             dependencies: [
-                .xctest
+                .xctest,
+                .target(name: wrapKit.name),
             ]
         ),
         .target(

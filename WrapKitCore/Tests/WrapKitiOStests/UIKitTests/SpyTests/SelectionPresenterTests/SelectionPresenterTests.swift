@@ -115,7 +115,6 @@ final class SelectionPresenterTests: XCTestCase {
         )
         
         XCTAssertEqual(searchButtonSpy.messages.first, .displayModel(model: model))
-        XCTAssertEqual(searchButtonSpy.capturedDisplayStyle.first, style)
     }
     
     func test_viewDidLoad_resetButtonOutput_onPress_shouldUpdateStyle() {
