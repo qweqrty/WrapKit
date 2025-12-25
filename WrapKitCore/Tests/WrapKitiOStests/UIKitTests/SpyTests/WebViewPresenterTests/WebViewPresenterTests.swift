@@ -10,6 +10,8 @@ import WrapKitTestUtils
 
 final class WebViewPresenterTests: XCTestCase {
     
+    let url = URL(string: "https://o.kg/kg/chastnym-klientam/")!
+    
     func test_webViewOutput_displayRefreshModel() {
         let components = makeSUT()
         let sut = components.sut
@@ -27,8 +29,6 @@ final class WebViewPresenterTests: XCTestCase {
         let viewSpy = components.webViewSpy
         
         sut.viewDidLoad()
-        
-        let url = URL(string: "https://o.kg/kg/chastnym-klientam/")!
         
         XCTAssertEqual(viewSpy.messages[2], .displayUrl(url: url))
         XCTAssertEqual(viewSpy.capturedDisplayUrl[0], url)
@@ -136,7 +136,6 @@ final class WebViewPresenterTests: XCTestCase {
     func test_decideNavigation_returnsDecisionFromPolicy() {
         let policySpy = WebViewNavigationPolicySpy()
         let components = makeSUT(navigationPolicy: policySpy)
-        let url = URL(string: "https://o.kg/kg/chastnym-klientam/")!
         
         policySpy.decisionToReturn = .cancel
         
@@ -149,8 +148,7 @@ final class WebViewPresenterTests: XCTestCase {
     
     func test_decideNavigation_returnsAllowWhenPolicyIsNil() {
         let components = makeSUT(navigationPolicy: nil)
-        let url = URL(string: "https://o.kg/kg/chastnym-klientam/")!
-        
+
         let decision = components.sut.decideNavigation(for: url, trigger: .linkActivated)
         
         XCTAssertEqual(decision, .allow)
@@ -179,7 +177,6 @@ fileprivate extension WebViewPresenterTests {
         let refreshControlSpy = LoadingOutputSpy()
         let flow = WebViewFlowSpy()
         
-        let url = URL(string: "https://o.kg/kg/chastnym-klientam/")!
         let image = UIImage(systemName: "star.fill")
         
         let progressBarStyle = ProgressBarStyle(
