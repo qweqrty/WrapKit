@@ -44,6 +44,9 @@ public struct SUIRepresentableLabel: UIViewRepresentable {
             uiView.display(model: .textStyled(text: text, cornerStyle: cornerStyle, insets: insets, height: height, backgroundColor: backgroundColor))
         case .animatedDecimal(id: let id, from: let from, to: let to, mapToString: let mapToString, animationStyle: let animationStyle, duration: let duration, completion: let completion):
             uiView.display(id: id, from: from, to: to, mapToString: mapToString, animationStyle: animationStyle, duration: duration, completion: completion)
+        case .attributedString(_, _, _):
+            // MARK: - TODO
+            break
         }
     }
     

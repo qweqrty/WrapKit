@@ -118,6 +118,8 @@ public struct SUILabelView: View, Animatable {
                     displayLinkManager.startAnimation(duration: duration, completion: completion)
                 }
             }
+        case .attributedString(_, _, _):
+            SUILabelView(model: .text("")) // MARK: - TODO
         }
     }
 
