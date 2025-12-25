@@ -83,7 +83,7 @@ extension Label: TextOutput {
             _, // MARK: TODO ?
             let backgroundColor
         ):
-            display(model: model)
+            display(model: text)
             self.cornerStyle = cornerStyle
             self.textInsets = insets.asUIEdgeInsets
             if let backgroundColor {
