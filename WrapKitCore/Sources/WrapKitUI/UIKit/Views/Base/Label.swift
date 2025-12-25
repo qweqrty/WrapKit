@@ -22,14 +22,25 @@ public protocol TextOutput: HiddableOutput {
     func display(model: TextOutputPresentableModel?)
     func display(text: String?)
     func display(attributes: [TextAttributes])
-    func display(from startAmount: Double, to endAmount: Double, mapToString: ((Double) -> TextOutputPresentableModel)?, animationStyle: LabelAnimationStyle, duration: TimeInterval, completion: (() -> Void)?)
+    func display(id: String?, from startAmount: Decimal, to endAmount: Decimal, mapToString: ((Decimal) -> TextOutputPresentableModel)?, animationStyle: LabelAnimationStyle, duration: TimeInterval, completion: (() -> Void)?)
     func display(isHidden: Bool)
 }
 
 public indirect enum TextOutputPresentableModel: HashableWithReflection {
     case text(String?)
     case attributes([TextAttributes])
+    case animatedDecimal(
+        id: String? = nil,
+        from: Decimal,
+        to: Decimal,
+        mapToString: ((Decimal) -> TextOutputPresentableModel)?,
+        animationStyle: LabelAnimationStyle,
+        duration: TimeInterval,
+        completion: (() -> Void)?
+    )
+    @available(*, deprecated, message: "Animated double is going to be deprecated. Use animatedDecimal instead")
     case animated(
+        id: String? = nil,
         Double,
         Double,
         mapToString: ((Double) -> TextOutputPresentableModel)?,
@@ -60,11 +71,20 @@ extension Label: TextOutput {
             display(text: text)
         case .attributes(let attributes):
             display(attributes: attributes)
-        case .animated(let startAmount, let endAmount, let mapToString, let animationStyle, let duration, let completion):
-            display(from: startAmount, to: endAmount, mapToString: mapToString, animationStyle: animationStyle, duration: duration, completion: completion)
-        case .textStyled(let model, let style, let insets, _, let backgroundColor):
+        case .animatedDecimal(let id, let startAmount, let endAmount, let mapToString, let animationStyle, let duration, let completion):
+            display(id: id, from: startAmount, to: endAmount, mapToString: mapToString, animationStyle: animationStyle, duration: duration, completion: completion)
+        case .animated(let id, let startAmount, let endAmount, let mapToString, let animationStyle, let duration, let completion):
+            let mapper: ((Decimal) -> TextOutputPresentableModel)? = if let mapToString { { mapToString($0.doubleValue) } } else { nil }
+            display(id: id, from: startAmount.asDecimal(), to: endAmount.asDecimal(), mapToString: mapper, animationStyle: animationStyle, duration: duration, completion: completion)
+        case .textStyled(
+            let text,
+            let cornerStyle,
+            let insets,
+            _, // MARK: TODO ?
+            let backgroundColor
+        ):
             display(model: model)
-            self.cornerStyle = style
+            self.cornerStyle = cornerStyle
             self.textInsets = insets.asUIEdgeInsets
             if let backgroundColor {
                 self.backgroundColor = backgroundColor
@@ -86,12 +106,13 @@ extension Label: TextOutput {
         }
     }
     
-    public func display(from startAmount: Double, to endAmount: Double, mapToString: ((Double) -> TextOutputPresentableModel)?) {
-        display(from: startAmount, to: endAmount, mapToString: mapToString, animationStyle: .none, duration: 1.0, completion: nil)
+    public func display(id: String? = nil, from startAmount: Double, to endAmount: Double, mapToString: ((Double) -> TextOutputPresentableModel)?, animationStyle: LabelAnimationStyle = .none, duration: TimeInterval = 1.0, completion: (() -> Void)? = nil) {
+        let mapper: ((Decimal) -> TextOutputPresentableModel)? = if let mapToString { { mapToString($0.doubleValue) } } else { nil }
+        display(id: id, from: startAmount.asDecimal(), to: endAmount.asDecimal(), mapToString: mapper, animationStyle: .none, duration: 1.0, completion: nil)
     }
     
-    public func display(from startAmount: Double, to endAmount: Double, mapToString: ((Double) -> TextOutputPresentableModel)?, animationStyle: LabelAnimationStyle = .none, duration: TimeInterval = 1.0, completion: (() -> Void)? = nil) {
-        if endAmount == currentAnimatedTarget {
+    public func display(id: String? = nil, from startAmount: Decimal, to endAmount: Decimal, mapToString: ((Decimal) -> TextOutputPresentableModel)?, animationStyle: LabelAnimationStyle = .none, duration: TimeInterval = 1.0, completion: (() -> Void)? = nil) {
+        if let id, id == currentAnimatedModelID, endAmount == currentAnimatedTarget {
             return
         }
         
@@ -212,7 +233,8 @@ open class Label: UILabel {
     }
     
     private var animation: CountingLabelAnimation?
-    private var currentAnimatedTarget: Double?
+    private var currentAnimatedTarget: Decimal?
+    private var currentAnimatedModelID: String?
     
     lazy var tapGesture: UITapGestureRecognizer = {
         let gesture = UITapGestureRecognizer(target: self, action: nil)

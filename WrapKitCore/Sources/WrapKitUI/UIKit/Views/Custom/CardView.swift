@@ -25,11 +25,13 @@ public protocol CardViewOutput: AnyObject {
     func display(onPress: (() -> Void)?)
     func display(onLongPress: (() -> Void)?)
     func display(isHidden: Bool)
+    func display(isUserInteractionEnabled: Bool?)
+    func display(isGradientBorderEnabled: Bool)
 }
 
 public struct CardViewPresentableModel: HashableWithReflection {
     public struct Style {
-        public let backgroundColor: Color
+        public var backgroundColor: Color
         public let vStacklayoutMargins: EdgeInsets
         public let hStacklayoutMargins: EdgeInsets
         public let hStackViewDistribution: StackViewDistribution
@@ -43,6 +45,7 @@ public struct CardViewPresentableModel: HashableWithReflection {
         public let trailingTitleKeyLabelFont: Font
         public let titleValueLabelFont: Font
         public let subTitleLabelFont: Font
+        public let subtitleNumberOfLines: Int
         public let cornerRadius: CGFloat
         public let stackSpace: CGFloat
         public let hStackViewSpacing: CGFloat
@@ -50,6 +53,7 @@ public struct CardViewPresentableModel: HashableWithReflection {
         public let titleValueNumberOfLines: Int
         public let borderColor: Color?
         public let borderWidth: CGFloat?
+        public let gradientBorderColors: [Color]?
         
         public init(
             backgroundColor: Color,
@@ -66,13 +70,15 @@ public struct CardViewPresentableModel: HashableWithReflection {
             trailingTitleKeyLabelFont: Font,
             titleValueLabelFont: Font,
             subTitleLabelFont: Font,
+            subtitleNumberOfLines: Int = 0,
             cornerRadius: CGFloat,
             stackSpace: CGFloat,
             hStackViewSpacing: CGFloat,
             titleKeyNumberOfLines: Int,
             titleValueNumberOfLines: Int,
             borderColor: Color? = nil,
-            borderWidth: CGFloat? = nil
+            borderWidth: CGFloat? = nil,
+            gradientBorderColors: [Color]? = nil
         ) {
             self.backgroundColor = backgroundColor
             self.vStacklayoutMargins = vStacklayoutMargins
@@ -88,6 +94,7 @@ public struct CardViewPresentableModel: HashableWithReflection {
             self.trailingTitleKeyLabelFont = trailingTitleKeyLabelFont
             self.titleValueLabelFont = titleValueLabelFont
             self.subTitleLabelFont = subTitleLabelFont
+            self.subtitleNumberOfLines = subtitleNumberOfLines
             self.cornerRadius = cornerRadius
             self.stackSpace = stackSpace
             self.hStackViewSpacing = hStackViewSpacing
@@ -95,6 +102,7 @@ public struct CardViewPresentableModel: HashableWithReflection {
             self.titleValueNumberOfLines = titleValueNumberOfLines
             self.borderColor = borderColor
             self.borderWidth = borderWidth
+            self.gradientBorderColors = gradientBorderColors
         }
     }
 
@@ -111,12 +119,12 @@ public struct CardViewPresentableModel: HashableWithReflection {
     }
 
     public let id: String
-    public let style: Style?
+    public var style: Style?
     public let backgroundImage: ImageViewPresentableModel?
     public let title: TextOutputPresentableModel?
     public let leadingTitles: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>?
     public let trailingTitles: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>?
-    public let leadingImage: ImageViewPresentableModel?
+    public var leadingImage: ImageViewPresentableModel?
     public let secondaryLeadingImage: ImageViewPresentableModel?
     public let trailingImage: ImageViewPresentableModel?
     public let secondaryTrailingImage: ImageViewPresentableModel?
@@ -127,6 +135,8 @@ public struct CardViewPresentableModel: HashableWithReflection {
     public let switchControl: SwitchControlPresentableModel?
     public let onPress: (() -> Void)?
     public let onLongPress: (() -> Void)?
+    public let isUserInteractionEnabled: Bool?
+    public let isGradientBorderEnabled: Bool?
     
     public init(
         id: String = UUID().uuidString,
@@ -145,7 +155,9 @@ public struct CardViewPresentableModel: HashableWithReflection {
         bottomSeparator: BottomSeparator? = nil,
         switchControl: SwitchControlPresentableModel? = nil,
         onPress: (() -> Void)? = nil,
-        onLongPress: (() -> Void)? = nil
+        onLongPress: (() -> Void)? = nil,
+        isUserInteractionEnabled: Bool? = nil,
+        isGradientBorderEnabled: Bool? = nil
     ) {
         self.id = id
         self.style = style
@@ -164,6 +176,8 @@ public struct CardViewPresentableModel: HashableWithReflection {
         self.switchControl = switchControl
         self.onPress = onPress
         self.onLongPress = onLongPress
+        self.isUserInteractionEnabled = isUserInteractionEnabled
+        self.isGradientBorderEnabled = isGradientBorderEnabled
     }
 }
 
@@ -196,6 +210,7 @@ extension CardView: CardViewOutput {
         titleViews.valueLabel.font = style.titleValueLabelFont
         titleViews.keyLabel.numberOfLines = style.titleKeyNumberOfLines
         titleViews.valueLabel.numberOfLines = style.titleValueNumberOfLines
+        subtitleLabel.numberOfLines = style.subtitleNumberOfLines
         cornerRadius = style.cornerRadius
         layer.borderColor = style.borderColor?.cgColor
         layer.borderWidth = style.borderWidth ?? 0
@@ -276,6 +291,22 @@ extension CardView: CardViewOutput {
         }
     }
     
+    public func display(isUserInteractionEnabled: Bool?) {
+        guard let isEnabled = isUserInteractionEnabled else { return }
+        self.isUserInteractionEnabled = isEnabled
+    }
+    
+    public func display(isGradientBorderEnabled: Bool) {
+        if isGradientBorderEnabled {
+            guard let colors = style?.gradientBorderColors, !colors.isEmpty else { return }
+            animations.insert(.gradientBorder(colors))
+        } else {
+            if let colors = style?.gradientBorderColors {
+                animations.remove(.gradientBorder(colors))
+            }
+        }
+    }
+    
     public func display(model: CardViewPresentableModel?) {
         isHidden = model == nil
         guard let model = model else { return }
@@ -320,6 +351,12 @@ extension CardView: CardViewOutput {
         
         display(onPress: model.onPress)
         display(onLongPress: model.onLongPress)
+        
+        display(isUserInteractionEnabled: model.isUserInteractionEnabled)
+        
+        if let isGradientBorderEnabled = model.isGradientBorderEnabled {
+            display(isGradientBorderEnabled: isGradientBorderEnabled)
+        }
     }
 }
 
@@ -356,7 +393,7 @@ open class CardView: ViewUIKit {
         spacing: 0
     )
     
-    public let subtitleLabel = Label(font: .systemFont(ofSize: 16), textColor: .gray, numberOfLines: 1)
+    public let subtitleLabel = Label(font: .systemFont(ofSize: 16), textColor: .gray)
     
     public let trailingImageWrapperView = ViewUIKit(isHidden: true)
     public private(set) var trailingImageView = ImageView(image: UIImage(named: "rightArrow"), tintColor: .black)
@@ -432,11 +469,15 @@ open class CardView: ViewUIKit {
     private func setupPriorities() {
         subtitleLabel.setContentHuggingPriority(.required, for: .horizontal)
         subtitleLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
+        subtitleLabel.setContentCompressionResistancePriority(.required, for: .vertical)
+        
         titleViews.keyLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
         titleViews.keyLabel.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
         titleViews.keyLabel.setContentCompressionResistancePriority(.required, for: .vertical)
         titleViews.valueLabel.setContentCompressionResistancePriority(.required, for: .vertical)
+        
         titleViewsWrapperView.setContentCompressionResistancePriority(.required, for: .vertical)
+        
         switchControl.setContentCompressionResistancePriority(.required, for: .horizontal)
         switchControl.setContentCompressionResistancePriority(.required, for: .vertical)
     }

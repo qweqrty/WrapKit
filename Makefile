@@ -1,11 +1,12 @@
 SOURCERY_MAIN_QUEUE_SCRIPT=./Scripts/Sourcery/MainQueueDispatchDecorator.sh
 SOURCERY_WEAK_PROXY_SCRIPT=./Scripts/Sourcery/WeakRefVirtualProxy.sh
 SOURCERY_ADAPTER_SCRIPT=./Scripts/Sourcery/SwiftUIAdapterGenerator.sh
+SOURCERY_SPY_SCRIPT=./Scripts/Sourcery/SpyGenerator.sh
 TUIST_COMMANDS="tuist clean; tuist install; tuist generate"
 
 # Default target
-project: run-sourcery tuist-setup
-build: run-sourcery tuist-generate
+project: run-sourcery tuist-setup tuist-generate
+build: run-sourcery tuist-setup
 
 # Run Tuist clean, install, and generate commands
 tuist-setup:
@@ -16,10 +17,6 @@ tuist-setup:
 	fi
 	@if ! tuist install; then \
 		echo "Tuist install failed. Check if you have the correct environment for your project."; \
-		exit 1; \
-	fi
-	@if ! tuist generate; then \
-		echo "Tuist generate failed. Ensure your project configuration is valid."; \
 		exit 1; \
 	fi
 	@echo "Tuist setup completed successfully."
@@ -53,6 +50,11 @@ run-sourcery:
 	@echo "Running SwiftUI Adapter Sourcery from root..."
 	@if ! $(SOURCERY_ADAPTER_SCRIPT); then \
 		echo "Sourcery failed. Exiting..."; \
+		exit 1; \
+	fi
+	@echo "Running Spy Generator Sourcery from root..."
+	@if ! $(SOURCERY_SPY_SCRIPT); then \
+		echo "Sourcery Spy Generator failed. Exiting..."; \
 		exit 1; \
 	fi
 	@echo "Sourcery completed successfully."

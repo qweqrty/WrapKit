@@ -12,7 +12,7 @@ import SwiftUI
 final class SUIDisplayLinkManager: ObservableObject {
     private let manager = DisplayLinkManager()
 
-    @Published var progress: Double = .zero
+    @Published var progress: Decimal = .zero
 
     func startAnimation(duration: TimeInterval = 0, completion: (() -> Void)? = nil) {
         guard duration > 0 else {
@@ -47,12 +47,12 @@ final class DisplayLinkManager {
     private var startTime: TimeInterval = .zero
     private var animationDuration: TimeInterval = .zero
     
-    private var onUpdateProgress: ((Double) -> Void)?
+    private var onUpdateProgress: ((Decimal) -> Void)?
     private var completion: (() -> Void)? = nil
 
     func startAnimation(
         duration: TimeInterval = 0,
-        onUpdateProgress: ((Double) -> Void)? = nil,
+        onUpdateProgress: ((Decimal) -> Void)? = nil,
         completion: (() -> Void)? = nil
     ) {
         self.animationDuration = duration
@@ -67,7 +67,7 @@ final class DisplayLinkManager {
     @objc private func updateAnimation(displayLink: CADisplayLink) {
         let elapsedTime = CACurrentMediaTime() - startTime
         if elapsedTime < animationDuration {
-            onUpdateProgress?(min(1.0, elapsedTime / animationDuration))
+            onUpdateProgress?(Decimal(min(1.0, elapsedTime / animationDuration)))
         } else {
             onUpdateProgress?(1.0)
             completion?()

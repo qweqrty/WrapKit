@@ -117,15 +117,37 @@ public protocol TextInputOutput: AnyObject {
     func display(inputView: TextInputPresentableModel.InputView?)
     func display(inputType: KeyboardType)
     func display(trailingSymbol: String?)
-    func display(toolbarModel: ButtonPresentableModel?)
+    func display(inputAccessoryView: TextInputPresentableModel.AccessoryViewPresentableModel?)
     func display(isClearButtonActive: Bool)
 }
 
 public struct TextInputPresentableModel: HashableWithReflection {
+    public struct AccessoryViewPresentableModel: HashableWithReflection {
+        public struct Style {
+            public let height: CGFloat
+            public let backgroundColor: Color
+            
+            public init(height: CGFloat = 48, backgroundColor: Color = .clear) {
+                self.height = height
+                self.backgroundColor = backgroundColor
+            }
+        }
+        
+        public let style: Style
+        public let trailingButton: ButtonPresentableModel?
+        
+        public init(
+            style: Style = .init(),
+            trailingButton: ButtonPresentableModel? = nil
+        ) {
+            self.style = style
+            self.trailingButton = trailingButton
+        }
+    }
     
     public enum InputView {
         public struct DatePickerPresentableModel {
-            public let accessoryViewModel: ButtonPresentableModel?
+            public let accessoryView: AccessoryViewPresentableModel?
             public let mode: DatePickerMode
             public let value: Date
             public let minDate: Date?
@@ -138,14 +160,14 @@ public struct TextInputPresentableModel: HashableWithReflection {
                 maxDate: Date? = nil,
                 mode: DatePickerMode = .date,
                 value: Date = Date(),
-                accessoryViewModel: ButtonPresentableModel? = nil,
+                accessoryView: AccessoryViewPresentableModel? = nil,
                 onChange: ((Date) -> Void)? = nil,
                 onDoneTapped: ((Date) -> Void)? = nil
             ) {
                 self.mode = mode
                 self.value = value
                 self.onChange = onChange
-                self.accessoryViewModel = accessoryViewModel
+                self.accessoryView = accessoryView
                 self.minDate = minDate
                 self.maxDate = maxDate
                 self.onDoneTapped = onDoneTapped
@@ -154,6 +176,7 @@ public struct TextInputPresentableModel: HashableWithReflection {
         case date(DatePickerPresentableModel)
         case custom(PickerViewPresentableModel)
     }
+    
     public struct Mask {
         public let mask: Masking
         public let maskColor: Color
@@ -172,7 +195,7 @@ public struct TextInputPresentableModel: HashableWithReflection {
     public let isUserInteractionEnabled: Bool?
     public let isSecureTextEntry: Bool?
     public let inputView: InputView?
-    public let toolbarModel: ButtonPresentableModel?
+    public let inputAccessoryView: AccessoryViewPresentableModel?
     public let trailingSymbol: String?
     public let autocapitalizationType: TextAutocapitalizationType?
     public let inputType: KeyboardType?
@@ -195,7 +218,7 @@ public struct TextInputPresentableModel: HashableWithReflection {
         isUserInteractionEnabled: Bool? = nil,
         isSecureTextEntry: Bool? = nil,
         inputView: InputView? = nil,
-        toolbarModel: ButtonPresentableModel? = nil,
+        inputAccessoryView: AccessoryViewPresentableModel? = nil,
         trailingSymbol: String? = nil,
         autocapitalizationType: TextAutocapitalizationType = .none,
         inputType: KeyboardType? = nil,
@@ -226,7 +249,7 @@ public struct TextInputPresentableModel: HashableWithReflection {
         self.didChangeText = didChangeText
         self.inputView = inputView
         self.trailingSymbol = trailingSymbol
-        self.toolbarModel = toolbarModel
+        self.inputAccessoryView = inputAccessoryView
         self.autocapitalizationType = autocapitalizationType
         self.inputType = inputType
     }
@@ -237,30 +260,55 @@ import UIKit
 
 public extension Textfield {
     func makeAccessoryView(
-        accessoryView: UIView,
-        height: CGFloat = 60,
-        constraints: ((UIView, UIView) -> [NSLayoutConstraint])? = nil
+        model: TextInputPresentableModel.AccessoryViewPresentableModel?
     ) -> UIView {
-        let container = UIView(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: height))
-        container.backgroundColor = .systemGroupedBackground
+        guard let model else { return UIView() }
+        let container = UIView(frame: CGRect(
+            x: 0,
+            y: 0,
+            width: UIScreen.main.bounds.width,
+            height: model.style.height
+        ))
+        container.backgroundColor = model.style.backgroundColor
         
-        container.addSubview(accessoryView)
-        accessoryView.translatesAutoresizingMaskIntoConstraints = false
+        guard let toolbarModel = model.trailingButton else {
+            return container
+        }
+        let trailingButton = Button()
+        trailingButton.display(model: toolbarModel)
+        trailingButton.onPress = { [weak self] in
+            toolbarModel.onPress?()
+            self?.endEditing(true)
+        }
+        
+        container.addSubview(trailingButton)
+        trailingButton.translatesAutoresizingMaskIntoConstraints = false
     
         let defaultConstraints: (UIView, UIView) -> [NSLayoutConstraint] = { container, view in
             return [
                 view.centerYAnchor.constraint(equalTo: container.centerYAnchor),
                 view.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -16),
-                view.heightAnchor.constraint(equalToConstant: 36),
-                view.widthAnchor.constraint(equalToConstant: 80)
+                view.heightAnchor.constraint(equalToConstant: model.trailingButton?.height ?? 36),
+                view.widthAnchor.constraint(equalToConstant: model.trailingButton?.width ?? 80)
             ]
         }
-        NSLayoutConstraint.activate((constraints ?? defaultConstraints)(container, accessoryView))
+        NSLayoutConstraint.activate((defaultConstraints)(container, trailingButton))
         return container
     }
 }
 
 extension Textfield: TextInputOutput {
+   
+    public func display(inputAccessoryView: TextInputPresentableModel.AccessoryViewPresentableModel?) {
+        guard let inputAccessoryView else {
+            self.inputAccessoryView = nil
+            self.reloadInputViews()
+            return
+        }
+        self.inputAccessoryView = makeAccessoryView(model: inputAccessoryView)
+        self.reloadInputViews()
+    }
+    
     public func startEditing() {
         becomeFirstResponder()
     }
@@ -293,11 +341,11 @@ extension Textfield: TextInputOutput {
             display(didChangeText: didChangeText)
         }
         
-        display(toolbarModel: model.toolbarModel)
+        display(inputAccessoryView: model.inputAccessoryView)
         display(inputView: model.inputView)
         display(trailingSymbol: model.trailingSymbol)
         
-        if model.toolbarModel == nil, model.inputView == nil {
+        if model.inputAccessoryView == nil, model.inputView == nil {
             self.inputAccessoryView = nil
             self.reloadInputViews()
         }
@@ -329,33 +377,21 @@ extension Textfield: TextInputOutput {
             )
             self.inputView = picker
             
-            guard let accessoryViewModel = model.accessoryViewModel else { return }
+            guard let accessoryView = model.accessoryView else { return }
             let button = Button()
-            button.display(model: accessoryViewModel)
+            button.display(model: accessoryView.trailingButton)
             button.onPress = { [weak self] in
                 if let picker = self?.inputView as? UIDatePicker {
                     model.onDoneTapped?(picker.date)
                 }
                 self?.endEditing(true)
             }
-            self.inputAccessoryView = makeAccessoryView(accessoryView: button)
+            self.inputAccessoryView = makeAccessoryView(model: model.accessoryView)
         case .custom(let model):
             let pickerView = PickerView()
             pickerView.display(model: model)
             self.inputView = pickerView
         }
-        self.reloadInputViews()
-    }
-    
-    public func display(toolbarModel: ButtonPresentableModel?) {
-        guard let toolbarModel else { return }
-        let button = Button()
-        button.display(model: toolbarModel)
-        button.onPress = { [weak self] in
-            toolbarModel.onPress?()
-            self?.endEditing(true)
-        }
-        self.inputAccessoryView = makeAccessoryView(accessoryView: button)
         self.reloadInputViews()
     }
     
@@ -472,6 +508,7 @@ open class Textfield: UITextField {
     }
     
     private var isValidState = true
+    private var isPressHandled = false
     private var isClearButtonActive = true
     
     public var padding: UIEdgeInsets = .zero
@@ -621,15 +658,22 @@ open class Textfield: UITextField {
     
     open override func point(inside point: CGPoint, with event: UIEvent?) -> Bool {
         if let trailingView = trailingView, trailingView.frame.contains(point) {
-            return true
-        } else if let leadingView = leadingView, leadingView.frame.contains(point) {
-            return true
-        }
-        let isTouchInside = super.point(inside: point, with: event)
-        if isTouchInside {
-            onPress?()
-        }
-        return isTouchInside
+                return true
+            } else if let leadingView = leadingView, leadingView.frame.contains(point) {
+                return true
+            }
+
+            let isTouchInside = super.point(inside: point, with: event)
+            if isTouchInside, !isPressHandled {
+                isPressHandled = true
+                onPress?()
+                
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
+                    self?.isPressHandled = false
+                }
+            }
+
+            return isTouchInside
     }
     
     open override func deleteBackward() {

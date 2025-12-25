@@ -33,7 +33,8 @@ open class WebViewPresenter: WebViewInput {
         url: URL,
         flow: WebViewFlow,
         style: WebViewStyle,
-        navigationPolicy: WebViewNavigationPolicy?
+        navigationPolicy: WebViewNavigationPolicy?,
+        
     ) {
         self.url = url
         self.flow = flow
@@ -43,8 +44,8 @@ open class WebViewPresenter: WebViewInput {
     
     private func setupNavigationBar() {
         switch style.header {
-        case .default(let title):
-            navBarView?.display(model: .defaultWebViewHeader(title: title, onPress: flow.navigateBack))
+        case .default(let title, let leadingCard):
+            navBarView?.display(model: .defaultWebViewHeader(title: title, leadingCard: leadingCard))
         case .custom(let model):
             navBarView?.display(model: model)
         case .hidden:

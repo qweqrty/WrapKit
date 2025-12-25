@@ -105,6 +105,16 @@ extension VKeyValueFieldView {
         stackView.addArrangedSubview(valueLabel)
         stackView.addArrangedSubview(bottomImageWrapperView)
         bottomImageWrapperView.addSubview(bottomImageView)
+        
+        if #available(iOS 26, *) {
+            keyLabel.setContentHuggingPriority(.required, for: .vertical)
+            keyLabel.setContentCompressionResistancePriority(.required, for: .vertical)
+            keyLabel.clipsToBounds = false
+            
+            valueLabel.setContentHuggingPriority(.required, for: .vertical)
+            valueLabel.setContentCompressionResistancePriority(.required, for: .vertical)
+            valueLabel.clipsToBounds = false
+        }
     }
 
     func setupConstraints() {

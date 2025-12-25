@@ -1,4 +1,4 @@
-// Generated using Sourcery 2.2.6 — https://github.com/krzysztofzablocki/Sourcery
+// Generated using Sourcery 2.3.0 — https://github.com/krzysztofzablocki/Sourcery
 // DO NOT EDIT
 // swiftlint:disable:this file_name
 // swiftlint:disable all
@@ -13,6 +13,9 @@ import Foundation
 #if canImport(UIKit)
 import UIKit
 #endif
+#if canImport(Kingfisher)
+import Kingfisher
+#endif
 #if canImport(SwiftUI)
 import SwiftUI
 #endif
@@ -25,11 +28,11 @@ extension ImageViewOutput {
 
 extension WeakRefVirtualProxy: ImageViewOutput where T: ImageViewOutput {
 
-    public func display(model: ImageViewPresentableModel?) {
-        object?.display(model: model)
+    public func display(model: ImageViewPresentableModel?, completion: ((Image?) -> Void)?) {
+        object?.display(model: model, completion: completion)
     }
-    public func display(image: ImageEnum?) {
-        object?.display(image: image)
+    public func display(image: ImageEnum?, completion: ((Image?) -> Void)?) {
+        object?.display(image: image, completion: completion)
     }
     public func display(size: CGSize?) {
         object?.display(size: size)
@@ -57,6 +60,12 @@ extension WeakRefVirtualProxy: ImageViewOutput where T: ImageViewOutput {
     }
     public func display(isHidden: Bool) {
         object?.display(isHidden: isHidden)
+    }
+    public func display(model: ImageViewPresentableModel?) {
+        object?.display(model: model)
+    }
+    public func display(image: ImageEnum?) {
+        object?.display(image: image)
     }
 
 }

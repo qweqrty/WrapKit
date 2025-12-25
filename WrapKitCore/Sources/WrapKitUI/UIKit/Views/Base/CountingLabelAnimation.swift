@@ -19,9 +19,9 @@ final class CountingLabelAnimation {
         self.label = label
     }
     
-    private var startNumber: Double = 0.0
-    private var endNumber: Double = 0.0
-    private var mapToString: ((Double) -> TextOutputPresentableModel)?
+    private var startNumber: Decimal = 0.0
+    private var endNumber: Decimal = 0.0
+    private var mapToString: ((Decimal) -> TextOutputPresentableModel)?
     private let counterVelocity: Float = 5
 
     private var duration: TimeInterval = 1
@@ -37,9 +37,10 @@ final class CountingLabelAnimation {
     }
     
     public func startAnimation(
-        fromValue: Double,
-        to toValue: Double,
-        mapToString: ((Double) -> TextOutputPresentableModel)?,
+        id: String? = nil,
+        fromValue: Decimal,
+        to toValue: Decimal,
+        mapToString: ((Decimal) -> TextOutputPresentableModel)?,
         animationStyle: LabelAnimationStyle = .none,
         duration: TimeInterval = 1.0,
         completion: (() -> Void)? = nil
@@ -67,14 +68,14 @@ final class CountingLabelAnimation {
             }
         }
         if let label, let mapToString {
-            let integerDigits = String(Int(max(fromValue, toValue))).count
+            let integerDigits = String(Int(max(fromValue.doubleValue, toValue.doubleValue))).count
             let widestString = String(repeating: "8", count: integerDigits) + ".88"
             let widestNumber = Double(widestString) ?? .zero
                 
             animatedTextMaxWidth = max(
                 mapToString(fromValue).width(usingFont: label.font),
                 mapToString(toValue).width(usingFont: label.font),
-                mapToString(widestNumber).width(usingFont: label.font)
+                mapToString(Decimal(widestNumber)).width(usingFont: label.font)
             )
         }
         timer.startAnimation(duration: duration, onUpdateProgress: { [unowned self] progress in

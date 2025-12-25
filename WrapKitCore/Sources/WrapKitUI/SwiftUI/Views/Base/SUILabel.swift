@@ -71,7 +71,30 @@ public struct SUILabelView: View, Animatable {
             if !attributes.isEmpty {
                 buildSwiftUIViewFromAttributes(from: attributes)
             }
-        case .animated(let from, let to, let mapToString, let animationStyle, let duration, let completion):
+        case .animated(let id, let from, let to, let mapToString, let animationStyle, let duration, let completion):
+            ZStack {
+                if case let .circle(color) = animationStyle {
+                    SUICircularProgressView(color: color, from: 1, to: 0, duration: duration, completion: completion)
+                        .padding(8)
+                }
+                
+                SUILabelView(
+                    model: mapToString?(from + (displayLinkManager.progress.doubleValue * (to - from))) ?? .text(""),
+                    font: defaultFont
+                )
+                .onAppear {
+                    guard duration > 0 else { return }
+                    displayLinkManager.startAnimation(duration: duration, completion: completion)
+                }
+            }
+        case .textStyled(let text, let cornerStyle, let insets, let height, let backgroundColor):
+            SUILabelView(model: text, font: defaultFont)
+                .if(!insets.isZero) { $0.padding(insets.asSUIEdgeInsets) }
+                .ifLet(height) { $0.frame(height: $1, alignment: .center) }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .ifLet(backgroundColor) { $0.background(SwiftUIColor($1)) }
+                .ifLet(cornerStyle) { $0.cornerStyle($1) }
+        case .animatedDecimal(id: let id, from: let from, to: let to, mapToString: let mapToString, animationStyle: let animationStyle, duration: let duration, completion: let completion):
             ZStack {
                 if case let .circle(color) = animationStyle {
                     SUICircularProgressView(color: color, from: 1, to: 0, duration: duration, completion: completion)
@@ -87,13 +110,6 @@ public struct SUILabelView: View, Animatable {
                     displayLinkManager.startAnimation(duration: duration, completion: completion)
                 }
             }
-        case .textStyled(let text, let cornerStyle, let insets, let height, let backgroundColor):
-            SUILabelView(model: text, font: defaultFont)
-                .if(!insets.isZero) { $0.padding(insets.asSUIEdgeInsets) }
-                .ifLet(height) { $0.frame(height: $1, alignment: .center) }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .ifLet(backgroundColor) { $0.background(SwiftUIColor($1)) }
-                .ifLet(cornerStyle) { $0.cornerStyle($1) }
         }
     }
 

@@ -33,7 +33,7 @@ open class ToastView: UIView {
     public var bottomConstraint: NSLayoutConstraint?
 
     private var gestureDirection: DirectionType?
-
+    
     public init(duration: TimeInterval? = 3.0, position: CommonToast.Position) {
         self.duration = duration
         self.position = position
@@ -226,9 +226,16 @@ open class ToastView: UIView {
             break
         }
     }
-
-    public func show() {
-        guard let window = UIApplication.shared.windows.first else { return }
+    
+    public func show(appWindow: UIWindow? = UIApplication.shared.windows.first, completion: (() -> Void)? = nil) {
+        let window: UIWindow
+        if let appWindow = appWindow {
+            window = appWindow
+        } else {
+            let tempWindow = UIWindow(frame: UIScreen.main.bounds)
+            tempWindow.makeKeyAndVisible()
+            window = tempWindow
+        }
         window.addSubview(self)
         translatesAutoresizingMaskIntoConstraints = false
         switch position {
@@ -255,11 +262,11 @@ open class ToastView: UIView {
             withDuration: 0.15,
             delay: 0,
             options: [.curveEaseInOut, .allowUserInteraction],
-            animations: {
-                self.alpha = 1
-                self.bottomConstraint?.constant = self.showConstant
-                self.layoutIfNeeded()
-                self.superview?.layoutIfNeeded()
+            animations: { [weak self] in
+                self?.alpha = 1
+                self?.bottomConstraint?.constant = self?.showConstant ?? 0
+                self?.layoutIfNeeded()
+                self?.superview?.layoutIfNeeded()
             },
             completion: { [weak self] finished in
                 guard let self = self else { return }
@@ -269,10 +276,10 @@ open class ToastView: UIView {
                 self.layoutIfNeeded()
                 self.superview?.layoutIfNeeded()
                 window.bringSubviewToFront(self)
+                completion?()
             }
         )
     }
-
     private func startHideTimer() {
         guard let remainingTime else { return }
         hideTimer = Timer.scheduledTimer(withTimeInterval: remainingTime, repeats: false) { [weak self] _ in
@@ -316,6 +323,78 @@ open class ToastView: UIView {
                 }
             )
         }
+    }
+}
+
+extension ToastView: CommonToastOutput {
+    public func display(_ toast: CommonToast) {
+        switch toast {
+        case .error(let toastModel):
+            configureToast(toastModel, type: .error)
+        case .success(let toastModel):
+            configureToast(toastModel, type: .success)
+        case .warning(let toastModel):
+            configureToast(toastModel, type: .warning)
+        case .custom(let customToast):
+            configureCustomToast(customToast)
+        }
+    }
+    
+    public func hide() {
+        hide(after: 0)
+    }
+    
+    private func configureToast(_ toast: CommonToast.Toast, type: ToastType) {
+        var model = toast.cardViewModel
+        
+        switch type {
+        case .error:
+            model.leadingImage = .init(
+                size: .init(width: 32, height: 32),
+                image: .asset(Image(named: "checkmark.circle.fill")),
+            )
+        case .success:
+            model.leadingImage = .init(
+                size: .init(width: 32, height: 32),
+                image: .asset(Image(named: "checkmark.circle.fill")),
+            )
+        case .warning:
+            model.leadingImage = .init(
+                size: .init(width: 32, height: 32),
+                image: .asset(Image(named: "checkmark.circle.fill")),
+            )
+        }
+        
+        cardView.display(model: model)
+        
+        if let shadowColor = toast.shadowColor {
+            self.shadowColor = shadowColor
+        }
+    }
+    
+    private func configureCustomToast(_ customToast: CommonToast.CustomToast) {
+        var model = customToast.common.cardViewModel
+        
+        if let image = customToast.image {
+            model.leadingImage = .init(
+                size: .init(width: 32, height: 32),
+                image: image
+            )
+        }
+        
+        if let backgroundColor = customToast.backgroundColor {
+            model.style?.backgroundColor = backgroundColor
+        }
+        
+        cardView.display(model: model)
+        
+        if let shadowColor = customToast.common.shadowColor {
+            self.shadowColor = shadowColor
+        }
+    }
+    
+    private enum ToastType {
+        case error, success, warning
     }
 }
 

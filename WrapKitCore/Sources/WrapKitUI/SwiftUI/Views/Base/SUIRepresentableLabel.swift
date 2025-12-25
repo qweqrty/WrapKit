@@ -38,10 +38,12 @@ public struct SUIRepresentableLabel: UIViewRepresentable {
             uiView.display(text: string)
         case .attributes(let array):
             uiView.display(attributes: array)
-        case .animated(let from, let to, let mapToString, let animationStyle, let duration, let completion):
-            uiView.display(from: from, to: to, mapToString: mapToString, animationStyle: animationStyle, duration: duration, completion: completion)
+        case .animated(let id, let from, let to, let mapToString, let animationStyle, let duration, let completion):
+            uiView.display(id: id, from: from, to: to, mapToString: mapToString, animationStyle: animationStyle, duration: duration, completion: completion)
         case .textStyled(let text, let cornerStyle, let insets, let height, let backgroundColor):
             uiView.display(model: .textStyled(text: text, cornerStyle: cornerStyle, insets: insets, height: height, backgroundColor: backgroundColor))
+        case .animatedDecimal(id: let id, from: let from, to: let to, mapToString: let mapToString, animationStyle: let animationStyle, duration: let duration, completion: let completion):
+            uiView.display(id: id, from: from, to: to, mapToString: mapToString, animationStyle: animationStyle, duration: duration, completion: completion)
         }
     }
     
