@@ -1,4 +1,4 @@
-// Generated using Sourcery 2.2.6 — https://github.com/krzysztofzablocki/Sourcery
+// Generated using Sourcery 2.3.0 — https://github.com/krzysztofzablocki/Sourcery
 // DO NOT EDIT
 // swiftlint:disable:this file_name
 // swiftlint:disable all
@@ -17,6 +17,9 @@ import Foundation
 #if canImport(UIKit)
 import UIKit
 #endif
+#if canImport(SwiftUI)
+import SwiftUI
+#endif
 public class TextOutputSwiftUIAdapter: ObservableObject, TextOutput {
 
     // Initializer
@@ -26,18 +29,28 @@ public class TextOutputSwiftUIAdapter: ObservableObject, TextOutput {
 
     @Published public var displayModelState: DisplayModelState? = nil
     public struct DisplayModelState {
-        public let model: TextOutputPresentableModel?
+        public let model: TextOutputPresentableModel
     }
     public func display(model: TextOutputPresentableModel?) {
+        guard let model else {
+            display(isHidden: true)
+            return
+        }
+        display(isHidden: false)
         displayModelState = .init(
             model: model
         )
     }
     @Published public var displayTextState: DisplayTextState? = nil
     public struct DisplayTextState {
-        public let text: String?
+        public let text: String
     }
     public func display(text: String?) {
+        guard let text else {
+            display(isHidden: true)
+            return
+        }
+        display(isHidden: false)
         displayTextState = .init(
             text: text
         )
@@ -54,14 +67,14 @@ public class TextOutputSwiftUIAdapter: ObservableObject, TextOutput {
     @Published public var displayIdStartAmountEndAmountMapToStringAnimationStyleDurationCompletionState: DisplayIdStartAmountEndAmountMapToStringAnimationStyleDurationCompletionState? = nil
     public struct DisplayIdStartAmountEndAmountMapToStringAnimationStyleDurationCompletionState {
         public let id: String?
-        public let startAmount: Double
-        public let endAmount: Double
-        public let mapToString: ((Double) -> TextOutputPresentableModel)?
+        public let startAmount: Decimal
+        public let endAmount: Decimal
+        public let mapToString: ((Decimal) -> TextOutputPresentableModel)?
         public let animationStyle: LabelAnimationStyle
         public let duration: TimeInterval
         public let completion: (() -> Void)?
     }
-    public func display(id: String?, from startAmount: Double, to endAmount: Double, mapToString: ((Double) -> TextOutputPresentableModel)?, animationStyle: LabelAnimationStyle, duration: TimeInterval, completion: (() -> Void)?) {
+    public func display(id: String?, from startAmount: Decimal, to endAmount: Decimal, mapToString: ((Decimal) -> TextOutputPresentableModel)?, animationStyle: LabelAnimationStyle, duration: TimeInterval, completion: (() -> Void)?) {
         displayIdStartAmountEndAmountMapToStringAnimationStyleDurationCompletionState = .init(
             id: id, 
             startAmount: startAmount, 

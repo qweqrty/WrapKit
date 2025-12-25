@@ -67,6 +67,7 @@ open class SwitchControl: UISwitch {
             display(style: switchStyle)
         }
     }
+    private var wasUserSwitched = false
     
     public init() {
         super.init(frame: .zero)
@@ -81,6 +82,7 @@ open class SwitchControl: UISwitch {
     }
     
     @objc private func didPress() {
+        wasUserSwitched = true
         onPress?(self)
     }
     
@@ -113,7 +115,10 @@ extension SwitchControl: SwitchCotrolOutput {
     }
     
     public func display(isOn: Bool) {
-        self.isOn = isOn
+        if self.isTracking { return }
+
+        setOn(isOn, animated: wasUserSwitched)
+        wasUserSwitched = false
     }
     
     public func display(isEnabled: Bool) {

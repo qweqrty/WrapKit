@@ -19,9 +19,11 @@ public typealias TextAlignment = NSTextAlignment
 
 public struct TextAttributes {
     public init(
+        id: String = UUID().uuidString,
         text: String,
         color: Color? = nil,
         font: Font? = nil,
+        lineSpacing: CGFloat = 4,
         underlineStyle: UnderlineStyle? = nil,
         textAlignment: TextAlignment? = nil,
         leadingImage: Image? = nil,
@@ -30,9 +32,11 @@ public struct TextAttributes {
         trailingImageBounds: CGRect = .zero,
         onTap: (() -> Void)? = nil
     ) {
+        self.id = id
         self.text = text
         self.color = color
         self.font = font
+        self.lineSpacing = lineSpacing
         self.onTap = onTap
         self.range = nil
         self.underlineStyle = underlineStyle
@@ -43,10 +47,12 @@ public struct TextAttributes {
         self.trailingImageBounds = trailingImageBounds
     }
 
+    public var id: String
     public var text: String
     public let color: Color?
-    public let underlineStyle: UnderlineStyle?
     public let font: Font?
+    public let lineSpacing: CGFloat
+    public let underlineStyle: UnderlineStyle?
     public let textAlignment: TextAlignment?
     public let leadingImage: Image?
     public let leadingImageBounds: CGRect
@@ -54,4 +60,49 @@ public struct TextAttributes {
     public let trailingImageBounds: CGRect
     public let onTap: (() -> Void)?
     var range: NSRange?
+}
+
+public extension TextAttributes {
+    func makeNSAttributedString(
+        font: Font = .systemFont(ofSize: 20),
+        textColor: Color = .label,
+        textAlignment: TextAlignment? = nil,
+        link: URL? = nil // needed for onTap in SwiftUI
+    ) -> NSAttributedString {
+        return NSAttributedString(
+            self.text,
+            font: self.font ?? font,
+            color: self.color ?? textColor,
+            lineSpacing: self.lineSpacing,
+            underlineStyle: underlineStyle,
+            textAlignment: self.textAlignment ?? textAlignment,
+            leadingImage: self.leadingImage,
+            leadingImageBounds: self.leadingImageBounds,
+            trailingImage: self.trailingImage,
+            trailingImageBounds: self.trailingImageBounds,
+            link: link
+        )
+    }
+}
+
+public extension [TextAttributes] {
+    mutating func makeNSAttributedString(
+        font: Font,
+        textColor: Color = .label,
+        textAlignment: TextAlignment? = nil
+    ) -> NSAttributedString {
+        let combinedAttributedString = NSMutableAttributedString()
+        for (index, current) in self.enumerated() {
+            let attrString = current.makeNSAttributedString(
+                font: font,
+                textColor: textColor,
+                textAlignment: textAlignment
+            )
+            combinedAttributedString.append(attrString)
+            
+            let currentLocation = combinedAttributedString.length - attrString.length
+            self[index].range = NSRange(location: currentLocation, length: attrString.length)
+        }
+        return combinedAttributedString
+    }
 }

@@ -27,6 +27,8 @@ public typealias SwiftUIColor = SwiftUI.Color
 public typealias SwiftUIImage = SwiftUI.Image
 @available(iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 public typealias SwiftUIFont = SwiftUI.Font
+@available(iOS 13.0, tvOS 13.0, watchOS 6.0, *)
+public typealias SwiftUIText = SwiftUI.Text
 
 public extension Color {
     static func dynamicColor(light: Color, dark: Color) -> Color {
@@ -89,16 +91,6 @@ public enum ImageFactory {
         return UIImage(systemName: name)
         #elseif canImport(AppKit)
         NSImage(systemSymbolName: name, accessibilityDescription: nil)
-        #endif
-    }
-}
-
-public extension SwiftUIImage {
-    init(image: Image) {
-        #if os(macOS)
-        self.init(nsImage: image)
-        #else
-        self.init(uiImage: image)
         #endif
     }
 }

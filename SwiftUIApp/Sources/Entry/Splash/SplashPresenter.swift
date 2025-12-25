@@ -67,6 +67,7 @@ private extension SplashPresenter {
         textOutput?.display(text: "display(text: String) implementation - `The quick brown fox jumps over the lazy dog`")
         textOutput?.display(
             attributes: [
+                .init(text: "first line"),
                 .init(
                     text: "green bold 20 (.byWord) \n\n",
                     color: .green,
@@ -98,7 +99,7 @@ private extension SplashPresenter {
                     underlineStyle: .patternDashDotDot
                 ),
                 .init(
-                    text: "darkGray 16-200 (.patternDashDotDot) \n\n",
+                    text: "darkGray 16-200 (.patternDot) \n\n",
                     color: .darkGray,
                     font: .systemFont(ofSize: 16, weight: Font.Weight(rawValue: 200)),
                     underlineStyle: .patternDot
@@ -113,17 +114,21 @@ private extension SplashPresenter {
                     leadingImageBounds: .init(x: 30, y: 40, width: 45, height: 56),
                     trailingImage: ImageFactory.systemImage(named: "arrow.right"),
                     trailingImageBounds: .init(x: -30, y: -40, width: 15, height: 15),
-                    onTap: { print("on tap full text") }
-                ),
-                .init(
-                    text: "\njumps over the lazy dog cvdsf asdf asdf asdf asdfhaslkdfjh alsdkjfh alsdkjf",
-                    color: .gray,
-                    font: .boldSystemFont(ofSize: 26),
-                    underlineStyle: .thick,
-                    textAlignment: .natural
+                    onTap: { print("didTap: The quick brown fox ") }
                 )
             ]
         )
+//        textOutput?.display(model: .textStyled(text: .text("some text"), cornerStyle: .automatic, insets: .init(all: 8)))
+//        textOutput?.display(model: .animated(123, 456, mapToString: { value in
+//                .text(value.description)
+//        }, animationStyle: .none, duration: 5, completion: {
+//            
+//        }))
+//        textOutput?.display(model: .animated(123, 456, mapToString: { value in
+//                .text(value.asString(withDecimalPlaces: 2) + " som")
+//        }, animationStyle: .circle(lineColor: Color.blue), duration: 5, completion: {
+//            
+//        }))
     }
     
     private func setupImageOutput() {

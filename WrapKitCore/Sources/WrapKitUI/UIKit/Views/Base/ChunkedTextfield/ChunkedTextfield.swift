@@ -2,7 +2,9 @@ import Foundation
 
 #if canImport(UIKit)
 extension ChunkedTextField: TextInputOutput {
-    public func display(toolbarModel: ButtonPresentableModel?) { }
+    public func display(inputAccessoryView: TextInputPresentableModel.AccessoryViewPresentableModel?) {
+        
+    }
     
     public func display(inputView: TextInputPresentableModel.InputView?) { }
     
@@ -15,9 +17,13 @@ extension ChunkedTextField: TextInputOutput {
     }
     
     public func display(text: String?) {
-        let text = String((text ?? "").prefix(count))
-        text.enumerated().forEach {
-            textfields.item(at: $0.offset)?.text = String($0.element)
+        if text.isEmpty {
+            textfields.forEach { $0.text = nil }
+        } else {
+            let text = String((text ?? "").prefix(count))
+            text.enumerated().forEach {
+                textfields.item(at: $0.offset)?.text = String($0.element)
+            }
         }
     }
     
@@ -62,6 +68,7 @@ extension ChunkedTextField: TextInputOutput {
     public func display(onTapBackspace: (() -> Void)?) {}
     public func display(inputType: KeyboardType) {}
     public func display(trailingSymbol: String?) {}
+    public func display(isClearButtonActive: Bool) { }
 }
 
 public class ChunkedTextField: ViewUIKit {

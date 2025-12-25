@@ -10,37 +10,47 @@ public extension Button {
     
     func setImage(
         _ image: ImageEnum?,
-        animation: UIView.AnimationOptions = .transitionCrossDissolve
+        animation: UIView.AnimationOptions = .transitionCrossDissolve,
+        completion: ((Image?) -> Void)?
     ) {
         if Thread.isMainThread {
-             handleImage(image)
+            handleImage(image, completion: completion)
          } else {
              DispatchQueue.main.async { [weak self] in
-                 self?.handleImage(image)
+                 self?.handleImage(image, completion: completion)
              }
          }
     }
     
-    private func handleImage(_ image: ImageEnum?, kingfisherOptions: KingfisherOptionsInfo = []) {
+    private func handleImage(_ image: ImageEnum?, kingfisherOptions: KingfisherOptionsInfo = [], completion: ((Image?) -> Void)?) {
         switch image {
         case .asset(let image):
             self.animatedSet(image)
+            completion?(image)
         case .url(let lightUrl, let darkUrl):
-            self.loadImage(UserInterfaceStyle.current == .light ? (lightUrl ?? darkUrl) : (darkUrl ?? lightUrl), kingfisherOptions: kingfisherOptions)
+            self.loadImage(UserInterfaceStyle.current == .light ? lightUrl : darkUrl, kingfisherOptions: kingfisherOptions, completion: completion)
         case .urlString(let lightString, let darkString):
-            guard let string = UserInterfaceStyle.current == .light ? (lightString ?? darkString) : (darkString ?? lightString) else { return }
-            guard let url = URL(string: string) else { return }
-            self.loadImage(url, kingfisherOptions: kingfisherOptions)
+            let string = UserInterfaceStyle.current == .light ? lightString : darkString
+            self.loadImage(URL(string: string ?? ""), kingfisherOptions: kingfisherOptions, completion: completion)
         case .data(let data):
-            guard let data else { return }
-            self.animatedSet(UIImage(data: data))
+            guard let data else {
+                completion?(nil)
+                return
+            }
+            let image = UIImage(data: data)
+            self.animatedSet(image)
+            completion?(image)
         case .none:
-            break
+            completion?(nil)
         }
     }
     
-    private func loadImage(_ url: URL?, kingfisherOptions: KingfisherOptionsInfo) {
-        guard let url else { return }
+    private func loadImage(_ url: URL?, kingfisherOptions: KingfisherOptionsInfo, completion: ((Image?) -> Void)?) {
+        guard let url else {
+            self.animatedSet(wrongUrlPlaceholderImage)
+            completion?(wrongUrlPlaceholderImage)
+            return
+        }
         KingfisherManager.shared.cache.retrieveImage(forKey: url.absoluteString, options: [.callbackQueue(.mainCurrentOrAsync)]) { [weak self] result in
             switch result {
             case .success(let image):
@@ -50,7 +60,9 @@ public extension Button {
                     switch result {
                     case .success(let image):
                         self?.animatedSet(image.image)
+                        completion?(image.image)
                     case .failure:
+                        completion?(image.image)
                         return
                     }
                 }
@@ -59,7 +71,9 @@ public extension Button {
                     switch result {
                     case .success(let image):
                         self?.animatedSet(image.image)
+                        completion?(image.image)
                     case .failure:
+                        completion?(nil)
                         return
                     }
                 }

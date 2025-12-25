@@ -1,4 +1,4 @@
-// Generated using Sourcery 2.2.6 — https://github.com/krzysztofzablocki/Sourcery
+// Generated using Sourcery 2.3.0 — https://github.com/krzysztofzablocki/Sourcery
 // DO NOT EDIT
 // swiftlint:disable:this file_name
 // swiftlint:disable all
@@ -147,9 +147,14 @@ extension MainQueueDispatchDecorator: TextInputOutput where T: TextInputOutput {
             self?.decoratee.display(trailingSymbol: trailingSymbol)
         }
     }
-    public func display(toolbarModel: ButtonPresentableModel?) {
+    public func display(inputAccessoryView: TextInputPresentableModel.AccessoryViewPresentableModel?) {
         dispatch { [weak self] in
-            self?.decoratee.display(toolbarModel: toolbarModel)
+            self?.decoratee.display(inputAccessoryView: inputAccessoryView)
+        }
+    }
+    public func display(isClearButtonActive: Bool) {
+        dispatch { [weak self] in
+            self?.decoratee.display(isClearButtonActive: isClearButtonActive)
         }
     }
 

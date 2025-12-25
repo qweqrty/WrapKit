@@ -33,12 +33,27 @@ public struct TableContextualAction<Cell> {
 }
 
 public struct CellModel<Cell: Hashable>: HashableWithReflection {
+
+    public let id: UUID?
     public let cell: Cell
-    public let onTap: ((_ atIndexPath: IndexPath, _ model: Cell) -> Void)?
-    
-    public init(cell: Cell, onTap: ((_ atIndexPath: IndexPath, _ model: Cell) -> Void)? = nil) {
+    public let onTap: ((IndexPath, Cell) -> Void)?
+
+    public init(
+        id: UUID? = nil,
+        cell: Cell,
+        onTap: ((IndexPath, Cell) -> Void)? = nil
+    ) {
+        self.id = id
         self.cell = cell
         self.onTap = onTap
+    }
+
+    public static func == (lhs: Self, rhs: Self) -> Bool {
+        lhs.id == rhs.id
+    }
+
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
     }
 }
 
@@ -67,6 +82,7 @@ public protocol TableOutput<Header, Cell, Footer>: AnyObject {
     associatedtype Footer
     func display(sections: [TableSection<Header, Cell, Footer>])
     func display(trailingSwipeActionsForIndexPath: ((IndexPath) -> [TableContextualAction<Cell>])?)
+    func display(expandTrailingActionsAt indexPath: IndexPath)
     func display(leadingSwipeActionsForIndexPath: ((IndexPath) -> [TableContextualAction<Cell>])?)
     func display(move: ((IndexPath, IndexPath) -> Void)?)
     func display(canMove: ((IndexPath) -> Bool)?)
@@ -239,6 +255,16 @@ public class DiffableTableViewDataSource<Header, Cell: Hashable, Footer>: NSObje
 
 // MARK: - TableOutput Conformance
 extension DiffableTableViewDataSource: TableOutput & HiddableOutput {
+    public func display(expandTrailingActionsAt indexPath: IndexPath) {
+        guard let cell = tableView?.cellForRow(at: indexPath) else { return }
+        
+        // Cancel any existing swipes
+        tableView?.perform(Selector(("_endSwipeToDeleteRowDidDelete:")), with: nil)
+        
+        // Trigger the swipe (this is the private method for trailing/delete-style swipe)
+        tableView?.perform(Selector(("_swipeToDeleteCell:")), with: cell)
+    }
+    
     public func display(isHidden: Bool) {
         tableView?.isHidden = isHidden
     }

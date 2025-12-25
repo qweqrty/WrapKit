@@ -1,4 +1,4 @@
-// Generated using Sourcery 2.2.6 — https://github.com/krzysztofzablocki/Sourcery
+// Generated using Sourcery 2.3.0 — https://github.com/krzysztofzablocki/Sourcery
 // DO NOT EDIT
 // swiftlint:disable:this file_name
 // swiftlint:disable all
@@ -30,6 +30,9 @@ extension WeakRefVirtualProxy: TableOutput where T: TableOutput {
     }
     public func display(trailingSwipeActionsForIndexPath: ((IndexPath) -> [TableContextualAction<Cell>])?) {
         object?.display(trailingSwipeActionsForIndexPath: trailingSwipeActionsForIndexPath)
+    }
+    public func display(expandTrailingActionsAt indexPath: IndexPath) {
+        object?.display(expandTrailingActionsAt: indexPath)
     }
     public func display(leadingSwipeActionsForIndexPath: ((IndexPath) -> [TableContextualAction<Cell>])?) {
         object?.display(leadingSwipeActionsForIndexPath: leadingSwipeActionsForIndexPath)

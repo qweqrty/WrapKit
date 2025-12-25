@@ -38,6 +38,10 @@ public struct EdgeInsets: Equatable {
 
     // Static properties for common cases
     public static let zero = EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)
+    
+    public var isZero: Bool {
+        top.isZero && leading.isZero && bottom.isZero && trailing.isZero
+    }
 }
 
 #if canImport(UIKit)
@@ -46,6 +50,15 @@ import UIKit
 extension EdgeInsets {
     var asUIEdgeInsets: UIEdgeInsets {
         UIEdgeInsets(top: top, left: leading, bottom: bottom, right: trailing)
+    }
+}
+#endif
+
+#if canImport(SwiftUI)
+import SwiftUI
+extension EdgeInsets {
+    var asSUIEdgeInsets: SwiftUI.EdgeInsets {
+        SwiftUI.EdgeInsets(top: top, leading: leading, bottom: bottom, trailing: trailing)
     }
 }
 #endif
