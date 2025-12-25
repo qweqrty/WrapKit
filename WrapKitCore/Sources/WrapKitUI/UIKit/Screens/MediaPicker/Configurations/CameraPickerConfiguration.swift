@@ -33,7 +33,9 @@ public enum CameraFlashMode: Int {
     case on = 1
 }
 
-public struct CameraPickerConfiguration<T> {
+public protocol CameraGenericView: AnyObject {}
+
+public struct CameraPickerConfiguration {
     
     public let title: String
     public let mediaTypes: [String]
@@ -44,7 +46,7 @@ public struct CameraPickerConfiguration<T> {
     
     /// For video, make sure to include mediaTypes "public.video"
     public let cameraCaptureMode: CameraCaptureMode
-    public let cameraOverlayView: T?
+    public let cameraOverlayView: CameraGenericView?
     public let cameraViewTransform: CGAffineTransform
     public let cameraDevice: CameraDevice
     public let cameraFlashMode: CameraFlashMode
@@ -59,7 +61,7 @@ public struct CameraPickerConfiguration<T> {
         videoMaximumDuration: TimeInterval = 10,
         videoQuality: VideoQualityType = .typeMedium,
         showsCameraControls: Bool = true,
-        cameraOverlayView: T? = nil,
+        cameraOverlayView: CameraGenericView? = nil,
         cameraViewTransform: CGAffineTransform = .identity,
         cameraCaptureMode: CameraCaptureMode = .photo,
         cameraDevice: CameraDevice = .front,

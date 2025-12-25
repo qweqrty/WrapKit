@@ -7,11 +7,12 @@
 
 import Foundation
 
-#if canImport(UIKit)
-import UIKit
-public typealias TextAutocapitalizationType = UITextAutocapitalizationType
-#endif
-// TODO: UITextAutocapitalizationType in SwiftUI and AppKit
+public enum TextAutocapitalizationType {
+    case none
+    case words
+    case sentences
+    case allCharacters
+}
 
 public struct TextfieldAppearance {
     public init(
@@ -349,8 +350,8 @@ extension Textfield: TextInputOutput {
             self.inputAccessoryView = nil
             self.reloadInputViews()
         }
-        if let autocapitalizationType = model.autocapitalizationType {
-            self.autocapitalizationType = autocapitalizationType
+        if let type = model.autocapitalizationType {
+            self.autocapitalizationType = type.asUITextAutocapitalizationType
         }
         
         if let inputType = model.inputType {
@@ -609,7 +610,7 @@ open class Textfield: UITextField {
         self.cornerRadius = cornerRadius
         self.autocorrectionType = .no
         self.textColor = appearance.colors.textColor
-        self.autocapitalizationType = .none
+        self.autocapitalizationType = autocapitalizationType
         self.inputView = inputView
         maskedTextfieldDelegate = delegate
         delegate?.applyTo(textfield: self)
@@ -883,6 +884,17 @@ public extension Textfield {
                 self.layer.borderColor = isFirstResponder ? appearance.colors.selectedErrorBorderColor.cgColor : appearance.colors.errorBorderColor.cgColor
             }
             self.layer.borderWidth = (isFirstResponder ? appearance.border?.selectedBorderWidth : appearance.border?.idleBorderWidth) ?? 0
+        }
+    }
+}
+
+private extension TextAutocapitalizationType {
+    var asUITextAutocapitalizationType: UITextAutocapitalizationType {
+        switch self {
+        case .allCharacters: return .allCharacters
+        case .sentences: return .sentences
+        case .words: return .words
+        case .none: return .none
         }
     }
 }

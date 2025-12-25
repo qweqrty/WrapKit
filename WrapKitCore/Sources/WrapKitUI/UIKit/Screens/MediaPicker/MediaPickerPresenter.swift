@@ -30,20 +30,20 @@ public struct MediaPickerLocalizable {
 }
 
 #if canImport(UIKit)
-public class MediaPickerPresenter<T> {
+public class MediaPickerPresenter {
    
     public var alertView: AlertOutput?
    
-    public var pickerManager: MediaPickerManager<T>?
+    public var pickerManager: MediaPickerManager?
     
     public let localizable: MediaPickerLocalizable
     private let flow: any MediaPickerFlow
-    private let sourceTypes: [MediaPickerSource<T>]
+    private let sourceTypes: [MediaPickerSource]
     private let callback: ((MediaPickerResultType?) -> Void)?
    
     public init(
         flow: any MediaPickerFlow,
-        sourceTypes: [MediaPickerSource<T>],
+        sourceTypes: [MediaPickerSource],
         localizable: MediaPickerLocalizable,
         callback: ((MediaPickerResultType?) -> Void)?
     ) {
@@ -98,7 +98,7 @@ extension MediaPickerPresenter: LifeCycleViewOutput {
 import UIKit
 
 extension MediaPickerPresenter {
-    private func checkCameraPermissionAndPresentPicker(_ configuration: CameraPickerConfiguration<T>) {
+    private func checkCameraPermissionAndPresentPicker(_ configuration: CameraPickerConfiguration) {
         pickerManager?.checkCameraAccess { [weak self] isDenied in
             guard isDenied else {
                 self?.showCameraUnavailableAlert()
@@ -124,7 +124,7 @@ extension MediaPickerPresenter {
         }
     }
     
-    private func presentPicker(source: MediaPickerSource<T>) {
+    private func presentPicker(source: MediaPickerSource) {
         pickerManager?.presentPicker(source: source) { [weak self] result in
             self?.callback?(result ?? nil)
             self?.flow.finish()

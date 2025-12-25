@@ -178,7 +178,7 @@ fileprivate extension WebViewPresenterTests {
         let refreshControlSpy = LoadingOutputSpy()
         let flow = WebViewFlowSpy()
         
-        let image = UIImage(systemName: "star.fill")
+        let image = Image(named: "star.fill")
         
         let progressBarStyle = ProgressBarStyle(
             backgroundColor: .cyan

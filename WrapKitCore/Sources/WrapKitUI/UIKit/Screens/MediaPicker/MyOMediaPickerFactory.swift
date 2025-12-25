@@ -8,13 +8,12 @@
 import Foundation
 import PhotosUI
 
-public protocol MediaPickerFactory<Controller, View> {
+public protocol MediaPickerFactory<Controller> {
     associatedtype Controller
-    associatedtype View
     
     func makeMediaPickerController(
         flow: any MediaPickerFlow,
-        sourceTypes: [MediaPickerSource<View>],
+        sourceTypes: [MediaPickerSource],
         localizable: MediaPickerLocalizable,
         callback: ((MediaPickerResultType?) -> Void)?
     ) -> Controller
@@ -29,7 +28,7 @@ public class MediaPickerFactoryiOS: MediaPickerFactory {
     
     public func makeMediaPickerController(
         flow: any MediaPickerFlow,
-        sourceTypes: [MediaPickerSource<UIView>],
+        sourceTypes: [MediaPickerSource],
         localizable: MediaPickerLocalizable,
         callback: ((MediaPickerResultType?) -> Void)?
     ) -> UIViewController {
@@ -40,7 +39,7 @@ public class MediaPickerFactoryiOS: MediaPickerFactory {
             callback: callback
         )
         let vc = BottomSheetController(contentView: .init(), lifeCycleViewOutput: presenter)
-        let pickerManager = MediaPickerManager<UIView>(presentingController: vc)
+        let pickerManager = MediaPickerManager(presentingController: vc)
         presenter.pickerManager = pickerManager
         presenter.alertView = vc
             .weakReferenced

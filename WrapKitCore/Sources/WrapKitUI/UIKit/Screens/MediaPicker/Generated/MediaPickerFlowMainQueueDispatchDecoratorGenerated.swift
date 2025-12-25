@@ -18,9 +18,8 @@ extension MediaPickerFlow {
 }
 
 extension MainQueueDispatchDecorator: MediaPickerFlow where T: MediaPickerFlow {
-    public typealias View = T.View
 
-    public func showMediaPicker(sourceTypes: [MediaPickerSource<View>], localizable: MediaPickerLocalizable, callback: ((MediaPickerResultType?) -> Void)?) {
+    public func showMediaPicker(sourceTypes: [MediaPickerSource], localizable: MediaPickerLocalizable, callback: ((MediaPickerResultType?) -> Void)?) {
         dispatch { [weak self] in
             self?.decoratee.showMediaPicker(sourceTypes: sourceTypes, localizable: localizable, callback: callback)
         }

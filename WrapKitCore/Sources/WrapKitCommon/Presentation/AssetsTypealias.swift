@@ -30,15 +30,6 @@ public typealias SwiftUIFont = SwiftUI.Font
 @available(iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 public typealias SwiftUIText = SwiftUI.Text
 
-#endif
-
-public enum ImageEnum: HashableWithReflection {
-    case asset(Image?)
-    case data(Data?)
-    case url(URL?, URL? = nil) // Light, Dark
-    case urlString(String?, String? = nil) // Light, Dark
-}
-
 public extension Color {
     static func dynamicColor(light: Color, dark: Color) -> Color {
     guard #available(iOS 13.0, *) else { return light }
@@ -46,6 +37,14 @@ public extension Color {
       traits.userInterfaceStyle == .dark ? dark : light
     }
   }
+}
+#endif
+
+public enum ImageEnum: HashableWithReflection {
+    case asset(Image?)
+    case data(Data?)
+    case url(URL?, URL? = nil) // Light, Dark
+    case urlString(String?, String? = nil) // Light, Dark
 }
 
 public extension IndexPath {
@@ -91,7 +90,7 @@ public enum ImageFactory {
         #if canImport(UIKit)
         return UIImage(systemName: name)
         #elseif canImport(AppKit)
-        return NSImage(systemSymbolName: name, accessibilityDescription: nil)
+        NSImage(systemSymbolName: name, accessibilityDescription: nil)
         #endif
     }
 }

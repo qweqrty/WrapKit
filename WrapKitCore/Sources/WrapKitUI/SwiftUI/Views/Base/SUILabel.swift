@@ -46,7 +46,11 @@ public struct SUILabelView: View, Animatable {
         self.model = model
         self.defaultFont = font
         self.suiFont = SwiftUIFont(font)
+#if os(macOS)
+        simpleTextYOffset = 4 / min(20 + (max(0, font.pointSize - 30) * 0.5), 25)
+#else
         simpleTextYOffset = font.lineHeight / min(20 + (max(0, font.pointSize - 30) * 0.5), 25)
+#endif
         simpleTextLineHeightMultiple = 1.139 + (0.0015 * font.pointSize) // 1.131 + (0.0015 * font.pointSize)
         
         // TODO: not handled font higher than 30, formula below breaks on 10-20-40 except 30
@@ -64,7 +68,11 @@ public struct SUILabelView: View, Animatable {
                     .font(suiFont)
                     .offset(y: -simpleTextYOffset)
                     .modify { if #available(iOS 26.0, *) {
-                        $0.lineHeight(.multiple(factor: simpleTextLineHeightMultiple))
+                        if #available(macOS 26.0, *) {
+                            $0.lineHeight(.multiple(factor: simpleTextLineHeightMultiple))
+                        } else {
+                            // MARK: - TODO
+                        }
                     } }
             }
         case .attributes(let attributes):
@@ -352,7 +360,11 @@ extension NSUnderlineStyle {
     .font(.system(size: 20))
     .offset(y: -1.2)
     .modify { if #available(iOS 26.0, *) {
-        $0.lineHeight(.multiple(factor: 1.17))
+        if #available(macOS 26.0, *) {
+            $0.lineHeight(.multiple(factor: 1.17))
+        } else {
+            // MARK: - TODO
+        }
     } }
     .frame(height: 150, alignment: .center)
     .frame(maxWidth: .infinity, alignment: .leading)
@@ -363,7 +375,11 @@ extension NSUnderlineStyle {
     .font(.system(size: 30))
     .offset(y: -1.2)
     .modify { if #available(iOS 26.0, *) {
-        $0.lineHeight(.multiple(factor: 1.17))
+        if #available(macOS 26.0, *) {
+            $0.lineHeight(.multiple(factor: 1.17))
+        } else {
+            // MARK: - TODO
+        }
     } }
     .frame(height: 150, alignment: .center)
     .frame(maxWidth: .infinity, alignment: .leading)
