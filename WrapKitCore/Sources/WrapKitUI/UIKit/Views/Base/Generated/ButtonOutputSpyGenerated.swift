@@ -14,6 +14,9 @@ import Foundation
 #if canImport(UIKit)
 import UIKit
 #endif
+#if canImport(SwiftUI)
+import SwiftUI
+#endif
 
 public final class ButtonOutputSpy: ButtonOutput {
 

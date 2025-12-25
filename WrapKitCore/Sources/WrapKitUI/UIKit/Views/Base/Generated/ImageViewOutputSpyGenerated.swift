@@ -17,6 +17,9 @@ import UIKit
 #if canImport(Kingfisher)
 import Kingfisher
 #endif
+#if canImport(SwiftUI)
+import SwiftUI
+#endif
 
 public final class ImageViewOutputSpy: ImageViewOutput {
 

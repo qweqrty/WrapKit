@@ -18,7 +18,7 @@ public enum LabelAnimationStyle {
     case circle(lineColor: Color)
 }
 
-public protocol TextOutput: AnyObject {
+public protocol TextOutput: HiddableOutput {
     func display(model: TextOutputPresentableModel?)
     func display(text: String?)
     func display(attributes: [TextAttributes])
@@ -50,8 +50,10 @@ public indirect enum TextOutputPresentableModel: HashableWithReflection {
     )
     case textStyled(
         text: TextOutputPresentableModel,
-        cornerStyle: CornerStyle?,
-        insets: EdgeInsets
+        cornerStyle: CornerStyle? = nil,
+        insets: EdgeInsets = .zero,
+        height: CGFloat? = nil,
+        backgroundColor: Color? = nil
     )
 }
 
@@ -63,7 +65,6 @@ extension Label: TextOutput {
     public func display(model: TextOutputPresentableModel?) {
         isHidden = model == nil
         guard let model = model else { return }
-        clearAnimationModel()
         hideShimmer()
         switch model {
         case .text(let text):
@@ -72,26 +73,32 @@ extension Label: TextOutput {
             display(attributes: attributes)
         case .animatedDecimal(let id, let startAmount, let endAmount, let mapToString, let animationStyle, let duration, let completion):
             display(id: id, from: startAmount, to: endAmount, mapToString: mapToString, animationStyle: animationStyle, duration: duration, completion: completion)
-        case .animated(let id, let from, let to, let mapToString, let animationStyle, let duration, let completion):
+        case .animated(let id, let startAmount, let endAmount, let mapToString, let animationStyle, let duration, let completion):
             let mapper: ((Decimal) -> TextOutputPresentableModel)? = if let mapToString { { mapToString($0.doubleValue) } } else { nil }
-            display(id: id, from: from.asDecimal(), to: to.asDecimal(), mapToString: mapper, animationStyle: animationStyle, duration: duration, completion: completion)
-        case .textStyled(let model, let style, let insets):
-            display(model: model)
-            self.cornerStyle = style
+            display(id: id, from: startAmount.asDecimal(), to: endAmount.asDecimal(), mapToString: mapper, animationStyle: animationStyle, duration: duration, completion: completion)
+        case .textStyled(
+            let text,
+            let cornerStyle,
+            let insets,
+            _, // MARK: TODO ?
+            let backgroundColor
+        ):
+            display(model: text)
+            self.cornerStyle = cornerStyle
             self.textInsets = insets.asUIEdgeInsets
+            if let backgroundColor {
+                self.backgroundColor = backgroundColor
+            }
         }
     }
     
     public func display(text: String?) {
         isHidden = text.isEmpty
-        clearAnimationModel()
         self.text = text?.removingPercentEncoding ?? text
-        
     }
     
     public func display(attributes: [TextAttributes]) {
         isHidden = attributes.isEmpty
-        clearAnimationModel()
         self.attributes = attributes.map { attribute in
             var updatedAttribute = attribute
             updatedAttribute.text = attribute.text.removingPercentEncoding ?? attribute.text
@@ -99,8 +106,9 @@ extension Label: TextOutput {
         }
     }
     
-    public func display(id: String? = nil, from startAmount: Decimal, to endAmount: Decimal, mapToString: ((Decimal) -> TextOutputPresentableModel)?) {
-        display(id: id, from: startAmount, to: endAmount, mapToString: mapToString, animationStyle: .none, duration: 1.0, completion: nil)
+    public func display(id: String? = nil, from startAmount: Double, to endAmount: Double, mapToString: ((Double) -> TextOutputPresentableModel)?, animationStyle: LabelAnimationStyle = .none, duration: TimeInterval = 1.0, completion: (() -> Void)? = nil) {
+        let mapper: ((Decimal) -> TextOutputPresentableModel)? = if let mapToString { { mapToString($0.doubleValue) } } else { nil }
+        display(id: id, from: startAmount.asDecimal(), to: endAmount.asDecimal(), mapToString: mapper, animationStyle: .none, duration: 1.0, completion: nil)
     }
     
     public func display(id: String? = nil, from startAmount: Decimal, to endAmount: Decimal, mapToString: ((Decimal) -> TextOutputPresentableModel)?, animationStyle: LabelAnimationStyle = .none, duration: TimeInterval = 1.0, completion: (() -> Void)? = nil) {
@@ -110,14 +118,11 @@ extension Label: TextOutput {
         
         animation?.cancel()
         animation = CountingLabelAnimation(label: self)
-        currentAnimatedModelID = id
         currentAnimatedTarget = endAmount
         
-        clearAnimationModel()
         animation?.startAnimation(fromValue: startAmount, to: endAmount, mapToString: mapToString, animationStyle: animationStyle, duration: duration, completion: { [weak self] in
+            self?.clearAnimationModel()
             completion?()
-            // clear id after finishing
-            self?.currentAnimatedModelID = nil
         })
     }
     
@@ -129,6 +134,10 @@ extension Label: TextOutput {
 open class Label: UILabel {
     public var textInsets: UIEdgeInsets = .zero
     public var cornerStyle: CornerStyle?
+    
+    let layoutManager = NSLayoutManager()
+    let textContainer = NSTextContainer(size: CGSize.zero)
+    var textStorage = NSTextStorage()
 
     public init(
         backgroundColor: UIColor? = .clear,
@@ -158,7 +167,12 @@ open class Label: UILabel {
         self.numberOfLines = numberOfLines
         self.cornerStyle = cornerStyle
         self.textInsets = textInsets
+        
         addGestureRecognizer(tapGesture)
+        textContainer.lineFragmentPadding = 0.0
+        textContainer.lineBreakMode = self.lineBreakMode
+        textContainer.maximumNumberOfLines = self.numberOfLines
+        layoutManager.addTextContainer(textContainer)
     }
     
     override init(frame: CGRect) {
@@ -172,7 +186,12 @@ open class Label: UILabel {
         self.minimumScaleFactor = 0
         self.adjustsFontSizeToFitWidth = false
         self.isUserInteractionEnabled = true
+        
         addGestureRecognizer(tapGesture)
+        textContainer.lineFragmentPadding = 0.0
+        textContainer.lineBreakMode = self.lineBreakMode
+        textContainer.maximumNumberOfLines = self.numberOfLines
+        layoutManager.addTextContainer(textContainer)
     }
     
     open override func layoutSubviews() {
@@ -187,6 +206,8 @@ open class Label: UILabel {
             layer.cornerRadius = 0
         }
         clipsToBounds = true
+        
+        textContainer.size = bounds.size
     }
     
     open override func drawText(in rect: CGRect) {
@@ -198,8 +219,9 @@ open class Label: UILabel {
         guard let text = text, !text.isEmpty else {
             return CGSize(width: base.width, height: 0)
         }
+        let width = max(animation?.animatedTextMaxWidth ?? 0, base.width)
         return CGSize(
-            width: animation?.animatedTextMaxWidth ?? base.width + textInsets.left + textInsets.right,
+            width: width + textInsets.left + textInsets.right,
             height: base.height + textInsets.top + textInsets.bottom
         )
     }
@@ -211,8 +233,8 @@ open class Label: UILabel {
     }
     
     private var animation: CountingLabelAnimation?
-    private var currentAnimatedModelID: String?
     private var currentAnimatedTarget: Decimal?
+    private var currentAnimatedModelID: String?
     
     lazy var tapGesture: UITapGestureRecognizer = {
         let gesture = UITapGestureRecognizer(target: self, action: nil)
@@ -226,34 +248,15 @@ open class Label: UILabel {
                 attributedText = nil
                 return
             }
-            
-            let combinedAttributedString = NSMutableAttributedString()
-            for (index, current) in attributes.enumerated() {
-                combinedAttributedString.append(
-                    NSAttributedString(
-                        current.text,
-                        font: current.font ?? font,
-                        color: current.color ?? textColor,
-                        lineSpacing: 4,
-                        underlineStyle: current.underlineStyle ?? [],
-                        textAlignment: current.textAlignment ?? textAlignment,
-                        leadingImage: current.leadingImage,
-                        leadingImageBounds: current.leadingImageBounds,
-                        trailingImage: current.trailingImage,
-                        trailingImageBounds: current.trailingImageBounds
-                    )
-                )
-                let currentLocation = combinedAttributedString.length - current.text.count
-                attributes[index].range = NSRange(location: currentLocation, length: current.text.count)
-            }
+            let combinedAttributedString = attributes.makeNSAttributedString(font: font, textColor: textColor, textAlignment: textAlignment)
             attributedText = combinedAttributedString
+            self.textStorage = NSTextStorage(attributedString: combinedAttributedString)
+            self.textStorage.addLayoutManager(layoutManager)
         }
     }
     
     private func clearAnimationModel() {
-        if animation?.timer == nil {
-            animation?.animatedTextMaxWidth = nil
-        }
+        animation?.resetAnimatedTextMaxWidth()
     }
     
     public required init?(coder aDecoder: NSCoder) {
@@ -261,7 +264,7 @@ open class Label: UILabel {
     }
     
     deinit {
-        animation?.timer?.invalidate()
+        animation?.invalidate()
         animation = nil
     }
 }
@@ -284,9 +287,25 @@ public extension Label {
 extension Label: UIGestureRecognizerDelegate {
     open override func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
         guard gestureRecognizer == tapGesture else { return true }
+        
+        // Configure the text container
+        textContainer.lineFragmentPadding = 0.0
+        textContainer.lineBreakMode = self.lineBreakMode
+        textContainer.maximumNumberOfLines = self.numberOfLines
+        textContainer.size = self.bounds.size
+        
+        let point = gestureRecognizer.location(in: self)
+        
         for attribute in attributes {
             guard let range = attribute.range else { continue }
-            if tapGesture.didTapAttributedTextInLabel(label: self, textAlignment: attribute.textAlignment ?? textAlignment, inRange: range), let onTap = attribute.onTap {
+            if NSLayoutManager.didTapAttributedTextInLabel(
+                point: point,
+                layoutManager: layoutManager,
+                textStorage: textStorage,
+                textContainer: textContainer,
+                textAlignment: attribute.textAlignment ?? textAlignment,
+                inRange: range
+            ), let onTap = attribute.onTap {
                 onTap()
                 return true
             }
@@ -297,21 +316,14 @@ extension Label: UIGestureRecognizerDelegate {
 
 extension TextOutputPresentableModel {
     func width(usingFont font: Font) -> CGFloat {
-        var string: String?
-        switch self {
-        case .attributes(let attributes):
-            string = attributes.map { $0.text }.joined()
+        let attributedString: NSAttributedString = switch self {
+        case .attributes(var attributes):
+            attributes.makeNSAttributedString(font: font)
         case .text(let text):
-            string = text
+            NSAttributedString(string: text ?? "", attributes: [.font: font])
         default:
-            return 0
+            NSAttributedString()
         }
-        
-        let attributedString = NSAttributedString(
-            string: string ?? "",
-            attributes: [.font: font]
-        )
-        
         let size = attributedString.size()
         return ceil(size.width)
     }

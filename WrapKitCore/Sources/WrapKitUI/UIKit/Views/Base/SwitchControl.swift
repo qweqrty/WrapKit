@@ -20,7 +20,7 @@ public struct SwitchControlPresentableModel {
     public let isOn: Bool?
     public let isEnabled: Bool?
     public let style: Style?
-
+    
     public init(
         onPress: ((SwitchCotrolOutput & LoadingOutput) -> Void)? = nil,
         isOn: Bool? = nil,
@@ -38,14 +38,14 @@ public struct SwitchControlPresentableModel {
         public let thumbTintColor: Color
         public let backgroundColor: Color
         public let cornerRadius: CGFloat
-        public let shimmerStyle: ShimmerView.Style?
+        public let shimmerStyle: ShimmerStyle?
 
         public init(
             tintColor: Color,
             thumbTintColor: Color,
             backgroundColor: Color,
             cornerRadius: CGFloat,
-            shimmerStyle: ShimmerView.Style? = nil
+            shimmerStyle: ShimmerStyle? = nil
         ) {
             self.tintColor = tintColor
             self.thumbTintColor = thumbTintColor
@@ -73,25 +73,26 @@ open class SwitchControl: UISwitch {
         super.init(frame: .zero)
         addTarget(self, action: #selector(didPress), for: .valueChanged)
     }
-
+    
     public init(style: SwitchControlPresentableModel.Style) {
         super.init(frame: .zero)
         addTarget(self, action: #selector(didPress), for: .valueChanged)
         self.switchStyle = style
         display(style: style)
     }
-
+    
     @objc private func didPress() {
         wasUserSwitched = true
         onPress?(self)
     }
-
+    
     public required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 }
 
 extension SwitchControl: SwitchCotrolOutput {
+    
     public func display(model: SwitchControlPresentableModel?) {
         isHidden = model == nil
         if let isOn = model?.isOn { display(isOn: isOn) }

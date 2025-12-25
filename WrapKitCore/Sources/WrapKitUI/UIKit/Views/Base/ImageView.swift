@@ -7,7 +7,7 @@
 
 import Foundation
 
-public protocol ImageViewOutput: AnyObject {
+public protocol ImageViewOutput: HiddableOutput {
     func display(model: ImageViewPresentableModel?, completion: ((Image?) -> Void)?)
     func display(image: ImageEnum?, completion: ((Image?) -> Void)?)
     func display(size: CGSize?)
