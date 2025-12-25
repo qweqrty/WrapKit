@@ -31,7 +31,7 @@ public protocol CardViewOutput: AnyObject {
 }
 
 extension CardViewOutput {
-    // sourcery: ь skipSpy
+    // sourcery: skipSpy
     func display(trailingImage: ImageViewPresentableModel?) {
         display(trailingImage: trailingImage, leadingSpacing: nil)
     }
@@ -276,7 +276,7 @@ extension CardView: CardViewOutput {
         trailingImagesStackView.isHidden = !trailingImagesStackView.arrangedSubviews.contains(where: { !$0.isHidden })
         trailingImageView.display(model: trailingImage)
         if let leadingSpacing,
-           let index = hStackView.arrangedSubviews.firstIndex(of: trailingImageView),
+           let index = hStackView.arrangedSubviews.firstIndex(of: trailingImagesStackView),
            let prevView = hStackView.arrangedSubviews.item(at: index - 1) {
             hStackView.setCustomSpacing(leadingSpacing, after: prevView)
         }
