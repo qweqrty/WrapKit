@@ -5,9 +5,7 @@
 //  Created by Daniiar Erkinov on 3/7/24.
 //
 
-#if canImport(UIKit)
 import Foundation
-import UIKit
 
 public protocol SearchBarOutput: AnyObject {
     func display(model: SearchBarPresentableModel?)
@@ -43,6 +41,9 @@ public struct SearchBarPresentableModel {
         self.spacing = spacing
     }
 }
+
+#if canImport(UIKit)
+import UIKit
 
 public class SearchBar: ViewUIKit {
     public let stackView = StackView(axis: .horizontal)
