@@ -1,4 +1,4 @@
-// Generated using Sourcery 2.2.6 — https://github.com/krzysztofzablocki/Sourcery
+// Generated using Sourcery 2.3.0 — https://github.com/krzysztofzablocki/Sourcery
 // DO NOT EDIT
 // swiftlint:disable:this file_name
 // swiftlint:disable all
@@ -19,7 +19,7 @@ extension MediaPickerFlow {
 
 extension MainQueueDispatchDecorator: MediaPickerFlow where T: MediaPickerFlow {
 
-    public func showMediaPicker(sourceTypes: [MediaPickerManager.Source], localizable: MediaPickerLocalizable, callback: ((MediaPickerManager.ResultType?) -> Void)?) {
+    public func showMediaPicker(sourceTypes: [MediaPickerSource], localizable: MediaPickerLocalizable, callback: ((MediaPickerResultType?) -> Void)?) {
         dispatch { [weak self] in
             self?.decoratee.showMediaPicker(sourceTypes: sourceTypes, localizable: localizable, callback: callback)
         }

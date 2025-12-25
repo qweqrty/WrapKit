@@ -28,10 +28,13 @@ public final class LoggerHTTPClient: HTTPClient {
                 self.error = error
             }
         }
+        public let uuid: UUID
+        public let date = Date()
         public let request: URLRequest
         public let response = InMemoryStorage<Response>(model: nil)
         
-        public init(request: URLRequest, response: Response?) {
+        public init(uuid: UUID = UUID(), request: URLRequest, response: Response?) {
+            self.uuid = uuid
             self.request = request
             self.response.set(model: response)
         }
@@ -46,43 +49,59 @@ public final class LoggerHTTPClient: HTTPClient {
     
     public func dispatch(_ request: URLRequest, completion: @escaping (Result) -> Void) -> any HTTPClientTask {
         let log = Log(request: request, response: nil)
-        var requests = Self.requests.get() ?? []
-        requests.append(log)
-        Self.requests.set(model: requests)
-        print(request.cURL())
+        if !Bundle.isAppStoreBuild {
+            var requests = Self.requests.get() ?? []
+            requests.append(log)
+            Self.requests.set(model: requests)
+            print(request.cURL())
+        }
         return decoratee.dispatch(request) { result in
             switch result {
             case .success((let data, let response)):
-                let message = Self.message(from: response, data: data)
-                log.response.set(model: .init(data: data, response: response, error: nil))
+                if !Bundle.isAppStoreBuild {
+                    Self.message(from: response, data: data) { message in
+                        print(message)
+                    }
+                    log.response.set(model: .init(data: data, response: response, error: nil))
+                }
                 completion(.success((data, response)))
-                print(message)
             case .failure(let error):
-                let message = Self.message(error: error)
-                log.response.set(model: .init(data: nil, response: nil, error: error))
-                print(message)
+                if !Bundle.isAppStoreBuild {
+                    Self.message(error: error) { message in
+                        print(message)
+                    }
+                    log.response.set(model: .init(data: nil, response: nil, error: error))
+                }
                 completion(.failure(error))
             }
         }
     }
     
-    public static func message(from response: HTTPURLResponse? = nil, data: Data? = nil, error: Error? = nil, request: URLRequest? = nil) -> String {
+    public static func message(from response: HTTPURLResponse? = nil, data: Data? = nil, error: Error? = nil, request: URLRequest? = nil, completion: ((String) -> Void)?) {
         if (error as? URLError)?.code == .cancelled, let request = request {
-            return printCancelled(request)
+            completion?(printCancelled(request))
+            return
         }
         let urlString = response?.url?.absoluteString ?? "N/A"
         let statusCode = (response)?.statusCode.description ?? "N/A"
         let headers = (response)?.allHeaderFields as? [String: Any] ?? [:]
-        let body = data?.prettyPrintedJSONString ?? "N/A"
-        
         var responseLog = "📥 Incoming Response: \(urlString)"
         responseLog += "\nStatus Code: \(statusCode)"
         responseLog += "\nHeaders: \(headers)"
-        responseLog += "\nBody: \(body)"
         if let error = error {
             responseLog += "\nError: \(error.localizedDescription)"
         }
-        return responseLog
+        if let data {
+            data.prettyPrintedJSONString(completion: { string in
+                var responseLog = "📥 Incoming Response: \(urlString)"
+                responseLog += "\nStatus Code: \(statusCode)"
+                responseLog += "\nHeaders: \(headers)"
+                responseLog += "\nBody: \(string)"
+                completion?(responseLog)
+            })
+        } else {
+            completion?(responseLog)
+        }
     }
     
     static func printCancelled(_ request: URLRequest) -> String {
@@ -133,14 +152,25 @@ fileprivate extension String {
     }
 }
 
-// Pretty print JSON
-fileprivate extension Data {
-    var prettyPrintedJSONString: String? {
-        guard let object = try? JSONSerialization.jsonObject(with: self, options: []),
-              let data = try? JSONSerialization.data(withJSONObject: object, options: [.prettyPrinted]),
-              let prettyString = String(data: data, encoding: .utf8) else {
-            return String(data: self, encoding: .utf8) ?? "N/A"
+public extension Data {
+    func prettyPrintedJSONString(completion: @escaping (String) -> Void) {
+        DispatchQueue.global(qos: .userInitiated).async {
+            do {
+                let jsonObject = try JSONSerialization.jsonObject(with: self, options: .mutableContainers)
+                let prettyData = try JSONSerialization.data(withJSONObject: jsonObject, options: .prettyPrinted)
+                
+                if let prettyString = String(data: prettyData, encoding: .utf8) {
+                    DispatchQueue.main.async {
+                        completion(prettyString)
+                    }
+                }
+            } catch {
+                if let string = NSString(data: self, encoding: String.Encoding.utf8.rawValue) {
+                    DispatchQueue.main.async {
+                        completion(String(string))
+                    }
+                }
+            }
         }
-        return prettyString
     }
 }

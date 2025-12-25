@@ -9,29 +9,37 @@ import Foundation
 import Combine
 
 public class AuthenticatedHTTPClientDecorator: HTTPClient {
-    public static var ongoingRefresh: AnyPublisher<String, ServiceError>?
+    public enum AuthenticationPolicyResult {
+        case authenticated
+        case needsRefresh(onErrorMessage: String?)
+        case logout(message: String?)
+    }
+    public static let tokenLock = DispatchQueue(label: "com.wrapkit.tokenLock")
+    public static var ongoingRefresh: AnyPublisher<Tokens, ServiceError>?
+    public static var hasHandledUnauthenticated = false
     
     public typealias EnrichRequestWithToken = ((URLRequest, String) -> URLRequest)
-    public typealias AuthenticationPolicy = (((Data, HTTPURLResponse)) -> Bool)
+    public typealias AuthenticationPolicy = (((Data, HTTPURLResponse)) -> AuthenticationPolicyResult)
     
     private let decoratee: HTTPClient
-    private let tokenLock: DispatchQueue
+    
     private let accessTokenStorage: any Storage<String>
     private let refreshTokenStorage: any Storage<String>
-    private var tokenRefresher: TokenRefresher?
-    private let onNotAuthenticated: (() -> Void)?
+    private var tokenRefresher: TokenRefresher
+    private let onNotAuthenticated: ((String?) -> Void)?
     private let enrichRequestWithToken: EnrichRequestWithToken
     private let isAuthenticated: AuthenticationPolicy
-
+    
+    private var cancellables = Set<AnyCancellable>()
+    
     public init(
         decoratee: HTTPClient,
         accessTokenStorage: any Storage<String>,
         refreshTokenStorage: any Storage<String>,
-        tokenRefresher: TokenRefresher?,
-        onNotAuthenticated: (() -> Void)? = nil,
+        tokenRefresher: TokenRefresher,
+        onNotAuthenticated: ((String?) -> Void)? = nil,
         enrichRequestWithToken: @escaping EnrichRequestWithToken,
-        isAuthenticated: @escaping AuthenticationPolicy,
-        tokenLock: DispatchQueue = DispatchQueue(label: "com.wrapkit.tokenLock")
+        isAuthenticated: @escaping AuthenticationPolicy
     ) {
         self.decoratee = decoratee
         self.accessTokenStorage = accessTokenStorage
@@ -40,47 +48,57 @@ public class AuthenticatedHTTPClientDecorator: HTTPClient {
         self.onNotAuthenticated = onNotAuthenticated
         self.enrichRequestWithToken = enrichRequestWithToken
         self.isAuthenticated = isAuthenticated
-        self.tokenLock = tokenLock
+        
+        accessTokenStorage.publisher
+            .sink { value in
+                if let value = value, !value.isEmpty {
+                    Self.tokenLock.sync {
+                        Self.hasHandledUnauthenticated = false
+                    }
+                }
+            }
+            .store(in: &cancellables)
     }
-
+    
     public func dispatch(_ request: URLRequest, completion: @escaping (HTTPClient.Result) -> Void) -> HTTPClientTask {
         return dispatch(request, completion: completion, isRetryNeeded: true)
     }
     
     private func dispatch(_ request: URLRequest, completion: @escaping (HTTPClient.Result) -> Void, isRetryNeeded: Bool) -> HTTPClientTask {
+        
+        // Nothing to enrich case
         guard let token = synchronizedTokenAccess({ accessTokenStorage.get() }), !token.isEmpty else {
-            refreshTokenStorage.clear()
-            onNotAuthenticated?()
+            handleUnauthenticated(message: nil)
+            completion(.failure(ServiceError.internal))
             return CompositeHTTPClientTask()
         }
-
+        
         let compositeTask = CompositeHTTPClientTask(tasks: [])
         let enrichedRequest = enrichRequestWithToken(request, token)
         let firstTask = decoratee.dispatch(enrichedRequest) { [weak self] result in
             guard let self = self else { return }
             switch result {
             case .success(let (data, response)):
-                let currentToken = synchronizedTokenAccess { self.accessTokenStorage.get() } // Add sync
-                if self.isAuthenticated((data, response)) {
+                let result = self.isAuthenticated((data, response))
+                switch result {
+                case .authenticated:
                     completion(.success((data, response)))
-                } else if currentToken != token && !currentToken.isEmpty {
-                    let task = dispatch(request, completion: completion, isRetryNeeded: true)
-                    task.resume()
-                    compositeTask.add(task)
-                } else if isRetryNeeded {
-                    refreshToken(completion: { [weak self] newToken in
-                        if let newToken = newToken, !newToken.isEmpty {
-                            self?.retryRequest(request, completion: completion, compositeTask: compositeTask)
-                        } else {
-                            self?.refreshTokenStorage.clear()
-                            self?.accessTokenStorage.clear()
-                            self?.onNotAuthenticated?()
-                        }
-                    }, compositeTask: compositeTask)
-                } else {
-                    refreshTokenStorage.clear()
-                    accessTokenStorage.clear()
-                    self.onNotAuthenticated?()
+                case .logout(let message):
+                    self.handleUnauthenticated(message: message)
+                    completion(.failure(ServiceError.internal))
+                case .needsRefresh(let message):
+                    if isRetryNeeded {
+                        refreshToken(
+                            message: message,
+                            completion: { [weak self] tokens in
+                                if let accessToken = tokens?.accessToken, !accessToken.isEmpty {
+                                    self?.retryRequest(request, completion: completion, compositeTask: compositeTask)
+                                }
+                            }, compositeTask: compositeTask)
+                    } else {
+                        self.handleUnauthenticated(message: message)
+                        completion(.failure(ServiceError.internal))
+                    }
                 }
             case .failure(let error):
                 completion(.failure(error))
@@ -91,78 +109,98 @@ public class AuthenticatedHTTPClientDecorator: HTTPClient {
     }
     
     public func refreshToken(
-        completion: @escaping (String?) -> Void,
+        message: String? = nil,
+        completion: ((Tokens?) -> Void)?,
         compositeTask: CompositeHTTPClientTask
     ) {
-        guard let tokenRefresher = tokenRefresher else {
-            completion(nil)
-            return
-        }
-
+        
         if let ongoingRefresh = synchronizedTokenAccess({ Self.ongoingRefresh }) {
             ongoingRefresh
-                .handle(
-                    onSuccess: { newToken in
-                        completion(newToken)
-                    },
-                    onError: { _ in
-                        completion(nil)
+                .handleEvents(
+                receiveOutput: { tokens in
+                    completion?(tokens)
+                },
+                receiveCompletion: { [weak self] result in
+                    if case .failure(_) = result {
+                        self?.handleUnauthenticated(message: message)
+                        completion?(nil)
                     }
-                )
+                }
+            )
+            .eraseToAnyPublisher()
+            .subscribe()
             return
         }
-
-        var publisherToSubscribe: AnyPublisher<String, ServiceError>?
-        tokenLock.sync {
+        
+        var publisherToSubscribe: AnyPublisher<Tokens, ServiceError>?
+        Self.tokenLock.sync {
             if Self.ongoingRefresh == nil {
-                let refreshPublisher = Future<String, ServiceError> { promise in
-                    tokenRefresher.refresh { result in
+                let refreshPublisher = Future<Tokens, ServiceError> { [weak self] promise in
+                    self?.tokenRefresher.refresh { result in
                         promise(result)
                     }
                 }
-                .flatMap { [weak self] newToken -> AnyPublisher<String, ServiceError> in
-                    guard let self else {
-                        self?.accessTokenStorage.set(model: newToken)
-                        return Just(newToken).setFailureType(to: ServiceError.self).eraseToAnyPublisher()
+                    .flatMap { [weak self] tokens -> AnyPublisher<Tokens, ServiceError> in
+                        guard let self else {
+                            return Just(tokens).setFailureType(to: ServiceError.self).eraseToAnyPublisher()
+                        }
+                        if let refreshToken = tokens.refreshToken, !refreshToken.isEmpty {
+                            return Publishers.Zip(
+                                accessTokenStorage.set(model: tokens.accessToken),
+                                refreshTokenStorage.set(model: tokens.refreshToken)
+                            )
+                            .map { _ in tokens }
+                            .setFailureType(to: ServiceError.self)
+                            .eraseToAnyPublisher()
+                        } else {
+                            return accessTokenStorage.set(model: tokens.accessToken)
+                                .map { _ in tokens }
+                                .setFailureType(to: ServiceError.self)
+                                .eraseToAnyPublisher()
+                        }
                     }
-                    return accessTokenStorage.set(model: newToken)
-                        .map { _ in newToken }
-                        .setFailureType(to: ServiceError.self)
-                        .eraseToAnyPublisher()
-                }
-                .handleEvents(receiveCompletion: { _ in
-                    self.synchronizedTokenAccess { Self.ongoingRefresh = nil }
-                })
-                .eraseToAnyPublisher()
-
+                    .handleEvents(receiveCompletion: { _ in
+                        self.synchronizedTokenAccess { Self.ongoingRefresh = nil }
+                    })
+                    .eraseToAnyPublisher()
+                
                 Self.ongoingRefresh = refreshPublisher
                 publisherToSubscribe = refreshPublisher
             } else {
                 publisherToSubscribe = Self.ongoingRefresh
             }
         }
-
+        
         guard let publisherToSubscribe = publisherToSubscribe else { return }
         publisherToSubscribe
-            .handle(
-                onSuccess: { newToken in
-                    completion(newToken)
+            .handleEvents(
+                receiveOutput: { [weak self] tokens in
+                    if tokens.accessToken.isEmpty {
+                        self?.handleUnauthenticated(message: message)
+                        completion?(nil)
+                    } else {
+                        completion?(tokens)
+                    }
                 },
-                onError: { [weak self] _ in
-                    self?.refreshTokenStorage.clear()
-                    self?.accessTokenStorage.clear()
-                    completion(nil)
+                receiveCompletion: { [weak self] result in
+                    if case .failure(_) = result {
+                        self?.handleUnauthenticated(message: message)
+                        completion?(nil)
+                    }
                 }
             )
+            .eraseToAnyPublisher()
+            .subscribe()
     }
-
+    
     private func retryRequest(
         _ request: URLRequest,
         completion: @escaping (HTTPClient.Result) -> Void,
         compositeTask: CompositeHTTPClientTask
     ) {
         guard let token = synchronizedTokenAccess({ accessTokenStorage.get() }), !token.isEmpty else { // Add sync and empty check
-            onNotAuthenticated?()
+            handleUnauthenticated(message: nil)
+            completion(.failure(ServiceError.internal))
             return
         }
         
@@ -172,24 +210,37 @@ public class AuthenticatedHTTPClientDecorator: HTTPClient {
             guard let self = self else { return }
             switch result {
             case .success(let (data, response)):
-                if self.isAuthenticated((data, response)) {
+                let authenticationResult = self.isAuthenticated((data, response))
+                switch authenticationResult {
+                case .authenticated:
                     completion(.success((data, response)))
-                } else {
-                    self.refreshTokenStorage.clear()
-                    self.accessTokenStorage.clear()
-                    self.onNotAuthenticated?()
+                case .logout(let message), .needsRefresh(let message):
+                    self.handleUnauthenticated(message: message)
+                    completion(.failure(ServiceError.internal))
                 }
             case .failure(let error):
+                self.handleUnauthenticated(message: nil)
                 completion(.failure(error))
             }
         }
         compositeTask.add(newTask)
         newTask.resume()
     }
-
+    
+    private func handleUnauthenticated(message: String?) {
+        Self.tokenLock.sync {
+            guard !Self.hasHandledUnauthenticated else { return }
+            Self.hasHandledUnauthenticated = true
+            
+            accessTokenStorage.clear()
+            refreshTokenStorage.clear()
+            onNotAuthenticated?(message)
+        }
+    }
+    
     @discardableResult
     private func synchronizedTokenAccess<T>(_ block: () -> T) -> T {
-        return tokenLock.sync {
+        return Self.tokenLock.sync {
             return block()
         }
     }

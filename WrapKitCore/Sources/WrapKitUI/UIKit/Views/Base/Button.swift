@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct ButtonStyle {
+public struct ButtonStyle: HashableWithReflection {
     public let backgroundColor: Color?
     public let titleColor: Color?
     public let borderWidth: CGFloat
@@ -16,6 +16,8 @@ public struct ButtonStyle {
     public let pressedTintColor: Color?
     public let font: Font?
     public let cornerRadius: CGFloat
+    public let wrongUrlPlaceholderImage: Image?
+    public let loadingIndicatorColor: Color?
     
     public init(
         backgroundColor: Color? = nil,
@@ -25,7 +27,9 @@ public struct ButtonStyle {
         pressedColor: Color? = nil,
         pressedTintColor: Color? = nil,
         font: Font? = nil,
-        cornerRadius: CGFloat = 12
+        cornerRadius: CGFloat = 12,
+        wrongUrlPlaceholderImage: Image? = nil,
+        loadingIndicatorColor: Color? = nil
     ) {
         self.backgroundColor = backgroundColor
         self.titleColor = titleColor
@@ -35,10 +39,12 @@ public struct ButtonStyle {
         self.font = font
         self.borderWidth = borderWidth
         self.cornerRadius = cornerRadius
+        self.wrongUrlPlaceholderImage = wrongUrlPlaceholderImage
+        self.loadingIndicatorColor = loadingIndicatorColor
     }
 }
 
-public protocol ButtonOutput: AnyObject {
+public protocol ButtonOutput: HiddableOutput {
     func display(model: ButtonPresentableModel?)
     func display(enabled: Bool)
     func display(image: Image?)
@@ -52,6 +58,7 @@ public protocol ButtonOutput: AnyObject {
 
 public struct ButtonPresentableModel {
     public let height: CGFloat?
+    public let width: CGFloat?
     public let title: String?
     public let image: Image?
     public let spacing: CGFloat?
@@ -64,6 +71,7 @@ public struct ButtonPresentableModel {
         image: Image? = nil,
         spacing: CGFloat? = nil,
         height: CGFloat? = nil,
+        width: CGFloat? = nil,
         style: ButtonStyle? = nil,
         enabled: Bool? = nil,
         onPress: (() -> Void)? = nil
@@ -73,6 +81,7 @@ public struct ButtonPresentableModel {
         self.onPress = onPress
         self.title = title
         self.height = height
+        self.width = width
         self.style = style
         self.enabled = enabled
     }
@@ -119,10 +128,12 @@ extension Button: ButtonOutput {
         self.textBackgroundColor = style.backgroundColor
         self.backgroundColor = style.backgroundColor
         self.pressedTextColor = style.pressedTintColor
-        self.pressedBackgroundColor = style.backgroundColor
+        self.pressedBackgroundColor = style.pressedColor
         self.layer.borderColor = style.borderColor?.cgColor
         self.layer.borderWidth = style.borderWidth
         self.layer.cornerRadius = style.cornerRadius
+        self.wrongUrlPlaceholderImage = style.wrongUrlPlaceholderImage
+        self.loadingIndicatorColor = style.loadingIndicatorColor
     }
     
     public func display(title: String?) {
@@ -179,9 +190,12 @@ open class Button: UIButton {
             backgroundColor = textBackgroundColor
         }
     }
+    public var isLoading: Bool?
+    public var loadingIndicatorColor: UIColor?
     public var pressedTextColor: UIColor?
     public var pressedBackgroundColor: UIColor?
     public var pressAnimations = Set<PressAnimation>()
+    public var wrongUrlPlaceholderImage: UIImage?
     open var anchoredConstraints: AnchoredConstraints?
     
     private func updateSpacings() {
@@ -260,7 +274,7 @@ open class Button: UIButton {
         
         switch currentImageEnum {
         case .url, .urlString:
-            setImage(currentImageEnum)
+            setImage(currentImageEnum, completion: nil)
         default:
             break
         }
@@ -299,6 +313,7 @@ open class Button: UIButton {
                 }
             }
             self?.backgroundColor = self?.pressedBackgroundColor ?? self?.textBackgroundColor
+            
             self?.setTitleColor(self?.pressedTextColor ?? self?.textColor, for: .normal)
         }
         super.touchesBegan(touches, with: event)
@@ -327,5 +342,21 @@ open class Button: UIButton {
         titleLabel?.alpha = enabled ? 1.0 : 0.5
     }
 }
-#endif
 
+extension Button: LoadingOutput {
+    
+    public func display(isLoading: Bool) {
+        self.isLoading = isLoading
+        titleLabel?.alpha = isLoading ? 0 : 1
+        imageView?.alpha = isLoading ? 0 : 1
+        let loader = CommonLoadingiOSAdapter.NVActivityLoader(
+            onView: self,
+            loadingViewColor: loadingIndicatorColor ?? .red,
+            wrapperViewColor: .clear
+        )
+        
+        loader.display(isLoading: isLoading)
+    }
+}
+
+#endif

@@ -1,4 +1,4 @@
-// Generated using Sourcery 2.2.6 — https://github.com/krzysztofzablocki/Sourcery
+// Generated using Sourcery 2.3.0 — https://github.com/krzysztofzablocki/Sourcery
 // DO NOT EDIT
 // swiftlint:disable:this file_name
 // swiftlint:disable all
@@ -245,26 +245,22 @@ public class TextInputOutputSwiftUIAdapter: ObservableObject, TextInputOutput {
             trailingSymbol: trailingSymbol
         )
     }
-    @Published public var displayToolbarModelState: DisplayToolbarModelState? = nil
-    public struct DisplayToolbarModelState {
-        public let toolbarModel: ButtonPresentableModel?
+    @Published public var displayInputAccessoryViewState: DisplayInputAccessoryViewState? = nil
+    public struct DisplayInputAccessoryViewState {
+        public let inputAccessoryView: TextInputPresentableModel.AccessoryViewPresentableModel?
     }
-    public func display(toolbarModel: ButtonPresentableModel?) {
-        displayToolbarModelState = .init(
-            toolbarModel: toolbarModel
+    public func display(inputAccessoryView: TextInputPresentableModel.AccessoryViewPresentableModel?) {
+        displayInputAccessoryViewState = .init(
+            inputAccessoryView: inputAccessoryView
         )
     }
-    @Published public var makeAccessoryViewAccessoryViewHeightConstraintsState: MakeAccessoryViewAccessoryViewHeightConstraintsState? = nil
-    public struct MakeAccessoryViewAccessoryViewHeightConstraintsState {
-        public let accessoryView: UIView
-        public let height: CGFloat
-        public let constraints: ((UIView, UIView) -> [NSLayoutConstraint])?
+    @Published public var displayIsClearButtonActiveState: DisplayIsClearButtonActiveState? = nil
+    public struct DisplayIsClearButtonActiveState {
+        public let isClearButtonActive: Bool
     }
-    public func makeAccessoryView(accessoryView: UIView, height: CGFloat = 60, constraints: ((UIView, UIView) -> [NSLayoutConstraint])? = nil) {
-        makeAccessoryViewAccessoryViewHeightConstraintsState = .init(
-            accessoryView: accessoryView, 
-            height: height, 
-            constraints: constraints
+    public func display(isClearButtonActive: Bool) {
+        displayIsClearButtonActiveState = .init(
+            isClearButtonActive: isClearButtonActive
         )
     }
 }

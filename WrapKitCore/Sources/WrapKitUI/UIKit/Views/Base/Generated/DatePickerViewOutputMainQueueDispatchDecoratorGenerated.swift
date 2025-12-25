@@ -1,4 +1,4 @@
-// Generated using Sourcery 2.2.6 — https://github.com/krzysztofzablocki/Sourcery
+// Generated using Sourcery 2.3.0 — https://github.com/krzysztofzablocki/Sourcery
 // DO NOT EDIT
 // swiftlint:disable:this file_name
 // swiftlint:disable all
@@ -35,6 +35,11 @@ extension MainQueueDispatchDecorator: DatePickerViewOutput where T: DatePickerVi
     public func display(setDate: Date, animated: Bool) {
         dispatch { [weak self] in
             self?.decoratee.display(setDate: setDate, animated: animated)
+        }
+    }
+    public func display(model: DatePickerPresentableModel) {
+        dispatch { [weak self] in
+            self?.decoratee.display(model: model)
         }
     }
 

@@ -10,7 +10,7 @@ import Foundation
 #if canImport(UIKit)
 import UIKit
 
-class CircularProgressView: UIView {
+final class CircularProgressView: UIView {
     private let progressLayer = CAShapeLayer()
     
     init(lineColor: UIColor, frame: CGRect) {

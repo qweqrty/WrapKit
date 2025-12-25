@@ -10,50 +10,27 @@ import Foundation
 #if canImport(UIKit)
 import UIKit
 
-class CountingLabelAnimation {
-    private let timeStep: TimeInterval = 0.01
-    
+final class CountingLabelAnimation {
     private weak var label: Label?
     private var paymentFormat: String = ""
-    public var model: TextOutputPresentableModel? // Added to store model
     private var progressView: CircularProgressView? // For circular animation
     
     public required init(label: Label) {
         self.label = label
     }
     
-    public var floatLimit: Float? = nil
+    private var startNumber: Decimal = 0.0
+    private var endNumber: Decimal = 0.0
+    private var mapToString: ((Decimal) -> TextOutputPresentableModel)?
+    private let counterVelocity: Float = 5
+
+    private var duration: TimeInterval = 1
+    private var lastUpdate: TimeInterval!
+    private var completion: (() -> Void)? // Added for completion closure
     
-    var startNumber: Float? = 0.0
-    var endNumber: Float? = 0.0
-    var mapToString: ((Float) -> TextOutputPresentableModel)?
-    let counterVelocity: Float = 5
+    private var timer: DisplayLinkManager = .init()
     
-    var progress: TimeInterval!
-    var duration: TimeInterval = 1
-    var lastUpdate: TimeInterval!
-    var completion: (() -> Void)? // Added for completion closure
-    
-    var timer: Timer?
-    
-    public var animatedTextMaxWidth: CGFloat?
-    
-    func getCurrentCounterValue() -> TextOutputPresentableModel {
-        let startNumber = startNumber ?? 0
-        let endNumber = endNumber ?? 0
-        if progress >= duration {
-            return mapToString?(endNumber) ?? .text("")
-        }
-        let percentage = Float(progress / duration)
-        // Linear interpolation (remove easing for linear animation)
-        let currentValue = startNumber + (percentage * (endNumber - startNumber))
-        return mapToString?(currentValue) ?? .text("")
-    }
-    
-    func getEndCounterValue() -> TextOutputPresentableModel {
-        let endNumber = endNumber ?? 0
-        return mapToString?(endNumber) ?? .text("")
-    }
+    public private(set) var animatedTextMaxWidth: CGFloat?
     
     public func setupPaymentFormat(format: String) {
         paymentFormat = format
@@ -61,9 +38,9 @@ class CountingLabelAnimation {
     
     public func startAnimation(
         id: String? = nil,
-        fromValue: Float,
-        to toValue: Float,
-        mapToString: ((Float) -> TextOutputPresentableModel)?,
+        fromValue: Decimal,
+        to toValue: Decimal,
+        mapToString: ((Decimal) -> TextOutputPresentableModel)?,
         animationStyle: LabelAnimationStyle = .none,
         duration: TimeInterval = 1.0,
         completion: (() -> Void)? = nil
@@ -71,10 +48,8 @@ class CountingLabelAnimation {
         self.startNumber = fromValue
         self.endNumber = toValue
         self.mapToString = mapToString
-        self.progress = 0
         self.duration = duration
         self.completion = completion
-        self.model = .animated(id: id, fromValue, toValue, mapToString: mapToString, animationStyle: animationStyle, duration: duration, completion: completion)
         self.lastUpdate = Date.timeIntervalSinceReferenceDate
         
         // Set up circular progress view if needed
@@ -92,58 +67,40 @@ class CountingLabelAnimation {
                 progressView.animateProgress(from: 1.0, to: 0.0, duration: duration, completion: nil)
             }
         }
-        if let label {
-            while progress < duration {
-                progress = min(progress + timeStep, duration)
-                animatedTextMaxWidth = max(
-                    animatedTextMaxWidth ?? 0,
-                    getCurrentCounterValue().width(usingFont: label.font)
-                )
-            }
-            progress = 0
+        if let label, let mapToString {
+            let integerDigits = String(Int(max(fromValue.doubleValue, toValue.doubleValue))).count
+            let widestString = String(repeating: "8", count: integerDigits) + ".88"
+            let widestNumber = Double(widestString) ?? .zero
+                
+            animatedTextMaxWidth = max(
+                mapToString(fromValue).width(usingFont: label.font),
+                mapToString(toValue).width(usingFont: label.font),
+                mapToString(Decimal(widestNumber)).width(usingFont: label.font)
+            )
         }
-        
-        timer?.invalidate()
-        timer = Timer.scheduledTimer(
-            timeInterval: 0.01,
-            target: self,
-            selector: #selector(updateValue),
-            userInfo: nil,
-            repeats: true
-        )
-        if let timer {
-            RunLoop.current.add(timer, forMode: .common)
-        }
+        timer.startAnimation(duration: duration, onUpdateProgress: { [unowned self] progress in
+            let currentValue = self.startNumber + (progress * (self.endNumber - self.startNumber))
+            let view = mapToString?(currentValue) ?? .text("")
+            self.label?.display(model: view)
+        }, completion: completion)
     }
     
-    @objc func updateValue() {
-        let now = Date.timeIntervalSinceReferenceDate
-        progress = min(progress + timeStep, duration)
-        lastUpdate = now
-        
-        if progress >= duration {
-            timer?.invalidate()
-            progressView?.removeFromSuperview()
-            progressView = nil
-            label?.display(model: getEndCounterValue())
-            completion?()
-            model = nil
-            timer = nil
-            return
-        }
-        
-        label?.display(model: getCurrentCounterValue())
+    func invalidate() {
+        timer.stopAnimation()
+        progressView?.removeFromSuperview()
+    }
+
+    func resetAnimatedTextMaxWidth() {
+        animatedTextMaxWidth = nil
     }
     
     func cancel() {
-        timer?.invalidate()
-        timer = nil
+        timer.stopAnimation()
         progressView?.removeFromSuperview()
         progressView = nil
         completion = nil
-        model = nil
     }
-    
+
     deinit { cancel() }
 }
 #endif

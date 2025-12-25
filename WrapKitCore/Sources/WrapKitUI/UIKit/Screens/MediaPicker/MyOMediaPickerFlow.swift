@@ -5,12 +5,12 @@
 //  Created by Gulzat Zheenbek kyzy on 16/6/25.
 //
 
-
 public protocol MediaPickerFlow {
+    
     func showMediaPicker(
-        sourceTypes: [MediaPickerManager.Source],
+        sourceTypes: [MediaPickerSource],
         localizable: MediaPickerLocalizable,
-        callback: ((MediaPickerManager.ResultType?) -> Void)?
+        callback: ((MediaPickerResultType?) -> Void)?
     )
 
     func finish()
@@ -18,6 +18,8 @@ public protocol MediaPickerFlow {
 
 #if canImport(UIKit)
 import UIKit
+
+extension UIView: CameraGenericView {}
 
 public class MediaPickerFlowiOS: MediaPickerFlow {
     
@@ -33,9 +35,9 @@ public class MediaPickerFlowiOS: MediaPickerFlow {
     }
     
     public func showMediaPicker(
-        sourceTypes: [MediaPickerManager.Source],
+        sourceTypes: [MediaPickerSource],
         localizable: MediaPickerLocalizable,
-        callback: ((MediaPickerManager.ResultType?) -> Void)?
+        callback: ((MediaPickerResultType?) -> Void)?
     ) {
         let vc = factory.makeMediaPickerController(
             flow: self,

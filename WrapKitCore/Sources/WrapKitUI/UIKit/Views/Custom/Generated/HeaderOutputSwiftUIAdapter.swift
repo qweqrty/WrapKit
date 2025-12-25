@@ -1,4 +1,4 @@
-// Generated using Sourcery 2.2.6 — https://github.com/krzysztofzablocki/Sourcery
+// Generated using Sourcery 2.3.0 — https://github.com/krzysztofzablocki/Sourcery
 // DO NOT EDIT
 // swiftlint:disable:this file_name
 // swiftlint:disable all
@@ -17,6 +17,9 @@ import Foundation
 #if canImport(UIKit)
 import UIKit
 #endif
+#if canImport(SwiftUI)
+import SwiftUI
+#endif
 public class HeaderOutputSwiftUIAdapter: ObservableObject, HeaderOutput {
 
     // Initializer
@@ -26,9 +29,14 @@ public class HeaderOutputSwiftUIAdapter: ObservableObject, HeaderOutput {
 
     @Published public var displayModelState: DisplayModelState? = nil
     public struct DisplayModelState {
-        public let model: HeaderPresentableModel?
+        public let model: HeaderPresentableModel
     }
     public func display(model: HeaderPresentableModel?) {
+        guard let model else {
+            display(isHidden: true)
+            return
+        }
+        display(isHidden: false)
         displayModelState = .init(
             model: model
         )

@@ -1,4 +1,4 @@
-// Generated using Sourcery 2.2.6 — https://github.com/krzysztofzablocki/Sourcery
+// Generated using Sourcery 2.3.0 — https://github.com/krzysztofzablocki/Sourcery
 // DO NOT EDIT
 // swiftlint:disable:this file_name
 // swiftlint:disable all
@@ -54,6 +54,13 @@ public class LifeCycleViewOutputSwiftUIAdapter: ObservableObject, LifeCycleViewO
     }
     public func viewDidDisappear() {
         viewDidDisappearState = .init(
+        )
+    }
+    @Published public var viewDidLayoutSubviewsState: ViewDidLayoutSubviewsState? = nil
+    public struct ViewDidLayoutSubviewsState {
+    }
+    public func viewDidLayoutSubviews() {
+        viewDidLayoutSubviewsState = .init(
         )
     }
     @Published public var composedOutputState: ComposedOutputState? = nil

@@ -7,10 +7,33 @@
 
 import Foundation
 
+public struct DatePickerPresentableModel {
+    public let value: Date
+    public let minimumDate: Date?
+    public let maximumDate: Date?
+    public let mode: DatePickerMode
+    public let dateChanged: ((Date) -> Void)?
+    
+    public init(
+        value: Date,
+        minimumDate: Date?,
+        maximumDate: Date?,
+        mode: DatePickerMode,
+        dateChanged: ((Date) -> Void)?
+    ) {
+        self.value = value
+        self.minimumDate = minimumDate
+        self.maximumDate = maximumDate
+        self.mode = mode
+        self.dateChanged = dateChanged
+    }
+}
+
 public protocol DatePickerViewOutput: AnyObject {
     func display(dateChanged: ((Date) -> Void)?)
     func display(date: Date)
     func display(setDate: Date, animated: Bool)
+    func display(model: DatePickerPresentableModel)
 }
 
 public enum DatePickerMode: HashableWithReflection {
@@ -66,6 +89,14 @@ extension DatePickerView: DatePickerViewOutput {
     
     public func display(dateChanged: ((Date) -> Void)?) {
         self.dateChanged = dateChanged
+    }
+    
+    public func display(model: DatePickerPresentableModel) {
+        display(dateChanged: model.dateChanged)
+        display(date: model.value)
+        minimumDate = model.minimumDate
+        maximumDate = model.maximumDate
+        datePickerMode = mapMode(model.mode)
     }
 }
 

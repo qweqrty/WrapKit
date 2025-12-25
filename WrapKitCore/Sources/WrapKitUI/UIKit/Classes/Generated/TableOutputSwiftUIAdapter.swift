@@ -1,4 +1,4 @@
-// Generated using Sourcery 2.2.6 — https://github.com/krzysztofzablocki/Sourcery
+// Generated using Sourcery 2.3.0 — https://github.com/krzysztofzablocki/Sourcery
 // DO NOT EDIT
 // swiftlint:disable:this file_name
 // swiftlint:disable all
@@ -40,6 +40,15 @@ public class TableOutputSwiftUIAdapter<Cell: Hashable,Footer: Any,Header: Any>: 
     public func display(trailingSwipeActionsForIndexPath: ((IndexPath) -> [TableContextualAction<Cell>])?) {
         displayTrailingSwipeActionsForIndexPathState = .init(
             trailingSwipeActionsForIndexPath: trailingSwipeActionsForIndexPath
+        )
+    }
+    @Published public var displayIndexPathState: DisplayIndexPathState? = nil
+    public struct DisplayIndexPathState {
+        public let indexPath: IndexPath
+    }
+    public func display(expandTrailingActionsAt indexPath: IndexPath) {
+        displayIndexPathState = .init(
+            indexPath: indexPath
         )
     }
     @Published public var displayLeadingSwipeActionsForIndexPathState: DisplayLeadingSwipeActionsForIndexPathState? = nil

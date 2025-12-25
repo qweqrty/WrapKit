@@ -27,26 +27,10 @@ public extension UIView {
         }
     }
     
-    func round(corners: UIRectCorner, radius: CGFloat) {
-        let path = UIBezierPath(
-            roundedRect: self.bounds,
-            byRoundingCorners: corners,
-            cornerRadii: CGSize(width: radius, height: radius)
-        )
-        
-        let mask = CAShapeLayer()
-        mask.path = path.cgPath
-        self.layer.mask = mask
-        
-        let backgroundLayer = CAShapeLayer()
-        backgroundLayer.path = path.cgPath
-        backgroundLayer.fillColor = backgroundColor?.cgColor
-        
-        if let oldLayer = self.layer.sublayers?.first(where: { $0 is CAShapeLayer && $0 != mask }) {
-            oldLayer.removeFromSuperlayer()
-        }
-        
-        self.layer.insertSublayer(backgroundLayer, at: 0)
+    func round(corners: CACornerMask, radius: CGFloat) {
+        layer.cornerRadius = radius
+        layer.maskedCorners = corners
+        layer.masksToBounds = true
     }
     
     func shake(count: Float? = nil, for duration: TimeInterval? = nil, withTranslation translation: Float? = nil) {
@@ -81,7 +65,7 @@ public extension UIView {
         path: CGPath? = nil,
         shadowColor: UIColor,
         shadowOpacity: Float = 0.07,
-        shadowOffset: CGSize = CGSize(width: 0, height: 2),
+        shadowOffset: CGSize = CGSize(width: -0.5, height: -0.5),
         shadowRadius: CGFloat = 4,
         scale: Bool = true,
         shouldRasterize: Bool = false
@@ -92,8 +76,13 @@ public extension UIView {
             self?.layer.shadowOpacity = shadowOpacity
             self?.layer.shadowOffset = shadowOffset
             self?.layer.shadowRadius = shadowRadius
+            if let bounds = self?.bounds {
+                let bounds = CGRect(x: bounds.minX-0.5, y: bounds.minY-0.5, width: bounds.width + 1, height: bounds.height + 1)
+                self?.layer.shadowPath = path ?? UIBezierPath(rect: bounds).cgPath
+            } else {
+                self?.layer.shadowPath = path ?? UIBezierPath(rect: .zero).cgPath
+            }
             
-            self?.layer.shadowPath = path ?? UIBezierPath(rect: self?.bounds ?? .zero).cgPath
             self?.layer.shouldRasterize = false
             self?.layer.rasterizationScale = scale ? UIScreen.main.scale : 1
         }

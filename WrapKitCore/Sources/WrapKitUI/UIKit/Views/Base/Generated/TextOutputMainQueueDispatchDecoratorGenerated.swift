@@ -1,4 +1,4 @@
-// Generated using Sourcery 2.2.6 — https://github.com/krzysztofzablocki/Sourcery
+// Generated using Sourcery 2.3.0 — https://github.com/krzysztofzablocki/Sourcery
 // DO NOT EDIT
 // swiftlint:disable:this file_name
 // swiftlint:disable all
@@ -12,6 +12,9 @@ import Foundation
 #endif
 #if canImport(UIKit)
 import UIKit
+#endif
+#if canImport(SwiftUI)
+import SwiftUI
 #endif
 
 extension TextOutput {
@@ -42,7 +45,7 @@ extension MainQueueDispatchDecorator: TextOutput where T: TextOutput {
             self?.decoratee.display(htmlString: htmlString, font: font, color: color)
         }
     }
-    public func display(id: String?, from startAmount: Float, to endAmount: Float, mapToString: ((Float) -> TextOutputPresentableModel)?, animationStyle: LabelAnimationStyle, duration: TimeInterval, completion: (() -> Void)?) {
+    public func display(id: String?, from startAmount: Decimal, to endAmount: Decimal, mapToString: ((Decimal) -> TextOutputPresentableModel)?, animationStyle: LabelAnimationStyle, duration: TimeInterval, completion: (() -> Void)?) {
         dispatch { [weak self] in
             self?.decoratee.display(id: id, from: startAmount, to: endAmount, mapToString: mapToString, animationStyle: animationStyle, duration: duration, completion: completion)
         }

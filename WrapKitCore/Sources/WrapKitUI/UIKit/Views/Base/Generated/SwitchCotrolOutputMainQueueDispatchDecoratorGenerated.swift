@@ -1,4 +1,4 @@
-// Generated using Sourcery 2.2.6 — https://github.com/krzysztofzablocki/Sourcery
+// Generated using Sourcery 2.3.0 — https://github.com/krzysztofzablocki/Sourcery
 // DO NOT EDIT
 // swiftlint:disable:this file_name
 // swiftlint:disable all
@@ -27,7 +27,7 @@ extension MainQueueDispatchDecorator: SwitchCotrolOutput where T: SwitchCotrolOu
             self?.decoratee.display(model: model)
         }
     }
-    public func display(onPress: ((SwitchCotrolOutput) -> Void)?) {
+    public func display(onPress: ((SwitchCotrolOutput & LoadingOutput) -> Void)?) {
         dispatch { [weak self] in
             self?.decoratee.display(onPress: onPress)
         }
@@ -37,7 +37,7 @@ extension MainQueueDispatchDecorator: SwitchCotrolOutput where T: SwitchCotrolOu
             self?.decoratee.display(isOn: isOn)
         }
     }
-    public func display(style: SwitchControlPresentableModel.Style) {
+    public func display(style: SwitchControlPresentableModel.Style?) {
         dispatch { [weak self] in
             self?.decoratee.display(style: style)
         }
@@ -50,11 +50,6 @@ extension MainQueueDispatchDecorator: SwitchCotrolOutput where T: SwitchCotrolOu
     public func display(isHidden: Bool) {
         dispatch { [weak self] in
             self?.decoratee.display(isHidden: isHidden)
-        }
-    }
-    public func display(isLoading: Bool, shimmerStyle: ShimmerView.Style?) {
-        dispatch { [weak self] in
-            self?.decoratee.display(isLoading: isLoading, shimmerStyle: shimmerStyle)
         }
     }
 

@@ -1,0 +1,103 @@
+{% for type in types.protocols where type.name|hasSuffix:"Output" or type.name|hasSuffix:"Flow" %}
+// sourcery:file:{{ type.path|dirname }}/Generated/{{ type.name }}SpyGenerated.swift
+// swiftlint:disable:this file_name
+// swiftlint:disable all
+// swift-format-ignore-file
+// swiftformat:disable all
+
+#if canImport(WrapKit)
+import WrapKit
+#endif
+{% for importName in type.allImports %}
+#if canImport({{ importName }})
+import {{ importName }}
+#endif
+{% endfor %}
+
+{% if type.associatedTypes.count > 0 %}
+public class {{ type.name }}Spy{% for associatedType in type.associatedTypes|sortedValuesByKeys %}{% if forloop.first %}<{% endif %}{{ associatedType.name }}: {{ associatedType.typeName }}{% if not forloop.last %}{% if type.associatedTypes.count > 1 %},{% endif %}{% endif %}{% if forloop.last %}>{% endif %}{% endfor %}: {{ type.name }} {
+{% else %}
+public final class {{ type.name }}Spy: {{ type.name }} {
+{% endif %}
+
+    public init() {}
+
+    public enum Message: HashableWithReflection {
+        {% for method in type.methods where not method.annotations.skipSpy and not method.isStatic %}
+        {% if method.parameters.count == 0 %}
+        case {{ method.callName }}
+        {% else %}
+        {% if method.isGeneric %}
+        case {{ method.callName }}{% if method.parameters.count > 0 %}{{ method.parameters.first.name|upperFirstLetter }}{% endif %}Generic
+        {% else %}
+        case {{ method.callName }}{% if method.parameters.count > 0 %}{{ method.parameters.first.name|upperFirstLetter }}{% endif %}({% for param in method.parameters %}{{ param.argumentLabel|default:param.name }}: {{ param.typeName }}{% if not forloop.last %}, {% endif %}{% endfor %})
+        {% endif %}
+        {% endif %}
+        {% endfor %}
+        {% for variable in type.variables where variable.writeAccess != "private" and variable.writeAccess != "fileprivate" %}
+        case set{{ variable.name|upperFirstLetter }}({{ variable.typeName }})
+        {% endfor %}
+    }
+
+    public private(set) var messages: [Message] = []
+
+    // MARK: - Captured values
+    {% for method in type.methods where not method.annotations.skipSpy and not method.isStatic %}
+    {% if not method.isGeneric %}
+    {% if method.parameters.count == 0 %}
+    public private(set) var captured{{ method.callName|upperFirstLetter }}CallCount = 0
+    {% elif method.parameters.count == 1 %}
+    public private(set) var captured{{ method.callName|upperFirstLetter }}{% if method.parameters.first.name %}{{ method.parameters.first.name|upperFirstLetter }}{% endif %}: [{{ method.parameters.first.typeName }}] = []
+    {% else %}
+    public private(set) var captured{{ method.callName|upperFirstLetter }}{% if method.parameters.first.name %}{{ method.parameters.first.name|upperFirstLetter }}{% endif %}: [({% for param in method.parameters %}{{ param.argumentLabel|default:param.name }}: {{ param.typeName }}{% if not forloop.last %}, {% endif %}{% endfor %})] = []
+    {% endif %}
+    {% else %}
+    public private(set) var {{ method.callName }}{% if method.parameters.count > 0 %}{{ method.parameters.first.name|upperFirstLetter }}{% endif %}GenericCallCount = 0
+    {% endif %}
+    {% endfor %}
+
+    {% for variable in type.variables where variable.writeAccess != "private" and variable.writeAccess != "fileprivate" %}
+    public private(set) var captured{{ variable.name|upperFirstLetter }}: [{{ variable.typeName }}] = []
+    {% endfor %}
+
+    // MARK: - {{ type.name }} methods
+    {% for method in type.methods where not method.annotations.skipSpy %}
+    {% if method.isStatic %}
+    // Static method: {{ method.name }}
+    {% else %}
+    public func {{ method.name }} {
+        {% if not method.isGeneric %}
+        {% if method.parameters.count == 0 %}
+        captured{{ method.callName|upperFirstLetter }}CallCount += 1
+        messages.append(.{{ method.callName }})
+        {% elif method.parameters.count == 1 %}
+        captured{{ method.callName|upperFirstLetter }}{% if method.parameters.first.name %}{{ method.parameters.first.name|upperFirstLetter }}{% endif %}.append({{ method.parameters.first.name }})
+        messages.append(.{{ method.callName }}{% if method.parameters.first.name %}{{ method.parameters.first.name|upperFirstLetter }}{% endif %}({{ method.parameters.first.argumentLabel|default:method.parameters.first.name }}: {{ method.parameters.first.name }}))
+        {% else %}
+        captured{{ method.callName|upperFirstLetter }}{% if method.parameters.first.name %}{{ method.parameters.first.name|upperFirstLetter }}{% endif %}.append(({% for param in method.parameters %}{{ param.argumentLabel|default:param.name }}: {{ param.name }}{% if not forloop.last %}, {% endif %}{% endfor %}))
+        messages.append(.{{ method.callName }}{% if method.parameters.first.name %}{{ method.parameters.first.name|upperFirstLetter }}{% endif %}({% for param in method.parameters %}{{ param.argumentLabel|default:param.name }}: {{ param.name }}{% if not forloop.last %}, {% endif %}{% endfor %}))
+        {% endif %}
+        {% else %}
+        {{ method.callName }}{% if method.parameters.count > 0 %}{{ method.parameters.first.name|upperFirstLetter }}{% endif %}GenericCallCount += 1
+        messages.append(.{{ method.callName }}{% if method.parameters.count > 0 %}{{ method.parameters.first.name|upperFirstLetter }}{% endif %}Generic)
+        {% endif %}
+    }
+    {% endif %}
+    {% endfor %}
+
+    // MARK: - Properties
+    {% for variable in type.variables %}
+    {% if variable.writeAccess == "private" or variable.writeAccess == "fileprivate" %}
+    public var {{ variable.name }}: {{ variable.typeName }}{% if variable.defaultValue %} = {{ variable.defaultValue }}{% endif %}
+    {% else %}
+    public var {{ variable.name }}: {{ variable.typeName }}{% if variable.defaultValue %} = {{ variable.defaultValue }}{% endif %} {
+        didSet {
+            captured{{ variable.name|upperFirstLetter }}.append({{ variable.name }})
+            messages.append(.set{{ variable.name|upperFirstLetter }}({{ variable.name }}))
+        }
+    }
+    {% endif %}
+    {% endfor %}
+}
+// sourcery:end
+{% endfor %}

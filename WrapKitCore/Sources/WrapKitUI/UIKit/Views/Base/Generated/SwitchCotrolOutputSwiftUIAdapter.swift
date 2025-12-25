@@ -1,4 +1,4 @@
-// Generated using Sourcery 2.2.6 — https://github.com/krzysztofzablocki/Sourcery
+// Generated using Sourcery 2.3.0 — https://github.com/krzysztofzablocki/Sourcery
 // DO NOT EDIT
 // swiftlint:disable:this file_name
 // swiftlint:disable all
@@ -35,9 +35,9 @@ public class SwitchCotrolOutputSwiftUIAdapter: ObservableObject, SwitchCotrolOut
     }
     @Published public var displayOnPressState: DisplayOnPressState? = nil
     public struct DisplayOnPressState {
-        public let onPress: ((SwitchCotrolOutput) -> Void)?
+        public let onPress: ((SwitchCotrolOutput & LoadingOutput) -> Void)?
     }
-    public func display(onPress: ((SwitchCotrolOutput) -> Void)?) {
+    public func display(onPress: ((SwitchCotrolOutput & LoadingOutput) -> Void)?) {
         displayOnPressState = .init(
             onPress: onPress
         )
@@ -53,9 +53,9 @@ public class SwitchCotrolOutputSwiftUIAdapter: ObservableObject, SwitchCotrolOut
     }
     @Published public var displayStyleState: DisplayStyleState? = nil
     public struct DisplayStyleState {
-        public let style: SwitchControlPresentableModel.Style
+        public let style: SwitchControlPresentableModel.Style?
     }
-    public func display(style: SwitchControlPresentableModel.Style) {
+    public func display(style: SwitchControlPresentableModel.Style?) {
         displayStyleState = .init(
             style: style
         )
@@ -76,17 +76,6 @@ public class SwitchCotrolOutputSwiftUIAdapter: ObservableObject, SwitchCotrolOut
     public func display(isHidden: Bool) {
         displayIsHiddenState = .init(
             isHidden: isHidden
-        )
-    }
-    @Published public var displayIsLoadingShimmerStyleState: DisplayIsLoadingShimmerStyleState? = nil
-    public struct DisplayIsLoadingShimmerStyleState {
-        public let isLoading: Bool
-        public let shimmerStyle: ShimmerView.Style?
-    }
-    public func display(isLoading: Bool, shimmerStyle: ShimmerView.Style?) {
-        displayIsLoadingShimmerStyleState = .init(
-            isLoading: isLoading, 
-            shimmerStyle: shimmerStyle
         )
     }
 }

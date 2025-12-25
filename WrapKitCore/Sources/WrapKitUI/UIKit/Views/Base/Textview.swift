@@ -98,6 +98,44 @@ open class Textview: UITextView, UITextViewDelegate {
 }
 
 public extension Textview {
+   
+    func makeAccessoryView(
+        model: TextInputPresentableModel.AccessoryViewPresentableModel?
+    ) -> UIView {
+        guard let model else { return UIView() }
+        let container = UIView(frame: CGRect(
+            x: 0,
+            y: 0,
+            width: UIScreen.main.bounds.width,
+            height: model.style.height
+        ))
+        container.backgroundColor = model.style.backgroundColor
+        
+        guard let toolbarModel = model.trailingButton else {
+            return container
+        }
+        let trailingButton = Button()
+        trailingButton.display(model: toolbarModel)
+        trailingButton.onPress = { [weak self] in
+            toolbarModel.onPress?()
+            self?.endEditing(true)
+        }
+        
+        container.addSubview(trailingButton)
+        trailingButton.translatesAutoresizingMaskIntoConstraints = false
+    
+        let defaultConstraints: (UIView, UIView) -> [NSLayoutConstraint] = { container, view in
+            return [
+                view.centerYAnchor.constraint(equalTo: container.centerYAnchor),
+                view.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -16),
+                view.heightAnchor.constraint(equalToConstant: model.trailingButton?.height ?? 36),
+                view.widthAnchor.constraint(equalToConstant: model.trailingButton?.width ?? 80)
+            ]
+        }
+        NSLayoutConstraint.activate((defaultConstraints)(container, trailingButton))
+        return container
+    }
+    
     func updateAppearance(isValid: Bool) {
         self.isValidState = isValid
         font = appearance.font
@@ -136,7 +174,16 @@ public extension Textview {
 }
 
 extension Textview: TextInputOutput {
-   
+    public func display(inputAccessoryView: TextInputPresentableModel.AccessoryViewPresentableModel?) {
+        guard let inputAccessoryView else {
+            self.inputAccessoryView = nil
+            self.reloadInputViews()
+            return
+        }
+        self.inputAccessoryView = makeAccessoryView(model: inputAccessoryView)
+        self.reloadInputViews()
+    }
+    
     public func display(inputView: TextInputPresentableModel.InputView?) {
         guard let inputView else {
             self.inputView = nil
@@ -156,29 +203,13 @@ extension Textview: TextInputOutput {
             )
             self.inputView = picker
             
-            guard let accessoryViewModel = model.accessoryViewModel else { return }
-            let button = Button()
-            button.display(model: accessoryViewModel)
-            button.onPress = { [weak self] in
-                if let picker = self?.inputView as? UIDatePicker {
-                    model.onDoneTapped?(picker.date)
-                }
-                self?.endEditing(true)
-            }
-            self.inputAccessoryView = makeAccessoryView(accessoryView: button)
+            guard let accessoryView = model.accessoryView else { return }
+            self.inputAccessoryView = makeAccessoryView(model: accessoryView)
+        case .custom(let model):
+            let pickerView = PickerView()
+            pickerView.display(model: model)
+            self.inputView = pickerView
         }
-        self.reloadInputViews()
-    }
-    
-    public func display(toolbarModel: ButtonPresentableModel?) {
-        guard let toolbarModel else { return }
-        let button = Button()
-        button.display(model: toolbarModel)
-        button.onPress = { [weak self] in
-            toolbarModel.onPress?()
-            self?.endEditing(true)
-        }
-        self.inputAccessoryView = makeAccessoryView(accessoryView: button)
         self.reloadInputViews()
     }
     
@@ -217,7 +248,9 @@ extension Textview: TextInputOutput {
     }
     
     public func display(text: String?) {
-        self.text = text?.removingPercentEncoding ?? text
+        let decodedText = text?.removingPercentEncoding ?? ""
+        self.text = decodedText
+        placeholderLabel.isHidden = !decodedText.isEmpty
     }
     
     public func display(mask: TextInputPresentableModel.Mask) { }
@@ -288,5 +321,6 @@ extension Textview: TextInputOutput {
     }
     
     public func display(trailingSymbol: String?) {}
+    public func display(isClearButtonActive: Bool) { }
 }
 #endif
