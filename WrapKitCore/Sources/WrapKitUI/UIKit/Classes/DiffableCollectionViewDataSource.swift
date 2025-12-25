@@ -1,12 +1,11 @@
 import Foundation
-import UIKit
 
 public struct CarouselConfig {
     public let isAutoscrollEnabled: Bool
     public let isEndlessScrollEnabled: Bool
     public let scrollInterval: TimeInterval
     public let pauseWhileDragging: Bool
-    
+
     public init(
         isAutoscrollEnabled: Bool,
         isEndlessScrollEnabled: Bool,
@@ -59,7 +58,7 @@ public final class DiffableCollectionViewDataSource<Header, Cell: Hashable, Foot
     public typealias Header = Header
     public typealias Cell = Cell
     public typealias Footer = Footer
-    
+
     public var configureCell: ((UICollectionView, IndexPath, Cell) -> UICollectionViewCell)?
     public var viewForHeaderInSection: ((UICollectionView, Int, Header) -> UICollectionReusableView)?
     public var sizeForHeaderInSection: ((Int, Header) -> CGSize)?
@@ -140,7 +139,7 @@ public final class DiffableCollectionViewDataSource<Header, Cell: Hashable, Foot
                                numberOfItemsInSection section: Int) -> Int {
         sections.item(at: section)?.cells.count ?? 0
     }
-    
+
     public func collectionView(_ collectionView: UICollectionView,
                                cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let model = sections.item(at: indexPath.section)?.cells.item(at: indexPath.item) else {
@@ -178,7 +177,7 @@ public final class DiffableCollectionViewDataSource<Header, Cell: Hashable, Foot
         ?? (collectionViewLayout as? UICollectionViewFlowLayout)?.itemSize
         ?? UICollectionViewFlowLayout.automaticSize
     }
-    
+
     public func collectionView(_ collectionView: UICollectionView,
                                layout collectionViewLayout: UICollectionViewLayout,
                                referenceSizeForHeaderInSection section: Int) -> CGSize {
@@ -192,7 +191,7 @@ public final class DiffableCollectionViewDataSource<Header, Cell: Hashable, Foot
         guard let model = footers[section] else { return .zero }
         return sizeForFooterInSection?(section, model) ?? .zero
     }
-    
+
     public func collectionView(_ collectionView: UICollectionView,
                                layout collectionViewLayout: UICollectionViewLayout,
                                minimumLineSpacingForSectionAt section: Int) -> CGFloat {
@@ -304,7 +303,7 @@ public final class DiffableCollectionViewDataSource<Header, Cell: Hashable, Foot
     // MARK: - Carousel Autoscroll
     private func reconfigureAutoscrollTimers() {
         invalidateAllTimers()
-        
+
         for (section, config) in carouselConfigs where config.isAutoscrollEnabled {
             let timer = Timer.scheduledTimer(withTimeInterval: config.scrollInterval, repeats: true) { [weak self] _ in
                 self?.scrollToNextItem(in: section, endless: config.isEndlessScrollEnabled)
@@ -312,12 +311,12 @@ public final class DiffableCollectionViewDataSource<Header, Cell: Hashable, Foot
             scrollTimers[section] = timer
         }
     }
-    
+
     private func invalidateAllTimers() {
         scrollTimers.values.forEach { $0.invalidate() }
         scrollTimers.removeAll()
     }
-    
+
     private func pauseTimersIfNeeded() {
         invalidateAllTimers()
     }

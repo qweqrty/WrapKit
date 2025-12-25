@@ -27,6 +27,8 @@ public typealias SwiftUIColor = SwiftUI.Color
 public typealias SwiftUIImage = SwiftUI.Image
 @available(iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 public typealias SwiftUIFont = SwiftUI.Font
+@available(iOS 13.0, tvOS 13.0, watchOS 6.0, *)
+public typealias SwiftUIText = SwiftUI.Text
 
 #endif
 
@@ -44,4 +46,52 @@ public extension Color {
       traits.userInterfaceStyle == .dark ? dark : light
     }
   }
+}
+
+public extension IndexPath {
+    var unifiedIndex: Int {
+        #if os(macOS)
+        return self.item
+        #else
+        return self.row
+        #endif
+    }
+}
+
+public enum FontFactory {
+    public static func italic(size: CGFloat) -> Font {
+        #if os(iOS)
+        return UIFont.italicSystemFont(ofSize: size)
+        #elseif os(macOS)
+        let systemFont = NSFont.systemFont(ofSize: size)
+        return NSFontManager.shared.convert(systemFont, toHaveTrait: .italicFontMask)
+        #endif
+    }
+
+    public static func bold(size: CGFloat) -> Font {
+        #if os(iOS)
+        return UIFont.boldSystemFont(ofSize: size)
+        #elseif os(macOS)
+        let systemFont = NSFont.systemFont(ofSize: size)
+        return NSFontManager.shared.convert(systemFont, toHaveTrait: .boldFontMask)
+        #endif
+    }
+
+    public static func system(size: CGFloat, weight: CGFloat) -> Font {
+        #if os(iOS)
+        return UIFont.systemFont(ofSize: size, weight: UIFont.Weight(rawValue: weight))
+        #elseif os(macOS)
+        return NSFont.systemFont(ofSize: size)
+        #endif
+    }
+}
+
+public enum ImageFactory {
+    public static func systemImage(named name: String) -> Image? {
+        #if canImport(UIKit)
+        return UIImage(systemName: name)
+        #elseif canImport(AppKit)
+        return NSImage(systemSymbolName: name, accessibilityDescription: nil)
+        #endif
+    }
 }

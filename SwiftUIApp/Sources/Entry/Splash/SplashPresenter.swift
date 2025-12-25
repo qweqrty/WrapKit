@@ -22,6 +22,7 @@ public class SplashPresenter: LifeCycleViewOutput, ApplicationLifecycleOutput {
         textOutput?.display(text: "display(text: String) implementation - `The quick brown fox jumps over the lazy dog`")
         textOutput?.display(
             attributes: [
+                .init(text: "first line"),
                 .init(
                     text: "green bold 20 (.byWord) \n\n",
                     color: .green,
@@ -37,7 +38,7 @@ public class SplashPresenter: LifeCycleViewOutput, ApplicationLifecycleOutput {
                 .init(
                     text: "blue italic 15 (.patternDash) \n\n",
                     color: .blue,
-                    font: .italicSystemFont(ofSize: 15),
+                    font: FontFactory.italic(size: 15),
                     underlineStyle: .patternDash
                 ),
                 .init(
@@ -49,36 +50,42 @@ public class SplashPresenter: LifeCycleViewOutput, ApplicationLifecycleOutput {
                 .init(
                     text: "brown 30-500 (.patternDashDotDot) zxcvz gtfrgh vbnbvgn \n\n",
                     color: .brown,
-                    font: .systemFont(ofSize: 30, weight: UIFont.Weight(rawValue: 500)),
-                    underlineStyle: .patternDashDotDot
+                    font: .systemFont(ofSize: 30, weight: Font.Weight(rawValue: 500)),
+                    underlineStyle: .patternDashDotDot,
+                    onTap: { print("didTap: brown patternDashDotDot ") }
                 ),
                 .init(
-                    text: "darkGray 16-200 (.patternDashDotDot) \n\n",
+                    text: "darkGray 16-200 (.patternDot) \n\n",
                     color: .darkGray,
-                    font: .systemFont(ofSize: 16, weight: UIFont.Weight(rawValue: 200)),
-                    underlineStyle: .patternDot
+                    font: .systemFont(ofSize: 16, weight: Font.Weight(rawValue: 200)),
+                    underlineStyle: .patternDot,
+                    onTap: { print("didTap: patternDot ") }
                 ),
                 .init(
                     text: "The quick brown fox ",
                     color: .black,
                     font: .boldSystemFont(ofSize: 25),
                     underlineStyle: .single,
-                    textAlignment: .right,
-                    leadingImage: UIImage(systemName: "mail"),
+                    textAlignment: .left,
+                    leadingImage: ImageFactory.systemImage(named: "mail"),
                     leadingImageBounds: .init(x: 30, y: 40, width: 45, height: 56),
-                    trailingImage: UIImage(systemName: "arrow.right"),
+                    trailingImage: ImageFactory.systemImage(named: "arrow.right"),
                     trailingImageBounds: .init(x: -30, y: -40, width: 15, height: 15),
-                    onTap: { print("on tap full text") }
-                ),
-                .init(
-                    text: "\njumps over the lazy dog cvdsf asdf asdf asdf asdfhaslkdfjh alsdkjfh alsdkjf",
-                    color: .gray,
-                    font: .boldSystemFont(ofSize: 26),
-                    underlineStyle: .thick,
-                    textAlignment: .natural
+                    onTap: { print("didTap: The quick brown fox ") }
                 )
             ]
         )
+//        textOutput?.display(model: .textStyled(text: .text("some text"), cornerStyle: .automatic, insets: .init(all: 8)))
+//        textOutput?.display(model: .animated(123, 456, mapToString: { value in
+//                .text(value.description)
+//        }, animationStyle: .none, duration: 5, completion: {
+//            
+//        }))
+//        textOutput?.display(model: .animated(123, 456, mapToString: { value in
+//                .text(value.asString(withDecimalPlaces: 2) + " som")
+//        }, animationStyle: .circle(lineColor: Color.blue), duration: 5, completion: {
+//            
+//        }))
     }
 
     public func viewWillAppear() {

@@ -26,17 +26,54 @@ public struct SplashContentView: View {
             lifeCycleOutput: lifeCycleOutput,
             applicationLifecycleOutput: applicationLifecycleOutput
         ) {
-            ZStack {
-                Color.red.ignoresSafeArea()
-
-                VStack {
-                    SUILabel(adapter: adapter)
-                      .frame(maxWidth: .infinity, alignment: .leading)
-                      .padding(.horizontal)
-
-                    Spacer()
-                }
+            ScrollView(.vertical) {
+                SUILabel(adapter: adapter)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .frame(maxHeight: .infinity, alignment: .center)
+                    .background(Color.blue.opacity(0.2))
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .frame(maxHeight: .infinity, alignment: .center)
+            .background(
+                Color.red.ignoresSafeArea().opacity(0.2)
+            )
         }
     }
 }
+
+#Preview("SwiftUI") {
+    EntryViewSwiftUIFactory().makeSplashScreen()
+}
+
+#if canImport(UIKit)
+@available(iOS 17, *)
+#Preview("UIKit") {
+    let scrollView = UIScrollView()
+    scrollView.backgroundColor = .red.withAlphaComponent(0.2)
+    let presenter = SplashPresenter()
+    let viewController = ExampleViewController(
+        contentView: scrollView,
+        lifeCycleViewOutput: presenter,
+        applicationLifecycleOutput: presenter
+    )
+    presenter.textOutput = viewController.label
+    return viewController
+}
+
+private final class ExampleViewController: ViewController<UIScrollView> {
+    let label = Label()
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        label.backgroundColor = .blue.withAlphaComponent(0.2)
+        contentView.addSubview(label)
+        label.fillSuperviewSafeAreaLayoutGuide()
+        label.anchor(.widthTo(contentView.widthAnchor))
+        label.sizeToFit()
+    }
+}
+
+#elseif canImport(AppKit)
+
+#endif

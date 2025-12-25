@@ -39,7 +39,6 @@ public struct SwitchControlPresentableModel {
         public let backgroundColor: Color
         public let cornerRadius: CGFloat
         public let shimmerStyle: ShimmerView.Style?
-
         public init(
             tintColor: Color,
             thumbTintColor: Color,
@@ -92,6 +91,7 @@ open class SwitchControl: UISwitch {
 }
 
 extension SwitchControl: SwitchCotrolOutput {
+
     public func display(model: SwitchControlPresentableModel?) {
         isHidden = model == nil
         if let isOn = model?.isOn { display(isOn: isOn) }

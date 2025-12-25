@@ -5,11 +5,17 @@
 // swift-format-ignore-file
 // swiftformat:disable all
 
+#if canImport(WrapKit)
+import WrapKit
+#endif
 #if canImport(Foundation)
 import Foundation
 #endif
 #if canImport(UIKit)
 import UIKit
+#endif
+#if canImport(SwiftUI)
+import SwiftUI
 #endif
 
 public final class HeaderOutputSpy: HeaderOutput {
