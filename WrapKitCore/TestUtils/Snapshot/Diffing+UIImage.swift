@@ -61,7 +61,7 @@ extension Diffing where Value == UIImage {
         let size = CGSize(width: width, height: height)
         let format = UIGraphicsImageRendererFormat()
         format.scale = 1 // old.scale
-        format.preferredRange = .extended // .standard // disable HDR
+        format.preferredRange = .automatic // .standard // disable HDR
         format.opaque = false
         //        print("asImage scale is \(UIScreen.main.scale) format: \(format.scale)")
         return UIGraphicsImageRenderer(size: size, format: format).image { context in
@@ -100,7 +100,10 @@ extension Diffing where Value == UIImage {
                 let a2 = pixelBufferNew[offset + 3]
                 
                 if r1 != r2 || g1 != g2 || b1 != b2 || a1 != a2 {
-                    diffContext.setFillColor(red: 1.0, green: 0.0, blue: 0.0, alpha: 1.0) // Red for difference
+                    let alpha = a1 == a2 ? 1 : (a1 > a2 ? a1 - a2 : a2 - a1)
+                    let colorSame = r1 == r2 && g1 == g2 && b1 == b2
+                    let isOverlap = a1 == 0
+                    diffContext.setFillColor(red: isOverlap ? 0 : 1, green: colorSame ? 1 : 0, blue: isOverlap ? 1 : 0, alpha: CGFloat(alpha))
                     diffContext.fill(CGRect(x: x, y: height - y - 1, width: 1, height: 1))
                 }
             }
@@ -111,7 +114,7 @@ extension Diffing where Value == UIImage {
 }
 
 // remap snapshot & reference to same colorspace
-private let imageContextColorSpace = CGColorSpace(name: CGColorSpace.sRGB) ?? CGColorSpaceCreateDeviceRGB()
+private let imageContextColorSpace = CGColorSpaceCreateDeviceRGB()
 private let imageContextBitsPerComponent = 8
 private let imageContextBytesPerPixel = 4
 

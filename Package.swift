@@ -49,7 +49,9 @@ let package = Package(
         ),
         .target(
             name: "WrapKitTestUtils",
-            dependencies: [],
+            dependencies: [
+                "WrapKit",
+	    ],
             path: "WrapKitCore/TestUtils",
             linkerSettings: [.linkedFramework("XCTest")]
         ),

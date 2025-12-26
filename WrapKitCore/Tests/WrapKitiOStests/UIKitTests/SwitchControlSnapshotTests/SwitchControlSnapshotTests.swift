@@ -362,7 +362,7 @@ final class SwitchControlSnapshotTests: XCTestCase {
         let snapshotName = "SWITCHCONTROL_WITH_SHIMMERSTYLE"
         
         // WHEN
-        let style = ShimmerView.Style(
+        let style = ShimmerStyle(
             backgroundColor: .systemYellow,
             gradientColorOne: .systemPurple,
             gradientColorTwo: .red,
@@ -395,7 +395,7 @@ final class SwitchControlSnapshotTests: XCTestCase {
         let snapshotName = "SWITCHCONTROL_WITH_SHIMMERSTYLE"
         
         // WHEN
-        let style = ShimmerView.Style(
+        let style = ShimmerStyle(
             backgroundColor: .red,
             gradientColorOne: .yellow,
             gradientColorTwo: .black,

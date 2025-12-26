@@ -614,7 +614,7 @@ final class LabelSnapshotTests: XCTestCase {
     }
     
     // TODO: - DashDotDot doesnt work.
-    func test_labelOutput_with_patterntDashDotDotText_attributes() {
+    func test_labelOutput_with_patternDashDotDotText_attributes() {
         //GIVEN
         let (sut, container) = makeSUT()
         let snapshotName = "LABEL_TITLE_WITH_DASHDOTDOT"
@@ -657,7 +657,7 @@ final class LabelSnapshotTests: XCTestCase {
     }
     
     // TODO: - Dot doesnt work.
-    func test_labelOutput_with_patterntDotText_attributes() {
+    func test_labelOutput_with_patternDotText_attributes() {
         //GIVEN
         let (sut, container) = makeSUT()
         let snapshotName = "LABEL_TITLE_WITH_DOT"
@@ -921,18 +921,16 @@ final class LabelSnapshotTests: XCTestCase {
 
         // WHEN
         sut.display(
-            id: "testAnimation",
             from: 0,
             to: 100,
             mapToString: mapToString,
             animationStyle: .none,
             duration: 0.1
-        ) { [weak sut] in
-            sut?.backgroundColor = .cyan
+        ) {
             exp.fulfill()
         }
 
-        wait(for: [exp], timeout: 2.0)
+        wait(for: [exp], timeout: 0.3)
         
         // THEN
         if #available(iOS 26, *) {
@@ -1089,7 +1087,7 @@ extension LabelSnapshotTests {
     
     func makeContainer() -> UIView {
         let container = UIView()
-        container.frame = CGRect(x: 0, y: 0, width: 390, height: 300)
+        container.frame = CGRect(origin: .zero, size: SnapshotConfiguration.size)
         container.backgroundColor = .clear
         return container
     }

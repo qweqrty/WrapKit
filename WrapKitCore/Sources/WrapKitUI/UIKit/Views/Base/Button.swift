@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct ButtonStyle {
+public struct ButtonStyle: HashableWithReflection {
     public let backgroundColor: Color?
     public let titleColor: Color?
     public let borderWidth: CGFloat
@@ -44,7 +44,7 @@ public struct ButtonStyle {
     }
 }
 
-public protocol ButtonOutput: AnyObject {
+public protocol ButtonOutput: HiddableOutput {
     func display(model: ButtonPresentableModel?)
     func display(enabled: Bool)
     func display(image: Image?)

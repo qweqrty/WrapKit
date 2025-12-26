@@ -5,6 +5,9 @@
 // swift-format-ignore-file
 // swiftformat:disable all
 
+#if canImport(WrapKit)
+import WrapKit
+#endif
 #if canImport(Foundation)
 import Foundation
 #endif
@@ -18,7 +21,6 @@ public final class LoadingOutputSpy: LoadingOutput {
 
     public enum Message: HashableWithReflection {
         case displayIsLoading(isLoading: Bool)
-        case NVActivityLoaderOnView(onView: UIView, type: NVActivityIndicatorType, size: CGSize, padding: UIEdgeInsets, loadingViewColor: UIColor, wrapperViewColor: UIColor)
         case setIsLoading(Bool?)
     }
 
@@ -26,7 +28,6 @@ public final class LoadingOutputSpy: LoadingOutput {
 
     // MARK: - Captured values
     public private(set) var capturedDisplayIsLoading: [Bool] = []
-    public private(set) var capturedNVActivityLoaderOnView: [(onView: UIView, type: NVActivityIndicatorType, size: CGSize, padding: UIEdgeInsets, loadingViewColor: UIColor, wrapperViewColor: UIColor)] = []
 
     public private(set) var capturedIsLoading: [Bool?] = []
 
