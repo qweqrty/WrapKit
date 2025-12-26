@@ -157,7 +157,6 @@ final class PaginationPresenterTests: XCTestCase {
             sut.loadNextPage()
             
             XCTAssertEqual(viewSpy.messages[4], .displayIsLoadingSubsequentPage(isLoadingSubsequentPage: true))
-            print("aASDASDDAS\(viewSpy.messages)")
             exp.fulfill()
         }
         
@@ -189,7 +188,6 @@ final class PaginationPresenterTests: XCTestCase {
                 // Проверяем что onSuccess добавил новые элементы
                 XCTAssertEqual(viewSpy.capturedDisplayModel.count, previousCount + 1)
                 let lastModel = viewSpy.capturedDisplayModel[1]
-                print("ASDSAD\(viewSpy.capturedDisplayModel)")
                 XCTAssertEqual(lastModel.model.count, 2) // Первая + вторая страница
                 XCTAssertEqual(lastModel.model[0].id, "1")
                 XCTAssertEqual(lastModel.model[1].id, "2")
