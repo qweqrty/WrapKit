@@ -148,7 +148,7 @@ final class ShimmerViewSnapshotTests: XCTestCase {
         let snapshotName = "SHIMMERVIEW_WITH_STYLE"
         
         // WHEN
-        let style = ShimmerView.Style(
+        let style = ShimmerStyle(
             backgroundColor: .systemPink,
             gradientColorOne: .clear,
             gradientColorTwo: .white.withAlphaComponent(0.9),
@@ -173,7 +173,7 @@ final class ShimmerViewSnapshotTests: XCTestCase {
         let snapshotName = "SHIMMERVIEW_WITH_STYLE"
         
         // WHEN
-        let style = ShimmerView.Style(
+        let style = ShimmerStyle(
             backgroundColor: .red,
             gradientColorOne: .clear,
             gradientColorTwo: .white.withAlphaComponent(0.9),

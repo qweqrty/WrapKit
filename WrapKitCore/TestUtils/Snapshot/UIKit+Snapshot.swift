@@ -37,7 +37,7 @@ public struct SnapshotConfiguration {
         let verticalSizeClass = UITraitCollection(verticalSizeClass: .regular)
         let displayScale = UITraitCollection(displayScale: 3.0)
         let accessibilityContrast = UITraitCollection(accessibilityContrast: .normal)
-        let displayGamut = UITraitCollection(displayGamut: .P3)
+        let displayGamut = UITraitCollection(displayGamut: .SRGB) // was P3
         let userInterfaceStyle = UITraitCollection(userInterfaceStyle: style)
         
         let traitCollection = UITraitCollection(traitsFrom: [
@@ -97,13 +97,14 @@ extension UIView {
     func asImage(scale: CGFloat = UIScreen.main.scale) -> UIImage {
         let format = UIGraphicsImageRendererFormat(for: traitCollection)
         format.scale = scale // This ensures the correct resolution (1x, 2x, 3x, etc.)
-        format.preferredRange = .extended // .standard // disable HDR
+        format.preferredRange =  .extended // UIKit not passing with standart
         format.opaque = false
+        
         let renderer = UIGraphicsImageRenderer(bounds: bounds, format: format)
-        return renderer.image { action in
-            let colorSpace = CGColorSpace(name: CGColorSpace.sRGB) ?? CGColorSpaceCreateDeviceRGB() // Default sRGB color space (IEC61966-2.1)
-            action.cgContext.setFillColorSpace(colorSpace)
-            layer.render(in: action.cgContext)
+        return renderer.image { context in
+            let colorSpace = CGColorSpaceCreateDeviceRGB() // Default sRGB color space (IEC61966-2.1)
+            context.cgContext.setFillColorSpace(colorSpace)
+            layer.render(in: context.cgContext)
         }
     }
 }

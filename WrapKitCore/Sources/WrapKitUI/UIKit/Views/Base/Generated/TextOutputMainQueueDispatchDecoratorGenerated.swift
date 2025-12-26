@@ -13,6 +13,9 @@ import Foundation
 #if canImport(UIKit)
 import UIKit
 #endif
+#if canImport(SwiftUI)
+import SwiftUI
+#endif
 
 extension TextOutput {
     public var mainQueueDispatched: any TextOutput {
@@ -35,6 +38,11 @@ extension MainQueueDispatchDecorator: TextOutput where T: TextOutput {
     public func display(attributes: [TextAttributes]) {
         dispatch { [weak self] in
             self?.decoratee.display(attributes: attributes)
+        }
+    }
+    public func display(htmlString: String?, font: Font, color: Color) {
+        dispatch { [weak self] in
+            self?.decoratee.display(htmlString: htmlString, font: font, color: color)
         }
     }
     public func display(id: String?, from startAmount: Decimal, to endAmount: Decimal, mapToString: ((Decimal) -> TextOutputPresentableModel)?, animationStyle: LabelAnimationStyle, duration: TimeInterval, completion: (() -> Void)?) {

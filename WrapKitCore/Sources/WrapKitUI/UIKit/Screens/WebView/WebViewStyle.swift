@@ -9,12 +9,12 @@ import Foundation
 
 public struct WebViewStyle {
     public enum Header {
-        case `default`(title: String? = nil)
+        case `default`(title: String? = nil, leadingCard: CardViewPresentableModel)
         case custom(HeaderPresentableModel)
         case hidden
     }
     
-    public struct Refresh {
+    public struct Refresh: HashableWithReflection {
         public let isEnabled: Bool
         public let style: RefreshControlPresentableModel.Style
         
@@ -37,10 +37,18 @@ public struct WebViewStyle {
         progressBarModel: ProgressBarPresentableModel? = nil,
         hidesBottomBarWhenPushed: Bool = true,
         refresh: Refresh = .init(),
-        backgroundColor: Color? = nil
+        backgroundColor: Color? = nil,
+        leadingCard: CardViewPresentableModel? = nil
     ) {
         self.title = title
-        self.header = header ?? .default(title: title)
+        if let header = header {
+            self.header = header
+        } else if let leadingCard = leadingCard {
+            self.header = .default(title: title, leadingCard: leadingCard)
+        } else {
+            self.header = .hidden
+        }
+        
         self.progressBarModel = progressBarModel
         self.hidesBottomBarWhenPushed = hidesBottomBarWhenPushed
         self.refresh = refresh

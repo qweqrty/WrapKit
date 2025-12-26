@@ -5,6 +5,9 @@
 // swift-format-ignore-file
 // swiftformat:disable all
 
+#if canImport(WrapKit)
+import WrapKit
+#endif
 {% for importName in type.allImports %}
 #if canImport({{ importName }})
 import {{ importName }}
@@ -20,7 +23,7 @@ public final class {{ type.name }}Spy: {{ type.name }} {
     public init() {}
 
     public enum Message: HashableWithReflection {
-        {% for method in type.methods where not method.annotations.skipSpy %}
+        {% for method in type.methods where not method.annotations.skipSpy and not method.isStatic %}
         {% if method.parameters.count == 0 %}
         case {{ method.callName }}
         {% else %}
@@ -39,7 +42,7 @@ public final class {{ type.name }}Spy: {{ type.name }} {
     public private(set) var messages: [Message] = []
 
     // MARK: - Captured values
-    {% for method in type.methods where not method.annotations.skipSpy %}
+    {% for method in type.methods where not method.annotations.skipSpy and not method.isStatic %}
     {% if not method.isGeneric %}
     {% if method.parameters.count == 0 %}
     public private(set) var captured{{ method.callName|upperFirstLetter }}CallCount = 0

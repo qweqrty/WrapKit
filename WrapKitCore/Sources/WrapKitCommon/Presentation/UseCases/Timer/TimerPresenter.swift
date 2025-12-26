@@ -60,6 +60,9 @@ public class TimerPresenter: TimerInput {
         guard let backgroundStartTime = backgroundStartTime else { return }
         let timeSpentInBackground = Int(Date().timeIntervalSince(backgroundStartTime))
         secondsRemained = (secondsRemained ?? 0) - timeSpentInBackground
+        
+        self.backgroundStartTime = nil
+        
         if secondsRemained ?? 0 <= 0 {
             stop()
             onSecondsRemaining?(nil)

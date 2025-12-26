@@ -8,8 +8,10 @@
 import Foundation
 
 extension HeaderPresentableModel {
-    static func defaultWebViewHeader(title: String? = nil, onPress: (() -> Void)? = nil) -> Self {
-        let image = Image(named: "icChevronLeft")
+    static func defaultWebViewHeader(
+        title: String? = nil,
+        leadingCard: CardViewPresentableModel
+    ) -> Self {
         return .init(
             centerView: .keyValue(
                 .init(
@@ -22,10 +24,7 @@ extension HeaderPresentableModel {
                     nil
                 )
             ),
-            leadingCard: .init(
-                leadingImage: .init(size: image?.size, image: .asset(image)),
-                onPress: onPress
-            )
+            leadingCard: leadingCard
         )
     }
 }
