@@ -5,6 +5,9 @@
 // swift-format-ignore-file
 // swiftformat:disable all
 
+#if canImport(WrapKit)
+import WrapKit
+#endif
 #if canImport(Foundation)
 import Foundation
 #endif
@@ -13,6 +16,9 @@ import UIKit
 #endif
 #if canImport(Kingfisher)
 import Kingfisher
+#endif
+#if canImport(SwiftUI)
+import SwiftUI
 #endif
 
 public final class ImageViewOutputSpy: ImageViewOutput {

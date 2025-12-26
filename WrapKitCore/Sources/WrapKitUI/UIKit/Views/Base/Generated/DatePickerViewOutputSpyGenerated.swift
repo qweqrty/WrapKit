@@ -5,6 +5,9 @@
 // swift-format-ignore-file
 // swiftformat:disable all
 
+#if canImport(WrapKit)
+import WrapKit
+#endif
 #if canImport(Foundation)
 import Foundation
 #endif

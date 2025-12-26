@@ -4,14 +4,20 @@ import UIKit
 import XCTest
 
 public extension XCTestCase {
-    func assert(snapshot: UIImage, named name: String, file: StaticString = #filePath, line: UInt = #line) {
+    func assert(
+        snapshot: UIImage,
+        named name: String,
+        precision: Float = 1,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
         let snapshotURL = makeSnapshotURL(named: name, file: file)
         
         guard let storedSnapshotData = try? Data(contentsOf: snapshotURL), let oldImage = UIImage(data: storedSnapshotData) else {
             XCTFail("Failed to load stored snapshot at URL: \(snapshotURL). Use the `record` method to store a snapshot before asserting.", file: file, line: line)
             return
         }
-        guard let diff = Diffing.image(precision: 1).diff(oldImage, snapshot) else { return }
+        guard let diff = Diffing.image(precision: precision).diff(oldImage, snapshot) else { return }
         
         let artifactsUrl = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
         let artifactsSubUrl = artifactsUrl.appendingPathComponent(name)
@@ -23,14 +29,20 @@ public extension XCTestCase {
         XCTFail(diff.message + "\n Diff snapshot URL: \(artifactsSubUrl)", file: file, line: line)
     }
     
-    func assertFail(snapshot: UIImage, named name: String, file: StaticString = #filePath, line: UInt = #line) {
+    func assertFail(
+        snapshot: UIImage,
+        named name: String,
+        precision: Float = 1,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
         let snapshotURL = makeSnapshotURL(named: name, file: file)
         
         guard let storedSnapshotData = try? Data(contentsOf: snapshotURL), let oldImage = UIImage(data: storedSnapshotData) else {
             XCTFail("Failed to load stored snapshot at URL: \(snapshotURL). Use the `record` method to store a snapshot before asserting.", file: file, line: line)
             return
         }
-        guard let diff = Diffing.image(precision: 1).diff(oldImage, snapshot)
+        guard let diff = Diffing.image(precision: precision).diff(oldImage, snapshot)
 //              diff.message.starts(with: "Images should be different.")
         else {
             XCTFail("Images should be different.", file: file, line: line)

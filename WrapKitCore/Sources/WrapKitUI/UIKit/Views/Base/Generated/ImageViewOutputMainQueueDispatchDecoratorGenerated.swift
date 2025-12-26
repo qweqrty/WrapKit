@@ -16,6 +16,9 @@ import UIKit
 #if canImport(Kingfisher)
 import Kingfisher
 #endif
+#if canImport(SwiftUI)
+import SwiftUI
+#endif
 
 extension ImageViewOutput {
     public var mainQueueDispatched: any ImageViewOutput {
