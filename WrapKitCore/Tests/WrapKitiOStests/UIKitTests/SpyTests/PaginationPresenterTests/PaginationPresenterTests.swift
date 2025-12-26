@@ -59,7 +59,7 @@ final class PaginationPresenterTests: XCTestCase {
         let testItems = [TestItem(id: "1", value: "Test")]
         let response = TestResponse(items: testItems, totalPages: 1)
         
-        let expectation = XCTestExpectation(description: "Completion called")
+        let expectation = expectation(description: "Completion called")
         
         sut.refresh()
         serviceSpy.complete(with: .success(response), at: 0)
@@ -67,7 +67,7 @@ final class PaginationPresenterTests: XCTestCase {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
             XCTAssertEqual(viewSpy.capturedDisplayModel.count, 1)
             XCTAssertEqual(viewSpy.capturedDisplayModel[0].model.count, 1)
-            XCTAssertEqual(viewSpy.capturedDisplayModel[0].model.first?.id, "1")
+            XCTAssertEqual(viewSpy.capturedDisplayModel[0].model[0].id, "1")
             expectation.fulfill()
         }
         
@@ -81,7 +81,7 @@ final class PaginationPresenterTests: XCTestCase {
         let serviceSpy = components.serviceSpy
         let error = ServiceError.message("test")
         
-        let expectation = XCTestExpectation(description: "Error handled")
+        let expectation = expectation(description: "Error handled")
         
         sut.refresh()
         serviceSpy.complete(with: .failure(error), at: 0)
@@ -101,13 +101,15 @@ final class PaginationPresenterTests: XCTestCase {
         let serviceSpy = components.serviceSpy
         let response = TestResponse(items: [], totalPages: 1)
         
-        let expectation = XCTestExpectation(description: "Completion called")
+        let expectation = expectation(description: "Completion called")
         
         sut.refresh()
+        XCTAssertEqual(viewSpy.capturedDisplayIsLoadingFirstPage[0], true)
         serviceSpy.complete(with: .success(response), at: 0)
         
+        // TODO: - Stas
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            XCTAssertEqual(viewSpy.capturedDisplayIsLoadingFirstPage.last, false)
+            XCTAssertEqual(viewSpy.capturedDisplayIsLoadingFirstPage[1], false)
             expectation.fulfill()
         }
         
@@ -122,7 +124,7 @@ final class PaginationPresenterTests: XCTestCase {
         let serviceSpy = components.serviceSpy
         let response = TestResponse(items: [], totalPages: 2)
         
-        let expectation = XCTestExpectation(description: "First page loaded")
+        let expectation = expectation(description: "First page loaded")
         
         sut.refresh()
         serviceSpy.complete(with: .success(response), at: 0)
@@ -154,7 +156,8 @@ final class PaginationPresenterTests: XCTestCase {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
             sut.loadNextPage()
             
-            XCTAssertEqual(viewSpy.messages.last, .displayIsLoadingSubsequentPage(isLoadingSubsequentPage: true))
+            XCTAssertEqual(viewSpy.messages[4], .displayIsLoadingSubsequentPage(isLoadingSubsequentPage: true))
+            print("aASDASDDAS\(viewSpy.messages)")
             exp.fulfill()
         }
         
@@ -171,7 +174,7 @@ final class PaginationPresenterTests: XCTestCase {
         let firstResponse = TestResponse(items: firstPageItems, totalPages: 2)
         let secondResponse = TestResponse(items: secondPageItems, totalPages: 2)
         
-        let expectation = XCTestExpectation(description: "Second page loaded")
+        let expectation = expectation(description: "Second page loaded")
         
         sut.refresh()
         serviceSpy.complete(with: .success(firstResponse), at: 0)
@@ -185,7 +188,8 @@ final class PaginationPresenterTests: XCTestCase {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                 // Проверяем что onSuccess добавил новые элементы
                 XCTAssertEqual(viewSpy.capturedDisplayModel.count, previousCount + 1)
-                let lastModel = viewSpy.capturedDisplayModel.last!
+                let lastModel = viewSpy.capturedDisplayModel[1]
+                print("ASDSAD\(viewSpy.capturedDisplayModel)")
                 XCTAssertEqual(lastModel.model.count, 2) // Первая + вторая страница
                 XCTAssertEqual(lastModel.model[0].id, "1")
                 XCTAssertEqual(lastModel.model[1].id, "2")
@@ -204,7 +208,7 @@ final class PaginationPresenterTests: XCTestCase {
         let response = TestResponse(items: [], totalPages: 2)
         let error = ServiceError.message("test")
         
-        let expectation = XCTestExpectation(description: "Error handled")
+        let expectation = expectation(description: "Error handled")
         
         sut.refresh()
         serviceSpy.complete(with: .success(response), at: 0)
@@ -230,7 +234,7 @@ final class PaginationPresenterTests: XCTestCase {
         let firstResponse = TestResponse(items: [], totalPages: 2)
         let secondResponse = TestResponse(items: [], totalPages: 2)
         
-        let expectation = XCTestExpectation(description: "Completion called")
+        let expectation = expectation(description: "Completion called")
         
         sut.refresh()
         serviceSpy.complete(with: .success(firstResponse), at: 0)
