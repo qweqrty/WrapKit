@@ -62,7 +62,7 @@ final class PaginationPresenterTests: XCTestCase {
         let expectation = XCTestExpectation(description: "Completion called")
         
         sut.refresh()
-        serviceSpy.complete(with: .success(response))
+        serviceSpy.complete(with: .success(response), at: 0)
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
             XCTAssertEqual(viewSpy.capturedDisplayModel.count, 1)
@@ -84,7 +84,7 @@ final class PaginationPresenterTests: XCTestCase {
         let expectation = XCTestExpectation(description: "Error handled")
         
         sut.refresh()
-        serviceSpy.complete(with: .failure(error))
+        serviceSpy.complete(with: .failure(error), at: 0)
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
             XCTAssertEqual(viewSpy.capturedDisplayErrorAtFirstPage.count, 1)
@@ -104,7 +104,7 @@ final class PaginationPresenterTests: XCTestCase {
         let expectation = XCTestExpectation(description: "Completion called")
         
         sut.refresh()
-        serviceSpy.complete(with: .success(response))
+        serviceSpy.complete(with: .success(response), at: 0)
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
             XCTAssertEqual(viewSpy.capturedDisplayIsLoadingFirstPage.last, false)
@@ -125,7 +125,7 @@ final class PaginationPresenterTests: XCTestCase {
         let expectation = XCTestExpectation(description: "First page loaded")
         
         sut.refresh()
-        serviceSpy.complete(with: .success(response))
+        serviceSpy.complete(with: .success(response), at: 0)
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
             sut.loadNextPage()
@@ -147,7 +147,7 @@ final class PaginationPresenterTests: XCTestCase {
         let response = TestResponse(items: [], totalPages: 2)
         
         sut.refresh()
-        serviceSpy.complete(with: .success(response))
+        serviceSpy.complete(with: .success(response), at: 0)
         
         let exp = expectation(description: "Wait for loadPage")
         
@@ -247,8 +247,6 @@ final class PaginationPresenterTests: XCTestCase {
         
         wait(for: [expectation], timeout: 2.0)
     }
-    
-    
 }
 
 fileprivate extension PaginationPresenterTests {
@@ -278,7 +276,7 @@ fileprivate extension PaginationPresenterTests {
     struct SUTComponents {
         let sut: SUT
         let viewSpy: PaginationViewOutputSpy<TestPresentableItem>
-        let serviceSpy: TestServiceSpy
+        let serviceSpy: ServiceSpy<TestRequest, TestResponse>
         let storage: any Storage<[TestItem]>
     }
     
@@ -288,7 +286,7 @@ fileprivate extension PaginationPresenterTests {
         file: StaticString = #file,
         line: UInt = #line
     ) -> SUTComponents {
-        let serviceSpy = TestServiceSpy()
+        let serviceSpy = ServiceSpy<TestRequest, TestResponse>()
         let storage = InMemoryStorage<[TestItem]>()
         let viewSpy = PaginationViewOutputSpy<TestPresentableItem>()
         
@@ -329,34 +327,4 @@ fileprivate extension PaginationPresenterTests {
             storage: storage
         )
     }
-    
-    class TestServiceSpy: Service {
-        typealias Request = TestRequest
-        typealias Response = TestResponse
-        
-        private(set) var requests: [TestRequest] = []
-        private var subjects: [PassthroughSubject<TestResponse, ServiceError>] = []
-        
-        func make(request: TestRequest) -> AnyPublisher<TestResponse, ServiceError> {
-            requests.append(request)
-            
-            let subject = PassthroughSubject<TestResponse, ServiceError>()
-            subjects.append(subject)
-            
-            return subject.eraseToAnyPublisher()
-        }
-        
-        func complete(with result: Result<TestResponse, ServiceError>, at index: Int = 0) {
-            guard index < subjects.count else { return }
-            
-            switch result {
-            case .success(let response):
-                subjects[index].send(response)
-                subjects[index].send(completion: .finished)
-            case .failure(let error):
-                subjects[index].send(completion: .failure(error))
-            }
-        }
-    }
 }
-
