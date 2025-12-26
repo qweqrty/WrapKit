@@ -22,6 +22,7 @@ public protocol TextOutput: HiddableOutput {
     func display(model: TextOutputPresentableModel?)
     func display(text: String?)
     func display(attributes: [TextAttributes])
+    func display(htmlString: String?, font: Font, color: Color)
     func display(id: String?, from startAmount: Decimal, to endAmount: Decimal, mapToString: ((Decimal) -> TextOutputPresentableModel)?, animationStyle: LabelAnimationStyle, duration: TimeInterval, completion: (() -> Void)?)
     func display(isHidden: Bool)
 }
@@ -29,6 +30,7 @@ public protocol TextOutput: HiddableOutput {
 public indirect enum TextOutputPresentableModel: HashableWithReflection {
     case text(String?)
     case attributes([TextAttributes])
+    case attributedString(String?, Font, Color)
     case animatedDecimal(
         id: String? = nil,
         from: Decimal,
@@ -86,6 +88,8 @@ extension Label: TextOutput {
             display(model: text)
             self.cornerStyle = cornerStyle
             self.textInsets = insets.asUIEdgeInsets
+        case .attributedString(let htmlString, let font, let color):
+            display(htmlString: htmlString, font: font, color: color)
             if let backgroundColor {
                 self.backgroundColor = backgroundColor
             }
@@ -95,6 +99,14 @@ extension Label: TextOutput {
     public func display(text: String?) {
         isHidden = text.isEmpty
         self.text = text?.removingPercentEncoding ?? text
+    }
+    
+    public func display(htmlString: String?, font: Font, color: Color) {
+        isHidden = htmlString != nil
+        clearAnimationModel()
+        self.attributedText = htmlString?.asHtmlAttributedString
+        self.font = font
+        self.textColor = color
     }
     
     public func display(attributes: [TextAttributes]) {

@@ -34,6 +34,9 @@ extension WeakRefVirtualProxy: TextOutput where T: TextOutput {
     public func display(attributes: [TextAttributes]) {
         object?.display(attributes: attributes)
     }
+    public func display(htmlString: String?, font: Font, color: Color) {
+        object?.display(htmlString: htmlString, font: font, color: color)
+    }
     public func display(id: String?, from startAmount: Decimal, to endAmount: Decimal, mapToString: ((Decimal) -> TextOutputPresentableModel)?, animationStyle: LabelAnimationStyle, duration: TimeInterval, completion: (() -> Void)?) {
         object?.display(id: id, from: startAmount, to: endAmount, mapToString: mapToString, animationStyle: animationStyle, duration: duration, completion: completion)
     }
