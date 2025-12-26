@@ -11,6 +11,7 @@ import WrapKitTestUtils
 final class WebViewPresenterTests: XCTestCase {
     
     let url = URL(string: "https://o.kg/kg/chastnym-klientam/")!
+    let image = Image(systemName: "star.fill")
     
     func test_webViewOutput_displayRefreshModel() {
         let components = makeSUT()
@@ -74,38 +75,44 @@ final class WebViewPresenterTests: XCTestCase {
         XCTAssertEqual(progressBarSpy.messages[0], .displayModel(model: progressBarModel))
     }
     
-    // MARK: TODO - URMAT
-//    func test_headerOutput_display_modelDefault() {
-//        let components = makeSUT()
-//        let sut = components.sut
-//        let headerSpy = components.headerSpy
-//        
-//        sut.viewDidLoad()
-//        
-//        let image = Image(systemName: "star.fill")
-//        
-//        let headerModel = HeaderPresentableModel(
-//            centerView: .keyValue(
-//                .init(
-//                    .attributes(
-//                        [.init(
-//                            text: "Style",
-//                            font: .systemFont(ofSize: 18, weight: .semibold)
-//                        )]
-//                    ),
-//                    nil
-//                )
-//            ),
-//            leadingCard: .init(
-//                id: headerSpy.capturedDisplayModel.first??.leadingCard?.id ?? "",
-//                leadingImage: .init(size: image?.size, image: .asset(image)),
-//                onPress: headerSpy.capturedDisplayModel.first??.leadingCard?.onPress ?? { }
-//            )
-//        )
-//        
-//        XCTAssertEqual(headerSpy.messages[0], .displayModel(model: headerModel))
-//        XCTAssertEqual(headerSpy.capturedDisplayModel[0], headerModel)
-//    }
+    func test_headerOutput_display_modelDefault() {
+        let components = makeSUT()
+        let sut = components.sut
+        let headerSpy = components.headerSpy
+        
+        sut.viewDidLoad()
+        
+        var capturedId: String = UUID().uuidString
+        
+        if case .keyValue(let pair) = headerSpy.capturedDisplayModel.first??.centerView,
+           case .attributes(let attributes) = pair.first,
+           let firstAttribute = attributes.first {
+            capturedId = firstAttribute.id
+        }
+        
+        let headerModel = HeaderPresentableModel(
+            centerView: .keyValue(
+                .init(
+                    .attributes(
+                        [.init(
+                            id: capturedId,
+                            text: "Style",
+                            font: .systemFont(ofSize: 18, weight: .semibold)
+                        )]
+                    ),
+                    nil
+                )
+            ),
+            leadingCard: .init(
+                id: headerSpy.capturedDisplayModel.first??.leadingCard?.id ?? "",
+                leadingImage: .init(size: nil, image: .asset(image)),
+                onPress: headerSpy.capturedDisplayModel.first??.leadingCard?.onPress ?? { }
+            )
+        )
+                
+        XCTAssertEqual(headerSpy.messages[0], .displayModel(model: headerModel))
+        XCTAssertEqual(headerSpy.capturedDisplayModel[0], headerModel)
+    }
     
     func test_headerOutput_display_modelCustom() {
         let customHeaderModel = HeaderPresentableModel(
@@ -178,8 +185,6 @@ fileprivate extension WebViewPresenterTests {
         let refreshControlSpy = LoadingOutputSpy()
         let flow = WebViewFlowSpy()
         
-        let image = Image(named: "star.fill")
-        
         let progressBarStyle = ProgressBarStyle(
             backgroundColor: .cyan
         )
@@ -193,7 +198,7 @@ fileprivate extension WebViewPresenterTests {
             backgroundColor: .red,
             leadingCard: .init(
                 id: headerSpy.capturedDisplayModel.first??.leadingCard?.id ?? "",
-                leadingImage: .init(size: image?.size, image: .asset(image)),
+                leadingImage: .init(size: nil, image: .asset(image)),
                 onPress: headerSpy.capturedDisplayModel.first??.leadingCard?.onPress ?? { }
             )
         )
