@@ -8,6 +8,7 @@
 import Combine
 import WrapKit
 import XCTest
+import WrapKitTestUtils
 
 final class TokenRefresherImplTests: XCTestCase {
     private var cancellables = Set<AnyCancellable>()
@@ -358,25 +359,5 @@ final class TokenRefresherImplTests: XCTestCase {
         checkForMemoryLeaks(storage, file: file, line: line)
         checkForMemoryLeaks(service, file: file, line: line)
         return (sut, storage, service)
-    }
-    
-    class ServiceSpy<Request: Equatable, Response>: Service {
-        private var publishers: [(request: Request, publisher: PassthroughSubject<Response, ServiceError>)] = []
-        
-        func make(request: Request) -> AnyPublisher<Response, ServiceError> {
-            let publisher = PassthroughSubject<Response, ServiceError>()
-            publishers.append((request, publisher))
-            return publisher.eraseToAnyPublisher()
-        }
-        
-        func complete(with result: Result<Response, ServiceError>, at index: Int) {
-            switch result {
-            case .success(let response):
-                publishers.item(at: index)?.publisher.send(response)
-                publishers.item(at: index)?.publisher.send(completion: .finished)
-            case .failure(let error):
-                publishers.item(at: index)?.publisher.send(completion: .failure(error))
-            }
-        }
     }
 }
