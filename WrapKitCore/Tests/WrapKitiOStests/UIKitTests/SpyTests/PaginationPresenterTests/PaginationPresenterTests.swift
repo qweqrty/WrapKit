@@ -244,7 +244,7 @@ final class PaginationPresenterTests: XCTestCase {
             serviceSpy.complete(with: .success(secondResponse), at: 1)
             
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                XCTAssertEqual(viewSpy.capturedDisplayIsLoadingSubsequentPage.last, false)
+                XCTAssertEqual(viewSpy.capturedDisplayIsLoadingSubsequentPage[2], false)
                 expectation.fulfill()
             }
         }
