@@ -1063,6 +1063,24 @@ final class LabelSnapshotTests: XCTestCase {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         } 
     }
+    
+    func test_label_output_html() {
+        // GIVEN
+        let (sut, container) = makeSUT()
+        let snapshotName = "LABEL_HTML"
+        
+        // THEN
+        sut.display(htmlString: "<br>For test text<b>", font: .systemFont(ofSize: 13), color: .red)
+        
+        // THEN
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
+    }
 }
 
 extension LabelSnapshotTests {
