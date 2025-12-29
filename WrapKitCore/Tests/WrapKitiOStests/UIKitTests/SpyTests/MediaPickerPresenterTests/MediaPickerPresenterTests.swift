@@ -12,7 +12,7 @@ import Combine
 
 final class MediaPickerPresenterTests: XCTestCase {
     
-    func test() {
+    func test_alertOutput_showActionSheet() {
         let components = makeSUT()
         let sut = components.sut
         let alertSpy = components.alertSpy
@@ -33,6 +33,30 @@ final class MediaPickerPresenterTests: XCTestCase {
         
         XCTAssertEqual(alertSpy.messages[0], .showActionSheetModel(model: model))
     }
+    
+    func test_alertOutput_checkCamerPermissionAndPresentPicker() {
+        let components = makeSUT()
+        let sut = components.sut
+        let alertSpy = components.alertSpy
+        
+        sut.viewDidLoad()
+        
+        let actions: [AlertAction] = [
+            .init(title: "Camera", handler: { }),
+            .init(title: "Doc", handler: { }),
+            .init(title: "Gallery", handler: { }),
+            .init(title: "Cancel", style: .cancel, handler: { })
+        ]
+        
+        let model = AlertPresentableModel(
+            title: "Title",
+            actions: actions,
+        )
+        
+        XCTAssertEqual(alertSpy.messages[0], .showActionSheetModel(model: model))
+    }
+    
+    
     
 }
 
