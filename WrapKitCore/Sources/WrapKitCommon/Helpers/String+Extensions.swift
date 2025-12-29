@@ -58,6 +58,13 @@ public extension String {
         }
     }
     
+    var asSpanHtml: String? {
+        return String(
+            format:"<span style=\"font-family: '-apple-system'; font-size: inherit; color: inherit;\">%@</span>",
+            self
+        )
+    }
+    
     func asDate(withFormat format: String) -> Date? {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = format

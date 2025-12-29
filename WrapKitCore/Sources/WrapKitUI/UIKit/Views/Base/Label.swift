@@ -102,9 +102,11 @@ extension Label: TextOutput {
     }
     
     public func display(htmlString: String?, font: Font, color: Color) {
-        isHidden = htmlString != nil
         clearAnimationModel()
-        self.attributedText = htmlString?.asHtmlAttributedString
+        
+        let attributed = htmlString?.asHtmlAttributedString
+        isHidden = attributed == nil
+        self.attributedText = attributed
         self.font = font
         self.textColor = color
     }
