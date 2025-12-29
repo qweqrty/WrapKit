@@ -98,7 +98,7 @@ extension Label: TextOutput {
     
     public func display(text: String?) {
         isHidden = text.isEmpty
-        self.text = text?.removingPercentEncoding ?? text
+        self.text = text?.removingPercentEncoding ?? text ?? ""
     }
     
     public func display(htmlString: String?, font: Font, color: Color) {
