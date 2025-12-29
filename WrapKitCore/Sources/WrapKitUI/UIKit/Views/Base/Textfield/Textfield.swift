@@ -397,7 +397,7 @@ extension Textfield: TextInputOutput {
     }
     
     public func display(text: String?) {
-        self.text = text?.removingPercentEncoding ?? ""
+        self.text = text?.removingPercentEncoding ?? text ?? ""
     }
     
     public func display(mask: TextInputPresentableModel.Mask) {

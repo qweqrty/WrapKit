@@ -1063,6 +1063,42 @@ final class LabelSnapshotTests: XCTestCase {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         } 
     }
+    
+    func test_labelOutput_emoji() {
+        // GIVEN
+        let (sut, container) = makeSUT()
+        let snapshotName = "LABEL_EMOJI_STATE"
+        
+        // WHEN
+        sut.display(model: .text("it's fine 🙂"))
+        
+        // THEN
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
+    }
+    
+    func test_labelOutput_utfLikeText() {
+        // GIVEN
+        let (sut, container) = makeSUT()
+        let snapshotName = "LABEL_FAKE_EMOJI_STATE"
+        
+        // WHEN
+        sut.display(model: .text("Saima 500+O!TV- SALE 30%_850"))
+        
+        // THEN
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
+    }
 }
 
 extension LabelSnapshotTests {
