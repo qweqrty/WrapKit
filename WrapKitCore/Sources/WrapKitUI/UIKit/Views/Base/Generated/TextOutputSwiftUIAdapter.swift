@@ -67,10 +67,10 @@ public class TextOutputSwiftUIAdapter: ObservableObject, TextOutput {
     @Published public var displayHtmlStringFontColorState: DisplayHtmlStringFontColorState? = nil
     public struct DisplayHtmlStringFontColorState {
         public let htmlString: String?
-        public let font: Font
-        public let color: Color
+        public let font: Font?
+        public let color: Color?
     }
-    public func display(htmlString: String?, font: Font, color: Color) {
+    public func display(htmlString: String?, font: Font?, color: Color?) {
         displayHtmlStringFontColorState = .init(
             htmlString: htmlString, 
             font: font, 
@@ -105,6 +105,15 @@ public class TextOutputSwiftUIAdapter: ObservableObject, TextOutput {
     public func display(isHidden: Bool) {
         displayIsHiddenState = .init(
             isHidden: isHidden
+        )
+    }
+    @Published public var displayHtmlStringState: DisplayHtmlStringState? = nil
+    public struct DisplayHtmlStringState {
+        public let htmlString: String?
+    }
+    public func display(htmlString: String?) {
+        displayHtmlStringState = .init(
+            htmlString: htmlString
         )
     }
 }
