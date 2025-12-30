@@ -22,9 +22,15 @@ public protocol TextOutput: HiddableOutput {
     func display(model: TextOutputPresentableModel?)
     func display(text: String?)
     func display(attributes: [TextAttributes])
-    func display(htmlString: String?, font: Font, color: Color)
+    func display(htmlString: String?, font: Font?, color: Color?)
     func display(id: String?, from startAmount: Decimal, to endAmount: Decimal, mapToString: ((Decimal) -> TextOutputPresentableModel)?, animationStyle: LabelAnimationStyle, duration: TimeInterval, completion: (() -> Void)?)
     func display(isHidden: Bool)
+}
+extension TextOutput {
+    // sourcery: skipSpy
+    func display(htmlString: String?) {
+        self.display(htmlString: htmlString, font: nil, color: nil)
+    }
 }
 
 public indirect enum TextOutputPresentableModel: HashableWithReflection {
@@ -101,14 +107,12 @@ extension Label: TextOutput {
         self.text = text?.removingPercentEncoding ?? text ?? ""
     }
     
-    public func display(htmlString: String?, font: Font, color: Color) {
+    public func display(htmlString: String?, font: Font?, color: Color?) {
         clearAnimationModel()
         
-        let attributed = htmlString?.asHtmlAttributedString
+        let attributed = htmlString?.asHtmlAttributedString(font: font ?? self.font, color: color ?? self.textColor)
         isHidden = attributed == nil
         self.attributedText = attributed
-        self.font = font
-        self.textColor = color
     }
     
     public func display(attributes: [TextAttributes]) {
