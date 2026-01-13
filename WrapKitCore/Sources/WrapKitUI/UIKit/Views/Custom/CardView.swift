@@ -17,7 +17,6 @@ public protocol CardViewOutput: AnyObject {
     func display(leadingImage: ImageViewPresentableModel?)
     func display(secondaryLeadingImage: ImageViewPresentableModel?)
     func display(trailingImage: ImageViewPresentableModel?, leadingSpacing: CGFloat?)
-//    func display(trailingImages: [ImageViewPresentableModel]?)
     func display(secondaryTrailingImage: ImageViewPresentableModel?)
     func display(subTitle: TextOutputPresentableModel?)
     func display(valueTitle: TextOutputPresentableModel?)
@@ -64,7 +63,6 @@ public struct CardViewPresentableModel: HashableWithReflection {
         public let borderWidth: CGFloat?
         public let gradientBorderColors: [Color]?
         public let trailingImageLeadingSpacing: CGFloat?
-        public let trailingImagesSpacing: CGFloat
         
         public init(
             backgroundColor: Color,
@@ -91,8 +89,7 @@ public struct CardViewPresentableModel: HashableWithReflection {
             borderColor: Color? = nil,
             borderWidth: CGFloat? = nil,
             gradientBorderColors: [Color]? = nil,
-            trailingImageLeadingSpacing: CGFloat? = nil,
-            trailingImagesSpacing: CGFloat = 0
+            trailingImageLeadingSpacing: CGFloat? = nil
         ) {
             self.backgroundColor = backgroundColor
             self.vStacklayoutMargins = vStacklayoutMargins
@@ -119,7 +116,6 @@ public struct CardViewPresentableModel: HashableWithReflection {
             self.borderWidth = borderWidth
             self.gradientBorderColors = gradientBorderColors
             self.trailingImageLeadingSpacing = trailingImageLeadingSpacing
-            self.trailingImagesSpacing = trailingImagesSpacing
         }
     }
 
@@ -276,10 +272,9 @@ extension CardView: CardViewOutput {
     
     public func display(trailingImage: ImageViewPresentableModel?, leadingSpacing: CGFloat?) {
         trailingImageWrapperView.isHidden = trailingImage == nil
-        trailingImagesStackView.isHidden = !trailingImagesStackView.arrangedSubviews.contains(where: { !$0.isHidden })
         trailingImageView.display(model: trailingImage)
         if let leadingSpacing,
-           let index = hStackView.arrangedSubviews.firstIndex(of: trailingImagesStackView),
+           let index = hStackView.arrangedSubviews.firstIndex(of: trailingImageWrapperView),
            let prevView = hStackView.arrangedSubviews.item(at: index - 1) {
             hStackView.setCustomSpacing(leadingSpacing, after: prevView)
         }
@@ -287,7 +282,6 @@ extension CardView: CardViewOutput {
     
     public func display(secondaryTrailingImage: ImageViewPresentableModel?) {
         secondaryTrailingImageWrapperView.isHidden = secondaryTrailingImage == nil
-        trailingImagesStackView.isHidden = !trailingImagesStackView.arrangedSubviews.contains(where: { !$0.isHidden })
         secondaryTrailingImageView.display(model: secondaryTrailingImage)
     }
     
@@ -363,9 +357,6 @@ extension CardView: CardViewOutput {
         display(secondaryLeadingImage: model.secondaryLeadingImage)
         
         // TrailingImage
-//        display(trailingImages: [model.secondaryTrailingImage, model.trailingImage], leadingSpacing: style?.trailingImagesSpacing)
-        
-        // TrailingImage
         display(trailingImage: model.trailingImage, leadingSpacing: style?.trailingImageLeadingSpacing)
         
         // SecondaryTrailingImage
@@ -426,7 +417,6 @@ open class CardView: ViewUIKit {
     
     public let subtitleLabel = Label(font: .systemFont(ofSize: 16), textColor: .gray)
     
-    public let trailingImagesStackView = StackView(axis: .horizontal, spacing: 14)
     public let trailingImageWrapperView = ViewUIKit(isHidden: true)
     public private(set) var trailingImageView = ImageView(image: UIImage(named: "rightArrow"), tintColor: .black)
     
@@ -531,13 +521,14 @@ extension CardView {
         hStackView.addArrangedSubview(secondaryLeadingImageWrapperView)
         hStackView.addArrangedSubview(titleViewsWrapperView)
         hStackView.addArrangedSubview(subtitleLabel)
-        hStackView.addArrangedSubview(trailingImagesStackView)
+//        hStackView.addArrangedSubview(trailingImagesStackView)
+        hStackView.addArrangedSubviews(secondaryTrailingImageWrapperView, trailingImageWrapperView)
         hStackView.addArrangedSubview(switchWrapperView)
         hStackView.addArrangedSubview(trailingTitleViewsWrapperView)
         
         leadingImageWrapperView.addSubview(leadingImageView)
         secondaryLeadingImageWrapperView.addSubview(secondaryLeadingImageView)
-        trailingImagesStackView.addArrangedSubviews(secondaryTrailingImageWrapperView, trailingImageWrapperView)
+//        trailingImagesStackView.addArrangedSubviews(secondaryTrailingImageWrapperView, trailingImageWrapperView)
         trailingImageWrapperView.addSubview(trailingImageView)
         secondaryTrailingImageWrapperView.addSubview(secondaryTrailingImageView)
         
