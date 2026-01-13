@@ -21,37 +21,47 @@ final class PaginationPresenterTests: XCTestCase {
     
     // MARK:  - refresh() tests
     func test_refresh_sendsCorrectRequestToService() {
+        // GIVEN
         let components = makeSUT()
         let sut = components.sut
         let serviceSpy = components.serviceSpy
         
+        // WHEN
         sut.refresh()
         
+        // THEN
         XCTAssertEqual(serviceSpy.requests[0].page, 1)
         XCTAssertEqual(serviceSpy.requests[0].perPage, 10)
     }
     
     func test_refresh_refresh_paginationOutput_display_subSequentPage() {
+        // GIVEN
         let components = makeSUT()
         let viewSpy = components.viewSpy
         let sut = components.sut
         
+        // WHEN
         sut.refresh()
         
+        // THEN
         XCTAssertEqual(viewSpy.messages[0], .displayIsLoadingSubsequentPage(isLoadingSubsequentPage: false))
     }
     
     func test_refresh_display_isLoadingFirstPage() {
+        // GIVEN
         let components = makeSUT()
         let sut = components.sut
         let viewSpy = components.viewSpy
         
+        // WHEN
         sut.refresh()
         
+        // THEN
         XCTAssertEqual(viewSpy.messages[1], .displayIsLoadingFirstPage(isLoadingFirstPage: true))
     }
     
     func test_refresh_onSuccess_handlesResponseAndDisplaysModel() {
+        // GIVEN
         let components = makeSUT()
         let sut = components.sut
         let viewSpy = components.viewSpy
@@ -61,9 +71,11 @@ final class PaginationPresenterTests: XCTestCase {
         
         let expectation = expectation(description: "Completion called")
         
+        // WHEN
         sut.refresh()
         serviceSpy.complete(with: .success(response), at: 0)
         
+        // THEN
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
             XCTAssertEqual(viewSpy.capturedDisplayModel.count, 1)
             XCTAssertEqual(viewSpy.capturedDisplayModel[0].model.count, 1)
@@ -75,6 +87,7 @@ final class PaginationPresenterTests: XCTestCase {
     }
     
     func test_refresh_onError_handlesErrorAndDisplaysError() {
+        // GIVEN
         let components = makeSUT()
         let sut = components.sut
         let viewSpy = components.viewSpy
@@ -83,9 +96,11 @@ final class PaginationPresenterTests: XCTestCase {
         
         let expectation = expectation(description: "Error handled")
         
+        // WHEN
         sut.refresh()
         serviceSpy.complete(with: .failure(error), at: 0)
         
+        // THEN
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
             XCTAssertEqual(viewSpy.capturedDisplayErrorAtFirstPage.count, 1)
             expectation.fulfill()
@@ -95,6 +110,7 @@ final class PaginationPresenterTests: XCTestCase {
     }
     
     func test_refresh_onCompletion_stopsLoadingFirstPage() {
+        // GIVEN
         let components = makeSUT()
         let sut = components.sut
         let viewSpy = components.viewSpy
@@ -103,11 +119,13 @@ final class PaginationPresenterTests: XCTestCase {
         
         let expectation = expectation(description: "Completion called")
         
+        // WHEN
         sut.refresh()
         XCTAssertEqual(viewSpy.capturedDisplayIsLoadingFirstPage[0], true)
         serviceSpy.complete(with: .success(response), at: 0)
         
         // TODO: - Stas
+        // THEN
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
             XCTAssertEqual(viewSpy.capturedDisplayIsLoadingFirstPage[1], false)
             expectation.fulfill()
@@ -119,6 +137,7 @@ final class PaginationPresenterTests: XCTestCase {
     // MARK: - loadNextPage() tests
     
     func test_loadNextPage_sendsCorrectRequestToService() {
+        // GIVNE
         let components = makeSUT()
         let sut = components.sut
         let serviceSpy = components.serviceSpy
@@ -126,9 +145,11 @@ final class PaginationPresenterTests: XCTestCase {
         
         let expectation = expectation(description: "First page loaded")
         
+        // WHEN
         sut.refresh()
         serviceSpy.complete(with: .success(response), at: 0)
         
+        // THEN
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
             sut.loadNextPage()
             
@@ -142,17 +163,20 @@ final class PaginationPresenterTests: XCTestCase {
     }
     
     func test_loadNextPage_display_isLoadingSubsequentPage() {
+        // GIVEN
         let components = makeSUT()
         let sut = components.sut
         let viewSpy = components.viewSpy
         let serviceSpy = components.serviceSpy
         let response = TestResponse(items: [], totalPages: 2)
         
+        // WHEN
         sut.refresh()
         serviceSpy.complete(with: .success(response), at: 0)
         
         let exp = expectation(description: "Wait for loadPage")
         
+        // THEN
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
             sut.loadNextPage()
             
@@ -164,6 +188,7 @@ final class PaginationPresenterTests: XCTestCase {
     }
     
     func test_loadNextPage_onSuccess_handlesResponseAndDisplaysModel() {
+        // GIVEN
         let components = makeSUT()
         let sut = components.sut
         let viewSpy = components.viewSpy
@@ -175,9 +200,11 @@ final class PaginationPresenterTests: XCTestCase {
         
         let expectation = expectation(description: "Second page loaded")
         
+        // WHEN
         sut.refresh()
         serviceSpy.complete(with: .success(firstResponse), at: 0)
         
+        // THEN
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
             let previousCount = viewSpy.capturedDisplayModel.count
             
@@ -199,6 +226,7 @@ final class PaginationPresenterTests: XCTestCase {
     }
     
     func test_loadNextPage_onError_handlesErrorAndDisplaysError() {
+        // GIVEN
         let components = makeSUT()
         let sut = components.sut
         let viewSpy = components.viewSpy
@@ -208,9 +236,11 @@ final class PaginationPresenterTests: XCTestCase {
         
         let expectation = expectation(description: "Error handled")
         
+        // WHEN
         sut.refresh()
         serviceSpy.complete(with: .success(response), at: 0)
         
+        // THEN
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
             sut.loadNextPage()
             serviceSpy.complete(with: .failure(error), at: 1)
@@ -225,6 +255,7 @@ final class PaginationPresenterTests: XCTestCase {
     }
     
     func test_loadNextPage_onCompletion_stopsLoadingSubsequentPage() {
+        // GIVEN
         let components = makeSUT()
         let sut = components.sut
         let viewSpy = components.viewSpy
@@ -234,9 +265,11 @@ final class PaginationPresenterTests: XCTestCase {
         
         let expectation = expectation(description: "Completion called")
         
+        // WHEN
         sut.refresh()
         serviceSpy.complete(with: .success(firstResponse), at: 0)
         
+        // THEN
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
             sut.loadNextPage()
             serviceSpy.complete(with: .success(secondResponse), at: 1)
