@@ -129,8 +129,15 @@ extension NavigationBar: HeaderOutput {
     }
     
     public func display(leadingCard: CardViewPresentableModel?) {
-        leadingCardGlassEffectView.isHidden = leadingCard == nil
-        leadingCardView.display(model: leadingCard)
+        if leadingCard?.onPress != nil {
+            leadingCardGlassEffectView.isHidden = leadingCard == nil
+            leadingCardView.display(model: leadingCard)
+        } else {
+            leadingCardView.isHidden = leadingCard == nil
+            leadingCardGlassEffectView.removeFromSuperview()
+            leadingStackView.addArrangedSubview(leadingCardView)
+            leadingCardView.display(model: leadingCard)
+        }
     }
     
     public func display(primeTrailingImage: ButtonPresentableModel?) {
