@@ -149,10 +149,21 @@ extension NavigationBar: HeaderOutput {
     }
     
     private func setupGlassEffectIfNeeded() {
-        guard leadingCardGlassEffectView.superview == nil else { return }
+        let needsSetup: Bool
+        if let glassEffectView = leadingCardGlassEffectView as? UIVisualEffectView {
+            needsSetup = leadingCardView.superview != glassEffectView.contentView
+        } else {
+            needsSetup = leadingCardView.superview != leadingCardGlassEffectView
+        }
+        
+        guard needsSetup else { return }
         
         leadingCardView.removeFromSuperview()
-        leadingStackView.addArrangedSubview(leadingCardGlassEffectView)
+        
+        if leadingCardGlassEffectView.superview != leadingStackView {
+            leadingCardGlassEffectView.removeFromSuperview()
+            leadingStackView.addArrangedSubview(leadingCardGlassEffectView)
+        }
         
         if let glassEffectView = leadingCardGlassEffectView as? UIVisualEffectView {
             glassEffectView.contentView.addSubview(leadingCardView)
@@ -167,6 +178,11 @@ extension NavigationBar: HeaderOutput {
         guard leadingCardView.superview != leadingStackView else { return }
         
         leadingCardView.removeFromSuperview()
+        
+        if leadingCardGlassEffectView.superview == leadingStackView {
+            leadingCardGlassEffectView.removeFromSuperview()
+        }
+        
         leadingStackView.addArrangedSubview(leadingCardView)
     }
     
