@@ -201,7 +201,7 @@ class NavigationBarSnapshotTests: XCTestCase {
             secondaryColor: .green)
         )
         
-        sut.display(leadingCard: .init(backgroundImage: .init(image: .asset(Image(systemName: "star.fill"))), title: .text("Title")))
+        sut.display(leadingCard: .init(backgroundImage: .init(image: .asset(Image(systemName: "star.fill"))), title: .text("Title"), onPress: { }))
         
         // THEN
         if #available(iOS 26, *) {
@@ -262,7 +262,9 @@ class NavigationBarSnapshotTests: XCTestCase {
                 backgroundImage: .init(
                     size: CGSize(width: 24, height: 24),
                     image: .asset(Image(systemName: "star.fill"))),
-                trailingTitles: .init(.text("Title"), .text("Subtitle"))))
+                trailingTitles: .init(.text("Title"), .text("Subtitle")),
+                onPress: { }
+            ))
 
         // THEN
         if #available(iOS 26, *) {
@@ -1180,7 +1182,8 @@ class NavigationBarSnapshotTests: XCTestCase {
                         tintColor: .black,
                         thumbTintColor: .red,
                         backgroundColor: .clear,
-                        cornerRadius: 10))
+                        cornerRadius: 10)),
+                onPress: { }
             )
         )
         
@@ -1387,6 +1390,40 @@ class NavigationBarSnapshotTests: XCTestCase {
         }
     }
     
+    func test_navigationBar_with_leadingCard_noGestureRecognizers() {
+        let snapshotName = "NAVBAR_WITH_LEADINGCARD_NO_GESTURE_RECOGNIZERS"
+        
+        // GIVEN
+        let (sut, container) = makeSUT()
+        
+        // WHEN
+        sut.display(style: .init(
+            backgroundColor: .red,
+            horizontalSpacing: 1.0,
+            primeFont: .boldSystemFont(ofSize: 24),
+            primeColor: .blue,
+            secondaryFont: .systemFont(ofSize: 14),
+            secondaryColor: .green)
+        )
+        
+        sut.display(
+            leadingCard: .init(
+                title: .text("Title"),
+                valueTitle: .text("Value title")
+            )
+        )
+        
+        sut.leadingCardView.onPress?()
+        
+        // THEN
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
+    }
 }
 
 extension NavigationBarSnapshotTests {

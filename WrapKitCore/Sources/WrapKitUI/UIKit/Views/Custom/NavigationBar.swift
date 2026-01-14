@@ -129,15 +129,45 @@ extension NavigationBar: HeaderOutput {
     }
     
     public func display(leadingCard: CardViewPresentableModel?) {
-        if leadingCard?.onPress != nil {
-            leadingCardGlassEffectView.isHidden = leadingCard == nil
-            leadingCardView.display(model: leadingCard)
-        } else {
-            leadingCardView.isHidden = leadingCard == nil
-            leadingCardGlassEffectView.removeFromSuperview()
-            leadingStackView.addArrangedSubview(leadingCardView)
-            leadingCardView.display(model: leadingCard)
+        leadingCardView.display(model: leadingCard)
+        
+        guard leadingCard != nil else {
+            leadingCardGlassEffectView.isHidden = true
+            return
         }
+        
+        let hasInteraction = !(leadingCardView.gestureRecognizers?.isEmpty ?? true)
+        
+        guard hasInteraction else {
+            leadingCardGlassEffectView.isHidden = true
+            moveLeadingCardToStackViewIfNeeded()
+            return
+        }
+        
+        setupGlassEffectIfNeeded()
+        leadingCardGlassEffectView.isHidden = false
+    }
+    
+    private func setupGlassEffectIfNeeded() {
+        guard leadingCardGlassEffectView.superview == nil else { return }
+        
+        leadingCardView.removeFromSuperview()
+        leadingStackView.addArrangedSubview(leadingCardGlassEffectView)
+        
+        if let glassEffectView = leadingCardGlassEffectView as? UIVisualEffectView {
+            glassEffectView.contentView.addSubview(leadingCardView)
+        } else {
+            leadingCardGlassEffectView.addSubview(leadingCardView)
+        }
+        
+        leadingCardView.fillSuperview()
+    }
+    
+    private func moveLeadingCardToStackViewIfNeeded() {
+        guard leadingCardView.superview != leadingStackView else { return }
+        
+        leadingCardView.removeFromSuperview()
+        leadingStackView.addArrangedSubview(leadingCardView)
     }
     
     public func display(primeTrailingImage: ButtonPresentableModel?) {
