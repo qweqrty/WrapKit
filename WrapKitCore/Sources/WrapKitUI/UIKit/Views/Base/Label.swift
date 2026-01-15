@@ -244,6 +244,8 @@ open class Label: UILabel {
         }
     }
     
+    private var a11yTappableAttributes: [TextAttributes] = []
+    
     private var animation: CountingLabelAnimation?
     private var currentAnimatedTarget: Decimal?
     private var currentAnimatedModelID: String?
@@ -323,6 +325,61 @@ extension Label: UIGestureRecognizerDelegate {
             }
         }
         return false
+    }
+}
+
+extension Label {
+    private func applyAccessibilityIfNeeded() {
+        let tappables = attributes.filter { $0.onTap != nil }
+
+        isAccessibilityElement = true
+
+        guard !tappables.isEmpty else {
+            accessibilityTraits = [.staticText]
+            accessibilityCustomActions = nil
+            a11yTappableAttributes = []
+            return
+        }
+
+        accessibilityTraits = [.button]
+        accessibilityLabel = attributedText?.string ?? text
+
+        // Save for activation
+        a11yTappableAttributes = tappables
+
+        // Only needed if MORE than one tappable range
+        guard tappables.count > 1 else {
+            accessibilityCustomActions = nil
+            return
+        }
+
+        accessibilityCustomActions = tappables.enumerated().map { index, attr in
+            UIAccessibilityCustomAction(
+                name: String(attr.text
+                    .trimmingCharacters(in: .newlines)
+                    .prefix(20)),
+                target: self,
+                selector: #selector(handleA11yAction(_:))
+            )
+        }
+    }
+    
+    @objc private func handleA11yAction(_ action: UIAccessibilityCustomAction) -> Bool {
+        guard
+            let index = accessibilityCustomActions?.firstIndex(of: action),
+            index < a11yTappableAttributes.count
+        else { return false }
+
+        a11yTappableAttributes[index].onTap?()
+        return true
+    }
+    
+    open override func accessibilityActivate() -> Bool {
+        guard a11yTappableAttributes.count == 1 else {
+            return super.accessibilityActivate()
+        }
+        a11yTappableAttributes.first?.onTap?()
+        return true
     }
 }
 

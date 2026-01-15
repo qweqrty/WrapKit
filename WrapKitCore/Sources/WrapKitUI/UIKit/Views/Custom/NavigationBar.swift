@@ -20,6 +20,7 @@ public protocol HeaderOutput: HiddableOutput {
 
 public struct HeaderPresentableModel: HashableWithReflection {
     public struct Style {
+        public let leadingCardAccessibility: Accessibility?
         public let backgroundColor: Color
         public let horizontalSpacing: CGFloat
         public let primeFont: Font
@@ -29,6 +30,7 @@ public struct HeaderPresentableModel: HashableWithReflection {
         public let numberOfLines: Int
         
         public init(
+            leadingCardAccessibility: Accessibility?,
             backgroundColor: Color,
             horizontalSpacing: CGFloat,
             primeFont: Font,
@@ -38,6 +40,7 @@ public struct HeaderPresentableModel: HashableWithReflection {
             numberOfLines: Int = 1
         ) {
             self.backgroundColor = backgroundColor
+            self.leadingCardAccessibility = leadingCardAccessibility
             self.horizontalSpacing = horizontalSpacing
             self.primeFont = primeFont
             self.primeColor = primeColor
@@ -108,7 +111,8 @@ extension NavigationBar: HeaderOutput {
     }
     
     public func display(style: HeaderPresentableModel.Style?) {
-        if let style = style {
+        if let style = style ?? self.style {
+            self.style = style
             backgroundColor = style.backgroundColor
             leadingStackView.spacing = style.horizontalSpacing
             trailingStackView.spacing = style.horizontalSpacing * 1.5
@@ -207,6 +211,8 @@ extension NavigationBar: HeaderOutput {
 }
 
 open class NavigationBar: UIView {
+    private var style: HeaderPresentableModel.Style?
+    
     public lazy var leadingStackWrapperView = UIView()
     public lazy var leadingStackView = StackView(axis: .horizontal, spacing: 12)
     
@@ -241,6 +247,7 @@ open class NavigationBar: UIView {
         setupSubviews()
         setupConstraints()
         display(style: style)
+        self.style = style
     }
     
     private func setupSubviews() {

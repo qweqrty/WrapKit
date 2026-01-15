@@ -164,10 +164,15 @@ open class Button: UIButton {
     public var onPress: (() -> Void)? {
         didSet {
             removeTarget(self, action: #selector(onTap), for: .touchUpInside)
-            guard onPress != nil else { return }
+            guard onPress != nil else {
+                syncAccessibilityInteractivity()
+                return
+            }
             addTarget(self, action: #selector(onTap), for: .touchUpInside)
+            syncAccessibilityInteractivity()
         }
     }
+
     public var spacing: CGFloat = 0 {
         didSet {
             updateSpacings()
@@ -340,6 +345,11 @@ open class Button: UIButton {
         isUserInteractionEnabled = enabled
         alpha = enabled ? 1.0 : 0.5
         titleLabel?.alpha = enabled ? 1.0 : 0.5
+        
+        // Accessibility
+        accessibilityTraits = enabled
+            ? accessibilityTraits.subtracting(.notEnabled)
+            : accessibilityTraits.union(.notEnabled)
     }
 }
 
@@ -356,6 +366,28 @@ extension Button: LoadingOutput {
         )
         
         loader.display(isLoading: isLoading)
+    }
+}
+
+// MARK: - Accessibility
+extension Button {
+    private func isActuallyInteractive() -> Bool {
+        let hasTargetActions = allTargets.contains { target in
+            actions(forTarget: target, forControlEvent: .touchUpInside) != nil
+        }
+        if #available(iOS 14.0, *) {
+            return menu != nil || hasTargetActions
+        } else {
+            return hasTargetActions
+        }
+    }
+
+    private func syncAccessibilityInteractivity() {
+        let interactive = isActuallyInteractive()
+
+        // If it does nothing, it shouldn't be focusable as a button
+        isAccessibilityElement = interactive
+        accessibilityTraits = interactive ? [.button] : []
     }
 }
 

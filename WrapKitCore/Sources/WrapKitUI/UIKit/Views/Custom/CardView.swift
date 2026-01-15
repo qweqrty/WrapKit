@@ -125,6 +125,7 @@ public struct CardViewPresentableModel: HashableWithReflection {
     }
 
     public let id: String
+    public let accessibility: Accessibility?
     public var style: Style?
     public let backgroundImage: ImageViewPresentableModel?
     public let title: TextOutputPresentableModel?
@@ -146,6 +147,7 @@ public struct CardViewPresentableModel: HashableWithReflection {
     
     public init(
         id: String = UUID().uuidString,
+        accessibility: Accessibility? = nil,
         style: Style? = nil,
         backgroundImage: ImageViewPresentableModel? = nil,
         title: TextOutputPresentableModel? = nil,
@@ -166,6 +168,7 @@ public struct CardViewPresentableModel: HashableWithReflection {
         isGradientBorderEnabled: Bool? = nil
     ) {
         self.id = id
+        self.accessibility = accessibility
         self.style = style
         self.backgroundImage = backgroundImage
         self.leadingTitles = leadingTitles
@@ -611,6 +614,29 @@ extension CardView {
         )
         
         bottomSeparatorViewConstraints = bottomSeparatorView.anchor(.height(1))
+    }
+}
+// MARK: - Accessibility
+extension CardView {
+    private func applyAccessibility(using model: CardViewPresentableModel) {
+        let label = model.accessibility?.label?.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        let shouldImplementAccessibility = (model.onPress != nil) && !(label?.isEmpty ?? true)
+
+        guard shouldImplementAccessibility else {
+            isAccessibilityElement = false
+            accessibilityLabel = nil
+            accessibilityHint = nil
+            accessibilityElementsHidden = false
+            return
+        }
+
+        isAccessibilityElement = true
+        accessibilityTraits = [.button]
+        accessibilityLabel = label
+        accessibilityHint = model.accessibility?.hint
+
+        accessibilityElementsHidden = true
     }
 }
 

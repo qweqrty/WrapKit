@@ -33,6 +33,7 @@ public extension ImageViewOutput {
 }
 
 public struct ImageViewPresentableModel: HashableWithReflection {
+    public let accessibility: Accessibility?
     public let size: CGSize?
     public let image: ImageEnum?
     public let onPress: (() -> Void)?
@@ -44,6 +45,7 @@ public struct ImageViewPresentableModel: HashableWithReflection {
     public let alpha: CGFloat?
     
     public init(
+        accessibility: Accessibility? = nil,
         size: CGSize? = nil,
         image: ImageEnum? = nil,
         onPress: (() -> Void)? = nil,
@@ -54,6 +56,7 @@ public struct ImageViewPresentableModel: HashableWithReflection {
         cornerRadius: CGFloat? = nil,
         alpha: CGFloat? = nil
     ) {
+        self.accessibility = accessibility
         self.size = size
         self.image = image
         self.onPress = onPress
@@ -406,6 +409,7 @@ extension ImageView: ImageViewOutput {
         isHidden = model == nil
         display(onPress: model?.onPress)
         display(onLongPress: model?.onLongPress)
+        applyAccessibility(using: model)
         hideShimmer()
         if let image = model?.image { display(image: image, completion: completion) }
         if let size = model?.size {
@@ -487,6 +491,28 @@ extension ImageView: ImageViewOutput {
     
     public func display(isHidden: Bool) {
         self.isHidden = isHidden
+    }
+}
+
+// MARK: - Accessibility
+extension ImageView {
+    private func applyAccessibility(using model: ImageViewPresentableModel?) {
+        guard let model else {
+            isAccessibilityElement = false
+            accessibilityLabel = nil
+            accessibilityHint = nil
+            return
+        }
+
+        let isTap = model.onPress != nil
+
+        // Only tappable images are accessible elements
+        isAccessibilityElement = isTap
+        guard isTap else { return }
+
+        accessibilityTraits = [.image, .button]
+        accessibilityLabel = model.accessibility?.label
+        accessibilityHint = model.accessibility?.hint
     }
 }
 #endif
