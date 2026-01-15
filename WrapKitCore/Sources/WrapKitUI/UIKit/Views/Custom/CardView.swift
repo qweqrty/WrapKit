@@ -16,7 +16,7 @@ public protocol CardViewOutput: AnyObject {
     func display(trailingTitles: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>?)
     func display(leadingImage: ImageViewPresentableModel?)
     func display(secondaryLeadingImage: ImageViewPresentableModel?)
-    func display(trailingImage: ImageViewPresentableModel?)
+    func display(trailingImage: ImageViewPresentableModel?, leadingSpacing: CGFloat?)
     func display(secondaryTrailingImage: ImageViewPresentableModel?)
     func display(subTitle: TextOutputPresentableModel?)
     func display(valueTitle: TextOutputPresentableModel?)
@@ -29,8 +29,15 @@ public protocol CardViewOutput: AnyObject {
     func display(isGradientBorderEnabled: Bool)
 }
 
+extension CardViewOutput {
+    // sourcery: skipSpy
+    func display(trailingImage: ImageViewPresentableModel?) {
+        display(trailingImage: trailingImage, leadingSpacing: nil)
+    }
+}
+
 public struct CardViewPresentableModel: HashableWithReflection {
-    public struct Style {
+    public struct Style: HashableWithReflection {
         public var backgroundColor: Color
         public let vStacklayoutMargins: EdgeInsets
         public let hStacklayoutMargins: EdgeInsets
@@ -47,6 +54,7 @@ public struct CardViewPresentableModel: HashableWithReflection {
         public let subTitleLabelFont: Font
         public let subtitleNumberOfLines: Int
         public let cornerRadius: CGFloat
+        public let roundedCorners: CACornerMask
         public let stackSpace: CGFloat
         public let hStackViewSpacing: CGFloat
         public let titleKeyNumberOfLines: Int
@@ -55,7 +63,6 @@ public struct CardViewPresentableModel: HashableWithReflection {
         public let borderWidth: CGFloat?
         public let gradientBorderColors: [Color]?
         public let trailingImageLeadingSpacing: CGFloat?
-        public let trailingImagesSpacing: CGFloat
         
         public init(
             backgroundColor: Color,
@@ -74,6 +81,7 @@ public struct CardViewPresentableModel: HashableWithReflection {
             subTitleLabelFont: Font,
             subtitleNumberOfLines: Int = 0,
             cornerRadius: CGFloat,
+            roundedCorners: CACornerMask = .allCorners,
             stackSpace: CGFloat,
             hStackViewSpacing: CGFloat,
             titleKeyNumberOfLines: Int,
@@ -81,8 +89,7 @@ public struct CardViewPresentableModel: HashableWithReflection {
             borderColor: Color? = nil,
             borderWidth: CGFloat? = nil,
             gradientBorderColors: [Color]? = nil,
-            trailingImageLeadingSpacing: CGFloat? = nil,
-            trailingImagesSpacing: CGFloat = 0
+            trailingImageLeadingSpacing: CGFloat? = nil
         ) {
             self.backgroundColor = backgroundColor
             self.vStacklayoutMargins = vStacklayoutMargins
@@ -100,6 +107,7 @@ public struct CardViewPresentableModel: HashableWithReflection {
             self.subTitleLabelFont = subTitleLabelFont
             self.subtitleNumberOfLines = subtitleNumberOfLines
             self.cornerRadius = cornerRadius
+            self.roundedCorners = roundedCorners
             self.stackSpace = stackSpace
             self.hStackViewSpacing = hStackViewSpacing
             self.titleKeyNumberOfLines = titleKeyNumberOfLines
@@ -108,11 +116,10 @@ public struct CardViewPresentableModel: HashableWithReflection {
             self.borderWidth = borderWidth
             self.gradientBorderColors = gradientBorderColors
             self.trailingImageLeadingSpacing = trailingImageLeadingSpacing
-            self.trailingImagesSpacing = trailingImagesSpacing
         }
     }
 
-    public struct BottomSeparator {
+    public struct BottomSeparator: HashableWithReflection {
         public let color: Color
         public let padding: EdgeInsets
         public let height: CGFloat
@@ -203,7 +210,7 @@ extension CardView: CardViewOutput {
         hStackView.spacing = style.hStackViewSpacing
         hStackView.distribution = hStackView.mapDistribution(style.hStackViewDistribution)
         titleViews.stackView.spacing = style.stackSpace
-
+        
         leadingTitleViews.keyLabel.font = style.leadingTitleKeyLabelFont
         titleViews.keyLabel.font = style.titleKeyLabelFont
         leadingTitleViews.keyLabel.font = style.trailingTitleKeyLabelFont
@@ -217,7 +224,7 @@ extension CardView: CardViewOutput {
         titleViews.keyLabel.numberOfLines = style.titleKeyNumberOfLines
         titleViews.valueLabel.numberOfLines = style.titleValueNumberOfLines
         subtitleLabel.numberOfLines = style.subtitleNumberOfLines
-        cornerRadius = style.cornerRadius
+        round(corners: style.roundedCorners, radius: style.cornerRadius)
         layer.borderColor = style.borderColor?.cgColor
         layer.borderWidth = style.borderWidth ?? 0
     }
@@ -260,8 +267,17 @@ extension CardView: CardViewOutput {
     }
     
     public func display(trailingImage: ImageViewPresentableModel?) {
+        display(trailingImage: trailingImage, leadingSpacing: nil)
+    }
+    
+    public func display(trailingImage: ImageViewPresentableModel?, leadingSpacing: CGFloat?) {
         trailingImageWrapperView.isHidden = trailingImage == nil
         trailingImageView.display(model: trailingImage)
+        if let leadingSpacing,
+           let index = hStackView.arrangedSubviews.firstIndex(of: trailingImageWrapperView),
+           let prevView = hStackView.arrangedSubviews.item(at: index - 1) {
+            hStackView.setCustomSpacing(leadingSpacing, after: prevView)
+        }
     }
     
     public func display(secondaryTrailingImage: ImageViewPresentableModel?) {
@@ -341,7 +357,7 @@ extension CardView: CardViewOutput {
         display(secondaryLeadingImage: model.secondaryLeadingImage)
         
         // TrailingImage
-        display(trailingImage: model.trailingImage)
+        display(trailingImage: model.trailingImage, leadingSpacing: style?.trailingImageLeadingSpacing)
         
         // SecondaryTrailingImage
         display(secondaryTrailingImage: model.secondaryTrailingImage)
@@ -505,13 +521,14 @@ extension CardView {
         hStackView.addArrangedSubview(secondaryLeadingImageWrapperView)
         hStackView.addArrangedSubview(titleViewsWrapperView)
         hStackView.addArrangedSubview(subtitleLabel)
-        hStackView.addArrangedSubview(secondaryTrailingImageWrapperView)
-        hStackView.addArrangedSubview(trailingImageWrapperView)
+//        hStackView.addArrangedSubview(trailingImagesStackView)
+        hStackView.addArrangedSubviews(secondaryTrailingImageWrapperView, trailingImageWrapperView)
         hStackView.addArrangedSubview(switchWrapperView)
         hStackView.addArrangedSubview(trailingTitleViewsWrapperView)
         
         leadingImageWrapperView.addSubview(leadingImageView)
         secondaryLeadingImageWrapperView.addSubview(secondaryLeadingImageView)
+//        trailingImagesStackView.addArrangedSubviews(secondaryTrailingImageWrapperView, trailingImageWrapperView)
         trailingImageWrapperView.addSubview(trailingImageView)
         secondaryTrailingImageWrapperView.addSubview(secondaryTrailingImageView)
         
