@@ -20,7 +20,6 @@ public protocol HeaderOutput: HiddableOutput {
 
 public struct HeaderPresentableModel: HashableWithReflection {
     public struct Style {
-        public let leadingCardAccessibility: Accessibility?
         public let backgroundColor: Color
         public let horizontalSpacing: CGFloat
         public let primeFont: Font
@@ -30,7 +29,6 @@ public struct HeaderPresentableModel: HashableWithReflection {
         public let numberOfLines: Int
         
         public init(
-            leadingCardAccessibility: Accessibility?,
             backgroundColor: Color,
             horizontalSpacing: CGFloat,
             primeFont: Font,
@@ -40,7 +38,6 @@ public struct HeaderPresentableModel: HashableWithReflection {
             numberOfLines: Int = 1
         ) {
             self.backgroundColor = backgroundColor
-            self.leadingCardAccessibility = leadingCardAccessibility
             self.horizontalSpacing = horizontalSpacing
             self.primeFont = primeFont
             self.primeColor = primeColor
