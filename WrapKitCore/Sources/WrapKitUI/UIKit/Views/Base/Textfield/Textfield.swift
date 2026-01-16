@@ -261,7 +261,8 @@ import UIKit
 
 public extension Textfield {
     func makeAccessoryView(
-        model: TextInputPresentableModel.AccessoryViewPresentableModel?
+        model: TextInputPresentableModel.AccessoryViewPresentableModel?,
+        onDoneTapped: ((Date) -> Void)? = nil
     ) -> UIView {
         guard let model else { return UIView() }
         let container = UIView(frame: CGRect(
@@ -278,7 +279,9 @@ public extension Textfield {
         let trailingButton = Button()
         trailingButton.display(model: toolbarModel)
         trailingButton.onPress = { [weak self] in
+            guard let date = (self?.inputView as? UIDatePicker)?.date else { return }
             toolbarModel.onPress?()
+            onDoneTapped?(date)
             self?.endEditing(true)
         }
         
@@ -378,16 +381,11 @@ extension Textfield: TextInputOutput {
             )
             self.inputView = picker
             
-            guard let accessoryView = model.accessoryView else { return }
-            let button = Button()
-            button.display(model: accessoryView.trailingButton)
-            button.onPress = { [weak self] in
-                if let picker = self?.inputView as? UIDatePicker {
-                    model.onDoneTapped?(picker.date)
-                }
-                self?.endEditing(true)
+            guard let accessoryView = model.accessoryView else {
+                self.inputAccessoryView = nil
+                return
             }
-            self.inputAccessoryView = makeAccessoryView(model: model.accessoryView)
+            self.inputAccessoryView = makeAccessoryView(model: model.accessoryView, onDoneTapped: model.onDoneTapped)
         case .custom(let model):
             let pickerView = PickerView()
             pickerView.display(model: model)
