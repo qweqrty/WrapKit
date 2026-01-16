@@ -7,24 +7,31 @@ import UIKit
 // MARK: - Tests
 
 final class SelectionServiceProxyTests: XCTestCase {
-    
     func test_viewDidLoad_startsLoading_callsService_andUpdatesItems() {
         let components = makeSUT()
-        
+
+        let finished = components.loadingViewSpy
+            .expectLoadingFinished(testCase: self)
+
+        // WHEN
         components.sut.viewDidLoad()
-        
+
+        // THEN (initial)
         XCTAssertEqual(
             components.loadingViewSpy.messages,
             [.displayIsLoading(isLoading: true)]
         )
         XCTAssertTrue(components.presenterSpy.viewDidLoadCalled)
         XCTAssertEqual(components.serviceSpy.makeCallCount, 1)
-        
+
+        // WHEN service completes
         components.serviceSpy.complete(
             with: .success(MockResponse(value: "Item"))
         )
-        flushMainRunLoop()
-        
+
+        wait(for: [finished], timeout: 1.0)
+
+        // THEN final
         XCTAssertEqual(
             components.loadingViewSpy.messages,
             [
@@ -37,12 +44,16 @@ final class SelectionServiceProxyTests: XCTestCase {
     
     func test_viewDidLoad_onFailure_stopsLoading_andProvidesEmptyItems() {
         let components = makeSUT()
-        
+
+        let finished = components.loadingViewSpy
+            .expectLoadingFinished(testCase: self)
+
         components.sut.viewDidLoad()
-        
+
         components.serviceSpy.complete(with: .failure(.internal))
-        flushMainRunLoop()
-        
+
+        wait(for: [finished], timeout: 1.0)
+
         XCTAssertEqual(
             components.loadingViewSpy.messages,
             [
@@ -55,20 +66,24 @@ final class SelectionServiceProxyTests: XCTestCase {
     
     func test_onRefresh_callsService_andUpdatesItems() {
         let components = makeSUT()
-        
+
+        let finished = components.loadingViewSpy
+            .expectLoadingFinished(testCase: self)
+
         components.sut.onRefresh()
-        
+
         XCTAssertEqual(
             components.loadingViewSpy.messages,
             [.displayIsLoading(isLoading: true)]
         )
         XCTAssertEqual(components.serviceSpy.makeCallCount, 1)
-        
+
         components.serviceSpy.complete(
-            with: .success(MockResponse(value: "Refreshed"))
+            with: .success(.init(value: "Refreshed"))
         )
-        flushMainRunLoop()
-        
+
+        wait(for: [finished], timeout: 1.0)
+
         XCTAssertEqual(
             components.loadingViewSpy.messages,
             [
@@ -128,7 +143,10 @@ fileprivate extension SelectionServiceProxyTests {
         let serviceSpy: ServiceSpy<MockRequest, MockResponse>
     }
     
-    func makeSUT() -> SUTComponents {
+    func makeSUT(
+        file: StaticString = #file,
+        line: UInt = #line
+    ) -> SUTComponents {
         let presenterSpy = SelectionPresenterSpy()
         let loadingViewSpy = LoadingOutputSpy()
         let serviceSpy = ServiceSpy<MockRequest, MockResponse>()
@@ -149,6 +167,13 @@ fileprivate extension SelectionServiceProxyTests {
         )
         
         sut.view = loadingViewSpy
+            .weakReferenced
+            .mainQueueDispatched
+        
+        checkForMemoryLeaks(sut, file: file, line: line)
+        checkForMemoryLeaks(presenterSpy, file: file, line: line)
+        checkForMemoryLeaks(loadingViewSpy, file: file, line: line)
+        checkForMemoryLeaks(serviceSpy, file: file, line: line)
         
         return SUTComponents(
             sut: sut,
@@ -156,13 +181,6 @@ fileprivate extension SelectionServiceProxyTests {
             loadingViewSpy: loadingViewSpy,
             serviceSpy: serviceSpy
         )
-    }
-}
-
-// MARK: - Helpers
-fileprivate extension XCTestCase {
-    func flushMainRunLoop() {
-        RunLoop.main.run(until: Date())
     }
 }
 
@@ -222,7 +240,6 @@ extension SelectionType.SelectionCellPresentableModel {
 
 // MARK: - SelectionConfiguration Factory
 extension SelectionConfiguration {
-    
     static func nurSelection(isMultiply: Bool = false) -> SelectionConfiguration {
         SelectionConfiguration(
             texts: SelectionConfiguration.Texts(
@@ -302,5 +319,37 @@ extension SelectionConfiguration {
                 text: placeholderText
             )
         )
+    }
+}
+
+private extension LoadingOutputSpy {
+    func expectLoadingFinished(
+        testCase: XCTestCase,
+        file: StaticString = #file,
+        line: UInt = #line
+    ) -> XCTestExpectation {
+        let expectation = testCase.expectation(
+            description: "Loading finished"
+        )
+        observeLoadingFinished(expectation, file: file, line: line)
+        return expectation
+    }
+
+    private func observeLoadingFinished(
+        _ expectation: XCTestExpectation,
+        file: StaticString,
+        line: UInt
+    ) {
+        let originalCount = messages.count
+
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            if self.messages.count > originalCount,
+               self.messages.last == .displayIsLoading(isLoading: false) {
+                expectation.fulfill()
+            } else {
+                self.observeLoadingFinished(expectation, file: file, line: line)
+            }
+        }
     }
 }
