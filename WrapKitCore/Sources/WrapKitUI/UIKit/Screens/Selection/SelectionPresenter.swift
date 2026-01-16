@@ -13,6 +13,7 @@ public protocol SelectionOutput: AnyObject {
 }
 
 public protocol SelectionInput {
+    var items: [SelectionType.SelectionCellPresentableModel] { get set }
     var isMultipleSelectionEnabled: Bool { get }
     var configuration: SelectionConfiguration { get }
     
