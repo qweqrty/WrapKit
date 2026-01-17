@@ -19,8 +19,9 @@ public class SelectionServiceProxy<Request, Response>: SelectionInput, LifeCycle
     public var isMultipleSelectionEnabled: Bool { decoratee.isMultipleSelectionEnabled }
     
     public var configuration: SelectionConfiguration { decoratee.configuration }
+    public var items: [SelectionType.SelectionCellPresentableModel] = []
     
-    private let decoratee: SelectionPresenter
+    private var decoratee: SelectionInput & LifeCycleViewOutput
     private let storage: any Storage
     private let service: SelectionService
     private let makeRequest: (() -> Request)
@@ -28,7 +29,7 @@ public class SelectionServiceProxy<Request, Response>: SelectionInput, LifeCycle
     public var view: LoadingOutput?
     
     public init(
-        decoratee: SelectionPresenter,
+        decoratee: SelectionInput & LifeCycleViewOutput,
         storage: any Storage,
         service: any Service<Request, Response>,
         makeRequest: @escaping (() -> Request),
