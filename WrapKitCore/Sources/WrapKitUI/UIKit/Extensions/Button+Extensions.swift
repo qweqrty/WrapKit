@@ -47,7 +47,11 @@ public extension Button {
         }
     }
     
-    private func loadImage(_ url: URL?, kingfisherOptions: KingfisherOptionsInfo, completion: ((Image?) -> Void)?) {
+    private func loadImage(
+        _ url: URL?,
+        kingfisherOptions: KingfisherOptionsInfo,
+        completion: ((Image?) -> Void)?
+    ) {
         guard let url else {
             self.animatedSet(wrongUrlPlaceholderImage)
             completion?(wrongUrlPlaceholderImage)

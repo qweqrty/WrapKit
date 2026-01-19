@@ -145,13 +145,15 @@ public extension ImageView {
                 self.animatedSet(image.image)
                 downloadTask = retrieveImage(
                     url: url,
-                    kingfisherOptions: [.callbackQueue(.mainCurrentOrAsync), .fromMemoryCacheOrRefresh] + kingfisherOptions
+                    kingfisherOptions: [.callbackQueue(.mainCurrentOrAsync), .fromMemoryCacheOrRefresh] + kingfisherOptions,
+                    completion: closure
                 )
             case .failure(let error):
                 guard !error.isTaskCancelled else { return }
                 downloadTask = retrieveImage(
                     url: url,
-                    kingfisherOptions: [.callbackQueue(.mainCurrentOrAsync)] + kingfisherOptions
+                    kingfisherOptions: [.callbackQueue(.mainCurrentOrAsync)] + kingfisherOptions,
+                    completion: closure
                 )
             }
         }
