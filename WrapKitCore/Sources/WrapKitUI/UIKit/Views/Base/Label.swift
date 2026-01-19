@@ -23,7 +23,15 @@ public protocol TextOutput: HiddableOutput {
     func display(text: String?)
     func display(attributes: [TextAttributes])
     func display(htmlString: String?, font: Font, color: Color)
-    func display(id: String?, from startAmount: Decimal, to endAmount: Decimal, mapToString: ((Decimal) -> TextOutputPresentableModel)?, animationStyle: LabelAnimationStyle, duration: TimeInterval, completion: (() -> Void)?)
+    func display(
+        id: String?,
+        from startAmount: Decimal,
+        to endAmount: Decimal,
+        mapToString: ((Decimal) -> TextOutputPresentableModel)?,
+        animationStyle: LabelAnimationStyle,
+        duration: TimeInterval,
+        completion: (() -> Void)?
+    )
     func display(isHidden: Bool)
 }
 
@@ -62,12 +70,14 @@ public indirect enum TextOutputPresentableModel: HashableWithReflection {
 #if canImport(UIKit)
 import UIKit
 
+// MARK: - Adapter
 extension Label: TextOutput {
-    
+
     public func display(model: TextOutputPresentableModel?) {
         isHidden = model == nil
-        guard let model = model else { return }
+        guard let model else { return }
         hideShimmer()
+
         switch model {
         case .text(let text):
             display(text: text)
@@ -94,62 +104,142 @@ extension Label: TextOutput {
                 self.backgroundColor = backgroundColor
             }
         }
+
+        applyInteractivityAndAccessibility()
     }
-    
+
     public func display(text: String?) {
         isHidden = text.isEmpty
         self.text = text?.removingPercentEncoding ?? text ?? ""
-    }
-    
-    public func display(htmlString: String?, font: Font, color: Color) {
-        isHidden = htmlString != nil
-        clearAnimationModel()
-        self.attributedText = htmlString?.asHtmlAttributedString
-        self.font = font
-        self.textColor = color
-    }
-    
-    public func display(attributes: [TextAttributes]) {
-        isHidden = attributes.isEmpty
-        self.attributes = attributes.map { attribute in
-            var updatedAttribute = attribute
-            updatedAttribute.text = attribute.text.removingPercentEncoding ?? attribute.text
-            return updatedAttribute
+        // If plain text, clear rich storage
+        if textStorage.length > 0 {
+            textStorage = NSTextStorage()
+            textStorage.addLayoutManager(layoutManager)
         }
     }
-    
-    public func display(id: String? = nil, from startAmount: Double, to endAmount: Double, mapToString: ((Double) -> TextOutputPresentableModel)?, animationStyle: LabelAnimationStyle = .none, duration: TimeInterval = 1.0, completion: (() -> Void)? = nil) {
-        let mapper: ((Decimal) -> TextOutputPresentableModel)? = if let mapToString { { mapToString($0.doubleValue) } } else { nil }
-        display(id: id, from: startAmount.asDecimal(), to: endAmount.asDecimal(), mapToString: mapper, animationStyle: .none, duration: 1.0, completion: nil)
+
+    public func display(htmlString: String?, font: Font, color: Color) {
+        isHidden = htmlString.isEmpty
+
+        clearAnimationModel()
+
+        let attr = htmlString?.asHtmlAttributedString
+        self.attributedText = attr
+        self.font = font
+        self.textColor = color
+
+        syncTextStorageFromCurrentRenderedText()
     }
-    
-    public func display(id: String? = nil, from startAmount: Decimal, to endAmount: Decimal, mapToString: ((Decimal) -> TextOutputPresentableModel)?, animationStyle: LabelAnimationStyle = .none, duration: TimeInterval = 1.0, completion: (() -> Void)? = nil) {
+
+    public func display(attributes: [TextAttributes]) {
+        isHidden = attributes.isEmpty
+
+        self.attributes = attributes.map { attribute in
+            var updated = attribute
+            updated.text = attribute.text.removingPercentEncoding ?? attribute.text
+            return updated
+        }
+
+        // attributes setter builds attributedText + textStorage
+        syncTextStorageFromCurrentRenderedText()
+    }
+
+    public func display(
+        id: String? = nil,
+        from startAmount: Double,
+        to endAmount: Double,
+        mapToString: ((Double) -> TextOutputPresentableModel)?,
+        animationStyle: LabelAnimationStyle = .none,
+        duration: TimeInterval = 1.0,
+        completion: (() -> Void)? = nil
+    ) {
+        let mapper: ((Decimal) -> TextOutputPresentableModel)? = if let mapToString { { mapToString($0.doubleValue) } } else { nil }
+        display(id: id, from: startAmount.asDecimal(), to: endAmount.asDecimal(), mapToString: mapper, animationStyle: animationStyle, duration: duration, completion: completion)
+    }
+
+    public func display(
+        id: String? = nil,
+        from startAmount: Decimal,
+        to endAmount: Decimal,
+        mapToString: ((Decimal) -> TextOutputPresentableModel)?,
+        animationStyle: LabelAnimationStyle = .none,
+        duration: TimeInterval = 1.0,
+        completion: (() -> Void)? = nil
+    ) {
         if let id, id == currentAnimatedModelID, endAmount == currentAnimatedTarget {
             return
         }
-        
+
         animation?.cancel()
         animation = CountingLabelAnimation(label: self)
         currentAnimatedTarget = endAmount
-        
-        animation?.startAnimation(fromValue: startAmount, to: endAmount, mapToString: mapToString, animationStyle: animationStyle, duration: duration, completion: { [weak self] in
-            self?.clearAnimationModel()
-            completion?()
-        })
+
+        animation?.startAnimation(
+            fromValue: startAmount,
+            to: endAmount,
+            mapToString: mapToString,
+            animationStyle: animationStyle,
+            duration: duration,
+            completion: { [weak self] in
+                self?.clearAnimationModel()
+                completion?()
+            }
+        )
+
+        applyInteractivityAndAccessibility()
     }
-    
+
     public func display(isHidden: Bool) {
         self.isHidden = isHidden
     }
 }
 
+// MARK: - Label
 open class Label: UILabel {
+
     public var textInsets: UIEdgeInsets = .zero
     public var cornerStyle: CornerStyle?
-    
+
+    // TextKit
     let layoutManager = NSLayoutManager()
-    let textContainer = NSTextContainer(size: CGSize.zero)
+    let textContainer = NSTextContainer(size: .zero)
     var textStorage = NSTextStorage()
+
+    // Data
+    private var attributes: [TextAttributes] = [] {
+        didSet {
+            guard !attributes.isEmpty else {
+                attributedText = nil
+                syncTextStorageFromCurrentRenderedText()
+                return
+            }
+
+            let combined = attributes.makeNSAttributedString(font: font, textColor: textColor, textAlignment: textAlignment)
+            attributedText = combined
+
+            textStorage = NSTextStorage(attributedString: combined)
+            textStorage.addLayoutManager(layoutManager)
+        }
+    }
+
+    // Animation
+    private var animation: CountingLabelAnimation?
+    private var currentAnimatedTarget: Decimal?
+    private var currentAnimatedModelID: String?
+
+    // A11y actions: first = TextAttributes taps, then links
+    private enum A11yTapTarget: Equatable {
+        case attribute(index: Int)
+        case link(url: URL, title: String?)
+    }
+    private var a11yTargets: [A11yTapTarget] = []
+
+    // Gesture
+    lazy var tapGesture: UITapGestureRecognizer = {
+        let gesture = UITapGestureRecognizer(target: self, action: nil)
+        gesture.delegate = self
+        return gesture
+    }()
 
     public init(
         backgroundColor: UIColor? = .clear,
@@ -169,66 +259,91 @@ open class Label: UILabel {
 
         self.isHidden = isHidden
         self.backgroundColor = backgroundColor
-        if let font = font { self.font = font }
-        self.isUserInteractionEnabled = isUserInteractionEnabled
+        if let font { self.font = font }
+        self.textColor = textColor
         self.textAlignment = textAlignment
+        self.numberOfLines = numberOfLines
         self.minimumScaleFactor = minimumScaleFactor
         self.adjustsFontSizeToFitWidth = adjustsFontSizeToFitWidth
         self.translatesAutoresizingMaskIntoConstraints = translatesAutoresizingMaskIntoConstraints
-        self.textColor = textColor
-        self.numberOfLines = numberOfLines
         self.cornerStyle = cornerStyle
         self.textInsets = textInsets
-        
-        addGestureRecognizer(tapGesture)
+
+        // Default can be interactive depending on content. We'll toggle in applyInteractivityAndAccessibility().
+        self.isUserInteractionEnabled = isUserInteractionEnabled
+
+        // TextKit init
         textContainer.lineFragmentPadding = 0.0
         textContainer.lineBreakMode = self.lineBreakMode
         textContainer.maximumNumberOfLines = self.numberOfLines
         layoutManager.addTextContainer(textContainer)
+
+        syncTextStorageFromCurrentRenderedText()
+        applyInteractivityAndAccessibility()
     }
-    
+
     override init(frame: CGRect) {
         super.init(frame: frame)
-        
-        self.backgroundColor = .clear
-        self.isHidden = false
-        self.translatesAutoresizingMaskIntoConstraints = false
-        self.font = .systemFont(ofSize: 20)
-        self.numberOfLines = 0
-        self.minimumScaleFactor = 0
-        self.adjustsFontSizeToFitWidth = false
-        self.isUserInteractionEnabled = true
-        
-        addGestureRecognizer(tapGesture)
+
+        backgroundColor = .clear
+        translatesAutoresizingMaskIntoConstraints = false
+        font = .systemFont(ofSize: 20)
+        numberOfLines = 0
+        minimumScaleFactor = 0
+        adjustsFontSizeToFitWidth = false
+
+        // TextKit init
         textContainer.lineFragmentPadding = 0.0
         textContainer.lineBreakMode = self.lineBreakMode
         textContainer.maximumNumberOfLines = self.numberOfLines
         layoutManager.addTextContainer(textContainer)
+
+        syncTextStorageFromCurrentRenderedText()
+        applyInteractivityAndAccessibility()
     }
-    
+
+    public required init?(coder: NSCoder) {
+        super.init(coder: coder)
+
+        textContainer.lineFragmentPadding = 0.0
+        textContainer.lineBreakMode = self.lineBreakMode
+        textContainer.maximumNumberOfLines = self.numberOfLines
+        layoutManager.addTextContainer(textContainer)
+
+        syncTextStorageFromCurrentRenderedText()
+        applyInteractivityAndAccessibility()
+    }
+
+    deinit {
+        animation?.invalidate()
+        animation = nil
+    }
+
     open override func layoutSubviews() {
         super.layoutSubviews()
-        guard let cornerStyle = cornerStyle else { return }
-        switch cornerStyle {
-        case .automatic:
-            layer.cornerRadius = min(bounds.height, bounds.width) / 2
-        case .fixed(let radius):
-            layer.cornerRadius = radius
-        case .none:
-            layer.cornerRadius = 0
+
+        if let cornerStyle {
+            switch cornerStyle {
+            case .automatic:
+                layer.cornerRadius = min(bounds.height, bounds.width) / 2
+            case .fixed(let radius):
+                layer.cornerRadius = radius
+            case .none:
+                layer.cornerRadius = 0
+            }
+            clipsToBounds = true
         }
-        clipsToBounds = true
-        
+
         textContainer.size = bounds.size
     }
-    
+
     open override func drawText(in rect: CGRect) {
         super.drawText(in: rect.inset(by: textInsets))
     }
-    
+
     open override var intrinsicContentSize: CGSize {
         let base = super.intrinsicContentSize
-        guard let text = text, !text.isEmpty else {
+        guard let t = text, !t.isEmpty || (attributedText?.length ?? 0) > 0 else {
             return CGSize(width: base.width, height: 0)
         }
         let width = max(animation?.animatedTextMaxWidth ?? 0, base.width)
@@ -240,89 +355,235 @@ open class Label: UILabel {
 
     public override var text: String? {
         didSet {
-            self.invalidateIntrinsicContentSize()
+            invalidateIntrinsicContentSize()
+            syncTextStorageFromCurrentRenderedText()
+            applyInteractivityAndAccessibility()
         }
     }
-    
-    private var animation: CountingLabelAnimation?
-    private var currentAnimatedTarget: Decimal?
-    private var currentAnimatedModelID: String?
-    
-    lazy var tapGesture: UITapGestureRecognizer = {
-        let gesture = UITapGestureRecognizer(target: self, action: nil)
-        gesture.delegate = self
-        return gesture
-    }()
-    
-    private var attributes: [TextAttributes] = [] {
+
+    public override var attributedText: NSAttributedString? {
         didSet {
-            guard !attributes.isEmpty else {
-                attributedText = nil
-                return
-            }
-            let combinedAttributedString = attributes.makeNSAttributedString(font: font, textColor: textColor, textAlignment: textAlignment)
-            attributedText = combinedAttributedString
-            self.textStorage = NSTextStorage(attributedString: combinedAttributedString)
-            self.textStorage.addLayoutManager(layoutManager)
+            invalidateIntrinsicContentSize()
+            syncTextStorageFromCurrentRenderedText()
+            applyInteractivityAndAccessibility()
         }
     }
-    
+
+    // MARK: - Public helpers
+    @discardableResult
+    public func append(_ attributedTexts: TextAttributes...) -> Self {
+        attributedTexts.forEach { self.attributes.append($0) }
+        applyInteractivityAndAccessibility()
+        return self
+    }
+
+    public func removeAttributes() {
+        attributes.removeAll()
+        attributedText = nil
+        syncTextStorageFromCurrentRenderedText()
+        applyInteractivityAndAccessibility()
+    }
+
+    // MARK: - Internals
     private func clearAnimationModel() {
         animation?.resetAnimatedTextMaxWidth()
     }
-    
-    public required init?(coder aDecoder: NSCoder) {
-        super.init(coder: aDecoder)
-    }
-    
-    deinit {
-        animation?.invalidate()
-        animation = nil
-    }
-}
 
-public extension Label {
-    @discardableResult
-    func append(_ attributedTexts: TextAttributes...) -> Self {
-        attributedTexts.forEach { attribute in
-            self.attributes.append(attribute)
+    private func syncTextStorageFromCurrentRenderedText() {
+        if let attributedText, attributedText.length > 0 {
+            textStorage = NSTextStorage(attributedString: attributedText)
+        } else {
+            textStorage = NSTextStorage(string: text ?? "")
         }
-        return self
+        textStorage.addLayoutManager(layoutManager)
     }
-    
-    func removeAttributes() {
-        self.attributes.removeAll()
-        self.attributedText = nil
-    }
-}
 
-extension Label: UIGestureRecognizerDelegate {
-    open override func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
-        guard gestureRecognizer == tapGesture else { return true }
+    private func isTappableByTextAttributes() -> Bool {
+        attributes.contains(where: { $0.onTap != nil && $0.range != nil })
+    }
+
+    private func linkTargetsFromTextStorage() -> [A11yTapTarget] {
+        guard textStorage.length > 0 else { return [] }
+
+        var result: [A11yTapTarget] = []
+        let full = NSRange(location: 0, length: textStorage.length)
+
+        textStorage.enumerateAttribute(.link, in: full) { value, range, _ in
+            guard let value else { return }
+            let url: URL? =
+                (value as? URL) ??
+                (value as? String).flatMap(URL.init(string:))
+
+            guard let url else { return }
+
+            let title = textStorage.attributedSubstring(from: range).string
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+
+            result.append(.link(url: url, title: title.isEmpty ? nil : title))
+        }
+
+        // unique by url+title+range not доступно, но хотя бы уберём дубли по url+title
+        var seen = Set<String>()
+        return result.filter { t in
+            let key: String = switch t {
+            case .link(let url, let title): "\(url.absoluteString)|\(title ?? "")"
+            default: UUID().uuidString
+            }
+            return seen.insert(key).inserted
+        }
+    }
+
+    private func applyInteractivityAndAccessibility() {
+        // 1) Determine tappable content
+        let hasAttrTaps = isTappableByTextAttributes()
+        let linkTargets = linkTargetsFromTextStorage()
+        let hasLinks = !linkTargets.isEmpty
+        let tappable = hasAttrTaps || hasLinks
+
+        // 2) Gesture enable/disable
+        isUserInteractionEnabled = tappable
+        if tappable {
+            if gestureRecognizers?.contains(tapGesture) != true {
+                addGestureRecognizer(tapGesture)
+            }
+        } else {
+            if gestureRecognizers?.contains(tapGesture) == true {
+                removeGestureRecognizer(tapGesture)
+            }
+        }
+
+        // 3) Accessibility traits
+        isAccessibilityElement = true
+        accessibilityLabel = nil
+        accessibilityHint = nil
+
+        if tappable {
+            accessibilityTraits = [.button]
+
+            // Build a11y targets list:
+            // - all attribute taps (by index)
+            // - all link taps
+            a11yTargets = []
+
+            for (idx, attr) in attributes.enumerated() {
+                if attr.onTap != nil, attr.range != nil {
+                    a11yTargets.append(.attribute(index: idx))
+                }
+            }
+            a11yTargets.append(contentsOf: linkTargets)
+
+            // If multiple actions -> provide custom actions
+            if a11yTargets.count > 1 {
+                accessibilityCustomActions = a11yTargets.enumerated().map { i, target in
+                    let name: String = {
+                        switch target {
+                        case .attribute(let idx):
+                            let t = attributes.item(at: idx)?.text.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+                            return t.isEmpty ? "Action \(i + 1)" : "Open: \(t.prefix(30))"
+                        case .link(_, let title):
+                            if let title, !title.isEmpty { return "Open link: \(title.prefix(30))" }
+                            return "Open link \(i + 1)"
+                        }
+                    }()
+                    return UIAccessibilityCustomAction(name: name, target: self, selector: #selector(handleA11yCustomAction(_:)))
+                }
+            } else {
+                accessibilityCustomActions = nil
+            }
+        } else {
+            accessibilityTraits = [.staticText]
+            a11yTargets = []
+            accessibilityCustomActions = nil
+        }
+    }
+
+    @objc private func handleA11yCustomAction(_ action: UIAccessibilityCustomAction) -> Bool {
+        guard let idx = accessibilityCustomActions?.firstIndex(of: action),
+              idx >= 0, idx < a11yTargets.count,
+              let a11yTapTarget = a11yTargets.item(at: idx)
+        else { return false }
         
-        // Configure the text container
+        return performA11yTarget(a11yTapTarget)
+    }
+
+    private func performA11yTarget(_ target: A11yTapTarget) -> Bool {
+        switch target {
+        case .attribute(let idx):
+            guard idx < attributes.count else { return false }
+            attributes.item(at: idx)?.onTap?()
+            return true
+        case .link(let url, _):
+            UIApplication.shared.open(url, options: [:], completionHandler: nil)
+            return true
+        }
+    }
+
+    open override func accessibilityActivate() -> Bool {
+        // VoiceOver double tap.
+        // If exactly one action -> run it, else fallback (VO will show Actions list anyway)
+        if a11yTargets.count == 1, let only = a11yTargets.first {
+            return performA11yTarget(only)
+        }
+        return super.accessibilityActivate()
+    }
+
+    private func performTapAtPoint(_ point: CGPoint) -> Bool {
         textContainer.lineFragmentPadding = 0.0
         textContainer.lineBreakMode = self.lineBreakMode
         textContainer.maximumNumberOfLines = self.numberOfLines
         textContainer.size = self.bounds.size
-        
-        let point = gestureRecognizer.location(in: self)
-        
-        for attribute in attributes {
-            guard let range = attribute.range else { continue }
-            if NSLayoutManager.didTapAttributedTextInLabel(
-                point: point,
-                layoutManager: layoutManager,
-                textStorage: textStorage,
-                textContainer: textContainer,
-                textAlignment: attribute.textAlignment ?? textAlignment,
-                inRange: range
-            ), let onTap = attribute.onTap {
-                onTap()
+
+        let adjustedPoint = CGPoint(x: point.x - textInsets.left, y: point.y - textInsets.top)
+
+        let glyphIndex = layoutManager.glyphIndex(for: adjustedPoint, in: textContainer)
+
+        let glyphRect = layoutManager.boundingRect(
+            forGlyphRange: NSRange(location: glyphIndex, length: 1),
+            in: textContainer
+        )
+        guard glyphRect.contains(adjustedPoint) else { return false }
+
+        let charIndex = layoutManager.characterIndexForGlyph(at: glyphIndex)
+        guard charIndex >= 0, charIndex < textStorage.length else { return false }
+
+        // 1) Prefer TextAttributes taps (choose smallest range containing charIndex)
+        var best: (range: NSRange, onTap: (() -> Void))?
+        for attr in attributes {
+            guard let r = attr.range, let onTap = attr.onTap else { continue }
+            guard NSLocationInRange(charIndex, r) else { continue }
+            if let cur = best {
+                if r.length < cur.range.length { best = (r, onTap) }
+            } else {
+                best = (r, onTap)
+            }
+        }
+        if let best {
+            best.onTap()
+            return true
+        }
+
+        // 2) Link attribute
+        if let linkValue = textStorage.attribute(.link, at: charIndex, effectiveRange: nil) {
+            let url: URL? =
+                (linkValue as? URL) ??
+                (linkValue as? String).flatMap(URL.init(string:))
+
+            if let url {
+                UIApplication.shared.open(url, options: [:], completionHandler: nil)
                 return true
             }
         }
+
         return false
+    }
+}
+
+// MARK: - UIGestureRecognizerDelegate
+extension Label: UIGestureRecognizerDelegate {
+    open override func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+        guard gestureRecognizer == tapGesture else { return true }
+        let point = gestureRecognizer.location(in: self)
+        return performTapAtPoint(point)
     }
 }
 
