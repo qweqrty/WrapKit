@@ -4,14 +4,9 @@ import XCTest
 import Combine
 import UIKit
 
-// MARK: - Tests
-
 final class SelectionServiceProxyTests: XCTestCase {
     func test_viewDidLoad_startsLoading_callsService_andUpdatesItems() {
         let components = makeSUT()
-
-        let finished = components.loadingViewSpy
-            .expectLoadingFinished(testCase: self)
 
         // WHEN
         components.sut.viewDidLoad()
@@ -29,46 +24,36 @@ final class SelectionServiceProxyTests: XCTestCase {
             with: .success(MockResponse(value: "Item"))
         )
 
-        wait(for: [finished], timeout: 1.0)
-
-        // THEN final
-        XCTAssertEqual(
-            components.loadingViewSpy.messages,
-            [
+        // THEN
+        XCTAssertEventually {
+            components.loadingViewSpy.messages == [
                 .displayIsLoading(isLoading: true),
                 .displayIsLoading(isLoading: false)
-            ]
-        )
-        XCTAssertEqual(components.presenterSpy.items.count, 1)
+            ] && components.presenterSpy.items.count == 1
+        }
+
     }
-    
+
     func test_viewDidLoad_onFailure_stopsLoading_andProvidesEmptyItems() {
         let components = makeSUT()
 
-        let finished = components.loadingViewSpy
-            .expectLoadingFinished(testCase: self)
-
         components.sut.viewDidLoad()
-
         components.serviceSpy.complete(with: .failure(.internal))
 
-        wait(for: [finished], timeout: 1.0)
-
-        XCTAssertEqual(
-            components.loadingViewSpy.messages,
-            [
+        XCTAssertEventually {
+            components.loadingViewSpy.messages == [
                 .displayIsLoading(isLoading: true),
                 .displayIsLoading(isLoading: false)
             ]
-        )
-        XCTAssertTrue(components.presenterSpy.items.isEmpty)
+        }
+
+        XCTAssertEventually {
+            components.presenterSpy.items.isEmpty
+        }
     }
-    
+
     func test_onRefresh_callsService_andUpdatesItems() {
         let components = makeSUT()
-
-        let finished = components.loadingViewSpy
-            .expectLoadingFinished(testCase: self)
 
         components.sut.onRefresh()
 
@@ -82,39 +67,33 @@ final class SelectionServiceProxyTests: XCTestCase {
             with: .success(.init(value: "Refreshed"))
         )
 
-        wait(for: [finished], timeout: 1.0)
-
-        XCTAssertEqual(
-            components.loadingViewSpy.messages,
-            [
+        XCTAssertEventually {
+            components.loadingViewSpy.messages == [
                 .displayIsLoading(isLoading: true),
                 .displayIsLoading(isLoading: false)
             ]
-        )
-        XCTAssertEqual(
-            components.presenterSpy.items.first?.title,
-            "Refreshed"
-        )
+        }
+
+        XCTAssertEventually {
+            components.presenterSpy.items.first?.title == "Refreshed"
+        }
     }
-    
+
     func test_onSearch_forwardsCallToPresenter() {
         let components = makeSUT()
-        
+
         components.sut.onSearch("query")
-        
-        XCTAssertEqual(
-            components.presenterSpy.onSearchCalledWith,
-            "query"
-        )
+
+        XCTAssertEqual(components.presenterSpy.onSearchCalledWith, "query")
         XCTAssertTrue(components.loadingViewSpy.messages.isEmpty)
         XCTAssertEqual(components.serviceSpy.makeCallCount, 0)
     }
 
     func test_onTapFinishSelection_forwardsCallToPresenter() {
         let components = makeSUT()
-        
+
         components.sut.onTapFinishSelection()
-        
+
         XCTAssertTrue(components.presenterSpy.onTapFinishSelectionCalled)
         XCTAssertTrue(components.loadingViewSpy.messages.isEmpty)
         XCTAssertEqual(components.serviceSpy.makeCallCount, 0)
@@ -122,13 +101,10 @@ final class SelectionServiceProxyTests: XCTestCase {
 
     func test_isNeedToShowSearch_forwardsValueToPresenter() {
         let components = makeSUT()
-        
+
         components.sut.isNeedToShowSearch(true)
-        
-        XCTAssertEqual(
-            components.presenterSpy.isNeedToShowSearchCalledWith,
-            true
-        )
+
+        XCTAssertEqual(components.presenterSpy.isNeedToShowSearchCalledWith, true)
         XCTAssertTrue(components.loadingViewSpy.messages.isEmpty)
         XCTAssertEqual(components.serviceSpy.makeCallCount, 0)
     }
@@ -319,37 +295,5 @@ extension SelectionConfiguration {
                 text: placeholderText
             )
         )
-    }
-}
-
-private extension LoadingOutputSpy {
-    func expectLoadingFinished(
-        testCase: XCTestCase,
-        file: StaticString = #file,
-        line: UInt = #line
-    ) -> XCTestExpectation {
-        let expectation = testCase.expectation(
-            description: "Loading finished"
-        )
-        observeLoadingFinished(expectation, file: file, line: line)
-        return expectation
-    }
-
-    private func observeLoadingFinished(
-        _ expectation: XCTestExpectation,
-        file: StaticString,
-        line: UInt
-    ) {
-        let originalCount = messages.count
-
-        DispatchQueue.main.async { [weak self] in
-            guard let self else { return }
-            if self.messages.count > originalCount,
-               self.messages.last == .displayIsLoading(isLoading: false) {
-                expectation.fulfill()
-            } else {
-                self.observeLoadingFinished(expectation, file: file, line: line)
-            }
-        }
     }
 }
