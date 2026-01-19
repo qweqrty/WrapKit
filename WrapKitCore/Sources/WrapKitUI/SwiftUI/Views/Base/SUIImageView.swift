@@ -128,7 +128,7 @@ public struct SUIImageView: View {
                     if let isHide = newState?.isHidden {
                         isHidden = isHide
                     }
-                }
+                } // TODO: move all onReceive events into StateManager like in SUILabel
             }
         }
     }
@@ -159,19 +159,15 @@ public struct SUIImageView: View {
     
     /// functions
     private func loadImage(for mode: ColorScheme) {
-        downloadTask?.cancel()
         hasError = false
         loadedImage = nil
         
-        guard let imageEnum = model.image else {
-            hasError = true
-            return
-        }
-        
-        switch imageEnum {
+        switch model.image {
         case .asset(let image):
+            downloadTask?.cancel()
             self.loadedImage = image
         case .data(let data):
+            downloadTask?.cancel()
             guard let data else {
                 self.hasError = true
                 return
@@ -186,24 +182,62 @@ public struct SUIImageView: View {
             let urlString = (mode == .dark ? dark : light) ?? light
             let url = urlString.flatMap(URL.init(string:))
             loadImageFromURL(url)
+            
+        case nil:
+            downloadTask?.cancel()
+            hasError = true
         }
     }
     
     private func loadImageFromURL(_ url: URL?) {
         guard let url else {
+            downloadTask?.cancel()
             self.hasError = true
             return
         }
+        if url != downloadTask?.sessionTask.originalURL {
+            downloadTask?.cancel()
+        }
         
         isLoading = true
-        downloadTask = KingfisherManager.shared.retrieveImage(with: url) { result in
-            DispatchQueue.main.async {
-                self.isLoading = false
-                switch result {
-                case .success(let value):
-                    self.loadedImage = value.image
-                case .failure:
-                    self.hasError = true
+        
+        KingfisherManager.shared.cache.retrieveImage(
+            forKey: url.absoluteString,
+            options: [.callbackQueue(.mainCurrentOrAsync)]
+        ) { result in
+            switch result {
+            case .success(let image):
+                downloadTask = KingfisherManager.shared.retrieveImage(
+                    with: url,
+                    options: [.callbackQueue(.mainCurrentOrAsync), .fromMemoryCacheOrRefresh]
+                ) { result in
+                    self.downloadTask = nil
+                    DispatchQueue.main.async {
+                        self.isLoading = false
+                        switch result {
+                        case .success(let value):
+                            self.loadedImage = value.image
+                        case .failure:
+                            self.hasError = true
+                        }
+                    }
+                }
+            case .failure(let error):
+                guard !error.isTaskCancelled else { return }
+                downloadTask = KingfisherManager.shared.retrieveImage(
+                    with: url,
+                    options: [.callbackQueue(.mainCurrentOrAsync)]
+                ) { result in
+                    self.downloadTask = nil
+                    DispatchQueue.main.async {
+                        self.isLoading = false
+                        switch result {
+                        case .success(let value):
+                            self.loadedImage = value.image
+                        case .failure:
+                            self.hasError = true
+                        }
+                    }
                 }
             }
         }
