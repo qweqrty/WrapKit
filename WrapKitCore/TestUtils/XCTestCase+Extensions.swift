@@ -2,6 +2,31 @@ import Combine
 import XCTest
 
 public extension XCTestCase {
+    func XCTAssertEventually(
+        timeout: TimeInterval = 1.0,
+        file: StaticString = #file,
+        line: UInt = #line,
+        _ condition: @escaping () -> Bool
+    ) {
+        let exp = XCTestExpectation(description: "Eventually")
+        let deadline = Date().addingTimeInterval(timeout)
+
+        func poll() {
+            if condition() {
+                exp.fulfill()
+            } else if Date() < deadline {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.01, execute: poll)
+            }
+        }
+
+        DispatchQueue.main.async(execute: poll)
+        XCTWaiter().wait(for: [exp], timeout: timeout + 0.1)
+
+        if !condition() {
+            XCTFail("Condition not met", file: file, line: line)
+        }
+    }
+
     func makeURL(_ string: String = "https://some-given-url.com", file: StaticString = #file, line: UInt = #line) -> URL {
         guard let url = URL(string: string) else {
             preconditionFailure("Could not create URL for \(string)", file: file, line: line)
