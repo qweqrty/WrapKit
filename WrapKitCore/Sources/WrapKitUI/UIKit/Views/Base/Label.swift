@@ -434,6 +434,7 @@ open class Label: UILabel {
     }
 
     private func applyInteractivityAndAccessibility() {
+        guard UIAccessibility.isVoiceOverRunning else { return }
         // 1) Determine tappable content
         let hasAttrTaps = isTappableByTextAttributes()
         let linkTargets = linkTargetsFromTextStorage()
@@ -478,7 +479,8 @@ open class Label: UILabel {
                     let name: String = {
                         switch target {
                         case .attribute(let idx):
-                            let t = attributes.item(at: idx)?.text.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+                            // best-effort title from attribute text
+                            let t = attributes[idx].text.trimmingCharacters(in: .whitespacesAndNewlines)
                             return t.isEmpty ? "Action \(i + 1)" : "Open: \(t.prefix(30))"
                         case .link(_, let title):
                             if let title, !title.isEmpty { return "Open link: \(title.prefix(30))" }
@@ -499,19 +501,19 @@ open class Label: UILabel {
 
     @objc private func handleA11yCustomAction(_ action: UIAccessibilityCustomAction) -> Bool {
         guard let idx = accessibilityCustomActions?.firstIndex(of: action),
-              idx >= 0, idx < a11yTargets.count,
-              let a11yTapTarget = a11yTargets.item(at: idx)
+              idx >= 0, idx < a11yTargets.count
         else { return false }
-        
-        return performA11yTarget(a11yTapTarget)
+
+        return performA11yTarget(a11yTargets[idx])
     }
 
     private func performA11yTarget(_ target: A11yTapTarget) -> Bool {
         switch target {
         case .attribute(let idx):
             guard idx < attributes.count else { return false }
-            attributes.item(at: idx)?.onTap?()
+            attributes[idx].onTap?()
             return true
+
         case .link(let url, _):
             UIApplication.shared.open(url, options: [:], completionHandler: nil)
             return true
@@ -527,12 +529,14 @@ open class Label: UILabel {
         return super.accessibilityActivate()
     }
 
+    // Tap -> choose correct action by charIndex (most-specific range wins)
     private func performTapAtPoint(_ point: CGPoint) -> Bool {
         textContainer.lineFragmentPadding = 0.0
         textContainer.lineBreakMode = self.lineBreakMode
         textContainer.maximumNumberOfLines = self.numberOfLines
         textContainer.size = self.bounds.size
 
+        // account for insets by shifting point into drawn rect
         let adjustedPoint = CGPoint(x: point.x - textInsets.left, y: point.y - textInsets.top)
 
         let glyphIndex = layoutManager.glyphIndex(for: adjustedPoint, in: textContainer)
