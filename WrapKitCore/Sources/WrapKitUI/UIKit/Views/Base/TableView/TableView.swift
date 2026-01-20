@@ -14,7 +14,10 @@ open class TableView: UITableView {
     open override var intrinsicContentSize: CGSize {
         if adjustHeight {
             layoutIfNeeded()
-            return .init(width: super.intrinsicContentSize.width, height: contentSize.height)
+            return .init(
+                width: super.intrinsicContentSize.width,
+                height: contentSize.height + contentInset.top + contentInset.bottom
+            )
         } else {
             return super.intrinsicContentSize
         }
