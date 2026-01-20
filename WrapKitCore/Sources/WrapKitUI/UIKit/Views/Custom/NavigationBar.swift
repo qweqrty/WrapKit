@@ -129,8 +129,61 @@ extension NavigationBar: HeaderOutput {
     }
     
     public func display(leadingCard: CardViewPresentableModel?) {
-        leadingCardGlassEffectView.isHidden = leadingCard == nil
         leadingCardView.display(model: leadingCard)
+        
+        guard leadingCard != nil else {
+            leadingCardGlassEffectView.isHidden = true
+            return
+        }
+        
+        let hasInteraction = !(leadingCardView.gestureRecognizers?.isEmpty ?? true)
+        
+        guard hasInteraction else {
+            leadingCardGlassEffectView.isHidden = true
+            moveLeadingCardToStackViewIfNeeded()
+            return
+        }
+        
+        setupGlassEffectIfNeeded()
+        leadingCardGlassEffectView.isHidden = false
+    }
+    
+    private func setupGlassEffectIfNeeded() {
+        let needsSetup: Bool
+        if let glassEffectView = leadingCardGlassEffectView as? UIVisualEffectView {
+            needsSetup = leadingCardView.superview != glassEffectView.contentView
+        } else {
+            needsSetup = leadingCardView.superview != leadingCardGlassEffectView
+        }
+        
+        guard needsSetup else { return }
+        
+        leadingCardView.removeFromSuperview()
+        
+        if leadingCardGlassEffectView.superview != leadingStackView {
+            leadingCardGlassEffectView.removeFromSuperview()
+            leadingStackView.addArrangedSubview(leadingCardGlassEffectView)
+        }
+        
+        if let glassEffectView = leadingCardGlassEffectView as? UIVisualEffectView {
+            glassEffectView.contentView.addSubview(leadingCardView)
+        } else {
+            leadingCardGlassEffectView.addSubview(leadingCardView)
+        }
+        
+        leadingCardView.fillSuperview()
+    }
+    
+    private func moveLeadingCardToStackViewIfNeeded() {
+        guard leadingCardView.superview != leadingStackView else { return }
+        
+        leadingCardView.removeFromSuperview()
+        
+        if leadingCardGlassEffectView.superview == leadingStackView {
+            leadingCardGlassEffectView.removeFromSuperview()
+        }
+        
+        leadingStackView.addArrangedSubview(leadingCardView)
     }
     
     public func display(primeTrailingImage: ButtonPresentableModel?) {
