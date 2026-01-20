@@ -140,7 +140,6 @@ extension Label: TextOutput {
             return updated
         }
 
-        // attributes setter builds attributedText + textStorage
         syncTextStorageFromCurrentRenderedText()
     }
 
@@ -205,7 +204,6 @@ open class Label: UILabel {
     let textContainer = NSTextContainer(size: .zero)
     var textStorage = NSTextStorage()
 
-    // Data
     private var attributes: [TextAttributes] = [] {
         didSet {
             guard !attributes.isEmpty else {
@@ -222,19 +220,16 @@ open class Label: UILabel {
         }
     }
 
-    // Animation
     private var animation: CountingLabelAnimation?
     private var currentAnimatedTarget: Decimal?
     private var currentAnimatedModelID: String?
 
-    // A11y actions: first = TextAttributes taps, then links
     private enum A11yTapTarget: Equatable {
         case attribute(index: Int)
         case link(url: URL, title: String?)
     }
     private var a11yTargets: [A11yTapTarget] = []
 
-    // Gesture
     lazy var tapGesture: UITapGestureRecognizer = {
         let gesture = UITapGestureRecognizer(target: self, action: nil)
         gesture.delegate = self
@@ -434,14 +429,11 @@ open class Label: UILabel {
     }
 
     private func applyInteractivityAndAccessibility() {
-        guard UIAccessibility.isVoiceOverRunning else { return }
-        // 1) Determine tappable content
         let hasAttrTaps = isTappableByTextAttributes()
         let linkTargets = linkTargetsFromTextStorage()
         let hasLinks = !linkTargets.isEmpty
         let tappable = hasAttrTaps || hasLinks
 
-        // 2) Gesture enable/disable
         isUserInteractionEnabled = tappable
         if tappable {
             if gestureRecognizers?.contains(tapGesture) != true {
@@ -453,7 +445,6 @@ open class Label: UILabel {
             }
         }
 
-        // 3) Accessibility traits
         isAccessibilityElement = true
         accessibilityLabel = nil
         accessibilityHint = nil
@@ -461,9 +452,6 @@ open class Label: UILabel {
         if tappable {
             accessibilityTraits = [.button]
 
-            // Build a11y targets list:
-            // - all attribute taps (by index)
-            // - all link taps
             a11yTargets = []
 
             for (idx, attr) in attributes.enumerated() {
@@ -473,7 +461,6 @@ open class Label: UILabel {
             }
             a11yTargets.append(contentsOf: linkTargets)
 
-            // If multiple actions -> provide custom actions
             if a11yTargets.count > 1 {
                 accessibilityCustomActions = a11yTargets.enumerated().map { i, target in
                     let name: String = {
@@ -521,22 +508,18 @@ open class Label: UILabel {
     }
 
     open override func accessibilityActivate() -> Bool {
-        // VoiceOver double tap.
-        // If exactly one action -> run it, else fallback (VO will show Actions list anyway)
         if a11yTargets.count == 1, let only = a11yTargets.first {
             return performA11yTarget(only)
         }
         return super.accessibilityActivate()
     }
 
-    // Tap -> choose correct action by charIndex (most-specific range wins)
     private func performTapAtPoint(_ point: CGPoint) -> Bool {
         textContainer.lineFragmentPadding = 0.0
         textContainer.lineBreakMode = self.lineBreakMode
         textContainer.maximumNumberOfLines = self.numberOfLines
         textContainer.size = self.bounds.size
 
-        // account for insets by shifting point into drawn rect
         let adjustedPoint = CGPoint(x: point.x - textInsets.left, y: point.y - textInsets.top)
 
         let glyphIndex = layoutManager.glyphIndex(for: adjustedPoint, in: textContainer)
@@ -550,7 +533,6 @@ open class Label: UILabel {
         let charIndex = layoutManager.characterIndexForGlyph(at: glyphIndex)
         guard charIndex >= 0, charIndex < textStorage.length else { return false }
 
-        // 1) Prefer TextAttributes taps (choose smallest range containing charIndex)
         var best: (range: NSRange, onTap: (() -> Void))?
         for attr in attributes {
             guard let r = attr.range, let onTap = attr.onTap else { continue }
@@ -566,7 +548,6 @@ open class Label: UILabel {
             return true
         }
 
-        // 2) Link attribute
         if let linkValue = textStorage.attribute(.link, at: charIndex, effectiveRange: nil) {
             let url: URL? =
                 (linkValue as? URL) ??

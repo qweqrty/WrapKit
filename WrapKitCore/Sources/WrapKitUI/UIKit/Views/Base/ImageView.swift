@@ -70,6 +70,97 @@ public struct ImageViewPresentableModel: HashableWithReflection {
 import UIKit
 import Kingfisher
 
+extension ImageView: ImageViewOutput {
+    public func display(model: ImageViewPresentableModel?, completion: ((Image?) -> Void)? = nil) {
+        isHidden = model == nil
+        display(onPress: model?.onPress)
+        display(onLongPress: model?.onLongPress)
+        hideShimmer()
+        if let image = model?.image { display(image: image, completion: completion) }
+        if let size = model?.size {
+            display(size: size)
+        }
+        
+        switch model?.image {
+        case .asset(let image) where model?.size == nil:
+            display(size: image?.size)
+        default:
+            break
+        }
+        if let contentModeIsFit = model?.contentModeIsFit { display(contentModeIsFit: contentModeIsFit) }
+        
+        if let borderColor = model?.borderColor {
+            display(borderColor: borderColor)
+        }
+        if let borderWidth = model?.borderWidth {
+            display(borderWidth: borderWidth)
+        }
+        
+        if let cornerRadius = model?.cornerRadius {
+            display(cornerRadius: cornerRadius)
+        }
+        if let alpha = model?.alpha {
+            display(alpha: alpha)
+        }
+    }
+    
+    public func display(size: CGSize?) {
+        if let size = size {
+            if let anchoredConstraints = anchoredConstraints {
+                    anchoredConstraints.height?.constant = size.height
+                    anchoredConstraints.width?.constant = size.width
+            } else {
+                anchoredConstraints = anchor(
+                    .height(size.height, priority: .required),
+                    .width(size.width, priority: .required)
+                )
+            }
+        }
+    }
+    
+    public func display(borderColor: UIColor?) {
+        self.layer.borderColor = borderColor?.cgColor
+    }
+    
+    public func display(borderWidth: CGFloat?) {
+        guard let borderWidth else { return }
+        self.layer.borderWidth = borderWidth
+    }
+    
+    public func display(cornerRadius: CGFloat?) {
+        guard let cornerRadius else { return }
+        self.cornerRadius = cornerRadius
+        self.layer.cornerRadius = cornerRadius
+    }
+    
+    public func display(image: ImageEnum?, completion: ((Image?) -> Void)?) {
+        self.setImage(image, closure: completion)
+    }
+    
+    public func display(onPress: (() -> Void)?) {
+        self.onPress = onPress
+        applyInteractivityAndAccessibility()
+    }
+    
+    public func display(onLongPress: (() -> Void)?) {
+        self.onLongPress = onLongPress
+        applyInteractivityAndAccessibility()
+    }
+    
+    public func display(contentModeIsFit: Bool) {
+        self.contentMode = contentModeIsFit == true ? .scaleAspectFit : .scaleAspectFill
+    }
+    
+    public func display(alpha: CGFloat?) {
+        guard let alpha else { return }
+        self.alpha = alpha
+    }
+    
+    public func display(isHidden: Bool) {
+        self.isHidden = isHidden
+    }
+}
+
 public extension ImageView {
     func setImage(
         _ image: ImageEnum?,
@@ -86,22 +177,24 @@ public extension ImageView {
     }
     
     private func handleImage(_ image: ImageEnum?, kingfisherOptions: KingfisherOptionsInfo = [], closure: ((Image?) -> Void)? = nil) {
+        cancelCurrentDownload()
         currentImageEnum = image
         
         switch image {
         case .asset(let image):
-            downloadTask?.cancel()
             self.animatedSet(image)
             closure?(image)
         case .url(let lightUrl, let darkUrl):
             let url = traitCollection.userInterfaceStyle == .dark ? darkUrl : lightUrl
+            if let url = lightUrl { KingfisherManager.shared.downloader.cancel(url: url) }
+            if let url = darkUrl { KingfisherManager.shared.downloader.cancel(url: url) }
             self.loadImage(url, kingfisherOptions: kingfisherOptions, closure: closure)
         case .urlString(let lightString, let darkString):
             let string = traitCollection.userInterfaceStyle == .dark ? darkString : lightString
-            let url = URL(string: string ?? "")
-            self.loadImage(url, kingfisherOptions: kingfisherOptions, closure: closure)
+            if let url = URL(string: lightString ?? "") { KingfisherManager.shared.downloader.cancel(url: url) }
+            if let url = URL(string: darkString ?? "") { KingfisherManager.shared.downloader.cancel(url: url) }
+            self.loadImage(URL(string: string ?? ""), kingfisherOptions: kingfisherOptions, closure: closure)
         case .data(let data):
-            downloadTask?.cancel()
             guard let data else {
                 cancelCurrentAnimation()
                 self.image = nil
@@ -111,74 +204,83 @@ public extension ImageView {
             let image = UIImage(data: data)
             self.animatedSet(image)
             closure?(image)
-        case nil:
-            downloadTask?.cancel()
+        case .none:
             cancelCurrentAnimation()
             self.image = nil
             closure?(nil)
         }
     }
     
-    private func loadImage(
-        _ url: URL?,
-        kingfisherOptions: KingfisherOptionsInfo,
-        closure: ((Image?) -> Void)? = nil
-    ) {
-        guard let url else {
-            downloadTask?.cancel()
+    private func loadImage(_ url: URL?, kingfisherOptions: KingfisherOptionsInfo, closure: ((Image?) -> Void)? = nil) {
+        guard let url = url else {
             animatedSet(wrongUrlPlaceholderImage, completion: closure)
             return
         }
-        if url != downloadTask?.sessionTask.originalURL {
-            downloadTask?.cancel()
+        
+        if let fallbackView {
+            fallbackView.isHidden = true
         }
-        fallbackView?.isHidden = true
         viewWhileLoadingView?.isHidden = false
         
-        KingfisherManager.shared.cache.retrieveImage(
-            forKey: url.absoluteString,
-            options: [.callbackQueue(.mainCurrentOrAsync)]
-        ) { [weak self] result in
-            guard let self else { return }
+        KingfisherManager.shared.cache.retrieveImage(forKey: url.absoluteString, options: [.callbackQueue(.mainCurrentOrAsync)]) { [weak self] result in
+            guard let self = self else {
+                self?.animatedSet(nil, completion: closure)
+                return
+            }
+            
             switch result {
             case .success(let image):
                 self.animatedSet(image.image)
-                downloadTask = retrieveImage(
-                    url: url,
-                    kingfisherOptions: [.callbackQueue(.mainCurrentOrAsync), .fromMemoryCacheOrRefresh] + kingfisherOptions,
-                    completion: closure
-                )
-            case .failure(let error):
-                guard !error.isTaskCancelled else { return }
-                downloadTask = retrieveImage(
-                    url: url,
-                    kingfisherOptions: [.callbackQueue(.mainCurrentOrAsync)] + kingfisherOptions,
-                    completion: closure
-                )
+                KingfisherManager.shared.retrieveImage(with: url, options: [.callbackQueue(.mainCurrentOrAsync), .forceRefresh] + kingfisherOptions) { [weak self] result in
+                    guard let self = self else {
+                        self?.animatedSet(nil, completion: closure)
+                        return
+                    }
+                    
+                    switch result {
+                    case .success(let image):
+                        self.animatedSet(image.image, completion: closure)
+                    case .failure:
+                        self.showFallbackView(url)
+                        closure?(image.image)
+                    }
+                }
+            case .failure:
+                KingfisherManager.shared.retrieveImage(with: url, options: [.callbackQueue(.mainCurrentOrAsync)] + kingfisherOptions) { [weak self] result in
+                    guard let self = self else { return }
+                    
+                    switch result {
+                    case .success(let image):
+                        self.animatedSet(image.image, completion: closure)
+                    case .failure:
+                        self.showFallbackView(url)
+                        closure?(nil)
+                    }
+                }
             }
         }
     }
     
-    private func retrieveImage(
-        url: URL,
-        kingfisherOptions: KingfisherOptionsInfo,
-        completion: ((Image?) -> Void)? = nil
-    ) -> DownloadTask? {
-        return KingfisherManager.shared.retrieveImage(
-            with: url,
-            options: [.callbackQueue(.mainCurrentOrAsync), .fromMemoryCacheOrRefresh] + kingfisherOptions
-        ) { [weak self] result in
-            guard let self = self else { return }
-            downloadTask = nil
-            switch result {
-            case .success(let image):
-                self.animatedSet(image.image, completion: completion)
-            case .failure(let error):
-                guard !error.isTaskCancelled else { return }
-                self.animatedSet(nil)
-                self.showFallbackView(url)
-                completion?(nil)
+    private func cancelCurrentDownload() {
+        guard let currentImageEnum = currentImageEnum else { return }
+        
+        switch currentImageEnum {
+        case .url(let lightUrl, let darkUrl):
+            if let url = lightUrl {
+                KingfisherManager.shared.downloader.cancel(url: url)
             }
+            if let url = darkUrl {
+                KingfisherManager.shared.downloader.cancel(url: url)
+            }
+        case .urlString(let lightString, let darkString):
+            if let urlString = lightString, let url = URL(string: urlString) {
+                KingfisherManager.shared.downloader.cancel(url: url)
+            }
+            if let urlString = darkString, let url = URL(string: urlString) {
+                KingfisherManager.shared.downloader.cancel(url: url)
+            }
+        default:
+            break
         }
     }
     
@@ -213,7 +315,7 @@ public extension ImageView {
 open class ImageView: UIImageView {
     public var currentAnimator: UIViewPropertyAnimator?
     public var currentImageEnum: ImageEnum?
-    internal var downloadTask: DownloadTask?
+    public var currentLoadToken: UUID?
 
     open override var image: UIImage? {
         get {
@@ -390,94 +492,19 @@ open class ImageView: UIImageView {
     }
 }
 
-extension ImageView: ImageViewOutput {
-    public func display(model: ImageViewPresentableModel?, completion: ((Image?) -> Void)? = nil) {
-        isHidden = model == nil
-        display(onPress: model?.onPress)
-        display(onLongPress: model?.onLongPress)
-        hideShimmer()
-        if let image = model?.image {
-            display(image: image, completion: completion)
+// MARK: - Accessibility
+private extension ImageView {
+    func applyInteractivityAndAccessibility() {
+        accessibilityLabel = nil
+        accessibilityHint = nil
+        guard onPress != nil || onLongPress != nil else {
+            isAccessibilityElement = false
+            accessibilityTraits = []
+            return
         }
-        if let size = model?.size {
-            display(size: size)
-        }
-        
-        switch model?.image {
-        case .asset(let image) where model?.size == nil:
-            display(size: image?.size)
-        default:
-            break
-        }
-        if let contentModeIsFit = model?.contentModeIsFit { display(contentModeIsFit: contentModeIsFit) }
-        
-        if let borderColor = model?.borderColor {
-            display(borderColor: borderColor)
-        }
-        if let borderWidth = model?.borderWidth {
-            display(borderWidth: borderWidth)
-        }
-        
-        if let cornerRadius = model?.cornerRadius {
-            display(cornerRadius: cornerRadius)
-        }
-        if let alpha = model?.alpha {
-            display(alpha: alpha)
-        }
-    }
-    
-    public func display(size: CGSize?) {
-        if let size = size {
-            if let anchoredConstraints = anchoredConstraints {
-                    anchoredConstraints.height?.constant = size.height
-                    anchoredConstraints.width?.constant = size.width
-            } else {
-                anchoredConstraints = anchor(
-                    .height(size.height, priority: .required),
-                    .width(size.width, priority: .required)
-                )
-            }
-        }
-    }
-    
-    public func display(borderColor: UIColor?) {
-        self.layer.borderColor = borderColor?.cgColor
-    }
-    
-    public func display(borderWidth: CGFloat?) {
-        guard let borderWidth else { return }
-        self.layer.borderWidth = borderWidth
-    }
-    
-    public func display(cornerRadius: CGFloat?) {
-        guard let cornerRadius else { return }
-        self.cornerRadius = cornerRadius
-        self.layer.cornerRadius = cornerRadius
-    }
-    
-    public func display(image: ImageEnum?, completion: ((Image?) -> Void)?) {
-        self.setImage(image, closure: completion)
-    }
-    
-    public func display(onPress: (() -> Void)?) {
-        self.onPress = onPress
-    }
-    
-    public func display(onLongPress: (() -> Void)?) {
-        self.onLongPress = onLongPress
-    }
-    
-    public func display(contentModeIsFit: Bool) {
-        self.contentMode = contentModeIsFit == true ? .scaleAspectFit : .scaleAspectFill
-    }
-    
-    public func display(alpha: CGFloat?) {
-        guard let alpha else { return }
-        self.alpha = alpha
-    }
-    
-    public func display(isHidden: Bool) {
-        self.isHidden = isHidden
+        isAccessibilityElement = true
+        accessibilityTraits = [.image]
     }
 }
+
 #endif
