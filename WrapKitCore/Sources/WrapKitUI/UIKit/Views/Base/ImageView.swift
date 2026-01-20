@@ -86,24 +86,22 @@ public extension ImageView {
     }
     
     private func handleImage(_ image: ImageEnum?, kingfisherOptions: KingfisherOptionsInfo = [], closure: ((Image?) -> Void)? = nil) {
-        cancelCurrentDownload()
         currentImageEnum = image
         
         switch image {
         case .asset(let image):
+            downloadTask?.cancel()
             self.animatedSet(image)
             closure?(image)
         case .url(let lightUrl, let darkUrl):
             let url = traitCollection.userInterfaceStyle == .dark ? darkUrl : lightUrl
-            if let url = lightUrl { KingfisherManager.shared.downloader.cancel(url: url) }
-            if let url = darkUrl { KingfisherManager.shared.downloader.cancel(url: url) }
             self.loadImage(url, kingfisherOptions: kingfisherOptions, closure: closure)
         case .urlString(let lightString, let darkString):
             let string = traitCollection.userInterfaceStyle == .dark ? darkString : lightString
-            if let url = URL(string: lightString ?? "") { KingfisherManager.shared.downloader.cancel(url: url) }
-            if let url = URL(string: darkString ?? "") { KingfisherManager.shared.downloader.cancel(url: url) }
-            self.loadImage(URL(string: string ?? ""), kingfisherOptions: kingfisherOptions, closure: closure)
+            let url = URL(string: string ?? "")
+            self.loadImage(url, kingfisherOptions: kingfisherOptions, closure: closure)
         case .data(let data):
+            downloadTask?.cancel()
             guard let data else {
                 cancelCurrentAnimation()
                 self.image = nil
@@ -113,83 +111,74 @@ public extension ImageView {
             let image = UIImage(data: data)
             self.animatedSet(image)
             closure?(image)
-        case .none:
+        case nil:
+            downloadTask?.cancel()
             cancelCurrentAnimation()
             self.image = nil
             closure?(nil)
         }
     }
     
-    private func loadImage(_ url: URL?, kingfisherOptions: KingfisherOptionsInfo, closure: ((Image?) -> Void)? = nil) {
-        guard let url = url else {
+    private func loadImage(
+        _ url: URL?,
+        kingfisherOptions: KingfisherOptionsInfo,
+        closure: ((Image?) -> Void)? = nil
+    ) {
+        guard let url else {
+            downloadTask?.cancel()
             animatedSet(wrongUrlPlaceholderImage, completion: closure)
             return
         }
-        
-        if let fallbackView {
-            fallbackView.isHidden = true
+        if url != downloadTask?.sessionTask.originalURL {
+            downloadTask?.cancel()
         }
+        fallbackView?.isHidden = true
         viewWhileLoadingView?.isHidden = false
         
-        KingfisherManager.shared.cache.retrieveImage(forKey: url.absoluteString, options: [.callbackQueue(.mainCurrentOrAsync)]) { [weak self] result in
-            guard let self = self else {
-                self?.animatedSet(nil, completion: closure)
-                return
-            }
-            
+        KingfisherManager.shared.cache.retrieveImage(
+            forKey: url.absoluteString,
+            options: [.callbackQueue(.mainCurrentOrAsync)]
+        ) { [weak self] result in
+            guard let self else { return }
             switch result {
             case .success(let image):
                 self.animatedSet(image.image)
-                KingfisherManager.shared.retrieveImage(with: url, options: [.callbackQueue(.mainCurrentOrAsync), .forceRefresh] + kingfisherOptions) { [weak self] result in
-                    guard let self = self else {
-                        self?.animatedSet(nil, completion: closure)
-                        return
-                    }
-                    
-                    switch result {
-                    case .success(let image):
-                        self.animatedSet(image.image, completion: closure)
-                    case .failure:
-                        self.showFallbackView(url)
-                        closure?(image.image)
-                    }
-                }
-            case .failure:
-                KingfisherManager.shared.retrieveImage(with: url, options: [.callbackQueue(.mainCurrentOrAsync)] + kingfisherOptions) { [weak self] result in
-                    guard let self = self else { return }
-                    
-                    switch result {
-                    case .success(let image):
-                        self.animatedSet(image.image, completion: closure)
-                    case .failure:
-                        self.showFallbackView(url)
-                        closure?(nil)
-                    }
-                }
+                downloadTask = retrieveImage(
+                    url: url,
+                    kingfisherOptions: [.callbackQueue(.mainCurrentOrAsync), .fromMemoryCacheOrRefresh] + kingfisherOptions,
+                    completion: closure
+                )
+            case .failure(let error):
+                guard !error.isTaskCancelled else { return }
+                downloadTask = retrieveImage(
+                    url: url,
+                    kingfisherOptions: [.callbackQueue(.mainCurrentOrAsync)] + kingfisherOptions,
+                    completion: closure
+                )
             }
         }
     }
     
-    private func cancelCurrentDownload() {
-        guard let currentImageEnum = currentImageEnum else { return }
-        
-        switch currentImageEnum {
-        case .url(let lightUrl, let darkUrl):
-            if let url = lightUrl {
-                KingfisherManager.shared.downloader.cancel(url: url)
+    private func retrieveImage(
+        url: URL,
+        kingfisherOptions: KingfisherOptionsInfo,
+        completion: ((Image?) -> Void)? = nil
+    ) -> DownloadTask? {
+        return KingfisherManager.shared.retrieveImage(
+            with: url,
+            options: [.callbackQueue(.mainCurrentOrAsync), .fromMemoryCacheOrRefresh] + kingfisherOptions
+        ) { [weak self] result in
+            guard let self = self else { return }
+            downloadTask = nil
+            switch result {
+            case .success(let image):
+                self.animatedSet(image.image, completion: completion)
+            case .failure(let error):
+                guard !error.isTaskCancelled else { return }
+                self.animatedSet(nil)
+                self.showFallbackView(url)
+                completion?(nil)
             }
-            if let url = darkUrl {
-                KingfisherManager.shared.downloader.cancel(url: url)
-            }
-        case .urlString(let lightString, let darkString):
-            if let urlString = lightString, let url = URL(string: urlString) {
-                KingfisherManager.shared.downloader.cancel(url: url)
-            }
-            if let urlString = darkString, let url = URL(string: urlString) {
-                KingfisherManager.shared.downloader.cancel(url: url)
-            }
-        default:
-            break
         }
     }
     
@@ -224,7 +213,7 @@ public extension ImageView {
 open class ImageView: UIImageView {
     public var currentAnimator: UIViewPropertyAnimator?
     public var currentImageEnum: ImageEnum?
-    public var currentLoadToken: UUID?
+    internal var downloadTask: DownloadTask?
 
     open override var image: UIImage? {
         get {
@@ -407,7 +396,9 @@ extension ImageView: ImageViewOutput {
         display(onPress: model?.onPress)
         display(onLongPress: model?.onLongPress)
         hideShimmer()
-        if let image = model?.image { display(image: image, completion: completion) }
+        if let image = model?.image {
+            display(image: image, completion: completion)
+        }
         if let size = model?.size {
             display(size: size)
         }
