@@ -28,10 +28,12 @@ public extension Button {
             self.animatedSet(image)
             completion?(image)
         case .url(let lightUrl, let darkUrl):
-            self.loadImage(UserInterfaceStyle.current == .light ? lightUrl : darkUrl, kingfisherOptions: kingfisherOptions, completion: completion)
+            let url = UserInterfaceStyle.current == .light ? lightUrl : darkUrl
+            self.loadImage(url, kingfisherOptions: kingfisherOptions, completion: completion)
         case .urlString(let lightString, let darkString):
             let string = UserInterfaceStyle.current == .light ? lightString : darkString
-            self.loadImage(URL(string: string ?? ""), kingfisherOptions: kingfisherOptions, completion: completion)
+            let url = URL(string: string ?? "")
+            self.loadImage(url, kingfisherOptions: kingfisherOptions, completion: completion)
         case .data(let data):
             guard let data else {
                 completion?(nil)
@@ -45,38 +47,59 @@ public extension Button {
         }
     }
     
-    private func loadImage(_ url: URL?, kingfisherOptions: KingfisherOptionsInfo, completion: ((Image?) -> Void)?) {
+    private func loadImage(
+        _ url: URL?,
+        kingfisherOptions: KingfisherOptionsInfo,
+        completion: ((Image?) -> Void)?
+    ) {
         guard let url else {
             self.animatedSet(wrongUrlPlaceholderImage)
             completion?(wrongUrlPlaceholderImage)
             return
         }
-        KingfisherManager.shared.cache.retrieveImage(forKey: url.absoluteString, options: [.callbackQueue(.mainCurrentOrAsync)]) { [weak self] result in
+        KingfisherManager.shared.cache.retrieveImage(
+            forKey: url.absoluteString,
+            options: [.callbackQueue(.mainCurrentOrAsync)]
+        ) { [weak self] result in
+            guard let self else { return }
             switch result {
             case .success(let image):
-                self?.animatedSet(image.image)
-
-                KingfisherManager.shared.retrieveImage(with: url, options: [.callbackQueue(.mainCurrentOrAsync), .forceRefresh] + kingfisherOptions) { [weak self] result in
-                    switch result {
-                    case .success(let image):
-                        self?.animatedSet(image.image)
-                        completion?(image.image)
-                    case .failure:
-                        completion?(image.image)
-                        return
-                    }
-                }
-            case.failure(_):
-                KingfisherManager.shared.retrieveImage(with: url, options: [.callbackQueue(.mainCurrentOrAsync)] + kingfisherOptions) { [weak self] result in
-                    switch result {
-                    case .success(let image):
-                        self?.animatedSet(image.image)
-                        completion?(image.image)
-                    case .failure:
-                        completion?(nil)
-                        return
-                    }
-                }
+                self.animatedSet(image.image)
+                retrieveImage(
+                    url: url,
+                    kingfisherOptions: [.callbackQueue(.mainCurrentOrAsync), .forceRefresh] + kingfisherOptions,
+                    completion: completion
+                )
+            case.failure(let error):
+                guard !error.isTaskCancelled else { return }
+                retrieveImage(
+                    url: url,
+                    kingfisherOptions: [.callbackQueue(.mainCurrentOrAsync)] + kingfisherOptions,
+                    completion: completion
+                )
+            }
+        }
+    }
+    
+    @discardableResult
+    private func retrieveImage(
+        url: URL,
+        kingfisherOptions: KingfisherOptionsInfo,
+        completion: ((Image?) -> Void)? = nil
+    ) -> DownloadTask? {
+        return KingfisherManager.shared.retrieveImage(
+            with: url,
+            options: [.callbackQueue(.mainCurrentOrAsync), .fromMemoryCacheOrRefresh] + kingfisherOptions
+        ) { [weak self] result in
+            guard let self = self else { return }
+            switch result {
+            case .success(let image):
+                self.animatedSet(image.image)
+                completion?(image.image)
+            case .failure(let error):
+                guard !error.isTaskCancelled else { return }
+                self.animatedSet(nil)
+                completion?(nil)
             }
         }
     }
