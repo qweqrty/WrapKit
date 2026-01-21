@@ -8,7 +8,7 @@
 import WrapKit
 import Combine
 
-public final class ServiceSpy<Request: Equatable, Response>: Service {
+public final class ServiceSpy<Request, Response>: Service {
     
     private struct PublisherBox {
         let request: Request
