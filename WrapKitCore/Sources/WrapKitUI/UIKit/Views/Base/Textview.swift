@@ -100,7 +100,8 @@ open class Textview: UITextView, UITextViewDelegate {
 public extension Textview {
    
     func makeAccessoryView(
-        model: TextInputPresentableModel.AccessoryViewPresentableModel?
+        model: TextInputPresentableModel.AccessoryViewPresentableModel?,
+        onDoneTapped: ((Date) -> Void)? = nil
     ) -> UIView {
         guard let model else { return UIView() }
         let container = UIView(frame: CGRect(
@@ -117,6 +118,9 @@ public extension Textview {
         let trailingButton = Button()
         trailingButton.display(model: toolbarModel)
         trailingButton.onPress = { [weak self] in
+            if let date = (self?.inputView as? UIDatePicker)?.date {
+                onDoneTapped?(date)
+            }
             toolbarModel.onPress?()
             self?.endEditing(true)
         }
@@ -203,8 +207,11 @@ extension Textview: TextInputOutput {
             )
             self.inputView = picker
             
-            guard let accessoryView = model.accessoryView else { return }
-            self.inputAccessoryView = makeAccessoryView(model: accessoryView)
+            guard let accessoryView = model.accessoryView else {
+                self.inputAccessoryView = nil
+                return
+            }
+            self.inputAccessoryView = makeAccessoryView(model: accessoryView, onDoneTapped: model.onDoneTapped)
         case .custom(let model):
             let pickerView = PickerView()
             pickerView.display(model: model)

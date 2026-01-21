@@ -70,23 +70,24 @@ public extension UIView {
         scale: Bool = true,
         shouldRasterize: Bool = false
     ) {
-        DispatchQueue.main.async { [weak self] in
-            self?.layer.masksToBounds = false
-            self?.layer.shadowColor = shadowColor.cgColor
-            self?.layer.shadowOpacity = shadowOpacity
-            self?.layer.shadowOffset = shadowOffset
-            self?.layer.shadowRadius = shadowRadius
-            if let bounds = self?.bounds {
-                let bounds = CGRect(x: bounds.minX-0.5, y: bounds.minY-0.5, width: bounds.width + 1, height: bounds.height + 1)
-                self?.layer.shadowPath = path ?? UIBezierPath(rect: bounds).cgPath
-            } else {
-                self?.layer.shadowPath = path ?? UIBezierPath(rect: .zero).cgPath
-            }
+        DispatchQueue.runOnMainThread { [weak self] in
+            guard let self else { return }
+            self.layer.masksToBounds = false
+            self.layer.shadowColor = shadowColor.cgColor
+            self.layer.shadowOpacity = shadowOpacity
+            self.layer.shadowOffset = shadowOffset
+            self.layer.shadowRadius = shadowRadius
+            let bounds = CGRect(
+                x: bounds.minX-0.5,
+                y: bounds.minY-0.5,
+                width: bounds.width + 1,
+                height: bounds.height + 1
+            )
+            self.layer.shadowPath = path ?? UIBezierPath(rect: bounds).cgPath
             
-            self?.layer.shouldRasterize = false
-            self?.layer.rasterizationScale = scale ? UIScreen.main.scale : 1
+            self.layer.shouldRasterize = false
+            self.layer.rasterizationScale = scale ? UIScreen.main.scale : 1
         }
-        
     }
     
     func gradientBackgroundColor(
