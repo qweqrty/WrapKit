@@ -138,10 +138,33 @@ public class DiffableTableViewDataSource<Header, Cell: Hashable, Footer>: NSObje
     }
     
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cellModel = sections.item(at: indexPath.section)?.cells.item(at: indexPath.row)?.cell else {
+        guard let cellModel = sections.item(at: indexPath.section)?.cells.item(at: indexPath.row) else {
             return UITableViewCell()
         }
-        return configureCell?(tableView, indexPath, cellModel) ?? UITableViewCell()
+        let cell = configureCell?(tableView, indexPath, cellModel.cell) ?? UITableViewCell()
+        let hasRowTap = (cellModel.onTap != nil)
+
+        cell.isAccessibilityElement = false
+        cell.accessibilityLabel = nil
+        cell.accessibilityHint = nil
+        cell.accessibilityTraits = []
+
+        guard hasRowTap else {
+            return cell
+        }
+
+        let hasInteractiveChildren = cell.contentView.containsInteractiveAccessibleDescendant()
+
+        if !hasInteractiveChildren {
+            cell.isAccessibilityElement = true
+            cell.accessibilityTraits = [.button]
+            cell.accessibilityLabel = cell.contentView.accessibilityTextSummary()
+        } else {
+            cell.isAccessibilityElement = false
+        }
+
+        
+        return cell
     }
     
     public func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
@@ -359,4 +382,62 @@ private extension TableContextualAction.Style {
         }
     }
 }
+import UIKit
+
+private extension UIView {
+    // Собираем читаемый текст из visible UILabel/UITextView + accessibilityLabel у элементов
+    func accessibilityTextSummary() -> String? {
+        var parts: [String] = []
+
+        func dfs(_ v: UIView) {
+            guard !v.isHidden, v.alpha > 0.01 else { return }
+
+            if let label = v as? UILabel {
+                let t = label.text?.trimmingCharacters(in: .whitespacesAndNewlines)
+                if let t, !t.isEmpty { parts.append(t) }
+            } else if let tv = v as? UITextView {
+                let t = tv.text?.trimmingCharacters(in: .whitespacesAndNewlines)
+                if let t, !t.isEmpty { parts.append(t) }
+            } else {
+                // иногда текст прячется в accessibilityLabel у кастомных элементов
+                if v.isAccessibilityElement {
+                    let t = v.accessibilityLabel?.trimmingCharacters(in: .whitespacesAndNewlines)
+                    if let t, !t.isEmpty { parts.append(t) }
+                }
+            }
+
+            v.subviews.forEach(dfs)
+        }
+
+        dfs(self)
+
+        let text = parts
+            .joined(separator: ", ")
+            .replacingOccurrences(of: "\n", with: ", ")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+
+        return text.isEmpty ? nil : text
+    }
+
+    // Есть ли внутри интерактивный accessible элемент (button/link/adjustable etc)
+    func containsInteractiveAccessibleDescendant() -> Bool {
+        func dfs(_ v: UIView) -> Bool {
+            guard !v.isHidden, v.alpha > 0.01 else { return false }
+
+            if v.isAccessibilityElement {
+                let t = v.accessibilityTraits
+                if t.contains(.button) || t.contains(.link) || t.contains(.adjustable) || t.contains(.selected) {
+                    return true
+                }
+            }
+
+            for s in v.subviews {
+                if dfs(s) { return true }
+            }
+            return false
+        }
+        return dfs(self)
+    }
+}
+
 #endif

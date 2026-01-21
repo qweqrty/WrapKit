@@ -370,9 +370,13 @@ extension CardView: CardViewOutput {
             isAccessibilityElement = true
             accessibilityLabel = accessibility.label
             accessibilityHint = accessibility.hint
+        } else if onPress != nil || onLongPress != nil {
+            isAccessibilityElement = true
+            accessibilityLabel = String(model.title?.text?.prefix(30) ?? "")
         } else {
             isAccessibilityElement = false
         }
+        accessibilityTraits = onPress == nil && onLongPress == nil ? [.staticText] : [.button]
     }
 }
 

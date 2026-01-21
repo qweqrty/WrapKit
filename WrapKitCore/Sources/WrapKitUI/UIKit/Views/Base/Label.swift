@@ -65,6 +65,23 @@ public indirect enum TextOutputPresentableModel: HashableWithReflection {
         height: CGFloat? = nil,
         backgroundColor: Color? = nil
     )
+    
+    public var text: String? {
+        switch self {
+        case .text(let text):
+            return text
+        case .attributes(let attributes):
+            return attributes.compactMap((\.text)).joined()
+        case .attributedString(let text, _, _):
+            return text
+        case .animatedDecimal(_, _, let to, let mapToString, _, _, _):
+            return to.asString()
+        case .animated(_, _, let to, let mapToString, _, _, _):
+            return to.asString()
+        case .textStyled(let model, _, _, _, _):
+            return model.text
+        }
+    }
 }
 
 #if canImport(UIKit)
