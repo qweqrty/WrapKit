@@ -15,7 +15,7 @@ import Foundation
 import UIKit
 #endif
 
-public class TableOutputSpy<Cell: Hashable,Footer: Any,Header: Any>: TableOutput {
+public class TableOutputSpy<Header: Any, Cell: Hashable, Footer: Any>: TableOutput {
 
     public init() {}
 

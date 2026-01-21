@@ -15,7 +15,11 @@ import {{ importName }}
 {% endfor %}
 
 {% if type.associatedTypes.count > 0 %}
-public class {{ type.name }}Spy{% for associatedType in type.associatedTypes|sortedValuesByKeys %}{% if forloop.first %}<{% endif %}{{ associatedType.name }}: {{ associatedType.typeName }}{% if not forloop.last %}{% if type.associatedTypes.count > 1 %},{% endif %}{% endif %}{% if forloop.last %}>{% endif %}{% endfor %}: {{ type.name }} {
+{% if type.name == "TableOutput" %}
+public class {{ type.name }}Spy<Header: Any, Cell: Hashable, Footer: Any>: {{ type.name }} {
+{% else %}
+public class {{ type.name }}Spy<{% for associatedType in type.associatedTypes|sortedValuesByKeys %}{{ associatedType.name }}: {{ associatedType.typeName }}{% if not forloop.last %}, {% endif %}{% endfor %}>: {{ type.name }} {
+{% endif %}
 {% else %}
 public final class {{ type.name }}Spy: {{ type.name }} {
 {% endif %}
