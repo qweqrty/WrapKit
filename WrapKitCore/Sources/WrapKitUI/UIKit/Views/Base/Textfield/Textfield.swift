@@ -279,9 +279,10 @@ public extension Textfield {
         let trailingButton = Button()
         trailingButton.display(model: toolbarModel)
         trailingButton.onPress = { [weak self] in
-            guard let date = (self?.inputView as? UIDatePicker)?.date else { return }
+            if let date = (self?.inputView as? UIDatePicker)?.date {
+                onDoneTapped?(date)
+            }
             toolbarModel.onPress?()
-            onDoneTapped?(date)
             self?.endEditing(true)
         }
         
@@ -385,7 +386,7 @@ extension Textfield: TextInputOutput {
                 self.inputAccessoryView = nil
                 return
             }
-            self.inputAccessoryView = makeAccessoryView(model: model.accessoryView, onDoneTapped: model.onDoneTapped)
+            self.inputAccessoryView = makeAccessoryView(model: accessoryView, onDoneTapped: model.onDoneTapped)
         case .custom(let model):
             let pickerView = PickerView()
             pickerView.display(model: model)
