@@ -10,6 +10,9 @@ import WrapKit
 #if canImport(Foundation)
 import Foundation
 #endif
+#if canImport(QuartzCore)
+import QuartzCore
+#endif
 #if canImport(UIKit)
 import UIKit
 #endif
@@ -65,9 +68,9 @@ extension MainQueueDispatchDecorator: CardViewOutput where T: CardViewOutput {
             self?.decoratee.display(secondaryLeadingImage: secondaryLeadingImage)
         }
     }
-    public func display(trailingImage: ImageViewPresentableModel?, leadingSpacing: CGFloat?) {
+    public func display(trailingImage: ImageViewPresentableModel?) {
         dispatch { [weak self] in
-            self?.decoratee.display(trailingImage: trailingImage, leadingSpacing: leadingSpacing)
+            self?.decoratee.display(trailingImage: trailingImage)
         }
     }
     public func display(secondaryTrailingImage: ImageViewPresentableModel?) {
@@ -118,11 +121,6 @@ extension MainQueueDispatchDecorator: CardViewOutput where T: CardViewOutput {
     public func display(isGradientBorderEnabled: Bool) {
         dispatch { [weak self] in
             self?.decoratee.display(isGradientBorderEnabled: isGradientBorderEnabled)
-        }
-    }
-    public func display(trailingImage: ImageViewPresentableModel?) {
-        dispatch { [weak self] in
-            self?.decoratee.display(trailingImage: trailingImage)
         }
     }
 

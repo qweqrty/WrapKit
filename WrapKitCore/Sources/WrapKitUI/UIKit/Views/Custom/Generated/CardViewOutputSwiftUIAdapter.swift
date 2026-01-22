@@ -14,6 +14,9 @@ import SwiftUI
 #if canImport(Foundation)
 import Foundation
 #endif
+#if canImport(QuartzCore)
+import QuartzCore
+#endif
 #if canImport(UIKit)
 import UIKit
 #endif
@@ -99,15 +102,13 @@ public class CardViewOutputSwiftUIAdapter: ObservableObject, CardViewOutput {
             secondaryLeadingImage: secondaryLeadingImage
         )
     }
-    @Published public var displayTrailingImageLeadingSpacingState: DisplayTrailingImageLeadingSpacingState? = nil
-    public struct DisplayTrailingImageLeadingSpacingState {
+    @Published public var displayTrailingImageState: DisplayTrailingImageState? = nil
+    public struct DisplayTrailingImageState {
         public let trailingImage: ImageViewPresentableModel?
-        public let leadingSpacing: CGFloat?
     }
-    public func display(trailingImage: ImageViewPresentableModel?, leadingSpacing: CGFloat?) {
-        displayTrailingImageLeadingSpacingState = .init(
-            trailingImage: trailingImage, 
-            leadingSpacing: leadingSpacing
+    public func display(trailingImage: ImageViewPresentableModel?) {
+        displayTrailingImageState = .init(
+            trailingImage: trailingImage
         )
     }
     @Published public var displaySecondaryTrailingImageState: DisplaySecondaryTrailingImageState? = nil
@@ -198,15 +199,6 @@ public class CardViewOutputSwiftUIAdapter: ObservableObject, CardViewOutput {
     public func display(isGradientBorderEnabled: Bool) {
         displayIsGradientBorderEnabledState = .init(
             isGradientBorderEnabled: isGradientBorderEnabled
-        )
-    }
-    @Published public var displayTrailingImageState: DisplayTrailingImageState? = nil
-    public struct DisplayTrailingImageState {
-        public let trailingImage: ImageViewPresentableModel?
-    }
-    public func display(trailingImage: ImageViewPresentableModel?) {
-        displayTrailingImageState = .init(
-            trailingImage: trailingImage
         )
     }
 }
