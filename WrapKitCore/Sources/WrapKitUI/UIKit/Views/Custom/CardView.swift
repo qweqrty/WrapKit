@@ -6,6 +6,9 @@
 //
 
 import Foundation
+#if canImport(QuartzCore)
+import QuartzCore
+#endif
 
 public protocol CardViewOutput: AnyObject {
     func display(model: CardViewPresentableModel?)
@@ -16,7 +19,7 @@ public protocol CardViewOutput: AnyObject {
     func display(trailingTitles: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>?)
     func display(leadingImage: ImageViewPresentableModel?)
     func display(secondaryLeadingImage: ImageViewPresentableModel?)
-    func display(trailingImage: ImageViewPresentableModel?, leadingSpacing: CGFloat?)
+    func display(trailingImage: ImageViewPresentableModel?)
     func display(secondaryTrailingImage: ImageViewPresentableModel?)
     func display(subTitle: TextOutputPresentableModel?)
     func display(valueTitle: TextOutputPresentableModel?)
@@ -27,13 +30,6 @@ public protocol CardViewOutput: AnyObject {
     func display(isHidden: Bool)
     func display(isUserInteractionEnabled: Bool?)
     func display(isGradientBorderEnabled: Bool)
-}
-
-extension CardViewOutput {
-    // sourcery: skipSpy
-    func display(trailingImage: ImageViewPresentableModel?) {
-        display(trailingImage: trailingImage, leadingSpacing: nil)
-    }
 }
 
 public struct CardViewPresentableModel: HashableWithReflection {
@@ -63,6 +59,7 @@ public struct CardViewPresentableModel: HashableWithReflection {
         public let borderWidth: CGFloat?
         public let gradientBorderColors: [Color]?
         public let trailingImageLeadingSpacing: CGFloat?
+        public let secondaryTrailingImageLeadingSpacing: CGFloat?
         
         public init(
             backgroundColor: Color,
@@ -89,7 +86,8 @@ public struct CardViewPresentableModel: HashableWithReflection {
             borderColor: Color? = nil,
             borderWidth: CGFloat? = nil,
             gradientBorderColors: [Color]? = nil,
-            trailingImageLeadingSpacing: CGFloat? = nil
+            trailingImageLeadingSpacing: CGFloat? = nil,
+            secondaryTrailingImageLeadingSpacing: CGFloat? = nil
         ) {
             self.backgroundColor = backgroundColor
             self.vStacklayoutMargins = vStacklayoutMargins
@@ -116,6 +114,7 @@ public struct CardViewPresentableModel: HashableWithReflection {
             self.borderWidth = borderWidth
             self.gradientBorderColors = gradientBorderColors
             self.trailingImageLeadingSpacing = trailingImageLeadingSpacing
+            self.secondaryTrailingImageLeadingSpacing = secondaryTrailingImageLeadingSpacing
         }
     }
 
@@ -200,10 +199,8 @@ import SwiftUI
 
 extension CardView: CardViewOutput {
     public func display(style: CardViewPresentableModel.Style?) {
-        if let style = style {
-            self.style = style
-        }
-        guard let style = style else { return }
+        guard let style else { return }
+        self.style = style
         backgroundColor = style.backgroundColor
         vStackView.layoutMargins = style.vStacklayoutMargins.asUIEdgeInsets
         hStackView.layoutMargins = style.hStacklayoutMargins.asUIEdgeInsets
@@ -267,13 +264,9 @@ extension CardView: CardViewOutput {
     }
     
     public func display(trailingImage: ImageViewPresentableModel?) {
-        display(trailingImage: trailingImage, leadingSpacing: nil)
-    }
-    
-    public func display(trailingImage: ImageViewPresentableModel?, leadingSpacing: CGFloat?) {
         trailingImageWrapperView.isHidden = trailingImage == nil
         trailingImageView.display(model: trailingImage)
-        if let leadingSpacing,
+        if let leadingSpacing = style?.trailingImageLeadingSpacing,
            let index = hStackView.arrangedSubviews.firstIndex(of: trailingImageWrapperView),
            let prevView = hStackView.arrangedSubviews.item(at: index - 1) {
             hStackView.setCustomSpacing(leadingSpacing, after: prevView)
@@ -283,6 +276,11 @@ extension CardView: CardViewOutput {
     public func display(secondaryTrailingImage: ImageViewPresentableModel?) {
         secondaryTrailingImageWrapperView.isHidden = secondaryTrailingImage == nil
         secondaryTrailingImageView.display(model: secondaryTrailingImage)
+        if let leadingSpacing = style?.secondaryTrailingImageLeadingSpacing,
+           let index = hStackView.arrangedSubviews.firstIndex(of: secondaryTrailingImageWrapperView),
+           let prevView = hStackView.arrangedSubviews.item(at: index - 1) {
+            hStackView.setCustomSpacing(leadingSpacing, after: prevView)
+        }
     }
     
     public func display(subTitle: TextOutputPresentableModel?) {
@@ -331,7 +329,7 @@ extension CardView: CardViewOutput {
     
     public func display(model: CardViewPresentableModel?) {
         isHidden = model == nil
-        guard let model = model else { return }
+        guard let model else { return }
         // Style
         display(style: model.style)
         
@@ -357,7 +355,7 @@ extension CardView: CardViewOutput {
         display(secondaryLeadingImage: model.secondaryLeadingImage)
         
         // TrailingImage
-        display(trailingImage: model.trailingImage, leadingSpacing: style?.trailingImageLeadingSpacing)
+        display(trailingImage: model.trailingImage)
         
         // SecondaryTrailingImage
         display(secondaryTrailingImage: model.secondaryTrailingImage)
