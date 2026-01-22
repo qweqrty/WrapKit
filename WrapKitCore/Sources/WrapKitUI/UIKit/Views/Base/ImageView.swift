@@ -497,14 +497,32 @@ private extension ImageView {
     func applyInteractivityAndAccessibility() {
         accessibilityLabel = nil
         accessibilityHint = nil
-        guard onPress != nil || onLongPress != nil else {
-            isAccessibilityElement = false
-            accessibilityTraits = []
-            return
+
+        let hasTap = (onPress != nil)
+        let hasLong = (onLongPress != nil)
+        let interactive = hasTap || hasLong
+
+        isAccessibilityElement = interactive
+        accessibilityTraits = interactive ? [.image, .button] : []
+
+        var actions: [UIAccessibilityCustomAction] = []
+
+        if let onLongPress {
+            actions.append(UIAccessibilityCustomAction(name: "Long press", actionHandler: { _ in
+                onLongPress()
+                return true
+            }))
         }
-        isAccessibilityElement = true
-        accessibilityTraits = [.image]
+
+        accessibilityCustomActions = actions.isEmpty ? nil : actions
+    }
+
+    open override func accessibilityActivate() -> Bool {
+        guard let onPress else { return super.accessibilityActivate() }
+        onPress()
+        return true
     }
 }
+
 
 #endif
