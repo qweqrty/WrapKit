@@ -133,7 +133,6 @@ extension Label: TextOutput {
         currentAnimatedTarget = endAmount
         
         animation?.startAnimation(fromValue: startAmount, to: endAmount, mapToString: mapToString, animationStyle: animationStyle, duration: duration, completion: { [weak self] in
-            self?.clearAnimationModel()
             completion?()
         })
     }
