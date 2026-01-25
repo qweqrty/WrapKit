@@ -7,61 +7,183 @@
 
 import Foundation
 
+#if canImport(UIKit)
+import UIKit
+#endif
+
+#if canImport(AppKit)
+import AppKit
+#endif
+
 public protocol HashableWithReflection: Hashable {}
 
 public extension HashableWithReflection {
-    func hash(into hasher: inout Hasher) {
-        let mirror = Mirror(reflecting: self)
-        
-        // For enums, include the case name by using String(describing: self)
-        if mirror.displayStyle == .enum {
-            hasher.combine(String(describing: self))
-        }
-        
-        // Hash all child values
-        for child in mirror.children {
-            if let value = child.value as? AnyHashable {
-                hasher.combine(value)
-            } else {
-                hasher.combine(String(describing: child.value))
-            }
-        }
+
+    // MARK: - Helpers
+
+    private func enumCaseName(_ value: Any) -> String {
+        // "asset(Optional(<UIImage:0x...>))" -> "asset"
+        let full = String(describing: value)
+        return full.split(separator: "(").first.map(String.init) ?? full
     }
-    
-    static func == (lhs: Self, rhs: Self) -> Bool {
-        let lhsMirror = Mirror(reflecting: lhs)
-        let rhsMirror = Mirror(reflecting: rhs)
-        
-        // For enums, first check if they're the same case
-        if lhsMirror.displayStyle == .enum && rhsMirror.displayStyle == .enum {
-            let lhsDesc = String(describing: lhs)
-            let rhsDesc = String(describing: rhs)
-            if lhsDesc != rhsDesc {
+
+    private func isReflectionHashable(_ value: Any) -> Bool {
+        // Avoid recursion through AnyHashable for our own reflection-hashable models
+        value is any HashableWithReflection
+    }
+
+    // MARK: - Recursive Hash
+
+    private func hashAny(_ value: Any, into hasher: inout Hasher) {
+        // 1) Platform images (must be before string fallback)
+        #if canImport(UIKit)
+        if let image = value as? UIImage {
+            hasher.combine(image.size.width)
+            hasher.combine(image.size.height)
+            hasher.combine(image.renderingMode.rawValue)
+            hasher.combine(image.accessibilityIdentifier ?? "")
+            return
+        }
+        #endif
+
+        #if canImport(AppKit)
+        if let image = value as? NSImage {
+            hasher.combine(image.size.width)
+            hasher.combine(image.size.height)
+            hasher.combine(image.isTemplate)
+            return
+        }
+        #endif
+
+        let mirror = Mirror(reflecting: value)
+
+        // 2) Optional: hash nil vs some(value)
+        if mirror.displayStyle == .optional {
+            if let child = mirror.children.first {
+                hasher.combine(1)
+                hashAny(child.value, into: &hasher)
+            } else {
+                hasher.combine(0)
+            }
+            return
+        }
+
+        // 3) Enum: hash case name + recursively hash payload
+        if mirror.displayStyle == .enum {
+            hasher.combine(enumCaseName(value))
+            for child in mirror.children {
+                hashAny(child.value, into: &hasher)
+            }
+            return
+        }
+
+        // 4) Fast path for normal Hashable values — BUT NOT for HashableWithReflection
+        // (otherwise AnyHashable will call our hash(into:) again -> recursion)
+        if let h = value as? AnyHashable, !isReflectionHashable(value) {
+            hasher.combine(h)
+            return
+        }
+
+        // 5) Struct/class: hash children recursively (include labels to reduce collisions)
+        if !mirror.children.isEmpty {
+            for child in mirror.children {
+                hasher.combine(child.label ?? "")
+                hashAny(child.value, into: &hasher)
+            }
+            return
+        }
+
+        // 6) Fallback
+        hasher.combine(String(describing: value))
+    }
+
+    // MARK: - Recursive Equality
+
+    private func areEqual(_ lhs: Any, _ rhs: Any) -> Bool {
+        // 1) Platform images
+        #if canImport(UIKit)
+        if let li = lhs as? UIImage, let ri = rhs as? UIImage {
+            return li.size == ri.size
+            && li.renderingMode == ri.renderingMode
+            && (li.accessibilityIdentifier ?? "") == (ri.accessibilityIdentifier ?? "")
+        }
+        #endif
+
+        #if canImport(AppKit)
+        if let li = lhs as? NSImage, let ri = rhs as? NSImage {
+            return li.size == ri.size
+            && li.isTemplate == ri.isTemplate
+        }
+        #endif
+
+        let lm = Mirror(reflecting: lhs)
+        let rm = Mirror(reflecting: rhs)
+
+        // 2) Optional
+        if lm.displayStyle == .optional || rm.displayStyle == .optional {
+            guard lm.displayStyle == .optional, rm.displayStyle == .optional else { return false }
+
+            let lChild = lm.children.first
+            let rChild = rm.children.first
+
+            switch (lChild, rChild) {
+            case (nil, nil):
+                return true
+            case (let l?, let r?):
+                return areEqual(l.value, r.value)
+            default:
                 return false
             }
         }
-        
-        // Check if number of children match
-        guard lhsMirror.children.count == rhsMirror.children.count else {
-            return false
-        }
-        
-        // Compare all children
-        for (lhsChild, rhsChild) in zip(lhsMirror.children, rhsMirror.children) {
-            if let lhsValue = lhsChild.value as? AnyHashable,
-               let rhsValue = rhsChild.value as? AnyHashable {
-                if lhsValue != rhsValue {
-                    return false
-                }
-            } else {
-                let lhsDescription = String(describing: lhsChild.value)
-                let rhsDescription = String(describing: rhsChild.value)
-                if lhsDescription != rhsDescription {
-                    return false
-                }
+
+        // 3) Enum: compare case name + compare payload recursively
+        if lm.displayStyle == .enum || rm.displayStyle == .enum {
+            guard lm.displayStyle == .enum, rm.displayStyle == .enum else { return false }
+            guard enumCaseName(lhs) == enumCaseName(rhs) else { return false }
+
+            let lChildren = Array(lm.children)
+            let rChildren = Array(rm.children)
+            guard lChildren.count == rChildren.count else { return false }
+
+            for (l, r) in zip(lChildren, rChildren) {
+                if !areEqual(l.value, r.value) { return false }
             }
+            return true
         }
-        
-        return true
+
+        // 4) Fast path for normal Hashable values — BUT NOT for HashableWithReflection
+        // (otherwise AnyHashable equality will call our == again -> recursion)
+        if let lh = lhs as? AnyHashable,
+           let rh = rhs as? AnyHashable,
+           !isReflectionHashable(lhs),
+           !isReflectionHashable(rhs) {
+            return lh == rh
+        }
+
+        // 5) Struct/class: compare children recursively
+        if !lm.children.isEmpty || !rm.children.isEmpty {
+            let lChildren = Array(lm.children)
+            let rChildren = Array(rm.children)
+            guard lChildren.count == rChildren.count else { return false }
+
+            for (l, r) in zip(lChildren, rChildren) {
+                if l.label != r.label { return false }
+                if !areEqual(l.value, r.value) { return false }
+            }
+            return true
+        }
+
+        // 6) Fallback
+        return String(describing: lhs) == String(describing: rhs)
+    }
+
+    // MARK: - HashableWithReflection
+
+    func hash(into hasher: inout Hasher) {
+        hashAny(self, into: &hasher)
+    }
+
+    static func == (lhs: Self, rhs: Self) -> Bool {
+        lhs.areEqual(lhs, rhs)
     }
 }
