@@ -112,6 +112,110 @@ class HashableWithReflectionTests: XCTestCase {
     }
 }
 
+// MARK: - UI Image / Enum payload regression tests
+extension HashableWithReflectionTests {
+
+    func test_regression_enumWithUIImageAssociatedValue_shouldIgnorePointerAddress() {
+        #if canImport(UIKit)
+        let img1 = makeTestUIImage(size: CGSize(width: 24, height: 24), renderingMode: .alwaysTemplate, accessibilityIdentifier: nil)
+        let img2 = makeTestUIImage(size: CGSize(width: 24, height: 24), renderingMode: .alwaysTemplate, accessibilityIdentifier: nil)
+
+        // Ensure they are different instances (pointer differs)
+        XCTAssertFalse(img1 === img2)
+
+        let e1 = ImageEnumStub.asset(img1)
+        let e2 = ImageEnumStub.asset(img2)
+
+        XCTAssertEqual(e1, e2)
+
+        // Hashes for equal values should match
+        XCTAssertEqual(e1.hashValue, e2.hashValue)
+
+        // Set should deduplicate
+        XCTAssertEqual(Set([e1, e2]).count, 1)
+        #endif
+    }
+
+    func test_regression_enumWithUIImageOptionalAssociatedValue_someVsNone() {
+        #if canImport(UIKit)
+        let img = makeTestUIImage(size: CGSize(width: 24, height: 24), renderingMode: .alwaysTemplate, accessibilityIdentifier: nil)
+
+        let some1 = ImageOptionalEnumStub.asset(img)
+        let some2 = ImageOptionalEnumStub.asset(img)
+        let none = ImageOptionalEnumStub.asset(nil)
+
+        XCTAssertEqual(some1, some2)
+        XCTAssertNotEqual(some1, none)
+        XCTAssertEqual(none, ImageOptionalEnumStub.asset(nil))
+
+        // Hash consistency
+        XCTAssertEqual(some1.hashValue, some2.hashValue)
+        XCTAssertNotEqual(some1.hashValue, none.hashValue)
+        #endif
+    }
+
+    func test_regression_uiImage_accessibilityIdentifier_affectsEquality() {
+        #if canImport(UIKit)
+        let imgA = makeTestUIImage(size: CGSize(width: 24, height: 24), renderingMode: .alwaysTemplate, accessibilityIdentifier: "a")
+        let imgB = makeTestUIImage(size: CGSize(width: 24, height: 24), renderingMode: .alwaysTemplate, accessibilityIdentifier: "b")
+        let imgC = makeTestUIImage(size: CGSize(width: 24, height: 24), renderingMode: .alwaysTemplate, accessibilityIdentifier: "a")
+        let imgD = makeTestUIImage(size: CGSize(width: 22, height: 24), renderingMode: .alwaysTemplate, accessibilityIdentifier: "a")
+
+        XCTAssertNotEqual(ImageEnumStub.asset(imgA), ImageEnumStub.asset(imgB))
+        XCTAssertEqual(ImageEnumStub.asset(imgA), ImageEnumStub.asset(imgC))
+        XCTAssertNotEqual(ImageEnumStub.asset(imgA), ImageEnumStub.asset(imgD))
+        #endif
+    }
+
+    func test_regression_uiImage_renderingMode_affectsEquality() {
+        #if canImport(UIKit)
+        let imgA = makeTestUIImage(size: CGSize(width: 24, height: 24), renderingMode: .alwaysTemplate, accessibilityIdentifier: nil)
+        let imgB = makeTestUIImage(size: CGSize(width: 24, height: 24), renderingMode: .alwaysOriginal, accessibilityIdentifier: nil)
+
+        XCTAssertNotEqual(ImageEnumStub.asset(imgA), ImageEnumStub.asset(imgB))
+        #endif
+    }
+
+    func test_regression_uiImage_size_affectsEquality() {
+        #if canImport(UIKit)
+        let imgA = makeTestUIImage(size: CGSize(width: 24, height: 24), renderingMode: .alwaysTemplate, accessibilityIdentifier: nil)
+        let imgB = makeTestUIImage(size: CGSize(width: 25, height: 24), renderingMode: .alwaysTemplate, accessibilityIdentifier: nil)
+
+        XCTAssertNotEqual(ImageEnumStub.asset(imgA), ImageEnumStub.asset(imgB))
+        #endif
+    }
+
+    func test_regression_enumWithNSImageAssociatedValue_shouldIgnorePointerAddress() {
+        #if canImport(AppKit) && !targetEnvironment(macCatalyst)
+        let img1 = makeTestNSImage(size: CGSize(width: 24, height: 24), isTemplate: true)
+        let img2 = makeTestNSImage(size: CGSize(width: 24, height: 24), isTemplate: true)
+
+        // Different instances
+        XCTAssertFalse(img1 === img2)
+
+        let e1 = NSImageEnumStub.asset(img1)
+        let e2 = NSImageEnumStub.asset(img2)
+
+        XCTAssertEqual(e1, e2)
+        XCTAssertEqual(e1.hashValue, e2.hashValue)
+        XCTAssertEqual(Set([e1, e2]).count, 1)
+        #endif
+    }
+
+    func test_regression_noCrash_forEmptyStructComparison() {
+        // This regression covers the AnyHashable recursion / EXC_BAD_ACCESS bug.
+        // If recursion is present, this line may crash.
+        XCTAssertEqual(EmptyStructStub(), EmptyStructStub())
+    }
+
+    func test_regression_noCrash_forEmptyEnumComparison() {
+        // Same idea, but for enum case comparisons.
+        XCTAssertEqual(EmptyEnumStub.case1, EmptyEnumStub.case1)
+        XCTAssertNotEqual(EmptyEnumStub.case1, EmptyEnumStub.case2)
+    }
+}
+
+
 // MARK: - Test Types
 private extension HashableWithReflectionTests {
     // Basic Types
@@ -167,4 +271,40 @@ private extension HashableWithReflectionTests {
         case case1
         case case2
     }
+}
+
+// MARK: - Regression types for UI image payloads
+private extension HashableWithReflectionTests {
+
+    #if canImport(UIKit)
+    enum ImageEnumStub: HashableWithReflection {
+        case asset(UIImage)
+    }
+
+    enum ImageOptionalEnumStub: HashableWithReflection {
+        case asset(UIImage?)
+    }
+
+    func makeTestUIImage(size: CGSize, renderingMode: UIImage.RenderingMode, accessibilityIdentifier: String?) -> UIImage {
+        let renderer = UIGraphicsImageRenderer(size: size)
+        let image = renderer.image { _ in
+            // empty image is fine; we only need stable metadata
+        }.withRenderingMode(renderingMode)
+
+        image.accessibilityIdentifier = accessibilityIdentifier
+        return image
+    }
+    #endif
+
+    #if canImport(AppKit) && !targetEnvironment(macCatalyst)
+    enum NSImageEnumStub: HashableWithReflection {
+        case asset(NSImage)
+    }
+
+    func makeTestNSImage(size: CGSize, isTemplate: Bool) -> NSImage {
+        let image = NSImage(size: size)
+        image.isTemplate = isTemplate
+        return image
+    }
+    #endif
 }
