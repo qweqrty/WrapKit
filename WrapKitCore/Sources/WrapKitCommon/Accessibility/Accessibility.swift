@@ -24,24 +24,20 @@ public extension UIView {
         var out: [UIAccessibilityCustomAction] = []
 
         func walk(_ v: UIView) {
-            // Пропускаем сам контейнер-элемент, если он already isAccessibilityElement (т.е. CardView)
-            // но мы вызываем walk на контейнере, поэтому важно не зациклиться.
             if v !== self, v.isAccessibilityElement {
-
-                // 1) если у элемента уже есть custom actions — берём их как есть
                 if let actions = v.accessibilityCustomActions, !actions.isEmpty {
                     out.append(contentsOf: actions)
                 }
 
-                // 2) если это "активируемый" элемент и customActions пустые,
-                // можно добавить action, который дернет accessibilityActivate()
                 else if v.looksActivatable {
                     weak let weakView = v
-                    let name = (v.accessibilityLabel?.trimmingCharacters(in: .newlines)).flatMap { $0.isEmpty ? nil : $0 } ?? "Activate"
-                    out.append(UIAccessibilityCustomAction(name: name, actionHandler: { _ in
-                        guard let vv = weakView else { return false }
-                        return vv.accessibilityActivate()
-                    }))
+                    let name = (v.accessibilityLabel?.trimmingCharacters(in: .newlines)).flatMap { $0.isEmpty ? nil : $0 }
+                    if let name, !name.isEmpty {
+                        out.append(UIAccessibilityCustomAction(name: name, actionHandler: { _ in
+                            guard let vv = weakView else { return false }
+                            return vv.accessibilityActivate()
+                        }))
+                    }
                 }
             }
 

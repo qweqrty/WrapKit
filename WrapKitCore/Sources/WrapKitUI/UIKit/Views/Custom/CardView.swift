@@ -628,7 +628,7 @@ extension CardView {
     }
 
     private func applyAccessibility(model: CardViewPresentableModel) {
-
+        guard UIAccessibility.isVoiceOverRunning else { return }
         isAccessibilityElement = false
         accessibilityLabel = nil
         accessibilityHint = nil

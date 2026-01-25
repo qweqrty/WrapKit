@@ -9,14 +9,14 @@
 import UIKit
 
 open class Textview: UITextView, UITextViewDelegate {
-    public var leadingViewOnPress: (() -> Void)?
-    public var trailingViewOnPress: (() -> Void)?
-    public var onPress: (() -> Void)?
-    public var onPaste: ((String?) -> Void)?
+    public var leadingViewOnPress: (() -> Void)? { didSet { applyAccessibility() } }
+    public var trailingViewOnPress: (() -> Void)? { didSet { applyAccessibility() } }
+    public var onPress: (() -> Void)? { didSet { applyAccessibility() } }
+    public var onPaste: ((String?) -> Void)? { didSet { applyAccessibility() } }
     public var nextTextfield: UIResponder? = nil { didSet { returnKeyType = nextTextfield == nil ? .done : .next } }
-    public var onBecomeFirstResponder: (() -> Void)?
-    public var onResignFirstResponder: (() -> Void)?
-    public var onTapBackspace: (() -> Void)?
+    public var onBecomeFirstResponder: (() -> Void)? { didSet { applyAccessibility() } }
+    public var onResignFirstResponder: (() -> Void)? { didSet { applyAccessibility() } }
+    public var onTapBackspace: (() -> Void)? { didSet { applyAccessibility() } }
     
     public var didChangeText = [((String?) -> Void)]()
     
@@ -26,13 +26,14 @@ open class Textview: UITextView, UITextViewDelegate {
     public lazy var placeholderLabel = Label(font: font!, textColor: .gray)
     public var textDidChange: (() -> Void)?
     public var shouldChangeText: ((NSRange, String) -> Bool)?
-    public var appearance: TextfieldAppearance { didSet { updateAppearance() }}
+    public var appearance: TextfieldAppearance { didSet { updateAppearance(); applyAccessibility() } }
     
     open override var semanticContentAttribute: UISemanticContentAttribute {
         didSet {
             if textAlignment != .center {
                 textAlignment = semanticContentAttribute == .forceRightToLeft ? .right : .left
             }
+            applyAccessibility()
         }
     }
     
@@ -58,6 +59,7 @@ open class Textview: UITextView, UITextViewDelegate {
         self.placeholderLabel.font = appearance.placeholder?.font
         setupSubviews()
         setupConstraints()
+        applyAccessibility()
     }
         
     func setupSubviews() {
@@ -79,6 +81,7 @@ open class Textview: UITextView, UITextViewDelegate {
     public func textViewDidChange(_ textView: UITextView) {
         placeholderLabel.isHidden = !textView.text.isEmpty
         textDidChange?()
+        applyAccessibility()
     }
     
     public func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
@@ -91,12 +94,58 @@ open class Textview: UITextView, UITextViewDelegate {
         placeholderLabel.font = customizedPlaceholder.font
     }
     
+    open override func paste(_ sender: Any?) {
+        if let onPaste {
+            onPaste(UIPasteboard.general.string)
+            applyAccessibility()
+        } else {
+            super.paste(sender)
+            applyAccessibility()
+        }
+    }
+    
+    @discardableResult
+    open override func becomeFirstResponder() -> Bool {
+        let ok = super.becomeFirstResponder()
+        if ok { onBecomeFirstResponder?() }
+        updateAppearance()
+        applyAccessibility()
+        return ok
+    }
+    
+    @discardableResult
+    open override func resignFirstResponder() -> Bool {
+        let ok = super.resignFirstResponder()
+        if ok { onResignFirstResponder?() }
+        updateAppearance()
+        applyAccessibility()
+        return ok
+    }
+    
+    open override var isUserInteractionEnabled: Bool {
+        didSet {
+            textColor = isUserInteractionEnabled ? appearance.colors.textColor : appearance.colors.disabledTextColor
+            backgroundColor = isUserInteractionEnabled ? appearance.colors.deselectedBackgroundColor : appearance.colors.disabledBackgroundColor
+            if !isUserInteractionEnabled { resignFirstResponder() }
+            applyAccessibility()
+        }
+    }
+    
+    // Optional: tap hook similar to your Textfield point(inside:) pattern
+    // If you don't want this behaviour for TextView, remove it.
+    open override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        super.touchesEnded(touches, with: event)
+        onPress?()
+    }
+    
     open override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         super.traitCollectionDidChange(previousTraitCollection)
         updateAppearance()
+        applyAccessibility()
     }
 }
 
+// MARK: - Appearance
 public extension Textview {
    
     func makeAccessoryView(
@@ -160,7 +209,7 @@ public extension Textview {
     private func updateAppearance() {
         updatePlaceholder()
         font = appearance.font
-        let text = (delegate as? MaskedTextfieldDelegate)?.fullText ?? text
+        _ = (delegate as? MaskedTextfieldDelegate)?.fullText ?? text
         let isValid = isValidState
         let isFirstResponder = isFirstResponder
         let appearance = appearance
@@ -177,21 +226,25 @@ public extension Textview {
     }
 }
 
+// MARK: - TextInputOutput
 extension Textview: TextInputOutput {
     public func display(inputAccessoryView: TextInputPresentableModel.AccessoryViewPresentableModel?) {
         guard let inputAccessoryView else {
             self.inputAccessoryView = nil
             self.reloadInputViews()
+            applyAccessibility()
             return
         }
         self.inputAccessoryView = makeAccessoryView(model: inputAccessoryView)
         self.reloadInputViews()
+        applyAccessibility()
     }
     
     public func display(inputView: TextInputPresentableModel.InputView?) {
         guard let inputView else {
             self.inputView = nil
             self.reloadInputViews()
+            applyAccessibility()
             return
         }
         switch inputView {
@@ -209,6 +262,7 @@ extension Textview: TextInputOutput {
             
             guard let accessoryView = model.accessoryView else {
                 self.inputAccessoryView = nil
+                applyAccessibility()
                 return
             }
             self.inputAccessoryView = makeAccessoryView(model: accessoryView, onDoneTapped: model.onDoneTapped)
@@ -218,6 +272,7 @@ extension Textview: TextInputOutput {
             self.inputView = pickerView
         }
         self.reloadInputViews()
+        applyAccessibility()
     }
     
     public func startEditing() {
@@ -252,82 +307,156 @@ extension Textview: TextInputOutput {
             display(didChangeText: didChangeText)
         }
         display(trailingSymbol: model.trailingSymbol)
+        display(inputAccessoryView: model.inputAccessoryView)
+        display(inputView: model.inputView)
+        
+        applyAccessibility()
     }
     
     public func display(text: String?) {
         let decodedText = text?.removingPercentEncoding ?? text ?? ""
         self.text = decodedText
         placeholderLabel.isHidden = !decodedText.isEmpty
+        applyAccessibility()
     }
     
     public func display(mask: TextInputPresentableModel.Mask) { }
-    public func display(isValid: Bool) {
-        isValidState = isValid
-    }
+    public func display(isValid: Bool) { isValidState = isValid; applyAccessibility() }
+    public func display(isEnabledForEditing: Bool) { applyAccessibility() }
+    public func display(isTextSelectionDisabled: Bool) { applyAccessibility() }
     
-    public func display(isEnabledForEditing: Bool) { }
-    public func display(isTextSelectionDisabled: Bool) { }
     public func display(placeholder: String?) {
         self.placeholderLabel.text = placeholder
+        applyAccessibility()
     }
     
     public func display(isUserInteractionEnabled: Bool) {
         self.isUserInteractionEnabled = isUserInteractionEnabled
+        applyAccessibility()
     }
     
     public func display(isSecureTextEntry: Bool) {
         self.isSecureTextEntry = isSecureTextEntry
+        applyAccessibility()
     }
     
     public func display(leadingViewOnPress: (() -> Void)?) {
         self.leadingViewOnPress = leadingViewOnPress
+        applyAccessibility()
     }
     
     public func display(trailingViewOnPress: (() -> Void)?) {
         self.trailingViewOnPress = trailingViewOnPress
+        applyAccessibility()
     }
     
     public func display(onPress: (() -> Void)?) {
         self.onPress = onPress
+        applyAccessibility()
     }
     
-    public func display(leadingViewIsHidden: Bool) {
-
-    }
-    
-    public func display(trailingViewIsHidden: Bool) {
-        
-    }
+    public func display(leadingViewIsHidden: Bool) { applyAccessibility() }
+    public func display(trailingViewIsHidden: Bool) { applyAccessibility() }
     
     public func display(onPaste: ((String?) -> Void)?) {
         self.onPaste = onPaste
+        applyAccessibility()
     }
     
     public func display(onBecomeFirstResponder: (() -> Void)?) {
         self.onBecomeFirstResponder = onBecomeFirstResponder
+        applyAccessibility()
     }
     
     public func display(onResignFirstResponder: (() -> Void)?) {
         self.onResignFirstResponder = onResignFirstResponder
+        applyAccessibility()
     }
     
     public func display(onTapBackspace: (() -> Void)?) {
         self.onTapBackspace = onTapBackspace
+        applyAccessibility()
     }
     
     public func display(didChangeText: [((String?) -> Void)]) {
         self.didChangeText = didChangeText
+        applyAccessibility()
     }
     
     public func display(isHidden: Bool) {
         self.isHidden = isHidden
+        applyAccessibility()
     }
 
     public func display(inputType: KeyboardType) {
         self.keyboardType = UIKeyboardType(rawValue: inputType.rawValue) ?? .default
+        applyAccessibility()
     }
     
     public func display(trailingSymbol: String?) {}
     public func display(isClearButtonActive: Bool) { }
+}
+
+// MARK: - Accessibility (automatic summary + actions)
+private extension Textview {
+    func applyAccessibility() {
+        guard UIAccessibility.isVoiceOverRunning else { return }
+        // UITextView - редактируемый элемент по умолчанию
+        isAccessibilityElement = true
+        accessibilityHint = nil
+
+        // label: placeholder или текст (без локализации)
+        accessibilityLabel = accessibilityTextSummaryForSelf()
+
+        // traits: если disabled -> notEnabled
+        var traits = accessibilityTraits
+        if !isUserInteractionEnabled || isHidden || alpha <= 0.01 {
+            traits.insert(.notEnabled)
+        } else {
+            traits.remove(.notEnabled)
+        }
+        accessibilityTraits = traits
+
+        // custom actions: leading/trailing (т.к. у textview нет встроенных view, только closures)
+        updateAccessibilityCustomActions()
+    }
+
+    func accessibilityTextSummaryForSelf(maxLen: Int = 140) -> String? {
+        let txt = (text ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        if !txt.isEmpty { return String(txt.prefix(maxLen)) }
+        let ph = (placeholderLabel.text ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        return ph.isEmpty ? nil : String(ph.prefix(maxLen))
+    }
+
+    func updateAccessibilityCustomActions() {
+        var actions: [UIAccessibilityCustomAction] = []
+
+        if isLeadingActionAvailable {
+            actions.append(UIAccessibilityCustomAction(name: "Leading", target: self, selector: #selector(a11yTapLeading)))
+        }
+        if isTrailingActionAvailable {
+            actions.append(UIAccessibilityCustomAction(name: "Trailing", target: self, selector: #selector(a11yTapTrailing)))
+        }
+
+        accessibilityCustomActions = actions.isEmpty ? nil : actions
+    }
+
+    var isLeadingActionAvailable: Bool {
+        isUserInteractionEnabled && !isHidden && alpha > 0.01 && leadingViewOnPress != nil
+    }
+
+    var isTrailingActionAvailable: Bool {
+        isUserInteractionEnabled && !isHidden && alpha > 0.01 && trailingViewOnPress != nil
+    }
+
+    @objc func a11yTapLeading() -> Bool {
+        leadingViewOnPress?()
+        return true
+    }
+
+    @objc func a11yTapTrailing() -> Bool {
+        trailingViewOnPress?()
+        return true
+    }
 }
 #endif

@@ -411,8 +411,7 @@ private extension UIView {
 
         dfs(self)
 
-        let text = parts
-            .joined(separator: ", ")
+        let text = parts.first?
             .replacingOccurrences(of: "\n", with: ", ")
             .trimmingCharacters(in: .whitespacesAndNewlines)
 

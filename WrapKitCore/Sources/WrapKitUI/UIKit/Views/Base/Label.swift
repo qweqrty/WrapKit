@@ -461,7 +461,8 @@ open class Label: UILabel {
                 removeGestureRecognizer(tapGesture)
             }
         }
-
+        
+        guard UIAccessibility.isVoiceOverRunning else { return }
         isAccessibilityElement = true
         accessibilityLabel = nil
         accessibilityHint = nil
