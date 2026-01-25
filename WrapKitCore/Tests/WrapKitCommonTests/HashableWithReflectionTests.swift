@@ -215,7 +215,6 @@ extension HashableWithReflectionTests {
     }
 }
 
-
 // MARK: - Test Types
 private extension HashableWithReflectionTests {
     // Basic Types
@@ -289,10 +288,10 @@ private extension HashableWithReflectionTests {
         let renderer = UIGraphicsImageRenderer(size: size)
         let image = renderer.image { _ in
             // empty image is fine; we only need stable metadata
-        }.withRenderingMode(renderingMode)
+        }
 
         image.accessibilityIdentifier = accessibilityIdentifier
-        return image
+        return image.withRenderingModePreservingAccessibilityIdentifier(renderingMode)
     }
     #endif
 

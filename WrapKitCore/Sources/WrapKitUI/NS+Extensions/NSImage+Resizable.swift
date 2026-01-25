@@ -8,12 +8,19 @@
 #if canImport(UIKit)
 import UIKit
 
-extension UIImage {
+public extension UIImage {
     func resized(rect: CGRect, container: CGSize) -> UIImage {
         return UIGraphicsImageRenderer(size: container).image { _ in
             draw(in: rect)
         }
-        .withRenderingMode(renderingMode)
+        .withRenderingModePreservingAccessibilityIdentifier(renderingMode)
+    }
+    
+    func withRenderingModePreservingAccessibilityIdentifier(_ renderingMode: UIImage.RenderingMode) -> UIImage {
+        let identifier = self.accessibilityIdentifier
+        let image = withRenderingMode(renderingMode)
+        image.accessibilityIdentifier = identifier
+        return image
     }
 }
 
