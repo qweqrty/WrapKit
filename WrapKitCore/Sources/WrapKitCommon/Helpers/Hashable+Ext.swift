@@ -101,20 +101,29 @@ public extension HashableWithReflection {
 
     private func areEqual(_ lhs: Any, _ rhs: Any) -> Bool {
         // 1) Platform images
-        #if canImport(UIKit)
+#if canImport(UIKit)
         if let li = lhs as? UIImage, let ri = rhs as? UIImage {
-            return li.size == ri.size
-            && li.renderingMode == ri.renderingMode
-            && (li.accessibilityIdentifier ?? "") == (ri.accessibilityIdentifier ?? "")
+            return ((li.accessibilityIdentifier ?? "") == (ri.accessibilityIdentifier ?? "")
+                    && li.size == ri.size
+                    && li.renderingMode == ri.renderingMode) || (li.pngData() == ri.pngData())
         }
-        #endif
-
-        #if canImport(AppKit)
+        if let li = lhs as? UIColor, let ri = rhs as? UIColor {
+            return li.resolvedColor(with: .init(userInterfaceStyle: .light)) == ri.resolvedColor(with: .init(userInterfaceStyle: .light))
+            && li.resolvedColor(with: .init(userInterfaceStyle: .dark)) == ri.resolvedColor(with: .init(userInterfaceStyle: .dark))
+        }
+        if let li = lhs as? UIFont, let ri = rhs as? UIFont {
+            return li == ri // TODO: check HeaderViewStyle Tests, probably need to add check font details check
+        }
+#endif
+        
+#if canImport(AppKit)
         if let li = lhs as? NSImage, let ri = rhs as? NSImage {
-            return li.size == ri.size
-            && li.isTemplate == ri.isTemplate
+            return (li.tiffRepresentation == ri.tiffRepresentation) || (li.size == ri.size && li.isTemplate == ri.isTemplate)
         }
-        #endif
+        if let li = lhs as? NSColor, let ri = rhs as? NSColor {
+            return li == ri
+        }
+#endif
 
         let lm = Mirror(reflecting: lhs)
         let rm = Mirror(reflecting: rhs)
