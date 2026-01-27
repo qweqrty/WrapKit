@@ -138,10 +138,33 @@ public class DiffableTableViewDataSource<Header, Cell: Hashable, Footer>: NSObje
     }
     
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cellModel = sections.item(at: indexPath.section)?.cells.item(at: indexPath.row)?.cell else {
+        guard let cellModel = sections.item(at: indexPath.section)?.cells.item(at: indexPath.row) else {
             return UITableViewCell()
         }
-        return configureCell?(tableView, indexPath, cellModel) ?? UITableViewCell()
+        let cell = configureCell?(tableView, indexPath, cellModel.cell) ?? UITableViewCell()
+        let hasRowTap = (cellModel.onTap != nil)
+
+        cell.isAccessibilityElement = false
+        cell.accessibilityLabel = nil
+        cell.accessibilityHint = nil
+        cell.accessibilityTraits = []
+
+        guard hasRowTap else {
+            return cell
+        }
+
+        let hasInteractiveChildren = cell.contentView.containsInteractiveAccessibleDescendant()
+
+        if !hasInteractiveChildren {
+            cell.isAccessibilityElement = true
+            cell.accessibilityTraits = [.button]
+            cell.accessibilityLabel = cell.contentView.accessibilityTextSummary()
+        } else {
+            cell.isAccessibilityElement = false
+        }
+
+        
+        return cell
     }
     
     public func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
@@ -359,4 +382,5 @@ private extension TableContextualAction.Style {
         }
     }
 }
+
 #endif

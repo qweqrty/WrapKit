@@ -125,6 +125,7 @@ public struct CardViewPresentableModel: HashableWithReflection {
     }
 
     public let id: String
+    public let accessibility: Accessibility?
     public var style: Style?
     public let backgroundImage: ImageViewPresentableModel?
     public let title: TextOutputPresentableModel?
@@ -146,6 +147,7 @@ public struct CardViewPresentableModel: HashableWithReflection {
     
     public init(
         id: String = UUID().uuidString,
+        accessibility: Accessibility? = nil,
         style: Style? = nil,
         backgroundImage: ImageViewPresentableModel? = nil,
         title: TextOutputPresentableModel? = nil,
@@ -166,6 +168,7 @@ public struct CardViewPresentableModel: HashableWithReflection {
         isGradientBorderEnabled: Bool? = nil
     ) {
         self.id = id
+        self.accessibility = accessibility
         self.style = style
         self.backgroundImage = backgroundImage
         self.leadingTitles = leadingTitles
@@ -363,6 +366,7 @@ extension CardView: CardViewOutput {
         if let isGradientBorderEnabled = model.isGradientBorderEnabled {
             display(isGradientBorderEnabled: isGradientBorderEnabled)
         }
+        applyAccessibility(model: model)
     }
 }
 
@@ -613,6 +617,57 @@ extension CardView {
         bottomSeparatorViewConstraints = bottomSeparatorView.anchor(.height(1))
     }
 }
+
+// MARK: - Accessibility
+extension CardView {
+    public override func accessibilityActivate() -> Bool {
+        // Double-tap на карточке
+        guard let onPress else { return false }
+        onPress()
+        return true
+    }
+
+    private func applyAccessibility(model: CardViewPresentableModel) {
+        guard UIAccessibility.isVoiceOverRunning else { return }
+        isAccessibilityElement = false
+        accessibilityLabel = nil
+        accessibilityHint = nil
+        accessibilityTraits = []
+        accessibilityCustomActions = nil
+
+        let childActions = collectAccessibilityActionsForContainer()
+
+        let hasPrimary = (model.onPress != nil)
+        let hasLong = (model.onLongPress != nil)
+
+        guard hasPrimary || hasLong || !childActions.isEmpty else {
+            return
+        }
+
+        isAccessibilityElement = true
+        accessibilityTraits = hasPrimary ? [.button] : [.staticText] // если нет onPress, то не "кнопка"
+
+        accessibilityLabel = a11ySummaryText(from: model)
+        var actions: [UIAccessibilityCustomAction] = []
+
+        if let onLongPress = model.onLongPress {
+            actions.append(UIAccessibilityCustomAction(name: "Long press", actionHandler: { _ in
+                onLongPress()
+                return true
+            }))
+        }
+
+        actions.append(contentsOf: childActions)
+
+        accessibilityCustomActions = actions.isEmpty ? nil : actions
+    }
+
+    private func a11ySummaryText(from model: CardViewPresentableModel) -> String? {
+        guard let text = model.title?.text?.prefix(30), !text.isEmpty else { return nil }
+        return String(text)
+    }
+}
+
 
 @available(iOS 13.0, *)
 struct CardViewFullRepresentable: UIViewRepresentable {

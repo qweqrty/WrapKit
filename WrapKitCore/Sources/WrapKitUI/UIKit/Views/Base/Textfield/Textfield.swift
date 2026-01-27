@@ -259,6 +259,49 @@ public struct TextInputPresentableModel: HashableWithReflection {
 #if canImport(UIKit)
 import UIKit
 
+// MARK: - UIView Accessibility helpers (automatic summary)
+private extension UIView {
+    var isVisiblyInteractable: Bool {
+        !isHidden && alpha > 0.01 && isUserInteractionEnabled
+    }
+
+    func accessibilityTextSummary(maxLen: Int = 80) -> String? {
+        if let label = accessibilityLabel?.trimmingCharacters(in: .whitespacesAndNewlines),
+           !label.isEmpty {
+            return String(label.prefix(maxLen))
+        }
+
+        if let l = self as? UILabel,
+           let t = l.text?.trimmingCharacters(in: .whitespacesAndNewlines),
+           !t.isEmpty {
+            return String(t.prefix(maxLen))
+        }
+
+        if let tf = self as? UITextField {
+            let t = (tf.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? "")
+            if !t.isEmpty { return String(t.prefix(maxLen)) }
+            let p = (tf.placeholder?.trimmingCharacters(in: .whitespacesAndNewlines) ?? "")
+            if !p.isEmpty { return String(p.prefix(maxLen)) }
+        }
+
+        if let tv = self as? UITextView,
+           let t = tv.text?.trimmingCharacters(in: .whitespacesAndNewlines),
+           !t.isEmpty {
+            return String(t.prefix(maxLen))
+        }
+
+        var parts: [String] = []
+        for v in subviews where v.isVisiblyInteractable {
+            if let s = v.accessibilityTextSummary(maxLen: maxLen), !s.isEmpty {
+                parts.append(s)
+            }
+        }
+
+        let result = parts.first?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        return result.isEmpty ? nil : String(result.prefix(maxLen))
+    }
+}
+
 public extension Textfield {
     func makeAccessoryView(
         model: TextInputPresentableModel.AccessoryViewPresentableModel?,
@@ -308,10 +351,12 @@ extension Textfield: TextInputOutput {
         guard let inputAccessoryView else {
             self.inputAccessoryView = nil
             self.reloadInputViews()
+            applyAccessibility()
             return
         }
         self.inputAccessoryView = makeAccessoryView(model: inputAccessoryView)
         self.reloadInputViews()
+        applyAccessibility()
     }
     
     public func startEditing() {
@@ -361,12 +406,15 @@ extension Textfield: TextInputOutput {
         if let inputType = model.inputType {
             display(inputType: inputType)
         }
+        
+        applyAccessibility()
     }
     
     public func display(inputView: TextInputPresentableModel.InputView?) {
         guard let inputView else {
             self.inputView = nil
             self.reloadInputViews()
+            applyAccessibility()
             return
         }
         switch inputView {
@@ -384,6 +432,7 @@ extension Textfield: TextInputOutput {
             
             guard let accessoryView = model.accessoryView else {
                 self.inputAccessoryView = nil
+                applyAccessibility()
                 return
             }
             self.inputAccessoryView = makeAccessoryView(model: accessoryView, onDoneTapped: model.onDoneTapped)
@@ -393,97 +442,121 @@ extension Textfield: TextInputOutput {
             self.inputView = pickerView
         }
         self.reloadInputViews()
+        applyAccessibility()
     }
     
     public func display(text: String?) {
         self.text = text?.removingPercentEncoding ?? text ?? ""
+        applyAccessibility()
     }
     
     public func display(mask: TextInputPresentableModel.Mask) {
         maskedTextfieldDelegate = .init(format: .init(mask: mask.mask, maskedTextColor: mask.maskColor))
+        applyAccessibility()
     }
     
     public func display(isValid: Bool) {
         isValidState = isValid
         updateAppearance(isValid: isValid)
+        applyAccessibility()
     }
     
     public func display(isEnabledForEditing: Bool) {
         self.isEnabledForEditing = isEnabledForEditing
+        applyAccessibility()
     }
     
     public func display(leadingViewIsHidden: Bool) {
         leadingView?.isHidden = leadingViewIsHidden
+        applyAccessibility()
     }
     
     public func display(trailingViewIsHidden: Bool) {
         trailingView?.isHidden = trailingViewIsHidden
+        applyAccessibility()
     }
     
     public func display(isTextSelectionDisabled: Bool) {
         self.isTextSelectionDisabled = isTextSelectionDisabled
+        applyAccessibility()
     }
     
     public func display(placeholder: String?) {
         self.placeholder = placeholder
+        applyAccessibility()
     }
     
     public func display(isUserInteractionEnabled: Bool) {
         self.isUserInteractionEnabled = isUserInteractionEnabled
+        applyAccessibility()
     }
     
     public func display(isSecureTextEntry: Bool) {
         self.isSecureTextEntry = isSecureTextEntry
+        applyAccessibility()
     }
     
     public func display(leadingViewOnPress: (() -> Void)?) {
         self.leadingViewOnPress = leadingViewOnPress
+        applyAccessibility()
     }
     
     public func display(trailingViewOnPress: (() -> Void)?) {
         self.trailingViewOnPress = trailingViewOnPress
+        applyAccessibility()
     }
     
     public func display(onPress: (() -> Void)?) {
         self.onPress = onPress
+        // onPress не меняет VO label обычно, но actions может поменять
+        applyAccessibility()
     }
     
     public func display(onPaste: ((String?) -> Void)?) {
         self.onPaste = onPaste
+        applyAccessibility()
     }
     
     public func display(onBecomeFirstResponder: (() -> Void)?) {
         self.onBecomeFirstResponder = onBecomeFirstResponder
+        applyAccessibility()
     }
     
     public func display(onResignFirstResponder: (() -> Void)?) {
         self.onResignFirstResponder = onResignFirstResponder
+        applyAccessibility()
     }
     
     public func display(onTapBackspace: (() -> Void)?) {
         self.onTapBackspace = onTapBackspace
+        applyAccessibility()
     }
     
     public func display(didChangeText: [((String?) -> Void)]) {
         self.didChangeText = didChangeText
+        applyAccessibility()
     }
     
     public func display(isHidden: Bool) {
         self.isHidden = isHidden
+        applyAccessibility()
     }
 
     public func display(inputType: KeyboardType) {
         self.keyboardType = UIKeyboardType(rawValue: inputType.rawValue) ?? .default
+        applyAccessibility()
     }
     
     public func display(trailingSymbol: String?) {
         guard let delegate = maskedTextfieldDelegate else { return }
         delegate.trailingSymbol = trailingSymbol
         delegate.refreshMask()
+        applyAccessibility()
     }
     
     public func display(isClearButtonActive: Bool) {
         self.isClearButtonActive = isClearButtonActive
+        applyAccessibility()
     }
 }
 
@@ -498,12 +571,14 @@ open class Textfield: UITextField {
         didSet {
             oldValue?.removeFromSuperview()
             setupLeadingView()
+            applyAccessibility()
         }
     }
     public var trailingView: ViewUIKit? {
         didSet {
             oldValue?.removeFromSuperview()
             setupTrailingView()
+            applyAccessibility()
         }
     }
     
@@ -522,13 +597,13 @@ open class Textfield: UITextField {
             if !isEnabledForEditing {
                 _  = resignFirstResponder()
             }
+            applyAccessibility()
         }
     }
     
     open override func buildMenu(with builder: UIMenuBuilder) {
         if #available(iOS 17.0, *) {
             if isTextSelectionDisabled {
-                // Remove all menus
                 builder.remove(menu: .text)
                 builder.remove(menu: .edit)
                 builder.remove(menu: .standardEdit)
@@ -546,20 +621,22 @@ open class Textfield: UITextField {
     public var leadingViewOnPress: (() -> Void)? {
         didSet {
             leadingView?.onPress = leadingViewOnPress
+            applyAccessibility()
         }
     }
     public var trailingViewOnPress: (() -> Void)? {
         didSet {
             trailingView?.onPress = trailingViewOnPress
+            applyAccessibility()
         }
     }
     
-    public var onPress: (() -> Void)?
-    public var onPaste: ((String?) -> Void)?
+    public var onPress: (() -> Void)? { didSet { applyAccessibility() } }
+    public var onPaste: ((String?) -> Void)? { didSet { applyAccessibility() } }
     public var nextTextfield: UIResponder? = nil { didSet { returnKeyType = nextTextfield == nil ? .done : .next } }
-    public var onBecomeFirstResponder: (() -> Void)?
-    public var onResignFirstResponder: (() -> Void)?
-    public var onTapBackspace: (() -> Void)?
+    public var onBecomeFirstResponder: (() -> Void)? { didSet { applyAccessibility() } }
+    public var onResignFirstResponder: (() -> Void)? { didSet { applyAccessibility() } }
+    public var onTapBackspace: (() -> Void)? { didSet { applyAccessibility() } }
     
     public var didChangeText = [((String?) -> Void)]()
     private var didChangeTextClear: ((String?) -> Void)?
@@ -567,6 +644,7 @@ open class Textfield: UITextField {
     open override var placeholder: String? {
         didSet {
             updatePlaceholder()
+            applyAccessibility()
         }
     }
     
@@ -575,16 +653,18 @@ open class Textfield: UITextField {
             if let delegate = delegate as? MaskedTextfieldDelegate {
                 delegate.fullText = text ?? ""
             }
+            applyAccessibility()
         }
     }
     
     public var maskedTextfieldDelegate: MaskedTextfieldDelegate? {
         didSet {
             maskedTextfieldDelegate?.applyTo(textfield: self)
+            applyAccessibility()
         }
     }
     
-    public var appearance: TextfieldAppearance { didSet { updateAppearance() }}
+    public var appearance: TextfieldAppearance { didSet { updateAppearance(); applyAccessibility() } }
     
     public init(
         cornerRadius: CGFloat = 10,
@@ -614,6 +694,7 @@ open class Textfield: UITextField {
         maskedTextfieldDelegate = delegate
         delegate?.applyTo(textfield: self)
         returnKeyType = nextTextfield == nil ? .done : .next
+        
         addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
         addTarget(self, action: #selector(textFieldDidChangeClear), for: .editingChanged)
         addTarget(self, action: #selector(onTapReturnButton), for: .editingDidEndOnExit)
@@ -626,59 +707,75 @@ open class Textfield: UITextField {
             self.trailingView = trailingView
         case .clear(let trailingView):
             trailingView.allSubviews.forEach {
+                // Assign clear on press for common types
                 ($0 as? ViewUIKit)?.onPress = { [weak self] in
                     self?.text = ""
                     self?.sendActions(for: .editingChanged)
                     trailingView.isHidden = true
+                    self?.applyAccessibility()
                 }
                 ($0 as? ImageView)?.onPress = { [weak self] in
                     self?.text = ""
                     self?.sendActions(for: .editingChanged)
                     trailingView.isHidden = true
+                    self?.applyAccessibility()
                 }
                 ($0 as? Button)?.onPress = { [weak self] in
                     self?.text = ""
                     self?.sendActions(for: .editingChanged)
                     trailingView.isHidden = true
+                    self?.applyAccessibility()
+                }
+                
+                // Make inner views accessible as clear button (automatic label)
+                if let v = $0 as? UIView {
+                    v.isAccessibilityElement = true
+                    v.accessibilityTraits = [.button]
+                    if (v.accessibilityLabel ?? "").trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                        v.accessibilityLabel = v.accessibilityTextSummary(maxLen: 40) ?? "Clear"
+                    }
+                    v.accessibilityHint = nil
                 }
             }
             didChangeTextClear = { [weak self] text in
                 guard self?.isClearButtonActive ?? true else { return }
-                let text = self?.maskedTextfieldDelegate?.onlySpecifiersIfMaskedText ?? text ?? ""
-                self?.trailingView?.isHidden = text.isEmpty
+                let txt = self?.maskedTextfieldDelegate?.onlySpecifiersIfMaskedText ?? text ?? ""
+                self?.trailingView?.isHidden = txt.isEmpty
+                self?.applyAccessibility()
             }
             self.trailingView = trailingView
             trailingView.isHidden = true
         default:
             break
         }
+        
         setupLeadingView()
         setupTrailingView()
+        applyAccessibility()
     }
     
     open override func point(inside point: CGPoint, with event: UIEvent?) -> Bool {
         if let trailingView = trailingView, trailingView.frame.contains(point) {
-                return true
-            } else if let leadingView = leadingView, leadingView.frame.contains(point) {
-                return true
-            }
+            return true
+        } else if let leadingView = leadingView, leadingView.frame.contains(point) {
+            return true
+        }
 
-            let isTouchInside = super.point(inside: point, with: event)
-            if isTouchInside, !isPressHandled {
-                isPressHandled = true
-                onPress?()
-                
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
-                    self?.isPressHandled = false
-                }
+        let isTouchInside = super.point(inside: point, with: event)
+        if isTouchInside, !isPressHandled {
+            isPressHandled = true
+            onPress?()
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
+                self?.isPressHandled = false
             }
+        }
 
-            return isTouchInside
+        return isTouchInside
     }
     
     open override func deleteBackward() {
         super.deleteBackward()
-        
         onTapBackspace?()
     }
     
@@ -690,6 +787,7 @@ open class Textfield: UITextField {
             if !isUserInteractionEnabled {
                 resignFirstResponder()
             }
+            applyAccessibility()
         }
     }
     
@@ -705,6 +803,7 @@ open class Textfield: UITextField {
                 $0(self.text)
             }
         }
+        applyAccessibility()
     }
     
     @objc private func textFieldDidChangeClear() {
@@ -713,11 +812,13 @@ open class Textfield: UITextField {
         } else {
             didChangeTextClear?(self.text)
         }
+        applyAccessibility()
     }
     
     @objc private func onTapReturnButton() {
         guard returnKeyType == .done else { return }
         resignFirstResponder()
+        applyAccessibility()
     }
     
     public func updatePlaceholder() {
@@ -749,6 +850,7 @@ open class Textfield: UITextField {
         } else {
             super.paste(sender)
         }
+        applyAccessibility()
     }
     
     @discardableResult
@@ -761,6 +863,7 @@ open class Textfield: UITextField {
             insertText(text)
         }
         updateAppearance()
+        applyAccessibility()
         return success
     }
     
@@ -773,6 +876,7 @@ open class Textfield: UITextField {
         let result = super.resignFirstResponder()
         if result { onResignFirstResponder?() }
         updateAppearance()
+        applyAccessibility()
         return result
     }
     
@@ -781,6 +885,7 @@ open class Textfield: UITextField {
             if isFirstResponder {
                 _ = becomeFirstResponder()
             }
+            applyAccessibility()
         }
     }
     
@@ -844,8 +949,119 @@ open class Textfield: UITextField {
     
     open override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         super.traitCollectionDidChange(previousTraitCollection)
-        
         updateAppearance()
+        applyAccessibility()
+    }
+}
+
+// MARK: - Accessibility (Textfield automatic)
+
+private extension Textfield {
+    func applyAccessibility() {
+        guard UIAccessibility.isVoiceOverRunning else { return }
+        isAccessibilityElement = true
+        accessibilityHint = nil
+
+        accessibilityLabel = accessibilityTextSummaryForSelf()
+
+        // Leading / Trailing view: если реально тапаются — делаем их кнопками
+        applyAccessoryViewA11y(leadingView)
+        applyAccessoryViewA11y(trailingView)
+
+        // Custom actions: leading/trailing/clear
+        updateAccessibilityCustomActions()
+    }
+
+    func accessibilityTextSummaryForSelf(maxLen: Int = 120) -> String? {
+        var parts: Set<String> = []
+
+        let textValue = (text ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        if !textValue.isEmpty {
+            parts.insert(String(textValue.prefix(60)))
+        } else {
+            let ph = (placeholder ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+            if !ph.isEmpty { parts.insert(String(ph.prefix(60))) }
+        }
+
+        let result = parts.first?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        return result.isEmpty ? nil : String(result.prefix(maxLen))
+    }
+
+    func applyAccessoryViewA11y(_ view: ViewUIKit?) {
+        guard let view else { return }
+
+        let hasTap = (view.onPress != nil)
+        let enabled = isUserInteractionEnabled && view.isVisiblyInteractable
+
+        if hasTap && enabled {
+            view.isAccessibilityElement = true
+            view.accessibilityTraits = [.button]
+            if (view.accessibilityLabel ?? "").trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                view.accessibilityLabel = view.accessibilityTextSummary(maxLen: 40)
+            }
+            view.accessibilityHint = nil
+        } else {
+            view.isAccessibilityElement = false
+            view.accessibilityTraits = []
+        }
+    }
+
+    func updateAccessibilityCustomActions() {
+        var actions: [UIAccessibilityCustomAction] = []
+
+        if isLeadingActionAvailable {
+            let name = leadingView?.accessibilityTextSummary(maxLen: 40) ?? "Leading"
+            actions.append(UIAccessibilityCustomAction(name: name, target: self, selector: #selector(a11yTapLeading)))
+        }
+
+        if isClearActionAvailable {
+            actions.append(UIAccessibilityCustomAction(name: "Clear", target: self, selector: #selector(a11yClear)))
+        }
+
+        if isTrailingActionAvailable {
+            let name = trailingView?.accessibilityTextSummary(maxLen: 40) ?? "Trailing"
+            actions.append(UIAccessibilityCustomAction(name: name, target: self, selector: #selector(a11yTapTrailing)))
+        }
+
+        accessibilityCustomActions = actions.isEmpty ? nil : actions
+    }
+
+    var isLeadingActionAvailable: Bool {
+        guard let leadingView else { return false }
+        return isUserInteractionEnabled && leadingView.isVisiblyInteractable && leadingView.onPress != nil
+    }
+
+    var isTrailingActionAvailable: Bool {
+        guard let trailingView else { return false }
+        // trailing custom action только если у контейнера есть onPress
+        return isUserInteractionEnabled && trailingView.isVisiblyInteractable && trailingView.onPress != nil
+    }
+
+    var isClearActionAvailable: Bool {
+        guard isClearButtonActive else { return false }
+        guard trailingView != nil else { return false }
+        let current = (delegate as? MaskedTextfieldDelegate)?.onlySpecifiersIfMaskedText ?? (text ?? "")
+        return !current.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
+    @objc func a11yTapLeading() -> Bool {
+        leadingViewOnPress?()
+        leadingView?.onPress?()
+        return true
+    }
+
+    @objc func a11yTapTrailing() -> Bool {
+        trailingViewOnPress?()
+        trailingView?.onPress?()
+        return true
+    }
+
+    @objc func a11yClear() -> Bool {
+        text = ""
+        sendActions(for: .editingChanged)
+        trailingView?.isHidden = true
+        applyAccessibility()
+        return true
     }
 }
 
@@ -870,7 +1086,7 @@ public extension Textfield {
     func updateAppearance() {
         updatePlaceholder()
         font = appearance.font
-        let text = (delegate as? MaskedTextfieldDelegate)?.fullText ?? text
+        _ = (delegate as? MaskedTextfieldDelegate)?.fullText ?? text
         let isValid = isValidState
         let isFirstResponder = isFirstResponder
         let appearance = appearance
