@@ -49,6 +49,57 @@ public extension UIView {
         walk(self)
         return out.uniquedByName()
     }
+    
+    func accessibilityTextSummary() -> String? {
+        var parts: [String] = []
+
+        func dfs(_ v: UIView) {
+            guard !v.isHidden, v.alpha > 0.01 else { return }
+
+            if let label = v as? UILabel {
+                let t = label.text?.trimmingCharacters(in: .whitespacesAndNewlines)
+                if let t, !t.isEmpty { parts.append(t) }
+            } else if let tv = v as? UITextView {
+                let t = tv.text?.trimmingCharacters(in: .whitespacesAndNewlines)
+                if let t, !t.isEmpty { parts.append(t) }
+            } else {
+                // иногда текст прячется в accessibilityLabel у кастомных элементов
+                if v.isAccessibilityElement {
+                    let t = v.accessibilityLabel?.trimmingCharacters(in: .whitespacesAndNewlines)
+                    if let t, !t.isEmpty { parts.append(t) }
+                }
+            }
+
+            v.subviews.forEach(dfs)
+        }
+
+        dfs(self)
+
+        let text = parts.first?
+            .replacingOccurrences(of: "\n", with: ", ")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+
+        return text.isEmpty ? nil : text
+    }
+
+    func containsInteractiveAccessibleDescendant() -> Bool {
+        func dfs(_ v: UIView) -> Bool {
+            guard !v.isHidden, v.alpha > 0.01 else { return false }
+
+            if v.isAccessibilityElement {
+                let t = v.accessibilityTraits
+                if t.contains(.button) || t.contains(.link) || t.contains(.adjustable) || t.contains(.selected) {
+                    return true
+                }
+            }
+
+            for s in v.subviews {
+                if dfs(s) { return true }
+            }
+            return false
+        }
+        return dfs(self)
+    }
 
     var looksActivatable: Bool {
         let t = accessibilityTraits
@@ -68,5 +119,6 @@ private extension Array where Element == UIAccessibilityCustomAction {
         return res
     }
 }
+
 
 #endif
