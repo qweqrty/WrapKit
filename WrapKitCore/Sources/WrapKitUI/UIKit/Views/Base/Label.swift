@@ -462,7 +462,7 @@ open class Label: UILabel {
             }
         }
         
-        guard UIAccessibility.isVoiceOverRunning else { return }
+        guard UIAccessibility.isVoiceOverRunning || ProcessInfo.isUITest else { return }
         isAccessibilityElement = true
         accessibilityLabel = nil
         accessibilityHint = nil

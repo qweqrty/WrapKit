@@ -16,6 +16,7 @@ public struct Accessibility: HashableWithReflection {
         self.hint = hint
     }
 }
+
 #if canImport(UIKit)
 import UIKit
 

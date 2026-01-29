@@ -400,7 +400,7 @@ extension Textview: TextInputOutput {
 // MARK: - Accessibility (automatic summary + actions)
 private extension Textview {
     func applyAccessibility() {
-        guard UIAccessibility.isVoiceOverRunning else { return }
+        guard UIAccessibility.isVoiceOverRunning || ProcessInfo.isUITest else { return }
         // UITextView - редактируемый элемент по умолчанию
         isAccessibilityElement = true
         accessibilityHint = nil

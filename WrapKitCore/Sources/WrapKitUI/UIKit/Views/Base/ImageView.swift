@@ -495,7 +495,7 @@ open class ImageView: UIImageView {
 // MARK: - Accessibility
 private extension ImageView {
     func applyInteractivityAndAccessibility() {
-        guard UIAccessibility.isVoiceOverRunning else { return }
+        guard UIAccessibility.isVoiceOverRunning || ProcessInfo.isUITest else { return }
         accessibilityLabel = nil
         accessibilityHint = nil
 

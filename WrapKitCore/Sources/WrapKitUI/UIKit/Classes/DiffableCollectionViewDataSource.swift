@@ -29,7 +29,7 @@ private extension Array where Element: Hashable {
 private extension CellModel {
     func duplicatedForEndless() -> CellModel<Cell> {
         CellModel(
-            id: UUID(),          // 👈 НОВЫЙ UUID
+            accessibilityIdentifier: UUID().uuidString,
             cell: cell,     // тот же контент
             onTap: onTap
         )

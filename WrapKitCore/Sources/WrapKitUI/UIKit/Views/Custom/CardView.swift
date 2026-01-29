@@ -125,7 +125,6 @@ public struct CardViewPresentableModel: HashableWithReflection {
     }
 
     public let id: String
-    public let accessibility: Accessibility?
     public var style: Style?
     public let backgroundImage: ImageViewPresentableModel?
     public let title: TextOutputPresentableModel?
@@ -147,7 +146,6 @@ public struct CardViewPresentableModel: HashableWithReflection {
     
     public init(
         id: String = UUID().uuidString,
-        accessibility: Accessibility? = nil,
         style: Style? = nil,
         backgroundImage: ImageViewPresentableModel? = nil,
         title: TextOutputPresentableModel? = nil,
@@ -168,7 +166,6 @@ public struct CardViewPresentableModel: HashableWithReflection {
         isGradientBorderEnabled: Bool? = nil
     ) {
         self.id = id
-        self.accessibility = accessibility
         self.style = style
         self.backgroundImage = backgroundImage
         self.leadingTitles = leadingTitles
@@ -318,6 +315,7 @@ extension CardView: CardViewOutput {
     
     public func display(model: CardViewPresentableModel?) {
         isHidden = model == nil
+        accessibilityIdentifier = model?.id
         guard let model = model else { return }
         // Style
         display(style: model.style)
@@ -628,7 +626,7 @@ extension CardView {
     }
 
     private func applyAccessibility(model: CardViewPresentableModel) {
-        guard UIAccessibility.isVoiceOverRunning else { return }
+        guard UIAccessibility.isVoiceOverRunning || ProcessInfo.isUITest else { return }
         isAccessibilityElement = false
         accessibilityLabel = nil
         accessibilityHint = nil
