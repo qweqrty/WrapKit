@@ -94,6 +94,9 @@ extension Label: TextOutput {
             display(model: text)
             self.cornerStyle = cornerStyle
             self.textInsets = insets.asUIEdgeInsets
+            if let backgroundColor {
+                self.backgroundColor = backgroundColor
+            }
         case .attributedString(let htmlString, let font, let color):
             display(htmlString: htmlString, font: font, color: color)
             if let backgroundColor {

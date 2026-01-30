@@ -118,7 +118,7 @@ public struct CardViewPresentableModel: HashableWithReflection {
         }
     }
 
-    public struct BottomSeparator: HashableWithReflection {
+    public struct BottomSeparator: HashableWithReflection, Equatable {
         public let color: Color
         public let padding: EdgeInsets
         public let height: CGFloat
@@ -285,6 +285,7 @@ extension CardView: CardViewOutput {
     
     public func display(subTitle: TextOutputPresentableModel?) {
         subtitleLabel.display(model: subTitle)
+        subtitleLabelWrapperView.isHidden = subtitleLabel.isHidden
     }
     
     public func display(valueTitle: TextOutputPresentableModel?) {
@@ -413,6 +414,7 @@ open class CardView: ViewUIKit {
         spacing: 0
     )
     
+    public let subtitleLabelWrapperView = ViewUIKit(isHidden: true)
     public let subtitleLabel = Label(font: .systemFont(ofSize: 16), textColor: .gray)
     
     public let trailingImageWrapperView = ViewUIKit(isHidden: true)
@@ -438,6 +440,7 @@ open class CardView: ViewUIKit {
     public var leadingTitlesViewConstraints: AnchoredConstraints?
     public var trailingTitlesViewConstraints: AnchoredConstraints?
     public var titlesViewConstraints: AnchoredConstraints?
+    public var subtitleLabelConstraints: AnchoredConstraints?
     public var leadingImageViewConstraints: AnchoredConstraints?
     public var secondaryLeadingImageViewConstraints: AnchoredConstraints?
     public var trailingImageViewConstraints: AnchoredConstraints?
@@ -518,15 +521,14 @@ extension CardView {
         hStackView.addArrangedSubview(leadingImageWrapperView)
         hStackView.addArrangedSubview(secondaryLeadingImageWrapperView)
         hStackView.addArrangedSubview(titleViewsWrapperView)
-        hStackView.addArrangedSubview(subtitleLabel)
-//        hStackView.addArrangedSubview(trailingImagesStackView)
+        hStackView.addArrangedSubview(subtitleLabelWrapperView)
         hStackView.addArrangedSubviews(secondaryTrailingImageWrapperView, trailingImageWrapperView)
         hStackView.addArrangedSubview(switchWrapperView)
         hStackView.addArrangedSubview(trailingTitleViewsWrapperView)
         
         leadingImageWrapperView.addSubview(leadingImageView)
         secondaryLeadingImageWrapperView.addSubview(secondaryLeadingImageView)
-//        trailingImagesStackView.addArrangedSubviews(secondaryTrailingImageWrapperView, trailingImageWrapperView)
+        subtitleLabelWrapperView.addSubview(subtitleLabel)
         trailingImageWrapperView.addSubview(trailingImageView)
         secondaryTrailingImageWrapperView.addSubview(secondaryTrailingImageView)
         
@@ -545,6 +547,14 @@ extension CardView {
             .leading(titleViewsWrapperView.leadingAnchor),
             .trailing(titleViewsWrapperView.trailingAnchor),
             .centerY(titleViewsWrapperView.centerYAnchor)
+        )
+
+        subtitleLabelConstraints = subtitleLabel.anchor(
+            .topGreaterThanEqual(subtitleLabelWrapperView.topAnchor),
+            .bottomLessThanEqual(subtitleLabelWrapperView.bottomAnchor),
+            .leading(subtitleLabelWrapperView.leadingAnchor),
+            .trailing(subtitleLabelWrapperView.trailingAnchor),
+            .centerY(subtitleLabelWrapperView.centerYAnchor)
         )
         
         leadingTitlesViewConstraints = leadingTitleViews.anchor(
@@ -640,7 +650,7 @@ struct CardViewFullRepresentable: UIViewRepresentable {
         view.leadingImageView.image = UIImage(systemName: "mail")
         view.trailingImageView.image = UIImage(systemName: "arrow.right")
         view.trailingImageView.isHidden = false
-        view.subtitleLabel.isHidden = false
+        view.subtitleLabelWrapperView.isHidden = false
         view.subtitleLabel.text = "Subtitle label"
         return view
     }
@@ -661,7 +671,7 @@ struct CardViewWithoutLeadingImageRepresentable: UIViewRepresentable {
         view.trailingImageView.image = UIImage(systemName: "arrow.right")
         view.trailingImageWrapperView.isHidden = false
         view.leadingImageWrapperView.isHidden = true
-        view.subtitleLabel.isHidden = false
+        view.subtitleLabelWrapperView.isHidden = false
         view.subtitleLabel.text = "Subtitle label"
         return view
     }
@@ -696,7 +706,7 @@ struct CardViewTitleViewKeyLabelSubtitleRepresentable: UIViewRepresentable {
         view.leadingImageView.image = UIImage(systemName: "mail")
         view.titleViews.stackView.spacing = 4
         view.trailingImageWrapperView.isHidden = true
-        view.subtitleLabel.isHidden = false
+        view.subtitleLabelWrapperView.isHidden = false
         view.subtitleLabel.text = "Subtitle label"
         return view
     }
@@ -733,7 +743,7 @@ struct CardViewTitleViewValueLabelSubtitleRepresentable: UIViewRepresentable {
         view.titleViews.valueLabel.isHidden = false
         view.titleViews.valueLabel.text = "Value label"
         view.titleViews.stackView.spacing = 4
-        view.subtitleLabel.isHidden = false
+        view.subtitleLabelWrapperView.isHidden = false
         view.subtitleLabel.text = "Subtitle label"
         return view
     }
