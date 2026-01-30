@@ -8,5 +8,5 @@
 import Foundation
     
 public extension ProcessInfo {
-    static let isUITest = ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
+    static let isUITest = ProcessInfo.processInfo.arguments.contains("-ui-testing")
 }
