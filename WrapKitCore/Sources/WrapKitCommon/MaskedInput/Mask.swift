@@ -44,32 +44,35 @@ public struct Mask: Masking {
             return (text, "")
         }
         
-        let text = text.prefix(format.count)
+        let userInput = extractCleanUserInput(from: text)
         
         var input = ""
-        var textIterator = text.startIndex
+        var formatOffset = 0
         
-        for (offset, maskedCharacter) in format.enumerated() {
-            guard textIterator < text.endIndex else {
-                let literals = format.getLiterals(startingFrom: offset)
-                input += literals.text
-                return (input, format[literals.endIndex...].map { $0.mask }.joined())
-            }
-            let currentCharacter = text[textIterator]
-            
+        var userInputIterator = userInput.startIndex
+        for maskedCharacter in format {
             switch maskedCharacter {
-            case .specifier(_, let allowedCharacters):
-                if allowedCharacters.contains(currentCharacter) {
-                    input += String(currentCharacter)
-                    textIterator = text.index(after: textIterator)
-                } else {
-                    return (input, format[offset...].map { $0.mask }.joined())
-                }
             case .literal(let character):
                 input += String(character)
-                textIterator = character == currentCharacter ? text.index(after: textIterator) : textIterator
+                
+            case .specifier(_, let allowedCharacters):
+                guard userInputIterator < userInput.endIndex else {
+                    // Если пользовательский ввод закончился, возвращаем маску для остальных символов
+                    return (input, format[formatOffset...].map { $0.mask }.joined())
+                }
+                
+                let currentCharacter = userInput[userInputIterator]
+                
+                if allowedCharacters.contains(currentCharacter) {
+                    input += String(currentCharacter)
+                    userInputIterator = userInput.index(after: userInputIterator)
+                } else {
+                    return (input, format[formatOffset...].map { $0.mask }.joined())
+                }
             }
+            formatOffset += 1
         }
+        
         return (input, "")
     }
     
@@ -101,13 +104,7 @@ public struct Mask: Masking {
 
     
     public func extractUserInput(from text: String) -> String {
-        var result = ""
-        for (index, character) in text.enumerated() {
-            if !isLiteralCharacter(at: index) {
-                result += String(character)
-            }
-        }
-        return result
+        return extractCleanUserInput(from: text)
     }
     
     public func isLiteralCharacter(at index: Int) -> Bool {
@@ -117,6 +114,46 @@ public struct Mask: Masking {
         default:
             return false
         }
+    }
+    
+    private func extractCleanUserInput(from text: String) -> String {
+        var initialLiterals: [Character] = []
+        for maskedCharacter in format {
+            if case .literal(let char) = maskedCharacter {
+                initialLiterals.append(char)
+            } else {
+                break
+            }
+        }
+        
+        var textIterator = text.startIndex
+        var matchedLiterals = 0
+        
+        for literal in initialLiterals {
+            if textIterator < text.endIndex && text[textIterator] == literal {
+                textIterator = text.index(after: textIterator)
+                matchedLiterals += 1
+            } else {
+                break
+            }
+        }
+        
+        let isFormatted = matchedLiterals == initialLiterals.count && matchedLiterals > 0
+        
+        var result = ""
+        if isFormatted {
+            while textIterator < text.endIndex {
+                let char = text[textIterator]
+                if char != " " {
+                    result += String(char)
+                }
+                textIterator = text.index(after: textIterator)
+            }
+        } else {
+            result = text.filter { $0 != " " }
+        }
+        
+        return result
     }
 }
 
@@ -152,29 +189,6 @@ public extension Mask {
     }
     
     func removeLiterals(from text: String) -> String {
-        var result = ""
-        var textIterator = text.startIndex
-        
-        for maskedCharacter in format {
-            guard textIterator < text.endIndex else { break }
-            let currentCharacter = text[textIterator]
-            
-            switch maskedCharacter {
-            case .literal(let literalChar):
-                if currentCharacter == literalChar {
-                    textIterator = text.index(after: textIterator)
-                }
-            case .specifier:
-                result.append(currentCharacter)
-                textIterator = text.index(after: textIterator)
-            }
-        }
-        
-        while textIterator < text.endIndex {
-            result.append(text[textIterator])
-            textIterator = text.index(after: textIterator)
-        }
-        
-        return result
+        return extractCleanUserInput(from: text)
     }
 }
