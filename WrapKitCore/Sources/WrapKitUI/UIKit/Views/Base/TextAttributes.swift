@@ -17,7 +17,9 @@ public typealias TextAlignment = NSTextAlignment
 
 #endif
 
-public struct TextAttributes {
+extension [TextAttributes]: HashableWithReflection {}
+
+public struct TextAttributes: HashableWithReflection {
     public init(
         id: String = UUID().uuidString,
         text: String,
