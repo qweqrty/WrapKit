@@ -27,6 +27,15 @@ public class TextOutputSwiftUIAdapter: ObservableObject, TextOutput {
     ) {
     }
 
+    @Published public var displayAccessibleModelState: DisplayAccessibleModelState? = nil
+    public struct DisplayAccessibleModelState {
+        public let accessibleModel: AccessibleTextOutputPresentableModel?
+    }
+    public func display(accessibleModel: AccessibleTextOutputPresentableModel?) {
+        displayAccessibleModelState = .init(
+            accessibleModel: accessibleModel
+        )
+    }
     @Published public var displayModelState: DisplayModelState? = nil
     public struct DisplayModelState {
         public let model: TextOutputPresentableModel

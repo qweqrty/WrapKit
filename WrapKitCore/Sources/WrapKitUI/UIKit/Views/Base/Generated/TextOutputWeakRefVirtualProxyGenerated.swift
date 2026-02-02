@@ -25,6 +25,9 @@ extension TextOutput {
 
 extension WeakRefVirtualProxy: TextOutput where T: TextOutput {
 
+    public func display(accessibleModel: AccessibleTextOutputPresentableModel?) {
+        object?.display(accessibleModel: accessibleModel)
+    }
     public func display(model: TextOutputPresentableModel?) {
         object?.display(model: model)
     }

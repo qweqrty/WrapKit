@@ -25,6 +25,11 @@ extension TextOutput {
 
 extension MainQueueDispatchDecorator: TextOutput where T: TextOutput {
 
+    public func display(accessibleModel: AccessibleTextOutputPresentableModel?) {
+        dispatch { [weak self] in
+            self?.decoratee.display(accessibleModel: accessibleModel)
+        }
+    }
     public func display(model: TextOutputPresentableModel?) {
         dispatch { [weak self] in
             self?.decoratee.display(model: model)

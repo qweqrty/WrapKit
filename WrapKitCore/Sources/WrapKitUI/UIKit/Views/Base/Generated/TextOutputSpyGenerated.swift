@@ -23,6 +23,7 @@ public final class TextOutputSpy: TextOutput {
     public init() {}
 
     public enum Message: HashableWithReflection {
+        case displayAccessibleModel(accessibleModel: AccessibleTextOutputPresentableModel?)
         case displayModel(model: TextOutputPresentableModel?)
         case displayText(text: String?)
         case displayAttributes(attributes: [TextAttributes])
@@ -34,6 +35,7 @@ public final class TextOutputSpy: TextOutput {
     public private(set) var messages: [Message] = []
 
     // MARK: - Captured values
+    public private(set) var capturedDisplayAccessibleModel: [AccessibleTextOutputPresentableModel?] = []
     public private(set) var capturedDisplayModel: [TextOutputPresentableModel?] = []
     public private(set) var capturedDisplayText: [String?] = []
     public private(set) var capturedDisplayAttributes: [[TextAttributes]] = []
@@ -43,6 +45,10 @@ public final class TextOutputSpy: TextOutput {
 
 
     // MARK: - TextOutput methods
+    public func display(accessibleModel: AccessibleTextOutputPresentableModel?) {
+        capturedDisplayAccessibleModel.append(accessibleModel)
+        messages.append(.displayAccessibleModel(accessibleModel: accessibleModel))
+    }
     public func display(model: TextOutputPresentableModel?) {
         capturedDisplayModel.append(model)
         messages.append(.displayModel(model: model))

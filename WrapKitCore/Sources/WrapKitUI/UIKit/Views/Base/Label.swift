@@ -19,6 +19,7 @@ public enum LabelAnimationStyle {
 }
 
 public protocol TextOutput: HiddableOutput {
+    func display(accessibleModel: AccessibleTextOutputPresentableModel?)
     func display(model: TextOutputPresentableModel?)
     func display(text: String?)
     func display(attributes: [TextAttributes])
@@ -33,6 +34,16 @@ public protocol TextOutput: HiddableOutput {
         completion: (() -> Void)?
     )
     func display(isHidden: Bool)
+}
+
+public struct AccessibleTextOutputPresentableModel: HashableWithReflection {
+    public let accessibilityIdentifier: String?
+    public let model: TextOutputPresentableModel
+    
+    public init(accessibilityIdentifier: String? = nil, model: TextOutputPresentableModel) {
+        self.accessibilityIdentifier = accessibilityIdentifier
+        self.model = model
+    }
 }
 
 public indirect enum TextOutputPresentableModel: HashableWithReflection {
@@ -89,6 +100,10 @@ import UIKit
 
 // MARK: - Adapter
 extension Label: TextOutput {
+    public func display(accessibleModel: AccessibleTextOutputPresentableModel?) {
+        accessibilityIdentifier = accessibleModel?.accessibilityIdentifier
+        display(model: accessibleModel?.model)
+    }
 
     public func display(model: TextOutputPresentableModel?) {
         isHidden = model == nil
