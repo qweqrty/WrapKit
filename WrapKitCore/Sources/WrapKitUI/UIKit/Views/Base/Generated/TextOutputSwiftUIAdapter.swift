@@ -27,15 +27,6 @@ public class TextOutputSwiftUIAdapter: ObservableObject, TextOutput {
     ) {
     }
 
-    @Published public var displayAccessibleModelState: DisplayAccessibleModelState? = nil
-    public struct DisplayAccessibleModelState {
-        public let accessibleModel: AccessibleTextOutputPresentableModel?
-    }
-    public func display(accessibleModel: AccessibleTextOutputPresentableModel?) {
-        displayAccessibleModelState = .init(
-            accessibleModel: accessibleModel
-        )
-    }
     @Published public var displayModelState: DisplayModelState? = nil
     public struct DisplayModelState {
         public let model: TextOutputPresentableModel
@@ -48,6 +39,15 @@ public class TextOutputSwiftUIAdapter: ObservableObject, TextOutput {
         display(isHidden: false)
         displayModelState = .init(
             model: model
+        )
+    }
+    @Published public var displayTextModelState: DisplayTextModelState? = nil
+    public struct DisplayTextModelState {
+        public let textModel: TextOutputPresentableModel.TextModel?
+    }
+    public func display(textModel: TextOutputPresentableModel.TextModel?) {
+        displayTextModelState = .init(
+            textModel: textModel
         )
     }
     @Published public var displayTextState: DisplayTextState? = nil
@@ -91,12 +91,12 @@ public class TextOutputSwiftUIAdapter: ObservableObject, TextOutput {
         public let id: String?
         public let startAmount: Decimal
         public let endAmount: Decimal
-        public let mapToString: ((Decimal) -> TextOutputPresentableModel)?
+        public let mapToString: ((Decimal) -> TextOutputPresentableModel.TextModel)?
         public let animationStyle: LabelAnimationStyle
         public let duration: TimeInterval
         public let completion: (() -> Void)?
     }
-    public func display(id: String?, from startAmount: Decimal, to endAmount: Decimal, mapToString: ((Decimal) -> TextOutputPresentableModel)?, animationStyle: LabelAnimationStyle, duration: TimeInterval, completion: (() -> Void)?) {
+    public func display(id: String?, from startAmount: Decimal, to endAmount: Decimal, mapToString: ((Decimal) -> TextOutputPresentableModel.TextModel)?, animationStyle: LabelAnimationStyle, duration: TimeInterval, completion: (() -> Void)?) {
         displayIdStartAmountEndAmountMapToStringAnimationStyleDurationCompletionState = .init(
             id: id, 
             startAmount: startAmount, 

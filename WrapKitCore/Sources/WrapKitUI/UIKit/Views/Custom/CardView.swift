@@ -661,7 +661,7 @@ extension CardView {
     }
 
     private func a11ySummaryText(from model: CardViewPresentableModel) -> String? {
-        guard let text = model.title?.text, !text.isEmpty else { return nil }
+        guard let text = model.title?.model?.text, !text.isEmpty else { return nil }
         return String(text)
     }
 }

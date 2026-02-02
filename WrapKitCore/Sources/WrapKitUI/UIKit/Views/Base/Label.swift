@@ -19,7 +19,6 @@ public enum LabelAnimationStyle {
 }
 
 public protocol TextOutput: HiddableOutput {
-    func display(accessibleModel: AccessibleTextOutputPresentableModel?)
     func display(model: TextOutputPresentableModel?)
     func display(text: String?)
     func display(attributes: [TextAttributes])
@@ -28,7 +27,7 @@ public protocol TextOutput: HiddableOutput {
         id: String?,
         from startAmount: Decimal,
         to endAmount: Decimal,
-        mapToString: ((Decimal) -> TextOutputPresentableModel)?,
+        mapToString: ((Decimal) -> TextOutputPresentableModel.TextModel)?,
         animationStyle: LabelAnimationStyle,
         duration: TimeInterval,
         completion: (() -> Void)?
@@ -36,62 +35,112 @@ public protocol TextOutput: HiddableOutput {
     func display(isHidden: Bool)
 }
 
-public struct AccessibleTextOutputPresentableModel: HashableWithReflection {
+public struct TextOutputPresentableModel: HashableWithReflection {
+    public indirect enum TextModel: HashableWithReflection {
+        case text(String?)
+        case attributes([TextAttributes])
+        case attributedString(String?, Font, Color)
+        case animatedDecimal(
+            id: String? = nil,
+            from: Decimal,
+            to: Decimal,
+            mapToString: ((Decimal) -> TextModel)?,
+            animationStyle: LabelAnimationStyle,
+            duration: TimeInterval,
+            completion: (() -> Void)?
+        )
+        @available(*, deprecated, message: "Animated double is going to be deprecated. Use animatedDecimal instead")
+        case animated(
+            id: String? = nil,
+            Double,
+            Double,
+            mapToString: ((Double) -> TextModel)?,
+            animationStyle: LabelAnimationStyle,
+            duration: TimeInterval,
+            completion: (() -> Void)?
+        )
+        case textStyled(
+            text: TextModel,
+            cornerStyle: CornerStyle? = nil,
+            insets: EdgeInsets = .zero,
+            height: CGFloat? = nil,
+            backgroundColor: Color? = nil
+        )
+        
+        public var text: String? {
+            switch self {
+            case .text(let text):
+                return text
+            case .attributes(let attributes):
+                return attributes.compactMap((\.text)).joined()
+            case .attributedString(let text, _, _):
+                return text
+            case .animatedDecimal(_, _, let to, let mapToString, _, _, _):
+                return to.asString()
+            case .animated(_, _, let to, let mapToString, _, _, _):
+                return to.asString()
+            case .textStyled(let model, _, _, _, _):
+                return model.text
+            }
+        }
+    }
     public let accessibilityIdentifier: String?
-    public let model: TextOutputPresentableModel
+    public let model: TextModel?
     
-    public init(accessibilityIdentifier: String? = nil, model: TextOutputPresentableModel) {
+    public init(accessibilityIdentifier: String? = nil, model: TextModel?) {
         self.accessibilityIdentifier = accessibilityIdentifier
         self.model = model
     }
-}
-
-public indirect enum TextOutputPresentableModel: HashableWithReflection {
-    case text(String?)
-    case attributes([TextAttributes])
-    case attributedString(String?, Font, Color)
-    case animatedDecimal(
+    
+    // MARK: - Helpers
+    public static func text(accessibilityIdentifier: String? = nil, _ string: String?) -> Self {
+        return .init(accessibilityIdentifier: accessibilityIdentifier, model: .text(string))
+    }
+    
+    public static func attributes(accessibilityIdentifier: String? = nil, _ attributes: [TextAttributes]) -> Self {
+        return .init(accessibilityIdentifier: accessibilityIdentifier, model: .attributes(attributes))
+    }
+    
+    public static func attributedString(accessibilityIdentifier: String? = nil, _ string: String?, _ font: Font, _ color: Color) -> Self {
+        return .init(accessibilityIdentifier: accessibilityIdentifier, model: .attributedString(string, font, color))
+    }
+    
+    public static func animatedDecimal(
+        accessibilityIdentifier: String? = nil,
         id: String? = nil,
         from: Decimal,
         to: Decimal,
-        mapToString: ((Decimal) -> TextOutputPresentableModel)?,
+        mapToString: ((Decimal) -> TextModel)?,
         animationStyle: LabelAnimationStyle,
         duration: TimeInterval,
         completion: (() -> Void)?
-    )
+    ) -> Self {
+        return .init(accessibilityIdentifier: accessibilityIdentifier, model: .animatedDecimal(id: id, from: from, to: to, mapToString: mapToString, animationStyle: animationStyle, duration: duration, completion: completion))
+    }
+    
     @available(*, deprecated, message: "Animated double is going to be deprecated. Use animatedDecimal instead")
-    case animated(
+    public static func animated(
+        accessibilityIdentifier: String? = nil,
         id: String? = nil,
-        Double,
-        Double,
-        mapToString: ((Double) -> TextOutputPresentableModel)?,
+        _ from: Double,
+        _ to: Double,
+        mapToString: ((Double) -> TextModel)?,
         animationStyle: LabelAnimationStyle,
         duration: TimeInterval,
         completion: (() -> Void)?
-    )
-    case textStyled(
-        text: TextOutputPresentableModel,
+    ) -> Self {
+        return .init(accessibilityIdentifier: accessibilityIdentifier, model: .animated(id: id, from, to, mapToString: mapToString, animationStyle: animationStyle, duration: duration, completion: completion))
+    }
+    
+    public static func textStyled(
+        accessibilityIdentifier: String? = nil,
+        text: TextModel,
         cornerStyle: CornerStyle? = nil,
         insets: EdgeInsets = .zero,
         height: CGFloat? = nil,
         backgroundColor: Color? = nil
-    )
-    
-    public var text: String? {
-        switch self {
-        case .text(let text):
-            return text
-        case .attributes(let attributes):
-            return attributes.compactMap((\.text)).joined()
-        case .attributedString(let text, _, _):
-            return text
-        case .animatedDecimal(_, _, let to, let mapToString, _, _, _):
-            return to.asString()
-        case .animated(_, _, let to, let mapToString, _, _, _):
-            return to.asString()
-        case .textStyled(let model, _, _, _, _):
-            return model.text
-        }
+    ) -> Self {
+        return .init(accessibilityIdentifier: accessibilityIdentifier, model: .textStyled(text: text, cornerStyle: cornerStyle, insets: insets, height: height, backgroundColor: backgroundColor))
     }
 }
 
@@ -100,14 +149,12 @@ import UIKit
 
 // MARK: - Adapter
 extension Label: TextOutput {
-    public func display(accessibleModel: AccessibleTextOutputPresentableModel?) {
-        accessibilityIdentifier = accessibleModel?.accessibilityIdentifier
-        display(model: accessibleModel?.model)
-    }
-
     public func display(model: TextOutputPresentableModel?) {
         isHidden = model == nil
-        guard let model else { return }
+        if let accessibilityIdentifier = model?.accessibilityIdentifier {
+            self.accessibilityIdentifier = accessibilityIdentifier
+        }
+        guard let model = model?.model else { return }
         hideShimmer()
 
         switch model {
@@ -118,7 +165,7 @@ extension Label: TextOutput {
         case .animatedDecimal(let id, let startAmount, let endAmount, let mapToString, let animationStyle, let duration, let completion):
             display(id: id, from: startAmount, to: endAmount, mapToString: mapToString, animationStyle: animationStyle, duration: duration, completion: completion)
         case .animated(let id, let startAmount, let endAmount, let mapToString, let animationStyle, let duration, let completion):
-            let mapper: ((Decimal) -> TextOutputPresentableModel)? = if let mapToString { { mapToString($0.doubleValue) } } else { nil }
+            let mapper: ((Decimal) -> TextOutputPresentableModel.TextModel)? = if let mapToString { { mapToString($0.doubleValue) } } else { nil }
             display(id: id, from: startAmount.asDecimal(), to: endAmount.asDecimal(), mapToString: mapper, animationStyle: animationStyle, duration: duration, completion: completion)
         case .textStyled(
             let text,
@@ -127,7 +174,7 @@ extension Label: TextOutput {
             _, // MARK: TODO ?
             let backgroundColor
         ):
-            display(model: text)
+            display(textModel: text)
             self.cornerStyle = cornerStyle
             self.textInsets = insets.asUIEdgeInsets
         case .attributedString(let htmlString, let font, let color):
@@ -138,6 +185,10 @@ extension Label: TextOutput {
         }
 
         applyInteractivityAndAccessibility()
+    }
+    
+    public func display(textModel: TextOutputPresentableModel.TextModel?) {
+        display(model: .init(accessibilityIdentifier: accessibilityIdentifier, model: textModel))
     }
 
     public func display(text: String?) {
@@ -179,12 +230,12 @@ extension Label: TextOutput {
         id: String? = nil,
         from startAmount: Double,
         to endAmount: Double,
-        mapToString: ((Double) -> TextOutputPresentableModel)?,
+        mapToString: ((Double) -> TextOutputPresentableModel.TextModel)?,
         animationStyle: LabelAnimationStyle = .none,
         duration: TimeInterval = 1.0,
         completion: (() -> Void)? = nil
     ) {
-        let mapper: ((Decimal) -> TextOutputPresentableModel)? = if let mapToString { { mapToString($0.doubleValue) } } else { nil }
+        let mapper: ((Decimal) -> TextOutputPresentableModel.TextModel)? = if let mapToString { { mapToString($0.doubleValue) } } else { nil }
         display(id: id, from: startAmount.asDecimal(), to: endAmount.asDecimal(), mapToString: mapper, animationStyle: animationStyle, duration: duration, completion: completion)
     }
 
@@ -192,7 +243,7 @@ extension Label: TextOutput {
         id: String? = nil,
         from startAmount: Decimal,
         to endAmount: Decimal,
-        mapToString: ((Decimal) -> TextOutputPresentableModel)?,
+        mapToString: ((Decimal) -> TextOutputPresentableModel.TextModel)?,
         animationStyle: LabelAnimationStyle = .none,
         duration: TimeInterval = 1.0,
         completion: (() -> Void)? = nil
@@ -604,7 +655,7 @@ extension Label: UIGestureRecognizerDelegate {
     }
 }
 
-extension TextOutputPresentableModel {
+extension TextOutputPresentableModel.TextModel {
     func width(usingFont font: Font) -> CGFloat {
         let attributedString: NSAttributedString = switch self {
         case .attributes(var attributes):
