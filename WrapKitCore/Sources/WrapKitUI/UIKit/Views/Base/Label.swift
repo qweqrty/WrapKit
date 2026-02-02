@@ -197,7 +197,6 @@ extension Label: TextOutput {
             animationStyle: animationStyle,
             duration: duration,
             completion: { [weak self] in
-                self?.clearAnimationModel()
                 completion?()
             }
         )
