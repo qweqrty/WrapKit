@@ -486,9 +486,9 @@ open class Label: UILabel {
                         case .attribute(let idx):
                             // best-effort title from attribute text
                             let t = attributes[idx].text.trimmingCharacters(in: .whitespacesAndNewlines)
-                            return t.isEmpty ? "Action \(i + 1)" : "Open: \(t.prefix(30))"
+                            return t.isEmpty ? "Action \(i + 1)" : "Open: \(t)"
                         case .link(_, let title):
-                            if let title, !title.isEmpty { return "Open link: \(title.prefix(30))" }
+                            if let title, !title.isEmpty { return "Open link: \(title)" }
                             return "Open link \(i + 1)"
                         }
                     }()
