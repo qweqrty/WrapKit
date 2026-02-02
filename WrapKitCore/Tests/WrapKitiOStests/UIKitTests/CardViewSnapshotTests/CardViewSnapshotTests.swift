@@ -997,6 +997,122 @@ final class CardViewSnapshotTests: XCTestCase {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
+    
+    func test_trailingImageLeadingZero() {
+        let snapshotName = "trailingImageLeadingZero"
+        // GIVEN
+        let (sut, container) = makeSUT()
+        
+        // WHEN
+        let style = makeDefaultStyle(
+            hStackViewDistribution: .fill,
+            hStackViewSpacing: 24,
+            trailingImageLeadingSpacing: 0,
+            secondaryTrailingImageLeadingSpacing: 0
+        )
+        sut.display(style: style)
+        sut.display(model: .init(
+            title: .text("Title"),
+            leadingImage: .init(image: .asset(image)),
+            trailingImage: .init(image: .asset(image)),
+            subTitle: .text("subTitle")
+        ))
+        
+        // THEN
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
+    }
+    
+    func test_trailingImageLeadingZeroShouldFail() {
+        let snapshotName = "trailingImageLeadingDefault" // correct is "trailingImageLeadingZero"
+        // GIVEN
+        let (sut, container) = makeSUT()
+        
+        // WHEN
+        let style = makeDefaultStyle(
+            hStackViewDistribution: .fill,
+            hStackViewSpacing: 24,
+            trailingImageLeadingSpacing: 0,
+            secondaryTrailingImageLeadingSpacing: 0
+        )
+        sut.display(style: style)
+        sut.display(model: .init(
+            title: .text("Title"),
+            leadingImage: .init(image: .asset(image)),
+            trailingImage: .init(image: .asset(image)),
+            subTitle: .text("subTitle")
+        ))
+        
+        // THEN
+        if #available(iOS 26, *) {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
+    }
+    
+    func test_trailingImageLeadingDefault() {
+        let snapshotName = "trailingImageLeadingDefault"
+        // GIVEN
+        let (sut, container) = makeSUT()
+        
+        // WHEN
+        let style = makeDefaultStyle(
+            hStackViewDistribution: .fill,
+            hStackViewSpacing: 24
+        )
+        sut.display(style: style)
+        sut.display(model: .init(
+            title: .text("Title"),
+            leadingImage: .init(image: .asset(image)),
+            trailingImage: .init(image: .asset(image)),
+            subTitle: .text("subTitle")
+        ))
+        
+        // THEN
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
+    }
+    
+    func test_trailingImageLeadingDefaultFail() {
+        let snapshotName = "trailingImageLeadingZero" // correct is "trailingImageLeadingDefault"
+        // GIVEN
+        let (sut, container) = makeSUT()
+        
+        // WHEN
+        let style = makeDefaultStyle(
+            hStackViewDistribution: .fill,
+            hStackViewSpacing: 24
+        )
+        sut.display(style: style)
+        sut.display(model: .init(
+            title: .text("Title"),
+            leadingImage: .init(image: .asset(image)),
+            trailingImage: .init(image: .asset(image)),
+            subTitle: .text("subTitle")
+        ))
+        
+        // THEN
+        if #available(iOS 26, *) {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
+    }
 }
 
 extension CardViewSnapshotTests {
@@ -1019,29 +1135,61 @@ extension CardViewSnapshotTests {
         return (sut, container)
     }
     
-    func makeDefaultStyle() -> CardViewPresentableModel.Style {
+    func makeDefaultStyle(
+        backgroundColor: Color = .systemRed,
+        vStacklayoutMargins: EdgeInsets = .init(top: 5, leading: 5, bottom: 5, trailing: 5),
+        hStacklayoutMargins: EdgeInsets = .zero,
+        hStackViewDistribution: StackViewDistribution = .fillEqually,
+        leadingTitleKeyTextColor: Color = .blue,
+        titleKeyTextColor: Color = .brown,
+        trailingTitleKeyTextColor: Color = .black,
+        titleValueTextColor: Color = .cyan,
+        subTitleTextColor: Color = .gray,
+        leadingTitleKeyLabelFont: Font = .boldSystemFont(ofSize: 22),
+        titleKeyLabelFont: Font = .systemFont(ofSize: 14),
+        trailingTitleKeyLabelFont: Font = .boldSystemFont(ofSize: 22),
+        titleValueLabelFont: Font = .systemFont(ofSize: 14),
+        subTitleLabelFont: Font = .systemFont(ofSize: 14, weight: .light),
+        subtitleNumberOfLines: Int = 0,
+        cornerRadius: CGFloat = 20,
+        roundedCorners: CACornerMask = .allCorners,
+        stackSpace: CGFloat = 5.0,
+        hStackViewSpacing: CGFloat = 2.0,
+        titleKeyNumberOfLines: Int = 0,
+        titleValueNumberOfLines: Int = 0,
+        borderColor: Color = .green,
+        borderWidth: CGFloat = 4,
+        gradientBorderColors: [Color]? = nil,
+        trailingImageLeadingSpacing: CGFloat? = nil,
+        secondaryTrailingImageLeadingSpacing: CGFloat? = nil
+    ) -> CardViewPresentableModel.Style {
         return .init(
-            backgroundColor: .systemRed,
-            vStacklayoutMargins: .init(top: 5, leading: 5, bottom: 5, trailing: 5),
-            hStacklayoutMargins: .zero,
-            hStackViewDistribution: .fillEqually,
-            leadingTitleKeyTextColor: .blue,
-            titleKeyTextColor: .brown,
-            trailingTitleKeyTextColor: .black,
-            titleValueTextColor: .cyan,
-            subTitleTextColor: .gray,
-            leadingTitleKeyLabelFont: .boldSystemFont(ofSize: 22),
-            titleKeyLabelFont: .systemFont(ofSize: 14),
-            trailingTitleKeyLabelFont: .boldSystemFont(ofSize: 22),
-            titleValueLabelFont: .systemFont(ofSize: 14),
-            subTitleLabelFont: .systemFont(ofSize: 14, weight: .light),
-            cornerRadius: 20,
-            stackSpace: 5.0,
-            hStackViewSpacing: 2.0,
-            titleKeyNumberOfLines: 0,
-            titleValueNumberOfLines: 0,
-            borderColor: .green,
-            borderWidth: 4
+            backgroundColor: backgroundColor,
+            vStacklayoutMargins: vStacklayoutMargins,
+            hStacklayoutMargins: hStacklayoutMargins,
+            hStackViewDistribution: hStackViewDistribution,
+            leadingTitleKeyTextColor: leadingTitleKeyTextColor,
+            titleKeyTextColor: titleKeyTextColor,
+            trailingTitleKeyTextColor: trailingTitleKeyTextColor,
+            titleValueTextColor: titleValueTextColor,
+            subTitleTextColor: subTitleTextColor,
+            leadingTitleKeyLabelFont: leadingTitleKeyLabelFont,
+            titleKeyLabelFont: titleKeyLabelFont,
+            trailingTitleKeyLabelFont: trailingTitleKeyLabelFont,
+            titleValueLabelFont: titleValueLabelFont,
+            subTitleLabelFont: subTitleLabelFont,
+            subtitleNumberOfLines: subtitleNumberOfLines,
+            cornerRadius: cornerRadius,
+            roundedCorners: roundedCorners,
+            stackSpace: stackSpace,
+            hStackViewSpacing: hStackViewSpacing,
+            titleKeyNumberOfLines: titleKeyNumberOfLines,
+            titleValueNumberOfLines: titleValueNumberOfLines,
+            borderColor: borderColor,
+            borderWidth: borderWidth,
+            gradientBorderColors: gradientBorderColors,
+            trailingImageLeadingSpacing: trailingImageLeadingSpacing,
+            secondaryTrailingImageLeadingSpacing: secondaryTrailingImageLeadingSpacing
         )
     }
     
