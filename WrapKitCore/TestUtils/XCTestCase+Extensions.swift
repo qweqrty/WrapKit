@@ -10,7 +10,7 @@ public extension XCTestCase {
     ) {
         let exp = XCTestExpectation(description: "Eventually")
         let deadline = Date().addingTimeInterval(timeout)
-
+        
         func poll() {
             if condition() {
                 exp.fulfill()
@@ -18,15 +18,15 @@ public extension XCTestCase {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.01, execute: poll)
             }
         }
-
+        
         DispatchQueue.main.async(execute: poll)
         XCTWaiter().wait(for: [exp], timeout: timeout + 0.1)
-
+        
         if !condition() {
             XCTFail("Condition not met", file: file, line: line)
         }
     }
-
+    
     func makeURL(_ string: String = "https://some-given-url.com", file: StaticString = #file, line: UInt = #line) -> URL {
         guard let url = URL(string: string) else {
             preconditionFailure("Could not create URL for \(string)", file: file, line: line)
@@ -46,6 +46,24 @@ public extension XCTestCase {
         addTeardownBlock { [weak instance] in
             XCTAssertNil(instance, "Instance should have been deallocated. Potential memory leak.", file: file, line: line)
         }
+    }
+    
+    func takeScreenshot(
+        named name: String,
+        after delay: TimeInterval = 0.5,
+        file: StaticString = #file,
+        line: UInt = #line
+    ) {
+        if delay > 0 {
+            RunLoop.main.run(until: Date().addingTimeInterval(delay))
+        }
+        
+        let screenshot = XCUIScreen.main.screenshot()
+        let attachment = XCTAttachment(screenshot: screenshot)
+        attachment.name = name
+        attachment.lifetime = .keepAlways
+        
+        add(attachment)
     }
 }
 

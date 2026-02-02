@@ -163,7 +163,6 @@ public class DiffableTableViewDataSource<Header, Cell: Hashable, Footer>: NSObje
             cell.isAccessibilityElement = false
         }
 
-        
         return cell
     }
     

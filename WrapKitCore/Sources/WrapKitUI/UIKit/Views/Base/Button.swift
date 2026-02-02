@@ -57,6 +57,7 @@ public protocol ButtonOutput: HiddableOutput {
 }
 
 public struct ButtonPresentableModel {
+    public let accessibilityIdentifier: String?
     public let height: CGFloat?
     public let width: CGFloat?
     public let title: String?
@@ -67,6 +68,7 @@ public struct ButtonPresentableModel {
     public let enabled: Bool?
     
     public init(
+        accessibilityIdentifier: String? = nil,
         title: String? = nil,
         image: Image? = nil,
         spacing: CGFloat? = nil,
@@ -76,6 +78,7 @@ public struct ButtonPresentableModel {
         enabled: Bool? = nil,
         onPress: (() -> Void)? = nil
     ) {
+        self.accessibilityIdentifier = accessibilityIdentifier
         self.spacing = spacing
         self.image = image
         self.onPress = onPress
@@ -93,6 +96,7 @@ import UIKit
 extension Button: ButtonOutput {
     public func display(model: ButtonPresentableModel?) {
         isHidden = model == nil
+        accessibilityIdentifier = model?.accessibilityIdentifier
         if let spacing = model?.spacing { display(spacing: spacing) }
         display(title: model?.title)
         display(image: model?.image)
