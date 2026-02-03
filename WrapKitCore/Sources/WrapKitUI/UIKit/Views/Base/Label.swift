@@ -468,10 +468,8 @@ extension Label: UIGestureRecognizerDelegate {
 
         isUserInteractionEnabled = tappable
 
-        if ProcessInfo.isUITest || UIAccessibility.isVoiceOverRunning {
-            isAccessibilityElement = true
-            accessibilityTraits = tappable ? [.button] : [.staticText]
-        }
+        isAccessibilityElement = true
+        accessibilityTraits = tappable ? [.button] : [.staticText]
 
         if tappable {
             let linkTargets = linkTargetsFromTextStorage()

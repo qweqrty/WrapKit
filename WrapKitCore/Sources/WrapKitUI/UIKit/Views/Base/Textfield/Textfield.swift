@@ -958,7 +958,6 @@ open class Textfield: UITextField {
 
 private extension Textfield {
     func applyAccessibility() {
-        guard UIAccessibility.isVoiceOverRunning || ProcessInfo.isUITest else { return }
         isAccessibilityElement = true
         accessibilityHint = nil
 
