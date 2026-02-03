@@ -67,7 +67,7 @@ final class CountingLabelAnimation {
                 progressView.animateProgress(from: 1.0, to: 0.0, duration: duration, completion: nil)
             }
         }
-        if let label, let mapToString {
+        if let label, let mapToString = mapToString {
             let integerDigits = String(Int(max(fromValue.doubleValue, toValue.doubleValue))).count
             let widestString = String(repeating: "8", count: integerDigits) + ".88"
             let widestNumber = Double(widestString) ?? .zero
@@ -81,7 +81,7 @@ final class CountingLabelAnimation {
         timer.startAnimation(duration: duration, onUpdateProgress: { [unowned self] progress in
             let currentValue = self.startNumber + (progress * (self.endNumber - self.startNumber))
             let view = mapToString?(currentValue) ?? .text("")
-            self.label?.display(textModel: view)
+            self.label?.display(text: view.text)
         }, completion: completion)
     }
     
