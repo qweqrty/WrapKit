@@ -128,6 +128,10 @@ extension UIViewController: AlertOutput {
                 let uiAction = UIAlertAction(title: action.title, style: style) { _ in
                     action.handler?()
                 }
+
+                if let id = action.accessibilityIdentifier {
+                    uiAction.setValue(id, forKey: "accessibilityIdentifier")
+                }
                 alert.addAction(uiAction)
             }
             
@@ -163,12 +167,20 @@ public struct AlertAction {
         case destructive
     }
 
+    public let accessibilityIdentifier: String?
     public let title: String
     public let style: Style
     public let handler: (() -> Void)?
     public let inputHandler: ((String) -> Void)?
     
-    public init(title: String, style: Style = .default, handler: (() -> Void)? = nil, inputHandler: ((String) -> Void)? = nil) {
+    public init(
+        accessibilityIdentifier: String? = nil,
+        title: String,
+        style: Style = .default,
+        handler: (() -> Void)? = nil,
+        inputHandler: ((String) -> Void)? = nil
+    ) {
+        self.accessibilityIdentifier = accessibilityIdentifier
         self.title = title
         self.style = style
         self.handler = handler

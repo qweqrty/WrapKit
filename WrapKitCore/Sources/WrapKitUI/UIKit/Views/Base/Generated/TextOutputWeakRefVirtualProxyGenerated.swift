@@ -28,6 +28,9 @@ extension WeakRefVirtualProxy: TextOutput where T: TextOutput {
     public func display(model: TextOutputPresentableModel?) {
         object?.display(model: model)
     }
+    public func display(textModel: TextOutputPresentableModel.TextModel?) {
+        object?.display(textModel: textModel)
+    }
     public func display(text: String?) {
         object?.display(text: text)
     }

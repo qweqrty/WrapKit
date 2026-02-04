@@ -20,6 +20,7 @@ public enum LabelAnimationStyle {
 
 public protocol TextOutput: HiddableOutput {
     func display(model: TextOutputPresentableModel?)
+    func display(textModel: TextOutputPresentableModel.TextModel?)
     func display(text: String?)
     func display(attributes: [TextAttributes])
     func display(htmlString: String?, font: Font, color: Color)
@@ -148,14 +149,21 @@ public struct TextOutputPresentableModel: HashableWithReflection {
 import UIKit
 
 extension Label: TextOutput {
-    
     public func display(model: TextOutputPresentableModel?) {
         isHidden = model == nil
         if let accessibilityIdentifier = model?.accessibilityIdentifier {
-            self.accessibilityIdentifier = accessibilityIdentifier
+            self.accessibilityIdentifier = model?.accessibilityIdentifier
         }
-        
         guard let model = model?.model else { return }
+        display(textModel: model)
+        let tappable = attributes.contains(where: { $0.onTap != nil && $0.range != nil })
+        isAccessibilityElement = true
+        accessibilityTraits = tappable ? [.button] : [.staticText]
+    }
+    
+    public func display(textModel: TextOutputPresentableModel.TextModel?) {
+        isHidden = textModel == nil
+        guard let model = textModel else {  return }
         hideShimmer()
         switch model {
         case .text(let text):
@@ -174,7 +182,7 @@ extension Label: TextOutput {
             _, // MARK: TODO ?
             let backgroundColor
         ):
-            display(text: text.text)
+            display(textModel: text)
             self.cornerStyle = cornerStyle
             self.textInsets = insets.asUIEdgeInsets
         case .attributedString(let htmlString, let font, let color):
@@ -183,7 +191,6 @@ extension Label: TextOutput {
                 self.backgroundColor = backgroundColor
             }
         }
-        applyInteractivityAndAccessibility()
     }
     
     public func display(text: String?) {
@@ -274,7 +281,6 @@ open class Label: UILabel {
         textContainer.lineBreakMode = self.lineBreakMode
         textContainer.maximumNumberOfLines = self.numberOfLines
         layoutManager.addTextContainer(textContainer)
-        applyInteractivityAndAccessibility()
     }
     
     override init(frame: CGRect) {
@@ -294,7 +300,6 @@ open class Label: UILabel {
         textContainer.lineBreakMode = self.lineBreakMode
         textContainer.maximumNumberOfLines = self.numberOfLines
         layoutManager.addTextContainer(textContainer)
-        applyInteractivityAndAccessibility()
     }
     
     open override func layoutSubviews() {
@@ -311,7 +316,6 @@ open class Label: UILabel {
         clipsToBounds = true
         
         textContainer.size = bounds.size
-        applyInteractivityAndAccessibility()
     }
     
     open override func drawText(in rect: CGRect) {
@@ -333,18 +337,12 @@ open class Label: UILabel {
     public override var text: String? {
         didSet {
             self.invalidateIntrinsicContentSize()
-            self.applyInteractivityAndAccessibility()
         }
     }
     
     private var animation: CountingLabelAnimation?
     private var currentAnimatedTarget: Decimal?
     private var currentAnimatedModelID: String?
-    private enum A11yTapTarget: Equatable {
-        case attribute(index: Int)
-        case link(url: URL, title: String?)
-    }
-    private var a11yTargets: [A11yTapTarget] = []
     
     lazy var tapGesture: UITapGestureRecognizer = {
         let gesture = UITapGestureRecognizer(target: self, action: nil)
@@ -362,7 +360,6 @@ open class Label: UILabel {
             attributedText = combinedAttributedString
             self.textStorage = NSTextStorage(attributedString: combinedAttributedString)
             self.textStorage.addLayoutManager(layoutManager)
-            applyInteractivityAndAccessibility()
         }
     }
     
@@ -422,116 +419,6 @@ extension Label: UIGestureRecognizerDelegate {
             }
         }
         return false
-    }
-    
-    private func isTappableByTextAttributes() -> Bool {
-        attributes.contains(where: { $0.onTap != nil && $0.range != nil })
-    }
-
-    private func linkTargetsFromTextStorage() -> [A11yTapTarget] {
-        guard textStorage.length > 0 else { return [] }
-
-        var result: [A11yTapTarget] = []
-        let full = NSRange(location: 0, length: textStorage.length)
-
-        textStorage.enumerateAttribute(.link, in: full) { value, range, _ in
-            guard let value else { return }
-            let url: URL? =
-                (value as? URL) ??
-                (value as? String).flatMap(URL.init(string:))
-
-            guard let url else { return }
-
-            let title = textStorage.attributedSubstring(from: range).string
-                .trimmingCharacters(in: .whitespacesAndNewlines)
-
-            result.append(.link(url: url, title: title.isEmpty ? nil : title))
-        }
-
-        // unique by url+title+range not доступно, но хотя бы уберём дубли по url+title
-        var seen = Set<String>()
-        return result.filter { t in
-            let key: String = switch t {
-            case .link(let url, let title): "\(url.absoluteString)|\(title ?? "")"
-            default: UUID().uuidString
-            }
-            return seen.insert(key).inserted
-        }
-    }
-
-    
-    // MARK: - Accessibility
-    private func applyInteractivityAndAccessibility() {
-        let hasAttrTaps = isTappableByTextAttributes()
-        let hasLinks = !linkTargetsFromTextStorage().isEmpty
-        let tappable = hasAttrTaps || hasLinks
-
-        isUserInteractionEnabled = tappable
-
-        isAccessibilityElement = true
-        accessibilityTraits = tappable ? [.button] : [.staticText]
-
-        if tappable {
-            let linkTargets = linkTargetsFromTextStorage()
-            a11yTargets = []
-
-            for (idx, attr) in attributes.enumerated() {
-                if attr.onTap != nil, attr.range != nil {
-                    a11yTargets.append(.attribute(index: idx))
-                }
-            }
-            a11yTargets.append(contentsOf: linkTargets)
-
-            if a11yTargets.count > 1 {
-                accessibilityCustomActions = a11yTargets.enumerated().map { i, target in
-                    let name: String = {
-                        switch target {
-                        case .attribute(let idx):
-                            // best-effort title from attribute text
-                            let t = attributes[idx].text.trimmingCharacters(in: .whitespacesAndNewlines)
-                            return t.isEmpty ? "Action \(i + 1)" : "Open: \(t)"
-                        case .link(_, let title):
-                            if let title, !title.isEmpty { return "Open link: \(title)" }
-                            return "Open link \(i + 1)"
-                        }
-                    }()
-                    return UIAccessibilityCustomAction(name: name, target: self, selector: #selector(handleA11yCustomAction(_:)))
-                }
-            } else {
-                accessibilityCustomActions = nil
-            }
-        } else {
-            a11yTargets = []
-            accessibilityCustomActions = nil
-        }
-    }
-    
-    @objc private func handleA11yCustomAction(_ action: UIAccessibilityCustomAction) -> Bool {
-        guard let idx = accessibilityCustomActions?.firstIndex(of: action),
-              idx >= 0, idx < a11yTargets.count
-        else { return false }
-
-        return performA11yTarget(a11yTargets[idx])
-    }
-    
-    private func performA11yTarget(_ target: A11yTapTarget) -> Bool {
-        switch target {
-        case .attribute(let idx):
-            guard idx < attributes.count else { return false }
-            attributes[idx].onTap?()
-            return true
-
-        case .link(let url, _):
-            UIApplication.shared.open(url, options: [:], completionHandler: nil)
-            return true
-        }
-    }
-
-    open override func accessibilityActivate() -> Bool {
-        if a11yTargets.count == 1, let only = a11yTargets.first {
-            return performA11yTarget(only)
-        }
-        return super.accessibilityActivate()
     }
 }
 

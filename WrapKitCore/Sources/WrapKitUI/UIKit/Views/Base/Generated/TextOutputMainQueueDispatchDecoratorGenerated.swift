@@ -30,6 +30,11 @@ extension MainQueueDispatchDecorator: TextOutput where T: TextOutput {
             self?.decoratee.display(model: model)
         }
     }
+    public func display(textModel: TextOutputPresentableModel.TextModel?) {
+        dispatch { [weak self] in
+            self?.decoratee.display(textModel: textModel)
+        }
+    }
     public func display(text: String?) {
         dispatch { [weak self] in
             self?.decoratee.display(text: text)
