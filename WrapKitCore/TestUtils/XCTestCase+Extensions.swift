@@ -47,24 +47,52 @@ public extension XCTestCase {
             XCTAssertNil(instance, "Instance should have been deallocated. Potential memory leak.", file: file, line: line)
         }
     }
-    
-    func takeScreenshot(
-        named name: String,
-        after delay: TimeInterval = 0.5,
-        file: StaticString = #file,
-        line: UInt = #line
-    ) {
-        if delay > 0 {
-            RunLoop.main.run(until: Date().addingTimeInterval(delay))
+}
+
+public extension XCTestCase {
+
+        func takeScreenshot(
+            named name: String,
+            after delay: TimeInterval = 0.3,
+            file: StaticString = #file,
+            line: UInt = #line
+        ) {
+            if delay > 0 {
+                RunLoop.main.run(until: Date().addingTimeInterval(delay))
+            }
+
+            let screenshot = XCUIScreen.main.screenshot()
+
+            let testFileURL = URL(fileURLWithPath: String(describing: file))
+            let testFolderURL = testFileURL.deletingLastPathComponent()
+
+            let testClass = String(describing: type(of: self))
+            let testName = self.name
+                .components(separatedBy: " ")
+                .last?
+                .replacingOccurrences(of: "]", with: "")
+                ?? "UnknownTest"
+
+            let screenshotsFolder = testFolderURL
+                .appendingPathComponent(testClass, isDirectory: true)
+                .appendingPathComponent(testName, isDirectory: true)
+
+            do {
+                try FileManager.default.createDirectory(
+                    at: screenshotsFolder,
+                    withIntermediateDirectories: true
+                )
+
+                let fileURL = screenshotsFolder.appendingPathComponent("\(name).png")
+                try screenshot.pngRepresentation.write(to: fileURL, options: .atomic)
+
+                print("📸 Screenshot saved: \(fileURL.path)")
+            } catch {
+                XCTFail("Failed to save screenshot: \(error)", file: file, line: line)
+            }
         }
-        
-        let screenshot = XCUIScreen.main.screenshot()
-        let attachment = XCTAttachment(screenshot: screenshot)
-        attachment.name = name
-        attachment.lifetime = .keepAlways
-        
-        add(attachment)
-    }
+
+
 }
 
 // Thread-safe container for cancellables

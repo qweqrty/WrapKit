@@ -67,6 +67,7 @@ extension UIViewController: AlertOutput {
                         }
                         action.handler?()
                     }
+                    uiAction.accessibilityIdentifier = action.accessibilityIdentifier
                     alert.addAction(uiAction)
                 }
                 
@@ -97,6 +98,7 @@ extension UIViewController: AlertOutput {
                 let uiAction = UIAlertAction(title: action.title, style: style) { _ in
                     action.handler?()
                 }
+                uiAction.accessibilityIdentifier = action.accessibilityIdentifier
                 alert.addAction(uiAction)
             }
             
@@ -128,10 +130,7 @@ extension UIViewController: AlertOutput {
                 let uiAction = UIAlertAction(title: action.title, style: style) { _ in
                     action.handler?()
                 }
-
-                if let id = action.accessibilityIdentifier {
-                    uiAction.setValue(id, forKey: "accessibilityIdentifier")
-                }
+                uiAction.accessibilityIdentifier = action.accessibilityIdentifier
                 alert.addAction(uiAction)
             }
             
