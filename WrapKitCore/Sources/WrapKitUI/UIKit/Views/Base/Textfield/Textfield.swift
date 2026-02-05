@@ -187,6 +187,8 @@ public struct TextInputPresentableModel: HashableWithReflection {
             self.maskColor = maskColor
         }
     }
+    
+    public let accessibilityIdentifier: String?
     public let mask: Mask?
     public let text: String?
     public let isValid: Bool?
@@ -210,6 +212,7 @@ public struct TextInputPresentableModel: HashableWithReflection {
     public var didChangeText: [((String?) -> Void)]?
     
     public init(
+        accessibilityIdentifier: String? = nil,
         text: String? = nil,
         mask: Mask? = nil,
         isValid: Bool? = nil,
@@ -232,6 +235,7 @@ public struct TextInputPresentableModel: HashableWithReflection {
         onTapBackspace: (() -> Void)? = nil,
         didChangeText: [(String?) -> Void]? = nil
     ) {
+        self.accessibilityIdentifier = accessibilityIdentifier
         self.text = text
         self.mask = mask
         self.isValid = isValid
@@ -369,6 +373,11 @@ extension Textfield: TextInputOutput {
     
     public func display(model: TextInputPresentableModel?) {
         isHidden = model == nil
+        
+        if let accessibilityIdentifier = model?.accessibilityIdentifier {
+            self.accessibilityIdentifier = accessibilityIdentifier
+        }
+        
         guard let model = model else { return }
         if let mask = model.mask {
             maskedTextfieldDelegate = .init(format: .init(mask: mask.mask, maskedTextColor: mask.maskColor))
