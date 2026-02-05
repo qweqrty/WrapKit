@@ -60,68 +60,74 @@ public struct SUILabelView: View, Animatable {
     
     @StateObject private var displayLinkManager = SUIDisplayLinkManager()
     
+    // MARK: - TODO refers to making TextOutputPresentableModel a struct
     public var body: some View {
-        switch model {
-        case .text(let string):
-            if let text = string?.removingPercentEncoding, !text.isEmpty {
-                Text(text)
-                    .font(suiFont)
-                    .offset(y: -simpleTextYOffset)
-                    .modify { if #available(iOS 26.0, *) {
-                        if #available(macOS 26.0, *) {
-                            $0.lineHeight(.multiple(factor: simpleTextLineHeightMultiple))
-                        } else {
-                            // MARK: - TODO
-                        }
-                    } }
-            }
-        case .attributes(let attributes):
-            if !attributes.isEmpty {
-                buildSwiftUIViewFromAttributes(from: attributes)
-            }
-        case .animated(let id, let from, let to, let mapToString, let animationStyle, let duration, let completion):
-            ZStack {
-                if case let .circle(color) = animationStyle {
-                    SUICircularProgressView(color: color, from: 1, to: 0, duration: duration, completion: completion)
-                        .padding(8)
-                }
-                
-                SUILabelView(
-                    model: mapToString?(from + (displayLinkManager.progress.doubleValue * (to - from))) ?? .text(""),
-                    font: defaultFont
-                )
-                .onAppear {
-                    guard duration > 0 else { return }
-                    displayLinkManager.startAnimation(duration: duration, completion: completion)
-                }
-            }
-        case .textStyled(let text, let cornerStyle, let insets, let height, let backgroundColor):
-            SUILabelView(model: text, font: defaultFont)
-                .if(!insets.isZero) { $0.padding(insets.asSUIEdgeInsets) }
-                .ifLet(height) { $0.frame(height: $1, alignment: .center) }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .ifLet(backgroundColor) { $0.background(SwiftUIColor($1)) }
-                .ifLet(cornerStyle) { $0.cornerStyle($1) }
-        case .animatedDecimal(id: let id, from: let from, to: let to, mapToString: let mapToString, animationStyle: let animationStyle, duration: let duration, completion: let completion):
-            ZStack {
-                if case let .circle(color) = animationStyle {
-                    SUICircularProgressView(color: color, from: 1, to: 0, duration: duration, completion: completion)
-                        .padding(8)
-                }
-                
-                SUILabelView(
-                    model: mapToString?(from + (displayLinkManager.progress * (to - from))) ?? .text(""),
-                    font: defaultFont
-                )
-                .onAppear {
-                    guard duration > 0 else { return }
-                    displayLinkManager.startAnimation(duration: duration, completion: completion)
-                }
-            }
-        case .attributedString(_, _, _):
-            SUILabelView(model: .text("")) // MARK: - TODO
-        }
+        SUILabelView(model: .text(""))
     }
+//    public var body: some View {
+//        switch model {
+//        case .text(let string):
+//            if let text = string.1?.removingPercentEncoding, !text.isEmpty {
+//                Text(text)
+//                    .font(suiFont)
+//                    .offset(y: -simpleTextYOffset)
+//                    .modify { if #available(iOS 26.0, *) {
+//                        if #available(macOS 26.0, *) {
+//                            $0.lineHeight(.multiple(factor: simpleTextLineHeightMultiple))
+//                        } else {
+//                            // MARK: - TODO
+//                        }
+//                    } }
+//            }
+//        case .attributes(let attributes):
+//            // MARK: TODO Failed to produce diagnostic for expression; please submit a bug report (https://swift.org/contributing/#reporting-bugs)
+//            // if !attributes.1.isEmpty {
+//            //   buildSwiftUIViewFromAttributes(from: attributes.1)
+//            // }
+//            SUILabelView(model: .text(""))
+//        case .animated(let id, let from, let to, let mapToString, let animationStyle, let duration, let completion):
+//            ZStack {
+//                if case let .circle(color) = animationStyle {
+//                    SUICircularProgressView(color: color, from: 1, to: 0, duration: duration, completion: completion)
+//                        .padding(8)
+//                }
+//                
+//                SUILabelView(
+//                    model: mapToString?(from + (displayLinkManager.progress.doubleValue * (to - from))) ?? .text(""),
+//                    font: defaultFont
+//                )
+//                .onAppear {
+//                    guard duration > 0 else { return }
+//                    displayLinkManager.startAnimation(duration: duration, completion: completion)
+//                }
+//            }
+//        case .textStyled(let text, let cornerStyle, let insets, let height, let backgroundColor):
+//            SUILabelView(model: text, font: defaultFont)
+//                .if(!insets.isZero) { $0.padding(insets.asSUIEdgeInsets) }
+//                .ifLet(height) { $0.frame(height: $1, alignment: .center) }
+//                .frame(maxWidth: .infinity, alignment: .leading)
+//                .ifLet(backgroundColor) { $0.background(SwiftUIColor($1)) }
+//                .ifLet(cornerStyle) { $0.cornerStyle($1) }
+//        case .animatedDecimal(id: let id, from: let from, to: let to, mapToString: let mapToString, animationStyle: let animationStyle, duration: let duration, completion: let completion):
+//            ZStack {
+//                if case let .circle(color) = animationStyle {
+//                    SUICircularProgressView(color: color, from: 1, to: 0, duration: duration, completion: completion)
+//                        .padding(8)
+//                }
+//                
+//                SUILabelView(
+//                    model: mapToString?(from + (displayLinkManager.progress * (to - from))) ?? .text(""),
+//                    font: defaultFont
+//                )
+//                .onAppear {
+//                    guard duration > 0 else { return }
+//                    displayLinkManager.startAnimation(duration: duration, completion: completion)
+//                }
+//            }
+//        case .attributedString(_, _, _):
+//            SUILabelView(model: .text("")) // MARK: - TODO
+//        }
+//    }
 
     // MARK: - SwiftUI AttributedString builder (text-only)
 

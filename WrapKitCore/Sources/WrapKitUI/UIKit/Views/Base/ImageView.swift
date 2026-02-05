@@ -461,10 +461,12 @@ extension ImageView: ImageViewOutput {
     
     public func display(onPress: (() -> Void)?) {
         self.onPress = onPress
+        applyInteractivityAndAccessibility()
     }
     
     public func display(onLongPress: (() -> Void)?) {
         self.onLongPress = onLongPress
+        applyInteractivityAndAccessibility()
     }
     
     public func display(contentModeIsFit: Bool) {
@@ -478,6 +480,37 @@ extension ImageView: ImageViewOutput {
     
     public func display(isHidden: Bool) {
         self.isHidden = isHidden
+    }
+}
+
+// MARK: - Accessibility
+private extension ImageView {
+    func applyInteractivityAndAccessibility() {
+        accessibilityLabel = nil
+        accessibilityHint = nil
+        
+        let hasTap = (onPress != nil)
+        let hasLong = (onLongPress != nil)
+        let interactive = hasTap || hasLong
+        
+        isAccessibilityElement = interactive
+        accessibilityTraits = interactive ? [.image, .button] : []
+        
+        var actions: [UIAccessibilityCustomAction] = []
+        
+        if let onLongPress {
+            actions.append(UIAccessibilityCustomAction(name: "Long press", actionHandler: { _ in
+                onLongPress()
+                return true
+            }))
+        }
+        
+        accessibilityCustomActions = actions.isEmpty ? nil : actions
+    }
+    open override func accessibilityActivate() -> Bool {
+        guard let onPress else { return super.accessibilityActivate() }
+        onPress()
+        return true
     }
 }
 #endif

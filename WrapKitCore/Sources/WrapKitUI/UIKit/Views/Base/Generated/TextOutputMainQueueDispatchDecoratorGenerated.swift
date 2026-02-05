@@ -30,6 +30,11 @@ extension MainQueueDispatchDecorator: TextOutput where T: TextOutput {
             self?.decoratee.display(model: model)
         }
     }
+    public func display(textModel: TextOutputPresentableModel.TextModel?) {
+        dispatch { [weak self] in
+            self?.decoratee.display(textModel: textModel)
+        }
+    }
     public func display(text: String?) {
         dispatch { [weak self] in
             self?.decoratee.display(text: text)
@@ -45,7 +50,7 @@ extension MainQueueDispatchDecorator: TextOutput where T: TextOutput {
             self?.decoratee.display(htmlString: htmlString, font: font, color: color)
         }
     }
-    public func display(id: String?, from startAmount: Decimal, to endAmount: Decimal, mapToString: ((Decimal) -> TextOutputPresentableModel)?, animationStyle: LabelAnimationStyle, duration: TimeInterval, completion: (() -> Void)?) {
+    public func display(id: String?, from startAmount: Decimal, to endAmount: Decimal, mapToString: ((Decimal) -> TextOutputPresentableModel.TextModel)?, animationStyle: LabelAnimationStyle, duration: TimeInterval, completion: (() -> Void)?) {
         dispatch { [weak self] in
             self?.decoratee.display(id: id, from: startAmount, to: endAmount, mapToString: mapToString, animationStyle: animationStyle, duration: duration, completion: completion)
         }

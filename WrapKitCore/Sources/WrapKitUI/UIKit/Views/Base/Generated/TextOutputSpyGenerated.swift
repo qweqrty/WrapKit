@@ -24,10 +24,11 @@ public final class TextOutputSpy: TextOutput {
 
     public enum Message: HashableWithReflection {
         case displayModel(model: TextOutputPresentableModel?)
+        case displayTextModel(textModel: TextOutputPresentableModel.TextModel?)
         case displayText(text: String?)
         case displayAttributes(attributes: [TextAttributes])
         case displayHtmlString(htmlString: String?, font: Font, color: Color)
-        case displayId(id: String?, from: Decimal, to: Decimal, mapToString: ((Decimal) -> TextOutputPresentableModel)?, animationStyle: LabelAnimationStyle, duration: TimeInterval, completion: (() -> Void)?)
+        case displayId(id: String?, from: Decimal, to: Decimal, mapToString: ((Decimal) -> TextOutputPresentableModel.TextModel)?, animationStyle: LabelAnimationStyle, duration: TimeInterval, completion: (() -> Void)?)
         case displayIsHidden(isHidden: Bool)
     }
 
@@ -35,10 +36,11 @@ public final class TextOutputSpy: TextOutput {
 
     // MARK: - Captured values
     public private(set) var capturedDisplayModel: [TextOutputPresentableModel?] = []
+    public private(set) var capturedDisplayTextModel: [TextOutputPresentableModel.TextModel?] = []
     public private(set) var capturedDisplayText: [String?] = []
     public private(set) var capturedDisplayAttributes: [[TextAttributes]] = []
     public private(set) var capturedDisplayHtmlString: [(htmlString: String?, font: Font, color: Color)] = []
-    public private(set) var capturedDisplayId: [(id: String?, from: Decimal, to: Decimal, mapToString: ((Decimal) -> TextOutputPresentableModel)?, animationStyle: LabelAnimationStyle, duration: TimeInterval, completion: (() -> Void)?)] = []
+    public private(set) var capturedDisplayId: [(id: String?, from: Decimal, to: Decimal, mapToString: ((Decimal) -> TextOutputPresentableModel.TextModel)?, animationStyle: LabelAnimationStyle, duration: TimeInterval, completion: (() -> Void)?)] = []
     public private(set) var capturedDisplayIsHidden: [Bool] = []
 
 
@@ -46,6 +48,10 @@ public final class TextOutputSpy: TextOutput {
     public func display(model: TextOutputPresentableModel?) {
         capturedDisplayModel.append(model)
         messages.append(.displayModel(model: model))
+    }
+    public func display(textModel: TextOutputPresentableModel.TextModel?) {
+        capturedDisplayTextModel.append(textModel)
+        messages.append(.displayTextModel(textModel: textModel))
     }
     public func display(text: String?) {
         capturedDisplayText.append(text)
@@ -59,7 +65,7 @@ public final class TextOutputSpy: TextOutput {
         capturedDisplayHtmlString.append((htmlString: htmlString, font: font, color: color))
         messages.append(.displayHtmlString(htmlString: htmlString, font: font, color: color))
     }
-    public func display(id: String?, from startAmount: Decimal, to endAmount: Decimal, mapToString: ((Decimal) -> TextOutputPresentableModel)?, animationStyle: LabelAnimationStyle, duration: TimeInterval, completion: (() -> Void)?) {
+    public func display(id: String?, from startAmount: Decimal, to endAmount: Decimal, mapToString: ((Decimal) -> TextOutputPresentableModel.TextModel)?, animationStyle: LabelAnimationStyle, duration: TimeInterval, completion: (() -> Void)?) {
         capturedDisplayId.append((id: id, from: startAmount, to: endAmount, mapToString: mapToString, animationStyle: animationStyle, duration: duration, completion: completion))
         messages.append(.displayId(id: id, from: startAmount, to: endAmount, mapToString: mapToString, animationStyle: animationStyle, duration: duration, completion: completion))
     }

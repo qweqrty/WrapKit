@@ -57,6 +57,7 @@ public protocol ButtonOutput: HiddableOutput {
 }
 
 public struct ButtonPresentableModel {
+    public let accessibilityIdentifier: String?
     public let height: CGFloat?
     public let width: CGFloat?
     public let title: String?
@@ -67,6 +68,7 @@ public struct ButtonPresentableModel {
     public let enabled: Bool?
     
     public init(
+        accessibilityIdentifier: String? = nil,
         title: String? = nil,
         image: Image? = nil,
         spacing: CGFloat? = nil,
@@ -76,6 +78,7 @@ public struct ButtonPresentableModel {
         enabled: Bool? = nil,
         onPress: (() -> Void)? = nil
     ) {
+        self.accessibilityIdentifier = accessibilityIdentifier
         self.spacing = spacing
         self.image = image
         self.onPress = onPress
@@ -93,6 +96,7 @@ import UIKit
 extension Button: ButtonOutput {
     public func display(model: ButtonPresentableModel?) {
         isHidden = model == nil
+        accessibilityIdentifier = model?.accessibilityIdentifier
         if let spacing = model?.spacing { display(spacing: spacing) }
         display(title: model?.title)
         display(image: model?.image)
@@ -102,6 +106,7 @@ extension Button: ButtonOutput {
         if let enabled = model?.enabled {
             updateAppearance(enabled: enabled)
         }
+        applyInteractivityAndAccessibility()
     }
     
     public func display(image: Image?) {
@@ -150,6 +155,21 @@ extension Button: ButtonOutput {
     
     public func display(isHidden: Bool) {
         self.isHidden = isHidden
+    }
+}
+
+extension Button: LoadingOutput {
+    public func display(isLoading: Bool) {
+        self.isLoading = isLoading
+        titleLabel?.alpha = isLoading ? 0 : 1
+        imageView?.alpha = isLoading ? 0 : 1
+        let loader = CommonLoadingiOSAdapter.NVActivityLoader(
+            onView: self,
+            loadingViewColor: loadingIndicatorColor ?? .red,
+            wrapperViewColor: .clear
+        )
+        
+        loader.display(isLoading: isLoading)
     }
 }
 
@@ -229,9 +249,10 @@ open class Button: UIButton {
         
         setTitle(title, for: .normal)
         cornerRadius = 12  // MARK: - TODO
-        isUserInteractionEnabled = enabled
+        isEnabled = enabled
         updateAppearance(enabled: enabled)
         display(style: style)
+        applyInteractivityAndAccessibility()
     }
     
     public convenience init(
@@ -246,7 +267,7 @@ open class Button: UIButton {
         spacing: CGFloat = 0,
         contentHorizontalAlignment: UIControl.ContentHorizontalAlignment = .center,
         isHidden: Bool = false,
-        isUserInteractionEnabled: Bool = true,
+        isEnabled: Bool = true,
         lineBreakingMode: NSLineBreakMode = .byTruncatingTail,
         type: UIButton.ButtonType = .system
     ) {
@@ -259,7 +280,7 @@ open class Button: UIButton {
         self.textBackgroundColor = backgroundColor
         self.contentHorizontalAlignment = contentHorizontalAlignment
         self.titleLabel?.lineBreakMode = .byTruncatingTail
-        self.isUserInteractionEnabled = isUserInteractionEnabled
+        self.isEnabled = isEnabled
         self.spacing = spacing
         self.backgroundColor = backgroundColor
         self.contentInset = contentInset
@@ -308,8 +329,6 @@ open class Button: UIButton {
                 switch $0 {
                 case .shrink:
                     self?.transform = CGAffineTransform(scaleX: 0.95, y: 0.95)
-                default:
-                    break
                 }
             }
             self?.backgroundColor = self?.pressedBackgroundColor ?? self?.textBackgroundColor
@@ -337,25 +356,51 @@ open class Button: UIButton {
     }
     
     open func updateAppearance(enabled: Bool) {
-        isUserInteractionEnabled = enabled
+        isEnabled = enabled
         alpha = enabled ? 1.0 : 0.5
         titleLabel?.alpha = enabled ? 1.0 : 0.5
     }
+    
+    open override func accessibilityActivate() -> Bool {
+        if let onPress {
+            // Respect enabled state for VO.
+            // If "disabled", don't activate.
+            let enabledForA11y = isEnabled && !isHidden
+            guard enabledForA11y else { return false }
+
+            onPress()
+            return true
+        }
+        return super.accessibilityActivate()
+    }
 }
 
-extension Button: LoadingOutput {
-    
-    public func display(isLoading: Bool) {
-        self.isLoading = isLoading
-        titleLabel?.alpha = isLoading ? 0 : 1
-        imageView?.alpha = isLoading ? 0 : 1
-        let loader = CommonLoadingiOSAdapter.NVActivityLoader(
-            onView: self,
-            loadingViewColor: loadingIndicatorColor ?? .red,
-            wrapperViewColor: .clear
-        )
-        
-        loader.display(isLoading: isLoading)
+// MARK: Accessibility
+private extension Button {
+    func applyInteractivityAndAccessibility() {
+        let enabledForA11y = isEnabled && !isHidden
+
+        isAccessibilityElement = true
+
+        var traits: UIAccessibilityTraits = []
+        if onPress != nil {
+            traits.insert(.button)
+        } else {
+            traits.insert(.staticText)
+        }
+        if !enabledForA11y {
+            traits.insert(.notEnabled)
+        }
+        accessibilityTraits = traits
+
+        let titleText = title(for: .normal)?.trimmingCharacters(in: .newlines)
+        if let t = titleText, !t.isEmpty {
+            accessibilityLabel = t
+        } else {
+            accessibilityLabel = nil
+        }
+
+        accessibilityHint = nil
     }
 }
 

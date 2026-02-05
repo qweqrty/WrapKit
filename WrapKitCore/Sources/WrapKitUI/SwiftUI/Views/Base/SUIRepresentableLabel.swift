@@ -33,7 +33,7 @@ public struct SUIRepresentableLabel: UIViewRepresentable {
     }
 
     public func updateUIView(_ uiView: Label, context: Context) {
-        switch stateModel.presentable {
+        switch stateModel.presentable.model {
         case .text(let string):
             uiView.display(text: string)
         case .attributes(let array):
@@ -46,6 +46,8 @@ public struct SUIRepresentableLabel: UIViewRepresentable {
             uiView.display(id: id, from: from, to: to, mapToString: mapToString, animationStyle: animationStyle, duration: duration, completion: completion)
         case .attributedString(_, _, _):
             // MARK: - TODO
+            break
+        default:
             break
         }
     }
