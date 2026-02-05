@@ -55,7 +55,7 @@ private enum ScreenshotAssoc {
     static var indexKey: UInt8 = 0
 }
 
-extension XCTestCase {
+public extension XCTestCase {
 
     private var screenshotIndex: Int {
         get { (objc_getAssociatedObject(self, &ScreenshotAssoc.indexKey) as? Int) ?? 0 }
