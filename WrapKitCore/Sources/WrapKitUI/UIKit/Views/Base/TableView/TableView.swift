@@ -67,6 +67,11 @@ open class TableView: UITableView {
     public required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
     }
+    
+    open override func numberOfRows(inSection section: Int) -> Int {
+        guard numberOfSections > section else { return 0 }
+        return super.numberOfRows(inSection: section)
+    }
 }
 
 public extension UITableView {
