@@ -414,7 +414,7 @@ open class CardView: ViewUIKit {
         spacing: 0
     )
     
-    public let subtitleLabelWrapperView = ViewUIKit(isHidden: true)
+    public let subtitleLabelWrapperView = ViewUIKit(isHidden: false)
     public let subtitleLabel = Label(font: .systemFont(ofSize: 16), textColor: .gray)
     
     public let trailingImageWrapperView = ViewUIKit(isHidden: true)
