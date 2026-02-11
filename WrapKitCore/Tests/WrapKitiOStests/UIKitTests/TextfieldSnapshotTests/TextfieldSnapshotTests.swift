@@ -1491,6 +1491,125 @@ final class TextfieldSnapshotTests: XCTestCase {
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
+    
+    func test_Textfield_mask_with_literals_and_literals_user_input() {
+        let snapshotName = "TEXTFIELD_MASK_CONSIDERS_LITERALS"
+        
+        // GIVEN
+        let (sut, container) = makeSUT()
+        
+        // WHEN - маска с начальными литералами типа "+7 "
+        let mask = Mask(format: [
+            .literal("+"),
+            .literal("9"),
+            .literal("9"),
+            .literal("6"),
+            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
+            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
+            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
+            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
+            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
+            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
+            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
+            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
+            .specifier(placeholder: "#", allowedCharacters: .decimalDigits)
+        ])
+        
+        sut.display(mask: .init(mask: mask, maskColor: .systemGray))
+        
+        // Вводим "98765" - маска должна правильно обработать и показать "+7 987-65"
+        sut.text = "996553113555"
+        sut.sendActions(for: .editingChanged)
+        
+        // THEN
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
+    }
+    
+    func test_Textfield_mask_with_literals_and_complex_literals_user_input() {
+        let snapshotName = "TEXTFIELD_MASK_CONSIDERS_COMPLEXT_LITERALS"
+        
+        // GIVEN
+        let (sut, container) = makeSUT()
+        
+        let mask = Mask(format: [
+            .literal("+"),
+            .literal("9"),
+            .literal("9"),
+            .literal("6"),
+            .literal(" "),
+            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
+            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
+            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
+            .literal(" "),
+            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
+            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
+            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
+            .literal(" "),
+            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
+            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
+            .specifier(placeholder: "#", allowedCharacters: .decimalDigits)
+        ])
+        
+        sut.display(mask: .init(mask: mask, maskColor: .systemGray))
+        
+        sut.text = "996553113555"
+        sut.sendActions(for: .editingChanged)
+        
+        // THEN
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
+    }
+    
+    func test_Textfield_mask_with_literals_and_almost_complex_literals_user_input() {
+        let snapshotName = "TEXTFIELD_MASK_CONSIDERS_ALMOST_COMPLEXT_LITERALS"
+        
+        // GIVEN
+        let (sut, container) = makeSUT()
+        
+        let mask = Mask(format: [
+            .literal("+"),
+            .literal("9"),
+            .literal("9"),
+            .literal("6"),
+            .literal(" "),
+            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
+            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
+            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
+            .literal(" "),
+            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
+            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
+            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
+            .literal(" "),
+            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
+            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
+            .specifier(placeholder: "#", allowedCharacters: .decimalDigits)
+        ])
+        
+        sut.display(mask: .init(mask: mask, maskColor: .systemGray))
+        
+        sut.text = "96553113555"
+        sut.sendActions(for: .editingChanged)
+        
+        // THEN
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
+    }
 }
 
 extension TextfieldSnapshotTests {
