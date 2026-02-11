@@ -407,17 +407,17 @@ open class CardView: ViewUIKit {
         spacing: 0
     )
     
-    public let titleViewsWrapperView = UIView()
+    public let titleViewsWrapperView = UIView(isHidden: true)
     public let titleViews = VKeyValueFieldView(
         keyLabel: Label(font: .systemFont(ofSize: 16), textColor: .black),
         valueLabel: Label(isHidden: true, font: .systemFont(ofSize: 16), textColor: .black),
         spacing: 0
     )
     
-    public let subtitleLabelWrapperView = ViewUIKit(isHidden: false)
+    public let subtitleLabelWrapperView = UIView(isHidden: true)
     public let subtitleLabel = Label(font: .systemFont(ofSize: 16), textColor: .gray)
     
-    public let trailingImageWrapperView = ViewUIKit(isHidden: true)
+    public let trailingImageWrapperView = UIView(isHidden: true)
     public private(set) var trailingImageView = ImageView(image: UIImage(named: "rightArrow"), tintColor: .black)
     
     public let secondaryTrailingImageWrapperView = UIView(isHidden: true)
@@ -430,7 +430,7 @@ open class CardView: ViewUIKit {
     public private(set) var bottomImageView = ImageView(tintColor: .black)
     
     public let bottomSeparatorView = WrapperView(
-        contentView: ViewUIKit(backgroundColor: .gray),
+        contentView: UIView(backgroundColor: .gray),
         isHidden: true,
         contentViewConstraints: { contentView, superView in
             contentView.fillSuperview()
