@@ -102,7 +102,6 @@ public struct Mask: Masking {
         return (input, format[input.count...].map { $0.mask }.joined())
     }
 
-    
     public func extractUserInput(from text: String) -> String {
         return extractCleanUserInput(from: text)
     }
@@ -117,43 +116,70 @@ public struct Mask: Masking {
     }
     
     private func extractCleanUserInput(from text: String) -> String {
-        var initialLiterals: [Character] = []
-        for maskedCharacter in format {
-            if case .literal(let char) = maskedCharacter {
-                initialLiterals.append(char)
-            } else {
-                break
-            }
+        let specifiersCount = maxSpecifiersLength()
+        guard specifiersCount > 0 else {
+            return text
         }
-        
-        var textIterator = text.startIndex
-        var matchedLiterals = 0
-        
-        for literal in initialLiterals {
-            if textIterator < text.endIndex && text[textIterator] == literal {
-                textIterator = text.index(after: textIterator)
-                matchedLiterals += 1
-            } else {
-                break
-            }
-        }
-        
-        let isFormatted = matchedLiterals == initialLiterals.count && matchedLiterals > 0
-        
-        var result = ""
-        if isFormatted {
-            while textIterator < text.endIndex {
-                let char = text[textIterator]
-                if char != " " {
-                    result += String(char)
+
+        var initialLiterals = ""
+        var foundSpecifier = false
+        for item in format {
+            switch item {
+            case .literal(let c):
+                if !foundSpecifier {
+                    initialLiterals.append(c)
                 }
-                textIterator = text.index(after: textIterator)
+            case .specifier:
+                foundSpecifier = true
             }
-        } else {
-            result = text.filter { $0 != " " }
+        }
+
+        let allowed: CharacterSet = format.compactMap {
+            if case .specifier(_, let set) = $0 { return set }
+            return nil
+        }.reduce(CharacterSet()) { $0.union($1) }
+
+        let clean = text.filter { allowed.contains($0) }
+        
+        let filteredLiterals = initialLiterals.filter { allowed.contains($0) }
+
+        let textWithoutAllowed = text.filter { !allowed.contains($0) }
+        let hasLiterals = !textWithoutAllowed.isEmpty
+        
+        if !filteredLiterals.isEmpty && hasLiterals && clean.hasPrefix(filteredLiterals) {
+            let start = clean.index(clean.startIndex, offsetBy: filteredLiterals.count)
+            let result = String(clean[start...])
+            if result.isEmpty && clean.count == filteredLiterals.count {
+                return ""
+            }
+            
+            return result
+        }
+        let overflow = clean.count - specifiersCount
+        
+        if overflow > 0 && !filteredLiterals.isEmpty {
+            let excessEndIndex = clean.index(clean.startIndex, offsetBy: overflow, limitedBy: clean.endIndex) ?? clean.endIndex
+            let excess = String(clean[..<excessEndIndex])
+            
+            if filteredLiterals.hasSuffix(excess) {
+                if overflow > 2 {
+                    let userData = String(clean[excessEndIndex...])
+                    return userData
+                } else {
+                    let end = clean.index(clean.startIndex, offsetBy: specifiersCount)
+                    return String(clean[..<end])
+                }
+            } else {
+                let end = clean.index(clean.startIndex, offsetBy: specifiersCount)
+                return String(clean[..<end])
+            }
         }
         
-        return result
+        if clean.count > specifiersCount {
+            let end = clean.index(clean.startIndex, offsetBy: specifiersCount)
+            return String(clean[..<end])
+        }
+        return clean
     }
 }
 
