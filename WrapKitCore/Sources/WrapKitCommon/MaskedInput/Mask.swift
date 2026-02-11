@@ -134,35 +134,45 @@ public struct Mask: Masking {
             }
         }
 
-        let countryCode = initialLiterals.filter(\.isNumber)
-
         let allowed: CharacterSet = format.compactMap {
             if case .specifier(_, let set) = $0 { return set }
             return nil
         }.reduce(CharacterSet()) { $0.union($1) }
 
         let clean = text.filter { allowed.contains($0) }
+        
+        let filteredLiterals = initialLiterals.filter { allowed.contains($0) }
 
         let textWithoutAllowed = text.filter { !allowed.contains($0) }
         let hasLiterals = !textWithoutAllowed.isEmpty
         
-        if !countryCode.isEmpty && hasLiterals && clean.hasPrefix(countryCode) {
-            let start = clean.index(clean.startIndex, offsetBy: countryCode.count)
-            return String(clean[start...])
+        if !filteredLiterals.isEmpty && hasLiterals && clean.hasPrefix(filteredLiterals) {
+            let start = clean.index(clean.startIndex, offsetBy: filteredLiterals.count)
+            let result = String(clean[start...])
+            if result.isEmpty && clean.count == filteredLiterals.count {
+                return ""
+            }
+            
+            return result
         }
-        
         let overflow = clean.count - specifiersCount
         
-        if !countryCode.isEmpty &&
-           clean.hasPrefix(countryCode) &&
-           overflow > 2 {
-            let start = clean.index(clean.startIndex, offsetBy: countryCode.count)
-            let result = String(clean[start...])
-            if result.count > specifiersCount {
-                let end = result.index(result.startIndex, offsetBy: specifiersCount)
-                return String(result[..<end])
+        if overflow > 0 && !filteredLiterals.isEmpty {
+            let excessEndIndex = clean.index(clean.startIndex, offsetBy: overflow, limitedBy: clean.endIndex) ?? clean.endIndex
+            let excess = String(clean[..<excessEndIndex])
+            
+            if filteredLiterals.hasSuffix(excess) {
+                if overflow > 2 {
+                    let userData = String(clean[excessEndIndex...])
+                    return userData
+                } else {
+                    let end = clean.index(clean.startIndex, offsetBy: specifiersCount)
+                    return String(clean[..<end])
+                }
+            } else {
+                let end = clean.index(clean.startIndex, offsetBy: specifiersCount)
+                return String(clean[..<end])
             }
-            return result
         }
         
         if clean.count > specifiersCount {
