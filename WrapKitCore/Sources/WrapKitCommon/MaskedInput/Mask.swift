@@ -116,73 +116,119 @@ public struct Mask: Masking {
     }
     
     private func extractCleanUserInput(from text: String) -> String {
-        let cleanText = text.filter { $0 != " " }
-        
         let specifiersCount = maxSpecifiersLength()
-        
-        guard !cleanText.isEmpty, specifiersCount > 0 else {
-            return cleanText
+        guard specifiersCount > 0 else {
+            return text
         }
 
-        var initialLiterals: [Character] = []
-        var foundFirstSpecifier = false
-
-        for maskedCharacter in format {
-            if case .literal(let char) = maskedCharacter {
-                if char != " " && !foundFirstSpecifier {
-                    initialLiterals.append(char)
+        var initialLiterals = ""
+        var foundSpecifier = false
+        for item in format {
+            switch item {
+            case .literal(let c):
+                if !foundSpecifier {
+                    initialLiterals.append(c)
                 }
-            } else {
-                foundFirstSpecifier = true
-                break
+            case .specifier:
+                foundSpecifier = true
             }
         }
 
-        if initialLiterals.isEmpty {
-            return cleanText
-        }
+        let countryCode = initialLiterals.filter(\.isNumber)
 
-        let literalsString = String(initialLiterals)
+        let allowed: CharacterSet = format.compactMap {
+            if case .specifier(_, let set) = $0 { return set }
+            return nil
+        }.reduce(CharacterSet()) { $0.union($1) }
 
-        if cleanText.hasPrefix(literalsString) {
-            let startIndex = cleanText.index(cleanText.startIndex, offsetBy: literalsString.count)
-            let processedText = String(cleanText[startIndex...])
-            return processedText
-        }
+        let clean = text.filter { allowed.contains($0) }
 
-        if cleanText.count <= specifiersCount {
-            return cleanText
-        }
-
-        let overflow = cleanText.count - specifiersCount
-        if overflow <= 2 {
-            let endIndex = cleanText.index(cleanText.startIndex, offsetBy: specifiersCount)
-            return String(cleanText[..<endIndex])
-        }
-
-        for i in 0...literalsString.count {
-            let literalsSuffix = String(literalsString.suffix(literalsString.count - i))
-            
-            if !literalsSuffix.isEmpty && cleanText.hasPrefix(literalsSuffix) {
-                let startIndex = cleanText.index(cleanText.startIndex, offsetBy: literalsSuffix.count)
-                var userData = String(cleanText[startIndex...])
-                
-                if userData.count > specifiersCount {
-                    let endIndex = userData.index(userData.startIndex, offsetBy: specifiersCount)
-                    userData = String(userData[..<endIndex])
-                }
-                
-                return userData
-            }
-        }
-
-        if cleanText.count > specifiersCount {
-            let endIndex = cleanText.index(cleanText.startIndex, offsetBy: specifiersCount)
-            return String(cleanText[..<endIndex])
+        // Проверяем, содержит ли исходный текст литералы (например "+996 " содержит "+", " ")
+        let textWithoutAllowed = text.filter { !allowed.contains($0) }
+        let hasLiterals = !textWithoutAllowed.isEmpty
+        
+        // СЛУЧАЙ 1: Текст уже отформатирован (содержит литералы)
+        // Например: "+996 123" → clean = "996123"
+        // Удаляем countryCode из начала, чтобы получить чистые данные пользователя
+        if !countryCode.isEmpty && hasLiterals && clean.hasPrefix(countryCode) {
+            let start = clean.index(clean.startIndex, offsetBy: countryCode.count)
+            return String(clean[start...])
         }
         
-        return cleanText
+        // СЛУЧАЙ 2: Вставка без литералов, но с переполнением
+        // Например: "996777888999" (12 символов > 9)
+        // ВАЖНО: Небольшое переполнение (1-2 символа) - это попытка обычного ввода
+        // Реальная вставка имеет значительное переполнение (3+ символа)
+        let overflow = clean.count - specifiersCount
+        
+        if !countryCode.isEmpty &&
+           clean.hasPrefix(countryCode) &&
+           overflow > 2 {
+            // Значительное переполнение - это точно вставка
+            let start = clean.index(clean.startIndex, offsetBy: countryCode.count)
+            let result = String(clean[start...])
+            // Обрезаем до specifiersCount
+            if result.count > specifiersCount {
+                let end = result.index(result.startIndex, offsetBy: specifiersCount)
+                return String(result[..<end])
+            }
+            return result
+        }
+        
+        // Небольшое переполнение (1-2 символа) - обрезаем без удаления countryCode
+        if clean.count > specifiersCount {
+            let end = clean.index(clean.startIndex, offsetBy: specifiersCount)
+            return String(clean[..<end])
+        }
+
+        // СЛУЧАЙ 3: Обычный ввод пользователя (без литералов, длина ≤ specifiersCount)
+        // Например: "996", "9961", "996123456"
+        // Возвращаем как есть, пользователь может вводить что угодно
+        return clean
     }
+    
+//    private func extractCleanUserInput(from text: String) -> String {
+//        let specifiersCount = maxSpecifiersLength()
+//        guard specifiersCount > 0 else {
+//            return text
+//        }
+//
+//        // 1. Собираем начальные литералы (для определения кода страны)
+//        var initialLiterals = ""
+//        var foundSpecifier = false
+//        for item in format {
+//            switch item {
+//            case .literal(let c):
+//                if !foundSpecifier {
+//                    initialLiterals.append(c)
+//                }
+//            case .specifier:
+//                foundSpecifier = true
+//                break
+//            }
+//        }
+//
+//        let countryCode = initialLiterals.filter(\.isNumber)          // например "996" или "7"
+//
+//        // 2. Все разрешённые символы из всех specifier'ов (обычно .decimalDigits)
+//        let allowed: CharacterSet = format.compactMap {
+//            if case .specifier(_, let set) = $0 { return set }
+//            return nil
+//        }.reduce(CharacterSet()) { $0.union($1) }
+//
+//        // 3. Оставляем только то, что разрешено маской (убираем литералы, пробелы и т.д.)
+//        let clean = text.filter { allowed.contains($0) }
+//
+//        // 4. Если после очистки начинается ровно с кода страны — убираем его
+//        //    (только полный матч, как вы просили)
+//        if !countryCode.isEmpty && clean.hasPrefix(countryCode) {
+//            let start = clean.index(clean.startIndex, offsetBy: countryCode.count)
+//            return String(clean[start...])
+//        }
+//
+//        // 5. Во всех остальных случаях (typing, частичный код, дата и т.д.) — возвращаем как есть
+//        return clean
+//    }
 }
 
 extension Array where Element == MaskedCharacter {
