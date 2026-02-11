@@ -102,6 +102,7 @@ public struct Mask: Masking {
         return (input, format[input.count...].map { $0.mask }.joined())
     }
 
+    
     public func extractUserInput(from text: String) -> String {
         return extractCleanUserInput(from: text)
     }
@@ -116,53 +117,43 @@ public struct Mask: Masking {
     }
     
     private func extractCleanUserInput(from text: String) -> String {
-        let cleanText = text.filter { $0 != " " }
-        
-        let specifiersCount = maxSpecifiersLength()
-        
-        guard !cleanText.isEmpty, specifiersCount > 0 else {
-            return cleanText
-        }
-        
         var initialLiterals: [Character] = []
         for maskedCharacter in format {
             if case .literal(let char) = maskedCharacter {
-                if char != " " {
-                    initialLiterals.append(char)
-                }
+                initialLiterals.append(char)
             } else {
                 break
             }
         }
         
-        guard !initialLiterals.isEmpty else {
-            return cleanText
+        var textIterator = text.startIndex
+        var matchedLiterals = 0
+        
+        for literal in initialLiterals {
+            if textIterator < text.endIndex && text[textIterator] == literal {
+                textIterator = text.index(after: textIterator)
+                matchedLiterals += 1
+            } else {
+                break
+            }
         }
         
-        if cleanText.count > specifiersCount {
-            let userDataStartIndex = cleanText.index(cleanText.endIndex, offsetBy: -specifiersCount)
-            let prefixString = String(cleanText[..<userDataStartIndex])
-            let userData = String(cleanText[userDataStartIndex...])
-            let literalsString = String(initialLiterals)
-            
-            if prefixString == literalsString {
-                return userData
-            }
-            
-            if prefixString.hasSuffix(literalsString) {
-                let extraPrefix = String(prefixString.dropLast(literalsString.count))
-                return extraPrefix + userData
-            }
-            
-            if literalsString.hasSuffix(prefixString) {
-                let matchRatio = Double(prefixString.count) / Double(literalsString.count)
-                if matchRatio >= 0.75 {
-                    return userData
+        let isFormatted = matchedLiterals == initialLiterals.count && matchedLiterals > 0
+        
+        var result = ""
+        if isFormatted {
+            while textIterator < text.endIndex {
+                let char = text[textIterator]
+                if char != " " {
+                    result += String(char)
                 }
+                textIterator = text.index(after: textIterator)
             }
+        } else {
+            result = text.filter { $0 != " " }
         }
         
-        return cleanText
+        return result
     }
 }
 
