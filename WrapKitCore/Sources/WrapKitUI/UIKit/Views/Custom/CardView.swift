@@ -125,6 +125,7 @@ public struct CardViewPresentableModel: HashableWithReflection {
     }
 
     public let id: String
+    public let accessibilityIdentifier: String?
     public var style: Style?
     public let backgroundImage: ImageViewPresentableModel?
     public let title: TextOutputPresentableModel?
@@ -146,6 +147,7 @@ public struct CardViewPresentableModel: HashableWithReflection {
     
     public init(
         id: String = UUID().uuidString,
+        accessibilityIdentifier: String? = nil,
         style: Style? = nil,
         backgroundImage: ImageViewPresentableModel? = nil,
         title: TextOutputPresentableModel? = nil,
@@ -166,6 +168,7 @@ public struct CardViewPresentableModel: HashableWithReflection {
         isGradientBorderEnabled: Bool? = nil
     ) {
         self.id = id
+        self.accessibilityIdentifier = accessibilityIdentifier
         self.style = style
         self.backgroundImage = backgroundImage
         self.leadingTitles = leadingTitles
@@ -238,10 +241,12 @@ extension CardView: CardViewOutput {
     
     public func display(onPress: (() -> Void)?) {
         self.onPress = onPress
+        invalidateA11y()
     }
     
     public func display(onLongPress: (() -> Void)?) {
         self.onLongPress = onLongPress
+        invalidateA11y()
     }
     
     public func display(title: TextOutputPresentableModel?) {
@@ -315,7 +320,13 @@ extension CardView: CardViewOutput {
     
     public func display(model: CardViewPresentableModel?) {
         isHidden = model == nil
-        guard let model = model else { return }
+        if let accessibilityIdentifier = model?.accessibilityIdentifier {
+            self.accessibilityIdentifier = accessibilityIdentifier
+        }
+        guard let model = model else {
+            invalidateA11y()
+            return
+        }
         // Style
         display(style: model.style)
         
@@ -363,10 +374,167 @@ extension CardView: CardViewOutput {
         if let isGradientBorderEnabled = model.isGradientBorderEnabled {
             display(isGradientBorderEnabled: isGradientBorderEnabled)
         }
+        invalidateA11y()
+    }
+}
+private extension UIView {
+    func collectA11yLeafViews(into out: inout [UIView]) {
+        if isAccessibilityElement, !isHidden, alpha > 0.01 {
+            out.append(self)
+            return
+        }
+        for v in subviews where !v.isHidden && v.alpha > 0.01 {
+            v.collectA11yLeafViews(into: &out)
+        }
     }
 }
 
 open class CardView: ViewUIKit {
+    public final class CardAccessibilityProxy: UIAccessibilityElement {
+        var activate: (() -> Void)?
+
+        public override func accessibilityActivate() -> Bool {
+            activate?()
+            return true
+        }
+    }
+    // MARK: - Accessibility container (Card + children)
+    private lazy var a11yProxy: CardAccessibilityProxy = {
+        let e = CardAccessibilityProxy(accessibilityContainer: self)
+        e.accessibilityTraits = [.button]
+        return e
+    }()
+
+    private var a11yCache: [Any] = []
+    private var a11yDirty = true
+    private var lastBounds: CGRect = .zero
+
+    private func invalidateA11y() {
+        a11yDirty = true
+    }
+
+    private func updateProxyIfNeeded() {
+        guard (onPress != nil || onLongPress != nil), !isHidden, alpha > 0.01 else { return }
+
+        let title = titleViews.keyLabel.text?
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+
+        a11yProxy.accessibilityLabel = (title?.isEmpty == false) ? title : "Card" // MARK: TODO
+        a11yProxy.activate = { [weak self] in self?.onPress?() }
+
+        if onLongPress != nil {
+            let action = UIAccessibilityCustomAction(
+                name: "More options", // MARK: TODO
+                target: self,
+                selector: #selector(a11yHandleLongPress)
+            )
+            a11yProxy.accessibilityCustomActions = [action]
+        } else {
+            a11yProxy.accessibilityCustomActions = nil
+        }
+
+        a11yProxy.accessibilityFrame = UIAccessibility.convertToScreenCoordinates(bounds, in: self)
+    }
+
+    @objc private func a11yHandleLongPress() -> Bool {
+        onLongPress?()
+        return true
+    }
+
+    private func collectA11yLeaves(from view: UIView, into out: inout [UIView]) {
+        if view.isAccessibilityElement, !view.isHidden, view.alpha > 0.01 {
+            out.append(view)
+            return
+        }
+        for sub in view.subviews where !sub.isHidden && sub.alpha > 0.01 {
+            collectA11yLeaves(from: sub, into: &out)
+        }
+    }
+
+    private func currentLeafElements() -> [UIView] {
+        var leafs: [UIView] = []
+        collectA11yLeaves(from: self, into: &leafs)
+        leafs.removeAll { $0 === self }
+        return leafs
+    }
+
+    private func rebuildA11yCacheIfNeeded() {
+        guard a11yDirty else { return }
+        a11yDirty = false
+
+        layoutIfNeeded()
+        guard bounds.width > 1, bounds.height > 1 else {
+            a11yCache = []
+            return
+        }
+
+        var result: [Any] = []
+
+        if (onPress != nil || onLongPress != nil), !isHidden, alpha > 0.01 {
+            updateProxyIfNeeded()
+            result.append(a11yProxy)
+        }
+
+        result.append(contentsOf: currentLeafElements())
+        a11yCache = result
+    }
+
+    // MARK: UIAccessibilityContainer
+    open override func accessibilityElementCount() -> Int {
+        rebuildA11yCacheIfNeeded()
+        return a11yCache.count
+    }
+
+    open override func accessibilityElement(at index: Int) -> Any? {
+        rebuildA11yCacheIfNeeded()
+        guard index >= 0, index < a11yCache.count else { return nil }
+        return a11yCache[index]
+    }
+
+    open override func index(ofAccessibilityElement element: Any) -> Int {
+        rebuildA11yCacheIfNeeded()
+        return a11yCache.firstIndex { ($0 as AnyObject) === (element as AnyObject) } ?? NSNotFound
+    }
+
+    // MARK: Hit-testing (устойчиво к local/screen point)
+    open override func accessibilityHitTest(_ point: CGPoint, event: UIEvent?) -> Any? {
+        rebuildA11yCacheIfNeeded()
+
+        let screenPoint: CGPoint = bounds.contains(point)
+            ? convert(point, to: nil)
+            : point
+
+        // дети приоритетнее proxy
+        for el in a11yCache.reversed() {
+            guard let v = el as? UIView else { continue }
+            let p = v.convert(screenPoint, from: nil)
+            if v.bounds.contains(p) { return v }
+        }
+
+        // иначе proxy только если попали в self
+        let local = convert(screenPoint, from: nil)
+        if bounds.contains(local), onPress != nil { return a11yProxy }
+
+        return nil
+    }
+
+    // MARK: lifecycle hooks
+    public override func didMoveToWindow() {
+        super.didMoveToWindow()
+        invalidateA11y()
+    }
+
+    open override func layoutSubviews() {
+        super.layoutSubviews()
+
+        guard bounds.width > 1, bounds.height > 1 else { return }
+
+        if !bounds.equalTo(lastBounds) {
+            lastBounds = bounds
+            invalidateA11y()
+        }
+    }
+
     private var style: CardViewPresentableModel.Style?
     public let vStackView = StackView(axis: .vertical, contentInset: .init(top: 0, left: 8, bottom: 0, right: 8))
     public let hStackView = StackView(axis: .horizontal, spacing: 14)
@@ -447,12 +615,6 @@ open class CardView: ViewUIKit {
     
     open override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         super.traitCollectionDidChange(previousTraitCollection)
-        layer.borderColor = style?.borderColor?.cgColor
-    }
-    
-    open override func layoutSubviews() {
-        super.layoutSubviews()
-        
         layer.borderColor = style?.borderColor?.cgColor
     }
     

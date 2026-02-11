@@ -50,6 +50,8 @@ public struct EmptyViewPresentableModel: HashableWithReflection {
 import UIKit
 
 public class EmptyView: UIView {
+    private var visibilityAnimator: UIViewPropertyAnimator?
+
     public lazy var stackView = StackView(
         axis: .vertical,
         spacing: 16,
@@ -152,24 +154,66 @@ extension EmptyView: EmptyViewOutput {
     
     private func setHidden(_ isHidden: Bool, animated: Bool, duration: TimeInterval = 0.3) {
         guard animated else {
+            visibilityAnimator?.stopAnimation(true)
+            visibilityAnimator = nil
             self.isHidden = isHidden
             self.alpha = isHidden ? 0 : 1
             return
         }
-        
+
+        // Cancel any in-flight animation
+        visibilityAnimator?.stopAnimation(true)
+        visibilityAnimator = nil
+
+        // Find a layout container to animate with (important for UIStackView)
+        // Prefer superview; if inside a stack view, animating its layout fixes collapsing.
+        let layoutContainer = self.superview ?? self
+
         if isHidden {
-            UIView.animate(withDuration: duration, animations: {
+            // If already hidden, nothing to do
+            guard !self.isHidden else { return }
+
+            // Make sure we start from visible state
+            self.alpha = 1
+
+            let animator = UIViewPropertyAnimator(duration: duration, curve: .easeInOut) {
                 self.alpha = 0
-            }) { _ in
-                self.isHidden = true
+                layoutContainer.layoutIfNeeded()
             }
+
+            animator.addCompletion { [weak self] _ in
+                guard let self else { return }
+                // Only finalize if no newer animation started
+                self.isHidden = true
+                self.alpha = 0
+            }
+
+            visibilityAnimator = animator
+            animator.startAnimation()
+
         } else {
-            self.alpha = 0
+            // Show: unhide first, then animate alpha in
             self.isHidden = false
-            UIView.animate(withDuration: duration) {
+            self.alpha = 0
+
+            // Force layout so stack view computes correct size before fade in
+            layoutContainer.setNeedsLayout()
+            layoutContainer.layoutIfNeeded()
+
+            let animator = UIViewPropertyAnimator(duration: duration, curve: .easeInOut) {
+                self.alpha = 1
+                layoutContainer.layoutIfNeeded()
+            }
+
+            animator.addCompletion { [weak self] _ in
+                guard let self else { return }
                 self.alpha = 1
             }
+
+            visibilityAnimator = animator
+            animator.startAnimation()
         }
     }
+
 }
 #endif

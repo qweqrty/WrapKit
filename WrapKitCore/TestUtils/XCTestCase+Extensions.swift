@@ -1,5 +1,6 @@
 import Combine
 import XCTest
+import ObjectiveC
 
 public extension XCTestCase {
     func XCTAssertEventually(
@@ -49,50 +50,61 @@ public extension XCTestCase {
     }
 }
 
+// Screenshot
+private enum ScreenshotAssoc {
+    static var indexKey: UInt8 = 0
+}
+
 public extension XCTestCase {
 
-        func takeScreenshot(
-            named name: String,
-            after delay: TimeInterval = 0.3,
-            file: StaticString = #file,
-            line: UInt = #line
-        ) {
-            if delay > 0 {
-                RunLoop.main.run(until: Date().addingTimeInterval(delay))
-            }
+    private var screenshotIndex: Int {
+        get { (objc_getAssociatedObject(self, &ScreenshotAssoc.indexKey) as? Int) ?? 0 }
+        set { objc_setAssociatedObject(self, &ScreenshotAssoc.indexKey, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
+    }
 
-            let screenshot = XCUIScreen.main.screenshot()
-
-            let testFileURL = URL(fileURLWithPath: String(describing: file))
-            let testFolderURL = testFileURL.deletingLastPathComponent()
-
-            let testClass = String(describing: type(of: self))
-            let testName = self.name
-                .components(separatedBy: " ")
-                .last?
-                .replacingOccurrences(of: "]", with: "")
-                ?? "UnknownTest"
-
-            let screenshotsFolder = testFolderURL
-                .appendingPathComponent(testClass, isDirectory: true)
-                .appendingPathComponent(testName, isDirectory: true)
-
-            do {
-                try FileManager.default.createDirectory(
-                    at: screenshotsFolder,
-                    withIntermediateDirectories: true
-                )
-
-                let fileURL = screenshotsFolder.appendingPathComponent("\(name).png")
-                try screenshot.pngRepresentation.write(to: fileURL, options: .atomic)
-
-                print("📸 Screenshot saved: \(fileURL.path)")
-            } catch {
-                XCTFail("Failed to save screenshot: \(error)", file: file, line: line)
-            }
+    func takeScreenshot(
+        named name: String? = nil,
+        after delay: TimeInterval = 0.3,
+        file: StaticString = #file,
+        line: UInt = #line
+    ) {
+        if delay > 0 {
+            RunLoop.main.run(until: Date().addingTimeInterval(delay))
         }
 
+        let screenshot = XCUIScreen.main.screenshot()
 
+        screenshotIndex += 1
+        let autoName = String(format: "%03d", screenshotIndex)
+        let finalName = name.map { "\(autoName)_\($0)" } ?? autoName
+
+        let testFileURL = URL(fileURLWithPath: String(describing: file))
+        let testFolderURL = testFileURL.deletingLastPathComponent()
+
+        let testClass = String(describing: type(of: self))
+        let testName = self.name
+            .components(separatedBy: " ")
+            .last?
+            .replacingOccurrences(of: "]", with: "")
+            ?? "UnknownTest"
+
+        let screenshotsFolder = testFolderURL
+            .appendingPathComponent(testClass, isDirectory: true)
+            .appendingPathComponent(testName, isDirectory: true)
+
+        do {
+            try FileManager.default.createDirectory(
+                at: screenshotsFolder,
+                withIntermediateDirectories: true
+            )
+
+            let fileURL = screenshotsFolder.appendingPathComponent("\(finalName).png")
+            try screenshot.pngRepresentation.write(to: fileURL, options: .atomic)
+            print("📸 Screenshot saved: \(fileURL.path)")
+        } catch {
+            XCTFail("Failed to save screenshot: \(error)", file: file, line: line)
+        }
+    }
 }
 
 // Thread-safe container for cancellables

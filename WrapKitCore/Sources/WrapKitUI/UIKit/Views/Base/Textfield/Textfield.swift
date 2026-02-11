@@ -379,6 +379,17 @@ extension Textfield: TextInputOutput {
         }
         
         guard let model = model else { return }
+        
+        if isFirstResponder {
+            if let text = model.text {
+                display(text: text)
+            }
+            if let isValid = model.isValid {
+                display(isValid: isValid)
+            }
+            return
+        }
+        
         if let mask = model.mask {
             maskedTextfieldDelegate = .init(format: .init(mask: mask.mask, maskedTextColor: mask.maskColor))
         }
@@ -455,7 +466,18 @@ extension Textfield: TextInputOutput {
     }
     
     public func display(text: String?) {
-        self.text = text?.removingPercentEncoding ?? text ?? ""
+        let newText = text?.removingPercentEncoding ?? text ?? ""
+        
+        let currentText: String
+        if let maskedDelegate = maskedTextfieldDelegate {
+            currentText = maskedDelegate.fullText
+        } else {
+            currentText = self.text ?? ""
+        }
+        
+        guard currentText != newText else { return }
+        
+        self.text = newText
         applyAccessibility()
     }
     
