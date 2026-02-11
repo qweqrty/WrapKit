@@ -101,8 +101,6 @@ final class TextfieldSnapshotTests: XCTestCase {
         sut.display(text: "Clear button")
         sut.display(isClearButtonActive: true)
         
-        sut.sendActions(for: .editingChanged)
-        
         // THEN
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -123,8 +121,6 @@ final class TextfieldSnapshotTests: XCTestCase {
         // WHEN
         sut.display(text: "Clear button.")
         sut.display(isClearButtonActive: true)
-        
-        sut.sendActions(for: .editingChanged)
         
         // THEN
         if #available(iOS 26, *) {
@@ -154,8 +150,7 @@ final class TextfieldSnapshotTests: XCTestCase {
         sut.display(mask: .init(mask: mask, maskColor: .lightGray))
         
         // WHEN
-        sut.text = "123"
-        sut.sendActions(for: .editingChanged)
+        sut.simulateUserTyping("123")
         sut.display(trailingSymbol: " (Mobile)") // ← Добавляем суффикс
         
         // THEN - должно показать: +7 123 (Mobile)
@@ -185,8 +180,7 @@ final class TextfieldSnapshotTests: XCTestCase {
         sut.display(mask: .init(mask: mask, maskColor: .lightGray))
         
         // WHEN
-        sut.text = "123"
-        sut.sendActions(for: .editingChanged)
+        sut.simulateUserTyping("123")
         sut.display(trailingSymbol: " (Mobile.)")
         
         // THEN
@@ -214,8 +208,7 @@ final class TextfieldSnapshotTests: XCTestCase {
         sut.display(mask: .init(mask: mask, maskColor: .systemGray))
         
         // WHEN
-        sut.text = "1500"
-        sut.sendActions(for: .editingChanged)
+        sut.simulateUserTyping("1500")
         sut.display(trailingSymbol: " USD")
         
         // THEN
@@ -243,8 +236,7 @@ final class TextfieldSnapshotTests: XCTestCase {
         sut.display(mask: .init(mask: mask, maskColor: .systemGray))
         
         // WHEN
-        sut.text = "1500"
-        sut.sendActions(for: .editingChanged)
+        sut.simulateUserTyping("1500")
         sut.display(trailingSymbol: " USD.")
         
         // THEN
@@ -1007,8 +999,7 @@ final class TextfieldSnapshotTests: XCTestCase {
         
         sut.display(mask: .init(mask: mask, maskColor: .lightGray))
         
-        sut.text = "123"
-        sut.sendActions(for: .editingChanged)
+        sut.simulateUserTyping("123")
         
         // THEN
         if #available(iOS 26, *) {
@@ -1044,8 +1035,7 @@ final class TextfieldSnapshotTests: XCTestCase {
         
         sut.display(mask: .init(mask: mask, maskColor: .lightGray))
         
-        sut.text = "123"
-        sut.sendActions(for: .editingChanged)
+        sut.simulateUserTyping("123")
         
         // THEN
         if #available(iOS 26, *) {
@@ -1081,7 +1071,7 @@ final class TextfieldSnapshotTests: XCTestCase {
         
         sut.display(mask: .init(mask: mask, maskColor: .lightGray))
         
-        sut.text = "1234567890"
+        sut.simulateUserTyping("1234567890")
         
         // THEN
         if #available(iOS 26, *) {
@@ -1117,7 +1107,7 @@ final class TextfieldSnapshotTests: XCTestCase {
         
         sut.display(mask: .init(mask: mask, maskColor: .lightGray))
         
-        sut.text = "1234567890"
+        sut.simulateUserTyping("1234567890")
         
         // THEN
         if #available(iOS 26, *) {
@@ -1152,7 +1142,7 @@ final class TextfieldSnapshotTests: XCTestCase {
         ])
         
         sut.display(mask: .init(mask: mask, maskColor: .lightGray))
-        sut.text = ""
+        sut.simulateUserTyping("")
         sut.display(placeholder: "Enter phone number")
         
         // THEN
@@ -1188,7 +1178,7 @@ final class TextfieldSnapshotTests: XCTestCase {
         ])
         
         sut.display(mask: .init(mask: mask, maskColor: .lightGray))
-        sut.text = "123"
+        sut.simulateUserTyping("123")
         sut.display(placeholder: "Enter phone number")
         
         // THEN
@@ -1231,7 +1221,7 @@ final class TextfieldSnapshotTests: XCTestCase {
         
         sut.display(mask: .init(mask: mask, maskColor: .systemGray))
         
-        sut.text = "12345678"
+        sut.simulateUserTyping("12345678")
         
         // THEN
         if #available(iOS 26, *) {
@@ -1273,7 +1263,7 @@ final class TextfieldSnapshotTests: XCTestCase {
         
         sut.display(mask: .init(mask: mask, maskColor: .systemGray))
         
-        sut.text = "22345678"
+        sut.simulateUserTyping("22345678")
         
         // THEN
         if #available(iOS 26, *) {
@@ -1307,7 +1297,7 @@ final class TextfieldSnapshotTests: XCTestCase {
         
         sut.display(mask: .init(mask: mask, maskColor: .systemGray3))
         
-        sut.text = "1512"
+        sut.simulateUserTyping("1512")
         
         // THEN
         if #available(iOS 26, *) {
@@ -1341,7 +1331,7 @@ final class TextfieldSnapshotTests: XCTestCase {
         
         sut.display(mask: .init(mask: mask, maskColor: .systemGray3))
         
-        sut.text = "1612"
+        sut.simulateUserTyping("1612")
         
         // THEN
         if #available(iOS 26, *) {
@@ -1374,7 +1364,7 @@ final class TextfieldSnapshotTests: XCTestCase {
         
         sut.display(mask: .init(mask: mask, maskColor: .blue))
         
-        sut.text = "12"
+        sut.simulateUserTyping("12")
         
         // THEN
         if #available(iOS 26, *) {
@@ -1407,7 +1397,7 @@ final class TextfieldSnapshotTests: XCTestCase {
         
         sut.display(mask: .init(mask: mask, maskColor: .systemBlue))
         
-        sut.text = "12"
+        sut.simulateUserTyping("12")
         
         // THEN
         if #available(iOS 26, *) {
@@ -1479,8 +1469,123 @@ final class TextfieldSnapshotTests: XCTestCase {
         sut.display(mask: .init(mask: mask, maskColor: .systemGray))
         
         // Вводим "98765" - маска должна правильно обработать и показать "+7 987-65"
-        sut.text = "98765"
-        sut.sendActions(for: .editingChanged)
+        sut.simulateUserTyping("98765")
+        
+        // THEN
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
+    }
+    
+    func test_Textfield_mask_with_literals_and_literals_user_input() {
+        let snapshotName = "TEXTFIELD_MASK_CONSIDERS_LITERALS"
+        
+        // GIVEN
+        let (sut, container) = makeSUT()
+        
+        // WHEN - маска с начальными литералами типа "+7 "
+        let mask = Mask(format: [
+            .literal("+"),
+            .literal("9"),
+            .literal("9"),
+            .literal("6"),
+            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
+            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
+            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
+            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
+            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
+            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
+            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
+            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
+            .specifier(placeholder: "#", allowedCharacters: .decimalDigits)
+        ])
+        
+        sut.display(mask: .init(mask: mask, maskColor: .systemGray))
+        
+        // Вводим "98765" - маска должна правильно обработать и показать "+7 987-65"
+        sut.simulateUserTyping("996553113555")
+        
+        // THEN
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
+    }
+    
+    func test_Textfield_mask_with_literals_and_complex_literals_user_input() {
+        let snapshotName = "TEXTFIELD_MASK_CONSIDERS_COMPLEXT_LITERALS"
+        
+        // GIVEN
+        let (sut, container) = makeSUT()
+        
+        let mask = Mask(format: [
+            .literal("+"),
+            .literal("9"),
+            .literal("9"),
+            .literal("6"),
+            .literal(" "),
+            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
+            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
+            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
+            .literal(" "),
+            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
+            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
+            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
+            .literal(" "),
+            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
+            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
+            .specifier(placeholder: "#", allowedCharacters: .decimalDigits)
+        ])
+        
+        sut.display(mask: .init(mask: mask, maskColor: .systemGray))
+        
+        sut.simulateUserTyping("996553113555")
+        
+        // THEN
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
+    }
+    
+    func test_Textfield_mask_with_literals_and_almost_complex_literals_user_input() {
+        let snapshotName = "TEXTFIELD_MASK_CONSIDERS_ALMOST_COMPLEXT_LITERALS"
+        
+        // GIVEN
+        let (sut, container) = makeSUT()
+        
+        let mask = Mask(format: [
+            .literal("+"),
+            .literal("9"),
+            .literal("9"),
+            .literal("6"),
+            .literal(" "),
+            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
+            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
+            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
+            .literal(" "),
+            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
+            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
+            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
+            .literal(" "),
+            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
+            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
+            .specifier(placeholder: "#", allowedCharacters: .decimalDigits)
+        ])
+        
+        sut.display(mask: .init(mask: mask, maskColor: .systemGray))
+        
+        sut.simulateUserTyping("96553113555")
         
         // THEN
         if #available(iOS 26, *) {
@@ -1586,5 +1691,86 @@ extension TextfieldSnapshotTests {
         container.frame = CGRect(x: 0, y: 0, width: 390, height: 300)
         container.backgroundColor = .clear
         return container
+    }
+}
+
+extension UITextField {
+
+    /// Simulates keyboard typing:
+    /// - calls delegate `shouldChangeCharactersIn`
+    /// - updates `text`
+    /// - moves caret
+    /// - fires `.editingChanged`
+    func simulateUserTyping(_ string: String) {
+        if !isFirstResponder { _ = becomeFirstResponder() }
+        ensureCaretExists()
+
+        for ch in string {
+            simulateUserReplace(selectedNSRangeOrCaret(), with: String(ch))
+        }
+    }
+
+    /// Simulates replacement at a given NSRange (like user paste/replace/selection typing).
+    func simulateUserReplace(_ range: NSRange, with replacement: String) {
+        let current = text ?? ""
+
+        // 1) Delegate gate
+        if let delegate = delegate,
+           delegate.responds(to: #selector(UITextFieldDelegate.textField(_:shouldChangeCharactersIn:replacementString:))) {
+            let allowed = delegate.textField?(self, shouldChangeCharactersIn: range, replacementString: replacement) ?? true
+            guard allowed else { return }
+        }
+
+        // 2) Apply change
+        if let r = Range(range, in: current) {
+            text = current.replacingCharacters(in: r, with: replacement)
+        } else {
+            text = current + replacement
+        }
+
+        // 3) Move caret after inserted text
+        let newCaretOffset = range.location + replacement.count
+        if let newPos = position(from: beginningOfDocument, offset: newCaretOffset) {
+            selectedTextRange = textRange(from: newPos, to: newPos)
+        }
+
+        // 4) Fire event most formatters/masks listen to
+        sendActions(for: .editingChanged)
+    }
+
+    /// Simulates backspace (deletes selection if present, otherwise deletes 1 char before caret).
+    func simulateBackspace(count: Int = 1) {
+        if !isFirstResponder { _ = becomeFirstResponder() }
+        ensureCaretExists()
+
+        for _ in 0..<count {
+            let sel = selectedNSRangeOrCaret()
+            if sel.length > 0 {
+                simulateUserReplace(sel, with: "")
+            } else if sel.location > 0 {
+                simulateUserReplace(NSRange(location: sel.location - 1, length: 1), with: "")
+            } else {
+                return
+            }
+        }
+    }
+
+    // MARK: - Helpers
+
+    private func ensureCaretExists() {
+        if selectedTextRange == nil {
+            let end = endOfDocument
+            selectedTextRange = textRange(from: end, to: end)
+        }
+    }
+
+    private func selectedNSRangeOrCaret() -> NSRange {
+        ensureCaretExists()
+        guard let range = selectedTextRange else {
+            return NSRange(location: (text ?? "").count, length: 0)
+        }
+        let loc = offset(from: beginningOfDocument, to: range.start)
+        let len = offset(from: range.start, to: range.end)
+        return NSRange(location: loc, length: len)
     }
 }
