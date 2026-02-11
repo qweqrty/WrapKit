@@ -102,7 +102,6 @@ public struct Mask: Masking {
         return (input, format[input.count...].map { $0.mask }.joined())
     }
 
-    
     public func extractUserInput(from text: String) -> String {
         return extractCleanUserInput(from: text)
     }
@@ -117,43 +116,72 @@ public struct Mask: Masking {
     }
     
     private func extractCleanUserInput(from text: String) -> String {
+        let cleanText = text.filter { $0 != " " }
+        
+        let specifiersCount = maxSpecifiersLength()
+        
+        guard !cleanText.isEmpty, specifiersCount > 0 else {
+            return cleanText
+        }
+
         var initialLiterals: [Character] = []
+        var foundFirstSpecifier = false
+
         for maskedCharacter in format {
             if case .literal(let char) = maskedCharacter {
-                initialLiterals.append(char)
-            } else {
-                break
-            }
-        }
-        
-        var textIterator = text.startIndex
-        var matchedLiterals = 0
-        
-        for literal in initialLiterals {
-            if textIterator < text.endIndex && text[textIterator] == literal {
-                textIterator = text.index(after: textIterator)
-                matchedLiterals += 1
-            } else {
-                break
-            }
-        }
-        
-        let isFormatted = matchedLiterals == initialLiterals.count && matchedLiterals > 0
-        
-        var result = ""
-        if isFormatted {
-            while textIterator < text.endIndex {
-                let char = text[textIterator]
-                if char != " " {
-                    result += String(char)
+                if char != " " && !foundFirstSpecifier {
+                    initialLiterals.append(char)
                 }
-                textIterator = text.index(after: textIterator)
+            } else {
+                foundFirstSpecifier = true
+                break
             }
-        } else {
-            result = text.filter { $0 != " " }
+        }
+
+        if initialLiterals.isEmpty {
+            return cleanText
+        }
+
+        let literalsString = String(initialLiterals)
+
+        if cleanText.hasPrefix(literalsString) {
+            let startIndex = cleanText.index(cleanText.startIndex, offsetBy: literalsString.count)
+            let processedText = String(cleanText[startIndex...])
+            return processedText
+        }
+
+        if cleanText.count <= specifiersCount {
+            return cleanText
+        }
+
+        let overflow = cleanText.count - specifiersCount
+        if overflow <= 2 {
+            let endIndex = cleanText.index(cleanText.startIndex, offsetBy: specifiersCount)
+            return String(cleanText[..<endIndex])
+        }
+
+        for i in 0...literalsString.count {
+            let literalsSuffix = String(literalsString.suffix(literalsString.count - i))
+            
+            if !literalsSuffix.isEmpty && cleanText.hasPrefix(literalsSuffix) {
+                let startIndex = cleanText.index(cleanText.startIndex, offsetBy: literalsSuffix.count)
+                var userData = String(cleanText[startIndex...])
+                
+                if userData.count > specifiersCount {
+                    let endIndex = userData.index(userData.startIndex, offsetBy: specifiersCount)
+                    userData = String(userData[..<endIndex])
+                }
+                
+                return userData
+            }
+        }
+
+        if cleanText.count > specifiersCount {
+            let endIndex = cleanText.index(cleanText.startIndex, offsetBy: specifiersCount)
+            return String(cleanText[..<endIndex])
         }
         
-        return result
+        return cleanText
     }
 }
 
