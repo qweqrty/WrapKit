@@ -102,7 +102,6 @@ public struct Mask: Masking {
         return (input, format[input.count...].map { $0.mask }.joined())
     }
 
-    
     public func extractUserInput(from text: String) -> String {
         return extractCleanUserInput(from: text)
     }
