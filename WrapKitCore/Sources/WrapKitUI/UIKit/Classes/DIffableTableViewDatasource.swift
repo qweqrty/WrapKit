@@ -34,26 +34,26 @@ public struct TableContextualAction<Cell> {
 
 public struct CellModel<Cell: Hashable>: HashableWithReflection {
 
-    public let id: UUID?
+    public let accessibilityIdentifier: String?
     public let cell: Cell
     public let onTap: ((IndexPath, Cell) -> Void)?
 
     public init(
-        id: UUID? = nil,
+        accessibilityIdentifier: String? = nil,
         cell: Cell,
         onTap: ((IndexPath, Cell) -> Void)? = nil
     ) {
-        self.id = id
+        self.accessibilityIdentifier = accessibilityIdentifier
         self.cell = cell
         self.onTap = onTap
     }
 
     public static func == (lhs: Self, rhs: Self) -> Bool {
-        lhs.id == rhs.id
+        lhs.accessibilityIdentifier == rhs.accessibilityIdentifier
     }
 
     public func hash(into hasher: inout Hasher) {
-        hasher.combine(id)
+        hasher.combine(accessibilityIdentifier)
     }
 }
 
@@ -138,10 +138,18 @@ public class DiffableTableViewDataSource<Header, Cell: Hashable, Footer>: NSObje
     }
     
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cellModel = sections.item(at: indexPath.section)?.cells.item(at: indexPath.row)?.cell else {
+        guard let cellModel = sections.item(at: indexPath.section)?.cells.item(at: indexPath.row) else {
             return UITableViewCell()
         }
-        return configureCell?(tableView, indexPath, cellModel) ?? UITableViewCell()
+        let cell = configureCell?(tableView, indexPath, cellModel.cell) ?? UITableViewCell()
+        let hasRowTap = (cellModel.onTap != nil)
+        cell.accessibilityIdentifier = cellModel.accessibilityIdentifier
+        cell.isAccessibilityElement = false
+        cell.accessibilityLabel = nil
+        cell.accessibilityHint = nil
+        cell.accessibilityTraits = []
+
+        return cell
     }
     
     public func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
@@ -359,4 +367,5 @@ private extension TableContextualAction.Style {
         }
     }
 }
+
 #endif

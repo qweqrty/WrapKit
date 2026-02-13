@@ -16,17 +16,20 @@ public protocol SwitchCotrolOutput: AnyObject {
 }
 
 public struct SwitchControlPresentableModel {
+    public let accessibilityIdentifier: String?
     public let onPress: ((SwitchCotrolOutput & LoadingOutput) -> Void)?
     public let isOn: Bool?
     public let isEnabled: Bool?
     public let style: Style?
     
     public init(
+        accessibilityIdentifier: String? = nil,
         onPress: ((SwitchCotrolOutput & LoadingOutput) -> Void)? = nil,
         isOn: Bool? = nil,
         isEnabled: Bool? = nil,
         style: Style? = nil
     ) {
+        self.accessibilityIdentifier = accessibilityIdentifier
         self.onPress = onPress
         self.isOn = isOn
         self.isEnabled = isEnabled
@@ -95,6 +98,11 @@ extension SwitchControl: SwitchCotrolOutput {
     
     public func display(model: SwitchControlPresentableModel?) {
         isHidden = model == nil
+        
+        if let accessibilityIdentifier = model?.accessibilityIdentifier {
+            self.accessibilityIdentifier = accessibilityIdentifier
+        }
+        
         if let isOn = model?.isOn { display(isOn: isOn) }
         if let isEnabled = model?.isEnabled { display(isEnabled: isEnabled) }
         if let style = model?.style {
