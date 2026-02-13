@@ -147,25 +147,11 @@ public final class DiffableCollectionViewDataSource<Header, Cell: Hashable, Foot
         }
         let cell = configureCell?(collectionView, indexPath, model.cell) ?? UICollectionViewCell()
         let hasRowTap = (model.onTap != nil)
-
+        cell.accessibilityIdentifier = model.accessibilityIdentifier
         cell.isAccessibilityElement = false
         cell.accessibilityLabel = nil
         cell.accessibilityHint = nil
         cell.accessibilityTraits = []
-
-        guard hasRowTap else {
-            return cell
-        }
-
-        let hasInteractiveChildren = cell.contentView.containsInteractiveAccessibleDescendant()
-
-        if !hasInteractiveChildren {
-            cell.isAccessibilityElement = true
-            cell.accessibilityTraits = [.button]
-            cell.accessibilityLabel = cell.contentView.accessibilityTextSummary()
-        } else {
-            cell.isAccessibilityElement = false
-        }
 
         return cell
     }

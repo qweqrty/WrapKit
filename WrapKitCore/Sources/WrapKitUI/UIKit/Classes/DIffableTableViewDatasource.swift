@@ -149,20 +149,6 @@ public class DiffableTableViewDataSource<Header, Cell: Hashable, Footer>: NSObje
         cell.accessibilityHint = nil
         cell.accessibilityTraits = []
 
-        guard hasRowTap else {
-            return cell
-        }
-
-        let hasInteractiveChildren = cell.contentView.containsInteractiveAccessibleDescendant()
-
-        if !hasInteractiveChildren {
-            cell.isAccessibilityElement = true
-            cell.accessibilityTraits = [.button]
-            cell.accessibilityLabel = cell.contentView.accessibilityTextSummary()
-        } else {
-            cell.isAccessibilityElement = false
-        }
-
         return cell
     }
     

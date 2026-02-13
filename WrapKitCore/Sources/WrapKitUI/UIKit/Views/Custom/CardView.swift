@@ -390,17 +390,9 @@ private extension UIView {
 }
 
 open class CardView: ViewUIKit {
-    public final class CardAccessibilityProxy: UIAccessibilityElement {
-        var activate: (() -> Void)?
-
-        public override func accessibilityActivate() -> Bool {
-            activate?()
-            return true
-        }
-    }
     // MARK: - Accessibility container (Card + children)
-    private lazy var a11yProxy: CardAccessibilityProxy = {
-        let e = CardAccessibilityProxy(accessibilityContainer: self)
+    private lazy var a11yProxy: A11yProxy = {
+        let e = A11yProxy(accessibilityContainer: self)
         e.accessibilityTraits = [.button]
         return e
     }()
@@ -416,15 +408,12 @@ open class CardView: ViewUIKit {
     private func updateProxyIfNeeded() {
         guard (onPress != nil || onLongPress != nil), !isHidden, alpha > 0.01 else { return }
 
-        let title = titleViews.keyLabel.text?
-            .trimmingCharacters(in: .whitespacesAndNewlines)
-
-        a11yProxy.accessibilityLabel = (title?.isEmpty == false) ? title : "Card" // MARK: TODO
+        a11yProxy.accessibilityLabel = accessibilityTextSummary() ?? "Card"
         a11yProxy.activate = { [weak self] in self?.onPress?() }
 
         if onLongPress != nil {
             let action = UIAccessibilityCustomAction(
-                name: "More options", // MARK: TODO
+                name: "More options",
                 target: self,
                 selector: #selector(a11yHandleLongPress)
             )

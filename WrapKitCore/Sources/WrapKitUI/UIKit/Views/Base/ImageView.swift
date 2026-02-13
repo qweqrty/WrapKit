@@ -33,6 +33,7 @@ public extension ImageViewOutput {
 }
 
 public struct ImageViewPresentableModel: HashableWithReflection {
+    public let accessibility: Accessibility?
     public let size: CGSize?
     public let image: ImageEnum?
     public let onPress: (() -> Void)?
@@ -44,6 +45,7 @@ public struct ImageViewPresentableModel: HashableWithReflection {
     public let alpha: CGFloat?
     
     public init(
+        accessibility: Accessibility? = nil,
         size: CGSize? = nil,
         image: ImageEnum? = nil,
         onPress: (() -> Void)? = nil,
@@ -54,6 +56,7 @@ public struct ImageViewPresentableModel: HashableWithReflection {
         cornerRadius: CGFloat? = nil,
         alpha: CGFloat? = nil
     ) {
+        self.accessibility = accessibility
         self.size = size
         self.image = image
         self.onPress = onPress
@@ -395,6 +398,8 @@ extension ImageView: ImageViewOutput {
         isHidden = model == nil
         display(onPress: model?.onPress)
         display(onLongPress: model?.onLongPress)
+        self.accessibilityLabel = model?.accessibility?.label
+        self.accessibilityHint = model?.accessibility?.hint
         hideShimmer()
         if let image = model?.image {
             display(image: image, completion: completion)
@@ -486,9 +491,6 @@ extension ImageView: ImageViewOutput {
 // MARK: - Accessibility
 private extension ImageView {
     func applyInteractivityAndAccessibility() {
-        accessibilityLabel = nil
-        accessibilityHint = nil
-        
         let hasTap = (onPress != nil)
         let hasLong = (onLongPress != nil)
         let interactive = hasTap || hasLong

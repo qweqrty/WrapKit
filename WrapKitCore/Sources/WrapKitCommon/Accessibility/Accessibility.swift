@@ -20,6 +20,16 @@ public struct Accessibility: HashableWithReflection {
 #if canImport(UIKit)
 import UIKit
 
+final class A11yProxy: UIAccessibilityElement {
+    var activate: (() -> Void)?
+
+    override func accessibilityActivate() -> Bool {
+        activate?()
+        return true
+    }
+}
+
+
 public extension UIView {
     func collectAccessibilityActionsForContainer() -> [UIAccessibilityCustomAction] {
         var out: [UIAccessibilityCustomAction] = []
@@ -53,21 +63,34 @@ public extension UIView {
     
     func accessibilityTextSummary() -> String? {
         var parts: [String] = []
+        var seen = Set<String>()
+
+        func add(_ raw: String?) {
+            guard var t = raw?.trimmingCharacters(in: .newlines), !t.isEmpty else { return }
+            t = t.replacingOccurrences(of: "\n", with: ", ")
+                .replacingOccurrences(of: "\t", with: " ")
+            t = t.replacingOccurrences(of: "  ", with: " ")
+                .trimmingCharacters(in: .newlines)
+
+            guard !t.isEmpty else { return }
+            // dedupe
+            if seen.insert(t).inserted {
+                parts.append(t)
+            }
+        }
 
         func dfs(_ v: UIView) {
             guard !v.isHidden, v.alpha > 0.01 else { return }
 
-            if let label = v as? UILabel {
-                let t = label.text?.trimmingCharacters(in: .whitespacesAndNewlines)
-                if let t, !t.isEmpty { parts.append(t) }
-            } else if let tv = v as? UITextView {
-                let t = tv.text?.trimmingCharacters(in: .whitespacesAndNewlines)
-                if let t, !t.isEmpty { parts.append(t) }
+            if v.isAccessibilityElement {
+                add(v.accessibilityLabel)
             } else {
-                // иногда текст прячется в accessibilityLabel у кастомных элементов
-                if v.isAccessibilityElement {
-                    let t = v.accessibilityLabel?.trimmingCharacters(in: .whitespacesAndNewlines)
-                    if let t, !t.isEmpty { parts.append(t) }
+                if let label = v as? UILabel {
+                    add(label.text)
+                } else if let tv = v as? UITextView {
+                    add(tv.text)
+                } else if let tv = v as? UIImageView {
+                    add(tv.accessibilityLabel ?? tv.image?.accessibilityLabel ?? tv.image?.accessibilityIdentifier)
                 }
             }
 
@@ -76,12 +99,12 @@ public extension UIView {
 
         dfs(self)
 
-        let text = parts.first?
-            .replacingOccurrences(of: "\n", with: ", ")
+        let summary = parts
+            .joined(separator: ", ")
             .trimmingCharacters(in: .whitespacesAndNewlines)
-
-        return text.isEmpty ? nil : text
+        return summary.isEmpty ? nil : summary
     }
+
 
     func containsInteractiveAccessibleDescendant() -> Bool {
         func dfs(_ v: UIView) -> Bool {
