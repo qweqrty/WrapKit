@@ -288,7 +288,7 @@ public extension Textfield {
         
         container.addSubview(trailingButton)
         trailingButton.translatesAutoresizingMaskIntoConstraints = false
-    
+        
         let defaultConstraints: (UIView, UIView) -> [NSLayoutConstraint] = { container, view in
             return [
                 view.centerYAnchor.constraint(equalTo: container.centerYAnchor),
@@ -303,7 +303,7 @@ public extension Textfield {
 }
 
 extension Textfield: TextInputOutput {
-   
+    
     public func display(inputAccessoryView: TextInputPresentableModel.AccessoryViewPresentableModel?) {
         guard let inputAccessoryView else {
             self.inputAccessoryView = nil
@@ -493,7 +493,7 @@ extension Textfield: TextInputOutput {
     public func display(isHidden: Bool) {
         self.isHidden = isHidden
     }
-
+    
     public func display(inputType: KeyboardType) {
         self.keyboardType = UIKeyboardType(rawValue: inputType.rawValue) ?? .default
     }
@@ -531,7 +531,13 @@ open class Textfield: UITextField {
     
     private var isValidState = true
     private var isPressHandled = false
-    private var isClearButtonActive = true
+    private var isClearButtonActive = true {
+        didSet {
+            if isClearButtonActive {
+                setupTrailingClearAction(trailingView: trailingView)
+            }
+        }
+    }
     
     public var padding: UIEdgeInsets = .zero
     public var midPadding: CGFloat = 0
@@ -639,7 +645,7 @@ open class Textfield: UITextField {
         addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
         addTarget(self, action: #selector(textFieldDidChangeClear), for: .editingChanged)
         addTarget(self, action: #selector(onTapReturnButton), for: .editingDidEndOnExit)
-
+        
         self.leadingView = leadingView
         updateAppearance()
         
@@ -647,23 +653,7 @@ open class Textfield: UITextField {
         case .custom(let trailingView):
             self.trailingView = trailingView
         case .clear(let trailingView):
-            trailingView.allSubviews.forEach {
-                ($0 as? ViewUIKit)?.onPress = { [weak self] in
-                    self?.text = ""
-                    self?.sendActions(for: .editingChanged)
-                    trailingView.isHidden = true
-                }
-                ($0 as? ImageView)?.onPress = { [weak self] in
-                    self?.text = ""
-                    self?.sendActions(for: .editingChanged)
-                    trailingView.isHidden = true
-                }
-                ($0 as? Button)?.onPress = { [weak self] in
-                    self?.text = ""
-                    self?.sendActions(for: .editingChanged)
-                    trailingView.isHidden = true
-                }
-            }
+            setupTrailingClearAction(trailingView: trailingView)
             didChangeTextClear = { [weak self] text in
                 guard self?.isClearButtonActive ?? true else { return }
                 let text = self?.maskedTextfieldDelegate?.onlySpecifiersIfMaskedText ?? text ?? ""
@@ -678,24 +668,44 @@ open class Textfield: UITextField {
         setupTrailingView()
     }
     
+    private func setupTrailingClearAction(trailingView: ViewUIKit?) {
+        trailingView?.allSubviews.forEach {
+            ($0 as? ViewUIKit)?.onPress = { [weak self] in
+                self?.text = ""
+                self?.sendActions(for: .editingChanged)
+                trailingView?.isHidden = true
+            }
+            ($0 as? ImageView)?.onPress = { [weak self] in
+                self?.text = ""
+                self?.sendActions(for: .editingChanged)
+                trailingView?.isHidden = true
+            }
+            ($0 as? Button)?.onPress = { [weak self] in
+                self?.text = ""
+                self?.sendActions(for: .editingChanged)
+                trailingView?.isHidden = true
+            }
+        }
+    }
+    
     open override func point(inside point: CGPoint, with event: UIEvent?) -> Bool {
         if let trailingView = trailingView, trailingView.frame.contains(point) {
-                return true
-            } else if let leadingView = leadingView, leadingView.frame.contains(point) {
-                return true
+            return true
+        } else if let leadingView = leadingView, leadingView.frame.contains(point) {
+            return true
+        }
+        
+        let isTouchInside = super.point(inside: point, with: event)
+        if isTouchInside, !isPressHandled {
+            isPressHandled = true
+            onPress?()
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
+                self?.isPressHandled = false
             }
-
-            let isTouchInside = super.point(inside: point, with: event)
-            if isTouchInside, !isPressHandled {
-                isPressHandled = true
-                onPress?()
-                
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
-                    self?.isPressHandled = false
-                }
-            }
-
-            return isTouchInside
+        }
+        
+        return isTouchInside
     }
     
     open override func deleteBackward() {
