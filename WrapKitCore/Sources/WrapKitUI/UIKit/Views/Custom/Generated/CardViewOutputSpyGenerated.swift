@@ -11,6 +11,9 @@ import WrapKit
 #if canImport(Foundation)
 import Foundation
 #endif
+#if canImport(QuartzCore)
+import QuartzCore
+#endif
 #if canImport(UIKit)
 import UIKit
 #endif

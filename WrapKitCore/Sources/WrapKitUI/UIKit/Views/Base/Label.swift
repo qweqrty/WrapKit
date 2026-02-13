@@ -22,9 +22,15 @@ public protocol TextOutput: HiddableOutput {
     func display(model: TextOutputPresentableModel?)
     func display(text: String?)
     func display(attributes: [TextAttributes])
-    func display(htmlString: String?, font: Font, color: Color)
+    func display(htmlString: String?, font: Font?, color: Color?)
     func display(id: String?, from startAmount: Decimal, to endAmount: Decimal, mapToString: ((Decimal) -> TextOutputPresentableModel)?, animationStyle: LabelAnimationStyle, duration: TimeInterval, completion: (() -> Void)?)
     func display(isHidden: Bool)
+}
+extension TextOutput {
+    // sourcery: skipSpy
+    func display(htmlString: String?) {
+        self.display(htmlString: htmlString, font: nil, color: nil)
+    }
 }
 
 public indirect enum TextOutputPresentableModel: HashableWithReflection {
@@ -88,6 +94,9 @@ extension Label: TextOutput {
             display(model: text)
             self.cornerStyle = cornerStyle
             self.textInsets = insets.asUIEdgeInsets
+            if let backgroundColor {
+                self.backgroundColor = backgroundColor
+            }
         case .attributedString(let htmlString, let font, let color):
             display(htmlString: htmlString, font: font, color: color)
             if let backgroundColor {
@@ -101,12 +110,12 @@ extension Label: TextOutput {
         self.text = text?.removingPercentEncoding ?? text ?? ""
     }
     
-    public func display(htmlString: String?, font: Font, color: Color) {
-        isHidden = htmlString != nil
+    public func display(htmlString: String?, font: Font?, color: Color?) {
         clearAnimationModel()
-        self.attributedText = htmlString?.asHtmlAttributedString
-        self.font = font
-        self.textColor = color
+        
+        let attributed = htmlString?.asHtmlAttributedString(font: font ?? self.font, color: color ?? self.textColor)
+        isHidden = attributed == nil
+        self.attributedText = attributed
     }
     
     public func display(attributes: [TextAttributes]) {
