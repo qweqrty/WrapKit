@@ -208,7 +208,6 @@ final class ToastViewSnapshotTests: XCTestCase {
         sut.removeFromSuperview()
     }
     
-    // TODO: = title doesnt wrap to multiple lines
     func test_ToastView_with_long_text() {
         let snapshotName = "TOASTVIEW_WITH_LONGTEXT"
         
@@ -1039,6 +1038,50 @@ final class ToastViewSnapshotTests: XCTestCase {
         
         sut.removeFromSuperview()
     }
+    
+    func test_ToastView_with_leadingImage_and_subtitle() {
+        let snapshotName = "TOASTVIEW_WITH_LEADINGIMAGE_AND_SUBTITLE"
+        
+        // GIVEN
+        let sut = makeSUT()
+        
+        let exp = expectation(description: "Wait for completion!")
+        
+        let image = Image(systemName: "star")
+        
+        // WHEN
+        let cardModel = CardViewPresentableModel(
+            style: makeCommonStyle(),
+            title: .attributes([.init(text: "Title is very long, and should be wrap on two or maybe three lines in depends of font and other parameters", color: .red, font: .systemFont(ofSize: 13))]),
+            leadingImage: .init(image: .asset(image)),
+            subTitle: .attributes([.init(text: "Subtitle", color: .blue, font: .systemFont(ofSize: 13))])
+        )
+        
+        let toast = CommonToast.custom(.init(
+            common: .init(
+                cardViewModel: cardModel,
+                position: .top
+            )
+        ))
+        
+        sut.display(toast)
+        sut.show(appWindow: testContainer) {
+            exp.fulfill()
+        }
+        
+        wait(for: [exp], timeout: 2.0)
+        
+        // THEN
+        if #available(iOS 26, *) {
+            assert(snapshot: testContainer.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: testContainer.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assert(snapshot: testContainer.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: testContainer.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
+        
+        sut.removeFromSuperview()
+    }
 }
 
 extension ToastViewSnapshotTests {
@@ -1050,6 +1093,32 @@ extension ToastViewSnapshotTests {
         
         checkForMemoryLeaks(sut, file: file, line: line)
         return sut
+    }
+    
+    func makeCommonStyle() -> CardViewPresentableModel.Style {
+        .init(
+            backgroundColor: .green,
+            vStacklayoutMargins: .zero,
+            hStacklayoutMargins: .init(top: 12, leading: 12, bottom: 12, trailing: 12),
+            hStackViewDistribution: .fill,
+            leadingTitleKeyTextColor: .black,
+            titleKeyTextColor: .red,
+            trailingTitleKeyTextColor: .black,
+            titleValueTextColor: .yellow,
+            subTitleTextColor: .blue,
+            leadingTitleKeyLabelFont: .systemFont(ofSize: 13),
+            titleKeyLabelFont: .systemFont(ofSize: 13),
+            trailingTitleKeyLabelFont: .systemFont(ofSize: 13),
+            titleValueLabelFont: .systemFont(ofSize: 13),
+            subTitleLabelFont: .systemFont(ofSize: 13),
+            subtitleNumberOfLines: 1,
+            cornerRadius: 12,
+            stackSpace: 4,
+            hStackViewSpacing: 14,
+            titleKeyNumberOfLines: 0,
+            titleValueNumberOfLines: 0,
+            trailingImagesSpacing: 0
+        )
     }
     
     func makeDefaultStyle() -> CardViewPresentableModel.Style {
