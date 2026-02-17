@@ -25,6 +25,7 @@ public final class RefreshControlOutputSpy: RefreshControlOutput {
         case displayOnRefresh(onRefresh: (() -> Void)?)
         case displayAppendingOnRefresh(appendingOnRefresh: (() -> Void)?)
         case displayIsLoading(isLoading: Bool)
+        case displayIsHidden(isHidden: Bool)
         case setOnRefresh([(() -> Void)?]?)
     }
 
@@ -36,6 +37,7 @@ public final class RefreshControlOutputSpy: RefreshControlOutput {
     public private(set) var capturedDisplayOnRefresh: [(() -> Void)?] = []
     public private(set) var capturedDisplayAppendingOnRefresh: [(() -> Void)?] = []
     public private(set) var capturedDisplayIsLoading: [Bool] = []
+    public private(set) var capturedDisplayIsHidden: [Bool] = []
 
     public private(set) var capturedOnRefresh: [[(() -> Void)?]?] = []
 
@@ -59,6 +61,10 @@ public final class RefreshControlOutputSpy: RefreshControlOutput {
     public func display(isLoading: Bool) {
         capturedDisplayIsLoading.append(isLoading)
         messages.append(.displayIsLoading(isLoading: isLoading))
+    }
+    public func display(isHidden: Bool) {
+        capturedDisplayIsHidden.append(isHidden)
+        messages.append(.displayIsHidden(isHidden: isHidden))
     }
 
     // MARK: - Properties

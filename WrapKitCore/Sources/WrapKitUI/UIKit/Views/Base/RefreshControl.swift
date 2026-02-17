@@ -41,6 +41,7 @@ public protocol RefreshControlOutput: AnyObject {
     func display(onRefresh: (() -> Void)?)
     func display(appendingOnRefresh: (() -> Void)?)
     func display(isLoading: Bool)
+    func display(isHidden: Bool)
 }
 
 #if canImport(UIKit)
@@ -62,6 +63,11 @@ extension RefreshControl: RefreshControlOutput {
     
     public func display(appendingOnRefresh: (() -> Void)?) {
         self.onRefresh?.append(appendingOnRefresh)
+    }
+    
+    public func display(isHidden: Bool) {
+        self.isHidden = isHidden
+        self.isEnabled = !isHidden
     }
 }
 

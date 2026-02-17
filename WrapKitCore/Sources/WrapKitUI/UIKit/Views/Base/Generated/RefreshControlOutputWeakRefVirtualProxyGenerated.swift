@@ -37,6 +37,9 @@ extension WeakRefVirtualProxy: RefreshControlOutput where T: RefreshControlOutpu
     public func display(isLoading: Bool) {
         object?.display(isLoading: isLoading)
     }
+    public func display(isHidden: Bool) {
+        object?.display(isHidden: isHidden)
+    }
 
     public var onRefresh: [(() -> Void)?]? {
         get { return object?.onRefresh }
