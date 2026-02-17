@@ -697,7 +697,7 @@ open class Textfield: UITextField {
         }
 
         // --- Field ---
-        let value = (text ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        let value = (maskedTextfieldDelegate?.input ?? text ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
         let ph = (placeholder ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
 
         a11yFieldProxy.accessibilityLabel = !ph.isEmpty ? ph : "Text field"
