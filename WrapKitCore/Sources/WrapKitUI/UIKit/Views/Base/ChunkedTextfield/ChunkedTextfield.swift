@@ -1,4 +1,5 @@
 import Foundation
+import UIKit
 
 #if canImport(UIKit)
 extension ChunkedTextField: TextInputOutput {
@@ -77,8 +78,14 @@ public class ChunkedTextField: ViewUIKit {
     
     public let count: Int
     public var appearance: TextfieldAppearance { didSet { textfields.forEach { $0.updateAppearance() } }}
+    public var chankSize: CGSize?
     
-    public lazy var stackView = StackView(distribution: .fillEqually, axis: .horizontal, spacing: count > 4 ? 8 : 12)
+    public lazy var stackView = StackView(
+        distribution: chankSize == nil ? .fillEqually : .equalSpacing,
+        alignment: .center,
+        axis: .horizontal,
+        spacing: count > 4 ? 8 : 12
+    )
     public lazy var textfields = makeTextfields()
     
     public var didChangeText = [((String?) -> Void)]()
@@ -106,10 +113,12 @@ public class ChunkedTextField: ViewUIKit {
     
     public init(
         count: Int,
-        appearance: TextfieldAppearance
+        appearance: TextfieldAppearance,
+        chankSize: CGSize? = nil
     ) {
         self.count = count
         self.appearance = appearance
+        self.chankSize = chankSize
         super.init(frame: .zero)
         
         setupViews()
@@ -130,6 +139,15 @@ private extension ChunkedTextField {
         addSubviews(stackView)
         textfields.forEach {
             stackView.addArrangedSubviews($0)
+        }
+        if let chankSize {
+            textfields.forEach { textField in
+                textField.translatesAutoresizingMaskIntoConstraints = false
+                NSLayoutConstraint.activate([
+                    textField.widthAnchor.constraint(equalToConstant: chankSize.width),
+                    textField.heightAnchor.constraint(equalToConstant: chankSize.height)
+                ])
+            }
         }
     }
     
