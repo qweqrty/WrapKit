@@ -49,6 +49,9 @@ extension WeakRefVirtualProxy: TableOutput where T: TableOutput {
     public func display(commitEditing: ((TableEditingStyle, IndexPath) -> Void)?) {
         object?.display(commitEditing: commitEditing)
     }
+    public func displayHideRefreshControl() {
+        object?.displayHideRefreshControl()
+    }
 
 }
 #endif

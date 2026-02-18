@@ -96,4 +96,11 @@ public class TableOutputSwiftUIAdapter<Cell: Hashable,Footer: Any,Header: Any>: 
             commitEditing: commitEditing
         )
     }
+    @Published public var displayHideRefreshControlState: DisplayHideRefreshControlState? = nil
+    public struct DisplayHideRefreshControlState {
+    }
+    public func displayHideRefreshControl() {
+        displayHideRefreshControlState = .init(
+        )
+    }
 }

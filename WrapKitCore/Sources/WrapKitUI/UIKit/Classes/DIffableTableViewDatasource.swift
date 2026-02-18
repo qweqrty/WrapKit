@@ -88,6 +88,7 @@ public protocol TableOutput<Header, Cell, Footer>: AnyObject {
     func display(canMove: ((IndexPath) -> Bool)?)
     func display(canEdit: ((IndexPath) -> Bool)?)
     func display(commitEditing: ((TableEditingStyle, IndexPath) -> Void)?)
+    func displayHideRefreshControl()
 }
 
 #if canImport(UIKit)
@@ -255,6 +256,10 @@ public class DiffableTableViewDataSource<Header, Cell: Hashable, Footer>: NSObje
 
 // MARK: - TableOutput Conformance
 extension DiffableTableViewDataSource: TableOutput & HiddableOutput {
+    public func displayHideRefreshControl() {
+        tableView?.refreshControl = nil
+    }
+    
     public func display(expandTrailingActionsAt indexPath: IndexPath) {
         guard let cell = tableView?.cellForRow(at: indexPath) else { return }
         
