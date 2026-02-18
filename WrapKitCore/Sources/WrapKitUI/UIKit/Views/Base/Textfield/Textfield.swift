@@ -533,9 +533,7 @@ open class Textfield: UITextField {
     private var isPressHandled = false
     private var isClearButtonActive = true {
         didSet {
-            if isClearButtonActive {
-                setupTrailingClearAction(trailingView: trailingView)
-            }
+            setupTrailingClearAction(trailingView: trailingView, isActive: isClearButtonActive)
         }
     }
     
@@ -668,19 +666,22 @@ open class Textfield: UITextField {
         setupTrailingView()
     }
     
-    private func setupTrailingClearAction(trailingView: ViewUIKit?) {
+    private func setupTrailingClearAction(trailingView: ViewUIKit?, isActive: Bool = true) {
         trailingView?.allSubviews.forEach {
             ($0 as? ViewUIKit)?.onPress = { [weak self] in
+                guard isActive else { return }
                 self?.text = ""
                 self?.sendActions(for: .editingChanged)
                 trailingView?.isHidden = true
             }
             ($0 as? ImageView)?.onPress = { [weak self] in
+                guard isActive else { return }
                 self?.text = ""
                 self?.sendActions(for: .editingChanged)
                 trailingView?.isHidden = true
             }
             ($0 as? Button)?.onPress = { [weak self] in
+                guard isActive else { return }
                 self?.text = ""
                 self?.sendActions(for: .editingChanged)
                 trailingView?.isHidden = true
