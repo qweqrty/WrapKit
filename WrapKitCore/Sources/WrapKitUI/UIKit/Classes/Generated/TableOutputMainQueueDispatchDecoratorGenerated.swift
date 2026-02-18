@@ -65,6 +65,11 @@ extension MainQueueDispatchDecorator: TableOutput where T: TableOutput {
             self?.decoratee.display(commitEditing: commitEditing)
         }
     }
+    public func displayHideRefreshControl() {
+        dispatch { [weak self] in
+            self?.decoratee.displayHideRefreshControl()
+        }
+    }
 
 }
 #endif

@@ -436,5 +436,6 @@ public extension DiffableCollectionViewDataSource {
     func display(canEdit: ((IndexPath) -> Bool)?) {}
     func display(commitEditing: ((TableEditingStyle, IndexPath) -> Void)?) {}
     func display(expandTrailingActionsAt indexPath: IndexPath) {}
+    func displayHideRefreshControl() { }
 }
 #endif
