@@ -28,6 +28,7 @@ public class TableOutputSpy<Header: Any, Cell: Hashable, Footer: Any>: TableOutp
         case displayCanMove(canMove: ((IndexPath) -> Bool)?)
         case displayCanEdit(canEdit: ((IndexPath) -> Bool)?)
         case displayCommitEditing(commitEditing: ((TableEditingStyle, IndexPath) -> Void)?)
+        case displayHideRefreshControl
     }
 
     public private(set) var messages: [Message] = []
@@ -41,6 +42,7 @@ public class TableOutputSpy<Header: Any, Cell: Hashable, Footer: Any>: TableOutp
     public private(set) var capturedDisplayCanMove: [((IndexPath) -> Bool)?] = []
     public private(set) var capturedDisplayCanEdit: [((IndexPath) -> Bool)?] = []
     public private(set) var capturedDisplayCommitEditing: [((TableEditingStyle, IndexPath) -> Void)?] = []
+    public private(set) var capturedDisplayHideRefreshControlCallCount = 0
 
 
     // MARK: - TableOutput methods
@@ -75,6 +77,10 @@ public class TableOutputSpy<Header: Any, Cell: Hashable, Footer: Any>: TableOutp
     public func display(commitEditing: ((TableEditingStyle, IndexPath) -> Void)?) {
         capturedDisplayCommitEditing.append(commitEditing)
         messages.append(.displayCommitEditing(commitEditing: commitEditing))
+    }
+    public func displayHideRefreshControl() {
+        capturedDisplayHideRefreshControlCallCount += 1
+        messages.append(.displayHideRefreshControl)
     }
 
     // MARK: - Properties
