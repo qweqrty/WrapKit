@@ -1468,7 +1468,7 @@ final class TextfieldSnapshotTests: XCTestCase {
         
         sut.display(mask: .init(mask: mask, maskColor: .systemGray))
         
-        // Вводим "98765" - маска должна правильно обработать и показать "+7 987-65"
+        // Вводим "98765" - маска должна правильно обработать и показать "+996 987-65"
         sut.simulateUserTyping("98765")
         
         // THEN
@@ -1506,7 +1506,7 @@ final class TextfieldSnapshotTests: XCTestCase {
         
         sut.display(mask: .init(mask: mask, maskColor: .systemGray))
         
-        // Вводим "98765" - маска должна правильно обработать и показать "+7 987-65"
+        // Вводим "996553113555" - маска должна правильно обработать и показать "+996 553 113 555"
         sut.simulateUserTyping("996553113555")
         
         // THEN
