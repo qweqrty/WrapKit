@@ -102,11 +102,11 @@ extension Button: ButtonOutput {
         display(image: model?.image)
         if let height = model?.height { display(height: height) }
         display(style: model?.style)
-        display(onPress: model?.onPress)
         if let enabled = model?.enabled {
             updateAppearance(enabled: enabled)
         }
-        applyInteractivityAndAccessibility()
+        // MARK: Apply accessibility AFTER all properties are set
+        display(onPress: model?.onPress)
     }
     
     public func display(image: Image?) {
@@ -151,6 +151,7 @@ extension Button: ButtonOutput {
     
     public func display(onPress: (() -> Void)?) {
         self.onPress = onPress
+        applyInteractivityAndAccessibility()
     }
     
     public func display(isHidden: Bool) {
