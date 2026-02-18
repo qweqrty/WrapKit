@@ -29,39 +29,9 @@ final class A11yProxy: UIAccessibilityElement {
     }
 }
 
-
 public extension UIView {
-    func collectAccessibilityActionsForContainer() -> [UIAccessibilityCustomAction] {
-        var out: [UIAccessibilityCustomAction] = []
-
-        func walk(_ v: UIView) {
-            if v !== self, v.isAccessibilityElement {
-                if let actions = v.accessibilityCustomActions, !actions.isEmpty {
-                    out.append(contentsOf: actions)
-                }
-
-                else if v.looksActivatable {
-                    weak let weakView = v
-                    let name = (v.accessibilityLabel?.trimmingCharacters(in: .newlines)).flatMap { $0.isEmpty ? nil : $0 }
-                    if let name, !name.isEmpty {
-                        out.append(UIAccessibilityCustomAction(name: name, actionHandler: { _ in
-                            guard let vv = weakView else { return false }
-                            return vv.accessibilityActivate()
-                        }))
-                    }
-                }
-            }
-
-            for s in v.subviews {
-                walk(s)
-            }
-        }
-
-        walk(self)
-        return out.uniquedByName()
-    }
-    
     func accessibilityTextSummary() -> String? {
+        guard UIAccessibility.isVoiceOverRunning else { return nil }
         var parts: [String] = []
         var seen = Set<String>()
 
@@ -103,31 +73,6 @@ public extension UIView {
             .joined(separator: ", ")
             .trimmingCharacters(in: .whitespacesAndNewlines)
         return summary.isEmpty ? nil : summary
-    }
-
-
-    func containsInteractiveAccessibleDescendant() -> Bool {
-        func dfs(_ v: UIView) -> Bool {
-            guard !v.isHidden, v.alpha > 0.01 else { return false }
-
-            if v.isAccessibilityElement {
-                let t = v.accessibilityTraits
-                if t.contains(.button) || t.contains(.link) || t.contains(.adjustable) || t.contains(.selected) {
-                    return true
-                }
-            }
-
-            for s in v.subviews {
-                if dfs(s) { return true }
-            }
-            return false
-        }
-        return dfs(self)
-    }
-
-    var looksActivatable: Bool {
-        let t = accessibilityTraits
-        return t.contains(.button) || t.contains(.link)
     }
 }
 

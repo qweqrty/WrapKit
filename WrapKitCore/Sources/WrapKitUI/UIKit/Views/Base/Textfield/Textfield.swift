@@ -263,49 +263,6 @@ public struct TextInputPresentableModel: HashableWithReflection {
 #if canImport(UIKit)
 import UIKit
 
-// MARK: - UIView Accessibility helpers (automatic summary)
-private extension UIView {
-    var isVisiblyInteractable: Bool {
-        !isHidden && alpha > 0.01 && isUserInteractionEnabled
-    }
-
-    func accessibilityTextSummary(maxLen: Int = 80) -> String? {
-        if let label = accessibilityLabel?.trimmingCharacters(in: .whitespacesAndNewlines),
-           !label.isEmpty {
-            return String(label.prefix(maxLen))
-        }
-
-        if let l = self as? UILabel,
-           let t = l.text?.trimmingCharacters(in: .whitespacesAndNewlines),
-           !t.isEmpty {
-            return String(t.prefix(maxLen))
-        }
-
-        if let tf = self as? UITextField {
-            let t = (tf.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? "")
-            if !t.isEmpty { return String(t.prefix(maxLen)) }
-            let p = (tf.placeholder?.trimmingCharacters(in: .whitespacesAndNewlines) ?? "")
-            if !p.isEmpty { return String(p.prefix(maxLen)) }
-        }
-
-        if let tv = self as? UITextView,
-           let t = tv.text?.trimmingCharacters(in: .whitespacesAndNewlines),
-           !t.isEmpty {
-            return String(t.prefix(maxLen))
-        }
-
-        var parts: [String] = []
-        for v in subviews where v.isVisiblyInteractable {
-            if let s = v.accessibilityTextSummary(maxLen: maxLen), !s.isEmpty {
-                parts.append(s)
-            }
-        }
-
-        let result = parts.first?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-        return result.isEmpty ? nil : String(result.prefix(maxLen))
-    }
-}
-
 public extension Textfield {
     func makeAccessoryView(
         model: TextInputPresentableModel.AccessoryViewPresentableModel?,
@@ -807,6 +764,7 @@ open class Textfield: UITextField {
     }
     
     func updateAccessibilityCustomActions() {
+        guard UIAccessibility.isVoiceOverRunning else { return }
         var actions: [UIAccessibilityCustomAction] = []
 
         if isLeadingActionAvailable {
@@ -1027,15 +985,12 @@ open class Textfield: UITextField {
                     self?.invalidateA11y()
                 }
                 
-                // Make inner views accessible as clear button (automatic label)
-                if let v = $0 as? UIView {
-                    v.isAccessibilityElement = false
-                    v.accessibilityTraits = [.button]
-                    if (v.accessibilityLabel ?? "").trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                        v.accessibilityLabel = v.accessibilityTextSummary(maxLen: 40) ?? "Clear"
-                    }
-                    v.accessibilityHint = nil
+                $0.isAccessibilityElement = false
+                $0.accessibilityTraits = [.button]
+                if ($0.accessibilityLabel ?? "").trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    $0.accessibilityLabel = $0.accessibilityTextSummary(maxLen: 40) ?? "Clear"
                 }
+                $0.accessibilityHint = nil
             }
             didChangeTextClear = { [weak self] text in
                 guard self?.isClearButtonActive ?? true else { return }
@@ -1300,6 +1255,50 @@ private extension TextAutocapitalizationType {
         case .words: return .words
         case .none: return .none
         }
+    }
+}
+
+// MARK: - UIView Accessibility helpers (automatic summary)
+private extension UIView {
+    var isVisiblyInteractable: Bool {
+        !isHidden && alpha > 0.01 && isUserInteractionEnabled
+    }
+
+    func accessibilityTextSummary(maxLen: Int = 80) -> String? {
+        guard UIAccessibility.isVoiceOverRunning else { return nil }
+        if let label = accessibilityLabel?.trimmingCharacters(in: .whitespacesAndNewlines),
+           !label.isEmpty {
+            return String(label.prefix(maxLen))
+        }
+
+        if let l = self as? UILabel,
+           let t = l.text?.trimmingCharacters(in: .whitespacesAndNewlines),
+           !t.isEmpty {
+            return String(t.prefix(maxLen))
+        }
+
+        if let tf = self as? UITextField {
+            let t = (tf.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? "")
+            if !t.isEmpty { return String(t.prefix(maxLen)) }
+            let p = (tf.placeholder?.trimmingCharacters(in: .whitespacesAndNewlines) ?? "")
+            if !p.isEmpty { return String(p.prefix(maxLen)) }
+        }
+
+        if let tv = self as? UITextView,
+           let t = tv.text?.trimmingCharacters(in: .whitespacesAndNewlines),
+           !t.isEmpty {
+            return String(t.prefix(maxLen))
+        }
+
+        var parts: [String] = []
+        for v in subviews where v.isVisiblyInteractable {
+            if let s = v.accessibilityTextSummary(maxLen: maxLen), !s.isEmpty {
+                parts.append(s)
+            }
+        }
+
+        let result = parts.first?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        return result.isEmpty ? nil : String(result.prefix(maxLen))
     }
 }
 #endif

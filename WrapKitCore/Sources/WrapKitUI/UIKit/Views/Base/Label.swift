@@ -152,7 +152,7 @@ extension Label: TextOutput {
     public func display(model: TextOutputPresentableModel?) {
         isHidden = model == nil
         if let accessibilityIdentifier = model?.accessibilityIdentifier {
-            self.accessibilityIdentifier = model?.accessibilityIdentifier
+            self.accessibilityIdentifier = accessibilityIdentifier
         }
         guard let model = model?.model else { return }
         display(textModel: model)

@@ -405,7 +405,7 @@ private extension Textview {
         accessibilityHint = nil
 
         // label: placeholder или текст (без локализации)
-        accessibilityLabel = accessibilityTextSummaryForSelf()
+        accessibilityLabel = accessibilityTextSummary()
 
         // traits: если disabled -> notEnabled
         var traits = accessibilityTraits
@@ -418,13 +418,6 @@ private extension Textview {
 
         // custom actions: leading/trailing (т.к. у textview нет встроенных view, только closures)
         updateAccessibilityCustomActions()
-    }
-
-    func accessibilityTextSummaryForSelf(maxLen: Int = 140) -> String? {
-        let txt = (text ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
-        if !txt.isEmpty { return String(txt.prefix(maxLen)) }
-        let ph = (placeholderLabel.text ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
-        return ph.isEmpty ? nil : String(ph.prefix(maxLen))
     }
 
     func updateAccessibilityCustomActions() {
