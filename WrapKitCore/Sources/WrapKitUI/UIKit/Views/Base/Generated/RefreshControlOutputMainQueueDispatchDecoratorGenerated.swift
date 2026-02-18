@@ -47,11 +47,6 @@ extension MainQueueDispatchDecorator: RefreshControlOutput where T: RefreshContr
             self?.decoratee.display(isLoading: isLoading)
         }
     }
-    public func display(isHidden: Bool) {
-        dispatch { [weak self] in
-            self?.decoratee.display(isHidden: isHidden)
-        }
-    }
 
     public var onRefresh: [(() -> Void)?]? {
         get {
