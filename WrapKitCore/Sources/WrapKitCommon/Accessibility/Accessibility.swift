@@ -89,5 +89,4 @@ private extension Array where Element == UIAccessibilityCustomAction {
     }
 }
 
-
 #endif

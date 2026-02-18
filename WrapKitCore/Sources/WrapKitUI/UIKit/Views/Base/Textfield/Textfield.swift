@@ -768,7 +768,7 @@ open class Textfield: UITextField {
         var actions: [UIAccessibilityCustomAction] = []
 
         if isLeadingActionAvailable {
-            let name = leadingView?.accessibilityTextSummary(maxLen: 40) ?? "Leading"
+            let name = leadingView?.accessibilityTextSummary() ?? "Leading"
             actions.append(UIAccessibilityCustomAction(name: name, target: self, selector: #selector(a11yTapLeading)))
         }
 
@@ -777,7 +777,7 @@ open class Textfield: UITextField {
         }
 
         if isTrailingActionAvailable {
-            let name = trailingView?.accessibilityTextSummary(maxLen: 40) ?? "Trailing"
+            let name = trailingView?.accessibilityTextSummary() ?? "Trailing"
             actions.append(UIAccessibilityCustomAction(name: name, target: self, selector: #selector(a11yTapTrailing)))
         }
 
@@ -786,13 +786,13 @@ open class Textfield: UITextField {
 
     var isLeadingActionAvailable: Bool {
         guard let leadingView else { return false }
-        return isUserInteractionEnabled && leadingView.isVisiblyInteractable && leadingView.onPress != nil
+        return isUserInteractionEnabled && !leadingView.isHidden && leadingView.onPress != nil
     }
 
     var isTrailingActionAvailable: Bool {
         guard let trailingView else { return false }
         // trailing custom action только если у контейнера есть onPress
-        return isUserInteractionEnabled && trailingView.isVisiblyInteractable && trailingView.onPress != nil
+        return isUserInteractionEnabled && !trailingView.isHidden && trailingView.onPress != nil
     }
 
     var isClearActionAvailable: Bool {
@@ -988,7 +988,7 @@ open class Textfield: UITextField {
                 $0.isAccessibilityElement = false
                 $0.accessibilityTraits = [.button]
                 if ($0.accessibilityLabel ?? "").trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                    $0.accessibilityLabel = $0.accessibilityTextSummary(maxLen: 40) ?? "Clear"
+                    $0.accessibilityLabel = $0.accessibilityTextSummary() ?? "Clear"
                 }
                 $0.accessibilityHint = nil
             }
@@ -1258,47 +1258,4 @@ private extension TextAutocapitalizationType {
     }
 }
 
-// MARK: - UIView Accessibility helpers (automatic summary)
-private extension UIView {
-    var isVisiblyInteractable: Bool {
-        !isHidden && alpha > 0.01 && isUserInteractionEnabled
-    }
-
-    func accessibilityTextSummary(maxLen: Int = 80) -> String? {
-        guard UIAccessibility.isVoiceOverRunning else { return nil }
-        if let label = accessibilityLabel?.trimmingCharacters(in: .whitespacesAndNewlines),
-           !label.isEmpty {
-            return String(label.prefix(maxLen))
-        }
-
-        if let l = self as? UILabel,
-           let t = l.text?.trimmingCharacters(in: .whitespacesAndNewlines),
-           !t.isEmpty {
-            return String(t.prefix(maxLen))
-        }
-
-        if let tf = self as? UITextField {
-            let t = (tf.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? "")
-            if !t.isEmpty { return String(t.prefix(maxLen)) }
-            let p = (tf.placeholder?.trimmingCharacters(in: .whitespacesAndNewlines) ?? "")
-            if !p.isEmpty { return String(p.prefix(maxLen)) }
-        }
-
-        if let tv = self as? UITextView,
-           let t = tv.text?.trimmingCharacters(in: .whitespacesAndNewlines),
-           !t.isEmpty {
-            return String(t.prefix(maxLen))
-        }
-
-        var parts: [String] = []
-        for v in subviews where v.isVisiblyInteractable {
-            if let s = v.accessibilityTextSummary(maxLen: maxLen), !s.isEmpty {
-                parts.append(s)
-            }
-        }
-
-        let result = parts.first?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-        return result.isEmpty ? nil : String(result.prefix(maxLen))
-    }
-}
 #endif
