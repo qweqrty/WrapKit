@@ -387,10 +387,10 @@ open class CardView: ViewUIKit {
     public let hStackView = StackView(axis: .horizontal, spacing: 14)
     public private(set) var backgroundImageView = ImageView()
     
-    public let leadingImageWrapperView = UIView(isHidden: true)
+    public let leadingImageWrapperView = ViewUIKit(isHidden: true)
     public private(set) var leadingImageView = ImageView(tintColor: .black)
     
-    public let secondaryLeadingImageWrapperView = UIView(isHidden: true)
+    public let secondaryLeadingImageWrapperView = ViewUIKit(isHidden: true)
     public private(set) var secondaryLeadingImageView = ImageView(tintColor: .black)
     
     public let leadingTitleViewsWrapperView = UIView(isHidden: true)
@@ -417,10 +417,10 @@ open class CardView: ViewUIKit {
     public let subtitleLabelWrapperView = UIView(isHidden: true)
     public let subtitleLabel = Label(font: .systemFont(ofSize: 16), textColor: .gray)
     
-    public let trailingImageWrapperView = UIView(isHidden: true)
+    public let trailingImageWrapperView = ViewUIKit(isHidden: true)
     public private(set) var trailingImageView = ImageView(image: UIImage(named: "rightArrow"), tintColor: .black)
     
-    public let secondaryTrailingImageWrapperView = UIView(isHidden: true)
+    public let secondaryTrailingImageWrapperView = ViewUIKit(isHidden: true)
     public private(set) var secondaryTrailingImageView = ImageView()
     
     public let switchWrapperView = UIView(isHidden: true)
