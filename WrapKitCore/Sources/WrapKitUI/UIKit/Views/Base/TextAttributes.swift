@@ -9,12 +9,19 @@
 import UIKit
 public typealias UnderlineStyle = NSUnderlineStyle
 public typealias TextAlignment = NSTextAlignment
+public typealias LineBreakMode = NSLineBreakMode
+
+public typealias ParagraphStyle = NSParagraphStyle
+public typealias MutableParagraphStyle = NSMutableParagraphStyle
 
 #elseif canImport(AppKit)
 import AppKit
 public typealias UnderlineStyle = NSUnderlineStyle
 public typealias TextAlignment = NSTextAlignment
+public typealias LineBreakMode = NSLineBreakMode
 
+public typealias ParagraphStyle = NSParagraphStyle
+public typealias MutableParagraphStyle = NSMutableParagraphStyle
 #endif
 
 public struct TextAttributes: HashableWithReflection, Equatable {
