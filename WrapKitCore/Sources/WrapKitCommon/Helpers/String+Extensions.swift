@@ -37,110 +37,96 @@ public extension String {
         return asHtmlAttributedString()
     }
     
-    func asHtmlAttributedString(font: Font? = nil, color: Color? = nil) -> NSMutableAttributedString? {
+    func asHtmlAttributedString(config: HTMLAttributedStringConfig? = .default) -> NSAttributedString? {
+
         guard let data = data(using: .utf8) else { return nil }
-        var options: [NSAttributedString.DocumentReadingOptionKey : Any] = [
+
+        var options: [NSAttributedString.DocumentReadingOptionKey: Any] = [
             .documentType: NSAttributedString.DocumentType.html,
             .characterEncoding: String.Encoding.utf8.rawValue
         ]
-        if #available(macOS 15.0, iOS 18.0, *) {
+        if #available(iOS 18.0, macOS 15.0, *) {
             options[.textKit1ListMarkerFormatDocumentOption] = true
         }
-        let attributedString = try? NSMutableAttributedString(data: data, options: options, documentAttributes: nil)
-        guard var attributedString else { return nil }
-        let wholeRange = NSRange(location: 0, length: attributedString.length)
-        if let font {
-            attributedString.addAttribute(NSAttributedString.Key.font, value: font, range: wholeRange)
+
+        guard let attributed = try? NSMutableAttributedString(
+            data: data,
+            options: options,
+            documentAttributes: nil
+        ) else { return nil }
+
+        let whole = NSRange(location: 0, length: attributed.length)
+
+        /// COLOR: если передали — ставим на весь текст
+        if let color = config?.color {
+            attributed.addAttribute(.foregroundColor, value: color, range: whole)
         }
-        if let color = color {
-            attributedString.addAttribute(NSAttributedString.Key.foregroundColor, value: color, range: wholeRange)
-        }
-        // Parse the original HTML to extract inline styles
-        let styleRanges = extractInlineStyles(from: self)
-        // Apply the styles to the attributed string
-        for styleRange in styleRanges {
-            applyStyle(styleRange, to: &attributedString)
-        }
-        
-        return attributedString
-    }
-    
-    private func extractInlineStyles(from html: String) -> [(text: String, fontSize: CGFloat?, fontWeight: Font.Weight?)] {
-        var results: [(String, CGFloat?, Font.Weight?)] = []
-        
-        // Regex to find tags with style attributes
-        let pattern = "<(\\w+)\\s+style=\"([^\"]+)\"[^>]*>([^<]+)<\\/\\1>"
-        guard let regex = try? NSRegularExpression(pattern: pattern) else { return [] }
-        
-        let nsString = html as NSString
-        let matches = regex.matches(in: html, range: NSRange(location: 0, length: nsString.length))
-        
-        for match in matches {
-            if match.numberOfRanges >= 4 {
-                let styleString = nsString.substring(with: match.range(at: 2))
-                let textContent = nsString.substring(with: match.range(at: 3))
-                
-                let fontSize = extractFontSize(from: styleString)
-                let fontWeight = extractFontWeight(from: styleString)
-                
-                results.append((textContent, fontSize, fontWeight))
+
+        /// FONT: если size/weight передали — обновляем только их, сохраняя traits (italic и т.п.) из HTML
+        if config?.size != nil || config?.weight != nil {
+            attributed.enumerateAttribute(.font, in: whole, options: []) { value, range, _ in
+                let oldFont = (value as? Font) ?? Font.systemFont(ofSize: Font.systemFontSize)
+                let oldDescriptor = oldFont.fontDescriptor
+
+                let traits = oldDescriptor.symbolicTraits
+                let finalSize = config?.size ?? oldFont.pointSize
+                let finalWeight = config?.weight ?? extractWeight(from: oldDescriptor) ?? Font.Weight.regular
+
+                var newDescriptor = Font.systemFont(ofSize: finalSize, weight: finalWeight).fontDescriptor
+#if canImport(UIKit)
+if let d = newDescriptor.withSymbolicTraits(traits) {
+    newDescriptor = d
+}
+#else
+newDescriptor = newDescriptor.withSymbolicTraits(traits)
+#endif
+
+                if let newFont = makeFont(from: newDescriptor, size: finalSize) {
+                    attributed.addAttribute(.font, value: newFont, range: range)
+                }
             }
         }
-        
-        return results
-    }
-    
-    private func extractFontSize(from style: String) -> CGFloat? {
-        let pattern = "font-size:\\s*(\\d+)px"
-        guard let regex = try? NSRegularExpression(pattern: pattern),
-              let match = regex.firstMatch(in: style, range: NSRange(style.startIndex..., in: style)),
-              let range = Range(match.range(at: 1), in: style) else {
-            return nil
-        }
-        return CGFloat(Int(style[range]) ?? 0)
-    }
-    
-    private func extractFontWeight(from style: String) -> Font.Weight? {
-        let pattern = "font-weight:\\s*(\\d+|bold|normal)"
-        guard let regex = try? NSRegularExpression(pattern: pattern),
-              let match = regex.firstMatch(in: style, range: NSRange(style.startIndex..., in: style)),
-              let range = Range(match.range(at: 1), in: style) else {
-            return nil
-        }
-        
-        let weight = String(style[range])
-        switch weight {
-        case "bold", "700": return .bold
-        case "600": return .semibold
-        case "500": return .medium
-        case "normal", "400": return .regular
-        case "300": return .light
-        default: return nil
-        }
-    }
-    
-    private func applyStyle(
-        _ styleRange: (text: String, fontSize: CGFloat?, fontWeight: Font.Weight?),
-        to attributedString: inout NSMutableAttributedString
-    ) {
-        let fullRange = NSRange(location: 0, length: attributedString.length)
-        let searchText = styleRange.text
-        
-        if let range = attributedString.string.range(of: searchText) {
-            let nsRange = NSRange(range, in: attributedString.string)
-            
-            var font = Font.systemFont(ofSize: 15) // default
-            
-            if let existingFont = attributedString.attribute(.font, at: nsRange.location, effectiveRange: nil) as? Font {
-                font = existingFont
+
+        /// PARAGRAPH STYLE
+        if config?.lineSpacing != nil
+            || config?.paragraphSpacing != nil
+            || config?.paragraphSpacingBefore != nil
+            || config?.lineHeightMultiple != nil
+            || config?.textAlignment != nil
+            || config?.lineBreakMode != nil
+            || config?.firstLineHeadIndent != nil
+            || config?.headIndent != nil
+            || config?.tailIndent != nil {
+
+            attributed.enumerateAttribute(.paragraphStyle, in: whole, options: []) { value, range, _ in
+                let style = MutableParagraphStyle()
+
+                if let existing = value as? ParagraphStyle {
+                    style.setParagraphStyle(existing)
+                }
+
+                if let paragraphSpacing = config?.paragraphSpacing { style.paragraphSpacing = paragraphSpacing }
+                if let paragraphSpacingBefore = config?.paragraphSpacingBefore { style.paragraphSpacingBefore = paragraphSpacingBefore }
+
+                if let textAlignment = config?.textAlignment { style.alignment = textAlignment }
+                if let lineBreakMode = config?.lineBreakMode { style.lineBreakMode = lineBreakMode }
+
+                if let firstLineHeadIndent = config?.firstLineHeadIndent { style.firstLineHeadIndent = firstLineHeadIndent }
+                if let headIndent = config?.headIndent { style.headIndent = headIndent }
+                if let tailIndent = config?.tailIndent { style.tailIndent = tailIndent }
+
+                // приоритет: lineHeightMultiple, иначе lineSpacing
+                if let lineHeightMultiple = config?.lineHeightMultiple {
+                    style.lineHeightMultiple = lineHeightMultiple
+                } else if let lineSpacing = config?.lineSpacing {
+                    style.lineSpacing = lineSpacing
+                }
+
+                attributed.addAttribute(.paragraphStyle, value: style, range: range)
             }
-            
-            let fontSize = styleRange.fontSize ?? font.pointSize
-            let fontWeight = styleRange.fontWeight ?? .regular
-            
-            let newFont = Font.systemFont(ofSize: fontSize, weight: fontWeight)
-            attributedString.addAttribute(.font, value: newFont, range: nsRange)
         }
+
+        return attributed
     }
 }
 
@@ -210,4 +196,30 @@ public extension Float {
         let date = self.toDateFromMilliseconds
         return date.toString(format: format, locale: locale)
     }
+}
+
+
+/// UIKit/AppKit differences)
+private func extractWeight(from descriptor: FontDescriptor) -> Font.Weight? {
+    #if canImport(UIKit)
+    let traitsDict = descriptor.object(forKey: .traits) as? [FontDescriptor.TraitKey: Any]
+    if let raw = traitsDict?[.weight] as? CGFloat {
+        return Font.Weight(rawValue: raw)
+    }
+    return nil
+    #else
+    let traitsDict = descriptor.object(forKey: .traits) as? [FontDescriptor.TraitKey: Any]
+    if let raw = traitsDict?[.weight] as? CGFloat {
+        return Font.Weight(raw)
+    }
+    return nil
+    #endif
+}
+
+private func makeFont(from descriptor: FontDescriptor, size: CGFloat) -> Font? {
+    #if canImport(UIKit)
+    return Font(descriptor: descriptor, size: size) /// non-optional
+    #else
+    return Font(descriptor: descriptor, size: size) /// optional
+    #endif
 }
