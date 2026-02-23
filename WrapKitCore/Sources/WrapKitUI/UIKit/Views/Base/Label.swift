@@ -109,15 +109,7 @@ extension Label: TextOutput {
         isHidden = text.isEmpty
         self.text = text?.removingPercentEncoding ?? text ?? ""
     }
-    
-//    public func display(htmlString: String?, font: Font?, color: Color?) {
-//        clearAnimationModel()
-//        
-//        let attributed = htmlString?.asHtmlAttributedString()
-//        isHidden = attributed == nil
-//        self.attributedText = attributed
-//    }
-    
+
     public func display(htmlString: String?, config: HTMLAttributedStringConfig? = .default) {
         clearAnimationModel()
         
