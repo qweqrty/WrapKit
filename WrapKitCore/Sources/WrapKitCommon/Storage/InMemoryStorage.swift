@@ -27,7 +27,13 @@ public class InMemoryStorage<Model: Hashable>: Storage, Hashable {
 
     @discardableResult
     public func set(model: Model?) -> AnyPublisher<Bool, Never> {
-        subject.send(model)
+        if Thread.isMainThread {
+            subject.send(model)
+        } else {
+            DispatchQueue.main.async { [subject] in
+                subject.send(model)
+            }
+        }
         return Just(true).eraseToAnyPublisher()
     }
     

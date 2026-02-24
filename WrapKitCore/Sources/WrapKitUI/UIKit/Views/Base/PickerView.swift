@@ -33,7 +33,7 @@ public struct PickerViewPresentableModel {
             self.selectedRowCompletion = selectedRowCompletion
         }
     }
-    
+    public let accessibilityIdentifier: String?
     public let componentsCount: (() -> Int?)?
     public let rowsCount: (() -> Int)?
     public let titleForRowAt: ((Int) -> String?)?
@@ -41,12 +41,14 @@ public struct PickerViewPresentableModel {
     public let selectedRow: SelectedRow?
     
     public init(
+        accessibilityIdentifier: String?,
         componentsCount: (() -> Int?)? = nil,
         rowsCount: (() -> Int)? = nil,
         titleForRowAt: ((Int) -> String?)? = nil,
         didSelectAt: ((Int) -> Void)? = nil,
         selectedRow: SelectedRow? = nil
     ) {
+        self.accessibilityIdentifier = accessibilityIdentifier
         self.componentsCount = componentsCount
         self.rowsCount = rowsCount
         self.titleForRowAt = titleForRowAt
@@ -107,6 +109,7 @@ extension PickerView: PickerViewOutput {
         rowsCount = model?.rowsCount
         titleForRowAt = model?.titleForRowAt
         didSelectAt = model?.didSelectAt
+        accessibilityIdentifier = model?.accessibilityIdentifier
         display(selectedRow: model?.selectedRow)
     }
     
