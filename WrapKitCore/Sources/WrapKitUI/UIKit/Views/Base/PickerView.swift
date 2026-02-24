@@ -41,7 +41,7 @@ public struct PickerViewPresentableModel {
     public let selectedRow: SelectedRow?
     
     public init(
-        accessibilityIdentifier: String?,
+        accessibilityIdentifier: String? = nil,
         componentsCount: (() -> Int?)? = nil,
         rowsCount: (() -> Int)? = nil,
         titleForRowAt: ((Int) -> String?)? = nil,
