@@ -90,9 +90,13 @@ public extension XCTestCase {
         let sanitizedMarks = folderMarks
             .map { $0.sanitizedFileComponent() }
             .filter { !$0.isEmpty }
+        let mark = resolveFolderMark(from: sanitizedMarks, jira: jira)
 
-        let screenshotsFolder = sanitizedMarks
-            .reduce(rootURL) { $0.appendingPathComponent($1, isDirectory: true) }
+        var screenshotsFolder = rootURL
+        if let mark {
+            screenshotsFolder.appendPathComponent(mark, isDirectory: true)
+        }
+        screenshotsFolder = screenshotsFolder
             .appendingPathComponent(jira, isDirectory: true)
             .appendingPathComponent(scenario, isDirectory: true)
 
@@ -184,6 +188,16 @@ public extension XCTestCase {
         let after = withoutPrefix[r.upperBound...]
         let trimmed = after.trimmingCharacters(in: CharacterSet(charactersIn: "_-"))
         return trimmed.isEmpty ? "default" : String(trimmed).sanitizedFileComponent()
+    }
+
+    private func resolveFolderMark(from marks: [String], jira: String) -> String? {
+        guard !marks.isEmpty else { return nil }
+        let jiraPrefix = jira.split(separator: "-").first.map(String.init)?.lowercased()
+        if let jiraPrefix,
+           let matched = marks.first(where: { $0.lowercased() == jiraPrefix }) {
+            return matched
+        }
+        return marks.first
     }
 }
 
