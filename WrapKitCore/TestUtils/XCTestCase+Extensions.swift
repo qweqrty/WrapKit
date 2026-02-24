@@ -63,7 +63,7 @@ public extension XCTestCase {
         set { objc_setAssociatedObject(self, &ScreenshotAssoc.indexKey, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
     }
 
-    func uiScreenshot(
+    func takeScreenshot(
         named name: String? = nil,
         after delay: TimeInterval = 0.2,
         folderMarks: [String] = [],
