@@ -43,8 +43,10 @@ public struct ImageViewPresentableModel: HashableWithReflection {
     public let borderColor: Color?
     public let cornerRadius: CGFloat?
     public let alpha: CGFloat?
+    public let accessibilityIdentifier: String?
     
     public init(
+        accessibilityIdentifier: String? = nil,
         accessibility: Accessibility? = nil,
         size: CGSize? = nil,
         image: ImageEnum? = nil,
@@ -56,6 +58,7 @@ public struct ImageViewPresentableModel: HashableWithReflection {
         cornerRadius: CGFloat? = nil,
         alpha: CGFloat? = nil
     ) {
+        self.accessibilityIdentifier = accessibilityIdentifier
         self.accessibility = accessibility
         self.size = size
         self.image = image
@@ -400,6 +403,7 @@ extension ImageView: ImageViewOutput {
         display(onLongPress: model?.onLongPress)
         self.accessibilityLabel = model?.accessibility?.label
         self.accessibilityHint = model?.accessibility?.hint
+        self.accessibilityIdentifier = model?.accessibilityIdentifier
         hideShimmer()
         if let image = model?.image {
             display(image: image, completion: completion)
