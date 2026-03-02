@@ -318,7 +318,7 @@ final class LabelSnapshotTests: XCTestCase {
         } 
     }
     
-    //MARK: - Tests for display with TextAttributes
+    // MARK: - Tests for display with TextAttributes
     func test_labelOutput_with_color() {
         //GIVEN
         let (sut, container) = makeSUT()
@@ -915,7 +915,7 @@ final class LabelSnapshotTests: XCTestCase {
         
         let exp = expectation(description: "Wait for animation completion")
 
-        let mapToString: (Decimal) -> TextOutputPresentableModel = { value in
+        let mapToString: (Decimal) -> TextOutputPresentableModel.TextModel = { value in
             return .text(String(format: "%.0f", value.doubleValue))
         }
 
@@ -949,7 +949,7 @@ final class LabelSnapshotTests: XCTestCase {
         
         let exp = expectation(description: "Wait for animation completion")
 
-        let mapToString: (Decimal) -> TextOutputPresentableModel = { value in
+        let mapToString: (Decimal) -> TextOutputPresentableModel.TextModel = { value in
             return .text(String(format: "%.0f", value.doubleValue))
         }
 
