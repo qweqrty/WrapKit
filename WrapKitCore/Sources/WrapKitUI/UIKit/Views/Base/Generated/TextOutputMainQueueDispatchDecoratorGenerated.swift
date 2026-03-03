@@ -40,9 +40,9 @@ extension MainQueueDispatchDecorator: TextOutput where T: TextOutput {
             self?.decoratee.display(attributes: attributes)
         }
     }
-    public func display(htmlString: String?, font: Font, color: Color) {
+    public func display(htmlString: String?, config: HTMLAttributedStringConfig?) {
         dispatch { [weak self] in
-            self?.decoratee.display(htmlString: htmlString, font: font, color: color)
+            self?.decoratee.display(htmlString: htmlString, config: config)
         }
     }
     public func display(id: String?, from startAmount: Decimal, to endAmount: Decimal, mapToString: ((Decimal) -> TextOutputPresentableModel)?, animationStyle: LabelAnimationStyle, duration: TimeInterval, completion: (() -> Void)?) {
@@ -53,6 +53,11 @@ extension MainQueueDispatchDecorator: TextOutput where T: TextOutput {
     public func display(isHidden: Bool) {
         dispatch { [weak self] in
             self?.decoratee.display(isHidden: isHidden)
+        }
+    }
+    public func display(htmlString: String?) {
+        dispatch { [weak self] in
+            self?.decoratee.display(htmlString: htmlString)
         }
     }
 

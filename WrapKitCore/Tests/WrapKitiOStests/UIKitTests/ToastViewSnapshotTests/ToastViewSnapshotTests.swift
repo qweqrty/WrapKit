@@ -1117,7 +1117,7 @@ extension ToastViewSnapshotTests {
             hStackViewSpacing: 14,
             titleKeyNumberOfLines: 0,
             titleValueNumberOfLines: 0,
-            trailingImagesSpacing: 0
+            trailingImageLeadingSpacing: 0
         )
     }
     

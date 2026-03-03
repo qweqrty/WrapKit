@@ -9,15 +9,22 @@
 import UIKit
 public typealias UnderlineStyle = NSUnderlineStyle
 public typealias TextAlignment = NSTextAlignment
+public typealias LineBreakMode = NSLineBreakMode
+
+public typealias ParagraphStyle = NSParagraphStyle
+public typealias MutableParagraphStyle = NSMutableParagraphStyle
 
 #elseif canImport(AppKit)
 import AppKit
 public typealias UnderlineStyle = NSUnderlineStyle
 public typealias TextAlignment = NSTextAlignment
+public typealias LineBreakMode = NSLineBreakMode
 
+public typealias ParagraphStyle = NSParagraphStyle
+public typealias MutableParagraphStyle = NSMutableParagraphStyle
 #endif
 
-public struct TextAttributes {
+public struct TextAttributes: HashableWithReflection, Equatable {
     public init(
         id: String = UUID().uuidString,
         text: String,
@@ -47,7 +54,7 @@ public struct TextAttributes {
         self.trailingImageBounds = trailingImageBounds
     }
 
-    public var id: String
+    public var id: String // used for SUILabel.TappableID, do not check in Equatable
     public var text: String
     public let color: Color?
     public let font: Font?
@@ -60,6 +67,20 @@ public struct TextAttributes {
     public let trailingImageBounds: CGRect
     public let onTap: (() -> Void)?
     var range: NSRange?
+    
+    public static func == (lhs: Self, rhs: Self) -> Bool {
+        return lhs.text == rhs.text
+        && lhs.color == rhs.color
+        && lhs.font == rhs.font
+        && lhs.lineSpacing == rhs.lineSpacing
+        && lhs.underlineStyle == rhs.underlineStyle
+        && lhs.textAlignment == rhs.textAlignment
+        && lhs.leadingImage == rhs.leadingImage
+        && lhs.leadingImageBounds == rhs.leadingImageBounds
+        && lhs.trailingImage == rhs.trailingImage
+        && lhs.trailingImageBounds == rhs.trailingImageBounds
+        && String(describing: lhs.onTap) == String(describing: rhs.onTap)
+    }
 }
 
 public extension TextAttributes {
