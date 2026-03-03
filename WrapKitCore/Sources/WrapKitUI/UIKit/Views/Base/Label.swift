@@ -69,7 +69,7 @@ public indirect enum TextOutputPresentableModel: HashableWithReflection {
 import UIKit
 
 extension Label: TextOutput {
-   
+
     public func display(model: TextOutputPresentableModel?) {
         isHidden = model == nil
         guard let model = model else { return }
@@ -112,7 +112,7 @@ extension Label: TextOutput {
 
     public func display(htmlString: String?, config: HTMLAttributedStringConfig? = .default) {
         clearAnimationModel()
-        
+
         let attributed = htmlString?.asHtmlAttributedString(config: config)
         isHidden = attributed == nil
         self.attributedText = attributed

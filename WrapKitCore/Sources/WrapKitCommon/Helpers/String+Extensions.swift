@@ -36,7 +36,7 @@ public extension String {
     var asHtmlAttributedString: NSAttributedString? {
         return asHtmlAttributedString()
     }
-    
+
     func asHtmlAttributedString(config: HTMLAttributedStringConfig? = .default) -> NSAttributedString? {
 
         guard let data = data(using: .utf8) else { return nil }
