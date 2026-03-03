@@ -26,7 +26,7 @@ public final class TextOutputSpy: TextOutput {
         case displayModel(model: TextOutputPresentableModel?)
         case displayText(text: String?)
         case displayAttributes(attributes: [TextAttributes])
-        case displayHtmlString(htmlString: String?, font: Font?, color: Color?)
+        case displayHtmlString(htmlString: String?, config: HTMLAttributedStringConfig?)
         case displayId(id: String?, from: Decimal, to: Decimal, mapToString: ((Decimal) -> TextOutputPresentableModel)?, animationStyle: LabelAnimationStyle, duration: TimeInterval, completion: (() -> Void)?)
         case displayIsHidden(isHidden: Bool)
     }
@@ -37,7 +37,7 @@ public final class TextOutputSpy: TextOutput {
     public private(set) var capturedDisplayModel: [TextOutputPresentableModel?] = []
     public private(set) var capturedDisplayText: [String?] = []
     public private(set) var capturedDisplayAttributes: [[TextAttributes]] = []
-    public private(set) var capturedDisplayHtmlString: [(htmlString: String?, font: Font?, color: Color?)] = []
+    public private(set) var capturedDisplayHtmlString: [(htmlString: String?, config: HTMLAttributedStringConfig?)] = []
     public private(set) var capturedDisplayId: [(id: String?, from: Decimal, to: Decimal, mapToString: ((Decimal) -> TextOutputPresentableModel)?, animationStyle: LabelAnimationStyle, duration: TimeInterval, completion: (() -> Void)?)] = []
     public private(set) var capturedDisplayIsHidden: [Bool] = []
 
@@ -55,9 +55,9 @@ public final class TextOutputSpy: TextOutput {
         capturedDisplayAttributes.append(attributes)
         messages.append(.displayAttributes(attributes: attributes))
     }
-    public func display(htmlString: String?, font: Font?, color: Color?) {
-        capturedDisplayHtmlString.append((htmlString: htmlString, font: font, color: color))
-        messages.append(.displayHtmlString(htmlString: htmlString, font: font, color: color))
+    public func display(htmlString: String?, config: HTMLAttributedStringConfig?) {
+        capturedDisplayHtmlString.append((htmlString: htmlString, config: config))
+        messages.append(.displayHtmlString(htmlString: htmlString, config: config))
     }
     public func display(id: String?, from startAmount: Decimal, to endAmount: Decimal, mapToString: ((Decimal) -> TextOutputPresentableModel)?, animationStyle: LabelAnimationStyle, duration: TimeInterval, completion: (() -> Void)?) {
         capturedDisplayId.append((id: id, from: startAmount, to: endAmount, mapToString: mapToString, animationStyle: animationStyle, duration: duration, completion: completion))

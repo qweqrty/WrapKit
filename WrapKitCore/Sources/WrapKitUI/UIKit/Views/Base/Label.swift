@@ -22,21 +22,21 @@ public protocol TextOutput: HiddableOutput {
     func display(model: TextOutputPresentableModel?)
     func display(text: String?)
     func display(attributes: [TextAttributes])
-    func display(htmlString: String?, font: Font?, color: Color?)
+    func display(htmlString: String?, config: HTMLAttributedStringConfig?)
     func display(id: String?, from startAmount: Decimal, to endAmount: Decimal, mapToString: ((Decimal) -> TextOutputPresentableModel)?, animationStyle: LabelAnimationStyle, duration: TimeInterval, completion: (() -> Void)?)
     func display(isHidden: Bool)
 }
 extension TextOutput {
     // sourcery: skipSpy
     func display(htmlString: String?) {
-        self.display(htmlString: htmlString, font: nil, color: nil)
+        self.display(htmlString: htmlString)
     }
 }
 
 public indirect enum TextOutputPresentableModel: HashableWithReflection {
     case text(String?)
     case attributes([TextAttributes])
-    case attributedString(String?, Font, Color)
+    case attributedString(String?, config: HTMLAttributedStringConfig?)
     case animatedDecimal(
         id: String? = nil,
         from: Decimal,
@@ -69,7 +69,7 @@ public indirect enum TextOutputPresentableModel: HashableWithReflection {
 import UIKit
 
 extension Label: TextOutput {
-    
+
     public func display(model: TextOutputPresentableModel?) {
         isHidden = model == nil
         guard let model = model else { return }
@@ -97,8 +97,8 @@ extension Label: TextOutput {
             if let backgroundColor {
                 self.backgroundColor = backgroundColor
             }
-        case .attributedString(let htmlString, let font, let color):
-            display(htmlString: htmlString, font: font, color: color)
+        case .attributedString(let htmlString, let congif):
+            display(htmlString: htmlString, config: congif)
             if let backgroundColor {
                 self.backgroundColor = backgroundColor
             }
@@ -109,11 +109,11 @@ extension Label: TextOutput {
         isHidden = text.isEmpty
         self.text = text?.removingPercentEncoding ?? text ?? ""
     }
-    
-    public func display(htmlString: String?, font: Font?, color: Color?) {
+
+    public func display(htmlString: String?, config: HTMLAttributedStringConfig? = .default) {
         clearAnimationModel()
-        
-        let attributed = htmlString?.asHtmlAttributedString(font: font ?? self.font, color: color ?? self.textColor)
+
+        let attributed = htmlString?.asHtmlAttributedString(config: config)
         isHidden = attributed == nil
         self.attributedText = attributed
     }

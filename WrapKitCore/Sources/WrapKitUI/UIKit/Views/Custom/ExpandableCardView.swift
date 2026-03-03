@@ -64,6 +64,22 @@ open class ExpandableCardView: ViewUIKit {
     public required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    
+    public override func layoutSubviews() {
+        super.layoutSubviews()
+        updateShadowPath()
+    }
+}
+
+extension ExpandableCardView {
+    func updateShadowPath(spread: CGFloat = .zero) {
+        if spread == .zero {
+            layer.shadowPath = UIBezierPath(roundedRect: bounds, cornerRadius: layer.cornerRadius).cgPath
+        } else {
+            let rect = bounds.insetBy(dx: -spread, dy: -spread)
+            layer.shadowPath = UIBezierPath(roundedRect: rect, cornerRadius: layer.cornerRadius).cgPath
+        }
+    }
 }
 
 extension ExpandableCardView {
