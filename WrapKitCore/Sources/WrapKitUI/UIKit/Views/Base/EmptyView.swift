@@ -130,6 +130,7 @@ extension EmptyView: EmptyViewOutput {
         if let spacing = buttonModel.spacing { button.spacing = spacing }
         button.onPress = buttonModel.onPress
         button.display(style: buttonModel.style)
+        button.accessibilityIdentifier = buttonModel.accessibilityIdentifier
     }
     
     public func display(model: EmptyViewPresentableModel?) {

@@ -85,7 +85,7 @@ final class WebViewPresenterTests: XCTestCase {
         var capturedId: String = UUID().uuidString
         
         if case .keyValue(let pair) = headerSpy.capturedDisplayModel.first??.centerView,
-           case .attributes(let attributes) = pair.first,
+           case .attributes(let attributes) = pair.first?.model,
            let firstAttribute = attributes.first {
             capturedId = firstAttribute.id
         }

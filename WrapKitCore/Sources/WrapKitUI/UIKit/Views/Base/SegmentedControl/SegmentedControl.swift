@@ -36,8 +36,10 @@ public struct SegmentControlModel {
     public var title: String
     public var index: Int
     public var onTap: ((Int) -> Void)?
+    public let accessibilityIdentifier: String?
     
     public init(
+        accessibilityIdentifer: String? = nil,
         title: String,
         index: Int,
         onTap: ((Int) -> Void)? = nil
@@ -45,6 +47,7 @@ public struct SegmentControlModel {
         self.title = title
         self.index = index
         self.onTap = onTap
+        self.accessibilityIdentifier = accessibilityIdentifer
     }
 }
 
@@ -98,6 +101,7 @@ extension SegmentedControl: SegmentedControlOutput {
             let action = UIAction(title: item.title) { _ in
                 item.onTap?(index)
             }
+            action.accessibilityIdentifier = item.accessibilityIdentifier
             self.insertSegment(action: action, at: index, animated: false)
         }
         self.selectedSegmentIndex = 0
