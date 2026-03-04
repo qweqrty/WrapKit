@@ -18,6 +18,72 @@ open class ToastView: UIView {
     
     private var showConstant: CGFloat = 0
     public var keyboardHeight: CGFloat = 0
+    
+    // MARK: Accessibility
+    private var a11yObservers: [NSObjectProtocol] = []
+    private var isHoldingForA11y = false
+
+    func startObservingVoiceOver() {
+        stopObservingVoiceOver()
+
+        guard UIAccessibility.isVoiceOverRunning else { return }
+
+        let c = NotificationCenter.default
+
+        a11yObservers.append(
+            c.addObserver(forName: UIAccessibility.elementFocusedNotification,
+                          object: nil,
+                          queue: .main) { [weak self] note in
+                guard let self else { return }
+
+                let focused = note.userInfo?[UIAccessibility.focusedElementUserInfoKey]
+
+                // Приводим focused к UIView если возможно
+                let focusedView: UIView? = {
+                    if let v = focused as? UIView { return v }
+                    if let el = focused as? UIAccessibilityElement,
+                       let container = el.accessibilityContainer as? UIView {
+                        return container
+                    }
+                    return nil
+                }()
+
+                let isInsideToast = focusedView?.isDescendant(of: self) == true
+
+                if isInsideToast {
+                    self.holdForA11y()
+                } else {
+                    self.releaseA11yHold()
+                }
+            }
+        )
+
+        // Optional: если ты делаешь announcement — отпускать после окончания озвучки
+        a11yObservers.append(
+            c.addObserver(forName: UIAccessibility.announcementDidFinishNotification,
+                          object: nil,
+                          queue: .main) { [weak self] _ in
+                self?.releaseA11yHold()
+            }
+        )
+    }
+
+    func stopObservingVoiceOver() {
+        a11yObservers.forEach { NotificationCenter.default.removeObserver($0) }
+        a11yObservers.removeAll()
+    }
+
+    private func holdForA11y() {
+        guard !isHoldingForA11y else { return }
+        isHoldingForA11y = true
+        pauseHideTimer()
+    }
+
+    private func releaseA11yHold() {
+        guard isHoldingForA11y else { return }
+        isHoldingForA11y = false
+        resumeHideTimer()
+    }
 
     private let spacing: CGFloat = 8
     public let duration: TimeInterval?
@@ -99,6 +165,7 @@ open class ToastView: UIView {
     }
 
     deinit {
+        stopObservingVoiceOver()
         NotificationCenter.default.removeObserver(self)
     }
 
@@ -276,6 +343,13 @@ open class ToastView: UIView {
                 self.layoutIfNeeded()
                 self.superview?.layoutIfNeeded()
                 window.bringSubviewToFront(self)
+                self.startObservingVoiceOver()
+                if UIAccessibility.isVoiceOverRunning {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { [weak self] in
+                        guard let self else { return }
+                        UIAccessibility.post(notification: .screenChanged, argument: self)
+                    }
+                }
                 completion?()
             }
         )
@@ -318,6 +392,7 @@ open class ToastView: UIView {
                 },
                 completion: { [weak self] finished in
                     guard finished else { return }
+                    self?.stopObservingVoiceOver()
                     self?.removeFromSuperview()
                     self?.onDismiss?()
                 }

@@ -29,7 +29,7 @@ private extension Array where Element: Hashable {
 private extension CellModel {
     func duplicatedForEndless() -> CellModel<Cell> {
         CellModel(
-            id: UUID(),          // 👈 НОВЫЙ UUID
+            accessibilityIdentifier: UUID().uuidString,
             cell: cell,     // тот же контент
             onTap: onTap
         )
@@ -145,7 +145,15 @@ public final class DiffableCollectionViewDataSource<Header, Cell: Hashable, Foot
         guard let model = sections.item(at: indexPath.section)?.cells.item(at: indexPath.item) else {
             return UICollectionViewCell()
         }
-        return configureCell?(collectionView, indexPath, model.cell) ?? UICollectionViewCell()
+        let cell = configureCell?(collectionView, indexPath, model.cell) ?? UICollectionViewCell()
+        let hasRowTap = (model.onTap != nil)
+        cell.accessibilityIdentifier = model.accessibilityIdentifier
+        cell.isAccessibilityElement = false
+        cell.accessibilityLabel = nil
+        cell.accessibilityHint = nil
+        cell.accessibilityTraits = []
+
+        return cell
     }
     
     // MARK: - Supplementary Views

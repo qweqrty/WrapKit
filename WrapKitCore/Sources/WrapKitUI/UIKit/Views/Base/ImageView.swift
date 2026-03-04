@@ -33,6 +33,7 @@ public extension ImageViewOutput {
 }
 
 public struct ImageViewPresentableModel: HashableWithReflection {
+    public let accessibility: Accessibility?
     public let size: CGSize?
     public let image: ImageEnum?
     public let onPress: (() -> Void)?
@@ -42,8 +43,11 @@ public struct ImageViewPresentableModel: HashableWithReflection {
     public let borderColor: Color?
     public let cornerRadius: CGFloat?
     public let alpha: CGFloat?
+    public let accessibilityIdentifier: String?
     
     public init(
+        accessibilityIdentifier: String? = nil,
+        accessibility: Accessibility? = nil,
         size: CGSize? = nil,
         image: ImageEnum? = nil,
         onPress: (() -> Void)? = nil,
@@ -54,6 +58,8 @@ public struct ImageViewPresentableModel: HashableWithReflection {
         cornerRadius: CGFloat? = nil,
         alpha: CGFloat? = nil
     ) {
+        self.accessibilityIdentifier = accessibilityIdentifier
+        self.accessibility = accessibility
         self.size = size
         self.image = image
         self.onPress = onPress
@@ -395,6 +401,9 @@ extension ImageView: ImageViewOutput {
         isHidden = model == nil
         display(onPress: model?.onPress)
         display(onLongPress: model?.onLongPress)
+        self.accessibilityLabel = model?.accessibility?.label
+        self.accessibilityHint = model?.accessibility?.hint
+        self.accessibilityIdentifier = model?.accessibilityIdentifier
         hideShimmer()
         if let image = model?.image {
             display(image: image, completion: completion)
@@ -461,10 +470,12 @@ extension ImageView: ImageViewOutput {
     
     public func display(onPress: (() -> Void)?) {
         self.onPress = onPress
+        applyInteractivityAndAccessibility()
     }
     
     public func display(onLongPress: (() -> Void)?) {
         self.onLongPress = onLongPress
+        applyInteractivityAndAccessibility()
     }
     
     public func display(contentModeIsFit: Bool) {
@@ -478,6 +489,34 @@ extension ImageView: ImageViewOutput {
     
     public func display(isHidden: Bool) {
         self.isHidden = isHidden
+    }
+}
+
+// MARK: - Accessibility
+private extension ImageView {
+    func applyInteractivityAndAccessibility() {
+        let hasTap = (onPress != nil)
+        let hasLong = (onLongPress != nil)
+        let interactive = hasTap || hasLong
+        
+        isAccessibilityElement = interactive
+        accessibilityTraits = interactive ? [.image, .button] : []
+        
+        var actions: [UIAccessibilityCustomAction] = []
+        
+        if let onLongPress {
+            actions.append(UIAccessibilityCustomAction(name: "Long press", actionHandler: { _ in
+                onLongPress()
+                return true
+            }))
+        }
+        
+        accessibilityCustomActions = actions.isEmpty ? nil : actions
+    }
+    open override func accessibilityActivate() -> Bool {
+        guard let onPress else { return super.accessibilityActivate() }
+        onPress()
+        return true
     }
 }
 #endif
