@@ -83,7 +83,7 @@ public extension AnyPublisher {
             onCompletion: (() -> Void)? = nil
         ) -> AnyPublisher<Output, Failure> {
             self
-                .receive(on: RunLoop.main)
+                .receive(on: DispatchQueue.main)
                 .handleEvents(
                 receiveOutput: { output in
                     onSuccess?(output)
