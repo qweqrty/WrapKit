@@ -73,17 +73,15 @@ public class TextOutputSwiftUIAdapter: ObservableObject, TextOutput {
             attributes: attributes
         )
     }
-    @Published public var displayHtmlStringFontColorState: DisplayHtmlStringFontColorState? = nil
-    public struct DisplayHtmlStringFontColorState {
+    @Published public var displayHtmlStringConfigState: DisplayHtmlStringConfigState? = nil
+    public struct DisplayHtmlStringConfigState {
         public let htmlString: String?
-        public let font: Font
-        public let color: Color
+        public let config: HTMLAttributedStringConfig?
     }
-    public func display(htmlString: String?, font: Font, color: Color) {
-        displayHtmlStringFontColorState = .init(
+    public func display(htmlString: String?, config: HTMLAttributedStringConfig?) {
+        displayHtmlStringConfigState = .init(
             htmlString: htmlString, 
-            font: font, 
-            color: color
+            config: config
         )
     }
     @Published public var displayIdStartAmountEndAmountMapToStringAnimationStyleDurationCompletionState: DisplayIdStartAmountEndAmountMapToStringAnimationStyleDurationCompletionState? = nil
@@ -114,6 +112,15 @@ public class TextOutputSwiftUIAdapter: ObservableObject, TextOutput {
     public func display(isHidden: Bool) {
         displayIsHiddenState = .init(
             isHidden: isHidden
+        )
+    }
+    @Published public var displayHtmlStringState: DisplayHtmlStringState? = nil
+    public struct DisplayHtmlStringState {
+        public let htmlString: String?
+    }
+    public func display(htmlString: String?) {
+        displayHtmlStringState = .init(
+            htmlString: htmlString
         )
     }
 }

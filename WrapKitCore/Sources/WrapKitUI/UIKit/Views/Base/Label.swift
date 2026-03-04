@@ -23,24 +23,21 @@ public protocol TextOutput: HiddableOutput {
     func display(textModel: TextOutputPresentableModel.TextModel?)
     func display(text: String?)
     func display(attributes: [TextAttributes])
-    func display(htmlString: String?, font: Font, color: Color)
-    func display(
-        id: String?,
-        from startAmount: Decimal,
-        to endAmount: Decimal,
-        mapToString: ((Decimal) -> TextOutputPresentableModel.TextModel)?,
-        animationStyle: LabelAnimationStyle,
-        duration: TimeInterval,
-        completion: (() -> Void)?
-    )
+    func display(htmlString: String?, config: HTMLAttributedStringConfig?)
+    func display(id: String?, from startAmount: Decimal, to endAmount: Decimal, mapToString: ((Decimal) -> TextOutputPresentableModel.TextModel)?, animationStyle: LabelAnimationStyle, duration: TimeInterval, completion: (() -> Void)?)
     func display(isHidden: Bool)
 }
-
+extension TextOutput {
+    // sourcery: skipSpy
+    func display(htmlString: String?) {
+        self.display(htmlString: htmlString, config: .default)
+    }
+}
 public struct TextOutputPresentableModel: HashableWithReflection {
     public indirect enum TextModel: HashableWithReflection {
         case text(String?)
         case attributes([TextAttributes])
-        case attributedString(String?, Font, Color)
+        case attributedString(String?, config: HTMLAttributedStringConfig?)
         case animatedDecimal(
             id: String? = nil,
             from: Decimal,
@@ -74,17 +71,18 @@ public struct TextOutputPresentableModel: HashableWithReflection {
                 return text
             case .attributes(let attributes):
                 return attributes.compactMap((\.text)).joined()
-            case .attributedString(let text, _, _):
+            case .attributedString(let text, _):
                 return text
-            case .animatedDecimal(_, _, let to, let mapToString, _, _, _):
+            case .animatedDecimal(_, _, let to, _, _, _, _):
                 return to.asString()
-            case .animated(_, _, let to, let mapToString, _, _, _):
+            case .animated(_, _, let to, _, _, _, _):
                 return to.asString()
             case .textStyled(let model, _, _, _, _):
                 return model.text
             }
         }
     }
+    
     public let accessibilityIdentifier: String?
     public let model: TextModel?
     
@@ -95,15 +93,35 @@ public struct TextOutputPresentableModel: HashableWithReflection {
     
     // MARK: - Helpers
     public static func text(accessibilityIdentifier: String? = nil, _ string: String?) -> Self {
-        return .init(accessibilityIdentifier: accessibilityIdentifier, model: .text(string))
+        .init(accessibilityIdentifier: accessibilityIdentifier, model: .text(string))
     }
     
     public static func attributes(accessibilityIdentifier: String? = nil, _ attributes: [TextAttributes]) -> Self {
-        return .init(accessibilityIdentifier: accessibilityIdentifier, model: .attributes(attributes))
+        .init(accessibilityIdentifier: accessibilityIdentifier, model: .attributes(attributes))
     }
     
-    public static func attributedString(accessibilityIdentifier: String? = nil, _ string: String?, _ font: Font, _ color: Color) -> Self {
-        return .init(accessibilityIdentifier: accessibilityIdentifier, model: .attributedString(string, font, color))
+    public static func attributedString(
+        accessibilityIdentifier: String? = nil,
+        _ string: String?,
+        config: HTMLAttributedStringConfig? = .default
+    ) -> Self {
+        .init(accessibilityIdentifier: accessibilityIdentifier, model: .attributedString(string, config: config))
+    }
+    
+    // Backward-compatible helper for call sites that still pass font/color.
+    public static func attributedString(
+        accessibilityIdentifier: String? = nil,
+        _ string: String?,
+        _ font: Font,
+        _ color: Color
+    ) -> Self {
+        .init(
+            accessibilityIdentifier: accessibilityIdentifier,
+            model: .attributedString(
+                string,
+                config: .init(size: font.pointSize, color: color)
+            )
+        )
     }
     
     public static func animatedDecimal(
@@ -116,7 +134,18 @@ public struct TextOutputPresentableModel: HashableWithReflection {
         duration: TimeInterval,
         completion: (() -> Void)?
     ) -> Self {
-        return .init(accessibilityIdentifier: accessibilityIdentifier, model: .animatedDecimal(id: id, from: from, to: to, mapToString: mapToString, animationStyle: animationStyle, duration: duration, completion: completion))
+        .init(
+            accessibilityIdentifier: accessibilityIdentifier,
+            model: .animatedDecimal(
+                id: id,
+                from: from,
+                to: to,
+                mapToString: mapToString,
+                animationStyle: animationStyle,
+                duration: duration,
+                completion: completion
+            )
+        )
     }
     
     @available(*, deprecated, message: "Animated double is going to be deprecated. Use animatedDecimal instead")
@@ -130,7 +159,18 @@ public struct TextOutputPresentableModel: HashableWithReflection {
         duration: TimeInterval,
         completion: (() -> Void)?
     ) -> Self {
-        return .init(accessibilityIdentifier: accessibilityIdentifier, model: .animated(id: id, from, to, mapToString: mapToString, animationStyle: animationStyle, duration: duration, completion: completion))
+        .init(
+            accessibilityIdentifier: accessibilityIdentifier,
+            model: .animated(
+                id: id,
+                from,
+                to,
+                mapToString: mapToString,
+                animationStyle: animationStyle,
+                duration: duration,
+                completion: completion
+            )
+        )
     }
     
     public static func textStyled(
@@ -141,7 +181,16 @@ public struct TextOutputPresentableModel: HashableWithReflection {
         height: CGFloat? = nil,
         backgroundColor: Color? = nil
     ) -> Self {
-        return .init(accessibilityIdentifier: accessibilityIdentifier, model: .textStyled(text: text, cornerStyle: cornerStyle, insets: insets, height: height, backgroundColor: backgroundColor))
+        .init(
+            accessibilityIdentifier: accessibilityIdentifier,
+            model: .textStyled(
+                text: text,
+                cornerStyle: cornerStyle,
+                insets: insets,
+                height: height,
+                backgroundColor: backgroundColor
+            )
+        )
     }
 }
 
@@ -185,11 +234,11 @@ extension Label: TextOutput {
             display(textModel: text)
             self.cornerStyle = cornerStyle
             self.textInsets = insets.asUIEdgeInsets
-        case .attributedString(let htmlString, let font, let color):
-            display(htmlString: htmlString, font: font, color: color)
             if let backgroundColor {
                 self.backgroundColor = backgroundColor
             }
+        case .attributedString(let htmlString, let config):
+            display(htmlString: htmlString, config: config)
         }
     }
     
@@ -197,13 +246,13 @@ extension Label: TextOutput {
         isHidden = text.isEmpty
         self.text = text?.removingPercentEncoding ?? text ?? ""
     }
-    
-    public func display(htmlString: String?, font: Font, color: Color) {
-        isHidden = htmlString != nil
+
+    public func display(htmlString: String?, config: HTMLAttributedStringConfig? = .default) {
         clearAnimationModel()
-        self.attributedText = htmlString?.asHtmlAttributedString
-        self.font = font
-        self.textColor = color
+
+        let attributed = htmlString?.asHtmlAttributedString(config: config)
+        isHidden = attributed == nil
+        self.attributedText = attributed
     }
     
     public func display(attributes: [TextAttributes]) {

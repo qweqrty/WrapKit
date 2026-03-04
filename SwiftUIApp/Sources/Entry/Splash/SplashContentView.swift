@@ -21,7 +21,7 @@ public struct SplashContentView: View {
         self.lifeCycleOutput = lifeCycleOutput
         self.applicationLifecycleOutput = applicationLifecycleOutput
     }
-
+    
     public var body: some View {
         LifeCycleView(
             lifeCycleOutput: lifeCycleOutput,
@@ -29,15 +29,15 @@ public struct SplashContentView: View {
         ) {
             ZStack {
                 Color.red.ignoresSafeArea()
-
+                
                 VStack {
                     ZStack {
                         Color.red.ignoresSafeArea()
-                      //  SUILabel(adapter: textOutputAdapter)
-                       //                      .frame(maxWidth: .infinity, alignment: .leading)
-                       //                      .padding(.horizontal)
+                        //  SUILabel(adapter: textOutputAdapter)
+                        //                      .frame(maxWidth: .infinity, alignment: .leading)
+                        //                      .padding(.horizontal)
                     }
-
+                    
                     Spacer()
                     
                     ZStack {
@@ -45,17 +45,18 @@ public struct SplashContentView: View {
                         SUIImageView(adapter: imageViewAdapter)
                     }
                 }
-            ScrollView(.vertical) {
-                SUILabel(adapter: adapter)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .frame(maxHeight: .infinity, alignment: .center)
-                    .background(Color.blue.opacity(0.2))
+                ScrollView(.vertical) {
+                    SUILabel(adapter: adapter)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .frame(maxHeight: .infinity, alignment: .center)
+                        .background(Color.blue.opacity(0.2))
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .frame(maxHeight: .infinity, alignment: .center)
+                .background(
+                    Color.red.ignoresSafeArea().opacity(0.2)
+                )
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .frame(maxHeight: .infinity, alignment: .center)
-            .background(
-                Color.red.ignoresSafeArea().opacity(0.2)
-            )
         }
     }
 }

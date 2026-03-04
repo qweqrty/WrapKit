@@ -292,7 +292,7 @@ public extension Textfield {
         
         container.addSubview(trailingButton)
         trailingButton.translatesAutoresizingMaskIntoConstraints = false
-    
+        
         let defaultConstraints: (UIView, UIView) -> [NSLayoutConstraint] = { container, view in
             return [
                 view.centerYAnchor.constraint(equalTo: container.centerYAnchor),
@@ -307,7 +307,7 @@ public extension Textfield {
 }
 
 extension Textfield: TextInputOutput {
-   
+    
     public func display(inputAccessoryView: TextInputPresentableModel.AccessoryViewPresentableModel?) {
         guard let inputAccessoryView else {
             self.inputAccessoryView = nil
@@ -529,7 +529,7 @@ extension Textfield: TextInputOutput {
         self.isHidden = isHidden
         invalidateA11y()
     }
-
+    
     public func display(inputType: KeyboardType) {
         self.keyboardType = UIKeyboardType(rawValue: inputType.rawValue) ?? .default
         invalidateA11y()
@@ -842,7 +842,11 @@ open class Textfield: UITextField {
     
     private var isValidState = true
     private var isPressHandled = false
-    private var isClearButtonActive = true
+    private var isClearButtonActive = true {
+        didSet {
+            setupTrailingClearAction(trailingView: trailingView, isActive: isClearButtonActive)
+        }
+    }
     
     public var padding: UIEdgeInsets = .zero
     public var midPadding: CGFloat = 0
@@ -956,7 +960,7 @@ open class Textfield: UITextField {
         addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
         addTarget(self, action: #selector(textFieldDidChangeClear), for: .editingChanged)
         addTarget(self, action: #selector(onTapReturnButton), for: .editingDidEndOnExit)
-
+        
         self.leadingView = leadingView
         updateAppearance()
         
@@ -964,34 +968,7 @@ open class Textfield: UITextField {
         case .custom(let trailingView):
             self.trailingView = trailingView
         case .clear(let trailingView):
-            trailingView.allSubviews.forEach {
-                // Assign clear on press for common types
-                ($0 as? ViewUIKit)?.onPress = { [weak self] in
-                    self?.text = ""
-                    self?.sendActions(for: .editingChanged)
-                    trailingView.isHidden = true
-                    self?.invalidateA11y()
-                }
-                ($0 as? ImageView)?.onPress = { [weak self] in
-                    self?.text = ""
-                    self?.sendActions(for: .editingChanged)
-                    trailingView.isHidden = true
-                    self?.invalidateA11y()
-                }
-                ($0 as? Button)?.onPress = { [weak self] in
-                    self?.text = ""
-                    self?.sendActions(for: .editingChanged)
-                    trailingView.isHidden = true
-                    self?.invalidateA11y()
-                }
-                
-                $0.isAccessibilityElement = false
-                $0.accessibilityTraits = [.button]
-                if ($0.accessibilityLabel ?? "").trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                    $0.accessibilityLabel = $0.accessibilityTextSummary() ?? "Clear"
-                }
-                $0.accessibilityHint = nil
-            }
+            setupTrailingClearAction(trailingView: trailingView)
             didChangeTextClear = { [weak self] text in
                 guard self?.isClearButtonActive ?? true else { return }
                 let txt = self?.maskedTextfieldDelegate?.onlySpecifiersIfMaskedText ?? text ?? ""
@@ -1009,13 +986,42 @@ open class Textfield: UITextField {
         invalidateA11y()
     }
     
+    private func setupTrailingClearAction(trailingView: ViewUIKit?, isActive: Bool = true) {
+        trailingView?.allSubviews.forEach {
+            ($0 as? ViewUIKit)?.onPress = { [weak self] in
+                guard isActive else { return }
+                self?.text = ""
+                self?.sendActions(for: .editingChanged)
+                trailingView?.isHidden = true
+            }
+            ($0 as? ImageView)?.onPress = { [weak self] in
+                guard isActive else { return }
+                self?.text = ""
+                self?.sendActions(for: .editingChanged)
+                trailingView?.isHidden = true
+            }
+            ($0 as? Button)?.onPress = { [weak self] in
+                guard isActive else { return }
+                self?.text = ""
+                self?.sendActions(for: .editingChanged)
+                trailingView?.isHidden = true
+            }
+                
+            $0.isAccessibilityElement = false
+            $0.accessibilityTraits = [.button]
+            if ($0.accessibilityLabel ?? "").trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                $0.accessibilityLabel = $0.accessibilityTextSummary() ?? "Clear"
+            }
+            $0.accessibilityHint = nil
+        }
+    }
+    
     open override func point(inside point: CGPoint, with event: UIEvent?) -> Bool {
         if let trailingView = trailingView, trailingView.frame.contains(point) {
             return true
         } else if let leadingView = leadingView, leadingView.frame.contains(point) {
             return true
         }
-
         let isTouchInside = super.point(inside: point, with: event)
         if isTouchInside, !isPressHandled {
             isPressHandled = true
@@ -1025,7 +1031,7 @@ open class Textfield: UITextField {
                 self?.isPressHandled = false
             }
         }
-
+        
         return isTouchInside
     }
     

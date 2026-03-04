@@ -1063,15 +1063,15 @@ final class LabelSnapshotTests: XCTestCase {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         } 
     }
-    
-    func test_labelOutput_emoji() {
+
+    func test_label_output_html_Br() {
         // GIVEN
         let (sut, container) = makeSUT()
-        let snapshotName = "LABEL_EMOJI_STATE"
-        
-        // WHEN
-        sut.display(model: .text("it's fine 🙂"))
-        
+        let snapshotName = "LABEL_HTML"
+
+        // THEN
+        sut.display(htmlString: HtmlTestCases.example1, config: .init(size: 13, color: .red))
+
         // THEN
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -1082,14 +1082,143 @@ final class LabelSnapshotTests: XCTestCase {
         }
     }
     
+    func test_label_output_html_boldItalic() {
+        // GIVEN
+        let (sut, container) = makeSUT()
+        let snapshotName = "LABEL_HTML_boldItalic"
+
+        // THEN
+        sut.display(htmlString: HtmlTestCases.boldItalic, config: .init(color: .green))
+
+        // THEN
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
+    }
+    
+    func test_label_output_html_inlineStyle() {
+        // GIVEN
+        let (sut, container) = makeSUT()
+        let snapshotName = "LABEL_HTML_inlineStyle"
+
+        // THEN
+        sut.display(htmlString: HtmlTestCases.inlineStyle)
+
+        // THEN
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
+    }
+    
+    func test_label_output_html_paragraphs() {
+        // GIVEN
+        let (sut, container) = makeSUT()
+        let snapshotName = "LABEL_HTML_paragraphs"
+
+        // THEN
+        sut.display(htmlString: HtmlTestCases.paragraphs, config: .init(paragraphSpacing: 12))
+
+        // THEN
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
+    }
+    
+    func test_label_output_html_lists() {
+        // GIVEN
+        let (sut, container) = makeSUT()
+        let snapshotName = "LABEL_HTML_lists"
+
+        // THEN
+        sut.display(htmlString: HtmlTestCases.lists, config: .init(lineSpacing: 8))
+
+        // THEN
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
+    }
+    
+    func test_label_output_html_longText() {
+        // GIVEN
+        let (sut, container) = makeSUT()
+        let snapshotName = "LABEL_HTML_longText"
+
+        // THEN
+        sut.display(
+            htmlString: HtmlTestCases.longText,
+            config: .init(textAlignment: .center, lineBreakMode: .byWordWrapping)
+        )
+
+        // THEN
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
+    }
+    
+    func test_label_output_html_other() {
+        // GIVEN
+        let (sut, container) = makeSUT()
+        let snapshotName = "LABEL_HTML_other"
+
+        // THEN
+        sut.display(htmlString: HtmlTestCases.other, config: .init(color: .red))
+
+        // THEN
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
+    }
+    
+    func test_labelOutput_emoji() {
+        // GIVEN
+        let (sut, container) = makeSUT()
+        let snapshotName = "LABEL_EMOJI_STATE"
+
+        // WHEN
+        sut.display(model: .text("it's fine 🙂"))
+
+        // THEN
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
+    }
+
     func test_labelOutput_utfLikeText() {
         // GIVEN
         let (sut, container) = makeSUT()
         let snapshotName = "LABEL_FAKE_EMOJI_STATE"
-        
+
         // WHEN
         sut.display(model: .text("Saima 500+O!TV- SALE 30%_850"))
-        
+
         // THEN
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
