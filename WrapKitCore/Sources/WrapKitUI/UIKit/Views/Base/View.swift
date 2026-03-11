@@ -130,6 +130,9 @@ open class ViewUIKit: UIView {
     
     public var animations: Set<Animation> = [] { didSet { applyAnimations() } }
     private lazy var gradientBorderLayer = makeGradientBorderLayer()
+    private var gradientBorderColors: [UIColor] = []
+    private var isObservingApplicationLifecycle = false
+    private let gradientBorderAnimationKey = "gradientBorderAnimation"
 
     private func applyAnimations() {
         stopGradientBorderAnimation()
@@ -225,6 +228,25 @@ open class ViewUIKit: UIView {
         super.init(coder: aDecoder)
     }
 
+    deinit {
+        unregisterFromApplicationLifecycle()
+    }
+
+    override open func layoutSubviews() {
+        super.layoutSubviews()
+        updateGradientBorderLayerFrame()
+    }
+
+    override open func didMoveToWindow() {
+        super.didMoveToWindow()
+        guard !gradientBorderColors.isEmpty else { return }
+        if window == nil {
+            gradientBorderLayer.removeAnimation(forKey: gradientBorderAnimationKey)
+            return
+        }
+        updateGradientBorderAnimation()
+    }
+
     override open func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         layoutIfNeeded()
         
@@ -268,64 +290,76 @@ open class ViewUIKit: UIView {
     }
 }
 // Animation: Gradient border
-extension ViewUIKit: CAAnimationDelegate {
+extension ViewUIKit {
     private func startGradientBorderAnimation(with colors: [UIColor]) {
-        guard gradientBorderLayer.superlayer == nil else { return }
-        gradientBorderLayer.locations = (0..<colors.count).map {
-            NSNumber(value: Double($0) / Double(colors.count))
+        guard Thread.isMainThread else {
+            DispatchQueue.main.async { [weak self] in
+                self?.startGradientBorderAnimation(with: colors)
+            }
+            return
         }
-        gradientBorderLayer.colors = colors
+
+        guard !colors.isEmpty else {
+            stopGradientBorderAnimation()
+            return
+        }
+
+        gradientBorderColors = colors
+        gradientBorderLayer.locations = makeGradientLocations(for: colors.count)
+        gradientBorderLayer.colors = colors.map(\.cgColor)
         gradientBorderLayer.cornerRadius = cornerRadius
-        layer.addSublayer(gradientBorderLayer)
+        updateGradientBorderLayerFrame()
+
+        if gradientBorderLayer.superlayer == nil {
+            layer.addSublayer(gradientBorderLayer)
+        }
+
+        registerForApplicationLifecycleIfNeeded()
         updateGradientBorderAnimation()
     }
     
     private func updateGradientBorderAnimation() {
-        gradientBorderLayer.removeAnimation(forKey: "gradientBorderAnimation")
-        
-        guard let previousColors = gradientBorderLayer.colors else { return }
-        guard var newColors = gradientBorderLayer.colors else { return }
-        let lastColor = newColors.removeLast()
-        newColors.insert(lastColor, at: 0)
-        gradientBorderLayer.colors = newColors
-        
-        let colorsAnimation = CABasicAnimation(keyPath: "colors")
-        colorsAnimation.fromValue = previousColors.map { ($0 as? UIColor)?.cgColor }
-        colorsAnimation.toValue = newColors.map { ($0 as? UIColor)?.cgColor }
-        colorsAnimation.repeatCount = 1
-        colorsAnimation.duration = 0.3
+        guard Thread.isMainThread else {
+            DispatchQueue.main.async { [weak self] in
+                self?.updateGradientBorderAnimation()
+            }
+            return
+        }
+
+        guard !gradientBorderColors.isEmpty else { return }
+
+        gradientBorderLayer.removeAnimation(forKey: gradientBorderAnimationKey)
+
+        let previousColors = gradientBorderColors.map(\.cgColor)
+        let frames = makeGradientAnimationFrames(from: previousColors)
+        guard frames.count > 1 else { return }
+
+        gradientBorderLayer.colors = previousColors
+
+        let colorsAnimation = CAKeyframeAnimation(keyPath: "colors")
+        colorsAnimation.values = frames
+        colorsAnimation.keyTimes = makeGradientAnimationKeyTimes(for: frames.count)
+        colorsAnimation.repeatCount = .infinity
+        colorsAnimation.duration = 0.3 * Double(max(gradientBorderColors.count, 1))
         colorsAnimation.isRemovedOnCompletion = false
-        colorsAnimation.fillMode = .both
-        colorsAnimation.delegate = self
-        
-        gradientBorderLayer.add(colorsAnimation, forKey: "gradientBorderAnimation")
-        
-        gradientBorderLayer.frame = CGRect(
-            origin: CGPoint.zero,
-            size: CGSize(
-                width: frame.width,
-                height: frame.height
-            )
-        )
-        (gradientBorderLayer.mask as? CAShapeLayer)?.path = UIBezierPath(
-            roundedRect: CGRect(
-                x: 0,
-                y: 0,
-                width: frame.width,
-                height: frame.height
-            ),
-            cornerRadius: cornerRadius
-        ).cgPath
+        colorsAnimation.fillMode = .forwards
+        colorsAnimation.calculationMode = .linear
+
+        gradientBorderLayer.add(colorsAnimation, forKey: gradientBorderAnimationKey)
     }
 
     private func stopGradientBorderAnimation() {
-        gradientBorderLayer.removeAnimation(forKey: "gradientBorderAnimation")
+        guard Thread.isMainThread else {
+            DispatchQueue.main.async { [weak self] in
+                self?.stopGradientBorderAnimation()
+            }
+            return
+        }
+
+        gradientBorderColors.removeAll()
+        gradientBorderLayer.removeAnimation(forKey: gradientBorderAnimationKey)
         gradientBorderLayer.removeFromSuperlayer()
-    }
-    
-    public func animationDidStop(_ anim: CAAnimation, finished flag: Bool) {
-        guard flag else { return }
-        updateGradientBorderAnimation()
+        unregisterFromApplicationLifecycle()
     }
     
     func makeGradientBorderLayer() -> CAGradientLayer {
@@ -339,6 +373,89 @@ extension ViewUIKit: CAAnimationDelegate {
         shape.fillColor = UIColor.clear.cgColor
         gradient.mask = shape
         return gradient
+    }
+
+    private func updateGradientBorderLayerFrame() {
+        gradientBorderLayer.frame = CGRect(origin: .zero, size: bounds.size)
+        (gradientBorderLayer.mask as? CAShapeLayer)?.path = UIBezierPath(
+            roundedRect: CGRect(origin: .zero, size: bounds.size),
+            cornerRadius: cornerRadius
+        ).cgPath
+    }
+
+    private func makeGradientLocations(for count: Int) -> [NSNumber] {
+        guard count > 1 else { return [0] }
+        return (0..<count).map { index in
+            NSNumber(value: Double(index) / Double(count - 1))
+        }
+    }
+
+    private func rotatedCGColors(_ colors: [CGColor]) -> [CGColor] {
+        guard colors.count > 1 else { return colors }
+        var rotated = colors
+        let lastColor = rotated.removeLast()
+        rotated.insert(lastColor, at: 0)
+        return rotated
+    }
+
+    private func makeGradientAnimationFrames(from colors: [CGColor]) -> [[CGColor]] {
+        guard !colors.isEmpty else { return [] }
+
+        var frames: [[CGColor]] = [colors]
+        var currentColors = colors
+        for _ in 0..<max(colors.count, 1) {
+            currentColors = rotatedCGColors(currentColors)
+            frames.append(currentColors)
+        }
+        return frames
+    }
+
+    private func makeGradientAnimationKeyTimes(for count: Int) -> [NSNumber] {
+        guard count > 1 else { return [0] }
+        return (0..<count).map { index in
+            NSNumber(value: Double(index) / Double(count - 1))
+        }
+    }
+
+    @objc private func handleAppDidBecomeActive() {
+        guard !gradientBorderColors.isEmpty else { return }
+        updateGradientBorderAnimation()
+    }
+
+    @objc private func handleAppDidEnterBackground() {
+        gradientBorderLayer.removeAnimation(forKey: gradientBorderAnimationKey)
+    }
+
+    private func registerForApplicationLifecycleIfNeeded() {
+        guard !isObservingApplicationLifecycle else { return }
+        isObservingApplicationLifecycle = true
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleAppDidBecomeActive),
+            name: UIApplication.didBecomeActiveNotification,
+            object: nil
+        )
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleAppDidEnterBackground),
+            name: UIApplication.didEnterBackgroundNotification,
+            object: nil
+        )
+    }
+
+    private func unregisterFromApplicationLifecycle() {
+        guard isObservingApplicationLifecycle else { return }
+        isObservingApplicationLifecycle = false
+        NotificationCenter.default.removeObserver(
+            self,
+            name: UIApplication.didBecomeActiveNotification,
+            object: nil
+        )
+        NotificationCenter.default.removeObserver(
+            self,
+            name: UIApplication.didEnterBackgroundNotification,
+            object: nil
+        )
     }
 }
 
