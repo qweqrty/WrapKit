@@ -93,6 +93,8 @@ public extension ImageView {
     
     private func handleImage(_ image: ImageEnum?, kingfisherOptions: KingfisherOptionsInfo = [], closure: ((Image?) -> Void)? = nil) {
         currentImageEnum = image
+        let token = UUID()
+        currentLoadToken = token
         
         switch image {
         case .asset(let image):
@@ -101,11 +103,11 @@ public extension ImageView {
             closure?(image)
         case .url(let lightUrl, let darkUrl):
             let url = traitCollection.userInterfaceStyle == .dark ? darkUrl : lightUrl
-            self.loadImage(url, kingfisherOptions: kingfisherOptions, closure: closure)
+            self.loadImage(url, kingfisherOptions: kingfisherOptions, token: token, closure: closure)
         case .urlString(let lightString, let darkString):
             let string = traitCollection.userInterfaceStyle == .dark ? darkString : lightString
             let url = URL(string: string ?? "")
-            self.loadImage(url, kingfisherOptions: kingfisherOptions, closure: closure)
+            self.loadImage(url, kingfisherOptions: kingfisherOptions, token: token, closure: closure)
         case .data(let data):
             downloadTask?.cancel()
             guard let data else {
@@ -128,6 +130,7 @@ public extension ImageView {
     private func loadImage(
         _ url: URL?,
         kingfisherOptions: KingfisherOptionsInfo,
+        token: UUID,
         closure: ((Image?) -> Void)? = nil
     ) {
         guard let url else {
@@ -145,6 +148,7 @@ public extension ImageView {
             forKey: url.absoluteString,
             options: [.callbackQueue(.mainCurrentOrAsync)]
         ) { [weak self] result in
+            guard self?.currentLoadToken == token else { return }
             guard let self else { return }
             switch result {
             case .success(let image):
@@ -152,6 +156,7 @@ public extension ImageView {
                 downloadTask = retrieveImage(
                     url: url,
                     kingfisherOptions: [.callbackQueue(.mainCurrentOrAsync), .fromMemoryCacheOrRefresh] + kingfisherOptions,
+                    token: token,
                     completion: closure
                 )
             case .failure(let error):
@@ -159,6 +164,7 @@ public extension ImageView {
                 downloadTask = retrieveImage(
                     url: url,
                     kingfisherOptions: [.callbackQueue(.mainCurrentOrAsync)] + kingfisherOptions,
+                    token: token,
                     completion: closure
                 )
             }
@@ -168,6 +174,7 @@ public extension ImageView {
     private func retrieveImage(
         url: URL,
         kingfisherOptions: KingfisherOptionsInfo,
+        token: UUID,
         completion: ((Image?) -> Void)? = nil
     ) -> DownloadTask? {
         return KingfisherManager.shared.retrieveImage(
@@ -182,13 +189,13 @@ public extension ImageView {
             case .failure(let error):
                 guard !error.isTaskCancelled else { return }
                 self.animatedSet(nil)
-                self.showFallbackView(url)
+                self.showFallbackView(url, token: token)
                 completion?(nil)
             }
         }
     }
     
-    private func showFallbackView(_ url: URL, kingfisherOptions: KingfisherOptionsInfo = []) {
+    private func showFallbackView(_ url: URL, kingfisherOptions: KingfisherOptionsInfo = [], token: UUID) {
         viewWhileLoadingView?.isHidden = true
         viewWhileLoadingView?.alpha = 0
         guard let fallbackView else { return }
@@ -196,7 +203,7 @@ public extension ImageView {
         fallbackView.animations.insert(.shrink)
         fallbackView.onPress = { [weak self] in
             self?.viewWhileLoadingView?.alpha = 1
-            self?.loadImage(url, kingfisherOptions: kingfisherOptions)
+            self?.loadImage(url, kingfisherOptions: kingfisherOptions, token: token)
         }
     }
     
@@ -219,6 +226,7 @@ public extension ImageView {
 open class ImageView: UIImageView {
     public var currentAnimator: UIViewPropertyAnimator?
     public var currentImageEnum: ImageEnum?
+    public var currentLoadToken: UUID?
     internal var downloadTask: DownloadTask?
 
     open override var image: UIImage? {
