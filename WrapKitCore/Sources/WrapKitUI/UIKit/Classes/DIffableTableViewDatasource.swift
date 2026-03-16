@@ -344,6 +344,12 @@ extension DiffableTableViewDataSource: TableOutput & HiddableOutput {
         self.sections = sections
         DispatchQueue.main.async { [weak self] in
             self?.tableView?.reloadData()
+            DispatchQueue.main.async { [weak self] in
+                UIView.performWithoutAnimation {
+                    self?.tableView?.beginUpdates()
+                    self?.tableView?.endUpdates()
+                }
+            }
         }
     }
     
