@@ -3,13 +3,33 @@ import UIKit
 
 public final class ScreenShield {
     public static let shared = ScreenShield()
+    private let maxAttempts = 5
 
     private init() {}
 
     public func protect(view: UIView) {
-        DispatchQueue.main.async {
-            view.setScreenCaptureProtection()
+        protect(view: view, attempt: 0)
+    }
+
+    private func protect(view: UIView, attempt: Int) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + retryDelay(for: attempt)) { [weak view] in
+            guard let view else { return }
+
+            if view.setScreenCaptureProtection() {
+                return
+            }
+
+            guard attempt < self.maxAttempts else { return }
+            self.protect(view: view, attempt: attempt + 1)
         }
+    }
+
+    private func retryDelay(for attempt: Int) -> TimeInterval {
+        if attempt == 0 {
+            return 0
+        }
+
+        return 0.15
     }
 }
 
@@ -18,14 +38,19 @@ public extension UIView {
         static let secureTextFieldTag = 54_321
     }
 
-    func setScreenCaptureProtection() {
+    @discardableResult
+    func setScreenCaptureProtection() -> Bool {
         if viewWithTag(Constants.secureTextFieldTag) is UITextField {
-            return
+            return true
         }
 
         guard superview != nil else {
-            subviews.forEach { $0.setScreenCaptureProtection() }
-            return
+            let childApplied = subviews.contains { $0.setScreenCaptureProtection() }
+            return childApplied
+        }
+
+        guard let superlayer = layer.superlayer else {
+            return false
         }
 
         let secureTextField = UITextField()
@@ -37,8 +62,15 @@ public extension UIView {
 
         insertSubview(secureTextField, at: 0)
 
-        layer.superlayer?.addSublayer(secureTextField.layer)
-        secureTextField.layer.sublayers?.last?.addSublayer(layer)
+        superlayer.addSublayer(secureTextField.layer)
+
+        guard let secureContainerLayer = secureTextField.layer.sublayers?.last else {
+            secureTextField.removeFromSuperview()
+            secureTextField.layer.removeFromSuperlayer()
+            return false
+        }
+
+        secureContainerLayer.addSublayer(layer)
 
         NSLayoutConstraint.activate([
             secureTextField.topAnchor.constraint(equalTo: topAnchor),
@@ -46,6 +78,8 @@ public extension UIView {
             secureTextField.leadingAnchor.constraint(equalTo: leadingAnchor),
             secureTextField.trailingAnchor.constraint(equalTo: trailingAnchor),
         ])
+
+        return true
     }
 }
 #endif
