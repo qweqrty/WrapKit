@@ -141,3 +141,64 @@ open class ProtectedView: UIView {
         didEnterBackgroundObserver = nil
     }
 }
+
+/// Swift-only toggle for WrapKit `ProtectedView` to allow/disallow screenshots.
+public extension ProtectedView {
+    /// Global default applied when no instance override is set.
+    static var defaultProtectionEnabled: Bool {
+        get { ProtectionState.defaultEnabled }
+        set { ProtectionState.defaultEnabled = newValue }
+    }
+
+    /// Per-instance flag; falls back to `defaultProtectionEnabled`.
+    var isProtectionEnabled: Bool {
+        get { ProtectionState.instanceFlag(for: self) ?? Self.defaultProtectionEnabled }
+        set {
+            ProtectionState.setInstanceFlag(newValue, for: self)
+            applyProtectionState(enabled: newValue)
+        }
+    }
+
+    /// Reapplies the current flag to the internal secure text field.
+    func refreshProtectionState() {
+        applyProtectionState(enabled: isProtectionEnabled)
+    }
+}
+
+// MARK: - Private helpers
+private extension ProtectedView {
+    func applyProtectionState(enabled: Bool) {
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            findSecureTextField(in: self)?.isSecureTextEntry = enabled
+        }
+    }
+
+    func findSecureTextField(in view: UIView) -> UITextField? {
+        if let textField = view as? UITextField { return textField }
+        for subview in view.subviews {
+            if let field = findSecureTextField(in: subview) {
+                return field
+            }
+        }
+        return nil
+    }
+}
+
+// MARK: - Storage (Swift-only, no ObjC runtime)
+
+private enum ProtectionState {
+    static var defaultEnabled: Bool = true
+    private static var instanceFlags: [ObjectIdentifier: Bool] = [:]
+    private static let lock = NSLock()
+
+    static func instanceFlag(for view: ProtectedView) -> Bool? {
+        lock.lock(); defer { lock.unlock() }
+        return instanceFlags[ObjectIdentifier(view)]
+    }
+
+    static func setInstanceFlag(_ value: Bool, for view: ProtectedView) {
+        lock.lock(); defer { lock.unlock() }
+        instanceFlags[ObjectIdentifier(view)] = value
+    }
+}
