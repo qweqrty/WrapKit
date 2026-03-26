@@ -124,39 +124,47 @@ public extension UIView {
         layer.addSublayer(gradientLayer)
     }
     
-    func showLoadingView(_ loadingView: UIView? = nil, backgroundColor: UIColor = .clear, contentInset: UIEdgeInsets = .zero, size: CGSize? = nil) {
+    private static let loadingContainerTag = 345635463546
+
+    func showLoadingView(
+        _ loadingView: UIView? = nil,
+        backgroundColor: UIColor = UIColor.black.withAlphaComponent(0.32),
+        contentInset: UIEdgeInsets = .zero,
+        size: CGSize? = nil,
+        leftInteractiveInset: CGFloat = 24
+    ) {
         UIView.performWithoutAnimation {
-            if let previousLoadingContainerView = viewWithTag(345635463546) {
-                previousLoadingContainerView.removeFromSuperview()
-            }
+            viewWithTag(Self.loadingContainerTag)?.removeFromSuperview()
             let loadingContainerView: UIView = {
-                let view = UIView(backgroundColor: backgroundColor)
-                view.tag = 345635463546
-                addSubview(view)
+                let view = LoadingOverlayView(
+                    dimColor: backgroundColor,
+                    leftInteractiveInset: leftInteractiveInset
+                )
+                view.tag = Self.loadingContainerTag
                 view.layer.cornerRadius = layer.cornerRadius
+                view.layer.zPosition = CGFloat.greatestFiniteMagnitude
+                addSubview(view)
                 view.fillSuperview()
                 return view
             }()
+
             clipsToBounds = true
+
             let loadingView = loadingView ?? makeDefaultLoadingView()
             loadingContainerView.addSubview(loadingView)
+
             loadingView.anchor(
                 .centerX(loadingContainerView.centerXAnchor, constant: contentInset.left - contentInset.right),
                 .centerY(loadingContainerView.centerYAnchor, constant: contentInset.top - contentInset.bottom)
             )
-            if let size = size {
+
+            if let size {
                 loadingView.constrainHeight(size.height)
                 loadingView.constrainWidth(size.width)
             }
-            isUserInteractionEnabled = false
+
             loadingContainerView.layoutIfNeeded()
         }
-    }
-    
-    func hideLoadingView() {
-        guard let loadingContainerView = viewWithTag(345635463546) else { return }
-        isUserInteractionEnabled = true
-        loadingContainerView.removeFromSuperview()
     }
     
     private func makeDefaultLoadingView() -> UIView {
@@ -171,6 +179,10 @@ public extension UIView {
         }()
         loadingView.startAnimating()
         return loadingView
+    }
+    
+    func hideLoadingView() {
+        viewWithTag(Self.loadingContainerTag)?.removeFromSuperview()
     }
     
     static func performAnimationsInSequence(_ animations: [(TimeInterval, () -> Void, ((Bool) -> Void)?)], completion: ((Bool) -> Void)? = nil) {
