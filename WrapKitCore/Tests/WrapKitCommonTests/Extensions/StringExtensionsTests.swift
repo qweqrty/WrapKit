@@ -60,12 +60,26 @@ final class StringExtensionsTests: XCTestCase {
         XCTAssertEqual(url?.absoluteString, "myapp://open?screen=settings")
     }
 
+    func testAsUrlNormalizesBackslashesAndCollapsesPath() {
+        let string = "https:/\\/\\example.com/\\api/\\check\\\""
+
+        let url = string.asUrl
+
+        XCTAssertNil(url)
+    }
+
     func testAsUrlRejectsMalformedScheme() {
         XCTAssertNil("http:/example.com".asUrl)
     }
 
     func testAsUrlRejectsTrailingQuote() {
-        XCTAssertNil("https://app.com/api/check'".asUrl)
+        XCTAssertNil("https://example.com/api/check'".asUrl)
+    }
+
+    func testAsUrlAllowsDoubleQuoteByEncoding() {
+        let url = #"https://example.com/api/check""#.asUrl
+
+        XCTAssertNil(url)
     }
 
     func testAsUrlReturnsNilWhenSchemeIsMissing() {

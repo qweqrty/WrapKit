@@ -39,12 +39,21 @@ public extension String {
         // Reject obvious malformed cases with quotes that should be escaped.
         guard !trimmed.contains("'"), !trimmed.contains("\"") else { return nil }
         
-        if let url = URL(string: trimmed),
+        let sanitized = trimmed
+            .replacingOccurrences(of: "\\", with: "/")
+            .normalizedHttpSlashes()
+            .collapsedPathSlashes()
+        let sanitizedQuotes = sanitized.replacingOccurrences(of: "\"", with: "%22")
+        
+        if sanitized.hasPrefix("http:/") && !sanitized.hasPrefix("http://") { return nil }
+        if sanitized.hasPrefix("https:/") && !sanitized.hasPrefix("https://") { return nil }
+        
+        if let url = URL(string: sanitizedQuotes),
            url.scheme != nil,
            isValid(url: url) {
             return url
         } else {
-            if let urlEscapedString = trimmed.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
+            if let urlEscapedString = sanitized.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
                let escapedURL = URL(string: urlEscapedString),
                escapedURL.scheme != nil,
                isValid(url: escapedURL) {
@@ -66,5 +75,30 @@ public extension String {
         } else {
             return true
         }
+    }
+    
+    private func normalizedHttpSlashes() -> String {
+        guard let colonIndex = firstIndex(of: ":") else { return self }
+        let scheme = self[..<colonIndex]
+        let lowerScheme = scheme.lowercased()
+        guard lowerScheme == "http" || lowerScheme == "https" else { return self }
+        
+        let afterColon = self[index(after: colonIndex)...]
+        let slashCount = afterColon.prefix { $0 == "/" }.count
+        guard slashCount >= 2 else { return self }
+        
+        let trimmedSlashes = afterColon.drop(while: { $0 == "/" })
+        return scheme + ":" + "//" + trimmedSlashes
+    }
+    
+    private func collapsedPathSlashes() -> String {
+        guard let schemeRange = range(of: "://") else { return self }
+        let hostAndRest = self[schemeRange.upperBound...]
+        guard let firstSlash = hostAndRest.firstIndex(of: "/") else { return self } // no path
+        
+        let hostPart = self[..<firstSlash]
+        let pathPart = self[firstSlash...]
+        let collapsedPath = pathPart.replacingOccurrences(of: "/+", with: "/", options: .regularExpression)
+        return hostPart + collapsedPath
     }
 }
