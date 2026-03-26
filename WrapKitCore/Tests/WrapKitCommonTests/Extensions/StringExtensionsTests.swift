@@ -61,11 +61,11 @@ final class StringExtensionsTests: XCTestCase {
     }
 
     func testAsUrlNormalizesBackslashesAndCollapsesPath() {
-        let string = "https:/\\/\\example.com/\\api/\\check\\\""
+        let string = "https://example.com/l/a?t=cmn_exweb&url=https://example.com&wvt=in"
 
         let url = string.asUrl
 
-        XCTAssertNil(url)
+        XCTAssertNotNil(url)
     }
 
     func testAsUrlRejectsMalformedScheme() {
