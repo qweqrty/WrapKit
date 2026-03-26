@@ -52,6 +52,22 @@ final class StringExtensionsTests: XCTestCase {
         XCTAssertEqual(url?.absoluteString, "https://example.com/%F0%9F%98%83")
     }
 
+    func testAsUrlAllowsCustomScheme() {
+        let string = "myapp://open?screen=settings"
+
+        let url = string.asUrl
+
+        XCTAssertEqual(url?.absoluteString, "myapp://open?screen=settings")
+    }
+
+    func testAsUrlRejectsMalformedScheme() {
+        XCTAssertNil("http:/example.com".asUrl)
+    }
+
+    func testAsUrlRejectsTrailingQuote() {
+        XCTAssertNil("https://app.com/api/check'".asUrl)
+    }
+
     func testAsUrlReturnsNilWhenSchemeIsMissing() {
         XCTAssertNil("www.example.com/path".asUrl)
     }

@@ -36,14 +36,18 @@ public extension URLRequest {
 public extension String {
     var asUrl: URL? {
         let trimmed = trimmingCharacters(in: .whitespacesAndNewlines)
+        // Reject obvious malformed cases with quotes that should be escaped.
+        guard !trimmed.contains("'"), !trimmed.contains("\"") else { return nil }
         
         if let url = URL(string: trimmed),
-           url.scheme != nil {
+           url.scheme != nil,
+           isValid(url: url) {
             return url
         } else {
             if let urlEscapedString = trimmed.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
                let escapedURL = URL(string: urlEscapedString),
-               escapedURL.scheme != nil {
+               escapedURL.scheme != nil,
+               isValid(url: escapedURL) {
                 return escapedURL
             }
         }
@@ -54,5 +58,13 @@ public extension String {
         let formatter = DateFormatter()
         formatter.dateFormat = dateFormat
         return formatter.date(from: self)
+    }
+    
+    private func isValid(url: URL) -> Bool {
+        if let scheme = url.scheme?.lowercased(), (scheme == "http" || scheme == "https") {
+            return url.host != nil
+        } else {
+            return true
+        }
     }
 }
