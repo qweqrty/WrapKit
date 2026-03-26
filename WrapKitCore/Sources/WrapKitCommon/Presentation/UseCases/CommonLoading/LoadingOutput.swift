@@ -21,7 +21,6 @@ public class CommonLoadingiOSAdapter: LoadingOutput {
         self.isLoading = isLoading
         isLoading ? onView?.showLoadingView(
             loadingView,
-            backgroundColor: backgroundColor,
             size: size
         ) : onView?.hideLoadingView()
     }

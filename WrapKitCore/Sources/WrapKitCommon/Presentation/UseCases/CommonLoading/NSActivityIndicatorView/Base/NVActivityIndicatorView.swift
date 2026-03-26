@@ -268,10 +268,16 @@ public enum NVActivityIndicatorType: CaseIterable {
     /**
      Stroke.
      
-     - returns: Instance of NVActivityIndicatorAnimationCircleStrokeSpin.
+     - returns: Instance of NVActivityIndicatorAnimationIndefiniteAnimatedSpin.
      */
     case circleStrokeSpin
-
+    /**
+     Stroke.
+     
+    - returns: Instance of NVActivityIndicatorAnimationIndefiniteAnimatedSpin.
+    */
+    case indefiniteAnimatedSpin
+    
     // swiftlint:disable:next cyclomatic_complexity function_body_length
     func animation() -> NVActivityIndicatorAnimationDelegate {
         switch self {
@@ -343,6 +349,8 @@ public enum NVActivityIndicatorType: CaseIterable {
             return NVActivityIndicatorAnimationAudioEqualizer()
         case .circleStrokeSpin:
             return NVActivityIndicatorAnimationCircleStrokeSpin()
+        case .indefiniteAnimatedSpin:
+            return NVActivityIndicatorAnimationIndefiniteAnimatedSpin()
         }
     }
 }
