@@ -11,9 +11,7 @@ import UIKit
 final class NVActivityIndicatorAnimationIndefiniteAnimatedSpin: NVActivityIndicatorAnimationDelegate {
 
     func setUpAnimation(in layer: CALayer, size: CGSize, color: UIColor) {
-        let resolvedColor = color.resolvedColor(
-            with: UIScreen.main.traitCollection
-        )
+        let resolvedColor = color.resolvedColor(with: UIScreen.main.traitCollection)
 
         let strokeThickness: CGFloat = 2.2
         let inset: CGFloat = 1.0
@@ -26,15 +24,19 @@ final class NVActivityIndicatorAnimationIndefiniteAnimatedSpin: NVActivityIndica
             y: radius + strokeThickness / 2 + inset
         )
 
+        let spinnerSide = arcCenter.x * 2
+
+        // Рисуем не полный круг, а дугу, чтобы не было шва
+        let startAngle = -CGFloat.pi / 2
+        let endAngle = startAngle + CGFloat.pi * 1.9
+
         let path = UIBezierPath(
             arcCenter: arcCenter,
             radius: radius,
-            startAngle: -CGFloat.pi / 2,
-            endAngle: CGFloat.pi + CGFloat.pi / 2,
+            startAngle: startAngle,
+            endAngle: endAngle,
             clockwise: true
         )
-
-        let spinnerSide = arcCenter.x * 2
 
         let shapeLayer = CAShapeLayer()
         shapeLayer.contentsScale = UIScreen.main.scale
@@ -54,35 +56,20 @@ final class NVActivityIndicatorAnimationIndefiniteAnimatedSpin: NVActivityIndica
         let maskLayer = makeCodeAngleMask(frame: shapeLayer.bounds)
         shapeLayer.mask = maskLayer
 
+        layer.addSublayer(shapeLayer)
+
         let animationDuration: CFTimeInterval = 1.0
         let linearCurve = CAMediaTimingFunction(name: .linear)
 
-        let rotationAnimation = CABasicAnimation(keyPath: "transform.rotation")
-        rotationAnimation.fromValue = 0
-        rotationAnimation.toValue = CGFloat.pi * 2
+        let rotationAnimation = CABasicAnimation(keyPath: "transform.rotation.z")
+        rotationAnimation.byValue = CGFloat.pi * 2
         rotationAnimation.duration = animationDuration
-        rotationAnimation.timingFunction = linearCurve
         rotationAnimation.repeatCount = .infinity
+        rotationAnimation.timingFunction = linearCurve
+        rotationAnimation.isAdditive = true
         rotationAnimation.isRemovedOnCompletion = false
-        rotationAnimation.fillMode = .forwards
 
-        maskLayer.add(rotationAnimation, forKey: "rotate")
-
-        let strokeStartAnimation = CABasicAnimation(keyPath: "strokeStart")
-        strokeStartAnimation.duration = animationDuration
-        strokeStartAnimation.fromValue = 0.02
-        strokeStartAnimation.toValue = 0.0
-        strokeStartAnimation.timingFunction = linearCurve
-
-        let group = CAAnimationGroup()
-        group.animations = [strokeStartAnimation]
-        group.duration = animationDuration
-        group.repeatCount = .infinity
-        group.isRemovedOnCompletion = false
-        group.timingFunction = linearCurve
-
-        shapeLayer.add(group, forKey: "progress")
-        layer.addSublayer(shapeLayer)
+        shapeLayer.add(rotationAnimation, forKey: "rotate")
     }
 
     private func makeCodeAngleMask(frame: CGRect) -> CALayer {
@@ -114,7 +101,6 @@ final class NVActivityIndicatorAnimationIndefiniteAnimatedSpin: NVActivityIndica
                 UIColor.clear.cgColor
             ]
 
-            // хвост длиннее
             gradient.locations = [
                 0.00,
                 0.05,
@@ -132,7 +118,6 @@ final class NVActivityIndicatorAnimationIndefiniteAnimatedSpin: NVActivityIndica
             ] as [NSNumber]
 
             container.addSublayer(gradient)
-            container.transform = CATransform3DMakeRotation(-CGFloat.pi / 2, 0, 0, 1)
         } else {
             let fallback = CALayer()
             fallback.frame = container.bounds
