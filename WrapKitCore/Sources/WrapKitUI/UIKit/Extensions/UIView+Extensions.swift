@@ -128,7 +128,7 @@ public extension UIView {
 
     func showLoadingView(
         _ loadingView: UIView? = nil,
-        backgroundColor: UIColor = UIColor.black.withAlphaComponent(0.32),
+        backgroundColor: UIColor = UIColor(white: 0.0, alpha: 0.4),
         contentInset: UIEdgeInsets = .zero,
         size: CGSize? = nil,
         leftInteractiveInset: CGFloat = 24
