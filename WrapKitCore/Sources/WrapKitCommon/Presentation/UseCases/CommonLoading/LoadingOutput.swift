@@ -21,6 +21,7 @@ public class CommonLoadingiOSAdapter: LoadingOutput {
         self.isLoading = isLoading
         isLoading ? onView?.showLoadingView(
             loadingView,
+            backgroundColor: backgroundColor,
             size: size
         ) : onView?.hideLoadingView()
     }
@@ -52,7 +53,8 @@ public extension LoadingOutput where Self == CommonLoadingiOSAdapter {
         size: CGSize = .init(width: 80, height: 80),
         padding: UIEdgeInsets = .init(top: 25, left: 25, bottom: 25, right: 25),
         loadingViewColor: UIColor,
-        wrapperViewColor: UIColor
+        wrapperViewColor: UIColor,
+        dimBackgroundColor: UIColor = .clear
     ) -> LoadingOutput {
         let loadingView = WrapperView(
             contentView: NVActivityIndicatorView(
@@ -70,6 +72,7 @@ public extension LoadingOutput where Self == CommonLoadingiOSAdapter {
         return CommonLoadingiOSAdapter(
             onView: onView,
             loadingView: loadingView,
+            backgroundColor: dimBackgroundColor,
             size: size
         )
     }
