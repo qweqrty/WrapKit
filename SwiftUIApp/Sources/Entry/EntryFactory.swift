@@ -7,31 +7,25 @@
 
 import Foundation
 import SwiftUI
-import WrapKit
-import Combine
 
-public protocol EntryViewFactory<T> {
-    associatedtype T
-    func makeSplashScreen() -> T
-}
+struct SplashScreen: View {
+    @StateObject private var presenter = SplashPresenter()
+    @State private var didSetupOutputs = false
 
-struct EntryViewSwiftUIFactory: EntryViewFactory {
-    typealias T = AnyView
-    
-    func makeSplashScreen() -> AnyView {
-        let presenter = SplashPresenter()
-        let contentView = SplashContentView(
+    var body: some View {
+        SplashContentView(
             lifeCycleOutput: presenter,
             applicationLifecycleOutput: presenter
         )
-        presenter.textOutput = contentView
-            .adapter
-            .weakReferenced
-            .mainQueueDispatched
-        presenter.imageViewOutput = contentView
-            .imageViewAdapter
-            .weakReferenced
-            .mainQueueDispatched
-        return AnyView(contentView)
+        .onAppear {
+            guard !didSetupOutputs else { return }
+            didSetupOutputs = true
+        }
+    }
+}
+
+enum EntryViewSwiftUIFactory {
+    static func makeSplashScreen() -> SplashScreen {
+        SplashScreen()
     }
 }

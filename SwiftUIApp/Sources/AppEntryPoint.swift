@@ -2,7 +2,7 @@ import SwiftUI
 
 @main
 struct SwiftUIApp: App {
-    @StateObject private var flow = EntrySwiftUIFlow(factory: EntryViewSwiftUIFactory())
+    @StateObject private var flow = EntrySwiftUIFlow()
 
     var body: some Scene {
         WindowGroup {
@@ -14,30 +14,24 @@ struct SwiftUIApp: App {
 
 struct EntryView: View {
     @EnvironmentObject var flow: EntrySwiftUIFlow
-    @State private var hasAppeared = false
+
+    @ViewBuilder
+    private var screen: some View {
+        switch flow.currentScreen {
+        case .splash:
+            SplashScreen()
+        }
+    }
 
     var body: some View {
         if #available(macOS 13.0, iOS 16.0, *) {
             NavigationStack {
-                flow.currentView
-            }
-            .onAppear {
-                onAppear()
+                screen
             }
         } else {
             NavigationView {
-                flow.currentView
+                screen
             }
-            .onAppear {
-                onAppear()
-            }
-        }
-    }
-    
-    private func onAppear() {
-        if !hasAppeared {
-            flow.showSplash()
-            hasAppeared = true
         }
     }
 }

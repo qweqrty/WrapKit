@@ -11,8 +11,6 @@ import WrapKit
 public struct SplashContentView: View {
     private let lifeCycleOutput: LifeCycleViewOutput?
     private let applicationLifecycleOutput: ApplicationLifecycleOutput?
-    public let adapter = TextOutputSwiftUIAdapter()
-    public let imageViewAdapter = ImageViewOutputSwiftUIAdapter()
     
     public init(
         lifeCycleOutput: LifeCycleViewOutput? = nil,
@@ -33,36 +31,26 @@ public struct SplashContentView: View {
                 VStack {
                     ZStack {
                         Color.red.ignoresSafeArea()
-                        //  SUILabel(adapter: textOutputAdapter)
-                        //                      .frame(maxWidth: .infinity, alignment: .leading)
-                        //                      .padding(.horizontal)
+                        Text("Splash")
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.horizontal)
                     }
                     
                     Spacer()
                     
                     ZStack {
                         Color.white
-                        SUIImageView(adapter: imageViewAdapter)
+                        Image(systemName: "photo")
+                            .font(.system(size: 32))
                     }
                 }
-                ScrollView(.vertical) {
-                    SUILabel(adapter: adapter)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .frame(maxHeight: .infinity, alignment: .center)
-                        .background(Color.blue.opacity(0.2))
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .frame(maxHeight: .infinity, alignment: .center)
-                .background(
-                    Color.red.ignoresSafeArea().opacity(0.2)
-                )
             }
         }
     }
 }
 
 #Preview("SwiftUI") {
-    EntryViewSwiftUIFactory().makeSplashScreen()
+    SplashScreen()
 }
 
 #if canImport(UIKit)
