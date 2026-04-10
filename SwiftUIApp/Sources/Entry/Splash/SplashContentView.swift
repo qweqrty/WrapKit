@@ -11,6 +11,8 @@ import WrapKit
 public struct SplashContentView: View {
     private let lifeCycleOutput: LifeCycleViewOutput?
     private let applicationLifecycleOutput: ApplicationLifecycleOutput?
+    @StateObject private var navigationBarAdapter = HeaderOutputSwiftUIAdapter()
+    @State private var splashTitle = "Splash"
     
     public init(
         lifeCycleOutput: LifeCycleViewOutput? = nil,
@@ -29,9 +31,12 @@ public struct SplashContentView: View {
                 Color.red.ignoresSafeArea()
                 
                 VStack {
+                    SUINavigationBar(adapter: navigationBarAdapter)
+                        .frame(height: 56)
+
                     ZStack {
                         Color.red.ignoresSafeArea()
-                        Text("Splash")
+                        Text(splashTitle)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(.horizontal)
                     }
@@ -45,7 +50,46 @@ public struct SplashContentView: View {
                     }
                 }
             }
+            .onAppear {
+                configureNavigationBarIfNeeded()
+            }
         }
+    }
+
+    private func configureNavigationBarIfNeeded() {
+        guard navigationBarAdapter.displayModelState == nil else { return }
+
+        navigationBarAdapter.display(
+            model: HeaderPresentableModel(
+                style: .init(
+                    backgroundColor: .lightGray,
+                    horizontalSpacing: 8,
+                    primeFont: .boldSystemFont(ofSize: 24),
+                    primeColor: .white,
+                    secondaryFont: .systemFont(ofSize: 14),
+                    secondaryColor: .white.withAlphaComponent(0.85)
+                ),
+                centerView: .keyValue(.init(.text("Splash preview"), nil)),
+                leadingCard: .init(
+                    title: .text("Back"),
+                    onPress: {
+                        splashTitle = "Leading card tapped"
+                    }
+                ),
+                primeTrailingImage: .init(
+                    image: ImageFactory.systemImage(named: "bell.fill"),
+                    onPress: {
+                        splashTitle = "Prime trailing image tapped"
+                    }
+                ),
+                secondaryTrailingImage: .init(
+                    image: ImageFactory.systemImage(named: "gearshape.fill"),
+                    onPress: {
+                        splashTitle = "Secondary trailing image tapped"
+                    }
+                )
+            )
+        )
     }
 }
 

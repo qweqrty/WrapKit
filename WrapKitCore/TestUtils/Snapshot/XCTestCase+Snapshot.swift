@@ -11,6 +11,21 @@ public extension XCTestCase {
         file: StaticString = #filePath,
         line: UInt = #line
     ) {
+        if ProcessInfo.processInfo.environment["RECORD_SNAPSHOTS"] == "1" {
+            guard let snapshotData = makeSnapshotData(for: snapshot, file: file, line: line) else { return }
+            let snapshotURL = makeSnapshotURL(named: name, file: file)
+            do {
+                try FileManager.default.createDirectory(
+                    at: snapshotURL.deletingLastPathComponent(),
+                    withIntermediateDirectories: true
+                )
+                try snapshotData.write(to: snapshotURL)
+            } catch {
+                XCTFail("Failed to record snapshot with error: \(error)", file: file, line: line)
+            }
+            return
+        }
+
         let snapshotURL = makeSnapshotURL(named: name, file: file)
         
         guard let storedSnapshotData = try? Data(contentsOf: snapshotURL), let oldImage = UIImage(data: storedSnapshotData) else {
@@ -61,6 +76,7 @@ public extension XCTestCase {
             )
             
             try snapshotData?.write(to: snapshotURL)
+            guard ProcessInfo.processInfo.environment["RECORD_SNAPSHOTS"] != "1" else { return }
             XCTFail("Record succeeded at URL: \(snapshotURL) - use `assert` to compare the snapshot from now on.", file: file, line: line)
         } catch {
             XCTFail("Failed to record snapshot with error: \(error)", file: file, line: line)
