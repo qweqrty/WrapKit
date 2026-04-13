@@ -14,17 +14,14 @@ public protocol EntryFlow: AnyObject {
 }
 
 public class EntrySwiftUIFlow: ObservableObject, EntryFlow {
-    enum Screen {
-        case splash
-    }
+    @Published var currentView: AnyView?
+    private let factory: any EntryViewFactory<AnyView>
 
-    @Published var currentScreen: Screen
-
-    public init() {
-        currentScreen = .splash
+    public init(factory: any EntryViewFactory<AnyView>) {
+        self.factory = factory
     }
 
     public func showSplash() {
-        currentScreen = .splash
+        currentView = factory.makeSplashScreen()
     }
 }

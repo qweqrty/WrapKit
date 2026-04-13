@@ -6,11 +6,10 @@
 //
 
 import Foundation
-import Combine
 import WrapKit
 import GameKit
 
-public class SplashPresenter: ObservableObject, LifeCycleViewOutput, ApplicationLifecycleOutput {
+public class SplashPresenter: LifeCycleViewOutput, ApplicationLifecycleOutput {
     public var lottieView: LottieViewOutput?
     public var textOutput: TextOutput?
     public var imageViewOutput: ImageViewOutput?
@@ -21,9 +20,8 @@ public class SplashPresenter: ObservableObject, LifeCycleViewOutput, Application
     // MARK: - View Lifecycle
     public func viewDidLoad() {
         print("SplashPresenter: viewDidLoad()")
-        // Temporarily disable output setup while narrowing the startup crash.
         // setupTextOutput()
-        // setupImageOutput()
+        setupImageOutput()
     }
     
     public func viewWillAppear() {
