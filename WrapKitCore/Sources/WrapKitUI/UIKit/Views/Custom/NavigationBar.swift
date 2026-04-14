@@ -185,18 +185,49 @@ extension NavigationBar: HeaderOutput {
         
         leadingStackView.addArrangedSubview(leadingCardView)
     }
+
+    private func configureTrailingButtonAppearance(for button: Button, model: ButtonPresentableModel?) {
+        guard #available(iOS 26, macOS 26, tvOS 26, watchOS 26, *) else { return }
+        let hasCustomBackground = model?.style?.backgroundColor != nil
+        let hasCustomBorder = (model?.style?.borderWidth ?? 0) > 0 || model?.style?.borderColor != nil
+        let hasTitle = model?.title?.isEmpty == false
+        let shouldUsePlainAppearance = hasCustomBackground || hasCustomBorder || hasTitle
+        if shouldUsePlainAppearance {
+            // Keep custom Button rendering pipeline (title/image/background/highlight)
+            // for styled trailing buttons; UIButton.Configuration distorts this view model.
+            button.configuration = nil
+            button.automaticallyUpdatesConfiguration = false
+            button.adjustsImageWhenHighlighted = false
+        } else {
+            button.configuration = .glass()
+            button.automaticallyUpdatesConfiguration = true
+            button.adjustsImageWhenHighlighted = true
+        }
+    }
     
     public func display(primeTrailingImage: ButtonPresentableModel?) {
+        configureTrailingButtonAppearance(
+            for: primeTrailingImageWrapperView.contentView,
+            model: primeTrailingImage
+        )
         primeTrailingImageWrapperView.isHidden = primeTrailingImage == nil
         primeTrailingImageWrapperView.contentView.display(model: primeTrailingImage)
     }
     
     public func display(secondaryTrailingImage: ButtonPresentableModel?) {
+        configureTrailingButtonAppearance(
+            for: secondaryTrailingImageWrapperView.contentView,
+            model: secondaryTrailingImage
+        )
         secondaryTrailingImageWrapperView.isHidden = secondaryTrailingImage == nil
         secondaryTrailingImageWrapperView.contentView.display(model: secondaryTrailingImage)
     }
     
     public func display(tertiaryTrailingImage: ButtonPresentableModel?) {
+        configureTrailingButtonAppearance(
+            for: tertiaryTrailingImageWrapperView.contentView,
+            model: tertiaryTrailingImage
+        )
         tertiaryTrailingImageWrapperView.isHidden = tertiaryTrailingImage == nil
         tertiaryTrailingImageWrapperView.contentView.display(model: tertiaryTrailingImage)
     }
@@ -378,6 +409,10 @@ private extension NavigationBar {
                 )
             }
         )
+        view.contentView.setContentCompressionResistancePriority(.required, for: .horizontal)
+        view.contentView.setContentHuggingPriority(.required, for: .horizontal)
+        view.setContentCompressionResistancePriority(.required, for: .horizontal)
+        view.setContentHuggingPriority(.required, for: .horizontal)
         if #available(iOS 26, macOS 26, tvOS 26, watchOS 26, *) {
             view.contentView.configuration = .glass()
         }
