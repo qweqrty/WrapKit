@@ -132,6 +132,7 @@ extension SelectionVC {
     }
     
     private func finalizeSearchBarPosition() {
+        guard !contentView.searchBar.isHidden else { return }
         let currentTopConstant = contentView.searchBarConstraints?.top?.constant ?? 0
         let threshold = -SelectionContentView.searchBarHeight / 2
 
@@ -146,6 +147,7 @@ extension SelectionVC {
 
     // Show search bar explicitly when refresh starts
     private func showSearchBar(animated: Bool = true) {
+        guard !contentView.searchBar.isHidden else { return }
         UIView.animate(withDuration: animated ? 0.1 : 0) { [weak self] in
             self?.contentView.searchBarConstraints?.top?.constant = SelectionContentView.maxSearchBarTopSpacing
             self?.contentView.searchBar.alpha = 1

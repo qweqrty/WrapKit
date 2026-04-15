@@ -9,7 +9,6 @@ import Foundation
 
 public struct ButtonStyle: HashableWithReflection {
     public let backgroundColor: Color?
-    public let gradientColors: [Color]?
     public let titleColor: Color?
     public let borderWidth: CGFloat
     public let borderColor: Color?
@@ -22,7 +21,6 @@ public struct ButtonStyle: HashableWithReflection {
     
     public init(
         backgroundColor: Color? = nil,
-        gradientColors: [Color]? = nil,
         titleColor: Color? = nil,
         borderWidth: CGFloat = 0,
         borderColor: Color? = nil,
@@ -34,7 +32,6 @@ public struct ButtonStyle: HashableWithReflection {
         loadingIndicatorColor: Color? = nil
     ) {
         self.backgroundColor = backgroundColor
-        self.gradientColors = gradientColors
         self.titleColor = titleColor
         self.borderColor = borderColor
         self.pressedColor = pressedColor
@@ -66,7 +63,6 @@ public struct ButtonPresentableModel {
     public let title: String?
     public let image: Image?
     public let spacing: CGFloat?
-    public let contentInset: EdgeInsets?
     public let onPress: (() -> Void)?
     public let style: ButtonStyle?
     public let enabled: Bool?
@@ -76,7 +72,6 @@ public struct ButtonPresentableModel {
         title: String? = nil,
         image: Image? = nil,
         spacing: CGFloat? = nil,
-        contentInset: EdgeInsets? = nil,
         height: CGFloat? = nil,
         width: CGFloat? = nil,
         style: ButtonStyle? = nil,
@@ -85,7 +80,6 @@ public struct ButtonPresentableModel {
     ) {
         self.accessibilityIdentifier = accessibilityIdentifier
         self.spacing = spacing
-        self.contentInset = contentInset
         self.image = image
         self.onPress = onPress
         self.title = title
@@ -103,30 +97,10 @@ extension Button: ButtonOutput {
     public func display(model: ButtonPresentableModel?) {
         isHidden = model == nil
         accessibilityIdentifier = model?.accessibilityIdentifier
-        if let contentInset = model?.contentInset {
-            self.contentInset = contentInset.asUIEdgeInsets
-        } else {
-            self.contentInset = .zero
-        }
-        if let spacing = model?.spacing {
-            display(spacing: spacing)
-        } else {
-            display(spacing: 0)
-        }
+        if let spacing = model?.spacing { display(spacing: spacing) }
         display(title: model?.title)
         display(image: model?.image)
-        if let height = model?.height {
-            display(height: height)
-        } else {
-            anchoredConstraints?.height?.isActive = false
-            anchoredConstraints?.height = nil
-        }
-        if let width = model?.width {
-            display(width: width)
-        } else {
-            anchoredConstraints?.width?.isActive = false
-            anchoredConstraints?.width = nil
-        }
+        if let height = model?.height { display(height: height) }
         display(style: model?.style)
         if let enabled = model?.enabled {
             updateAppearance(enabled: enabled)
@@ -136,12 +110,6 @@ extension Button: ButtonOutput {
     }
     
     public func display(image: Image?) {
-        imageView?.contentMode = .scaleAspectFit
-        imageView?.clipsToBounds = true
-        imageView?.setContentCompressionResistancePriority(.required, for: .horizontal)
-        imageView?.setContentCompressionResistancePriority(.required, for: .vertical)
-        imageView?.setContentHuggingPriority(.required, for: .horizontal)
-        imageView?.setContentHuggingPriority(.required, for: .vertical)
         setImage(image, for: .normal)
     }
     
@@ -156,14 +124,6 @@ extension Button: ButtonOutput {
             anchoredConstraints = anchor(.height(height))
         }
     }
-
-    public func display(width: CGFloat) {
-        if let anchoredConstraints = anchoredConstraints {
-            anchoredConstraints.width?.constant = width
-        } else {
-            anchoredConstraints = anchor(.width(width))
-        }
-    }
     
     public func display(style: ButtonStyle?) {
         guard let style = style else { return }
@@ -171,16 +131,7 @@ extension Button: ButtonOutput {
         if let titleLabelFont = style.font { self.titleLabel?.font = titleLabelFont }
         self.textColor = style.titleColor
         self.textBackgroundColor = style.backgroundColor
-        if let gradientColors = style.gradientColors, !gradientColors.isEmpty {
-            usesGradientBackground = true
-            installBackgroundGradientIfNeeded()
-            backgroundGradientLayer.colors = gradientColors.map(\.cgColor)
-            backgroundColor = .clear
-        } else {
-            usesGradientBackground = false
-            removeBackgroundGradientIfNeeded()
-            self.backgroundColor = style.backgroundColor
-        }
+        self.backgroundColor = style.backgroundColor
         self.pressedTextColor = style.pressedTintColor
         self.pressedBackgroundColor = style.pressedColor
         self.layer.borderColor = style.borderColor?.cgColor
@@ -228,10 +179,6 @@ public enum PressAnimation: HashableWithReflection {
 }
 
 open class Button: UIButton {
-    private lazy var backgroundGradientLayer = CAGradientLayer()
-    private var isBackgroundGradientInstalled = false
-    private var usesGradientBackground = false
-
     var currentAnimator: UIViewPropertyAnimator?
     public var currentImageEnum: ImageEnum?
     
@@ -261,9 +208,7 @@ open class Button: UIButton {
     }
     public var textBackgroundColor: UIColor? {
         didSet {
-            if !usesGradientBackground {
-                backgroundColor = textBackgroundColor
-            }
+            backgroundColor = textBackgroundColor
         }
     }
     public var isLoading: Bool?
@@ -356,13 +301,6 @@ open class Button: UIButton {
             break
         }
     }
-
-    open override func layoutSubviews() {
-        super.layoutSubviews()
-        guard isBackgroundGradientInstalled else { return }
-        backgroundGradientLayer.frame = bounds
-        backgroundGradientLayer.cornerRadius = layer.cornerRadius
-    }
     
     @objc private func onTap() {
         onPress?()
@@ -435,22 +373,6 @@ open class Button: UIButton {
             return true
         }
         return super.accessibilityActivate()
-    }
-}
-
-private extension Button {
-    func installBackgroundGradientIfNeeded() {
-        guard !isBackgroundGradientInstalled else { return }
-        backgroundGradientLayer.startPoint = CGPoint(x: 0, y: 0.5)
-        backgroundGradientLayer.endPoint = CGPoint(x: 1, y: 0.5)
-        layer.insertSublayer(backgroundGradientLayer, at: 0)
-        isBackgroundGradientInstalled = true
-    }
-
-    func removeBackgroundGradientIfNeeded() {
-        guard isBackgroundGradientInstalled else { return }
-        backgroundGradientLayer.removeFromSuperlayer()
-        isBackgroundGradientInstalled = false
     }
 }
 
