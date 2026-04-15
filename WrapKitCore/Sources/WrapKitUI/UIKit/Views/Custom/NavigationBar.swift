@@ -189,10 +189,9 @@ extension NavigationBar: HeaderOutput {
     private func configureTrailingButtonAppearance(for button: Button, model: ButtonPresentableModel?) {
         guard #available(iOS 26, macOS 26, tvOS 26, watchOS 26, *) else { return }
         let hasCustomBackground = model?.style?.backgroundColor != nil
-        let hasCustomGradient = !(model?.style?.gradientColors?.isEmpty ?? true)
         let hasCustomBorder = (model?.style?.borderWidth ?? 0) > 0 || model?.style?.borderColor != nil
         let hasTitle = model?.title?.isEmpty == false
-        let shouldUsePlainAppearance = hasCustomBackground || hasCustomGradient || hasCustomBorder || hasTitle
+        let shouldUsePlainAppearance = hasCustomBackground || hasCustomBorder || hasTitle
         if shouldUsePlainAppearance {
             // Keep custom Button rendering pipeline (title/image/background/highlight)
             // for styled trailing buttons; UIButton.Configuration distorts this view model.
