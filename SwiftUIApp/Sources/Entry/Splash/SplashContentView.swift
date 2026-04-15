@@ -11,6 +11,7 @@ import WrapKit
 private final class SplashContentAdapters {
     let text = TextOutputSwiftUIAdapter()
     let image = ImageViewOutputSwiftUIAdapter()
+    let button = ButtonOutputSwiftUIAdapter()
 }
 
 public struct SplashContentView: View {
@@ -20,6 +21,7 @@ public struct SplashContentView: View {
 
     public var adapter: TextOutputSwiftUIAdapter { adapters.text }
     public var imageViewAdapter: ImageViewOutputSwiftUIAdapter { adapters.image }
+    public var buttonAdapter: ButtonOutputSwiftUIAdapter { adapters.button }
     
     public init(
         lifeCycleOutput: LifeCycleViewOutput? = nil,
@@ -58,6 +60,11 @@ public struct SplashContentView: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .frame(maxHeight: .infinity, alignment: .center)
                         .background(Color.blue.opacity(0.2))
+                    
+                    SUIButton(adapter: buttonAdapter)
+                        .frame(maxWidth: .infinity, alignment: .center)
+                        .frame(maxHeight: .infinity, alignment: .center)
+
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .frame(maxHeight: .infinity, alignment: .center)

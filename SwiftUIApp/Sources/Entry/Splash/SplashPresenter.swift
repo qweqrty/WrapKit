@@ -13,6 +13,7 @@ public class SplashPresenter: LifeCycleViewOutput, ApplicationLifecycleOutput {
     public var lottieView: LottieViewOutput?
     public var textOutput: TextOutput?
     public var imageViewOutput: ImageViewOutput?
+    public var buttonOutput: ButtonOutput?
     
     public init() {
         
@@ -20,8 +21,9 @@ public class SplashPresenter: LifeCycleViewOutput, ApplicationLifecycleOutput {
     // MARK: - View Lifecycle
     public func viewDidLoad() {
         print("SplashPresenter: viewDidLoad()")
-        setupTextOutput()
-        setupImageOutput()
+//        setupTextOutput()
+//        setupImageOutput()
+        setupButtonOutup()
     }
     
     public func viewWillAppear() {
@@ -129,6 +131,25 @@ private extension SplashPresenter {
 //        }, animationStyle: .circle(lineColor: Color.blue), duration: 5, completion: {
 //            
 //        }))
+    }
+    
+    private func setupButtonOutup() {
+        buttonOutput?.display(model: .init(title: "KNOPKA",
+                                           image: .init(systemName: "star.fill"),
+                                           height: 50,
+                                           width: 100,
+                                           style: .init(
+            backgroundColor: .green,
+            titleColor: .red,
+            borderWidth: 3,
+            borderColor: .black,
+            pressedColor: .cyan,
+            pressedTintColor: .brown
+        )))
+        
+        buttonOutput?.display {
+            print("asd")
+        }
     }
     
     private func setupImageOutput() {
