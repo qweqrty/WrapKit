@@ -60,9 +60,73 @@ public struct SUILabelView: View, Animatable {
     
     @StateObject private var displayLinkManager = SUIDisplayLinkManager()
     
-    // MARK: - TODO refers to making TextOutputPresentableModel a struct
     public var body: some View {
-        SUILabelView(model: .text(""))
+        switch model.model {
+        case .text(let string):
+            if let text = string?.removingPercentEncoding, !text.isEmpty {
+                Text(text)
+                    .font(suiFont)
+                    .offset(y: -simpleTextYOffset)
+            }
+        case .attributes(let attributes):
+            if !attributes.isEmpty {
+                buildSwiftUIViewFromAttributes(from: attributes)
+            }
+        case .textStyled(let text, let cornerStyle, let insets, let height, let backgroundColor):
+            SUILabelView(
+                model: .init(accessibilityIdentifier: model.accessibilityIdentifier, model: text),
+                font: defaultFont
+            )
+            .if(!insets.isZero) { $0.padding(insets.asSUIEdgeInsets) }
+            .ifLet(height) { $0.frame(height: $1, alignment: .center) }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .ifLet(backgroundColor) { $0.background(SwiftUIColor($1)) }
+            .ifLet(cornerStyle) { $0.cornerStyle($1) }
+        case .animatedDecimal(_, let from, let to, let mapToString, let animationStyle, let duration, let completion):
+            ZStack {
+                if case let .circle(color) = animationStyle {
+                    SUICircularProgressView(color: color, from: 1, to: 0, duration: duration, completion: completion)
+                        .padding(8)
+                }
+
+                SUILabelView(
+                    model: .init(
+                        accessibilityIdentifier: model.accessibilityIdentifier,
+                        model: mapToString?(from + (displayLinkManager.progress * (to - from))) ?? .text("")
+                    ),
+                    font: defaultFont
+                )
+                .onAppear {
+                    guard duration > 0 else { return }
+                    displayLinkManager.startAnimation(duration: duration, completion: completion)
+                }
+            }
+        case .animated(_, let from, let to, let mapToString, let animationStyle, let duration, let completion):
+            ZStack {
+                if case let .circle(color) = animationStyle {
+                    SUICircularProgressView(color: color, from: 1, to: 0, duration: duration, completion: completion)
+                        .padding(8)
+                }
+
+                SUILabelView(
+                    model: .init(
+                        accessibilityIdentifier: model.accessibilityIdentifier,
+                        model: mapToString?(from + (displayLinkManager.progress.doubleValue * (to - from))) ?? .text("")
+                    ),
+                    font: defaultFont
+                )
+                .onAppear {
+                    guard duration > 0 else { return }
+                    displayLinkManager.startAnimation(duration: duration, completion: completion)
+                }
+            }
+        case .attributedString(let htmlString, _):
+            Text(htmlString ?? "")
+                .font(suiFont)
+                .offset(y: -simpleTextYOffset)
+        case nil:
+            SwiftUICore.EmptyView()
+        }
     }
 //    public var body: some View {
 //        switch model {

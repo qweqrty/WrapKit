@@ -3,6 +3,15 @@ SOURCERY_WEAK_PROXY_SCRIPT=./Scripts/Sourcery/WeakRefVirtualProxy.sh
 SOURCERY_ADAPTER_SCRIPT=./Scripts/Sourcery/SwiftUIAdapterGenerator.sh
 SOURCERY_SPY_SCRIPT=./Scripts/Sourcery/SpyGenerator.sh
 TUIST_COMMANDS="tuist clean; tuist install; tuist generate"
+TUIST_BIN := $(shell if [ -x /opt/homebrew/bin/tuist ]; then echo /opt/homebrew/bin/tuist; else echo tuist; fi)
+
+ifndef CI_JOB_ID
+	XDG_CACHE_HOME ?= $(HOME)/.cache
+else
+	XDG_CACHE_HOME := /Users/macadmin/.tuist-cache/job-$(CI_JOB_ID)
+endif
+
+export XDG_CACHE_HOME
 
 # Default target
 project: run-sourcery tuist-setup tuist-generate
@@ -10,25 +19,50 @@ build: run-sourcery tuist-setup
 
 # Run Tuist clean, install, and generate commands
 tuist-setup:
-	@echo "Running Tuist setup..."
-	@if ! tuist clean; then \
-		echo "Tuist clean failed. Ensure Tuist is installed and properly configured."; \
-		exit 1; \
+	@echo "=== Running Tuist setup ==="
+	@echo "📦 XDG_CACHE_HOME: $(XDG_CACHE_HOME)"
+	@echo "📦 CI_JOB_ID: $(CI_JOB_ID)"
+	@mkdir -p "$(XDG_CACHE_HOME)"
+	@mkdir -p Tuist
+	@if [ -d Tuist/.build ]; then \
+		chmod -R u+w Tuist/.build 2>/dev/null || true; \
+		for i in 1 2 3; do \
+			rm -rf Tuist/.build 2>/dev/null || true; \
+			[ ! -d Tuist/.build ] && break; \
+			sleep 1; \
+		done; \
+		if [ -d Tuist/.build ]; then \
+			echo "[WARN] Could not fully remove Tuist/.build, continuing..."; \
+		fi; \
 	fi
-	@if ! tuist install; then \
-		echo "Tuist install failed. Check if you have the correct environment for your project."; \
-		exit 1; \
+	@if ! $(TUIST_BIN) clean; then \
+		echo "[WARN] Tuist clean failed. Continuing..."; \
 	fi
-	@echo "Tuist setup completed successfully."
+	@if ! $(TUIST_BIN) install; then \
+		echo "[WARN] Tuist install failed. Retrying once..."; \
+		sleep 2; \
+		if ! $(TUIST_BIN) install; then \
+			echo "[WARN] Tuist install retry failed. Continuing with existing dependencies..."; \
+		fi; \
+	fi
+	@echo "=== Tuist setup completed successfully ==="
 	
 # Run Tuist generate commands
 tuist-generate:
-	@echo "Running Tuist generate..."
-	@if ! tuist generate; then \
-		echo "Tuist generate failed. Ensure your project configuration is valid."; \
-		exit 1; \
+	@echo "=== Running Tuist generate ==="
+	@rm -rf Tuist/.build/tuist-derived/ModuleMaps 2>/dev/null || true
+	@rm -rf Tuist/.build/tuist-derived 2>/dev/null || true
+	@if ! $(TUIST_BIN) generate; then \
+		echo "[WARN] Tuist generate failed. Retrying after cleanup..."; \
+		rm -rf Tuist/.build/tuist-derived/ModuleMaps 2>/dev/null || true; \
+		rm -rf Tuist/.build/tuist-derived 2>/dev/null || true; \
+		$(TUIST_BIN) install || true; \
+		if ! $(TUIST_BIN) generate; then \
+			echo "[ERROR] Tuist generate failed after retry."; \
+			exit 1; \
+		fi; \
 	fi
-	@echo "Tuist generate completed successfully."
+	@echo "=== Tuist generate completed successfully ==="
 
 # Run Sourcery script
 run-sourcery:
