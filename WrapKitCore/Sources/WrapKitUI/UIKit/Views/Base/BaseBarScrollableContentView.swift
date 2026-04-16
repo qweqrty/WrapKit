@@ -15,7 +15,11 @@ open class BaseBarScrollableContentView<T: UIScrollView>: ViewUIKit {
     public private(set) lazy var navigationBar = NavigationBar()
     public let scrollView: T
 
-    open var additionalInsets: UIEdgeInsets = .zero
+    open var additionalInsets: UIEdgeInsets = .zero {
+        didSet { updateContentInsets() }
+    }
+    
+    private var navBarBottom: CGFloat = 0
     
     public init(
         scrollView: T = .init(),
@@ -23,6 +27,7 @@ open class BaseBarScrollableContentView<T: UIScrollView>: ViewUIKit {
     ) {
         self.headerStyle = headerStyle
         self.scrollView = scrollView
+
         super.init(frame: .zero)
 
         initialSetup()
@@ -42,14 +47,22 @@ open class BaseBarScrollableContentView<T: UIScrollView>: ViewUIKit {
     open override func layoutSubviews() {
         super.layoutSubviews()
         
-        let navBarBottom = max(0, navigationBar.frame.maxY - scrollView.frame.minY) / 2
-        if navBarBottom != scrollView.contentInset.top {
-            scrollView.contentInset = .init(
-                top: additionalInsets.top + navBarBottom,
-                left: additionalInsets.left,
-                bottom: additionalInsets.bottom,
-                right: additionalInsets.right
-            )
+        navBarBottom = max(0, navigationBar.frame.maxY - scrollView.frame.minY) / 2
+        updateContentInsets()
+    }
+    
+    private func updateContentInsets() {
+        let newInsets = UIEdgeInsets(
+            top: additionalInsets.top + navBarBottom,
+            left: additionalInsets.left,
+            bottom: additionalInsets.bottom,
+            right: additionalInsets.right
+        )
+        guard newInsets != scrollView.contentInset else { return }
+        let wasAtTop = scrollView.contentOffset.y <= -scrollView.adjustedContentInset.top + 1
+        scrollView.contentInset = newInsets
+        if wasAtTop {
+            scrollView.contentOffset.y = -scrollView.adjustedContentInset.top
         }
     }
 }
