@@ -36,6 +36,10 @@ struct EntryViewSwiftUIFactory: EntryViewFactory {
             .buttonAdapter
             .weakReferenced
             .mainQueueDispatched
+        presenter.loadingOutput = contentView
+            .loadingAdapter
+            .weakReferenced
+            .mainQueueDispatched
         return AnyView(contentView)
     }
 }

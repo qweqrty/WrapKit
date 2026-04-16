@@ -23,7 +23,12 @@ public final class SUIButtonStateModel: ObservableObject {
         adapter.$displayModelState
             .compactMap { $0 }
             .sink { [weak self] value in
-                self?.presentable = value.model
+                guard let self else { return }
+                self.presentable = value.model
+                self.isHidden = false
+                if let enabled = value.model.enabled {
+                    self.isEnabled = enabled
+                }
             }
             .store(in: &cancellables)
         

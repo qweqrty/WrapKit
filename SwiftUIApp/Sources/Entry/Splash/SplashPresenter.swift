@@ -14,6 +14,7 @@ public class SplashPresenter: LifeCycleViewOutput, ApplicationLifecycleOutput {
     public var textOutput: TextOutput?
     public var imageViewOutput: ImageViewOutput?
     public var buttonOutput: ButtonOutput?
+    public var loadingOutput: LoadingOutput?
     
     public init() {
         
@@ -24,6 +25,11 @@ public class SplashPresenter: LifeCycleViewOutput, ApplicationLifecycleOutput {
 //        setupTextOutput()
 //        setupImageOutput()
         setupButtonOutup()
+        
+        loadingOutput?.display(isLoading: true)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 5) { [weak self] in
+            self?.loadingOutput?.display(isLoading: false)
+        }
     }
     
     public func viewWillAppear() {
@@ -134,6 +140,12 @@ private extension SplashPresenter {
     }
     
     private func setupButtonOutup() {
+        
+//        buttonOutput?.display(isLoading: true)
+//        DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+//            self.buttonOutput?.display(isLoading: false)
+//        }
+        
         buttonOutput?.display(model: .init(title: "KNOPKA",
                                            image: .init(systemName: "star.fill"),
                                            height: 50,

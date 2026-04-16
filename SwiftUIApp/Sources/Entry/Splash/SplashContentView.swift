@@ -12,6 +12,7 @@ private final class SplashContentAdapters {
     let text = TextOutputSwiftUIAdapter()
     let image = ImageViewOutputSwiftUIAdapter()
     let button = ButtonOutputSwiftUIAdapter()
+    let loadingView = LoadingOutputSwiftUIAdapter()
 }
 
 public struct SplashContentView: View {
@@ -22,6 +23,7 @@ public struct SplashContentView: View {
     public var adapter: TextOutputSwiftUIAdapter { adapters.text }
     public var imageViewAdapter: ImageViewOutputSwiftUIAdapter { adapters.image }
     public var buttonAdapter: ButtonOutputSwiftUIAdapter { adapters.button }
+    public var loadingAdapter: LoadingOutputSwiftUIAdapter { adapters.loadingView }
     
     public init(
         lifeCycleOutput: LifeCycleViewOutput? = nil,
@@ -71,6 +73,15 @@ public struct SplashContentView: View {
                 .background(
                     Color.red.ignoresSafeArea().opacity(0.2)
                 )
+                
+                SUILoadingView.circleStrokeLoader(
+                    adapter: loadingAdapter,
+                    loadingViewColor: .blue,
+                    wrapperViewColor: SwiftUIColor(.black.withAlphaComponent(0.5)),
+                    dimBackgroundColor: SwiftUIColor(.black.withAlphaComponent(0.3))
+                )
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .ignoresSafeArea()
             }
         }
     }
