@@ -13,6 +13,10 @@ public class SplashPresenter: LifeCycleViewOutput, ApplicationLifecycleOutput {
     public var lottieView: LottieViewOutput?
     public var textOutput: TextOutput?
     public var imageViewOutput: ImageViewOutput?
+    public var buttonOutput: ButtonOutput?
+    public var buttonLoadingOutput: LoadingOutput? 
+    public var loadingOutput: LoadingOutput?
+    public var buttonWithShrink: ButtonOutput?
     
     public init() {
         
@@ -20,8 +24,14 @@ public class SplashPresenter: LifeCycleViewOutput, ApplicationLifecycleOutput {
     // MARK: - View Lifecycle
     public func viewDidLoad() {
         print("SplashPresenter: viewDidLoad()")
-        setupTextOutput()
-        setupImageOutput()
+//        setupTextOutput()
+//        setupImageOutput()
+        setupButtonOutup()
+        
+        loadingOutput?.display(isLoading: true)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 5) { [weak self] in
+            self?.loadingOutput?.display(isLoading: false)
+        }
     }
     
     public func viewWillAppear() {
@@ -129,6 +139,46 @@ private extension SplashPresenter {
 //        }, animationStyle: .circle(lineColor: Color.blue), duration: 5, completion: {
 //            
 //        }))
+    }
+    
+    private func setupButtonOutup() {
+        
+        buttonLoadingOutput?.display(isLoading: true)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 8) {
+            self.buttonLoadingOutput?.display(isLoading: false)
+        }
+        
+        buttonOutput?.display(model: .init(title: "Common button",
+                                           image: .init(systemName: "star.fill"),
+                                           height: 50,
+                                           width: 300,
+                                           style: .init(
+                                            backgroundColor: .green,
+                                            titleColor: .red,
+                                            borderWidth: 3,
+                                            borderColor: .black,
+                                            pressedColor: .cyan,
+                                            pressedTintColor: .brown,
+                                            loadingIndicatorColor: .red
+                                           )))
+        
+        buttonOutput?.display {
+            print("asd")
+        }
+        
+        buttonWithShrink?.display(model: .init(title: "Button with shrink",
+                                           image: .init(systemName: "star.fill"),
+                                           height: 50,
+                                           width: 300,
+                                           style: .init(
+                                            backgroundColor: .green,
+                                            titleColor: .red,
+                                            borderWidth: 3,
+                                            borderColor: .black,
+                                            pressedColor: .cyan,
+                                            pressedTintColor: .brown,
+                                            loadingIndicatorColor: .red
+                                           )))
     }
     
     private func setupImageOutput() {
