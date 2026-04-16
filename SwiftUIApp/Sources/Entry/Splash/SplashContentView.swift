@@ -49,9 +49,9 @@ public struct SplashContentView: View {
                 VStack {
                     ZStack {
                         Color.red.ignoresSafeArea()
-                        //  SUILabel(adapter: textOutputAdapter)
-                        //                      .frame(maxWidth: .infinity, alignment: .leading)
-                        //                      .padding(.horizontal)
+                          SUILabel(adapter: adapter)
+                                              .frame(maxWidth: .infinity, alignment: .leading)
+                                              .padding(.horizontal)
                     }
                     
                     Spacer()

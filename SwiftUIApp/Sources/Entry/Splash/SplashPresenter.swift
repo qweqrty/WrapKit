@@ -28,10 +28,10 @@ public class SplashPresenter: LifeCycleViewOutput, ApplicationLifecycleOutput {
 //        setupImageOutput()
         setupButtonOutup()
         
-//        loadingOutput?.display(isLoading: true)
-//        DispatchQueue.main.asyncAfter(deadline: .now() + 5) { [weak self] in
-//            self?.loadingOutput?.display(isLoading: false)
-//        }
+        loadingOutput?.display(isLoading: true)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 5) { [weak self] in
+            self?.loadingOutput?.display(isLoading: false)
+        }
     }
     
     public func viewWillAppear() {
@@ -144,7 +144,7 @@ private extension SplashPresenter {
     private func setupButtonOutup() {
         
         buttonLoadingOutput?.display(isLoading: true)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 8) {
             self.buttonLoadingOutput?.display(isLoading: false)
         }
         
