@@ -12,12 +12,15 @@ public final class SUIButtonStateModel: ObservableObject {
     @Published var presentable: ButtonPresentableModel = .init()
     @Published var isHidden: Bool = false
     @Published var isEnabled: Bool = true
+    @Published var isLoading: Bool = false
     
     @Published private var adapter: ButtonOutputSwiftUIAdapter
     
     private var cancellables: Set<AnyCancellable> = []
     
-    public init(adapter: ButtonOutputSwiftUIAdapter) {
+    public init(adapter: ButtonOutputSwiftUIAdapter,
+                loadingAdapter: LoadingOutputSwiftUIAdapter? = nil
+    ) {
         self.adapter = adapter
         
         adapter.$displayModelState
@@ -91,6 +94,13 @@ public final class SUIButtonStateModel: ObservableObject {
             .sink { [weak self] value in
                 guard let self else { return }
                 self.presentable = self.presentable.merging(onPress: value.onPress)
+            }
+            .store(in: &cancellables)
+        
+        loadingAdapter?.$displayIsLoadingState
+            .compactMap { $0 }
+            .sink { [weak self] value in
+                self?.isLoading = value.isLoading
             }
             .store(in: &cancellables)
     }

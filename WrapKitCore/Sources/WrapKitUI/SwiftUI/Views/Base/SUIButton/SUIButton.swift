@@ -10,11 +10,15 @@ import SwiftUI
 
 public struct SUIButton: View {
     @ObservedObject var stateModel: SUIButtonStateModel
+    let pressAnimations: Set<PressAnimation>
     
     public init(
-        adapter: ButtonOutputSwiftUIAdapter
+        adapter: ButtonOutputSwiftUIAdapter,
+        loadingAdapter: LoadingOutputSwiftUIAdapter? = nil,
+        pressAnimations: Set<PressAnimation> = []
     ) {
-        self.stateModel = .init(adapter: adapter)
+        self.stateModel = .init(adapter: adapter, loadingAdapter: loadingAdapter)
+        self.pressAnimations = pressAnimations
     }
     
     @ViewBuilder
@@ -23,7 +27,9 @@ public struct SUIButton: View {
             SUIButtonView(
                 model: stateModel.presentable,
                 onPress: stateModel.presentable.onPress,
-                isEnabled: stateModel.isEnabled
+                isEnabled: stateModel.isEnabled,
+                isLoading: stateModel.isLoading,
+                pressAnimations: pressAnimations
             )
         }
     }
@@ -34,6 +40,7 @@ public struct SUIButtonView: View {
     let onPress: (() -> Void)?
     let isEnabled: Bool
     let isLoading: Bool
+    let pressAnimations: Set<PressAnimation>
     
     @State private var isPressed: Bool = false
     
@@ -41,12 +48,14 @@ public struct SUIButtonView: View {
         model: ButtonPresentableModel,
         onPress: (() -> Void)? = nil,
         isEnabled: Bool,
-        isLoading: Bool = false
+        isLoading: Bool = false,
+        pressAnimations: Set<PressAnimation> = []
     ) {
         self.model = model
         self.onPress = onPress
         self.isEnabled = isEnabled
         self.isLoading = isLoading
+        self.pressAnimations = pressAnimations
     }
     
     public var body: some View {
@@ -73,7 +82,7 @@ public struct SUIButtonView: View {
 
                 if isLoading {
                     SUILoadingViewContent(
-                        color: model.style?.loadingIndicatorColor.map { SwiftUIColor($0) } ?? .white,
+                        color: model.style?.loadingIndicatorColor.map { SwiftUIColor($0) } ?? .red,
                         size: .init(
                             width: (model.height ?? 44) * 0.5,
                             height: (model.height ?? 44) * 0.5
@@ -91,7 +100,7 @@ public struct SUIButtonView: View {
         }
         .opacity(isEnabled ? 1.0 : 0.5)
         .disabled(!isEnabled)
-        .buttonStyle(PressableButtonStyle(isPressed: $isPressed))
+        .buttonStyle(PressableButtonStyle(isPressed: $isPressed, pressAnimations: pressAnimations))
     }
     
     @ViewBuilder
@@ -123,10 +132,13 @@ public struct SUIButtonView: View {
 
 private struct PressableButtonStyle: SwiftUI.ButtonStyle {
     @Binding var isPressed: Bool
+    let pressAnimations: Set<PressAnimation>
     
     func makeBody(configuration: SwiftUI.ButtonStyleConfiguration) -> some View {
         configuration.label
-            .scaleEffect(configuration.isPressed ? 0.95 : 1.0)
+            .scaleEffect(
+                pressAnimations.contains(.shrink) && configuration.isPressed ? 0.95 : 1.0
+            )
             .animation(
                 SwiftUI.Animation.spring(response: 0.4, dampingFraction: 0.4, blendDuration: 0),
                 value: configuration.isPressed

@@ -14,7 +14,9 @@ public class SplashPresenter: LifeCycleViewOutput, ApplicationLifecycleOutput {
     public var textOutput: TextOutput?
     public var imageViewOutput: ImageViewOutput?
     public var buttonOutput: ButtonOutput?
+    public var buttonLoadingOutput: LoadingOutput? 
     public var loadingOutput: LoadingOutput?
+    public var buttonWithShrink: ButtonOutput?
     
     public init() {
         
@@ -26,10 +28,10 @@ public class SplashPresenter: LifeCycleViewOutput, ApplicationLifecycleOutput {
 //        setupImageOutput()
         setupButtonOutup()
         
-        loadingOutput?.display(isLoading: true)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 5) { [weak self] in
-            self?.loadingOutput?.display(isLoading: false)
-        }
+//        loadingOutput?.display(isLoading: true)
+//        DispatchQueue.main.asyncAfter(deadline: .now() + 5) { [weak self] in
+//            self?.loadingOutput?.display(isLoading: false)
+//        }
     }
     
     public func viewWillAppear() {
@@ -141,27 +143,42 @@ private extension SplashPresenter {
     
     private func setupButtonOutup() {
         
-//        buttonOutput?.display(isLoading: true)
-//        DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
-//            self.buttonOutput?.display(isLoading: false)
-//        }
+        buttonLoadingOutput?.display(isLoading: true)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+            self.buttonLoadingOutput?.display(isLoading: false)
+        }
         
-        buttonOutput?.display(model: .init(title: "KNOPKA",
+        buttonOutput?.display(model: .init(title: "Common button",
                                            image: .init(systemName: "star.fill"),
                                            height: 50,
-                                           width: 100,
+                                           width: 300,
                                            style: .init(
-            backgroundColor: .green,
-            titleColor: .red,
-            borderWidth: 3,
-            borderColor: .black,
-            pressedColor: .cyan,
-            pressedTintColor: .brown
-        )))
+                                            backgroundColor: .green,
+                                            titleColor: .red,
+                                            borderWidth: 3,
+                                            borderColor: .black,
+                                            pressedColor: .cyan,
+                                            pressedTintColor: .brown,
+                                            loadingIndicatorColor: .red
+                                           )))
         
         buttonOutput?.display {
             print("asd")
         }
+        
+        buttonWithShrink?.display(model: .init(title: "Button with shrink",
+                                           image: .init(systemName: "star.fill"),
+                                           height: 50,
+                                           width: 300,
+                                           style: .init(
+                                            backgroundColor: .green,
+                                            titleColor: .red,
+                                            borderWidth: 3,
+                                            borderColor: .black,
+                                            pressedColor: .cyan,
+                                            pressedTintColor: .brown,
+                                            loadingIndicatorColor: .red
+                                           )))
     }
     
     private func setupImageOutput() {
