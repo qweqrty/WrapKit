@@ -33,26 +33,51 @@ public extension ImageViewOutput {
 }
 
 public struct ImageViewPresentableModel: HashableWithReflection {
+    public enum Layout: HashableWithReflection {
+        case fixed(CGSize)
+        case fillWidth(heightByWidthRatio: CGFloat?)
+    }
+
     public let accessibility: Accessibility?
-    public let size: CGSize?
+    public let layout: Layout?
     public let image: ImageEnum?
     public let onPress: (() -> Void)?
     public let onLongPress: (() -> Void)?
     public let contentModeIsFit: Bool?
+    public let contentInsets: EdgeInsets?
     public let borderWidth: CGFloat?
     public let borderColor: Color?
     public let cornerRadius: CGFloat?
     public let alpha: CGFloat?
     public let accessibilityIdentifier: String?
+
+    public var size: CGSize? {
+        guard case let .fixed(size) = layout else { return nil }
+        return size
+    }
+
+    public var stretchToContainerWidth: Bool? {
+        guard case .fillWidth = layout else { return nil }
+        return true
+    }
+
+    public var heightByWidthRatio: CGFloat? {
+        guard case let .fillWidth(heightByWidthRatio) = layout else { return nil }
+        return heightByWidthRatio
+    }
     
     public init(
         accessibilityIdentifier: String? = nil,
         accessibility: Accessibility? = nil,
+        layout: Layout? = nil,
         size: CGSize? = nil,
         image: ImageEnum? = nil,
         onPress: (() -> Void)? = nil,
         onLongPress: (() -> Void)? = nil,
         contentModeIsFit: Bool? = nil,
+        stretchToContainerWidth: Bool? = nil,
+        heightByWidthRatio: CGFloat? = nil,
+        contentInsets: EdgeInsets? = nil,
         borderWidth: CGFloat? = nil,
         borderColor: Color? = nil,
         cornerRadius: CGFloat? = nil,
@@ -60,11 +85,20 @@ public struct ImageViewPresentableModel: HashableWithReflection {
     ) {
         self.accessibilityIdentifier = accessibilityIdentifier
         self.accessibility = accessibility
-        self.size = size
+        if let layout {
+            self.layout = layout
+        } else if stretchToContainerWidth == true || heightByWidthRatio != nil {
+            self.layout = .fillWidth(heightByWidthRatio: heightByWidthRatio)
+        } else if let size {
+            self.layout = .fixed(size)
+        } else {
+            self.layout = nil
+        }
         self.image = image
         self.onPress = onPress
         self.onLongPress = onLongPress
         self.contentModeIsFit = contentModeIsFit
+        self.contentInsets = contentInsets
         self.borderWidth = borderWidth
         self.borderColor = borderColor
         self.cornerRadius = cornerRadius
