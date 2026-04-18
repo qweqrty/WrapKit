@@ -19,11 +19,11 @@ final class SUILabelSnapshotTests: XCTestCase {
         sut.display(model: .text("default"))
 
         if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS26_\(snapshotName)_DARK")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS18.5_\(snapshotName)_DARK")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
 
@@ -34,11 +34,11 @@ final class SUILabelSnapshotTests: XCTestCase {
         sut.display(model: .text("nothing"))
 
         if #available(iOS 26, *) {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS26_\(snapshotName)_DARK")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS18.5_\(snapshotName)_DARK")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
 
@@ -49,11 +49,11 @@ final class SUILabelSnapshotTests: XCTestCase {
         sut.display(model: .text("This is really long text that should wrap and check for number of lines"))
 
         if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS26_\(snapshotName)_DARK")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS18.5_\(snapshotName)_DARK")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
 
@@ -64,11 +64,11 @@ final class SUILabelSnapshotTests: XCTestCase {
         sut.display(model: .text("This is really long text that should wrap and check for number of lines."))
 
         if #available(iOS 26, *) {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS26_\(snapshotName)_DARK")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS18.5_\(snapshotName)_DARK")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
 
@@ -80,11 +80,11 @@ final class SUILabelSnapshotTests: XCTestCase {
         sut.display(isHidden: false)
 
         if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS26_\(snapshotName)_DARK")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS18.5_\(snapshotName)_DARK")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
 
@@ -96,11 +96,11 @@ final class SUILabelSnapshotTests: XCTestCase {
         sut.display(isHidden: true)
 
         if #available(iOS 26, *) {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS26_\(snapshotName)_DARK")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS18.5_\(snapshotName)_DARK")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
 
@@ -117,11 +117,11 @@ final class SUILabelSnapshotTests: XCTestCase {
         )
 
         if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS26_\(snapshotName)_DARK")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS18.5_\(snapshotName)_DARK")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
 
@@ -138,11 +138,11 @@ final class SUILabelSnapshotTests: XCTestCase {
         )
 
         if #available(iOS 26, *) {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS26_\(snapshotName)_DARK")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS18.5_\(snapshotName)_DARK")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
 
@@ -155,11 +155,11 @@ final class SUILabelSnapshotTests: XCTestCase {
         sut.display(attributes: [secondText])
 
         if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS26_\(snapshotName)_DARK")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS18.5_\(snapshotName)_DARK")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
 
@@ -172,11 +172,11 @@ final class SUILabelSnapshotTests: XCTestCase {
         sut.display(attributes: [secondText])
 
         if #available(iOS 26, *) {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS26_\(snapshotName)_DARK")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS18.5_\(snapshotName)_DARK")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
 
@@ -193,11 +193,11 @@ final class SUILabelSnapshotTests: XCTestCase {
         )
 
         if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS26_\(snapshotName)_DARK")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS18.5_\(snapshotName)_DARK")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
 
@@ -214,11 +214,11 @@ final class SUILabelSnapshotTests: XCTestCase {
         )
 
         if #available(iOS 26, *) {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS26_\(snapshotName)_DARK")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS18.5_\(snapshotName)_DARK")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
 
@@ -235,11 +235,11 @@ final class SUILabelSnapshotTests: XCTestCase {
         )
 
         if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS26_\(snapshotName)_DARK")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS18.5_\(snapshotName)_DARK")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
 
@@ -256,11 +256,11 @@ final class SUILabelSnapshotTests: XCTestCase {
         )
 
         if #available(iOS 26, *) {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS26_\(snapshotName)_DARK")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS18.5_\(snapshotName)_DARK")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
 
@@ -277,11 +277,11 @@ final class SUILabelSnapshotTests: XCTestCase {
         )
 
         if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS26_\(snapshotName)_DARK")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS18.5_\(snapshotName)_DARK")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
 
@@ -298,11 +298,11 @@ final class SUILabelSnapshotTests: XCTestCase {
         )
 
         if #available(iOS 26, *) {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS26_\(snapshotName)_DARK")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS18.5_\(snapshotName)_DARK")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
 
@@ -316,11 +316,11 @@ final class SUILabelSnapshotTests: XCTestCase {
         sut.display(model: .attributes([blue, yellow]))
 
         if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS26_\(snapshotName)_DARK")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS18.5_\(snapshotName)_DARK")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
 
@@ -334,11 +334,11 @@ final class SUILabelSnapshotTests: XCTestCase {
         sut.display(model: .attributes([blue, yellow]))
 
         if #available(iOS 26, *) {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS26_\(snapshotName)_DARK")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS18.5_\(snapshotName)_DARK")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
 
@@ -352,11 +352,11 @@ final class SUILabelSnapshotTests: XCTestCase {
         sut.display(model: .attributes([bold, regular]))
 
         if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS26_\(snapshotName)_DARK")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS18.5_\(snapshotName)_DARK")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
 
@@ -370,11 +370,11 @@ final class SUILabelSnapshotTests: XCTestCase {
         sut.display(model: .attributes([bold, regular]))
 
         if #available(iOS 26, *) {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS26_\(snapshotName)_DARK")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS18.5_\(snapshotName)_DARK")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
 
@@ -388,11 +388,11 @@ final class SUILabelSnapshotTests: XCTestCase {
         sut.display(model: .attributes([single, line]))
 
         if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS26_\(snapshotName)_DARK")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS18.5_\(snapshotName)_DARK")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
 
@@ -406,11 +406,11 @@ final class SUILabelSnapshotTests: XCTestCase {
         sut.display(model: .attributes([single, line]))
 
         if #available(iOS 26, *) {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS26_\(snapshotName)_DARK")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS18.5_\(snapshotName)_DARK")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
 
@@ -424,11 +424,11 @@ final class SUILabelSnapshotTests: XCTestCase {
         sut.display(model: .attributes([double, line]))
 
         if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS26_\(snapshotName)_DARK")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS18.5_\(snapshotName)LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS18.5_\(snapshotName)_DARK")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
 
@@ -442,11 +442,11 @@ final class SUILabelSnapshotTests: XCTestCase {
         sut.display(model: .attributes([double, line]))
 
         if #available(iOS 26, *) {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS26_\(snapshotName)_DARK")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS18.5_\(snapshotName)LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS18.5_\(snapshotName)_DARK")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
 
@@ -459,11 +459,11 @@ final class SUILabelSnapshotTests: XCTestCase {
         sut.display(model: .attributes([byWord]))
 
         if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS26_\(snapshotName)_DARK")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS18.5_\(snapshotName)_DARK")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
 
@@ -476,335 +476,279 @@ final class SUILabelSnapshotTests: XCTestCase {
         sut.display(model: .attributes([byWord]))
 
         if #available(iOS 26, *) {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS26_\(snapshotName)_DARK")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS18.5_\(snapshotName)_DARK")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
 
     func test_labelOutput_with_patternDashText_attributes() {
-        let (sut, container) = makeSUT()
+        let (sut, container, decoration) = makeDecoratedSUT()
         let snapshotName = "LABEL_TITLE_WITH_DASH"
 
         let dashed = TextAttributes(text: "Dashed string", underlineStyle: [.patternDash])
+        decoration.backgroundColor = .cyan
 
-        sut.display(
-            model: .textStyled(
-                text: .attributes([dashed]),
-                backgroundColor: .cyan
-            )
-        )
+        sut.display(model: .attributes([dashed]))
 
         if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS26_\(snapshotName)_DARK")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS18.5_\(snapshotName)_DARK")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
 
     func test_fail_labelOutput_with_patternDashText_attributes() {
-        let (sut, container) = makeSUT()
+        let (sut, container, decoration) = makeDecoratedSUT()
         let snapshotName = "LABEL_TITLE_WITH_DASH"
 
         let dashed = TextAttributes(text: "Dashed string", underlineStyle: [.single])
+        decoration.backgroundColor = .cyan
 
-        sut.display(
-            model: .textStyled(
-                text: .attributes([dashed]),
-                backgroundColor: .cyan
-            )
-        )
+        sut.display(model: .attributes([dashed]))
 
         if #available(iOS 26, *) {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS26_\(snapshotName)_DARK")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS18.5_\(snapshotName)_DARK")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
 
     func test_labelOutput_with_patternDashDotText_attributes() {
-        let (sut, container) = makeSUT()
+        let (sut, container, decoration) = makeDecoratedSUT()
         let snapshotName = "LABEL_TITLE_WITH_DASHDOT"
 
         let dashDot = TextAttributes(text: "DashedDot string", underlineStyle: [.patternDashDot])
+        decoration.backgroundColor = .systemBlue
 
-        sut.display(
-            model: .textStyled(
-                text: .attributes([dashDot]),
-                backgroundColor: .systemBlue
-            )
-        )
+        sut.display(model: .attributes([dashDot]))
 
         if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS26_\(snapshotName)_DARK")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS18.5_\(snapshotName)_DARK")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
 
     func test_fail_labelOutput_with_patternDashDotText_attributes() {
-        let (sut, container) = makeSUT()
+        let (sut, container, decoration) = makeDecoratedSUT()
         let snapshotName = "LABEL_TITLE_WITH_DASHDOT"
 
         let dashDot = TextAttributes(text: "DashedDot string", underlineStyle: [.single])
+        decoration.backgroundColor = .systemBlue
 
-        sut.display(
-            model: .textStyled(
-                text: .attributes([dashDot]),
-                backgroundColor: .systemBlue
-            )
-        )
+        sut.display(model: .attributes([dashDot]))
 
         if #available(iOS 26, *) {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS26_\(snapshotName)_DARK")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS18.5_\(snapshotName)_DARK")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
 
     func test_labelOutput_with_patternDashDotDotText_attributes() {
-        let (sut, container) = makeSUT()
+        let (sut, container, decoration) = makeDecoratedSUT()
         let snapshotName = "LABEL_TITLE_WITH_DASHDOTDOT"
 
         let dashDotDot = TextAttributes(text: "Dash Dot Dot string", underlineStyle: [.patternDashDotDot])
+        decoration.backgroundColor = .systemBlue
 
-        sut.display(
-            model: .textStyled(
-                text: .attributes([dashDotDot]),
-                backgroundColor: .systemBlue
-            )
-        )
+        sut.display(model: .attributes([dashDotDot]))
 
         if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS26_\(snapshotName)_DARK")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS18.5_\(snapshotName)_DARK")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
 
     func test_fail_labelOutput_with_patterntDashDotDotText_attributes() {
-        let (sut, container) = makeSUT()
+        let (sut, container, decoration) = makeDecoratedSUT()
         let snapshotName = "LABEL_TITLE_WITH_DASHDOTDOT"
 
         let dashDotDot = TextAttributes(text: "Dash Dot Dot string", underlineStyle: [.single])
+        decoration.backgroundColor = .systemBlue
 
-        sut.display(
-            model: .textStyled(
-                text: .attributes([dashDotDot]),
-                backgroundColor: .systemBlue
-            )
-        )
+        sut.display(model: .attributes([dashDotDot]))
 
         if #available(iOS 26, *) {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS26_\(snapshotName)_DARK")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS18.5_\(snapshotName)_DARK")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
 
     func test_labelOutput_with_patternDotText_attributes() {
-        let (sut, container) = makeSUT()
+        let (sut, container, decoration) = makeDecoratedSUT()
         let snapshotName = "LABEL_TITLE_WITH_DOT"
 
         let dot = TextAttributes(text: "Dotted string", underlineStyle: [.patternDot])
+        decoration.backgroundColor = .systemBlue
 
-        sut.display(
-            model: .textStyled(
-                text: .attributes([dot]),
-                backgroundColor: .systemBlue
-            )
-        )
+        sut.display(model: .attributes([dot]))
 
         if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS26_\(snapshotName)_DARK")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS18.5_\(snapshotName)_DARK")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
 
     func test_fail_labelOutput_with_patterntDotText_attributes() {
-        let (sut, container) = makeSUT()
+        let (sut, container, decoration) = makeDecoratedSUT()
         let snapshotName = "LABEL_TITLE_WITH_DOT"
 
         let dot = TextAttributes(text: "Dotted string", underlineStyle: [.single])
+        decoration.backgroundColor = .systemBlue
 
-        sut.display(
-            model: .textStyled(
-                text: .attributes([dot]),
-                backgroundColor: .systemBlue
-            )
-        )
+        sut.display(model: .attributes([dot]))
 
         if #available(iOS 26, *) {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS26_\(snapshotName)_DARK")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS18.5_\(snapshotName)_DARK")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
 
     func test_labelOutput_with_thickUnderline_attributes() {
-        let (sut, container) = makeSUT()
+        let (sut, container, decoration) = makeDecoratedSUT()
         let snapshotName = "LABEL_TITLE_WITH_THICK"
 
         let thick = TextAttributes(text: "Thick string", underlineStyle: [.thick])
+        decoration.backgroundColor = .systemBlue
 
-        sut.display(
-            model: .textStyled(
-                text: .attributes([thick]),
-                backgroundColor: .systemBlue
-            )
-        )
+        sut.display(model: .attributes([thick]))
 
         if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS26_\(snapshotName)_DARK")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS18.5_\(snapshotName)_DARK")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
 
     func test_fail_labelOutput_with_thickUnderline_attributes() {
-        let (sut, container) = makeSUT()
+        let (sut, container, decoration) = makeDecoratedSUT()
         let snapshotName = "LABEL_TITLE_WITH_THICK"
 
         let thick = TextAttributes(text: "Thick string", underlineStyle: [.single])
+        decoration.backgroundColor = .systemBlue
 
-        sut.display(
-            model: .textStyled(
-                text: .attributes([thick]),
-                backgroundColor: .systemBlue
-            )
-        )
+        sut.display(model: .attributes([thick]))
 
         if #available(iOS 26, *) {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS26_\(snapshotName)_DARK")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS18.5_\(snapshotName)_DARK")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
 
     func test_labelOutput_with_leadingImage_attributes() {
-        let (sut, container) = makeSUT()
+        let (sut, container, decoration) = makeDecoratedSUT()
         let snapshotName = "LABEL_TITLE_WITH_LEADINGIMAGE"
 
         let leadingImage = TextAttributes(text: "Text with leading image", leadingImage: UIImage(systemName: "star.fill"))
+        decoration.backgroundColor = .systemBlue
 
-        sut.display(
-            model: .textStyled(
-                text: .attributes([leadingImage]),
-                backgroundColor: .systemBlue
-            )
-        )
+        sut.display(model: .attributes([leadingImage]))
 
         if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS26_\(snapshotName)_DARK")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS18.5_\(snapshotName)_DARK")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
 
     func test_fail_labelOutput_with_leadingImage_attributes() {
-        let (sut, container) = makeSUT()
+        let (sut, container, decoration) = makeDecoratedSUT()
         let snapshotName = "LABEL_TITLE_WITH_LEADINGIMAGE"
 
         let leadingImage = TextAttributes(text: "Text with leading image", leadingImage: UIImage(systemName: "star"))
+        decoration.backgroundColor = .systemBlue
 
-        sut.display(
-            model: .textStyled(
-                text: .attributes([leadingImage]),
-                backgroundColor: .systemBlue
-            )
-        )
+        sut.display(model: .attributes([leadingImage]))
 
         if #available(iOS 26, *) {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS26_\(snapshotName)_DARK")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS18.5_\(snapshotName)_DARK")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
 
     func test_labelOutput_with_trailingImage_attributes() {
-        let (sut, container) = makeSUT()
+        let (sut, container, decoration) = makeDecoratedSUT()
         let snapshotName = "LABEL_TITLE_WITH_TRAILINGIMAGE"
 
         let trailingImage = TextAttributes(text: "Text with trailing image", trailingImage: UIImage(systemName: "star.fill"))
+        decoration.backgroundColor = .systemBlue
 
-        sut.display(
-            model: .textStyled(
-                text: .attributes([trailingImage]),
-                backgroundColor: .systemBlue
-            )
-        )
+        sut.display(model: .attributes([trailingImage]))
 
         if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS26_\(snapshotName)LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS26_\(snapshotName)_DARK")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS18.5_\(snapshotName)_DARK")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
 
     func test_fail_labelOutput_with_trailingImage_attributes() {
-        let (sut, container) = makeSUT()
+        let (sut, container, decoration) = makeDecoratedSUT()
         let snapshotName = "LABEL_TITLE_WITH_TRAILINGIMAGE"
 
         let trailingImage = TextAttributes(text: "Text with trailing image", trailingImage: UIImage(systemName: "star"))
+        decoration.backgroundColor = .systemBlue
 
-        sut.display(
-            model: .textStyled(
-                text: .attributes([trailingImage]),
-                backgroundColor: .systemBlue
-            )
-        )
+        sut.display(model: .attributes([trailingImage]))
 
         if #available(iOS 26, *) {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS26_\(snapshotName)LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS26_\(snapshotName)_DARK")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS18.5_\(snapshotName)_DARK")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
 
     func test_labelOutput_textAttributesOnTap() {
-        let (sut, container) = makeSUT()
+        let (sut, container, decoration) = makeDecoratedSUT()
         let snapshotName = "LABEL_TITLE_WITH_TEXTATTRIBUTES_ONTAP"
 
         let exp = expectation(description: "Wait for completion")
         exp.expectedFulfillmentCount = 3
 
         let firstAttr = TextAttributes(text: "First") {
-            sut.display(model: .textStyled(text: .text("First Second Third"), backgroundColor: .red))
+            decoration.backgroundColor = .red
             exp.fulfill()
         }
         let secondAttr = TextAttributes(text: "Second") {
-            sut.display(model: .textStyled(text: .text("First Second Third"), cornerStyle: .fixed(20), backgroundColor: .red))
+            decoration.cornerStyle = .fixed(20)
             exp.fulfill()
         }
         let thirdAttr = TextAttributes(text: "Third") {
@@ -822,27 +766,27 @@ final class SUILabelSnapshotTests: XCTestCase {
         wait(for: [exp], timeout: 5.0)
 
         if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS26_\(snapshotName)_DARK")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS18.5_\(snapshotName)_DARK")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
 
     func test_fail_labelOutput_textAttributesOnTap() {
-        let (sut, container) = makeSUT()
+        let (sut, container, decoration) = makeDecoratedSUT()
         let snapshotName = "LABEL_TITLE_WITH_TEXTATTRIBUTES_ONTAP"
 
         let exp = expectation(description: "Wait for completion")
         exp.expectedFulfillmentCount = 3
 
         let firstAttr = TextAttributes(text: "First") {
-            sut.display(model: .textStyled(text: .text("First Second Third"), backgroundColor: .systemRed))
+            decoration.backgroundColor = .systemRed
             exp.fulfill()
         }
         let secondAttr = TextAttributes(text: "Second") {
-            sut.display(model: .textStyled(text: .text("First Second Third"), cornerStyle: .fixed(21), backgroundColor: .systemRed))
+            decoration.cornerStyle = .fixed(21)
             exp.fulfill()
         }
         let thirdAttr = TextAttributes(text: "Third") {
@@ -860,11 +804,11 @@ final class SUILabelSnapshotTests: XCTestCase {
         wait(for: [exp], timeout: 5.0)
 
         if #available(iOS 26, *) {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS26_\(snapshotName)_DARK")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS18.5_\(snapshotName)_DARK")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
 
@@ -892,11 +836,11 @@ final class SUILabelSnapshotTests: XCTestCase {
         wait(for: [exp], timeout: 0.3)
 
         if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS26_\(snapshotName))_DARK")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS18.5_\(snapshotName)_DARK")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
 
@@ -925,11 +869,11 @@ final class SUILabelSnapshotTests: XCTestCase {
         wait(for: [exp], timeout: 2.0)
 
         if #available(iOS 26, *) {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS26_\(snapshotName))_DARK")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS18.5_\(snapshotName)_DARK")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
 
@@ -947,11 +891,11 @@ final class SUILabelSnapshotTests: XCTestCase {
         sut.display(model: .attributes([bold, regular]))
 
         if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS26_\(snapshotName)_DARK")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS18.5_\(snapshotName)_DARK")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
 
@@ -969,11 +913,11 @@ final class SUILabelSnapshotTests: XCTestCase {
         sut.display(model: .attributes([bold, regular]))
 
         if #available(iOS 26, *) {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS26_\(snapshotName)_DARK")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS18.5_\(snapshotName)_DARK")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
 
@@ -984,11 +928,11 @@ final class SUILabelSnapshotTests: XCTestCase {
         sut.display(model: .textStyled(text: .text("Hello"), cornerStyle: .fixed(20), insets: .init(top: 20, leading: 50, bottom: 20, trailing: 20)))
 
         if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS26_\(snapshotName)_DARK")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS18.5_\(snapshotName)_DARK")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
 
@@ -999,26 +943,26 @@ final class SUILabelSnapshotTests: XCTestCase {
         sut.display(model: .textStyled(text: .text("Hello"), cornerStyle: .fixed(29), insets: .init(top: 21, leading: 50, bottom: 20, trailing: 20)))
 
         if #available(iOS 26, *) {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS26_\(snapshotName)_DARK")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS18.5_\(snapshotName)_DARK")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
 
     func test_label_output_html_Br() {
         let (sut, container) = makeSUT()
-        let snapshotName = "LABEL_HTML"
+        let snapshotName = "LABEL_HTML_BR"
 
         sut.display(htmlString: HtmlTestCases.example1, config: .init(size: 13, color: .red))
 
         if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS26_\(snapshotName)_DARK")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS18.5_\(snapshotName)_DARK")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
 
@@ -1029,11 +973,11 @@ final class SUILabelSnapshotTests: XCTestCase {
         sut.display(htmlString: HtmlTestCases.boldItalic, config: .init(color: .green))
 
         if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS26_\(snapshotName)_DARK")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS18.5_\(snapshotName)_DARK")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
 
@@ -1044,11 +988,41 @@ final class SUILabelSnapshotTests: XCTestCase {
         sut.display(htmlString: HtmlTestCases.inlineStyle, config: .default)
 
         if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS26_\(snapshotName)_DARK")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS18.5_\(snapshotName)_DARK")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS18.5_\(snapshotName)_DARK")
+        }
+    }
+
+    func test_label_output_html_inlineSizeWeight() {
+        let (sut, container) = makeSUT()
+        let snapshotName = "LABEL_HTML_inlineSizeWeight"
+
+        sut.display(htmlString: HtmlTestCases.inlineSizeWeight, config: .default)
+
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS18.5_\(snapshotName)_DARK")
+        }
+    }
+
+    func test_label_output_html_inlineColors() {
+        let (sut, container) = makeSUT()
+        let snapshotName = "LABEL_HTML_inlineColors"
+
+        sut.display(htmlString: HtmlTestCases.inlineColors, config: .default)
+
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
 
@@ -1059,11 +1033,11 @@ final class SUILabelSnapshotTests: XCTestCase {
         sut.display(htmlString: HtmlTestCases.paragraphs, config: .init(paragraphSpacing: 12))
 
         if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS26_\(snapshotName)_DARK")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS18.5_\(snapshotName)_DARK")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
 
@@ -1074,11 +1048,11 @@ final class SUILabelSnapshotTests: XCTestCase {
         sut.display(htmlString: HtmlTestCases.lists, config: .init(lineSpacing: 8))
 
         if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS26_\(snapshotName)_DARK")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS18.5_\(snapshotName)_DARK")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
 
@@ -1089,11 +1063,11 @@ final class SUILabelSnapshotTests: XCTestCase {
         sut.display(htmlString: HtmlTestCases.longText, config: .init(textAlignment: .center, lineBreakMode: .byWordWrapping))
 
         if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS26_\(snapshotName)_DARK")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS18.5_\(snapshotName)_DARK")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
 
@@ -1104,11 +1078,11 @@ final class SUILabelSnapshotTests: XCTestCase {
         sut.display(htmlString: HtmlTestCases.other, config: .init(color: .red))
 
         if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS26_\(snapshotName)_DARK")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS18.5_\(snapshotName)_DARK")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
 
@@ -1119,11 +1093,11 @@ final class SUILabelSnapshotTests: XCTestCase {
         sut.display(model: .text("it's fine 🙂"))
 
         if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS26_\(snapshotName)_DARK")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS18.5_\(snapshotName)_DARK")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
 
@@ -1134,20 +1108,29 @@ final class SUILabelSnapshotTests: XCTestCase {
         sut.display(model: .text("Saima 500+O!TV- SALE 30%_850"))
 
         if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS26_\(snapshotName)_DARK")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light), useUIKit: true), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark), useUIKit: true), named: "iOS18.5_\(snapshotName)_DARK")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .light), background: .clear), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: snapshotConfiguration(style: .dark), background: .clear), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
 }
 
 @available(iOS 17, *)
 extension SUILabelSnapshotTests {
+    func snapshotConfiguration(style: ColorScheme) -> SUISnapshotConfiguration {
+        SUISnapshotConfiguration(
+            size: SUISnapshotConfiguration.size,
+            safeAreaInsets: EdgeInsets(),
+            layoutMargins: EdgeInsets(),
+            colorScheme: style
+        )
+    }
+
     func makeSUT(
         font: UIFont = .systemFont(ofSize: 20),
-        textColor: UIColor = .darkText,
+        textColor: UIColor = .label,
         textAlignment: NSTextAlignment = .natural,
         file: StaticString = #file,
         line: UInt = #line
@@ -1155,22 +1138,95 @@ extension SUILabelSnapshotTests {
         let adapter = TextOutputSwiftUIAdapter()
 
         let container = AnyView(
-            VStack(spacing: .zero) {
+            ZStack(alignment: .topLeading) {
+                SwiftUI.Color.clear
+
                 SUILabel(
                     adapter: adapter,
                     font: font,
                     textColor: textColor,
                     textAlignment: textAlignment
                 )
-                    .frame(height: 150, alignment: .center)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-
-                Spacer()
+                .frame(maxWidth: .infinity, maxHeight: 150, alignment: .topLeading)
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         )
 
         checkForMemoryLeaks(adapter, file: file, line: line)
         return (adapter.weakReferenced, container)
     }
 
+    func makeDecoratedSUT(
+        font: UIFont = .systemFont(ofSize: 20),
+        textColor: UIColor = .label,
+        textAlignment: NSTextAlignment = .natural,
+        file: StaticString = #file,
+        line: UInt = #line
+    ) -> (sut: TextOutput, container: AnyView, decoration: SnapshotDecorationState) {
+        let adapter = TextOutputSwiftUIAdapter()
+        let decoration = SnapshotDecorationState()
+
+        let container = AnyView(
+            SnapshotDecoratedLabelContainer(
+                adapter: adapter,
+                decoration: decoration,
+                font: font,
+                textColor: textColor,
+                textAlignment: textAlignment
+            )
+        )
+
+        checkForMemoryLeaks(adapter, file: file, line: line)
+        return (adapter.weakReferenced, container, decoration)
+    }
+
+}
+
+@available(iOS 17, *)
+final class SnapshotDecorationState: ObservableObject {
+    @Published var backgroundColor: UIColor = .clear
+    @Published var cornerStyle: CornerStyle?
+}
+
+@available(iOS 17, *)
+private struct SnapshotDecoratedLabelContainer: View {
+    let adapter: TextOutputSwiftUIAdapter
+    @ObservedObject var decoration: SnapshotDecorationState
+    let font: UIFont
+    let textColor: UIColor
+    let textAlignment: NSTextAlignment
+
+    var body: some View {
+        ZStack(alignment: .topLeading) {
+            SwiftUI.Color.clear
+
+            SUILabel(
+                adapter: adapter,
+                font: font,
+                textColor: textColor,
+                textAlignment: textAlignment
+            )
+            .frame(maxWidth: .infinity, maxHeight: 150, alignment: .topLeading)
+            .background(SwiftUI.Color(decoration.backgroundColor))
+            .modifier(TestCornerStyleModifier(style: decoration.cornerStyle))
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+    }
+}
+
+@available(iOS 17, *)
+private struct TestCornerStyleModifier: ViewModifier {
+    let style: CornerStyle?
+
+    @ViewBuilder
+    func body(content: Content) -> some View {
+        switch style {
+        case .some(.automatic):
+            content.clipShape(Capsule())
+        case .some(.fixed(let radius)):
+            content.clipShape(RoundedRectangle(cornerRadius: radius))
+        case .some(.none), .none:
+            content
+        }
+    }
 }

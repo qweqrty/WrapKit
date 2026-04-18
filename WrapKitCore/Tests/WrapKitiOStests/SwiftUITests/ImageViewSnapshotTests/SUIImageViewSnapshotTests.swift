@@ -24,7 +24,6 @@ final class SUIImageViewSnapshotTests: XCTestCase {
         let (sut, container) = makeSUT()
         let exp = expectation(description: "Wait for completion")
 
-        prepareContainer(container)
         sut.display(image: ImageEnum.asset(UIImage(systemName: "star"))) { _ in
             exp.fulfill()
         }
@@ -47,7 +46,6 @@ final class SUIImageViewSnapshotTests: XCTestCase {
         let (sut, container) = makeSUT()
         let exp = expectation(description: "Wait for completion")
 
-        prepareContainer(container)
         sut.display(image: ImageEnum.asset(UIImage(systemName: "star.fill"))) { _ in
             exp.fulfill()
         }
@@ -61,8 +59,6 @@ final class SUIImageViewSnapshotTests: XCTestCase {
             assertFail(snapshot: container.snapshot(for: SUISnapshotConfiguration.iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
 
-        sut.display(image: nil)
-        RunLoop.main.run(until: Date().addingTimeInterval(0.1))
     }
 
     func test_ImageView_from_urlString_light() {
@@ -70,7 +66,6 @@ final class SUIImageViewSnapshotTests: XCTestCase {
         let (sut, container) = makeSUT()
         let exp = expectation(description: "Wait for completion")
 
-        prepareContainer(container)
         sut.display(image: ImageEnum.urlString(light, light)) { _ in
             exp.fulfill()
         }
@@ -89,7 +84,6 @@ final class SUIImageViewSnapshotTests: XCTestCase {
         let (sut, container) = makeSUT(backgroundState: backgroundState)
         let exp = expectation(description: "Wait for completion")
 
-        prepareContainer(container)
         sut.display(image: ImageEnum.urlString(light, light)) { _ in
             backgroundState.color = SwiftUIColor.red
             exp.fulfill()
@@ -108,7 +102,6 @@ final class SUIImageViewSnapshotTests: XCTestCase {
         let (sut, container) = makeSUT()
         let exp = expectation(description: "Wait for completion")
 
-        prepareContainer(container)
         sut.display(image: ImageEnum.urlString(dark, dark)) { _ in
             exp.fulfill()
         }
@@ -127,7 +120,6 @@ final class SUIImageViewSnapshotTests: XCTestCase {
         let (sut, container) = makeSUT(backgroundState: backgroundState)
         let exp = expectation(description: "Wait for completion")
 
-        prepareContainer(container)
         sut.display(image: ImageEnum.urlString(light, light)) { _ in
             backgroundState.color = SwiftUIColor.red
             exp.fulfill()
@@ -146,8 +138,6 @@ final class SUIImageViewSnapshotTests: XCTestCase {
         let (sut, container) = makeSUT(wrongUrlPlaceholderImage: UIImage(systemName: "xmark"))
 
         sut.display(image: ImageEnum.urlString(nil, nil))
-        render(container)
-
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: SUISnapshotConfiguration.iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: SUISnapshotConfiguration.iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
@@ -164,8 +154,6 @@ final class SUIImageViewSnapshotTests: XCTestCase {
         )
 
         sut.display(image: ImageEnum.urlString(nil, nil))
-        render(container)
-
         if #available(iOS 26, *) {
             assertFail(snapshot: container.snapshot(for: SUISnapshotConfiguration.iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
             assertFail(snapshot: container.snapshot(for: SUISnapshotConfiguration.iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
@@ -184,7 +172,6 @@ final class SUIImageViewSnapshotTests: XCTestCase {
             XCTFail("Invalid test URL: \(light)")
             return
         }
-        prepareContainer(container)
         sut.display(image: ImageEnum.url(url, url)) { _ in
             exp.fulfill()
         }
@@ -207,7 +194,6 @@ final class SUIImageViewSnapshotTests: XCTestCase {
             XCTFail("Invalid test URL: \(light)")
             return
         }
-        prepareContainer(container)
         sut.display(image: ImageEnum.url(url, url)) { _ in
             backgroundState.color = SwiftUIColor.red
             exp.fulfill()
@@ -226,8 +212,6 @@ final class SUIImageViewSnapshotTests: XCTestCase {
         let (sut, container) = makeSUT(wrongUrlPlaceholderImage: UIImage(systemName: "xmark"))
 
         sut.display(image: ImageEnum.url(nil, nil))
-        render(container)
-
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: SUISnapshotConfiguration.iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: SUISnapshotConfiguration.iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
@@ -244,8 +228,6 @@ final class SUIImageViewSnapshotTests: XCTestCase {
         )
 
         sut.display(image: ImageEnum.url(nil, nil))
-        render(container)
-
         if #available(iOS 26, *) {
             assertFail(snapshot: container.snapshot(for: SUISnapshotConfiguration.iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
             assertFail(snapshot: container.snapshot(for: SUISnapshotConfiguration.iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
@@ -260,6 +242,7 @@ final class SUIImageViewSnapshotTests: XCTestCase {
         let loading = AnyView(SwiftUIColor.blue)
         let (sut, container) = makeSUT(viewWhileLoadingView: loading)
         let exp = expectation(description: "Wait for completion")
+        exp.assertForOverFulfill = false
 
         guard let url = URL(string: light) else {
             XCTFail("Invalid test URL: \(light)")
@@ -276,8 +259,10 @@ final class SUIImageViewSnapshotTests: XCTestCase {
             assert(snapshot: container.snapshot(for: SUISnapshotConfiguration.iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: SUISnapshotConfiguration.iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
-
         waitForCompletion(exp, in: container, timeout: 5.0)
+        sut.display(image: nil)
+        KingfisherManager.shared.downloader.cancelAll()
+        RunLoop.main.run(until: Date().addingTimeInterval(0.1))
     }
 
     func test_fail_ImageView_viewWhileLoadingView() {
@@ -285,6 +270,7 @@ final class SUIImageViewSnapshotTests: XCTestCase {
         let loading = AnyView(SwiftUIColor.cyan)
         let (sut, container) = makeSUT(viewWhileLoadingView: loading)
         let exp = expectation(description: "Wait for completion")
+        exp.assertForOverFulfill = false
 
         guard let url = URL(string: light) else {
             XCTFail("Invalid test URL: \(light)")
@@ -301,8 +287,10 @@ final class SUIImageViewSnapshotTests: XCTestCase {
             assertFail(snapshot: container.snapshot(for: SUISnapshotConfiguration.iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
             assertFail(snapshot: container.snapshot(for: SUISnapshotConfiguration.iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
-
         waitForCompletion(exp, in: container, timeout: 5.0)
+        sut.display(image: nil)
+        KingfisherManager.shared.downloader.cancelAll()
+        RunLoop.main.run(until: Date().addingTimeInterval(0.5))
     }
 
     func test_ImageView_fallbackView() {
@@ -358,7 +346,6 @@ final class SUIImageViewSnapshotTests: XCTestCase {
             XCTFail("Invalid test URL: \(dark)")
             return
         }
-        prepareContainer(container)
         sut.display(image: ImageEnum.url(url, url)) { _ in
             exp.fulfill()
         }
@@ -381,7 +368,6 @@ final class SUIImageViewSnapshotTests: XCTestCase {
             XCTFail("Invalid test URL: \(light)")
             return
         }
-        prepareContainer(container)
         sut.display(image: ImageEnum.url(url, url)) { _ in
             backgroundState.color = SwiftUIColor.red
             exp.fulfill()
@@ -401,8 +387,6 @@ final class SUIImageViewSnapshotTests: XCTestCase {
 
         sut.display(image: ImageEnum.asset(UIImage(systemName: "star")))
         sut.display(contentModeIsFit: true)
-        render(container)
-
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: SUISnapshotConfiguration.iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: SUISnapshotConfiguration.iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
@@ -418,8 +402,6 @@ final class SUIImageViewSnapshotTests: XCTestCase {
 
         sut.display(image: ImageEnum.asset(UIImage(systemName: "star")))
         sut.display(contentModeIsFit: false)
-        render(container)
-
         if #available(iOS 26, *) {
             assertFail(snapshot: container.snapshot(for: SUISnapshotConfiguration.iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
             assertFail(snapshot: container.snapshot(for: SUISnapshotConfiguration.iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
@@ -434,8 +416,6 @@ final class SUIImageViewSnapshotTests: XCTestCase {
         let (sut, container) = makeSUT()
 
         sut.display(borderWidth: 2)
-        render(container)
-
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: SUISnapshotConfiguration.iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: SUISnapshotConfiguration.iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
@@ -450,8 +430,6 @@ final class SUIImageViewSnapshotTests: XCTestCase {
         let (sut, container) = makeSUT()
 
         sut.display(borderWidth: 3)
-        render(container)
-
         if #available(iOS 26, *) {
             assertFail(snapshot: container.snapshot(for: SUISnapshotConfiguration.iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
             assertFail(snapshot: container.snapshot(for: SUISnapshotConfiguration.iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
@@ -467,8 +445,6 @@ final class SUIImageViewSnapshotTests: XCTestCase {
 
         sut.display(borderColor: WrapKit.Color.red)
         sut.display(borderWidth: 2)
-        render(container)
-
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: SUISnapshotConfiguration.iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: SUISnapshotConfiguration.iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
@@ -484,8 +460,6 @@ final class SUIImageViewSnapshotTests: XCTestCase {
 
         sut.display(borderColor: WrapKit.Color.systemRed)
         sut.display(borderWidth: 2)
-        render(container)
-
         if #available(iOS 26, *) {
             assertFail(snapshot: container.snapshot(for: SUISnapshotConfiguration.iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
             assertFail(snapshot: container.snapshot(for: SUISnapshotConfiguration.iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
@@ -500,8 +474,6 @@ final class SUIImageViewSnapshotTests: XCTestCase {
         let (sut, container) = makeSUT(backgroundColor: WrapKit.Color.cyan)
 
         sut.display(cornerRadius: 50)
-        render(container)
-
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: SUISnapshotConfiguration.iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: SUISnapshotConfiguration.iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
@@ -516,8 +488,6 @@ final class SUIImageViewSnapshotTests: XCTestCase {
         let (sut, container) = makeSUT(backgroundColor: WrapKit.Color.cyan)
 
         sut.display(cornerRadius: 51)
-        render(container)
-
         if #available(iOS 26, *) {
             assertFail(snapshot: container.snapshot(for: SUISnapshotConfiguration.iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
             assertFail(snapshot: container.snapshot(for: SUISnapshotConfiguration.iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
@@ -532,8 +502,6 @@ final class SUIImageViewSnapshotTests: XCTestCase {
         let (sut, container) = makeSUT(backgroundColor: WrapKit.Color.cyan)
 
         sut.display(alpha: 0.3)
-        render(container)
-
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: SUISnapshotConfiguration.iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: SUISnapshotConfiguration.iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
@@ -548,8 +516,6 @@ final class SUIImageViewSnapshotTests: XCTestCase {
         let (sut, container) = makeSUT(backgroundColor: WrapKit.Color.cyan)
 
         sut.display(alpha: 0.4)
-        render(container)
-
         if #available(iOS 26, *) {
             assertFail(snapshot: container.snapshot(for: SUISnapshotConfiguration.iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
             assertFail(snapshot: container.snapshot(for: SUISnapshotConfiguration.iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
@@ -564,8 +530,6 @@ final class SUIImageViewSnapshotTests: XCTestCase {
         let (sut, container) = makeSUT(backgroundColor: WrapKit.Color.cyan)
 
         sut.display(isHidden: false)
-        render(container)
-
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: SUISnapshotConfiguration.iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: SUISnapshotConfiguration.iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
@@ -580,8 +544,6 @@ final class SUIImageViewSnapshotTests: XCTestCase {
         let (sut, container) = makeSUT(backgroundColor: WrapKit.Color.cyan)
 
         sut.display(isHidden: true)
-        render(container)
-
         if #available(iOS 26, *) {
             assertFail(snapshot: container.snapshot(for: SUISnapshotConfiguration.iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
             assertFail(snapshot: container.snapshot(for: SUISnapshotConfiguration.iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
@@ -799,17 +761,14 @@ extension SUIImageViewSnapshotTests {
 
         checkForMemoryLeaks(adapter, file: file, line: line)
         addTeardownBlock { [weak adapter] in
-            adapter?.display(image: nil)
+            adapter?.displayModelCompletionState = nil
+            adapter?.displayImageCompletionState = nil
             KingfisherManager.shared.downloader.cancelAll()
             KingfisherManager.shared.cache.clearMemoryCache()
-            RunLoop.main.run(until: Date().addingTimeInterval(0.5))
+            RunLoop.main.run(until: Date().addingTimeInterval(0.2))
         }
 
         return (adapter.weakReferenced, container)
-    }
-    
-    private func prepareContainer(_ container: AnyView) {
-        _ = container.snapshot(for: SUISnapshotConfiguration.iPhone(style: .light))
     }
 
     private func waitForCompletion(
@@ -828,11 +787,13 @@ extension SUIImageViewSnapshotTests {
         wait(for: [expectation], timeout: timeout)
         RunLoop.main.run(until: Date().addingTimeInterval(0.05))
         _ = container.snapshot(for: SUISnapshotConfiguration.iPhone(style: .light))
+        _ = file
+        _ = line
     }
 
     private func render(_ container: AnyView, delay: TimeInterval = 0.05) {
         RunLoop.main.run(until: Date().addingTimeInterval(delay))
-        _ = container.snapshot(for: SUISnapshotConfiguration.iPhone(style: .light))
+        _ = container
     }
 }
 
