@@ -8,6 +8,7 @@
 import Foundation
 #if canImport(SwiftUI)
 import SwiftUI
+import CoreText
 
 public struct SUILabel: View {
     @ObservedObject var stateModel: SUILabelStateModel
@@ -19,7 +20,7 @@ public struct SUILabel: View {
     public init(
         adapter: TextOutputSwiftUIAdapter,
         font: Font = .systemFont(ofSize: 20),
-        textColor: Color = .darkText,
+        textColor: Color = .label,
         textAlignment: TextAlignment = .natural
     ) {
         self.stateModel = .init(adapter: adapter)
@@ -42,6 +43,14 @@ public struct SUILabel: View {
 }
 
 public struct SUILabelView: View, Animatable {
+    @Environment(\.colorScheme) private var colorScheme
+
+    private struct HTMLParagraph {
+        let attributedText: NSAttributedString
+        let alignment: TextAlignment
+        let paragraphSpacing: CGFloat
+    }
+
     let model: TextOutputPresentableModel
 
     private let defaultFont: Font
@@ -51,7 +60,7 @@ public struct SUILabelView: View, Animatable {
     public init(
         model: TextOutputPresentableModel,
         font: Font = .systemFont(ofSize: 20),
-        textColor: Color = .darkText,
+        textColor: Color = .label,
         textAlignment: TextAlignment = .natural
     ) {
         self.model = model
@@ -72,7 +81,7 @@ public struct SUILabelView: View, Animatable {
                 textAlignment: defaultTextAlignment
             )
             .if(!insets.isZero) { $0.padding(insets.asSUIEdgeInsets) }
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             .ifLet(backgroundColor) { $0.background(SwiftUIColor($1)) }
             .ifLet(cornerStyle) { $0.cornerStyle($1) }
 
@@ -103,21 +112,87 @@ public struct SUILabelView: View, Animatable {
 
         default:
             if let inlineImageText {
-                inlineImageText
-                    .font(SwiftUIFont(defaultFont))
-                    .textColor(SwiftUIColor(defaultTextColor))
-                    .multilineTextAlignment(multilineAlignment(from: defaultTextAlignment))
-                    .frame(maxWidth: .infinity, alignment: .leading)
-            } else if #available(iOS 15, macOS 12, tvOS 15, watchOS 8, *), let attributedText {
-                Text(attributedText)
-                    .multilineTextAlignment(multilineAlignment(from: defaultTextAlignment))
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                verticallyCenteredContent {
+                    inlineImageText
+                        .font(SwiftUIFont(defaultFont))
+                        .textColor(SwiftUIColor(defaultTextColor))
+                        .multilineTextAlignment(multilineAlignment(from: defaultTextAlignment))
+                        .frame(
+                            maxWidth: .infinity,
+                            alignment: frameAlignment(from: defaultTextAlignment)
+                        )
+                }
+            } else if #available(iOS 15, macOS 12, tvOS 15, watchOS 8, *) {
+                if let htmlParagraphs, !htmlParagraphs.isEmpty {
+                    verticallyCenteredContent {
+                        VStack(alignment: .leading, spacing: 0) {
+                            ForEach(Array(htmlParagraphs.enumerated()), id: \.offset) { _, paragraph in
+                                Text(swiftUIAttributedString(from: paragraph.attributedText))
+                                    .multilineTextAlignment(multilineAlignment(from: paragraph.alignment))
+                                    .frame(
+                                        maxWidth: .infinity,
+                                        alignment: frameAlignment(from: paragraph.alignment)
+                                    )
+                                    .padding(.bottom, paragraph.paragraphSpacing)
+                            }
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                } else if let nsAttributedText {
+                    verticallyCenteredContent {
+                        if requiresCoreTextRendering(for: nsAttributedText) {
+                            CoreTextAttributedLabel(
+                                attributedText: coreTextAttributedString(from: nsAttributedText),
+                                alignment: effectiveTextAlignment(
+                                    in: nsAttributedText,
+                                    fallback: defaultTextAlignment
+                                )
+                            )
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        } else {
+                            Text(swiftUIAttributedString(from: nsAttributedText))
+                                .multilineTextAlignment(
+                                    multilineAlignment(
+                                        from: effectiveTextAlignment(
+                                            in: nsAttributedText,
+                                            fallback: defaultTextAlignment
+                                        )
+                                    )
+                                )
+                                .frame(
+                                    maxWidth: .infinity,
+                                    alignment: frameAlignment(
+                                        from: effectiveTextAlignment(
+                                            in: nsAttributedText,
+                                            fallback: defaultTextAlignment
+                                        )
+                                    )
+                                )
+                        }
+                    }
+                } else if let fallbackPlainText {
+                    verticallyCenteredContent {
+                        Text(fallbackPlainText)
+                            .font(SwiftUIFont(defaultFont))
+                            .textColor(SwiftUIColor(defaultTextColor))
+                            .multilineTextAlignment(multilineAlignment(from: defaultTextAlignment))
+                            .frame(
+                                maxWidth: .infinity,
+                                alignment: frameAlignment(from: defaultTextAlignment)
+                            )
+                    }
+                }
             } else if let fallbackPlainText {
-                Text(fallbackPlainText)
-                    .font(SwiftUIFont(defaultFont))
-                    .textColor(SwiftUIColor(defaultTextColor))
-                    .multilineTextAlignment(multilineAlignment(from: defaultTextAlignment))
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                verticallyCenteredContent {
+                    Text(fallbackPlainText)
+                        .font(SwiftUIFont(defaultFont))
+                        .textColor(SwiftUIColor(defaultTextColor))
+                        .multilineTextAlignment(multilineAlignment(from: defaultTextAlignment))
+                        .frame(
+                            maxWidth: .infinity,
+                            alignment: frameAlignment(from: defaultTextAlignment)
+                        )
+                }
             }
         }
     }
@@ -173,6 +248,12 @@ public struct SUILabelView: View, Animatable {
 
     @available(iOS 15, macOS 12, tvOS 15, watchOS 8, *)
     private var attributedText: AttributedString? {
+        guard !isHTMLAttributedModel else { return nil }
+        guard let nsAttributedText else { return nil }
+        return AttributedString(nsAttributedText)
+    }
+
+    private var nsAttributedText: NSAttributedString? {
         switch model.model {
         case .text(let string):
             let text = string?.removingPercentEncoding ?? string ?? ""
@@ -183,7 +264,7 @@ public struct SUILabelView: View, Animatable {
                 color: defaultTextColor,
                 textAlignment: defaultTextAlignment
             )
-            return AttributedString(attributed)
+            return attributed
 
         case .attributes(let attributes):
             guard !attributes.contains(where: { $0.leadingImage != nil || $0.trailingImage != nil }) else {
@@ -199,7 +280,7 @@ public struct SUILabelView: View, Animatable {
                 textColor: defaultTextColor,
                 textAlignment: defaultTextAlignment
             )
-            return AttributedString(attributed)
+            return attributed
 
         case .attributedString(let htmlString, let config):
             guard
@@ -208,11 +289,75 @@ public struct SUILabelView: View, Animatable {
             else {
                 return nil
             }
-            return AttributedString(attributed)
+            return attributed
 
         default:
             return nil
         }
+    }
+
+    private var htmlParagraphs: [HTMLParagraph]? {
+        guard isHTMLAttributedModel, let attributed = nsAttributedTextForHTML else { return nil }
+
+        let nsString = attributed.string as NSString
+        guard nsString.length > 0 else { return nil }
+
+        var paragraphs: [HTMLParagraph] = []
+        var location = 0
+
+        while location < nsString.length {
+            let range = nsString.paragraphRange(for: NSRange(location: location, length: 0))
+            let paragraphText = attributed.attributedSubstring(from: range)
+            let paragraphStyle = paragraphText.attribute(.paragraphStyle, at: 0, effectiveRange: nil) as? ParagraphStyle
+
+            let trimmedString = paragraphText.string.trimmingCharacters(in: .newlines)
+            if !trimmedString.isEmpty {
+                let trimmedRange = NSRange(location: 0, length: (paragraphText.string as NSString).length)
+                let mutable = NSMutableAttributedString(attributedString: paragraphText.attributedSubstring(from: trimmedRange))
+                while mutable.string.hasPrefix("\n") {
+                    mutable.deleteCharacters(in: NSRange(location: 0, length: 1))
+                }
+                while mutable.string.hasSuffix("\n"), mutable.length > 0 {
+                    mutable.deleteCharacters(in: NSRange(location: mutable.length - 1, length: 1))
+                }
+
+                paragraphs.append(
+                    HTMLParagraph(
+                        attributedText: mutable,
+                        alignment: paragraphStyle?.alignment ?? .left,
+                        paragraphSpacing: max(paragraphStyle?.paragraphSpacing ?? 0, 0)
+                    )
+                )
+            }
+
+            location = NSMaxRange(range)
+        }
+
+        return paragraphs
+    }
+
+    private var nsAttributedTextForHTML: NSAttributedString? {
+        guard case .attributedString(let htmlString, let config) = model.model,
+              let htmlString,
+              let attributed = htmlString.asHtmlAttributedString(config: config)
+        else {
+            return nil
+        }
+
+        let mutable = NSMutableAttributedString(attributedString: attributed)
+        let wholeRange = NSRange(location: 0, length: mutable.length)
+        mutable.enumerateAttribute(.link, in: wholeRange) { value, range, _ in
+            guard value != nil else { return }
+            mutable.addAttribute(.foregroundColor, value: Color.systemBlue, range: range)
+        }
+        return mutable
+    }
+
+    private var isHTMLAttributedModel: Bool {
+        if case .attributedString = model.model {
+            return true
+        }
+        return false
     }
 
     private var fallbackPlainText: String? {
@@ -233,6 +378,185 @@ public struct SUILabelView: View, Animatable {
 
     private func multilineAlignment(from textAlignment: TextAlignment) -> SwiftUI.TextAlignment {
         switch textAlignment {
+        case .center:
+            return .center
+        case .right:
+            return .trailing
+        default:
+            return .leading
+        }
+    }
+
+    private func frameAlignment(from textAlignment: TextAlignment) -> Alignment {
+        switch textAlignment {
+        case .center:
+            return .center
+        case .right:
+            return .trailing
+        default:
+            return .leading
+        }
+    }
+
+    private func effectiveTextAlignment(
+        in attributedText: NSAttributedString,
+        fallback: TextAlignment
+    ) -> TextAlignment {
+        guard attributedText.length > 0 else { return fallback }
+        let paragraphStyle = attributedText.attribute(.paragraphStyle, at: 0, effectiveRange: nil) as? ParagraphStyle
+        return paragraphStyle?.alignment ?? fallback
+    }
+
+    @available(iOS 15, macOS 12, tvOS 15, watchOS 8, *)
+    private func swiftUIAttributedString(from attributedText: NSAttributedString) -> AttributedString {
+        let mutable = NSMutableAttributedString(attributedString: attributedText)
+        let wholeRange = NSRange(location: 0, length: mutable.length)
+
+        mutable.enumerateAttributes(in: wholeRange) { attributes, range, _ in
+            if attributes[.foregroundColor] == nil {
+                mutable.addAttribute(.foregroundColor, value: defaultTextColor, range: range)
+            }
+        }
+
+        return AttributedString(mutable)
+    }
+
+    private func coreTextAttributedString(from attributedText: NSAttributedString) -> NSAttributedString {
+        let mutable = NSMutableAttributedString(attributedString: attributedText)
+        let wholeRange = NSRange(location: 0, length: mutable.length)
+        let shouldForceDefaultColor = modelUsesOnlyDefaultColors
+
+        mutable.enumerateAttributes(in: wholeRange) { attributes, range, _ in
+            if shouldForceDefaultColor {
+                mutable.addAttribute(.foregroundColor, value: resolvedDefaultPlatformTextColor, range: range)
+            } else if attributes[.foregroundColor] == nil {
+                mutable.addAttribute(.foregroundColor, value: resolvedDefaultPlatformTextColor, range: range)
+            } else if let color = attributes[.foregroundColor] as? Color, color == .label {
+                mutable.addAttribute(.foregroundColor, value: resolvedDefaultPlatformTextColor, range: range)
+            }
+
+            if let underlineValue = attributes[.underlineStyle] {
+                let rawValue: Int?
+                if let number = underlineValue as? NSNumber {
+                    rawValue = number.intValue
+                } else if let intValue = underlineValue as? Int {
+                    rawValue = intValue
+                } else {
+                    rawValue = nil
+                }
+
+                if let rawValue {
+                    let style = UnderlineStyle(rawValue: rawValue)
+                    if style.contains(.thick) {
+                        let normalizedStyle = style.subtracting(.thick).union(.single)
+                        mutable.addAttribute(.underlineStyle, value: normalizedStyle.rawValue, range: range)
+                    }
+                }
+            }
+        }
+
+        return mutable
+    }
+
+    private var modelUsesOnlyDefaultColors: Bool {
+        guard case .attributes(let attributes) = model.model else { return false }
+        return attributes.allSatisfy { $0.color == nil }
+    }
+
+    private var resolvedDefaultPlatformTextColor: Color {
+        switch colorScheme {
+        case .dark:
+            return .white
+        default:
+            return .black
+        }
+    }
+
+    private func requiresCoreTextRendering(for attributedText: NSAttributedString) -> Bool {
+        let wholeRange = NSRange(location: 0, length: attributedText.length)
+        var requiresCoreText = false
+
+        attributedText.enumerateAttribute(.underlineStyle, in: wholeRange) { value, _, stop in
+            guard let value else { return }
+
+            let rawValue: Int?
+            if let number = value as? NSNumber {
+                rawValue = number.intValue
+            } else if let intValue = value as? Int {
+                rawValue = intValue
+            } else {
+                rawValue = nil
+            }
+
+            guard let rawValue else { return }
+            let style = UnderlineStyle(rawValue: rawValue)
+
+            if style.contains(.byWord) || style.contains(.double) || style.contains(.thick) {
+                requiresCoreText = true
+                stop.pointee = true
+            }
+        }
+
+        return requiresCoreText
+    }
+
+    @ViewBuilder
+    private func verticallyCenteredContent<Content: View>(
+        @ViewBuilder content: () -> Content
+    ) -> some View {
+        VStack(spacing: 0) {
+            Spacer(minLength: 0)
+            content()
+            Spacer(minLength: 0)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+}
+
+@available(iOS 15, macOS 12, tvOS 15, watchOS 8, *)
+private struct CoreTextAttributedLabel: View {
+    let attributedText: NSAttributedString
+    let alignment: TextAlignment
+
+    var body: some View {
+        GeometryReader { _ in
+            Canvas { context, size in
+                let constrainedSize = CGSize(width: size.width, height: .greatestFiniteMagnitude)
+                let framesetter = CTFramesetterCreateWithAttributedString(attributedText as CFAttributedString)
+                let suggestedSize = CTFramesetterSuggestFrameSizeWithConstraints(
+                    framesetter,
+                    CFRange(location: 0, length: attributedText.length),
+                    nil,
+                    constrainedSize,
+                    nil
+                )
+
+                let textHeight = min(ceil(suggestedSize.height), size.height)
+                let verticalInset = max((size.height - textHeight) / 2, 0)
+                let pathRect = CGRect(x: 0, y: verticalInset, width: size.width, height: max(textHeight, 1))
+                let path = CGPath(rect: pathRect, transform: nil)
+                let frame = CTFramesetterCreateFrame(
+                    framesetter,
+                    CFRange(location: 0, length: attributedText.length),
+                    path,
+                    nil
+                )
+
+                context.withCGContext { cgContext in
+                    cgContext.saveGState()
+                    cgContext.textMatrix = .identity
+                    cgContext.translateBy(x: 0, y: size.height)
+                    cgContext.scaleBy(x: 1, y: -1)
+                    CTFrameDraw(frame, cgContext)
+                    cgContext.restoreGState()
+                }
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: frameAlignment(for: alignment))
+    }
+
+    private func frameAlignment(for alignment: TextAlignment) -> Alignment {
+        switch alignment {
         case .center:
             return .center
         case .right:
