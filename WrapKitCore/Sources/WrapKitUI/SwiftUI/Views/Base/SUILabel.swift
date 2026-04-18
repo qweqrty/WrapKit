@@ -434,25 +434,6 @@ public struct SUILabelView: View, Animatable {
             } else if let color = attributes[.foregroundColor] as? Color, color == .label {
                 mutable.addAttribute(.foregroundColor, value: resolvedDefaultPlatformTextColor, range: range)
             }
-
-            if let underlineValue = attributes[.underlineStyle] {
-                let rawValue: Int?
-                if let number = underlineValue as? NSNumber {
-                    rawValue = number.intValue
-                } else if let intValue = underlineValue as? Int {
-                    rawValue = intValue
-                } else {
-                    rawValue = nil
-                }
-
-                if let rawValue {
-                    let style = UnderlineStyle(rawValue: rawValue)
-                    if style.contains(.thick) {
-                        let normalizedStyle = style.subtracting(.thick).union(.single)
-                        mutable.addAttribute(.underlineStyle, value: normalizedStyle.rawValue, range: range)
-                    }
-                }
-            }
         }
 
         return mutable
@@ -515,17 +496,34 @@ public struct SUILabelView: View, Animatable {
 
 @available(iOS 15, macOS 12, tvOS 15, watchOS 8, *)
 private struct CoreTextAttributedLabel: View {
+    @Environment(\.displayScale) private var displayScale
+
     let attributedText: NSAttributedString
     let alignment: TextAlignment
 
     var body: some View {
         GeometryReader { _ in
-            Canvas { context, size in
+            Canvas(opaque: false, colorMode: .linear, rendersAsynchronously: false) { context, size in
+                let scale = max(displayScale, 1)
+                let pixelWidth = max(Int(ceil(size.width * scale)), 1)
+                let pixelHeight = max(Int(ceil(size.height * scale)), 1)
+
+                guard let bitmapContext = CGContext(
+                    data: nil,
+                    width: pixelWidth,
+                    height: pixelHeight,
+                    bitsPerComponent: 8,
+                    bytesPerRow: 0,
+                    space: CGColorSpaceCreateDeviceRGB(),
+                    bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+                ) else { return }
+
                 let constrainedSize = CGSize(width: size.width, height: .greatestFiniteMagnitude)
-                let framesetter = CTFramesetterCreateWithAttributedString(attributedText as CFAttributedString)
+                let textOnlyAttributedText = textAttributedStringWithoutUnderline(from: attributedText)
+                let framesetter = CTFramesetterCreateWithAttributedString(textOnlyAttributedText as CFAttributedString)
                 let suggestedSize = CTFramesetterSuggestFrameSizeWithConstraints(
                     framesetter,
-                    CFRange(location: 0, length: attributedText.length),
+                    CFRange(location: 0, length: textOnlyAttributedText.length),
                     nil,
                     constrainedSize,
                     nil
@@ -537,17 +535,25 @@ private struct CoreTextAttributedLabel: View {
                 let path = CGPath(rect: pathRect, transform: nil)
                 let frame = CTFramesetterCreateFrame(
                     framesetter,
-                    CFRange(location: 0, length: attributedText.length),
+                    CFRange(location: 0, length: textOnlyAttributedText.length),
                     path,
                     nil
                 )
 
+                bitmapContext.scaleBy(x: scale, y: scale)
+                bitmapContext.textMatrix = .identity
+                bitmapContext.translateBy(x: 0, y: size.height)
+                bitmapContext.scaleBy(x: 1, y: -1)
+                bitmapContext.setAllowsAntialiasing(true)
+                bitmapContext.setShouldAntialias(true)
+                bitmapContext.setShouldSmoothFonts(true)
+                draw(frame: frame, in: bitmapContext, scale: scale)
+
+                guard let image = bitmapContext.makeImage() else { return }
                 context.withCGContext { cgContext in
                     cgContext.saveGState()
-                    cgContext.textMatrix = .identity
-                    cgContext.translateBy(x: 0, y: size.height)
-                    cgContext.scaleBy(x: 1, y: -1)
-                    CTFrameDraw(frame, cgContext)
+                    cgContext.interpolationQuality = .high
+                    cgContext.draw(image, in: CGRect(origin: .zero, size: size))
                     cgContext.restoreGState()
                 }
             }
@@ -564,6 +570,108 @@ private struct CoreTextAttributedLabel: View {
         default:
             return .leading
         }
+    }
+
+    private func textAttributedStringWithoutUnderline(from attributedText: NSAttributedString) -> NSAttributedString {
+        let mutable = NSMutableAttributedString(attributedString: attributedText)
+        mutable.removeAttribute(.underlineStyle, range: NSRange(location: 0, length: mutable.length))
+        return mutable
+    }
+
+    private func draw(frame: CTFrame, in context: CGContext, scale: CGFloat) {
+        let lines = CTFrameGetLines(frame) as? [CTLine] ?? []
+        guard !lines.isEmpty else { return }
+
+        var lineOrigins = Array(repeating: CGPoint.zero, count: lines.count)
+        CTFrameGetLineOrigins(frame, CFRange(location: 0, length: 0), &lineOrigins)
+
+        for (lineIndex, line) in lines.enumerated() {
+            let origin = lineOrigins[lineIndex]
+            context.textPosition = origin
+            CTLineDraw(line, context)
+            drawUnderlineSegments(for: line, at: origin, in: context, scale: scale)
+        }
+    }
+
+    private func drawUnderlineSegments(for line: CTLine, at origin: CGPoint, in context: CGContext, scale: CGFloat) {
+        let runs = CTLineGetGlyphRuns(line) as? [CTRun] ?? []
+
+        for run in runs {
+            let attributes = CTRunGetAttributes(run) as NSDictionary
+            guard
+                let rawValue = (attributes[kCTUnderlineStyleAttributeName] as? NSNumber)?.intValue
+                    ?? (attributes[NSAttributedString.Key.underlineStyle] as? NSNumber)?.intValue
+            else { continue }
+
+            let style = UnderlineStyle(rawValue: rawValue)
+            guard style.contains(.byWord) || style.contains(.double) || style.contains(.thick) else { continue }
+
+            let foregroundColor = (attributes[NSAttributedString.Key.foregroundColor] as? UIColor)?.cgColor
+                ?? (attributes[kCTForegroundColorAttributeName] as? UIColor)?.cgColor
+            context.setStrokeColor(foregroundColor ?? UIColor.label.cgColor)
+
+            let baselineOffset = (attributes[NSAttributedString.Key.baselineOffset] as? NSNumber)?.doubleValue ?? 0
+            let textRange = CTRunGetStringRange(run)
+            let segments = underlineSegments(for: style, line: line, stringRange: textRange)
+
+            var ascent: CGFloat = 0
+            var descent: CGFloat = 0
+            CTRunGetTypographicBounds(run, CFRange(location: 0, length: 0), &ascent, &descent, nil)
+
+            let pixel = max(1 / scale, 0.5)
+            let underlineY = origin.y - descent + CGFloat(baselineOffset) - pixel
+            let spacing = pixel
+            let lineWidth = pixel
+
+            context.saveGState()
+            context.setLineWidth(lineWidth)
+            context.setLineCap(.butt)
+
+            for segment in segments {
+                if style.contains(.double) {
+                    context.move(to: CGPoint(x: segment.lowerBound, y: underlineY))
+                    context.addLine(to: CGPoint(x: segment.upperBound, y: underlineY))
+                    context.move(to: CGPoint(x: segment.lowerBound, y: underlineY - spacing - lineWidth))
+                    context.addLine(to: CGPoint(x: segment.upperBound, y: underlineY - spacing - lineWidth))
+                } else {
+                    context.move(to: CGPoint(x: segment.lowerBound, y: underlineY))
+                    context.addLine(to: CGPoint(x: segment.upperBound, y: underlineY))
+                }
+            }
+
+            context.strokePath()
+            context.restoreGState()
+        }
+    }
+
+    private func underlineSegments(for style: UnderlineStyle, line: CTLine, stringRange: CFRange) -> [ClosedRange<CGFloat>] {
+        let location = stringRange.location
+        let length = stringRange.length
+        guard location != kCFNotFound, length > 0 else { return [] }
+
+        if style.contains(.byWord) {
+            let nsString = attributedText.string as NSString
+            let fullRange = NSRange(location: location, length: length)
+            let substring = nsString.substring(with: fullRange) as NSString
+            let matches = try? NSRegularExpression(pattern: "\\S+").matches(
+                in: substring as String,
+                range: NSRange(location: 0, length: substring.length)
+            )
+
+            return (matches ?? []).compactMap { match in
+                let start = location + match.range.location
+                let end = start + match.range.length
+                let startOffset = CTLineGetOffsetForStringIndex(line, start, nil)
+                let endOffset = CTLineGetOffsetForStringIndex(line, end, nil)
+                guard endOffset > startOffset else { return nil }
+                return startOffset...endOffset
+            }
+        }
+
+        let startOffset = CTLineGetOffsetForStringIndex(line, location, nil)
+        let endOffset = CTLineGetOffsetForStringIndex(line, location + length, nil)
+        guard endOffset > startOffset else { return [] }
+        return [startOffset...endOffset]
     }
 }
 #endif
