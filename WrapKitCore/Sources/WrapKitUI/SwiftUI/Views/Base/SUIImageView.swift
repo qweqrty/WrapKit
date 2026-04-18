@@ -61,7 +61,7 @@ public struct SUIImageView: View {
 
                     if isLoading {
                         loadingView
-                            .frame(width: model.size?.width, height: model.size?.height)
+                            .frame(width: effectiveSize?.width, height: effectiveSize?.height)
                     }
                 }
                 .modifier(ImageViewContainerStyle(model: model))
@@ -77,6 +77,12 @@ public struct SUIImageView: View {
                 }
                 .onReceive(adapter.$displayModelCompletionState) { newState in
                     guard let newState else { return }
+                    let adapter = self.adapter
+                    defer {
+                        DispatchQueue.main.async { [weak adapter] in
+                            adapter?.displayModelCompletionState = nil
+                        }
+                    }
                     guard let adapterModel = newState.model else {
                         isHidden = true
                         newState.completion?(nil)
@@ -93,6 +99,12 @@ public struct SUIImageView: View {
                 }
                 .onReceive(adapter.$displayImageCompletionState) { newState in
                     guard let newState else { return }
+                    let adapter = self.adapter
+                    defer {
+                        DispatchQueue.main.async { [weak adapter] in
+                            adapter?.displayImageCompletionState = nil
+                        }
+                    }
                     model = model.updated(image: newState.image)
                     loadImage(for: colorScheme, completion: newState.completion)
                 }
@@ -153,12 +165,14 @@ public struct SUIImageView: View {
             SwiftUIImage(image: image)
                 .renderingMode(.template)
                 .resizable()
+                .interpolation(.high)
                 .modifier(OptionalAspectRatio(contentModeIsFit: model.contentModeIsFit ?? true))
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
-                .foregroundColor(.blue)
+                .foregroundColor(.accentColor)
         } else {
             SwiftUIImage(image: image)
                 .resizable()
+                .interpolation(.high)
                 .modifier(OptionalAspectRatio(contentModeIsFit: model.contentModeIsFit ?? true))
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
         }
@@ -179,7 +193,7 @@ public struct SUIImageView: View {
             downloadTask?.cancel()
             isLoading = false
             loadedImage = image
-            shouldRenderTemplate = image != nil
+            shouldRenderTemplate = image?.renderingMode == .alwaysTemplate
             lastLoadedRemoteURL = nil
             completion?(image)
 
@@ -223,6 +237,10 @@ public struct SUIImageView: View {
             lastLoadedRemoteURL = nil
             completion?(nil)
         }
+    }
+
+    private var effectiveSize: CGSize? {
+        model.size ?? model.image?.assetSize
     }
 
     private func shouldSkipReload(for url: URL?) -> Bool {
@@ -425,6 +443,15 @@ private extension ImageEnum {
             return false
         }
     }
+
+    var assetSize: CGSize? {
+        switch self {
+        case .asset(let image):
+            return image?.size
+        case .data, .url, .urlString:
+            return nil
+        }
+    }
 }
 
 // MARK: - View Modifiers
@@ -433,7 +460,7 @@ private struct ImageViewContainerStyle: ViewModifier {
 
     func body(content: Content) -> some View {
         content
-            .modifier(OptionalFrame(size: model?.size))
+            .modifier(OptionalFrame(size: model?.size ?? model?.image?.assetSize))
             .clipped()
             .cornerRadius(model?.cornerRadius ?? 0)
             .overlay(
