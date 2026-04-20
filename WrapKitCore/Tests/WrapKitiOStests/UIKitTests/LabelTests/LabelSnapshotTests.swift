@@ -1238,7 +1238,12 @@ final class LabelSnapshotTests: XCTestCase {
     }
 }
 
-extension LabelSnapshotTests {
+private enum SnapshotAssertionMode {
+    case equal
+    case different
+}
+
+private extension LabelSnapshotTests {
     func makeSUT(
         file: StaticString = #file,
         line: UInt = #line
@@ -1268,7 +1273,65 @@ extension LabelSnapshotTests {
         container.backgroundColor = .clear
         return container
     }
+    
+    func assertCurrentSnapshots(
+        in container: UIView,
+        named snapshotName: String,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        assertCurrentSnapshots(
+            in: container,
+            named: snapshotName,
+            mode: .equal,
+            file: file,
+            line: line
+        )
+    }
 
+    func assertCurrentSnapshotsFail(
+        in container: UIView,
+        named snapshotName: String,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        assertCurrentSnapshots(
+            in: container,
+            named: snapshotName,
+            mode: .different,
+            file: file,
+            line: line
+        )
+    }
+
+    private func assertCurrentSnapshots(
+        in container: UIView,
+        named snapshotName: String,
+        mode: SnapshotAssertionMode,
+        file: StaticString,
+        line: UInt
+    ) {
+        let lightSnapshot = container.snapshot(for: .iPhone(style: .light))
+        let darkSnapshot = container.snapshot(for: .iPhone(style: .dark))
+        let names = snapshotNames(for: snapshotName)
+
+        switch mode {
+        case .equal:
+            assertPairedSnapshot(snapshot: lightSnapshot, named: names.light, file: file, line: line)
+            assertPairedSnapshot(snapshot: darkSnapshot, named: names.dark, file: file, line: line)
+        case .different:
+            assertPairedSnapshotFail(snapshot: lightSnapshot, named: names.light, file: file, line: line)
+            assertPairedSnapshotFail(snapshot: darkSnapshot, named: names.dark, file: file, line: line)
+        }
+    }
+
+    private func snapshotNames(for snapshotName: String) -> (light: String, dark: String) {
+        let prefix = if #available(iOS 26, *) { "iOS26" } else { "iOS18.5" }
+        return ("\(prefix)_\(snapshotName)_LIGHT", "\(prefix)_\(snapshotName)_DARK")
+    }
+}
+
+private extension LabelSnapshotTests {
     func assertPairedSnapshot(
         snapshot: UIImage,
         named name: String,
@@ -1276,12 +1339,12 @@ extension LabelSnapshotTests {
         file: StaticString = #filePath,
         line: UInt = #line
     ) {
-        saveAssertSnapshot(snapshot, named: name, context: "UIKit")
+        saveAssertSnapshot(snapshot, named: assertSnapshotName(for: name, context: "UIKit"), context: "UIKit")
         assertStoredSnapshotEquals(snapshot, named: name, precision: precision, context: "UIKit", file: file, line: line)
 
         if #available(iOS 17, *),
            let swiftUISnapshot = currentPairedSUT?.swiftUISnapshot(for: colorScheme(from: name)) {
-            saveAssertSnapshot(swiftUISnapshot, named: name, context: "SwiftUI")
+            saveAssertSnapshot(swiftUISnapshot, named: assertSnapshotName(for: name, context: "SwiftUI"), context: "SwiftUI")
             assertStoredSnapshotEquals(
                 swiftUISnapshot,
                 named: name,
@@ -1300,12 +1363,12 @@ extension LabelSnapshotTests {
         file: StaticString = #filePath,
         line: UInt = #line
     ) {
-        saveAssertSnapshot(snapshot, named: name, context: "UIKit")
+        saveAssertSnapshot(snapshot, named: assertSnapshotName(for: name, context: "UIKit"), context: "UIKit")
         assertStoredSnapshotDifferent(snapshot, named: name, precision: precision, context: "UIKit", file: file, line: line)
 
         if #available(iOS 17, *),
            let swiftUISnapshot = currentPairedSUT?.swiftUISnapshot(for: colorScheme(from: name)) {
-            saveAssertSnapshot(swiftUISnapshot, named: name, context: "SwiftUI")
+            saveAssertSnapshot(swiftUISnapshot, named: assertSnapshotName(for: name, context: "SwiftUI"), context: "SwiftUI")
             assertStoredSnapshotDifferent(
                 swiftUISnapshot,
                 named: name,
@@ -1323,11 +1386,11 @@ extension LabelSnapshotTests {
         file: StaticString = #filePath,
         line: UInt = #line
     ) {
-        recordUIKitSnapshot(snapshot, named: name, file: file, line: line)
+        recordUIKitSnapshot(snapshot, named: recordedSnapshotName(for: name), file: file, line: line)
     }
 
     private var swiftUISnapshotPrecision: Float {
-        1
+        0.095
     }
 
     private var swiftUIFailSnapshotPrecision: Float {
@@ -1335,9 +1398,33 @@ extension LabelSnapshotTests {
     }
 
     private func colorScheme(from snapshotName: String) -> ColorScheme {
-        snapshotName.hasSuffix("_DARK") ? .dark : .light
+        normalizedSnapshotName(from: snapshotName).hasSuffix("_DARK") ? .dark : .light
     }
 
+    private func recordedSnapshotName(for snapshotName: String) -> String {
+        "UIKit_\(normalizedSnapshotName(from: snapshotName))"
+    }
+
+    private func assertSnapshotName(for snapshotName: String, context: String) -> String {
+        let prefix = context == "SwiftUI" ? "SiwftUI" : "UIKit"
+        return "\(prefix)_\(normalizedSnapshotName(from: snapshotName))"
+    }
+
+    private func normalizedSnapshotName(from snapshotName: String) -> String {
+        if snapshotName.hasPrefix("UIKit_") {
+            return String(snapshotName.dropFirst("UIKit_".count))
+        }
+        if snapshotName.hasPrefix("SiwftUI_") {
+            return String(snapshotName.dropFirst("SiwftUI_".count))
+        }
+        if snapshotName.hasPrefix("SwiftUI_") {
+            return String(snapshotName.dropFirst("SwiftUI_".count))
+        }
+        return snapshotName
+    }
+}
+
+private extension LabelSnapshotTests {
     private func recordUIKitSnapshot(
         _ snapshot: UIImage,
         named name: String,
@@ -1390,27 +1477,34 @@ extension LabelSnapshotTests {
         file: StaticString,
         line: UInt
     ) {
-        let snapshotURL = makeSnapshotURL(named: name, file: file)
+        let snapshotURL = makeReferenceSnapshotURL(named: name, file: file)
 
         guard
             let storedSnapshotData = try? Data(contentsOf: snapshotURL),
             let oldImage = UIImage(data: storedSnapshotData)
         else {
+            if context == "UIKit" {
+                recordUIKitSnapshot(snapshot, named: recordedSnapshotName(for: name), file: file, line: line)
+                return
+            }
             XCTFail("Failed to load stored snapshot at URL: \(snapshotURL). Use record mode before asserting.", file: file, line: line)
             return
         }
 
         guard let diff = Diffing.image(precision: precision).diff(oldImage, snapshot) else { return }
 
+        let normalizedName = normalizedSnapshotName(from: name)
+        let uiKitName = recordedSnapshotName(for: normalizedName)
+        let currentName = assertSnapshotName(for: normalizedName, context: context)
         let artifactsSubUrl = URL(fileURLWithPath: "/Users/ubeishenkulov/Documents/WrapKit/tmp_snapshot_compare/paired_failures", isDirectory: true)
-            .appendingPathComponent(name)
+            .appendingPathComponent(normalizedName)
         try? FileManager.default.createDirectory(at: artifactsSubUrl, withIntermediateDirectories: true)
 
-        try? storedSnapshotData.write(to: artifactsSubUrl.appendingPathComponent("origin.png"))
-        try? diff.artifacts.diff.pngData()?.write(to: artifactsSubUrl.appendingPathComponent("diff.png"))
-        try? diff.artifacts.image.pngData()?.write(to: artifactsSubUrl.appendingPathComponent("new.png"))
+        try? storedSnapshotData.write(to: artifactsSubUrl.appendingPathComponent("origin_\(uiKitName).png"))
+        try? diff.artifacts.diff.pngData()?.write(to: artifactsSubUrl.appendingPathComponent("diff_\(currentName).png"))
+        try? diff.artifacts.image.pngData()?.write(to: artifactsSubUrl.appendingPathComponent("new_\(currentName).png"))
 
-        XCTFail("[\(context)] " + diff.message + "\n Diff snapshot URL: \(artifactsSubUrl)", file: file, line: line)
+        XCTFail("[\(context)] " + diff.message + "\n Origin: \(uiKitName)\n New: \(currentName)\n Diff snapshot URL: \(artifactsSubUrl)", file: file, line: line)
     }
 
     private func assertStoredSnapshotDifferent(
@@ -1421,7 +1515,7 @@ extension LabelSnapshotTests {
         file: StaticString,
         line: UInt
     ) {
-        let snapshotURL = makeSnapshotURL(named: name, file: file)
+        let snapshotURL = makeReferenceSnapshotURL(named: name, file: file)
 
         guard
             let storedSnapshotData = try? Data(contentsOf: snapshotURL),
@@ -1443,292 +1537,38 @@ extension LabelSnapshotTests {
             .appendingPathComponent("snapshots")
             .appendingPathComponent("\(name).png")
     }
-}
 
-final class PairedLabelSnapshotSUT: NSObject {
-    let uiKitLabel = Label()
-    let adapter = TextOutputSwiftUIAdapter()
-    private var currentModel: TextOutputPresentableModel?
-    private var explicitTextInsets: UIEdgeInsets = .zero
-    private var explicitBackgroundColor: UIColor?
-    private var explicitCornerStyle: CornerStyle?
-    private var swiftUIFont: UIFont = .systemFont(ofSize: 20)
-    private var swiftUITextColor: UIColor = .label
-    private var swiftUITextAlignment: NSTextAlignment = .natural
-
-    override init() {
-        super.init()
-        swiftUIFont = uiKitLabel.font
-        swiftUITextColor = uiKitLabel.textColor
-        swiftUITextAlignment = uiKitLabel.textAlignment
-    }
-
-    var backgroundColor: UIColor? {
-        get { uiKitLabel.backgroundColor }
-        set {
-            uiKitLabel.backgroundColor = newValue
-            explicitBackgroundColor = newValue
-            syncSwiftUIModel()
-        }
-    }
-
-    var textInsets: UIEdgeInsets {
-        get { uiKitLabel.textInsets }
-        set {
-            uiKitLabel.textInsets = newValue
-            explicitTextInsets = newValue
-            syncSwiftUIModel()
-        }
-    }
-
-    var cornerStyle: CornerStyle? {
-        get { uiKitLabel.cornerStyle }
-        set {
-            uiKitLabel.cornerStyle = newValue
-            explicitCornerStyle = newValue
-            syncSwiftUIModel()
-        }
-    }
-
-    var textColor: UIColor! {
-        get { uiKitLabel.textColor }
-        set {
-            uiKitLabel.textColor = newValue
-            if let newValue {
-                swiftUITextColor = newValue
+    private func makeReferenceSnapshotURL(named name: String, file: StaticString) -> URL {
+        for candidate in referenceSnapshotCandidates(for: name) {
+            let url = makeSnapshotURL(named: candidate, file: file)
+            if FileManager.default.fileExists(atPath: url.path) {
+                return url
             }
-            syncSwiftUIModel()
         }
+
+        return makeSnapshotURL(named: normalizedSnapshotName(from: name), file: file)
     }
 
-    var font: UIFont! {
-        get { uiKitLabel.font }
-        set {
-            uiKitLabel.font = newValue
-            if let newValue {
-                swiftUIFont = newValue
+    private func referenceSnapshotCandidates(for name: String) -> [String] {
+        let normalizedName = normalizedSnapshotName(from: name)
+        var candidates = [String]()
+
+        func appendUnique(_ value: String) {
+            if !candidates.contains(value) {
+                candidates.append(value)
             }
-            syncSwiftUIModel()
-        }
-    }
-
-    var textAlignment: NSTextAlignment {
-        get { uiKitLabel.textAlignment }
-        set {
-            uiKitLabel.textAlignment = newValue
-            swiftUITextAlignment = newValue
-            syncSwiftUIModel()
-        }
-    }
-
-    func display(model: TextOutputPresentableModel?) {
-        currentModel = model
-        uiKitLabel.display(model: model)
-        adapter.display(model: swiftUIModel(from: currentModel))
-    }
-
-    func display(textModel: TextOutputPresentableModel.TextModel?) {
-        let model = textModel.map { TextOutputPresentableModel(model: $0) }
-        currentModel = model
-        uiKitLabel.display(textModel: textModel)
-        adapter.display(model: swiftUIModel(from: currentModel))
-    }
-
-    func display(text: String?) {
-        let model = TextOutputPresentableModel(model: .text(text))
-        currentModel = model
-        uiKitLabel.display(text: text)
-        adapter.display(model: swiftUIModel(from: currentModel))
-    }
-
-    func display(attributes: [TextAttributes]) {
-        currentModel = .init(model: .attributes(attributes))
-        uiKitLabel.display(attributes: attributes)
-        adapter.display(model: swiftUIModel(from: currentModel))
-    }
-
-    func display(htmlString: String?, config: HTMLAttributedStringConfig?) {
-        currentModel = .init(model: .attributedString(htmlString, config: config))
-        uiKitLabel.display(htmlString: htmlString, config: config)
-        adapter.display(model: swiftUIModel(from: currentModel))
-    }
-
-    func display(
-        id: String? = nil,
-        from startAmount: Decimal,
-        to endAmount: Decimal,
-        mapToString: ((Decimal) -> TextOutputPresentableModel.TextModel)?,
-        animationStyle: LabelAnimationStyle = .none,
-        duration: TimeInterval = 1.0,
-        completion: (() -> Void)? = nil
-    ) {
-        let finalModel = mapToString?(endAmount) ?? .text(endAmount.asString())
-        let wrappedCompletion = { [weak self] in
-            self?.currentModel = .init(model: finalModel)
-            self?.adapter.display(model: self?.swiftUIModel(from: self?.currentModel))
-            completion?()
-        }
-        currentModel = .init(
-            model: .animatedDecimal(
-                id: id,
-                from: startAmount,
-                to: endAmount,
-                mapToString: mapToString,
-                animationStyle: animationStyle,
-                duration: duration,
-                completion: wrappedCompletion
-            )
-        )
-        uiKitLabel.display(
-            id: id,
-            from: startAmount,
-            to: endAmount,
-            mapToString: mapToString,
-            animationStyle: animationStyle,
-            duration: duration,
-            completion: wrappedCompletion
-        )
-        adapter.display(
-            model: swiftUIModel(from: currentModel)
-        )
-    }
-
-    func display(
-        from startAmount: Decimal,
-        to endAmount: Decimal,
-        mapToString: ((Decimal) -> TextOutputPresentableModel.TextModel)?,
-        animationStyle: LabelAnimationStyle = .none,
-        duration: TimeInterval = 1.0,
-        completion: (() -> Void)? = nil
-    ) {
-        display(
-            id: nil,
-            from: startAmount,
-            to: endAmount,
-            mapToString: mapToString,
-            animationStyle: animationStyle,
-            duration: duration,
-            completion: completion
-        )
-    }
-
-    func display(isHidden: Bool) {
-        uiKitLabel.display(isHidden: isHidden)
-        adapter.display(isHidden: isHidden)
-    }
-
-    private func syncSwiftUIModel() {
-        guard currentModel != nil else { return }
-        adapter.display(model: swiftUIModel(from: currentModel))
-    }
-
-    private func swiftUIModel(from model: TextOutputPresentableModel?) -> TextOutputPresentableModel? {
-        guard let model else { return nil }
-        return .init(
-            accessibilityIdentifier: model.accessibilityIdentifier,
-            model: swiftUITextModel(from: model.model)
-        )
-    }
-
-    private func swiftUITextModel(from model: TextOutputPresentableModel.TextModel?) -> TextOutputPresentableModel.TextModel? {
-        guard let model else { return nil }
-
-        guard shouldWrapTextModelInTextStyled(model) else {
-            return model
         }
 
-        return .textStyled(
-            text: model,
-            cornerStyle: explicitCornerStyle,
-            insets: EdgeInsets(
-                top: explicitTextInsets.top,
-                leading: explicitTextInsets.left,
-                bottom: explicitTextInsets.bottom,
-                trailing: explicitTextInsets.right
-            ),
-            backgroundColor: explicitBackgroundColor
-        )
-    }
+        appendUnique(recordedSnapshotName(for: normalizedName))
+        appendUnique(normalizedName)
 
-    private func shouldWrapTextModelInTextStyled(_ model: TextOutputPresentableModel.TextModel) -> Bool {
-        let hasInsets = explicitTextInsets.top != 0 || explicitTextInsets.left != 0 || explicitTextInsets.bottom != 0 || explicitTextInsets.right != 0
-        let hasDecoration = hasInsets || explicitCornerStyle != nil || explicitBackgroundColor != nil
-
-        guard hasDecoration else { return false }
-
-        switch model {
-        case .text, .attributes, .attributedString, .textStyled:
-            return true
-        default:
-            return false
+        // Legacy typo kept for historical snapshots: ...DOUBLELINELIGHT
+        if normalizedName.contains("TITLE_WITH_DOUBLELINE_LIGHT") {
+            let legacyName = normalizedName.replacingOccurrences(of: "TITLE_WITH_DOUBLELINE_LIGHT", with: "TITLE_WITH_DOUBLELINELIGHT")
+            appendUnique("UIKit_\(legacyName)")
+            appendUnique(legacyName)
         }
-    }
 
-    @available(iOS 17, *)
-    func swiftUISnapshot(for style: ColorScheme) -> UIImage {
-        SnapshotMirroredLabelContainer(
-            adapter: adapter,
-            font: swiftUIFont,
-            textColor: swiftUITextColor,
-            textAlignment: swiftUITextAlignment
-        )
-            .snapshot(
-                for: SUISnapshotConfiguration(
-                    size: SUISnapshotConfiguration.size,
-                    safeAreaInsets: EdgeInsets(),
-                    layoutMargins: EdgeInsets(),
-                    colorScheme: style
-                ),
-                background: .clear
-            )
-    }
-}
-
-@available(iOS 17, *)
-final class PairedLabelSnapshotState: ObservableObject {
-    @Published var font: UIFont = .systemFont(ofSize: 20)
-    @Published var textColor: UIColor = .label
-    @Published var textAlignment: NSTextAlignment = .natural
-    @Published var textInsets: UIEdgeInsets = .zero
-    @Published var backgroundColor: UIColor = .clear
-    @Published var cornerStyle: CornerStyle?
-    @Published var currentModel: TextOutputPresentableModel.TextModel?
-    @Published var hasExplicitTextInsets = false
-    @Published var hasExplicitBackgroundColor = false
-    @Published var hasExplicitCornerStyle = false
-
-    var shouldApplyDirectDecoration: Bool {
-        guard !isTextStyledModel else { return false }
-        return hasExplicitTextInsets || hasExplicitCornerStyle || hasExplicitBackgroundColor
-    }
-
-    private var isTextStyledModel: Bool {
-        if case .textStyled = currentModel {
-            return true
-        }
-        return false
-    }
-}
-
-@available(iOS 17, *)
-private struct SnapshotMirroredLabelContainer: View {
-    let adapter: TextOutputSwiftUIAdapter
-    let font: UIFont
-    let textColor: UIColor
-    let textAlignment: NSTextAlignment
-
-    var body: some View {
-        ZStack(alignment: .topLeading) {
-            SwiftUI.Color.clear
-
-            SUILabel(
-                adapter: adapter,
-                font: font,
-                textColor: textColor,
-                textAlignment: textAlignment
-            )
-            .frame(maxWidth: .infinity, maxHeight: 150, alignment: .topLeading)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        return candidates
     }
 }

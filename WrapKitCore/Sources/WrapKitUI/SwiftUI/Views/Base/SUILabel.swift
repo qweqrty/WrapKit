@@ -122,57 +122,19 @@ public struct SUILabelView: View, Animatable {
                             alignment: frameAlignment(from: defaultTextAlignment)
                         )
                 }
-            } else if #available(iOS 15, macOS 12, tvOS 15, watchOS 8, *) {
-                if let htmlParagraphs, !htmlParagraphs.isEmpty {
+            } else if let nsAttributedText {
+                if #available(iOS 15, macOS 12, tvOS 15, watchOS 8, *) {
+                    CoreTextAttributedLabel(
+                        attributedText: coreTextAttributedString(from: nsAttributedText),
+                        alignment: effectiveTextAlignment(
+                            in: nsAttributedText,
+                            fallback: defaultTextAlignment
+                        )
+                    )
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                } else {
                     verticallyCenteredContent {
-                        VStack(alignment: .leading, spacing: 0) {
-                            ForEach(Array(htmlParagraphs.enumerated()), id: \.offset) { _, paragraph in
-                                Text(swiftUIAttributedString(from: paragraph.attributedText))
-                                    .multilineTextAlignment(multilineAlignment(from: paragraph.alignment))
-                                    .frame(
-                                        maxWidth: .infinity,
-                                        alignment: frameAlignment(from: paragraph.alignment)
-                                    )
-                                    .padding(.bottom, paragraph.paragraphSpacing)
-                            }
-                        }
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                    }
-                } else if let nsAttributedText {
-                    verticallyCenteredContent {
-                        if requiresCoreTextRendering(for: nsAttributedText) {
-                            CoreTextAttributedLabel(
-                                attributedText: coreTextAttributedString(from: nsAttributedText),
-                                alignment: effectiveTextAlignment(
-                                    in: nsAttributedText,
-                                    fallback: defaultTextAlignment
-                                )
-                            )
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        } else {
-                            Text(swiftUIAttributedString(from: nsAttributedText))
-                                .multilineTextAlignment(
-                                    multilineAlignment(
-                                        from: effectiveTextAlignment(
-                                            in: nsAttributedText,
-                                            fallback: defaultTextAlignment
-                                        )
-                                    )
-                                )
-                                .frame(
-                                    maxWidth: .infinity,
-                                    alignment: frameAlignment(
-                                        from: effectiveTextAlignment(
-                                            in: nsAttributedText,
-                                            fallback: defaultTextAlignment
-                                        )
-                                    )
-                                )
-                        }
-                    }
-                } else if let fallbackPlainText {
-                    verticallyCenteredContent {
-                        Text(fallbackPlainText)
+                        Text(nsAttributedText.string)
                             .font(SwiftUIFont(defaultFont))
                             .textColor(SwiftUIColor(defaultTextColor))
                             .multilineTextAlignment(multilineAlignment(from: defaultTextAlignment))
@@ -246,13 +208,6 @@ public struct SUILabelView: View, Animatable {
         return result
     }
 
-    @available(iOS 15, macOS 12, tvOS 15, watchOS 8, *)
-    private var attributedText: AttributedString? {
-        guard !isHTMLAttributedModel else { return nil }
-        guard let nsAttributedText else { return nil }
-        return AttributedString(nsAttributedText)
-    }
-
     private var nsAttributedText: NSAttributedString? {
         switch model.model {
         case .text(let string):
@@ -294,46 +249,6 @@ public struct SUILabelView: View, Animatable {
         default:
             return nil
         }
-    }
-
-    private var htmlParagraphs: [HTMLParagraph]? {
-        guard isHTMLAttributedModel, let attributed = nsAttributedTextForHTML else { return nil }
-
-        let nsString = attributed.string as NSString
-        guard nsString.length > 0 else { return nil }
-
-        var paragraphs: [HTMLParagraph] = []
-        var location = 0
-
-        while location < nsString.length {
-            let range = nsString.paragraphRange(for: NSRange(location: location, length: 0))
-            let paragraphText = attributed.attributedSubstring(from: range)
-            let paragraphStyle = paragraphText.attribute(.paragraphStyle, at: 0, effectiveRange: nil) as? ParagraphStyle
-
-            let trimmedString = paragraphText.string.trimmingCharacters(in: .newlines)
-            if !trimmedString.isEmpty {
-                let trimmedRange = NSRange(location: 0, length: (paragraphText.string as NSString).length)
-                let mutable = NSMutableAttributedString(attributedString: paragraphText.attributedSubstring(from: trimmedRange))
-                while mutable.string.hasPrefix("\n") {
-                    mutable.deleteCharacters(in: NSRange(location: 0, length: 1))
-                }
-                while mutable.string.hasSuffix("\n"), mutable.length > 0 {
-                    mutable.deleteCharacters(in: NSRange(location: mutable.length - 1, length: 1))
-                }
-
-                paragraphs.append(
-                    HTMLParagraph(
-                        attributedText: mutable,
-                        alignment: paragraphStyle?.alignment ?? .left,
-                        paragraphSpacing: max(paragraphStyle?.paragraphSpacing ?? 0, 0)
-                    )
-                )
-            }
-
-            location = NSMaxRange(range)
-        }
-
-        return paragraphs
     }
 
     private var nsAttributedTextForHTML: NSAttributedString? {
@@ -407,6 +322,18 @@ public struct SUILabelView: View, Animatable {
         return paragraphStyle?.alignment ?? fallback
     }
 
+    @ViewBuilder
+    private func verticallyCenteredContent<Content: View>(
+        @ViewBuilder content: () -> Content
+    ) -> some View {
+        VStack(spacing: 0) {
+            Spacer(minLength: 0)
+            content()
+            Spacer(minLength: 0)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
     @available(iOS 15, macOS 12, tvOS 15, watchOS 8, *)
     private func swiftUIAttributedString(from attributedText: NSAttributedString) -> AttributedString {
         let mutable = NSMutableAttributedString(attributedString: attributedText)
@@ -453,50 +380,12 @@ public struct SUILabelView: View, Animatable {
         }
     }
 
-    private func requiresCoreTextRendering(for attributedText: NSAttributedString) -> Bool {
-        let wholeRange = NSRange(location: 0, length: attributedText.length)
-        var requiresCoreText = false
-
-        attributedText.enumerateAttribute(.underlineStyle, in: wholeRange) { value, _, stop in
-            guard let value else { return }
-
-            let rawValue: Int?
-            if let number = value as? NSNumber {
-                rawValue = number.intValue
-            } else if let intValue = value as? Int {
-                rawValue = intValue
-            } else {
-                rawValue = nil
-            }
-
-            guard let rawValue else { return }
-            let style = UnderlineStyle(rawValue: rawValue)
-
-            if style.contains(.byWord) || style.contains(.double) || style.contains(.thick) {
-                requiresCoreText = true
-                stop.pointee = true
-            }
-        }
-
-        return requiresCoreText
-    }
-
-    @ViewBuilder
-    private func verticallyCenteredContent<Content: View>(
-        @ViewBuilder content: () -> Content
-    ) -> some View {
-        VStack(spacing: 0) {
-            Spacer(minLength: 0)
-            content()
-            Spacer(minLength: 0)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-    }
 }
 
 @available(iOS 15, macOS 12, tvOS 15, watchOS 8, *)
 private struct CoreTextAttributedLabel: View {
     @Environment(\.displayScale) private var displayScale
+    private let verticalCorrection: CGFloat = -63
 
     let attributedText: NSAttributedString
     let alignment: TextAlignment
@@ -531,7 +420,10 @@ private struct CoreTextAttributedLabel: View {
 
                 let textHeight = min(ceil(suggestedSize.height), size.height)
                 let verticalInset = max((size.height - textHeight) / 2, 0)
-                let pathRect = CGRect(x: 0, y: verticalInset, width: size.width, height: max(textHeight, 1))
+                // CoreText uses bottom-left coordinates. Since we flip the drawing context to top-left
+                // before CTLineDraw, convert top inset into bottom-left space to avoid shifting text down.
+                let pathOriginY = max(size.height - textHeight - verticalInset, 0)
+                let pathRect = CGRect(x: 0, y: pathOriginY, width: size.width, height: max(textHeight, 1))
                 let path = CGPath(rect: pathRect, transform: nil)
                 let frame = CTFramesetterCreateFrame(
                     framesetter,
@@ -559,6 +451,7 @@ private struct CoreTextAttributedLabel: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: frameAlignment(for: alignment))
+        .offset(y: verticalCorrection)
     }
 
     private func frameAlignment(for alignment: TextAlignment) -> Alignment {
@@ -574,7 +467,26 @@ private struct CoreTextAttributedLabel: View {
 
     private func textAttributedStringWithoutUnderline(from attributedText: NSAttributedString) -> NSAttributedString {
         let mutable = NSMutableAttributedString(attributedString: attributedText)
-        mutable.removeAttribute(.underlineStyle, range: NSRange(location: 0, length: mutable.length))
+        let wholeRange = NSRange(location: 0, length: mutable.length)
+
+        mutable.enumerateAttribute(.underlineStyle, in: wholeRange) { value, range, _ in
+            let rawValue: Int?
+            if let number = value as? NSNumber {
+                rawValue = number.intValue
+            } else if let intValue = value as? Int {
+                rawValue = intValue
+            } else {
+                rawValue = nil
+            }
+
+            guard let rawValue else { return }
+            let style = UnderlineStyle(rawValue: rawValue)
+
+            if style.contains(.byWord) || style.contains(.double) || style.contains(.thick) {
+                mutable.removeAttribute(.underlineStyle, range: range)
+            }
+        }
+
         return mutable
     }
 
@@ -598,10 +510,20 @@ private struct CoreTextAttributedLabel: View {
 
         for run in runs {
             let attributes = CTRunGetAttributes(run) as NSDictionary
-            guard
-                let rawValue = (attributes[kCTUnderlineStyleAttributeName] as? NSNumber)?.intValue
-                    ?? (attributes[NSAttributedString.Key.underlineStyle] as? NSNumber)?.intValue
-            else { continue }
+            let rawValue: Int?
+            if let number = attributes[kCTUnderlineStyleAttributeName] as? NSNumber {
+                rawValue = number.intValue
+            } else if let intValue = attributes[kCTUnderlineStyleAttributeName] as? Int {
+                rawValue = intValue
+            } else if let number = attributes[NSAttributedString.Key.underlineStyle] as? NSNumber {
+                rawValue = number.intValue
+            } else if let intValue = attributes[NSAttributedString.Key.underlineStyle] as? Int {
+                rawValue = intValue
+            } else {
+                rawValue = nil
+            }
+
+            guard let rawValue else { continue }
 
             let style = UnderlineStyle(rawValue: rawValue)
             guard style.contains(.byWord) || style.contains(.double) || style.contains(.thick) else { continue }
