@@ -8,11 +8,18 @@
 import SwiftUI
 import WrapKit
 
+private final class SplashContentAdapters {
+    let text = TextOutputSwiftUIAdapter()
+    let image = ImageViewOutputSwiftUIAdapter()
+}
+
 public struct SplashContentView: View {
     private let lifeCycleOutput: LifeCycleViewOutput?
     private let applicationLifecycleOutput: ApplicationLifecycleOutput?
-    public let adapter = TextOutputSwiftUIAdapter()
-    public let imageViewAdapter = ImageViewOutputSwiftUIAdapter()
+    private let adapters: SplashContentAdapters
+
+    public var adapter: TextOutputSwiftUIAdapter { adapters.text }
+    public var imageViewAdapter: ImageViewOutputSwiftUIAdapter { adapters.image }
     
     public init(
         lifeCycleOutput: LifeCycleViewOutput? = nil,
@@ -20,6 +27,7 @@ public struct SplashContentView: View {
     ) {
         self.lifeCycleOutput = lifeCycleOutput
         self.applicationLifecycleOutput = applicationLifecycleOutput
+        self.adapters = SplashContentAdapters()
     }
     
     public var body: some View {
