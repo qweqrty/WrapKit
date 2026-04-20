@@ -40,6 +40,11 @@ extension MainQueueDispatchDecorator: ButtonOutput where T: ButtonOutput {
             self?.decoratee.display(image: image)
         }
     }
+    public func display(contentInset: EdgeInsets) {
+        dispatch { [weak self] in
+            self?.decoratee.display(contentInset: contentInset)
+        }
+    }
     public func display(style: ButtonStyle?) {
         dispatch { [weak self] in
             self?.decoratee.display(style: style)

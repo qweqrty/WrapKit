@@ -59,6 +59,15 @@ public class ButtonOutputSwiftUIAdapter: ObservableObject, ButtonOutput {
             image: image
         )
     }
+    @Published public var displayContentInsetState: DisplayContentInsetState? = nil
+    public struct DisplayContentInsetState {
+        public let contentInset: EdgeInsets
+    }
+    public func display(contentInset: EdgeInsets) {
+        displayContentInsetState = .init(
+            contentInset: contentInset
+        )
+    }
     @Published public var displayStyleState: DisplayStyleState? = nil
     public struct DisplayStyleState {
         public let style: ButtonStyle?
