@@ -19,6 +19,7 @@ import UIKit
 #endif
 public class EmptyViewOutputSwiftUIAdapter: ObservableObject, EmptyViewOutput {
 
+
     // Initializer
     public init(
     ) {

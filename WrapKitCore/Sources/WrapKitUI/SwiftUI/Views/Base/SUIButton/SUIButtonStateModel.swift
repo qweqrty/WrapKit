@@ -18,7 +18,8 @@ public final class SUIButtonStateModel: ObservableObject {
     
     private var cancellables: Set<AnyCancellable> = []
     
-    public init(adapter: ButtonOutputSwiftUIAdapter,
+    public init(
+        adapter: ButtonOutputSwiftUIAdapter,
                 loadingAdapter: LoadingOutputSwiftUIAdapter? = nil
     ) {
         self.adapter = adapter

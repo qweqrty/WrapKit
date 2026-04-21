@@ -16,7 +16,8 @@ let project = Project(
                 .external(name: "Kingfisher"),
                 .external(name: "Lottie"),
                 .external(name: "PhoneNumberKit"),
-                .external(name: "DeviceKit")
+                .external(name: "DeviceKit"),
+                .external(name: "SwiftUIIntrospect"),
             ]
         ),
         .target(

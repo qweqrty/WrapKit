@@ -19,6 +19,7 @@ import SwiftUI
 #endif
 public class TitledOutputSwiftUIAdapter: ObservableObject, TitledOutput {
 
+
     // Initializer
     public init(
     ) {

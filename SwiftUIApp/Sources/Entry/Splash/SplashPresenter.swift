@@ -17,6 +17,8 @@ public class SplashPresenter: LifeCycleViewOutput, ApplicationLifecycleOutput {
     public var buttonLoadingOutput: LoadingOutput? 
     public var loadingOutput: LoadingOutput?
     public var buttonWithShrink: ButtonOutput?
+    public var switchControl: SwitchCotrolOutput?
+    public var switchControlLoading: LoadingOutput?
     
     public init() {
         
@@ -26,12 +28,13 @@ public class SplashPresenter: LifeCycleViewOutput, ApplicationLifecycleOutput {
         print("SplashPresenter: viewDidLoad()")
 //        setupTextOutput()
 //        setupImageOutput()
-        setupButtonOutup()
+//        setupButtonOutup()
+        setupSwitchControl()
         
-        loadingOutput?.display(isLoading: true)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 5) { [weak self] in
-            self?.loadingOutput?.display(isLoading: false)
-        }
+//        loadingOutput?.display(isLoading: true)
+//        DispatchQueue.main.asyncAfter(deadline: .now() + 5) { [weak self] in
+//            self?.loadingOutput?.display(isLoading: false)
+//        }
     }
     
     public func viewWillAppear() {
@@ -179,6 +182,30 @@ private extension SplashPresenter {
                                             pressedTintColor: .brown,
                                             loadingIndicatorColor: .red
                                            )))
+    }
+    
+    private func setupSwitchControl() {
+        switchControl?.display(model: .init(
+                onPress: { _ in print("asd") },
+                isOn: true,
+                style: .init(
+                    tintColor: .red,
+                    thumbTintColor: .white,
+                    backgroundColor: .lightGray,
+                    cornerRadius: 16,
+                    shimmerStyle: .init(
+                        backgroundColor: .lightGray,
+                        gradientColorOne: .clear,
+                        gradientColorTwo: UIColor(white: 0.95, alpha: 0.6),
+                        cornerRadius: 16
+                    )
+                )
+            ))
+        
+        switchControlLoading?.display(isLoading: true)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 5) { [weak self] in
+            self?.switchControlLoading?.display(isLoading: false)
+        }
     }
     
     private func setupImageOutput() {

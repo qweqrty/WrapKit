@@ -15,6 +15,7 @@ private final class SplashContentAdapters {
     let buttonLoading = LoadingOutputSwiftUIAdapter()
     let loadingView = LoadingOutputSwiftUIAdapter()
     let buttonWithShrink = ButtonOutputSwiftUIAdapter()
+    let switchControl = SwitchCotrolOutputSwiftUIAdapter()
 }
 
 public struct SplashContentView: View {
@@ -28,6 +29,7 @@ public struct SplashContentView: View {
     public var buttonLoadingAdapter: LoadingOutputSwiftUIAdapter { adapters.buttonLoading }
     public var loadingAdapter: LoadingOutputSwiftUIAdapter { adapters.loadingView }
     public var buttonWithShrink: ButtonOutputSwiftUIAdapter { adapters.buttonWithShrink }
+    public var switchControlOutput: SwitchCotrolOutputSwiftUIAdapter { adapters.switchControl }
     
     public init(
         lifeCycleOutput: LifeCycleViewOutput? = nil,
@@ -72,6 +74,10 @@ public struct SplashContentView: View {
                         .frame(maxHeight: .infinity, alignment: .center)
                     
                     SUIButton(adapter: buttonWithShrink, pressAnimations: [.shrink])
+                        .frame(maxWidth: .infinity, alignment: .center)
+                        .frame(maxHeight: .infinity, alignment: .center)
+                    
+                    SUISwitchControl(adapter: switchControlOutput)
                         .frame(maxWidth: .infinity, alignment: .center)
                         .frame(maxHeight: .infinity, alignment: .center)
 

@@ -79,16 +79,6 @@ public struct SUIButtonView: View {
                     }
                 }
                 .opacity(isLoading ? 0 : 1)
-
-                if isLoading {
-                    SUILoadingViewContent(
-                        color: model.style?.loadingIndicatorColor.map { SwiftUIColor($0) } ?? .red,
-                        size: .init(
-                            width: (model.height ?? 44) * 0.5,
-                            height: (model.height ?? 44) * 0.5
-                        )
-                    )
-                }
             }
             .frame(maxWidth: .infinity)
             .padding(model.contentInset?.asSUIEdgeInsets ?? .init())
@@ -96,11 +86,11 @@ public struct SUIButtonView: View {
             .background(backgroundView)
             .cornerRadius(model.style?.cornerRadius ?? 12)
             .overlay(borderView)
-            .accessibilityIdentifier(model.accessibilityIdentifier ?? "")
         }
         .opacity(isEnabled ? 1.0 : 0.5)
         .disabled(!isEnabled)
         .buttonStyle(PressableButtonStyle(isPressed: $isPressed, pressAnimations: pressAnimations))
+        .accessibilityIdentifier(model.accessibilityIdentifier ?? "")
     }
     
     @ViewBuilder

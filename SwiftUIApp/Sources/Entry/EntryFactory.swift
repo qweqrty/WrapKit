@@ -47,6 +47,14 @@ struct EntryViewSwiftUIFactory: EntryViewFactory {
             .buttonWithShrink
             .weakReferenced
             .mainQueueDispatched
+        presenter.switchControl = contentView
+            .switchControlOutput
+            .weakReferenced
+            .mainQueueDispatched
+        presenter.switchControlLoading = contentView
+            .switchControlOutput
+            .weakReferenced
+            .mainQueueDispatched
         return AnyView(contentView)
     }
 }
