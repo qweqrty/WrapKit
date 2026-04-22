@@ -66,6 +66,13 @@ public struct SUISegmentedControlView: View {
                 .font: appearance?.font ?? UIFont.systemFont(ofSize: 13)
             ]
             segmentedControl.setTitleTextAttributes(attributes, for: .normal)
+            
+            for (index, segment) in segments.enumerated() {
+                guard let identifier = segment.accessibilityIdentifier else { continue }
+                if #available(iOS 14.0, *) {
+                    segmentedControl.actionForSegment(at: index)?.accessibilityIdentifier = identifier
+                }
+            }
         }
         .onChange(of: selectedIndex) { newIndex in
             onSelect?(newIndex)

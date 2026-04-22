@@ -15,6 +15,7 @@ public final class SUISwitchControlStateModel: ObservableObject {
     @Published var isLoading: Bool = false
     @Published var style: SwitchControlPresentableModel.Style? = nil
     @Published var onPress: ((SwitchCotrolOutput & LoadingOutput) -> Void)? = nil
+    @Published var accessibilityIdentifier: String? = nil
     
     let adapter: SwitchCotrolOutputSwiftUIAdapter
     private var cancellables: Set<AnyCancellable> = []
@@ -32,6 +33,7 @@ public final class SUISwitchControlStateModel: ObservableObject {
                 if let isEnabled = model.isEnabled { self.isEnabled = isEnabled }
                 if let style = model.style { self.style = style }
                 if let onPress = model.onPress { self.onPress = onPress }
+                if let accessibilityIdentifier = model.accessibilityIdentifier { self.accessibilityIdentifier = accessibilityIdentifier }
             }
             .store(in: &cancellables)
         

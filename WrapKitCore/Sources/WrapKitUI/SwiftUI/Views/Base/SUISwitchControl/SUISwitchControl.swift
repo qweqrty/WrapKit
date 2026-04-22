@@ -15,6 +15,7 @@ public struct SUISwitchControl: View {
                 isEnabled: stateModel.isEnabled,
                 isLoading: stateModel.isLoading,
                 style: stateModel.style,
+                accessibilityIdentifier: stateModel.accessibilityIdentifier,
                 onToggle: { [weak stateModel] newValue in
                     guard let stateModel else { return }
                     stateModel.isOn = newValue
@@ -31,18 +32,21 @@ public struct SUISwitchControlView: View {
     let isLoading: Bool
     let style: SwitchControlPresentableModel.Style?
     let onToggle: ((Bool) -> Void)?
+    let accessibilityIdentifier: String?
     
     public init(
         isOn: Bool,
         isEnabled: Bool = true,
         isLoading: Bool = false,
         style: SwitchControlPresentableModel.Style? = nil,
-        onToggle: ((Bool) -> Void)? = nil
+        accessibilityIdentifier: String? = nil
+        onToggle: ((Bool) -> Void)? = nil,
     ) {
         self.isOn = isOn
         self.isEnabled = isEnabled
         self.isLoading = isLoading
         self.style = style
+        self.accessibilityIdentifier = accessibilityIdentifier
         self.onToggle = onToggle
     }
     
@@ -58,6 +62,7 @@ public struct SUISwitchControlView: View {
                     onToggle?(newValue)
                 }
             ))
+            .accessibilityIdentifier(accessibilityIdentifier ?? "")
             .labelsHidden()
             .if(true, modifier: { view in
                 if #available(iOS 16.0, *) {
