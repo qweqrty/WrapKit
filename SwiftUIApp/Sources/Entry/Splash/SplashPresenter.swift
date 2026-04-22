@@ -19,6 +19,8 @@ public class SplashPresenter: LifeCycleViewOutput, ApplicationLifecycleOutput {
     public var buttonWithShrink: ButtonOutput?
     public var switchControl: SwitchCotrolOutput?
     public var switchControlLoading: LoadingOutput?
+    public var progressBar: ProgressBarOutput?
+    public var segmentedControl: SegmentedControlOutput?
     
     public init() {
         
@@ -29,7 +31,9 @@ public class SplashPresenter: LifeCycleViewOutput, ApplicationLifecycleOutput {
 //        setupTextOutput()
 //        setupImageOutput()
 //        setupButtonOutup()
+        setupProgressBar()
         setupSwitchControl()
+        setupSegmentedControl()
         
 //        loadingOutput?.display(isLoading: true)
 //        DispatchQueue.main.asyncAfter(deadline: .now() + 5) { [weak self] in
@@ -76,6 +80,7 @@ public class SplashPresenter: LifeCycleViewOutput, ApplicationLifecycleOutput {
 }
 
 private extension SplashPresenter {
+    // MARK: = Label
     private func setupTextOutput() {
         textOutput?.display(text: "display(text: String) implementation - `The quick brown fox jumps over the lazy dog`")
         textOutput?.display(
@@ -144,6 +149,21 @@ private extension SplashPresenter {
 //        }))
     }
     
+    // MARK: - SegmentedControl
+    private func setupSegmentedControl() {
+        segmentedControl?.display(segments: [
+            .init(title: "First segment", index: 0),
+            .init(title: "Second segment", index: 1)
+        ])
+        
+//        segmentedControl?.display(appearence: .init(
+//            colors: .init(textColor: .black, backgroundColor: .cyan, selectedBackgroundColor: .systemBlue),
+//            font: .boldSystemFont(ofSize: 14),
+//            cornerRadius: 16
+//        ))
+    }
+    
+    // MARK: - Button
     private func setupButtonOutup() {
         
         buttonLoadingOutput?.display(isLoading: true)
@@ -184,23 +204,32 @@ private extension SplashPresenter {
                                            )))
     }
     
+    // MARK: - ProgressBar
+    private func setupProgressBar() {
+        progressBar?.display(model: .init(
+            progress: 50,
+            style: .init(backgroundColor: .systemGreen, progressBarColor: .systemBlue, height: 8, cornerRadius: 16)
+        ))
+    }
+    
+    // MARK: - SwitchControl
     private func setupSwitchControl() {
         switchControl?.display(model: .init(
-                onPress: { _ in print("asd") },
-                isOn: true,
-                style: .init(
-                    tintColor: .red,
-                    thumbTintColor: .white,
+            onPress: { _ in print("asd") },
+            isOn: true,
+            style: .init(
+                tintColor: .red,
+                thumbTintColor: .white,
+                backgroundColor: .lightGray,
+                cornerRadius: 16,
+                shimmerStyle: .init(
                     backgroundColor: .lightGray,
-                    cornerRadius: 16,
-                    shimmerStyle: .init(
-                        backgroundColor: .lightGray,
-                        gradientColorOne: .clear,
-                        gradientColorTwo: UIColor(white: 0.95, alpha: 0.6),
-                        cornerRadius: 16
-                    )
+                    gradientColorOne: .clear,
+                    gradientColorTwo: UIColor(white: 0.95, alpha: 0.6),
+                    cornerRadius: 16
                 )
-            ))
+            )
+        ))
         
         switchControlLoading?.display(isLoading: true)
         DispatchQueue.main.asyncAfter(deadline: .now() + 5) { [weak self] in
@@ -208,6 +237,7 @@ private extension SplashPresenter {
         }
     }
     
+    // MARK: - ImageView
     private func setupImageOutput() {
         let urlStringLight = "https://developer.apple.com/assets/elements/icons/swift/swift-64x64_2x.png"
         let urlStringDark = "https://uxwing.com/wp-content/themes/uxwing/download/web-app-development/dark-mode-icon.png"

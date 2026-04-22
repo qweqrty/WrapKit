@@ -16,6 +16,8 @@ private final class SplashContentAdapters {
     let loadingView = LoadingOutputSwiftUIAdapter()
     let buttonWithShrink = ButtonOutputSwiftUIAdapter()
     let switchControl = SwitchCotrolOutputSwiftUIAdapter()
+    let progressBar = ProgressBarOutputSwiftUIAdapter()
+    let segmentedControl = SegmentedControlOutputSwiftUIAdapter()
 }
 
 public struct SplashContentView: View {
@@ -28,8 +30,10 @@ public struct SplashContentView: View {
     public var buttonAdapter: ButtonOutputSwiftUIAdapter { adapters.button }
     public var buttonLoadingAdapter: LoadingOutputSwiftUIAdapter { adapters.buttonLoading }
     public var loadingAdapter: LoadingOutputSwiftUIAdapter { adapters.loadingView }
-    public var buttonWithShrink: ButtonOutputSwiftUIAdapter { adapters.buttonWithShrink }
-    public var switchControlOutput: SwitchCotrolOutputSwiftUIAdapter { adapters.switchControl }
+    public var buttonWithShrinkAdapter: ButtonOutputSwiftUIAdapter { adapters.buttonWithShrink }
+    public var switchControlAdapter: SwitchCotrolOutputSwiftUIAdapter { adapters.switchControl }
+    public var progressBarAdapter: ProgressBarOutputSwiftUIAdapter { adapters.progressBar }
+    public var segmentedControlAdapter: SegmentedControlOutputSwiftUIAdapter { adapters.segmentedControl }
     
     public init(
         lifeCycleOutput: LifeCycleViewOutput? = nil,
@@ -39,7 +43,7 @@ public struct SplashContentView: View {
         self.applicationLifecycleOutput = applicationLifecycleOutput
         self.adapters = SplashContentAdapters()
     }
-    
+    @State private var selected = 0
     public var body: some View {
         LifeCycleView(
             lifeCycleOutput: lifeCycleOutput,
@@ -47,7 +51,6 @@ public struct SplashContentView: View {
         ) {
             ZStack {
                 Color.red.ignoresSafeArea()
-                
                 VStack {
                     ZStack {
                         Color.red.ignoresSafeArea()
@@ -64,6 +67,15 @@ public struct SplashContentView: View {
                     }
                 }
                 ScrollView(.vertical) {
+                    
+                    SUIProgressBar(adaper: progressBarAdapter)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .frame(maxHeight: .infinity, alignment: .center)
+                    
+                    SUISegmentedControl(adapter: segmentedControlAdapter)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .frame(maxHeight: .infinity, alignment: .center)
+                    
                     SUILabel(adapter: adapter)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .frame(maxHeight: .infinity, alignment: .center)
@@ -73,13 +85,14 @@ public struct SplashContentView: View {
                         .frame(maxWidth: .infinity, alignment: .center)
                         .frame(maxHeight: .infinity, alignment: .center)
                     
-                    SUIButton(adapter: buttonWithShrink, pressAnimations: [.shrink])
+                    SUIButton(adapter: buttonWithShrinkAdapter, pressAnimations: [.shrink])
                         .frame(maxWidth: .infinity, alignment: .center)
                         .frame(maxHeight: .infinity, alignment: .center)
                     
-                    SUISwitchControl(adapter: switchControlOutput)
+                    SUISwitchControl(adapter: switchControlAdapter)
                         .frame(maxWidth: .infinity, alignment: .center)
                         .frame(maxHeight: .infinity, alignment: .center)
+                    
 
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)

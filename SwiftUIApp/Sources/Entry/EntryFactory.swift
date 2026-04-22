@@ -44,15 +44,23 @@ struct EntryViewSwiftUIFactory: EntryViewFactory {
             .weakReferenced
             .mainQueueDispatched
         presenter.buttonWithShrink = contentView
-            .buttonWithShrink
+            .buttonWithShrinkAdapter
             .weakReferenced
             .mainQueueDispatched
         presenter.switchControl = contentView
-            .switchControlOutput
+            .switchControlAdapter
             .weakReferenced
             .mainQueueDispatched
         presenter.switchControlLoading = contentView
-            .switchControlOutput
+            .switchControlAdapter
+            .weakReferenced
+            .mainQueueDispatched
+        presenter.progressBar = contentView
+            .progressBarAdapter
+            .weakReferenced
+            .mainQueueDispatched
+        presenter.segmentedControl = contentView
+            .segmentedControlAdapter
             .weakReferenced
             .mainQueueDispatched
         return AnyView(contentView)
