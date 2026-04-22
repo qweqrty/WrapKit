@@ -16,6 +16,9 @@ import UIKit
 #if canImport(SwiftUI)
 import SwiftUI
 #endif
+#if canImport(CoreGraphics)
+import CoreGraphics
+#endif
 
 extension ButtonOutput {
     public var weakReferenced: any ButtonOutput {

@@ -20,6 +20,9 @@ import UIKit
 #if canImport(SwiftUI)
 import SwiftUI
 #endif
+#if canImport(CoreGraphics)
+import CoreGraphics
+#endif
 public class ButtonOutputSwiftUIAdapter: ObservableObject, ButtonOutput {
 
     // Initializer
