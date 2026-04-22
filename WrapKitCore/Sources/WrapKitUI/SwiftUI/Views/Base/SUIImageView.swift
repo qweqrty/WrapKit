@@ -61,7 +61,6 @@ public struct SUIImageView: View {
 
                     if isLoading {
                         loadingView
-                            .frame(width: effectiveSize?.width, height: effectiveSize?.height)
                     }
                 }
                 .modifier(ImageViewContainerStyle(model: model))
@@ -152,11 +151,11 @@ public struct SUIImageView: View {
         Group {
             if let fallbackView {
                 fallbackView
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
                 SwiftUICore.EmptyView()
             }
         }
-        .frame(width: model.size?.width, height: model.size?.height)
     }
 
     @ViewBuilder
@@ -165,24 +164,27 @@ public struct SUIImageView: View {
             SwiftUIImage(image: image)
                 .renderingMode(.template)
                 .resizable()
-                .interpolation(.high)
                 .modifier(OptionalAspectRatio(contentModeIsFit: model.contentModeIsFit ?? true))
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
                 .foregroundColor(.accentColor)
         } else {
             SwiftUIImage(image: image)
                 .resizable()
-                .interpolation(.high)
                 .modifier(OptionalAspectRatio(contentModeIsFit: model.contentModeIsFit ?? true))
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
         }
     }
 
     private var loadingView: some View {
-        viewWhileLoadingView ?? AnyView(
-            CircularSwiftUIProgressView()
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-        )
+        Group {
+            if let viewWhileLoadingView {
+                viewWhileLoadingView
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else {
+                CircularSwiftUIProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
+        }
     }
 
     private func loadImage(for mode: ColorScheme, completion: ((Image?) -> Void)?) {
@@ -193,7 +195,7 @@ public struct SUIImageView: View {
             downloadTask?.cancel()
             isLoading = false
             loadedImage = image
-            shouldRenderTemplate = image?.renderingMode == .alwaysTemplate
+            shouldRenderTemplate = image?.renderingMode != .alwaysOriginal
             lastLoadedRemoteURL = nil
             completion?(image)
 
@@ -237,10 +239,6 @@ public struct SUIImageView: View {
             lastLoadedRemoteURL = nil
             completion?(nil)
         }
-    }
-
-    private var effectiveSize: CGSize? {
-        model.size ?? model.image?.assetSize
     }
 
     private func shouldSkipReload(for url: URL?) -> Bool {
@@ -443,15 +441,6 @@ private extension ImageEnum {
             return false
         }
     }
-
-    var assetSize: CGSize? {
-        switch self {
-        case .asset(let image):
-            return image?.size
-        case .data, .url, .urlString:
-            return nil
-        }
-    }
 }
 
 // MARK: - View Modifiers
@@ -460,7 +449,7 @@ private struct ImageViewContainerStyle: ViewModifier {
 
     func body(content: Content) -> some View {
         content
-            .modifier(OptionalFrame(size: model?.size ?? model?.image?.assetSize))
+            .modifier(OptionalFrame(size: model?.size))
             .clipped()
             .cornerRadius(model?.cornerRadius ?? 0)
             .overlay(
