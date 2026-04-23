@@ -169,6 +169,11 @@ public extension Data {
                     DispatchQueue.main.async {
                         completion(String(string))
                     }
+                } else {
+                    let prefix = self.prefix(16).map { String(format: "%02X", $0) }.joined(separator: " ")
+                    DispatchQueue.main.async {
+                        completion("<\(self.count) bytes binary data> prefix: \(prefix)")
+                    }
                 }
             }
         }
