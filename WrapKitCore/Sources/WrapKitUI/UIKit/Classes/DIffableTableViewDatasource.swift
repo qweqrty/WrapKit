@@ -117,6 +117,7 @@ public class DiffableTableViewDataSource<Header, Cell: Hashable, Footer>: NSObje
     private var commitEditingHandler: ((TableEditingStyle, IndexPath) -> Void)?
     private var trailingSwipeActionsConfigurationForRowAt: ((IndexPath) -> UISwipeActionsConfiguration?)?
     private var leadingSwipeActionsConfigurationForRowAt: ((IndexPath) -> UISwipeActionsConfiguration?)?
+    private var isReloadScheduled = false
     
     private var sections: [TableSection<Header, Cell, Footer>] = []
     
@@ -342,7 +343,10 @@ extension DiffableTableViewDataSource: TableOutput & HiddableOutput {
     
     public func display(sections: [TableSection<Header, Cell, Footer>]) {
         self.sections = sections
+        guard isReloadScheduled == false else { return }
+        isReloadScheduled = true
         DispatchQueue.main.async { [weak self] in
+            self?.isReloadScheduled = false
             self?.tableView?.reloadData()
         }
     }

@@ -338,6 +338,50 @@ class NavigationBarSnapshotTests: XCTestCase {
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
+
+    func test_navigationBar_with_secondaryTrailingImage_withText() {
+        let snapshotName = "NAVBAR_WITH_SECONDARY_TRAILING_IMAGE_WITH_TEXT"
+
+        // GIVEN
+        let (sut, container) = makeSUT()
+
+        // WHEN
+        sut.display(style: .init(
+            backgroundColor: .clear,
+            horizontalSpacing: 12.0,
+            primeFont: .boldSystemFont(ofSize: 18),
+            primeColor: .black,
+            secondaryFont: .systemFont(ofSize: 14),
+            secondaryColor: .darkGray
+        ))
+
+        let image = Image(systemName: "gift.fill")
+        sut.display(secondaryTrailingImage: .some(.init(
+            title: "+1",
+            image: image,
+            spacing: 2,
+            contentInset: .init(top: 4, leading: 8, bottom: 4, trailing: 8),
+            isGlassEffectEnabled: false,
+            height: 28,
+            style: .init(
+                backgroundColor: .gradient(.init(colors: [.systemPink, .systemPink.withAlphaComponent(0.75)])),
+                titleColor: .white,
+                imageTintColor: .white,
+                pressedColor: .systemPink,
+                font: .systemFont(ofSize: 17, weight: .semibold),
+                cornerRadius: 14
+            )
+        )))
+
+        // THEN
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
+    }
     
     func test_fail_navigationBar_with_secondaryTrailingImage() {
         let snapshotName = "NAVBAR_WITH_SECONDARY_TRAILING_IMAGE"
