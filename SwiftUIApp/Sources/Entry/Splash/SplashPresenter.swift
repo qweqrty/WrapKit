@@ -13,6 +13,16 @@ public class SplashPresenter: LifeCycleViewOutput, ApplicationLifecycleOutput {
     public var lottieView: LottieViewOutput?
     public var textOutput: TextOutput?
     public var imageViewOutput: ImageViewOutput?
+    public var buttonOutput: ButtonOutput?
+    public var buttonLoadingOutput: LoadingOutput? 
+    public var loadingOutput: LoadingOutput?
+    public var buttonWithShrink: ButtonOutput?
+    public var switchControl: SwitchCotrolOutput?
+    public var switchControlLoading: LoadingOutput?
+    public var progressBar: ProgressBarOutput?
+    public var segmentedControl: SegmentedControlOutput?
+    public var refreshControlOutput: RefreshControlOutput?
+    public var datePickerOutput: DatePickerViewOutput?
     
     public init() {
         
@@ -20,8 +30,19 @@ public class SplashPresenter: LifeCycleViewOutput, ApplicationLifecycleOutput {
     // MARK: - View Lifecycle
     public func viewDidLoad() {
         print("SplashPresenter: viewDidLoad()")
-        setupTextOutput()
-        setupImageOutput()
+//        setupTextOutput()
+//        setupImageOutput()
+//        setupButtonOutup()
+        setupProgressBar()
+        setupSwitchControl()
+        setupSegmentedControl()
+        setupRefreshControl()
+        setupDatePicker()
+        
+//        loadingOutput?.display(isLoading: true)
+//        DispatchQueue.main.asyncAfter(deadline: .now() + 5) { [weak self] in
+//            self?.loadingOutput?.display(isLoading: false)
+//        }
     }
     
     public func viewWillAppear() {
@@ -63,6 +84,7 @@ public class SplashPresenter: LifeCycleViewOutput, ApplicationLifecycleOutput {
 }
 
 private extension SplashPresenter {
+    // MARK: = Label
     private func setupTextOutput() {
         textOutput?.display(text: "display(text: String) implementation - `The quick brown fox jumps over the lazy dog`")
         textOutput?.display(
@@ -131,6 +153,134 @@ private extension SplashPresenter {
 //        }))
     }
     
+    // MARK: - DatePicker
+    private func setupDatePicker() {
+        var minComponents = DateComponents()
+        minComponents.year = 2025
+        minComponents.month = 4
+        minComponents.day = 25
+        let minDate = Calendar.current.date(from: minComponents)
+        
+        var maxComponents = DateComponents()
+        maxComponents.year = 2025
+        maxComponents.month = 4
+        maxComponents.day = 30
+        let maxDate = Calendar.current.date(from: maxComponents)
+        
+        datePickerOutput?.display(model: .init(
+            value: Date(),
+            minimumDate: minDate,
+            maximumDate: maxDate,
+            mode: .date,
+            dateChanged: { date in
+                print(date)
+            }
+        ))
+    }
+    
+    // MARK: - RefreshControl
+    private func setupRefreshControl() {
+        refreshControlOutput?.display(model: .init(
+            style: .init(tintColor: .blue),
+            onRefresh: { [weak self] in
+                print("refreshing...")
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                    self?.refreshControlOutput?.display(isLoading: false)
+                }
+            },
+            isLoading: false
+        ))
+    }
+    
+    // MARK: - SegmentedControl
+    private func setupSegmentedControl() {
+        segmentedControl?.display(segments: [
+            .init(title: "First segment", index: 0),
+            .init(title: "Second segment", index: 1)
+        ])
+        
+//        segmentedControl?.display(appearence: .init(
+//            colors: .init(textColor: .black, backgroundColor: .cyan, selectedBackgroundColor: .systemBlue),
+//            font: .boldSystemFont(ofSize: 14),
+//            cornerRadius: 16
+//        ))
+    }
+    
+    // MARK: - Button
+    private func setupButtonOutup() {
+        
+        buttonLoadingOutput?.display(isLoading: true)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 8) {
+            self.buttonLoadingOutput?.display(isLoading: false)
+        }
+        
+        buttonOutput?.display(model: .init(title: "Common button",
+                                           image: .init(systemName: "star.fill"),
+                                           height: 50,
+                                           width: 300,
+                                           style: .init(
+                                            backgroundColor: .green,
+                                            titleColor: .red,
+                                            borderWidth: 3,
+                                            borderColor: .black,
+                                            pressedColor: .cyan,
+                                            pressedTintColor: .brown,
+                                            loadingIndicatorColor: .red
+                                           )))
+        
+        buttonOutput?.display {
+            print("asd")
+        }
+        
+        buttonWithShrink?.display(model: .init(title: "Button with shrink",
+                                           image: .init(systemName: "star.fill"),
+                                           height: 50,
+                                           width: 300,
+                                           style: .init(
+                                            backgroundColor: .green,
+                                            titleColor: .red,
+                                            borderWidth: 3,
+                                            borderColor: .black,
+                                            pressedColor: .cyan,
+                                            pressedTintColor: .brown,
+                                            loadingIndicatorColor: .red
+                                           )))
+    }
+    
+    // MARK: - ProgressBar
+    private func setupProgressBar() {
+        progressBar?.display(model: .init(
+            progress: 50,
+            style: .init(backgroundColor: .systemGreen, progressBarColor: .systemBlue, height: 8, cornerRadius: 16)
+        ))
+    }
+    
+    // MARK: - SwitchControl
+    private func setupSwitchControl() {
+        switchControl?.display(model: .init(
+            onPress: { _ in print("asd") },
+            isOn: true,
+            style: .init(
+                tintColor: .red,
+                thumbTintColor: .white,
+                backgroundColor: .lightGray,
+                cornerRadius: 16,
+                shimmerStyle: .init(
+                    backgroundColor: .lightGray,
+                    gradientColorOne: .clear,
+                    gradientColorTwo: UIColor(white: 0.95, alpha: 0.6),
+                    cornerRadius: 16
+                )
+            )
+        ))
+        
+        switchControlLoading?.display(isLoading: true)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 5) { [weak self] in
+            self?.switchControlLoading?.display(isLoading: false)
+        }
+    }
+    
+    // MARK: - ImageView
     private func setupImageOutput() {
         let urlStringLight = "https://developer.apple.com/assets/elements/icons/swift/swift-64x64_2x.png"
         let urlStringDark = "https://uxwing.com/wp-content/themes/uxwing/download/web-app-development/dark-mode-icon.png"

@@ -17,7 +17,18 @@ import Foundation
 #if canImport(UIKit)
 import UIKit
 #endif
-public class SwitchCotrolOutputSwiftUIAdapter: ObservableObject, SwitchCotrolOutput {
+public class SwitchCotrolOutputSwiftUIAdapter: ObservableObject, SwitchCotrolOutput, LoadingOutput {
+
+    public var isLoading: Bool? = nil
+
+    @Published public var displayIsLoadingState: DisplayIsLoadingState? = nil
+    public struct DisplayIsLoadingState {
+        public let isLoading: Bool
+    }
+    public func display(isLoading: Bool) {
+        self.isLoading = isLoading
+        displayIsLoadingState = .init(isLoading: isLoading)
+    }
 
     // Initializer
     public init(
