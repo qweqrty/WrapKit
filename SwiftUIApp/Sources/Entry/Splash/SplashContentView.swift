@@ -19,6 +19,7 @@ private final class SplashContentAdapters {
     let progressBar = ProgressBarOutputSwiftUIAdapter()
     let segmentedControl = SegmentedControlOutputSwiftUIAdapter()
     let refreshControl = RefreshControlOutputSwiftUIAdapter()
+    let datePicker = DatePickerViewOutputSwiftUIAdapter()
 }
 
 public struct SplashContentView: View {
@@ -36,6 +37,7 @@ public struct SplashContentView: View {
     public var progressBarAdapter: ProgressBarOutputSwiftUIAdapter { adapters.progressBar }
     public var segmentedControlAdapter: SegmentedControlOutputSwiftUIAdapter { adapters.segmentedControl }
     public var refreshControlAdapter: RefreshControlOutputSwiftUIAdapter { adapters.refreshControl }
+    public var datePickerAdapter: DatePickerViewOutputSwiftUIAdapter { adapters.datePicker }
     
     public init(
         lifeCycleOutput: LifeCycleViewOutput? = nil,
@@ -52,10 +54,10 @@ public struct SplashContentView: View {
             applicationLifecycleOutput: applicationLifecycleOutput
         ) {
             ZStack {
-                Color.red.ignoresSafeArea()
+//                Color.red.ignoresSafeArea()
                 VStack {
                     ZStack {
-                        Color.red.ignoresSafeArea()
+//                        Color.red.ignoresSafeArea()
                           SUILabel(adapter: adapter)
                                               .frame(maxWidth: .infinity, alignment: .leading)
                                               .padding(.horizontal)
@@ -95,13 +97,15 @@ public struct SplashContentView: View {
                         .frame(maxWidth: .infinity, alignment: .center)
                         .frame(maxHeight: .infinity, alignment: .center)
                     
-
+                    SUIDatePicker(adapter: datePickerAdapter)
+                        .frame(maxWidth: .infinity, alignment: .center)
+                        .frame(maxHeight: .infinity, alignment: .center)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .frame(maxHeight: .infinity, alignment: .center)
-                .background(
-                    Color.red.ignoresSafeArea().opacity(0.2)
-                )
+//                .background(
+//                    Color.red.ignoresSafeArea().opacity(0.2)
+//                )
                 
                 SUILoadingView.circleStrokeLoader(
                     adapter: loadingAdapter,

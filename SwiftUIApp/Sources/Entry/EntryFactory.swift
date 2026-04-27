@@ -67,6 +67,10 @@ struct EntryViewSwiftUIFactory: EntryViewFactory {
             .refreshControlAdapter
             .weakReferenced
             .mainQueueDispatched
+        presenter.datePickerOutput = contentView
+            .datePickerAdapter
+            .weakReferenced
+            .mainQueueDispatched
         return AnyView(contentView)
     }
 }

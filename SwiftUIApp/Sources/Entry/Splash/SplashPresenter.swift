@@ -22,6 +22,7 @@ public class SplashPresenter: LifeCycleViewOutput, ApplicationLifecycleOutput {
     public var progressBar: ProgressBarOutput?
     public var segmentedControl: SegmentedControlOutput?
     public var refreshControlOutput: RefreshControlOutput?
+    public var datePickerOutput: DatePickerViewOutput?
     
     public init() {
         
@@ -36,6 +37,7 @@ public class SplashPresenter: LifeCycleViewOutput, ApplicationLifecycleOutput {
         setupSwitchControl()
         setupSegmentedControl()
         setupRefreshControl()
+        setupDatePicker()
         
 //        loadingOutput?.display(isLoading: true)
 //        DispatchQueue.main.asyncAfter(deadline: .now() + 5) { [weak self] in
@@ -149,6 +151,31 @@ private extension SplashPresenter {
 //        }, animationStyle: .circle(lineColor: Color.blue), duration: 5, completion: {
 //            
 //        }))
+    }
+    
+    // MARK: - DatePicker
+    private func setupDatePicker() {
+        var minComponents = DateComponents()
+        minComponents.year = 2025
+        minComponents.month = 4
+        minComponents.day = 25
+        let minDate = Calendar.current.date(from: minComponents)
+        
+        var maxComponents = DateComponents()
+        maxComponents.year = 2025
+        maxComponents.month = 4
+        maxComponents.day = 30
+        let maxDate = Calendar.current.date(from: maxComponents)
+        
+        datePickerOutput?.display(model: .init(
+            value: Date(),
+            minimumDate: minDate,
+            maximumDate: maxDate,
+            mode: .date,
+            dateChanged: { date in
+                print(date)
+            }
+        ))
     }
     
     // MARK: - RefreshControl
