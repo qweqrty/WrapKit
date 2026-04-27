@@ -21,6 +21,7 @@ public class SplashPresenter: LifeCycleViewOutput, ApplicationLifecycleOutput {
     public var switchControlLoading: LoadingOutput?
     public var progressBar: ProgressBarOutput?
     public var segmentedControl: SegmentedControlOutput?
+    public var refreshControlOutput: RefreshControlOutput?
     
     public init() {
         
@@ -34,6 +35,7 @@ public class SplashPresenter: LifeCycleViewOutput, ApplicationLifecycleOutput {
         setupProgressBar()
         setupSwitchControl()
         setupSegmentedControl()
+        setupRefreshControl()
         
 //        loadingOutput?.display(isLoading: true)
 //        DispatchQueue.main.asyncAfter(deadline: .now() + 5) { [weak self] in
@@ -147,6 +149,20 @@ private extension SplashPresenter {
 //        }, animationStyle: .circle(lineColor: Color.blue), duration: 5, completion: {
 //            
 //        }))
+    }
+    
+    // MARK: - RefreshControl
+    private func setupRefreshControl() {
+        refreshControlOutput?.display(model: .init(
+            style: .init(tintColor: .blue),
+            onRefresh: { [weak self] in
+                print("refreshing...")
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                    self?.refreshControlOutput?.display(isLoading: false)
+                }
+            },
+            isLoading: false
+        ))
     }
     
     // MARK: - SegmentedControl

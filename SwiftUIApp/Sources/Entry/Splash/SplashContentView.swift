@@ -18,6 +18,7 @@ private final class SplashContentAdapters {
     let switchControl = SwitchCotrolOutputSwiftUIAdapter()
     let progressBar = ProgressBarOutputSwiftUIAdapter()
     let segmentedControl = SegmentedControlOutputSwiftUIAdapter()
+    let refreshControl = RefreshControlOutputSwiftUIAdapter()
 }
 
 public struct SplashContentView: View {
@@ -34,6 +35,7 @@ public struct SplashContentView: View {
     public var switchControlAdapter: SwitchCotrolOutputSwiftUIAdapter { adapters.switchControl }
     public var progressBarAdapter: ProgressBarOutputSwiftUIAdapter { adapters.progressBar }
     public var segmentedControlAdapter: SegmentedControlOutputSwiftUIAdapter { adapters.segmentedControl }
+    public var refreshControlAdapter: RefreshControlOutputSwiftUIAdapter { adapters.refreshControl }
     
     public init(
         lifeCycleOutput: LifeCycleViewOutput? = nil,
@@ -110,6 +112,7 @@ public struct SplashContentView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .ignoresSafeArea()
             }
+            .refreshControl(adapter: refreshControlAdapter)
         }
     }
 }

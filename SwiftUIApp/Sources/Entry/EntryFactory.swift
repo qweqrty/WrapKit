@@ -63,6 +63,10 @@ struct EntryViewSwiftUIFactory: EntryViewFactory {
             .segmentedControlAdapter
             .weakReferenced
             .mainQueueDispatched
+        presenter.refreshControlOutput = contentView
+            .refreshControlAdapter
+            .weakReferenced
+            .mainQueueDispatched
         return AnyView(contentView)
     }
 }

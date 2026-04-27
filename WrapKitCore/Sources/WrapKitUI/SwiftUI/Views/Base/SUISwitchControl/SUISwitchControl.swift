@@ -39,7 +39,7 @@ public struct SUISwitchControlView: View {
         isEnabled: Bool = true,
         isLoading: Bool = false,
         style: SwitchControlPresentableModel.Style? = nil,
-        accessibilityIdentifier: String? = nil
+        accessibilityIdentifier: String? = nil,
         onToggle: ((Bool) -> Void)? = nil,
     ) {
         self.isOn = isOn
