@@ -22,6 +22,7 @@ import SwiftUI
 #endif
 public class ProgressBarOutputSwiftUIAdapter: ObservableObject, ProgressBarOutput {
 
+
     // Initializer
     public init(
     ) {

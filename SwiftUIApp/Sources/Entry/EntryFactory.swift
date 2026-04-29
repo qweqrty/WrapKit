@@ -32,6 +32,49 @@ struct EntryViewSwiftUIFactory: EntryViewFactory {
             .imageViewAdapter
             .weakReferenced
             .mainQueueDispatched
+        presenter.buttonOutput = contentView
+            .buttonAdapter
+            .weakReferenced
+            .mainQueueDispatched
+        presenter.buttonLoadingOutput = contentView.buttonLoadingAdapter
+            .weakReferenced
+            .mainQueueDispatched
+        presenter.loadingOutput = contentView
+            .loadingAdapter
+            .weakReferenced
+            .mainQueueDispatched
+        presenter.buttonWithShrink = contentView
+            .buttonWithShrinkAdapter
+            .weakReferenced
+            .mainQueueDispatched
+        presenter.switchControl = contentView
+            .switchControlAdapter
+            .weakReferenced
+            .mainQueueDispatched
+        presenter.switchControlLoading = contentView
+            .switchControlAdapter
+            .weakReferenced
+            .mainQueueDispatched
+        presenter.progressBar = contentView
+            .progressBarAdapter
+            .weakReferenced
+            .mainQueueDispatched
+        presenter.segmentedControl = contentView
+            .segmentedControlAdapter
+            .weakReferenced
+            .mainQueueDispatched
+        presenter.refreshControlOutput = contentView
+            .refreshControlAdapter
+            .weakReferenced
+            .mainQueueDispatched
+        presenter.datePickerOutput = contentView
+            .datePickerAdapter
+            .weakReferenced
+            .mainQueueDispatched
+        presenter.textField = contentView
+            .textFieldAdapter
+            .weakReferenced
+            .mainQueueDispatched
         return AnyView(contentView)
     }
 }

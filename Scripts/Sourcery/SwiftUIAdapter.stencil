@@ -16,7 +16,7 @@ import SwiftUI
 import {{ importName }}
 #endif
 {% endfor %}
-public class {{ type.name }}SwiftUIAdapter{% for associatedType in type.associatedTypes|sortedValuesByKeys %}{% if forloop.first %}<{% endif %}{{ associatedType.name }}: {{ associatedType.typeName }}{% if not forloop.last %}{% if type.associatedTypes.count > 1 %},{% endif %}{% endif %}{% if forloop.last %}>{% endif %}{% endfor %}: ObservableObject, {{ type.name }} {
+public class {{ type.name }}SwiftUIAdapter{% for associatedType in type.associatedTypes|sortedValuesByKeys %}{% if forloop.first %}<{% endif %}{{ associatedType.name }}: {{ associatedType.typeName }}{% if not forloop.last %}{% if type.associatedTypes.count > 1 %},{% endif %}{% endif %}{% if forloop.last %}>{% endif %}{% endfor %}: ObservableObject, {{ type.name }}{% if type.name == "SwitchCotrolOutput" %}, LoadingOutput{% endif %} {
     {% for variable in type.variables %}
         {% if variable.isOptional %}
         @Published public var {{ variable.name }}: {{ variable.typeName }} = nil
@@ -24,6 +24,19 @@ public class {{ type.name }}SwiftUIAdapter{% for associatedType in type.associat
         @Published public var {{ variable.name }}: {{ variable.typeName }}
         {% endif %}
     {% endfor %}
+
+    {% if type.name == "SwitchCotrolOutput" %}
+    public var isLoading: Bool? = nil
+
+    @Published public var displayIsLoadingState: DisplayIsLoadingState? = nil
+    public struct DisplayIsLoadingState {
+        public let isLoading: Bool
+    }
+    public func display(isLoading: Bool) {
+        self.isLoading = isLoading
+        displayIsLoadingState = .init(isLoading: isLoading)
+    }
+    {% endif %}
 
     // Initializer
     public init(

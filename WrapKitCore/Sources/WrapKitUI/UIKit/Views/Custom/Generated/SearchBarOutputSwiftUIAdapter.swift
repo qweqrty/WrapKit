@@ -19,6 +19,7 @@ import UIKit
 #endif
 public class SearchBarOutputSwiftUIAdapter: ObservableObject, SearchBarOutput {
 
+
     // Initializer
     public init(
     ) {

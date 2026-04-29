@@ -25,6 +25,7 @@ import SwiftUI
 #endif
 public class ImageViewOutputSwiftUIAdapter: ObservableObject, ImageViewOutput {
 
+
     // Initializer
     public init(
     ) {
