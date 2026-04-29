@@ -20,6 +20,7 @@ private final class SplashContentAdapters {
     let segmentedControl = SegmentedControlOutputSwiftUIAdapter()
     let refreshControl = RefreshControlOutputSwiftUIAdapter()
     let datePicker = DatePickerViewOutputSwiftUIAdapter()
+    let textField = TextInputOutputSwiftUIAdapter()
 }
 
 public struct SplashContentView: View {
@@ -38,6 +39,7 @@ public struct SplashContentView: View {
     public var segmentedControlAdapter: SegmentedControlOutputSwiftUIAdapter { adapters.segmentedControl }
     public var refreshControlAdapter: RefreshControlOutputSwiftUIAdapter { adapters.refreshControl }
     public var datePickerAdapter: DatePickerViewOutputSwiftUIAdapter { adapters.datePicker }
+    public var textFieldAdapter: TextInputOutputSwiftUIAdapter { adapters.textField }
     
     public init(
         lifeCycleOutput: LifeCycleViewOutput? = nil,
@@ -100,6 +102,23 @@ public struct SplashContentView: View {
                     SUIDatePicker(adapter: datePickerAdapter)
                         .frame(maxWidth: .infinity, alignment: .center)
                         .frame(maxHeight: .infinity, alignment: .center)
+                    
+                    SUITextField(adapter: textFieldAdapter, appearance: .init(
+                        colors: .init(
+                            textColor: .black,
+                            selectedBorderColor: .red,
+                            selectedBackgroundColor: .cyan,
+                            selectedErrorBorderColor: .red,
+                            errorBorderColor: .red,
+                            errorBackgroundColor: .red,
+                            deselectedBorderColor: .blue,
+                            deselectedBackgroundColor: .black,
+                            disabledTextColor: .gray,
+                            disabledBackgroundColor: .gray),
+                        font: .boldSystemFont(ofSize: 14)
+                    ), trailingView: .init(
+                        SwiftUI.Image(systemName: "star.fill")
+                    ))
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .frame(maxHeight: .infinity, alignment: .center)

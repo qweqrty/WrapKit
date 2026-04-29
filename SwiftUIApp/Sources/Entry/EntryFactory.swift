@@ -71,6 +71,10 @@ struct EntryViewSwiftUIFactory: EntryViewFactory {
             .datePickerAdapter
             .weakReferenced
             .mainQueueDispatched
+        presenter.textField = contentView
+            .textFieldAdapter
+            .weakReferenced
+            .mainQueueDispatched
         return AnyView(contentView)
     }
 }

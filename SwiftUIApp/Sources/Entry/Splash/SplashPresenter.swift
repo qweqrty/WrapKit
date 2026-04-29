@@ -23,6 +23,7 @@ public class SplashPresenter: LifeCycleViewOutput, ApplicationLifecycleOutput {
     public var segmentedControl: SegmentedControlOutput?
     public var refreshControlOutput: RefreshControlOutput?
     public var datePickerOutput: DatePickerViewOutput?
+    public var textField: TextInputOutput?
     
     public init() {
         
@@ -38,6 +39,7 @@ public class SplashPresenter: LifeCycleViewOutput, ApplicationLifecycleOutput {
         setupSegmentedControl()
         setupRefreshControl()
         setupDatePicker()
+        setupTextFied()
         
 //        loadingOutput?.display(isLoading: true)
 //        DispatchQueue.main.asyncAfter(deadline: .now() + 5) { [weak self] in
@@ -153,6 +155,13 @@ private extension SplashPresenter {
 //        }))
     }
     
+    // MARK: - TextField
+    private func setupTextFied() {
+        textField?.display(model: .init(
+            placeholder: "Enter your text"
+        ))
+    }
+    
     // MARK: - DatePicker
     private func setupDatePicker() {
         var minComponents = DateComponents()
@@ -258,7 +267,9 @@ private extension SplashPresenter {
     // MARK: - SwitchControl
     private func setupSwitchControl() {
         switchControl?.display(model: .init(
-            onPress: { _ in print("asd") },
+            onPress: { [weak self] _ in
+                self?.progressBar?.display(progress: 80)
+            },
             isOn: true,
             style: .init(
                 tintColor: .red,
