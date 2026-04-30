@@ -139,14 +139,17 @@ extension Button: ButtonOutput {
     
     public func display(style: ButtonStyle?) {
         guard let style = style else { return }
-
+        
         self.textColor = style.titleColor
         self.textBackgroundColor = style.backgroundColor
         self.pressedTextColor = style.pressedTintColor
         self.pressedBackgroundColor = style.pressedColor
         self.wrongUrlPlaceholderImage = style.wrongUrlPlaceholderImage
         self.loadingIndicatorColor = style.loadingIndicatorColor
-
+        displayGlass(style: style)
+    }
+    
+    private func displayGlass(style: ButtonStyle) {
         if #available(iOS 26, *) {
             var config: UIButton.Configuration? = switch style.glassConfiguration {
             case .glass: .glass()
@@ -166,22 +169,21 @@ extension Button: ButtonOutput {
                     return updated
                 }
             }
-
+            config?.titleLineBreakMode = .byTruncatingTail
+            
             self.configuration = config
 
+            var isPreviouslyHighlighted = false
             configurationUpdateHandler = { [weak self] button in
-                guard let self = self else { return }
-                var updated = button.configuration
+                guard let self = self, var updated = button.configuration else { return }
 
                 if button.isHighlighted {
-                    if let pressed = self.pressedBackgroundColor, pressed != textBackgroundColor {
-                        updated?.background.backgroundColor = pressed
-                    }
-                    if let pressedText = self.pressedTextColor, pressedText != textColor {
-                        updated?.baseForegroundColor = pressedText
-                        updated?.imageColorTransformer = .init { _ in pressedText }
-                    }
-                    UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 0.4, initialSpringVelocity: 6, options: .allowUserInteraction) {
+                    isPreviouslyHighlighted = true
+                    updated.background.backgroundColor = pressedBackgroundColor ?? textBackgroundColor
+                    let baseForegroundColor = pressedTextColor ?? textColor ?? button.currentTitleColor
+                    updated.baseForegroundColor = baseForegroundColor
+                    updated.imageColorTransformer = .init { _ in baseForegroundColor }
+                    UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 0.4, initialSpringVelocity: 6, options: .allowUserInteraction) { [unowned self] in
                         self.pressAnimations.forEach {
                             switch $0 {
                             case .shrink:
@@ -190,10 +192,20 @@ extension Button: ButtonOutput {
                         }
                     }
                 } else {
-                    updated?.background.backgroundColor = self.textBackgroundColor
-                    updated?.baseForegroundColor = self.textColor
-                    updated?.imageColorTransformer = nil
-                    button.transform = .identity
+                    if isPreviouslyHighlighted {
+                        UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 0.4, initialSpringVelocity: 6, options: .allowUserInteraction) { [unowned self] in
+                            updated.background.backgroundColor = self.textBackgroundColor
+                            updated.baseForegroundColor = self.textColor
+                            updated.imageColorTransformer = nil
+                            button.transform = .identity
+                        }
+                    } else {
+                        updated.background.backgroundColor = self.textBackgroundColor
+                        updated.baseForegroundColor = self.textColor
+                        updated.imageColorTransformer = nil
+                        button.transform = .identity
+                    }
+                    isPreviouslyHighlighted = false
                 }
 
                 button.configuration = updated
@@ -356,11 +368,10 @@ open class Button: UIButton {
             pressedBacgroundColor: style.pressedColor
         )
         
+        display(style: style)
         setTitle(title, for: .normal)
-        cornerRadius = 12  // MARK: - TODO
         isEnabled = enabled
         updateAppearance(enabled: enabled)
-        display(style: style)
         applyInteractivityAndAccessibility()
     }
     
@@ -388,7 +399,7 @@ open class Button: UIButton {
         self.textColor = textColor
         self.textBackgroundColor = backgroundColor
         self.contentHorizontalAlignment = contentHorizontalAlignment
-        self.titleLabel?.lineBreakMode = .byTruncatingTail
+        self.titleLabel?.lineBreakMode = lineBreakingMode
         self.isEnabled = isEnabled
         self.spacing = spacing
         self.contentInset = contentInset
@@ -437,15 +448,15 @@ open class Button: UIButton {
         layoutIfNeeded()
         
         UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 0.4, initialSpringVelocity: 6, options: .allowUserInteraction) { [weak self] in
-            self?.pressAnimations.forEach {
+            guard let self else { return }
+            self.pressAnimations.forEach {
                 switch $0 {
                 case .shrink:
-                    self?.transform = CGAffineTransform(scaleX: 0.95, y: 0.95)
+                    self.transform = CGAffineTransform(scaleX: 0.95, y: 0.95)
                 }
             }
-            self?.backgroundColor = self?.pressedBackgroundColor ?? self?.textBackgroundColor
-            
-            self?.setTitleColor(self?.pressedTextColor ?? self?.textColor, for: .normal)
+            self.backgroundColor = self.pressedBackgroundColor ?? self.textBackgroundColor
+            self.setTitleColor(self.pressedTextColor ?? self.textColor, for: .normal)
         }
         super.touchesBegan(touches, with: event)
     }
@@ -468,9 +479,10 @@ open class Button: UIButton {
             return
         }
         UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 0.4, initialSpringVelocity: 6, options: .allowUserInteraction) { [weak self] in
-            self?.transform = CGAffineTransform(scaleX: 1, y: 1)
-            self?.backgroundColor = self?.textBackgroundColor
-            self?.setTitleColor(self?.textColor, for: .normal)
+            guard let self else { return }
+            self.transform = CGAffineTransform(scaleX: 1, y: 1)
+            self.backgroundColor = self.textBackgroundColor
+            self.setTitleColor(self.textColor, for: .normal)
         }
         super.touchesEnded(touches, with: event)
     }
