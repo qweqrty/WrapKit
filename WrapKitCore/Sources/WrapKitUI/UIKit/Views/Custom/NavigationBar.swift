@@ -308,7 +308,7 @@ open class NavigationBar: UIView {
         titleViews.fillSuperview()
         
         centerTitledImageView.anchor(
-            .top(topAnchor),
+            .top(safeAreaLayoutGuide.topAnchor),
             .bottom(bottomAnchor),
             .centerX(centerXAnchor)
         )

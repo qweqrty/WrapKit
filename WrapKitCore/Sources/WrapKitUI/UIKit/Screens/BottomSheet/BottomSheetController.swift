@@ -92,7 +92,7 @@ open class BottomSheetController<View: UIView>: ViewController<View> {
         }
     }
     
-    open var preferredSheetCornerRadius: CGFloat = 12 {
+    open var preferredSheetCornerRadius: CGFloat = if #available(iOS 26, macOS 26, tvOS 26, watchOS 26, *) { 32 } else { 12 } {
         didSet {
             bottomSheetTransitioningDelegate.preferredSheetCornerRadius = preferredSheetCornerRadius
         }
