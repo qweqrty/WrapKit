@@ -379,6 +379,11 @@ private extension ImageEnum {
 // MARK: - View Modifiers
 private struct ImageViewContainerStyle: ViewModifier {
     let model: ImageViewPresentableModel?
+    
+    private var effectiveOpacity: CGFloat {
+        guard model?.image != nil else { return 1.0 }
+        return model?.alpha ?? 1.0
+    }
 
     func body(content: Content) -> some View {
         content
@@ -391,7 +396,7 @@ private struct ImageViewContainerStyle: ViewModifier {
                         .stroke(SwiftUIColor($1), lineWidth: model?.borderWidth ?? 0)
                 )
             }
-            .opacity(model?.alpha ?? 1.0)
+            .opacity(effectiveOpacity)
             .onTapGesture {
                 model?.onPress?()
             }
