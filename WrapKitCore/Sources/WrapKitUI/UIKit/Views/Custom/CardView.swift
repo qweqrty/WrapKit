@@ -771,8 +771,8 @@ extension CardView {
         switchControlConstraints = switchControl.anchor(
             .topGreaterThanEqual(switchWrapperView.topAnchor),
             .bottomLessThanEqual(switchWrapperView.bottomAnchor),
-            .top(switchWrapperView.topAnchor, priority: .defaultHigh),
-            .bottom(switchWrapperView.bottomAnchor, priority: .defaultHigh),
+            .top(switchWrapperView.topAnchor, priority: .defaultLow),
+            .bottom(switchWrapperView.bottomAnchor, priority: .defaultLow),
             .leading(switchWrapperView.leadingAnchor),
             .trailing(switchWrapperView.trailingAnchor),
             .centerX(switchWrapperView.centerXAnchor),
