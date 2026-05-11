@@ -84,7 +84,7 @@ public struct SUINavigationBar: View {
         case .titledImage(let pair):
             HStack(spacing: 8) {
                 if let imageModel = pair.first {
-                    SUINavigationBarCenterImageView(model: imageModel)
+                    SUIImageViewView(model: imageModel)
                         .frame(maxWidth: 24, maxHeight: 24)
                 }
 
@@ -180,32 +180,6 @@ private struct SUINavigationBarButtonView: View {
                 model.onPress?()
             }
         }
-    }
-}
-
-private struct SUINavigationBarCenterImageView: View {
-    let model: ImageViewPresentableModel
-
-    @ViewBuilder
-    var body: some View {
-        Group {
-            switch model.image {
-            case .asset(let image):
-                if let image {
-                    SwiftUIImage(image: image)
-                        .resizable()
-                }
-            case .data(let data):
-                if let data, let image = Image(data: data) {
-                    SwiftUIImage(image: image)
-                        .resizable()
-                }
-            case .url, .urlString, .none:
-                SwiftUICore.EmptyView()
-            }
-        }
-        .aspectRatio(contentMode: model.contentModeIsFit ?? true ? .fit : .fill)
-        .opacity(model.alpha ?? 1)
     }
 }
 #endif
