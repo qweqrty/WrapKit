@@ -10,20 +10,19 @@ import Foundation
 #if canImport(SwiftUI)
 import SwiftUI
 import Kingfisher
+import Combine
 
 public struct SUIImageView: View {
-    let adapter: ImageViewOutputSwiftUIAdapter
     let viewWhileLoadingView: AnyView?
     let fallbackView: AnyView?
     let wrongUrlPlaceholderImage: Image?
     let backgroundColor: SwiftUIColor?
 
-    @State private var model: ImageViewPresentableModel = .init()
+    @StateObject private var stateModel: SUIImageViewStateModel
     @State private var loadedImage: Image?
     @State private var shouldRenderTemplate = false
     @State private var isLoading = false
     @State private var hasError = false
-    @State private var isHidden = false
     @State private var downloadTask: DownloadTask?
     @State private var lastLoadedRemoteURL: URL?
 
@@ -36,7 +35,7 @@ public struct SUIImageView: View {
         wrongUrlPlaceholderImage: Image? = nil,
         backgroundColor: SwiftUIColor? = nil
     ) {
-        self.adapter = adapter
+        _stateModel = .init(wrappedValue: .init(adapter: adapter))
         self.viewWhileLoadingView = viewWhileLoadingView
         self.fallbackView = fallbackView
         self.wrongUrlPlaceholderImage = wrongUrlPlaceholderImage
@@ -45,14 +44,10 @@ public struct SUIImageView: View {
 
     public var body: some View {
         Group {
-            if isHidden {
+            if stateModel.isHidden {
                 SwiftUICore.EmptyView()
             } else {
                 ZStack {
-                    if let backgroundColor {
-                        backgroundColor
-                    }
-
                     if let loadedImage = loadedImage ?? cachedRemoteImage(for: colorScheme) {
                         contentView(loadedImage)
                     } else if hasError {
@@ -63,98 +58,36 @@ public struct SUIImageView: View {
                         loadingView
                     }
                 }
+                .ifLet(backgroundColor) { $0.background($1) }
                 .modifier(ImageViewContainerStyle(model: model))
                 .onChange(of: colorScheme) { newMode in
                     guard model.image?.isRemote == true else { return }
                     loadImage(for: newMode, completion: nil)
                 }
-                .onReceive(adapter.$displayModelState) { newState in
-                    guard let adapterModel = newState?.model else { return }
-                    isHidden = false
-                    model = adapterModel
-                    loadImage(for: colorScheme, completion: nil)
-                }
-                .onReceive(adapter.$displayModelCompletionState) { newState in
-                    guard let newState else { return }
-                    let adapter = self.adapter
-                    defer {
-                        DispatchQueue.main.async { [weak adapter] in
-                            adapter?.displayModelCompletionState = nil
-                        }
-                    }
-                    guard let adapterModel = newState.model else {
-                        isHidden = true
-                        newState.completion?(nil)
+                .onReceive(stateModel.$reloadToken) { _ in
+                    if stateModel.isHidden {
+                        isLoading = false
+                        hasError = false
+                        loadedImage = nil
                         return
                     }
-                    isHidden = false
-                    model = adapterModel
-                    loadImage(for: colorScheme, completion: newState.completion)
-                }
-                .onReceive(adapter.$displayImageState) { newState in
-                    guard let image = newState?.image else { return }
-                    model = model.updated(image: image)
-                    loadImage(for: colorScheme, completion: nil)
-                }
-                .onReceive(adapter.$displayImageCompletionState) { newState in
-                    guard let newState else { return }
-                    let adapter = self.adapter
-                    defer {
-                        DispatchQueue.main.async { [weak adapter] in
-                            adapter?.displayImageCompletionState = nil
-                        }
-                    }
-                    model = model.updated(image: newState.image)
-                    loadImage(for: colorScheme, completion: newState.completion)
-                }
-                .onReceive(adapter.$displayAlphaState) { newState in
-                    guard let alpha = newState?.alpha else { return }
-                    model = model.updated(alpha: alpha)
-                }
-                .onReceive(adapter.$displaySizeState) { newState in
-                    guard let size = newState?.size else { return }
-                    model = model.updated(size: size)
-                }
-                .onReceive(adapter.$displayBorderColorState) { newState in
-                    guard let borderColor = newState?.borderColor else { return }
-                    model = model.updated(borderColor: borderColor)
-                }
-                .onReceive(adapter.$displayBorderWidthState) { newState in
-                    guard let borderWidth = newState?.borderWidth else { return }
-                    model = model.updated(borderWidth: borderWidth)
-                }
-                .onReceive(adapter.$displayCornerRadiusState) { newState in
-                    guard let cornerRadius = newState?.cornerRadius else { return }
-                    model = model.updated(cornerRadius: cornerRadius)
-                }
-                .onReceive(adapter.$displayOnPressState) { newState in
-                    guard let onPress = newState?.onPress else { return }
-                    model = model.updated(onPress: onPress)
-                }
-                .onReceive(adapter.$displayOnLongPressState) { newState in
-                    guard let onLongPress = newState?.onLongPress else { return }
-                    model = model.updated(onLongPress: onLongPress)
-                }
-                .onReceive(adapter.$displayContentModeIsFitState) { newState in
-                    guard let isFit = newState?.contentModeIsFit else { return }
-                    model = model.updated(contentModeIsFit: isFit)
-                }
-                .onReceive(adapter.$displayIsHiddenState) { newState in
-                    guard let isHide = newState?.isHidden else { return }
-                    isHidden = isHide
+                    loadImage(for: colorScheme, completion: stateModel.pendingCompletion)
                 }
             }
         }
     }
 
+    private var model: ImageViewPresentableModel {
+        stateModel.model
+    }
+
+    @ViewBuilder
     private var fallbackViewOrEmpty: some View {
-        Group {
-            if let fallbackView {
-                fallbackView
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else {
-                SwiftUICore.EmptyView()
-            }
+        if let fallbackView {
+            fallbackView
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+        } else {
+            SwiftUICore.EmptyView()
         }
     }
 
@@ -404,7 +337,7 @@ private final class SUIRemoteImageCache {
 }
 
 // MARK: - Model Extensions
-private extension ImageViewPresentableModel {
+extension ImageViewPresentableModel {
     func updated(
         size: CGSize? = nil,
         image: ImageEnum? = nil,
@@ -446,17 +379,24 @@ private extension ImageEnum {
 // MARK: - View Modifiers
 private struct ImageViewContainerStyle: ViewModifier {
     let model: ImageViewPresentableModel?
+    
+    private var effectiveOpacity: CGFloat {
+        guard model?.image != nil else { return 1.0 }
+        return model?.alpha ?? 1.0
+    }
 
     func body(content: Content) -> some View {
         content
             .modifier(OptionalFrame(size: model?.size))
             .clipped()
             .cornerRadius(model?.cornerRadius ?? 0)
-            .overlay(
-                RoundedRectangle(cornerRadius: model?.cornerRadius ?? 0)
-                    .stroke(borderColor, lineWidth: model?.borderWidth ?? 0)
-            )
-            .opacity(model?.alpha ?? 1.0)
+            .ifLet(model?.borderColor) {
+                $0.overlay(
+                    RoundedRectangle(cornerRadius: model?.cornerRadius ?? 0)
+                        .stroke(SwiftUIColor($1), lineWidth: model?.borderWidth ?? 0)
+                )
+            }
+            .opacity(effectiveOpacity)
             .onTapGesture {
                 model?.onPress?()
             }
@@ -465,10 +405,6 @@ private struct ImageViewContainerStyle: ViewModifier {
             }
     }
 
-    private var borderColor: SwiftUIColor {
-        guard let borderColor = model?.borderColor else { return .black }
-        return SwiftUIColor(borderColor)
-    }
 }
 
 private struct OptionalFrame: ViewModifier {

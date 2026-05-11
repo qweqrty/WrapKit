@@ -29,6 +29,8 @@ final class PairedImageViewSnapshotSUT: NSObject {
         state.fallbackView = nil
         state.fallbackColor = nil
         state.wrongUrlPlaceholderImage = nil
+        state.isHidden = true
+        state.alpha = nil
 
         adapter.display(model: nil, completion: nil)
         adapter.display(image: nil, completion: nil)
@@ -179,11 +181,13 @@ extension PairedImageViewSnapshotSUT: ImageViewOutput {
     func display(alpha: CGFloat?) {
         uiKitImageView.display(alpha: alpha)
         adapter.display(alpha: alpha)
+        state.alpha = alpha
     }
 
     func display(isHidden: Bool) {
         uiKitImageView.display(isHidden: isHidden)
         adapter.display(isHidden: isHidden)
+        state.isHidden = isHidden
     }
 }
 
@@ -271,6 +275,8 @@ final class PairedImageSnapshotState: ObservableObject {
     @Published var wrongUrlPlaceholderImage: UIImage?
     @Published var forceLoadingState: Bool = false
     @Published var forceFallbackState: Bool = false
+    @Published var isHidden: Bool = false
+    @Published var alpha: CGFloat?
 }
 
 private struct PairedImageSnapshotContainer: View {
@@ -280,13 +286,19 @@ private struct PairedImageSnapshotContainer: View {
     var body: some View {
         ZStack(alignment: .topLeading) {
             VStack(spacing: .zero) {
-                SUIImageView(
-                    adapter: adapter,
-                    viewWhileLoadingView: state.viewWhileLoadingView,
-                    fallbackView: state.fallbackView,
-                    wrongUrlPlaceholderImage: state.wrongUrlPlaceholderImage,
-                    backgroundColor: state.backgroundColor.map(SwiftUIColor.init)
-                )
+                ZStack(alignment: .topLeading) {
+                    if !state.isHidden, let backgroundColor = state.backgroundColor {
+                        SwiftUIColor(backgroundColor).opacity(state.alpha ?? 1)
+                    }
+
+                    SUIImageView(
+                        adapter: adapter,
+                        viewWhileLoadingView: state.viewWhileLoadingView,
+                        fallbackView: state.fallbackView,
+                        wrongUrlPlaceholderImage: state.wrongUrlPlaceholderImage,
+                        backgroundColor: state.backgroundColor.map(SwiftUIColor.init)
+                    )
+                }
                 .frame(height: 150, alignment: .center)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
