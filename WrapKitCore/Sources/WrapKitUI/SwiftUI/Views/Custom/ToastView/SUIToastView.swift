@@ -8,6 +8,7 @@ import UIKit
 
 public struct SUIToastView: View {
     @StateObject private var stateModel: SUIToastViewStateModel
+    @State private var containerSize: CGSize = .zero
     @State private var toastSize: CGSize = .zero
 
     public init(adapter: CommonToastOutputSwiftUIAdapter) {
@@ -23,6 +24,7 @@ public struct SUIToastView: View {
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .measureSize($containerSize)
         }
     }
 
@@ -70,7 +72,10 @@ public struct SUIToastView: View {
     @ViewBuilder
     private var toastCardView: some View {
         #if canImport(UIKit)
-        SUIToastCardRepresentable(model: stateModel.currentCardModel)
+        SUIToastCardRepresentable(
+            model: stateModel.currentCardModel,
+            measuredWidth: max(containerSize.width - 16, 0)
+        )
         #else
         SUICardView(adapter: stateModel.cardAdapter)
         #endif
@@ -134,6 +139,7 @@ public extension View {
 #if canImport(UIKit)
 private struct SUIToastCardRepresentable: UIViewRepresentable {
     let model: CardViewPresentableModel?
+    let measuredWidth: CGFloat
 
     func makeUIView(context: Context) -> CardView {
         let view = CardView()
@@ -153,7 +159,8 @@ private struct SUIToastCardRepresentable: UIViewRepresentable {
         guard model != nil else { return .zero }
 
         uiView.display(model: model)
-        let fittingWidth = max(proposal.width ?? UIScreen.main.bounds.width - 16, 1)
+        let fallbackWidth = measuredWidth > 0 ? measuredWidth : uiView.bounds.width
+        let fittingWidth = max(proposal.width ?? fallbackWidth, 1)
         let targetSize = CGSize(width: fittingWidth, height: UIView.layoutFittingCompressedSize.height)
         let size = uiView.systemLayoutSizeFitting(
             targetSize,
