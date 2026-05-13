@@ -24,6 +24,8 @@ public class SplashPresenter: LifeCycleViewOutput, ApplicationLifecycleOutput {
     public var refreshControlOutput: RefreshControlOutput?
     public var datePickerOutput: DatePickerViewOutput?
     public var textField: TextInputOutput?
+    public var picker: PickerViewOutput?
+    public var textView: TextInputOutput?
     
     public init() {
         
@@ -40,6 +42,8 @@ public class SplashPresenter: LifeCycleViewOutput, ApplicationLifecycleOutput {
         setupRefreshControl()
         setupDatePicker()
         setupTextFied()
+        setupPickerView()
+        setupTextView()
         
 //        loadingOutput?.display(isLoading: true)
 //        DispatchQueue.main.asyncAfter(deadline: .now() + 5) { [weak self] in
@@ -153,6 +157,26 @@ private extension SplashPresenter {
 //        }, animationStyle: .circle(lineColor: Color.blue), duration: 5, completion: {
 //            
 //        }))
+    }
+    
+    // MARK: TExtview
+    private func setupTextView() {
+        textView?.display(model: .init(
+            placeholder: "Enter your text"
+        ))
+    }
+    
+    // MARK: - Picker
+    private func setupPickerView() {
+        let items = ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь"]
+        picker?.display(model: .init(
+            rowsCount: { items.count },
+            titleForRowAt: { index in items[index] },
+            didSelectAt: { index in
+                print("Selected: \(items[index])")
+            },
+            selectedRow: .init(row: 0)
+        ))
     }
     
     // MARK: - TextField

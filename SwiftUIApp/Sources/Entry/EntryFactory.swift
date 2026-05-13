@@ -75,6 +75,10 @@ struct EntryViewSwiftUIFactory: EntryViewFactory {
             .textFieldAdapter
             .weakReferenced
             .mainQueueDispatched
+        presenter.picker = contentView
+            .pickerViewAdapter
+            .weakReferenced
+            .mainQueueDispatched
         return AnyView(contentView)
     }
 }

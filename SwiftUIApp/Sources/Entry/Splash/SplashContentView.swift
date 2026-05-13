@@ -21,6 +21,8 @@ private final class SplashContentAdapters {
     let refreshControl = RefreshControlOutputSwiftUIAdapter()
     let datePicker = DatePickerViewOutputSwiftUIAdapter()
     let textField = TextInputOutputSwiftUIAdapter()
+    let picker = PickerViewOutputSwiftUIAdapter()
+    let textView = TextInputOutputSwiftUIAdapter()
 }
 
 public struct SplashContentView: View {
@@ -40,6 +42,8 @@ public struct SplashContentView: View {
     public var refreshControlAdapter: RefreshControlOutputSwiftUIAdapter { adapters.refreshControl }
     public var datePickerAdapter: DatePickerViewOutputSwiftUIAdapter { adapters.datePicker }
     public var textFieldAdapter: TextInputOutputSwiftUIAdapter { adapters.textField }
+    public var pickerViewAdapter: PickerViewOutputSwiftUIAdapter { adapters.picker }
+    public var textViewAdapter: TextInputOutputSwiftUIAdapter { adapters.textView }
     
     public init(
         lifeCycleOutput: LifeCycleViewOutput? = nil,
@@ -119,6 +123,29 @@ public struct SplashContentView: View {
                     ), trailingView: .init(
                         SwiftUI.Image(systemName: "star.fill")
                     ))
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .frame(maxHeight: .infinity, alignment: .center)
+                    
+                    SUIPickerView(adapter: pickerViewAdapter)
+                        .frame(maxWidth: .infinity, alignment: .center)
+                        .frame(maxHeight: .infinity, alignment: .center)
+                    
+                    SUITextView(adapter: textFieldAdapter, appearance: .init(
+                        colors: .init(
+                            textColor: .black,
+                            selectedBorderColor: .red,
+                            selectedBackgroundColor: .cyan,
+                            selectedErrorBorderColor: .red,
+                            errorBorderColor: .red,
+                            errorBackgroundColor: .red,
+                            deselectedBorderColor: .blue,
+                            deselectedBackgroundColor: .black,
+                            disabledTextColor: .gray,
+                            disabledBackgroundColor: .gray),
+                        font: .boldSystemFont(ofSize: 14)
+                    ))
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .frame(maxHeight: .infinity, alignment: .center)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .frame(maxHeight: .infinity, alignment: .center)
