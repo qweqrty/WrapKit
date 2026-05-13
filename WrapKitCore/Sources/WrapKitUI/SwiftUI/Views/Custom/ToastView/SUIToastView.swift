@@ -8,6 +8,7 @@ import UIKit
 
 public struct SUIToastView: View {
     @StateObject private var stateModel: SUIToastViewStateModel
+    @State private var toastSize: CGSize = .zero
 
     public init(adapter: CommonToastOutputSwiftUIAdapter) {
         _stateModel = .init(wrappedValue: .init(adapter: adapter))
@@ -22,24 +23,17 @@ public struct SUIToastView: View {
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .allowsHitTesting(stateModel.currentItem != nil)
         }
     }
 
     @ViewBuilder
     private func positionedToast(_ item: SUIToastViewStateModel.ToastItem, proxy: GeometryProxy) -> some View {
-        VStack(spacing: 0) {
-            if item.position == .top {
-                toastContent(item)
-                    .padding(.top, proxy.safeAreaInsets.top + 20)
-                Spacer(minLength: 0)
-            } else {
-                Spacer(minLength: 0)
-                toastContent(item)
-                    .padding(.bottom, bottomPadding(for: item.position, proxy: proxy))
-            }
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        toastContent(item)
+            .measureSize($toastSize)
+            .position(
+                x: proxy.size.width / 2,
+                y: centerY(for: item.position, proxy: proxy)
+            )
     }
 
     private func toastContent(_ item: SUIToastViewStateModel.ToastItem) -> some View {
@@ -102,6 +96,17 @@ public struct SUIToastView: View {
             return 0
         case .bottom(let additionalBottomPadding):
             return proxy.safeAreaInsets.bottom + stateModel.keyboardHeight + additionalBottomPadding + 24
+        }
+    }
+
+    private func centerY(for position: CommonToast.Position, proxy: GeometryProxy) -> CGFloat {
+        let height = max(toastSize.height, 52)
+
+        switch position {
+        case .top:
+            return proxy.safeAreaInsets.top + 20 + height / 2
+        case .bottom:
+            return proxy.size.height - bottomPadding(for: position, proxy: proxy) - height / 2
         }
     }
 
