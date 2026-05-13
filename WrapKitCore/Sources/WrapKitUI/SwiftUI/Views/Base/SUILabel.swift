@@ -122,6 +122,17 @@ public struct SUILabelView: View, Animatable {
                             alignment: frameAlignment(from: defaultTextAlignment)
                         )
                 }
+            } else if let plainText {
+                verticallyCenteredContent {
+                    Text(plainText)
+                        .font(SwiftUIFont(defaultFont))
+                        .textColor(SwiftUIColor(defaultTextColor))
+                        .multilineTextAlignment(multilineAlignment(from: defaultTextAlignment))
+                        .frame(
+                            maxWidth: .infinity,
+                            alignment: frameAlignment(from: defaultTextAlignment)
+                        )
+                }
             } else if let nsAttributedText {
                 if #available(iOS 15, macOS 12, tvOS 15, watchOS 8, *) {
                     CoreTextAttributedLabel(
@@ -157,6 +168,12 @@ public struct SUILabelView: View, Animatable {
                 }
             }
         }
+    }
+
+    private var plainText: String? {
+        guard case .text(let string) = model.model else { return nil }
+        let text = string?.removingPercentEncoding ?? string ?? ""
+        return text.isEmpty ? nil : text
     }
 
     @ViewBuilder
