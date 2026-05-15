@@ -26,6 +26,7 @@ public class SplashPresenter: LifeCycleViewOutput, ApplicationLifecycleOutput {
     public var textField: TextInputOutput?
     public var picker: PickerViewOutput?
     public var textView: TextInputOutput?
+    public var tableView: (any TableOutput<TestHeader, TestCell, Void>)?
     
     public init() {
         
@@ -44,6 +45,7 @@ public class SplashPresenter: LifeCycleViewOutput, ApplicationLifecycleOutput {
         setupTextFied()
         setupPickerView()
         setupTextView()
+        setupTableView()
         
 //        loadingOutput?.display(isLoading: true)
 //        DispatchQueue.main.asyncAfter(deadline: .now() + 5) { [weak self] in
@@ -159,7 +161,29 @@ private extension SplashPresenter {
 //        }))
     }
     
-    // MARK: TExtview
+    // MARK: - TableView
+    private func setupTableView() {
+        tableView?.display(sections: [
+            .init(
+                header: TestHeader(title: "Section 1"),
+                cells: [
+                    .init(cell: TestCell(id: 1, title: "Cell 1")),
+                    .init(cell: TestCell(id: 2, title: "Cell 2")),
+                    .init(cell: TestCell(id: 3, title: "Cell 3")),
+                ]
+            ),
+            .init(
+                header: TestHeader(title: "Section 2"),
+                cells: [
+                    .init(cell: TestCell(id: 4, title: "Cell 4")),
+                    .init(cell: TestCell(id: 5, title: "Cell 5")),
+                    .init(cell: TestCell(id: 5, title: "Cell 5")),
+                ]
+            )
+        ])
+    }
+    
+    // MARK: Textview
     private func setupTextView() {
         textView?.display(model: .init(
             placeholder: "Enter your text"

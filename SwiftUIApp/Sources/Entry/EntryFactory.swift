@@ -79,6 +79,9 @@ struct EntryViewSwiftUIFactory: EntryViewFactory {
             .pickerViewAdapter
             .weakReferenced
             .mainQueueDispatched
+        presenter.tableView = contentView
+            .tableViewAdapter
+        
         return AnyView(contentView)
     }
 }

@@ -89,6 +89,7 @@ public struct SUITextInputView: View {
     let onPress: (() -> Void)?
     let leadingViewOnPress: (() -> Void)?
     let trailingViewOnPress: (() -> Void)?
+    @MainActor
     let didChangeText: [((String?) -> Void)]
     let autocapitalizationType: TextAutocapitalizationType
     let inputView: TextInputPresentableModel.InputView?
