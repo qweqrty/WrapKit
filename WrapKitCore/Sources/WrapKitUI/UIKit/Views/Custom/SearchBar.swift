@@ -46,6 +46,7 @@ public struct SearchBarPresentableModel {
 import UIKit
 
 public class SearchBar: ViewUIKit {
+    private lazy var glassEffectView: UIVisualEffectView? = makeGlassEffectView()
     public let stackView = StackView(axis: .horizontal)
     public let leftView: Button = Button()
     public let textfield: Textfield
@@ -60,12 +61,18 @@ public class SearchBar: ViewUIKit {
         
         super.init(frame: .zero)
         
+        setupGlassAppearance()
         setupSubviews()
         setupConstraints()
     }
     
     func setupSubviews() {
-        addSubview(stackView)
+        if let glassEffectView = glassEffectView {
+            addSubview(glassEffectView)
+            glassEffectView.contentView.addSubview(stackView)
+        } else {
+            addSubview(stackView)
+        }
         
         stackView.addArrangedSubview(leftView)
         stackView.addArrangedSubview(textfield)
@@ -85,14 +92,62 @@ public class SearchBar: ViewUIKit {
         
         leftView.isHidden = true
         rightView.isHidden = true
+        clipsToBounds = true
     }
     
     func setupConstraints() {
-        stackView.fillSuperview()
+        if let glassEffectView = glassEffectView {
+            glassEffectView.fillSuperview()
+            stackView.fillSuperview()
+        } else {
+            stackView.fillSuperview()
+        }
+    }
+    
+    public override func layoutSubviews() {
+        super.layoutSubviews()
+        if #available(iOS 26.0, *) {
+            cornerConfiguration = .capsule()
+        } else {
+            glassEffectView?.layer.cornerRadius = bounds.height / 2
+        }
     }
     
     public required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+}
+
+private extension SearchBar {
+    func makeGlassEffectView() -> UIVisualEffectView? {
+        if #available(iOS 26, *) {
+            let glassEffect = UIGlassEffect(style: .regular)
+//            glassEffect.isInteractive = true
+            let glassEffectView = UIVisualEffectView(effect: glassEffect)
+            glassEffectView.layer.cornerRadius = 22
+            glassEffectView.layer.cornerCurve = .continuous
+            return glassEffectView
+        } else {
+            return nil
+        }
+    }
+    
+    func setupGlassAppearance() {
+        guard glassEffectView != nil else { return }
+        
+        backgroundColor = nil
+    }
+    
+    func updateGlassTint(_ color: UIColor?) {
+        guard let glassEffectView = glassEffectView else {
+            backgroundColor = color
+            return
+        }
+        
+        if #available(iOS 26, *), let glassEffect = glassEffectView.effect as? UIGlassEffect {
+            glassEffectView.tintColor = color
+            glassEffect.tintColor = color
+        }
     }
 }
 
@@ -113,6 +168,7 @@ extension SearchBar: SearchBarOutput {
     
     public func display(textField: TextInputPresentableModel?) {
         textfield.display(model: textField)
+        setupGlassAppearance()
     }
     
     public func display(leftView: ButtonPresentableModel?) {
@@ -131,7 +187,7 @@ extension SearchBar: SearchBarOutput {
     
     public func display(backgroundColor: Color?) {
         if let backgroundColor = backgroundColor {
-            self.backgroundColor = backgroundColor
+            updateGlassTint(backgroundColor)
         }
     }
     
