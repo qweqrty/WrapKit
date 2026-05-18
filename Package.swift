@@ -4,10 +4,10 @@ import PackageDescription
 let package = Package(
     name: "WrapKit",
     platforms: [
-        .iOS(.v14),
-        .macOS(.v11),
-        .tvOS(.v13),
-        .watchOS(.v6)
+        .iOS(.v15),
+        .macOS(.v10_15),
+        .tvOS(.v15),
+        .watchOS(.v8)
     ],
     products: [
         .library(
