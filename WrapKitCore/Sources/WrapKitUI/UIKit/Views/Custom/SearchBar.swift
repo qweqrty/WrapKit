@@ -123,9 +123,9 @@ private extension SearchBar {
         if #available(iOS 26, *) {
             let glassEffect = UIGlassEffect(style: .regular)
 //            glassEffect.isInteractive = true
+            
             let glassEffectView = UIVisualEffectView(effect: glassEffect)
-            glassEffectView.layer.cornerRadius = 22
-            glassEffectView.layer.cornerCurve = .continuous
+            
             return glassEffectView
         } else {
             return nil
@@ -139,7 +139,7 @@ private extension SearchBar {
     }
     
     func updateGlassTint(_ color: UIColor?) {
-        guard let glassEffectView = glassEffectView else {
+        guard let glassEffectView else {
             backgroundColor = color
             return
         }
@@ -193,6 +193,44 @@ extension SearchBar: SearchBarOutput {
     
     public func display(spacing: CGFloat) {
         stackView.spacing = spacing
+    }
+}
+
+import SwiftUI
+private struct PreviewSearchBar: UIViewRepresentable {
+    func makeUIView(context: Context) -> UIView {
+        let textField = Textfield(appearance: .init(
+            colors: .init(
+                textColor: .black,
+                selectedBorderColor: .green,
+                selectedBackgroundColor: .blue,
+                selectedErrorBorderColor: .red,
+                errorBorderColor: .systemRed,
+                errorBackgroundColor: .yellow,
+                deselectedBorderColor: .cyan,
+                deselectedBackgroundColor: .clear,
+                disabledTextColor: .brown,
+                disabledBackgroundColor: .purple
+            ),
+            font: .systemFont(ofSize: 32),
+            border: .init(idleBorderWidth: 0, selectedBorderWidth: 0),
+            placeholder: .init(color: .systemGray, font: .systemFont(ofSize: 22))
+        ))
+        return SearchBar(textfield: textField)
+    }
+    
+    func updateUIView(_ uiView: UIView, context: Context) {
+        
+    }
+}
+
+@available(iOS 17.0, *)
+#Preview {
+    ZStack {
+        SwiftUIColor.yellow
+        PreviewSearchBar()
+            .frame(width: 300, height: 50)
+            .padding()
     }
 }
 #endif
