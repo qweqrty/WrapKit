@@ -49,6 +49,9 @@ final class SUICardViewStateModel: ObservableObject {
     let secondaryLeadingImageAdapter = ImageViewOutputSwiftUIAdapter()
     let trailingImageAdapter = ImageViewOutputSwiftUIAdapter()
     let secondaryTrailingImageAdapter = ImageViewOutputSwiftUIAdapter()
+    let leadingTitlesAdapter = KeyValueFieldViewOutputSwiftUIAdapter()
+    let titleViewsAdapter = KeyValueFieldViewOutputSwiftUIAdapter()
+    let trailingTitlesAdapter = KeyValueFieldViewOutputSwiftUIAdapter()
 
     private var cancellables: Set<AnyCancellable> = []
 
@@ -239,10 +242,12 @@ final class SUICardViewStateModel: ObservableObject {
 
     private func setTitle(_ model: TextOutputPresentableModel?) {
         title = model
+        syncTitleViewsAdapter()
     }
 
     private func setValueTitle(_ model: TextOutputPresentableModel?) {
         valueTitle = model
+        syncTitleViewsAdapter()
     }
 
     private func setSubTitle(_ model: TextOutputPresentableModel?) {
@@ -251,10 +256,16 @@ final class SUICardViewStateModel: ObservableObject {
 
     private func setLeadingTitles(_ model: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>?) {
         leadingTitles = model
+        leadingTitlesAdapter.display(model: model)
     }
 
     private func setTrailingTitles(_ model: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>?) {
         trailingTitles = model
+        trailingTitlesAdapter.display(model: model)
+    }
+
+    private func syncTitleViewsAdapter() {
+        titleViewsAdapter.display(model: .init(title, valueTitle))
     }
 
     private func clearContent() {
