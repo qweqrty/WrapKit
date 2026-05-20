@@ -116,46 +116,36 @@ public struct SUICardView: View {
 
     @ViewBuilder
     private func leadingTitlesView(style: CardViewPresentableModel.Style) -> some View {
-        if let leadingTitles = stateModel.leadingTitles {
-            VStack(spacing: 0) {
-                styledLabel(
-                    leadingTitles.first,
-                    font: style.leadingTitleKeyLabelFont,
-                    color: style.leadingTitleKeyTextColor,
-                    numberOfLines: style.titleKeyNumberOfLines,
-                    alignment: .center
-                )
-                styledLabel(
-                    leadingTitles.second,
-                    font: style.leadingTitleKeyLabelFont,
-                    color: style.leadingTitleKeyTextColor,
-                    numberOfLines: style.titleValueNumberOfLines,
-                    alignment: .center
-                )
-            }
+        if stateModel.leadingTitles != nil {
+            SUIVKeyValueFieldView(
+                adapter: stateModel.leadingTitlesAdapter,
+                keyFont: style.leadingTitleKeyLabelFont,
+                keyTextColor: style.leadingTitleKeyTextColor,
+                valueFont: .systemFont(ofSize: 16),
+                valueTextColor: .black,
+                keyTextAlignment: .center,
+                keyNumberOfLines: style.titleKeyNumberOfLines,
+                valueNumberOfLines: style.titleValueNumberOfLines,
+                spacing: 0
+            )
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
         }
     }
 
     @ViewBuilder
     private func trailingTitlesView(style: CardViewPresentableModel.Style) -> some View {
-        if let trailingTitles = stateModel.trailingTitles {
-            VStack(spacing: 0) {
-                styledLabel(
-                    trailingTitles.first,
-                    font: style.trailingTitleKeyLabelFont,
-                    color: style.trailingTitleKeyTextColor,
-                    numberOfLines: style.titleKeyNumberOfLines,
-                    alignment: .center
-                )
-                styledLabel(
-                    trailingTitles.second,
-                    font: style.trailingTitleKeyLabelFont,
-                    color: style.trailingTitleKeyTextColor,
-                    numberOfLines: style.titleValueNumberOfLines,
-                    alignment: .center
-                )
-            }
+        if stateModel.trailingTitles != nil {
+            SUIVKeyValueFieldView(
+                adapter: stateModel.trailingTitlesAdapter,
+                keyFont: style.trailingTitleKeyLabelFont,
+                keyTextColor: style.trailingTitleKeyTextColor,
+                valueFont: .systemFont(ofSize: 16),
+                valueTextColor: .black,
+                keyTextAlignment: .center,
+                keyNumberOfLines: style.titleKeyNumberOfLines,
+                valueNumberOfLines: style.titleValueNumberOfLines,
+                spacing: 0
+            )
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
         }
     }
@@ -163,22 +153,16 @@ public struct SUICardView: View {
     @ViewBuilder
     private func titleBlockView(style: CardViewPresentableModel.Style) -> some View {
         if isVisibleTextModel(stateModel.title) || isVisibleTextModel(stateModel.valueTitle) {
-            VStack(alignment: .leading, spacing: style.stackSpace) {
-                styledLabel(
-                    stateModel.title,
-                    font: style.titleKeyLabelFont,
-                    color: style.titleKeyTextColor,
-                    numberOfLines: style.titleKeyNumberOfLines,
-                    alignment: .leading
-                )
-                styledLabel(
-                    stateModel.valueTitle,
-                    font: style.titleValueLabelFont,
-                    color: style.titleValueTextColor,
-                    numberOfLines: style.titleValueNumberOfLines,
-                    alignment: .leading
-                )
-            }
+            SUIVKeyValueFieldView(
+                adapter: stateModel.titleViewsAdapter,
+                keyFont: style.titleKeyLabelFont,
+                keyTextColor: style.titleKeyTextColor,
+                valueFont: style.titleValueLabelFont,
+                valueTextColor: style.titleValueTextColor,
+                keyNumberOfLines: style.titleKeyNumberOfLines,
+                valueNumberOfLines: style.titleValueNumberOfLines,
+                spacing: style.stackSpace
+            )
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
         }
     }
