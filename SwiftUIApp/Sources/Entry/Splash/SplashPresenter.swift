@@ -39,7 +39,6 @@ public class SplashPresenter: LifeCycleViewOutput, ApplicationLifecycleOutput {
 //        setupButtonOutup()
         setupProgressBar()
         setupSwitchControl()
-        setupSegmentedControl()
         setupRefreshControl()
         setupDatePicker()
         setupTextFied()
@@ -247,20 +246,6 @@ private extension SplashPresenter {
             },
             isLoading: false
         ))
-    }
-    
-    // MARK: - SegmentedControl
-    private func setupSegmentedControl() {
-        segmentedControl?.display(segments: [
-            .init(title: "First segment", index: 0),
-            .init(title: "Second segment", index: 1)
-        ])
-        
-//        segmentedControl?.display(appearence: .init(
-//            colors: .init(textColor: .black, backgroundColor: .cyan, selectedBackgroundColor: .systemBlue),
-//            font: .boldSystemFont(ofSize: 14),
-//            cornerRadius: 16
-//        ))
     }
     
     // MARK: - Button

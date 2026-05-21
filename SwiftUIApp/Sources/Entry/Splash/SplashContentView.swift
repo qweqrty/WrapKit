@@ -17,7 +17,6 @@ private final class SplashContentAdapters {
     let buttonWithShrink = ButtonOutputSwiftUIAdapter()
     let switchControl = SwitchCotrolOutputSwiftUIAdapter()
     let progressBar = ProgressBarOutputSwiftUIAdapter()
-    let segmentedControl = SegmentedControlOutputSwiftUIAdapter()
     let refreshControl = RefreshControlOutputSwiftUIAdapter()
     let datePicker = DatePickerViewOutputSwiftUIAdapter()
     let textField = TextInputOutputSwiftUIAdapter()
@@ -48,7 +47,6 @@ public struct SplashContentView: View {
     public var buttonWithShrinkAdapter: ButtonOutputSwiftUIAdapter { adapters.buttonWithShrink }
     public var switchControlAdapter: SwitchCotrolOutputSwiftUIAdapter { adapters.switchControl }
     public var progressBarAdapter: ProgressBarOutputSwiftUIAdapter { adapters.progressBar }
-    public var segmentedControlAdapter: SegmentedControlOutputSwiftUIAdapter { adapters.segmentedControl }
     public var refreshControlAdapter: RefreshControlOutputSwiftUIAdapter { adapters.refreshControl }
     public var datePickerAdapter: DatePickerViewOutputSwiftUIAdapter { adapters.datePicker }
     public var textFieldAdapter: TextInputOutputSwiftUIAdapter { adapters.textField }
@@ -76,9 +74,6 @@ public struct SplashContentView: View {
                 VStack(spacing: 0) {
                     ScrollView(.vertical) {
                         SUIProgressBar(adaper: progressBarAdapter)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-
-                        SUISegmentedControl(adapter: segmentedControlAdapter)
                             .frame(maxWidth: .infinity, alignment: .leading)
 
                         SUILabel(adapter: adapter)
