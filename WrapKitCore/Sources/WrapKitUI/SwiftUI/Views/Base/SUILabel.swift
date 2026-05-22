@@ -135,7 +135,7 @@ public struct SUILabelView: View, Animatable {
 //                Text(text)
 //                    .font(suiFont)
 //                    .offset(y: -simpleTextYOffset)
-//                    .modify { if #available(iOS 26.0, *) {
+//                    .modify { if #available(iOS 26, macOS 26, watchOS 26, tvOS 26, *) {
 //                        if #available(macOS 26.0, *) {
 //                            $0.lineHeight(.multiple(factor: simpleTextLineHeightMultiple))
 //                        } else {
@@ -431,7 +431,7 @@ extension NSUnderlineStyle {
     )
     .font(.system(size: 20))
     .offset(y: -1.2)
-    .modify { if #available(iOS 26.0, *) {
+    .modify { if #available(iOS 26, macOS 26, watchOS 26, tvOS 26, *) {
         if #available(macOS 26.0, *) {
             $0.lineHeight(.multiple(factor: 1.17))
         } else {
@@ -446,7 +446,7 @@ extension NSUnderlineStyle {
     )
     .font(.system(size: 30))
     .offset(y: -1.2)
-    .modify { if #available(iOS 26.0, *) {
+    .modify { if #available(iOS 26, macOS 26, watchOS 26, tvOS 26, *) {
         if #available(macOS 26.0, *) {
             $0.lineHeight(.multiple(factor: 1.17))
         } else {

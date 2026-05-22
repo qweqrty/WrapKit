@@ -35,7 +35,7 @@ open class BaseBarScrollableContentView<T: UIScrollView>: ViewUIKit {
         if let headerStyle {
             navigationBar.display(style: headerStyle)
         }
-        if #available(iOS 26, *), headerStyle?.backgroundColor == .clear {
+        if #available(iOS 26, macOS 26, watchOS 26, tvOS 26, *), headerStyle?.backgroundColor == .clear {
             navigationBar.addScrollEdgeInteractionWith(scrollView, at: .top)
         }
     }

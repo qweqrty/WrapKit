@@ -283,7 +283,7 @@ open class NavigationBar: UIView {
             .bottom(trailingStackWrapperView.bottomAnchor)
         )
         
-        if #available(iOS 26, *) {
+        if #available(iOS 26, macOS 26, watchOS 26, tvOS 26, *) {
             mainStackViewConstraints = mainStackView.anchor(
                 .top(safeAreaLayoutGuide.topAnchor, constant: 4),
                 .leading(leadingAnchor, constant: 16),
