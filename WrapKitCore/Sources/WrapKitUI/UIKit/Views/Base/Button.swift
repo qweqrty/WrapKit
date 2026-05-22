@@ -59,7 +59,7 @@ public protocol ButtonOutput: HiddableOutput {
     func display(isHidden: Bool)
 }
 
-public struct ButtonPresentableModel {
+public struct ButtonPresentableModel: HashableWithReflection {
     public let accessibilityIdentifier: String?
     public let height: CGFloat?
     public let width: CGFloat?

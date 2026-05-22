@@ -23,6 +23,7 @@ private final class SplashContentAdapters {
     let picker = PickerViewOutputSwiftUIAdapter()
     let textView = TextInputOutputSwiftUIAdapter()
     let tableView = TableOutputSwiftUIAdapter<TestCell, Void, TestHeader>()
+    let emptyView = EmptyViewOutputSwiftUIAdapter()
 }
 
 public struct TestCell: Hashable {
@@ -53,6 +54,7 @@ public struct SplashContentView: View {
     public var pickerViewAdapter: PickerViewOutputSwiftUIAdapter { adapters.picker }
     public var textViewAdapter: TextInputOutputSwiftUIAdapter { adapters.textView }
     public var tableViewAdapter: TableOutputSwiftUIAdapter<TestCell, Void, TestHeader> { adapters.tableView }
+    public var emptyViewAdapter: EmptyViewOutputSwiftUIAdapter { adapters.emptyView }
 
     public init(
         lifeCycleOutput: LifeCycleViewOutput? = nil,
@@ -79,6 +81,9 @@ public struct SplashContentView: View {
                         SUILabel(adapter: adapter)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .background(Color.blue.opacity(0.2))
+                        
+                        SUIEmptyView(adapter: emptyViewAdapter)
+                            .frame(maxWidth: .infinity, alignment: .center)
 
                         SUIButton(adapter: buttonAdapter, loadingAdapter: buttonLoadingAdapter)
                             .frame(maxWidth: .infinity, alignment: .center)

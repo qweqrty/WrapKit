@@ -59,10 +59,6 @@ struct EntryViewSwiftUIFactory: EntryViewFactory {
             .progressBarAdapter
             .weakReferenced
             .mainQueueDispatched
-        presenter.segmentedControl = contentView
-            .segmentedControlAdapter
-            .weakReferenced
-            .mainQueueDispatched
         presenter.refreshControlOutput = contentView
             .refreshControlAdapter
             .weakReferenced
@@ -81,6 +77,10 @@ struct EntryViewSwiftUIFactory: EntryViewFactory {
             .mainQueueDispatched
         presenter.tableView = contentView
             .tableViewAdapter
+        presenter.emptyView = contentView
+            .emptyViewAdapter
+            .weakReferenced
+            .mainQueueDispatched
         
         return AnyView(contentView)
     }

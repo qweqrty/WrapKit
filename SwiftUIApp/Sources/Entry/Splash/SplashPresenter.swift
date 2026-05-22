@@ -27,6 +27,7 @@ public class SplashPresenter: LifeCycleViewOutput, ApplicationLifecycleOutput {
     public var picker: PickerViewOutput?
     public var textView: TextInputOutput?
     public var tableView: (any TableOutput<TestHeader, TestCell, Void>)?
+    public var emptyView: EmptyViewOutput?
     
     public init() {
         
@@ -45,6 +46,7 @@ public class SplashPresenter: LifeCycleViewOutput, ApplicationLifecycleOutput {
         setupPickerView()
         setupTextView()
         setupTableView()
+        setupEmptyView()
         
 //        loadingOutput?.display(isLoading: true)
 //        DispatchQueue.main.asyncAfter(deadline: .now() + 5) { [weak self] in
@@ -158,6 +160,11 @@ private extension SplashPresenter {
 //        }, animationStyle: .circle(lineColor: Color.blue), duration: 5, completion: {
 //            
 //        }))
+    }
+    
+    // MARK: - EmptyView
+    private func setupEmptyView() {
+        emptyView?.display(model: .init(title: .init(model: .text("Hello")), subTitle: .init(model: .text("world!"))))
     }
     
     // MARK: - TableView
