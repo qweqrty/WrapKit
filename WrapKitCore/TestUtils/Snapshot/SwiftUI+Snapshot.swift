@@ -3,8 +3,8 @@ import SwiftUI
 
 @available(iOS 17.0, macOS 14.0, tvOS 17.0, watchOS 10.0, *)
 public extension View {
-    func snapshot(for configuration: SUISnapshotConfiguration, useUIKit: Bool = false) -> UIImage {
-        let view = self.build(configuration: configuration)
+    func snapshot(for configuration: SUISnapshotConfiguration, background: Color? = nil, useUIKit: Bool = false) -> UIImage {
+        let view = self.build(configuration: configuration, background: background)
 #if canImport(UIKit)
         guard useUIKit else { return view.snapshot() }
         return view.inHostController()
@@ -72,12 +72,13 @@ extension ColorScheme {
 @available(iOS 17.0, macOS 14.0, tvOS 17.0, watchOS 10.0, *)
 public extension View {
     @ViewBuilder
-    func build(configuration: SUISnapshotConfiguration) -> some View {
+    func build(configuration: SUISnapshotConfiguration, background: Color? = nil) -> some View {
         self
             .frame(width: configuration.size.width, height: configuration.size.height)
 //            .safeAreaPadding(configuration.safeAreaInsets)
             .contentMargins(.all, configuration.layoutMargins, for: .automatic)
             .colorScheme(configuration.colorScheme)
+            .background(background ?? (configuration.colorScheme == .dark ? Color.black : Color.white))
     }
 }
 
