@@ -8,7 +8,7 @@
 #if canImport(SwiftUI)
 import SwiftUI
 
-struct SUICircularProgressView: View {
+public struct SUICircularProgressView: View {
     @State private var animationProgress: CGFloat = 0
     
     private let color: Color
@@ -19,7 +19,7 @@ struct SUICircularProgressView: View {
     private let completion: (() -> Void)?
     private let clockwise: Bool
     
-    init(
+    public init(
         color: Color,
         lineWidth: CGFloat = 2,
         from: CGFloat,
@@ -40,7 +40,7 @@ struct SUICircularProgressView: View {
     
     public let startAngle: Angle = .degrees(90) // 6 o`clock counterside
     
-    var body: some View {
+    public var body: some View {
         Circle()
             .trim(from: min(animationEnd, animationStart), to: animationProgress)
             .stroke(style: StrokeStyle(lineWidth: lineWidth, lineCap: .round, lineJoin: .round))

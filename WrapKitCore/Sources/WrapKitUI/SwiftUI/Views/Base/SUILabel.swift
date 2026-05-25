@@ -69,8 +69,6 @@ public struct SUILabelView: View, Animatable {
         self.defaultTextAlignment = textAlignment
     }
 
-    @StateObject private var displayLinkManager = SUIDisplayLinkManager()
-
     public var body: some View {
         switch model.model {
         case .textStyled(let text, let cornerStyle, let insets, _, let backgroundColor):
@@ -168,26 +166,18 @@ public struct SUILabelView: View, Animatable {
         duration: TimeInterval,
         completion: (() -> Void)?
     ) -> some View {
-        ZStack {
-            if case let .circle(color) = animationStyle {
-                SUICircularProgressView(color: color, from: 1, to: 0, duration: duration, completion: nil)
-                    .padding(8)
-            }
-
-            SUILabelView(
-                model: .init(
-                    accessibilityIdentifier: model.accessibilityIdentifier,
-                    model: mapToString?(from + (displayLinkManager.progress * (to - from))) ?? .text("")
-                ),
-                font: defaultFont,
-                textColor: defaultTextColor,
-                textAlignment: defaultTextAlignment
-            )
-            .onAppear {
-                guard duration > 0 else { return }
-                displayLinkManager.startAnimation(duration: duration, completion: nil)
-            }
-        }
+        SUICountingLabelAnimation(
+            accessibilityIdentifier: model.accessibilityIdentifier,
+            from: from,
+            to: to,
+            mapToString: mapToString,
+            animationStyle: animationStyle,
+            duration: duration,
+            font: defaultFont,
+            textColor: defaultTextColor,
+            textAlignment: defaultTextAlignment,
+            completion: completion
+        )
     }
 
     private var inlineImageText: Text? {
