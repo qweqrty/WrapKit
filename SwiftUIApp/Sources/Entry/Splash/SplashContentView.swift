@@ -24,6 +24,7 @@ private final class SplashContentAdapters {
     let textView = TextInputOutputSwiftUIAdapter()
     let tableView = TableOutputSwiftUIAdapter<TestCell, Void, TestHeader>()
     let emptyView = EmptyViewOutputSwiftUIAdapter()
+    let chunkedTextField = TextInputOutputSwiftUIAdapter()
 }
 
 public struct TestCell: Hashable {
@@ -55,6 +56,7 @@ public struct SplashContentView: View {
     public var textViewAdapter: TextInputOutputSwiftUIAdapter { adapters.textView }
     public var tableViewAdapter: TableOutputSwiftUIAdapter<TestCell, Void, TestHeader> { adapters.tableView }
     public var emptyViewAdapter: EmptyViewOutputSwiftUIAdapter { adapters.emptyView }
+    public var chunkedTextFieldAdapter: TextInputOutputSwiftUIAdapter { adapters.chunkedTextField }
 
     public init(
         lifeCycleOutput: LifeCycleViewOutput? = nil,
@@ -81,6 +83,26 @@ public struct SplashContentView: View {
                         SUILabel(adapter: adapter)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .background(Color.blue.opacity(0.2))
+                        
+                        SUIChunkedTextField(
+                            adapter: chunkedTextFieldAdapter,
+                            count: 4,
+                            appearance: .init(
+                                colors: .init(
+                                    textColor: .black,
+                                    selectedBorderColor: .red,
+                                    selectedBackgroundColor: .cyan,
+                                    selectedErrorBorderColor: .red,
+                                    errorBorderColor: .red,
+                                    errorBackgroundColor: .red,
+                                    deselectedBorderColor: .blue,
+                                    deselectedBackgroundColor: .white,
+                                    disabledTextColor: .gray,
+                                    disabledBackgroundColor: .gray
+                                ),
+                                font: .boldSystemFont(ofSize: 20)
+                            )
+                        )
                         
                         SUIEmptyView(adapter: emptyViewAdapter)
                             .frame(maxWidth: .infinity, alignment: .center)

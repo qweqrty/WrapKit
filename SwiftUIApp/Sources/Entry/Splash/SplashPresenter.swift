@@ -28,6 +28,7 @@ public class SplashPresenter: LifeCycleViewOutput, ApplicationLifecycleOutput {
     public var textView: TextInputOutput?
     public var tableView: (any TableOutput<TestHeader, TestCell, Void>)?
     public var emptyView: EmptyViewOutput?
+    public var chunkedTextField: TextInputOutputSwiftUIAdapter?
     
     public init() {
         
@@ -47,6 +48,7 @@ public class SplashPresenter: LifeCycleViewOutput, ApplicationLifecycleOutput {
         setupTextView()
         setupTableView()
         setupEmptyView()
+        setupChunkedTextField()
         
 //        loadingOutput?.display(isLoading: true)
 //        DispatchQueue.main.asyncAfter(deadline: .now() + 5) { [weak self] in
@@ -160,6 +162,11 @@ private extension SplashPresenter {
 //        }, animationStyle: .circle(lineColor: Color.blue), duration: 5, completion: {
 //            
 //        }))
+    }
+    
+    // MARK: - CHunkedTextfield
+    private func setupChunkedTextField() {
+        chunkedTextField?.display(text: "Hello")
     }
     
     // MARK: - EmptyView

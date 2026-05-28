@@ -81,6 +81,8 @@ struct EntryViewSwiftUIFactory: EntryViewFactory {
             .emptyViewAdapter
             .weakReferenced
             .mainQueueDispatched
+        presenter.chunkedTextField = contentView
+            .chunkedTextFieldAdapter
         
         return AnyView(contentView)
     }

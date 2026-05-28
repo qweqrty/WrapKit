@@ -27,7 +27,6 @@ public final class SUIEmptyViewStateModel: ObservableObject {
             .compactMap { $0 }
             .sink { [weak self] value in
                 guard let self else { return }
-                print("EmptyView model received, isHidden will be: \(value.model == nil)")
                 self.isHidden = value.model == nil
                 self.title = value.model?.title
                 self.subtitle = value.model?.subTitle
