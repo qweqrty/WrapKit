@@ -22,6 +22,7 @@ import SwiftUI
 #endif
 public class TextOutputSwiftUIAdapter: ObservableObject, TextOutput {
 
+
     // Initializer
     public init(
     ) {

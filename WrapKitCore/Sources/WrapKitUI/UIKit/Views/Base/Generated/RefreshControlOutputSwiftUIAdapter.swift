@@ -20,6 +20,7 @@ import UIKit
 public class RefreshControlOutputSwiftUIAdapter: ObservableObject, RefreshControlOutput {
         @Published public var onRefresh: [(() -> Void)?]? = nil
 
+
     // Initializer
     public init(
     ) {

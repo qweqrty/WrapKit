@@ -22,6 +22,7 @@ import SwiftUI
 #endif
 public class ButtonOutputSwiftUIAdapter: ObservableObject, ButtonOutput {
 
+
     // Initializer
     public init(
     ) {

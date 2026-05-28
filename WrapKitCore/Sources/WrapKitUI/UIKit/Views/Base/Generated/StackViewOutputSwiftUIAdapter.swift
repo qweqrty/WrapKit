@@ -19,6 +19,7 @@ import UIKit
 #endif
 public class StackViewOutputSwiftUIAdapter: ObservableObject, StackViewOutput {
 
+
     // Initializer
     public init(
     ) {

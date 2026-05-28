@@ -16,6 +16,7 @@ import UIKit
 #endif
 public class LifeCycleViewOutputSwiftUIAdapter: ObservableObject, LifeCycleViewOutput {
 
+
     // Initializer
     public init(
     ) {

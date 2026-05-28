@@ -19,6 +19,7 @@ import UIKit
 #endif
 public class DatePickerViewOutputSwiftUIAdapter: ObservableObject, DatePickerViewOutput {
 
+
     // Initializer
     public init(
     ) {

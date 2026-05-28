@@ -16,6 +16,7 @@ import UIKit
 #endif
 public class AlertOutputSwiftUIAdapter: ObservableObject, AlertOutput {
 
+
     // Initializer
     public init(
     ) {
