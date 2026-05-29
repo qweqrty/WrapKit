@@ -8,7 +8,7 @@
 #if canImport(UIKit)
 import UIKit
 
-extension UIView {
+public extension UIView {
     func applyCornerStyle(_ cornerStyle: CornerStyle) {
         if #available(iOS 26, macOS 26, watchOS 26, tvOS 26, *) {
             applyiOS26CornerStyle(cornerStyle)
@@ -58,3 +58,10 @@ extension UIView {
 }
 
 #endif
+
+public var isAvailableOS26: Bool {
+    if #available(iOS 26, macOS 26, tvOS 26, watchOS 26, *) {
+        return true
+    }
+    return false
+}
