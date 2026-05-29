@@ -44,6 +44,7 @@ public class SelectionCell: TableViewCell<SelectionCellContentView> {
         super.prepareForReuse()
         mainContentView.trailingImageView.image = nil
         mainContentView.leadingImageView.image = nil
+        mainContentView.lineView.isHidden = false
         
         cancellables.removeAll()
     }
