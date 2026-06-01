@@ -46,6 +46,7 @@ public struct SearchBarPresentableModel {
 import UIKit
 
 public class SearchBar: ViewUIKit {
+    private lazy var glassEffectView: UIVisualEffectView? = makeGlassEffectView()
     public let stackView = StackView(axis: .horizontal)
     public let leftView: Button = Button()
     public let textfield: Textfield
@@ -60,12 +61,18 @@ public class SearchBar: ViewUIKit {
         
         super.init(frame: .zero)
         
+        setupGlassAppearance()
         setupSubviews()
         setupConstraints()
     }
     
     func setupSubviews() {
-        addSubview(stackView)
+        if let glassEffectView = glassEffectView {
+            addSubview(glassEffectView)
+            glassEffectView.contentView.addSubview(stackView)
+        } else {
+            addSubview(stackView)
+        }
         
         stackView.addArrangedSubview(leftView)
         stackView.addArrangedSubview(textfield)
@@ -85,14 +92,54 @@ public class SearchBar: ViewUIKit {
         
         leftView.isHidden = true
         rightView.isHidden = true
+        clipsToBounds = true
     }
     
     func setupConstraints() {
-        stackView.fillSuperview()
+        if let glassEffectView = glassEffectView {
+            glassEffectView.fillSuperview()
+            stackView.fillSuperview()
+        } else {
+            stackView.fillSuperview()
+        }
     }
     
     public required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+}
+
+private extension SearchBar {
+    func makeGlassEffectView() -> UIVisualEffectView? {
+        if #available(iOS 26, macOS 26, watchOS 26, tvOS 26, *) {
+            let glassEffect = UIGlassEffect(style: .regular)
+//            glassEffect.isInteractive = true
+            
+            let glassEffectView = UIVisualEffectView(effect: glassEffect)
+            
+            return glassEffectView
+        } else {
+            return nil
+        }
+    }
+    
+    func setupGlassAppearance() {
+        guard glassEffectView != nil else { return }
+        
+        backgroundColor = nil
+        applyCornerStyle(.automatic)
+    }
+    
+    func updateGlassTint(_ color: UIColor?) {
+        guard let glassEffectView else {
+            backgroundColor = color
+            return
+        }
+        
+        if #available(iOS 26, macOS 26, watchOS 26, tvOS 26, *), let glassEffect = glassEffectView.effect as? UIGlassEffect {
+            glassEffectView.tintColor = color
+            glassEffect.tintColor = color
+        }
     }
 }
 
@@ -113,6 +160,7 @@ extension SearchBar: SearchBarOutput {
     
     public func display(textField: TextInputPresentableModel?) {
         textfield.display(model: textField)
+        setupGlassAppearance()
     }
     
     public func display(leftView: ButtonPresentableModel?) {
@@ -131,12 +179,53 @@ extension SearchBar: SearchBarOutput {
     
     public func display(backgroundColor: Color?) {
         if let backgroundColor = backgroundColor {
-            self.backgroundColor = backgroundColor
+            updateGlassTint(backgroundColor)
         }
     }
     
     public func display(spacing: CGFloat) {
         stackView.spacing = spacing
+    }
+}
+
+import SwiftUI
+private struct PreviewSearchBar: UIViewRepresentable {
+    func makeUIView(context: Context) -> UIView {
+        let textField = Textfield(
+            cornerStyle: .automatic,
+            appearance: .init(
+                colors: .init(
+                    textColor: .black,
+                    selectedBorderColor: .green,
+                    selectedBackgroundColor: .blue,
+                    selectedErrorBorderColor: .red,
+                    errorBorderColor: .systemRed,
+                    errorBackgroundColor: .yellow,
+                    deselectedBorderColor: .cyan,
+                    deselectedBackgroundColor: .clear,
+                    disabledTextColor: .brown,
+                    disabledBackgroundColor: .purple
+                ),
+                font: .systemFont(ofSize: 32),
+                border: .init(idleBorderWidth: 0, selectedBorderWidth: 0),
+                placeholder: .init(color: .systemGray, font: .systemFont(ofSize: 22))
+            )
+        )
+        return SearchBar(textfield: textField)
+    }
+    
+    func updateUIView(_ uiView: UIView, context: Context) {
+        
+    }
+}
+
+@available(iOS 17.0, *)
+#Preview {
+    ZStack {
+        SwiftUIColor.yellow
+        PreviewSearchBar()
+            .frame(width: 300, height: 50)
+            .padding()
     }
 }
 #endif

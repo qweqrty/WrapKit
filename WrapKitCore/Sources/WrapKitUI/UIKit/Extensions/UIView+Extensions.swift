@@ -315,4 +315,15 @@ public extension UIView {
         endEditing(true)
     }
 }
+
+public extension UIView {
+    @available(iOS 26.0, *)
+    func addScrollEdgeInteractionWith(_ scrollView: UIScrollView, at edge: UIRectEdge) {
+        let interaction = UIScrollEdgeElementContainerInteraction()
+        interaction.scrollView = scrollView
+        interaction.edge = edge
+        self.addInteraction(interaction)
+    }
+}
+
 #endif

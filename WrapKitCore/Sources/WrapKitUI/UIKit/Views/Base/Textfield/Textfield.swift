@@ -761,6 +761,9 @@ open class Textfield: UITextField {
             lastBounds = bounds
             invalidateA11y()
         }
+        if let cornerStyle {
+            applyOldCornerStyleOnlyiOS18(cornerStyle)
+        }
     }
     
     func updateAccessibilityCustomActions() {
@@ -928,8 +931,39 @@ open class Textfield: UITextField {
     
     public var appearance: TextfieldAppearance { didSet { updateAppearance(); invalidateA11y() } }
     
-    public init(
+    public var cornerStyle: CornerStyle?
+    
+    @available(*, deprecated, renamed: "init(cornerStyle:)", message: "")
+    public convenience init(
         cornerRadius: CGFloat = 10,
+        textAlignment: NSTextAlignment = .natural,
+        appearance: TextfieldAppearance,
+        midPadding: CGFloat = 6.67,
+        padding: UIEdgeInsets = .init(top: 10, left: 12, bottom: 10, right: 12),
+        nextTextfield: UIResponder? = nil,
+        leadingView: ViewUIKit? = nil,
+        trailingView: TrailingViewStyle? = nil,
+        inputView: UIView? = nil,
+        autocapitalizationType: UITextAutocapitalizationType = .none,
+        delegate: MaskedTextfieldDelegate? = nil
+    ) {
+        self.init(
+            cornerStyle: .fixed(cornerRadius),
+            textAlignment: textAlignment,
+            appearance: appearance,
+            midPadding: midPadding,
+            padding: padding,
+            nextTextfield: nextTextfield,
+            leadingView: leadingView,
+            trailingView: trailingView,
+            inputView: inputView,
+            autocapitalizationType: autocapitalizationType,
+            delegate: delegate,
+        )
+    }
+    
+    public init(
+        cornerStyle: CornerStyle?,
         textAlignment: NSTextAlignment = .natural,
         appearance: TextfieldAppearance,
         midPadding: CGFloat = 6.67,
@@ -948,7 +982,10 @@ open class Textfield: UITextField {
         super.init(frame: .zero)
         
         self.textAlignment = textAlignment
-        self.cornerRadius = cornerRadius
+        self.cornerStyle = cornerStyle
+        if let cornerStyle {
+            applyCornerStyle(cornerStyle)
+        }
         self.autocorrectionType = .no
         self.textColor = appearance.colors.textColor
         self.autocapitalizationType = autocapitalizationType

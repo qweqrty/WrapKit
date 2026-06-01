@@ -283,7 +283,7 @@ open class NavigationBar: UIView {
             .bottom(trailingStackWrapperView.bottomAnchor)
         )
         
-        if #available(iOS 26, *) {
+        if isAvailableOS26 {
             mainStackViewConstraints = mainStackView.anchor(
                 .top(safeAreaLayoutGuide.topAnchor, constant: 4),
                 .leading(leadingAnchor, constant: 16),
@@ -308,7 +308,7 @@ open class NavigationBar: UIView {
         titleViews.fillSuperview()
         
         centerTitledImageView.anchor(
-            .top(topAnchor),
+            .top(safeAreaLayoutGuide.topAnchor),
             .bottom(bottomAnchor),
             .centerX(centerXAnchor)
         )

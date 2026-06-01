@@ -25,7 +25,8 @@ let package = Package(
         .package(url: "https://github.com/airbnb/lottie-spm", from: "4.5.0"),
         .package(url: "https://github.com/onevcat/Kingfisher.git", exact: "7.12.0"),
         .package(url: "https://github.com/marmelroy/PhoneNumberKit", from: "4.0.0"),
-        .package(url: "https://github.com/devicekit/DeviceKit", from: "5.7.0")
+        .package(url: "https://github.com/devicekit/DeviceKit", from: "5.7.0"),
+        .package(url: "https://github.com/SnapKit/SnapKit.git", from: "5.0.1"),
     ],
     targets: [
         .target(
