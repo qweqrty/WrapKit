@@ -151,25 +151,26 @@ extension Button: ButtonOutput {
     
     private func displayGlass(style: ButtonStyle) {
         if #available(iOS 26, macOS 26, watchOS 26, tvOS 26, *) {
-            var config: UIButton.Configuration? = switch style.glassConfiguration {
+            var config: UIButton.Configuration = switch style.glassConfiguration {
             case .glass: .glass()
             case .clearGlass: .clearGlass()
             case .prominentGlass: .prominentGlass()
             case .prominentClearGlass: .prominentClearGlass()
-            case .none: nil
+            case .none: .plain()
             }
-            config?.background.cornerRadius = style.cornerRadius
-            config?.background.strokeColor = style.borderColor
-            config?.background.strokeWidth = style.borderWidth
-            config?.background.backgroundColor = style.backgroundColor
+            config.background.cornerRadius = style.cornerRadius
+            config.background.strokeColor = style.borderColor
+            config.background.strokeWidth = style.borderWidth
+            config.background.backgroundColor = style.backgroundColor
+            config.baseForegroundColor = style.titleColor
             if let font = style.font {
-                config?.titleTextAttributesTransformer = .init { container in
+                config.titleTextAttributesTransformer = .init { container in
                     var updated = container
                     updated.font = font
                     return updated
                 }
             }
-            config?.titleLineBreakMode = .byTruncatingTail
+            config.titleLineBreakMode = .byTruncatingTail
             
             self.configuration = config
 
@@ -298,26 +299,45 @@ open class Button: UIButton {
     }
     
     open override func setImage(_ image: UIImage?, for state: UIControl.State) {
-        if #available(iOS 15.0, *), configuration != nil {
-            configuration?.image = image
+        if #available(iOS 15.0, *), var configuration {
+            configuration.image = image
+            self.configuration = configuration
         } else {
             super.setImage(image, for: state)
         }
     }
 
     open override func setTitle(_ title: String?, for state: UIControl.State) {
-        if #available(iOS 15.0, *), configuration != nil {
-            configuration?.title = title
+        if #available(iOS 15.0, *), var configuration {
+            configuration.title = title
+            self.configuration = configuration
         } else {
             super.setTitle(title, for: state)
         }
     }
 
     open override func setTitleColor(_ color: UIColor?, for state: UIControl.State) {
-        if #available(iOS 15.0, *), configuration != nil {
-            configuration?.baseForegroundColor = color
+        if #available(iOS 15.0, *), var configuration {
+            configuration.baseForegroundColor = color
+            self.configuration = configuration
         } else {
             super.setTitleColor(color, for: state)
+        }
+    }
+    
+    open override var contentHorizontalAlignment: UIControl.ContentHorizontalAlignment {
+        didSet {
+            if #available(iOS 15.0, *), var configuration {
+                configuration.titleAlignment = switch contentHorizontalAlignment {
+                case .center, .fill: .center
+                case .leading, .left: .leading
+                case .trailing, .right: .trailing
+                @unknown default: .center
+                }
+                self.configuration = configuration
+            } else {
+                super.contentHorizontalAlignment = contentHorizontalAlignment
+            }
         }
     }
     
@@ -330,14 +350,15 @@ open class Button: UIButton {
     open var anchoredConstraints: AnchoredConstraints?
     
     private func updateSpacings() {
-        if #available(iOS 15.0, *), configuration != nil {
-            configuration?.contentInsets = .init(
+        if #available(iOS 15.0, *), var configuration {
+            configuration.contentInsets = .init(
                 top: contentInset.top,
                 leading: contentInset.left,
                 bottom: contentInset.bottom,
                 trailing: contentInset.right
             )
-            configuration?.imagePadding = spacing
+            configuration.imagePadding = spacing
+            self.configuration = configuration
             return
         }
         let isRTL = UIView.userInterfaceLayoutDirection(for: self.semanticContentAttribute) == .rightToLeft
@@ -365,7 +386,7 @@ open class Button: UIButton {
             textColor: style.titleColor,
             backgroundColor: style.backgroundColor ?? .clear,
             pressedTextColor: style.pressedTintColor,
-            pressedBacgroundColor: style.pressedColor
+            pressedBackgroundColor: style.pressedColor
         )
         
         display(style: style)
@@ -382,7 +403,7 @@ open class Button: UIButton {
         titleLabelFont: UIFont? = nil,
         backgroundColor: UIColor = .clear,
         pressedTextColor: UIColor? = nil,
-        pressedBacgroundColor: UIColor? = nil,
+        pressedBackgroundColor: UIColor? = nil,
         contentInset: UIEdgeInsets = .zero,
         spacing: CGFloat = 0,
         contentHorizontalAlignment: UIControl.ContentHorizontalAlignment = .center,
@@ -405,8 +426,16 @@ open class Button: UIButton {
         self.contentInset = contentInset
         self.isHidden = isHidden
         self.pressedTextColor = pressedTextColor
-        self.pressedBackgroundColor = pressedBacgroundColor
+        self.pressedBackgroundColor = pressedBackgroundColor
         updateSpacings()
+        
+        display(style: .init(
+            backgroundColor: backgroundColor,
+            titleColor: textColor,
+            pressedColor: pressedBackgroundColor,
+            pressedTintColor: pressedTextColor,
+            font: titleLabelFont
+        ))
     }
     
     open override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
