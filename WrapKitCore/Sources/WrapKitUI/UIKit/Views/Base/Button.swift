@@ -29,7 +29,7 @@ public struct ButtonStyle: HashableWithReflection {
         pressedTintColor: Color? = nil,
         font: Font? = nil,
         cornerRadius: CGFloat = 12,
-        glassConfiguration: GlassConfiguration? = .clearGlass,
+        glassConfiguration: GlassConfiguration?,
         wrongUrlPlaceholderImage: Image? = nil,
         loadingIndicatorColor: Color? = nil
     ) {
