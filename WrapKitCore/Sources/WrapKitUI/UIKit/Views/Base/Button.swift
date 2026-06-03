@@ -180,6 +180,9 @@ extension Button: ButtonOutput {
     }
     
     private func displayGlass(style: ButtonStyle) {
+        let usesLiquidGlassConfiguration = style.glassConfiguration != nil
+        self.usesLiquidGlassConfiguration = usesLiquidGlassConfiguration
+
         if #available(iOS 26, macOS 26, watchOS 26, tvOS 26, *) {
             var config: UIButton.Configuration = switch style.glassConfiguration {
             case .glass: .glass()
@@ -201,10 +204,14 @@ extension Button: ButtonOutput {
                 }
             }
             config.titleLineBreakMode = .byTruncatingTail
-            config.cornerStyle = style.cornerStyle.cornerConfiguation == .capsule() ? .capsule : .fixed
-            config.background.cornerRadius = style.cornerStyle.cornerConfiguation == .capsule() ? .zero : (style.cornerStyle.value ?? .zero)
-            if style.cornerStyle.cornerConfiguation != .capsule() {
-                applyCornerStyle(style.cornerStyle)
+            if usesLiquidGlassConfiguration {
+                applyCornerStyle(.automatic)
+            } else {
+                config.cornerStyle = style.cornerStyle.cornerConfiguation == .capsule() ? .capsule : .fixed
+                config.background.cornerRadius = style.cornerStyle.cornerConfiguation == .capsule() ? .zero : (style.cornerStyle.value ?? .zero)
+                if style.cornerStyle.cornerConfiguation != .capsule() {
+                    applyCornerStyle(style.cornerStyle)
+                }
             }
             
             self.configuration = config
@@ -317,6 +324,15 @@ open class Button: UIButton {
         didSet { updateSpacings() }
     }
 
+    private var usesLiquidGlassConfiguration = false
+
+    private var hasCustomContentInset: Bool {
+        return contentInset.top != .zero
+            || contentInset.left != .zero
+            || contentInset.bottom != .zero
+            || contentInset.right != .zero
+    }
+
     public var textColor: UIColor? {
         didSet {
             setTitleColor(textColor, for: .normal)
@@ -386,6 +402,12 @@ open class Button: UIButton {
     
     private func updateSpacings() {
         if #available(iOS 15.0, *), var configuration {
+            if #available(iOS 26, *), usesLiquidGlassConfiguration, !hasCustomContentInset {
+                configuration.imagePadding = spacing
+                self.configuration = configuration
+                return
+            }
+
             configuration.contentInsets = .init(
                 top: contentInset.top,
                 leading: contentInset.left,
