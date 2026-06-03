@@ -180,10 +180,8 @@ extension Button: ButtonOutput {
     }
     
     private func displayGlass(style: ButtonStyle) {
-        let usesLiquidGlassConfiguration = style.glassConfiguration != nil
-        self.usesLiquidGlassConfiguration = usesLiquidGlassConfiguration
-
-        if #available(iOS 26, macOS 26, watchOS 26, tvOS 26, *) {
+        if #available(iOS 26, macOS 26, watchOS 26, tvOS 26, *), isLiquidGlassEnabled {
+            self.usesLiquidGlassConfiguration = style.glassConfiguration != nil
             var config: UIButton.Configuration = switch style.glassConfiguration {
             case .glass: .glass()
             case .clearGlass: .clearGlass()
@@ -204,15 +202,15 @@ extension Button: ButtonOutput {
                 }
             }
             config.titleLineBreakMode = .byTruncatingTail
-            if usesLiquidGlassConfiguration {
-                applyCornerStyle(.automatic)
-            } else {
+//            if usesLiquidGlassConfiguration {
+//                applyCornerStyle(.automatic)
+//            } else {
                 config.cornerStyle = style.cornerStyle.cornerConfiguation == .capsule() ? .capsule : .fixed
                 config.background.cornerRadius = style.cornerStyle.cornerConfiguation == .capsule() ? .zero : (style.cornerStyle.value ?? .zero)
                 if style.cornerStyle.cornerConfiguation != .capsule() {
                     applyCornerStyle(style.cornerStyle)
                 }
-            }
+//            }
             
             self.configuration = config
 
@@ -264,7 +262,7 @@ extension Button: ButtonOutput {
         } else {
             self.layer.borderColor = style.borderColor?.cgColor
             self.layer.borderWidth = style.borderWidth
-            applyOldCornerStyle(style.cornerStyle)
+            applyCornerStyle(style.cornerStyle)
         }
     }
     
@@ -402,11 +400,11 @@ open class Button: UIButton {
     
     private func updateSpacings() {
         if #available(iOS 15.0, *), var configuration {
-            if #available(iOS 26, *), usesLiquidGlassConfiguration, !hasCustomContentInset {
-                configuration.imagePadding = spacing
-                self.configuration = configuration
-                return
-            }
+//            if #available(iOS 26, *), usesLiquidGlassConfiguration, !hasCustomContentInset {
+//                configuration.imagePadding = spacing
+//                self.configuration = configuration
+//                return
+//            }
 
             configuration.contentInsets = .init(
                 top: contentInset.top,
