@@ -111,7 +111,7 @@ public class SearchBar: ViewUIKit {
 
 private extension SearchBar {
     func makeGlassEffectView() -> UIVisualEffectView? {
-        if #available(iOS 26, macOS 26, watchOS 26, tvOS 26, *) {
+        if #available(iOS 26, macOS 26, watchOS 26, tvOS 26, *), isLiquidGlassEnabled {
             let glassEffect = UIGlassEffect(style: .regular)
 //            glassEffect.isInteractive = true
             

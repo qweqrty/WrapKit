@@ -180,7 +180,7 @@ extension Button: ButtonOutput {
     }
     
     private func displayGlass(style: ButtonStyle) {
-        if #available(iOS 26, macOS 26, watchOS 26, tvOS 26, *) {
+        if #available(iOS 26, macOS 26, watchOS 26, tvOS 26, *), isLiquidGlassEnabled {
             var config: UIButton.Configuration = switch style.glassConfiguration {
             case .glass: .glass()
             case .clearGlass: .clearGlass()
@@ -257,7 +257,7 @@ extension Button: ButtonOutput {
         } else {
             self.layer.borderColor = style.borderColor?.cgColor
             self.layer.borderWidth = style.borderWidth
-            applyOldCornerStyle(style.cornerStyle)
+            applyCornerStyle(style.cornerStyle)
         }
     }
     
