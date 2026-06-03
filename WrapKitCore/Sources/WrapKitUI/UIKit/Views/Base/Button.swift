@@ -15,7 +15,7 @@ public struct ButtonStyle: HashableWithReflection {
     public let pressedColor: Color?
     public let pressedTintColor: Color?
     public let font: Font?
-    public let cornerRadius: CGFloat
+    public let cornerStyle: CornerStyle
     public let wrongUrlPlaceholderImage: Image?
     public let loadingIndicatorColor: Color?
     public let glassConfiguration: GlassConfiguration?
@@ -28,7 +28,35 @@ public struct ButtonStyle: HashableWithReflection {
         pressedColor: Color? = nil,
         pressedTintColor: Color? = nil,
         font: Font? = nil,
-        cornerRadius: CGFloat = 12,
+        cornerRadius: CGFloat,
+        glassConfiguration: GlassConfiguration? = nil,
+        wrongUrlPlaceholderImage: Image? = nil,
+        loadingIndicatorColor: Color? = nil
+    ) {
+        self.init(
+            backgroundColor: backgroundColor,
+            titleColor: titleColor,
+            borderWidth: borderWidth,
+            borderColor: borderColor,
+            pressedColor: pressedColor,
+            pressedTintColor: pressedTintColor,
+            font: font,
+            cornerStyle: .fixed(cornerRadius),
+            glassConfiguration: glassConfiguration,
+            wrongUrlPlaceholderImage: wrongUrlPlaceholderImage,
+            loadingIndicatorColor: loadingIndicatorColor
+        )
+    }
+    
+    public init(
+        backgroundColor: Color? = nil,
+        titleColor: Color? = nil,
+        borderWidth: CGFloat = 0,
+        borderColor: Color? = nil,
+        pressedColor: Color? = nil,
+        pressedTintColor: Color? = nil,
+        font: Font? = nil,
+        cornerStyle: CornerStyle = .automatic,
         glassConfiguration: GlassConfiguration? = nil,
         wrongUrlPlaceholderImage: Image? = nil,
         loadingIndicatorColor: Color? = nil
@@ -40,7 +68,7 @@ public struct ButtonStyle: HashableWithReflection {
         self.pressedTintColor = pressedTintColor
         self.font = font
         self.borderWidth = borderWidth
-        self.cornerRadius = cornerRadius
+        self.cornerStyle = cornerStyle
         self.glassConfiguration = glassConfiguration
         self.wrongUrlPlaceholderImage = wrongUrlPlaceholderImage
         self.loadingIndicatorColor = loadingIndicatorColor
@@ -56,6 +84,8 @@ public struct ButtonStyle: HashableWithReflection {
         /// Creates a configuration for a button that has a prominent, clear Liquid Glass style.
         case prominentClearGlass
     }
+    
+    
 }
 
 public protocol ButtonOutput: HiddableOutput {
@@ -138,7 +168,7 @@ extension Button: ButtonOutput {
     }
     
     public func display(style: ButtonStyle?) {
-        guard let style = style else { return }
+        guard let style else { return }
         
         self.textColor = style.titleColor
         self.textBackgroundColor = style.backgroundColor
@@ -158,7 +188,6 @@ extension Button: ButtonOutput {
             case .prominentClearGlass: .prominentClearGlass()
             case .none: .plain()
             }
-            config.background.cornerRadius = style.cornerRadius
             config.background.strokeColor = style.borderColor
             config.background.strokeWidth = style.borderWidth
             config.background.backgroundColor = style.backgroundColor
@@ -167,10 +196,16 @@ extension Button: ButtonOutput {
                 config.titleTextAttributesTransformer = .init { container in
                     var updated = container
                     updated.font = font
+                    updated.foregroundColor = self.textColor
                     return updated
                 }
             }
             config.titleLineBreakMode = .byTruncatingTail
+            config.cornerStyle = style.cornerStyle.cornerConfiguation == .capsule() ? .capsule : .fixed
+            config.background.cornerRadius = style.cornerStyle.cornerConfiguation == .capsule() ? .zero : (style.cornerStyle.value ?? .zero)
+            if style.cornerStyle.cornerConfiguation != .capsule() {
+                applyCornerStyle(style.cornerStyle)
+            }
             
             self.configuration = config
 
@@ -222,7 +257,7 @@ extension Button: ButtonOutput {
         } else {
             self.layer.borderColor = style.borderColor?.cgColor
             self.layer.borderWidth = style.borderWidth
-            self.layer.cornerRadius = style.cornerRadius
+            applyOldCornerStyle(style.cornerStyle)
         }
     }
     

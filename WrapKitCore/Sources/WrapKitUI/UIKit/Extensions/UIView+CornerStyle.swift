@@ -19,17 +19,7 @@ public extension UIView {
     
     @available(iOS 26, macOS 26, watchOS 26, tvOS 26, *)
     func applyiOS26CornerStyle(_ cornerStyle: CornerStyle) {
-        cornerConfiguration = switch cornerStyle {
-        case .automatic: .capsule()
-        case .fixed(let value): .corners(radius: .fixed(value))
-        case .corners(let corners): .corners(
-            topLeftRadius: .fixed(corners.topLeft),
-            topRightRadius: .fixed(corners.topRight),
-            bottomLeftRadius: .fixed(corners.bottomLeft),
-            bottomRightRadius: .fixed(corners.bottomRight)
-        )
-        case .none: .corners(radius: .fixed(.zero))
-        }
+        cornerConfiguration = cornerStyle.cornerConfiguation
     }
     
     func applyOldCornerStyleOnlyiOS18(_ cornerStyle: CornerStyle) {
@@ -54,6 +44,32 @@ public extension UIView {
             layer.cornerRadius = corners.maximum
         }
         layer.masksToBounds = layer.cornerRadius > 0
+    }
+}
+
+extension CornerStyle {
+    @available(iOS 26, macOS 26, watchOS 26, tvOS 26, *)
+    public var cornerConfiguation: UICornerConfiguration {
+        switch self {
+        case .automatic: .capsule()
+        case .fixed(let value): .corners(radius: .fixed(value))
+        case .corners(let corners): .corners(
+            topLeftRadius: .fixed(corners.topLeft),
+            topRightRadius: .fixed(corners.topRight),
+            bottomLeftRadius: .fixed(corners.bottomLeft),
+            bottomRightRadius: .fixed(corners.bottomRight)
+        )
+        case .none: .corners(radius: .fixed(.zero))
+        }
+    }
+    
+    public var value: CGFloat? {
+        switch self {
+        case .automatic: .none
+        case .fixed(let value): value
+        case .corners(let corners): corners.maximum
+        case .none: .zero
+        }
     }
 }
 

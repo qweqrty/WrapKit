@@ -325,8 +325,7 @@ private extension NavigationBar {
             let glassEffect = UIGlassEffect(style: .regular)
             glassEffect.isInteractive = true
             let glassEffectView = UIVisualEffectView(effect: glassEffect)
-            glassEffectView.layer.cornerRadius = 22
-            glassEffectView.layer.cornerCurve = .continuous
+            glassEffectView.applyCornerStyle(.automatic)
             glassEffectView.isHidden = true
             return glassEffectView
         } else {
@@ -366,7 +365,10 @@ private extension NavigationBar {
     
     func makeWrappedImageView() -> WrapperView<Button> {
         let view = WrapperView(
-            contentView: Button(),
+            contentView: Button(style: .init(
+                cornerStyle: .automatic,
+                glassConfiguration: .glass
+            )),
             isHidden: true,
             contentViewConstraints: {
                 $0.anchor(
@@ -380,6 +382,7 @@ private extension NavigationBar {
         )
         if #available(iOS 26, macOS 26, tvOS 26, watchOS 26, *) {
             view.contentView.configuration = .glass()
+            view.applyCornerStyle(.automatic)
         }
         return view
     }

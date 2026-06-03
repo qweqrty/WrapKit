@@ -40,6 +40,22 @@ public enum CornerStyle {
     }
 }
 
+extension CornerStyle: ExpressibleByIntegerLiteral {
+    public typealias IntegerLiteralType = Int
+    
+    public init(integerLiteral value: Int) {
+        self = .fixed(CGFloat(value))
+    }
+}
+
+extension CornerStyle: ExpressibleByFloatLiteral {
+    public typealias FloatLiteralType = Float
+    
+    public init(floatLiteral value: Float) {
+        self = .fixed(CGFloat(value))
+    }
+}
+
 #if canImport(QuartzCore)
 import QuartzCore
 extension CornerStyle.Corners {
