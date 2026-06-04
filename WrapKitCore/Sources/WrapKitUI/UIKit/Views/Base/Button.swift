@@ -56,7 +56,7 @@ public struct ButtonStyle: HashableWithReflection {
         pressedColor: Color? = nil,
         pressedTintColor: Color? = nil,
         font: Font? = nil,
-        cornerStyle: CornerStyle = .automatic,
+        cornerStyle: CornerStyle = isAvailableOS26 && isLiquidGlassEnabled ? .automatic : .fixed(12),
         glassConfiguration: GlassConfiguration? = nil,
         wrongUrlPlaceholderImage: Image? = nil,
         loadingIndicatorColor: Color? = nil
