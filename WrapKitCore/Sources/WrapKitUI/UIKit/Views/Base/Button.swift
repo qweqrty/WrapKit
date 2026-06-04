@@ -84,8 +84,6 @@ public struct ButtonStyle: HashableWithReflection {
         /// Creates a configuration for a button that has a prominent, clear Liquid Glass style.
         case prominentClearGlass
     }
-    
-    
 }
 
 public protocol ButtonOutput: HiddableOutput {
@@ -314,6 +312,7 @@ open class Button: UIButton {
             addTarget(self, action: #selector(onTap), for: .touchUpInside)
         }
     }
+    
     public var spacing: CGFloat = 0 {
         didSet { updateSpacings() }
     }
@@ -454,7 +453,7 @@ open class Button: UIButton {
     public convenience init(
         image: UIImage? = nil,
         tintColor: UIColor? = nil,
-        textColor: UIColor? = nil,
+        textColor: UIColor? =  isAvailableOS26 ? nil : UIColor.label, // MYO-7040 fix Timer text flashing
         titleLabelFont: UIFont? = nil,
         backgroundColor: UIColor = .clear,
         pressedTextColor: UIColor? = nil,
@@ -465,7 +464,7 @@ open class Button: UIButton {
         isHidden: Bool = false,
         isEnabled: Bool = true,
         lineBreakingMode: NSLineBreakMode = .byTruncatingTail,
-        type: UIButton.ButtonType = .system
+        type: UIButton.ButtonType = isAvailableOS26 ? .system : .custom // MYO-7040 fix Timer text flashing
     ) {
         self.init(type: type)
         if let tintColor = tintColor { self.tintColor = tintColor }
