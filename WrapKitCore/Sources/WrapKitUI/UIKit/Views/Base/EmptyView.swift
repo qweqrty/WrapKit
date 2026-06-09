@@ -126,11 +126,11 @@ extension EmptyView: EmptyViewOutput {
     public func display(buttonModel: ButtonPresentableModel?) {
         button.isHidden = buttonModel == nil
         guard let buttonModel else { return }
-        button.setTitle(buttonModel.title, for: .normal)
         if let spacing = buttonModel.spacing { button.spacing = spacing }
         button.onPress = buttonModel.onPress
         button.display(style: buttonModel.style)
         button.accessibilityIdentifier = buttonModel.accessibilityIdentifier
+        button.setTitle(buttonModel.title, for: .normal)
     }
     
     public func display(model: EmptyViewPresentableModel?) {

@@ -82,4 +82,4 @@ public var isAvailableOS26: Bool {
     return false
 }
 
-public var isLiquidGlassEnabled = false
+public var isLiquidGlassEnabled = true
