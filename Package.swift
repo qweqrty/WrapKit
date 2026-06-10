@@ -26,7 +26,7 @@ let package = Package(
         .package(url: "https://github.com/onevcat/Kingfisher.git", exact: "7.12.0"),
         .package(url: "https://github.com/marmelroy/PhoneNumberKit", from: "4.0.0"),
         .package(url: "https://github.com/devicekit/DeviceKit", from: "5.7.0"),
-        .package(url: "https://github.com/SnapKit/SnapKit.git", from: "5.0.1"),
+        .package(url: "https://github.com/SnapKit/SnapKit.git", from: "6.0.0"),
     ],
     targets: [
         .target(
@@ -35,8 +35,9 @@ let package = Package(
                 "Kingfisher",
                 "PhoneNumberKit",
                 "DeviceKit",
-		"CryptoSwift",
-                .product(name: "Lottie", package: "lottie-spm")
+                "CryptoSwift",
+                "SnapKit",
+                .product(name: "Lottie", package: "lottie-spm"),
             ],
             path: "WrapKitCore/Sources"
         ),
@@ -44,7 +45,7 @@ let package = Package(
             name: "WrapKitGame",
             dependencies: [
                 "WrapKit",
-                .product(name: "Lottie", package: "lottie-spm")
+                .product(name: "Lottie", package: "lottie-spm"),
             ],
             path: "WrapKitGame/Sources"
         ),
