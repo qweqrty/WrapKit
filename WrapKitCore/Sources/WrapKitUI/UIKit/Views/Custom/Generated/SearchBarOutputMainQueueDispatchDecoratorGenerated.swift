@@ -13,6 +13,9 @@ import Foundation
 #if canImport(UIKit)
 import UIKit
 #endif
+#if canImport(SwiftUI)
+import SwiftUI
+#endif
 
 extension SearchBarOutput {
     public var mainQueueDispatched: any SearchBarOutput {

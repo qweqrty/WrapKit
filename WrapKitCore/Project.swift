@@ -15,8 +15,6 @@ let project = Project(
             dependencies: [
                 .external(name: "Kingfisher"),
                 .external(name: "Lottie"),
-                .external(name: "PhoneNumberKit"),
-                .external(name: "DeviceKit"),
                 .external(name: "SnapKit"),
             ]
         ),
