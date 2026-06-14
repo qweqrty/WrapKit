@@ -22,15 +22,13 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/airbnb/lottie-spm", from: "4.5.0"),
-        .package(url: "https://github.com/onevcat/Kingfisher.git", exact: "7.12.0"),
-        .package(url: "https://github.com/SnapKit/SnapKit.git", from: "5.7.0"),
+        .package(url: "https://github.com/onevcat/Kingfisher.git", exact: "7.12.0")
     ],
     targets: [
         .target(
             name: "WrapKit",
             dependencies: [
                 "Kingfisher",
-                "SnapKit",
                 .product(name: "Lottie", package: "lottie-spm"),
             ],
             path: "WrapKitCore/Sources"
