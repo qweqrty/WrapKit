@@ -12,6 +12,7 @@ let package = Package(
     products: [
         .library(
             name: "WrapKit",
+            type: .dynamic,
             targets: ["WrapKit"]),
         .library(
             name: "WrapKitGame",
