@@ -1180,7 +1180,6 @@ extension CardViewSnapshotTests {
             subTitleLabelFont: subTitleLabelFont,
             subtitleNumberOfLines: subtitleNumberOfLines,
             cornerRadius: cornerRadius,
-            roundedCorners: roundedCorners,
             stackSpace: stackSpace,
             hStackViewSpacing: hStackViewSpacing,
             titleKeyNumberOfLines: titleKeyNumberOfLines,

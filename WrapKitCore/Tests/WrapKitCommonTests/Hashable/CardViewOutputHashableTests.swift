@@ -132,7 +132,6 @@ fileprivate extension CardViewPresentableModel.Style {
             subTitleLabelFont: .systemFont(ofSize: 3),
             subtitleNumberOfLines: subtitleLabelNumberOfLines,
             cornerRadius: cornerRadius,
-            roundedCorners: roundedCorners,
             stackSpace: stackSpace,
             hStackViewSpacing: hStackViewSpacing,
             titleKeyNumberOfLines: titleKeyNumberOfLines,

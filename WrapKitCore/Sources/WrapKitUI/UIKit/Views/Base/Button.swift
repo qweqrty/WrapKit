@@ -8,6 +8,8 @@
 import Foundation
 
 public struct ButtonStyle: HashableWithReflection {
+    public static let defaultCornerRadius: CGFloat = 12
+    
     public let backgroundColor: Color?
     public let titleColor: Color?
     public let borderWidth: CGFloat
@@ -56,7 +58,7 @@ public struct ButtonStyle: HashableWithReflection {
         pressedColor: Color? = nil,
         pressedTintColor: Color? = nil,
         font: Font? = nil,
-        cornerStyle: CornerStyle = isAvailableOS26 && isLiquidGlassEnabled ? .automatic : .fixed(12),
+        cornerStyle: CornerStyle = isAvailableOS26 && isLiquidGlassEnabled ? .automatic : .fixed(ButtonStyle.defaultCornerRadius),
         glassConfiguration: GlassConfiguration? = nil,
         wrongUrlPlaceholderImage: Image? = nil,
         loadingIndicatorColor: Color? = nil
@@ -168,7 +170,7 @@ extension Button: ButtonOutput {
     public func display(style: ButtonStyle?) {
         guard let style else { return }
         
-        self.textColor = style.titleColor
+        self.textColor = style.titleColor ?? .white
         self.textBackgroundColor = style.backgroundColor
         self.pressedTextColor = style.pressedTintColor
         self.pressedBackgroundColor = style.pressedColor
@@ -178,20 +180,30 @@ extension Button: ButtonOutput {
     }
     
     private func displayGlass(style: ButtonStyle) {
+        guard let glassConfiguration = style.glassConfiguration else {
+            resetGlassConfigurationIfNeeded()
+            if let textColor = style.titleColor { self.setTitleColor(textColor, for: .normal) }
+            if let titleLabelFont = style.font { self.titleLabel?.font = titleLabelFont }
+            self.layer.borderColor = style.borderColor?.cgColor
+            self.layer.borderWidth = style.borderWidth
+            applyButtonCornerStyle(style.cornerStyle)
+            return
+        }
+        
         let previousConfiguration = configuration
         if #available(iOS 26, macOS 26, watchOS 26, tvOS 26, *), isLiquidGlassEnabled {
-            self.usesLiquidGlassConfiguration = style.glassConfiguration != nil
-            var config: UIButton.Configuration = switch style.glassConfiguration {
+            self.usesLiquidGlassConfiguration = true
+            var config: UIButton.Configuration = switch glassConfiguration {
             case .glass: .glass()
             case .clearGlass: .clearGlass()
             case .prominentGlass: .prominentGlass()
             case .prominentClearGlass: .prominentClearGlass()
-            case .none: .plain()
             }
             config.background.strokeColor = style.borderColor
             config.background.strokeWidth = style.borderWidth
+            
             config.background.backgroundColor = style.backgroundColor
-            config.baseForegroundColor = style.titleColor
+            config.baseForegroundColor = style.titleColor ?? .white
             if previousConfiguration == nil {
                 config.title = title(for: .normal) ?? titleLabel?.text
                 config.image = image(for: .normal) ?? imageView?.image
@@ -200,7 +212,7 @@ extension Button: ButtonOutput {
                 config.titleTextAttributesTransformer = .init { container in
                     var updated = container
                     updated.font = font
-                    updated.foregroundColor = self.textColor
+                    updated.foregroundColor = self.textColor ?? .white
                     return updated
                 }
             }
@@ -209,7 +221,7 @@ extension Button: ButtonOutput {
 //                applyCornerStyle(.automatic)
 //            } else {
                 config.cornerStyle = style.cornerStyle.cornerConfiguation == .capsule() ? .capsule : .fixed
-                config.background.cornerRadius = style.cornerStyle.cornerConfiguation == .capsule() ? .zero : (style.cornerStyle.value ?? .zero)
+                config.background.cornerRadius = style.cornerStyle.cornerConfiguation == .capsule() ? ButtonStyle.defaultCornerRadius : (style.cornerStyle.value ?? ButtonStyle.defaultCornerRadius)
                 if style.cornerStyle.cornerConfiguation != .capsule() {
                     applyCornerStyle(style.cornerStyle)
                 }
@@ -265,7 +277,7 @@ extension Button: ButtonOutput {
         } else {
             self.layer.borderColor = style.borderColor?.cgColor
             self.layer.borderWidth = style.borderWidth
-            applyCornerStyle(style.cornerStyle)
+            applyButtonCornerStyle(style.cornerStyle)
         }
     }
     
@@ -442,7 +454,7 @@ open class Button: UIButton {
         enabled: Bool = true
     ) {
         self.init(
-            textColor: style.titleColor,
+            textColor: style.titleColor ?? .white,
             backgroundColor: style.backgroundColor ?? .clear,
             pressedTextColor: style.pressedTintColor,
             pressedBackgroundColor: style.pressedColor
@@ -592,6 +604,38 @@ open class Button: UIButton {
             return true
         }
         return super.accessibilityActivate()
+    }
+}
+
+private extension Button {
+    func resetGlassConfigurationIfNeeded() {
+        guard usesLiquidGlassConfiguration else { return }
+        configurationUpdateHandler = nil
+        if #available(iOS 15.0, *) {
+            configuration = nil
+        }
+        usesLiquidGlassConfiguration = false
+    }
+    
+    func applyButtonCornerStyle(_ cornerStyle: CornerStyle) {
+        switch cornerStyle {
+        case .automatic:
+            layer.maskedCorners = .allCorners
+            layer.cornerRadius = min(bounds.height, bounds.width) / 2
+            layer.masksToBounds = true
+        case .fixed(let radius):
+            layer.maskedCorners = .allCorners
+            layer.cornerRadius = radius
+            layer.masksToBounds = false
+        case .none:
+            layer.maskedCorners = []
+            layer.cornerRadius = .zero
+            layer.masksToBounds = false
+        case .corners(let corners):
+            layer.maskedCorners = corners.maskedCorners
+            layer.cornerRadius = corners.maximum
+            layer.masksToBounds = corners.maximum > .zero
+        }
     }
 }
 
