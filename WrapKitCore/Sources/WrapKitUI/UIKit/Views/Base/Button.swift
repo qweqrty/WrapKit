@@ -178,6 +178,7 @@ extension Button: ButtonOutput {
     }
     
     private func displayGlass(style: ButtonStyle) {
+        let previousConfiguration = configuration
         if #available(iOS 26, macOS 26, watchOS 26, tvOS 26, *), isLiquidGlassEnabled {
             self.usesLiquidGlassConfiguration = style.glassConfiguration != nil
             var config: UIButton.Configuration = switch style.glassConfiguration {
@@ -191,6 +192,10 @@ extension Button: ButtonOutput {
             config.background.strokeWidth = style.borderWidth
             config.background.backgroundColor = style.backgroundColor
             config.baseForegroundColor = style.titleColor
+            if previousConfiguration == nil {
+                config.title = title(for: .normal) ?? titleLabel?.text
+                config.image = image(for: .normal) ?? imageView?.image
+            }
             if let font = style.font {
                 config.titleTextAttributesTransformer = .init { container in
                     var updated = container
