@@ -19,7 +19,9 @@ open class WrapperView<ContentView: UIView>: ViewUIKit {
         backgroundColor: UIColor = .clear,
         isHidden: Bool = false,
         isUserInteractionEnabled: Bool = true,
-        contentViewConstraints: ((ContentView, UIView) -> AnchoredConstraints)
+        contentViewConstraints: ((ContentView, UIView) -> AnchoredConstraints) = { contentView, _ in
+            contentView.fillSuperview()
+        }
     ) {
         self.contentView = contentView
         super.init(frame: .zero)

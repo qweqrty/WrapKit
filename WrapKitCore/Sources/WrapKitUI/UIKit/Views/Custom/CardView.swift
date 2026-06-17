@@ -49,8 +49,7 @@ public struct CardViewPresentableModel: HashableWithReflection {
         public let titleValueLabelFont: Font
         public let subTitleLabelFont: Font
         public let subtitleNumberOfLines: Int
-        public let cornerRadius: CGFloat
-        public let roundedCorners: CACornerMask
+        public let cornerStyle: CornerStyle
         public let stackSpace: CGFloat
         public let hStackViewSpacing: CGFloat
         public let titleKeyNumberOfLines: Int
@@ -77,8 +76,7 @@ public struct CardViewPresentableModel: HashableWithReflection {
             titleValueLabelFont: Font,
             subTitleLabelFont: Font,
             subtitleNumberOfLines: Int = 0,
-            cornerRadius: CGFloat,
-            roundedCorners: CACornerMask = .allCorners,
+            cornerStyle: CornerStyle,
             stackSpace: CGFloat,
             hStackViewSpacing: CGFloat,
             titleKeyNumberOfLines: Int,
@@ -104,8 +102,7 @@ public struct CardViewPresentableModel: HashableWithReflection {
             self.titleValueLabelFont = titleValueLabelFont
             self.subTitleLabelFont = subTitleLabelFont
             self.subtitleNumberOfLines = subtitleNumberOfLines
-            self.cornerRadius = cornerRadius
-            self.roundedCorners = roundedCorners
+            self.cornerStyle = cornerStyle
             self.stackSpace = stackSpace
             self.hStackViewSpacing = hStackViewSpacing
             self.titleKeyNumberOfLines = titleKeyNumberOfLines
@@ -115,6 +112,62 @@ public struct CardViewPresentableModel: HashableWithReflection {
             self.gradientBorderColors = gradientBorderColors
             self.trailingImageLeadingSpacing = trailingImageLeadingSpacing
             self.secondaryTrailingImageLeadingSpacing = secondaryTrailingImageLeadingSpacing
+        }
+        
+        public init(
+            backgroundColor: Color,
+            vStacklayoutMargins: EdgeInsets,
+            hStacklayoutMargins: EdgeInsets,
+            hStackViewDistribution: StackViewDistribution,
+            leadingTitleKeyTextColor: Color,
+            titleKeyTextColor: Color,
+            trailingTitleKeyTextColor: Color,
+            titleValueTextColor: Color,
+            subTitleTextColor: Color,
+            leadingTitleKeyLabelFont: Font,
+            titleKeyLabelFont: Font,
+            trailingTitleKeyLabelFont: Font,
+            titleValueLabelFont: Font,
+            subTitleLabelFont: Font,
+            subtitleNumberOfLines: Int = 0,
+            cornerRadius: CGFloat,
+            stackSpace: CGFloat,
+            hStackViewSpacing: CGFloat,
+            titleKeyNumberOfLines: Int,
+            titleValueNumberOfLines: Int,
+            borderColor: Color? = nil,
+            borderWidth: CGFloat? = nil,
+            gradientBorderColors: [Color]? = nil,
+            trailingImageLeadingSpacing: CGFloat? = nil,
+            secondaryTrailingImageLeadingSpacing: CGFloat? = nil
+        ) {
+            self.init(
+                backgroundColor: backgroundColor,
+                vStacklayoutMargins: vStacklayoutMargins,
+                hStacklayoutMargins: hStacklayoutMargins,
+                hStackViewDistribution: hStackViewDistribution,
+                leadingTitleKeyTextColor: leadingTitleKeyTextColor,
+                titleKeyTextColor: titleKeyTextColor,
+                trailingTitleKeyTextColor: trailingTitleKeyTextColor,
+                titleValueTextColor: titleValueTextColor,
+                subTitleTextColor: subTitleTextColor,
+                leadingTitleKeyLabelFont: leadingTitleKeyLabelFont,
+                titleKeyLabelFont: titleKeyLabelFont,
+                trailingTitleKeyLabelFont: trailingTitleKeyLabelFont,
+                titleValueLabelFont: titleValueLabelFont,
+                subTitleLabelFont: subTitleLabelFont,
+                subtitleNumberOfLines: subtitleNumberOfLines,
+                cornerStyle: .fixed(cornerRadius),
+                stackSpace: stackSpace,
+                hStackViewSpacing: hStackViewSpacing,
+                titleKeyNumberOfLines: titleKeyNumberOfLines,
+                titleValueNumberOfLines: titleValueNumberOfLines,
+                borderColor: borderColor,
+                borderWidth: borderWidth,
+                gradientBorderColors: gradientBorderColors,
+                trailingImageLeadingSpacing: trailingImageLeadingSpacing,
+                secondaryTrailingImageLeadingSpacing: secondaryTrailingImageLeadingSpacing,
+            )
         }
     }
 
@@ -224,7 +277,7 @@ extension CardView: CardViewOutput {
         titleViews.keyLabel.numberOfLines = style.titleKeyNumberOfLines
         titleViews.valueLabel.numberOfLines = style.titleValueNumberOfLines
         subtitleLabel.numberOfLines = style.subtitleNumberOfLines
-        round(corners: style.roundedCorners, radius: style.cornerRadius)
+        applyCornerStyle(style.cornerStyle)
         layer.borderColor = style.borderColor?.cgColor
         layer.borderWidth = style.borderWidth ?? 0
     }
@@ -771,8 +824,8 @@ extension CardView {
         switchControlConstraints = switchControl.anchor(
             .topGreaterThanEqual(switchWrapperView.topAnchor),
             .bottomLessThanEqual(switchWrapperView.bottomAnchor),
-            .top(switchWrapperView.topAnchor, priority: .defaultHigh),
-            .bottom(switchWrapperView.bottomAnchor, priority: .defaultHigh),
+            .top(switchWrapperView.topAnchor, priority: .defaultLow),
+            .bottom(switchWrapperView.bottomAnchor, priority: .defaultLow),
             .leading(switchWrapperView.leadingAnchor),
             .trailing(switchWrapperView.trailingAnchor),
             .centerX(switchWrapperView.centerXAnchor),

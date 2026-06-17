@@ -71,7 +71,7 @@ extension ChunkedTextField: TextInputOutput {
     public func display(isClearButtonActive: Bool) { }
 }
 
-public class ChunkedTextField: ViewUIKit {
+public final class ChunkedTextField: ViewUIKit {
     private static let maxCharactersPerTextfield = 1
     private static let characterSet = CharacterSet.decimalDigits
     
@@ -83,7 +83,7 @@ public class ChunkedTextField: ViewUIKit {
     
     public var didChangeText = [((String?) -> Void)]()
     
-    open override var isUserInteractionEnabled: Bool {
+    public override var isUserInteractionEnabled: Bool {
         didSet {
             textfields.forEach {
                 $0.textColor = isUserInteractionEnabled ? appearance.colors.textColor : appearance.colors.disabledTextColor
@@ -163,7 +163,7 @@ private extension ChunkedTextField {
 private extension ChunkedTextField {
     func makeTextfields() -> [Textfield] {
         return stride(from: 0, to: count, by: 1).map { offset in
-            let textfield = Textfield(cornerRadius: 12, textAlignment: .center, appearance: appearance)
+            let textfield = Textfield(cornerStyle: .fixed(isAvailableOS26 ? 20 : 12), textAlignment: .center, appearance: appearance)
             textfield.keyboardType = .numberPad
             textfield.tintColor = .clear
             textfield.textContentType = .oneTimeCode

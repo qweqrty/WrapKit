@@ -10,6 +10,7 @@ import WrapKitTestUtils
 import XCTest
 
 final class SearchBarSnapshotTests: XCTestCase {
+    // MARK: TODO iOS26
     func test_SearchBar_defaul_state() {
         let snapshotName = "SEARCHBAR_DEFAULT_STATE"
         
@@ -52,6 +53,7 @@ final class SearchBarSnapshotTests: XCTestCase {
         }
     }
     
+    // MARK: TODO iOS26
     func test_SearchBar_with_placeholder() {
         let snapshotName = "SEARCHBAR_WITH_PLACEHOLDER"
         
@@ -90,6 +92,7 @@ final class SearchBarSnapshotTests: XCTestCase {
         }
     }
     
+    // MARK: TODO iOS26
     func test_SearchBar_with_leftView() {
         let snapshotName = "SEARCHBAR_WITH_LEFTVIEW"
         
@@ -132,6 +135,7 @@ final class SearchBarSnapshotTests: XCTestCase {
         }
     }
     
+    // MARK: TODO iOS26
     func test_SearchBar_with_rightView() {
         let snapshotName = "SEARCHBAR_WITH_RIGHT_VIEW"
         
@@ -174,6 +178,7 @@ final class SearchBarSnapshotTests: XCTestCase {
         }
     }
     
+    // MARK: TODO iOS26
     func test_SearchBar_with_rightView_leftView() {
         let snapshotName = "SEARCHBAR_WITH_RIGHT_LEFT_VIEWS_VIEW"
         

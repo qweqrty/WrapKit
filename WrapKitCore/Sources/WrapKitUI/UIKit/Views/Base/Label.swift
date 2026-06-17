@@ -7,12 +7,6 @@
 
 import Foundation
 
-public enum CornerStyle {
-    case automatic        // height / 2
-    case fixed(CGFloat)
-    case none
-}
-
 public enum LabelAnimationStyle {
     case none
     case circle(lineColor: Color)
@@ -233,6 +227,7 @@ extension Label: TextOutput {
         ):
             display(textModel: text)
             self.cornerStyle = cornerStyle
+            
             self.textInsets = insets.asUIEdgeInsets
             if let backgroundColor {
                 self.backgroundColor = backgroundColor
@@ -290,7 +285,13 @@ extension Label: TextOutput {
 
 open class Label: UILabel {
     public var textInsets: UIEdgeInsets = .zero
-    public var cornerStyle: CornerStyle?
+    public var cornerStyle: CornerStyle? {
+        didSet {
+            if let cornerStyle {
+                applyCornerStyle(cornerStyle)
+            }
+        }
+    }
     
     let layoutManager = NSLayoutManager()
     let textContainer = NSTextContainer(size: CGSize.zero)
@@ -353,15 +354,7 @@ open class Label: UILabel {
     
     open override func layoutSubviews() {
         super.layoutSubviews()
-        guard let cornerStyle = cornerStyle else { return }
-        switch cornerStyle {
-        case .automatic:
-            layer.cornerRadius = min(bounds.height, bounds.width) / 2
-        case .fixed(let radius):
-            layer.cornerRadius = radius
-        case .none:
-            layer.cornerRadius = 0
-        }
+        
         clipsToBounds = true
         
         textContainer.size = bounds.size
