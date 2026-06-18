@@ -81,6 +81,7 @@ private extension MapView {
             tintColor: .gray,
             contentInset: .init(top: 6, left: 6, bottom: 6, right: 6)
         )
+        view.cornerRadius = 0
         view.backgroundColor = .white
         return view
     }

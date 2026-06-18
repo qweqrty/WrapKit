@@ -470,7 +470,7 @@ open class Button: UIButton {
     public convenience init(
         image: UIImage? = nil,
         tintColor: UIColor? = nil,
-        textColor: UIColor? =  isAvailableOS26 ? nil : UIColor.label, // MYO-7040 fix Timer text flashing
+        textColor: UIColor? =  isAvailableOS26 ? nil : .white, // MYO-7040 fix Timer text flashing
         titleLabelFont: UIFont? = nil,
         backgroundColor: UIColor = .clear,
         pressedTextColor: UIColor? = nil,
