@@ -53,11 +53,12 @@ jobs:
             "https://github.com/tuist/tuist/releases/download/$TUIST_VERSION/tuist.zip" \
             -o "$tuist_archive"
           echo "$TUIST_SHA256  $tuist_archive" | shasum -a 256 -c -
+          rm -rf "$tuist_directory"
           mkdir -p "$tuist_directory"
-          unzip -j "$tuist_archive" tuist -d "$tuist_directory"
+          unzip -q "$tuist_archive" -d "$tuist_directory"
           chmod +x "$tuist_directory/tuist"
           sudo rm -f /opt/homebrew/bin/tuist
-          sudo install -m 0755 "$tuist_directory/tuist" /opt/homebrew/bin/tuist
+          sudo ln -s "$tuist_directory/tuist" /opt/homebrew/bin/tuist
           tuist version
       # -----------------------------
       # Generate / Build
