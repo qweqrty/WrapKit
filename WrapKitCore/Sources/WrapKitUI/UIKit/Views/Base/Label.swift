@@ -285,13 +285,7 @@ extension Label: TextOutput {
 
 open class Label: UILabel {
     public var textInsets: UIEdgeInsets = .zero
-    public var cornerStyle: CornerStyle? {
-        didSet {
-            if let cornerStyle {
-                applyCornerStyle(cornerStyle)
-            }
-        }
-    }
+    public var cornerStyle: CornerStyle?
     
     let layoutManager = NSLayoutManager()
     let textContainer = NSTextContainer(size: CGSize.zero)
@@ -362,6 +356,9 @@ open class Label: UILabel {
     
     open override func drawText(in rect: CGRect) {
         super.drawText(in: rect.inset(by: textInsets))
+        if let cornerStyle {
+            applyCornerStyle(cornerStyle)
+        }
     }
     
     open override var intrinsicContentSize: CGSize {

@@ -327,7 +327,7 @@ class NavigationBarSnapshotTests: XCTestCase {
         )
         
         let image = Image(systemName: "star.fill")
-        sut.display(secondaryTrailingImage: .some(.init(title: "Image", image: image, height: 24)))
+        sut.display(secondaryTrailingImage: .init(title: "Image", image: image))
         
         // THEN
         if #available(iOS 26, *) {
@@ -507,8 +507,7 @@ class NavigationBarSnapshotTests: XCTestCase {
         let image = Image(systemName: "star.fill")
         sut.display(tertiaryTrailingImage: .some(.init(
             title: "Image",
-            image: image,
-            height: 24,
+            image: image
         )))
         
         sut.secondaryTrailingImageWrapperView.contentView.onPress?()
@@ -578,7 +577,6 @@ class NavigationBarSnapshotTests: XCTestCase {
         sut.display(tertiaryTrailingImage: .some(.init(
             title: "Image",
             image: image,
-            height: 24,
             onPress: { [weak sut] in
                 sut?.backgroundColor = .yellow
             }
@@ -655,7 +653,6 @@ class NavigationBarSnapshotTests: XCTestCase {
         sut.display(tertiaryTrailingImage: .some(.init(
             title: "Tert",
             image: image,
-            height: 24,
             onPress: { [weak sut] in
                 sut?.backgroundColor = .yellow
             })
@@ -664,7 +661,6 @@ class NavigationBarSnapshotTests: XCTestCase {
         sut.display(secondaryTrailingImage: .some(.init(
             title: "Second",
             image: image,
-            height: 24,
             onPress: { [weak sut] in
                 sut?.backgroundColor = .yellow
             })
