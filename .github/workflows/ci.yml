@@ -26,14 +26,14 @@ jobs:
       # Checkout Code
       # -----------------------------
       - name: Checkout Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       # -----------------------------
       # Select Xcode
       # -----------------------------
-      - name: Select Xcode 26.1.1
+      - name: Select Xcode 26.3
         run: |
-          sudo xcode-select -s /Applications/Xcode_26.1.1.app
+          sudo xcode-select -s /Applications/Xcode_26.3.app
           xcodebuild -version
 
       # -----------------------------
@@ -72,12 +72,31 @@ jobs:
       # -----------------------------
       # Upload Snapshot Artifacts
       # -----------------------------
+      - name: Collect Snapshot Test Artifacts
+        if: failure()
+        shell: bash
+        run: |
+          artifacts_dir="$RUNNER_TEMP/snapshot-test-failures"
+          simulator_devices="$HOME/Library/Developer/CoreSimulator/Devices"
+          mkdir -p "$artifacts_dir"
+
+          find "$simulator_devices" \
+            -path "*/data/tmp/*" \
+            -type f \
+            \( -name "origin.png" -o -name "diff.png" -o -name "new.png" \) \
+            -print0 |
+          while IFS= read -r -d '' file; do
+            snapshot_name="$(basename "$(dirname "$file")")"
+            mkdir -p "$artifacts_dir/$snapshot_name"
+            cp "$file" "$artifacts_dir/$snapshot_name/"
+          done
+
       - name: Upload Snapshot Test Artifacts
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: snapshot-test-failures-ios-${{ matrix.test_destination.ios_version }}
-          path: /tmp/*/
+          path: ${{ runner.temp }}/snapshot-test-failures
           if-no-files-found: ignore
           retention-days: 10
           
