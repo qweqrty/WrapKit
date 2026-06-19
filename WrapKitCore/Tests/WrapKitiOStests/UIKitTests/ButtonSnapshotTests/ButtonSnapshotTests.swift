@@ -15,16 +15,64 @@ private enum ImageTestLinks: String {
     case dark = "https://uxwing.com/wp-content/themes/uxwing/download/web-app-development/dark-mode-icon.png"
 }
 
+private final class ButtonImageURLProtocolStub: URLProtocol {
+    override class func canInit(with request: URLRequest) -> Bool {
+        ImageTestLinks(rawValue: request.url?.absoluteString ?? "") != nil
+    }
+
+    override class func canonicalRequest(for request: URLRequest) -> URLRequest {
+        request
+    }
+
+    override func startLoading() {
+        guard
+            let url = request.url,
+            let link = ImageTestLinks(rawValue: url.absoluteString),
+            let fixtureURL = Bundle(for: ButtonSnapshotTests.self).url(
+                forResource: link == .light ? "button-image-light" : "button-image-dark",
+                withExtension: "png"
+            ),
+            let data = try? Data(contentsOf: fixtureURL),
+            let response = HTTPURLResponse(
+                url: url,
+                statusCode: 200,
+                httpVersion: nil,
+                headerFields: ["Content-Type": "image/png"]
+            )
+        else {
+            client?.urlProtocol(self, didFailWithError: URLError(.fileDoesNotExist))
+            return
+        }
+
+        client?.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
+        client?.urlProtocol(self, didLoad: data)
+        client?.urlProtocolDidFinishLoading(self)
+    }
+
+    override func stopLoading() {}
+}
+
 final class ButtonSnapshotTests: XCTestCase {
+    private static let originalDownloader = KingfisherManager.shared.downloader
     
     override class func setUp() {
         super.setUp()
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.protocolClasses = [ButtonImageURLProtocolStub.self]
+        let downloader = ImageDownloader(name: "ButtonSnapshotTests")
+        downloader.sessionConfiguration = configuration
+        KingfisherManager.shared.downloader = downloader
         KingfisherManager.shared.cache.clearMemoryCache()
         KingfisherManager.shared.cache.clearCache()
         KingfisherManager.shared.cache.clearDiskCache()
         KingfisherManager.shared.cache.cleanExpiredCache()
         KingfisherManager.shared.cache.cleanExpiredMemoryCache()
         KingfisherManager.shared.cache.cleanExpiredDiskCache()
+    }
+
+    override class func tearDown() {
+        KingfisherManager.shared.downloader = originalDownloader
+        super.tearDown()
     }
     
     func test_buttonOutput_default_state() {
@@ -950,7 +998,7 @@ final class ButtonSnapshotTests: XCTestCase {
         let snapshotName = "BUTTON_STYLE_CORNER_RADIUS_STATE"
         
         // GIVEN
-        let (sut, container) = makeSUT()
+        let (sut, container) = makeSUT(height: 100)
         
         // WHEN
         sut.display(title: "BUTTON WITH CORNER RADIUS")
@@ -970,7 +1018,7 @@ final class ButtonSnapshotTests: XCTestCase {
         let snapshotName = "BUTTON_STYLE_CORNER_RADIUS_STATE"
         
         // GIVEN
-        let (sut, container) = makeSUT()
+        let (sut, container) = makeSUT(height: 100)
         
         // WHEN
         sut.display(title: "BUTTON WITH CORNER RADIUS")
@@ -1109,6 +1157,7 @@ final class ButtonSnapshotTests: XCTestCase {
 
 extension ButtonSnapshotTests {
     func makeSUT(
+        height: CGFloat = 60,
         file: StaticString = #file,
         line: UInt = #line
     ) -> (sut: Button, container: UIView) {
@@ -1120,7 +1169,7 @@ extension ButtonSnapshotTests {
             .top(container.topAnchor, constant: 0, priority: .required),
             .leading(container.leadingAnchor, constant: 0, priority: .required),
             .trailing(container.trailingAnchor, constant: 0, priority: .required),
-            .height(60, priority: .required)
+            .height(height, priority: .required)
         )
         
         container.layoutIfNeeded()

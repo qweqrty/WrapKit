@@ -40,6 +40,7 @@ let project = Project(
             bundleId: "\(wrapKit.bundleId)Tests",
             deploymentTargets: .all,
             sources: ["Tests/**"],
+            resources: ["Tests/Resources/**"],
             dependencies: [
                 .target(name: wrapKitTestUtils.name),
                 .xctest
