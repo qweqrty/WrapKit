@@ -5,11 +5,46 @@
 //  Created by sunflow on 3/11/25.
 //
 
-import WrapKit
+@testable import WrapKit
 import XCTest
 import WrapKitTestUtils
 
 final class LabelSnapshotTests: XCTestCase {
+    func test_labelOutput_animatedDecimalCircle_shouldDisplayWithoutClipping() throws {
+        // GIVEN
+        let sut = Label(
+            font: .systemFont(ofSize: 16),
+            textAlignment: .center,
+            numberOfLines: 1
+        )
+
+        // WHEN
+        sut.display(
+            from: 5,
+            to: 0,
+            mapToString: { .text(Int($0.doubleValue).asString()) },
+            animationStyle: .circle(lineColor: .red),
+            duration: 60
+        )
+        sut.frame.size = sut.intrinsicContentSize
+        sut.layoutIfNeeded()
+
+        // THEN
+        let progressView = try XCTUnwrap(sut.subviews.compactMap { $0 as? CircularProgressView }.first)
+        XCTAssertEqual(sut.text, "5")
+        XCTAssertGreaterThan(sut.intrinsicContentSize.width, 0)
+        XCTAssertGreaterThan(sut.intrinsicContentSize.height, 0)
+        XCTAssertFalse(sut.clipsToBounds)
+        let expectedProgressFrame = sut.bounds.insetBy(dx: -8, dy: -8)
+        XCTAssertEqual(progressView.frame.minX, expectedProgressFrame.minX, accuracy: 0.001)
+        XCTAssertEqual(progressView.frame.minY, expectedProgressFrame.minY, accuracy: 0.001)
+        XCTAssertEqual(progressView.frame.width, expectedProgressFrame.width, accuracy: 0.001)
+        XCTAssertEqual(progressView.frame.height, expectedProgressFrame.height, accuracy: 0.001)
+        let progressLayer = try XCTUnwrap(progressView.layer.sublayers?.compactMap { $0 as? CAShapeLayer }.first)
+        XCTAssertNotNil(progressLayer.path)
+        XCTAssertEqual(progressLayer.strokeColor, UIColor.red.cgColor)
+    }
+
     func test_labelOutput_default_state() {
         // GIVEN
         let (sut, container) = makeSUT()
