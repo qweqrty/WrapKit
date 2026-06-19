@@ -127,7 +127,7 @@ private extension SearchBar {
         guard glassEffectView != nil else { return }
         
         backgroundColor = nil
-        applyCornerStyle(.automatic)
+//        applyCornerStyle(.automatic)
     }
     
     func updateGlassTint(_ color: UIColor?) {
@@ -139,6 +139,7 @@ private extension SearchBar {
         if #available(iOS 26, macOS 26, watchOS 26, tvOS 26, *), let glassEffect = glassEffectView.effect as? UIGlassEffect {
             glassEffectView.tintColor = color
             glassEffect.tintColor = color
+            glassEffectView.cornerConfiguration = .capsule()
         }
     }
 }
@@ -197,7 +198,7 @@ private struct PreviewSearchBar: UIViewRepresentable {
                 colors: .init(
                     textColor: .black,
                     selectedBorderColor: .green,
-                    selectedBackgroundColor: .blue,
+                    selectedBackgroundColor: .clear,
                     selectedErrorBorderColor: .red,
                     errorBorderColor: .systemRed,
                     errorBackgroundColor: .yellow,
