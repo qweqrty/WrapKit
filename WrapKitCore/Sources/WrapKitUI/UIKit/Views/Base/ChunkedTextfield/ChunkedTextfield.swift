@@ -163,7 +163,7 @@ private extension ChunkedTextField {
 private extension ChunkedTextField {
     func makeTextfields() -> [Textfield] {
         return stride(from: 0, to: count, by: 1).map { offset in
-            let textfield = Textfield(cornerStyle: .fixed(isAvailableOS26 ? 20 : 12), textAlignment: .center, appearance: appearance)
+            let textfield = Textfield(cornerStyle: .fixed(12), textAlignment: .center, appearance: appearance)
             textfield.keyboardType = .numberPad
             textfield.tintColor = .clear
             textfield.textContentType = .oneTimeCode
