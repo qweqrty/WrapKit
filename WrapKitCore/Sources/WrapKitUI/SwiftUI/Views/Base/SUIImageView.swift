@@ -38,7 +38,7 @@ public struct SUIImageView: View {
     public var body: some View {
         Group {
             if isHidden {
-                SwiftUICore.EmptyView()
+                SwiftUI.EmptyView()
             } else {
                 ZStack {
                     if hasError {

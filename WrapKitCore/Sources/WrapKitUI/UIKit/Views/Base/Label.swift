@@ -348,9 +348,7 @@ open class Label: UILabel {
     
     open override func layoutSubviews() {
         super.layoutSubviews()
-        
-        clipsToBounds = true
-        
+
         textContainer.size = bounds.size
     }
     

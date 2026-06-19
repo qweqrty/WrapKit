@@ -21,22 +21,15 @@ let package = Package(
             targets: ["WrapKitTestUtils"])
     ],
     dependencies: [
-        .package(url: "https://github.com/krzyzanowskim/CryptoSwift.git", from: "1.8.3"),
         .package(url: "https://github.com/airbnb/lottie-spm", from: "4.5.0"),
-        .package(url: "https://github.com/onevcat/Kingfisher.git", exact: "7.12.0"),
-        .package(url: "https://github.com/marmelroy/PhoneNumberKit", from: "4.0.0"),
-        .package(url: "https://github.com/devicekit/DeviceKit", from: "5.7.0"),
-        .package(url: "https://github.com/SnapKit/SnapKit.git", from: "5.0.1"),
+        .package(url: "https://github.com/onevcat/Kingfisher.git", exact: "7.12.0")
     ],
     targets: [
         .target(
             name: "WrapKit",
             dependencies: [
                 "Kingfisher",
-                "PhoneNumberKit",
-                "DeviceKit",
-		"CryptoSwift",
-                .product(name: "Lottie", package: "lottie-spm")
+                .product(name: "Lottie", package: "lottie-spm"),
             ],
             path: "WrapKitCore/Sources"
         ),
@@ -44,7 +37,7 @@ let package = Package(
             name: "WrapKitGame",
             dependencies: [
                 "WrapKit",
-                .product(name: "Lottie", package: "lottie-spm")
+                .product(name: "Lottie", package: "lottie-spm"),
             ],
             path: "WrapKitGame/Sources"
         ),
@@ -52,7 +45,7 @@ let package = Package(
             name: "WrapKitTestUtils",
             dependencies: [
                 "WrapKit",
-	    ],
+            ],
             path: "WrapKitCore/TestUtils",
             linkerSettings: [.linkedFramework("XCTest")]
         ),
@@ -62,11 +55,10 @@ let package = Package(
                 "WrapKit",
                 "WrapKitTestUtils",
                 "Kingfisher",
-                "PhoneNumberKit",
-                "DeviceKit",
                 .product(name: "Lottie", package: "lottie-spm")
             ],
-            path: "WrapKitCore/Tests"
+            path: "WrapKitCore/Tests",
+            resources: [.process("Resources")]
         ),
     ]
 )

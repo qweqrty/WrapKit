@@ -10,6 +10,26 @@ import XCTest
 import WrapKitTestUtils
 
 final class TimerPresenterTests: XCTestCase {
+
+    func test_isRunning_shouldReflectTimerState() {
+        // GIVEN
+        let sut = makeSUT().sut
+
+        // THEN
+        XCTAssertFalse(sut.isRunning)
+
+        // WHEN
+        sut.start(seconds: 5)
+
+        // THEN
+        XCTAssertTrue(sut.isRunning)
+
+        // WHEN
+        sut.stop()
+
+        // THEN
+        XCTAssertFalse(sut.isRunning)
+    }
     
     func test_start_shouldFireOnSecondsRemaining() {
         // GIVEN
@@ -64,10 +84,11 @@ final class TimerPresenterTests: XCTestCase {
         // WHEN
         let exp = expectation(description: "Wait for nil")
 
-        sut.onSecondsRemaining = { value in
+        sut.onSecondsRemaining = { [weak sut] value in
             if value == nil {
                 // THEN
-                XCTAssertEqual(value, nil)
+                XCTAssertNil(value)
+                XCTAssertEqual(sut?.isRunning, false)
                 exp.fulfill()
             }
         }

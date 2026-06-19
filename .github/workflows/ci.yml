@@ -9,7 +9,7 @@ on:
 
 jobs:
   generate-build-test:
-    runs-on: macos-15-arm64 # https://github.com/actions/runner-images/blob/main/images/macos/macos-15-arm64-Readme.md
+    runs-on: macos-15 # https://github.com/actions/runner-images/blob/main/images/macos/macos-15-Readme.md
     strategy:
       fail-fast: false
       matrix:
@@ -20,20 +20,22 @@ jobs:
             device: "iPhone 17 Pro"
     env:
       SCHEME_NAME: "WrapKit"
+      TUIST_VERSION: "4.38.2"
+      TUIST_SHA256: "14af45d18de9d3834ea32d4c9e572f8a69bf2c603963e950f4febbf5234d3b30"
 
     steps:
       # -----------------------------
       # Checkout Code
       # -----------------------------
       - name: Checkout Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       # -----------------------------
       # Select Xcode
       # -----------------------------
-      - name: Select Xcode 26.1.1
+      - name: Select Xcode 26.3
         run: |
-          sudo xcode-select -s /Applications/Xcode_26.1.1.app
+          sudo xcode-select -s /Applications/Xcode_26.3.app
           xcodebuild -version
 
       # -----------------------------
@@ -42,9 +44,22 @@ jobs:
       - name: Install Tools
         run: |
           brew install sourcery
-          brew install tuist
           brew install swiftgen
           brew install swiftlint
+
+          tuist_archive="$RUNNER_TEMP/tuist.zip"
+          tuist_directory="$RUNNER_TEMP/tuist-$TUIST_VERSION"
+          curl -fsSL \
+            "https://github.com/tuist/tuist/releases/download/$TUIST_VERSION/tuist.zip" \
+            -o "$tuist_archive"
+          echo "$TUIST_SHA256  $tuist_archive" | shasum -a 256 -c -
+          rm -rf "$tuist_directory"
+          mkdir -p "$tuist_directory"
+          unzip -q "$tuist_archive" -d "$tuist_directory"
+          chmod +x "$tuist_directory/tuist"
+          sudo rm -f /opt/homebrew/bin/tuist
+          sudo ln -s "$tuist_directory/tuist" /opt/homebrew/bin/tuist
+          tuist version
       # -----------------------------
       # Generate / Build
       # -----------------------------
@@ -60,7 +75,7 @@ jobs:
           xcrun simctl list devices
       # -----------------------------
       # Run Tests
-      # List of available OS versions in docs https://github.com/actions/runner-images/blob/main/images/macos/macos-15-arm64-Readme.md
+      # List of available OS versions in docs https://github.com/actions/runner-images/blob/main/images/macos/macos-15-Readme.md
       # -----------------------------
       - name: Run Tests on iOS ${{ matrix.test_destination.ios_version }}
         run: |
@@ -72,12 +87,31 @@ jobs:
       # -----------------------------
       # Upload Snapshot Artifacts
       # -----------------------------
+      - name: Collect Snapshot Test Artifacts
+        if: failure()
+        shell: bash
+        run: |
+          artifacts_dir="$RUNNER_TEMP/snapshot-test-failures"
+          simulator_devices="$HOME/Library/Developer/CoreSimulator/Devices"
+          mkdir -p "$artifacts_dir"
+
+          find "$simulator_devices" \
+            -path "*/data/tmp/*" \
+            -type f \
+            \( -name "origin.png" -o -name "diff.png" -o -name "new.png" \) \
+            -print0 |
+          while IFS= read -r -d '' file; do
+            snapshot_name="$(basename "$(dirname "$file")")"
+            mkdir -p "$artifacts_dir/$snapshot_name"
+            cp "$file" "$artifacts_dir/$snapshot_name/"
+          done
+
       - name: Upload Snapshot Test Artifacts
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: snapshot-test-failures-ios-${{ matrix.test_destination.ios_version }}
-          path: /tmp/*/
+          path: ${{ runner.temp }}/snapshot-test-failures
           if-no-files-found: ignore
           retention-days: 10
           

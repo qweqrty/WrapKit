@@ -589,6 +589,9 @@ open class CardView: ViewUIKit {
         if !bounds.equalTo(lastBounds) {
             lastBounds = bounds
             invalidateA11y()
+            if let cornerStyle = style?.cornerStyle {
+                applyOldCornerStyleOnlyiOS18(cornerStyle)
+            }
         }
     }
 

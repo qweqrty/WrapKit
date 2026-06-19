@@ -382,7 +382,7 @@ private extension NavigationBar {
     
     func makeWrappedImageView() -> WrapperView<Button> {
         let view = WrapperView(
-            contentView: Button(contentInset: isLiquidGlassEnabled ? .init(top: 10, left: 10, bottom: 10, right: 10) : .zero),
+            contentView: Button(contentInset: isAvailableOS26 && isLiquidGlassEnabled ? .init(top: 11, left: 11, bottom: 11, right: 11) : .init(top: 0, left: 8, bottom: 0, right: 8)),
             isHidden: true,
             contentViewConstraints: {
                 $0.anchor(
