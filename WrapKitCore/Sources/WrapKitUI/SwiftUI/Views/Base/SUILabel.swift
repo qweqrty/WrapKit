@@ -125,7 +125,7 @@ public struct SUILabelView: View, Animatable {
                 .font(suiFont)
                 .offset(y: -simpleTextYOffset)
         case nil:
-            SwiftUICore.EmptyView()
+            SwiftUI.EmptyView()
         }
     }
 //    public var body: some View {
