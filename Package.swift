@@ -57,7 +57,8 @@ let package = Package(
                 "Kingfisher",
                 .product(name: "Lottie", package: "lottie-spm")
             ],
-            path: "WrapKitCore/Tests"
+            path: "WrapKitCore/Tests",
+            resources: [.process("Resources")]
         ),
     ]
 )

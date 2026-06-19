@@ -227,6 +227,7 @@ extension Label: TextOutput {
         ):
             display(textModel: text)
             self.cornerStyle = cornerStyle
+            
             self.textInsets = insets.asUIEdgeInsets
             if let backgroundColor {
                 self.backgroundColor = backgroundColor
@@ -347,17 +348,15 @@ open class Label: UILabel {
     
     open override func layoutSubviews() {
         super.layoutSubviews()
-        if let cornerStyle {
-            applyOldCornerStyleOnlyiOS18(cornerStyle)
-        }
-        clipsToBounds = true
-        
+
         textContainer.size = bounds.size
     }
     
-    
     open override func drawText(in rect: CGRect) {
         super.drawText(in: rect.inset(by: textInsets))
+        if let cornerStyle {
+            applyCornerStyle(cornerStyle)
+        }
     }
     
     open override var intrinsicContentSize: CGSize {

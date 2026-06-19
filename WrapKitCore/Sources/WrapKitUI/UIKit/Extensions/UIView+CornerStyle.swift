@@ -12,9 +12,8 @@ public extension UIView {
     func applyCornerStyle(_ cornerStyle: CornerStyle) {
         if #available(iOS 26, macOS 26, watchOS 26, tvOS 26, *) {
             applyiOS26CornerStyle(cornerStyle)
-        } else {
-            applyOldCornerStyle(cornerStyle)
         }
+        applyOldCornerStyle(cornerStyle)
     }
     
     @available(iOS 26, macOS 26, watchOS 26, tvOS 26, *)

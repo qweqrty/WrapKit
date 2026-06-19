@@ -13,7 +13,8 @@ import UIKit
 final class CountingLabelAnimation {
     private weak var label: Label?
     private var paymentFormat: String = ""
-    private var progressView: CircularProgressView? // For circular animation
+    private var progressView: CircularProgressView?
+    private var originalClipsToBounds: Bool?
     
     public required init(label: Label) {
         self.label = label
@@ -51,23 +52,13 @@ final class CountingLabelAnimation {
         self.duration = duration
         self.completion = completion
         self.lastUpdate = Date.timeIntervalSinceReferenceDate
-        
-        // Set up circular progress view if needed
-        if case .circle(let lineColor) = animationStyle, let label = label {
-            progressView = CircularProgressView(lineColor: lineColor, frame: label.bounds.insetBy(dx: -8, dy: -8))
-            if let progressView {
-                label.addSubview(progressView)
-                progressView.translatesAutoresizingMaskIntoConstraints = false
-                NSLayoutConstraint.activate([
-                    progressView.centerXAnchor.constraint(equalTo: label.centerXAnchor),
-                    progressView.centerYAnchor.constraint(equalTo: label.centerYAnchor),
-                    progressView.widthAnchor.constraint(equalTo: label.widthAnchor, constant: 16),
-                    progressView.heightAnchor.constraint(equalTo: label.heightAnchor, constant: 16)
-                ])
-                progressView.animateProgress(from: 1.0, to: 0.0, duration: duration, completion: nil)
-            }
+
+        if let label {
+            let initialText = mapToString?(fromValue).text ?? fromValue.asString()
+            label.display(text: initialText)
         }
-        if let label, let mapToString = mapToString {
+
+        if let label, let mapToString {
             let integerDigits = String(Int(max(fromValue.doubleValue, toValue.doubleValue))).count
             let widestString = String(repeating: "8", count: integerDigits) + ".88"
             let widestNumber = Double(widestString) ?? .zero
@@ -77,7 +68,29 @@ final class CountingLabelAnimation {
                 mapToString(toValue).width(usingFont: label.font),
                 mapToString(Decimal(widestNumber)).width(usingFont: label.font)
             )
+            label.invalidateIntrinsicContentSize()
         }
+
+        if case .circle(let lineColor) = animationStyle, let label {
+            originalClipsToBounds = label.clipsToBounds
+            label.clipsToBounds = false
+
+            let progressView = CircularProgressView(
+                lineColor: lineColor,
+                frame: label.bounds.insetBy(dx: -8, dy: -8)
+            )
+            self.progressView = progressView
+            label.addSubview(progressView)
+            progressView.translatesAutoresizingMaskIntoConstraints = false
+            NSLayoutConstraint.activate([
+                progressView.centerXAnchor.constraint(equalTo: label.centerXAnchor),
+                progressView.centerYAnchor.constraint(equalTo: label.centerYAnchor),
+                progressView.widthAnchor.constraint(equalTo: label.widthAnchor, constant: 16),
+                progressView.heightAnchor.constraint(equalTo: label.heightAnchor, constant: 16)
+            ])
+            progressView.animateProgress(from: 1.0, to: 0.0, duration: duration, completion: nil)
+        }
+
         timer.startAnimation(duration: duration, onUpdateProgress: { [unowned self] progress in
             let currentValue = self.startNumber + (progress * (self.endNumber - self.startNumber))
             let view = mapToString?(currentValue) ?? .text("")
@@ -92,12 +105,17 @@ final class CountingLabelAnimation {
 
     func resetAnimatedTextMaxWidth() {
         animatedTextMaxWidth = nil
+        label?.invalidateIntrinsicContentSize()
     }
     
     func cancel() {
         timer.stopAnimation()
         progressView?.removeFromSuperview()
         progressView = nil
+        if let originalClipsToBounds {
+            label?.clipsToBounds = originalClipsToBounds
+            self.originalClipsToBounds = nil
+        }
         completion = nil
     }
 

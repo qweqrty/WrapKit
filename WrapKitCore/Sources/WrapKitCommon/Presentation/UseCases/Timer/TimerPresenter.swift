@@ -12,6 +12,8 @@ public protocol TimerOutput: AnyObject {
 }
 
 public protocol TimerInput: ApplicationLifecycleOutput {
+    var isRunning: Bool { get }
+
     func start(seconds: Int)
     func stop()
 }
@@ -22,6 +24,7 @@ public class TimerPresenter: TimerInput {
     private var backgroundStartTime: Date?
     public weak var view: TimerOutput?
     public var onSecondsRemaining: ((Int?) -> Void)?
+    public var isRunning: Bool { timer != nil }
     
     public init(timer: DispatchSourceTimer? = nil, secondsRemained: Int? = nil, backgroundStartTime: Date? = nil, view: TimerOutput? = nil) {
         self.timer = timer
