@@ -48,7 +48,7 @@ public class SelectionContentView: UIView {
     public override func layoutSubviews() {
         super.layoutSubviews()
         
-        round(corners: [.layerMinXMinYCorner, .layerMaxXMinYCorner], radius: 12)
+        applyCornerStyle(.corners(.init(top: 12)))
     }
     
     required init?(coder: NSCoder) {

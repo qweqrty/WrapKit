@@ -342,7 +342,7 @@ private extension NavigationBar {
             let glassEffect = UIGlassEffect(style: .regular)
             glassEffect.isInteractive = true
             let glassEffectView = UIVisualEffectView(effect: glassEffect)
-            glassEffectView.applyCornerStyle(.automatic)
+            glassEffectView.cornerConfiguration = .capsule()
             glassEffectView.isHidden = true
             return glassEffectView
         } else {
@@ -396,7 +396,7 @@ private extension NavigationBar {
         )
         if #available(iOS 26, macOS 26, tvOS 26, watchOS 26, *) {
             view.contentView.configuration = .glass()
-            view.applyCornerStyle(.automatic)
+            view.contentView.configuration?.cornerStyle = .capsule
         }
         return view
     }

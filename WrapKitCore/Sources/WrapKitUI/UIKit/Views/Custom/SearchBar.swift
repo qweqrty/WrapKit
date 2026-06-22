@@ -112,11 +112,11 @@ public class SearchBar: ViewUIKit {
 private extension SearchBar {
     func makeGlassEffectView() -> UIVisualEffectView? {
         if #available(iOS 26, macOS 26, watchOS 26, tvOS 26, *), isLiquidGlassEnabled {
-            let glassEffect = UIGlassEffect(style: .regular)
+            let glassEffect = UIGlassEffect(style: .clear)
 //            glassEffect.isInteractive = true
             
             let glassEffectView = UIVisualEffectView(effect: glassEffect)
-            
+            glassEffectView.cornerConfiguration = .capsule()
             return glassEffectView
         } else {
             return nil
@@ -127,7 +127,7 @@ private extension SearchBar {
         guard glassEffectView != nil else { return }
         
         backgroundColor = nil
-        applyCornerStyle(.automatic)
+//        applyCornerStyle(.automatic)
     }
     
     func updateGlassTint(_ color: UIColor?) {
@@ -135,10 +135,10 @@ private extension SearchBar {
             backgroundColor = color
             return
         }
-        
-        if #available(iOS 26, macOS 26, watchOS 26, tvOS 26, *), let glassEffect = glassEffectView.effect as? UIGlassEffect {
+        backgroundColor = nil
+        if #available(iOS 26, macOS 26, watchOS 26, tvOS 26, *) {
+            (glassEffectView.effect as? UIGlassEffect)?.tintColor = color
             glassEffectView.tintColor = color
-            glassEffect.tintColor = color
         }
     }
 }
@@ -197,7 +197,7 @@ private struct PreviewSearchBar: UIViewRepresentable {
                 colors: .init(
                     textColor: .black,
                     selectedBorderColor: .green,
-                    selectedBackgroundColor: .blue,
+                    selectedBackgroundColor: .clear,
                     selectedErrorBorderColor: .red,
                     errorBorderColor: .systemRed,
                     errorBackgroundColor: .yellow,
