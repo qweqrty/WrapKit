@@ -42,10 +42,12 @@ extension ScrollableContentView {
     
     private func setupConstraints() {
         contentView.fillSuperview()
-        contentView.anchor(
-            .widthTo(widthAnchor, 1),
-            .heightTo(safeAreaLayoutGuide.heightAnchor, 1, priority: UILayoutPriority(rawValue: 250))
-        )
+        contentView.anchor(.widthTo(widthAnchor, 1))
+    }
+    
+    open override func adjustedContentInsetDidChange() {
+        super.adjustedContentInsetDidChange()
+
     }
 }
 #endif
