@@ -41,7 +41,9 @@ open class RemoteService<Request, Response>: Service {
                             promise(handlerResult)
                         }
                     case .failure(let error):
-                        if (error as? URLError)?.code == .cancelled {
+                        if let serviceError = error as? ServiceError {
+                            promise(.failure(serviceError))
+                        } else if (error as? URLError)?.code == .cancelled {
                             promise(.failure(.cancelled))
                         } else if let error = error as NSError?,
                                   error.domain == NSURLErrorDomain && error.code == NSURLErrorNotConnectedToInternet {
