@@ -70,24 +70,14 @@ public extension UIView {
         scale: Bool = true,
         shouldRasterize: Bool = false
     ) {
-        DispatchQueue.runOnMainThread { [weak self] in
-            guard let self else { return }
-            self.layer.masksToBounds = false
-            self.layer.shadowColor = shadowColor.cgColor
-            self.layer.shadowOpacity = shadowOpacity
-            self.layer.shadowOffset = shadowOffset
-            self.layer.shadowRadius = shadowRadius
-            let bounds = CGRect(
-                x: bounds.minX-0.5,
-                y: bounds.minY-0.5,
-                width: bounds.width + 1,
-                height: bounds.height + 1
-            )
-            self.layer.shadowPath = path ?? UIBezierPath(rect: bounds).cgPath
-            
-            self.layer.shouldRasterize = false
-            self.layer.rasterizationScale = scale ? UIScreen.main.scale : 1
-        }
+        layer.masksToBounds = false
+        layer.shadowColor = shadowColor.cgColor
+        layer.shadowOpacity = shadowOpacity
+        layer.shadowOffset = shadowOffset
+        layer.shadowRadius = shadowRadius
+        layer.shadowPath = path
+        layer.shouldRasterize = false
+        layer.rasterizationScale = scale ? UIScreen.main.scale : 1
     }
     
     func gradientBackgroundColor(
