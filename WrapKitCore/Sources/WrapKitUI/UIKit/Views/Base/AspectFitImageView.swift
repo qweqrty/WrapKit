@@ -1,6 +1,6 @@
 import UIKit
 
-final class AspectFitImageView: ImageView {
+public final class AspectFitImageView: ImageView {
     override init(frame: CGRect) {
         super.init(frame: frame)
         self.contentMode = .scaleAspectFit
@@ -14,7 +14,7 @@ final class AspectFitImageView: ImageView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    override var intrinsicContentSize: CGSize {
+    public override var intrinsicContentSize: CGSize {
         guard let image = image, image.size.height > 0 else {
             return super.intrinsicContentSize
         }
