@@ -20,6 +20,7 @@ extension Diffing where Value == UIImage {
     public static func image(
         precision: Float = 1,
         perceptualPrecision: Float = 1,
+        maxChannelDelta: UInt8 = 0,
         scale: CGFloat = UIScreen.main.scale
     ) -> Diffing {
         return Diffing(
@@ -27,7 +28,11 @@ extension Diffing where Value == UIImage {
             fromData: { UIImage(data: $0, scale: scale)! }
         ) { old, new in
             guard let message = compare(
-                old, new, precision: precision, perceptualPrecision: perceptualPrecision
+                old,
+                new,
+                precision: precision,
+                perceptualPrecision: perceptualPrecision,
+                maxChannelDelta: maxChannelDelta
             ) else { return nil }
             let difference = diffInverse(old, new) ?? diffOverlap(old, new)
             return (message, (new, difference))
@@ -122,7 +127,8 @@ private func compare(
     _ old: UIImage,
     _ new: UIImage,
     precision: Float,
-    perceptualPrecision: Float
+    perceptualPrecision: Float,
+    maxChannelDelta: UInt8
 ) -> String? {
     guard let oldCgImage = old.cgImage else {
         return "Reference image could not be loaded."
@@ -159,6 +165,9 @@ private func compare(
         return "Newly-taken snapshot's data could not be loaded."
     }
     if memcmp(oldData, newerData, byteCount) == 0 { return nil }
+    if maxChannelDelta > 0, maxChannelDifference(oldBytes, newerBytes, byteCount: byteCount) <= maxChannelDelta {
+        return nil
+    }
     if precision >= 1, perceptualPrecision >= 1 {
         return "Newly-taken snapshot does not match reference."
     }
@@ -189,6 +198,19 @@ private func compare(
         }
     }
     return nil
+}
+
+private func maxChannelDifference(_ lhs: [UInt8], _ rhs: [UInt8], byteCount: Int) -> UInt8 {
+    var maxDifference = 0
+    var index = 0
+    while index < byteCount {
+        defer { index += 1 }
+        let difference = abs(Int(lhs[index]) - Int(rhs[index]))
+        if difference > maxDifference {
+            maxDifference = difference
+        }
+    }
+    return UInt8(maxDifference)
 }
 
 private func context(for cgImage: CGImage, data: UnsafeMutableRawPointer? = nil, draw: Bool = true) -> CGContext? {

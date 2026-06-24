@@ -103,10 +103,50 @@ final class CardViewSnapshotTests: XCTestCase {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
+    func test_CardView_titleMargins_shouldMatchStyle() {
+        // GIVEN
+        let sut = CardView()
+        let container = UIView()
+        let titleMargins = EdgeInsets(horizontal: 6, vertical: 4)
+        container.frame = CGRect(x: 0, y: 0, width: 240, height: 120)
+        container.addSubview(sut)
+        sut.anchor(
+            .top(container.topAnchor),
+            .leading(container.leadingAnchor),
+            .width(200)
+        )
+
+        // WHEN
+        sut.display(style: makeDefaultStyle(
+            vStacklayoutMargins: .zero,
+            hStacklayoutMargins: titleMargins,
+            hStackViewDistribution: .fill,
+            titleKeyLabelFont: .systemFont(ofSize: 17),
+            titleKeyNumberOfLines: 0,
+            titleValueNumberOfLines: 0,
+            borderWidth: 0
+        ))
+        sut.display(title: .text("200 МБ, 150 минут вне сети О! и бесплатное общение в сети О!"))
+        let fittingSize = sut.systemLayoutSizeFitting(
+            CGSize(width: 200, height: UIView.layoutFittingCompressedSize.height),
+            withHorizontalFittingPriority: .required,
+            verticalFittingPriority: .fittingSizeLevel
+        )
+        sut.anchor(.height(fittingSize.height))
+        container.layoutIfNeeded()
+
+        // THEN
+        let titleFrame = sut.titleViews.convert(sut.titleViews.bounds, to: sut.hStackView)
+        XCTAssertEqual(titleFrame.minX, titleMargins.leading, accuracy: 0.5)
+        XCTAssertEqual(sut.hStackView.bounds.width - titleFrame.maxX, titleMargins.trailing, accuracy: 0.5)
+        XCTAssertEqual(titleFrame.minY, titleMargins.top, accuracy: 0.5)
+        XCTAssertEqual(sut.hStackView.bounds.height - titleFrame.maxY, titleMargins.bottom, accuracy: 0.5)
+    }
+
     func test_CardView_with_backgroundImage() {
         let snapshotName = "CARDVIEW_WITH_BACKGROUNDIMAGE"
-        
+
         // GIVEN
         let (sut, container) = makeSUT()
         

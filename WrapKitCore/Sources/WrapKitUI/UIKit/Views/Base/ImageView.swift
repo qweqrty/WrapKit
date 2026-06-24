@@ -339,7 +339,6 @@ open class ImageView: UIImageView {
     
     open override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         super.traitCollectionDidChange(previousTraitCollection)
-        
         switch currentImageEnum {
         case .url(let lightUrl, let darkUrl): // changed
             if lightUrl == darkUrl {
