@@ -14,6 +14,11 @@ public final class AspectFitImageView: ImageView {
         fatalError("init(coder:) has not been implemented")
     }
     
+    public override func layoutSubviews() {
+        super.layoutSubviews()
+        invalidateIntrinsicContentSize()
+    }
+    
     public override var intrinsicContentSize: CGSize {
         guard let image = image, image.size.height > 0 else {
             return super.intrinsicContentSize
