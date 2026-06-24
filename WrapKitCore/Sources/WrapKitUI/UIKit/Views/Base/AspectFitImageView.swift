@@ -1,12 +1,12 @@
 import UIKit
 
 public final class AspectFitImageView: ImageView {
-    override init(frame: CGRect) {
+    public override init(frame: CGRect) {
         super.init(frame: frame)
         self.contentMode = .scaleAspectFit
     }
     
-    convenience init() {
+    public convenience init() {
         self.init(frame: .zero)
     }
     
