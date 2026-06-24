@@ -58,8 +58,8 @@ extension CornerStyle: ExpressibleByFloatLiteral {
 
 #if canImport(QuartzCore)
 import QuartzCore
-extension CornerStyle.Corners {
-    public var maskedCorners: CACornerMask {
+public extension CornerStyle.Corners {
+    var maskedCorners: CACornerMask {
         var result: CACornerMask = []
         if topLeft > .zero { result.insert(.layerMinXMinYCorner) }
         if topRight > .zero { result.insert(.layerMaxXMinYCorner) }
