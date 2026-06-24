@@ -276,7 +276,10 @@ extension CardView: CardViewOutput {
         titleViews.valueLabel.font = style.titleValueLabelFont
         titleViews.keyLabel.numberOfLines = style.titleKeyNumberOfLines
         titleViews.valueLabel.numberOfLines = style.titleValueNumberOfLines
+        titleViews.keyLabel.lineBreakMode = style.titleKeyNumberOfLines == 1 ? .byTruncatingTail : .byWordWrapping
+        titleViews.valueLabel.lineBreakMode = style.titleValueNumberOfLines == 1 ? .byTruncatingTail : .byWordWrapping
         subtitleLabel.numberOfLines = style.subtitleNumberOfLines
+        subtitleLabel.lineBreakMode = style.subtitleNumberOfLines == 1 ? .byTruncatingTail : .byWordWrapping
         applyCornerStyle(style.cornerStyle)
         layer.borderColor = style.borderColor?.cgColor
         layer.borderWidth = style.borderWidth ?? 0
@@ -707,6 +710,11 @@ open class CardView: ViewUIKit {
         titleViews.valueLabel.setContentCompressionResistancePriority(.required, for: .vertical)
         
         titleViewsWrapperView.setContentCompressionResistancePriority(.required, for: .vertical)
+        titleViewsWrapperView.setContentHuggingPriority(.required, for: .vertical)
+        titleViews.setContentCompressionResistancePriority(.required, for: .vertical)
+        titleViews.setContentHuggingPriority(.required, for: .vertical)
+        titleViews.keyLabel.setContentHuggingPriority(.required, for: .vertical)
+        titleViews.valueLabel.setContentHuggingPriority(.required, for: .vertical)
         
         switchControl.setContentCompressionResistancePriority(.required, for: .horizontal)
         switchControl.setContentCompressionResistancePriority(.required, for: .vertical)
