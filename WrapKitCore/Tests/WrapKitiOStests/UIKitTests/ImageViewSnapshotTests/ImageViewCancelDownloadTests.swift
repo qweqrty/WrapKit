@@ -12,7 +12,7 @@ import Kingfisher
 
 final class ImageViewCancelDownloadTests: XCTestCase {
     
-    private let testImageURL = "https://picsum.photos/200/300"
+    private let testImageURL = "https://avatars.githubusercontent.com/u/7378196?s=200&v=4" // "https://picsum.photos/200/300"
     
     override func setUp() {
         super.setUp()
@@ -122,8 +122,8 @@ final class ImageViewCancelDownloadTests: XCTestCase {
     func test_imageView_switchingImages_cancelsPreviousDownload() {
         // GIVEN
         let sut = makeSUT()
-        guard let firstURL = URL(string: "https://picsum.photos/seed/first/200/300"),
-              let secondURL = URL(string: "https://picsum.photos/seed/second/200/300") else {
+        guard let firstURL = URL(string: "https://avatars.githubusercontent.com/u/7378196?s=200&v=4"),
+              let secondURL = URL(string: "https://git-scm.com/images/logo.png") else {
             XCTFail("Invalid URLs")
             return
         }
