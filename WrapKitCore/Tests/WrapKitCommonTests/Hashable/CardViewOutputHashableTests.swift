@@ -100,7 +100,6 @@ fileprivate extension CardViewPresentableModel.Style {
         vStacklayoutMargins: WrapKit.EdgeInsets = .zero,
         hStacklayoutMargins: WrapKit.EdgeInsets = .init(top: 12, leading: 12, bottom: 12, trailing: 12),
         cornerRadius: CGFloat = 12,
-        roundedCorners: CACornerMask = .allCorners,
         titleKeyLabelFont: Font = .systemFont(ofSize: 3),
         titleKeyTextColor: Color = .darkText,
         titleValueLabelFont: Font = .systemFont(ofSize: 5),

@@ -1192,7 +1192,6 @@ extension CardViewSnapshotTests {
         subTitleLabelFont: Font = .systemFont(ofSize: 14, weight: .light),
         subtitleNumberOfLines: Int = 0,
         cornerRadius: CGFloat = 20,
-        roundedCorners: CACornerMask = .allCorners,
         stackSpace: CGFloat = 5.0,
         hStackViewSpacing: CGFloat = 2.0,
         titleKeyNumberOfLines: Int = 0,

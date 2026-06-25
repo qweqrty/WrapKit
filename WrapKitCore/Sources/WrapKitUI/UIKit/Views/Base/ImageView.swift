@@ -262,7 +262,6 @@ open class ImageView: UIImageView {
         set {
             if newValue == nil {
                 cancelCurrentAnimation()
-                currentImageEnum = nil
                 super.image = nil
             } else {
                 super.image = newValue
