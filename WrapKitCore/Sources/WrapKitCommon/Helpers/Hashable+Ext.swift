@@ -100,6 +100,9 @@ public extension HashableWithReflection {
     // MARK: - Recursive Equality
 
     private func areEqual(_ lhs: Any, _ rhs: Any) -> Bool {
+        if let lhs = lhs as? (any Hashable), let rhs = rhs as? (any Hashable) {
+            guard lhs.hashValue == rhs.hashValue else { return false }
+        }
         // 1) Platform images
 #if canImport(UIKit)
         if let li = lhs as? UIImage, let ri = rhs as? UIImage {

@@ -346,6 +346,7 @@ extension ViewUIKit {
         colorsAnimation.calculationMode = .linear
 
         gradientBorderLayer.add(colorsAnimation, forKey: gradientBorderAnimationKey)
+        updateGradientBorderLayerFrame()
     }
 
     private func stopGradientBorderAnimation() {
@@ -368,7 +369,7 @@ extension ViewUIKit {
         gradient.startPoint = CGPoint(x: 0.5, y: 0.5)
         gradient.endPoint = CGPoint(x: 1, y: 1)
         let shape = CAShapeLayer()
-        shape.lineWidth = 4.0
+        shape.lineWidth = 2.0
         shape.strokeColor = UIColor.white.cgColor
         shape.fillColor = UIColor.clear.cgColor
         gradient.mask = shape
@@ -377,10 +378,16 @@ extension ViewUIKit {
 
     private func updateGradientBorderLayerFrame() {
         gradientBorderLayer.frame = CGRect(origin: .zero, size: bounds.size)
-        (gradientBorderLayer.mask as? CAShapeLayer)?.path = UIBezierPath(
-            roundedRect: CGRect(origin: .zero, size: bounds.size),
-            cornerRadius: cornerRadius
-        ).cgPath
+
+        guard let mask = gradientBorderLayer.mask as? CAShapeLayer else { return }
+        // The stroke is centered on the path, so inset by half the line width to
+        // keep the whole border inside the bounds, and shrink the radius to match.
+        let inset = (mask.lineWidth) / 2
+        let borderRect = bounds.insetBy(dx: inset, dy: inset)
+        let borderRadius = max(0, layer.cornerRadius - mask.lineWidth)
+
+        mask.frame = CGRect(origin: .zero, size: bounds.size)
+        mask.path = UIBezierPath(roundedRect: borderRect, cornerRadius: borderRadius).cgPath
     }
 
     private func makeGradientLocations(for count: Int) -> [NSNumber] {
