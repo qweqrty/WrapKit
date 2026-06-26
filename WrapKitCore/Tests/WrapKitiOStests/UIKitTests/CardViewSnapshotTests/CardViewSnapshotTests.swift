@@ -146,7 +146,7 @@ final class CardViewSnapshotTests: XCTestCase {
 
     func test_CardView_with_backgroundImage() {
         let snapshotName = "CARDVIEW_WITH_BACKGROUNDIMAGE"
-        
+
         // GIVEN
         let (sut, container) = makeSUT()
         

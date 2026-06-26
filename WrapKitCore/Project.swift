@@ -43,5 +43,24 @@ let project = Project(
                 .xctest
             ]
         )
+    ],
+    schemes: [
+        .scheme(
+            name: "\(wrapKit.name)Tests",
+            shared: true,
+            buildAction: .buildAction(targets: [
+                .target(wrapKit.name),
+                .target(wrapKitTestUtils.name),
+                .target("\(wrapKit.name)Tests"),
+            ]),
+            testAction: .testPlans(
+                [
+                    .relativeToManifest("Tests/WrapKit-Package.xctestplan"),
+                ],
+                postActions: [
+                    SchemeActions.collectFailedTestArtifacts,
+                ]
+            )
+        )
     ]
 )

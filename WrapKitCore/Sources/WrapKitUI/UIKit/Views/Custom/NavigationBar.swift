@@ -188,16 +188,28 @@ extension NavigationBar: HeaderOutput {
     
     public func display(primeTrailingImage: ButtonPresentableModel?) {
         primeTrailingImageWrapperView.isHidden = primeTrailingImage == nil
+        applyTrailingGlassEffectIfNeeded(
+            isEnabled: primeTrailingImage?.isGlassEffectEnabled,
+            button: primeTrailingImageWrapperView.contentView
+        )
         primeTrailingImageWrapperView.contentView.display(model: primeTrailingImage)
     }
     
     public func display(secondaryTrailingImage: ButtonPresentableModel?) {
         secondaryTrailingImageWrapperView.isHidden = secondaryTrailingImage == nil
+        applyTrailingGlassEffectIfNeeded(
+            isEnabled: secondaryTrailingImage?.isGlassEffectEnabled,
+            button: secondaryTrailingImageWrapperView.contentView
+        )
         secondaryTrailingImageWrapperView.contentView.display(model: secondaryTrailingImage)
     }
     
     public func display(tertiaryTrailingImage: ButtonPresentableModel?) {
         tertiaryTrailingImageWrapperView.isHidden = tertiaryTrailingImage == nil
+        applyTrailingGlassEffectIfNeeded(
+            isEnabled: tertiaryTrailingImage?.isGlassEffectEnabled,
+            button: tertiaryTrailingImageWrapperView.contentView
+        )
         tertiaryTrailingImageWrapperView.contentView.display(model: tertiaryTrailingImage)
     }
     
@@ -320,6 +332,11 @@ open class NavigationBar: UIView {
 }
 
 private extension NavigationBar {
+    func applyTrailingGlassEffectIfNeeded(isEnabled: Bool?, button: Button) {
+        guard #available(iOS 26, macOS 26, tvOS 26, watchOS 26, *) else { return }
+        button.configuration = (isEnabled ?? true) ? .glass() : nil
+    }
+
     func makeLeadingCardGlassEffectView() -> UIView {
         if #available(iOS 26, macOS 26, tvOS 26, watchOS 26, *) {
             let glassEffect = UIGlassEffect(style: .regular)

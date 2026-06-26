@@ -27,6 +27,24 @@ public enum Scripts {
     )
 }
 
+public enum SchemeActions {
+    public static let collectFailedTestArtifacts = ProjectDescription.ExecutionAction.executionAction(
+        title: "Collect Failed Test Artifacts",
+        scriptText: """
+        if [ -x "$SRCROOT/Scripts/collect_failed_test_artifacts.sh" ]; then
+            "$SRCROOT/Scripts/collect_failed_test_artifacts.sh" || true
+        elif [ -x "$SRCROOT/scripts/collect_failed_test_artifacts.sh" ]; then
+            "$SRCROOT/scripts/collect_failed_test_artifacts.sh" || true
+        elif [ -x "$SRCROOT/../Scripts/collect_failed_test_artifacts.sh" ]; then
+            "$SRCROOT/../Scripts/collect_failed_test_artifacts.sh" || true
+        elif [ -x "$SRCROOT/../scripts/collect_failed_test_artifacts.sh" ]; then
+            "$SRCROOT/../scripts/collect_failed_test_artifacts.sh" || true
+        fi
+        """,
+        shellPath: "/bin/bash"
+    )
+}
+
 // Helpers
 public struct Project: Sendable{
     public let name: String

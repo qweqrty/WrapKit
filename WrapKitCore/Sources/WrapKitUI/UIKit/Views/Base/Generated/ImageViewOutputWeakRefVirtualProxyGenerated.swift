@@ -19,6 +19,9 @@ import Kingfisher
 #if canImport(SwiftUI)
 import SwiftUI
 #endif
+#if canImport(CoreGraphics)
+import CoreGraphics
+#endif
 
 extension ImageViewOutput {
     public var weakReferenced: any ImageViewOutput {
