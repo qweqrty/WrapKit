@@ -126,6 +126,10 @@ open class ViewUIKit: UIView {
         case gradientBorder([Color])
         case shrink
         case alphaTouch
+        
+        var isGradientBorder: Bool {
+            return if case .gradientBorder = self { true } else { false }
+        }
     }
     
     public var animations: Set<Animation> = [] { didSet { applyAnimations() } }
@@ -133,9 +137,12 @@ open class ViewUIKit: UIView {
     private var gradientBorderColors: [UIColor] = []
     private var isObservingApplicationLifecycle = false
     private let gradientBorderAnimationKey = "gradientBorderAnimation"
+    private let gradientBorderWidth: CGFloat = 2
 
     private func applyAnimations() {
-        stopGradientBorderAnimation()
+        if !isContainsGradientBorder {
+            stopGradientBorderAnimation()
+        }
         animations.forEach {
             switch $0 {
             case .gradientBorder(let colors):
@@ -144,6 +151,10 @@ open class ViewUIKit: UIView {
                 break
             }
         }
+    }
+    
+    private var isContainsGradientBorder: Bool {
+        animations.contains(where: \.isGradientBorder)
     }
 
     public var onPress: (() -> Void)? {
@@ -234,7 +245,11 @@ open class ViewUIKit: UIView {
 
     override open func layoutSubviews() {
         super.layoutSubviews()
-        updateGradientBorderLayerFrame()
+        if isContainsGradientBorder {
+            updateGradientBorderLayerFrame()
+        } else {
+            stopGradientBorderAnimation()
+        }
     }
 
     override open func didMoveToWindow() {
@@ -307,7 +322,6 @@ extension ViewUIKit {
         gradientBorderColors = colors
         gradientBorderLayer.locations = makeGradientLocations(for: colors.count)
         gradientBorderLayer.colors = colors.map(\.cgColor)
-        gradientBorderLayer.cornerRadius = cornerRadius
         updateGradientBorderLayerFrame()
 
         if gradientBorderLayer.superlayer == nil {
@@ -368,26 +382,24 @@ extension ViewUIKit {
         gradient.type = .conic
         gradient.startPoint = CGPoint(x: 0.5, y: 0.5)
         gradient.endPoint = CGPoint(x: 1, y: 1)
-        let shape = CAShapeLayer()
-        shape.lineWidth = 2.0
-        shape.strokeColor = UIColor.white.cgColor
-        shape.fillColor = UIColor.clear.cgColor
-        gradient.mask = shape
+        let mask = CALayer() // CAShapeLayer with UIBezierPath cant track corners radius properly
+        mask.backgroundColor = UIColor.clear.cgColor
+        mask.borderColor = UIColor.white.cgColor
+        mask.borderWidth = gradientBorderWidth
+        gradient.mask = mask
         return gradient
     }
 
     private func updateGradientBorderLayerFrame() {
         gradientBorderLayer.frame = CGRect(origin: .zero, size: bounds.size)
 
-        guard let mask = gradientBorderLayer.mask as? CAShapeLayer else { return }
-        // The stroke is centered on the path, so inset by half the line width to
-        // keep the whole border inside the bounds, and shrink the radius to match.
-        let inset = (mask.lineWidth) / 2
-        let borderRect = bounds.insetBy(dx: inset, dy: inset)
-        let borderRadius = max(0, layer.cornerRadius - mask.lineWidth)
-
+        guard let mask = gradientBorderLayer.mask else { return }
+        // Copy the host's exact corner shape onto the mask; its border then draws
+        // a uniform-width ring whose inner and outer edges both track that curve.
         mask.frame = CGRect(origin: .zero, size: bounds.size)
-        mask.path = UIBezierPath(roundedRect: borderRect, cornerRadius: borderRadius).cgPath
+        mask.cornerRadius = layer.cornerRadius
+        mask.cornerCurve = layer.cornerCurve
+        mask.borderWidth = gradientBorderWidth
     }
 
     private func makeGradientLocations(for count: Int) -> [NSNumber] {
