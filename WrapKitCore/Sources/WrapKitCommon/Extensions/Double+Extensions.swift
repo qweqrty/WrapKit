@@ -8,14 +8,29 @@
 import Foundation
 
 public extension Double {
-    @available(
-        *,
-         deprecated,
-         renamed: "Decimal.asString(withDecimalPlaces:decimalSeparator:groupingSeparator:locale:)",
+    /*
+     Decimal.asString(withDecimalPlaces:decimalSeparator:groupingSeparator:locale:)",
          message: "Double gives inaccurate floating point for large numbers or large fraction parts. Use Decimal instead."
     )
+    */
     func asString(
-        withDecimalPlaces count: Int = 0,
+        withDecimalPlaces count: Int,
+        decimalSeparator: String? = nil,
+        groupingSeparator: String? = nil,
+        locale: Locale = .current
+    ) -> String {
+        return asString(
+            minimumFractionDigits: 0,
+            maximumFractionDigits: count,
+            decimalSeparator: decimalSeparator,
+            groupingSeparator: groupingSeparator,
+            locale: locale
+        )
+    }
+    
+    func asString(
+        minimumFractionDigits: Int = 0,
+        maximumFractionDigits count: Int = 2,
         decimalSeparator: String? = nil,
         groupingSeparator: String? = nil,
         locale: Locale = .current
@@ -54,7 +69,7 @@ public extension Double {
         let formatter = NumberFormatter()
         formatter.locale = locale
         formatter.numberStyle = .decimal
-        formatter.minimumFractionDigits = 0
+        formatter.minimumFractionDigits = minimumFractionDigits
         formatter.maximumFractionDigits = count
         formatter.roundingMode = .down // truncate
         formatter.usesGroupingSeparator = true
