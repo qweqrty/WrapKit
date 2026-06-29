@@ -202,7 +202,7 @@ public struct CardViewPresentableModel: HashableWithReflection {
     public let onPress: (() -> Void)?
     public let onLongPress: (() -> Void)?
     public let isUserInteractionEnabled: Bool?
-    public let isGradientBorderEnabled: Bool?
+    public let isGradientBorderEnabled: Bool
     
     public init(
         id: String = UUID().uuidString,
@@ -224,7 +224,7 @@ public struct CardViewPresentableModel: HashableWithReflection {
         onPress: (() -> Void)? = nil,
         onLongPress: (() -> Void)? = nil,
         isUserInteractionEnabled: Bool? = nil,
-        isGradientBorderEnabled: Bool? = nil
+        isGradientBorderEnabled: Bool = false
     ) {
         self.id = id
         self.accessibilityIdentifier = accessibilityIdentifier
@@ -382,10 +382,8 @@ extension CardView: CardViewOutput {
         if isGradientBorderEnabled {
             guard let colors = style?.gradientBorderColors, !colors.isEmpty else { return }
             animations.insert(.gradientBorder(colors))
-        } else {
-            if let colors = style?.gradientBorderColors {
-                animations.remove(.gradientBorder(colors))
-            }
+        } else if let animation = animations.first(where: \.isGradientBorder) {
+            animations.remove(animation)
         }
     }
     
@@ -442,9 +440,8 @@ extension CardView: CardViewOutput {
         
         display(isUserInteractionEnabled: model.isUserInteractionEnabled)
         
-        if let isGradientBorderEnabled = model.isGradientBorderEnabled {
-            display(isGradientBorderEnabled: isGradientBorderEnabled)
-        }
+        display(isGradientBorderEnabled: model.isGradientBorderEnabled)
+
         invalidateA11y()
     }
 }
