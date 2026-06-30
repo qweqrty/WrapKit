@@ -45,17 +45,23 @@ public extension Decimal {
     }
     
     func asString(
-        withDecimalPlaces count: Int = 0,
+        withDecimalPlaces count: Int,
         decimalSeparator: String? = nil,
         groupingSeparator: String? = nil,
         locale: Locale = .current
     ) -> String {
-        return self.asString(minimumFractionDigits: count, maximumFractionDigits: count, decimalSeparator: decimalSeparator, groupingSeparator: groupingSeparator, locale: locale)
+        return self.asString(
+            minimumFractionDigits: 0,
+            maximumFractionDigits: count,
+            decimalSeparator: decimalSeparator,
+            groupingSeparator: groupingSeparator,
+            locale: locale
+        )
     }
     
     func asString(
         minimumFractionDigits: Int = 0,
-        maximumFractionDigits: Int = 0,
+        maximumFractionDigits: Int = 2,
         decimalSeparator: String? = nil,
         groupingSeparator: String? = nil,
         locale: Locale = .current
