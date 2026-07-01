@@ -51,7 +51,7 @@ public extension Decimal {
         locale: Locale = .current
     ) -> String {
         return self.asString(
-            minimumFractionDigits: 0,
+            minimumFractionDigits: count,
             maximumFractionDigits: count,
             decimalSeparator: decimalSeparator,
             groupingSeparator: groupingSeparator,

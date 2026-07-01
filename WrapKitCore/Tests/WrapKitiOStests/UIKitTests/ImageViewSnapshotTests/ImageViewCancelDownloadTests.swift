@@ -5,375 +5,334 @@
 //  Created by Ulan Beishenkulov on 16/12/25.
 //
 
-import WrapKit
+@testable import WrapKit
 import XCTest
 import WrapKitTestUtils
-import Kingfisher
+
+private enum ImageViewTestLink: String {
+    case first = "https://wrapkit.test/image-1.png"
+    case second = "https://wrapkit.test/image-2.png"
+
+    var url: URL {
+        URL(string: rawValue)!
+    }
+}
+
+private final class ImageViewURLProtocolStub: URLProtocol {
+    private static let lock = NSLock()
+    private static var _startedURLs: [URL] = []
+    private static var _stoppedURLs: [URL] = []
+    private static var onStart: ((URL) -> Void)?
+    private static var onStop: ((URL) -> Void)?
+
+    static var startedURLs: [URL] {
+        lock.lock()
+        defer { lock.unlock() }
+        return _startedURLs
+    }
+
+    static var stoppedURLs: [URL] {
+        lock.lock()
+        defer { lock.unlock() }
+        return _stoppedURLs
+    }
+
+    static func reset() {
+        lock.lock()
+        _startedURLs = []
+        _stoppedURLs = []
+        onStart = nil
+        onStop = nil
+        lock.unlock()
+    }
+
+    static func observeStart(_ observer: @escaping (URL) -> Void) {
+        lock.lock()
+        onStart = observer
+        lock.unlock()
+    }
+
+    static func observeStop(_ observer: @escaping (URL) -> Void) {
+        lock.lock()
+        onStop = observer
+        lock.unlock()
+    }
+
+    override class func canInit(with request: URLRequest) -> Bool {
+        ImageViewTestLink(rawValue: request.url?.absoluteString ?? "") != nil
+    }
+
+    override class func canonicalRequest(for request: URLRequest) -> URLRequest {
+        request
+    }
+
+    override func startLoading() {
+        guard let url = request.url else { return }
+
+        let observer: ((URL) -> Void)?
+        Self.lock.lock()
+        Self._startedURLs.append(url)
+        observer = Self.onStart
+        Self.lock.unlock()
+
+        observer?(url)
+    }
+
+    override func stopLoading() {
+        guard let url = request.url else { return }
+
+        let observer: ((URL) -> Void)?
+        Self.lock.lock()
+        Self._stoppedURLs.append(url)
+        observer = Self.onStop
+        Self.lock.unlock()
+
+        observer?(url)
+    }
+}
 
 final class ImageViewCancelDownloadTests: XCTestCase {
-    
-    private let testImageURL = "https://avatars.githubusercontent.com/u/7378196?s=200&v=4" // "https://picsum.photos/200/300"
-    
     override func setUp() {
         super.setUp()
-        KingfisherManager.shared.cache.clearMemoryCache()
-        KingfisherManager.shared.cache.clearDiskCache()
+
+        ImageViewURLProtocolStub.reset()
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.protocolClasses = [ImageViewURLProtocolStub.self]
+        ImageView.imageLoadingSessionConfigurationOverride = configuration
     }
-    
+
     override func tearDown() {
+        ImageView.resetImageLoadingSessionConfigurationOverride()
+        ImageViewURLProtocolStub.reset()
+
         super.tearDown()
-        KingfisherManager.shared.cache.clearMemoryCache()
-        KingfisherManager.shared.cache.clearDiskCache()
     }
-    
+
     func test_imageView_setImageToNil_cancelsDownloadTask() {
         // GIVEN
         let sut = makeSUT()
-        guard let url = URL(string: testImageURL) else {
-            XCTFail("Invalid URL")
-            return
-        }
-        let expectation = expectation(description: "Wait for async dispatch")
-        
-        sut.display(image: .url(url, url), completion: { _ in
-            expectation.fulfill()
-        })
-        
-        wait(for: [expectation], timeout: 5.0)
-        
+        startLoading(ImageViewTestLink.first.url, in: sut)
+        let stopExpectation = expectRequestStop(for: ImageViewTestLink.first.url)
+
         // WHEN
         sut.display(image: nil)
-        
+
         // THEN
-        XCTAssertNil(sut.kf.taskIdentifier, "Download task should be cancelled")
-        XCTAssertNil(sut.image, "Image should be nil")
+        wait(for: [stopExpectation], timeout: 1.0)
+        XCTAssertNil(sut.image)
+        XCTAssertNil(sut.currentImageEnum)
+        XCTAssertEqual(ImageViewURLProtocolStub.stoppedURLs, [ImageViewTestLink.first.url])
     }
-    
+
     func test_imageView_setImagePropertyToNil_cancelsDownloadTask() {
         // GIVEN
         let sut = makeSUT()
-        guard let url = URL(string: testImageURL) else {
-            XCTFail("Invalid URL")
-            return
-        }
-        
-        let expectation = expectation(description: "Wait for download to start")
-        sut.display(image: .url(url, url)) { _ in
-            expectation.fulfill()
-        }
-        wait(for: [expectation], timeout: 5.0)
-        
+        startLoading(ImageViewTestLink.first.url, in: sut)
+        let stopExpectation = expectRequestStop(for: ImageViewTestLink.first.url)
+
         // WHEN
         sut.image = nil
-        
+
         // THEN
-        XCTAssertNil(sut.kf.taskIdentifier, "Download task should be cancelled")
-        XCTAssertNil(sut.image, "Image should be nil")
+        wait(for: [stopExpectation], timeout: 1.0)
+        XCTAssertNil(sut.image)
+        XCTAssertEqual(ImageViewURLProtocolStub.stoppedURLs, [ImageViewTestLink.first.url])
     }
-    
+
     func test_imageView_setImageEnumToNone_cancelsDownloadTask() {
         // GIVEN
         let sut = makeSUT()
-        guard let url = URL(string: testImageURL) else {
-            XCTFail("Invalid URL")
-            return
-        }
-        
-        let expectation = expectation(description: "Wait for download to start")
-        sut.display(image: .url(url, url)) { _ in
-            expectation.fulfill()
-        }
-        wait(for: [expectation], timeout: 5.0)
-        
+        startLoading(ImageViewTestLink.first.url, in: sut)
+        let stopExpectation = expectRequestStop(for: ImageViewTestLink.first.url)
+
         // WHEN
         sut.display(image: .none)
-        
+
         // THEN
-        XCTAssertNil(sut.kf.taskIdentifier, "Download task should be cancelled")
-        XCTAssertNil(sut.image, "Image should be nil")
+        wait(for: [stopExpectation], timeout: 1.0)
+        XCTAssertNil(sut.image)
+        XCTAssertNil(sut.currentImageEnum)
+        XCTAssertEqual(ImageViewURLProtocolStub.stoppedURLs, [ImageViewTestLink.first.url])
     }
-    
-    // MARK: - Test cancellation clears current animation
-    
+
     func test_imageView_setImageToNil_cancelsCurrentAnimation() {
         // GIVEN
         let sut = makeSUT()
-        guard let url = URL(string: testImageURL) else {
-            XCTFail("Invalid URL")
-            return
-        }
-        let expectation = expectation(description: "Wait for animation setup")
-        sut.display(image: .url(url, url)) { _ in
-            expectation.fulfill()
-        }
-        
-        wait(for: [expectation], timeout: 5)
-        
+        let image = UIImage(systemName: "star")
+        sut.display(image: .asset(image))
+        XCTAssertNotNil(sut.currentAnimator)
+
         // WHEN
         sut.display(image: nil)
-        
+
         // THEN
-        XCTAssertNil(sut.currentAnimator, "Current animator should be cancelled")
-        XCTAssertNil(sut.currentImageEnum, "Current image enum should be nil")
+        XCTAssertNil(sut.currentAnimator)
+        XCTAssertNil(sut.currentImageEnum)
     }
-    
-    // MARK: - Test switching between images cancels previous download
-    
+
     func test_imageView_switchingImages_cancelsPreviousDownload() {
         // GIVEN
         let sut = makeSUT()
-        guard let firstURL = URL(string: "https://avatars.githubusercontent.com/u/7378196?s=200&v=4"),
-              let secondURL = URL(string: "https://git-scm.com/images/logo.png") else {
-            XCTFail("Invalid URLs")
-            return
-        }
-        let firstExpectation = expectation(description: "Wait for first download to start")
-        let secondExpectation = expectation(description: "Wait for second download to start")
-        
-        sut.display(image: .url(firstURL, firstURL)) { _ in
-            firstExpectation.fulfill()
-        }
+        startLoading(ImageViewTestLink.first.url, in: sut)
+        let stopExpectation = expectRequestStop(for: ImageViewTestLink.first.url)
+        let secondStartExpectation = expectRequestStart(for: ImageViewTestLink.second.url)
 
-        wait(for: [firstExpectation], timeout: 5.0)
-        
-        let firstTaskIdentifier = sut.kf.taskIdentifier
-        
-        sut.display(image: .url(secondURL, secondURL)) { _ in
-            secondExpectation.fulfill()
-        }
-        wait(for: [secondExpectation], timeout: 5.0)
-        
+        // WHEN
+        sut.display(image: .url(ImageViewTestLink.second.url, ImageViewTestLink.second.url))
+
         // THEN
-        let secondTaskIdentifier = sut.kf.taskIdentifier
-        
-        if let first = firstTaskIdentifier, let second = secondTaskIdentifier {
-            XCTAssertNotEqual(first, second, "Task identifiers should be different")
-        }
+        wait(for: [stopExpectation, secondStartExpectation], timeout: 1.0)
+        XCTAssertEqual(ImageViewURLProtocolStub.startedURLs, [
+            ImageViewTestLink.first.url,
+            ImageViewTestLink.second.url
+        ])
+        XCTAssertEqual(ImageViewURLProtocolStub.stoppedURLs, [ImageViewTestLink.first.url])
     }
-    
-//    func test_imageView_rapidImageChanges_handlesMultipleDownloads() {
-//        // GIVEN
-//        let sut = makeSUT()
-//        guard let url1 = URL(string: "https://picsum.photos/seed/img1/200/300"),
-//              let url2 = URL(string: "https://picsum.photos/seed/img2/200/300"),
-//              let url3 = URL(string: "https://picsum.photos/seed/img3/200/300") else {
-//            XCTFail("Invalid URLs")
-//            return
-//        }
-//        
-//        let urls = [url1, url2, url3]
-//        
-//        // WHEN
-//        let expectation = expectation(description: "Wait for final download")
-//        let expectation1 = expectation(description: "Wait for final download")
-//        let expectation2 = expectation(description: "Wait for final download")
-//        for url in urls {
-//            sut.display(image: .url(url, url)) { _ in
-//                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-//                    expectation.fulfill()
-//                }
-//            }
-//            Thread.sleep(forTimeInterval: 0.05)
-//        }
-//        
-//        wait(for: [expectation], timeout: 5.0)
-//        
-//        // THEN
-//        XCTAssertEqual(sut.currentImageEnum, .url(url3, url3), "Should be loading the last image")
-//    }
-    
-    // MARK: - Test nil handling with completion closure
-    
+
     func test_imageView_setImageToNil_callsCompletionWithNil() {
         // GIVEN
         let sut = makeSUT()
-        guard let url = URL(string: testImageURL) else {
-            XCTFail("Invalid URL")
-            return
-        }
-        let exp = expectation(description: "Completion called")
+        let expectation = expectation(description: "Completion called")
         var receivedImage: Image?
-        
-        sut.display(image: .url(url, url))
-        Thread.sleep(forTimeInterval: 0.1)
-        
+
         // WHEN
         sut.display(image: nil) { image in
             receivedImage = image
-            exp.fulfill()
+            expectation.fulfill()
         }
-        
-        wait(for: [exp], timeout: 5.0)
-        
+
         // THEN
-        XCTAssertNil(receivedImage, "Completion should be called with nil")
+        wait(for: [expectation], timeout: 1.0)
+        XCTAssertNil(receivedImage)
     }
-    
-    // MARK: - Test urlString variants
-    
+
     func test_imageView_setNilUrlString_clearsImage() {
         // GIVEN
         let sut = makeSUT()
-        let urlString = testImageURL
-        let expectation = expectation(description: "Wait for download to start")
-        
+        startLoading(ImageViewTestLink.first.url, in: sut)
+        let stopExpectation = expectRequestStop(for: ImageViewTestLink.first.url)
+
         // WHEN
-        sut.display(image: .urlString(urlString, urlString)) { _ in
-            expectation.fulfill()
-        }
-        wait(for: [expectation], timeout: 5.0)
         sut.display(image: .urlString(nil, nil))
-        
+
         // THEN
-        XCTAssertTrue(sut.image == nil || sut.image == sut.wrongUrlPlaceholderImage,
-                      "Image should be nil or placeholder")
+        wait(for: [stopExpectation], timeout: 1.0)
+        XCTAssertNil(sut.image)
+        XCTAssertEqual(ImageViewURLProtocolStub.stoppedURLs, [ImageViewTestLink.first.url])
     }
-    
-    // MARK: - Test memory management during cancellation
-    
+
     func test_imageView_cancelDownload_doesNotLeakMemory() {
         // GIVEN
         var sut: ImageView? = makeSUT()
-        guard let url = URL(string: testImageURL) else {
-            XCTFail("Invalid URL")
-            return
-        }
-        
         weak var weakSUT = sut
-        sut?.display(image: .url(url, url))
-        Thread.sleep(forTimeInterval: 0.1)
-        
+        startLoading(ImageViewTestLink.first.url, in: sut)
+        let stopExpectation = expectRequestStop(for: ImageViewTestLink.first.url)
+
         // WHEN
         sut?.display(image: nil)
+        wait(for: [stopExpectation], timeout: 1.0)
         sut = nil
-        
+
         // THEN
-        XCTAssertNil(weakSUT, "ImageView should be deallocated")
+        XCTAssertNil(weakSUT)
     }
-    
-    func test_imageView_cancelDownload_handlesLoadingView() {
+
+    func test_imageView_cancelDownload_hidesLoadingView() {
         // GIVEN
         let sut = makeSUT()
         sut.viewWhileLoadingView = ViewUIKit()
-        guard let url = URL(string: testImageURL) else {
-            XCTFail("Invalid URL")
-            return
-        }
-        let exp1 = expectation(description: "Loading view visible")
-        let exp2 = expectation(description: "Wait for state update")
+        startLoading(ImageViewTestLink.first.url, in: sut)
+        XCTAssertEqual(sut.viewWhileLoadingView?.isHidden, false)
+        let stopExpectation = expectRequestStop(for: ImageViewTestLink.first.url)
 
         // WHEN
-        sut.display(image: .url(url, url)) { _ in
-            exp1.fulfill()
-        }
-        wait(for: [exp1], timeout: 5.0)
-        sut.display(image: nil) { _ in
-            exp2.fulfill()
-        }
-        
+        sut.display(image: nil)
+
         // THEN
-        wait(for: [exp2], timeout: 5.0)
-        
-        XCTAssertTrue(true, "Loading view state handled")
+        wait(for: [stopExpectation], timeout: 1.0)
+        XCTAssertEqual(sut.viewWhileLoadingView?.isHidden, true)
     }
-    
+
     func test_imageView_setAssetImage_doesNotCreateDownloadTask() {
         // GIVEN
         let sut = makeSUT()
-        guard let assetImage = UIImage(systemName: "star") else {
-            XCTFail("Failed to create system image")
-            return
-        }
-        
+        let image = UIImage(systemName: "star")
+
         // WHEN
-        sut.display(image: .asset(assetImage))
-        
+        sut.display(image: .asset(image))
+
         // THEN
-        XCTAssertNil(sut.kf.taskIdentifier, "Asset images should not create download tasks")
-        XCTAssertNotNil(sut.image, "Asset image should be set")
+        XCTAssertTrue(ImageViewURLProtocolStub.startedURLs.isEmpty)
+        XCTAssertNotNil(sut.image)
     }
-    
-    // MARK: - Test model with nil image
-    
+
     func test_imageView_displayModelWithNilImage_clearsImage() {
         // GIVEN
         let sut = makeSUT()
-        guard let url = URL(string: testImageURL) else {
-            XCTFail("Invalid URL")
-            return
-        }
-        let expectation = expectation(description: "Wait for download to start")
-        
-        // WHEN
-        sut.display(image: .url(url, url)) { _ in
-            expectation.fulfill()
-        }
-        wait(for: [expectation], timeout: 5.0)
+        startLoading(ImageViewTestLink.first.url, in: sut)
+        let stopExpectation = expectRequestStop(for: ImageViewTestLink.first.url)
         let model = ImageViewPresentableModel(image: nil)
+
+        // WHEN
         sut.display(model: model)
-        
+
         // THEN
-        XCTAssertNil(sut.kf.taskIdentifier, "Download task should be cancelled")
+        wait(for: [stopExpectation], timeout: 1.0)
+        XCTAssertNil(sut.image)
+        XCTAssertNil(sut.currentImageEnum)
+        XCTAssertEqual(ImageViewURLProtocolStub.stoppedURLs, [ImageViewTestLink.first.url])
     }
-    
-    // MARK: - Test image property setter directly
-    
+
     func test_imageView_imagePropertySetter_cancelsDownloadWhenSetToNil() {
         // GIVEN
         let sut = makeSUT()
-        guard let url = URL(string: testImageURL) else {
-            XCTFail("Invalid URL")
-            return
-        }
-        
-        sut.display(image: .url(url, url))
-        Thread.sleep(forTimeInterval: 0.1)
-        
+        startLoading(ImageViewTestLink.first.url, in: sut)
+        let stopExpectation = expectRequestStop(for: ImageViewTestLink.first.url)
+
         // WHEN
         sut.image = nil
-        
+
         // THEN
-        XCTAssertNil(sut.image, "Image should be nil")
-        XCTAssertNil(sut.kf.taskIdentifier, "Task should be cancelled")
+        wait(for: [stopExpectation], timeout: 1.0)
+        XCTAssertNil(sut.image)
+        XCTAssertEqual(ImageViewURLProtocolStub.stoppedURLs, [ImageViewTestLink.first.url])
     }
-    
-//    // MARK: - Test sequential image loading
-//    func test_imageView_sequentialImageLoading_cancelsAndStartsNew() {
-//            // GIVEN
-//            let sut = makeSUT()
-//            guard let firstURL = URL(string: "https://picsum.photos/seed/seq1/200/300"),
-//                  let secondURL = URL(string: "https://picsum.photos/seed/seq2/200/300") else {
-//                XCTFail("Invalid URLs")
-//                return
-//            }
-//            
-//            KingfisherManager.shared.cache.removeImage(forKey: firstURL.absoluteString)
-//            KingfisherManager.shared.cache.removeImage(forKey: secondURL.absoluteString)
-//            
-//            let firstExp = expectation(description: "First image loading")
-//            sut.display(image: .url(firstURL, firstURL)) { _ in
-//                firstExp.fulfill()
-//            }
-//            
-//            wait(for: [firstExp], timeout: 5.0)
-//            
-//            // WHEN
-//            let secondExp = expectation(description: "Second image loading")
-//            sut.display(image: .url(secondURL, secondURL)) { _ in
-//                secondExp.fulfill()
-//            }
-//            
-//            wait(for: [secondExp], timeout: 5.0)
-//            
-//            // THEN
-//            XCTAssertEqual(sut.currentImageEnum, .url(secondURL, secondURL), "Should be set to second image")
-//        }
 }
 
-extension ImageViewCancelDownloadTests {
+private extension ImageViewCancelDownloadTests {
     func makeSUT(file: StaticString = #file, line: UInt = #line) -> ImageView {
         let sut = ImageView()
         checkForMemoryLeaks(sut, file: file, line: line)
         return sut
+    }
+
+    func startLoading(_ url: URL, in sut: ImageView?) {
+        let startExpectation = expectRequestStart(for: url)
+        sut?.display(image: .url(url, url))
+        wait(for: [startExpectation], timeout: 1.0)
+    }
+
+    func expectRequestStart(for url: URL) -> XCTestExpectation {
+        let expectation = expectation(description: "Request started: \(url.absoluteString)")
+        expectation.assertForOverFulfill = false
+
+        ImageViewURLProtocolStub.observeStart { startedURL in
+            guard startedURL == url else { return }
+            expectation.fulfill()
+        }
+
+        return expectation
+    }
+
+    func expectRequestStop(for url: URL) -> XCTestExpectation {
+        let expectation = expectation(description: "Request stopped: \(url.absoluteString)")
+        expectation.assertForOverFulfill = false
+
+        ImageViewURLProtocolStub.observeStop { stoppedURL in
+            guard stoppedURL == url else { return }
+            expectation.fulfill()
+        }
+
+        return expectation
     }
 }

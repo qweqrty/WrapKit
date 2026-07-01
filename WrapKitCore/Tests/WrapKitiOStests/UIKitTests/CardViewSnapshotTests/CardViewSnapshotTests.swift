@@ -104,44 +104,38 @@ final class CardViewSnapshotTests: XCTestCase {
         }
     }
 
-    func test_CardView_titleMargins_shouldMatchStyle() {
+    func test_CardView_singleTitleMargins_wrappedText() {
+        let snapshotName = "CARDVIEW_SINGLE_TITLE_MARGINS_WRAPPED_TEXT"
+
         // GIVEN
-        let sut = CardView()
-        let container = UIView()
-        let titleMargins = EdgeInsets(horizontal: 6, vertical: 4)
-        container.frame = CGRect(x: 0, y: 0, width: 240, height: 120)
-        container.addSubview(sut)
-        sut.anchor(
-            .top(container.topAnchor),
-            .leading(container.leadingAnchor),
-            .width(200)
-        )
+        let container = makeSingleTitleMarginsWrappedTextContainer()
 
-        // WHEN
-        sut.display(style: makeDefaultStyle(
-            vStacklayoutMargins: .zero,
-            hStacklayoutMargins: titleMargins,
-            hStackViewDistribution: .fill,
-            titleKeyLabelFont: .systemFont(ofSize: 17),
-            titleKeyNumberOfLines: 0,
-            titleValueNumberOfLines: 0,
-            borderWidth: 0
-        ))
-        sut.display(title: .text("200 МБ, 150 минут вне сети О! и бесплатное общение в сети О!"))
-        let fittingSize = sut.systemLayoutSizeFitting(
-            CGSize(width: 200, height: UIView.layoutFittingCompressedSize.height),
-            withHorizontalFittingPriority: .required,
-            verticalFittingPriority: .fittingSizeLevel
-        )
-        sut.anchor(.height(fittingSize.height))
-        container.layoutIfNeeded()
+        if #available(iOS 26, *) {
+            // THEN
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            // THEN
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
+    }
 
-        // THEN
-        let titleFrame = sut.titleViews.convert(sut.titleViews.bounds, to: sut.hStackView)
-        XCTAssertEqual(titleFrame.minX, titleMargins.leading, accuracy: 0.5)
-        XCTAssertEqual(sut.hStackView.bounds.width - titleFrame.maxX, titleMargins.trailing, accuracy: 0.5)
-        XCTAssertEqual(titleFrame.minY, titleMargins.top, accuracy: 0.5)
-        XCTAssertEqual(sut.hStackView.bounds.height - titleFrame.maxY, titleMargins.bottom, accuracy: 0.5)
+    func test_CardView_tariffSubtitleText_shouldDisplayFullText() {
+        let snapshotName = "CARDVIEW_TARIFF_SUBTITLE_FULL_TEXT"
+
+        // GIVEN
+        let container = makeTariffSubtitleTextContainer()
+
+        if #available(iOS 26, *) {
+            // THEN
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            // THEN
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
     }
 
     func test_CardView_with_backgroundImage() {
@@ -1283,7 +1277,144 @@ extension CardViewSnapshotTests {
             borderWidth: 4
         )
     }
-    
+
+    func makeSingleTitleMarginsWrappedTextContainer() -> UIView {
+        let container = UIView()
+        container.frame = CGRect(origin: .zero, size: SnapshotConfiguration.size)
+        container.backgroundColor = .systemBackground
+
+        let stackView = StackView(
+            alignment: .leading,
+            axis: .vertical,
+            spacing: 24,
+            contentInset: .init(top: 24, left: 24, bottom: 24, right: 24)
+        )
+        container.addSubview(stackView)
+        stackView.fillSuperview()
+
+        let shortChip = makeSingleTitleChip(
+            title: "Короткий текст в одну строку",
+            width: UIView.layoutFittingCompressedSize.width
+        )
+        let longChip = makeSingleTitleChip(
+            title: "Длинный текст переносится на вторую строку и сохраняет одинаковые отступы",
+            width: 330
+        )
+
+        stackView.addArrangedSubview(shortChip)
+        stackView.addArrangedSubview(longChip)
+        stackView.addArrangedSubview(UIView())
+        container.layoutIfNeeded()
+
+        return container
+    }
+
+    func makeSingleTitleChip(title: String, width: CGFloat) -> CardView {
+        let chip = makeSingleTitleChip(title: title)
+
+        let horizontalPriority: UILayoutPriority = width == UIView.layoutFittingCompressedSize.width
+            ? .fittingSizeLevel
+            : .required
+        let fittingSize = chip.systemLayoutSizeFitting(
+            CGSize(width: width, height: UIView.layoutFittingCompressedSize.height),
+            withHorizontalFittingPriority: horizontalPriority,
+            verticalFittingPriority: .fittingSizeLevel
+        )
+        chip.anchor(
+            .width(ceil(fittingSize.width)),
+            .height(ceil(fittingSize.height))
+        )
+
+        return chip
+    }
+
+    func makeSingleTitleChip(title: String) -> CardView {
+        let chip = CardView()
+        chip.display(style: makeDefaultStyle(
+            backgroundColor: .systemGray5,
+            vStacklayoutMargins: .zero,
+            hStacklayoutMargins: .init(horizontal: 6, vertical: 4),
+            hStackViewDistribution: .fill,
+            titleKeyTextColor: .label,
+            titleKeyLabelFont: .systemFont(ofSize: 13),
+            cornerRadius: 14,
+            stackSpace: 0,
+            hStackViewSpacing: 0,
+            titleKeyNumberOfLines: 0,
+            titleValueNumberOfLines: 0,
+            borderColor: .clear,
+            borderWidth: 0
+        ))
+        chip.display(title: .text(title))
+
+        return chip
+    }
+
+    func makeTariffSubtitleTextContainer() -> UIView {
+        let container = UIView()
+        container.frame = CGRect(origin: .zero, size: SnapshotConfiguration.size)
+        container.backgroundColor = .systemBackground
+
+        let stackView = StackView(
+            axis: .vertical,
+            spacing: 24,
+            contentInset: .init(top: 24, left: 24, bottom: 24, right: 24)
+        )
+        container.addSubview(stackView)
+        stackView.anchor(
+            .top(container.topAnchor),
+            .leading(container.leadingAnchor),
+            .trailing(container.trailingAnchor)
+        )
+
+        stackView.addArrangedSubview(makeTariffSubtitleView(
+            title: "500 МБ жана О! түйүнүндө акысыз баарлашуу"
+        ))
+        stackView.addArrangedSubview(makeTariffSubtitleView(
+            title: "200 МБ, О! түйүнүнөн тышкары 100 мүнөт жана О! түйүнүндө акысыз баарлашуу"
+        ))
+        stackView.addArrangedSubview(UIView())
+        container.layoutIfNeeded()
+
+        return container
+    }
+
+    func makeTariffSubtitleView(title: String) -> WrapperView<CardView> {
+        return WrapperView(
+            contentView: makeTariffSubtitleCardView(title: title),
+            contentViewConstraints: { contentView, superView in
+                contentView.anchor(
+                    .top(superView.topAnchor),
+                    .trailingLessThanEqual(superView.trailingAnchor),
+                    .leading(superView.leadingAnchor),
+                    .bottom(superView.bottomAnchor)
+                )
+            }
+        )
+    }
+
+    func makeTariffSubtitleCardView(title: String) -> CardView {
+        let cardView = CardView()
+        cardView.display(style: makeDefaultStyle(
+            backgroundColor: .systemGray5,
+            vStacklayoutMargins: .zero,
+            hStacklayoutMargins: .init(horizontal: 6, vertical: 4),
+            hStackViewDistribution: .fill,
+            titleKeyTextColor: .label,
+            titleKeyLabelFont: .systemFont(ofSize: 13),
+            cornerRadius: 14,
+            stackSpace: 0,
+            hStackViewSpacing: 4,
+            titleKeyNumberOfLines: 0,
+            titleValueNumberOfLines: 0,
+            borderColor: .clear,
+            borderWidth: 0
+        ))
+        cardView.display(title: .text(title))
+
+        return cardView
+    }
+
     func makeSwitchControlStyle() -> CardViewPresentableModel.Style {
         return .init(
             backgroundColor: .systemRed,
