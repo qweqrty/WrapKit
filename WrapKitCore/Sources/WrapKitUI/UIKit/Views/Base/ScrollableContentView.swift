@@ -10,11 +10,11 @@ import UIKit
 
 open class ScrollableContentView: UIScrollView {
     public let contentView = ViewUIKit()
-    public let adjustHeight: Bool
+    public private(set) var adjustHeight: Bool = true
     
     public init(
         contentInset: UIEdgeInsets = .zero,
-        adjustHeight: Bool = false
+        adjustHeight: Bool = true
     ) {
         self.adjustHeight = adjustHeight
         super.init(frame: .zero)
@@ -25,14 +25,12 @@ open class ScrollableContentView: UIScrollView {
     }
     
     public override init(frame: CGRect) {
-        self.adjustHeight = false
         super.init(frame: frame)
         
         initialSetup()
     }
     
     public required init?(coder: NSCoder) {
-        self.adjustHeight = false
         super.init(coder: coder)
     }
 }
