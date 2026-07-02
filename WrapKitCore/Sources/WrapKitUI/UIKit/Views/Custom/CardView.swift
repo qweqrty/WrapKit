@@ -594,10 +594,10 @@ open class CardView: ViewUIKit {
             }
         }
     }
-
+    
     private var style: CardViewPresentableModel.Style?
     public let vStackView = StackView(axis: .vertical, contentInset: .init(top: 0, left: 8, bottom: 0, right: 8))
-    public let hStackView = StackView(axis: .horizontal, spacing: 14)
+    public let hStackView = StackView(alignment: .center, axis: .horizontal, spacing: 14)
     public private(set) var backgroundImageView = ImageView()
     
     public let leadingImageWrapperView = ViewUIKit(isHidden: true)
@@ -784,7 +784,7 @@ extension CardView {
             .trailing(trailingTitleViewsWrapperView.trailingAnchor),
             .centerY(trailingTitleViewsWrapperView.centerYAnchor)
         )
-        
+
         leadingImageViewConstraints = leadingImageView.anchor(
             .topGreaterThanEqual(leadingImageWrapperView.topAnchor),
             .bottomLessThanEqual(leadingImageWrapperView.bottomAnchor),

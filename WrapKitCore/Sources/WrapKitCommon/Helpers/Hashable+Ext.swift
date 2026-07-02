@@ -55,6 +55,23 @@ public extension HashableWithReflection {
         }
         #endif
 
+        #if canImport(UIKit) || canImport(AppKit)
+        if let textAttributes = value as? TextAttributes {
+            hasher.combine(textAttributes.text)
+            hashAny(textAttributes.color as Any, into: &hasher)
+            hashAny(textAttributes.font as Any, into: &hasher)
+            hasher.combine(textAttributes.lineSpacing)
+            hashAny(textAttributes.underlineStyle as Any, into: &hasher)
+            hashAny(textAttributes.textAlignment as Any, into: &hasher)
+            hashAny(textAttributes.leadingImage as Any, into: &hasher)
+            hasher.combine(textAttributes.leadingImageBounds)
+            hashAny(textAttributes.trailingImage as Any, into: &hasher)
+            hasher.combine(textAttributes.trailingImageBounds)
+            hasher.combine(String(describing: textAttributes.onTap))
+            return
+        }
+        #endif
+
         let mirror = Mirror(reflecting: value)
 
         // 2) Optional: hash nil vs some(value)
@@ -100,15 +117,12 @@ public extension HashableWithReflection {
     // MARK: - Recursive Equality
 
     private func areEqual(_ lhs: Any, _ rhs: Any) -> Bool {
-        if let lhs = lhs as? (any Hashable), let rhs = rhs as? (any Hashable) {
-            guard lhs.hashValue == rhs.hashValue else { return false }
-        }
         // 1) Platform images
 #if canImport(UIKit)
         if let li = lhs as? UIImage, let ri = rhs as? UIImage {
-            return ((li.accessibilityIdentifier ?? "") == (ri.accessibilityIdentifier ?? "")
-                    && li.size == ri.size
-                    && li.renderingMode == ri.renderingMode) || (li.pngData() == ri.pngData())
+            return (li.accessibilityIdentifier ?? "") == (ri.accessibilityIdentifier ?? "")
+            && li.size == ri.size
+            && li.renderingMode == ri.renderingMode
         }
         if let li = lhs as? UIColor, let ri = rhs as? UIColor {
             return li.resolvedColor(with: .init(userInterfaceStyle: .light)) == ri.resolvedColor(with: .init(userInterfaceStyle: .light))
@@ -127,6 +141,19 @@ public extension HashableWithReflection {
             return li == ri
         }
 #endif
+
+#if canImport(UIKit) || canImport(AppKit)
+        if let li = lhs as? TextAttributes, let ri = rhs as? TextAttributes {
+            return li == ri
+        }
+#endif
+
+        if let lhs = lhs as? (any Hashable),
+           let rhs = rhs as? (any Hashable),
+           !isReflectionHashable(lhs),
+           !isReflectionHashable(rhs) {
+            guard lhs.hashValue == rhs.hashValue else { return false }
+        }
 
         let lm = Mirror(reflecting: lhs)
         let rm = Mirror(reflecting: rhs)

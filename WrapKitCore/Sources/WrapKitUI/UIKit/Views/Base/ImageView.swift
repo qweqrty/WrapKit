@@ -70,13 +70,10 @@ public struct ImageViewPresentableModel: HashableWithReflection {
         accessibilityIdentifier: String? = nil,
         accessibility: Accessibility? = nil,
         layout: Layout? = nil,
-        size: CGSize? = nil,
         image: ImageEnum? = nil,
         onPress: (() -> Void)? = nil,
         onLongPress: (() -> Void)? = nil,
         contentModeIsFit: Bool? = nil,
-        stretchToContainerWidth: Bool? = nil,
-        heightByWidthRatio: CGFloat? = nil,
         contentInsets: EdgeInsets? = nil,
         borderWidth: CGFloat? = nil,
         borderColor: Color? = nil,
@@ -85,15 +82,7 @@ public struct ImageViewPresentableModel: HashableWithReflection {
     ) {
         self.accessibilityIdentifier = accessibilityIdentifier
         self.accessibility = accessibility
-        if let layout {
-            self.layout = layout
-        } else if stretchToContainerWidth == true || heightByWidthRatio != nil {
-            self.layout = .fillWidth(heightByWidthRatio: heightByWidthRatio)
-        } else if let size {
-            self.layout = .fixed(size)
-        } else {
-            self.layout = nil
-        }
+        self.layout = layout
         self.image = image
         self.onPress = onPress
         self.onLongPress = onLongPress
@@ -103,6 +92,100 @@ public struct ImageViewPresentableModel: HashableWithReflection {
         self.borderColor = borderColor
         self.cornerRadius = cornerRadius
         self.alpha = alpha
+    }
+
+    public init(
+        accessibilityIdentifier: String? = nil,
+        accessibility: Accessibility? = nil,
+        size: CGSize?,
+        image: ImageEnum? = nil,
+        onPress: (() -> Void)? = nil,
+        onLongPress: (() -> Void)? = nil,
+        contentModeIsFit: Bool? = nil,
+        contentInsets: EdgeInsets? = nil,
+        borderWidth: CGFloat? = nil,
+        borderColor: Color? = nil,
+        cornerRadius: CGFloat? = nil,
+        alpha: CGFloat? = nil
+    ) {
+        self.init(
+            accessibilityIdentifier: accessibilityIdentifier,
+            accessibility: accessibility,
+            layout: size.map(Layout.fixed),
+            image: image,
+            onPress: onPress,
+            onLongPress: onLongPress,
+            contentModeIsFit: contentModeIsFit,
+            contentInsets: contentInsets,
+            borderWidth: borderWidth,
+            borderColor: borderColor,
+            cornerRadius: cornerRadius,
+            alpha: alpha
+        )
+    }
+
+    public init(
+        accessibilityIdentifier: String? = nil,
+        accessibility: Accessibility? = nil,
+        image: ImageEnum? = nil,
+        onPress: (() -> Void)? = nil,
+        onLongPress: (() -> Void)? = nil,
+        contentModeIsFit: Bool? = nil,
+        stretchToContainerWidth: Bool,
+        heightByWidthRatio: CGFloat? = nil,
+        contentInsets: EdgeInsets? = nil,
+        borderWidth: CGFloat? = nil,
+        borderColor: Color? = nil,
+        cornerRadius: CGFloat? = nil,
+        alpha: CGFloat? = nil
+    ) {
+        let layout: Layout? = stretchToContainerWidth || heightByWidthRatio != nil
+            ? .fillWidth(heightByWidthRatio: heightByWidthRatio)
+            : nil
+        self.init(
+            accessibilityIdentifier: accessibilityIdentifier,
+            accessibility: accessibility,
+            layout: layout,
+            image: image,
+            onPress: onPress,
+            onLongPress: onLongPress,
+            contentModeIsFit: contentModeIsFit,
+            contentInsets: contentInsets,
+            borderWidth: borderWidth,
+            borderColor: borderColor,
+            cornerRadius: cornerRadius,
+            alpha: alpha
+        )
+    }
+
+    public init(
+        accessibilityIdentifier: String? = nil,
+        accessibility: Accessibility? = nil,
+        image: ImageEnum? = nil,
+        onPress: (() -> Void)? = nil,
+        onLongPress: (() -> Void)? = nil,
+        contentModeIsFit: Bool? = nil,
+        heightByWidthRatio: CGFloat,
+        contentInsets: EdgeInsets? = nil,
+        borderWidth: CGFloat? = nil,
+        borderColor: Color? = nil,
+        cornerRadius: CGFloat? = nil,
+        alpha: CGFloat? = nil
+    ) {
+        self.init(
+            accessibilityIdentifier: accessibilityIdentifier,
+            accessibility: accessibility,
+            layout: .fillWidth(heightByWidthRatio: heightByWidthRatio),
+            image: image,
+            onPress: onPress,
+            onLongPress: onLongPress,
+            contentModeIsFit: contentModeIsFit,
+            contentInsets: contentInsets,
+            borderWidth: borderWidth,
+            borderColor: borderColor,
+            cornerRadius: cornerRadius,
+            alpha: alpha
+        )
     }
 }
 
@@ -124,13 +207,13 @@ public extension ImageView {
              }
          }
     }
-    
+
     private func handleImage(_ image: ImageEnum?, kingfisherOptions: KingfisherOptionsInfo = [], closure: ((Image?) -> Void)? = nil) {
         currentImageEnum = image
-        
+
         switch image {
         case .asset(let image):
-            downloadTask?.cancel()
+            cancelDownloadTask()
             self.animatedSet(image)
             closure?(image)
         case .url(let lightUrl, let darkUrl):
@@ -141,10 +224,9 @@ public extension ImageView {
             let url = URL(string: string ?? "")
             self.loadImage(url, kingfisherOptions: kingfisherOptions, closure: closure)
         case .data(let data):
-            downloadTask?.cancel()
+            cancelDownloadTask()
             guard let data else {
-                cancelCurrentAnimation()
-                self.image = nil
+                clearCurrentImage()
                 closure?(nil)
                 return
             }
@@ -152,34 +234,36 @@ public extension ImageView {
             self.animatedSet(image)
             closure?(image)
         case nil:
-            downloadTask?.cancel()
-            cancelCurrentAnimation()
-            self.image = nil
+            clearCurrentImage()
+            viewWhileLoadingView?.isHidden = true
+            fallbackView?.isHidden = true
             closure?(nil)
         }
     }
-    
+
     private func loadImage(
         _ url: URL?,
         kingfisherOptions: KingfisherOptionsInfo,
         closure: ((Image?) -> Void)? = nil
     ) {
         guard let url else {
-            downloadTask?.cancel()
+            cancelDownloadTask()
             animatedSet(wrongUrlPlaceholderImage, completion: closure)
             return
         }
         if url != downloadTask?.sessionTask.originalURL {
-            downloadTask?.cancel()
+            cancelDownloadTask()
         }
         fallbackView?.isHidden = true
         viewWhileLoadingView?.isHidden = false
-        
+
         KingfisherManager.shared.cache.retrieveImage(
             forKey: url.absoluteString,
             options: [.callbackQueue(.mainCurrentOrAsync)]
         ) { [weak self] result in
             guard let self else { return }
+            guard self.isCurrentImageURL(url) else { return }
+
             switch result {
             case .success(let image):
                 self.animatedSet(image.image)
@@ -198,7 +282,20 @@ public extension ImageView {
             }
         }
     }
-    
+
+    private func isCurrentImageURL(_ url: URL) -> Bool {
+        switch currentImageEnum {
+        case .url(let lightUrl, let darkUrl):
+            let currentUrl = traitCollection.userInterfaceStyle == .dark ? darkUrl : lightUrl
+            return currentUrl == url
+        case .urlString(let lightString, let darkString):
+            let currentString = traitCollection.userInterfaceStyle == .dark ? darkString : lightString
+            return URL(string: currentString ?? "") == url
+        case .asset, .data, nil:
+            return false
+        }
+    }
+
     private func retrieveImage(
         url: URL,
         kingfisherOptions: KingfisherOptionsInfo,
@@ -206,7 +303,7 @@ public extension ImageView {
     ) -> DownloadTask? {
         return KingfisherManager.shared.retrieveImage(
             with: url,
-            options: [.callbackQueue(.mainCurrentOrAsync), .fromMemoryCacheOrRefresh] + kingfisherOptions
+            options: [.callbackQueue(.mainCurrentOrAsync), .fromMemoryCacheOrRefresh] + kingfisherOptions + Self.imageLoadingOverrideOptions
         ) { [weak self] result in
             guard let self = self else { return }
             downloadTask = nil
@@ -221,7 +318,7 @@ public extension ImageView {
             }
         }
     }
-    
+
     private func showFallbackView(_ url: URL, kingfisherOptions: KingfisherOptionsInfo = []) {
         viewWhileLoadingView?.isHidden = true
         viewWhileLoadingView?.alpha = 0
@@ -233,7 +330,7 @@ public extension ImageView {
             self?.loadImage(url, kingfisherOptions: kingfisherOptions)
         }
     }
-    
+
     private func animatedSet(_ image: UIImage?, completion: ((Image?) -> Void)? = nil) {
         cancelCurrentAnimation()
         currentAnimator = UIViewPropertyAnimator(duration: 0.3, curve: .easeInOut) { [weak self] in
@@ -248,6 +345,22 @@ public extension ImageView {
         // Start the animation
         currentAnimator?.startAnimation()
     }
+
+    private static var imageLoadingOverrideOptions: KingfisherOptionsInfo {
+        #if DEBUG
+        guard let configuration = imageLoadingSessionConfigurationOverride else { return [] }
+        if let imageLoadingDownloaderOverride {
+            return [.downloader(imageLoadingDownloaderOverride)]
+        }
+
+        let downloader = ImageDownloader(name: "ImageViewOverride")
+        downloader.sessionConfiguration = configuration
+        imageLoadingDownloaderOverride = downloader
+        return [.downloader(downloader)]
+        #else
+        return []
+        #endif
+    }
 }
 
 open class ImageView: UIImageView {
@@ -255,27 +368,48 @@ open class ImageView: UIImageView {
     public var currentImageEnum: ImageEnum?
     internal var downloadTask: DownloadTask?
 
+    #if DEBUG
+    // Allows tests to inject a URLProtocol-backed downloader without touching global Kingfisher state.
+    static var imageLoadingSessionConfigurationOverride: URLSessionConfiguration?
+    private static var imageLoadingDownloaderOverride: ImageDownloader?
+
+    static func resetImageLoadingSessionConfigurationOverride() {
+        imageLoadingSessionConfigurationOverride = nil
+        imageLoadingDownloaderOverride = nil
+    }
+    #endif
+
     open override var image: UIImage? {
         get {
             super.image
         }
         set {
             if newValue == nil {
-                cancelCurrentAnimation()
-                super.image = nil
+                clearCurrentImage()
             } else {
                 super.image = newValue
             }
         }
     }
-    
+
     open var anchoredConstraints: AnchoredConstraints?
-    
+
     public func cancelCurrentAnimation() {
         currentAnimator?.stopAnimation(true) // Stop the animation and leave the view in its current state
         currentAnimator = nil
     }
-    
+
+    fileprivate func cancelDownloadTask() {
+        downloadTask?.cancel()
+        downloadTask = nil
+    }
+
+    fileprivate func clearCurrentImage() {
+        cancelDownloadTask()
+        cancelCurrentAnimation()
+        super.image = nil
+    }
+
     public var onPress: (() -> Void)? {
         didSet {
             removeGestureRecognizer(tapGestureRecognizer)
@@ -283,7 +417,7 @@ open class ImageView: UIImageView {
             addGestureRecognizer(tapGestureRecognizer)
         }
     }
-    
+
     public var onLongPress: (() -> Void)? {
         didSet {
             removeGestureRecognizer(longPressRecognizer)
@@ -291,19 +425,19 @@ open class ImageView: UIImageView {
             addGestureRecognizer(longPressRecognizer)
         }
     }
-    
+
     lazy var tapGestureRecognizer: UITapGestureRecognizer = {
         let recognizer = UITapGestureRecognizer(target: self, action: #selector(didTap))
         recognizer.numberOfTapsRequired = 1
         return recognizer
     }()
-    
+
     lazy var longPressRecognizer: UILongPressGestureRecognizer = {
         let recognizer = UILongPressGestureRecognizer(target: self, action: #selector(didLongPress))
         recognizer.minimumPressDuration = 1
         return recognizer
     }()
-    
+
     public override var tintColor: UIColor! {
         didSet {
             if let image = self.image {
@@ -314,7 +448,7 @@ open class ImageView: UIImageView {
             }
         }
     }
-    
+
     public var viewWhileLoadingView: ViewUIKit? {
         didSet {
             viewWhileLoadingView?.removeFromSuperview()
@@ -333,11 +467,12 @@ open class ImageView: UIImageView {
             fallbackView.isHidden = true
         }
     }
-    
+
     public var wrongUrlPlaceholderImage: UIImage?
-    
+
     open override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         super.traitCollectionDidChange(previousTraitCollection)
+
         switch currentImageEnum {
         case .url(let lightUrl, let darkUrl): // changed
             if lightUrl == darkUrl {
@@ -357,7 +492,7 @@ open class ImageView: UIImageView {
             break
         }
     }
-    
+
     public init(
         image: UIImage? = nil,
         contentMode: UIImageView.ContentMode = .scaleAspectFit,
@@ -377,51 +512,51 @@ open class ImageView: UIImageView {
         self.isUserInteractionEnabled = true
         self.clipsToBounds = true
     }
-    
+
     public override init(frame: CGRect) {
         super.init(frame: .zero)
     }
-    
+
     public required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
     @objc private func didTap() {
         onPress?()
     }
-    
+
     @objc private func didLongPress(_ gesture: UILongPressGestureRecognizer) {
         if gesture.state == .began {
             onLongPress?()
         }
     }
-    
+
     override open func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         layoutIfNeeded()
         super.touchesBegan(touches, with: event)
         guard onLongPress != nil || onPress != nil else { return }
         self.alpha = 0.5
     }
-    
+
     override open func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 0.4, initialSpringVelocity: 6, options: .allowUserInteraction) { [weak self] in
             self?.transform = CGAffineTransform(scaleX: 1, y: 1)
         }
         super.touchesEnded(touches, with: event)
         guard onLongPress != nil || onPress != nil else { return }
-        
+
         UIView.animate(withDuration: 0.3, delay: 0, options: [.allowUserInteraction]) {
             self.alpha = 1.0
         }
     }
-    
+
     override open func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
         UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 0.4, initialSpringVelocity: 6, options: .allowUserInteraction) { [weak self] in
             self?.transform = CGAffineTransform(scaleX: 1, y: 1)
         }
         super.touchesCancelled(touches, with: event)
         guard onLongPress != nil || onPress != nil else { return }
-        
+
         UIView.animate(withDuration: 0.3, delay: 0, options: [.allowUserInteraction]) {
             self.alpha = 1.0
         }
@@ -437,13 +572,11 @@ extension ImageView: ImageViewOutput {
         self.accessibilityHint = model?.accessibility?.hint
         self.accessibilityIdentifier = model?.accessibilityIdentifier
         hideShimmer()
-        if let image = model?.image {
-            display(image: image, completion: completion)
-        }
+        display(image: model?.image, completion: completion)
         if let size = model?.size {
             display(size: size)
         }
-        
+
         switch model?.image {
         case .asset(let image) where model?.size == nil:
             display(size: image?.size)
@@ -451,14 +584,14 @@ extension ImageView: ImageViewOutput {
             break
         }
         if let contentModeIsFit = model?.contentModeIsFit { display(contentModeIsFit: contentModeIsFit) }
-        
+
         if let borderColor = model?.borderColor {
             display(borderColor: borderColor)
         }
         if let borderWidth = model?.borderWidth {
             display(borderWidth: borderWidth)
         }
-        
+
         if let cornerRadius = model?.cornerRadius {
             display(cornerRadius: cornerRadius)
         }
@@ -466,7 +599,7 @@ extension ImageView: ImageViewOutput {
             display(alpha: alpha)
         }
     }
-    
+
     public func display(size: CGSize?) {
         if let size = size {
             if let anchoredConstraints = anchoredConstraints {
@@ -480,45 +613,45 @@ extension ImageView: ImageViewOutput {
             }
         }
     }
-    
+
     public func display(borderColor: UIColor?) {
         self.layer.borderColor = borderColor?.cgColor
     }
-    
+
     public func display(borderWidth: CGFloat?) {
         guard let borderWidth else { return }
         self.layer.borderWidth = borderWidth
     }
-    
+
     public func display(cornerRadius: CGFloat?) {
         guard let cornerRadius else { return }
         self.cornerRadius = cornerRadius
         self.layer.cornerRadius = cornerRadius
     }
-    
+
     public func display(image: ImageEnum?, completion: ((Image?) -> Void)?) {
         self.setImage(image, closure: completion)
     }
-    
+
     public func display(onPress: (() -> Void)?) {
         self.onPress = onPress
         applyInteractivityAndAccessibility()
     }
-    
+
     public func display(onLongPress: (() -> Void)?) {
         self.onLongPress = onLongPress
         applyInteractivityAndAccessibility()
     }
-    
+
     public func display(contentModeIsFit: Bool) {
         self.contentMode = contentModeIsFit == true ? .scaleAspectFit : .scaleAspectFill
     }
-    
+
     public func display(alpha: CGFloat?) {
         guard let alpha else { return }
         self.alpha = alpha
     }
-    
+
     public func display(isHidden: Bool) {
         self.isHidden = isHidden
     }
@@ -530,19 +663,19 @@ private extension ImageView {
         let hasTap = (onPress != nil)
         let hasLong = (onLongPress != nil)
         let interactive = hasTap || hasLong
-        
+
         isAccessibilityElement = interactive
         accessibilityTraits = interactive ? [.image, .button] : []
-        
+
         var actions: [UIAccessibilityCustomAction] = []
-        
+
         if let onLongPress {
             actions.append(UIAccessibilityCustomAction(name: "Long press", actionHandler: { _ in
                 onLongPress()
                 return true
             }))
         }
-        
+
         accessibilityCustomActions = actions.isEmpty ? nil : actions
     }
     open override func accessibilityActivate() -> Bool {

@@ -284,7 +284,12 @@ extension Label: TextOutput {
 }
 
 open class Label: UILabel {
-    public var textInsets: UIEdgeInsets = .zero
+    public var textInsets: UIEdgeInsets = .zero {
+        didSet {
+            invalidateIntrinsicContentSize()
+            setNeedsDisplay()
+        }
+    }
     public var cornerStyle: CornerStyle?
     
     let layoutManager = NSLayoutManager()
@@ -345,30 +350,53 @@ open class Label: UILabel {
         textContainer.maximumNumberOfLines = self.numberOfLines
         layoutManager.addTextContainer(textContainer)
     }
-    
+
     open override func layoutSubviews() {
         super.layoutSubviews()
 
-        textContainer.size = bounds.size
+        textContainer.size = bounds.inset(by: textInsets).size
     }
-    
+
+    open override func sizeThatFits(_ size: CGSize) -> CGSize {
+        let fittingSize = CGSize(
+            width: max(0, size.width - textInsets.left - textInsets.right),
+            height: max(0, size.height - textInsets.top - textInsets.bottom)
+        )
+        return insetSize(super.sizeThatFits(fittingSize))
+    }
+
+    open override func textRect(forBounds bounds: CGRect, limitedToNumberOfLines numberOfLines: Int) -> CGRect {
+        let insetBounds = bounds.inset(by: textInsets)
+        let textRect = super.textRect(forBounds: insetBounds, limitedToNumberOfLines: numberOfLines)
+        return textRect.inset(by: UIEdgeInsets(
+            top: -textInsets.top,
+            left: -textInsets.left,
+            bottom: -textInsets.bottom,
+            right: -textInsets.right
+        ))
+    }
+
     open override func drawText(in rect: CGRect) {
         super.drawText(in: rect.inset(by: textInsets))
         if let cornerStyle {
             applyCornerStyle(cornerStyle)
         }
     }
-    
+
+    private func insetSize(_ size: CGSize) -> CGSize {
+        CGSize(
+            width: size.width + textInsets.left + textInsets.right,
+            height: size.height + textInsets.top + textInsets.bottom
+        )
+    }
+
     open override var intrinsicContentSize: CGSize {
         let base = super.intrinsicContentSize
         guard let text = text, !text.isEmpty else {
             return CGSize(width: base.width, height: 0)
         }
         let width = max(animation?.animatedTextMaxWidth ?? 0, base.width)
-        return CGSize(
-            width: width + textInsets.left + textInsets.right,
-            height: base.height + textInsets.top + textInsets.bottom
-        )
+        return insetSize(CGSize(width: width, height: base.height))
     }
 
     public override var text: String? {
