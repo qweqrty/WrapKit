@@ -104,6 +104,22 @@ final class CardViewSnapshotTests: XCTestCase {
         }
     }
 
+    func test_CardView_with_wrappedTitle_shouldRespectLayoutMargins() {
+        let snapshotName = "CARDVIEW_WITH_WRAPPED_TITLE_MARGINS"
+
+        // GIVEN
+        let container = makeWrappedTitleMarginsContainer()
+
+        // THEN
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
+    }
+
     func test_CardView_with_backgroundImage() {
         let snapshotName = "CARDVIEW_WITH_BACKGROUNDIMAGE"
         
@@ -1244,6 +1260,70 @@ extension CardViewSnapshotTests {
         )
     }
 
+    func makeWrappedTitleMarginsContainer() -> UIView {
+        let container = UIView()
+        container.frame = CGRect(origin: .zero, size: SnapshotConfiguration.size)
+        container.backgroundColor = .red
+
+        let stackView = StackView(
+            axis: .vertical,
+            spacing: 24,
+            contentInset: .init(top: 24, left: 24, bottom: 24, right: 24)
+        )
+        container.addSubview(stackView)
+        stackView.anchor(
+            .top(container.topAnchor),
+            .leading(container.leadingAnchor),
+            .trailing(container.trailingAnchor)
+        )
+
+        stackView.addArrangedSubview(makeWrappedTitleMarginsWrapperView(
+            title: "Короткий пример текста для проверки отступов"
+        ))
+        stackView.addArrangedSubview(makeWrappedTitleMarginsWrapperView(
+            title: "Длинный пример текста для проверки переноса на вторую строку внутри карточки"
+        ))
+        stackView.addArrangedSubview(UIView())
+        container.layoutIfNeeded()
+        return container
+    }
+
+    func makeWrappedTitleMarginsWrapperView(title: String) -> WrapperView<CardView> {
+        return WrapperView(
+            contentView: makeWrappedTitleMarginsCardView(title: title),
+            contentViewConstraints: { contentView, superView in
+                contentView.anchor(
+                    .top(superView.topAnchor),
+                    .trailingLessThanEqual(superView.trailingAnchor),
+                    .leading(superView.leadingAnchor),
+                    .bottom(superView.bottomAnchor)
+                )
+            }
+        )
+    }
+
+    func makeWrappedTitleMarginsCardView(title: String) -> CardView {
+        let cardView = CardView()
+        cardView.display(style: makeDefaultStyle(
+            backgroundColor: .systemGray5,
+            vStacklayoutMargins: .zero,
+            hStacklayoutMargins: .init(horizontal: 6, vertical: 4),
+            hStackViewDistribution: .fill,
+            titleKeyTextColor: .label,
+            titleKeyLabelFont: .systemFont(ofSize: 13),
+            cornerRadius: 14,
+            stackSpace: 0,
+            hStackViewSpacing: 4,
+            titleKeyNumberOfLines: 0,
+            titleValueNumberOfLines: 0,
+            borderColor: .clear,
+            borderWidth: 0
+        ))
+        cardView.display(title: .text(title))
+
+        return cardView
+    }
+    
     func makeSwitchControlStyle() -> CardViewPresentableModel.Style {
         return .init(
             backgroundColor: .systemRed,
