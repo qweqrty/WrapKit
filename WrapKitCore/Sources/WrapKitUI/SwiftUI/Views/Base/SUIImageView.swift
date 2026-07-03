@@ -320,6 +320,36 @@ public struct SUIImageView: View {
     }
 }
 
+public struct SUIImageViewView: View {
+    let model: ImageViewPresentableModel
+
+    public init(model: ImageViewPresentableModel) {
+        self.model = model
+    }
+
+    @ViewBuilder
+    public var body: some View {
+        Group {
+            switch model.image {
+            case .asset(let image):
+                if let image {
+                    SwiftUIImage(image: image)
+                        .resizable()
+                }
+            case .data(let data):
+                if let data, let image = Image(data: data) {
+                    SwiftUIImage(image: image)
+                        .resizable()
+                }
+            case .url, .urlString, .none:
+                SwiftUICore.EmptyView()
+            }
+        }
+        .aspectRatio(contentMode: model.contentModeIsFit ?? true ? .fit : .fill)
+        .opacity(model.alpha ?? 1)
+    }
+}
+
 private final class SUIRemoteImageCache {
     static let shared = SUIRemoteImageCache()
 
