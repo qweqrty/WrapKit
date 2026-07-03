@@ -136,9 +136,7 @@ final class SelectionPresenterTests: XCTestCase {
         let expectedStyle = ButtonStyle(
             backgroundColor: config.resetButtonColors.inactiveBackgroundColor,
             titleColor: config.resetButtonColors.inactiveTitleColor,
-            borderWidth: 0,
-            borderColor: config.resetButtonColors.inactiveBorderColor,
-            cornerRadius: 12
+            borderColor: config.resetButtonColors.inactiveBorderColor
         )
         
         XCTAssertEqual(resetButtonSpy.messages[3], .displayStyle(style: expectedStyle))

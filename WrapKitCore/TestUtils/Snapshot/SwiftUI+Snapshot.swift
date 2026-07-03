@@ -86,7 +86,7 @@ public extension View {
     func snapshot() -> UIImage {
         let renderer = ImageRenderer(content: self)
         renderer.scale = UIScreen.main.scale
-        if #available(iOS 26.0, *) {
+        if #available(iOS 26, macOS 26, watchOS 26, tvOS 26, *) {
             renderer.allowedDynamicRange = .high
         }
         renderer.proposedSize = .init(SUISnapshotConfiguration.size)

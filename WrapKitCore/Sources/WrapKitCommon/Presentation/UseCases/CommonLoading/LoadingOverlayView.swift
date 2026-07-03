@@ -5,6 +5,7 @@
 //  Created by Gulzat Zheenbek kyzy on 26/3/26.
 //
 
+#if canImport(UIKit)
 import UIKit
 
 public final class LoadingOverlayView: UIView {
@@ -49,3 +50,4 @@ public final class LoadingOverlayView: UIView {
         return true
     }
 }
+#endif

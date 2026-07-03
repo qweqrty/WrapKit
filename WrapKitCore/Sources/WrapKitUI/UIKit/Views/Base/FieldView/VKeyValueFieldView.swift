@@ -106,7 +106,7 @@ extension VKeyValueFieldView {
         stackView.addArrangedSubview(bottomImageWrapperView)
         bottomImageWrapperView.addSubview(bottomImageView)
         
-        if #available(iOS 26, *) {
+        if isAvailableOS26 {
             keyLabel.setContentHuggingPriority(.required, for: .vertical)
             keyLabel.setContentCompressionResistancePriority(.required, for: .vertical)
             keyLabel.clipsToBounds = false

@@ -8,42 +8,83 @@
 import Foundation
 
 public struct ButtonStyle: HashableWithReflection {
+    public static let defaultCornerRadius: CGFloat = 12
+    
     public let backgroundColor: Color?
-    public let gradientColors: [Color]?
     public let titleColor: Color?
     public let borderWidth: CGFloat
     public let borderColor: Color?
     public let pressedColor: Color?
     public let pressedTintColor: Color?
     public let font: Font?
-    public let cornerRadius: CGFloat
+    public let cornerStyle: CornerStyle
     public let wrongUrlPlaceholderImage: Image?
     public let loadingIndicatorColor: Color?
+    public let glassConfiguration: GlassConfiguration?
     
     public init(
         backgroundColor: Color? = nil,
-        gradientColors: [Color]? = nil,
         titleColor: Color? = nil,
         borderWidth: CGFloat = 0,
         borderColor: Color? = nil,
         pressedColor: Color? = nil,
         pressedTintColor: Color? = nil,
         font: Font? = nil,
-        cornerRadius: CGFloat = 12,
+        cornerRadius: CGFloat,
+        glassConfiguration: GlassConfiguration? = nil,
+        wrongUrlPlaceholderImage: Image? = nil,
+        loadingIndicatorColor: Color? = nil
+    ) {
+        self.init(
+            backgroundColor: backgroundColor,
+            titleColor: titleColor,
+            borderWidth: borderWidth,
+            borderColor: borderColor,
+            pressedColor: pressedColor,
+            pressedTintColor: pressedTintColor,
+            font: font,
+            cornerStyle: .fixed(cornerRadius),
+            glassConfiguration: glassConfiguration,
+            wrongUrlPlaceholderImage: wrongUrlPlaceholderImage,
+            loadingIndicatorColor: loadingIndicatorColor
+        )
+    }
+    
+    public init(
+        backgroundColor: Color? = nil,
+        titleColor: Color? = nil,
+        borderWidth: CGFloat = 0,
+        borderColor: Color? = nil,
+        pressedColor: Color? = nil,
+        pressedTintColor: Color? = nil,
+        font: Font? = nil,
+        cornerStyle: CornerStyle = isAvailableOS26 && isLiquidGlassEnabled ? .automatic : .fixed(ButtonStyle.defaultCornerRadius),
+        glassConfiguration: GlassConfiguration? = nil,
         wrongUrlPlaceholderImage: Image? = nil,
         loadingIndicatorColor: Color? = nil
     ) {
         self.backgroundColor = backgroundColor
-        self.gradientColors = gradientColors
         self.titleColor = titleColor
         self.borderColor = borderColor
         self.pressedColor = pressedColor
         self.pressedTintColor = pressedTintColor
         self.font = font
         self.borderWidth = borderWidth
-        self.cornerRadius = cornerRadius
+        self.cornerStyle = cornerStyle
+        self.glassConfiguration = glassConfiguration
         self.wrongUrlPlaceholderImage = wrongUrlPlaceholderImage
         self.loadingIndicatorColor = loadingIndicatorColor
+    }
+    
+    public enum GlassConfiguration: HashableWithReflection {
+        /// Creates a configuration for a button that has a Liquid Glass style.
+        case glass
+        /// Creates a configuration for a button that has a prominent Liquid Glass style.
+        case prominentGlass
+        /// Creates a configuration for a button that has a clear Liquid Glass style.
+        case clearGlass
+        /// Creates a configuration for a button that has a prominent, clear Liquid Glass style.
+        case prominentClearGlass
     }
 }
 
@@ -66,7 +107,6 @@ public struct ButtonPresentableModel: HashableWithReflection {
     public let title: String?
     public let image: Image?
     public let spacing: CGFloat?
-    public let contentInset: EdgeInsets?
     public let onPress: (() -> Void)?
     public let style: ButtonStyle?
     public let enabled: Bool?
@@ -76,7 +116,6 @@ public struct ButtonPresentableModel: HashableWithReflection {
         title: String? = nil,
         image: Image? = nil,
         spacing: CGFloat? = nil,
-        contentInset: EdgeInsets? = nil,
         height: CGFloat? = nil,
         width: CGFloat? = nil,
         style: ButtonStyle? = nil,
@@ -85,7 +124,6 @@ public struct ButtonPresentableModel: HashableWithReflection {
     ) {
         self.accessibilityIdentifier = accessibilityIdentifier
         self.spacing = spacing
-        self.contentInset = contentInset
         self.image = image
         self.onPress = onPress
         self.title = title
@@ -103,45 +141,17 @@ extension Button: ButtonOutput {
     public func display(model: ButtonPresentableModel?) {
         isHidden = model == nil
         accessibilityIdentifier = model?.accessibilityIdentifier
-        if let contentInset = model?.contentInset {
-            self.contentInset = contentInset.asUIEdgeInsets
-        } else {
-            self.contentInset = .zero
-        }
-        if let spacing = model?.spacing {
-            display(spacing: spacing)
-        } else {
-            display(spacing: 0)
-        }
+        display(style: model?.style) // need to be first
+        if let spacing = model?.spacing { display(spacing: spacing) }
         display(title: model?.title)
         display(image: model?.image)
-        if let height = model?.height {
-            display(height: height)
-        } else {
-            anchoredConstraints?.height?.isActive = false
-            anchoredConstraints?.height = nil
-        }
-        if let width = model?.width {
-            display(width: width)
-        } else {
-            anchoredConstraints?.width?.isActive = false
-            anchoredConstraints?.width = nil
-        }
-        display(style: model?.style)
-        if let enabled = model?.enabled {
-            updateAppearance(enabled: enabled)
-        }
+        if let height = model?.height { display(height: height) }
+        if let enabled = model?.enabled { updateAppearance(enabled: enabled) }
         // MARK: Apply accessibility AFTER all properties are set
         display(onPress: model?.onPress)
     }
     
     public func display(image: Image?) {
-        imageView?.contentMode = .scaleAspectFit
-        imageView?.clipsToBounds = true
-        imageView?.setContentCompressionResistancePriority(.required, for: .horizontal)
-        imageView?.setContentCompressionResistancePriority(.required, for: .vertical)
-        imageView?.setContentHuggingPriority(.required, for: .horizontal)
-        imageView?.setContentHuggingPriority(.required, for: .vertical)
         setImage(image, for: .normal)
     }
     
@@ -156,38 +166,119 @@ extension Button: ButtonOutput {
             anchoredConstraints = anchor(.height(height))
         }
     }
-
-    public func display(width: CGFloat) {
-        if let anchoredConstraints = anchoredConstraints {
-            anchoredConstraints.width?.constant = width
-        } else {
-            anchoredConstraints = anchor(.width(width))
-        }
-    }
     
     public func display(style: ButtonStyle?) {
-        guard let style = style else { return }
-        if let textColor = style.titleColor { self.setTitleColor(textColor, for: .normal) }
-        if let titleLabelFont = style.font { self.titleLabel?.font = titleLabelFont }
-        self.textColor = style.titleColor
+        guard let style else { return }
+        
+        self.textColor = style.titleColor ?? .white
         self.textBackgroundColor = style.backgroundColor
-        if let gradientColors = style.gradientColors, !gradientColors.isEmpty {
-            usesGradientBackground = true
-            installBackgroundGradientIfNeeded()
-            backgroundGradientLayer.colors = gradientColors.map(\.cgColor)
-            backgroundColor = .clear
-        } else {
-            usesGradientBackground = false
-            removeBackgroundGradientIfNeeded()
-            self.backgroundColor = style.backgroundColor
-        }
         self.pressedTextColor = style.pressedTintColor
         self.pressedBackgroundColor = style.pressedColor
-        self.layer.borderColor = style.borderColor?.cgColor
-        self.layer.borderWidth = style.borderWidth
-        self.layer.cornerRadius = style.cornerRadius
         self.wrongUrlPlaceholderImage = style.wrongUrlPlaceholderImage
         self.loadingIndicatorColor = style.loadingIndicatorColor
+        displayGlass(style: style)
+    }
+    
+    private func displayGlass(style: ButtonStyle) {
+        guard let glassConfiguration = style.glassConfiguration else {
+            resetGlassConfigurationIfNeeded()
+            if let textColor = style.titleColor { self.setTitleColor(textColor, for: .normal) }
+            if let titleLabelFont = style.font { self.titleLabel?.font = titleLabelFont }
+            self.layer.borderColor = style.borderColor?.cgColor
+            self.layer.borderWidth = style.borderWidth
+            applyButtonCornerStyle(style.cornerStyle)
+            return
+        }
+        
+        let previousConfiguration = configuration
+        if #available(iOS 26, macOS 26, watchOS 26, tvOS 26, *), isLiquidGlassEnabled {
+            self.usesLiquidGlassConfiguration = true
+            var config: UIButton.Configuration = switch glassConfiguration {
+            case .glass: .glass()
+            case .clearGlass: .clearGlass()
+            case .prominentGlass: .prominentGlass()
+            case .prominentClearGlass: .prominentClearGlass()
+            }
+            config.background.strokeColor = style.borderColor
+            config.background.strokeWidth = style.borderWidth
+            
+            config.background.backgroundColor = style.backgroundColor
+            config.baseForegroundColor = style.titleColor ?? .white
+            if previousConfiguration == nil {
+                config.title = title(for: .normal) ?? titleLabel?.text
+                config.image = image(for: .normal) ?? imageView?.image
+            }
+            if let font = style.font {
+                config.titleTextAttributesTransformer = .init { container in
+                    var updated = container
+                    updated.font = font
+                    updated.foregroundColor = self.textColor ?? .white
+                    return updated
+                }
+            }
+            config.titleLineBreakMode = .byTruncatingTail
+//            if usesLiquidGlassConfiguration {
+//                applyCornerStyle(.automatic)
+//            } else {
+                config.cornerStyle = style.cornerStyle.cornerConfiguation == .capsule() ? .capsule : .fixed
+                config.background.cornerRadius = style.cornerStyle.cornerConfiguation == .capsule() ? ButtonStyle.defaultCornerRadius : (style.cornerStyle.value ?? ButtonStyle.defaultCornerRadius)
+                if style.cornerStyle.cornerConfiguation != .capsule() {
+                    applyCornerStyle(style.cornerStyle)
+                }
+//            }
+            
+            self.configuration = config
+
+            var isPreviouslyHighlighted = false
+            configurationUpdateHandler = { [weak self] button in
+                guard let self = self, var updated = button.configuration else { return }
+
+                if button.isHighlighted {
+                    isPreviouslyHighlighted = true
+                    updated.background.backgroundColor = pressedBackgroundColor ?? textBackgroundColor
+                    let baseForegroundColor = pressedTextColor ?? textColor ?? button.currentTitleColor
+                    updated.baseForegroundColor = baseForegroundColor
+                    updated.imageColorTransformer = .init { _ in baseForegroundColor }
+                    UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 0.4, initialSpringVelocity: 6, options: .allowUserInteraction) { [unowned self] in
+                        self.pressAnimations.forEach {
+                            switch $0 {
+                            case .shrink:
+                                button.transform = CGAffineTransform(scaleX: 0.95, y: 0.95)
+                            }
+                        }
+                    }
+                } else {
+                    if isPreviouslyHighlighted {
+                        UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 0.4, initialSpringVelocity: 6, options: .allowUserInteraction) { [unowned self] in
+                            updated.background.backgroundColor = self.textBackgroundColor
+                            updated.baseForegroundColor = self.textColor
+                            updated.imageColorTransformer = nil
+                            button.transform = .identity
+                        }
+                    } else {
+                        updated.background.backgroundColor = self.textBackgroundColor
+                        updated.baseForegroundColor = self.textColor
+                        updated.imageColorTransformer = nil
+                        button.transform = .identity
+                    }
+                    isPreviouslyHighlighted = false
+                }
+
+                button.configuration = updated
+            }
+            updateSpacings()
+        }
+
+        if let textColor = style.titleColor { self.setTitleColor(textColor, for: .normal) }
+        if let titleLabelFont = style.font { self.titleLabel?.font = titleLabelFont }
+
+        if #available(iOS 15.0, *), configuration != nil {
+            // borders + cornerRadius applied through configuration.background above
+        } else {
+            self.layer.borderColor = style.borderColor?.cgColor
+            self.layer.borderWidth = style.borderWidth
+            applyButtonCornerStyle(style.cornerStyle)
+        }
     }
     
     public func display(title: String?) {
@@ -228,10 +319,6 @@ public enum PressAnimation: HashableWithReflection {
 }
 
 open class Button: UIButton {
-    private lazy var backgroundGradientLayer = CAGradientLayer()
-    private var isBackgroundGradientInstalled = false
-    private var usesGradientBackground = false
-
     var currentAnimator: UIViewPropertyAnimator?
     public var currentImageEnum: ImageEnum?
     
@@ -242,16 +329,22 @@ open class Button: UIButton {
             addTarget(self, action: #selector(onTap), for: .touchUpInside)
         }
     }
+    
     public var spacing: CGFloat = 0 {
-        didSet {
-            updateSpacings()
-        }
+        didSet { updateSpacings() }
     }
     
     public var contentInset: UIEdgeInsets = .zero {
-        didSet {
-            updateSpacings()
-        }
+        didSet { updateSpacings() }
+    }
+
+    private var usesLiquidGlassConfiguration = false
+
+    private var hasCustomContentInset: Bool {
+        return contentInset.top != .zero
+            || contentInset.left != .zero
+            || contentInset.bottom != .zero
+            || contentInset.right != .zero
     }
 
     public var textColor: UIColor? {
@@ -261,11 +354,58 @@ open class Button: UIButton {
     }
     public var textBackgroundColor: UIColor? {
         didSet {
-            if !usesGradientBackground {
+            if #available(iOS 15.0, *), var configuration {
+                configuration.background.backgroundColor = textBackgroundColor
+                self.configuration = configuration
+            } else {
                 backgroundColor = textBackgroundColor
             }
         }
     }
+    
+    open override func setImage(_ image: UIImage?, for state: UIControl.State) {
+        if #available(iOS 15.0, *), var configuration {
+            configuration.image = image
+            self.configuration = configuration
+        } else {
+            super.setImage(image, for: state)
+        }
+    }
+
+    open override func setTitle(_ title: String?, for state: UIControl.State) {
+        if #available(iOS 15.0, *), var configuration {
+            configuration.title = title
+            self.configuration = configuration
+        } else {
+            super.setTitle(title, for: state)
+        }
+    }
+
+    open override func setTitleColor(_ color: UIColor?, for state: UIControl.State) {
+        if #available(iOS 15.0, *), var configuration {
+            configuration.baseForegroundColor = color
+            self.configuration = configuration
+        } else {
+            super.setTitleColor(color, for: state)
+        }
+    }
+    
+    open override var contentHorizontalAlignment: UIControl.ContentHorizontalAlignment {
+        didSet {
+            if #available(iOS 15.0, *), var configuration {
+                configuration.titleAlignment = switch contentHorizontalAlignment {
+                case .center, .fill: .center
+                case .leading, .left: .leading
+                case .trailing, .right: .trailing
+                @unknown default: .center
+                }
+                self.configuration = configuration
+            } else {
+                super.contentHorizontalAlignment = contentHorizontalAlignment
+            }
+        }
+    }
+    
     public var isLoading: Bool?
     public var loadingIndicatorColor: UIColor?
     public var pressedTextColor: UIColor?
@@ -275,6 +415,23 @@ open class Button: UIButton {
     open var anchoredConstraints: AnchoredConstraints?
     
     private func updateSpacings() {
+        if #available(iOS 15.0, *), var configuration {
+//            if #available(iOS 26, *), usesLiquidGlassConfiguration, !hasCustomContentInset {
+//                configuration.imagePadding = spacing
+//                self.configuration = configuration
+//                return
+//            }
+
+            configuration.contentInsets = .init(
+                top: contentInset.top,
+                leading: contentInset.left,
+                bottom: contentInset.bottom,
+                trailing: contentInset.right
+            )
+            configuration.imagePadding = spacing
+            self.configuration = configuration
+            return
+        }
         let isRTL = UIView.userInterfaceLayoutDirection(for: self.semanticContentAttribute) == .rightToLeft
         if isRTL {
             contentEdgeInsets = .init(top: contentInset.top, left: contentInset.left + spacing * 2, bottom: contentInset.bottom, right: contentInset.right)
@@ -297,35 +454,34 @@ open class Button: UIButton {
         enabled: Bool = true
     ) {
         self.init(
-            textColor: style.titleColor,
+            textColor: style.titleColor ?? .white,
             backgroundColor: style.backgroundColor ?? .clear,
             pressedTextColor: style.pressedTintColor,
-            pressedBacgroundColor: style.pressedColor
+            pressedBackgroundColor: style.pressedColor
         )
         
+        display(style: style)
         setTitle(title, for: .normal)
-        cornerRadius = 12  // MARK: - TODO
         isEnabled = enabled
         updateAppearance(enabled: enabled)
-        display(style: style)
         applyInteractivityAndAccessibility()
     }
     
     public convenience init(
         image: UIImage? = nil,
         tintColor: UIColor? = nil,
-        textColor: UIColor? = nil,
+        textColor: UIColor? =  isAvailableOS26 ? nil : .white, // MYO-7040 fix Timer text flashing
         titleLabelFont: UIFont? = nil,
         backgroundColor: UIColor = .clear,
         pressedTextColor: UIColor? = nil,
-        pressedBacgroundColor: UIColor? = nil,
+        pressedBackgroundColor: UIColor? = nil,
         contentInset: UIEdgeInsets = .zero,
         spacing: CGFloat = 0,
         contentHorizontalAlignment: UIControl.ContentHorizontalAlignment = .center,
         isHidden: Bool = false,
         isEnabled: Bool = true,
         lineBreakingMode: NSLineBreakMode = .byTruncatingTail,
-        type: UIButton.ButtonType = .system
+        type: UIButton.ButtonType = isAvailableOS26 ? .system : .custom // MYO-7040 fix Timer text flashing
     ) {
         self.init(type: type)
         if let tintColor = tintColor { self.tintColor = tintColor }
@@ -335,15 +491,22 @@ open class Button: UIButton {
         self.textColor = textColor
         self.textBackgroundColor = backgroundColor
         self.contentHorizontalAlignment = contentHorizontalAlignment
-        self.titleLabel?.lineBreakMode = .byTruncatingTail
+        self.titleLabel?.lineBreakMode = lineBreakingMode
         self.isEnabled = isEnabled
         self.spacing = spacing
-        self.backgroundColor = backgroundColor
         self.contentInset = contentInset
         self.isHidden = isHidden
         self.pressedTextColor = pressedTextColor
-        self.pressedBackgroundColor = pressedBacgroundColor
+        self.pressedBackgroundColor = pressedBackgroundColor
         updateSpacings()
+        
+        display(style: .init(
+            backgroundColor: backgroundColor,
+            titleColor: textColor,
+            pressedColor: pressedBackgroundColor,
+            pressedTintColor: pressedTextColor,
+            font: titleLabelFont
+        ))
     }
     
     open override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
@@ -355,13 +518,6 @@ open class Button: UIButton {
         default:
             break
         }
-    }
-
-    open override func layoutSubviews() {
-        super.layoutSubviews()
-        guard isBackgroundGradientInstalled else { return }
-        backgroundGradientLayer.frame = bounds
-        backgroundGradientLayer.cornerRadius = layer.cornerRadius
     }
     
     @objc private func onTap() {
@@ -385,23 +541,31 @@ open class Button: UIButton {
     }
     
     open override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        if #available(iOS 15.0, *), configuration != nil {
+            super.touchesBegan(touches, with: event)
+            return
+        }
         layoutIfNeeded()
         
         UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 0.4, initialSpringVelocity: 6, options: .allowUserInteraction) { [weak self] in
-            self?.pressAnimations.forEach {
+            guard let self else { return }
+            self.pressAnimations.forEach {
                 switch $0 {
                 case .shrink:
-                    self?.transform = CGAffineTransform(scaleX: 0.95, y: 0.95)
+                    self.transform = CGAffineTransform(scaleX: 0.95, y: 0.95)
                 }
             }
-            self?.backgroundColor = self?.pressedBackgroundColor ?? self?.textBackgroundColor
-            
-            self?.setTitleColor(self?.pressedTextColor ?? self?.textColor, for: .normal)
+            self.backgroundColor = self.pressedBackgroundColor ?? self.textBackgroundColor
+            self.setTitleColor(self.pressedTextColor ?? self.textColor, for: .normal)
         }
         super.touchesBegan(touches, with: event)
     }
     
     open override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
+        if #available(iOS 15.0, *), configuration != nil {
+            super.touchesCancelled(touches, with: event)
+            return
+        }
         self.transform = CGAffineTransform(scaleX: 1, y: 1)
         self.backgroundColor = textBackgroundColor
         self.setTitleColor(textColor, for: .normal)
@@ -410,10 +574,15 @@ open class Button: UIButton {
     }
     
     open override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        if #available(iOS 15.0, *), configuration != nil {
+            super.touchesEnded(touches, with: event)
+            return
+        }
         UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 0.4, initialSpringVelocity: 6, options: .allowUserInteraction) { [weak self] in
-            self?.transform = CGAffineTransform(scaleX: 1, y: 1)
-            self?.backgroundColor = self?.textBackgroundColor
-            self?.setTitleColor(self?.textColor, for: .normal)
+            guard let self else { return }
+            self.transform = CGAffineTransform(scaleX: 1, y: 1)
+            self.backgroundColor = self.textBackgroundColor
+            self.setTitleColor(self.textColor, for: .normal)
         }
         super.touchesEnded(touches, with: event)
     }
@@ -439,18 +608,34 @@ open class Button: UIButton {
 }
 
 private extension Button {
-    func installBackgroundGradientIfNeeded() {
-        guard !isBackgroundGradientInstalled else { return }
-        backgroundGradientLayer.startPoint = CGPoint(x: 0, y: 0.5)
-        backgroundGradientLayer.endPoint = CGPoint(x: 1, y: 0.5)
-        layer.insertSublayer(backgroundGradientLayer, at: 0)
-        isBackgroundGradientInstalled = true
+    func resetGlassConfigurationIfNeeded() {
+        guard usesLiquidGlassConfiguration else { return }
+        configurationUpdateHandler = nil
+        if #available(iOS 15.0, *) {
+            configuration = nil
+        }
+        usesLiquidGlassConfiguration = false
     }
-
-    func removeBackgroundGradientIfNeeded() {
-        guard isBackgroundGradientInstalled else { return }
-        backgroundGradientLayer.removeFromSuperlayer()
-        isBackgroundGradientInstalled = false
+    
+    func applyButtonCornerStyle(_ cornerStyle: CornerStyle) {
+        switch cornerStyle {
+        case .automatic:
+            layer.maskedCorners = .allCorners
+            layer.cornerRadius = min(bounds.height, bounds.width) / 2
+            layer.masksToBounds = true
+        case .fixed(let radius):
+            layer.maskedCorners = .allCorners
+            layer.cornerRadius = radius
+            layer.masksToBounds = false
+        case .none:
+            layer.maskedCorners = []
+            layer.cornerRadius = .zero
+            layer.masksToBounds = false
+        case .corners(let corners):
+            layer.maskedCorners = corners.maskedCorners
+            layer.cornerRadius = corners.maximum
+            layer.masksToBounds = corners.maximum > .zero
+        }
     }
 }
 
@@ -482,5 +667,10 @@ private extension Button {
         accessibilityHint = nil
     }
 }
+
+//@available(iOS 17.0, *)
+//#Preview {
+//    Button(style: .init(), title: "Example")
+//}
 
 #endif

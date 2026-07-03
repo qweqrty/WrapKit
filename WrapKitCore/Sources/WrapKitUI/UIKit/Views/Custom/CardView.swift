@@ -49,8 +49,7 @@ public struct CardViewPresentableModel: HashableWithReflection {
         public let titleValueLabelFont: Font
         public let subTitleLabelFont: Font
         public let subtitleNumberOfLines: Int
-        public let cornerRadius: CGFloat
-        public let roundedCorners: CACornerMask
+        public let cornerStyle: CornerStyle
         public let stackSpace: CGFloat
         public let hStackViewSpacing: CGFloat
         public let titleKeyNumberOfLines: Int
@@ -77,8 +76,7 @@ public struct CardViewPresentableModel: HashableWithReflection {
             titleValueLabelFont: Font,
             subTitleLabelFont: Font,
             subtitleNumberOfLines: Int = 0,
-            cornerRadius: CGFloat,
-            roundedCorners: CACornerMask = .allCorners,
+            cornerStyle: CornerStyle,
             stackSpace: CGFloat,
             hStackViewSpacing: CGFloat,
             titleKeyNumberOfLines: Int,
@@ -104,8 +102,7 @@ public struct CardViewPresentableModel: HashableWithReflection {
             self.titleValueLabelFont = titleValueLabelFont
             self.subTitleLabelFont = subTitleLabelFont
             self.subtitleNumberOfLines = subtitleNumberOfLines
-            self.cornerRadius = cornerRadius
-            self.roundedCorners = roundedCorners
+            self.cornerStyle = cornerStyle
             self.stackSpace = stackSpace
             self.hStackViewSpacing = hStackViewSpacing
             self.titleKeyNumberOfLines = titleKeyNumberOfLines
@@ -115,6 +112,62 @@ public struct CardViewPresentableModel: HashableWithReflection {
             self.gradientBorderColors = gradientBorderColors
             self.trailingImageLeadingSpacing = trailingImageLeadingSpacing
             self.secondaryTrailingImageLeadingSpacing = secondaryTrailingImageLeadingSpacing
+        }
+        
+        public init(
+            backgroundColor: Color,
+            vStacklayoutMargins: EdgeInsets,
+            hStacklayoutMargins: EdgeInsets,
+            hStackViewDistribution: StackViewDistribution,
+            leadingTitleKeyTextColor: Color,
+            titleKeyTextColor: Color,
+            trailingTitleKeyTextColor: Color,
+            titleValueTextColor: Color,
+            subTitleTextColor: Color,
+            leadingTitleKeyLabelFont: Font,
+            titleKeyLabelFont: Font,
+            trailingTitleKeyLabelFont: Font,
+            titleValueLabelFont: Font,
+            subTitleLabelFont: Font,
+            subtitleNumberOfLines: Int = 0,
+            cornerRadius: CGFloat,
+            stackSpace: CGFloat,
+            hStackViewSpacing: CGFloat,
+            titleKeyNumberOfLines: Int,
+            titleValueNumberOfLines: Int,
+            borderColor: Color? = nil,
+            borderWidth: CGFloat? = nil,
+            gradientBorderColors: [Color]? = nil,
+            trailingImageLeadingSpacing: CGFloat? = nil,
+            secondaryTrailingImageLeadingSpacing: CGFloat? = nil
+        ) {
+            self.init(
+                backgroundColor: backgroundColor,
+                vStacklayoutMargins: vStacklayoutMargins,
+                hStacklayoutMargins: hStacklayoutMargins,
+                hStackViewDistribution: hStackViewDistribution,
+                leadingTitleKeyTextColor: leadingTitleKeyTextColor,
+                titleKeyTextColor: titleKeyTextColor,
+                trailingTitleKeyTextColor: trailingTitleKeyTextColor,
+                titleValueTextColor: titleValueTextColor,
+                subTitleTextColor: subTitleTextColor,
+                leadingTitleKeyLabelFont: leadingTitleKeyLabelFont,
+                titleKeyLabelFont: titleKeyLabelFont,
+                trailingTitleKeyLabelFont: trailingTitleKeyLabelFont,
+                titleValueLabelFont: titleValueLabelFont,
+                subTitleLabelFont: subTitleLabelFont,
+                subtitleNumberOfLines: subtitleNumberOfLines,
+                cornerStyle: .fixed(cornerRadius),
+                stackSpace: stackSpace,
+                hStackViewSpacing: hStackViewSpacing,
+                titleKeyNumberOfLines: titleKeyNumberOfLines,
+                titleValueNumberOfLines: titleValueNumberOfLines,
+                borderColor: borderColor,
+                borderWidth: borderWidth,
+                gradientBorderColors: gradientBorderColors,
+                trailingImageLeadingSpacing: trailingImageLeadingSpacing,
+                secondaryTrailingImageLeadingSpacing: secondaryTrailingImageLeadingSpacing,
+            )
         }
     }
 
@@ -149,7 +202,7 @@ public struct CardViewPresentableModel: HashableWithReflection {
     public let onPress: (() -> Void)?
     public let onLongPress: (() -> Void)?
     public let isUserInteractionEnabled: Bool?
-    public let isGradientBorderEnabled: Bool?
+    public let isGradientBorderEnabled: Bool
     
     public init(
         id: String = UUID().uuidString,
@@ -171,7 +224,7 @@ public struct CardViewPresentableModel: HashableWithReflection {
         onPress: (() -> Void)? = nil,
         onLongPress: (() -> Void)? = nil,
         isUserInteractionEnabled: Bool? = nil,
-        isGradientBorderEnabled: Bool? = nil
+        isGradientBorderEnabled: Bool = false
     ) {
         self.id = id
         self.accessibilityIdentifier = accessibilityIdentifier
@@ -223,8 +276,11 @@ extension CardView: CardViewOutput {
         titleViews.valueLabel.font = style.titleValueLabelFont
         titleViews.keyLabel.numberOfLines = style.titleKeyNumberOfLines
         titleViews.valueLabel.numberOfLines = style.titleValueNumberOfLines
+        titleViews.keyLabel.lineBreakMode = style.titleKeyNumberOfLines == 1 ? .byTruncatingTail : .byWordWrapping
+        titleViews.valueLabel.lineBreakMode = style.titleValueNumberOfLines == 1 ? .byTruncatingTail : .byWordWrapping
         subtitleLabel.numberOfLines = style.subtitleNumberOfLines
-        round(corners: style.roundedCorners, radius: style.cornerRadius)
+        subtitleLabel.lineBreakMode = style.subtitleNumberOfLines == 1 ? .byTruncatingTail : .byWordWrapping
+        applyCornerStyle(style.cornerStyle)
         layer.borderColor = style.borderColor?.cgColor
         layer.borderWidth = style.borderWidth ?? 0
     }
@@ -326,10 +382,8 @@ extension CardView: CardViewOutput {
         if isGradientBorderEnabled {
             guard let colors = style?.gradientBorderColors, !colors.isEmpty else { return }
             animations.insert(.gradientBorder(colors))
-        } else {
-            if let colors = style?.gradientBorderColors {
-                animations.remove(.gradientBorder(colors))
-            }
+        } else if let animation = animations.first(where: \.isGradientBorder) {
+            animations.remove(animation)
         }
     }
     
@@ -386,9 +440,8 @@ extension CardView: CardViewOutput {
         
         display(isUserInteractionEnabled: model.isUserInteractionEnabled)
         
-        if let isGradientBorderEnabled = model.isGradientBorderEnabled {
-            display(isGradientBorderEnabled: isGradientBorderEnabled)
-        }
+        display(isGradientBorderEnabled: model.isGradientBorderEnabled)
+
         invalidateA11y()
     }
 }
@@ -536,12 +589,15 @@ open class CardView: ViewUIKit {
         if !bounds.equalTo(lastBounds) {
             lastBounds = bounds
             invalidateA11y()
+            if let cornerStyle = style?.cornerStyle {
+                applyOldCornerStyleOnlyiOS18(cornerStyle)
+            }
         }
     }
-
+    
     private var style: CardViewPresentableModel.Style?
     public let vStackView = StackView(axis: .vertical, contentInset: .init(top: 0, left: 8, bottom: 0, right: 8))
-    public let hStackView = StackView(axis: .horizontal, spacing: 14)
+    public let hStackView = StackView(alignment: .center, axis: .horizontal, spacing: 14)
     public private(set) var backgroundImageView = ImageView()
     
     public let leadingImageWrapperView = ViewUIKit(isHidden: true)
@@ -651,6 +707,11 @@ open class CardView: ViewUIKit {
         titleViews.valueLabel.setContentCompressionResistancePriority(.required, for: .vertical)
         
         titleViewsWrapperView.setContentCompressionResistancePriority(.required, for: .vertical)
+        titleViewsWrapperView.setContentHuggingPriority(.required, for: .vertical)
+        titleViews.setContentCompressionResistancePriority(.required, for: .vertical)
+        titleViews.setContentHuggingPriority(.required, for: .vertical)
+        titleViews.keyLabel.setContentHuggingPriority(.required, for: .vertical)
+        titleViews.valueLabel.setContentHuggingPriority(.required, for: .vertical)
         
         switchControl.setContentCompressionResistancePriority(.required, for: .horizontal)
         switchControl.setContentCompressionResistancePriority(.required, for: .vertical)
@@ -723,7 +784,7 @@ extension CardView {
             .trailing(trailingTitleViewsWrapperView.trailingAnchor),
             .centerY(trailingTitleViewsWrapperView.centerYAnchor)
         )
-        
+
         leadingImageViewConstraints = leadingImageView.anchor(
             .topGreaterThanEqual(leadingImageWrapperView.topAnchor),
             .bottomLessThanEqual(leadingImageWrapperView.bottomAnchor),
@@ -771,8 +832,8 @@ extension CardView {
         switchControlConstraints = switchControl.anchor(
             .topGreaterThanEqual(switchWrapperView.topAnchor),
             .bottomLessThanEqual(switchWrapperView.bottomAnchor),
-            .top(switchWrapperView.topAnchor, priority: .defaultHigh),
-            .bottom(switchWrapperView.bottomAnchor, priority: .defaultHigh),
+            .top(switchWrapperView.topAnchor, priority: .defaultLow),
+            .bottom(switchWrapperView.bottomAnchor, priority: .defaultLow),
             .leading(switchWrapperView.leadingAnchor),
             .trailing(switchWrapperView.trailingAnchor),
             .centerX(switchWrapperView.centerXAnchor),

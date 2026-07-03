@@ -18,6 +18,7 @@ let project = Project(
                 .external(name: "PhoneNumberKit"),
                 .external(name: "DeviceKit"),
                 .external(name: "SwiftUIIntrospect"),
+                .external(name: "Lottie")
             ]
         ),
         .target(
@@ -40,6 +41,7 @@ let project = Project(
             bundleId: "\(wrapKit.bundleId)Tests",
             deploymentTargets: .all,
             sources: ["Tests/**"],
+            resources: ["Tests/Resources/**"],
             dependencies: [
                 .target(name: wrapKitTestUtils.name),
                 .xctest

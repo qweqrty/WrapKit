@@ -14,8 +14,7 @@ let project = Project(
             scripts: [Scripts.swiftlint],
             dependencies: [
                 .project(target: wrapKit.name, path: wrapKit.path),
-                .external(name: "Kingfisher"),
-                .external(name: "DeviceKit")
+                .external(name: "Kingfisher")
             ]
         ),
     ]

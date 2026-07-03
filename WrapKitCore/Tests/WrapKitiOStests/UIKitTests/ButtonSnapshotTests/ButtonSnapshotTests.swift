@@ -17,6 +17,43 @@ private enum ImageTestLinks: String {
     case dark = "https://uxwing.com/wp-content/themes/uxwing/download/web-app-development/dark-mode-icon.png"
 }
 
+private final class ButtonImageURLProtocolStub: URLProtocol {
+    override class func canInit(with request: URLRequest) -> Bool {
+        ImageTestLinks(rawValue: request.url?.absoluteString ?? "") != nil
+    }
+
+    override class func canonicalRequest(for request: URLRequest) -> URLRequest {
+        request
+    }
+
+    override func startLoading() {
+        guard
+            let url = request.url,
+            let link = ImageTestLinks(rawValue: url.absoluteString),
+            let fixtureURL = Bundle(for: ButtonSnapshotTests.self).url(
+                forResource: link == .light ? "button-image-light" : "button-image-dark",
+                withExtension: "png"
+            ),
+            let data = try? Data(contentsOf: fixtureURL),
+            let response = HTTPURLResponse(
+                url: url,
+                statusCode: 200,
+                httpVersion: nil,
+                headerFields: ["Content-Type": "image/png"]
+            )
+        else {
+            client?.urlProtocol(self, didFailWithError: URLError(.fileDoesNotExist))
+            return
+        }
+
+        client?.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
+        client?.urlProtocol(self, didLoad: data)
+        client?.urlProtocolDidFinishLoading(self)
+    }
+
+    override func stopLoading() {}
+}
+
 final class ButtonSnapshotTests: XCTestCase {
 
     private weak var currentPairedSUT: PairedButtonSnapshotSUT?
@@ -24,8 +61,15 @@ final class ButtonSnapshotTests: XCTestCase {
     private var swiftUISnapshotPrecision: Float { 0.98 }
     private var swiftUIFailSnapshotPrecision: Float { 1 }
 
+    private static let originalDownloader = KingfisherManager.shared.downloader
+    
     override class func setUp() {
         super.setUp()
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.protocolClasses = [ButtonImageURLProtocolStub.self]
+        let downloader = ImageDownloader(name: "ButtonSnapshotTests")
+        downloader.sessionConfiguration = configuration
+        KingfisherManager.shared.downloader = downloader
         KingfisherManager.shared.cache.clearMemoryCache()
         KingfisherManager.shared.cache.clearCache()
         KingfisherManager.shared.cache.clearDiskCache()
@@ -34,6 +78,11 @@ final class ButtonSnapshotTests: XCTestCase {
         KingfisherManager.shared.cache.cleanExpiredDiskCache()
     }
 
+    override class func tearDown() {
+        KingfisherManager.shared.downloader = originalDownloader
+        super.tearDown()
+    }
+    
     func test_buttonOutput_default_state() {
         let snapshotName = "BUTTON_DEFAULT_STATE"
         let (sut, container) = makeSUT()
@@ -691,8 +740,9 @@ final class ButtonSnapshotTests: XCTestCase {
 
     func test_buttonOutput_style_cornerRadius() {
         let snapshotName = "BUTTON_STYLE_CORNER_RADIUS_STATE"
-        let (sut, container) = makeSUT()
-
+        // GIVEN
+        let (sut, container) = makeSUT(height: 100)
+        
         sut.display(title: "BUTTON WITH CORNER RADIUS")
         sut.display(style: .init(backgroundColor: .cyan, cornerRadius: 40))
 
@@ -707,8 +757,10 @@ final class ButtonSnapshotTests: XCTestCase {
 
     func test_fail_buttonOutput_style_cornerRadius() {
         let snapshotName = "BUTTON_STYLE_CORNER_RADIUS_STATE"
-        let (sut, container) = makeSUT()
-
+        // GIVEN
+        let (sut, container) = makeSUT(height: 100)
+        
+        // WHEN
         sut.display(title: "BUTTON WITH CORNER RADIUS")
         sut.display(style: .init(backgroundColor: .cyan, cornerRadius: 41))
 
@@ -873,6 +925,7 @@ extension ButtonSnapshotTests {
     }
 
     func makeSUT(
+        height: CGFloat = 60,
         file: StaticString = #file,
         line: UInt = #line
     ) -> (sut: PairedButtonSnapshotSUT, container: UIView) {
@@ -884,7 +937,7 @@ extension ButtonSnapshotTests {
             .top(container.topAnchor, constant: 0, priority: .required),
             .leading(container.leadingAnchor, constant: 0, priority: .required),
             .trailing(container.trailingAnchor, constant: 0, priority: .required),
-            .height(60, priority: .required)
+            .height(height, priority: .required)
         )
         container.layoutIfNeeded()
         

@@ -77,7 +77,35 @@ public class SegmentedControl: UISegmentedControl {
         fatalError("init(coder:) has not been implemented")
     }
     
+    public override func layoutSubviews() {
+        super.layoutSubviews()
+        layer.cornerRadius = appearance.cornerRadius
+        layer.masksToBounds = true
+        
+        if #unavailable(iOS 26) {
+            guard numberOfSegments < subviews.count,
+                  let selectedSegment = subviews[numberOfSegments] as? UIImageView,
+                  selectedSegmentIndex != UISegmentedControl.noSegment else { return }
+
+            let inset: CGFloat = 4
+            let segmentWidth = bounds.width / CGFloat(numberOfSegments)
+            let xOffset = CGFloat(selectedSegmentIndex) * segmentWidth
+
+            selectedSegment.image = nil
+            selectedSegment.backgroundColor = selectedSegmentTintColor
+            selectedSegment.layer.removeAnimation(forKey: "SelectionBounds")
+            selectedSegment.layer.cornerRadius = appearance.cornerRadius - inset
+            selectedSegment.frame = CGRect(
+                x: xOffset + inset,
+                y: inset,
+                width: segmentWidth - inset * 2,
+                height: bounds.height - inset * 2
+            )
+        }
+    }
+    
     private func applyAppearance() {
+        
         self.backgroundColor = appearance.colors.backgroundColor
         self.layer.cornerRadius = appearance.cornerRadius
         self.cornerRadius = appearance.cornerRadius
