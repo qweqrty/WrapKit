@@ -13,6 +13,7 @@ public class SplashPresenter: LifeCycleViewOutput, ApplicationLifecycleOutput {
     public var lottieView: LottieViewOutput?
     public var textOutput: TextOutput?
     public var imageViewOutput: ImageViewOutput?
+    public var toastView: CommonToastOutput?
     
     public init() {
         
@@ -22,6 +23,7 @@ public class SplashPresenter: LifeCycleViewOutput, ApplicationLifecycleOutput {
         print("SplashPresenter: viewDidLoad()")
         setupTextOutput()
         setupImageOutput()
+        setupToastOutput()
     }
     
     public func viewWillAppear() {
@@ -157,7 +159,7 @@ private extension SplashPresenter {
         }
         
         func setImageData() {
-            /// uncomment thic code to get data from image
+            // uncomment this code to get data from image
             //        if let nsImage = NSImage(named: "mini"),
             //           let tiffData = nsImage.tiffRepresentation,
             //           let bitmap = NSBitmapImageRep(data: tiffData),
@@ -255,5 +257,156 @@ private extension SplashPresenter {
         func hide() {
             imageViewOutput?.display(isHidden: true)
         }
+    }
+    
+    private func setupToastOutput() {
+        displaySuccessToastExample()
+        displayErrorToastExample()
+        displayWarningToastExample()
+        displayCustomToastExample()
+    }
+    
+    private func displaySuccessToastExample() {
+        let card = CardViewPresentableModel(
+            style: makeToastStyle(accentColor: .green),
+            title: .text("Success toast"),
+            valueTitle: .text("Top position + card onPress"),
+            onPress: {
+                print("SplashPresenter: success card tapped")
+            },
+            isUserInteractionEnabled: true
+        )
+        
+        toastView?.display(
+            .success(.init(
+                cardViewModel: card,
+                position: .top,
+                shadowColor: .black,
+                duration: 2
+            ))
+        )
+    }
+    
+    private func displayErrorToastExample() {
+        let card = CardViewPresentableModel(
+            style: makeToastStyle(accentColor: .red),
+            title: .text("Error toast"),
+            valueTitle: .text("Bottom position with additional padding"),
+            onPress: {
+                print("SplashPresenter: error card tapped")
+            },
+            isUserInteractionEnabled: true
+        )
+        
+        toastView?.display(
+            .error(.init(
+                cardViewModel: card,
+                position: .bottom(additionalBottomPadding: 12),
+                shadowColor: .black,
+                duration: 2
+            ))
+        )
+    }
+    
+    private func displayWarningToastExample() {
+        let card = CardViewPresentableModel(
+            style: makeToastStyle(accentColor: .orange),
+            title: .text("Warning toast"),
+            trailingImage: .init(image: .asset(.checkmark)),
+            valueTitle: .text("Custom CardViewPresentableModel + card onPress"),
+            onPress: {
+                print("SplashPresenter: warning card tapped")
+            },
+            isUserInteractionEnabled: true
+        )
+        
+        toastView?.display(
+            .warning(.init(
+                cardViewModel: card,
+                position: .top,
+                shadowColor: .black,
+                duration: 2
+            ))
+        )
+    }
+    
+    private func displayCustomToastExample() {
+        let card = CardViewPresentableModel(
+            style: makeToastStyle(
+                accentColor: .blue,
+                backgroundColor: .white,
+                titleColor: .black,
+                valueColor: .darkGray
+            ),
+            title: .text("Custom toast"),
+            subTitle: .attributes([.init(text: "subtitle")]),
+            valueTitle: .text("value"),
+            switchControl: .init(
+                onPress: { _ in
+                    print("isOn")
+                },
+                isOn: false,
+                isEnabled: true,
+                style: .init(
+                    tintColor: .red,
+                    thumbTintColor: .blue,
+                    backgroundColor: .darkGray,
+                    cornerRadius: 12
+                )
+            ),
+            onPress: {
+                print("SplashPresenter: custom card tapped")
+            }
+        )
+        
+        toastView?.display(
+            .custom(.init(
+                common: .init(
+                    cardViewModel: card,
+                    position: .bottom(additionalBottomPadding: 16),
+                    shadowColor: .black,
+                    duration: nil
+                ),
+                image: .asset(customToastImage()),
+                backgroundColor: .white
+            ))
+        )
+    }
+
+    private func customToastImage() -> Image? {
+        ImageFactory
+            .systemImage(named: "sparkles")?
+            .withTintColor(.systemBlue, renderingMode: .alwaysOriginal)
+    }
+    
+    private func makeToastStyle(
+        accentColor: Color,
+        backgroundColor: Color = .white,
+        titleColor: Color = .black,
+        valueColor: Color = .darkGray
+    ) -> CardViewPresentableModel.Style {
+        .init(
+            backgroundColor: backgroundColor,
+            vStacklayoutMargins: .zero,
+            hStacklayoutMargins: .init(horizontal: 14, vertical: 12),
+            hStackViewDistribution: .fill,
+            leadingTitleKeyTextColor: accentColor,
+            titleKeyTextColor: titleColor,
+            trailingTitleKeyTextColor: titleColor,
+            titleValueTextColor: valueColor,
+            subTitleTextColor: valueColor,
+            leadingTitleKeyLabelFont: .boldSystemFont(ofSize: 14),
+            titleKeyLabelFont: .boldSystemFont(ofSize: 16),
+            trailingTitleKeyLabelFont: .systemFont(ofSize: 14),
+            titleValueLabelFont: .systemFont(ofSize: 14),
+            subTitleLabelFont: .systemFont(ofSize: 13),
+            cornerRadius: 16,
+            stackSpace: 4,
+            hStackViewSpacing: 10,
+            titleKeyNumberOfLines: 1,
+            titleValueNumberOfLines: 2,
+            borderColor: accentColor,
+            borderWidth: 1
+        )
     }
 }

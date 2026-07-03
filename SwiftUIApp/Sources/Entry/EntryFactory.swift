@@ -32,6 +32,10 @@ struct EntryViewSwiftUIFactory: EntryViewFactory {
             .imageViewAdapter
             .weakReferenced
             .mainQueueDispatched
+        presenter.toastView = contentView
+            .toastViewAdapter
+            .weakReferenced
+            .mainQueueDispatched
         return AnyView(contentView)
     }
 }
