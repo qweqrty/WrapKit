@@ -27,7 +27,7 @@ public struct HeaderPresentableModel: HashableWithReflection {
         public let secondaryFont: Font
         public let secondaryColor: Color
         public let numberOfLines: Int
-        
+
         public init(
             backgroundColor: Color,
             horizontalSpacing: CGFloat,
@@ -46,19 +46,19 @@ public struct HeaderPresentableModel: HashableWithReflection {
             self.numberOfLines = numberOfLines
         }
     }
-    
+
     public enum CenterView {
         case keyValue(Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>)
         case titledImage(Pair<ImageViewPresentableModel?, TextOutputPresentableModel?>)
     }
-    
+
     public let style: Style?
     public let centerView: CenterView?
     public let leadingCard: CardViewPresentableModel?
     public let primeTrailingImage: ButtonPresentableModel?
     public let secondaryTrailingImage: ButtonPresentableModel?
     public let tertiaryTrailingImage: ButtonPresentableModel?
-    
+
     public init(
         style: Style? = nil,
         centerView: CenterView? = nil,
@@ -82,7 +82,10 @@ import UIKit
 extension NavigationBar: HeaderOutput {
     public func display(model: HeaderPresentableModel?) {
         isHidden = model == nil
-        guard let model = model else { return }
+        guard let model = model else {
+            syncNavigationItemTitle(nil)
+            return
+        }
         display(centerView: model.centerView)
         display(style: model.style)
         display(leadingCard: model.leadingCard)
@@ -90,34 +93,37 @@ extension NavigationBar: HeaderOutput {
         display(secondaryTrailingImage: model.secondaryTrailingImage)
         display(tertiaryTrailingImage: model.tertiaryTrailingImage)
     }
-    
+
     public func display(centerView: HeaderPresentableModel.CenterView?) {
         switch centerView {
         case .keyValue(let pair):
+            syncNavigationItemTitle(pair.first?.model?.text)
             titleViews.display(model: pair)
             centerTitledImageView.isHidden = true
         case .titledImage(let pair):
+            syncNavigationItemTitle(pair.second?.model?.text)
             titleViews.isHidden = true
             centerTitledImageView.isHidden = pair.first == nil && pair.second == nil
             centerTitledImageView.closingTitleVFieldView.keyLabel.display(model: pair.second)
             centerTitledImageView.contentView.contentView.display(model: pair.first)
         default:
+            syncNavigationItemTitle(nil)
             titleViews.isHidden = true
             centerTitledImageView.isHidden = true
         }
     }
-    
+
     public func display(style: HeaderPresentableModel.Style?) {
         if let style = style {
             backgroundColor = style.backgroundColor
             leadingStackView.spacing = style.horizontalSpacing
             trailingStackView.spacing = style.horizontalSpacing * 1.5
-            
+
             leadingCardView.leadingImageView.tintColor = style.primeColor
             primeTrailingImageWrapperView.contentView.tintColor = style.primeColor
             secondaryTrailingImageWrapperView.contentView.tintColor = style.primeColor
             tertiaryTrailingImageWrapperView.contentView.tintColor = style.primeColor
-            
+
             leadingCardView.titleViews.keyLabel.font = style.primeFont
             leadingCardView.titleViews.keyLabel.textColor = style.primeColor
             titleViews.keyLabel.font = style.primeFont
@@ -127,27 +133,27 @@ extension NavigationBar: HeaderOutput {
             centerTitledImageView.closingTitleVFieldView.keyLabel.font = style.secondaryFont
         }
     }
-    
+
     public func display(leadingCard: CardViewPresentableModel?) {
         leadingCardView.display(model: leadingCard)
-        
+
         guard leadingCard != nil else {
             leadingCardGlassEffectView.isHidden = true
             return
         }
-        
+
         let hasInteraction = !(leadingCardView.gestureRecognizers?.isEmpty ?? true)
-        
+
         guard hasInteraction else {
             leadingCardGlassEffectView.isHidden = true
             moveLeadingCardToStackViewIfNeeded()
             return
         }
-        
+
         setupGlassEffectIfNeeded()
         leadingCardGlassEffectView.isHidden = false
     }
-    
+
     private func setupGlassEffectIfNeeded() {
         let needsSetup: Bool
         if let glassEffectView = leadingCardGlassEffectView as? UIVisualEffectView {
@@ -155,37 +161,37 @@ extension NavigationBar: HeaderOutput {
         } else {
             needsSetup = leadingCardView.superview != leadingCardGlassEffectView
         }
-        
+
         guard needsSetup else { return }
-        
+
         leadingCardView.removeFromSuperview()
-        
+
         if leadingCardGlassEffectView.superview != leadingStackView {
             leadingCardGlassEffectView.removeFromSuperview()
             leadingStackView.addArrangedSubview(leadingCardGlassEffectView)
         }
-        
+
         if let glassEffectView = leadingCardGlassEffectView as? UIVisualEffectView {
             glassEffectView.contentView.addSubview(leadingCardView)
         } else {
             leadingCardGlassEffectView.addSubview(leadingCardView)
         }
-        
+
         leadingCardView.fillSuperview()
     }
-    
+
     private func moveLeadingCardToStackViewIfNeeded() {
         guard leadingCardView.superview != leadingStackView else { return }
-        
+
         leadingCardView.removeFromSuperview()
-        
+
         if leadingCardGlassEffectView.superview == leadingStackView {
             leadingCardGlassEffectView.removeFromSuperview()
         }
-        
+
         leadingStackView.addArrangedSubview(leadingCardView)
     }
-    
+
     public func display(primeTrailingImage: ButtonPresentableModel?) {
         primeTrailingImageWrapperView.isHidden = primeTrailingImage == nil
         applyTrailingGlassEffectIfNeeded(
@@ -194,7 +200,7 @@ extension NavigationBar: HeaderOutput {
         )
         primeTrailingImageWrapperView.contentView.display(model: primeTrailingImage)
     }
-    
+
     public func display(secondaryTrailingImage: ButtonPresentableModel?) {
         secondaryTrailingImageWrapperView.isHidden = secondaryTrailingImage == nil
         applyTrailingGlassEffectIfNeeded(
@@ -203,7 +209,7 @@ extension NavigationBar: HeaderOutput {
         )
         secondaryTrailingImageWrapperView.contentView.display(model: secondaryTrailingImage)
     }
-    
+
     public func display(tertiaryTrailingImage: ButtonPresentableModel?) {
         tertiaryTrailingImageWrapperView.isHidden = tertiaryTrailingImage == nil
         applyTrailingGlassEffectIfNeeded(
@@ -212,7 +218,7 @@ extension NavigationBar: HeaderOutput {
         )
         tertiaryTrailingImageWrapperView.contentView.display(model: tertiaryTrailingImage)
     }
-    
+
     public func display(isHidden: Bool) {
         self.isHidden = isHidden
     }
@@ -221,14 +227,14 @@ extension NavigationBar: HeaderOutput {
 open class NavigationBar: UIView {
     public lazy var leadingStackWrapperView = UIView()
     public lazy var leadingStackView = StackView(axis: .horizontal, spacing: 12)
-    
+
     public lazy var centerView = UIView()
     public lazy var centerTitledImageView = makeTitledLogoView()
-    
+
     public lazy var trailingStackWrapperView = UIView()
     public lazy var trailingStackView = StackView(axis: .horizontal, spacing: 12)
     public lazy var mainStackView = StackView(axis: .horizontal, spacing: 8)
-    
+
     public lazy var leadingCardGlassEffectView = makeLeadingCardGlassEffectView()
     public lazy var leadingCardView = makeLeadingCardView(isHidden: true)
     public lazy var secondaryLeadingCardView = makeLeadingCardView(isHidden: true)
@@ -239,28 +245,29 @@ open class NavigationBar: UIView {
     public lazy var primeTrailingImageWrapperView = makeWrappedImageView()
     public lazy var secondaryTrailingImageWrapperView = makeWrappedImageView()
     public lazy var tertiaryTrailingImageWrapperView = makeWrappedImageView()
-    
+
     public var mainStackViewConstraints: AnchoredConstraints?
-    
+    private var syncedNavigationItemTitle: String?
+
     public override init(frame: CGRect) {
         super.init(frame: frame)
         setupSubviews()
         setupConstraints()
     }
-    
+
     public init(style: HeaderPresentableModel.Style) {
         super.init(frame: .zero)
         setupSubviews()
         setupConstraints()
         display(style: style)
     }
-    
+
     private func setupSubviews() {
         layer.zPosition = 100
         addSubviews(mainStackView)
         leadingStackWrapperView.addSubview(leadingStackView)
         trailingStackWrapperView.addSubview(trailingStackView)
-        
+
         mainStackView.addArrangedSubview(leadingStackWrapperView)
         mainStackView.addArrangedSubview(centerView)
         mainStackView.addArrangedSubview(trailingStackWrapperView)
@@ -270,14 +277,14 @@ open class NavigationBar: UIView {
         } else {
             leadingCardGlassEffectView.addSubview(leadingCardView)
         }
-        
+
         centerView.addSubview(titleViews)
         centerView.addSubview(centerTitledImageView)
         trailingStackView.addArrangedSubview(primeTrailingImageWrapperView)
         trailingStackView.addArrangedSubview(secondaryTrailingImageWrapperView)
         trailingStackView.addArrangedSubview(tertiaryTrailingImageWrapperView)
     }
-    
+
     private func setupConstraints() {
         leadingStackView.anchor(
             .top(leadingStackWrapperView.topAnchor),
@@ -285,16 +292,16 @@ open class NavigationBar: UIView {
             .trailingLessThanEqual(leadingStackWrapperView.trailingAnchor),
             .bottom(leadingStackWrapperView.bottomAnchor)
         )
-        
+
         leadingCardView.fillSuperview()
-        
+
         trailingStackView.anchor(
             .top(trailingStackWrapperView.topAnchor),
             .leadingGreaterThanEqual(trailingStackWrapperView.leadingAnchor),
             .trailing(trailingStackWrapperView.trailingAnchor),
             .bottom(trailingStackWrapperView.bottomAnchor)
         )
-        
+
         if isAvailableOS26 {
             mainStackViewConstraints = mainStackView.anchor(
                 .top(safeAreaLayoutGuide.topAnchor, constant: 4),
@@ -312,26 +319,47 @@ open class NavigationBar: UIView {
                 .bottom(bottomAnchor, constant: 8)
             )
         }
-        
+
         trailingStackWrapperView.setContentCompressionResistancePriority(.required, for: .horizontal)
         leadingStackWrapperView.setContentCompressionResistancePriority(.required, for: .horizontal)
         leadingStackWrapperView.anchor(.widthTo(trailingStackWrapperView.widthAnchor, 1, priority: .defaultLow))
-        
+
         titleViews.fillSuperview()
-        
+
         centerTitledImageView.anchor(
             .top(safeAreaLayoutGuide.topAnchor),
             .bottom(bottomAnchor),
             .centerX(centerXAnchor)
         )
     }
-    
+
     public required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 }
 
 private extension NavigationBar {
+    func syncNavigationItemTitle(_ title: String?) {
+        guard let navigationItem = parentViewController?.navigationItem else { return }
+
+        let currentTitle = navigationItem.title
+        guard currentTitle?.isEmpty ?? true || currentTitle == syncedNavigationItemTitle else { return }
+
+        navigationItem.title = title
+        syncedNavigationItemTitle = title
+    }
+
+    var parentViewController: UIViewController? {
+        var responder: UIResponder? = self
+        while let nextResponder = responder?.next {
+            if let viewController = nextResponder as? UIViewController {
+                return viewController
+            }
+            responder = nextResponder
+        }
+        return nil
+    }
+
     func applyTrailingGlassEffectIfNeeded(isEnabled: Bool?, button: Button) {
         guard #available(iOS 26, macOS 26, tvOS 26, watchOS 26, *) else { return }
         button.configuration = (isEnabled ?? true) ? .glass() : nil
@@ -349,7 +377,7 @@ private extension NavigationBar {
             return UIView()
         }
     }
-    
+
     func makeLeadingCardView(isHidden: Bool) -> CardView {
         let view = CardView()
         view.isHidden = isHidden
@@ -362,7 +390,7 @@ private extension NavigationBar {
         view.subtitleLabel.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
         return view
     }
-    
+
     func makeTitledLogoView() -> TitledView<WrapperView<ImageView>> {
         let view = TitledView(contentView: WrapperView(
             contentView: ImageView(),
@@ -379,7 +407,7 @@ private extension NavigationBar {
         view.closingTitleVFieldView.isHidden = false
         return view
     }
-    
+
     func makeWrappedImageView() -> WrapperView<Button> {
         let view = WrapperView(
             contentView: Button(contentInset: isAvailableOS26 && isLiquidGlassEnabled ? .init(top: 11, left: 11, bottom: 11, right: 11) : .init(top: 0, left: 8, bottom: 0, right: 8)),

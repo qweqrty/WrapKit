@@ -62,6 +62,62 @@ class NavigationBarSnapshotTests: XCTestCase {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
+
+    func test_navigationBar_syncNavigationItemTitle_whenNavigationItemTitleIsEmpty() {
+        // GIVEN
+        let viewController = UIViewController()
+        let sut = NavigationBar()
+        viewController.view.addSubview(sut)
+        viewController.navigationItem.title = nil
+
+        // WHEN
+        sut.display(centerView: .keyValue(.init(.text("Header title"), nil)))
+
+        // THEN
+        XCTAssertEqual(viewController.navigationItem.title, "Header title")
+    }
+
+    func test_navigationBar_syncNavigationItemTitle_whenNavigationItemTitleIsNotEmpty() {
+        // GIVEN
+        let viewController = UIViewController()
+        let sut = NavigationBar()
+        viewController.view.addSubview(sut)
+        viewController.navigationItem.title = "Native title"
+
+        // WHEN
+        sut.display(centerView: .keyValue(.init(.text("Header title"), nil)))
+
+        // THEN
+        XCTAssertEqual(viewController.navigationItem.title, "Native title")
+    }
+
+    func test_navigationBar_syncNavigationItemTitle_whenCenterViewIsNil() {
+        // GIVEN
+        let viewController = UIViewController()
+        let sut = NavigationBar()
+        viewController.view.addSubview(sut)
+        sut.display(centerView: .keyValue(.init(.text("Header title"), nil)))
+
+        // WHEN
+        sut.display(centerView: nil)
+
+        // THEN
+        XCTAssertNil(viewController.navigationItem.title)
+    }
+
+    func test_navigationBar_syncNavigationItemTitle_whenCenterViewIsNilAndNavigationItemTitleIsNotSynced() {
+        // GIVEN
+        let viewController = UIViewController()
+        let sut = NavigationBar()
+        viewController.view.addSubview(sut)
+        viewController.navigationItem.title = "Native title"
+
+        // WHEN
+        sut.display(centerView: nil)
+
+        // THEN
+        XCTAssertEqual(viewController.navigationItem.title, "Native title")
+    }
     
     func test_navigationBar_with_centerView_keyValue() {
         let snapshotName = "NAVBAR_WITH_CENTERVIEW_KEYVALUE"
