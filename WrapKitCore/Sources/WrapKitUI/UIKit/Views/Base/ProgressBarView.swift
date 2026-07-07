@@ -48,23 +48,16 @@ import UIKit
 import SwiftUI
 
 open class ProgressBarView: UIView {
-    public lazy var progressView = {
-        let view = UIProgressView()
-        view.progressTintColor = .clear
-        view.trackTintColor = .clear
-        view.progressViewStyle = .bar
-        view.clipsToBounds = true
-        return view
-    }()
-    private var progressViewAnchoredConstraints: AnchoredConstraints?
+    public let progressView = UIView()
+    
+    private var progress: CGFloat = 0
+    private var barCornerRadius: CGFloat = 0
+    private var heightConstraint: NSLayoutConstraint?
     
     public init(style: ProgressBarStyle? = nil) {
         super.init(frame: .zero)
-        layer.cornerRadius = 4
+        addSubview(progressView)
         self.style = style
-        progressView.layer.cornerRadius = 4
-        setupSubviews()
-        setupConstraints()
         applyStyle()
     }
     
@@ -75,21 +68,40 @@ open class ProgressBarView: UIView {
     }
     
     public func applyProgress(percentage: CGFloat, animated: Bool = true) {
-        progressView.progress = Float(percentage * 0.01)
+        progress = max(0, min(1, percentage / 100))
+        setNeedsLayout()
+        if animated {
+            UIView.animate(withDuration: 0.25) { self.layoutIfNeeded() }
+        } else {
+            layoutIfNeeded()
+        }
     }
     
     private func applyStyle() {
         backgroundColor = style?.backgroundColor
-        progressView.progressTintColor = style?.progressBarColor
-        if let progressViewAnchoredConstraints = progressViewAnchoredConstraints, let height = style?.height {
-            progressViewAnchoredConstraints.height?.constant = height
-        } else if let height = style?.height {
-            progressViewAnchoredConstraints = anchor(.height(height))
+        progressView.backgroundColor = style?.progressBarColor
+        
+        barCornerRadius = style?.cornerRadius ?? 0
+        layer.cornerRadius = barCornerRadius
+        layer.masksToBounds = barCornerRadius > 0
+        progressView.layer.cornerRadius = barCornerRadius
+        progressView.layer.masksToBounds = barCornerRadius > 0
+        
+        if let height = style?.height {
+            if let heightConstraint { heightConstraint.constant = height }
+            else { heightConstraint = heightAnchor.constraint(equalToConstant: height); heightConstraint?.isActive = true }
         }
-        if let cornerRadius = style?.cornerRadius {
-            layer.cornerRadius = cornerRadius
-            progressView.layer.cornerRadius = cornerRadius
-        }
+        invalidateIntrinsicContentSize()
+        setNeedsLayout()
+    }
+    
+    public override func layoutSubviews() {
+        super.layoutSubviews()
+        progressView.frame = CGRect(x: 0, y: 0, width: bounds.width * progress, height: bounds.height)
+    }
+    
+    public override var intrinsicContentSize: CGSize {
+        CGSize(width: UIView.noIntrinsicMetric, height: style?.height ?? 4)
     }
     
     public required init?(coder: NSCoder) {
@@ -119,11 +131,11 @@ extension ProgressBarView: ProgressBarOutput {
         if let style = model.style {
             display(style: style)
         }
-        applyProgress(percentage: model.progress)
+        applyProgress(percentage: model.progress, animated: false)
     }
     
     public func display(progress: CGFloat) {
-        applyProgress(percentage: progress)
+        applyProgress(percentage: progress, animated: true)
     }
     
     public func display(style: ProgressBarStyle?) {
@@ -142,9 +154,9 @@ struct ProgressBarViewFullRepresentable: UIViewRepresentable {
         view.applyProgress(percentage: 40)
         return view
     }
-
+    
     func updateUIView(_ uiView: ProgressBarView, context: Context) {
-        // Leave this empty
+        
     }
 }
 
