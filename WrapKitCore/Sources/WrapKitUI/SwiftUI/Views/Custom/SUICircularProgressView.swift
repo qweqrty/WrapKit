@@ -9,7 +9,7 @@
 import SwiftUI
 
 struct SUICircularProgressView: View {
-    @State private var animationProgress: CGFloat = 0
+    @State private var animationProgress: CGFloat
     
     private let color: Color
     private let lineWidth: CGFloat
