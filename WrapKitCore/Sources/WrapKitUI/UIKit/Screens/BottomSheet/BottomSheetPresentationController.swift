@@ -28,6 +28,7 @@ final public class BottomSheetPresentationController: UIPresentationController {
     var panToDismissEnabled: Bool = true
     var onTapOutside: (() -> Void)?
     var onPanToDismiss: (() -> Void)?
+    var highlightedSourceViewIdentifier: String?
 
     private var pendingDismissReason: DismissReason?
 
@@ -147,6 +148,11 @@ final public class BottomSheetPresentationController: UIPresentationController {
         }
     }
 
+    public override func containerViewWillLayoutSubviews() {
+        super.containerViewWillLayoutSubviews()
+        updateBackdropMask()
+    }
+
     public override func dismissalTransitionWillBegin() {
         guard let transitionCoordinator = presentingViewController.transitionCoordinator else {
             return
@@ -189,6 +195,68 @@ private extension BottomSheetPresentationController {
     enum DismissReason {
         case tapOutside
         case panToDismiss
+    }
+
+    func updateBackdropMask() {
+        guard
+            let sourceView = highlightedSourceView,
+            backdropView.bounds.isEmpty == false
+        else {
+            backdropView.layer.mask = nil
+            return
+        }
+
+        let sourceContainerView = sourceView.highlightContainerView(in: presentingViewController.view)
+        let highlightedFrame = sourceContainerView.convert(sourceContainerView.bounds, to: backdropView)
+        let path = UIBezierPath(rect: backdropView.bounds)
+        path.append(UIBezierPath(
+            roundedRect: highlightedFrame,
+            cornerRadius: sourceContainerView.highlightCornerRadius
+        ))
+
+        let maskLayer = CAShapeLayer()
+        maskLayer.frame = backdropView.bounds
+        maskLayer.fillColor = UIColor.black.cgColor
+        maskLayer.fillRule = .evenOdd
+        maskLayer.path = path.cgPath
+        backdropView.layer.mask = maskLayer
+    }
+
+    var highlightedSourceView: UIView? {
+        guard let highlightedSourceViewIdentifier else { return nil }
+        let presentingView = presentingViewController.view
+        if presentingView?.accessibilityIdentifier == highlightedSourceViewIdentifier {
+            return presentingView
+        }
+        return presentingView?.allSubviews.first {
+            $0.accessibilityIdentifier == highlightedSourceViewIdentifier
+        }
+    }
+}
+
+private extension UIView {
+    func highlightContainerView(in rootView: UIView?) -> UIView {
+        guard let rootView else { return self }
+
+        var view = superview
+        while let candidate = view, candidate !== rootView {
+            if candidate.bounds.isEmpty == false,
+               candidate.bounds.width <= bounds.width + 44,
+               candidate.bounds.height <= bounds.height + 44 {
+                return candidate
+            }
+            view = candidate.superview
+        }
+
+        return self
+    }
+
+    var highlightCornerRadius: CGFloat {
+        if layer.cornerRadius > 0 {
+            return layer.cornerRadius
+        }
+
+        return min(bounds.width, bounds.height) / 2
     }
 }
 

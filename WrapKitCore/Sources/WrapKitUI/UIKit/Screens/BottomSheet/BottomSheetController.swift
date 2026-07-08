@@ -133,6 +133,12 @@ open class BottomSheetController<View: UIView>: ViewController<View> {
             bottomSheetTransitioningDelegate.onPanToDismiss = onPanToDismiss
         }
     }
+
+    open var highlightedSourceViewIdentifier: String? {
+        didSet {
+            bottomSheetTransitioningDelegate.highlightedSourceViewIdentifier = highlightedSourceViewIdentifier
+        }
+    }
 }
 
 #endif

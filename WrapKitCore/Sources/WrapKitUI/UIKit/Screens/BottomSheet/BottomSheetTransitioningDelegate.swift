@@ -37,6 +37,12 @@ final public class BottomSheetTransitioningDelegate: NSObject, UIViewControllerT
         }
     }
 
+    var highlightedSourceViewIdentifier: String? {
+        didSet {
+            bottomSheetPresentationController?.highlightedSourceViewIdentifier = highlightedSourceViewIdentifier
+        }
+    }
+
     public init(
         preferredSheetTopInset: CGFloat,
         preferredSheetLeftInset: CGFloat,
@@ -78,6 +84,7 @@ final public class BottomSheetTransitioningDelegate: NSObject, UIViewControllerT
         bottomSheetPresentationController.panToDismissEnabled = panToDismissEnabled
         bottomSheetPresentationController.onTapOutside = onTapOutside
         bottomSheetPresentationController.onPanToDismiss = onPanToDismiss
+        bottomSheetPresentationController.highlightedSourceViewIdentifier = highlightedSourceViewIdentifier
 
         self.bottomSheetPresentationController = bottomSheetPresentationController
 
