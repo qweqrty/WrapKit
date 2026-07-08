@@ -22,6 +22,7 @@ import SwiftUI
 #endif
 public class HeaderOutputSwiftUIAdapter: ObservableObject, HeaderOutput {
 
+
     // Initializer
     public init(
     ) {

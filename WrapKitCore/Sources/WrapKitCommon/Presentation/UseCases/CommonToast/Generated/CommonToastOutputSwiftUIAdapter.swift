@@ -16,6 +16,7 @@ import Foundation
 #endif
 public class CommonToastOutputSwiftUIAdapter: ObservableObject, CommonToastOutput {
 
+
     // Initializer
     public init(
     ) {

@@ -13,6 +13,22 @@ public class SplashPresenter: LifeCycleViewOutput, ApplicationLifecycleOutput {
     public var lottieView: LottieViewOutput?
     public var textOutput: TextOutput?
     public var imageViewOutput: ImageViewOutput?
+    public var buttonOutput: ButtonOutput?
+    public var buttonLoadingOutput: LoadingOutput? 
+    public var loadingOutput: LoadingOutput?
+    public var buttonWithShrink: ButtonOutput?
+    public var switchControl: SwitchCotrolOutput?
+    public var switchControlLoading: LoadingOutput?
+    public var progressBar: ProgressBarOutput?
+    public var segmentedControl: SegmentedControlOutput?
+    public var refreshControlOutput: RefreshControlOutput?
+    public var datePickerOutput: DatePickerViewOutput?
+    public var textField: TextInputOutput?
+    public var picker: PickerViewOutput?
+    public var textView: TextInputOutput?
+    public var tableView: (any TableOutput<TestHeader, TestCell, Void>)?
+    public var emptyView: EmptyViewOutput?
+    public var chunkedTextField: TextInputOutputSwiftUIAdapter?
     
     public init() {
         
@@ -20,8 +36,24 @@ public class SplashPresenter: LifeCycleViewOutput, ApplicationLifecycleOutput {
     // MARK: - View Lifecycle
     public func viewDidLoad() {
         print("SplashPresenter: viewDidLoad()")
-        setupTextOutput()
-        setupImageOutput()
+//        setupTextOutput()
+//        setupImageOutput()
+//        setupButtonOutup()
+        setupProgressBar()
+        setupSwitchControl()
+        setupRefreshControl()
+        setupDatePicker()
+        setupTextFied()
+        setupPickerView()
+        setupTextView()
+        setupTableView()
+        setupEmptyView()
+        setupChunkedTextField()
+        
+//        loadingOutput?.display(isLoading: true)
+//        DispatchQueue.main.asyncAfter(deadline: .now() + 5) { [weak self] in
+//            self?.loadingOutput?.display(isLoading: false)
+//        }
     }
     
     public func viewWillAppear() {
@@ -63,6 +95,7 @@ public class SplashPresenter: LifeCycleViewOutput, ApplicationLifecycleOutput {
 }
 
 private extension SplashPresenter {
+    // MARK: = Label
     private func setupTextOutput() {
         textOutput?.display(text: "display(text: String) implementation - `The quick brown fox jumps over the lazy dog`")
         textOutput?.display(
@@ -131,6 +164,181 @@ private extension SplashPresenter {
 //        }))
     }
     
+    // MARK: - CHunkedTextfield
+    private func setupChunkedTextField() {
+        chunkedTextField?.display(text: "Hello")
+    }
+    
+    // MARK: - EmptyView
+    private func setupEmptyView() {
+        emptyView?.display(model: .init(title: .init(model: .text("Hello")), subTitle: .init(model: .text("world!"))))
+    }
+    
+    // MARK: - TableView
+    private func setupTableView() {
+        tableView?.display(sections: [
+            .init(
+                header: TestHeader(title: "Section 1"),
+                cells: [
+                    .init(cell: TestCell(id: 1, title: "Cell 1")),
+                    .init(cell: TestCell(id: 2, title: "Cell 2")),
+                    .init(cell: TestCell(id: 3, title: "Cell 3")),
+                ]
+            ),
+            .init(
+                header: TestHeader(title: "Section 2"),
+                cells: [
+                    .init(cell: TestCell(id: 4, title: "Cell 4")),
+                    .init(cell: TestCell(id: 5, title: "Cell 5")),
+                    .init(cell: TestCell(id: 5, title: "Cell 5")),
+                ]
+            )
+        ])
+    }
+    
+    // MARK: Textview
+    private func setupTextView() {
+        textView?.display(model: .init(
+            placeholder: "Enter your text"
+        ))
+    }
+    
+    // MARK: - Picker
+    private func setupPickerView() {
+        let items = ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь"]
+        picker?.display(model: .init(
+            rowsCount: { items.count },
+            titleForRowAt: { index in items[index] },
+            didSelectAt: { index in
+                print("Selected: \(items[index])")
+            },
+            selectedRow: .init(row: 0)
+        ))
+    }
+    
+    // MARK: - TextField
+    private func setupTextFied() {
+        textField?.display(model: .init(
+            placeholder: "Enter your text"
+        ))
+    }
+    
+    // MARK: - DatePicker
+    private func setupDatePicker() {
+        var minComponents = DateComponents()
+        minComponents.year = 2025
+        minComponents.month = 4
+        minComponents.day = 25
+        let minDate = Calendar.current.date(from: minComponents)
+        
+        var maxComponents = DateComponents()
+        maxComponents.year = 2025
+        maxComponents.month = 4
+        maxComponents.day = 30
+        let maxDate = Calendar.current.date(from: maxComponents)
+        
+        datePickerOutput?.display(model: .init(
+            value: Date(),
+            minimumDate: minDate,
+            maximumDate: maxDate,
+            mode: .date,
+            dateChanged: { date in
+                print(date)
+            }
+        ))
+    }
+    
+    // MARK: - RefreshControl
+    private func setupRefreshControl() {
+        refreshControlOutput?.display(model: .init(
+            style: .init(tintColor: .blue),
+            onRefresh: { [weak self] in
+                print("refreshing...")
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                    self?.refreshControlOutput?.display(isLoading: false)
+                }
+            },
+            isLoading: false
+        ))
+    }
+    
+    // MARK: - Button
+    private func setupButtonOutup() {
+        
+        buttonLoadingOutput?.display(isLoading: true)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 8) {
+            self.buttonLoadingOutput?.display(isLoading: false)
+        }
+        
+        buttonOutput?.display(model: .init(title: "Common button",
+                                           image: .init(systemName: "star.fill"),
+                                           height: 50,
+                                           width: 300,
+                                           style: .init(
+                                            backgroundColor: .green,
+                                            titleColor: .red,
+                                            borderWidth: 3,
+                                            borderColor: .black,
+                                            pressedColor: .cyan,
+                                            pressedTintColor: .brown,
+                                            loadingIndicatorColor: .red
+                                           )))
+        
+        buttonOutput?.display {
+            print("asd")
+        }
+        
+        buttonWithShrink?.display(model: .init(title: "Button with shrink",
+                                           image: .init(systemName: "star.fill"),
+                                           height: 50,
+                                           width: 300,
+                                           style: .init(
+                                            backgroundColor: .green,
+                                            titleColor: .red,
+                                            borderWidth: 3,
+                                            borderColor: .black,
+                                            pressedColor: .cyan,
+                                            pressedTintColor: .brown,
+                                            loadingIndicatorColor: .red
+                                           )))
+    }
+    
+    // MARK: - ProgressBar
+    private func setupProgressBar() {
+        progressBar?.display(model: .init(
+            progress: 50,
+            style: .init(backgroundColor: .systemGreen, progressBarColor: .systemBlue, height: 8, cornerRadius: 16)
+        ))
+    }
+    
+    // MARK: - SwitchControl
+    private func setupSwitchControl() {
+        switchControl?.display(model: .init(
+            onPress: { [weak self] _ in
+                self?.progressBar?.display(progress: 80)
+            },
+            isOn: true,
+            style: .init(
+                tintColor: .red,
+                thumbTintColor: .white,
+                backgroundColor: .lightGray,
+                cornerRadius: 16,
+                shimmerStyle: .init(
+                    backgroundColor: .lightGray,
+                    gradientColorOne: .clear,
+                    gradientColorTwo: UIColor(white: 0.95, alpha: 0.6),
+                    cornerRadius: 16
+                )
+            )
+        ))
+        
+        switchControlLoading?.display(isLoading: true)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 5) { [weak self] in
+            self?.switchControlLoading?.display(isLoading: false)
+        }
+    }
+    
+    // MARK: - ImageView
     private func setupImageOutput() {
         let urlStringLight = "https://developer.apple.com/assets/elements/icons/swift/swift-64x64_2x.png"
         let urlStringDark = "https://uxwing.com/wp-content/themes/uxwing/download/web-app-development/dark-mode-icon.png"

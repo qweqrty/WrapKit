@@ -22,14 +22,21 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/airbnb/lottie-spm", from: "4.5.0"),
-        .package(url: "https://github.com/onevcat/Kingfisher.git", exact: "7.12.0")
+        .package(url: "https://github.com/onevcat/Kingfisher.git", exact: "7.12.0"),
+        .package(url: "https://github.com/marmelroy/PhoneNumberKit", from: "4.0.0"),
+        .package(url: "https://github.com/devicekit/DeviceKit", from: "5.7.0"),
+        .package(url: "https://github.com/siteline/swiftui-introspect", from: "26.0.0"),
     ],
     targets: [
         .target(
             name: "WrapKit",
             dependencies: [
                 "Kingfisher",
+                "PhoneNumberKit",
+                "DeviceKit",
+                "CryptoSwift",
                 .product(name: "Lottie", package: "lottie-spm"),
+                .product(name: "SwiftUIIntrospect", package: "swiftui-introspect"),
             ],
             path: "WrapKitCore/Sources"
         ),

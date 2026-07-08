@@ -26,6 +26,7 @@ import UIKit
 public class LottieViewOutputSwiftUIAdapter: ObservableObject, LottieViewOutput {
         @Published public var currentAnimationName: String? = nil
 
+
     // Initializer
     public init(
     ) {

@@ -21,6 +21,7 @@ public class MaskedTextfieldDelegate: NSObject, UITextFieldDelegate {
     public var trailingSymbol: String?
     
     private weak var textfield: Textfield?
+    private weak var uiTextField: UITextField?
     private var isUpdatingSelection = false
     private var isUpdatingUI = false
     
@@ -28,29 +29,44 @@ public class MaskedTextfieldDelegate: NSObject, UITextFieldDelegate {
     public var onlySpecifiersIfMaskedText: String { format.mask.extractUserInput(from: fullText) }
     public lazy var fullText: String = format.mask.applied(to: "").input {
         didSet {
-            guard !isUpdatingUI else {
-                return
-            }
-            guard let textfield = textfield else { return }
+            guard !isUpdatingUI else { return }
             
             isUpdatingUI = true
             defer { isUpdatingUI = false }
             
             let mask = format.mask.applied(to: fullText)
-            if mask.input.isEmpty && !(textfield.placeholder?.isEmpty ?? true) && !textfield.isFirstResponder {
-                textfield.attributedText = nil
-            } else {
-                let trailingWithString = mask.maskToInput + (trailingSymbol ?? "")
-                textfield.attributedText = .combined(
-                    .init(mask.input, font: textfield.font ?? .systemFont(ofSize: 17), color: textfield.appearance.colors.textColor, textAlignment: textfield.textAlignment),
-                    .init(trailingWithString, font: textfield.font ?? .systemFont(ofSize: 17), color: format.maskedTextColor, textAlignment: textfield.textAlignment)
-                )
-            }
             
-            isUpdatingSelection = true
-            let newPosition = textfield.position(from: textfield.beginningOfDocument, offset: mask.input.count) ?? textfield.beginningOfDocument
-            textfield.selectedTextRange = textfield.textRange(from: newPosition, to: newPosition)
-            isUpdatingSelection = false
+            if let textfield = textfield {
+                if mask.input.isEmpty && !(textfield.placeholder?.isEmpty ?? true) && !textfield.isFirstResponder {
+                    textfield.attributedText = nil
+                } else {
+                    let trailingWithString = mask.maskToInput + (trailingSymbol ?? "")
+                    textfield.attributedText = .combined(
+                        .init(mask.input, font: textfield.font ?? .systemFont(ofSize: 17), color: textfield.appearance.colors.textColor, textAlignment: textfield.textAlignment),
+                        .init(trailingWithString, font: textfield.font ?? .systemFont(ofSize: 17), color: format.maskedTextColor, textAlignment: textfield.textAlignment)
+                    )
+                }
+                isUpdatingSelection = true
+                let newPosition = textfield.position(from: textfield.beginningOfDocument, offset: mask.input.count) ?? textfield.beginningOfDocument
+                textfield.selectedTextRange = textfield.textRange(from: newPosition, to: newPosition)
+                isUpdatingSelection = false
+                
+            } else if let uiTextField = uiTextField {
+                // SwiftUI
+                let trailingWithString = mask.maskToInput + (trailingSymbol ?? "")
+                if mask.input.isEmpty && !(uiTextField.placeholder?.isEmpty ?? true) && !uiTextField.isFirstResponder {
+                    uiTextField.attributedText = nil
+                } else {
+                    uiTextField.attributedText = .combined(
+                        .init(mask.input, font: uiTextField.font ?? .systemFont(ofSize: 17), color: uiTextField.textColor ?? .black, textAlignment: uiTextField.textAlignment),
+                        .init(trailingWithString, font: uiTextField.font ?? .systemFont(ofSize: 17), color: format.maskedTextColor, textAlignment: uiTextField.textAlignment)
+                    )
+                }
+                isUpdatingSelection = true
+                let newPosition = uiTextField.position(from: uiTextField.beginningOfDocument, offset: mask.input.count) ?? uiTextField.beginningOfDocument
+                uiTextField.selectedTextRange = uiTextField.textRange(from: newPosition, to: newPosition)
+                isUpdatingSelection = false
+            }
         }
     }
     
@@ -79,6 +95,15 @@ public class MaskedTextfieldDelegate: NSObject, UITextFieldDelegate {
         textfield.onResignFirstResponder = updateTextIfMasked
         
         setupMask(mask: mask)
+        return self
+    }
+    
+    @discardableResult
+    public func applyTo(uiTextField: UITextField) -> Self {
+        self.uiTextField = uiTextField
+        uiTextField.delegate = self
+        uiTextField.keyboardType = format.mask.keyboardType()
+        setupMask(mask: format.mask.applied(to: fullText))
         return self
     }
     
@@ -113,7 +138,8 @@ public class MaskedTextfieldDelegate: NSObject, UITextFieldDelegate {
     }
 
     private func onPaste(_ text: String) {
-        guard let textfield = textfield else { return }
+        let targetTextField: UITextField? = textfield ?? uiTextField
+        guard let targetTextField else { return }
         
         let maxLength = format.mask.maxSpecifiersLength()
         let specifiers = format.mask.removeLiterals(from: text.replacingOccurrences(of: " ", with: ""))
@@ -122,12 +148,12 @@ public class MaskedTextfieldDelegate: NSObject, UITextFieldDelegate {
         
         self.fullText = maskedText.input
         
-        DispatchQueue.main.async { [weak self, weak textfield] in
-            guard let self = self, let textfield = textfield else { return }
+        DispatchQueue.main.async { [weak self, weak targetTextField] in
+            guard let self, let targetTextField else { return }
             self.isUpdatingSelection = true
             let mask = self.format.mask.applied(to: self.fullText)
-            let newPosition = textfield.position(from: textfield.beginningOfDocument, offset: mask.input.count) ?? textfield.beginningOfDocument
-            textfield.selectedTextRange = textfield.textRange(from: newPosition, to: newPosition)
+            let newPosition = targetTextField.position(from: targetTextField.beginningOfDocument, offset: mask.input.count) ?? targetTextField.beginningOfDocument
+            targetTextField.selectedTextRange = targetTextField.textRange(from: newPosition, to: newPosition)
             self.isUpdatingSelection = false
         }
     }

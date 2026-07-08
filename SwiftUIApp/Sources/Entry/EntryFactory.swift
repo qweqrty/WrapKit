@@ -32,6 +32,58 @@ struct EntryViewSwiftUIFactory: EntryViewFactory {
             .imageViewAdapter
             .weakReferenced
             .mainQueueDispatched
+        presenter.buttonOutput = contentView
+            .buttonAdapter
+            .weakReferenced
+            .mainQueueDispatched
+        presenter.buttonLoadingOutput = contentView.buttonLoadingAdapter
+            .weakReferenced
+            .mainQueueDispatched
+        presenter.loadingOutput = contentView
+            .loadingAdapter
+            .weakReferenced
+            .mainQueueDispatched
+        presenter.buttonWithShrink = contentView
+            .buttonWithShrinkAdapter
+            .weakReferenced
+            .mainQueueDispatched
+        presenter.switchControl = contentView
+            .switchControlAdapter
+            .weakReferenced
+            .mainQueueDispatched
+        presenter.switchControlLoading = contentView
+            .switchControlAdapter
+            .weakReferenced
+            .mainQueueDispatched
+        presenter.progressBar = contentView
+            .progressBarAdapter
+            .weakReferenced
+            .mainQueueDispatched
+        presenter.refreshControlOutput = contentView
+            .refreshControlAdapter
+            .weakReferenced
+            .mainQueueDispatched
+        presenter.datePickerOutput = contentView
+            .datePickerAdapter
+            .weakReferenced
+            .mainQueueDispatched
+        presenter.textField = contentView
+            .textFieldAdapter
+            .weakReferenced
+            .mainQueueDispatched
+        presenter.picker = contentView
+            .pickerViewAdapter
+            .weakReferenced
+            .mainQueueDispatched
+        presenter.tableView = contentView
+            .tableViewAdapter
+        presenter.emptyView = contentView
+            .emptyViewAdapter
+            .weakReferenced
+            .mainQueueDispatched
+        presenter.chunkedTextField = contentView
+            .chunkedTextFieldAdapter
+        
         return AnyView(contentView)
     }
 }
