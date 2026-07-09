@@ -56,7 +56,7 @@ final class ProgressBarSnapshotTests: XCTestCase {
         let (sut, container) = makeSUT()
         
         // WHEN
-        sut.display(style: .init(backgroundColor: .systemRed, height: 5.0))
+        sut.display(style: .init(backgroundColor: .systemRed, height: 6.0))
         sut.display(progress: 100.0)
         
         // THEN

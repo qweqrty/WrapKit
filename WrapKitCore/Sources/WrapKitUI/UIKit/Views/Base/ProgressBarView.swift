@@ -49,24 +49,20 @@ import SwiftUI
 
 open class ProgressBarView: UIView {
     public let progressView = UIView()
-    
+
     private var progress: CGFloat = 0
     private var barCornerRadius: CGFloat = 0
     private var heightConstraint: NSLayoutConstraint?
-    
+
     public init(style: ProgressBarStyle? = nil) {
         super.init(frame: .zero)
         addSubview(progressView)
         self.style = style
         applyStyle()
     }
-    
-    public var style: ProgressBarStyle? {
-        didSet {
-            applyStyle()
-        }
-    }
-    
+
+    public var style: ProgressBarStyle? { didSet { applyStyle() } }
+
     public func applyProgress(percentage: CGFloat, animated: Bool = true) {
         progress = max(0, min(1, percentage / 100))
         setNeedsLayout()
@@ -76,17 +72,17 @@ open class ProgressBarView: UIView {
             layoutIfNeeded()
         }
     }
-    
+
     private func applyStyle() {
         backgroundColor = style?.backgroundColor
-        progressView.backgroundColor = style?.progressBarColor
-        
-        barCornerRadius = style?.cornerRadius ?? 0
+        progressView.backgroundColor = style?.progressBarColor ?? tintColor
+
+        barCornerRadius = style?.cornerRadius ?? 4
         layer.cornerRadius = barCornerRadius
         layer.masksToBounds = barCornerRadius > 0
         progressView.layer.cornerRadius = barCornerRadius
         progressView.layer.masksToBounds = barCornerRadius > 0
-        
+
         if let height = style?.height {
             if let heightConstraint { heightConstraint.constant = height }
             else { heightConstraint = heightAnchor.constraint(equalToConstant: height); heightConstraint?.isActive = true }
@@ -94,34 +90,17 @@ open class ProgressBarView: UIView {
         invalidateIntrinsicContentSize()
         setNeedsLayout()
     }
-    
+
     public override func layoutSubviews() {
         super.layoutSubviews()
         progressView.frame = CGRect(x: 0, y: 0, width: bounds.width * progress, height: bounds.height)
     }
-    
+
     public override var intrinsicContentSize: CGSize {
         CGSize(width: UIView.noIntrinsicMetric, height: style?.height ?? 4)
     }
-    
-    public required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-}
 
-extension ProgressBarView {
-    func setupSubviews() {
-        addSubview(progressView)
-    }
-    
-    func setupConstraints() {
-        progressView.anchor(
-            .top(topAnchor),
-            .leading(leadingAnchor),
-            .trailing(trailingAnchor),
-            .bottom(bottomAnchor)
-        )
-    }
+    public required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 }
 
 extension ProgressBarView: ProgressBarOutput {
@@ -133,15 +112,15 @@ extension ProgressBarView: ProgressBarOutput {
         }
         applyProgress(percentage: model.progress, animated: false)
     }
-    
+
     public func display(progress: CGFloat) {
         applyProgress(percentage: progress, animated: true)
     }
-    
+
     public func display(style: ProgressBarStyle?) {
         self.style = style
     }
-    
+
     public func display(isHidden: Bool) {
         self.isHidden = isHidden
     }
