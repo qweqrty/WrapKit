@@ -157,7 +157,7 @@ private extension ChunkedTextField {
         for (index, cell) in cells.enumerated() {
             cell.configure(
                 character: index < chars.count ? String(chars[index]) : nil,
-                isActive: editing && index == chars.count && isError == false,
+                isActive: editing && index == chars.count,
                 isError: isError,
                 isEnabled: isUserInteractionEnabled,
                 appearance: appearance
@@ -196,13 +196,13 @@ private final class OTPCellView: UIView {
 
         CATransaction.begin()
         CATransaction.setDisableActions(true)
-        if isError {
+        if isActive {
+            backgroundColor = isError ? colors.errorBackgroundColor : colors.selectedBackgroundColor
+            layer.borderColor = colors.selectedBorderColor.cgColor
+            layer.borderWidth = selectedWidth
+        } else if isError {
             backgroundColor = colors.errorBackgroundColor
             layer.borderColor = colors.errorBorderColor.cgColor
-            layer.borderWidth = selectedWidth
-        } else if isActive {
-            backgroundColor = colors.selectedBackgroundColor
-            layer.borderColor = colors.selectedBorderColor.cgColor
             layer.borderWidth = selectedWidth
         } else {
             backgroundColor = isEnabled ? colors.deselectedBackgroundColor : colors.disabledBackgroundColor
