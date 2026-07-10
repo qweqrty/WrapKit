@@ -154,10 +154,11 @@ private extension ChunkedTextField {
     func renderCells() {
         let chars = Array(otpText)
         let editing = input.isFirstResponder
+        let activeIndex = min(chars.count, count - 1)
         for (index, cell) in cells.enumerated() {
             cell.configure(
                 character: index < chars.count ? String(chars[index]) : nil,
-                isActive: editing && index == chars.count,
+                isActive: editing && index == activeIndex,
                 isError: isError,
                 isEnabled: isUserInteractionEnabled,
                 appearance: appearance
