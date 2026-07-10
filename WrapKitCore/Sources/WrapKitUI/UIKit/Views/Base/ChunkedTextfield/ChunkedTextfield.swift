@@ -118,7 +118,6 @@ private extension ChunkedTextField {
         field.keyboardType = .numberPad
         field.textContentType = .oneTimeCode
         field.tintColor = .clear
-        field.isTextSelectionDisabled = true
         field.didChangeText.append { [weak self] _ in self?.handleInputChange() }
         field.onBecomeFirstResponder = { [weak self] in self?.renderCells() }
         field.onResignFirstResponder = { [weak self] in self?.renderCells() }
