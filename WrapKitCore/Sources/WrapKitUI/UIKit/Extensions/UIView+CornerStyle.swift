@@ -12,19 +12,20 @@ public extension UIView {
     func applyCornerStyle(_ cornerStyle: CornerStyle) {
         if #available(iOS 26, macOS 26, watchOS 26, tvOS 26, *) {
             applyiOS26CornerStyle(cornerStyle)
+        } else {
+            applyOldCornerStyle(cornerStyle)
         }
-        applyOldCornerStyle(cornerStyle)
     }
     
     @available(iOS 26, macOS 26, watchOS 26, tvOS 26, *)
     func applyiOS26CornerStyle(_ cornerStyle: CornerStyle) {
         cornerConfiguration = cornerStyle.cornerConfiguation
+        clipsToBounds = cornerStyle.value != .zero
     }
     
     func applyOldCornerStyleOnlyiOS18(_ cornerStyle: CornerStyle) {
-        if #available(iOS 26, macOS 26, watchOS 26, tvOS 26, *) {} else {
-            applyOldCornerStyle(cornerStyle)
-        }
+        guard #unavailable(iOS 26, macOS 26, watchOS 26, tvOS 26) else { return }
+        applyOldCornerStyle(cornerStyle)
     }
     
     func applyOldCornerStyle(_ cornerStyle: CornerStyle) {
@@ -43,6 +44,44 @@ public extension UIView {
             layer.cornerRadius = corners.maximum
         }
         layer.masksToBounds = layer.cornerRadius > 0
+    }
+    
+    @available(iOS 26.0, *)
+    func cornerConfigurationMaskedCorners() -> CACornerMask {
+        let topLeftRadius = effectiveRadius(corner: .topLeft)
+        let topRightRadius = effectiveRadius(corner: .topRight)
+        let bottomLeftRadius = effectiveRadius(corner: .bottomLeft)
+        let bottomRightRadius = effectiveRadius(corner: .bottomRight)
+        
+        var reconstructedMask: CACornerMask = []
+        
+        if topLeftRadius > 0 { reconstructedMask.insert(.layerMinXMinYCorner) }
+        if topRightRadius > 0 { reconstructedMask.insert(.layerMaxXMinYCorner) }
+        if bottomLeftRadius > 0 { reconstructedMask.insert(.layerMinXMaxYCorner) }
+        if bottomRightRadius > 0 { reconstructedMask.insert(.layerMaxXMaxYCorner) }
+        
+        return reconstructedMask
+    }
+    
+    func maskedCornersValue() -> CACornerMask {
+        guard #available(iOS 26.0, *) else { return layer.maskedCorners }
+        let corners = cornerConfigurationMaskedCorners()
+        return !corners.isEmpty ? layer.maskedCorners : corners
+    }
+    
+    func cornerRadiusValue() -> CGFloat {
+        guard #available(iOS 26.0, *) else { return layer.cornerRadius }
+        let radius = cornerConfigurationMaxRadius()
+        return radius > .zero ? radius : layer.cornerRadius
+    }
+    
+    @available(iOS 26.0, *)
+    func cornerConfigurationMaxRadius() -> CGFloat {
+        let topLeftRadius = effectiveRadius(corner: .topLeft)
+        let topRightRadius = effectiveRadius(corner: .topRight)
+        let bottomLeftRadius = effectiveRadius(corner: .bottomLeft)
+        let bottomRightRadius = effectiveRadius(corner: .bottomRight)
+        return max(topLeftRadius, topRightRadius, bottomLeftRadius, bottomRightRadius)
     }
 }
 

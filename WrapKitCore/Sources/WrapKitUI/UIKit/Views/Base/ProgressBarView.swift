@@ -18,18 +18,32 @@ public struct ProgressBarStyle {
     public let backgroundColor: Color?
     public let progressBarColor: Color?
     public let height: CGFloat?
-    public let cornerRadius: CGFloat?
+    public let cornerStyle: CornerStyle?
     
     public init(
         backgroundColor: Color? = nil,
         progressBarColor: Color? = nil,
         height: CGFloat? = nil,
-        cornerRadius: CGFloat? = nil
+        cornerRadius: CGFloat
+    ) {
+        self.init(
+            backgroundColor: backgroundColor,
+            progressBarColor: progressBarColor,
+            height: height,
+            cornerStyle: .fixed(cornerRadius)
+        )
+    }
+    
+    public init(
+        backgroundColor: Color? = nil,
+        progressBarColor: Color? = nil,
+        height: CGFloat? = nil,
+        cornerStyle: CornerStyle? = nil
     ) {
         self.backgroundColor = backgroundColor
         self.progressBarColor = progressBarColor
         self.height = height
-        self.cornerRadius = cornerRadius
+        self.cornerStyle = cornerStyle
     }
 }
 
@@ -47,11 +61,10 @@ public struct ProgressBarPresentableModel {
 import UIKit
 import SwiftUI
 
-open class ProgressBarView: UIView {
+public final class ProgressBarView: UIView {
     public let progressView = UIView()
 
     private var progress: CGFloat = 0
-    private var barCornerRadius: CGFloat = 0
     private var heightConstraint: NSLayoutConstraint?
 
     public init(style: ProgressBarStyle? = nil) {
@@ -77,11 +90,9 @@ open class ProgressBarView: UIView {
         backgroundColor = style?.backgroundColor
         progressView.backgroundColor = style?.progressBarColor ?? tintColor
 
-        barCornerRadius = style?.cornerRadius ?? 4
-        layer.cornerRadius = barCornerRadius
-        layer.masksToBounds = barCornerRadius > 0
-        progressView.layer.cornerRadius = barCornerRadius
-        progressView.layer.masksToBounds = barCornerRadius > 0
+        let cornerStyle = style?.cornerStyle ?? .fixed(4) // was default 4
+        self.applyCornerStyle(cornerStyle)
+        progressView.applyCornerStyle(cornerStyle)
 
         if let height = style?.height {
             if let heightConstraint { heightConstraint.constant = height }

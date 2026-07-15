@@ -383,8 +383,6 @@ extension ViewUIKit {
         gradient.startPoint = CGPoint(x: 0.5, y: 0.5)
         gradient.endPoint = CGPoint(x: 1, y: 1)
         let mask = CALayer() // CAShapeLayer with UIBezierPath cant track corners radius properly
-        mask.backgroundColor = UIColor.clear.cgColor
-        mask.borderColor = UIColor.white.cgColor
         mask.borderWidth = gradientBorderWidth
         gradient.mask = mask
         return gradient
@@ -397,9 +395,9 @@ extension ViewUIKit {
         // Copy the host's exact corner shape onto the mask; its border then draws
         // a uniform-width ring whose inner and outer edges both track that curve.
         mask.frame = CGRect(origin: .zero, size: bounds.size)
-        mask.cornerRadius = layer.cornerRadius
+        mask.cornerRadius = cornerRadiusValue()
         mask.cornerCurve = layer.cornerCurve
-        mask.borderWidth = gradientBorderWidth
+        mask.maskedCorners = maskedCornersValue()
     }
 
     private func makeGradientLocations(for count: Int) -> [NSNumber] {
