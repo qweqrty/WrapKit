@@ -892,6 +892,20 @@ final class CardViewSnapshotTests: XCTestCase {
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
+
+    func test_CardView_accessibilityIdentifier_isAppliedToInteractiveElement() {
+        let (sut, container) = makeSUT()
+        let accessibilityIdentifier = "CardView.backButton"
+
+        sut.display(model: .init(
+            accessibilityIdentifier: accessibilityIdentifier,
+            onPress: {}
+        ))
+        container.layoutIfNeeded()
+
+        let interactiveElement = sut.accessibilityElement(at: 0) as? UIAccessibilityElement
+        XCTAssertEqual(interactiveElement?.accessibilityIdentifier, accessibilityIdentifier)
+    }
     
     func test_fail_CardView_onPress() {
         let snapshotName = "CARDVIEW_WITH_ONPRESS"

@@ -389,9 +389,7 @@ extension CardView: CardViewOutput {
     
     public func display(model: CardViewPresentableModel?) {
         isHidden = model == nil
-        if let accessibilityIdentifier = model?.accessibilityIdentifier {
-            self.accessibilityIdentifier = accessibilityIdentifier
-        }
+        accessibilityIdentifier = model?.accessibilityIdentifier
         guard let model = model else {
             invalidateA11y()
             return
@@ -476,6 +474,7 @@ open class CardView: ViewUIKit {
     private func updateProxyIfNeeded() {
         guard (onPress != nil || onLongPress != nil), !isHidden, alpha > 0.01 else { return }
 
+        a11yProxy.accessibilityIdentifier = accessibilityIdentifier
         a11yProxy.accessibilityLabel = accessibilityTextSummary() ?? "Card"
         a11yProxy.activate = { [weak self] in self?.onPress?() }
 
