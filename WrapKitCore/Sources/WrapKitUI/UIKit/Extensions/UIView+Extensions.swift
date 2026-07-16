@@ -17,20 +17,14 @@ public extension UIView {
         self.isHidden = isHidden
     }
     
+    @available(*, deprecated, message: "use applyCornerStyle and cornerRadiusValue")
     @IBInspectable var cornerRadius: CGFloat {
         get {
-            return layer.cornerRadius
+            return cornerRadiusValue()
         }
         set {
-            layer.cornerRadius = newValue
-            layer.masksToBounds = newValue > 0
+            applyCornerStyle(.fixed(newValue))
         }
-    }
-    
-    func round(corners: CACornerMask, radius: CGFloat) {
-        layer.cornerRadius = radius
-        layer.maskedCorners = corners
-        layer.masksToBounds = true
     }
     
     func shake(count: Float? = nil, for duration: TimeInterval? = nil, withTranslation translation: Float? = nil) {

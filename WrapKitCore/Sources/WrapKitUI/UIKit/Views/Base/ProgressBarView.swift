@@ -19,17 +19,20 @@ public struct ProgressBarStyle {
     public let progressBarColor: Color?
     public let height: CGFloat?
     public let cornerStyle: CornerStyle?
+    public let trackHeight: CGFloat?
     
     public init(
         backgroundColor: Color? = nil,
         progressBarColor: Color? = nil,
         height: CGFloat? = nil,
+        trackHeight: CGFloat? = nil,
         cornerRadius: CGFloat
     ) {
         self.init(
             backgroundColor: backgroundColor,
             progressBarColor: progressBarColor,
             height: height,
+            trackHeight: trackHeight,
             cornerStyle: .fixed(cornerRadius)
         )
     }
@@ -38,11 +41,13 @@ public struct ProgressBarStyle {
         backgroundColor: Color? = nil,
         progressBarColor: Color? = nil,
         height: CGFloat? = nil,
+        trackHeight: CGFloat? = nil,
         cornerStyle: CornerStyle? = nil
     ) {
         self.backgroundColor = backgroundColor
         self.progressBarColor = progressBarColor
         self.height = height
+        self.trackHeight = trackHeight
         self.cornerStyle = cornerStyle
     }
 }
@@ -62,14 +67,18 @@ import UIKit
 import SwiftUI
 
 public final class ProgressBarView: UIView {
+    public let trackView = UIView()
     public let progressView = UIView()
 
     private var progress: CGFloat = 0
     private var heightConstraint: NSLayoutConstraint?
+    private var trackHeightConstraint: NSLayoutConstraint?
 
     public init(style: ProgressBarStyle? = nil) {
         super.init(frame: .zero)
+        addSubview(trackView)
         addSubview(progressView)
+        setupTrackConstraints()
         self.style = style
         applyStyle()
     }
@@ -86,13 +95,24 @@ public final class ProgressBarView: UIView {
         }
     }
 
+    private func setupTrackConstraints() {
+        trackHeightConstraint = trackView.anchor(
+            .leading(leadingAnchor),
+            .trailing(trailingAnchor),
+            .centerY(centerYAnchor),
+            .height(0)
+        ).height
+    }
+
     private func applyStyle() {
-        backgroundColor = style?.backgroundColor
+        backgroundColor = .clear
+        trackView.backgroundColor = style?.backgroundColor
         progressView.backgroundColor = style?.progressBarColor ?? tintColor
 
-        let cornerStyle = style?.cornerStyle ?? .fixed(4) // was default 4
-        self.applyCornerStyle(cornerStyle)
-        progressView.applyCornerStyle(cornerStyle)
+        let fillHeight = style?.height ?? 4
+        trackHeightConstraint?.constant = style?.trackHeight ?? (fillHeight - (fillHeight / 3).rounded(.up))
+
+        applyCornerStyles()
 
         if let height = style?.height {
             if let heightConstraint { heightConstraint.constant = height }
@@ -102,9 +122,18 @@ public final class ProgressBarView: UIView {
         setNeedsLayout()
     }
 
+    private func applyCornerStyles() {
+        let cornerStyle = style?.cornerStyle ?? .fixed(4) // was default 4
+        trackView.applyCornerStyle(cornerStyle)
+        progressView.applyCornerStyle(cornerStyle)
+    }
+
     public override func layoutSubviews() {
         super.layoutSubviews()
+        let fillWidth = bounds.width * progress
+        progressView.isHidden = fillWidth <= 0
         progressView.frame = CGRect(x: 0, y: 0, width: bounds.width * progress, height: bounds.height)
+        applyCornerStyles()
     }
 
     public override var intrinsicContentSize: CGSize {
