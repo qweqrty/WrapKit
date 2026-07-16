@@ -11,7 +11,9 @@ extension ChunkedTextField: TextInputOutput {
     public func stopEditing() { endEditing(true) }
 
     public func display(text: String?) {
-        input.text = String((text ?? "").prefix(count))
+        let normalized = String((text ?? "").prefix(count))
+        input.text = normalized
+        previousText = normalized
         renderCells()
     }
 
@@ -48,6 +50,7 @@ extension ChunkedTextField: TextInputOutput {
 public final class ChunkedTextField: ViewUIKit {
     public let count: Int
     private let allowedCharacters: CharacterSet
+    private var previousText: String = ""
     public var appearance: TextfieldAppearance {
         didSet {
             input.appearance = makeHiddenAppearance()
@@ -133,6 +136,8 @@ private extension ChunkedTextField {
         if sanitized != input.text { input.text = sanitized }
         if isError { isError = false }
         renderCells()
+        announceEnteredCharactersIfNeeded(previous: previousText, current: sanitized)
+        previousText = sanitized
         didChangeText.forEach { $0(sanitized) }
     }
 
@@ -163,6 +168,16 @@ private extension ChunkedTextField {
                 appearance: appearance
             )
         }
+    }
+
+    private func announceEnteredCharactersIfNeeded(previous: String, current: String) {
+        guard UIAccessibility.isVoiceOverRunning, current.count > previous.count else { return }
+        let entered = current.dropFirst(previous.count)
+        UIAccessibility.post(notification: .announcement, argument: spacedOut(entered))
+    }
+
+    private func spacedOut(_ text: some StringProtocol) -> String {
+        text.map(String.init).joined(separator: " ")
     }
 }
 
