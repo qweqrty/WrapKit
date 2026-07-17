@@ -597,7 +597,7 @@ open class CardView: ViewUIKit {
     private var style: CardViewPresentableModel.Style?
     public let vStackView = StackView(axis: .vertical, contentInset: .init(top: 0, left: 8, bottom: 0, right: 8))
     public let hStackView = StackView(alignment: .center, axis: .horizontal, spacing: 14)
-    public private(set) var backgroundImageView = ImageView()
+    public private(set) var backgroundImageView = ImageView(contentMode: .scaleToFill)
     
     public let leadingImageWrapperView = ViewUIKit(isHidden: true)
     public private(set) var leadingImageView = ImageView(tintColor: .black)
