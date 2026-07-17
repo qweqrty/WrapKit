@@ -262,6 +262,7 @@ extension Button: ButtonOutput {
 //            }
             
             self.configuration = config
+            self.backgroundColor = .clear
 
             var isPreviouslyHighlighted = false
             configurationUpdateHandler = { [weak self] button in
