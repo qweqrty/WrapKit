@@ -13,6 +13,7 @@ final class CardViewSnapshotTests: XCTestCase {
     
     private let image = Image(systemName: "star.fill")
     private let secondImage = Image(systemName: "star")
+    private let backgroundImage = makeSnapshotBackgroundImage()
     
     func test_CardView_default_state() {
         let snapshotName = "CARDVIEW_DEFAULT_STATE"
@@ -128,7 +129,7 @@ final class CardViewSnapshotTests: XCTestCase {
         
         // WHEN
         sut.display(style: makeDefaultStyle())
-        sut.display(backgroundImage: .init(image: .asset(image)))
+        sut.display(backgroundImage: .init(image: .asset(backgroundImage)))
         
         // THEN
         if #available(iOS 26, *) {
@@ -168,7 +169,7 @@ final class CardViewSnapshotTests: XCTestCase {
         
         // WHEN
         sut.display(style: makeDefaultStyle())
-        sut.display(backgroundImage: .init(image: .asset(image), contentModeIsFit: false))
+        sut.display(backgroundImage: .init(image: .asset(backgroundImage), contentModeIsFit: false))
         
         // THEN
         if #available(iOS 26, *) {
@@ -188,7 +189,7 @@ final class CardViewSnapshotTests: XCTestCase {
         
         // WHEN
         sut.display(style: makeDefaultStyle())
-        sut.display(backgroundImage: .init(image: .asset(image), contentModeIsFit: true))
+        sut.display(backgroundImage: .init(image: .asset(backgroundImage), contentModeIsFit: true))
         
         // THEN
         if #available(iOS 26, *) {
@@ -207,8 +208,7 @@ final class CardViewSnapshotTests: XCTestCase {
         let (sut, container) = makeSUT()
         
         // WHEN
-        sut.display(backgroundImage: .init(size: .init(width: 24, height: 24),
-                                           image: .asset(image),
+        sut.display(backgroundImage: .init(image: .asset(backgroundImage),
                                            borderWidth: 4,
                                            borderColor: .black))
         
@@ -229,8 +229,7 @@ final class CardViewSnapshotTests: XCTestCase {
         let (sut, container) = makeSUT()
         
         // WHEN
-        sut.display(backgroundImage: .init(size: .init(width: 24, height: 24),
-                                           image: .asset(image),
+        sut.display(backgroundImage: .init(image: .asset(backgroundImage),
                                            borderWidth: 3,
                                            borderColor: .black))
         
@@ -251,9 +250,7 @@ final class CardViewSnapshotTests: XCTestCase {
         let (sut, container) = makeSUT()
         
         // WHEN
-        let image = Image(systemName: "star.fill")
-        sut.display(backgroundImage: .init(size: .init(width: 24, height: 24),
-                                           image: .asset(image),
+        sut.display(backgroundImage: .init(image: .asset(backgroundImage),
                                            borderWidth: 4,
                                            borderColor: .black,
                                            cornerRadius: 20,
@@ -276,9 +273,7 @@ final class CardViewSnapshotTests: XCTestCase {
         let (sut, container) = makeSUT()
         
         // WHEN
-        let image = Image(systemName: "star.fill")
-        sut.display(backgroundImage: .init(size: .init(width: 24, height: 24),
-                                           image: .asset(image),
+        sut.display(backgroundImage: .init(image: .asset(backgroundImage),
                                            borderWidth: 4,
                                            borderColor: .black,
                                            cornerRadius: 21,
@@ -301,8 +296,7 @@ final class CardViewSnapshotTests: XCTestCase {
         let (sut, container) = makeSUT()
         
         // WHEN
-        sut.display(backgroundImage: .init(size: .init(width: 24, height: 24),
-                                           image: .asset(image),
+        sut.display(backgroundImage: .init(image: .asset(backgroundImage),
                                            borderWidth: 4,
                                            borderColor: .black,
                                            cornerRadius: 20,
@@ -326,8 +320,7 @@ final class CardViewSnapshotTests: XCTestCase {
         let (sut, container) = makeSUT()
         
         // WHEN
-        sut.display(backgroundImage: .init(size: .init(width: 24, height: 24),
-                                           image: .asset(image),
+        sut.display(backgroundImage: .init(image: .asset(backgroundImage),
                                            borderWidth: 4,
                                            borderColor: .black,
                                            cornerRadius: 20,

@@ -257,7 +257,11 @@ class NavigationBarSnapshotTests: XCTestCase {
             secondaryColor: .green)
         )
         
-        sut.display(leadingCard: .init(backgroundImage: .init(image: .asset(Image(systemName: "star.fill"))), title: .text("Title"), onPress: { }))
+        sut.display(leadingCard: .init(
+            backgroundImage: .init(image: .asset(makeSnapshotBackgroundImage())),
+            title: .text("Title"),
+            onPress: { }
+        ))
         
         // THEN
         if #available(iOS 26, *) {
@@ -316,8 +320,7 @@ class NavigationBarSnapshotTests: XCTestCase {
         sut.display(
             leadingCard: .init(
                 backgroundImage: .init(
-                    size: CGSize(width: 24, height: 24),
-                    image: .asset(Image(systemName: "star.fill"))),
+                    image: .asset(makeSnapshotBackgroundImage())),
                 trailingTitles: .init(.text("Title"), .text("Subtitle")),
                 onPress: { }
             ))
@@ -351,8 +354,7 @@ class NavigationBarSnapshotTests: XCTestCase {
         sut.display(
             leadingCard: .init(
                 backgroundImage: .init(
-                    size: CGSize(width: 24, height: 24),
-                    image: .asset(Image(systemName: "star.fill"))),
+                    image: .asset(makeSnapshotBackgroundImage())),
                 trailingTitles: .init(.text("Title."), .text("Subtitle."))))
 
         // THEN
