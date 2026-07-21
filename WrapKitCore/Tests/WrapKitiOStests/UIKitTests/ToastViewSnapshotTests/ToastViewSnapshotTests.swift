@@ -20,7 +20,7 @@ final class ToastViewSnapshotTests: XCTestCase {
         super.setUp()
         UIView.setAnimationsEnabled(false)
         testContainer = UIWindow(frame: CGRect(x: 0, y: 0, width: 390, height: 844))
-        testContainer.isHidden = false // чтобы сабвью-тост рендерился (скрытое окно не рисует контент)
+        testContainer.isHidden = false
         testContainer.backgroundColor = .white
     }
     
