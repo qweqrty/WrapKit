@@ -18,12 +18,14 @@ final class ToastViewSnapshotTests: XCTestCase {
     
     override func setUp() {
         super.setUp()
-        testContainer = UIWindow(frame: CGRect(x: 0, y: 0, width: 375, height: 812))
-        testContainer.makeKeyAndVisible()
+        UIView.setAnimationsEnabled(false)
+        testContainer = UIWindow(frame: CGRect(x: 0, y: 0, width: 390, height: 844))
+        testContainer.isHidden = false // чтобы сабвью-тост рендерился (скрытое окно не рисует контент)
         testContainer.backgroundColor = .white
     }
     
     override func tearDown() {
+        UIView.setAnimationsEnabled(true)
         testContainer.layer.removeAllAnimations()
         testContainer.windowScene = nil
         

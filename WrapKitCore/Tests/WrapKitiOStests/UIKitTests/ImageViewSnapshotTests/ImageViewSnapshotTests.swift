@@ -5,10 +5,19 @@
 //  Created by sunflow on 3/11/25.
 //
 
-import WrapKit
+@testable import WrapKit
 import XCTest
 import WrapKitTestUtils
 import Kingfisher
+
+private final class HangingURLProtocol: URLProtocol {
+    override class func canInit(with request: URLRequest) -> Bool {
+        request.url?.host == "wrapkit.test"
+    }
+    override class func canonicalRequest(for request: URLRequest) -> URLRequest { request }
+    override func startLoading() {}
+    override func stopLoading() {}
+}
 
 final class ImageViewSnapshotTests: XCTestCase {
     
@@ -384,13 +393,17 @@ final class ImageViewSnapshotTests: XCTestCase {
     
     func test_ImageView_viewWhileLoadingView() {
         let snapshotName = "IMAGE_VIEW_VIEWWHILELOADINGVIEW"
-        
-        // GIVEN
+
+        let config = URLSessionConfiguration.ephemeral
+        config.protocolClasses = [HangingURLProtocol.self]
+        ImageView.imageLoadingSessionConfigurationOverride = config
+        defer { ImageView.resetImageLoadingSessionConfigurationOverride() }
+
         let (sut, container) = makeSUT()
         sut.viewWhileLoadingView = ViewUIKit(backgroundColor: .blue)
         
         // WHEN
-        let url = URL(string: light)!
+        let url = URL(string: "https://wrapkit.test/loading.png")!
         sut.display(image: .url(url, url))
         
         // THEN
@@ -405,13 +418,17 @@ final class ImageViewSnapshotTests: XCTestCase {
     
     func test_fail_ImageView_viewWhileLoadingView() {
         let snapshotName = "IMAGE_VIEW_VIEWWHILELOADINGVIEW"
-        
-        // GIVEN
+
+        let config = URLSessionConfiguration.ephemeral
+        config.protocolClasses = [HangingURLProtocol.self]
+        ImageView.imageLoadingSessionConfigurationOverride = config
+        defer { ImageView.resetImageLoadingSessionConfigurationOverride() }
+
         let (sut, container) = makeSUT()
-        sut.viewWhileLoadingView = ViewUIKit(backgroundColor: .cyan)
-        
+        sut.viewWhileLoadingView = ViewUIKit(backgroundColor: .red)
+
         // WHEN
-        let url = URL(string: light)!
+        let url = URL(string: "https://wrapkit.test/loading.png")!
         sut.display(image: .url(url, url))
         
         // THEN
