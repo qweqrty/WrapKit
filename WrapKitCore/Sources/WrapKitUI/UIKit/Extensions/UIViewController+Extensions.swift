@@ -34,6 +34,7 @@ public struct AlertPresentableModel {
 }
 
 #if canImport(UIKit)
+import ObjectiveC.runtime
 import UIKit
 
 extension UIViewController: AlertOutput {
@@ -41,7 +42,7 @@ extension UIViewController: AlertOutput {
             guard let model = model else { return }
             
             CFRunLoopPerformBlock(CFRunLoopGetMain(), CFRunLoopMode.defaultMode.rawValue) { [weak self] in
-                let alert = makeAlertController(
+                let alert = UIAlertController(
                     title: model.title,
                     message: model.text,
                     preferredStyle: .alert
@@ -75,6 +76,7 @@ extension UIViewController: AlertOutput {
                     alert.addAction(UIAlertAction(title: cancelText, style: .cancel, handler: nil))
                 }
                 
+                alert.centerText()
                 self?.present(alert, animated: true, completion: nil)
             }
         }
@@ -82,7 +84,7 @@ extension UIViewController: AlertOutput {
     public func showAlert(model: AlertPresentableModel?) {
         guard let model = model else { return }
         CFRunLoopPerformBlock(CFRunLoopGetMain(), CFRunLoopMode.defaultMode.rawValue) { [weak self] in
-            let alert = makeAlertController(
+            let alert = UIAlertController(
                 title: model.title,
                 message: model.text,
                 preferredStyle: .alert
@@ -106,6 +108,7 @@ extension UIViewController: AlertOutput {
                 alert.addAction(UIAlertAction(title: cancelText, style: .cancel, handler: nil))
             }
             
+            alert.centerText()
             self?.present(alert, animated: true, completion: nil)
         }
     }
@@ -137,82 +140,51 @@ extension UIViewController: AlertOutput {
             if let cancelText = model.cancelText {
                 alert.addAction(UIAlertAction(title: cancelText, style: .cancel, handler: nil))
             }
+            alert.centerText()
             self?.present(alert, animated: true, completion: nil)
         }
     }
 }
 
-private func makeAlertController(
-    title: String?,
-    message: String?,
-    preferredStyle: UIAlertController.Style
-) -> UIAlertController {
-    if #available(iOS 26.0, *) {
-        return CenteredAlertController(
-            title: title,
-            message: message,
-            preferredStyle: preferredStyle
-        )
-    }
-
-    return UIAlertController(
-        title: title,
-        message: message,
-        preferredStyle: preferredStyle
-    )
-}
-
-@available(iOS 26.0, *)
-private final class CenteredAlertController: UIAlertController {
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        centerTextIfNeeded()
-    }
-
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        centerTextIfNeeded()
-    }
-
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        centerTextIfNeeded()
-    }
-}
-
 private extension UIAlertController {
-    func centerTextIfNeeded() {
-        guard #available(iOS 26.0, *) else { return }
+    func centerText() {
+        _ = Self.centerTextOnLayout
+    }
 
-        let alertTexts = Set([title, message].compactMap { $0 })
+    @objc func wrapkit_viewDidLayoutSubviews() {
+        wrapkit_viewDidLayoutSubviews()
+
         view.allSubviews
             .compactMap { $0 as? UILabel }
-            .filter { label in
-                guard let text = label.text else { return false }
-                return alertTexts.contains(text)
-            }
-            .forEach { label in
-                if let attributedText = label.attributedText, attributedText.length > 0 {
-                    let currentStyle = attributedText.attribute(
-                        .paragraphStyle,
-                        at: 0,
-                        effectiveRange: nil
-                    ) as? NSParagraphStyle
-                    let paragraphStyle = currentStyle?.mutableCopy() as? NSMutableParagraphStyle
-                        ?? NSMutableParagraphStyle()
-                    paragraphStyle.alignment = .center
-
-                    let centeredText = NSMutableAttributedString(attributedString: attributedText)
-                    centeredText.addAttribute(
-                        .paragraphStyle,
-                        value: paragraphStyle,
-                        range: NSRange(location: 0, length: centeredText.length)
-                    )
-                    label.attributedText = centeredText
-                }
-                label.textAlignment = .center
-            }
+            .filter { [title, message].contains($0.text) }
+            .forEach { $0.textAlignment = .center }
     }
+
+    static let centerTextOnLayout: Void = {
+        guard #available(iOS 26.0, *) else { return }
+
+        let originalSelector = #selector(UIViewController.viewDidLayoutSubviews)
+        let centeredSelector = #selector(wrapkit_viewDidLayoutSubviews)
+        guard let original = class_getInstanceMethod(UIAlertController.self, originalSelector),
+              let centered = class_getInstanceMethod(UIAlertController.self, centeredSelector)
+        else { return }
+
+        if class_addMethod(
+            UIAlertController.self,
+            originalSelector,
+            method_getImplementation(centered),
+            method_getTypeEncoding(centered)
+        ) {
+            class_replaceMethod(
+                UIAlertController.self,
+                centeredSelector,
+                method_getImplementation(original),
+                method_getTypeEncoding(original)
+            )
+        } else {
+            method_exchangeImplementations(original, centered)
+        }
+    }()
 }
 
 public extension UIViewController {
