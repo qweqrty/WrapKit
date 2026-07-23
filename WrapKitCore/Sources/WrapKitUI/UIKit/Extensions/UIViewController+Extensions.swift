@@ -41,7 +41,7 @@ extension UIViewController: AlertOutput {
             guard let model = model else { return }
             
             CFRunLoopPerformBlock(CFRunLoopGetMain(), CFRunLoopMode.defaultMode.rawValue) { [weak self] in
-                let alert = UIAlertController(
+                let alert = makeAlertController(
                     title: model.title,
                     message: model.text,
                     preferredStyle: .alert
@@ -82,7 +82,7 @@ extension UIViewController: AlertOutput {
     public func showAlert(model: AlertPresentableModel?) {
         guard let model = model else { return }
         CFRunLoopPerformBlock(CFRunLoopGetMain(), CFRunLoopMode.defaultMode.rawValue) { [weak self] in
-            let alert = UIAlertController(
+            let alert = makeAlertController(
                 title: model.title,
                 message: model.text,
                 preferredStyle: .alert
@@ -139,6 +139,79 @@ extension UIViewController: AlertOutput {
             }
             self?.present(alert, animated: true, completion: nil)
         }
+    }
+}
+
+private func makeAlertController(
+    title: String?,
+    message: String?,
+    preferredStyle: UIAlertController.Style
+) -> UIAlertController {
+    if #available(iOS 26.0, *) {
+        return CenteredAlertController(
+            title: title,
+            message: message,
+            preferredStyle: preferredStyle
+        )
+    }
+
+    return UIAlertController(
+        title: title,
+        message: message,
+        preferredStyle: preferredStyle
+    )
+}
+
+@available(iOS 26.0, *)
+private final class CenteredAlertController: UIAlertController {
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        centerTextIfNeeded()
+    }
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        centerTextIfNeeded()
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        centerTextIfNeeded()
+    }
+}
+
+private extension UIAlertController {
+    func centerTextIfNeeded() {
+        guard #available(iOS 26.0, *) else { return }
+
+        let alertTexts = Set([title, message].compactMap { $0 })
+        view.allSubviews
+            .compactMap { $0 as? UILabel }
+            .filter { label in
+                guard let text = label.text else { return false }
+                return alertTexts.contains(text)
+            }
+            .forEach { label in
+                if let attributedText = label.attributedText, attributedText.length > 0 {
+                    let currentStyle = attributedText.attribute(
+                        .paragraphStyle,
+                        at: 0,
+                        effectiveRange: nil
+                    ) as? NSParagraphStyle
+                    let paragraphStyle = currentStyle?.mutableCopy() as? NSMutableParagraphStyle
+                        ?? NSMutableParagraphStyle()
+                    paragraphStyle.alignment = .center
+
+                    let centeredText = NSMutableAttributedString(attributedString: attributedText)
+                    centeredText.addAttribute(
+                        .paragraphStyle,
+                        value: paragraphStyle,
+                        range: NSRange(location: 0, length: centeredText.length)
+                    )
+                    label.attributedText = centeredText
+                }
+                label.textAlignment = .center
+            }
     }
 }
 
