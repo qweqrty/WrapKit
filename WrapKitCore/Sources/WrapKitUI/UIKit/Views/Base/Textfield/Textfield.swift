@@ -433,8 +433,9 @@ extension Textfield: TextInputOutput {
         }
         
         guard currentText != newText else { return }
-        
+
         self.text = newText
+        previousA11ySpecifiers = maskedTextfieldDelegate?.onlySpecifiersIfMaskedText ?? ""
         invalidateA11y()
     }
     
@@ -654,11 +655,15 @@ open class Textfield: UITextField {
         }
 
         // --- Field ---
-        let value = (maskedTextfieldDelegate?.input ?? text ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
         let ph = (placeholder ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        a11yFieldProxy.accessibilityLabel = ph.isEmpty ? nil : ph
 
-        a11yFieldProxy.accessibilityLabel = !ph.isEmpty ? ph : "Text field"
-        a11yFieldProxy.accessibilityValue = value.isEmpty ? nil : value
+        if let maskedValue = maskedA11yValue {
+            a11yFieldProxy.accessibilityAttributedValue = maskedValue.spelledOutForAccessibility()
+        } else {
+            let value = (maskedTextfieldDelegate?.input ?? text ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+            a11yFieldProxy.accessibilityValue = value.isEmpty ? nil : value
+        }
         a11yFieldProxy.activate = { [weak self] in _ = self?.becomeFirstResponder() }
 
         let inputRect = editingRect(forBounds: bounds)
@@ -747,7 +752,37 @@ open class Textfield: UITextField {
         }
 
         let local = convert(screenPoint, from: nil)
-        return bounds.contains(local) ? a11yFieldProxy : nil
+        guard bounds.contains(local) else { return nil }
+        return isAccessibilityElement ? self : a11yFieldProxy
+    }
+
+    private var liveMaskedA11yValue: String? {
+        guard let delegate = maskedTextfieldDelegate, delegate.hasMaskTemplate else { return nil }
+        guard !delegate.onlySpecifiersIfMaskedText.isEmpty else { return "" }
+        return delegate.input.filter { !$0.isWhitespace }
+    }
+
+    private var maskedA11yValue: String? {
+        if isFirstResponder, let frozen = frozenA11yValue { return frozen }
+        return liveMaskedA11yValue
+    }
+
+    open override var accessibilityValue: String? {
+        get { maskedA11yValue ?? super.accessibilityValue }
+        set { super.accessibilityValue = newValue }
+    }
+
+    open override var accessibilityAttributedValue: NSAttributedString? {
+        get {
+            guard let value = maskedA11yValue else { return super.accessibilityAttributedValue }
+            return value.spelledOutForAccessibility()
+        }
+        set { super.accessibilityAttributedValue = newValue }
+    }
+
+    open override var isAccessibilityElement: Bool {
+        get { true }
+        set { super.isAccessibilityElement = newValue }
     }
 
     public override func didMoveToWindow() {
@@ -783,6 +818,10 @@ open class Textfield: UITextField {
             let name = trailingView?.accessibilityTextSummary() ?? "Trailing"
             actions.append(UIAccessibilityCustomAction(name: name, target: self, selector: #selector(a11yTapTrailing)))
         }
+
+        let newNames = actions.map(\.name)
+        let currentNames = accessibilityCustomActions?.map(\.name) ?? []
+        guard newNames != currentNames else { return }
 
         accessibilityCustomActions = actions.isEmpty ? nil : actions
     }
@@ -845,6 +884,8 @@ open class Textfield: UITextField {
     
     private var isValidState = true
     private var isPressHandled = false
+    private var previousA11ySpecifiers = ""
+    private var frozenA11yValue: String?
     private var isClearButtonActive = true {
         didSet {
             setupTrailingClearAction(trailingView: trailingView, isActive: isClearButtonActive)
@@ -1101,7 +1142,31 @@ open class Textfield: UITextField {
                 $0(self.text)
             }
         }
+        announceMaskedInputIfNeeded()
         invalidateA11y()
+    }
+
+    private func announceMaskedInputIfNeeded() {
+        guard UIAccessibility.isVoiceOverRunning,
+              let delegate = maskedTextfieldDelegate, delegate.hasMaskTemplate else {
+            previousA11ySpecifiers = maskedTextfieldDelegate?.onlySpecifiersIfMaskedText ?? ""
+            return
+        }
+        let current = delegate.onlySpecifiersIfMaskedText
+        let previous = previousA11ySpecifiers
+        defer { previousA11ySpecifiers = current }
+
+        let changed: String
+        if current.count > previous.count {
+            changed = String(current.dropFirst(previous.count))
+        } else if current.count < previous.count {
+            changed = String(previous.dropFirst(current.count))
+        } else {
+            return
+        }
+        DispatchQueue.main.async {
+            UIAccessibility.post(notification: .announcement, argument: changed.accessibilitySpacedOut())
+        }
     }
     
     @objc private func textFieldDidChangeClear() {
@@ -1160,6 +1225,10 @@ open class Textfield: UITextField {
             self.text?.removeAll()
             insertText(text)
         }
+        if success {
+            previousA11ySpecifiers = maskedTextfieldDelegate?.onlySpecifiersIfMaskedText ?? ""
+            frozenA11yValue = liveMaskedA11yValue
+        }
         updateAppearance()
         invalidateA11y()
         return success
@@ -1172,10 +1241,18 @@ open class Textfield: UITextField {
     @discardableResult
     open override func resignFirstResponder() -> Bool {
         let result = super.resignFirstResponder()
-        if result { onResignFirstResponder?() }
+        if result {
+            onResignFirstResponder?()
+            frozenA11yValue = nil
+        }
         updateAppearance()
         invalidateA11y()
         return result
+    }
+
+    open override func accessibilityElementDidBecomeFocused() {
+        super.accessibilityElementDidBecomeFocused()
+        frozenA11yValue = liveMaskedA11yValue
     }
     
     open override var isSecureTextEntry: Bool {
