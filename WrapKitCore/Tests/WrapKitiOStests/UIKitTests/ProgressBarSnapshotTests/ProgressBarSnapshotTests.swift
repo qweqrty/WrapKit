@@ -10,6 +10,40 @@ import WrapKitTestUtils
 import XCTest
 
 final class ProgressBarSnapshotTests: XCTestCase {
+    func test_progressBar_presentableModel_preservesDynamicColors() {
+        let trackColor = UIColor { traits in
+            traits.userInterfaceStyle == .dark ? .black : .white
+        }
+        let fillColor = UIColor { traits in
+            traits.userInterfaceStyle == .dark ? .green : .red
+        }
+        let sut = ProgressBarView()
+
+        sut.display(model: .init(
+            progress: 50,
+            style: .init(
+                backgroundColor: trackColor,
+                progressBarColor: fillColor,
+                cornerStyle: .fixed(4)
+            )
+        ))
+
+        let lightTraits = UITraitCollection(userInterfaceStyle: .light)
+        let darkTraits = UITraitCollection(userInterfaceStyle: .dark)
+        XCTAssertTrue(
+            sut.trackView.backgroundColor?.resolvedColor(with: lightTraits).isEqual(UIColor.white) == true
+        )
+        XCTAssertTrue(
+            sut.trackView.backgroundColor?.resolvedColor(with: darkTraits).isEqual(UIColor.black) == true
+        )
+        XCTAssertTrue(
+            sut.progressView.backgroundColor?.resolvedColor(with: lightTraits).isEqual(UIColor.red) == true
+        )
+        XCTAssertTrue(
+            sut.progressView.backgroundColor?.resolvedColor(with: darkTraits).isEqual(UIColor.green) == true
+        )
+    }
+
     func test_progressBar_defaul_state() {
         let snapshotName = "PROGRESSBAR_DEFAULT_STATE"
         
@@ -142,8 +176,8 @@ final class ProgressBarSnapshotTests: XCTestCase {
         window.resignKey()
     }
     
-    func test_progressBar_with_cornerRadius() {
-        let snapshotName = "PROGRESSBAR_WITH_CORNDERRADIUS"
+    func test_progressBar_with_cornerStyle() {
+        let snapshotName = "PROGRESSBAR_WITH_CORNERSTYLE"
         
         // GIVEN
         let (sut, container) = makeSUT()
@@ -153,7 +187,7 @@ final class ProgressBarSnapshotTests: XCTestCase {
             backgroundColor: .systemRed,
             progressBarColor: .cyan,
             height: 10,
-            cornerRadius: 10))
+            cornerStyle: .fixed(10)))
         sut.display(progress: 50.0)
         
         // THEN
@@ -166,8 +200,8 @@ final class ProgressBarSnapshotTests: XCTestCase {
         }
     }
     
-    func test_fail_progressBar_with_cornerRadius() {
-        let snapshotName = "PROGRESSBAR_WITH_CORNDERRADIUS"
+    func test_fail_progressBar_with_cornerStyle() {
+        let snapshotName = "PROGRESSBAR_WITH_CORNERSTYLE"
         
         // GIVEN
         let (sut, container) = makeSUT()
@@ -177,7 +211,7 @@ final class ProgressBarSnapshotTests: XCTestCase {
             backgroundColor: .systemRed,
             progressBarColor: .cyan,
             height: 10,
-            cornerRadius: 2))
+            cornerStyle: .fixed(2)))
         sut.display(progress: 50.0)
         
         // THEN
@@ -237,7 +271,7 @@ final class ProgressBarSnapshotTests: XCTestCase {
         let (sut, container) = makeSUT()
         
         // WHEN
-        sut.display(style: .init(backgroundColor: .clear, height: 6.0, cornerRadius: 4))
+        sut.display(style: .init(backgroundColor: .clear, height: 6.0, cornerStyle: .fixed(4)))
         sut.display(progress: 100.0)
         container.layoutIfNeeded()
         sut.applyCornerStyle(.fixed(4))
@@ -265,7 +299,7 @@ final class ProgressBarSnapshotTests: XCTestCase {
         let (sut, container) = makeSUT()
         
         // WHEN
-        sut.display(style: .init(backgroundColor: .clear, height: 6.0, cornerRadius: 4))
+        sut.display(style: .init(backgroundColor: .clear, height: 6.0, cornerStyle: .fixed(4)))
         sut.display(progress: 100.0)
         container.layoutIfNeeded()
         sut.gradientBackgroundColor(
@@ -296,7 +330,7 @@ final class ProgressBarSnapshotTests: XCTestCase {
             backgroundColor: .systemGray4,
             progressBarColor: .systemGreen,
             height: 6.0,
-            cornerRadius: 4))
+            cornerStyle: .fixed(4)))
         sut.display(progress: 50.0)
         
         // THEN
@@ -320,7 +354,7 @@ final class ProgressBarSnapshotTests: XCTestCase {
             backgroundColor: .systemGray4,
             progressBarColor: .systemGreen,
             height: 6.0,
-            cornerRadius: 4))
+            cornerStyle: .fixed(4)))
         sut.display(progress: 51.0)
         
         // THEN
