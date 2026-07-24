@@ -382,22 +382,106 @@ extension ViewUIKit {
         gradient.type = .conic
         gradient.startPoint = CGPoint(x: 0.5, y: 0.5)
         gradient.endPoint = CGPoint(x: 1, y: 1)
-        let mask = CALayer() // CAShapeLayer with UIBezierPath cant track corners radius properly
-        mask.borderWidth = gradientBorderWidth
-        gradient.mask = mask
+        gradient.mask = makeUniformGradientBorderMask()
         return gradient
     }
 
     private func updateGradientBorderLayerFrame() {
-        gradientBorderLayer.frame = CGRect(origin: .zero, size: bounds.size)
+        gradientBorderLayer.frame = bounds
 
-        guard let mask = gradientBorderLayer.mask else { return }
-        // Copy the host's exact corner shape onto the mask; its border then draws
-        // a uniform-width ring whose inner and outer edges both track that curve.
-        mask.frame = CGRect(origin: .zero, size: bounds.size)
+        let cornerRadii = cornerRadiiValue()
+        if cornerRadii.hasDifferentPositiveValues {
+            updateAsymmetricGradientBorderMask(cornerRadii: cornerRadii)
+        } else {
+            updateUniformGradientBorderMask()
+        }
+    }
+
+    private func makeUniformGradientBorderMask() -> CALayer {
+        let mask = CALayer()
+        // The mask reads alpha only; CALayer's default border is opaque in every theme.
+        mask.borderWidth = gradientBorderWidth
+        return mask
+    }
+
+    private func updateUniformGradientBorderMask() {
+        let mask: CALayer
+        if let currentMask = gradientBorderLayer.mask, !(currentMask is CAShapeLayer) {
+            mask = currentMask
+        } else {
+            mask = makeUniformGradientBorderMask()
+            gradientBorderLayer.mask = mask
+        }
+
+        mask.frame = gradientBorderLayer.bounds
         mask.cornerRadius = cornerRadiusValue()
         mask.cornerCurve = layer.cornerCurve
         mask.maskedCorners = maskedCornersValue()
+    }
+
+    private func updateAsymmetricGradientBorderMask(cornerRadii: CornerStyle.Corners) {
+        let mask = (gradientBorderLayer.mask as? CAShapeLayer) ?? CAShapeLayer()
+        mask.frame = gradientBorderLayer.bounds
+        mask.fillColor = nil
+        mask.strokeColor = CGColor(gray: 0, alpha: 1)
+        mask.lineWidth = gradientBorderWidth
+        mask.path = gradientBorderPath(cornerRadii: cornerRadii)
+        gradientBorderLayer.mask = mask
+    }
+
+    private func gradientBorderPath(cornerRadii: CornerStyle.Corners) -> CGPath {
+        let inset = gradientBorderWidth / 2
+        let rect = gradientBorderLayer.bounds.insetBy(dx: inset, dy: inset)
+        let maximumRadius = max(min(rect.width, rect.height) / 2, .zero)
+        let topLeft = min(max(cornerRadii.topLeft - inset, .zero), maximumRadius)
+        let topRight = min(max(cornerRadii.topRight - inset, .zero), maximumRadius)
+        let bottomLeft = min(max(cornerRadii.bottomLeft - inset, .zero), maximumRadius)
+        let bottomRight = min(max(cornerRadii.bottomRight - inset, .zero), maximumRadius)
+        let path = UIBezierPath()
+
+        path.move(to: CGPoint(x: rect.minX + topLeft, y: rect.minY))
+        path.addLine(to: CGPoint(x: rect.maxX - topRight, y: rect.minY))
+        if topRight > .zero {
+            path.addArc(
+                withCenter: CGPoint(x: rect.maxX - topRight, y: rect.minY + topRight),
+                radius: topRight,
+                startAngle: -.pi / 2,
+                endAngle: .zero,
+                clockwise: true
+            )
+        }
+        path.addLine(to: CGPoint(x: rect.maxX, y: rect.maxY - bottomRight))
+        if bottomRight > .zero {
+            path.addArc(
+                withCenter: CGPoint(x: rect.maxX - bottomRight, y: rect.maxY - bottomRight),
+                radius: bottomRight,
+                startAngle: .zero,
+                endAngle: .pi / 2,
+                clockwise: true
+            )
+        }
+        path.addLine(to: CGPoint(x: rect.minX + bottomLeft, y: rect.maxY))
+        if bottomLeft > .zero {
+            path.addArc(
+                withCenter: CGPoint(x: rect.minX + bottomLeft, y: rect.maxY - bottomLeft),
+                radius: bottomLeft,
+                startAngle: .pi / 2,
+                endAngle: .pi,
+                clockwise: true
+            )
+        }
+        path.addLine(to: CGPoint(x: rect.minX, y: rect.minY + topLeft))
+        if topLeft > .zero {
+            path.addArc(
+                withCenter: CGPoint(x: rect.minX + topLeft, y: rect.minY + topLeft),
+                radius: topLeft,
+                startAngle: .pi,
+                endAngle: .pi * 1.5,
+                clockwise: true
+            )
+        }
+        path.close()
+        return path.cgPath
     }
 
     private func makeGradientLocations(for count: Int) -> [NSNumber] {
@@ -473,6 +557,14 @@ extension ViewUIKit {
             name: UIApplication.didEnterBackgroundNotification,
             object: nil
         )
+    }
+}
+
+private extension CornerStyle.Corners {
+    var hasDifferentPositiveValues: Bool {
+        let values = [topLeft, topRight, bottomLeft, bottomRight].filter { $0 > .zero }
+        guard let first = values.first else { return false }
+        return values.dropFirst().contains { $0 != first }
     }
 }
 

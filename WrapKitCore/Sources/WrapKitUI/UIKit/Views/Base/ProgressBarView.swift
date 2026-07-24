@@ -20,23 +20,7 @@ public struct ProgressBarStyle {
     public let height: CGFloat?
     public let cornerStyle: CornerStyle?
     public let trackHeight: CGFloat?
-    
-    public init(
-        backgroundColor: Color? = nil,
-        progressBarColor: Color? = nil,
-        height: CGFloat? = nil,
-        trackHeight: CGFloat? = nil,
-        cornerRadius: CGFloat
-    ) {
-        self.init(
-            backgroundColor: backgroundColor,
-            progressBarColor: progressBarColor,
-            height: height,
-            trackHeight: trackHeight,
-            cornerStyle: .fixed(cornerRadius)
-        )
-    }
-    
+
     public init(
         backgroundColor: Color? = nil,
         progressBarColor: Color? = nil,
@@ -123,7 +107,7 @@ public final class ProgressBarView: UIView {
     }
 
     private func applyCornerStyles() {
-        let cornerStyle = style?.cornerStyle ?? .fixed(4) // was default 4
+        let cornerStyle = style?.cornerStyle ?? .fixed(4)
         trackView.applyCornerStyle(cornerStyle)
         progressView.applyCornerStyle(cornerStyle)
     }

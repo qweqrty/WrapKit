@@ -8,73 +8,8 @@
 import WrapKit
 import XCTest
 import WrapKitTestUtils
-import Kingfisher
-
-private enum ImageTestLinks: String {
-    case light = "https://developer.apple.com/assets/elements/icons/swift/swift-64x64_2x.png"
-    case dark = "https://uxwing.com/wp-content/themes/uxwing/download/web-app-development/dark-mode-icon.png"
-}
-
-private final class ButtonImageURLProtocolStub: URLProtocol {
-    override class func canInit(with request: URLRequest) -> Bool {
-        ImageTestLinks(rawValue: request.url?.absoluteString ?? "") != nil
-    }
-
-    override class func canonicalRequest(for request: URLRequest) -> URLRequest {
-        request
-    }
-
-    override func startLoading() {
-        guard
-            let url = request.url,
-            let link = ImageTestLinks(rawValue: url.absoluteString),
-            let fixtureURL = Bundle(for: ButtonSnapshotTests.self).url(
-                forResource: link == .light ? "button-image-light" : "button-image-dark",
-                withExtension: "png"
-            ),
-            let data = try? Data(contentsOf: fixtureURL),
-            let response = HTTPURLResponse(
-                url: url,
-                statusCode: 200,
-                httpVersion: nil,
-                headerFields: ["Content-Type": "image/png"]
-            )
-        else {
-            client?.urlProtocol(self, didFailWithError: URLError(.fileDoesNotExist))
-            return
-        }
-
-        client?.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
-        client?.urlProtocol(self, didLoad: data)
-        client?.urlProtocolDidFinishLoading(self)
-    }
-
-    override func stopLoading() {}
-}
 
 final class ButtonSnapshotTests: XCTestCase {
-    private static let originalDownloader = KingfisherManager.shared.downloader
-    
-    override class func setUp() {
-        super.setUp()
-        let configuration = URLSessionConfiguration.ephemeral
-        configuration.protocolClasses = [ButtonImageURLProtocolStub.self]
-        let downloader = ImageDownloader(name: "ButtonSnapshotTests")
-        downloader.sessionConfiguration = configuration
-        KingfisherManager.shared.downloader = downloader
-        KingfisherManager.shared.cache.clearMemoryCache()
-        KingfisherManager.shared.cache.clearCache()
-        KingfisherManager.shared.cache.clearDiskCache()
-        KingfisherManager.shared.cache.cleanExpiredCache()
-        KingfisherManager.shared.cache.cleanExpiredMemoryCache()
-        KingfisherManager.shared.cache.cleanExpiredDiskCache()
-    }
-
-    override class func tearDown() {
-        KingfisherManager.shared.downloader = originalDownloader
-        super.tearDown()
-    }
-    
     func test_buttonOutput_default_state() {
         let snapshotName = "BUTTON_DEFAULT_STATE"
         
@@ -258,7 +193,7 @@ final class ButtonSnapshotTests: XCTestCase {
         let exp = expectation(description: "Wait for complition")
         
         // WHEN
-        let light = URL(string: ImageTestLinks.light.rawValue)
+        let light = ImageSnapshotFixture.light.url
         sut.display(style: .init(backgroundColor: .cyan))
         
         sut.setImage(.url(light, light)) { _ in
@@ -283,7 +218,7 @@ final class ButtonSnapshotTests: XCTestCase {
         let exp = expectation(description: "Wait for complition")
         
         // WHEN
-        let light = URL(string: ImageTestLinks.light.rawValue)
+        let light = ImageSnapshotFixture.light.url
         sut.display(style: .init(backgroundColor: .blue))
         
         sut.setImage(.url(light, light)) { _ in
@@ -308,7 +243,7 @@ final class ButtonSnapshotTests: XCTestCase {
         let exp = expectation(description: "Wait for complition")
         
         // WHEN
-        let light = URL(string: ImageTestLinks.dark.rawValue)
+        let light = ImageSnapshotFixture.dark.url
         sut.display(style: .init(backgroundColor: .cyan))
         
         sut.setImage(.url(light, light)) { _ in
@@ -333,7 +268,7 @@ final class ButtonSnapshotTests: XCTestCase {
         let exp = expectation(description: "Wait for complition")
         
         // WHEN
-        let light = URL(string: ImageTestLinks.dark.rawValue)
+        let light = ImageSnapshotFixture.dark.url
         sut.display(style: .init(backgroundColor: .blue))
         
         sut.setImage(.url(light, light)) { _ in
@@ -358,7 +293,7 @@ final class ButtonSnapshotTests: XCTestCase {
         let exp = expectation(description: "Wait for complition")
         
         // WHEN
-        let light = ImageTestLinks.light.rawValue
+        let light = ImageSnapshotFixture.light.urlString
         sut.display(style: .init(backgroundColor: .cyan))
         
         sut.setImage(.urlString(light, light)) { _ in
@@ -383,7 +318,7 @@ final class ButtonSnapshotTests: XCTestCase {
         let exp = expectation(description: "Wait for complition")
         
         // WHEN
-        let light = ImageTestLinks.light.rawValue
+        let light = ImageSnapshotFixture.light.urlString
         sut.display(style: .init(backgroundColor: .blue))
         
         sut.setImage(.urlString(light, light)) { _ in
@@ -408,7 +343,7 @@ final class ButtonSnapshotTests: XCTestCase {
         let exp = expectation(description: "Wait for complition")
         
         // WHEN
-        let dark = ImageTestLinks.dark.rawValue
+        let dark = ImageSnapshotFixture.dark.urlString
         sut.display(style: .init(backgroundColor: .cyan))
         
         sut.setImage(.urlString(dark, dark)) { _ in
@@ -433,7 +368,7 @@ final class ButtonSnapshotTests: XCTestCase {
         let exp = expectation(description: "Wait for complition")
         
         // WHEN
-        let dark = ImageTestLinks.dark.rawValue
+        let dark = ImageSnapshotFixture.dark.urlString
         sut.display(style: .init(backgroundColor: .blue))
         
         sut.setImage(.urlString(dark, dark)) { _ in

@@ -205,7 +205,13 @@ public extension UIView {
     ) {
         let bgColor = shimmerView == nil ? .clear : (firstNonClearBackgroundColor ?? .clear)
         let emptyView = UIView(backgroundColor: bgColor)
-        let shimmerContent = shimmerView ?? ShimmerView(backgroundColor: .clear)
+        let shimmerContent: ShimmerView
+        if let shimmerView {
+            shimmerContent = shimmerView
+        } else {
+            shimmerContent = ShimmerView(backgroundColor: .clear)
+            shimmerContent.applyCornerStyle(.fixed(4))
+        }
         shimmerContent.startShimmering()
         
         emptyView.tag = Self.shimmerViewTag
@@ -215,8 +221,7 @@ public extension UIView {
         emptyView.addSubview(shimmerContent)
         
         shimmerContent.alpha = 0
-        shimmerContent.cornerRadius = shimmerView?.cornerRadius ?? 4
-        
+
         if let heightMultiplier, let widthMultiplier {
             shimmerContent.anchor(
                 .leading(leadingAnchor),
