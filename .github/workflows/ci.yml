@@ -111,7 +111,7 @@ jobs:
           mkdir -p "$artifacts_dir"
 
           find "$simulator_devices" \
-            -path "*/data/tmp/*" \
+            -path "*/data/Containers/Data/Application/*/tmp/*" \
             -type f \
             \( -name "origin.png" -o -name "diff.png" -o -name "new.png" \) \
             -print0 |

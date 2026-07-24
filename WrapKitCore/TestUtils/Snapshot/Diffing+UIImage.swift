@@ -3,7 +3,7 @@ import UIKit
 import XCTest
 
 extension Diffing where Value == UIImage {
-    /// A pixel-diffing strategy for UIImage's which requires a 100% match.
+    /// A pixel-diffing strategy for UIImages that normalizes color space and rejects visible changes.
     public static let image = Diffing.image()
     
     /// A pixel-diffing strategy for UIImage that allows customizing how precise the matching must be.
@@ -113,10 +113,21 @@ extension Diffing where Value == UIImage {
     }
 }
 
-// remap snapshot & reference to same colorspace
-private let imageContextColorSpace = CGColorSpaceCreateDeviceRGB()
+// Remap snapshot and reference to the same device-independent color space.
+private let imageContextColorSpace: CGColorSpace = {
+    guard let colorSpace = CGColorSpace(name: CGColorSpace.sRGB) else {
+        preconditionFailure("The sRGB color space is unavailable.")
+    }
+    return colorSpace
+}()
 private let imageContextBitsPerComponent = 8
 private let imageContextBytesPerPixel = 4
+private let imageContextOpaqueColorTolerance: UInt8 = 1
+// A translucent color channel can move by two steps after 8-bit sRGB premultiplication and rounding.
+private let imageContextTranslucentColorTolerance: UInt8 = 2
+private let imageContextAlphaTolerance: UInt8 = 1
+// Quantization noise must stay sparse: at most one affected pixel per 200,000.
+private let imageContextPixelsPerAllowedDifference = 200_000
 
 private func compare(
     _ old: UIImage,
@@ -159,6 +170,7 @@ private func compare(
         return "Newly-taken snapshot's data could not be loaded."
     }
     if memcmp(oldData, newerData, byteCount) == 0 { return nil }
+    if matchesWithinQuantization(oldData, newerData, byteCount: byteCount) { return nil }
     if precision >= 1, perceptualPrecision >= 1 {
         return "Newly-taken snapshot does not match reference."
     }
@@ -189,6 +201,46 @@ private func compare(
         }
     }
     return nil
+}
+
+private func matchesWithinQuantization(
+    _ oldData: UnsafeMutableRawPointer,
+    _ newData: UnsafeMutableRawPointer,
+    byteCount: Int
+) -> Bool {
+    let oldBytes = oldData.assumingMemoryBound(to: UInt8.self)
+    let newBytes = newData.assumingMemoryBound(to: UInt8.self)
+    let pixelCount = byteCount / imageContextBytesPerPixel
+    let allowedPixelCount = pixelCount / imageContextPixelsPerAllowedDifference
+    guard allowedPixelCount > 0 else { return false }
+    var changedPixelCount = 0
+    var index = 0
+    while index < byteCount {
+        var pixelChanged = false
+        let oldAlpha = oldBytes[index + 3]
+        let newAlpha = newBytes[index + 3]
+        let colorTolerance = oldAlpha == 255 && newAlpha == 255
+            ? imageContextOpaqueColorTolerance
+            : imageContextTranslucentColorTolerance
+        for channel in 0..<3 {
+            let difference = channelDifference(oldBytes[index + channel], newBytes[index + channel])
+            if difference > colorTolerance { return false }
+            pixelChanged = pixelChanged || difference > 0
+        }
+        let alphaDifference = channelDifference(oldAlpha, newAlpha)
+        if alphaDifference > imageContextAlphaTolerance { return false }
+        pixelChanged = pixelChanged || alphaDifference > 0
+        if pixelChanged {
+            changedPixelCount += 1
+            if changedPixelCount > allowedPixelCount { return false }
+        }
+        index += imageContextBytesPerPixel
+    }
+    return true
+}
+
+private func channelDifference(_ lhs: UInt8, _ rhs: UInt8) -> UInt8 {
+    lhs >= rhs ? lhs - rhs : rhs - lhs
 }
 
 private func context(for cgImage: CGImage, data: UnsafeMutableRawPointer? = nil, draw: Bool = true) -> CGContext? {
