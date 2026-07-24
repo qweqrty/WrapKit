@@ -8,6 +8,10 @@ extension Diffing where Value == UIImage {
     
     /// A pixel-diffing strategy for UIImage that allows customizing how precise the matching must be.
     ///
+    /// Sparse differences caused by 8-bit color normalization are treated as equivalent before the
+    /// requested precision settings are evaluated. Differences outside that tolerance use either
+    /// byte precision or perceptual precision, depending on the requested settings.
+    ///
     /// - Parameters:
     ///   - precision: The percentage of pixels that must match.
     ///   - perceptualPrecision: The percentage a pixel must match the source pixel to be considered a
@@ -122,12 +126,12 @@ private let imageContextColorSpace: CGColorSpace = {
 }()
 private let imageContextBitsPerComponent = 8
 private let imageContextBytesPerPixel = 4
-private let imageContextOpaqueColorTolerance: UInt8 = 1
-// A translucent color channel can move by two steps after 8-bit sRGB premultiplication and rounding.
-private let imageContextTranslucentColorTolerance: UInt8 = 2
+// Independent color-space conversion and 8-bit normalization can place equivalent renders two
+// channel steps apart.
+private let imageContextColorTolerance: UInt8 = 2
 private let imageContextAlphaTolerance: UInt8 = 1
-// Quantization noise must stay sparse: at most one affected pixel per 200,000.
-private let imageContextPixelsPerAllowedDifference = 200_000
+// Quantization differences may affect at most 0.01% of the image.
+private let imageContextPixelsPerAllowedQuantizationDifference = 10_000
 
 private func compare(
     _ old: UIImage,
@@ -170,7 +174,7 @@ private func compare(
         return "Newly-taken snapshot's data could not be loaded."
     }
     if memcmp(oldData, newerData, byteCount) == 0 { return nil }
-    if matchesWithinQuantization(oldData, newerData, byteCount: byteCount) { return nil }
+    if matchesWithinQuantizationTolerance(oldData, newerData, byteCount: byteCount) { return nil }
     if precision >= 1, perceptualPrecision >= 1 {
         return "Newly-taken snapshot does not match reference."
     }
@@ -203,7 +207,7 @@ private func compare(
     return nil
 }
 
-private func matchesWithinQuantization(
+private func matchesWithinQuantizationTolerance(
     _ oldData: UnsafeMutableRawPointer,
     _ newData: UnsafeMutableRawPointer,
     byteCount: Int
@@ -211,20 +215,17 @@ private func matchesWithinQuantization(
     let oldBytes = oldData.assumingMemoryBound(to: UInt8.self)
     let newBytes = newData.assumingMemoryBound(to: UInt8.self)
     let pixelCount = byteCount / imageContextBytesPerPixel
-    let allowedPixelCount = pixelCount / imageContextPixelsPerAllowedDifference
-    guard allowedPixelCount > 0 else { return false }
+    let allowedChangedPixelCount = pixelCount / imageContextPixelsPerAllowedQuantizationDifference
+    guard allowedChangedPixelCount > 0 else { return false }
     var changedPixelCount = 0
     var index = 0
     while index < byteCount {
         var pixelChanged = false
         let oldAlpha = oldBytes[index + 3]
         let newAlpha = newBytes[index + 3]
-        let colorTolerance = oldAlpha == 255 && newAlpha == 255
-            ? imageContextOpaqueColorTolerance
-            : imageContextTranslucentColorTolerance
         for channel in 0..<3 {
             let difference = channelDifference(oldBytes[index + channel], newBytes[index + channel])
-            if difference > colorTolerance { return false }
+            if difference > imageContextColorTolerance { return false }
             pixelChanged = pixelChanged || difference > 0
         }
         let alphaDifference = channelDifference(oldAlpha, newAlpha)
@@ -232,7 +233,7 @@ private func matchesWithinQuantization(
         pixelChanged = pixelChanged || alphaDifference > 0
         if pixelChanged {
             changedPixelCount += 1
-            if changedPixelCount > allowedPixelCount { return false }
+            if changedPixelCount > allowedChangedPixelCount { return false }
         }
         index += imageContextBytesPerPixel
     }

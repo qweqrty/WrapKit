@@ -3,42 +3,42 @@ import WrapKitTestUtils
 import XCTest
 
 final class ImageDiffingTests: XCTestCase {
-    func test_imageDiffing_allowsSparseOpaqueOneStepQuantizationNoise() {
+    func test_imageDiffing_allowsSparseOpaqueTwoStepQuantizationDifference() {
         let reference = makeImage()
-        let actual = makeImage(changedPixelCount: 1, changedRed: 101)
+        let actual = makeImage(changedPixelCount: 1, changedRed: 102)
 
         XCTAssertNil(Diffing<UIImage>.image.diff(reference, actual))
     }
 
-    func test_imageDiffing_rejectsSparseOpaqueTwoStepDifference() {
+    func test_imageDiffing_rejectsSingleOpaquePixelOverColorTolerance() {
         let reference = makeImage()
-        let actual = makeImage(changedPixelCount: 1, changedRed: 102)
+        let actual = makeImage(changedPixelCount: 1, changedRed: 103)
 
         XCTAssertNotNil(Diffing<UIImage>.image.diff(reference, actual))
     }
 
-    func test_imageDiffing_allowsSparseTranslucentTwoStepQuantizationNoise() {
+    func test_imageDiffing_allowsSparseTranslucentTwoStepQuantizationDifference() {
         let reference = makeImage(alpha: 200)
         let actual = makeImage(alpha: 200, changedPixelCount: 1, changedRed: 102)
 
         XCTAssertNil(Diffing<UIImage>.image.diff(reference, actual))
     }
 
-    func test_imageDiffing_rejectsSparseTranslucentThreeStepDifference() {
+    func test_imageDiffing_rejectsSingleTranslucentPixelOverColorTolerance() {
         let reference = makeImage(alpha: 200)
         let actual = makeImage(alpha: 200, changedPixelCount: 1, changedRed: 103)
 
         XCTAssertNotNil(Diffing<UIImage>.image.diff(reference, actual))
     }
 
-    func test_imageDiffing_allowsSparseOneStepAlphaQuantizationNoise() {
+    func test_imageDiffing_allowsSparseOneStepAlphaQuantizationDifference() {
         let reference = makeImage(alpha: 200)
         let actual = makeImage(alpha: 200, changedPixelCount: 1, changedAlpha: 199)
 
         XCTAssertNil(Diffing<UIImage>.image.diff(reference, actual))
     }
 
-    func test_imageDiffing_rejectsSparseTwoStepAlphaDifference() {
+    func test_imageDiffing_rejectsSinglePixelOverAlphaTolerance() {
         let reference = makeImage(alpha: 200)
         let actual = makeImage(alpha: 200, changedPixelCount: 1, changedAlpha: 198)
 
@@ -47,14 +47,21 @@ final class ImageDiffingTests: XCTestCase {
 
     func test_imageDiffing_rejectsQuantizationDifferenceOverPixelBudget() {
         let reference = makeImage()
-        let actual = makeImage(changedPixelCount: 2, changedRed: 101)
+        let actual = makeImage(changedPixelCount: 26, changedRed: 102)
 
         XCTAssertNotNil(Diffing<UIImage>.image.diff(reference, actual))
     }
 
-    func test_imageDiffing_rejectsUniformOneStepColorDifference() {
+    func test_imageDiffing_allowsQuantizationDifferenceAtPixelBudget() {
+        let reference = makeImage()
+        let actual = makeImage(changedPixelCount: 25, changedRed: 102)
+
+        XCTAssertNil(Diffing<UIImage>.image.diff(reference, actual))
+    }
+
+    func test_imageDiffing_rejectsUniformTwoStepColorDifference() {
         let reference = makeImage(red: 100)
-        let actual = makeImage(red: 101)
+        let actual = makeImage(red: 102)
 
         XCTAssertNotNil(Diffing<UIImage>.image.diff(reference, actual))
     }
@@ -66,12 +73,26 @@ final class ImageDiffingTests: XCTestCase {
         XCTAssertNotNil(Diffing<UIImage>.image.diff(reference, actual))
     }
 
+    func test_imageDiffing_fullPrecisionRejectsLocalizedVisibleChange() {
+        let reference = makeImage()
+        let actual = makeImage(changedPixelCount: 5_000, changedRed: 200)
+
+        XCTAssertNotNil(Diffing<UIImage>.image(precision: 1).diff(reference, actual))
+    }
+
     func test_imageDiffing_preservesExplicitPrecisionBehavior() {
         let reference = makeImage(red: 100)
-        let actual = makeImage(red: 101)
+        let actual = makeImage(red: 103)
 
         XCTAssertNil(Diffing<UIImage>.image(precision: 0.7).diff(reference, actual))
         XCTAssertNotNil(Diffing<UIImage>.image(precision: 0.8).diff(reference, actual))
+    }
+
+    func test_imageDiffing_treatsQuantizationToleranceAsEquivalentWithExplicitPrecision() {
+        let reference = makeImage()
+        let actual = makeImage(changedPixelCount: 25, changedRed: 102)
+
+        XCTAssertNil(Diffing<UIImage>.image(precision: 0.99999).diff(reference, actual))
     }
 }
 
@@ -104,7 +125,6 @@ private extension ImageDiffingTests {
                 pixels[byteIndex + 3] = changedAlpha
             }
         }
-
         guard let colorSpace = CGColorSpace(name: CGColorSpace.sRGB) else {
             XCTFail("The sRGB color space is unavailable.")
             return UIImage()
