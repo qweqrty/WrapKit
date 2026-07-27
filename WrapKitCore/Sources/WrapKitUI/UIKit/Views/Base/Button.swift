@@ -108,6 +108,7 @@ public protocol ButtonOutput: HiddableOutput {
 
 public struct ButtonPresentableModel {
     public let accessibilityIdentifier: String?
+    public let accessibility: Accessibility?
     public let height: CGFloat?
     public let width: CGFloat?
     public let title: String?
@@ -121,6 +122,7 @@ public struct ButtonPresentableModel {
     
     public init(
         accessibilityIdentifier: String? = nil,
+        accessibility: Accessibility? = nil,
         title: String? = nil,
         image: Image? = nil,
         spacing: CGFloat? = nil,
@@ -133,6 +135,7 @@ public struct ButtonPresentableModel {
         onPress: (() -> Void)? = nil
     ) {
         self.accessibilityIdentifier = accessibilityIdentifier
+        self.accessibility = accessibility
         self.spacing = spacing
         self.contentInset = contentInset
         self.isGlassEffectEnabled = isGlassEffectEnabled
@@ -153,6 +156,8 @@ extension Button: ButtonOutput {
     public func display(model: ButtonPresentableModel?) {
         isHidden = model == nil
         accessibilityIdentifier = model?.accessibilityIdentifier
+        accessibilityLabel = model?.accessibility?.label
+        accessibilityHint = model?.accessibility?.hint
         display(style: model?.style) // need to be first
         if let spacing = model?.spacing { display(spacing: spacing) }
         if let contentInset = model?.contentInset { display(contentInset: contentInset) }

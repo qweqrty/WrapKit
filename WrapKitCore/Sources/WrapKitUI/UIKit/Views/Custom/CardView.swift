@@ -185,6 +185,7 @@ public struct CardViewPresentableModel: HashableWithReflection {
 
     public let id: String
     public let accessibilityIdentifier: String?
+    public let accessibility: Accessibility?
     public var style: Style?
     public let backgroundImage: ImageViewPresentableModel?
     public let title: TextOutputPresentableModel?
@@ -207,6 +208,7 @@ public struct CardViewPresentableModel: HashableWithReflection {
     public init(
         id: String = UUID().uuidString,
         accessibilityIdentifier: String? = nil,
+        accessibility: Accessibility? = nil,
         style: Style? = nil,
         backgroundImage: ImageViewPresentableModel? = nil,
         title: TextOutputPresentableModel? = nil,
@@ -228,6 +230,7 @@ public struct CardViewPresentableModel: HashableWithReflection {
     ) {
         self.id = id
         self.accessibilityIdentifier = accessibilityIdentifier
+        self.accessibility = accessibility
         self.style = style
         self.backgroundImage = backgroundImage
         self.leadingTitles = leadingTitles
@@ -390,6 +393,8 @@ extension CardView: CardViewOutput {
     public func display(model: CardViewPresentableModel?) {
         isHidden = model == nil
         accessibilityIdentifier = model?.accessibilityIdentifier
+        accessibilityLabel = model?.accessibility?.label
+        accessibilityHint = model?.accessibility?.hint
         guard let model = model else {
             invalidateA11y()
             return

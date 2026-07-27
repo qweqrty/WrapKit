@@ -78,16 +78,22 @@ public struct TextOutputPresentableModel: HashableWithReflection {
     }
     
     public let accessibilityIdentifier: String?
+    public let accessibility: Accessibility?
     public let model: TextModel?
     
-    public init(accessibilityIdentifier: String? = nil, model: TextModel?) {
+    public init(
+        accessibilityIdentifier: String? = nil,
+        accessibility: Accessibility? = nil,
+        model: TextModel?
+    ) {
         self.accessibilityIdentifier = accessibilityIdentifier
+        self.accessibility = accessibility
         self.model = model
     }
     
     // MARK: - Helpers
-    public static func text(accessibilityIdentifier: String? = nil, _ string: String?) -> Self {
-        .init(accessibilityIdentifier: accessibilityIdentifier, model: .text(string))
+    public static func text(accessibilityIdentifier: String? = nil, accessibility: Accessibility? = nil, _ string: String?) -> Self {
+        .init(accessibilityIdentifier: accessibilityIdentifier, accessibility: accessibility, model: .text(string))
     }
     
     public static func attributes(accessibilityIdentifier: String? = nil, _ attributes: [TextAttributes]) -> Self {
@@ -194,9 +200,9 @@ import UIKit
 extension Label: TextOutput {
     public func display(model: TextOutputPresentableModel?) {
         isHidden = model == nil
-        if let accessibilityIdentifier = model?.accessibilityIdentifier {
-            self.accessibilityIdentifier = accessibilityIdentifier
-        }
+        accessibilityIdentifier = model?.accessibilityIdentifier
+        accessibilityLabel = model?.accessibility?.label
+        accessibilityHint = model?.accessibility?.hint
         guard let model = model?.model else { return }
         display(textModel: model)
         let tappable = attributes.contains(where: { $0.onTap != nil && $0.range != nil })
