@@ -10,109 +10,29 @@ import XCTest
 import WrapKitTestUtils
 
 private enum ImageViewTestLink: String {
-    case first = "https://wrapkit.test/image-1.png"
-    case second = "https://wrapkit.test/image-2.png"
-
-    var url: URL {
-        URL(string: rawValue)!
-    }
-}
-
-private final class ImageViewURLProtocolStub: URLProtocol {
-    private static let lock = NSLock()
-    private static var _startedURLs: [URL] = []
-    private static var _stoppedURLs: [URL] = []
-    private static var onStart: ((URL) -> Void)?
-    private static var onStop: ((URL) -> Void)?
-
-    static var startedURLs: [URL] {
-        lock.lock()
-        defer { lock.unlock() }
-        return _startedURLs
-    }
-
-    static var stoppedURLs: [URL] {
-        lock.lock()
-        defer { lock.unlock() }
-        return _stoppedURLs
-    }
-
-    static func reset() {
-        lock.lock()
-        _startedURLs = []
-        _stoppedURLs = []
-        onStart = nil
-        onStop = nil
-        lock.unlock()
-    }
-
-    static func observeStart(_ observer: @escaping (URL) -> Void) {
-        lock.lock()
-        onStart = observer
-        lock.unlock()
-    }
-
-    static func observeStop(_ observer: @escaping (URL) -> Void) {
-        lock.lock()
-        onStop = observer
-        lock.unlock()
-    }
-
-    override class func canInit(with request: URLRequest) -> Bool {
-        ImageViewTestLink(rawValue: request.url?.absoluteString ?? "") != nil
-    }
-
-    override class func canonicalRequest(for request: URLRequest) -> URLRequest {
-        request
-    }
-
-    override func startLoading() {
-        guard let url = request.url else { return }
-
-        let observer: ((URL) -> Void)?
-        Self.lock.lock()
-        Self._startedURLs.append(url)
-        observer = Self.onStart
-        Self.lock.unlock()
-
-        observer?(url)
-    }
-
-    override func stopLoading() {
-        guard let url = request.url else { return }
-
-        let observer: ((URL) -> Void)?
-        Self.lock.lock()
-        Self._stoppedURLs.append(url)
-        observer = Self.onStop
-        Self.lock.unlock()
-
-        observer?(url)
-    }
+    case first = "/image-1.png"
+    case second = "/image-2.png"
 }
 
 final class ImageViewCancelDownloadTests: XCTestCase {
-    override func setUp() {
-        super.setUp()
+    private var server: HangingHTTPServer!
 
-        ImageViewURLProtocolStub.reset()
-        let configuration = URLSessionConfiguration.ephemeral
-        configuration.protocolClasses = [ImageViewURLProtocolStub.self]
-        ImageView.imageLoadingSessionConfigurationOverride = configuration
+    override func setUpWithError() throws {
+        try super.setUpWithError()
+        server = try HangingHTTPServer()
     }
 
-    override func tearDown() {
-        ImageView.resetImageLoadingSessionConfigurationOverride()
-        ImageViewURLProtocolStub.reset()
-
-        super.tearDown()
+    override func tearDownWithError() throws {
+        server.stop()
+        server = nil
+        try super.tearDownWithError()
     }
 
     func test_imageView_setImageToNil_cancelsDownloadTask() {
         // GIVEN
         let sut = makeSUT()
-        startLoading(ImageViewTestLink.first.url, in: sut)
-        let stopExpectation = expectRequestStop(for: ImageViewTestLink.first.url)
+        startLoading(firstURL, in: sut)
+        let stopExpectation = expectRequestStop(for: firstURL)
 
         // WHEN
         sut.display(image: nil)
@@ -121,14 +41,14 @@ final class ImageViewCancelDownloadTests: XCTestCase {
         wait(for: [stopExpectation], timeout: 1.0)
         XCTAssertNil(sut.image)
         XCTAssertNil(sut.currentImageEnum)
-        XCTAssertEqual(ImageViewURLProtocolStub.stoppedURLs, [ImageViewTestLink.first.url])
+        XCTAssertEqual(server.disconnectedURLs, [firstURL])
     }
 
     func test_imageView_setImagePropertyToNil_cancelsDownloadTask() {
         // GIVEN
         let sut = makeSUT()
-        startLoading(ImageViewTestLink.first.url, in: sut)
-        let stopExpectation = expectRequestStop(for: ImageViewTestLink.first.url)
+        startLoading(firstURL, in: sut)
+        let stopExpectation = expectRequestStop(for: firstURL)
 
         // WHEN
         sut.image = nil
@@ -136,14 +56,14 @@ final class ImageViewCancelDownloadTests: XCTestCase {
         // THEN
         wait(for: [stopExpectation], timeout: 1.0)
         XCTAssertNil(sut.image)
-        XCTAssertEqual(ImageViewURLProtocolStub.stoppedURLs, [ImageViewTestLink.first.url])
+        XCTAssertEqual(server.disconnectedURLs, [firstURL])
     }
 
     func test_imageView_setImageEnumToNone_cancelsDownloadTask() {
         // GIVEN
         let sut = makeSUT()
-        startLoading(ImageViewTestLink.first.url, in: sut)
-        let stopExpectation = expectRequestStop(for: ImageViewTestLink.first.url)
+        startLoading(firstURL, in: sut)
+        let stopExpectation = expectRequestStop(for: firstURL)
 
         // WHEN
         sut.display(image: .none)
@@ -152,7 +72,7 @@ final class ImageViewCancelDownloadTests: XCTestCase {
         wait(for: [stopExpectation], timeout: 1.0)
         XCTAssertNil(sut.image)
         XCTAssertNil(sut.currentImageEnum)
-        XCTAssertEqual(ImageViewURLProtocolStub.stoppedURLs, [ImageViewTestLink.first.url])
+        XCTAssertEqual(server.disconnectedURLs, [firstURL])
     }
 
     func test_imageView_setImageToNil_cancelsCurrentAnimation() {
@@ -173,20 +93,21 @@ final class ImageViewCancelDownloadTests: XCTestCase {
     func test_imageView_switchingImages_cancelsPreviousDownload() {
         // GIVEN
         let sut = makeSUT()
-        startLoading(ImageViewTestLink.first.url, in: sut)
-        let stopExpectation = expectRequestStop(for: ImageViewTestLink.first.url)
-        let secondStartExpectation = expectRequestStart(for: ImageViewTestLink.second.url)
+        startLoading(firstURL, in: sut)
+        let stopExpectation = expectRequestStop(for: firstURL)
+        let secondStartExpectation = expectRequestStart(for: secondURL)
 
         // WHEN
-        sut.display(image: .url(ImageViewTestLink.second.url, ImageViewTestLink.second.url))
+        sut.display(image: .url(secondURL, secondURL))
 
         // THEN
         wait(for: [stopExpectation, secondStartExpectation], timeout: 1.0)
-        XCTAssertEqual(ImageViewURLProtocolStub.startedURLs, [
-            ImageViewTestLink.first.url,
-            ImageViewTestLink.second.url
+        XCTAssertEqual(server.startedURLs, [
+            firstURL,
+            secondURL
         ])
-        XCTAssertEqual(ImageViewURLProtocolStub.stoppedURLs, [ImageViewTestLink.first.url])
+        XCTAssertEqual(server.disconnectedURLs, [firstURL])
+        sut.display(image: nil)
     }
 
     func test_imageView_setImageToNil_callsCompletionWithNil() {
@@ -209,8 +130,8 @@ final class ImageViewCancelDownloadTests: XCTestCase {
     func test_imageView_setNilUrlString_clearsImage() {
         // GIVEN
         let sut = makeSUT()
-        startLoading(ImageViewTestLink.first.url, in: sut)
-        let stopExpectation = expectRequestStop(for: ImageViewTestLink.first.url)
+        startLoading(firstURL, in: sut)
+        let stopExpectation = expectRequestStop(for: firstURL)
 
         // WHEN
         sut.display(image: .urlString(nil, nil))
@@ -218,15 +139,15 @@ final class ImageViewCancelDownloadTests: XCTestCase {
         // THEN
         wait(for: [stopExpectation], timeout: 1.0)
         XCTAssertNil(sut.image)
-        XCTAssertEqual(ImageViewURLProtocolStub.stoppedURLs, [ImageViewTestLink.first.url])
+        XCTAssertEqual(server.disconnectedURLs, [firstURL])
     }
 
     func test_imageView_cancelDownload_doesNotLeakMemory() {
         // GIVEN
         var sut: ImageView? = makeSUT()
         weak var weakSUT = sut
-        startLoading(ImageViewTestLink.first.url, in: sut)
-        let stopExpectation = expectRequestStop(for: ImageViewTestLink.first.url)
+        startLoading(firstURL, in: sut)
+        let stopExpectation = expectRequestStop(for: firstURL)
 
         // WHEN
         sut?.display(image: nil)
@@ -241,9 +162,9 @@ final class ImageViewCancelDownloadTests: XCTestCase {
         // GIVEN
         let sut = makeSUT()
         sut.viewWhileLoadingView = ViewUIKit()
-        startLoading(ImageViewTestLink.first.url, in: sut)
+        startLoading(firstURL, in: sut)
         XCTAssertEqual(sut.viewWhileLoadingView?.isHidden, false)
-        let stopExpectation = expectRequestStop(for: ImageViewTestLink.first.url)
+        let stopExpectation = expectRequestStop(for: firstURL)
 
         // WHEN
         sut.display(image: nil)
@@ -262,15 +183,15 @@ final class ImageViewCancelDownloadTests: XCTestCase {
         sut.display(image: .asset(image))
 
         // THEN
-        XCTAssertTrue(ImageViewURLProtocolStub.startedURLs.isEmpty)
+        XCTAssertTrue(server.startedURLs.isEmpty)
         XCTAssertNotNil(sut.image)
     }
 
     func test_imageView_displayModelWithNilImage_clearsImage() {
         // GIVEN
         let sut = makeSUT()
-        startLoading(ImageViewTestLink.first.url, in: sut)
-        let stopExpectation = expectRequestStop(for: ImageViewTestLink.first.url)
+        startLoading(firstURL, in: sut)
+        let stopExpectation = expectRequestStop(for: firstURL)
         let model = ImageViewPresentableModel(image: nil)
 
         // WHEN
@@ -280,14 +201,14 @@ final class ImageViewCancelDownloadTests: XCTestCase {
         wait(for: [stopExpectation], timeout: 1.0)
         XCTAssertNil(sut.image)
         XCTAssertNil(sut.currentImageEnum)
-        XCTAssertEqual(ImageViewURLProtocolStub.stoppedURLs, [ImageViewTestLink.first.url])
+        XCTAssertEqual(server.disconnectedURLs, [firstURL])
     }
 
     func test_imageView_imagePropertySetter_cancelsDownloadWhenSetToNil() {
         // GIVEN
         let sut = makeSUT()
-        startLoading(ImageViewTestLink.first.url, in: sut)
-        let stopExpectation = expectRequestStop(for: ImageViewTestLink.first.url)
+        startLoading(firstURL, in: sut)
+        let stopExpectation = expectRequestStop(for: firstURL)
 
         // WHEN
         sut.image = nil
@@ -295,11 +216,19 @@ final class ImageViewCancelDownloadTests: XCTestCase {
         // THEN
         wait(for: [stopExpectation], timeout: 1.0)
         XCTAssertNil(sut.image)
-        XCTAssertEqual(ImageViewURLProtocolStub.stoppedURLs, [ImageViewTestLink.first.url])
+        XCTAssertEqual(server.disconnectedURLs, [firstURL])
     }
 }
 
 private extension ImageViewCancelDownloadTests {
+    var firstURL: URL {
+        server.url(path: ImageViewTestLink.first.rawValue)
+    }
+
+    var secondURL: URL {
+        server.url(path: ImageViewTestLink.second.rawValue)
+    }
+
     func makeSUT(file: StaticString = #file, line: UInt = #line) -> ImageView {
         let sut = ImageView()
         checkForMemoryLeaks(sut, file: file, line: line)
@@ -316,7 +245,7 @@ private extension ImageViewCancelDownloadTests {
         let expectation = expectation(description: "Request started: \(url.absoluteString)")
         expectation.assertForOverFulfill = false
 
-        ImageViewURLProtocolStub.observeStart { startedURL in
+        server.observeStart { startedURL in
             guard startedURL == url else { return }
             expectation.fulfill()
         }
@@ -328,8 +257,8 @@ private extension ImageViewCancelDownloadTests {
         let expectation = expectation(description: "Request stopped: \(url.absoluteString)")
         expectation.assertForOverFulfill = false
 
-        ImageViewURLProtocolStub.observeStop { stoppedURL in
-            guard stoppedURL == url else { return }
+        server.observeDisconnect { disconnectedURL in
+            guard disconnectedURL == url else { return }
             expectation.fulfill()
         }
 

@@ -186,7 +186,7 @@ public extension ImageView {
     ) -> DownloadTask? {
         return KingfisherManager.shared.retrieveImage(
             with: url,
-            options: [.callbackQueue(.mainCurrentOrAsync), .fromMemoryCacheOrRefresh] + kingfisherOptions + Self.imageLoadingOverrideOptions
+            options: [.callbackQueue(.mainCurrentOrAsync), .fromMemoryCacheOrRefresh] + kingfisherOptions
         ) { [weak self] result in
             guard let self = self else { return }
             downloadTask = nil
@@ -228,39 +228,12 @@ public extension ImageView {
         // Start the animation
         currentAnimator?.startAnimation()
     }
-
-    private static var imageLoadingOverrideOptions: KingfisherOptionsInfo {
-        #if DEBUG
-        guard let configuration = imageLoadingSessionConfigurationOverride else { return [] }
-        if let imageLoadingDownloaderOverride {
-            return [.downloader(imageLoadingDownloaderOverride)]
-        }
-
-        let downloader = ImageDownloader(name: "ImageViewOverride")
-        downloader.sessionConfiguration = configuration
-        imageLoadingDownloaderOverride = downloader
-        return [.downloader(downloader)]
-        #else
-        return []
-        #endif
-    }
 }
 
 open class ImageView: UIImageView {
     public var currentAnimator: UIViewPropertyAnimator?
     public var currentImageEnum: ImageEnum?
     internal var downloadTask: DownloadTask?
-
-    #if DEBUG
-    // Allows tests to inject a URLProtocol-backed downloader without touching global Kingfisher state.
-    static var imageLoadingSessionConfigurationOverride: URLSessionConfiguration?
-    private static var imageLoadingDownloaderOverride: ImageDownloader?
-
-    static func resetImageLoadingSessionConfigurationOverride() {
-        imageLoadingSessionConfigurationOverride = nil
-        imageLoadingDownloaderOverride = nil
-    }
-    #endif
 
     open override var image: UIImage? {
         get {
