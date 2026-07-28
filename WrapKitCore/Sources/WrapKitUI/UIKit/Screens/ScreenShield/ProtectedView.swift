@@ -1,4 +1,3 @@
-
 import UIKit
 
 open class ProtectedView: UIView {
@@ -21,7 +20,10 @@ open class ProtectedView: UIView {
         commonInit()
     }
 
-    deinit { stopObserving() }
+    deinit {
+        stopObserving()
+        ProtectionState.removeInstanceFlag(for: self)
+    }
 
     open override func didMoveToWindow() {
         super.didMoveToWindow()
@@ -58,9 +60,16 @@ open class ProtectedView: UIView {
         secureTextField.backgroundColor = .clear
         secureTextField.textColor = .clear
         secureTextField.tintColor = .clear
-        secureTextField.isSecureTextEntry = true
+        secureTextField.isSecureTextEntry = isProtectionEnabled
         secureTextField.isUserInteractionEnabled = false
         secureTextField.clipsToBounds = true
+        secureTextField.textContentType = UITextContentType(rawValue: "")
+        secureTextField.autocorrectionType = .no
+        secureTextField.spellCheckingType = .no
+        secureTextField.smartQuotesType = .no
+        secureTextField.smartDashesType = .no
+        secureTextField.smartInsertDeleteType = .no
+        secureTextField.keyboardType = .numberPad
 
         protectedContentView.translatesAutoresizingMaskIntoConstraints = false
         protectedContentView.backgroundColor = .clear
@@ -168,20 +177,16 @@ public extension ProtectedView {
 // MARK: - Private helpers
 private extension ProtectedView {
     func applyProtectionState(enabled: Bool) {
-        DispatchQueue.main.async { [weak self] in
+        let update = { [weak self] in
             guard let self else { return }
-            findSecureTextField(in: self)?.isSecureTextEntry = enabled
+            self.secureTextField.isSecureTextEntry = enabled
         }
-    }
 
-    func findSecureTextField(in view: UIView) -> UITextField? {
-        if let textField = view as? UITextField { return textField }
-        for subview in view.subviews {
-            if let field = findSecureTextField(in: subview) {
-                return field
-            }
+        if Thread.isMainThread {
+            update()
+        } else {
+            DispatchQueue.main.async(execute: update)
         }
-        return nil
     }
 }
 
@@ -200,5 +205,10 @@ private enum ProtectionState {
     static func setInstanceFlag(_ value: Bool, for view: ProtectedView) {
         lock.lock(); defer { lock.unlock() }
         instanceFlags[ObjectIdentifier(view)] = value
+    }
+
+    static func removeInstanceFlag(for view: ProtectedView) {
+        lock.lock(); defer { lock.unlock() }
+        instanceFlags.removeValue(forKey: ObjectIdentifier(view))
     }
 }
