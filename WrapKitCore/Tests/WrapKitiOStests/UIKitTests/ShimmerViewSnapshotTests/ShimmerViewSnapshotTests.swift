@@ -10,6 +10,43 @@ import WrapKitTestUtils
 import XCTest
 
 final class ShimmerViewSnapshotTests: XCTestCase {
+    func test_showShimmer_withoutCustomView_appliesDefaultCornerStyle() {
+        // GIVEN
+        let container = makeContainer()
+
+        // WHEN
+        container.showShimmer()
+        container.layoutIfNeeded()
+
+        // THEN
+        let shimmerContent = container
+            .viewWithTag(UIView.shimmerViewTag)?
+            .subviews
+            .compactMap { $0 as? ShimmerView }
+            .first
+        XCTAssertEqual(shimmerContent?.cornerRadiusValue(), 4)
+        XCTAssertEqual(shimmerContent?.clipsToBounds, true)
+    }
+
+    func test_showShimmer_withCustomView_preservesCornerStyle() {
+        // GIVEN
+        let container = makeContainer()
+        let shimmerView = ShimmerView()
+        shimmerView.applyCornerStyle(.corners(.init(top: 12)))
+        let expectedCorners: CACornerMask = [
+            .layerMinXMinYCorner,
+            .layerMaxXMinYCorner
+        ]
+
+        // WHEN
+        container.showShimmer(shimmerView)
+        container.layoutIfNeeded()
+
+        // THEN
+        XCTAssertEqual(shimmerView.maskedCornersValue(), expectedCorners)
+        XCTAssertEqual(shimmerView.cornerRadiusValue(), 12)
+    }
+
     func test_shimmerView_initial_state() {
         // GIVEN
         let (_, container) = makeSUT()
