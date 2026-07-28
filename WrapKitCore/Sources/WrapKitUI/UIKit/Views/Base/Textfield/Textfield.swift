@@ -1157,8 +1157,8 @@ open class Textfield: UITextField {
         let success = super.becomeFirstResponder()
         if success { onBecomeFirstResponder?() }
         if isSecureTextEntry, let text = self.text {
-            self.text?.removeAll()
-            insertText(text)
+            self.text = nil
+            self.text = text
         }
         updateAppearance()
         invalidateA11y()
