@@ -10,22 +10,28 @@ import WrapKitTestUtils
 import XCTest
 
 final class ToastViewSnapshotTests: XCTestCase {
-    
+
     private let image = UIImage(systemName: "star.fill")
     private let failImage = UIImage(systemName: "star")
     
     private var testContainer: UIWindow!
+    private var animationsWereEnabled = true
     
     override func setUp() {
         super.setUp()
-        testContainer = UIWindow(frame: CGRect(x: 0, y: 0, width: 375, height: 812))
-        testContainer.makeKeyAndVisible()
+        animationsWereEnabled = UIView.areAnimationsEnabled
+        UIView.setAnimationsEnabled(false)
+        testContainer = UIWindow(frame: CGRect(x: 0, y: 0, width: 390, height: 844))
+        testContainer.isHidden = false
         testContainer.backgroundColor = .white
     }
     
     override func tearDown() {
         testContainer.layer.removeAllAnimations()
+        testContainer.isHidden = true
         testContainer.windowScene = nil
+        testContainer = nil
+        UIView.setAnimationsEnabled(animationsWereEnabled)
         
         super.tearDown()
     }

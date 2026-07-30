@@ -77,6 +77,15 @@ private final class SnapshotWindow: UIWindow {
     convenience init(configuration: SnapshotConfiguration, rootView: UIView) {
         let viewController = UIViewController()
         viewController.view.addSubview(rootView)
+        if rootView is UIWindow {
+            rootView.translatesAutoresizingMaskIntoConstraints = false
+            NSLayoutConstraint.activate([
+                rootView.topAnchor.constraint(equalTo: viewController.view.topAnchor),
+                rootView.leadingAnchor.constraint(equalTo: viewController.view.leadingAnchor),
+                rootView.trailingAnchor.constraint(equalTo: viewController.view.trailingAnchor),
+                rootView.bottomAnchor.constraint(equalTo: viewController.view.bottomAnchor)
+            ])
+        }
         self.init(configuration: configuration, root: viewController)
     }
     
@@ -89,7 +98,57 @@ private final class SnapshotWindow: UIWindow {
     }
     
     public func snapshot() -> UIImage {
-        return self.asImage(scale: traitCollection.displayScale)
+        let image: UIImage
+        if #available(iOS 26, *) {
+            if let scene = UIApplication.shared.connectedScenes
+                .compactMap({ $0 as? UIWindowScene }).first {
+                windowScene = scene
+            }
+            makeKeyAndVisible()
+            layoutIfNeeded()
+            if containsGlassEffect() {
+                RunLoop.current.run(until: Date().addingTimeInterval(0.6))
+            }
+            removeAllLayerAnimations()
+            RunLoop.current.run(until: Date().addingTimeInterval(0.05))
+            let format = UIGraphicsImageRendererFormat(for: traitCollection)
+            format.scale = traitCollection.displayScale
+            format.preferredRange = .extended
+            format.opaque = false
+            image = UIGraphicsImageRenderer(bounds: bounds, format: format).image { _ in
+                drawHierarchy(in: bounds, afterScreenUpdates: true)
+            }
+        } else {
+            image = asImage(scale: traitCollection.displayScale)
+        }
+
+        rootViewController = nil
+        isHidden = true
+        resignKey()
+        windowScene = nil
+        RunLoop.current.run(until: Date().addingTimeInterval(0.02))
+        return image
+    }
+
+    private func containsGlassEffect() -> Bool {
+        func walk(_ v: UIView) -> Bool {
+            if v is UIVisualEffectView { return true }
+            for s in v.subviews where walk(s) { return true }
+            return false
+        }
+        return walk(self)
+    }
+
+    private func removeAllLayerAnimations() {
+        func walkLayer(_ layer: CALayer) {
+            layer.removeAllAnimations()
+            layer.sublayers?.forEach(walkLayer)
+        }
+        func walkView(_ view: UIView) {
+            walkLayer(view.layer)
+            view.subviews.forEach(walkView)
+        }
+        walkView(self)
     }
 }
 
