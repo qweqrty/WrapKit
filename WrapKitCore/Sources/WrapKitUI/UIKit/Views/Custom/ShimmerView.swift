@@ -50,7 +50,7 @@ open class ShimmerView: UIView {
             backgroundColor = style.backgroundColor
             gradientColorOne = style.gradientColorOne
             gradientColorTwo = style.gradientColorTwo
-            cornerRadius = style.cornerRadius
+            applyCornerStyle(.fixed(style.cornerRadius))
         }
     }
     open var gradientColorOne: UIColor = .clear {

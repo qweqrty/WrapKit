@@ -5,28 +5,17 @@
 //  Created by sunflow on 3/11/25.
 //
 
-import WrapKit
+@testable import WrapKit
 import XCTest
 import WrapKitTestUtils
-import Kingfisher
 
 final class ImageViewSnapshotTests: XCTestCase {
     
-    private let light = "https://developer.apple.com/assets/elements/icons/swift/swift-64x64_2x.png"
-    private let dark = "https://uxwing.com/wp-content/themes/uxwing/download/web-app-development/dark-mode-icon.png"
+    private let light = ImageSnapshotFixture.light.urlString
+    private let dark = ImageSnapshotFixture.dark.urlString
     private let apiRandomImage = "https://picsum.photos/200/300"
     private let cachedImageTest1 = "https://picsum.photos/seed/test1/200/300"
     private let cachedImageTest2 = "https://picsum.photos/seed/test2/200/300"
-    
-    override class func setUp() {
-        super.setUp()
-        KingfisherManager.shared.cache.clearMemoryCache()
-        KingfisherManager.shared.cache.clearCache()
-        KingfisherManager.shared.cache.clearDiskCache()
-        KingfisherManager.shared.cache.cleanExpiredCache()
-        KingfisherManager.shared.cache.cleanExpiredMemoryCache()
-        KingfisherManager.shared.cache.cleanExpiredDiskCache()
-    }
     
     func test_imageView_defaultState() {
         let snapshotName = "IMAGE_VIEW_DEFAULT_STATE"
@@ -382,16 +371,24 @@ final class ImageViewSnapshotTests: XCTestCase {
         }
     }
     
-    func test_ImageView_viewWhileLoadingView() {
+    func test_ImageView_viewWhileLoadingView() throws {
         let snapshotName = "IMAGE_VIEW_VIEWWHILELOADINGVIEW"
-        
-        // GIVEN
+        let server = try HangingHTTPServer()
+        defer { server.stop() }
+
         let (sut, container) = makeSUT()
         sut.viewWhileLoadingView = ViewUIKit(backgroundColor: .blue)
         
         // WHEN
-        let url = URL(string: light)!
+        let url = server.url(path: "/image-view-loading.png")
+        let requestStarted = expectation(description: "Loading request started")
+        server.observeStart { startedURL in
+            guard startedURL == url else { return }
+            requestStarted.fulfill()
+        }
         sut.display(image: .url(url, url))
+        defer { sut.display(image: nil) }
+        wait(for: [requestStarted], timeout: 1)
         
         // THEN
         if #available(iOS 26, *) {
@@ -403,16 +400,24 @@ final class ImageViewSnapshotTests: XCTestCase {
         }
     }
     
-    func test_fail_ImageView_viewWhileLoadingView() {
+    func test_fail_ImageView_viewWhileLoadingView() throws {
         let snapshotName = "IMAGE_VIEW_VIEWWHILELOADINGVIEW"
-        
-        // GIVEN
+        let server = try HangingHTTPServer()
+        defer { server.stop() }
+
         let (sut, container) = makeSUT()
-        sut.viewWhileLoadingView = ViewUIKit(backgroundColor: .cyan)
-        
+        sut.viewWhileLoadingView = ViewUIKit(backgroundColor: .red)
+
         // WHEN
-        let url = URL(string: light)!
+        let url = server.url(path: "/image-view-loading-fail.png")
+        let requestStarted = expectation(description: "Loading request started")
+        server.observeStart { startedURL in
+            guard startedURL == url else { return }
+            requestStarted.fulfill()
+        }
         sut.display(image: .url(url, url))
+        defer { sut.display(image: nil) }
+        wait(for: [requestStarted], timeout: 1)
         
         // THEN
         if #available(iOS 26, *) {
@@ -787,7 +792,9 @@ final class ImageViewSnapshotTests: XCTestCase {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
         }
         
-        sut.touchesEnded(Set(), with: nil)
+        UIView.performWithoutAnimation {
+            sut.touchesEnded(Set(), with: nil)
+        }
         
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(releasedSnapshotName)_LIGHT")
@@ -822,7 +829,9 @@ final class ImageViewSnapshotTests: XCTestCase {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
         }
         
-        sut.touchesEnded(Set(), with: nil)
+        UIView.performWithoutAnimation {
+            sut.touchesEnded(Set(), with: nil)
+        }
         
         if #available(iOS 26, *) {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(releasedSnapshotName)_LIGHT")
