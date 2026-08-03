@@ -9,7 +9,6 @@ public extension XCTestCase {
         named name: String,
         precision: Float = 1,
         perceptualPrecision: Float = 1,
-        maxChannelDelta: UInt8 = 0,
         file: StaticString = #filePath,
         line: UInt = #line
     ) {
@@ -21,8 +20,7 @@ public extension XCTestCase {
         }
         guard let diff = Diffing.image(
             precision: precision,
-            perceptualPrecision: perceptualPrecision,
-            maxChannelDelta: maxChannelDelta
+            perceptualPrecision: perceptualPrecision
         ).diff(oldImage, snapshot) else { return }
         
         let artifactsUrl = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
@@ -47,7 +45,6 @@ public extension XCTestCase {
         named name: String,
         precision: Float = 1,
         perceptualPrecision: Float = 1,
-        maxChannelDelta: UInt8 = 0,
         file: StaticString = #filePath,
         line: UInt = #line
     ) {
@@ -59,8 +56,7 @@ public extension XCTestCase {
         }
         guard Diffing.image(
             precision: precision,
-            perceptualPrecision: perceptualPrecision,
-            maxChannelDelta: maxChannelDelta
+            perceptualPrecision: perceptualPrecision
         ).diff(oldImage, snapshot) != nil
 //              diff.message.starts(with: "Images should be different.")
         else {
