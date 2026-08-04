@@ -268,6 +268,7 @@ private final class OTPInputTextField: Textfield {
     }
     
     override func selectionRects(for range: UITextRange) -> [UITextSelectionRect] { [] }
+    override func caretRect(for position: UITextPosition) -> CGRect { .zero }
 }
 
 private final class OTPCellView: UIView {
@@ -282,8 +283,10 @@ private final class OTPCellView: UIView {
         addSubview(label)
         label.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            label.centerXAnchor.constraint(equalTo: centerXAnchor),
-            label.centerYAnchor.constraint(equalTo: centerYAnchor)
+            label.leadingAnchor.constraint(equalTo: leadingAnchor),
+            label.trailingAnchor.constraint(equalTo: trailingAnchor),
+            label.topAnchor.constraint(equalTo: topAnchor),
+            label.bottomAnchor.constraint(equalTo: bottomAnchor)
         ])
     }
     
