@@ -363,14 +363,6 @@ open class Label: UILabel {
         textContainer.size = bounds.inset(by: textInsets).size
     }
 
-    open override func sizeThatFits(_ size: CGSize) -> CGSize {
-        let fittingSize = CGSize(
-            width: max(0, size.width - textInsets.left - textInsets.right),
-            height: max(0, size.height - textInsets.top - textInsets.bottom)
-        )
-        return insetSize(super.sizeThatFits(fittingSize))
-    }
-
     open override func textRect(forBounds bounds: CGRect, limitedToNumberOfLines numberOfLines: Int) -> CGRect {
         let insetBounds = bounds.inset(by: textInsets)
         let textRect = super.textRect(forBounds: insetBounds, limitedToNumberOfLines: numberOfLines)
@@ -389,20 +381,15 @@ open class Label: UILabel {
         }
     }
 
-    private func insetSize(_ size: CGSize) -> CGSize {
-        CGSize(
-            width: size.width + textInsets.left + textInsets.right,
-            height: size.height + textInsets.top + textInsets.bottom
-        )
-    }
-
     open override var intrinsicContentSize: CGSize {
         let base = super.intrinsicContentSize
         guard let text = text, !text.isEmpty else {
             return CGSize(width: base.width, height: 0)
         }
-        let width = max(animation?.animatedTextMaxWidth ?? 0, base.width)
-        return insetSize(CGSize(width: width, height: base.height))
+        let animatedWidth = animation?.animatedTextMaxWidth.map {
+            $0 + textInsets.left + textInsets.right
+        } ?? 0
+        return CGSize(width: max(animatedWidth, base.width), height: base.height)
     }
 
     public override var text: String? {
