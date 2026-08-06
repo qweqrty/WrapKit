@@ -122,6 +122,26 @@ extension ViewUIKit: HiddableOutput {
     }
 }
 
+protocol TooltipLegacyMenuOwner: AnyObject {
+    func tooltipLegacyMenuWasReplaced()
+}
+
+final class TooltipLegacyMenuOwnership {
+    private weak var owner: TooltipLegacyMenuOwner?
+
+    func claim(_ newOwner: TooltipLegacyMenuOwner) {
+        guard owner !== newOwner else { return }
+        let previousOwner = owner
+        owner = newOwner
+        previousOwner?.tooltipLegacyMenuWasReplaced()
+    }
+
+    func release(_ currentOwner: TooltipLegacyMenuOwner) {
+        guard owner === currentOwner else { return }
+        owner = nil
+    }
+}
+
 open class ViewUIKit: UIView {
     public enum Animation: HashableWithReflection {
         case gradientBorder([Color])
@@ -142,10 +162,23 @@ open class ViewUIKit: UIView {
     private var tooltipTapGestureRecognizer: UITapGestureRecognizer?
     private var tooltipLongPressGestureRecognizer: UILongPressGestureRecognizer?
     private var tooltipEditMenuInteraction: NSObject?
+    var tooltipEditMenuPresentation: (NSObject, NSString, CGPoint) -> Void = {
+        interaction, identifier, point in
+        guard #available(iOS 16.0, *),
+              let interaction = interaction as? UIEditMenuInteraction else { return }
+        let configuration = UIEditMenuConfiguration(
+            identifier: identifier,
+            sourcePoint: point
+        )
+        interaction.presentEditMenu(with: configuration)
+    }
     private var tooltipDidDismiss: (() -> Void)?
-    private var shouldIgnoreNextTooltipDismissCallback = false
     private var isTooltipItemActionTriggered = false
     private var tooltipMenuDidHideObserver: NSObjectProtocol?
+    private var pendingTooltipImmediatePresentation: (identifier: NSString, point: CGPoint?)?
+    private(set) var tooltipPresentationIdentifier: NSString?
+    private(set) var isTooltipMenuPresented = false
+    private static let tooltipLegacyMenuOwnership = TooltipLegacyMenuOwnership()
     private var menuSelectors: [Selector] {
         [
             #selector(handleTooltipAction0),
@@ -262,6 +295,7 @@ open class ViewUIKit: UIView {
     }
 
     deinit {
+        Self.tooltipLegacyMenuOwnership.release(self)
         if let tooltipMenuDidHideObserver {
             NotificationCenter.default.removeObserver(tooltipMenuDidHideObserver)
         }
@@ -279,6 +313,10 @@ open class ViewUIKit: UIView {
 
     override open func didMoveToWindow() {
         super.didMoveToWindow()
+        if window != nil {
+            presentPendingTooltipIfNeeded()
+        }
+
         guard !gradientBorderColors.isEmpty else { return }
         if window == nil {
             gradientBorderLayer.removeAnimation(forKey: gradientBorderAnimationKey)
@@ -360,7 +398,10 @@ open class ViewUIKit: UIView {
     }
 
     private func showTooltip(at point: CGPoint? = nil) {
-        guard let model = tooltipModel, !model.items.isEmpty else { return }
+        guard let model = tooltipModel,
+              !model.items.isEmpty,
+              let tooltipPresentationIdentifier,
+              window != nil else { return }
         if #available(iOS 16.0, *) {
             let interaction: UIEditMenuInteraction
             if let tooltipEditMenuInteraction = tooltipEditMenuInteraction as? UIEditMenuInteraction {
@@ -372,38 +413,64 @@ open class ViewUIKit: UIView {
                 interaction = newInteraction
             }
             let anchorPoint = point ?? CGPoint(x: bounds.midX, y: bounds.midY)
-            let configuration = UIEditMenuConfiguration(identifier: nil, sourcePoint: anchorPoint)
-            interaction.presentEditMenu(with: configuration)
+            isTooltipMenuPresented = true
+            tooltipEditMenuPresentation(
+                interaction,
+                tooltipPresentationIdentifier,
+                anchorPoint
+            )
             return
         }
         _ = becomeFirstResponder()
-        registerTooltipMenuObserverIfNeeded()
         let menuController = UIMenuController.shared
-        let menuItems = model.items.enumerated().compactMap { index, item -> UIMenuItem? in
-            guard index < menuSelectors.count else { return nil }
-            return UIMenuItem(title: item.title, action: menuSelectors[index])
-        }
+        let menuItems = makeLegacyTooltipMenuItems()
         guard !menuItems.isEmpty else { return }
+        Self.tooltipLegacyMenuOwnership.claim(self)
         menuController.menuItems = menuItems
         let anchorPoint = point ?? CGPoint(x: bounds.midX, y: bounds.midY)
+        isTooltipMenuPresented = true
+        registerTooltipMenuObserver(for: tooltipPresentationIdentifier)
         menuController.showMenu(from: self, rect: CGRect(origin: anchorPoint, size: .zero))
     }
 
-    private func registerTooltipMenuObserverIfNeeded() {
-        guard tooltipMenuDidHideObserver == nil else { return }
-        tooltipMenuDidHideObserver = NotificationCenter.default.addObserver(
-            forName: UIMenuController.didHideMenuNotification,
-            object: nil,
-            queue: .main
-        ) { [weak self] _ in
-            self?.handleTooltipDidDismiss()
+    private func presentPendingTooltipIfNeeded(identifier: NSString? = nil) {
+        guard let pendingTooltipImmediatePresentation,
+              identifier == nil || pendingTooltipImmediatePresentation.identifier == identifier,
+              pendingTooltipImmediatePresentation.identifier == tooltipPresentationIdentifier,
+              window != nil else { return }
+        self.pendingTooltipImmediatePresentation = nil
+        showTooltip(at: pendingTooltipImmediatePresentation.point)
+    }
+
+    func makeLegacyTooltipMenuItems() -> [UIMenuItem] {
+        guard let model = tooltipModel else { return [] }
+        return model.items.enumerated().compactMap { index, item -> UIMenuItem? in
+            guard index < menuSelectors.count else { return nil }
+            return UIMenuItem(title: item.title, action: menuSelectors[index])
         }
     }
 
-    private func markProgrammaticTooltipDismiss() {
-        shouldIgnoreNextTooltipDismissCallback = true
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
-            self?.shouldIgnoreNextTooltipDismissCallback = false
+    private func registerTooltipMenuObserver(for identifier: NSString) {
+        unregisterTooltipMenuObserver()
+        tooltipMenuDidHideObserver = NotificationCenter.default.addObserver(
+            forName: UIMenuController.didHideMenuNotification,
+            object: UIMenuController.shared,
+            queue: .main
+        ) { [weak self] _ in
+            guard let self,
+                  self.isTooltipMenuPresented,
+                  self.tooltipPresentationIdentifier == identifier else { return }
+            self.isTooltipMenuPresented = false
+            Self.tooltipLegacyMenuOwnership.release(self)
+            self.unregisterTooltipMenuObserver()
+            self.handleTooltipDidDismiss()
+        }
+    }
+
+    private func unregisterTooltipMenuObserver() {
+        if let tooltipMenuDidHideObserver {
+            NotificationCenter.default.removeObserver(tooltipMenuDidHideObserver)
+            self.tooltipMenuDidHideObserver = nil
         }
     }
 
@@ -412,11 +479,22 @@ open class ViewUIKit: UIView {
             isTooltipItemActionTriggered = false
             return
         }
-        guard !shouldIgnoreNextTooltipDismissCallback else {
-            shouldIgnoreNextTooltipDismissCallback = false
+        tooltipDidDismiss?()
+    }
+
+    private func dismissTooltipMenuWithoutCallback() {
+        guard isTooltipMenuPresented else {
+            unregisterTooltipMenuObserver()
             return
         }
-        tooltipDidDismiss?()
+        isTooltipMenuPresented = false
+        Self.tooltipLegacyMenuOwnership.release(self)
+        unregisterTooltipMenuObserver()
+        if #available(iOS 16.0, *) {
+            (tooltipEditMenuInteraction as? UIEditMenuInteraction)?.dismissMenu()
+        } else {
+            UIMenuController.shared.hideMenu()
+        }
     }
 
     private func removeTooltipGestures() {
@@ -431,31 +509,43 @@ open class ViewUIKit: UIView {
     }
 }
 
+extension ViewUIKit: TooltipLegacyMenuOwner {
+    func tooltipLegacyMenuWasReplaced() {
+        guard isTooltipMenuPresented else { return }
+        isTooltipMenuPresented = false
+        unregisterTooltipMenuObserver()
+        UIMenuController.shared.hideMenu()
+        handleTooltipDidDismiss()
+    }
+}
+
 extension ViewUIKit: TooltipViewOutput {
     public func display(tooltipModel: TooltipViewPresentableModel?) {
         removeTooltipGestures()
+        dismissTooltipMenuWithoutCallback()
+        pendingTooltipImmediatePresentation = nil
+        tooltipPresentationIdentifier = nil
+        tooltipDidDismiss = nil
+        isTooltipItemActionTriggered = false
 
         guard let tooltipModel else {
-            markProgrammaticTooltipDismiss()
-            if #available(iOS 16.0, *) {
-                (tooltipEditMenuInteraction as? UIEditMenuInteraction)?.dismissMenu()
-            }
-            UIMenuController.shared.hideMenu()
             self.tooltipModel = nil
-            tooltipDidDismiss = nil
-            isTooltipItemActionTriggered = false
             return
         }
 
+        let tooltipPresentationIdentifier = UUID().uuidString as NSString
         self.tooltipModel = tooltipModel
         tooltipDidDismiss = tooltipModel.onDismiss
-        shouldIgnoreNextTooltipDismissCallback = false
-        isTooltipItemActionTriggered = false
+        self.tooltipPresentationIdentifier = tooltipPresentationIdentifier
 
         switch tooltipModel.trigger {
         case .immediate(let anchorPoint):
+            pendingTooltipImmediatePresentation = (
+                identifier: tooltipPresentationIdentifier,
+                point: anchorPoint
+            )
             DispatchQueue.main.async { [weak self] in
-                self?.showTooltip(at: anchorPoint)
+                self?.presentPendingTooltipIfNeeded(identifier: tooltipPresentationIdentifier)
             }
         case .tap:
             let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTooltipTap(_:)))
@@ -477,9 +567,12 @@ extension ViewUIKit: UIEditMenuInteractionDelegate {
         menuFor configuration: UIEditMenuConfiguration,
         suggestedActions: [UIMenuElement]
     ) -> UIMenu? {
-        guard let tooltipModel, !tooltipModel.items.isEmpty else { return nil }
+        guard configuration.identifier as? NSString == tooltipPresentationIdentifier,
+              let tooltipModel,
+              !tooltipModel.items.isEmpty else { return nil }
         let menuItems = tooltipModel.items.map { item in
-            UIAction(title: item.title) { _ in
+            UIAction(title: item.title) { [weak self] _ in
+                guard let self else { return }
                 self.isTooltipItemActionTriggered = true
                 item.onTap()
             }
@@ -492,6 +585,9 @@ extension ViewUIKit: UIEditMenuInteractionDelegate {
         willDismissMenuFor configuration: UIEditMenuConfiguration,
         animator: UIEditMenuInteractionAnimating?
     ) {
+        guard isTooltipMenuPresented,
+              configuration.identifier as? NSString == tooltipPresentationIdentifier else { return }
+        isTooltipMenuPresented = false
         handleTooltipDidDismiss()
     }
 }
