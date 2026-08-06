@@ -134,4 +134,3 @@ Tuist/.build
 .DS_Store
 **/.DS_Store
 /.idea/
-TestArtifacts/failed-tests/

@@ -392,9 +392,7 @@ private extension TooltipViewSnapshotTests {
     }
 
     private func makeSUT(
-        targetPosition: TargetPosition = .center,
-        file: StaticString = #filePath,
-        line: UInt = #line
+        targetPosition: TargetPosition = .center
     ) -> (sut: ViewUIKit, snapshotView: UIView) {
         let sut = ViewUIKit()
         let container = UIView()
@@ -464,8 +462,6 @@ private extension TooltipViewSnapshotTests {
         sut.layer.borderColor = UIColor.systemPink.withAlphaComponent(0.65).cgColor
 
         container.layoutIfNeeded()
-//        checkForMemoryLeaks(sut, file: file, line: line)
-//        checkForMemoryLeaks(container, file: file, line: line)
         return (sut, container)
     }
 
