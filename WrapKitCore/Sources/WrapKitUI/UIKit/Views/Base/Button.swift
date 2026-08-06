@@ -10,7 +10,8 @@ import Foundation
 public struct ButtonStyle: HashableWithReflection {
     public static let defaultCornerRadius: CGFloat = 12
     
-    public let backgroundColor: ColorStyle?
+    public let backgroundColor: Color?
+    public let backgroundStyle: ColorStyle?
     public let titleColor: Color?
     public let imageTintColor: Color?
     public let borderWidth: CGFloat
@@ -24,7 +25,37 @@ public struct ButtonStyle: HashableWithReflection {
     public let glassConfiguration: GlassConfiguration?
     
     public init(
-        backgroundColor: ColorStyle? = nil,
+        backgroundColor: Color? = nil,
+        titleColor: Color? = nil,
+        imageTintColor: Color? = nil,
+        borderWidth: CGFloat = 0,
+        borderColor: Color? = nil,
+        pressedColor: Color? = nil,
+        pressedTintColor: Color? = nil,
+        font: Font? = nil,
+        cornerRadius: CGFloat,
+        glassConfiguration: GlassConfiguration? = nil,
+        wrongUrlPlaceholderImage: Image? = nil,
+        loadingIndicatorColor: Color? = nil
+    ) {
+        self.init(
+            backgroundColor: backgroundColor,
+            titleColor: titleColor,
+            imageTintColor: imageTintColor,
+            borderWidth: borderWidth,
+            borderColor: borderColor,
+            pressedColor: pressedColor,
+            pressedTintColor: pressedTintColor,
+            font: font,
+            cornerStyle: .fixed(cornerRadius),
+            glassConfiguration: glassConfiguration,
+            wrongUrlPlaceholderImage: wrongUrlPlaceholderImage,
+            loadingIndicatorColor: loadingIndicatorColor
+        )
+    }
+
+    public init(
+        backgroundColor: ColorStyle,
         titleColor: Color? = nil,
         imageTintColor: Color? = nil,
         borderWidth: CGFloat = 0,
@@ -54,7 +85,7 @@ public struct ButtonStyle: HashableWithReflection {
     }
     
     public init(
-        backgroundColor: ColorStyle? = nil,
+        backgroundColor: Color? = nil,
         titleColor: Color? = nil,
         imageTintColor: Color? = nil,
         borderWidth: CGFloat = 0,
@@ -67,7 +98,75 @@ public struct ButtonStyle: HashableWithReflection {
         wrongUrlPlaceholderImage: Image? = nil,
         loadingIndicatorColor: Color? = nil
     ) {
-        self.backgroundColor = backgroundColor
+        self.init(
+            legacyBackgroundColor: backgroundColor,
+            backgroundStyle: backgroundColor.map(ColorStyle.solid),
+            titleColor: titleColor,
+            imageTintColor: imageTintColor,
+            borderWidth: borderWidth,
+            borderColor: borderColor,
+            pressedColor: pressedColor,
+            pressedTintColor: pressedTintColor,
+            font: font,
+            cornerStyle: cornerStyle,
+            glassConfiguration: glassConfiguration,
+            wrongUrlPlaceholderImage: wrongUrlPlaceholderImage,
+            loadingIndicatorColor: loadingIndicatorColor
+        )
+    }
+
+    public init(
+        backgroundColor: ColorStyle,
+        titleColor: Color? = nil,
+        imageTintColor: Color? = nil,
+        borderWidth: CGFloat = 0,
+        borderColor: Color? = nil,
+        pressedColor: Color? = nil,
+        pressedTintColor: Color? = nil,
+        font: Font? = nil,
+        cornerStyle: CornerStyle = isAvailableOS26 && isLiquidGlassEnabled ? .automatic : .fixed(ButtonStyle.defaultCornerRadius),
+        glassConfiguration: GlassConfiguration? = nil,
+        wrongUrlPlaceholderImage: Image? = nil,
+        loadingIndicatorColor: Color? = nil
+    ) {
+        let legacyBackgroundColor: Color? = switch backgroundColor {
+        case .solid(let color): color
+        case .gradient: nil
+        }
+        self.init(
+            legacyBackgroundColor: legacyBackgroundColor,
+            backgroundStyle: backgroundColor,
+            titleColor: titleColor,
+            imageTintColor: imageTintColor,
+            borderWidth: borderWidth,
+            borderColor: borderColor,
+            pressedColor: pressedColor,
+            pressedTintColor: pressedTintColor,
+            font: font,
+            cornerStyle: cornerStyle,
+            glassConfiguration: glassConfiguration,
+            wrongUrlPlaceholderImage: wrongUrlPlaceholderImage,
+            loadingIndicatorColor: loadingIndicatorColor
+        )
+    }
+
+    private init(
+        legacyBackgroundColor: Color?,
+        backgroundStyle: ColorStyle?,
+        titleColor: Color?,
+        imageTintColor: Color?,
+        borderWidth: CGFloat,
+        borderColor: Color?,
+        pressedColor: Color?,
+        pressedTintColor: Color?,
+        font: Font?,
+        cornerStyle: CornerStyle,
+        glassConfiguration: GlassConfiguration?,
+        wrongUrlPlaceholderImage: Image?,
+        loadingIndicatorColor: Color?
+    ) {
+        self.backgroundColor = legacyBackgroundColor
+        self.backgroundStyle = backgroundStyle
         self.titleColor = titleColor
         self.imageTintColor = imageTintColor
         self.borderColor = borderColor
@@ -104,6 +203,10 @@ public protocol ButtonOutput: HiddableOutput {
     func display(onPress: (() -> Void)?)
     func display(height: CGFloat)
     func display(isHidden: Bool)
+}
+
+public extension ButtonOutput {
+    func display(contentInset: EdgeInsets) {}
 }
 
 public struct ButtonPresentableModel {
@@ -203,8 +306,8 @@ extension Button: ButtonOutput {
         configuredImageTintColor = style.imageTintColor
         applyImageTintColor(style.imageTintColor)
         textColor = style.titleColor ?? .white
-        textBackgroundColor = style.backgroundColor?.solidColor
-        normalBackgroundStyle = style.backgroundColor
+        textBackgroundColor = style.backgroundStyle?.solidColor
+        normalBackgroundStyle = style.backgroundStyle
         self.pressedTextColor = style.pressedTintColor
         self.pressedBackgroundColor = style.pressedColor
         self.wrongUrlPlaceholderImage = style.wrongUrlPlaceholderImage
@@ -220,7 +323,7 @@ extension Button: ButtonOutput {
             self.layer.borderColor = style.borderColor?.cgColor
             self.layer.borderWidth = style.borderWidth
             applyButtonCornerStyle(style.cornerStyle)
-            applyBackgroundStyle(style.backgroundColor)
+            applyBackgroundStyle(style.backgroundStyle)
             return
         }
         
@@ -236,7 +339,7 @@ extension Button: ButtonOutput {
             config.background.strokeColor = style.borderColor
             config.background.strokeWidth = style.borderWidth
             
-            config.background.backgroundColor = style.backgroundColor?.solidColor
+            config.background.backgroundColor = style.backgroundStyle?.solidColor
             config.baseForegroundColor = style.titleColor ?? .white
             if let imageTintColor = style.imageTintColor {
                 config.imageColorTransformer = UIConfigurationColorTransformer { _ in
@@ -542,7 +645,7 @@ open class Button: UIButton {
     ) {
         self.init(
             textColor: style.titleColor ?? .white,
-            backgroundColor: style.backgroundColor?.solidColor ?? .clear,
+            backgroundColor: style.backgroundStyle?.solidColor ?? .clear,
             pressedTextColor: style.pressedTintColor,
             pressedBackgroundColor: style.pressedColor
         )

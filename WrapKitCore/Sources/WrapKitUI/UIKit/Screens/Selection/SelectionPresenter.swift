@@ -80,7 +80,7 @@ extension SelectionPresenter: SelectionInput, LifeCycleViewOutput {
             title: configuration.texts.resetTitle,
             height: 48,
             style: .init(
-                backgroundColor: (configuration.resetButton?.backgroundColor).map(ColorStyle.solid),
+                backgroundColor: configuration.resetButton?.backgroundColor,
                 titleColor: configuration.resetButton?.textColor,
                 borderWidth: 1,
                 borderColor: configuration.resetButton?.borderColor,
