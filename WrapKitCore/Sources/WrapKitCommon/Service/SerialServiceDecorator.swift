@@ -15,6 +15,7 @@ public class SerialServiceDecorator<Request, Response>: Service {
     private var currentTask: AnyCancellable?
     private var isProcessing = false
     private let queue = DispatchQueue(label: "SerialServiceDecoratorQueue")
+    private var completionRequestRetainer: SerialServiceDecorator?
 
     public init(decoratee: any Service<Request, Response>) {
         self.decoratee = decoratee
@@ -23,20 +24,29 @@ public class SerialServiceDecorator<Request, Response>: Service {
     // Combine-based method
     public func make(request: Request) -> AnyPublisher<Response, ServiceError> {
         let subject = PassthroughSubject<Response, ServiceError>()
+        let publisher = subject
+            .handleEvents(
+                receiveSubscription: { [self] _ in withExtendedLifetime(self) {} },
+                receiveOutput: { [self] _ in withExtendedLifetime(self) {} },
+                receiveCompletion: { [self] _ in withExtendedLifetime(self) {} },
+                receiveCancel: { [self] in withExtendedLifetime(self) {} }
+            )
+            .eraseToAnyPublisher()
 
-        queue.async { [weak self] in
-            self?.pendingRequests.enqueue((request: request, subject: subject, completion: nil))
-            self?.processNextRequest()
+        queue.async { [self] in
+            pendingRequests.enqueue((request: request, subject: subject, completion: nil))
+            processNextRequest()
         }
 
-        return subject.eraseToAnyPublisher()
+        return publisher
     }
 
     // Completion-based method
     public func make(request: Request, completion: @escaping (Result<Response, ServiceError>) -> Void) -> (any HTTPClientTask)? {
-        queue.async { [weak self] in
-            self?.pendingRequests.enqueue((request: request, subject: nil, completion: completion))
-            self?.processNextRequest()
+        queue.async { [self] in
+            completionRequestRetainer = self
+            pendingRequests.enqueue((request: request, subject: nil, completion: completion))
+            processNextRequest()
         }
         
         return nil
@@ -49,6 +59,7 @@ public class SerialServiceDecorator<Request, Response>: Service {
 
         currentTask = decoratee.make(request: request)
             .sink(receiveCompletion: { [weak self] completion in
+                guard let self else { return }
                 switch completion {
                 case .failure(let error):
                     currentSubject?.send(completion: .failure(error))
@@ -57,10 +68,14 @@ public class SerialServiceDecorator<Request, Response>: Service {
                     currentSubject?.send(completion: .finished)
                 }
 
-                self?.queue.async {
-                    self?.pendingRequests.dequeue()
-                    self?.isProcessing = false
-                    self?.processNextRequest()
+                queue.async { [self] in
+                    self.pendingRequests.dequeue()
+                    self.isProcessing = false
+                    self.currentTask = nil
+                    if self.pendingRequests.elements.contains(where: { $0.completion != nil }) == false {
+                        self.completionRequestRetainer = nil
+                    }
+                    self.processNextRequest()
                 }
             }, receiveValue: { response in
                 currentSubject?.send(response)
