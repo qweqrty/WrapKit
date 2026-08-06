@@ -365,6 +365,23 @@ public enum PressAnimation: HashableWithReflection {
 open class Button: UIButton {
     private static let backgroundGradientLayerName = "ButtonBackgroundGradientLayer"
 
+    private struct ImageTintAppearance {
+        let normalImage: UIImage?
+        let highlightedImage: UIImage?
+        let selectedImage: UIImage?
+        let disabledImage: UIImage?
+        let normalSymbolConfiguration: UIImage.SymbolConfiguration?
+        let highlightedSymbolConfiguration: UIImage.SymbolConfiguration?
+        let selectedSymbolConfiguration: UIImage.SymbolConfiguration?
+        let disabledSymbolConfiguration: UIImage.SymbolConfiguration?
+        let tintColor: UIColor?
+        let imageViewTintColor: UIColor?
+        let hadConfiguration: Bool
+        let configurationImage: UIImage?
+        let configurationImageColorTransform: ((UIColor) -> UIColor)?
+        let configurationSymbolConfiguration: UIImage.SymbolConfiguration?
+    }
+
     var currentAnimator: UIViewPropertyAnimator?
     public var currentImageEnum: ImageEnum?
     
@@ -410,6 +427,17 @@ open class Button: UIButton {
     }
     
     open override func setImage(_ image: UIImage?, for state: UIControl.State) {
+        if let configuredImageTintColor, imageTintAppearance != nil {
+            restoreImageTintAppearance()
+            setImageWithoutApplyingStyleTint(image, for: state)
+            applyImageTintColor(configuredImageTintColor)
+            return
+        }
+
+        setImageWithoutApplyingStyleTint(image, for: state)
+    }
+
+    private func setImageWithoutApplyingStyleTint(_ image: UIImage?, for state: UIControl.State) {
         if #available(iOS 15.0, *), var configuration {
             configuration.image = image
             self.configuration = configuration
@@ -461,6 +489,7 @@ open class Button: UIButton {
     open var anchoredConstraints: AnchoredConstraints?
     public var normalBackgroundStyle: ColorStyle?
     private var configuredImageTintColor: UIColor?
+    private var imageTintAppearance: ImageTintAppearance?
 
     private var backgroundGradientLayer: CAGradientLayer? {
         layer.sublayers?
@@ -760,7 +789,12 @@ open class Button: UIButton {
 
 private extension Button {
     func applyImageTintColor(_ imageTintColor: UIColor?) {
-        guard let imageTintColor else { return }
+        guard let imageTintColor else {
+            restoreImageTintAppearance()
+            return
+        }
+
+        captureImageTintAppearanceIfNeeded()
         if let font = titleLabel?.font {
             let configuration = UIImage.SymbolConfiguration(pointSize: font.pointSize, weight: .regular)
             setPreferredSymbolConfiguration(configuration, forImageIn: .normal)
@@ -777,10 +811,10 @@ private extension Button {
         }
         
         if let templatedImage = image?.withRenderingMode(.alwaysTemplate) {
-            setImage(templatedImage, for: .normal)
-            setImage(templatedImage, for: .highlighted)
-            setImage(templatedImage, for: .selected)
-            setImage(templatedImage, for: .disabled)
+            setImageWithoutApplyingStyleTint(templatedImage, for: .normal)
+            setImageWithoutApplyingStyleTint(templatedImage, for: .highlighted)
+            setImageWithoutApplyingStyleTint(templatedImage, for: .selected)
+            setImageWithoutApplyingStyleTint(templatedImage, for: .disabled)
             
             if #available(iOS 15.0, *), var configuration {
                 configuration.image = templatedImage
@@ -793,6 +827,77 @@ private extension Button {
         
         tintColor = imageTintColor
         imageView?.tintColor = imageTintColor
+        setNeedsLayout()
+    }
+
+    func captureImageTintAppearanceIfNeeded() {
+        guard imageTintAppearance == nil else { return }
+
+        let hadConfiguration: Bool
+        let configurationImage: UIImage?
+        let configurationImageColorTransform: ((UIColor) -> UIColor)?
+        let configurationSymbolConfiguration: UIImage.SymbolConfiguration?
+        if #available(iOS 15.0, *), let configuration {
+            hadConfiguration = true
+            configurationImage = configuration.image
+            configurationImageColorTransform = configuration.imageColorTransformer?.transform
+            configurationSymbolConfiguration = configuration.preferredSymbolConfigurationForImage
+        } else {
+            hadConfiguration = false
+            configurationImage = nil
+            configurationImageColorTransform = nil
+            configurationSymbolConfiguration = nil
+        }
+
+        imageTintAppearance = .init(
+            normalImage: image(for: .normal),
+            highlightedImage: image(for: .highlighted),
+            selectedImage: image(for: .selected),
+            disabledImage: image(for: .disabled),
+            normalSymbolConfiguration: preferredSymbolConfigurationForImage(in: .normal),
+            highlightedSymbolConfiguration: preferredSymbolConfigurationForImage(in: .highlighted),
+            selectedSymbolConfiguration: preferredSymbolConfigurationForImage(in: .selected),
+            disabledSymbolConfiguration: preferredSymbolConfigurationForImage(in: .disabled),
+            tintColor: tintColor,
+            imageViewTintColor: imageView?.tintColor,
+            hadConfiguration: hadConfiguration,
+            configurationImage: configurationImage,
+            configurationImageColorTransform: configurationImageColorTransform,
+            configurationSymbolConfiguration: configurationSymbolConfiguration
+        )
+    }
+
+    func restoreImageTintAppearance() {
+        guard let imageTintAppearance else { return }
+
+        // Restore the underlying state images even while a configuration is
+        // active. They become visible again if a later style removes that
+        // configuration (for example, when leaving Liquid Glass).
+        super.setImage(imageTintAppearance.normalImage, for: .normal)
+        super.setImage(imageTintAppearance.highlightedImage, for: .highlighted)
+        super.setImage(imageTintAppearance.selectedImage, for: .selected)
+        super.setImage(imageTintAppearance.disabledImage, for: .disabled)
+
+        if #available(iOS 15.0, *), var configuration {
+            configuration.image = imageTintAppearance.hadConfiguration
+                ? imageTintAppearance.configurationImage
+                : imageTintAppearance.normalImage
+            configuration.imageColorTransformer = imageTintAppearance.configurationImageColorTransform.map {
+                UIConfigurationColorTransformer($0)
+            }
+            configuration.preferredSymbolConfigurationForImage = imageTintAppearance.hadConfiguration
+                ? imageTintAppearance.configurationSymbolConfiguration
+                : imageTintAppearance.normalSymbolConfiguration
+            self.configuration = configuration
+        }
+
+        setPreferredSymbolConfiguration(imageTintAppearance.normalSymbolConfiguration, forImageIn: .normal)
+        setPreferredSymbolConfiguration(imageTintAppearance.highlightedSymbolConfiguration, forImageIn: .highlighted)
+        setPreferredSymbolConfiguration(imageTintAppearance.selectedSymbolConfiguration, forImageIn: .selected)
+        setPreferredSymbolConfiguration(imageTintAppearance.disabledSymbolConfiguration, forImageIn: .disabled)
+        tintColor = imageTintAppearance.tintColor
+        imageView?.tintColor = imageTintAppearance.imageViewTintColor
+        self.imageTintAppearance = nil
         setNeedsLayout()
     }
     
