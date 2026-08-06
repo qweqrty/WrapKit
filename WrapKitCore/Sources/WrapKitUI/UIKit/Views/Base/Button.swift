@@ -541,12 +541,25 @@ open class Button: UIButton {
     }
 
     private func setImageWithoutApplyingStyleTint(_ image: UIImage?, for state: UIControl.State) {
+        super.setImage(image, for: state)
+
         if #available(iOS 15.0, *), var configuration {
-            configuration.image = image
-            self.configuration = configuration
-        } else {
-            super.setImage(image, for: state)
+            if imageTintAppearance != nil {
+                configuration.image = tintedImageForCurrentState()
+                self.configuration = configuration
+            } else if state == .normal || state == imageStateForCurrentControlState {
+                configuration.image = image
+                self.configuration = configuration
+            }
         }
+    }
+
+    @available(iOS 15.0, *)
+    open override func updateConfiguration() {
+        super.updateConfiguration()
+        guard imageTintAppearance != nil, var configuration else { return }
+        configuration.image = tintedImageForCurrentState()
+        self.configuration = configuration
     }
 
     open override func setTitle(_ title: String?, for state: UIControl.State) {
@@ -906,26 +919,27 @@ private extension Button {
             setPreferredSymbolConfiguration(configuration, forImageIn: .disabled)
         }
 
-        let image: UIImage?
-        if #available(iOS 15.0, *) {
-            image = configuration?.image ?? self.image(for: .normal)
-        } else {
-            image = self.image(for: .normal)
-        }
+        guard let imageTintAppearance else { return }
+        let normalImage = (imageTintAppearance.normalImage ?? imageTintAppearance.configurationImage)?
+            .withRenderingMode(.alwaysTemplate)
+        let highlightedImage = (imageTintAppearance.highlightedImage ?? normalImage)?
+            .withRenderingMode(.alwaysTemplate)
+        let selectedImage = (imageTintAppearance.selectedImage ?? normalImage)?
+            .withRenderingMode(.alwaysTemplate)
+        let disabledImage = (imageTintAppearance.disabledImage ?? normalImage)?
+            .withRenderingMode(.alwaysTemplate)
 
-        if let templatedImage = image?.withRenderingMode(.alwaysTemplate) {
-            setImageWithoutApplyingStyleTint(templatedImage, for: .normal)
-            setImageWithoutApplyingStyleTint(templatedImage, for: .highlighted)
-            setImageWithoutApplyingStyleTint(templatedImage, for: .selected)
-            setImageWithoutApplyingStyleTint(templatedImage, for: .disabled)
+        super.setImage(normalImage, for: .normal)
+        super.setImage(highlightedImage, for: .highlighted)
+        super.setImage(selectedImage, for: .selected)
+        super.setImage(disabledImage, for: .disabled)
 
-            if #available(iOS 15.0, *), var configuration {
-                configuration.image = templatedImage
-                configuration.imageColorTransformer = UIConfigurationColorTransformer { _ in
-                    imageTintColor
-                }
-                self.configuration = configuration
+        if #available(iOS 15.0, *), var configuration {
+            configuration.image = tintedImageForCurrentState()
+            configuration.imageColorTransformer = UIConfigurationColorTransformer { _ in
+                imageTintColor
             }
+            self.configuration = configuration
         }
 
         tintColor = imageTintColor
@@ -968,6 +982,17 @@ private extension Button {
             configurationImageColorTransform: configurationImageColorTransform,
             configurationSymbolConfiguration: configurationSymbolConfiguration
         )
+    }
+
+    var imageStateForCurrentControlState: UIControl.State {
+        if !isEnabled { return .disabled }
+        if isHighlighted { return .highlighted }
+        if isSelected { return .selected }
+        return .normal
+    }
+
+    func tintedImageForCurrentState() -> UIImage? {
+        image(for: imageStateForCurrentControlState) ?? image(for: .normal)
     }
 
     func restoreImageTintAppearance() {

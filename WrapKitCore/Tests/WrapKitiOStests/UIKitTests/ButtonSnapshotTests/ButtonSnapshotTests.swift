@@ -146,6 +146,83 @@ final class ButtonSnapshotTests: XCTestCase {
         )
     }
 
+    func test_buttonOutput_imageTint_preservesStateSpecificImages() {
+        let (sut, _) = makeSUT()
+        let normalImage = makeImage(width: 11)
+        let highlightedImage = makeImage(width: 12)
+        let selectedImage = makeImage(width: 13)
+        let disabledImage = makeImage(width: 14)
+
+        if #available(iOS 15.0, *) {
+            sut.configuration = nil
+        }
+        sut.setImage(normalImage, for: .normal)
+        sut.setImage(highlightedImage, for: .highlighted)
+        sut.setImage(selectedImage, for: .selected)
+        sut.setImage(disabledImage, for: .disabled)
+
+        sut.display(style: .init(imageTintColor: .systemRed))
+
+        XCTAssertEqual(sut.image(for: .normal)?.size, normalImage.size)
+        XCTAssertEqual(sut.image(for: .highlighted)?.size, highlightedImage.size)
+        XCTAssertEqual(sut.image(for: .selected)?.size, selectedImage.size)
+        XCTAssertEqual(sut.image(for: .disabled)?.size, disabledImage.size)
+        XCTAssertEqual(sut.image(for: .normal)?.renderingMode, .alwaysTemplate)
+        XCTAssertEqual(sut.image(for: .highlighted)?.renderingMode, .alwaysTemplate)
+        XCTAssertEqual(sut.image(for: .selected)?.renderingMode, .alwaysTemplate)
+        XCTAssertEqual(sut.image(for: .disabled)?.renderingMode, .alwaysTemplate)
+
+        sut.display(style: .init(imageTintColor: nil))
+
+        XCTAssertTrue(sut.image(for: .normal) === normalImage)
+        XCTAssertTrue(sut.image(for: .highlighted) === highlightedImage)
+        XCTAssertTrue(sut.image(for: .selected) === selectedImage)
+        XCTAssertTrue(sut.image(for: .disabled) === disabledImage)
+    }
+
+    @available(iOS 15.0, *)
+    func test_buttonOutput_imageTint_updatesConfigurationWithStateSpecificImages() {
+        let (sut, _) = makeSUT()
+        let normalImage = makeImage(width: 11)
+        let highlightedImage = makeImage(width: 12)
+        let selectedImage = makeImage(width: 13)
+        let disabledImage = makeImage(width: 14)
+        var configuration = UIButton.Configuration.plain()
+        configuration.image = normalImage
+        sut.configuration = configuration
+        sut.setImage(normalImage, for: .normal)
+        sut.setImage(highlightedImage, for: .highlighted)
+        sut.setImage(selectedImage, for: .selected)
+        sut.setImage(disabledImage, for: .disabled)
+
+        sut.display(style: .init(imageTintColor: .systemRed))
+
+        XCTAssertEqual(sut.configuration?.image?.size, normalImage.size)
+        XCTAssertEqual(sut.configuration?.image?.renderingMode, .alwaysTemplate)
+
+        sut.isHighlighted = true
+        sut.updateConfiguration()
+        XCTAssertEqual(sut.configuration?.image?.size, highlightedImage.size)
+
+        sut.isHighlighted = false
+        sut.isSelected = true
+        sut.updateConfiguration()
+        XCTAssertEqual(sut.configuration?.image?.size, selectedImage.size)
+
+        sut.isSelected = false
+        sut.isEnabled = false
+        sut.updateConfiguration()
+        XCTAssertEqual(sut.configuration?.image?.size, disabledImage.size)
+
+        sut.display(style: .init(imageTintColor: nil))
+
+        XCTAssertTrue(sut.image(for: .normal) === normalImage)
+        XCTAssertTrue(sut.image(for: .highlighted) === highlightedImage)
+        XCTAssertTrue(sut.image(for: .selected) === selectedImage)
+        XCTAssertTrue(sut.image(for: .disabled) === disabledImage)
+        XCTAssertTrue(sut.configuration?.image === normalImage)
+    }
+
     @available(iOS 15.0, *)
     func test_buttonOutput_removingImageTint_restoresConfigurationImageAppearance() {
         let (sut, _) = makeSUT()
@@ -1199,6 +1276,14 @@ final class ButtonSnapshotTests: XCTestCase {
 }
 
 extension ButtonSnapshotTests {
+    func makeImage(width: CGFloat) -> UIImage {
+        UIGraphicsImageRenderer(size: .init(width: width, height: 10)).image { context in
+            UIColor.black.setFill()
+            context.fill(.init(x: 0, y: 0, width: width, height: 10))
+        }
+        .withRenderingMode(.alwaysOriginal)
+    }
+
     func makeSUT(
         height: CGFloat = 60,
         file: StaticString = #file,
