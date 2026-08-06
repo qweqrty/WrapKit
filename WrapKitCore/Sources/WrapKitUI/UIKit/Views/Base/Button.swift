@@ -274,7 +274,7 @@ extension Button: ButtonOutput {
     
     public func display(image: Image?) {
         setImage(image, for: .normal)
-        
+
         if #available(iOS 15.0, *) {
             if var config = configuration {
                 config.image = image
@@ -752,7 +752,7 @@ open class Button: UIButton {
             } else {
                 self.applyBackgroundStyle(self.normalBackgroundStyle)
             }
-            
+
             self.setTitleColor(self.pressedTextColor ?? self.textColor, for: .normal)
         }
 
@@ -793,7 +793,7 @@ open class Button: UIButton {
             super.touchesEnded(touches, with: event)
             return
         }
-        
+
         let restoreState: () -> Void = { [weak self] in
             self?.transform = CGAffineTransform(scaleX: 1, y: 1)
             self?.applyBackgroundStyle(self?.normalBackgroundStyle)
@@ -905,20 +905,20 @@ private extension Button {
             setPreferredSymbolConfiguration(configuration, forImageIn: .selected)
             setPreferredSymbolConfiguration(configuration, forImageIn: .disabled)
         }
-        
+
         let image: UIImage?
         if #available(iOS 15.0, *) {
             image = configuration?.image ?? self.image(for: .normal)
         } else {
             image = self.image(for: .normal)
         }
-        
+
         if let templatedImage = image?.withRenderingMode(.alwaysTemplate) {
             setImageWithoutApplyingStyleTint(templatedImage, for: .normal)
             setImageWithoutApplyingStyleTint(templatedImage, for: .highlighted)
             setImageWithoutApplyingStyleTint(templatedImage, for: .selected)
             setImageWithoutApplyingStyleTint(templatedImage, for: .disabled)
-            
+
             if #available(iOS 15.0, *), var configuration {
                 configuration.image = templatedImage
                 configuration.imageColorTransformer = UIConfigurationColorTransformer { _ in
@@ -927,7 +927,7 @@ private extension Button {
                 self.configuration = configuration
             }
         }
-        
+
         tintColor = imageTintColor
         imageView?.tintColor = imageTintColor
         setNeedsLayout()
@@ -1003,7 +1003,7 @@ private extension Button {
         self.imageTintAppearance = nil
         setNeedsLayout()
     }
-    
+
     func resetGlassConfigurationIfNeeded() {
         guard usesLiquidGlassConfiguration else { return }
         configurationUpdateHandler = nil

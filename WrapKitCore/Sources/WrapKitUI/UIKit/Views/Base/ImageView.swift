@@ -65,7 +65,7 @@ public struct ImageViewPresentableModel: HashableWithReflection {
         guard case let .fillWidth(heightByWidthRatio) = layout else { return nil }
         return heightByWidthRatio
     }
-    
+
     public init(
         accessibilityIdentifier: String? = nil,
         accessibility: Accessibility? = nil,
