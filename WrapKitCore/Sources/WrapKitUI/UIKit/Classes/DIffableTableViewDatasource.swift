@@ -118,6 +118,9 @@ public class DiffableTableViewDataSource<Header, Cell: Hashable, Footer>: NSObje
     private var trailingSwipeActionsConfigurationForRowAt: ((IndexPath) -> UISwipeActionsConfiguration?)?
     private var leadingSwipeActionsConfigurationForRowAt: ((IndexPath) -> UISwipeActionsConfiguration?)?
     private var isReloadScheduled = false
+    private let sectionsRevisionLock = NSLock()
+    private var nextSectionsRevision: UInt64 = 0
+    private var appliedSectionsRevision: UInt64 = 0
     
     private var sections: [TableSection<Header, Cell, Footer>] = []
     
@@ -342,6 +345,22 @@ extension DiffableTableViewDataSource: TableOutput & HiddableOutput {
     }
     
     public func display(sections: [TableSection<Header, Cell, Footer>]) {
+        let revision = makeSectionsRevision()
+        if Thread.isMainThread {
+            updateSectionsAndScheduleReload(sections, revision: revision)
+        } else {
+            DispatchQueue.main.async { [weak self] in
+                self?.updateSectionsAndScheduleReload(sections, revision: revision)
+            }
+        }
+    }
+
+    private func updateSectionsAndScheduleReload(
+        _ sections: [TableSection<Header, Cell, Footer>],
+        revision: UInt64
+    ) {
+        guard revision > appliedSectionsRevision else { return }
+        appliedSectionsRevision = revision
         self.sections = sections
         guard isReloadScheduled == false else { return }
         isReloadScheduled = true
@@ -349,6 +368,13 @@ extension DiffableTableViewDataSource: TableOutput & HiddableOutput {
             self?.isReloadScheduled = false
             self?.tableView?.reloadData()
         }
+    }
+
+    private func makeSectionsRevision() -> UInt64 {
+        sectionsRevisionLock.lock()
+        defer { sectionsRevisionLock.unlock() }
+        nextSectionsRevision &+= 1
+        return nextSectionsRevision
     }
     
     public func display(move: ((IndexPath, IndexPath) -> Void)?) {
