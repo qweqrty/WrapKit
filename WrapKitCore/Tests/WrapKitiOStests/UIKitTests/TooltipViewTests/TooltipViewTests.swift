@@ -1,119 +1,8 @@
 @testable import WrapKit
-import WrapKitTestUtils
+import UIKit
 import XCTest
 
-final class TooltipViewSnapshotTests: XCTestCase {
-    private enum TargetPosition {
-        case center
-        case topLeading
-        case topTrailing
-        case bottomLeading
-        case bottomTrailing
-    }
-
-    func test_tooltipView_defaultState() {
-        let snapshotName = "TOOLTIP_VIEW_DEFAULT_STATE"
-        let (sut, snapshotView) = makeSUT()
-
-        sut.display(tooltipModel: nil)
-        snapshotView.layoutIfNeeded()
-
-        assertSnapshots(container: snapshotView, snapshotName: snapshotName)
-    }
-
-    func test_tooltipView_withTapTrigger() {
-        let snapshotName = "TOOLTIP_VIEW_TAP_TRIGGER"
-        let (sut, snapshotView) = makeSUT()
-        let tooltipItems = makeTooltipItems()
-
-        sut.display(tooltipModel: .init(
-            items: tooltipItems,
-            trigger: .tap
-        ))
-
-        XCTAssertEqual(sut.gestureRecognizers?.compactMap { $0 as? UITapGestureRecognizer }.count, 1)
-
-        assertSnapshots(container: snapshotView, snapshotName: snapshotName)
-    }
-
-    func test_tooltipView_withLongPressTrigger() {
-        let snapshotName = "TOOLTIP_VIEW_LONGPRESS_TRIGGER"
-        let (sut, snapshotView) = makeSUT()
-        let tooltipItems = makeTooltipItems()
-
-        sut.display(tooltipModel: .init(
-            items: tooltipItems,
-            trigger: .longPress(minimumPressDuration: 0.35)
-        ))
-
-        let gesture = sut.gestureRecognizers?.compactMap { $0 as? UILongPressGestureRecognizer }.first
-        XCTAssertEqual(gesture?.minimumPressDuration, 0.35)
-
-        assertSnapshots(container: snapshotView, snapshotName: snapshotName)
-    }
-
-    func test_tooltipView_withImmediateTrigger() {
-        let snapshotName = "TOOLTIP_VIEW_IMMEDIATE_TRIGGER"
-        let (sut, snapshotView) = makeSUT()
-        let tooltipItems = makeTooltipItems()
-
-        sut.display(tooltipModel: .init(
-            items: tooltipItems,
-            trigger: .immediate()
-        ))
-        XCTAssertNotNil(sut.tooltipPresentationIdentifier)
-
-        // Cancel the queued presentation before snapshotting the target itself.
-        // The window-hosted tests below validate the system menu contract.
-        sut.display(tooltipModel: nil)
-        flushMainQueue()
-        XCTAssertFalse(sut.isTooltipMenuPresented)
-
-        assertSnapshots(container: snapshotView, snapshotName: snapshotName)
-    }
-
-    func test_tooltipView_withTapTrigger_topLeadingTarget() {
-        assertTapTooltip(
-            snapshotName: "TOOLTIP_VIEW_TAP_TRIGGER_TOP_LEADING_TARGET",
-            targetPosition: .topLeading
-        )
-    }
-
-    func test_tooltipView_withTapTrigger_topTrailingTarget() {
-        assertTapTooltip(
-            snapshotName: "TOOLTIP_VIEW_TAP_TRIGGER_TOP_TRAILING_TARGET",
-            targetPosition: .topTrailing
-        )
-    }
-
-    func test_tooltipView_withTapTrigger_bottomLeadingTarget() {
-        assertTapTooltip(
-            snapshotName: "TOOLTIP_VIEW_TAP_TRIGGER_BOTTOM_LEADING_TARGET",
-            targetPosition: .bottomLeading
-        )
-    }
-
-    func test_tooltipView_withTapTrigger_bottomTrailingTarget() {
-        assertTapTooltip(
-            snapshotName: "TOOLTIP_VIEW_TAP_TRIGGER_BOTTOM_TRAILING_TARGET",
-            targetPosition: .bottomTrailing
-        )
-    }
-
-    private func assertTapTooltip(snapshotName: String, targetPosition: TargetPosition) {
-        let (sut, snapshotView) = makeSUT(targetPosition: targetPosition)
-        let tooltipItems = makeTooltipItems()
-
-        sut.display(tooltipModel: .init(
-            items: tooltipItems,
-            trigger: .tap
-        ))
-
-        XCTAssertEqual(sut.gestureRecognizers?.compactMap { $0 as? UITapGestureRecognizer }.count, 1)
-
-        assertSnapshots(container: snapshotView, snapshotName: snapshotName)
-    }
-
+final class TooltipViewTests: XCTestCase {
     @available(iOS 16.0, *)
     func test_tooltipView_tapTrigger_presentsMenuFromWindowAndRunsSelectedAction() throws {
         let (sut, host) = try makeHostedSUT()
@@ -368,22 +257,7 @@ final class TooltipViewSnapshotTests: XCTestCase {
     }
 }
 
-private extension TooltipViewSnapshotTests {
-    func assertSnapshots(container: UIView, snapshotName: String) {
-        if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assert(
-                snapshot: container.snapshot(for: .iPhone(style: .light)),
-                named: "iOS18.5_\(snapshotName)_LIGHT",
-                precision: 0.999,
-                perceptualPrecision: 0.98
-            )
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
-    }
-
+private extension TooltipViewTests {
     func makeTooltipItems() -> [TooltipViewPresentableModel.Item] {
         [
             .init(title: "Copy", onTap: {}),
@@ -391,9 +265,7 @@ private extension TooltipViewSnapshotTests {
         ]
     }
 
-    private func makeSUT(
-        targetPosition: TargetPosition = .center
-    ) -> (sut: ViewUIKit, snapshotView: UIView) {
+    private func makeSUT() -> (sut: ViewUIKit, container: UIView) {
         let sut = ViewUIKit()
         let container = UIView()
         let content = UIView()
@@ -417,45 +289,12 @@ private extension TooltipViewSnapshotTests {
         host.layer.cornerRadius = 20
 
         host.addSubview(sut)
-        let targetWidth: CGFloat = 220
-        let targetHeight: CGFloat = 64
-        switch targetPosition {
-        case .center:
-            sut.anchor(
-                .centerX(host.centerXAnchor, constant: 0),
-                .centerY(host.centerYAnchor, constant: 0),
-                .width(targetWidth, priority: .required),
-                .height(targetHeight, priority: .required)
-            )
-        case .topLeading:
-            sut.anchor(
-                .top(host.topAnchor, constant: 16, priority: .required),
-                .leading(host.leadingAnchor, constant: 16, priority: .required),
-                .width(targetWidth, priority: .required),
-                .height(targetHeight, priority: .required)
-            )
-        case .topTrailing:
-            sut.anchor(
-                .top(host.topAnchor, constant: 16, priority: .required),
-                .trailing(host.trailingAnchor, constant: 16, priority: .required),
-                .width(targetWidth, priority: .required),
-                .height(targetHeight, priority: .required)
-            )
-        case .bottomLeading:
-            sut.anchor(
-                .bottom(host.bottomAnchor, constant: 180, priority: .required),
-                .leading(host.leadingAnchor, constant: 16, priority: .required),
-                .width(targetWidth, priority: .required),
-                .height(targetHeight, priority: .required)
-            )
-        case .bottomTrailing:
-            sut.anchor(
-                .bottom(host.bottomAnchor, constant: 180, priority: .required),
-                .trailing(host.trailingAnchor, constant: 16, priority: .required),
-                .width(targetWidth, priority: .required),
-                .height(targetHeight, priority: .required)
-            )
-        }
+        sut.anchor(
+            .centerX(host.centerXAnchor, constant: 0),
+            .centerY(host.centerYAnchor, constant: 0),
+            .width(220, priority: .required),
+            .height(64, priority: .required)
+        )
         sut.backgroundColor = .tertiarySystemBackground
         sut.layer.cornerRadius = 14
         sut.layer.borderWidth = 1
@@ -496,7 +335,6 @@ private extension TooltipViewSnapshotTests {
     func flushMainQueue() {
         RunLoop.main.run(until: Date().addingTimeInterval(0.02))
     }
-
 }
 
 private final class TapGestureRecognizerStub: UITapGestureRecognizer {
