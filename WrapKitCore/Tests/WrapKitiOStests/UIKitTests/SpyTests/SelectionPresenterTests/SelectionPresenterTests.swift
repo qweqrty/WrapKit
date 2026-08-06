@@ -99,7 +99,7 @@ final class SelectionPresenterTests: XCTestCase {
         
         // THEN
         let style = ButtonStyle(
-            backgroundColor: .solid(config.searchButton.backgroundColor),
+            backgroundColor: config.searchButton.backgroundColor,
             titleColor: config.searchButton.textColor,
             borderWidth: 0.0,
             borderColor: config.searchButton.borderColor,
@@ -134,7 +134,7 @@ final class SelectionPresenterTests: XCTestCase {
         
         // THEN
         let expectedStyle = ButtonStyle(
-            backgroundColor: .solid(config.resetButtonColors.inactiveBackgroundColor),
+            backgroundColor: config.resetButtonColors.inactiveBackgroundColor,
             titleColor: config.resetButtonColors.inactiveTitleColor,
             borderColor: config.resetButtonColors.inactiveBorderColor
         )

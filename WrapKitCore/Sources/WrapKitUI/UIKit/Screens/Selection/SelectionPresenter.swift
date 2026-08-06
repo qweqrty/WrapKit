@@ -99,7 +99,7 @@ extension SelectionPresenter: SelectionInput, LifeCycleViewOutput {
             title: configuration.texts.selectTitle,
             height: 48,
             style: .init(
-                backgroundColor: .solid(configuration.searchButton.backgroundColor),
+                backgroundColor: configuration.searchButton.backgroundColor,
                 titleColor: configuration.searchButton.textColor,
                 borderWidth: 0,
                 borderColor: configuration.searchButton.borderColor,
@@ -118,11 +118,8 @@ extension SelectionPresenter: SelectionInput, LifeCycleViewOutput {
     private func setupButton(canReset: Bool) {
         
         resetButton?.display(style: .init(
-            backgroundColor: .solid(
-                canReset
-                ? configuration.resetButtonColors.activeBackgroundColor
-                : configuration.resetButtonColors.inactiveBackgroundColor
-            ),
+            backgroundColor: canReset ? configuration.resetButtonColors.activeBackgroundColor
+            : configuration.resetButtonColors.inactiveBackgroundColor,
             titleColor: canReset ? configuration.resetButtonColors.activeTitleColor
             : configuration.resetButtonColors.inactiveTitleColor,
             borderColor: canReset ? configuration.resetButtonColors.activeBorderColor

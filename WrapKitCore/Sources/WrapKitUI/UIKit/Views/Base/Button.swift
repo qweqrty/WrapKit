@@ -704,7 +704,7 @@ open class Button: UIButton {
         updateSpacings()
         
         display(style: .init(
-            backgroundColor: .solid(backgroundColor),
+            backgroundColor: backgroundColor,
             titleColor: textColor,
             pressedColor: pressedBackgroundColor,
             pressedTintColor: pressedTextColor,
