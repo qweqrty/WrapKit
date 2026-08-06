@@ -121,7 +121,7 @@ final class SearchBarSnapshotTests: XCTestCase {
         let (sut, container) = makeSUT()
         
         // WHEN
-        let buttonStyle = ButtonStyle(backgroundColor: .systemRed, titleColor: .black)
+        let buttonStyle = ButtonStyle(backgroundColor: .solid(.systemRed), titleColor: .black)
         let buttonModel = ButtonPresentableModel(title: "Left View", style: buttonStyle)
         sut.display(leftView: buttonModel)
         
@@ -164,7 +164,7 @@ final class SearchBarSnapshotTests: XCTestCase {
         let (sut, container) = makeSUT()
         
         // WHEN
-        let buttonStyle = ButtonStyle(backgroundColor: .systemBlue, titleColor: .black)
+        let buttonStyle = ButtonStyle(backgroundColor: .solid(.systemBlue), titleColor: .black)
         let buttonModel = ButtonPresentableModel(title: "Right View", style: buttonStyle)
         sut.display(rightView: buttonModel)
         
@@ -214,7 +214,7 @@ final class SearchBarSnapshotTests: XCTestCase {
         let (sut, container) = makeSUT()
         
         // WHEN
-        let buttonStyle = ButtonStyle(backgroundColor: .systemYellow, titleColor: .black)
+        let buttonStyle = ButtonStyle(backgroundColor: .solid(.systemYellow), titleColor: .black)
         let leftButtonModel = ButtonPresentableModel(title: "Left View", style: buttonStyle)
         let rightButtonModel = ButtonPresentableModel(title: "Right View", style: buttonStyle)
         

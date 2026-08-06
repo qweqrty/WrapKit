@@ -18,7 +18,7 @@ final class ButtonSnapshotTests: XCTestCase {
         
         // WHEN
         sut.display(title: "Default")
-        sut.display(style: .init(backgroundColor: .cyan))
+        sut.display(style: .init(backgroundColor: .solid(.cyan)))
         
         // THEN
         if #available(iOS 26, *) {
@@ -38,7 +38,7 @@ final class ButtonSnapshotTests: XCTestCase {
         
         // WHEN
         sut.display(title: "Default.")
-        sut.display(style: .init(backgroundColor: .cyan))
+        sut.display(style: .init(backgroundColor: .solid(.cyan)))
         
         // THEN
         if #available(iOS 26, *) {
@@ -59,7 +59,7 @@ final class ButtonSnapshotTests: XCTestCase {
         // WHEN
         sut.display(title: "Enabled")
         sut.display(enabled: false)
-        sut.display(style: .init(backgroundColor: .cyan))
+        sut.display(style: .init(backgroundColor: .solid(.cyan)))
         
         // THEN
         if #available(iOS 26, *) {
@@ -80,7 +80,7 @@ final class ButtonSnapshotTests: XCTestCase {
         // WHEN
         sut.display(title: "Enabled")
         sut.display(enabled: true)
-        sut.display(style: .init(backgroundColor: .cyan))
+        sut.display(style: .init(backgroundColor: .solid(.cyan)))
         
         // THEN
         if #available(iOS 26, *) {
@@ -101,7 +101,7 @@ final class ButtonSnapshotTests: XCTestCase {
         // WHEN
         let image =  UIImage(systemName: "star.fill")
         sut.display(image: image)
-        sut.display(style: .init(backgroundColor: .cyan))
+        sut.display(style: .init(backgroundColor: .solid(.cyan)))
         
         // THEN
         if #available(iOS 26, *) {
@@ -307,7 +307,7 @@ final class ButtonSnapshotTests: XCTestCase {
         // WHEN
         let image =  UIImage(systemName: "star")
         sut.display(image: image)
-        sut.display(style: .init(backgroundColor: .cyan))
+        sut.display(style: .init(backgroundColor: .solid(.cyan)))
         
         // THEN
         if #available(iOS 26, *) {
@@ -329,7 +329,7 @@ final class ButtonSnapshotTests: XCTestCase {
         
         // WHEN
         let image = UIImage(systemName: "star.fill")
-        sut.display(style: .init(backgroundColor: .cyan))
+        sut.display(style: .init(backgroundColor: .solid(.cyan)))
         
         sut.setImage(.asset(image)) { _ in
             exp.fulfill()
@@ -354,7 +354,7 @@ final class ButtonSnapshotTests: XCTestCase {
         
         // WHEN
         let image = UIImage(systemName: "star")
-        sut.display(style: .init(backgroundColor: .cyan))
+        sut.display(style: .init(backgroundColor: .solid(.cyan)))
         
         sut.setImage(.asset(image)) { _ in
             exp.fulfill()
@@ -379,7 +379,7 @@ final class ButtonSnapshotTests: XCTestCase {
         
         // WHEN
         let light = ImageSnapshotFixture.light.url
-        sut.display(style: .init(backgroundColor: .cyan))
+        sut.display(style: .init(backgroundColor: .solid(.cyan)))
         
         sut.setImage(.url(light, light)) { _ in
             exp.fulfill()
@@ -404,7 +404,7 @@ final class ButtonSnapshotTests: XCTestCase {
         
         // WHEN
         let light = ImageSnapshotFixture.light.url
-        sut.display(style: .init(backgroundColor: .blue))
+        sut.display(style: .init(backgroundColor: .solid(.blue)))
         
         sut.setImage(.url(light, light)) { _ in
             exp.fulfill()
@@ -429,7 +429,7 @@ final class ButtonSnapshotTests: XCTestCase {
         
         // WHEN
         let light = ImageSnapshotFixture.dark.url
-        sut.display(style: .init(backgroundColor: .cyan))
+        sut.display(style: .init(backgroundColor: .solid(.cyan)))
         
         sut.setImage(.url(light, light)) { _ in
             exp.fulfill()
@@ -454,7 +454,7 @@ final class ButtonSnapshotTests: XCTestCase {
         
         // WHEN
         let light = ImageSnapshotFixture.dark.url
-        sut.display(style: .init(backgroundColor: .blue))
+        sut.display(style: .init(backgroundColor: .solid(.blue)))
         
         sut.setImage(.url(light, light)) { _ in
             exp.fulfill()
@@ -479,7 +479,7 @@ final class ButtonSnapshotTests: XCTestCase {
         
         // WHEN
         let light = ImageSnapshotFixture.light.urlString
-        sut.display(style: .init(backgroundColor: .cyan))
+        sut.display(style: .init(backgroundColor: .solid(.cyan)))
         
         sut.setImage(.urlString(light, light)) { _ in
             exp.fulfill()
@@ -504,7 +504,7 @@ final class ButtonSnapshotTests: XCTestCase {
         
         // WHEN
         let light = ImageSnapshotFixture.light.urlString
-        sut.display(style: .init(backgroundColor: .blue))
+        sut.display(style: .init(backgroundColor: .solid(.blue)))
         
         sut.setImage(.urlString(light, light)) { _ in
             exp.fulfill()
@@ -529,7 +529,7 @@ final class ButtonSnapshotTests: XCTestCase {
         
         // WHEN
         let dark = ImageSnapshotFixture.dark.urlString
-        sut.display(style: .init(backgroundColor: .cyan))
+        sut.display(style: .init(backgroundColor: .solid(.cyan)))
         
         sut.setImage(.urlString(dark, dark)) { _ in
             exp.fulfill()
@@ -554,7 +554,7 @@ final class ButtonSnapshotTests: XCTestCase {
         
         // WHEN
         let dark = ImageSnapshotFixture.dark.urlString
-        sut.display(style: .init(backgroundColor: .blue))
+        sut.display(style: .init(backgroundColor: .solid(.blue)))
         
         sut.setImage(.urlString(dark, dark)) { _ in
             exp.fulfill()
@@ -578,7 +578,7 @@ final class ButtonSnapshotTests: XCTestCase {
         
         // WHEN
         sut.setImage(.url(nil, nil), completion: nil)
-        sut.display(style: .init(backgroundColor: .cyan))
+        sut.display(style: .init(backgroundColor: .solid(.cyan)))
         
         // THEN
         if #available(iOS 26, *) {
@@ -598,7 +598,7 @@ final class ButtonSnapshotTests: XCTestCase {
         
         // WHEN
         sut.setImage(.url(nil, nil), completion: nil)
-        sut.display(style: .init(backgroundColor: .blue))
+        sut.display(style: .init(backgroundColor: .solid(.blue)))
         
         // THEN
         if #available(iOS 26, *) {
@@ -618,7 +618,7 @@ final class ButtonSnapshotTests: XCTestCase {
         
         // WHEN
         sut.setImage(.urlString(nil, nil), completion: nil)
-        sut.display(style: .init(backgroundColor: .cyan))
+        sut.display(style: .init(backgroundColor: .solid(.cyan)))
         
         // THEN
         if #available(iOS 26, *) {
@@ -638,7 +638,7 @@ final class ButtonSnapshotTests: XCTestCase {
         
         // WHEN
         sut.setImage(.urlString(nil, nil), completion: nil)
-        sut.display(style: .init(backgroundColor: .blue))
+        sut.display(style: .init(backgroundColor: .solid(.blue)))
         
         // THEN
         if #available(iOS 26, *) {
@@ -661,9 +661,9 @@ final class ButtonSnapshotTests: XCTestCase {
             title: "BUTTON WITH SPACING",
             image: UIImage(systemName: "star"),
             spacing: 50,
-            style: .init(backgroundColor: .red)
+            style: .init(backgroundColor: .solid(.red))
         ))
-        sut.display(style: .init(backgroundColor: .cyan))
+        sut.display(style: .init(backgroundColor: .solid(.cyan)))
 
         // THEN
         if #available(iOS 26, *) {
@@ -686,9 +686,9 @@ final class ButtonSnapshotTests: XCTestCase {
             title: "BUTTON WITH SPACING",
             image: UIImage(systemName: "star"),
             spacing: 40,
-            style: .init(backgroundColor: .red)
+            style: .init(backgroundColor: .solid(.red))
         ))
-        sut.display(style: .init(backgroundColor: .cyan))
+        sut.display(style: .init(backgroundColor: .solid(.cyan)))
 
         // THEN
         if #available(iOS 26, *) {
@@ -708,7 +708,7 @@ final class ButtonSnapshotTests: XCTestCase {
         
         // WHEN
         sut.display(title: "BUTTON WITH TAP")
-        sut.display(style: .init(backgroundColor: .cyan))
+        sut.display(style: .init(backgroundColor: .solid(.cyan)))
         sut.display { [weak sut] in
             sut?.backgroundColor = .red
         }
@@ -733,7 +733,7 @@ final class ButtonSnapshotTests: XCTestCase {
         
         // WHEN
         sut.display(title: "BUTTON WITH TAP")
-        sut.display(style: .init(backgroundColor: .cyan))
+        sut.display(style: .init(backgroundColor: .solid(.cyan)))
         sut.display { [weak sut] in
             sut?.backgroundColor = .systemRed
         }
@@ -762,9 +762,9 @@ final class ButtonSnapshotTests: XCTestCase {
             image: UIImage(systemName: "star"),
             spacing: 50,
             height: 100,
-            style: .init(backgroundColor: .red),
+            style: .init(backgroundColor: .solid(.red)),
         ))
-        sut.display(style: .init(backgroundColor: .cyan))
+        sut.display(style: .init(backgroundColor: .solid(.cyan)))
 
         // THEN
         if #available(iOS 26, *) {
@@ -788,9 +788,9 @@ final class ButtonSnapshotTests: XCTestCase {
             image: UIImage(systemName: "star"),
             spacing: 50,
             height: 0,
-            style: .init(backgroundColor: .red),
+            style: .init(backgroundColor: .solid(.red)),
         ))
-        sut.display(style: .init(backgroundColor: .cyan))
+        sut.display(style: .init(backgroundColor: .solid(.cyan)))
 
         // THEN
         if #available(iOS 26, *) {
@@ -810,7 +810,7 @@ final class ButtonSnapshotTests: XCTestCase {
         
         // WHEN
         sut.display(title: "BUTTON IS HIDDEN")
-        sut.display(style: .init(backgroundColor: .cyan))
+        sut.display(style: .init(backgroundColor: .solid(.cyan)))
         sut.display(isHidden: false)
 
         // THEN
@@ -831,7 +831,7 @@ final class ButtonSnapshotTests: XCTestCase {
         
         // WHEN
         sut.display(title: "BUTTON IS HIDDEN")
-        sut.display(style: .init(backgroundColor: .cyan))
+        sut.display(style: .init(backgroundColor: .solid(.cyan)))
         sut.display(isHidden: true)
 
         // THEN
@@ -852,7 +852,7 @@ final class ButtonSnapshotTests: XCTestCase {
         let (sut, container) = makeSUT()
         
         // WHEN
-        sut.display(style: .init(backgroundColor: .systemRed))
+        sut.display(style: .init(backgroundColor: .solid(.systemRed)))
         
         // THEN
         if #available(iOS 26, *) {
@@ -871,7 +871,7 @@ final class ButtonSnapshotTests: XCTestCase {
         let (sut, container) = makeSUT()
         
         // WHEN
-        sut.display(style: .init(backgroundColor: .red))
+        sut.display(style: .init(backgroundColor: .solid(.red)))
         
         // THEN
         if #available(iOS 26, *) {
@@ -891,7 +891,7 @@ final class ButtonSnapshotTests: XCTestCase {
         
         // WHEN
         sut.display(title: "TITLE WITH COLOR")
-        sut.display(style: .init(backgroundColor: .cyan, titleColor: .red))
+        sut.display(style: .init(backgroundColor: .solid(.cyan), titleColor: .red))
         
         // THEN
         if #available(iOS 26, *) {
@@ -911,7 +911,7 @@ final class ButtonSnapshotTests: XCTestCase {
         
         // WHEN
         sut.display(title: "TITLE WITH COLOR.")
-        sut.display(style: .init(backgroundColor: .cyan, titleColor: .red))
+        sut.display(style: .init(backgroundColor: .solid(.cyan), titleColor: .red))
         
         // THEN
         if #available(iOS 26, *) {
@@ -931,7 +931,7 @@ final class ButtonSnapshotTests: XCTestCase {
         
         // WHEN
         sut.display(style: .init(
-            backgroundColor: .cyan,
+            backgroundColor: .solid(.cyan),
             borderWidth: 4.0,
             borderColor: .red
         ))
@@ -956,7 +956,7 @@ final class ButtonSnapshotTests: XCTestCase {
         
         // WHEN
         sut.display(style: .init(
-            backgroundColor: .cyan,
+            backgroundColor: .solid(.cyan),
             borderWidth: 5.0,
             borderColor: .red
         ))
@@ -982,7 +982,7 @@ final class ButtonSnapshotTests: XCTestCase {
         
         // WHEN
         sut.display(style: .init(
-            backgroundColor: .blue,
+            backgroundColor: .solid(.blue),
             pressedColor: .red,
         ))
         
@@ -1006,7 +1006,7 @@ final class ButtonSnapshotTests: XCTestCase {
         
         // WHEN
         sut.display(style: .init(
-            backgroundColor: .blue,
+            backgroundColor: .solid(.blue),
             pressedColor: .systemRed,
         ))
         
@@ -1030,7 +1030,7 @@ final class ButtonSnapshotTests: XCTestCase {
         
         // WHEN
         sut.display(style: .init(
-            backgroundColor: .white,
+            backgroundColor: .solid(.white),
             titleColor: .blue,
             pressedTintColor: .red,
         ))
@@ -1056,7 +1056,7 @@ final class ButtonSnapshotTests: XCTestCase {
         
         // WHEN
         sut.display(style: .init(
-            backgroundColor: .white,
+            backgroundColor: .solid(.white),
             titleColor: .blue,
             pressedTintColor: .systemRed,
         ))
@@ -1081,7 +1081,7 @@ final class ButtonSnapshotTests: XCTestCase {
         let (sut, container) = makeSUT()
         
         // WHEN
-        sut.display(style: .init(backgroundColor: .cyan, font: .systemFont(ofSize: 24, weight: .bold)))
+        sut.display(style: .init(backgroundColor: .solid(.cyan), font: .systemFont(ofSize: 24, weight: .bold)))
         sut.display(title: "BUTTON WITH FONT")
 
         // THEN
@@ -1101,7 +1101,7 @@ final class ButtonSnapshotTests: XCTestCase {
         let (sut, container) = makeSUT()
         
         // WHEN
-        sut.display(style: .init(backgroundColor: .cyan, font: .systemFont(ofSize: 25, weight: .bold)))
+        sut.display(style: .init(backgroundColor: .solid(.cyan), font: .systemFont(ofSize: 25, weight: .bold)))
         sut.display(title: "BUTTON WITH FONT")
 
         // THEN
@@ -1122,7 +1122,7 @@ final class ButtonSnapshotTests: XCTestCase {
         
         // WHEN
         sut.display(title: "BUTTON WITH CORNER RADIUS")
-        sut.display(style: .init(backgroundColor: .cyan, cornerRadius: 40))
+        sut.display(style: .init(backgroundColor: .solid(.cyan), cornerRadius: 40))
 
         // THEN
         if #available(iOS 26, *) {
@@ -1142,7 +1142,7 @@ final class ButtonSnapshotTests: XCTestCase {
         
         // WHEN
         sut.display(title: "BUTTON WITH CORNER RADIUS")
-        sut.display(style: .init(backgroundColor: .cyan, cornerRadius: 41))
+        sut.display(style: .init(backgroundColor: .solid(.cyan), cornerRadius: 41))
 
         // THEN
         if #available(iOS 26, *) {
@@ -1162,7 +1162,7 @@ final class ButtonSnapshotTests: XCTestCase {
         sut.wrongUrlPlaceholderImage = UIImage(systemName: "xmark")!
         
         // WHEN
-        sut.display(style: .init(backgroundColor: .cyan))
+        sut.display(style: .init(backgroundColor: .solid(.cyan)))
         sut.setImage(.url(nil, nil), completion: nil)
         
         // THEN
@@ -1183,7 +1183,7 @@ final class ButtonSnapshotTests: XCTestCase {
         sut.wrongUrlPlaceholderImage = UIImage(systemName: "xmark")!
         
         // WHEN
-        sut.display(style: .init(backgroundColor: .blue))
+        sut.display(style: .init(backgroundColor: .solid(.blue)))
         sut.setImage(.url(nil, nil), completion: nil)
         
         // THEN
@@ -1204,7 +1204,7 @@ final class ButtonSnapshotTests: XCTestCase {
         
         // WHEN
         let style = ButtonStyle(
-            backgroundColor: .systemBlue,
+            backgroundColor: .solid(.systemBlue),
             loadingIndicatorColor: .red
         )
         
@@ -1230,7 +1230,7 @@ final class ButtonSnapshotTests: XCTestCase {
         
         // WHEN
         let style = ButtonStyle(
-            backgroundColor: .systemBlue,
+            backgroundColor: .solid(.systemBlue),
             loadingIndicatorColor: .red
         )
         
@@ -1256,7 +1256,7 @@ final class ButtonSnapshotTests: XCTestCase {
         
         // WHEN
         let style = ButtonStyle(
-            backgroundColor: .systemBlue,
+            backgroundColor: .solid(.systemBlue),
             loadingIndicatorColor: .red
         )
         
