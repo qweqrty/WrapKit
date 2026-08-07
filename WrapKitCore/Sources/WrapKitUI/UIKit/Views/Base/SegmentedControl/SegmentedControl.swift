@@ -124,15 +124,19 @@ extension SegmentedControl: SegmentedControlOutput {
     }
     
     public func display(segments: [SegmentControlModel]) {
-        self.removeAllSegments()
-        for (index, item) in segments.enumerated() {
-            let action = UIAction(title: item.title) { _ in
-                item.onTap?(index)
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            
+            self.removeAllSegments()
+            for (index, item) in segments.enumerated() {
+                let action = UIAction(title: item.title) { _ in
+                    item.onTap?(index)
+                }
+                action.accessibilityIdentifier = item.accessibilityIdentifier
+                self.insertSegment(action: action, at: index, animated: false)
             }
-            action.accessibilityIdentifier = item.accessibilityIdentifier
-            self.insertSegment(action: action, at: index, animated: false)
+            self.selectedSegmentIndex = 0
         }
-        self.selectedSegmentIndex = 0
     }
 }
 #endif
