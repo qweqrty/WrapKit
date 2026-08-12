@@ -13,14 +13,17 @@ import WebKit
 
 open class WebViewVC: ViewController<WebViewContentView> {
     private let presenter: WebViewInput
+    private let onBackSwipeStateChange: ((Bool) -> Void)?
     private static let estimatedProgressKeyPath = #keyPath(WKWebView.estimatedProgress)
     
     public init(
         contentView: WebViewContentView,
         presenter: WebViewInput,
-        lifeCycleViewOutput: LifeCycleViewOutput?
+        lifeCycleViewOutput: LifeCycleViewOutput?,
+        onBackSwipeStateChange: ((Bool) -> Void)? = nil
     ) {
         self.presenter = presenter
+        self.onBackSwipeStateChange = onBackSwipeStateChange
         super.init(contentView: contentView, lifeCycleViewOutput: lifeCycleViewOutput)
         contentView.webView.navigationDelegate = self
         contentView.webView.uiDelegate = self
@@ -29,6 +32,16 @@ open class WebViewVC: ViewController<WebViewContentView> {
     
     public required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    open override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        onBackSwipeStateChange?(true)
+    }
+
+    open override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        onBackSwipeStateChange?(false)
     }
     
     deinit {

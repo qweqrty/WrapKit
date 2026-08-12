@@ -39,7 +39,8 @@ public class WebViewFactoryiOS: WebViewFactory {
         let vc = WebViewVC(
             contentView: contentView,
             presenter: presenter,
-            lifeCycleViewOutput: presenter
+            lifeCycleViewOutput: presenter,
+            onBackSwipeStateChange: style.onBackSwipeStateChange
         )
         presenter.view = vc.weakReferenced.mainQueueDispatched
         presenter.navBarView = contentView.navigationBar.weakReferenced.mainQueueDispatched
