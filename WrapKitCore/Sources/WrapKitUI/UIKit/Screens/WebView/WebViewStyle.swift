@@ -30,6 +30,7 @@ public struct WebViewStyle {
     public let hidesBottomBarWhenPushed: Bool
     public let refresh: Refresh
     public let backgroundColor: Color?
+    public let onBackSwipeStateChange: ((Bool) -> Void)?
     
     public init(
         title: String? = nil,
@@ -38,7 +39,8 @@ public struct WebViewStyle {
         hidesBottomBarWhenPushed: Bool = true,
         refresh: Refresh = .init(),
         backgroundColor: Color? = nil,
-        leadingCard: CardViewPresentableModel? = nil
+        leadingCard: CardViewPresentableModel? = nil,
+        onBackSwipeStateChange: ((Bool) -> Void)? = nil
     ) {
         self.title = title
         if let header = header {
@@ -53,5 +55,6 @@ public struct WebViewStyle {
         self.hidesBottomBarWhenPushed = hidesBottomBarWhenPushed
         self.refresh = refresh
         self.backgroundColor = backgroundColor
+        self.onBackSwipeStateChange = onBackSwipeStateChange
     }
 }
