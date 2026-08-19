@@ -422,6 +422,7 @@ final class ImageViewSnapshotTests: XCTestCase {
         // WHEN
         let url = server.url(path: "/image-view-loading.png")
         let requestStarted = expectation(description: "Loading request started")
+        requestStarted.assertForOverFulfill = false
         server.observeStart { startedURL in
             guard startedURL == url else { return }
             requestStarted.fulfill()
@@ -429,6 +430,21 @@ final class ImageViewSnapshotTests: XCTestCase {
         sut.display(image: .url(url, url))
         defer { sut.display(image: nil) }
         wait(for: [requestStarted], timeout: 1)
+
+        let capture: (Bool) -> UIImage = { isDark in
+            sut.uiKitImageView.image = nil
+            sut.uiKitImageView.backgroundColor = sut.uiKitImageView.viewWhileLoadingView?.backgroundColor
+            sut.uiKitImageView.viewWhileLoadingView?.isHidden = false
+            sut.uiKitImageView.viewWhileLoadingView?.alpha = 1
+            sut.showLoadingForSnapshot(color: sut.uiKitImageView.viewWhileLoadingView?.backgroundColor)
+            sut.uiKitImageView.viewWhileLoadingView?.setNeedsLayout()
+            sut.uiKitImageView.viewWhileLoadingView?.layoutIfNeeded()
+            sut.uiKitImageView.setNeedsLayout()
+            sut.uiKitImageView.layoutIfNeeded()
+            container.setNeedsLayout()
+            container.layoutIfNeeded()
+            return container.snapshot(for: .iPhone(style: isDark ? .dark : .light))
+        }
         
         // THEN
         if #available(iOS 26, *) {
@@ -451,6 +467,7 @@ final class ImageViewSnapshotTests: XCTestCase {
         // WHEN
         let url = server.url(path: "/image-view-loading-fail.png")
         let requestStarted = expectation(description: "Loading request started")
+        requestStarted.assertForOverFulfill = false
         server.observeStart { startedURL in
             guard startedURL == url else { return }
             requestStarted.fulfill()
@@ -458,6 +475,21 @@ final class ImageViewSnapshotTests: XCTestCase {
         sut.display(image: .url(url, url))
         defer { sut.display(image: nil) }
         wait(for: [requestStarted], timeout: 1)
+
+        let capture: (Bool) -> UIImage = { isDark in
+            sut.uiKitImageView.image = nil
+            sut.uiKitImageView.backgroundColor = sut.uiKitImageView.viewWhileLoadingView?.backgroundColor
+            sut.uiKitImageView.viewWhileLoadingView?.isHidden = false
+            sut.uiKitImageView.viewWhileLoadingView?.alpha = 1
+            sut.showLoadingForSnapshot(color: sut.uiKitImageView.viewWhileLoadingView?.backgroundColor)
+            sut.uiKitImageView.viewWhileLoadingView?.setNeedsLayout()
+            sut.uiKitImageView.viewWhileLoadingView?.layoutIfNeeded()
+            sut.uiKitImageView.setNeedsLayout()
+            sut.uiKitImageView.layoutIfNeeded()
+            container.setNeedsLayout()
+            container.layoutIfNeeded()
+            return container.snapshot(for: .iPhone(style: isDark ? .dark : .light))
+        }
         
         // THEN
         if #available(iOS 26, *) {

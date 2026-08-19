@@ -118,10 +118,10 @@ private extension ButtonPresentableModel {
     ) -> ButtonPresentableModel {
         ButtonPresentableModel(
             accessibilityIdentifier: self.accessibilityIdentifier,
+            accessibility: self.accessibility,
             title: title ?? self.title,
             image: image ?? self.image,
             spacing: spacing ?? self.spacing,
-            contentInset: self.contentInset,
             height: height ?? self.height,
             width: self.width,
             style: style ?? self.style,

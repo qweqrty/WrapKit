@@ -87,9 +87,9 @@ private struct SnapshotMirroredChunkedTextFieldContainer: View {
     var body: some View {
         VStack(spacing: 0) {
             SUIChunkedTextField(
+                adapter: adapter,
                 count: count,
-                appearance: appearance,
-                adapter: adapter
+                appearance: appearance
             )
             .frame(maxWidth: .infinity, minHeight: height, maxHeight: height, alignment: .top)
             Spacer(minLength: 0)

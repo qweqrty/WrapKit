@@ -32,6 +32,24 @@ final class PairedProgressBarSnapshotSUT {
         swiftUIAdapter.display(isHidden: isHidden)
     }
 
+    func applyCornerStyle(_ cornerStyle: CornerStyle) {
+        uiKitView.applyCornerStyle(cornerStyle)
+    }
+
+    func gradientBackgroundColor(
+        width: CGFloat,
+        colors: [UIColor],
+        startPoint: CGPoint,
+        endPoint: CGPoint
+    ) {
+        uiKitView.gradientBackgroundColor(
+            width: width,
+            colors: colors,
+            startPoint: startPoint,
+            endPoint: endPoint
+        )
+    }
+
     @available(iOS 17.0, *)
     func swiftUISnapshot(for colorScheme: ColorScheme) -> UIImage {
         let rootView = SnapshotMirroredProgressBarContainer(adapter: swiftUIAdapter)

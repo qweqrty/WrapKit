@@ -81,7 +81,6 @@ public struct SUIButtonView: View {
                 .opacity(isLoading ? 0 : 1)
             }
             .frame(maxWidth: .infinity)
-            .padding(model.contentInset?.asSUIEdgeInsets ?? .init())
             .frame(width: model.width, height: model.height)
             .background(backgroundView)
             .cornerRadius(model.style?.cornerRadius ?? 12)
@@ -95,19 +94,11 @@ public struct SUIButtonView: View {
     
     @ViewBuilder
     private var backgroundView: some View {
-        if let gradientColors = model.style?.gradientColors, !gradientColors.isEmpty {
-            LinearGradient(
-                colors: gradientColors.map { SwiftUIColor($0) },
-                startPoint: .leading,
-                endPoint: .trailing
-            )
-        } else {
-            SwiftUIColor(
-                isPressed
-                ? model.style?.pressedColor ?? model.style?.backgroundColor ?? .clear
-                : model.style?.backgroundColor ?? .clear
-            )
-        }
+        SwiftUIColor(
+            isPressed
+            ? model.style?.pressedColor ?? model.style?.backgroundColor ?? .clear
+            : model.style?.backgroundColor ?? .clear
+        )
     }
     
     @ViewBuilder

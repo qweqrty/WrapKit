@@ -36,14 +36,14 @@ final class PairedButtonSnapshotSUT {
             if let style = lastStyle {
                 let updated = WrapKit.ButtonStyle(
                     backgroundColor: newValue,
-                    gradientColors: style.gradientColors,
                     titleColor: style.titleColor,
                     borderWidth: style.borderWidth,
                     borderColor: style.borderColor,
                     pressedColor: style.pressedColor,
                     pressedTintColor: style.pressedTintColor,
                     font: style.font,
-                    cornerRadius: style.cornerRadius,
+                    cornerStyle: style.cornerStyle,
+                    glassConfiguration: style.glassConfiguration,
                     wrongUrlPlaceholderImage: style.wrongUrlPlaceholderImage,
                     loadingIndicatorColor: style.loadingIndicatorColor
                 )

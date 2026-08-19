@@ -6,7 +6,7 @@ import SwiftUI
 import UIKit
 #endif
 
-struct SUISwitchControlView: View {
+struct SUIModelSwitchControlView: View {
     let model: SwitchControlPresentableModel
 
     var body: some View {

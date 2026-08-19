@@ -40,17 +40,30 @@ public struct SUIProgressBarView: View {
         GeometryReader { geo in
             ZStack(alignment: .leading) {
                 // background track
-                RoundedRectangle(cornerRadius: style?.cornerRadius ?? 4)
+                RoundedRectangle(cornerRadius: cornerRadius)
                     .fill(style?.backgroundColor.map { SwiftUIColor($0) } ?? SwiftUIColor(.lightGray))
                 
                 // progress fill
-                RoundedRectangle(cornerRadius: style?.cornerRadius ?? 4)
+                RoundedRectangle(cornerRadius: cornerRadius)
                     .fill(style?.progressBarColor.map { SwiftUIColor($0) } ?? SwiftUIColor(.green))
                     .frame(width: geo.size.width * (progress / 100))
                     .animation(.easeInOut, value: progress)
             }
         }
         .frame(height: style?.height ?? 4)
+    }
+
+    private var cornerRadius: CGFloat {
+        switch style?.cornerStyle ?? .fixed(4) {
+        case .automatic:
+            return (style?.height ?? 4) / 2
+        case .fixed(let radius):
+            return radius
+        case .corners(let corners):
+            return corners.maximum
+        case .none:
+            return .zero
+        }
     }
 }
 
@@ -61,7 +74,7 @@ public struct SUIProgressBarView: View {
             backgroundColor: .lightGray,
             progressBarColor: .systemBlue,
             height: 20,
-            cornerRadius: 16
+            cornerStyle: .fixed(16)
         )
     )
     .padding()

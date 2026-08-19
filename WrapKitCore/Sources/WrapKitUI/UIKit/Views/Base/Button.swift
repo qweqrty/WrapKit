@@ -21,6 +21,19 @@ public struct ButtonStyle: HashableWithReflection {
     public let wrongUrlPlaceholderImage: Image?
     public let loadingIndicatorColor: Color?
     public let glassConfiguration: GlassConfiguration?
+
+    public var cornerRadius: CGFloat {
+        switch cornerStyle {
+        case .automatic:
+            return Self.defaultCornerRadius
+        case .fixed(let radius):
+            return radius
+        case .corners(let corners):
+            return corners.maximum
+        case .none:
+            return .zero
+        }
+    }
     
     public init(
         backgroundColor: Color? = nil,

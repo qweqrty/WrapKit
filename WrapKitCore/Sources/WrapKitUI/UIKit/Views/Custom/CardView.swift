@@ -59,6 +59,19 @@ public struct CardViewPresentableModel: HashableWithReflection {
         public let gradientBorderColors: [Color]?
         public let trailingImageLeadingSpacing: CGFloat?
         public let secondaryTrailingImageLeadingSpacing: CGFloat?
+
+        public var cornerRadius: CGFloat {
+            switch cornerStyle {
+            case .automatic:
+                return .greatestFiniteMagnitude
+            case .fixed(let radius):
+                return radius
+            case .corners(let corners):
+                return corners.maximum
+            case .none:
+                return .zero
+            }
+        }
         
         public init(
             backgroundColor: Color,

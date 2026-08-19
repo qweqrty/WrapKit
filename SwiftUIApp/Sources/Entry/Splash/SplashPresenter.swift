@@ -324,7 +324,12 @@ private extension SplashPresenter {
     private func setupProgressBar() {
         progressBar?.display(model: .init(
             progress: 50,
-            style: .init(backgroundColor: .systemGreen, progressBarColor: .systemBlue, height: 8, cornerRadius: 16)
+            style: .init(
+                backgroundColor: .systemGreen,
+                progressBarColor: .systemBlue,
+                height: 8,
+                cornerStyle: .fixed(16)
+            )
         ))
     }
     

@@ -223,7 +223,7 @@ public struct SUICardView: View {
     @ViewBuilder
     private var switchView: some View {
         if let model = stateModel.switchControl {
-            SUISwitchControlView(model: model)
+            SUIModelSwitchControlView(model: model)
         }
     }
 
