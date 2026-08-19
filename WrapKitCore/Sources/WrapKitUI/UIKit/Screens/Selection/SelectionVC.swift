@@ -64,7 +64,9 @@ extension SelectionVC {
             tableView: contentView.tableView,
             configureCell: { tableView, indexPath, model in
                 let cell: SelectionCell = tableView.dequeueReusableCell(for: indexPath)
+                let isLast = indexPath.row == tableView.numberOfRows(inSection: indexPath.section) - 1
                 cell.model = model
+                cell.mainContentView.lineView.isHidden = isLast
                 return cell
             }
         )

@@ -283,7 +283,7 @@ open class NavigationBar: UIView {
             .bottom(trailingStackWrapperView.bottomAnchor)
         )
         
-        if #available(iOS 26, *) {
+        if isAvailableOS26 {
             mainStackViewConstraints = mainStackView.anchor(
                 .top(safeAreaLayoutGuide.topAnchor, constant: 4),
                 .leading(leadingAnchor, constant: 16),
@@ -308,7 +308,7 @@ open class NavigationBar: UIView {
         titleViews.fillSuperview()
         
         centerTitledImageView.anchor(
-            .top(topAnchor),
+            .top(safeAreaLayoutGuide.topAnchor),
             .bottom(bottomAnchor),
             .centerX(centerXAnchor)
         )
@@ -325,8 +325,7 @@ private extension NavigationBar {
             let glassEffect = UIGlassEffect(style: .regular)
             glassEffect.isInteractive = true
             let glassEffectView = UIVisualEffectView(effect: glassEffect)
-            glassEffectView.layer.cornerRadius = 22
-            glassEffectView.layer.cornerCurve = .continuous
+            glassEffectView.cornerConfiguration = .capsule()
             glassEffectView.isHidden = true
             return glassEffectView
         } else {
@@ -366,7 +365,7 @@ private extension NavigationBar {
     
     func makeWrappedImageView() -> WrapperView<Button> {
         let view = WrapperView(
-            contentView: Button(),
+            contentView: Button(contentInset: isAvailableOS26 && isLiquidGlassEnabled ? .init(top: 11, left: 11, bottom: 11, right: 11) : .init(top: 0, left: 8, bottom: 0, right: 8)),
             isHidden: true,
             contentViewConstraints: {
                 $0.anchor(
@@ -380,6 +379,7 @@ private extension NavigationBar {
         )
         if #available(iOS 26, macOS 26, tvOS 26, watchOS 26, *) {
             view.contentView.configuration = .glass()
+            view.contentView.configuration?.cornerStyle = .capsule
         }
         return view
     }

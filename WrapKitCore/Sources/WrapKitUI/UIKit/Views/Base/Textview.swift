@@ -23,7 +23,7 @@ open class Textview: UITextView, UITextViewDelegate {
     private var padding: UIEdgeInsets
     private var isValidState = true
     
-    public lazy var placeholderLabel = Label(font: font!, textColor: .gray)
+    public lazy var placeholderLabel = Label(font: font, textColor: .gray)
     public var textDidChange: (() -> Void)?
     public var shouldChangeText: ((NSRange, String) -> Bool)?
     public var appearance: TextfieldAppearance { didSet { updateAppearance(); applyAccessibility() } }

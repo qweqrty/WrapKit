@@ -12,4 +12,3 @@ public protocol ViewModelDTO<ViewModel> {
     associatedtype ViewModel
     var viewModel: ViewModel { get }
 }
-

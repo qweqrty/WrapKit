@@ -25,6 +25,7 @@ import SwiftUI
 #endif
 public class CardViewOutputSwiftUIAdapter: ObservableObject, CardViewOutput {
 
+
     // Initializer
     public init(
     ) {

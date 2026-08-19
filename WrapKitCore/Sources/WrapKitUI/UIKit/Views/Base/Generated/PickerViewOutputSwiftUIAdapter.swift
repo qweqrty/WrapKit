@@ -23,6 +23,7 @@ public class PickerViewOutputSwiftUIAdapter: ObservableObject, PickerViewOutput 
         @Published public var titleForRowAt: ((Int) -> String?)? = nil
         @Published public var didSelectAt: ((Int) -> Void)? = nil
 
+
     // Initializer
     public init(
     ) {

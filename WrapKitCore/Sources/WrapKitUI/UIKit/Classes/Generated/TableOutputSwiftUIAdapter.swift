@@ -19,6 +19,7 @@ import UIKit
 #endif
 public class TableOutputSwiftUIAdapter<Cell: Hashable,Footer: Any,Header: Any>: ObservableObject, TableOutput {
 
+
     // Initializer
     public init(
     ) {

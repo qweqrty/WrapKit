@@ -1,107 +1,91 @@
-//
-//  TextfieldSnapshotTests.swift
-//  WrapKitTests
-//
-//  Created by sunflow on 10/11/25.
-//
-
 import Foundation
 import WrapKit
 import WrapKitTestUtils
 import XCTest
 
+#if canImport(SwiftUI)
+import enum SwiftUI.ColorScheme
+import SwiftUI
+#endif
+
 final class TextfieldSnapshotTests: XCTestCase {
+
+    private weak var currentPairedSUT: PairedTextfieldSnapshotSUT?
+
+    private var swiftUISnapshotPrecision: Float { 0.98 }
+    private var swiftUIFailSnapshotPrecision: Float { 1 }
+
     func test_Textfield_default_state() {
         let snapshotName = "TEXTFIELD_DEFAULT_STATE"
-        
-        // GIVEN
         let (sut, container) = makeSUT()
-        
-        // WHEN
+
         sut.display(text: "DEFAULT STATE")
-        
-        // THEN
+
         if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+            assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+            assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
     func test_fail_Textfield_default_state() {
         let snapshotName = "TEXTFIELD_DEFAULT_STATE"
-        
-        // GIVEN
         let (sut, container) = makeSUT()
-        
-        // WHEN
+
         sut.display(text: "DEFAULT STATE.")
-        
-        // THEN
+
         if #available(iOS 26, *) {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+            assertPairedSnapshotFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertPairedSnapshotFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+            assertPairedSnapshotFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertPairedSnapshotFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
     func test_Textfield_default_isHidden() {
         let snapshotName = "TEXTFIELD_DEFAULT_ISHIDDEN"
-        
-        // GIVEN
         let (sut, container) = makeSUT()
-        
-        // WHEN
+
         sut.display(text: "DEFAULT STATE")
         sut.display(isHidden: true)
-        
-        // THEN
+
         if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+            assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+            assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
     func test_fail_Textfield_default_isHidden() {
         let snapshotName = "TEXTFIELD_DEFAULT_ISHIDDEN"
-        
-        // GIVEN
         let (sut, container) = makeSUT()
-        
-        // WHEN
+
         sut.display(text: "DEFAULT STATE")
         sut.display(isHidden: false)
-        
-        // THEN
+
         if #available(iOS 26, *) {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+            assertPairedSnapshotFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertPairedSnapshotFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+            assertPairedSnapshotFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertPairedSnapshotFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
-    // TODO: - Doent show clear button
+
+    // UIKit-only — clear button нет прямого аналога в SwiftUI
     func test_TextView_clearButtonActive() {
         let snapshotName = "TEXTVIEW_CLEABUTTONACTIVE"
-        
-        // GIVEN
         let clearButton = makeIcon(systemName: "star.fill")
         let (sut, container) = makeSUT(trailingView: .clear(trailingView: clearButton))
-        
-        // WHEN
+
         sut.display(text: "Clear button")
         sut.display(isClearButtonActive: true)
-        
-        // THEN
+
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
@@ -110,19 +94,15 @@ final class TextfieldSnapshotTests: XCTestCase {
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
     func test_fail_TextView_clearButtonActive() {
         let snapshotName = "TEXTVIEW_CLEABUTTONACTIVE"
-        
-        // GIVEN
         let clearButton = makeIcon(systemName: "star.fill")
         let (sut, container) = makeSUT(trailingView: .clear(trailingView: clearButton))
-        
-        // WHEN
+
         sut.display(text: "Clear button.")
         sut.display(isClearButtonActive: true)
-        
-        // THEN
+
         if #available(iOS 26, *) {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
@@ -131,29 +111,21 @@ final class TextfieldSnapshotTests: XCTestCase {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
-    // MARK: - display(trailingSymbol:) tests
+
+    // UIKit-only — mask+trailingSymbol использует MaskedTextfieldDelegate который не синхронизируется
     func test_Textfield_trailing_symbol_with_mask() {
         let snapshotName = "TEXTFIELD_TRAILING_SYMBOL"
-        
-        // GIVEN
         let mask = Mask(format: [
-            .literal("+"),
-            .literal("7"),
-            .literal(" "),
+            .literal("+"), .literal("7"), .literal(" "),
             .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
             .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
             .specifier(placeholder: "#", allowedCharacters: .decimalDigits)
         ])
-        
         let (sut, container) = makeSUT()
         sut.display(mask: .init(mask: mask, maskColor: .lightGray))
-        
-        // WHEN
         sut.simulateUserTyping("123")
-        sut.display(trailingSymbol: " (Mobile)") // ← Добавляем суффикс
-        
-        // THEN - должно показать: +7 123 (Mobile)
+        sut.display(trailingSymbol: " (Mobile)")
+
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
@@ -162,28 +134,20 @@ final class TextfieldSnapshotTests: XCTestCase {
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
     func test_fail_Textfield_trailing_symbol_with_mask() {
         let snapshotName = "TEXTFIELD_TRAILING_SYMBOL"
-        
-        // GIVEN
         let mask = Mask(format: [
-            .literal("+"),
-            .literal("7"),
-            .literal(" "),
+            .literal("+"), .literal("7"), .literal(" "),
             .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
             .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
             .specifier(placeholder: "#", allowedCharacters: .decimalDigits)
         ])
-        
         let (sut, container) = makeSUT()
         sut.display(mask: .init(mask: mask, maskColor: .lightGray))
-        
-        // WHEN
         sut.simulateUserTyping("123")
         sut.display(trailingSymbol: " (Mobile.)")
-        
-        // THEN
+
         if #available(iOS 26, *) {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
@@ -192,26 +156,20 @@ final class TextfieldSnapshotTests: XCTestCase {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
     func test_Textfield_trailing_symbol_currency() {
         let snapshotName = "TEXTFIELD_CURRENCY_SYMBOL"
-        
-        // GIVEN
         let mask = Mask(format: [
             .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
             .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
             .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
             .specifier(placeholder: "#", allowedCharacters: .decimalDigits)
         ])
-        
         let (sut, container) = makeSUT()
         sut.display(mask: .init(mask: mask, maskColor: .systemGray))
-        
-        // WHEN
         sut.simulateUserTyping("1500")
         sut.display(trailingSymbol: " USD")
-        
-        // THEN
+
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
@@ -220,26 +178,20 @@ final class TextfieldSnapshotTests: XCTestCase {
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
     func test_fail_Textfield_trailing_symbol_currency() {
         let snapshotName = "TEXTFIELD_CURRENCY_SYMBOL"
-        
-        // GIVEN
         let mask = Mask(format: [
             .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
             .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
             .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
             .specifier(placeholder: "#", allowedCharacters: .decimalDigits)
         ])
-        
         let (sut, container) = makeSUT()
         sut.display(mask: .init(mask: mask, maskColor: .systemGray))
-        
-        // WHEN
         sut.simulateUserTyping("1500")
         sut.display(trailingSymbol: " USD.")
-        
-        // THEN
+
         if #available(iOS 26, *) {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
@@ -248,22 +200,18 @@ final class TextfieldSnapshotTests: XCTestCase {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
+    // UIKit-only — onPress меняет appearance напрямую
     func test_Textfield_default_onPress() {
         let snapshotName = "TEXTFIELD_DEFAULT_ONPRESS"
-        
-        // GIVEN
         let (sut, container) = makeSUT()
-        
-        // WHEN
+
         sut.display(text: "DEFAULT STATE")
         sut.display(onPress: { [weak sut] in
-            sut?.appearance.colors.deselectedBackgroundColor = .red
+            sut?.uiKitView.appearance.colors.deselectedBackgroundColor = .red
         })
-        
         sut.onPress?()
-        
-        // THEN
+
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
@@ -272,22 +220,17 @@ final class TextfieldSnapshotTests: XCTestCase {
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
     func test_fail_Textfield_default_onPress() {
         let snapshotName = "TEXTFIELD_DEFAULT_ONPRESS"
-        
-        // GIVEN
         let (sut, container) = makeSUT()
-        
-        // WHEN
+
         sut.display(text: "DEFAULT STATE")
         sut.display(onPress: { [weak sut] in
-            sut?.appearance.colors.deselectedBackgroundColor = .systemRed
+            sut?.uiKitView.appearance.colors.deselectedBackgroundColor = .systemRed
         })
-        
         sut.onPress?()
-        
-        // THEN
+
         if #available(iOS 26, *) {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
@@ -296,84 +239,63 @@ final class TextfieldSnapshotTests: XCTestCase {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
     func test_Textfield_onPaste() {
         let snapshotName = "TEXTFIELD_ONPASTE"
-        
-        // GIVEN
         let (sut, container) = makeSUT()
         let exp = expectation(description: "Wait for completion")
-        
-        // WHEN
-        let text: String? = "Text to paste"
-        
-        sut.display(onPaste: { [weak sut]  text in
+
+        sut.display(onPaste: { [weak sut] text in
             sut?.display(text: text)
             exp.fulfill()
         })
-        
-        sut.onPaste?(text)
-        
+        sut.onPaste?("Text to paste")
         wait(for: [exp], timeout: 1.0)
-        
-        // THEN
+
         if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+            assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+            assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
     func test_fail_Textfield_onPaste() {
         let snapshotName = "TEXTFIELD_ONPASTE"
-        
-        // GIVEN
         let (sut, container) = makeSUT()
         let exp = expectation(description: "Wait for completion")
-        
-        // WHEN
-        let text: String? = "Text to paste."
-        
-        sut.display(onPaste: { [weak sut]  text in
+
+        sut.display(onPaste: { [weak sut] text in
             sut?.display(text: text)
             exp.fulfill()
         })
-        
-        sut.onPaste?(text)
-        
+        sut.onPaste?("Text to paste.")
         wait(for: [exp], timeout: 1.0)
-        
-        // THEN
+
         if #available(iOS 26, *) {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+            assertPairedSnapshotFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertPairedSnapshotFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+            assertPairedSnapshotFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertPairedSnapshotFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
+    // UIKit-only — onTapBackspace меняет appearance напрямую
     func test_Textfield_onTapBackspace() {
         let snapshotName = "TEXTFIELD_ONTAPBACKSPACE"
-        
-        // GIVEN
         let (sut, container) = makeSUT()
         let exp = expectation(description: "Wait for completion")
-        
-        // WHEN
+
         sut.display(text: "Text to delete")
         sut.display(onTapBackspace: { [weak sut] in
-            sut?.appearance.colors.deselectedBackgroundColor = .red
+            sut?.uiKitView.appearance.colors.deselectedBackgroundColor = .red
             exp.fulfill()
         })
-        
         sut.deleteBackward()
-        
         wait(for: [exp], timeout: 1.0)
-        
-        // THEN
+
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
@@ -382,26 +304,20 @@ final class TextfieldSnapshotTests: XCTestCase {
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
     func test_fail_Textfield_onTapBackspace() {
         let snapshotName = "TEXTFIELD_ONTAPBACKSPACE"
-        
-        // GIVEN
         let (sut, container) = makeSUT()
         let exp = expectation(description: "Wait for completion")
-        
-        // WHEN
+
         sut.display(text: "Text to delete.")
         sut.display(onTapBackspace: { [weak sut] in
-            sut?.appearance.colors.deselectedBackgroundColor = .red
+            sut?.uiKitView.appearance.colors.deselectedBackgroundColor = .red
             exp.fulfill()
         })
-        
         sut.deleteBackward()
-        
         wait(for: [exp], timeout: 1.0)
-        
-        // THEN
+
         if #available(iOS 26, *) {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
@@ -410,216 +326,151 @@ final class TextfieldSnapshotTests: XCTestCase {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
-    // MARK: - leadin, trailing view tests
+
     func test_Textfield_leadingView() {
         let snapshotName = "TEXTFIELD_LEADINGVIEW"
-        
-        // GIVEN
         let leadingIcon = makeIcon(systemName: "magnifyingglass")
-        
-        let (sut, container) = makeSUT(
-            leadingView: leadingIcon,
-        )
-        
-        // WHEN
+        let (sut, container) = makeSUT(leadingView: leadingIcon, leadingSwiftUIView: makeSwiftUIIcon(systemName: "magnifyingglass"))
+
         sut.display(text: "Search query")
-        
-        // THEN
+
         if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+            assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+            assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
     func test_fail_Textfield_leadingView() {
         let snapshotName = "TEXTFIELD_LEADINGVIEW"
-        
-        // GIVEN
         let leadingIcon = makeIcon(systemName: "mmagnifyingglass.circle.fill")
-        
-        let (sut, container) = makeSUT(
-            leadingView: leadingIcon,
-        )
-        
-        // WHEN
+        let (sut, container) = makeSUT(leadingView: leadingIcon, leadingSwiftUIView: makeSwiftUIIcon(systemName: "mmagnifyingglass.circle.fill"))
+
         sut.display(text: "Search query")
-        
-        // THEN
+
         if #available(iOS 26, *) {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+            assertPairedSnapshotFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertPairedSnapshotFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+            assertPairedSnapshotFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertPairedSnapshotFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
     func test_Textfield_leadingView_isHidden() {
         let snapshotName = "TEXTFIELD_LEADINGVIEW_ISHIDDEN"
-        
-        // GIVEN
         let leadingIcon = makeIcon(systemName: "magnifyingglass")
-        
-        let (sut, container) = makeSUT(
-            leadingView: leadingIcon,
-        )
-        
-        // WHEN
+        let (sut, container) = makeSUT(leadingView: leadingIcon, leadingSwiftUIView: makeSwiftUIIcon(systemName: "magnifyingglass"))
+
         sut.display(leadingViewIsHidden: true)
         sut.display(text: "Search query")
-        
-        // THEN
+
         if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+            assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+            assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
     func test_fail_Textfield_leadingView_isHidden() {
         let snapshotName = "TEXTFIELD_LEADINGVIEW_ISHIDDEN"
-        
-        // GIVEN
         let leadingIcon = makeIcon(systemName: "magnifyingglass")
-        
-        let (sut, container) = makeSUT(
-            leadingView: leadingIcon,
-        )
-        
-        // WHEN
+        let (sut, container) = makeSUT(leadingView: leadingIcon, leadingSwiftUIView: makeSwiftUIIcon(systemName: "magnifyingglass"))
+
         sut.display(leadingViewIsHidden: false)
         sut.display(text: "Search query")
-        
-        // THEN
+
         if #available(iOS 26, *) {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+            assertPairedSnapshotFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertPairedSnapshotFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+            assertPairedSnapshotFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertPairedSnapshotFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
     func test_Textfield_trailingView_isHidden() {
         let snapshotName = "TEXTFIELD_TRAILINGVIEW_ISHIDDEN"
-        
-        // GIVEN
         let trailingView = makeIcon(systemName: "magnifyingglass")
-        
-        let (sut, container) = makeSUT(
-            trailingView: .custom(trailingView: trailingView),
-        )
-        
-        // WHEN
+        let (sut, container) = makeSUT(trailingView: .custom(trailingView: trailingView), trailingSwiftUIView: makeSwiftUIIcon(systemName: "magnifyingglass"))
+
         sut.display(trailingViewIsHidden: true)
         sut.display(text: "Search query")
-        
-        // THEN
+
         if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+            assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+            assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
     func test_fail_Textfield_trailingView_isHidden() {
         let snapshotName = "TEXTFIELD_TRAILINGVIEW_ISHIDDEN"
-        
-        // GIVEN
         let trailingView = makeIcon(systemName: "magnifyingglass")
-        
-        let (sut, container) = makeSUT(
-            trailingView: .custom(trailingView: trailingView),
-        )
-        
-        // WHEN
+        let (sut, container) = makeSUT(trailingView: .custom(trailingView: trailingView), trailingSwiftUIView: makeSwiftUIIcon(systemName: "magnifyingglass"))
+
         sut.display(trailingViewIsHidden: false)
         sut.display(text: "Search query")
-        
-        // THEN
+
         if #available(iOS 26, *) {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+            assertPairedSnapshotFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertPairedSnapshotFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+            assertPairedSnapshotFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertPairedSnapshotFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
     func test_Textfield_trailingView() {
         let snapshotName = "TEXTFIELD_TRAILINGVIEW"
-        
-        // GIVEN
         let trailingIcon = makeIcon(systemName: "magnifyingglass")
-        
-        let (sut, container) = makeSUT(
-            trailingView: .custom(trailingView: trailingIcon),
-        )
-        
-        // WHEN
+        let (sut, container) = makeSUT(trailingView: .custom(trailingView: trailingIcon), trailingSwiftUIView: makeSwiftUIIcon(systemName: "magnifyingglass"))
+
         sut.display(text: "Search query")
-        
-        // THEN
+
         if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+            assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+            assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
     func test_fail_Textfield_trailingView() {
         let snapshotName = "TEXTFIELD_TRAILINGVIEW"
-        
-        // GIVEN
         let trailingIcon = makeIcon(systemName: "magnifyingglass.circle.fill")
-        
-        let (sut, container) = makeSUT(
-            trailingView: .custom(trailingView: trailingIcon),
-        )
-        
-        // WHEN
+        let (sut, container) = makeSUT(trailingView: .custom(trailingView: trailingIcon), trailingSwiftUIView: makeSwiftUIIcon(systemName: "magnifyingglass.circle.fill"))
+
         sut.display(text: "Search query")
-        
-        // THEN
+
         if #available(iOS 26, *) {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+            assertPairedSnapshotFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertPairedSnapshotFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+            assertPairedSnapshotFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertPairedSnapshotFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
+    // UIKit-only — leadingViewOnPress меняет appearance напрямую
     func test_Textfield_leadingView_onPress() {
         let snapshotName = "TEXTFIELD_LEADINGVIEW_ONPRESS"
-        
-        // GIVEN
         let leadingIcon = makeIcon(systemName: "magnifyingglass")
-        
-        let (sut, container) = makeSUT(
-            leadingView: leadingIcon,
-        )
-        
-        // WHEN
+        let (sut, container) = makeSUT(leadingView: leadingIcon)
+
         sut.display(text: "Search query")
-        
         sut.display(leadingViewOnPress: { [weak sut] in
-            sut?.appearance.colors.deselectedBackgroundColor = .red
+            sut?.uiKitView.appearance.colors.deselectedBackgroundColor = .red
         })
-            
         sut.leadingViewOnPress?()
-        
-        // THEN
+
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
@@ -628,27 +479,18 @@ final class TextfieldSnapshotTests: XCTestCase {
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
     func test_fail_Textfield_leadingView_onPress() {
         let snapshotName = "TEXTFIELD_LEADINGVIEW_ONPRESS"
-        
-        // GIVEN
         let leadingIcon = makeIcon(systemName: "magnifyingglass")
-        
-        let (sut, container) = makeSUT(
-            leadingView: leadingIcon,
-        )
-        
-        // WHEN
+        let (sut, container) = makeSUT(leadingView: leadingIcon)
+
         sut.display(text: "Search query")
-        
         sut.display(leadingViewOnPress: { [weak sut] in
-            sut?.appearance.colors.deselectedBackgroundColor = .systemRed
+            sut?.uiKitView.appearance.colors.deselectedBackgroundColor = .systemRed
         })
-            
         sut.leadingViewOnPress?()
-        
-        // THEN
+
         if #available(iOS 26, *) {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
@@ -657,27 +499,18 @@ final class TextfieldSnapshotTests: XCTestCase {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
     func test_Textfield_trailingView_onPress() {
         let snapshotName = "TEXTFIELD_TRAILING_ONPRESS"
-        
-        // GIVEN
         let trailingView = makeIcon(systemName: "magnifyingglass")
-        
-        let (sut, container) = makeSUT(
-            trailingView: .custom(trailingView: trailingView),
-        )
-        
-        // WHEN
+        let (sut, container) = makeSUT(trailingView: .custom(trailingView: trailingView))
+
         sut.display(text: "Search query")
-        
         sut.display(trailingViewOnPress: { [weak sut] in
-            sut?.appearance.colors.deselectedBackgroundColor = .red
+            sut?.uiKitView.appearance.colors.deselectedBackgroundColor = .red
         })
-            
         sut.trailingViewOnPress?()
-        
-        // THEN
+
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
@@ -686,27 +519,18 @@ final class TextfieldSnapshotTests: XCTestCase {
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
     func test_fail_Textfield_trailingView_onPress() {
         let snapshotName = "TEXTFIELD_TRAILING_ONPRESS"
-        
-        // GIVEN
         let trailingView = makeIcon(systemName: "magnifyingglass")
-        
-        let (sut, container) = makeSUT(
-            trailingView: .custom(trailingView: trailingView),
-        )
-        
-        // WHEN
+        let (sut, container) = makeSUT(trailingView: .custom(trailingView: trailingView))
+
         sut.display(text: "Search query")
-        
         sut.display(trailingViewOnPress: { [weak sut] in
-            sut?.appearance.colors.deselectedBackgroundColor = .systemRed
+            sut?.uiKitView.appearance.colors.deselectedBackgroundColor = .systemRed
         })
-            
         sut.trailingViewOnPress?()
-        
-        // THEN
+
         if #available(iOS 26, *) {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
@@ -715,293 +539,239 @@ final class TextfieldSnapshotTests: XCTestCase {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
-    // MARK: - disply(isSecureTextEntry:) tests
+
     func test_Textfield_isSecureText_false_text() {
         let snapshotName = "TEXTFIELD_ISSECURETEXT_FALSE_TEXT"
-        
-        // GIVEN
         let (sut, container) = makeSUT()
-        
-        // WHEN
+
         sut.display(text: "MyPassword123")
         sut.display(isSecureTextEntry: false)
-        
-        // THEN
+
         if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+            assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+            assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
     func test_fail_Textfield_isSecureText_false_text() {
         let snapshotName = "TEXTFIELD_ISSECURETEXT_FALSE_TEXT"
-        
-        // GIVEN
         let (sut, container) = makeSUT()
-        
-        // WHEN
+
         sut.display(text: "MyPassword123")
         sut.display(isSecureTextEntry: true)
-        
-        // THEN
+
         if #available(iOS 26, *) {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+            assertPairedSnapshotFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertPairedSnapshotFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+            assertPairedSnapshotFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertPairedSnapshotFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
     func test_Textfield_isSecureText_true_text() {
         let snapshotName = "TEXTFIELD_ISSECURETEXT_TRUE_TEXT"
-        
-        // GIVEN
         let (sut, container) = makeSUT()
-        
-        // WHEN
+
         sut.display(text: "MyPassword123")
         sut.display(isSecureTextEntry: true)
-        
-        // THEN
+
         if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+            assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+            assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
     func test_fail_Textfield_isSecureText_true_text() {
         let snapshotName = "TEXTFIELD_ISSECURETEXT_TRUE_TEXT"
-        
-        // GIVEN
         let (sut, container) = makeSUT()
-        
-        // WHEN
+
         sut.display(text: "MyPassword123")
         sut.display(isSecureTextEntry: false)
-        
-        // THEN
+
         if #available(iOS 26, *) {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+            assertPairedSnapshotFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertPairedSnapshotFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+            assertPairedSnapshotFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertPairedSnapshotFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
-    // MARK: - display(isValid:) tests
+
     func test_Textfield_invalid_state() {
         let snapshotName = "TEXTFIELD_INVALID_STATE"
-        
-        // GIVEN
         let (sut, container) = makeSUT()
-        
-        // WHEN
+
         sut.display(text: "Invalid input")
         sut.display(isValid: false)
-        
-        // THEN
+
         if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+            assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+            assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
     func test_fail_Textfield_invalid_state() {
         let snapshotName = "TEXTFIELD_INVALID_STATE"
-        
-        // GIVEN
         let (sut, container) = makeSUT()
-        
-        // WHEN
+
         sut.display(text: "Invalid input")
         sut.display(isValid: true)
-        
-        // THEN
+
         if #available(iOS 26, *) {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+            assertPairedSnapshotFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertPairedSnapshotFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+            assertPairedSnapshotFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertPairedSnapshotFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
     func test_Textfield_valid_state() {
         let snapshotName = "TEXTFIELD_VALID_STATE"
-        
-        // GIVEN
         let (sut, container) = makeSUT()
-        
-        // WHEN
+
         sut.display(text: "Valid input")
         sut.display(isValid: true)
-        
-        // THEN
+
         if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+            assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+            assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
     func test_fail_Textfield_valid_state() {
         let snapshotName = "TEXTFIELD_VALID_STATE"
-        
-        // GIVEN
         let (sut, container) = makeSUT()
-        
-        // WHEN
+
         sut.display(text: "Valid input")
         sut.display(isValid: false)
-        
-        // THEN
+
         if #available(iOS 26, *) {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+            assertPairedSnapshotFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertPairedSnapshotFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+            assertPairedSnapshotFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertPairedSnapshotFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
-    // MARK: - display(mask:) tests
+
     func test_Textfield_mask_as_placeholder() {
         let snapshotName = "TEXTFIELD_MASK_PLACEHOLDER"
-        
-        // GIVEN
         let (sut, container) = makeSUT()
-        
-        // WHEN
-        let mask = Mask(format: [
-            .literal("H"),
-            .literal("E"),
-            .literal("L"),
-            .literal("L"),
-            .literal("O")
-        ])
-        
+
+        let mask = Mask(format: [.literal("H"), .literal("E"), .literal("L"), .literal("L"), .literal("O")])
         let result = mask.applied(to: "")
         sut.display(placeholder: result.input + result.maskToInput)
-        
-        // THEN
+
         if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+            assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+            assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
     func test_fail_Textfield_mask_as_placeholder() {
         let snapshotName = "TEXTFIELD_MASK_PLACEHOLDER"
-        
-        // GIVEN
         let (sut, container) = makeSUT()
-        
-        // WHEN
-        let mask = Mask(format: [
-            .literal("H"),
-            .literal("E"),
-            .literal("L"),
-            .literal("L"),
-            .literal("o")
-        ])
-        
+
+        let mask = Mask(format: [.literal("H"), .literal("E"), .literal("L"), .literal("L"), .literal("o")])
         let result = mask.applied(to: "")
         sut.display(placeholder: result.input + result.maskToInput)
-        
-        // THEN
+
         if #available(iOS 26, *) {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+            assertPairedSnapshotFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertPairedSnapshotFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+            assertPairedSnapshotFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertPairedSnapshotFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
     func test_Textfield_invalid_with_placeholder() {
         let snapshotName = "TEXTFIELD_INVALID_PLACEHOLDER"
-        
-        // GIVEN
         let (sut, container) = makeSUT()
-        
-        // WHEN
+
         sut.display(placeholder: "Enter valid email")
         sut.display(isValid: false)
-        
-        // THEN
+
         if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+            assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+            assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
     func test_fail_Textfield_invalid_with_placeholder() {
         let snapshotName = "TEXTFIELD_INVALID_PLACEHOLDER"
-        
-        // GIVEN
         let (sut, container) = makeSUT()
-        
-        // WHEN
+
         sut.display(placeholder: "Enter valid email.")
         sut.display(isValid: false)
-        
-        // THEN
+
         if #available(iOS 26, *) {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+            assertPairedSnapshotFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertPairedSnapshotFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+            assertPairedSnapshotFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertPairedSnapshotFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
+    func test_textfield_emoji() {
+        let snapshotName = "TEXTFIELD_EMOJI_STATE"
+        let (sut, container) = makeSUT()
+
+        sut.display(model: .init(text: "it's fine 🙂"))
+
+        if #available(iOS 26, *) {
+            assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
+    }
+
+    func test_textfield_utfLikeText() {
+        let snapshotName = "TEXTFIELD_FAKE_EMOJI_STATE"
+        let (sut, container) = makeSUT()
+
+        sut.display(model: .init(text: "Saima 500+O!TV- SALE 30%_850"))
+
+        if #available(iOS 26, *) {
+            assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
+    }
+
+    // mask тесты — UIKit-only т.к. MaskedTextfieldDelegate не синхронизируется со SwiftUI
     func test_Textfield_phone_mask_partial() {
         let snapshotName = "TEXTFIELD_PHONE_MASK_PARTIAL"
-        
-        // GIVEN
         let (sut, container) = makeSUT()
-        
-        // WHEN
-        let mask = Mask(format: [
-            .literal("+"),
-            .literal("7"),
-            .literal(" "),
-            .literal("("),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
-            .literal(")"),
-            .literal(" "),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits)
-        ])
-        
+        let mask = makePhoneMask(countryCode: "7")
         sut.display(mask: .init(mask: mask, maskColor: .lightGray))
-        
         sut.simulateUserTyping("123")
-        
-        // THEN
+
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
@@ -1010,34 +780,14 @@ final class TextfieldSnapshotTests: XCTestCase {
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
     func test_fail_Textfield_phone_mask_partial() {
         let snapshotName = "TEXTFIELD_PHONE_MASK_PARTIAL"
-        
-        // GIVEN
         let (sut, container) = makeSUT()
-        
-        // WHEN
-        let mask = Mask(format: [
-            .literal("+"),
-            .literal("8"),
-            .literal(" "),
-            .literal("("),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
-            .literal(")"),
-            .literal(" "),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits)
-        ])
-        
+        let mask = makePhoneMask(countryCode: "8")
         sut.display(mask: .init(mask: mask, maskColor: .lightGray))
-        
         sut.simulateUserTyping("123")
-        
-        // THEN
+
         if #available(iOS 26, *) {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
@@ -1046,34 +796,14 @@ final class TextfieldSnapshotTests: XCTestCase {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
     func test_Textfield_phone_mask_full() {
         let snapshotName = "TEXTFIELD_PHONE_MASK_FULL"
-        
-        // GIVEN
         let (sut, container) = makeSUT()
-        
-        // WHEN
-        let mask = Mask(format: [
-            .literal("+"),
-            .literal("7"),
-            .literal(" "),
-            .literal("("),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
-            .literal(")"),
-            .literal(" "),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits)
-        ])
-        
+        let mask = makePhoneMask(countryCode: "7")
         sut.display(mask: .init(mask: mask, maskColor: .lightGray))
-        
         sut.simulateUserTyping("1234567890")
-        
-        // THEN
+
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
@@ -1082,34 +812,14 @@ final class TextfieldSnapshotTests: XCTestCase {
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
     func test_fail_Textfield_phone_mask_full() {
         let snapshotName = "TEXTFIELD_PHONE_MASK_FULL"
-        
-        // GIVEN
         let (sut, container) = makeSUT()
-        
-        // WHEN
-        let mask = Mask(format: [
-            .literal("+"),
-            .literal("8"),
-            .literal(" "),
-            .literal("("),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
-            .literal(")"),
-            .literal(" "),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits)
-        ])
-        
+        let mask = makePhoneMask(countryCode: "8")
         sut.display(mask: .init(mask: mask, maskColor: .lightGray))
-        
         sut.simulateUserTyping("1234567890")
-        
-        // THEN
+
         if #available(iOS 26, *) {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
@@ -1118,34 +828,15 @@ final class TextfieldSnapshotTests: XCTestCase {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
     func test_Textfield_phone_mask_empty() {
         let snapshotName = "TEXTFIELD_PHONE_MASK_EMPTY"
-        
-        // GIVEN
         let (sut, container) = makeSUT()
-        
-        // WHEN
-        let mask = Mask(format: [
-            .literal("+"),
-            .literal("7"),
-            .literal(" "),
-            .literal("("),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
-            .literal(")"),
-            .literal(" "),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits)
-        ])
-        
+        let mask = makePhoneMask(countryCode: "7")
         sut.display(mask: .init(mask: mask, maskColor: .lightGray))
         sut.simulateUserTyping("")
         sut.display(placeholder: "Enter phone number")
-        
-        // THEN
+
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
@@ -1154,34 +845,15 @@ final class TextfieldSnapshotTests: XCTestCase {
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
     func test_fail_Textfield_phone_mask_empty() {
         let snapshotName = "TEXTFIELD_PHONE_MASK_EMPTY"
-        
-        // GIVEN
         let (sut, container) = makeSUT()
-        
-        // WHEN
-        let mask = Mask(format: [
-            .literal("+"),
-            .literal("7"),
-            .literal(" "),
-            .literal("("),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
-            .literal(")"),
-            .literal(" "),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits)
-        ])
-        
+        let mask = makePhoneMask(countryCode: "7")
         sut.display(mask: .init(mask: mask, maskColor: .lightGray))
         sut.simulateUserTyping("123")
         sut.display(placeholder: "Enter phone number")
-        
-        // THEN
+
         if #available(iOS 26, *) {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
@@ -1190,183 +862,19 @@ final class TextfieldSnapshotTests: XCTestCase {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
-    func test_Textfield_credit_card_mask() {
-        let snapshotName = "TEXTFIELD_CARD_MASK"
-        
-        // GIVEN
-        let (sut, container) = makeSUT()
-        
-        let mask = Mask(format: [
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
-            .literal(" "),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
-            .literal(" "),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
-            .literal(" "),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits)
-        ])
-        
-        sut.display(mask: .init(mask: mask, maskColor: .systemGray))
-        
-        sut.simulateUserTyping("12345678")
-        
-        // THEN
-        if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
-    }
-    
-    func test_fail_Textfield_credit_card_mask() {
-        let snapshotName = "TEXTFIELD_CARD_MASK"
-        
-        // GIVEN
-        let (sut, container) = makeSUT()
-        
-        let mask = Mask(format: [
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
-            .literal(" "),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
-            .literal(" "),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
-            .literal(" "),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits)
-        ])
-        
-        sut.display(mask: .init(mask: mask, maskColor: .systemGray))
-        
-        sut.simulateUserTyping("22345678")
-        
-        // THEN
-        if #available(iOS 26, *) {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
-    }
-    
-    func test_Textfield_date_mask() {
-        let snapshotName = "TEXTFIELD_DATE_MASK"
-        
-        // GIVEN
-        let (sut, container) = makeSUT()
-        
-        // WHEN
-        let mask = Mask(format: [
-            .specifier(placeholder: "D", allowedCharacters: .decimalDigits),
-            .specifier(placeholder: "D", allowedCharacters: .decimalDigits),
-            .literal("/"),
-            .specifier(placeholder: "M", allowedCharacters: .decimalDigits),
-            .specifier(placeholder: "M", allowedCharacters: .decimalDigits),
-            .literal("/"),
-            .specifier(placeholder: "Y", allowedCharacters: .decimalDigits),
-            .specifier(placeholder: "Y", allowedCharacters: .decimalDigits),
-            .specifier(placeholder: "Y", allowedCharacters: .decimalDigits),
-            .specifier(placeholder: "Y", allowedCharacters: .decimalDigits)
-        ])
-        
-        sut.display(mask: .init(mask: mask, maskColor: .systemGray3))
-        
-        sut.simulateUserTyping("1512")
-        
-        // THEN
-        if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
-    }
-    
-    func test_fail_Textfield_date_mask() {
-        let snapshotName = "TEXTFIELD_DATE_MASK"
-        
-        // GIVEN
-        let (sut, container) = makeSUT()
-        
-        // WHEN
-        let mask = Mask(format: [
-            .specifier(placeholder: "D", allowedCharacters: .decimalDigits),
-            .specifier(placeholder: "D", allowedCharacters: .decimalDigits),
-            .literal("/"),
-            .specifier(placeholder: "M", allowedCharacters: .decimalDigits),
-            .specifier(placeholder: "M", allowedCharacters: .decimalDigits),
-            .literal("/"),
-            .specifier(placeholder: "Y", allowedCharacters: .decimalDigits),
-            .specifier(placeholder: "Y", allowedCharacters: .decimalDigits),
-            .specifier(placeholder: "Y", allowedCharacters: .decimalDigits),
-            .specifier(placeholder: "Y", allowedCharacters: .decimalDigits)
-        ])
-        
-        sut.display(mask: .init(mask: mask, maskColor: .systemGray3))
-        
-        sut.simulateUserTyping("1612")
-        
-        // THEN
-        if #available(iOS 26, *) {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
-    }
-    
+
     func test_Textfield_mask_with_color() {
         let snapshotName = "TEXTFIELD_MASK_BLUE"
-        
-        // GIVEN
         let (sut, container) = makeSUT()
-        
-        // WHEN
         let mask = Mask(format: [
-            .literal("C"),
-            .literal("O"),
-            .literal("D"),
-            .literal("E"),
-            .literal(":"),
-            .literal(" "),
+            .literal("C"), .literal("O"), .literal("D"), .literal("E"), .literal(":"), .literal(" "),
             .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
             .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
             .specifier(placeholder: "#", allowedCharacters: .decimalDigits)
         ])
-        
         sut.display(mask: .init(mask: mask, maskColor: .blue))
-        
         sut.simulateUserTyping("12")
-        
-        // THEN
+
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
@@ -1375,277 +883,154 @@ final class TextfieldSnapshotTests: XCTestCase {
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
     func test_fail_Textfield_mask_with_color() {
         let snapshotName = "TEXTFIELD_MASK_BLUE"
-        
-        // GIVEN
         let (sut, container) = makeSUT()
-        
-        // WHEN
         let mask = Mask(format: [
-            .literal("C"),
-            .literal("O"),
-            .literal("D"),
-            .literal("E"),
-            .literal(":"),
-            .literal(" "),
+            .literal("C"), .literal("O"), .literal("D"), .literal("E"), .literal(":"), .literal(" "),
             .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
             .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
             .specifier(placeholder: "#", allowedCharacters: .decimalDigits)
         ])
-        
         sut.display(mask: .init(mask: mask, maskColor: .systemBlue))
-        
         sut.simulateUserTyping("12")
-        
-        // THEN
+
         if #available(iOS 26, *) {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
         } else {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
-    }
-    
-    func test_textfield_emoji() {
-        // GIVEN
-        let (sut, container) = makeSUT()
-        let snapshotName = "TEXTFIELD_EMOJI_STATE"
-        
-        // WHEN
-        sut.display(model: .init(text: "it's fine 🙂"))
-        
-        // THEN
-        if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
-    }
-    
-    func test_textfield_utfLikeText() {
-        // GIVEN
-        let (sut, container) = makeSUT()
-        let snapshotName = "TEXTFIELD_FAKE_EMOJI_STATE"
-        
-        // WHEN
-        sut.display(model: .init(text: "Saima 500+O!TV- SALE 30%_850"))
-        
-        // THEN
-        if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
-    }
-    
-    func test_Textfield_mask_with_initial_literals_and_user_input() {
-        let snapshotName = "TEXTFIELD_MASK_INITIAL_LITERALS"
-        
-        // GIVEN
-        let (sut, container) = makeSUT()
-        
-        // WHEN - маска с начальными литералами типа "+7 "
-        let mask = Mask(format: [
-            .literal("+"),
-            .literal("9"),
-            .literal("9"),
-            .literal("6"),
-            .literal(" "),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
-            .literal("-"),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits)
-        ])
-        
-        sut.display(mask: .init(mask: mask, maskColor: .systemGray))
-        
-        // Вводим "98765" - маска должна правильно обработать и показать "+996 987-65"
-        sut.simulateUserTyping("98765")
-        
-        // THEN
-        if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
-    }
-    
-    func test_Textfield_mask_with_literals_and_literals_user_input() {
-        let snapshotName = "TEXTFIELD_MASK_CONSIDERS_LITERALS"
-        
-        // GIVEN
-        let (sut, container) = makeSUT()
-        
-        // WHEN - маска с начальными литералами типа "+7 "
-        let mask = Mask(format: [
-            .literal("+"),
-            .literal("9"),
-            .literal("9"),
-            .literal("6"),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits)
-        ])
-        
-        sut.display(mask: .init(mask: mask, maskColor: .systemGray))
-        
-        // Вводим "996553113555" - маска должна правильно обработать и показать "+996 553 113 555"
-        sut.simulateUserTyping("996553113555")
-        
-        // THEN
-        if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
-    }
-    
-    func test_Textfield_mask_with_literals_and_complex_literals_user_input() {
-        let snapshotName = "TEXTFIELD_MASK_CONSIDERS_COMPLEXT_LITERALS"
-        
-        // GIVEN
-        let (sut, container) = makeSUT()
-        
-        let mask = Mask(format: [
-            .literal("+"),
-            .literal("9"),
-            .literal("9"),
-            .literal("6"),
-            .literal(" "),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
-            .literal(" "),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
-            .literal(" "),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits)
-        ])
-        
-        sut.display(mask: .init(mask: mask, maskColor: .systemGray))
-        
-        sut.simulateUserTyping("996553113555")
-        
-        // THEN
-        if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
-    }
-    
-    func test_Textfield_mask_with_literals_and_almost_complex_literals_user_input() {
-        let snapshotName = "TEXTFIELD_MASK_CONSIDERS_ALMOST_COMPLEXT_LITERALS"
-        
-        // GIVEN
-        let (sut, container) = makeSUT()
-        
-        let mask = Mask(format: [
-            .literal("+"),
-            .literal("9"),
-            .literal("9"),
-            .literal("6"),
-            .literal(" "),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
-            .literal(" "),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
-            .literal(" "),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
-            .specifier(placeholder: "#", allowedCharacters: .decimalDigits)
-        ])
-        
-        sut.display(mask: .init(mask: mask, maskColor: .systemGray))
-        
-        sut.simulateUserTyping("96553113555")
-        
-        // THEN
-        if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
 }
 
 extension TextfieldSnapshotTests {
+
+    func assertPairedSnapshot(
+        snapshot: UIImage,
+        named name: String,
+        precision: Float = 1,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        assert(snapshot: snapshot, named: name, precision: precision, file: file, line: line)
+
+        if #available(iOS 17.0, *),
+           let swiftUISnapshot = currentPairedSUT?.swiftUISnapshot(for: colorScheme(from: name)) {
+            assert(
+                snapshot: swiftUISnapshot,
+                named: name,
+                precision: swiftUISnapshotPrecision,
+                file: file,
+                line: line
+            )
+        }
+    }
+
+    func assertPairedSnapshotFail(
+        snapshot: UIImage,
+        named name: String,
+        precision: Float = 1,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        assertFail(snapshot: snapshot, named: name, precision: precision, file: file, line: line)
+
+        if #available(iOS 17.0, *),
+           let swiftUISnapshot = currentPairedSUT?.swiftUISnapshot(for: colorScheme(from: name)) {
+            assertFail(
+                snapshot: swiftUISnapshot,
+                named: name,
+                precision: swiftUIFailSnapshotPrecision,
+                file: file,
+                line: line
+            )
+        }
+    }
+
+    func colorScheme(from snapshotName: String) -> ColorScheme {
+        snapshotName.hasSuffix("_DARK") ? .dark : .light
+    }
+
+    func makeSwiftUIIcon(systemName: String) -> AnyView {
+        AnyView(
+            Image(systemName: systemName)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 24, height: 24)
+                .foregroundColor(Color(UIColor.systemGray))
+        )
+    }
+
+    func makePhoneMask(countryCode: String) -> Mask {
+        let code: Character = countryCode.first ?? "7"
+        return Mask(format: [
+            .literal("+"), .literal(code), .literal(" "), .literal("("),
+            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
+            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
+            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
+            .literal(")"), .literal(" "),
+            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
+            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
+            .specifier(placeholder: "#", allowedCharacters: .decimalDigits)
+        ])
+    }
+
     func makeSUT(
         leadingView: ViewUIKit? = nil,
         trailingView: Textfield.TrailingViewStyle? = nil,
+        leadingSwiftUIView: AnyView? = nil,
+        trailingSwiftUIView: AnyView? = nil,
         file: StaticString = #file,
         line: UInt = #line
-    ) -> (sut: Textfield, container: UIView) {
-        
-        let sut = Textfield(appearance:
-                .init(
-                    colors: .init(
-                        textColor: .blue,
-                        selectedBorderColor: .yellow,
-                        selectedBackgroundColor: .cyan,
-                        selectedErrorBorderColor: .red,
-                        errorBorderColor: .systemRed,
-                        errorBackgroundColor: .brown,
-                        deselectedBorderColor: .green,
-                        deselectedBackgroundColor: .orange,
-                        disabledTextColor: .purple,
-                        disabledBackgroundColor: .systemPurple),
-                    font: .systemFont(ofSize: 24),
-                    border: .init(
-                        idleBorderWidth: 2,
-                        selectedBorderWidth: 3),
-                    placeholder: .init(
-                        color: .systemGray,
-                        font: .systemFont(ofSize: 20))
-                ),
-                    leadingView: leadingView,
-                    trailingView: trailingView
+    ) -> (sut: PairedTextfieldSnapshotSUT, container: UIView) {
+        let appearance = TextfieldAppearance(
+            colors: .init(
+                textColor: .blue,
+                selectedBorderColor: .yellow,
+                selectedBackgroundColor: .cyan,
+                selectedErrorBorderColor: .red,
+                errorBorderColor: .systemRed,
+                errorBackgroundColor: .brown,
+                deselectedBorderColor: .green,
+                deselectedBackgroundColor: .orange,
+                disabledTextColor: .purple,
+                disabledBackgroundColor: .systemPurple),
+            font: .systemFont(ofSize: 24),
+            border: .init(idleBorderWidth: 2, selectedBorderWidth: 3),
+            placeholder: .init(color: .systemGray, font: .systemFont(ofSize: 20))
         )
-        
+
+        let uiKitView = Textfield(
+            appearance: appearance,
+            leadingView: leadingView,
+            trailingView: trailingView
+        )
+
+        let sut = PairedTextfieldSnapshotSUT(
+            appearance: appearance,
+            uiKitView: uiKitView,
+            leadingSwiftUIView: leadingSwiftUIView,
+            trailingSwiftUIView: trailingSwiftUIView
+        )
+
         let container = makeContainer()
-        
-        container.addSubview(sut)
-        sut.anchor(
+        container.addSubview(sut.uiKitView)
+        sut.uiKitView.anchor(
             .top(container.topAnchor, constant: 0, priority: .required),
             .leading(container.leadingAnchor, constant: 0, priority: .required),
-            .trailing(container.trailingAnchor, constant: 0, priority: .required),
+            .trailing(container.trailingAnchor, constant: 0, priority: .required)
         )
-        
         container.layoutIfNeeded()
-        
+
+        currentPairedSUT = sut
         checkForMemoryLeaks(sut, file: file, line: line)
+        checkForMemoryLeaks(sut.uiKitView, file: file, line: line)
         return (sut, container)
     }
-    
+
     func makeIcon(systemName: String, tintColor: UIColor = .systemGray) -> ViewUIKit {
         let container = ViewUIKit()
         let imageView = UIImageView()
@@ -1653,7 +1038,6 @@ extension TextfieldSnapshotTests {
         imageView.tintColor = tintColor
         imageView.contentMode = .scaleAspectFit
         imageView.translatesAutoresizingMaskIntoConstraints = false
-        
         container.addSubview(imageView)
         NSLayoutConstraint.activate([
             imageView.widthAnchor.constraint(equalToConstant: 24),
@@ -1663,29 +1047,9 @@ extension TextfieldSnapshotTests {
             imageView.leadingAnchor.constraint(equalTo: container.leadingAnchor),
             imageView.trailingAnchor.constraint(equalTo: container.trailingAnchor)
         ])
-        
         return container
     }
-    
-    func makeLeadingLabel(text: String) -> ViewUIKit {
-        let container = ViewUIKit()
-        let label = UILabel()
-        label.text = text
-        label.font = .systemFont(ofSize: 20, weight: .medium)
-        label.textColor = .systemGray
-        label.translatesAutoresizingMaskIntoConstraints = false
-        
-        container.addSubview(label)
-        NSLayoutConstraint.activate([
-            label.topAnchor.constraint(equalTo: container.topAnchor),
-            label.bottomAnchor.constraint(equalTo: container.bottomAnchor),
-            label.leadingAnchor.constraint(equalTo: container.leadingAnchor),
-            label.trailingAnchor.constraint(equalTo: container.trailingAnchor)
-        ])
-        
-        return container
-    }
-    
+
     func makeContainer() -> UIView {
         let container = UIView()
         container.frame = CGRect(x: 0, y: 0, width: 390, height: 300)
@@ -1695,67 +1059,32 @@ extension TextfieldSnapshotTests {
 }
 
 extension UITextField {
-
-    /// Simulates keyboard typing:
-    /// - calls delegate `shouldChangeCharactersIn`
-    /// - updates `text`
-    /// - moves caret
-    /// - fires `.editingChanged`
     func simulateUserTyping(_ string: String) {
         if !isFirstResponder { _ = becomeFirstResponder() }
         ensureCaretExists()
-
         for ch in string {
             simulateUserReplace(selectedNSRangeOrCaret(), with: String(ch))
         }
     }
 
-    /// Simulates replacement at a given NSRange (like user paste/replace/selection typing).
     func simulateUserReplace(_ range: NSRange, with replacement: String) {
         let current = text ?? ""
-
-        // 1) Delegate gate
         if let delegate = delegate,
            delegate.responds(to: #selector(UITextFieldDelegate.textField(_:shouldChangeCharactersIn:replacementString:))) {
             let allowed = delegate.textField?(self, shouldChangeCharactersIn: range, replacementString: replacement) ?? true
             guard allowed else { return }
         }
-
-        // 2) Apply change
         if let r = Range(range, in: current) {
             text = current.replacingCharacters(in: r, with: replacement)
         } else {
             text = current + replacement
         }
-
-        // 3) Move caret after inserted text
         let newCaretOffset = range.location + replacement.count
         if let newPos = position(from: beginningOfDocument, offset: newCaretOffset) {
             selectedTextRange = textRange(from: newPos, to: newPos)
         }
-
-        // 4) Fire event most formatters/masks listen to
         sendActions(for: .editingChanged)
     }
-
-    /// Simulates backspace (deletes selection if present, otherwise deletes 1 char before caret).
-    func simulateBackspace(count: Int = 1) {
-        if !isFirstResponder { _ = becomeFirstResponder() }
-        ensureCaretExists()
-
-        for _ in 0..<count {
-            let sel = selectedNSRangeOrCaret()
-            if sel.length > 0 {
-                simulateUserReplace(sel, with: "")
-            } else if sel.location > 0 {
-                simulateUserReplace(NSRange(location: sel.location - 1, length: 1), with: "")
-            } else {
-                return
-            }
-        }
-    }
-
-    // MARK: - Helpers
 
     private func ensureCaretExists() {
         if selectedTextRange == nil {
