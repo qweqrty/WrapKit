@@ -283,7 +283,7 @@ open class NavigationBar: UIView {
             .bottom(trailingStackWrapperView.bottomAnchor)
         )
         
-        if isAvailableOS26 {
+        if isAvailableOS26 && isLiquidGlassEnabled {
             mainStackViewConstraints = mainStackView.anchor(
                 .top(safeAreaLayoutGuide.topAnchor, constant: 4),
                 .leading(leadingAnchor, constant: 16),
@@ -321,7 +321,7 @@ open class NavigationBar: UIView {
 
 private extension NavigationBar {
     func makeLeadingCardGlassEffectView() -> UIView {
-        if #available(iOS 26, macOS 26, tvOS 26, watchOS 26, *) {
+        if #available(iOS 26, macOS 26, tvOS 26, watchOS 26, *), isLiquidGlassEnabled {
             let glassEffect = UIGlassEffect(style: .regular)
             glassEffect.isInteractive = true
             let glassEffectView = UIVisualEffectView(effect: glassEffect)
@@ -377,7 +377,7 @@ private extension NavigationBar {
                 )
             }
         )
-        if #available(iOS 26, macOS 26, tvOS 26, watchOS 26, *) {
+        if #available(iOS 26, macOS 26, tvOS 26, watchOS 26, *), isLiquidGlassEnabled {
             view.contentView.configuration = .glass()
             view.contentView.configuration?.cornerStyle = .capsule
         }

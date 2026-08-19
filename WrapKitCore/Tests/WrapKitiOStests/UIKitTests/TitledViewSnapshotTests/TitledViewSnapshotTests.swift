@@ -23,7 +23,7 @@ final class TitledViewSnapshotTests: XCTestCase {
 
         sut.display(titles: .init(.text("First title"), .text("Second title")))
 
-        recordPairedSnapshot(container: container, named: snapshotName)
+        assertPairedSnapshot(snapshot: container, named: snapshotName)
     }
 
     func test_fail_titledView_defaul_state() {
@@ -42,7 +42,7 @@ final class TitledViewSnapshotTests: XCTestCase {
         sut.display(titles: .init(.text("First title"), .text("Second title")))
         sut.display(bottomTitles: .init(.text("First bottom"), .text("Second bottom")))
 
-        recordPairedSnapshot(container: container, named: snapshotName)
+        assertPairedSnapshot(snapshot: container, named: snapshotName)
     }
 
     func test_fail_titledView_with_bottomTitles() {
@@ -62,7 +62,7 @@ final class TitledViewSnapshotTests: XCTestCase {
         sut.display(titles: .init(.text("First title"), .text("Second title")))
         sut.display(leadingBottomTitle: .text("Leading bottom title"))
 
-        recordPairedSnapshot(container: container, named: snapshotName)
+        assertPairedSnapshot(snapshot: container, named: snapshotName)
     }
 
     func test_fail_titledView_with_leadingBottomTitle() {
@@ -82,7 +82,7 @@ final class TitledViewSnapshotTests: XCTestCase {
         sut.display(titles: .init(.text("First title"), .text("Second title")))
         sut.display(trailingBottomTitle: .text("Trailing bottom title"))
 
-        recordPairedSnapshot(container: container, named: snapshotName)
+        assertPairedSnapshot(snapshot: container, named: snapshotName)
     }
 
     func test_fail_titledView_with_trailingBottomTitle() {
@@ -102,7 +102,7 @@ final class TitledViewSnapshotTests: XCTestCase {
         sut.display(titles: .init(.text("First title"), .text("Second title")))
         sut.display(isHidden: true)
 
-        recordPairedSnapshot(container: container, named: snapshotName)
+        assertPairedSnapshot(snapshot: container, named: snapshotName)
     }
 
     func test_fail_titledView_with_isHidden() {

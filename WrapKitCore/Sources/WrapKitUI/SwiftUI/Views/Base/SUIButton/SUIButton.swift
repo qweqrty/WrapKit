@@ -41,6 +41,7 @@ public struct SUIButtonView: View {
     let isEnabled: Bool
     let isLoading: Bool
     let pressAnimations: Set<PressAnimation>
+    let fillsAvailableWidth: Bool
     
     @State private var isPressed: Bool = false
     
@@ -49,47 +50,100 @@ public struct SUIButtonView: View {
         onPress: (() -> Void)? = nil,
         isEnabled: Bool,
         isLoading: Bool = false,
-        pressAnimations: Set<PressAnimation> = []
+        pressAnimations: Set<PressAnimation> = [],
+        fillsAvailableWidth: Bool = true
     ) {
         self.model = model
         self.onPress = onPress
         self.isEnabled = isEnabled
         self.isLoading = isLoading
         self.pressAnimations = pressAnimations
+        self.fillsAvailableWidth = fillsAvailableWidth
     }
     
+    @ViewBuilder
     public var body: some View {
-        SwiftUI.Button(action: { onPress?() }) {
-            ZStack {
-                HStack(spacing: model.spacing ?? 0) {
-                    if let image = model.image {
-                        SwiftUIImage(image: image)
-                            .resizable()
-                            .scaledToFit()
-                            .frame(height: (model.height ?? 44) * 0.5)
-                    }
-                    if let title = model.title {
-                        Text(title.removingPercentEncoding ?? title)
-                            .font(model.style?.font.map { SwiftUIFont($0) })
-                            .foregroundColor(
-                                isPressed
-                                ? model.style?.pressedTintColor.map { SwiftUIColor($0) }
-                                : model.style?.titleColor.map { SwiftUIColor($0) }
-                            )
-                    }
-                }
-                .opacity(isLoading ? 0 : 1)
-            }
-            .frame(maxWidth: .infinity)
-            .frame(width: model.width, height: model.height)
-            .background(backgroundView)
-            .cornerRadius(model.style?.cornerRadius ?? 12)
-            .overlay(borderView)
+        if let glassConfiguration = model.style?.glassConfiguration,
+           isLiquidGlassAvailable {
+            glassButton(configuration: glassConfiguration)
+        } else {
+            legacyButton
         }
+    }
+
+    private var legacyButton: some View {
+        baseButton
+            .buttonStyle(PressableButtonStyle(isPressed: $isPressed, pressAnimations: pressAnimations))
+    }
+
+    @ViewBuilder
+    private func glassButton(configuration: ButtonStyle.GlassConfiguration) -> some View {
+        baseButton
+            .wrapKitGlassButtonStyle(
+                configuration,
+                tint: glassTintColor,
+                cornerStyle: buttonCornerStyle
+            )
+            .overlay(borderView)
+    }
+
+    private var baseButton: some View {
+        SwiftUI.Button(
+            action: { onPress?() },
+            label: { buttonLabel }
+        )
         .opacity(isEnabled ? 1.0 : 0.5)
         .disabled(!isEnabled)
-        .buttonStyle(PressableButtonStyle(isPressed: $isPressed, pressAnimations: pressAnimations))
         .accessibilityIdentifier(model.accessibilityIdentifier ?? "")
+    }
+
+    private var buttonLabel: some View {
+        ZStack {
+            HStack(spacing: model.spacing ?? 0) {
+                if let image = model.image {
+                    SwiftUIImage(image: image)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(height: (model.height ?? 44) * 0.5)
+                }
+                if let title = model.title {
+                    Text(title.removingPercentEncoding ?? title)
+                        .font(model.style?.font.map { SwiftUIFont($0) })
+                        .foregroundColor(titleColor)
+                }
+            }
+            .opacity(isLoading ? 0 : 1)
+        }
+        .frame(maxWidth: fillsAvailableWidth ? .infinity : nil)
+        .frame(width: model.width, height: model.height)
+        .background {
+            if !isLiquidGlassAvailable || model.style?.glassConfiguration == nil {
+                backgroundView
+            }
+        }
+        .cornerStyle(buttonCornerStyle)
+        .overlay {
+            if !isLiquidGlassAvailable || model.style?.glassConfiguration == nil {
+                borderView
+            }
+        }
+    }
+
+    private var isLiquidGlassAvailable: Bool {
+        isAvailableOS26 && isLiquidGlassEnabled
+    }
+
+    private var buttonCornerStyle: CornerStyle {
+        model.style?.cornerStyle ?? .fixed(ButtonStyle.defaultCornerRadius)
+    }
+
+    private var glassTintColor: SwiftUIColor? {
+        model.style?.backgroundColor.map(SwiftUIColor.init)
+    }
+
+    private var titleColor: SwiftUIColor? {
+        let color = isPressed ? model.style?.pressedTintColor : model.style?.titleColor
+        return color.map(SwiftUIColor.init)
     }
     
     @ViewBuilder
@@ -105,8 +159,8 @@ public struct SUIButtonView: View {
     private var borderView: some View {
         if let borderColor = model.style?.borderColor,
            (model.style?.borderWidth ?? 0) > 0 {
-            RoundedRectangle(cornerRadius: model.style?.cornerRadius ?? 12)
-                .strokeBorder(SwiftUIColor(borderColor), lineWidth: model.style?.borderWidth ?? 0)
+            SUICornerShape(style: buttonCornerStyle)
+                .stroke(SwiftUIColor(borderColor), lineWidth: model.style?.borderWidth ?? 0)
         }
     }
 }

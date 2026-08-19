@@ -16,16 +16,45 @@ public struct SUISegmentControlView: View {
         ))
     }
 
+    @ViewBuilder
     public var body: some View {
-        GeometryReader { proxy in
-            ZStack(alignment: .leading) {
-                backgroundView
-                if #unavailable(iOS 26) {
+        if #available(iOS 26, macOS 26, tvOS 26, watchOS 26, *) {
+            nativeSegmentedControl
+        } else {
+            GeometryReader { proxy in
+                ZStack(alignment: .leading) {
+                    backgroundView
                     selectedSegmentView(containerWidth: proxy.size.width)
+                    segmentsView
                 }
-                segmentsView
+            }
+            .frame(minHeight: 32)
+        }
+    }
+
+    @available(iOS 26, macOS 26, tvOS 26, watchOS 26, *)
+    private var nativeSegmentedControl: some View {
+        Picker(
+            "",
+            selection: Binding(
+                get: { stateModel.selectedIndex },
+                set: { stateModel.selectSegment(at: $0) }
+            )
+        ) {
+            ForEach(Array(stateModel.segments.enumerated()), id: \.offset) { index, segment in
+                Text(segment.title.removingPercentEncoding ?? segment.title)
+                    .font(SwiftUIFont(stateModel.appearance.font))
+                    .foregroundColor(SwiftUIColor(stateModel.appearance.colors.textColor))
+                    .lineLimit(1)
+                    .tag(index)
+                    .accessibilityIdentifier(segment.accessibilityIdentifier ?? "")
             }
         }
+        .labelsHidden()
+        .pickerStyle(.segmented)
+        .tint(SwiftUIColor(stateModel.appearance.colors.selectedBackgroundColor))
+        .background(SwiftUIColor(stateModel.appearance.colors.backgroundColor))
+        .cornerStyle(.fixed(stateModel.appearance.cornerRadius))
         .frame(minHeight: 32)
     }
 

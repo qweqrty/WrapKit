@@ -13,17 +13,23 @@ public struct SUITextField: View {
     let appearance: TextfieldAppearance
     let leadingView: AnyView?
     let trailingView: AnyView?
+    let contentInsets: SwiftUI.EdgeInsets
+    let cornerStyle: CornerStyle
     
     public init(
         adapter: TextInputOutputSwiftUIAdapter,
         appearance: TextfieldAppearance,
         leadingView: AnyView? = nil,
-        trailingView: AnyView? = nil
+        trailingView: AnyView? = nil,
+        contentInsets: SwiftUI.EdgeInsets = .init(top: 10, leading: 12, bottom: 10, trailing: 12),
+        cornerStyle: CornerStyle = .fixed(10)
     ) {
         self.stateModel = .init(adapter: adapter)
         self.appearance = appearance
         self.leadingView = leadingView
         self.trailingView = trailingView
+        self.contentInsets = contentInsets
+        self.cornerStyle = cornerStyle
     }
     
     public var body: some View {
@@ -58,6 +64,8 @@ public struct SUITextField: View {
                     mask: stateModel.mask,
                     accessibilityIdentifier: stateModel.accessibilityIdentifier,
                     inputAccessoryView: stateModel.inputAccessoryView,
+                    contentInsets: contentInsets,
+                    cornerStyle: cornerStyle
                 )
             } else {
                 // Fallback on earlier versions
@@ -96,6 +104,8 @@ public struct SUITextInputView: View {
     let mask: TextInputPresentableModel.Mask?
     let accessibilityIdentifier: String?
     let inputAccessoryView: TextInputPresentableModel.AccessoryViewPresentableModel?
+    let contentInsets: SwiftUI.EdgeInsets
+    let cornerStyle: CornerStyle
     
     @State private var isFocused: Bool = false
     @StateObject private var textFieldObserver = TextFieldObserver()
@@ -149,17 +159,17 @@ public struct SUITextInputView: View {
             textFieldContent
             trailingViewContent
         }
-        .padding(SwiftUI.EdgeInsets(top: 10, leading: 12, bottom: 10, trailing: 12))
+        .padding(contentInsets)
         .fixedSize(horizontal: false, vertical: true)
         .background(
-            RoundedRectangle(cornerRadius: 10)
+            SUICornerShape(style: cornerStyle)
                 .fill(currentBackgroundColor)
         )
         .background(
-            RoundedRectangle(cornerRadius: 10)
+            SUICornerShape(style: cornerStyle)
                 .stroke(currentBorderColor, lineWidth: borderWidth)
         )
-        .cornerRadius(10)
+        .cornerStyle(cornerStyle)
         .animation(.easeInOut(duration: 0.1), value: isValid)
     }
     
@@ -265,8 +275,8 @@ public struct SUITextInputView: View {
     }
     
     private var borderOverlay: some View {
-        RoundedRectangle(cornerRadius: 10)
-            .strokeBorder(currentBorderColor, lineWidth: borderWidth)
+        SUICornerShape(style: cornerStyle)
+            .stroke(currentBorderColor, lineWidth: borderWidth)
     }
     
     private func introspectTextField(_ textField: UITextField) {

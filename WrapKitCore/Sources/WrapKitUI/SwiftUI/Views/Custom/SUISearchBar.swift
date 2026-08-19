@@ -24,85 +24,50 @@ public struct SUISearchBar: View {
 
     public var body: some View {
         if !stateModel.isHidden {
-            HStack(alignment: .top, spacing: stateModel.spacing) {
-                buttonView(stateModel.leftView)
-                if !stateModel.isTextFieldHidden {
-                    textFieldView
-                }
-                buttonView(stateModel.rightView)
-            }
-            .background(SwiftUIColor(stateModel.backgroundColor ?? .clear))
+            styledContent
         }
     }
 
-    private var textFieldView: some View {
-        ZStack(alignment: .leading) {
-            if let text = stateModel.textField?.text, !text.isEmpty {
-                Text(text.removingPercentEncoding ?? text)
-                    .font(SwiftUIFont(stateModel.appearance.font))
-                    .foregroundColor(SwiftUIColor(stateModel.appearance.colors.textColor))
-                    .lineLimit(1)
-            } else {
-                placeholderView
+    private var content: some View {
+        HStack(alignment: .top, spacing: stateModel.spacing) {
+            buttonView(stateModel.leftView)
+            if !stateModel.isTextFieldHidden {
+                SUITextField(
+                    adapter: stateModel.textFieldAdapter,
+                    appearance: stateModel.appearance,
+                    contentInsets: stateModel.padding,
+                    cornerStyle: .fixed(stateModel.cornerRadius)
+                )
             }
+            buttonView(stateModel.rightView)
         }
-        .padding(stateModel.padding)
-        .frame(
-            maxWidth: .infinity,
-            minHeight: stateModel.textFieldHeight,
-            alignment: .leading
-        )
-        .background(SwiftUIColor(stateModel.appearance.colors.deselectedBackgroundColor))
-        .cornerRadius(stateModel.cornerRadius)
-        .overlay(textFieldBorder)
     }
 
     @ViewBuilder
-    private var placeholderView: some View {
-        let placeholder = stateModel.appearance.placeholder?.text ?? stateModel.textField?.placeholder ?? stateModel.placeholder
-        if let placeholder, !placeholder.isEmpty {
-            Text(placeholder.removingPercentEncoding ?? placeholder)
-                .font(SwiftUIFont(stateModel.appearance.placeholder?.font ?? stateModel.appearance.font))
-                .foregroundColor(SwiftUIColor(stateModel.appearance.placeholder?.color ?? stateModel.appearance.colors.textColor))
-                .lineLimit(1)
+    private var styledContent: some View {
+        if #available(iOS 26, macOS 26, tvOS 26, watchOS 26, *), isLiquidGlassEnabled {
+            content
+                .glassEffect(
+                    .clear.tint(stateModel.backgroundColor.map(SwiftUIColor.init)),
+                    in: SUICornerShape(style: .automatic)
+                )
+        } else {
+            content
+                .background(SwiftUIColor(stateModel.backgroundColor ?? .clear))
         }
-    }
-
-    private var textFieldBorder: some View {
-        RoundedRectangle(cornerRadius: stateModel.cornerRadius)
-            .stroke(
-                SwiftUIColor(stateModel.appearance.colors.deselectedBorderColor),
-                lineWidth: stateModel.appearance.border?.idleBorderWidth ?? 0
-            )
     }
 
     @ViewBuilder
     private func buttonView(_ model: ButtonPresentableModel?) -> some View {
         if let model {
-            let title = model.title?.removingPercentEncoding ?? model.title ?? ""
-            let font = model.style?.font ?? Font.systemFont(ofSize: Font.buttonFontSize)
-            Text(title)
-                .font(SwiftUIFont(font))
-                .foregroundColor(SwiftUIColor(model.style?.titleColor ?? .systemBlue))
-                .lineLimit(1)
-                .frame(
-                    width: model.width,
-                    height: model.height ?? stateModel.textFieldHeight,
-                    alignment: .center
-                )
-                .background(SwiftUIColor(model.style?.backgroundColor ?? .clear))
-                .cornerRadius(model.style?.cornerRadius ?? 0)
-                .overlay(buttonBorder(model.style))
-                .opacity(model.enabled == false ? 0.5 : 1)
-        }
-    }
-
-    private func buttonBorder(_ style: ButtonStyle?) -> some View {
-        RoundedRectangle(cornerRadius: style?.cornerRadius ?? 0)
-            .stroke(
-                SwiftUIColor(style?.borderColor ?? .clear),
-                lineWidth: style?.borderWidth ?? 0
+            SUIButtonView(
+                model: model,
+                onPress: model.onPress,
+                isEnabled: model.enabled ?? true,
+                fillsAvailableWidth: false
             )
+            .frame(height: model.height ?? stateModel.textFieldHeight)
+        }
     }
 }
 #endif

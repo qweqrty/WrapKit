@@ -40,7 +40,7 @@ public struct SUINavigationBar: View {
     }
 
     private var horizontalPadding: CGFloat {
-        if #available(iOS 26, *) {
+        if #available(iOS 26, *), isLiquidGlassEnabled {
             return 16
         }
         return 8
@@ -48,9 +48,20 @@ public struct SUINavigationBar: View {
 
     @ViewBuilder
     private func leadingSection(model: HeaderPresentableModel) -> some View {
-        if model.leadingCard != nil {
-            SUICardView(adapter: stateModel.leadingCardAdapter)
-                .frame(maxHeight: 44, alignment: .leading)
+        if let leadingCard = model.leadingCard {
+            if #available(iOS 26, macOS 26, tvOS 26, watchOS 26, *),
+               isLiquidGlassEnabled,
+               leadingCard.onPress != nil || leadingCard.onLongPress != nil {
+                SUICardView(adapter: stateModel.leadingCardAdapter)
+                    .frame(maxHeight: 44, alignment: .leading)
+                    .glassEffect(
+                        .regular.interactive(),
+                        in: SUICornerShape(style: .automatic)
+                    )
+            } else {
+                SUICardView(adapter: stateModel.leadingCardAdapter)
+                    .frame(maxHeight: 44, alignment: .leading)
+            }
         }
     }
 
@@ -148,8 +159,31 @@ private struct SUINavigationBarButtonView: View {
     let model: ButtonPresentableModel?
     let tintColor: Color
 
+    @ViewBuilder
     var body: some View {
         if let model {
+            if #available(iOS 26, macOS 26, tvOS 26, watchOS 26, *), isLiquidGlassEnabled {
+                button(model)
+                    .wrapKitGlassButtonStyle(
+                        model.style?.glassConfiguration ?? .glass,
+                        tint: model.style?.backgroundColor.map(SwiftUIColor.init),
+                        cornerStyle: .automatic
+                    )
+                    .overlay(buttonBorder(model.style, cornerStyle: .automatic))
+            } else {
+                button(model)
+                    .buttonStyle(.plain)
+                    .background(SwiftUIColor(model.style?.backgroundColor ?? .clear))
+                    .cornerStyle(model.style?.cornerStyle ?? .none)
+                    .overlay(buttonBorder(model.style, cornerStyle: model.style?.cornerStyle ?? .none))
+            }
+        }
+    }
+
+    private func button(_ model: ButtonPresentableModel) -> some View {
+        SwiftUI.Button {
+            model.onPress?()
+        } label: {
             HStack(spacing: model.spacing ?? 0) {
                 if let image = model.image {
                     SwiftUIImage(image: image)
@@ -161,24 +195,22 @@ private struct SUINavigationBarButtonView: View {
                 }
             }
             .foregroundColor(SwiftUIColor(model.style?.titleColor ?? tintColor))
-            .padding(.horizontal, 0)
             .frame(width: model.width, height: model.height)
-            .ifLet(model.style?.backgroundColor) { view, color in
-                view.background(SwiftUIColor(color))
-            }
-            .clipShape(RoundedRectangle(cornerRadius: model.style?.cornerRadius ?? 0, style: .continuous))
-            .overlay(
-                RoundedRectangle(cornerRadius: model.style?.cornerRadius ?? 0, style: .continuous)
-                    .stroke(
-                        SwiftUIColor(model.style?.borderColor ?? .clear),
-                        lineWidth: model.style?.borderWidth ?? 0
-                    )
-            )
-            .opacity((model.enabled ?? true) ? 1 : 0.5)
-            .allowsHitTesting(model.enabled ?? true)
-            .onTapGesture {
-                model.onPress?()
-            }
+        }
+        .disabled(!(model.enabled ?? true))
+        .opacity((model.enabled ?? true) ? 1 : 0.5)
+        .accessibilityIdentifier(model.accessibilityIdentifier ?? "")
+    }
+
+    @ViewBuilder
+    private func buttonBorder(_ style: ButtonStyle?, cornerStyle: CornerStyle) -> some View {
+        if let borderColor = style?.borderColor,
+           (style?.borderWidth ?? 0) > 0 {
+            SUICornerShape(style: cornerStyle)
+                .stroke(
+                    SwiftUIColor(borderColor),
+                    lineWidth: style?.borderWidth ?? 0
+                )
         }
     }
 }

@@ -17,6 +17,7 @@ final class SUISearchBarStateModel: ObservableObject {
     let appearance: TextfieldAppearance
     let cornerRadius: CGFloat
     let padding: SwiftUI.EdgeInsets
+    let textFieldAdapter = TextInputOutputSwiftUIAdapter()
 
     var textFieldHeight: CGFloat {
         appearance.font.lineHeight + padding.top + padding.bottom
@@ -48,6 +49,7 @@ final class SUISearchBarStateModel: ObservableObject {
                 guard let state else { return }
                 self?.textField = state.textField
                 self?.isTextFieldHidden = state.textField == nil
+                self?.textFieldAdapter.display(model: state.textField)
             }
             .store(in: &cancellables)
 
@@ -69,6 +71,7 @@ final class SUISearchBarStateModel: ObservableObject {
             .sink { [weak self] state in
                 guard let state else { return }
                 self?.placeholder = state.placeholder
+                self?.textFieldAdapter.display(placeholder: state.placeholder)
             }
             .store(in: &cancellables)
 
@@ -98,9 +101,13 @@ final class SUISearchBarStateModel: ObservableObject {
 
         textField = model.textField
         isTextFieldHidden = model.textField == nil
+        textFieldAdapter.display(model: model.textField)
         leftView = model.leftView
         rightView = model.rightView
         placeholder = model.placeholder
+        if model.textField?.placeholder == nil {
+            textFieldAdapter.display(placeholder: model.placeholder)
+        }
         if let backgroundColor = model.backgroundColor {
             self.backgroundColor = backgroundColor
         }
@@ -111,6 +118,7 @@ final class SUISearchBarStateModel: ObservableObject {
 
     private func clear() {
         textField = nil
+        textFieldAdapter.display(model: nil)
         isTextFieldHidden = false
         leftView = nil
         rightView = nil
