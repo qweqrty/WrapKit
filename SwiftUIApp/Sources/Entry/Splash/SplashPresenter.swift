@@ -29,6 +29,8 @@ public class SplashPresenter: LifeCycleViewOutput, ApplicationLifecycleOutput {
     public var tableView: (any TableOutput<TestHeader, TestCell, Void>)?
     public var emptyView: EmptyViewOutput?
     public var chunkedTextField: TextInputOutputSwiftUIAdapter?
+    public var stackViewOutput: StackViewOutput?
+    public var toastView: CommonToastOutput?
     
     public init() {
         
@@ -54,6 +56,10 @@ public class SplashPresenter: LifeCycleViewOutput, ApplicationLifecycleOutput {
 //        DispatchQueue.main.asyncAfter(deadline: .now() + 5) { [weak self] in
 //            self?.loadingOutput?.display(isLoading: false)
 //        }
+        setupTextOutput()
+        setupImageOutput()
+        setupStackOutput()
+        setupToastOutput()
     }
     
     public func viewWillAppear() {
@@ -95,7 +101,18 @@ public class SplashPresenter: LifeCycleViewOutput, ApplicationLifecycleOutput {
 }
 
 private extension SplashPresenter {
-    // MARK: = Label
+    private func setupStackOutput() {
+        stackViewOutput?.display(
+            model: .init(
+                axis: .horizontal,
+                distribution: .fillEqually,
+                alignment: .center,
+                spacing: 8,
+                layoutMargins: .init(all: 12)
+            )
+        )
+    }
+
     private func setupTextOutput() {
         textOutput?.display(text: "display(text: String) implementation - `The quick brown fox jumps over the lazy dog`")
         textOutput?.display(

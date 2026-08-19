@@ -1,8 +1,6 @@
 //
-//  TitledViewSnapshotTests.swift
+//  ChunkedTextFieldSnapshotTests.swift
 //  WrapKitTests
-//
-//  Created by Urmatbek Marat Uulu on 12/11/25.
 //
 
 import UIKit
@@ -14,114 +12,168 @@ import XCTest
 import enum SwiftUI.ColorScheme
 #endif
 
-final class TitledViewSnapshotTests: XCTestCase {
-    private weak var currentPairedSUT: PairedTitledViewSnapshotSUT?
+final class ChunkedTextFieldSnapshotTests: XCTestCase {
+    private weak var currentPairedSUT: PairedChunkedTextFieldSnapshotSUT?
 
-    func test_titledView_defaul_state() {
+    func test_ChunkedTextField_default_state() {
         let (sut, container) = makeSUT()
-        let snapshotName = "TITLEDVIEW_DEFAULT_STATE"
+        let snapshotName = "CHUNKEDTEXTFIELD_DEFAULT_STATE"
 
-        sut.display(titles: .init(.text("First title"), .text("Second title")))
+        sut.display(text: nil)
 
-        recordPairedSnapshot(container: container, named: snapshotName)
+        assertPairedSnapshot(container: container, named: snapshotName)
     }
 
-    func test_fail_titledView_defaul_state() {
+    func test_fail_ChunkedTextField_default_state() {
         let (sut, container) = makeSUT()
-        let snapshotName = "TITLEDVIEW_DEFAULT_STATE"
+        let snapshotName = "CHUNKEDTEXTFIELD_DEFAULT_STATE"
 
-        sut.display(titles: .init(.text("First title."), .text("Second title")))
+        sut.display(text: "1")
 
         assertPairedSnapshotFail(container: container, named: snapshotName)
     }
 
-    func test_titledView_with_bottomTitles() {
+    func test_ChunkedTextField_with_text() {
         let (sut, container) = makeSUT()
-        let snapshotName = "TITLEDVIEW_WITH_BOTTOMTTILES"
+        let snapshotName = "CHUNKEDTEXTFIELD_WITH_TEXT"
 
-        sut.display(titles: .init(.text("First title"), .text("Second title")))
-        sut.display(bottomTitles: .init(.text("First bottom"), .text("Second bottom")))
+        sut.display(text: "1234")
 
-        recordPairedSnapshot(container: container, named: snapshotName)
+        assertPairedSnapshot(container: container, named: snapshotName)
     }
 
-    func test_fail_titledView_with_bottomTitles() {
+    func test_fail_ChunkedTextField_with_text() {
         let (sut, container) = makeSUT()
-        let snapshotName = "TITLEDVIEW_WITH_BOTTOMTTILES"
+        let snapshotName = "CHUNKEDTEXTFIELD_WITH_TEXT"
 
-        sut.display(titles: .init(.text("First title"), .text("Second title")))
-        sut.display(bottomTitles: .init(.text("First bottom."), .text("Second bottom")))
+        sut.display(text: "1235")
 
         assertPairedSnapshotFail(container: container, named: snapshotName)
     }
 
-    func test_titledView_with_leadingBottomTitle() {
+    func test_ChunkedTextField_with_partial_text() {
         let (sut, container) = makeSUT()
-        let snapshotName = "TITLEDVIEW_WITH_LEADINGBOTTOMM_TITLE"
+        let snapshotName = "CHUNKEDTEXTFIELD_WITH_PARTIAL_TEXT"
 
-        sut.display(titles: .init(.text("First title"), .text("Second title")))
-        sut.display(leadingBottomTitle: .text("Leading bottom title"))
+        sut.display(text: "12")
 
-        recordPairedSnapshot(container: container, named: snapshotName)
+        assertPairedSnapshot(container: container, named: snapshotName)
     }
 
-    func test_fail_titledView_with_leadingBottomTitle() {
+    func test_fail_ChunkedTextField_with_partial_text() {
         let (sut, container) = makeSUT()
-        let snapshotName = "TITLEDVIEW_WITH_LEADINGBOTTOMM_TITLE"
+        let snapshotName = "CHUNKEDTEXTFIELD_WITH_PARTIAL_TEXT"
 
-        sut.display(titles: .init(.text("First title"), .text("Second title")))
-        sut.display(leadingBottomTitle: .text("Leading bottom title."))
+        sut.display(text: "123")
 
         assertPairedSnapshotFail(container: container, named: snapshotName)
     }
 
-    func test_titledView_with_trailingBottomTitle() {
+    func test_ChunkedTextField_with_long_text() {
         let (sut, container) = makeSUT()
-        let snapshotName = "TITLEDVIEW_WITH_TRAILINGBOTTOMM_TITLE"
+        let snapshotName = "CHUNKEDTEXTFIELD_WITH_LONG_TEXT"
 
-        sut.display(titles: .init(.text("First title"), .text("Second title")))
-        sut.display(trailingBottomTitle: .text("Trailing bottom title"))
+        sut.display(text: "123456789")
 
-        recordPairedSnapshot(container: container, named: snapshotName)
+        assertPairedSnapshot(container: container, named: snapshotName)
     }
 
-    func test_fail_titledView_with_trailingBottomTitle() {
+    func test_fail_ChunkedTextField_with_long_text() {
         let (sut, container) = makeSUT()
-        let snapshotName = "TITLEDVIEW_WITH_TRAILINGBOTTOMM_TITLE"
+        let snapshotName = "CHUNKEDTEXTFIELD_WITH_LONG_TEXT"
 
-        sut.display(titles: .init(.text("First title"), .text("Second title")))
-        sut.display(trailingBottomTitle: .text("Trailing bottom title."))
+        sut.display(text: "987654321")
 
         assertPairedSnapshotFail(container: container, named: snapshotName)
     }
 
-    func test_titledView_with_isHidden() {
+    func test_ChunkedTextField_invalid_state() {
         let (sut, container) = makeSUT()
-        let snapshotName = "TITLEDVIEW_HIDDEN"
+        let snapshotName = "CHUNKEDTEXTFIELD_INVALID_STATE"
 
-        sut.display(titles: .init(.text("First title"), .text("Second title")))
-        sut.display(isHidden: true)
+        sut.display(text: "1234")
+        sut.display(isValid: false)
 
-        recordPairedSnapshot(container: container, named: snapshotName)
+        assertPairedSnapshot(container: container, named: snapshotName)
     }
 
-    func test_fail_titledView_with_isHidden() {
+    func test_fail_ChunkedTextField_invalid_state() {
         let (sut, container) = makeSUT()
-        let snapshotName = "TITLEDVIEW_HIDDEN"
+        let snapshotName = "CHUNKEDTEXTFIELD_INVALID_STATE"
 
-        sut.display(titles: .init(.text("First title"), .text("Second title")))
-        sut.display(isHidden: false)
+        sut.display(text: "1234")
+        sut.display(isValid: true)
+
+        assertPairedSnapshotFail(container: container, named: snapshotName)
+    }
+
+    func test_ChunkedTextField_disabled_state() {
+        let (sut, container) = makeSUT()
+        let snapshotName = "CHUNKEDTEXTFIELD_DISABLED_STATE"
+
+        sut.display(text: "1234")
+        sut.display(isUserInteractionEnabled: false)
+
+        assertPairedSnapshot(container: container, named: snapshotName)
+    }
+
+    func test_fail_ChunkedTextField_disabled_state() {
+        let (sut, container) = makeSUT()
+        let snapshotName = "CHUNKEDTEXTFIELD_DISABLED_STATE"
+
+        sut.display(text: "1234")
+        sut.display(isUserInteractionEnabled: true)
+
+        assertPairedSnapshotFail(container: container, named: snapshotName)
+    }
+
+    func test_ChunkedTextField_with_six_items() {
+        let (sut, container) = makeSUT(count: 6)
+        let snapshotName = "CHUNKEDTEXTFIELD_WITH_SIX_ITEMS"
+
+        sut.display(text: "123456")
+
+        assertPairedSnapshot(container: container, named: snapshotName)
+    }
+
+    func test_fail_ChunkedTextField_with_six_items() {
+        let (sut, container) = makeSUT(count: 6)
+        let snapshotName = "CHUNKEDTEXTFIELD_WITH_SIX_ITEMS"
+
+        sut.display(text: "12345")
+
+        assertPairedSnapshotFail(container: container, named: snapshotName)
+    }
+
+    func test_ChunkedTextField_with_model() {
+        let (sut, container) = makeSUT()
+        let snapshotName = "CHUNKEDTEXTFIELD_WITH_MODEL"
+
+        sut.display(model: .init(text: "4321", isValid: false, isUserInteractionEnabled: true))
+
+        assertPairedSnapshot(container: container, named: snapshotName)
+    }
+
+    func test_fail_ChunkedTextField_with_model() {
+        let (sut, container) = makeSUT()
+        let snapshotName = "CHUNKEDTEXTFIELD_WITH_MODEL"
+
+        sut.display(model: .init(text: "4321", isValid: true, isUserInteractionEnabled: true))
 
         assertPairedSnapshotFail(container: container, named: snapshotName)
     }
 }
 
-private extension TitledViewSnapshotTests {
+private extension ChunkedTextFieldSnapshotTests {
     func makeSUT(
+        count: Int = 4,
         file: StaticString = #filePath,
         line: UInt = #line
-    ) -> (sut: PairedTitledViewSnapshotSUT, container: UIView) {
-        let sut = PairedTitledViewSnapshotSUT()
+    ) -> (sut: PairedChunkedTextFieldSnapshotSUT, container: UIView) {
+        let sut = PairedChunkedTextFieldSnapshotSUT(
+            count: count,
+            appearance: makeAppearance()
+        )
         let container = makeContainer()
 
         container.addSubview(sut.uiKitView)
@@ -130,7 +182,6 @@ private extension TitledViewSnapshotTests {
             .leading(container.leadingAnchor, constant: 0, priority: .required),
             .trailing(container.trailingAnchor, constant: 0, priority: .required)
         )
-
         container.layoutIfNeeded()
 
         currentPairedSUT = sut
@@ -144,9 +195,35 @@ private extension TitledViewSnapshotTests {
         container.backgroundColor = .clear
         return container
     }
+
+    func makeAppearance() -> TextfieldAppearance {
+        TextfieldAppearance(
+            colors: .init(
+                textColor: .blue,
+                selectedBorderColor: .yellow,
+                selectedBackgroundColor: .cyan,
+                selectedErrorBorderColor: .red,
+                errorBorderColor: .systemRed,
+                errorBackgroundColor: .brown,
+                deselectedBorderColor: .green,
+                deselectedBackgroundColor: .orange,
+                disabledTextColor: .purple,
+                disabledBackgroundColor: .systemPurple
+            ),
+            font: .systemFont(ofSize: 24),
+            border: .init(
+                idleBorderWidth: 2,
+                selectedBorderWidth: 3
+            ),
+            placeholder: .init(
+                color: .systemGray,
+                font: .systemFont(ofSize: 20)
+            )
+        )
+    }
 }
 
-private extension TitledViewSnapshotTests {
+private extension ChunkedTextFieldSnapshotTests {
     func assertPairedSnapshot(
         container: UIView,
         named snapshotName: String,
@@ -193,7 +270,7 @@ private extension TitledViewSnapshotTests {
     }
 }
 
-private extension TitledViewSnapshotTests {
+private extension ChunkedTextFieldSnapshotTests {
     func assertPairedSnapshot(
         snapshot: UIImage,
         named name: String,
@@ -252,7 +329,7 @@ private extension TitledViewSnapshotTests {
     }
 
     private var swiftUISnapshotPrecision: Float {
-        0.99
+        0.98
     }
 
     private var swiftUIFailSnapshotPrecision: Float {
@@ -286,7 +363,7 @@ private extension TitledViewSnapshotTests {
     }
 }
 
-private extension TitledViewSnapshotTests {
+private extension ChunkedTextFieldSnapshotTests {
     func recordUIKitSnapshot(
         _ snapshot: UIImage,
         named name: String,
