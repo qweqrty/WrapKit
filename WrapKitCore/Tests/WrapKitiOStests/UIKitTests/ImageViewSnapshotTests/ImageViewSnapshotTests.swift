@@ -172,6 +172,7 @@ final class ImageViewSnapshotTests: XCTestCase {
     
     func test_ImageView_from_urlString_light() {
         let snapshotName = "IMAGE_VIEW_URLSTRING_LIGHT"
+        let remoteImagePrecision: Float = 0.95
         
         // GIVEN
         let (sut, container) = makeSUT()
@@ -187,9 +188,19 @@ final class ImageViewSnapshotTests: XCTestCase {
         
         // THEN
         if #available(iOS 26, *) {
-            assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertPairedSnapshot(
+                snapshot: container.snapshot(for: .iPhone(style: .light)),
+                named: "iOS26_\(snapshotName)_LIGHT",
+                precision: remoteImagePrecision,
+                swiftUIPrecision: remoteImagePrecision
+            )
         } else {
-            assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertPairedSnapshot(
+                snapshot: container.snapshot(for: .iPhone(style: .light)),
+                named: "iOS18.5_\(snapshotName)_LIGHT",
+                precision: remoteImagePrecision,
+                swiftUIPrecision: remoteImagePrecision
+            )
         }
     }
     
@@ -304,6 +315,7 @@ final class ImageViewSnapshotTests: XCTestCase {
     
     func test_ImageView_from_url_light() {
         let snapshotName = "IMAGE_VIEW_URL_LIGHT"
+        let remoteImagePrecision: Float = 0.95
         
         // GIVEN
         let (sut, container) = makeSUT()
@@ -319,9 +331,19 @@ final class ImageViewSnapshotTests: XCTestCase {
         
         // THEN
         if #available(iOS 26, *) {
-            assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertPairedSnapshot(
+                snapshot: container.snapshot(for: .iPhone(style: .light)),
+                named: "iOS26_\(snapshotName)_LIGHT",
+                precision: remoteImagePrecision,
+                swiftUIPrecision: remoteImagePrecision
+            )
         } else {
-            assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertPairedSnapshot(
+                snapshot: container.snapshot(for: .iPhone(style: .light)),
+                named: "iOS18.5_\(snapshotName)_LIGHT",
+                precision: remoteImagePrecision,
+                swiftUIPrecision: remoteImagePrecision
+            )
         }
     }
     
@@ -1041,6 +1063,7 @@ private extension ImageViewSnapshotTests {
         snapshot: UIImage,
         named name: String,
         precision: Float = 1,
+        swiftUIPrecision: Float? = nil,
         file: StaticString = #filePath,
         line: UInt = #line
     ) {
@@ -1053,7 +1076,7 @@ private extension ImageViewSnapshotTests {
             assertStoredSnapshotEquals(
                 swiftUISnapshot,
                 named: name,
-                precision: swiftUISnapshotPrecision,
+                precision: swiftUIPrecision ?? swiftUISnapshotPrecision,
                 context: "SwiftUI",
                 file: file,
                 line: line

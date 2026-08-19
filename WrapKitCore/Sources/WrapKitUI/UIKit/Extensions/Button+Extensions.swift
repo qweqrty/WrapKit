@@ -14,33 +14,38 @@ public extension Button {
         completion: ((Image?) -> Void)?
     ) {
         if Thread.isMainThread {
-            handleImage(image, completion: completion)
+            handleImage(image, animation: animation, completion: completion)
          } else {
              DispatchQueue.main.async { [weak self] in
-                 self?.handleImage(image, completion: completion)
+                 self?.handleImage(image, animation: animation, completion: completion)
              }
          }
     }
     
-    private func handleImage(_ image: ImageEnum?, kingfisherOptions: KingfisherOptionsInfo = [], completion: ((Image?) -> Void)?) {
+    private func handleImage(
+        _ image: ImageEnum?,
+        animation: UIView.AnimationOptions,
+        kingfisherOptions: KingfisherOptionsInfo = [],
+        completion: ((Image?) -> Void)?
+    ) {
         switch image {
         case .asset(let image):
-            self.animatedSet(image)
+            self.animatedSet(image, animation: animation)
             completion?(image)
         case .url(let lightUrl, let darkUrl):
             let url = UserInterfaceStyle.current == .light ? lightUrl : darkUrl
-            self.loadImage(url, kingfisherOptions: kingfisherOptions, completion: completion)
+            self.loadImage(url, animation: animation, kingfisherOptions: kingfisherOptions, completion: completion)
         case .urlString(let lightString, let darkString):
             let string = UserInterfaceStyle.current == .light ? lightString : darkString
             let url = URL(string: string ?? "")
-            self.loadImage(url, kingfisherOptions: kingfisherOptions, completion: completion)
+            self.loadImage(url, animation: animation, kingfisherOptions: kingfisherOptions, completion: completion)
         case .data(let data):
             guard let data else {
                 completion?(nil)
                 return
             }
             let image = UIImage(data: data)
-            self.animatedSet(image)
+            self.animatedSet(image, animation: animation)
             completion?(image)
         case .none:
             completion?(nil)
@@ -49,11 +54,12 @@ public extension Button {
     
     private func loadImage(
         _ url: URL?,
+        animation: UIView.AnimationOptions,
         kingfisherOptions: KingfisherOptionsInfo,
         completion: ((Image?) -> Void)?
     ) {
         guard let url else {
-            self.animatedSet(wrongUrlPlaceholderImage)
+            self.animatedSet(wrongUrlPlaceholderImage, animation: animation)
             completion?(wrongUrlPlaceholderImage)
             return
         }
@@ -64,9 +70,10 @@ public extension Button {
             guard let self else { return }
             switch result {
             case .success(let image):
-                self.animatedSet(image.image)
+                self.animatedSet(image.image, animation: animation)
                 retrieveImage(
                     url: url,
+                    animation: animation,
                     kingfisherOptions: [.callbackQueue(.mainCurrentOrAsync), .forceRefresh] + kingfisherOptions,
                     completion: completion
                 )
@@ -74,6 +81,7 @@ public extension Button {
                 guard !error.isTaskCancelled else { return }
                 retrieveImage(
                     url: url,
+                    animation: animation,
                     kingfisherOptions: [.callbackQueue(.mainCurrentOrAsync)] + kingfisherOptions,
                     completion: completion
                 )
@@ -84,6 +92,7 @@ public extension Button {
     @discardableResult
     private func retrieveImage(
         url: URL,
+        animation: UIView.AnimationOptions,
         kingfisherOptions: KingfisherOptionsInfo,
         completion: ((Image?) -> Void)? = nil
     ) -> DownloadTask? {
@@ -94,18 +103,23 @@ public extension Button {
             guard let self = self else { return }
             switch result {
             case .success(let image):
-                self.animatedSet(image.image)
+                self.animatedSet(image.image, animation: animation)
                 completion?(image.image)
             case .failure(let error):
                 guard !error.isTaskCancelled else { return }
-                self.animatedSet(nil)
+                self.animatedSet(nil, animation: animation)
                 completion?(nil)
             }
         }
     }
     
-    private func animatedSet(_ image: UIImage?) {
+    private func animatedSet(_ image: UIImage?, animation: UIView.AnimationOptions) {
         cancelCurrentAnimation()
+
+        guard !animation.isEmpty else {
+            setImage(image, for: .normal)
+            return
+        }
 
         currentAnimator = UIViewPropertyAnimator(duration: 0.3, curve: .easeInOut) { [weak self] in
             self?.setImage(image, for: .normal)

@@ -10,6 +10,7 @@ final class PairedLabelSnapshotSUT: NSObject {
     private var explicitTextInsets: UIEdgeInsets = .zero
     private var explicitBackgroundColor: UIColor?
     private var explicitCornerStyle: CornerStyle?
+    private var explicitIsHidden: Bool?
     private var swiftUIFont: UIFont = .systemFont(ofSize: 20)
     private var swiftUITextColor: UIColor = .label
     private var swiftUITextAlignment: NSTextAlignment = .natural
@@ -126,6 +127,7 @@ extension PairedLabelSnapshotSUT {
         duration: TimeInterval = 1.0,
         completion: (() -> Void)? = nil
     ) {
+        explicitIsHidden = nil
         let finalModel = mapToString?(endAmount) ?? .text(endAmount.asString())
         let wrappedCompletion = { [weak self] in
             self?.publish(model: .init(model: finalModel))
@@ -175,6 +177,7 @@ extension PairedLabelSnapshotSUT {
     }
 
     func display(isHidden: Bool) {
+        explicitIsHidden = isHidden
         uiKitLabel.display(isHidden: isHidden)
         adapter.display(isHidden: isHidden)
     }
@@ -185,6 +188,7 @@ private extension PairedLabelSnapshotSUT {
         _ model: TextOutputPresentableModel?,
         action: () -> Void
     ) {
+        explicitIsHidden = nil
         currentModel = model
         action()
         publish(model: model)
@@ -330,6 +334,9 @@ extension PairedLabelSnapshotSUT {
         let resolvedTextColor = swiftUITextColor.resolvedColor(with: UITraitCollection(userInterfaceStyle: traitStyle))
         if let currentModel {
             adapter.display(model: swiftUIModel(from: currentModel, traitStyle: traitStyle))
+        }
+        if let explicitIsHidden {
+            adapter.display(isHidden: explicitIsHidden)
         }
 
         return SnapshotMirroredLabelContainer(

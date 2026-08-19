@@ -12,6 +12,7 @@ private final class SplashContentAdapters {
     let text = TextOutputSwiftUIAdapter()
     let image = ImageViewOutputSwiftUIAdapter()
     let stack = StackViewOutputSwiftUIAdapter()
+    let toast = CommonToastOutputSwiftUIAdapter()
 }
 
 public struct SplashContentView: View {
@@ -22,6 +23,7 @@ public struct SplashContentView: View {
     public var adapter: TextOutputSwiftUIAdapter { adapters.text }
     public var imageViewAdapter: ImageViewOutputSwiftUIAdapter { adapters.image }
     public var stackViewAdapter: StackViewOutputSwiftUIAdapter { adapters.stack }
+    public var toastViewAdapter: CommonToastOutputSwiftUIAdapter { adapters.toast }
     
     public init(
         lifeCycleOutput: LifeCycleViewOutput? = nil,
@@ -137,6 +139,7 @@ public struct SplashContentView: View {
                 .frame(maxHeight: .infinity, alignment: .center)
             }
         }
+        .toastView(adapter: toastViewAdapter)
     }
 
     private func stackDemoItem(
