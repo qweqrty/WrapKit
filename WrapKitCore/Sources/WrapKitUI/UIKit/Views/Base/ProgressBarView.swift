@@ -18,18 +18,21 @@ public struct ProgressBarStyle {
     public let backgroundColor: Color?
     public let progressBarColor: Color?
     public let height: CGFloat?
-    public let cornerRadius: CGFloat?
-    
+    public let cornerStyle: CornerStyle?
+    public let trackHeight: CGFloat?
+
     public init(
         backgroundColor: Color? = nil,
         progressBarColor: Color? = nil,
         height: CGFloat? = nil,
-        cornerRadius: CGFloat? = nil
+        trackHeight: CGFloat? = nil,
+        cornerStyle: CornerStyle? = nil
     ) {
         self.backgroundColor = backgroundColor
         self.progressBarColor = progressBarColor
         self.height = height
-        self.cornerRadius = cornerRadius
+        self.trackHeight = trackHeight
+        self.cornerStyle = cornerStyle
     }
 }
 
@@ -47,69 +50,81 @@ public struct ProgressBarPresentableModel {
 import UIKit
 import SwiftUI
 
-open class ProgressBarView: UIView {
-    public lazy var progressView = {
-        let view = UIProgressView()
-        view.progressTintColor = .clear
-        view.trackTintColor = .clear
-        view.progressViewStyle = .bar
-        view.clipsToBounds = true
-        return view
-    }()
-    private var progressViewAnchoredConstraints: AnchoredConstraints?
-    
+public final class ProgressBarView: UIView {
+    public let trackView = UIView()
+    public let progressView = UIView()
+
+    private var progress: CGFloat = 0
+    private var heightConstraint: NSLayoutConstraint?
+    private var trackHeightConstraint: NSLayoutConstraint?
+
     public init(style: ProgressBarStyle? = nil) {
         super.init(frame: .zero)
-        layer.cornerRadius = 4
+        addSubview(trackView)
+        addSubview(progressView)
+        setupTrackConstraints()
         self.style = style
-        progressView.layer.cornerRadius = 4
-        setupSubviews()
-        setupConstraints()
         applyStyle()
     }
-    
-    public var style: ProgressBarStyle? {
-        didSet {
-            applyStyle()
-        }
-    }
-    
-    public func applyProgress(percentage: CGFloat, animated: Bool = true) {
-        progressView.progress = Float(percentage * 0.01)
-    }
-    
-    private func applyStyle() {
-        backgroundColor = style?.backgroundColor
-        progressView.progressTintColor = style?.progressBarColor
-        if let progressViewAnchoredConstraints = progressViewAnchoredConstraints, let height = style?.height {
-            progressViewAnchoredConstraints.height?.constant = height
-        } else if let height = style?.height {
-            progressViewAnchoredConstraints = anchor(.height(height))
-        }
-        if let cornerRadius = style?.cornerRadius {
-            layer.cornerRadius = cornerRadius
-            progressView.layer.cornerRadius = cornerRadius
-        }
-    }
-    
-    public required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-}
 
-extension ProgressBarView {
-    func setupSubviews() {
-        addSubview(progressView)
+    public var style: ProgressBarStyle? { didSet { applyStyle() } }
+
+    public func applyProgress(percentage: CGFloat, animated: Bool = true) {
+        progress = max(0, min(1, percentage / 100))
+        setNeedsLayout()
+        if animated {
+            UIView.animate(withDuration: 0.25) { self.layoutIfNeeded() }
+        } else {
+            layoutIfNeeded()
+        }
     }
-    
-    func setupConstraints() {
-        progressView.anchor(
-            .top(topAnchor),
+
+    private func setupTrackConstraints() {
+        trackHeightConstraint = trackView.anchor(
             .leading(leadingAnchor),
             .trailing(trailingAnchor),
-            .bottom(bottomAnchor)
-        )
+            .centerY(centerYAnchor),
+            .height(0)
+        ).height
     }
+
+    private func applyStyle() {
+        backgroundColor = .clear
+        trackView.backgroundColor = style?.backgroundColor
+        progressView.backgroundColor = style?.progressBarColor ?? tintColor
+
+        let fillHeight = style?.height ?? 4
+        trackHeightConstraint?.constant = style?.trackHeight ?? (fillHeight - (fillHeight / 3).rounded(.up))
+
+        applyCornerStyles()
+
+        if let height = style?.height {
+            if let heightConstraint { heightConstraint.constant = height }
+            else { heightConstraint = heightAnchor.constraint(equalToConstant: height); heightConstraint?.isActive = true }
+        }
+        invalidateIntrinsicContentSize()
+        setNeedsLayout()
+    }
+
+    private func applyCornerStyles() {
+        let cornerStyle = style?.cornerStyle ?? .fixed(4)
+        trackView.applyCornerStyle(cornerStyle)
+        progressView.applyCornerStyle(cornerStyle)
+    }
+
+    public override func layoutSubviews() {
+        super.layoutSubviews()
+        let fillWidth = bounds.width * progress
+        progressView.isHidden = fillWidth <= 0
+        progressView.frame = CGRect(x: 0, y: 0, width: bounds.width * progress, height: bounds.height)
+        applyCornerStyles()
+    }
+
+    public override var intrinsicContentSize: CGSize {
+        CGSize(width: UIView.noIntrinsicMetric, height: style?.height ?? 4)
+    }
+
+    public required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 }
 
 extension ProgressBarView: ProgressBarOutput {
@@ -119,17 +134,17 @@ extension ProgressBarView: ProgressBarOutput {
         if let style = model.style {
             display(style: style)
         }
-        applyProgress(percentage: model.progress)
+        applyProgress(percentage: model.progress, animated: false)
     }
-    
+
     public func display(progress: CGFloat) {
-        applyProgress(percentage: progress)
+        applyProgress(percentage: progress, animated: true)
     }
-    
+
     public func display(style: ProgressBarStyle?) {
         self.style = style
     }
-    
+
     public func display(isHidden: Bool) {
         self.isHidden = isHidden
     }
@@ -142,9 +157,9 @@ struct ProgressBarViewFullRepresentable: UIViewRepresentable {
         view.applyProgress(percentage: 40)
         return view
     }
-
+    
     func updateUIView(_ uiView: ProgressBarView, context: Context) {
-        // Leave this empty
+        
     }
 }
 

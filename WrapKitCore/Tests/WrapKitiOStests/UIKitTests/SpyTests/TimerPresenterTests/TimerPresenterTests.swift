@@ -382,10 +382,10 @@ final class TimerPresenterTests: XCTestCase {
         sut.applicationWillEnterForeground()
 
         let lastTick = expectation(description: "Wait last tick")
-        DispatchQueue.main.asyncAfter(deadline: .now() + 6) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 5.5) {
             lastTick.fulfill()
         }
-        wait(for: [lastTick], timeout: 6.0)
+        wait(for: [lastTick], timeout: 7.0)
         
         // THEN
         XCTAssertEqual(viewSpy.capturedDisplayTimerInput.map { $0.secondsRemaining }, [4, 3, 1, nil])

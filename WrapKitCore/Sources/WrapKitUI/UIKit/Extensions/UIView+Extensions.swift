@@ -17,20 +17,14 @@ public extension UIView {
         self.isHidden = isHidden
     }
     
+    @available(*, deprecated, message: "use applyCornerStyle and cornerRadiusValue")
     @IBInspectable var cornerRadius: CGFloat {
         get {
-            return layer.cornerRadius
+            return cornerRadiusValue()
         }
         set {
-            layer.cornerRadius = newValue
-            layer.masksToBounds = newValue > 0
+            applyCornerStyle(.fixed(newValue))
         }
-    }
-    
-    func round(corners: CACornerMask, radius: CGFloat) {
-        layer.cornerRadius = radius
-        layer.maskedCorners = corners
-        layer.masksToBounds = true
     }
     
     func shake(count: Float? = nil, for duration: TimeInterval? = nil, withTranslation translation: Float? = nil) {
@@ -211,7 +205,13 @@ public extension UIView {
     ) {
         let bgColor = shimmerView == nil ? .clear : (firstNonClearBackgroundColor ?? .clear)
         let emptyView = UIView(backgroundColor: bgColor)
-        let shimmerContent = shimmerView ?? ShimmerView(backgroundColor: .clear)
+        let shimmerContent: ShimmerView
+        if let shimmerView {
+            shimmerContent = shimmerView
+        } else {
+            shimmerContent = ShimmerView(backgroundColor: .clear)
+            shimmerContent.applyCornerStyle(.fixed(4))
+        }
         shimmerContent.startShimmering()
         
         emptyView.tag = Self.shimmerViewTag
@@ -221,8 +221,7 @@ public extension UIView {
         emptyView.addSubview(shimmerContent)
         
         shimmerContent.alpha = 0
-        shimmerContent.cornerRadius = shimmerView?.cornerRadius ?? 4
-        
+
         if let heightMultiplier, let widthMultiplier {
             shimmerContent.anchor(
                 .leading(leadingAnchor),
