@@ -13,6 +13,7 @@ public class SplashPresenter: LifeCycleViewOutput, ApplicationLifecycleOutput {
     public var lottieView: LottieViewOutput?
     public var textOutput: TextOutput?
     public var imageViewOutput: ImageViewOutput?
+    public var stackViewOutput: StackViewOutput?
     public var toastView: CommonToastOutput?
     
     public init() {
@@ -23,6 +24,7 @@ public class SplashPresenter: LifeCycleViewOutput, ApplicationLifecycleOutput {
         print("SplashPresenter: viewDidLoad()")
         setupTextOutput()
         setupImageOutput()
+        setupStackOutput()
         setupToastOutput()
     }
     
@@ -65,6 +67,18 @@ public class SplashPresenter: LifeCycleViewOutput, ApplicationLifecycleOutput {
 }
 
 private extension SplashPresenter {
+    private func setupStackOutput() {
+        stackViewOutput?.display(
+            model: .init(
+                axis: .horizontal,
+                distribution: .fillEqually,
+                alignment: .center,
+                spacing: 8,
+                layoutMargins: .init(all: 12)
+            )
+        )
+    }
+
     private func setupTextOutput() {
         textOutput?.display(text: "display(text: String) implementation - `The quick brown fox jumps over the lazy dog`")
         textOutput?.display(
