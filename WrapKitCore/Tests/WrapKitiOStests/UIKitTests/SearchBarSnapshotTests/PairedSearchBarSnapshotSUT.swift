@@ -74,9 +74,14 @@ final class PairedSearchBarSnapshotSUT {
         .ignoresSafeArea(.all)
 
         let hostingController = UIHostingController(rootView: rootView)
+        hostingController.overrideUserInterfaceStyle = colorScheme == .dark ? .dark : .light
         hostingController.view.backgroundColor = .clear
+
+        let warmup: TimeInterval = 0.3
+        RunLoop.main.run(until: Date().addingTimeInterval(warmup))
         hostingController.view.setNeedsLayout()
         hostingController.view.layoutIfNeeded()
+        RunLoop.main.run(until: Date().addingTimeInterval(warmup))
 
         return hostingController.snapshot(
             for: .iPhone(style: colorScheme == .dark ? .dark : .light)

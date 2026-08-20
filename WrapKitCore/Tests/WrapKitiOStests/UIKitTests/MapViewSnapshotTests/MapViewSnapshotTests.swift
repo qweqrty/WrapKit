@@ -13,14 +13,6 @@ import XCTest
 final class MapViewSnapshotTests: XCTestCase {
     private weak var currentPairedSUT: PairedMapViewSnapshotSUT?
 
-    private var swiftUISnapshotPrecision: Float {
-        0.98
-    }
-
-    private var swiftUIFailSnapshotPrecision: Float {
-        1
-    }
-
     func test_mapView_default_state() {
         let (sut, container) = makeSUT()
         let snapshotName = "MAPVIEW_DEFAULT_STATE"
@@ -290,7 +282,7 @@ private extension MapViewSnapshotTests {
             assert(
                 snapshot: swiftUISnapshot,
                 named: uiKitSnapshotName,
-                precision: swiftUISnapshotPrecision,
+                precision: SwiftUISnapshotPrecision.standard,
                 file: file,
                 line: line
             )
@@ -312,7 +304,7 @@ private extension MapViewSnapshotTests {
             assertFail(
                 snapshot: swiftUISnapshot,
                 named: uiKitSnapshotName,
-                precision: swiftUIFailSnapshotPrecision,
+                precision: SwiftUISnapshotPrecision.fail,
                 file: file,
                 line: line
             )
@@ -329,7 +321,11 @@ private extension MapViewSnapshotTests {
     }
 
     func resolvedUIKitSnapshotName(for snapshotName: String, file: StaticString) -> String {
-        let prefixed = recordedSnapshotName(for: snapshotName)
+        let normalized = recordedSnapshotName(for: snapshotName)
+        if snapshotExists(named: normalized, file: file) {
+            return normalized
+        }
+        let prefixed = "UIKit_\(normalized)"
         if snapshotExists(named: prefixed, file: file) {
             return prefixed
         }
@@ -349,7 +345,7 @@ private extension MapViewSnapshotTests {
     }
 
     func recordedSnapshotName(for snapshotName: String) -> String {
-        "UIKit_\(normalizedSnapshotName(from: snapshotName))"
+        normalizedSnapshotName(from: snapshotName)
     }
 
     func normalizedSnapshotName(from snapshotName: String) -> String {

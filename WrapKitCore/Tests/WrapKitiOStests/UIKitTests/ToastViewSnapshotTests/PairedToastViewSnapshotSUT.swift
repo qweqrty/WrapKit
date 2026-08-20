@@ -50,7 +50,6 @@ final class PairedToastViewSnapshotSUT {
     func swiftUISnapshot(for colorScheme: ColorScheme) -> UIImage {
         let rootView = SnapshotMirroredToastContainer(
             adapter: swiftUIAdapter,
-            toastWidth: 363,
             colorScheme: colorScheme
         )
             .environment(\.colorScheme, colorScheme)
@@ -86,16 +85,14 @@ final class PairedToastViewSnapshotSUT {
 @available(iOS 17.0, *)
 private struct SnapshotMirroredToastContainer: View {
     let adapter: CommonToastOutputSwiftUIAdapter
-    let toastWidth: CGFloat
     let colorScheme: ColorScheme
 
     var body: some View {
         ZStack(alignment: .topLeading) {
             backgroundColor
             SUIToastView(adapter: adapter)
-                .frame(width: toastWidth, height: 812, alignment: .topLeading)
         }
-        .frame(width: 375, height: 812, alignment: .topLeading)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .background(backgroundColor)
     }
 

@@ -64,8 +64,10 @@ public struct SUISearchBar: View {
                 model: model,
                 onPress: model.onPress,
                 isEnabled: model.enabled ?? true,
-                fillsAvailableWidth: false
+                fillsAvailableWidth: false,
+                contentInsets: .init(top: 0, leading: 4, bottom: 0, trailing: 4)
             )
+            .fixedSize(horizontal: true, vertical: false)
             .frame(height: model.height ?? stateModel.textFieldHeight)
         }
     }

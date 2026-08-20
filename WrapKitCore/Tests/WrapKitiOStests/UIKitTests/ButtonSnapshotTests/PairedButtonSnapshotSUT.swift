@@ -12,6 +12,7 @@ final class PairedButtonSnapshotSUT {
     private var lastStyle: WrapKit.ButtonStyle?
 
     init(
+        height: CGFloat = 60,
         uiKitButton: WrapKit.Button = WrapKit.Button(),
         swiftUIAdapter: ButtonOutputSwiftUIAdapter = ButtonOutputSwiftUIAdapter(),
         loadingAdapter: LoadingOutputSwiftUIAdapter = LoadingOutputSwiftUIAdapter()
@@ -19,6 +20,7 @@ final class PairedButtonSnapshotSUT {
         self.uiKitButton = uiKitButton
         self.swiftUIAdapter = swiftUIAdapter
         self.loadingAdapter = loadingAdapter
+        swiftUIAdapter.display(height: height)
     }
 
     var onPress: (() -> Void)? {
@@ -59,6 +61,7 @@ final class PairedButtonSnapshotSUT {
 
     func display(model: ButtonPresentableModel?) {
         uiKitButton.display(model: model)
+        lastStyle = model?.style
         swiftUIAdapter.display(model: model)
     }
 
@@ -93,30 +96,48 @@ final class PairedButtonSnapshotSUT {
         loadingAdapter.display(isLoading: isLoading)
     }
 
+    func display(spacing: CGFloat) {
+        uiKitButton.display(spacing: spacing)
+        swiftUIAdapter.display(spacing: spacing)
+    }
+
+    func display(height: CGFloat) {
+        uiKitButton.display(height: height)
+        swiftUIAdapter.display(height: height)
+    }
+
     func display(_ onPress: (() -> Void)?) {
         uiKitButton.display(onPress: onPress)
         swiftUIAdapter.display(onPress: onPress)
     }
 
     func setImage(_ imageEnum: ImageEnum, completion: ((WrapKit.Image?) -> Void)?) {
-        uiKitButton.setImage(imageEnum, completion: completion)
-        switch imageEnum {
-        case .asset(let image):
-            swiftUIAdapter.display(image: image)
-        case .url, .urlString, .data:
-            break
+        uiKitButton.setImage(imageEnum) { [weak self] image in
+            self?.swiftUIAdapter.display(image: image)
+            completion?(image)
         }
     }
 
     func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         uiKitButton.touchesBegan(touches, with: event)
+        guard let style = lastStyle else { return }
+        swiftUIAdapter.display(style: WrapKit.ButtonStyle(
+            backgroundColor: style.pressedColor ?? style.backgroundColor,
+            titleColor: style.pressedTintColor ?? style.titleColor,
+            borderWidth: style.borderWidth,
+            borderColor: style.borderColor,
+            pressedColor: style.pressedColor,
+            pressedTintColor: style.pressedTintColor,
+            font: style.font,
+            cornerStyle: style.cornerStyle,
+            glassConfiguration: style.glassConfiguration,
+            wrongUrlPlaceholderImage: style.wrongUrlPlaceholderImage,
+            loadingIndicatorColor: style.loadingIndicatorColor
+        ))
     }
 
     @available(iOS 17.0, *)
     func swiftUISnapshot(for colorScheme: ColorScheme) -> UIImage {
-        
-        swiftUIAdapter.display(height: 60)
-        
         let rootView = SnapshotMirroredButtonContainer(
             adapter: swiftUIAdapter,
             loadingAdapter: loadingAdapter

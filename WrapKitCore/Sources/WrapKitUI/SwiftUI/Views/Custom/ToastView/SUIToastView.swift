@@ -149,6 +149,9 @@ private struct SUIToastCardRepresentable: UIViewRepresentable {
     }
 
     func updateUIView(_ uiView: CardView, context: Context) {
+        if measuredWidth > 0, uiView.bounds.width != measuredWidth {
+            uiView.bounds.size.width = measuredWidth
+        }
         uiView.display(model: model)
         uiView.setNeedsLayout()
         uiView.layoutIfNeeded()
@@ -161,13 +164,20 @@ private struct SUIToastCardRepresentable: UIViewRepresentable {
         uiView.display(model: model)
         let fallbackWidth = measuredWidth > 0 ? measuredWidth : uiView.bounds.width
         let fittingWidth = max(proposal.width ?? fallbackWidth, 1)
+        uiView.bounds.size.width = fittingWidth
+        uiView.setNeedsLayout()
+        uiView.layoutIfNeeded()
         let targetSize = CGSize(width: fittingWidth, height: UIView.layoutFittingCompressedSize.height)
         let size = uiView.systemLayoutSizeFitting(
             targetSize,
             withHorizontalFittingPriority: .required,
             verticalFittingPriority: .fittingSizeLevel
         )
-        return CGSize(width: fittingWidth, height: max(52, ceil(size.height)))
+        let height = max(52, ceil(size.height))
+        uiView.bounds.size.height = height
+        uiView.setNeedsLayout()
+        uiView.layoutIfNeeded()
+        return CGSize(width: fittingWidth, height: height)
     }
 }
 #endif

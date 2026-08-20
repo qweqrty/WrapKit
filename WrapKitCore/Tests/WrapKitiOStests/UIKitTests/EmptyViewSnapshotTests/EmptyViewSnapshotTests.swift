@@ -10,15 +10,12 @@ final class EmptyViewSnapshotTests: XCTestCase {
 
     private weak var currentPairedSUT: PairedEmptyViewSnapshotSUT?
 
-    private var swiftUISnapshotPrecision: Float { 0.98 }
-    private var swiftUIFailSnapshotPrecision: Float { 1 }
-
     func test_emptyView_default_state() {
         let (sut, container) = makeSUT()
         let snapshotName = "EMPTYVIEW_DEFAULT_STATE"
 
         sut.display(title: .text("Empty view"))
-        sut.uiKitView.backgroundColor = .cyan
+        sut.display(backgroundColor: .cyan)
 
         if #available(iOS 26, *) {
             assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -34,7 +31,7 @@ final class EmptyViewSnapshotTests: XCTestCase {
         let snapshotName = "EMPTYVIEW_DEFAULT_STATE"
 
         sut.display(title: .text("Empty view."))
-        sut.uiKitView.backgroundColor = .cyan
+        sut.display(backgroundColor: .cyan)
 
         if #available(iOS 26, *) {
             assertPairedSnapshotFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -51,7 +48,7 @@ final class EmptyViewSnapshotTests: XCTestCase {
 
         sut.display(title: .text("Empty view"))
         sut.display(subtitle: .text("Subtitle"))
-        sut.uiKitView.backgroundColor = .cyan
+        sut.display(backgroundColor: .cyan)
 
         if #available(iOS 26, *) {
             assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -68,7 +65,7 @@ final class EmptyViewSnapshotTests: XCTestCase {
 
         sut.display(title: .text("Empty view"))
         sut.display(subtitle: .text("Subtitle."))
-        sut.uiKitView.backgroundColor = .cyan
+        sut.display(backgroundColor: .cyan)
 
         if #available(iOS 26, *) {
             assertPairedSnapshotFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -86,7 +83,7 @@ final class EmptyViewSnapshotTests: XCTestCase {
         sut.display(title: .text("Empty view"))
         sut.display(subtitle: .text("Subtitle"))
         sut.display(buttonModel: makeButtonModel(backgroundColor: .systemBlue))
-        sut.uiKitView.backgroundColor = .cyan
+        sut.display(backgroundColor: .cyan)
 
         if #available(iOS 26, *) {
             assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -104,7 +101,7 @@ final class EmptyViewSnapshotTests: XCTestCase {
         sut.display(title: .text("Empty view"))
         sut.display(subtitle: .text("Subtitle"))
         sut.display(buttonModel: makeButtonModel(backgroundColor: .blue))
-        sut.uiKitView.backgroundColor = .cyan
+        sut.display(backgroundColor: .cyan)
 
         if #available(iOS 26, *) {
             assertPairedSnapshotFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -124,7 +121,7 @@ final class EmptyViewSnapshotTests: XCTestCase {
         sut.display(title: .text("Empty view"))
         sut.display(subtitle: .text("Subtitle"))
         sut.display(image: ImageViewPresentableModel(image: .asset(image)))
-        sut.uiKitView.backgroundColor = .cyan
+        sut.display(backgroundColor: .cyan)
 
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -143,7 +140,7 @@ final class EmptyViewSnapshotTests: XCTestCase {
         sut.display(title: .text("Empty view"))
         sut.display(subtitle: .text("Subtitle"))
         sut.display(image: ImageViewPresentableModel(image: .asset(image)))
-        sut.uiKitView.backgroundColor = .cyan
+        sut.display(backgroundColor: .cyan)
 
         if #available(iOS 26, *) {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -158,7 +155,7 @@ final class EmptyViewSnapshotTests: XCTestCase {
         let (sut, container) = makeSUT()
         let snapshotName = "EMPTYVIEW_WITH_HIDDEN"
 
-        sut.uiKitView.backgroundColor = .cyan
+        sut.display(backgroundColor: .cyan)
         sut.display(isHidden: true)
 
         if #available(iOS 26, *) {
@@ -174,7 +171,7 @@ final class EmptyViewSnapshotTests: XCTestCase {
         let (sut, container) = makeSUT()
         let snapshotName = "EMPTYVIEW_WITH_HIDDEN"
 
-        sut.uiKitView.backgroundColor = .cyan
+        sut.display(backgroundColor: .cyan)
         sut.display(isHidden: false)
 
         if #available(iOS 26, *) {
@@ -191,7 +188,7 @@ final class EmptyViewSnapshotTests: XCTestCase {
         let (sut, container) = makeSUT()
         let snapshotName = "EMPTYVIEW_WITH_MODEL"
 
-        sut.uiKitView.backgroundColor = .cyan
+        sut.display(backgroundColor: .cyan)
         sut.display(model: makeFullModel(titleText: "Title", subtitleText: "Subtitle"))
 
         if #available(iOS 26, *) {
@@ -207,7 +204,7 @@ final class EmptyViewSnapshotTests: XCTestCase {
         let (sut, container) = makeSUT()
         let snapshotName = "EMPTYVIEW_WITH_MODEL"
 
-        sut.uiKitView.backgroundColor = .cyan
+        sut.display(backgroundColor: .cyan)
         sut.display(model: makeFullModel(titleText: "Title.", subtitleText: "Subtitle."))
 
         if #available(iOS 26, *) {
@@ -236,7 +233,7 @@ extension EmptyViewSnapshotTests {
             assert(
                 snapshot: swiftUISnapshot,
                 named: name,
-                precision: swiftUISnapshotPrecision,
+                precision: SwiftUISnapshotPrecision.standard,
                 file: file,
                 line: line
             )
@@ -257,7 +254,7 @@ extension EmptyViewSnapshotTests {
             assertFail(
                 snapshot: swiftUISnapshot,
                 named: name,
-                precision: swiftUIFailSnapshotPrecision,
+                precision: SwiftUISnapshotPrecision.fail,
                 file: file,
                 line: line
             )

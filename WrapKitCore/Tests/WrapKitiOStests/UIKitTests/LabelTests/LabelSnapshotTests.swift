@@ -1383,7 +1383,7 @@ private extension LabelSnapshotTests {
             assertStoredSnapshotEquals(
                 swiftUISnapshot,
                 named: name,
-                precision: swiftUISnapshotPrecision,
+                precision: labelSwiftUISnapshotPrecision,
                 context: "SwiftUI",
                 file: file,
                 line: line
@@ -1407,7 +1407,7 @@ private extension LabelSnapshotTests {
             assertStoredSnapshotDifferent(
                 swiftUISnapshot,
                 named: name,
-                precision: swiftUIFailSnapshotPrecision,
+                precision: SwiftUISnapshotPrecision.fail,
                 context: "SwiftUI",
                 file: file,
                 line: line
@@ -1424,12 +1424,8 @@ private extension LabelSnapshotTests {
         recordUIKitSnapshot(snapshot, named: recordedSnapshotName(for: name), file: file, line: line)
     }
 
-    private var swiftUISnapshotPrecision: Float {
-        0.095
-    }
-
-    private var swiftUIFailSnapshotPrecision: Float {
-        1
+    private var labelSwiftUISnapshotPrecision: Float {
+        0.95
     }
 
     private func colorScheme(from snapshotName: String) -> ColorScheme {
@@ -1437,11 +1433,11 @@ private extension LabelSnapshotTests {
     }
 
     private func recordedSnapshotName(for snapshotName: String) -> String {
-        "UIKit_\(normalizedSnapshotName(from: snapshotName))"
+        normalizedSnapshotName(from: snapshotName)
     }
 
     private func assertSnapshotName(for snapshotName: String, context: String) -> String {
-        let prefix = context == "SwiftUI" ? "SiwftUI" : "UIKit"
+        let prefix = context == "SwiftUI" ? "SwiftUI" : "UIKit"
         return "\(prefix)_\(normalizedSnapshotName(from: snapshotName))"
     }
 
@@ -1518,10 +1514,6 @@ private extension LabelSnapshotTests {
             let storedSnapshotData = try? Data(contentsOf: snapshotURL),
             let oldImage = UIImage(data: storedSnapshotData)
         else {
-            if context == "UIKit" {
-                recordUIKitSnapshot(snapshot, named: recordedSnapshotName(for: name), file: file, line: line)
-                return
-            }
             XCTFail("Failed to load stored snapshot at URL: \(snapshotURL). Use record mode before asserting.", file: file, line: line)
             return
         }
@@ -1595,7 +1587,7 @@ private extension LabelSnapshotTests {
         }
 
         appendUnique(recordedSnapshotName(for: normalizedName))
-        appendUnique(normalizedName)
+        appendUnique("UIKit_\(normalizedName)")
 
         // Legacy typo kept for historical snapshots: ...DOUBLELINELIGHT
         if normalizedName.contains("TITLE_WITH_DOUBLELINE_LIGHT") {

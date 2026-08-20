@@ -23,7 +23,7 @@ final class TitledViewSnapshotTests: XCTestCase {
 
         sut.display(titles: .init(.text("First title"), .text("Second title")))
 
-        assertPairedSnapshot(snapshot: container, named: snapshotName)
+        assertPairedSnapshot(container: container, named: snapshotName)
     }
 
     func test_fail_titledView_defaul_state() {
@@ -42,7 +42,7 @@ final class TitledViewSnapshotTests: XCTestCase {
         sut.display(titles: .init(.text("First title"), .text("Second title")))
         sut.display(bottomTitles: .init(.text("First bottom"), .text("Second bottom")))
 
-        assertPairedSnapshot(snapshot: container, named: snapshotName)
+        assertPairedSnapshot(container: container, named: snapshotName)
     }
 
     func test_fail_titledView_with_bottomTitles() {
@@ -62,7 +62,7 @@ final class TitledViewSnapshotTests: XCTestCase {
         sut.display(titles: .init(.text("First title"), .text("Second title")))
         sut.display(leadingBottomTitle: .text("Leading bottom title"))
 
-        assertPairedSnapshot(snapshot: container, named: snapshotName)
+        assertPairedSnapshot(container: container, named: snapshotName)
     }
 
     func test_fail_titledView_with_leadingBottomTitle() {
@@ -82,7 +82,7 @@ final class TitledViewSnapshotTests: XCTestCase {
         sut.display(titles: .init(.text("First title"), .text("Second title")))
         sut.display(trailingBottomTitle: .text("Trailing bottom title"))
 
-        assertPairedSnapshot(snapshot: container, named: snapshotName)
+        assertPairedSnapshot(container: container, named: snapshotName)
     }
 
     func test_fail_titledView_with_trailingBottomTitle() {
@@ -102,7 +102,7 @@ final class TitledViewSnapshotTests: XCTestCase {
         sut.display(titles: .init(.text("First title"), .text("Second title")))
         sut.display(isHidden: true)
 
-        assertPairedSnapshot(snapshot: container, named: snapshotName)
+        assertPairedSnapshot(container: container, named: snapshotName)
     }
 
     func test_fail_titledView_with_isHidden() {
@@ -210,7 +210,7 @@ private extension TitledViewSnapshotTests {
             assertStoredSnapshotEquals(
                 swiftUISnapshot,
                 named: name,
-                precision: swiftUISnapshotPrecision,
+                precision: titledViewSwiftUISnapshotPrecision,
                 context: "SwiftUI",
                 file: file,
                 line: line
@@ -234,7 +234,7 @@ private extension TitledViewSnapshotTests {
             assertStoredSnapshotDifferent(
                 swiftUISnapshot,
                 named: name,
-                precision: swiftUIFailSnapshotPrecision,
+                precision: SwiftUISnapshotPrecision.fail,
                 context: "SwiftUI",
                 file: file,
                 line: line
@@ -251,12 +251,8 @@ private extension TitledViewSnapshotTests {
         recordUIKitSnapshot(snapshot, named: recordedSnapshotName(for: name), file: file, line: line)
     }
 
-    private var swiftUISnapshotPrecision: Float {
+    private var titledViewSwiftUISnapshotPrecision: Float {
         0.99
-    }
-
-    private var swiftUIFailSnapshotPrecision: Float {
-        1
     }
 
     private func colorScheme(from snapshotName: String) -> ColorScheme {
@@ -264,11 +260,11 @@ private extension TitledViewSnapshotTests {
     }
 
     private func recordedSnapshotName(for snapshotName: String) -> String {
-        "UIKit_\(normalizedSnapshotName(from: snapshotName))"
+        normalizedSnapshotName(from: snapshotName)
     }
 
     private func assertSnapshotName(for snapshotName: String, context: String) -> String {
-        let prefix = context == "SwiftUI" ? "SiwftUI" : "UIKit"
+        let prefix = context == "SwiftUI" ? "SwiftUI" : "UIKit"
         return "\(prefix)_\(normalizedSnapshotName(from: snapshotName))"
     }
 
@@ -345,10 +341,6 @@ private extension TitledViewSnapshotTests {
             let storedSnapshotData = try? Data(contentsOf: snapshotURL),
             let oldImage = UIImage(data: storedSnapshotData)
         else {
-            if context == "UIKit" {
-                recordUIKitSnapshot(snapshot, named: recordedSnapshotName(for: name), file: file, line: line)
-                return
-            }
             XCTFail("Failed to load stored snapshot at URL: \(snapshotURL). Use record mode before asserting.", file: file, line: line)
             return
         }
@@ -422,7 +414,7 @@ private extension TitledViewSnapshotTests {
         }
 
         appendUnique(recordedSnapshotName(for: normalizedName))
-        appendUnique(normalizedName)
+        appendUnique("UIKit_\(normalizedName)")
 
         return candidates
     }

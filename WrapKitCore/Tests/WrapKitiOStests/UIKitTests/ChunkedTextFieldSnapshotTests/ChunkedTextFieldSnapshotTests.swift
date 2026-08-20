@@ -287,7 +287,7 @@ private extension ChunkedTextFieldSnapshotTests {
             assertStoredSnapshotEquals(
                 swiftUISnapshot,
                 named: name,
-                precision: swiftUISnapshotPrecision,
+                precision: SwiftUISnapshotPrecision.standard,
                 context: "SwiftUI",
                 file: file,
                 line: line
@@ -311,7 +311,7 @@ private extension ChunkedTextFieldSnapshotTests {
             assertStoredSnapshotDifferent(
                 swiftUISnapshot,
                 named: name,
-                precision: swiftUIFailSnapshotPrecision,
+                precision: SwiftUISnapshotPrecision.fail,
                 context: "SwiftUI",
                 file: file,
                 line: line
@@ -328,24 +328,16 @@ private extension ChunkedTextFieldSnapshotTests {
         recordUIKitSnapshot(snapshot, named: recordedSnapshotName(for: name), file: file, line: line)
     }
 
-    private var swiftUISnapshotPrecision: Float {
-        0.98
-    }
-
-    private var swiftUIFailSnapshotPrecision: Float {
-        1
-    }
-
     private func colorScheme(from snapshotName: String) -> ColorScheme {
         normalizedSnapshotName(from: snapshotName).hasSuffix("_DARK") ? .dark : .light
     }
 
     private func recordedSnapshotName(for snapshotName: String) -> String {
-        "UIKit_\(normalizedSnapshotName(from: snapshotName))"
+        normalizedSnapshotName(from: snapshotName)
     }
 
     private func assertSnapshotName(for snapshotName: String, context: String) -> String {
-        let prefix = context == "SwiftUI" ? "SiwftUI" : "UIKit"
+        let prefix = context == "SwiftUI" ? "SwiftUI" : "UIKit"
         return "\(prefix)_\(normalizedSnapshotName(from: snapshotName))"
     }
 
@@ -422,10 +414,6 @@ private extension ChunkedTextFieldSnapshotTests {
             let storedSnapshotData = try? Data(contentsOf: snapshotURL),
             let oldImage = UIImage(data: storedSnapshotData)
         else {
-            if context == "UIKit" {
-                recordUIKitSnapshot(snapshot, named: recordedSnapshotName(for: name), file: file, line: line)
-                return
-            }
             XCTFail("Failed to load stored snapshot at URL: \(snapshotURL). Use record mode before asserting.", file: file, line: line)
             return
         }
@@ -499,7 +487,7 @@ private extension ChunkedTextFieldSnapshotTests {
         }
 
         appendUnique(recordedSnapshotName(for: normalizedName))
-        appendUnique(normalizedName)
+        appendUnique("UIKit_\(normalizedName)")
 
         return candidates
     }

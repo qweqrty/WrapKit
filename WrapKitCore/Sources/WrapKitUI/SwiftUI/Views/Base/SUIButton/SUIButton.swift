@@ -42,6 +42,7 @@ public struct SUIButtonView: View {
     let isLoading: Bool
     let pressAnimations: Set<PressAnimation>
     let fillsAvailableWidth: Bool
+    let contentInsets: SwiftUI.EdgeInsets
     
     @State private var isPressed: Bool = false
     
@@ -51,7 +52,8 @@ public struct SUIButtonView: View {
         isEnabled: Bool,
         isLoading: Bool = false,
         pressAnimations: Set<PressAnimation> = [],
-        fillsAvailableWidth: Bool = true
+        fillsAvailableWidth: Bool = true,
+        contentInsets: SwiftUI.EdgeInsets = .init()
     ) {
         self.model = model
         self.onPress = onPress
@@ -59,6 +61,7 @@ public struct SUIButtonView: View {
         self.isLoading = isLoading
         self.pressAnimations = pressAnimations
         self.fillsAvailableWidth = fillsAvailableWidth
+        self.contentInsets = contentInsets
     }
     
     @ViewBuilder
@@ -102,9 +105,6 @@ public struct SUIButtonView: View {
             HStack(spacing: model.spacing ?? 0) {
                 if let image = model.image {
                     SwiftUIImage(image: image)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(height: (model.height ?? 44) * 0.5)
                 }
                 if let title = model.title {
                     Text(title.removingPercentEncoding ?? title)
@@ -116,6 +116,7 @@ public struct SUIButtonView: View {
         }
         .frame(maxWidth: fillsAvailableWidth ? .infinity : nil)
         .frame(width: model.width, height: model.height)
+        .padding(contentInsets)
         .background {
             if !isLiquidGlassAvailable || model.style?.glassConfiguration == nil {
                 backgroundView

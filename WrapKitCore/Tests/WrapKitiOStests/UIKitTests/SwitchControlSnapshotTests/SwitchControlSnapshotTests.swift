@@ -10,9 +10,6 @@ final class SwitchControlSnapshotTests: XCTestCase {
 
     private weak var currentPairedSUT: PairedSwitchControlSnapshotSUT?
 
-    private var swiftUISnapshotPrecision: Float { 0.98 }
-    private var swiftUIFailSnapshotPrecision: Float { 1 }
-
     func test_switchControl_default_state() {
         let (sut, container) = makeSUT()
         let snapshotName = "SWITCHCONTROL_DEFAUlT_STATE"
@@ -289,7 +286,7 @@ extension SwitchControlSnapshotTests {
             assert(
                 snapshot: swiftUISnapshot,
                 named: name,
-                precision: swiftUISnapshotPrecision,
+                precision: SwiftUISnapshotPrecision.standard,
                 file: file,
                 line: line
             )
@@ -310,7 +307,7 @@ extension SwitchControlSnapshotTests {
             assertFail(
                 snapshot: swiftUISnapshot,
                 named: name,
-                precision: swiftUIFailSnapshotPrecision,
+                precision: SwiftUISnapshotPrecision.fail,
                 file: file,
                 line: line
             )

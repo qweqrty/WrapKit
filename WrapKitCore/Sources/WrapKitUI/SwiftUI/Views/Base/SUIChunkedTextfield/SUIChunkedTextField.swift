@@ -242,20 +242,20 @@ private struct SingleCharTextField: View {
             }
             .padding(10)
             .background(
-                RoundedRectangle(cornerRadius: 10)
+                RoundedRectangle(cornerRadius: 12)
                     .fill(SwiftUIColor(
-                        isUserInteractionEnabled
-                            ? (isFocused
+                        !isValid
+                            ? appearance.colors.errorBackgroundColor
+                            : isFocused
                                 ? appearance.colors.selectedBackgroundColor
-                                : appearance.colors.deselectedBackgroundColor)
-                            : appearance.colors.disabledBackgroundColor
+                                : appearance.colors.deselectedBackgroundColor
                     ))
             )
-            .background(
-                RoundedRectangle(cornerRadius: 10)
-                    .stroke(isFocused ? focusedBorderColor : borderColor, lineWidth: borderWidth)
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .strokeBorder(isFocused ? focusedBorderColor : borderColor, lineWidth: borderWidth)
             )
-            .cornerRadius(10)
+            .cornerRadius(12)
             .animation(.easeInOut(duration: 0.1), value: isFocused)
     }
 }

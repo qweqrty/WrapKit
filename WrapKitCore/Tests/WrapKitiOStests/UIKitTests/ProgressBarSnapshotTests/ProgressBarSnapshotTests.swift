@@ -9,8 +9,6 @@ import enum SwiftUI.ColorScheme
 final class ProgressBarSnapshotTests: XCTestCase {
 
     private weak var currentPairedSUT: PairedProgressBarSnapshotSUT?
-    private var swiftUISnapshotPrecision: Float { 0.98 }
-    private var swiftUIFailSnapshotPrecision: Float { 1 }
 
     func test_progressBar_presentableModel_preservesDynamicColors() {
         let trackColor = UIColor { traits in
@@ -347,7 +345,7 @@ extension ProgressBarSnapshotTests {
     func swiftUISnapshotPrecision(for snapshotName: String) -> Float {
         if snapshotName.contains("PROGRESSBAR_WITH_HEIGHT") { return 0.96 }
         if snapshotName.contains("PROGRESSBAR_WITH_CORNDERRADIUS") { return 0.97 }
-        return swiftUISnapshotPrecision
+        return SwiftUISnapshotPrecision.standard
     }
 
     func assertPairedSnapshot(
@@ -385,7 +383,7 @@ extension ProgressBarSnapshotTests {
             assertFail(
                 snapshot: swiftUISnapshot,
                 named: name,
-                precision: swiftUIFailSnapshotPrecision,
+                precision: SwiftUISnapshotPrecision.fail,
                 file: file,
                 line: line
             )

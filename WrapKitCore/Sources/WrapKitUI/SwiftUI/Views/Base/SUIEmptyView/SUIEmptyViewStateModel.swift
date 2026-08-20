@@ -10,7 +10,7 @@ import Combine
 import SwiftUI
 
 public final class SUIEmptyViewStateModel: ObservableObject {
-    @Published var isHidden: Bool = true
+    @Published var isHidden: Bool = false
     @Published var title: TextOutputPresentableModel? = nil
     @Published var subtitle: TextOutputPresentableModel? = nil
     @Published var buttonModel: ButtonPresentableModel? = nil

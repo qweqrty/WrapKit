@@ -1,6 +1,11 @@
 #if canImport(SwiftUI)
 import SwiftUI
 
+public enum SwiftUISnapshotPrecision {
+    public static let standard: Float = 0.98
+    public static let fail: Float = 1
+}
+
 @available(iOS 17.0, macOS 14.0, tvOS 17.0, watchOS 10.0, *)
 public extension View {
     func snapshot(for configuration: SUISnapshotConfiguration, background: Color? = nil, useUIKit: Bool = false) -> UIImage {

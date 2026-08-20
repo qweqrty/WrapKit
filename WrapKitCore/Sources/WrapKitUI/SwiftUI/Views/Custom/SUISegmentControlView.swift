@@ -95,7 +95,7 @@ public struct SUISegmentControlView: View {
     }
 
     private var selectedSegmentInset: CGFloat {
-        2
+        4
     }
 
     private var selectedSegmentCornerRadius: CGFloat {

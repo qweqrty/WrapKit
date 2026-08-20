@@ -19,14 +19,6 @@ final class CardViewSnapshotTests: XCTestCase {
     private let secondImage = Image(systemName: "star")
     private weak var currentPairedSUT: PairedCardViewSnapshotSUT?
     
-    private var swiftUISnapshotPrecision: Float {
-        0.98
-    }
-
-    private var swiftUIFailSnapshotPrecision: Float {
-        1
-    }
-    
     func test_CardView_default_state() {
         let snapshotName = "CARDVIEW_DEFAULT_STATE"
         
@@ -1212,7 +1204,7 @@ extension CardViewSnapshotTests {
             assertFail(
                 snapshot: normalizedSwiftUISnapshot,
                 named: uiKitSnapshotName,
-                precision: swiftUIFailSnapshotPrecision,
+                precision: SwiftUISnapshotPrecision.fail,
                 file: file,
                 line: line
             )
@@ -1247,6 +1239,9 @@ extension CardViewSnapshotTests {
     }
 
     func resolvedUIKitSnapshotName(for snapshotName: String, file: StaticString) -> String {
+        if snapshotExists(named: snapshotName, file: file) {
+            return snapshotName
+        }
         let prefixed = uiKitSnapshotName(for: snapshotName)
         if snapshotExists(named: prefixed, file: file) {
             return prefixed
@@ -1284,12 +1279,12 @@ extension CardViewSnapshotTests {
            !snapshotName.contains("BORDERWIDTH"),
            !snapshotName.contains("CORNERRADIUS") {
             if isIOS18_5 || isIOS26 { return 0.979 }
-            return swiftUISnapshotPrecision
+            return SwiftUISnapshotPrecision.standard
         }
         if snapshotName.contains("CARDVIEW_MULTIPLE_TITLE_SUBTITLE_ROW_STATE") {
             return isIOS18_5 ? 0.976 : 0.977
         }
-        return swiftUISnapshotPrecision
+        return SwiftUISnapshotPrecision.standard
     }
 
     func makeSUT(

@@ -78,7 +78,7 @@ private struct SnapshotMirroredProgressBarContainer: View {
     var body: some View {
         VStack(spacing: 0) {
             SUIProgressBar(adaper: adapter)
-                .frame(maxWidth: .infinity, maxHeight: 50)
+                .frame(maxWidth: .infinity, maxHeight: 50, alignment: .top)
             Spacer(minLength: 0)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)

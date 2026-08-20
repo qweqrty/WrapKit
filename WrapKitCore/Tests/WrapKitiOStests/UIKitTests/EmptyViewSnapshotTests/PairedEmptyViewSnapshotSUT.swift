@@ -16,6 +16,8 @@ import SwiftUI
 final class PairedEmptyViewSnapshotSUT {
     let uiKitView: WrapKit.EmptyView
     private let swiftUIAdapter: EmptyViewOutputSwiftUIAdapter
+    private var swiftUIBackgroundColor: UIColor = .clear
+    private var swiftUIIsHidden = false
 
     init(
         uiKitView: WrapKit.EmptyView = EmptyView(),
@@ -48,21 +50,33 @@ final class PairedEmptyViewSnapshotSUT {
     func display(isHidden: Bool) {
         uiKitView.display(isHidden: isHidden)
         swiftUIAdapter.display(isHidden: isHidden)
+        swiftUIIsHidden = isHidden
     }
 
     func display(model: EmptyViewPresentableModel?) {
         uiKitView.display(model: model)
         swiftUIAdapter.display(model: model)
+        swiftUIIsHidden = model == nil
+    }
+
+    func display(backgroundColor: UIColor) {
+        uiKitView.backgroundColor = backgroundColor
+        swiftUIBackgroundColor = backgroundColor
     }
 
     @available(iOS 17.0, *)
     func swiftUISnapshot(for colorScheme: ColorScheme) -> UIImage {
-        let rootView = SnapshotMirroredEmptyViewContainer(adapter: swiftUIAdapter)
+        let rootView = SnapshotMirroredEmptyViewContainer(
+            adapter: swiftUIAdapter,
+            backgroundColor: swiftUIBackgroundColor,
+            isHidden: swiftUIIsHidden,
+            height: uiKitView.bounds.height
+        )
             .environment(\.colorScheme, colorScheme)
 
         let hostingController = UIHostingController(rootView: rootView)
         hostingController.overrideUserInterfaceStyle = colorScheme == .dark ? .dark : .light
-        hostingController.view.backgroundColor = .cyan
+        hostingController.view.backgroundColor = .clear
 
         let warmup: TimeInterval = 0.3
         RunLoop.main.run(until: Date().addingTimeInterval(warmup))
@@ -79,15 +93,20 @@ final class PairedEmptyViewSnapshotSUT {
 @available(iOS 17.0, *)
 private struct SnapshotMirroredEmptyViewContainer: View {
     let adapter: EmptyViewOutputSwiftUIAdapter
+    let backgroundColor: UIColor
+    let isHidden: Bool
+    let height: CGFloat
 
     var body: some View {
         VStack(spacing: 0) {
             SUIEmptyView(adapter: adapter)
                 .frame(maxWidth: .infinity)
+                .frame(height: height, alignment: .top)
+                .background(isHidden ? SwiftUIColor.clear : SwiftUIColor(backgroundColor))
             Spacer(minLength: 0)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .background(Color(UIColor.cyan))
+        .background(SwiftUIColor.clear)
         .ignoresSafeArea(.all)
     }
 }

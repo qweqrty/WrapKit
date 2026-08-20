@@ -15,9 +15,6 @@ final class TextViewSnapshotTests: XCTestCase {
 
     private weak var currentPairedSUT: PairedTextViewSnapshotSUT?
 
-    private var swiftUISnapshotPrecision: Float { 0.98 }
-    private var swiftUIFailSnapshotPrecision: Float { 1 }
-
     func test_Textview_default_state() {
         let snapshotName = "TEXTVIEW_DEFAULT_STATE"
         let (sut, container) = makeSUT()
@@ -679,7 +676,7 @@ extension TextViewSnapshotTests {
             assert(
                 snapshot: swiftUISnapshot,
                 named: name,
-                precision: swiftUISnapshotPrecision,
+                precision: SwiftUISnapshotPrecision.standard,
                 file: file,
                 line: line
             )
@@ -700,7 +697,7 @@ extension TextViewSnapshotTests {
             assertFail(
                 snapshot: swiftUISnapshot,
                 named: name,
-                precision: swiftUIFailSnapshotPrecision,
+                precision: SwiftUISnapshotPrecision.fail,
                 file: file,
                 line: line
             )

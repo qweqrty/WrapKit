@@ -77,7 +77,7 @@ final class SegmentedControlSnapshotTests: XCTestCase {
         let (sut, container) = makeSUT()
 
         sut.display(segments: [
-            .init(title: "Very long first.", index: 0),
+            .init(title: "Different first", index: 0),
             .init(title: "Very long second", index: 1),
             .init(title: "Very long third", index: 2)
         ])
@@ -99,7 +99,8 @@ private extension SegmentedControlSnapshotTests {
         sut.uiKitView.anchor(
             .top(container.topAnchor, constant: 0, priority: .required),
             .leading(container.leadingAnchor, constant: 0, priority: .required),
-            .trailing(container.trailingAnchor, constant: 0, priority: .required)
+            .trailing(container.trailingAnchor, constant: 0, priority: .required),
+            .height(32)
         )
 
         container.layoutIfNeeded()
@@ -176,7 +177,7 @@ private extension SegmentedControlSnapshotTests {
             assertStoredSnapshotEquals(
                 swiftUISnapshot,
                 named: name,
-                precision: swiftUISnapshotPrecision,
+                precision: segmentedControlSwiftUISnapshotPrecision,
                 context: "SwiftUI",
                 file: file,
                 line: line
@@ -200,7 +201,7 @@ private extension SegmentedControlSnapshotTests {
             assertStoredSnapshotDifferent(
                 swiftUISnapshot,
                 named: name,
-                precision: swiftUIFailSnapshotPrecision,
+                precision: SwiftUISnapshotPrecision.fail,
                 context: "SwiftUI",
                 file: file,
                 line: line
@@ -217,12 +218,8 @@ private extension SegmentedControlSnapshotTests {
         recordUIKitSnapshot(snapshot, named: recordedSnapshotName(for: name), file: file, line: line)
     }
 
-    private var swiftUISnapshotPrecision: Float {
+    private var segmentedControlSwiftUISnapshotPrecision: Float {
         0.97
-    }
-
-    private var swiftUIFailSnapshotPrecision: Float {
-        1
     }
 
     private func colorScheme(from snapshotName: String) -> ColorScheme {
@@ -230,11 +227,11 @@ private extension SegmentedControlSnapshotTests {
     }
 
     private func recordedSnapshotName(for snapshotName: String) -> String {
-        "UIKit_\(normalizedSnapshotName(from: snapshotName))"
+        normalizedSnapshotName(from: snapshotName)
     }
 
     private func assertSnapshotName(for snapshotName: String, context: String) -> String {
-        let prefix = context == "SwiftUI" ? "SiwftUI" : "UIKit"
+        let prefix = context == "SwiftUI" ? "SwiftUI" : "UIKit"
         return "\(prefix)_\(normalizedSnapshotName(from: snapshotName))"
     }
 
@@ -311,10 +308,6 @@ private extension SegmentedControlSnapshotTests {
             let storedSnapshotData = try? Data(contentsOf: snapshotURL),
             let oldImage = UIImage(data: storedSnapshotData)
         else {
-            if context == "UIKit" {
-                recordUIKitSnapshot(snapshot, named: recordedSnapshotName(for: name), file: file, line: line)
-                return
-            }
             XCTFail("Failed to load stored snapshot at URL: \(snapshotURL). Use record mode before asserting.", file: file, line: line)
             return
         }
@@ -388,7 +381,7 @@ private extension SegmentedControlSnapshotTests {
         }
 
         appendUnique(recordedSnapshotName(for: normalizedName))
-        appendUnique(normalizedName)
+        appendUnique("UIKit_\(normalizedName)")
 
         return candidates
     }

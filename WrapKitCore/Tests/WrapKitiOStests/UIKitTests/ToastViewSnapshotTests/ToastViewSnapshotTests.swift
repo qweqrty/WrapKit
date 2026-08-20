@@ -19,14 +19,6 @@ final class ToastViewSnapshotTests: XCTestCase {
     private let failImage = UIImage(systemName: "star")
     private weak var currentPairedSUT: PairedToastViewSnapshotSUT?
 
-    private var swiftUISnapshotPrecision: Float {
-        0.98
-    }
-
-    private var swiftUIFailSnapshotPrecision: Float {
-        1
-    }
-
     private var testContainer: UIWindow!
     private var animationsWereEnabled = true
     
@@ -1154,7 +1146,7 @@ extension ToastViewSnapshotTests {
             assertSwiftUISnapshotFail(
                 snapshot: swiftUISnapshot,
                 named: uiKitName,
-                precision: swiftUIFailSnapshotPrecision,
+                precision: SwiftUISnapshotPrecision.fail,
                 file: file,
                 line: line
             )
@@ -1356,6 +1348,9 @@ extension ToastViewSnapshotTests {
     }
 
     func resolvedUIKitSnapshotName(for snapshotName: String, file: StaticString) -> String {
+        if snapshotExists(named: snapshotName, file: file) {
+            return snapshotName
+        }
         let prefixed = uiKitSnapshotName(for: snapshotName)
         if snapshotExists(named: prefixed, file: file) {
             return prefixed
@@ -1376,7 +1371,7 @@ extension ToastViewSnapshotTests {
     }
 
     func swiftUISnapshotPrecision(for snapshotName: String) -> Float {
-        return swiftUISnapshotPrecision
+        return SwiftUISnapshotPrecision.standard
     }
 
     func makeSUT(

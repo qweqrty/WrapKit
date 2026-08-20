@@ -14,14 +14,6 @@ import XCTest
 final class SearchBarSnapshotTests: XCTestCase {
     private weak var currentPairedSUT: PairedSearchBarSnapshotSUT?
 
-    private var swiftUISnapshotPrecision: Float {
-        0.98
-    }
-
-    private var swiftUIFailSnapshotPrecision: Float {
-        1
-    }
-
     func test_SearchBar_defaul_state() {
         let snapshotName = "SEARCHBAR_DEFAULT_STATE"
         let (sut, container) = makeSUT()
@@ -185,7 +177,7 @@ private extension SearchBarSnapshotTests {
             assert(
                 snapshot: swiftUISnapshot,
                 named: uiKitSnapshotName,
-                precision: swiftUISnapshotPrecision,
+                precision: SwiftUISnapshotPrecision.standard,
                 file: file,
                 line: line
             )
@@ -207,7 +199,7 @@ private extension SearchBarSnapshotTests {
             assertFail(
                 snapshot: swiftUISnapshot,
                 named: uiKitSnapshotName,
-                precision: swiftUIFailSnapshotPrecision,
+                precision: SwiftUISnapshotPrecision.fail,
                 file: file,
                 line: line
             )
@@ -224,7 +216,11 @@ private extension SearchBarSnapshotTests {
     }
 
     func resolvedUIKitSnapshotName(for snapshotName: String, file: StaticString) -> String {
-        let prefixed = recordedSnapshotName(for: snapshotName)
+        let normalized = recordedSnapshotName(for: snapshotName)
+        if snapshotExists(named: normalized, file: file) {
+            return normalized
+        }
+        let prefixed = "UIKit_\(normalized)"
         if snapshotExists(named: prefixed, file: file) {
             return prefixed
         }
@@ -244,7 +240,7 @@ private extension SearchBarSnapshotTests {
     }
 
     func recordedSnapshotName(for snapshotName: String) -> String {
-        "UIKit_\(normalizedSnapshotName(from: snapshotName))"
+        normalizedSnapshotName(from: snapshotName)
     }
 
     func normalizedSnapshotName(from snapshotName: String) -> String {

@@ -12,9 +12,6 @@ final class TextfieldSnapshotTests: XCTestCase {
 
     private weak var currentPairedSUT: PairedTextfieldSnapshotSUT?
 
-    private var swiftUISnapshotPrecision: Float { 0.98 }
-    private var swiftUIFailSnapshotPrecision: Float { 1 }
-
     func test_Textfield_default_state() {
         let snapshotName = "TEXTFIELD_DEFAULT_STATE"
         let (sut, container) = makeSUT()
@@ -922,7 +919,7 @@ extension TextfieldSnapshotTests {
             assert(
                 snapshot: swiftUISnapshot,
                 named: name,
-                precision: swiftUISnapshotPrecision,
+                precision: SwiftUISnapshotPrecision.standard,
                 file: file,
                 line: line
             )
@@ -943,7 +940,7 @@ extension TextfieldSnapshotTests {
             assertFail(
                 snapshot: swiftUISnapshot,
                 named: name,
-                precision: swiftUIFailSnapshotPrecision,
+                precision: SwiftUISnapshotPrecision.fail,
                 file: file,
                 line: line
             )

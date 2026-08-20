@@ -16,14 +16,6 @@ import enum SwiftUI.ColorScheme
 class NavigationBarSnapshotTests: XCTestCase {
     private weak var currentPairedSUT: PairedNavigationBarSnapshotSUT?
 
-    private var swiftUISnapshotPrecision: Float {
-        0.98
-    }
-
-    private var swiftUIFailSnapshotPrecision: Float {
-        1
-    }
-
     func test_navigationBar_defaul_state() {
         let snapshotName = "NAVBAR_DEFAULT_STATE"
         
@@ -1467,7 +1459,7 @@ extension NavigationBarSnapshotTests {
             assert(
                 snapshot: swiftUISnapshot,
                 named: uiKitName,
-                precision: swiftUISnapshotPrecision,
+                precision: SwiftUISnapshotPrecision.standard,
                 file: file,
                 line: line
             )
@@ -1491,7 +1483,7 @@ extension NavigationBarSnapshotTests {
             assertFail(
                 snapshot: swiftUISnapshot,
                 named: uiKitName,
-                precision: swiftUIFailSnapshotPrecision,
+                precision: SwiftUISnapshotPrecision.fail,
                 file: file,
                 line: line
             )
@@ -1503,6 +1495,9 @@ extension NavigationBarSnapshotTests {
     }
 
     func resolvedUIKitSnapshotName(for snapshotName: String, file: StaticString) -> String {
+        if snapshotExists(named: snapshotName, file: file) {
+            return snapshotName
+        }
         let prefixed = uiKitSnapshotName(for: snapshotName)
         if snapshotExists(named: prefixed, file: file) {
             return prefixed

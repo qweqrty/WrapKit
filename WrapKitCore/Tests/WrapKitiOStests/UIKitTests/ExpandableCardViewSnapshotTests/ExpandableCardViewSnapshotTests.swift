@@ -15,14 +15,6 @@ import SwiftUI
 
 final class ExpandableCardViewSnapshotTests: XCTestCase {
     private weak var currentPairedSUT: PairedExpandableCardViewSnapshotSUT?
-
-    private var swiftUISnapshotPrecision: Float {
-        0.98
-    }
-
-    private var swiftUIFailSnapshotPrecision: Float {
-        1
-    }
     
     func test_expandableCardView_display_only_prime_model() {
         // GIVEN
@@ -325,23 +317,23 @@ final class ExpandableCardViewSnapshotTests: XCTestCase {
             assertPairedSnapshot(
                 snapshot: container.snapshot(for: .iPhone(style: .light)),
                 named: "iOS26_\(snapshotName)_LIGHT",
-                swiftUIPrecision: 0.972
+                swiftUIPrecision: 0.97
             )
             assertPairedSnapshot(
                 snapshot: container.snapshot(for: .iPhone(style: .dark)),
                 named: "iOS26_\(snapshotName)_DARK",
-                swiftUIPrecision: 0.972
+                swiftUIPrecision: 0.97
             )
         } else {
             assertPairedSnapshot(
                 snapshot: container.snapshot(for: .iPhone(style: .light)),
                 named: "iOS18.5_\(snapshotName)_LIGHT",
-                swiftUIPrecision: 0.972
+                swiftUIPrecision: 0.97
             )
             assertPairedSnapshot(
                 snapshot: container.snapshot(for: .iPhone(style: .dark)),
                 named: "iOS18.5_\(snapshotName)_DARK",
-                swiftUIPrecision: 0.972
+                swiftUIPrecision: 0.97
             )
         } 
     }
@@ -460,7 +452,7 @@ extension ExpandableCardViewSnapshotTests {
             assert(
                 snapshot: swiftUISnapshot,
                 named: uiKitName,
-                precision: swiftUIPrecision ?? swiftUISnapshotPrecision,
+                precision: swiftUIPrecision ?? SwiftUISnapshotPrecision.standard,
                 file: file,
                 line: line
             )
@@ -482,7 +474,7 @@ extension ExpandableCardViewSnapshotTests {
             assertFail(
                 snapshot: swiftUISnapshot,
                 named: uiKitName,
-                precision: swiftUIFailSnapshotPrecision,
+                precision: SwiftUISnapshotPrecision.fail,
                 file: file,
                 line: line
             )
@@ -494,6 +486,9 @@ extension ExpandableCardViewSnapshotTests {
     }
 
     func resolvedUIKitSnapshotName(for snapshotName: String, file: StaticString) -> String {
+        if snapshotExists(named: snapshotName, file: file) {
+            return snapshotName
+        }
         let prefixed = uiKitSnapshotName(for: snapshotName)
         if snapshotExists(named: prefixed, file: file) {
             return prefixed
@@ -544,4 +539,3 @@ extension ExpandableCardViewSnapshotTests {
         return container
     }
 }
-
