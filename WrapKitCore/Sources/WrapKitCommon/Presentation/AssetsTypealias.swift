@@ -66,15 +66,19 @@ public enum FontFactory {
         #elseif os(macOS)
         let systemFont = NSFont.systemFont(ofSize: size)
         return NSFontManager.shared.convert(systemFont, toHaveTrait: .italicFontMask)
+        #else
+        return Font.italicSystemFont(ofSize: size)
         #endif
     }
-
+    
     public static func bold(size: CGFloat) -> Font {
         #if os(iOS)
         return UIFont.boldSystemFont(ofSize: size)
         #elseif os(macOS)
         let systemFont = NSFont.systemFont(ofSize: size)
         return NSFontManager.shared.convert(systemFont, toHaveTrait: .boldFontMask)
+        #else
+        return Font.boldSystemFont(ofSize: size)
         #endif
     }
 
@@ -83,6 +87,8 @@ public enum FontFactory {
         return UIFont.systemFont(ofSize: size, weight: UIFont.Weight(rawValue: weight))
         #elseif os(macOS)
         return NSFont.systemFont(ofSize: size)
+        #else
+        return Font.systemFont(ofSize: size, weight: Weight(rawValue: weight))
         #endif
     }
 }

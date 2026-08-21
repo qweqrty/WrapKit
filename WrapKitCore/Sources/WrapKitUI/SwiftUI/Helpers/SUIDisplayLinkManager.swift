@@ -43,7 +43,12 @@ final class SUIDisplayLinkManager: ObservableObject {
 import QuartzCore
 
 final class DisplayLinkManager {
+    #if os(macOS)
+    private var timer: Timer?
+    #else
     private var displayLink: CADisplayLink?
+    #endif
+    
     private var startTime: TimeInterval = .zero
     private var animationDuration: TimeInterval = .zero
     
@@ -58,12 +63,33 @@ final class DisplayLinkManager {
         self.animationDuration = duration
         self.onUpdateProgress = onUpdateProgress
         self.completion = completion
+        
+        #if os(macOS)
+        timer?.invalidate()
+        startTime = CACurrentMediaTime()
+        timer = Timer.scheduledTimer(withTimeInterval: 1.0/60.0, repeats: true) { [weak self] _ in
+            self?.tick()
+        }
+        #else
         displayLink?.invalidate()
         displayLink = CADisplayLink(target: self, selector: #selector(updateAnimation))
         displayLink?.add(to: .main, forMode: .common)
         startTime = CACurrentMediaTime()
+        #endif
     }
-
+    
+    #if os(macOS)
+    private func tick() {
+        let elapsedTime = CACurrentMediaTime() - startTime
+        if elapsedTime < animationDuration {
+            onUpdateProgress?(Decimal(min(1.0, elapsedTime / animationDuration)))
+        } else {
+            onUpdateProgress?(1.0)
+            completion?()
+            stopAnimation()
+        }
+    }
+    #else
     @objc private func updateAnimation(displayLink: CADisplayLink) {
         let elapsedTime = CACurrentMediaTime() - startTime
         if elapsedTime < animationDuration {
@@ -74,17 +100,28 @@ final class DisplayLinkManager {
             stopAnimation()
         }
     }
+    #endif
 
     func stopAnimation() {
+    #if os(macOS)
+        timer?.invalidate()
+        timer = nil
+    #else
         displayLink?.invalidate()
         displayLink = nil
+    #endif
         startTime = .zero
         animationDuration = .zero
     }
+        
     
     deinit {
+    #if os(macOS)
+        timer?.invalidate()
+    #else
         displayLink?.invalidate()
         displayLink = nil
+    #endif
     }
 }
 

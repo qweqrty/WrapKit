@@ -5,6 +5,7 @@
 // swift-format-ignore-file
 // swiftformat:disable all
 
+{% if type.annotations.platformGuard %}#if {{ type.annotations.platformGuard }}{% endif %}
 #if canImport(WrapKit)
 import WrapKit
 {% for importName in type.allImports %}
@@ -48,5 +49,6 @@ extension MainQueueDispatchDecorator: {{ type.name }} where T: {{ type.name }} {
     {% endfor %}
 }
 #endif
+{% if type.annotations.platformGuard %}#endif{% endif %}
 // sourcery:end
 {% endfor %}

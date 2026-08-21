@@ -1,13 +1,14 @@
-// swift-tools-version: 5.8
+// swift-tools-version: 5.10
 import PackageDescription
 
 let package = Package(
     name: "WrapKit",
     platforms: [
         .iOS(.v15),
-        .macOS(.v10_15),
+        .macOS(.v11),
         .tvOS(.v15),
-        .watchOS(.v8)
+        .watchOS(.v8),
+        .visionOS(.v1)
     ],
     products: [
         .library(
@@ -29,7 +30,13 @@ let package = Package(
             name: "WrapKit",
             dependencies: [
                 "Kingfisher",
-                .product(name: "Lottie", package: "lottie-spm"),
+                .product(
+                    name: "Lottie",
+                    package: "lottie-spm",
+                    condition: .when(
+                        platforms: [.iOS, .macOS, .tvOS, .visionOS, .macCatalyst]
+                    )
+                ),
             ],
             path: "WrapKitCore/Sources"
         ),
@@ -37,7 +44,13 @@ let package = Package(
             name: "WrapKitGame",
             dependencies: [
                 "WrapKit",
-                .product(name: "Lottie", package: "lottie-spm"),
+                .product(
+                    name: "Lottie",
+                    package: "lottie-spm",
+                    condition: .when(
+                        platforms: [.iOS, .macOS, .tvOS, .visionOS, .macCatalyst]
+                    )
+                ),
             ],
             path: "WrapKitGame/Sources"
         ),
@@ -55,7 +68,13 @@ let package = Package(
                 "WrapKit",
                 "WrapKitTestUtils",
                 "Kingfisher",
-                .product(name: "Lottie", package: "lottie-spm")
+                .product(
+                    name: "Lottie",
+                    package: "lottie-spm",
+                    condition: .when(
+                        platforms: [.iOS, .macOS, .tvOS, .visionOS, .macCatalyst]
+                    )
+                )
             ],
             path: "WrapKitCore/Tests",
             resources: [.process("Resources")]

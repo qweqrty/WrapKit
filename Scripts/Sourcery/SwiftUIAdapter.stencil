@@ -74,6 +74,7 @@ public class {{ type.name }}SwiftUIAdapter{% for associatedType in type.associat
     {% endif %}
     {% endfor %}
 }
+{% if type.annotations.platformGuard %}#endif{% endif %}
 // sourcery:end
 // sourcery:endfile
 {% endfor %}

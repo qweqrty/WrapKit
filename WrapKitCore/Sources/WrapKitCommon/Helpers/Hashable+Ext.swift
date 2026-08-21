@@ -46,7 +46,7 @@ public extension HashableWithReflection {
         }
         #endif
 
-        #if canImport(AppKit)
+        #if canImport(AppKit) && !targetEnvironment(macCatalyst)
         if let image = value as? NSImage {
             hasher.combine(image.size.width)
             hasher.combine(image.size.height)
@@ -133,7 +133,7 @@ public extension HashableWithReflection {
         }
 #endif
         
-#if canImport(AppKit)
+#if canImport(AppKit) && !targetEnvironment(macCatalyst)
         if let li = lhs as? NSImage, let ri = rhs as? NSImage {
             return (li.tiffRepresentation == ri.tiffRepresentation) || (li.size == ri.size && li.isTemplate == ri.isTemplate)
         }

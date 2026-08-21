@@ -1,10 +1,4 @@
-//
-//  File.swift
-//  WrapKit
-//
-//  Created by Gulzat Zheenbek kyzy on 16/6/25.
-//
-
+#if os(iOS) || targetEnvironment(macCatalyst)
 import Foundation
 import PhotosUI
 
@@ -47,4 +41,5 @@ public class MediaPickerFactoryiOS: MediaPickerFactory {
         return vc
     }
 }
+#endif
 #endif

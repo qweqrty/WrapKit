@@ -1,10 +1,4 @@
-//
-//  LottieSwiftUI.swift
-//  WrapKit
-//
-//  Created by Stanislav Li on 28/2/25.
-//
-
+#if canImport(Lottie)
 import Foundation
 import SwiftUI
 import Lottie
@@ -190,4 +184,5 @@ extension LottieAnimationView {
         self.init(animation: animation)
     }
 }
+#endif
 #endif
