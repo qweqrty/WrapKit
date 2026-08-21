@@ -9,6 +9,8 @@ public enum URLTarget {
     case url(URL)
     case urlString(String)
     case appSettings
+    case notificationSettings
+    case defaultAppsSettings
 }
 
 #if canImport(UIKit)
@@ -40,11 +42,26 @@ public enum ApplicationURLUtils {
     private static func makeURL(from destination: URLTarget) -> URL? {
         switch destination {
         case .url(let url):
-            url
+            return url
+            
         case .urlString(let urlString):
-            urlString.asUrl
+            return urlString.asUrl
+            
         case .appSettings:
-            URL(string: UIApplication.openSettingsURLString)
+            return URL(string: UIApplication.openSettingsURLString)
+            
+        case .notificationSettings:
+            guard #available(iOS 16.0, *) else {
+                return nil
+            }
+            
+            return URL(string: UIApplication.openNotificationSettingsURLString)
+        case .defaultAppsSettings:
+            guard #available(iOS 18.3, *) else {
+                return nil
+            }
+            
+            return URL(string: UIApplication.openDefaultApplicationsSettingsURLString)
         }
     }
 }
