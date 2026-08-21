@@ -43,7 +43,15 @@ final class SUIDisplayLinkManager: ObservableObject {
 import QuartzCore
 
 final class DisplayLinkManager {
-    #if os(macOS)
+    private static var currentMediaTime: TimeInterval {
+        #if os(watchOS)
+        return ProcessInfo.processInfo.systemUptime
+        #else
+        return CACurrentMediaTime()
+        #endif
+    }
+
+    #if os(macOS) || os(watchOS)
     private var timer: Timer?
     #else
     private var displayLink: CADisplayLink?
@@ -64,9 +72,9 @@ final class DisplayLinkManager {
         self.onUpdateProgress = onUpdateProgress
         self.completion = completion
         
-        #if os(macOS)
+        #if os(macOS) || os(watchOS)
         timer?.invalidate()
-        startTime = CACurrentMediaTime()
+        startTime = Self.currentMediaTime
         timer = Timer.scheduledTimer(withTimeInterval: 1.0/60.0, repeats: true) { [weak self] _ in
             self?.tick()
         }
@@ -74,13 +82,13 @@ final class DisplayLinkManager {
         displayLink?.invalidate()
         displayLink = CADisplayLink(target: self, selector: #selector(updateAnimation))
         displayLink?.add(to: .main, forMode: .common)
-        startTime = CACurrentMediaTime()
+        startTime = Self.currentMediaTime
         #endif
     }
     
-    #if os(macOS)
+    #if os(macOS) || os(watchOS)
     private func tick() {
-        let elapsedTime = CACurrentMediaTime() - startTime
+        let elapsedTime = Self.currentMediaTime - startTime
         if elapsedTime < animationDuration {
             onUpdateProgress?(Decimal(min(1.0, elapsedTime / animationDuration)))
         } else {
@@ -91,7 +99,7 @@ final class DisplayLinkManager {
     }
     #else
     @objc private func updateAnimation(displayLink: CADisplayLink) {
-        let elapsedTime = CACurrentMediaTime() - startTime
+        let elapsedTime = Self.currentMediaTime - startTime
         if elapsedTime < animationDuration {
             onUpdateProgress?(Decimal(min(1.0, elapsedTime / animationDuration)))
         } else {
@@ -103,7 +111,7 @@ final class DisplayLinkManager {
     #endif
 
     func stopAnimation() {
-    #if os(macOS)
+    #if os(macOS) || os(watchOS)
         timer?.invalidate()
         timer = nil
     #else
@@ -116,7 +124,7 @@ final class DisplayLinkManager {
         
     
     deinit {
-    #if os(macOS)
+    #if os(macOS) || os(watchOS)
         timer?.invalidate()
     #else
         displayLink?.invalidate()

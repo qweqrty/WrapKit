@@ -260,7 +260,7 @@ public struct TextInputPresentableModel: HashableWithReflection {
     }
 }
 
-#if canImport(UIKit)
+#if canImport(UIKit) && !os(watchOS)
 import UIKit
 
 public extension Textfield {

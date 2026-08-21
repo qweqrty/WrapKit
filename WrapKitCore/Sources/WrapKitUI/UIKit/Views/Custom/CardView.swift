@@ -252,7 +252,7 @@ public struct CardViewPresentableModel: HashableWithReflection {
     }
 }
 
-#if canImport(UIKit)
+#if canImport(UIKit) && !os(watchOS)
 import UIKit
 import SwiftUI
 

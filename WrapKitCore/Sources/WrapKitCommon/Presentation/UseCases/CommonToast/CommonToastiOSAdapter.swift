@@ -5,7 +5,7 @@
 //  Created by Stanislav Li on 27/5/24.
 //
 
-#if canImport(UIKit)
+#if canImport(UIKit) && !os(watchOS) && !os(tvOS)
 import UIKit
 
 public class CommonToastiOSAdapter: CommonToastOutput {

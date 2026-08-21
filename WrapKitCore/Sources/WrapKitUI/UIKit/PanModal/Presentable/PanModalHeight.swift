@@ -5,7 +5,7 @@
 //  Copyright © 2019 Tiny Speck, Inc. All rights reserved.
 //
 
-#if canImport(UIKit)
+#if canImport(UIKit) && !os(watchOS) && !os(tvOS)
 import UIKit
 
 /**

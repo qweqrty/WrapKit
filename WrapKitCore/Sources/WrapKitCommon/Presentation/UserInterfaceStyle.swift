@@ -10,7 +10,7 @@ extension UserInterfaceStyle {
     /// Returns the current user interface style in a platform-agnostic way
     public static var current: UserInterfaceStyle {
         if #available(macOS 11.0, *) {
-#if canImport(UIKit)
+#if canImport(UIKit) && !os(watchOS)
             // iOS and tvOS
             if #available(iOS 13.0, tvOS 13.0, *) {
                 // Get the first active window
@@ -27,11 +27,15 @@ extension UserInterfaceStyle {
                 }
             } else {
                 // iOS 12 and earlier fallback (using screen brightness)
+                #if os(visionOS)
+                return .dark
+                #else
                 if UIScreen.main.brightness < 0.5 {
                     return .dark
                 } else {
                     return .light
                 }
+                #endif
             }
             return .unspecified
             

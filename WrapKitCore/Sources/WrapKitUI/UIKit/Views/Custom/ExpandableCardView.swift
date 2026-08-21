@@ -12,7 +12,7 @@ public protocol ExpandableCardViewOutput: AnyObject {
     func display(isHidden: Bool)
 }
 
-#if canImport(UIKit)
+#if canImport(UIKit) && !os(watchOS)
 import UIKit
 import Combine
 

@@ -5,7 +5,7 @@
 //  Created by Stanislav Li on 27/11/23.
 //
 
-#if canImport(UIKit)
+#if canImport(UIKit) && !os(watchOS)
 import UIKit
 
 open class CubeView: UIScrollView, UIScrollViewDelegate {

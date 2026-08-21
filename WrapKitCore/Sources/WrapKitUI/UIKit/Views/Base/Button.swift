@@ -137,7 +137,7 @@ public struct ButtonPresentableModel {
     }
 }
 
-#if canImport(UIKit)
+#if canImport(UIKit) && !os(watchOS)
 import UIKit
 
 extension Button: ButtonOutput {

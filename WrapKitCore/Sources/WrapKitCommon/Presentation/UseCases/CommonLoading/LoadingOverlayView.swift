@@ -5,7 +5,7 @@
 //  Created by Gulzat Zheenbek kyzy on 26/3/26.
 //
 
-#if canImport(UIKit)
+#if canImport(UIKit) && !os(watchOS)
 import UIKit
 
 public final class LoadingOverlayView: UIView {

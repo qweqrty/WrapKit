@@ -59,7 +59,7 @@ public struct SwitchControlPresentableModel {
     }
 }
 
-#if canImport(UIKit)
+#if canImport(UIKit) && !os(watchOS)
 import UIKit
 
 open class SwitchControl: UISwitch {

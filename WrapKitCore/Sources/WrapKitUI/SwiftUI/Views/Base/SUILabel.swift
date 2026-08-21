@@ -415,7 +415,7 @@ extension NSUnderlineStyle {
                     text: "Text with leading image",
                     leadingImage: ImageFactory.systemImage(named: "star.fill")
                 )]),
-                cornerStyle: nil, insets: .zero, height: 150, backgroundColor: .systemBlue
+                cornerStyle: nil, insets: .zero, height: 150, backgroundColor: .blue
             ))
             
         }

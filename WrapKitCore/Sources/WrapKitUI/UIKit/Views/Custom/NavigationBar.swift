@@ -76,7 +76,7 @@ public struct HeaderPresentableModel: HashableWithReflection {
     }
 }
 
-#if canImport(UIKit)
+#if canImport(UIKit) && !os(watchOS)
 import UIKit
 
 extension NavigationBar: HeaderOutput {

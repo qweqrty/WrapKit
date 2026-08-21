@@ -43,7 +43,7 @@ public enum DatePickerMode: HashableWithReflection {
     case countDownTimer
 }
 
-#if canImport(UIKit)
+#if canImport(UIKit) && !os(watchOS)
 import Foundation
 import UIKit
 

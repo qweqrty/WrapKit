@@ -5,6 +5,7 @@
 // swift-format-ignore-file
 // swiftformat:disable all
 
+{% if type.annotations.platformGuard %}#if {{ type.annotations.platformGuard }}{% endif %}
 #if canImport(WrapKit)
 import WrapKit
 #endif

@@ -91,7 +91,7 @@ public protocol TableOutput<Header, Cell, Footer>: AnyObject {
     func displayHideRefreshControl()
 }
 
-#if canImport(UIKit)
+#if canImport(UIKit) && !os(watchOS)
 import Foundation
 import UIKit
 

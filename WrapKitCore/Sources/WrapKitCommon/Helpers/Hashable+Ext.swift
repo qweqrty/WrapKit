@@ -125,8 +125,12 @@ public extension HashableWithReflection {
             && li.renderingMode == ri.renderingMode
         }
         if let li = lhs as? UIColor, let ri = rhs as? UIColor {
+            #if os(watchOS)
+            return li == ri
+            #else
             return li.resolvedColor(with: .init(userInterfaceStyle: .light)) == ri.resolvedColor(with: .init(userInterfaceStyle: .light))
             && li.resolvedColor(with: .init(userInterfaceStyle: .dark)) == ri.resolvedColor(with: .init(userInterfaceStyle: .dark))
+            #endif
         }
         if let li = lhs as? UIFont, let ri = rhs as? UIFont {
             return li == ri // TODO: check HeaderViewStyle Tests, probably need to add check font details check

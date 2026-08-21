@@ -72,7 +72,7 @@ public struct ImageViewPresentableModel: HashableWithReflection {
     }
 }
 
-#if canImport(UIKit)
+#if canImport(UIKit) && !os(watchOS)
 import UIKit
 import Kingfisher
 

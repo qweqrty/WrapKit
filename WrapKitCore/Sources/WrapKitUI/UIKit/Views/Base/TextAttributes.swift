@@ -132,6 +132,8 @@ public extension Color {
     static var defaultLabel: Color {
         #if os(macOS)
         return .labelColor
+        #elseif os(watchOS)
+        return .white
         #else
         return .label
         #endif

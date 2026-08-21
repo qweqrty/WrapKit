@@ -27,6 +27,7 @@ public struct LottieViewPresentableModel: HashableWithReflection {
     }
 }
 
+// sourcery: platformGuard = "canImport(Lottie)"
 public protocol LottieViewOutput: AnyObject {
     var currentAnimationName: String? { get set }
     func display(model: LottieViewPresentableModel)
@@ -70,7 +71,7 @@ public protocol LottieViewOutput: AnyObject {
 //    }
 //}
 
-#if canImport(UIKit)
+#if canImport(UIKit) && !os(watchOS)
 import UIKit
 
 open class LottieView: UIView, LottieViewOutput {

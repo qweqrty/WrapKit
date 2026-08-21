@@ -20,7 +20,7 @@ public protocol ISelectionFactory<Controller> {
     ) -> Controller
 }
 
-#if canImport(UIKit)
+#if canImport(UIKit) && !os(watchOS)
 import UIKit
 
 public class SelectionFactoryiOS: ISelectionFactory {
