@@ -31,16 +31,16 @@ public struct MediaPickerLocalizable {
 
 #if canImport(UIKit)
 public class MediaPickerPresenter {
-   
+    
     public var alertView: AlertOutput?
-   
+    
     public var pickerManager: MediaPickerManager?
     
     public let localizable: MediaPickerLocalizable
     private let flow: any MediaPickerFlow
     private let sourceTypes: [MediaPickerSource]
     private let callback: ((MediaPickerResultType?) -> Void)?
-   
+    
     public init(
         flow: any MediaPickerFlow,
         sourceTypes: [MediaPickerSource],
@@ -73,17 +73,17 @@ extension MediaPickerPresenter: LifeCycleViewOutput {
                 actions: sourceTypes.enumerated().map({ [weak self] index, source in
                     switch source {
                     case .camera(let configuration):
-                        .init(title: configuration.title) {
-                            self?.checkCameraPermissionAndPresentPicker(configuration)
-                        }
+                            .init(title: configuration.title) {
+                                self?.checkCameraPermissionAndPresentPicker(configuration)
+                            }
                     case .file(let configuration):
-                        .init(title: configuration.title) {
-                            self?.presentPicker(source: source)
-                        }
+                            .init(title: configuration.title) {
+                                self?.presentPicker(source: source)
+                            }
                     case .gallery(let configuration):
-                        .init(title: configuration.title) {
-                            self?.presentPicker(source: source)
-                        }
+                            .init(title: configuration.title) {
+                                self?.presentPicker(source: source)
+                            }
                     }
                 }) + [
                     .init(title: localizable.cancel, style: .cancel, handler: { [weak self] in
@@ -111,7 +111,7 @@ extension MediaPickerPresenter {
                     self?.flow.finish()
                     return
                 }
-
+                
                 self?.pickerManager?.deliver(image: result, using: configuration.desiredResultType) { [weak self] result in
                     self?.callback?(result ?? nil)
                     self?.flow.finish()
@@ -139,11 +139,8 @@ extension MediaPickerPresenter {
                 .init(
                     title: localizable.settingsButtonTitle,
                     handler: {
-                    if let appSettingsURL = URL(string: UIApplication.openSettingsURLString),
-                       UIApplication.shared.canOpenURL(appSettingsURL) {
-                        UIApplication.shared.open(appSettingsURL)
-                    }
-                }),
+                        ApplicationURLUtils.open(.appSettings)
+                    }),
                 .init(title: localizable.cancel, style: .cancel, handler: { [weak self] in
                     self?.flow.finish()
                 })
