@@ -299,6 +299,7 @@ extension Button: ButtonOutput {
             self.setTitle(resolvedTitle, for: .normal)
             self.layoutIfNeeded()
         }
+        applyInteractivityAndAccessibility()
     }
 
     public func display(spacing: CGFloat) {
