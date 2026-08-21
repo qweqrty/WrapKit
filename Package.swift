@@ -21,6 +21,7 @@ let package = Package(
             targets: ["WrapKitTestUtils"])
     ],
     dependencies: [
+        .package(url: "https://github.com/krzyzanowskim/CryptoSwift.git", from: "1.8.3"),
         .package(url: "https://github.com/airbnb/lottie-spm", from: "4.5.0"),
         .package(url: "https://github.com/onevcat/Kingfisher.git", exact: "7.12.0"),
         .package(url: "https://github.com/marmelroy/PhoneNumberKit", from: "4.0.0"),
