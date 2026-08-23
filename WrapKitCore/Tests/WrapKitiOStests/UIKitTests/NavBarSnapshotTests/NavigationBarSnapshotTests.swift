@@ -1436,7 +1436,7 @@ extension NavigationBarSnapshotTests {
     ) {
         record(
             snapshot: snapshot,
-            named: uiKitSnapshotName(for: name),
+            named: name,
             file: file,
             line: line
         )
@@ -1490,17 +1490,9 @@ extension NavigationBarSnapshotTests {
         }
     }
 
-    func uiKitSnapshotName(for snapshotName: String) -> String {
-        "UIKit_\(snapshotName)"
-    }
-
     func resolvedUIKitSnapshotName(for snapshotName: String, file: StaticString) -> String {
         if snapshotExists(named: snapshotName, file: file) {
             return snapshotName
-        }
-        let prefixed = uiKitSnapshotName(for: snapshotName)
-        if snapshotExists(named: prefixed, file: file) {
-            return prefixed
         }
         return snapshotName
     }

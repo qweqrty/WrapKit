@@ -414,7 +414,6 @@ private extension TitledViewSnapshotTests {
         }
 
         appendUnique(recordedSnapshotName(for: normalizedName))
-        appendUnique("UIKit_\(normalizedName)")
 
         return candidates
     }

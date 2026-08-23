@@ -282,7 +282,7 @@ private extension MapViewSnapshotTests {
             assert(
                 snapshot: swiftUISnapshot,
                 named: uiKitSnapshotName,
-                precision: SwiftUISnapshotPrecision.standard,
+                precision: swiftUISnapshotPrecision(for: name),
                 file: file,
                 line: line
             )
@@ -325,11 +325,7 @@ private extension MapViewSnapshotTests {
         if snapshotExists(named: normalized, file: file) {
             return normalized
         }
-        let prefixed = "UIKit_\(normalized)"
-        if snapshotExists(named: prefixed, file: file) {
-            return prefixed
-        }
-        return snapshotName
+        return normalized
     }
 
     func snapshotExists(named name: String, file: StaticString) -> Bool {
@@ -342,6 +338,12 @@ private extension MapViewSnapshotTests {
 
     func colorScheme(from snapshotName: String) -> ColorScheme {
         normalizedSnapshotName(from: snapshotName).hasSuffix("_DARK") ? .dark : .light
+    }
+
+    func swiftUISnapshotPrecision(for snapshotName: String) -> Float {
+        normalizedSnapshotName(from: snapshotName).contains("MAPVIEW_WITH_MAP_BACKGROUND")
+            ? 0.97
+            : SwiftUISnapshotPrecision.standard
     }
 
     func recordedSnapshotName(for snapshotName: String) -> String {

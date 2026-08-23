@@ -1587,12 +1587,16 @@ private extension LabelSnapshotTests {
         }
 
         appendUnique(recordedSnapshotName(for: normalizedName))
-        appendUnique("UIKit_\(normalizedName)")
 
         // Legacy typo kept for historical snapshots: ...DOUBLELINELIGHT
         if normalizedName.contains("TITLE_WITH_DOUBLELINE_LIGHT") {
             let legacyName = normalizedName.replacingOccurrences(of: "TITLE_WITH_DOUBLELINE_LIGHT", with: "TITLE_WITH_DOUBLELINELIGHT")
-            appendUnique("UIKit_\(legacyName)")
+            appendUnique(legacyName)
+        }
+
+        // Legacy typo kept for historical snapshots: ...TRAILINGIMAGELIGHT
+        if normalizedName.contains("TITLE_WITH_TRAILINGIMAGE_LIGHT") {
+            let legacyName = normalizedName.replacingOccurrences(of: "TITLE_WITH_TRAILINGIMAGE_LIGHT", with: "TITLE_WITH_TRAILINGIMAGELIGHT")
             appendUnique(legacyName)
         }
 

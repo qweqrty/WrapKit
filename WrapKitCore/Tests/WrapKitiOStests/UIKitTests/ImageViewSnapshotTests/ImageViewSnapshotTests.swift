@@ -1298,7 +1298,6 @@ private extension ImageViewSnapshotTests {
         }
 
         appendUnique(recordedSnapshotName(for: normalizedName))
-        appendUnique("UIKit_\(normalizedName)")
 
         return candidates
     }

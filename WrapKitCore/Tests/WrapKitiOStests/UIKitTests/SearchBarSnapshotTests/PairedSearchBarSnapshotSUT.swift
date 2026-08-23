@@ -23,7 +23,9 @@ final class PairedSearchBarSnapshotSUT {
         spacing: CGFloat = 8,
         swiftUIAdapter: SearchBarOutputSwiftUIAdapter = SearchBarOutputSwiftUIAdapter()
     ) {
-        self.uiKitView = SearchBar(textfield: textField, spacing: spacing)
+        self.uiKitView = withLiquidGlassDisabled {
+            SearchBar(textfield: textField, spacing: spacing)
+        }
         self.textFieldAppearance = textFieldAppearance
         self.spacing = spacing
         self.swiftUIAdapter = swiftUIAdapter
@@ -66,27 +68,36 @@ final class PairedSearchBarSnapshotSUT {
 
     @available(iOS 17.0, *)
     func swiftUISnapshot(for colorScheme: ColorScheme) -> UIImage {
-        let rootView = SnapshotMirroredSearchBarContainer(
-            adapter: swiftUIAdapter,
-            textFieldAppearance: textFieldAppearance,
-            spacing: spacing
-        )
-        .ignoresSafeArea(.all)
+        withLiquidGlassDisabled {
+            let rootView = SnapshotMirroredSearchBarContainer(
+                adapter: swiftUIAdapter,
+                textFieldAppearance: textFieldAppearance,
+                spacing: spacing
+            )
+            .ignoresSafeArea(.all)
 
-        let hostingController = UIHostingController(rootView: rootView)
-        hostingController.overrideUserInterfaceStyle = colorScheme == .dark ? .dark : .light
-        hostingController.view.backgroundColor = .clear
+            let hostingController = UIHostingController(rootView: rootView)
+            hostingController.overrideUserInterfaceStyle = colorScheme == .dark ? .dark : .light
+            hostingController.view.backgroundColor = .clear
 
-        let warmup: TimeInterval = 0.3
-        RunLoop.main.run(until: Date().addingTimeInterval(warmup))
-        hostingController.view.setNeedsLayout()
-        hostingController.view.layoutIfNeeded()
-        RunLoop.main.run(until: Date().addingTimeInterval(warmup))
+            let warmup: TimeInterval = 0.3
+            RunLoop.main.run(until: Date().addingTimeInterval(warmup))
+            hostingController.view.setNeedsLayout()
+            hostingController.view.layoutIfNeeded()
+            RunLoop.main.run(until: Date().addingTimeInterval(warmup))
 
-        return hostingController.snapshot(
-            for: .iPhone(style: colorScheme == .dark ? .dark : .light)
-        )
+            return hostingController.snapshot(
+                for: .iPhone(style: colorScheme == .dark ? .dark : .light)
+            )
+        }
     }
+}
+
+private func withLiquidGlassDisabled<T>(_ operation: () -> T) -> T {
+    let wasLiquidGlassEnabled = isLiquidGlassEnabled
+    isLiquidGlassEnabled = false
+    defer { isLiquidGlassEnabled = wasLiquidGlassEnabled }
+    return operation()
 }
 
 @available(iOS 17.0, *)

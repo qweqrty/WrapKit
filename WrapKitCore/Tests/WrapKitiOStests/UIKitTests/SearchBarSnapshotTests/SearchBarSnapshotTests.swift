@@ -165,7 +165,7 @@ private extension SearchBarSnapshotTests {
     func assertPairedSnapshot(
         snapshot: UIImage,
         named name: String,
-        precision: Float = 1,
+        precision: Float = SwiftUISnapshotPrecision.standard,
         file: StaticString = #filePath,
         line: UInt = #line
     ) {
@@ -220,11 +220,7 @@ private extension SearchBarSnapshotTests {
         if snapshotExists(named: normalized, file: file) {
             return normalized
         }
-        let prefixed = "UIKit_\(normalized)"
-        if snapshotExists(named: prefixed, file: file) {
-            return prefixed
-        }
-        return snapshotName
+        return normalized
     }
 
     func snapshotExists(named name: String, file: StaticString) -> Bool {

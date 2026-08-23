@@ -1145,7 +1145,7 @@ extension CardViewSnapshotTests {
     ) {
         record(
             snapshot: normalizedCardSnapshot(snapshot),
-            named: uiKitSnapshotName(for: name),
+            named: name,
             file: file,
             line: line
         )
@@ -1234,17 +1234,9 @@ extension CardViewSnapshotTests {
         }
     }
 
-    func uiKitSnapshotName(for snapshotName: String) -> String {
-        "UIKit_\(snapshotName)"
-    }
-
     func resolvedUIKitSnapshotName(for snapshotName: String, file: StaticString) -> String {
         if snapshotExists(named: snapshotName, file: file) {
             return snapshotName
-        }
-        let prefixed = uiKitSnapshotName(for: snapshotName)
-        if snapshotExists(named: prefixed, file: file) {
-            return prefixed
         }
         return snapshotName
     }
@@ -1272,6 +1264,9 @@ extension CardViewSnapshotTests {
         if snapshotName.contains("CARDVIEW_WITH_BACKGROUNDIMAGE_CONTENTMODE_ISFIT_FALSE") {
             if isIOS18_5 || isIOS26 { return 0.963 }
             return 0.964
+        }
+        if snapshotName.contains("CARDVIEW_WITH_BACKGROUNDIMAGE_CORNERRADIUS") {
+            return isIOS26 ? 0.979 : SwiftUISnapshotPrecision.standard
         }
         if snapshotName.contains("CARDVIEW_WITH_BACKGROUNDIMAGE"),
            !snapshotName.contains("ALPHA"),

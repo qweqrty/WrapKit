@@ -381,7 +381,6 @@ private extension SegmentedControlSnapshotTests {
         }
 
         appendUnique(recordedSnapshotName(for: normalizedName))
-        appendUnique("UIKit_\(normalizedName)")
 
         return candidates
     }
