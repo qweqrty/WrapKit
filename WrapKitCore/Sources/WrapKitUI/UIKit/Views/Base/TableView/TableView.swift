@@ -34,6 +34,30 @@ open class TableView: UITableView {
         self.invalidateIntrinsicContentSize()
     }
     
+    #if os(tvOS)
+    public init(
+        style: UITableView.Style = .grouped,
+        backgroundColor: UIColor = .clear,
+        allowsSelection: Bool = true,
+        allowsMultipleSelectionDuringEditing: Bool = false,
+        cells: [AnyClass] = [],
+        contentInset: UIEdgeInsets = .zero,
+        emptyPlaceholderView: UIView? = nil,
+        adjustHeight: Bool = false
+    ) {
+        super.init(frame: .zero, style: style)
+        commonSetup(
+            style: style,
+            backgroundColor: backgroundColor,
+            allowsSelection: allowsSelection,
+            allowsMultipleSelectionDuringEditing: allowsMultipleSelectionDuringEditing,
+            cells: cells,
+            contentInset: contentInset,
+            emptyPlaceholderView: emptyPlaceholderView,
+            adjustHeight: adjustHeight
+        )
+    }
+    #else
     public init(
         style: UITableView.Style = .grouped,
         backgroundColor: UIColor = .clear,
@@ -46,20 +70,46 @@ open class TableView: UITableView {
         adjustHeight: Bool = false
     ) {
         super.init(frame: .zero, style: style)
-        
+        commonSetup(
+            style: style,
+            backgroundColor: backgroundColor,
+            allowsSelection: allowsSelection,
+            allowsMultipleSelectionDuringEditing: allowsMultipleSelectionDuringEditing,
+            cells: cells,
+            contentInset: contentInset,
+            emptyPlaceholderView: emptyPlaceholderView,
+            adjustHeight: adjustHeight
+        )
+        self.refreshControl = refreshControl
+    }
+    #endif
+
+    private func commonSetup(
+        style: UITableView.Style,
+        backgroundColor: UIColor,
+        allowsSelection: Bool,
+        allowsMultipleSelectionDuringEditing: Bool,
+        cells: [AnyClass],
+        contentInset: UIEdgeInsets,
+        emptyPlaceholderView: UIView?,
+        adjustHeight: Bool
+    ) {
         cells.forEach { register($0, forCellReuseIdentifier: String(describing: $0)) }
+        #if !os(tvOS)
         separatorStyle = .none
+        #endif
         self.contentInset = contentInset
         self.adjustHeight = adjustHeight
         self.backgroundColor = backgroundColor
         self.allowsSelection = allowsSelection
         self.allowsMultipleSelectionDuringEditing = allowsMultipleSelectionDuringEditing
         self.showsVerticalScrollIndicator = false
-        self.refreshControl = refreshControl
         self.backgroundView = emptyPlaceholderView
         self.backgroundView?.isHidden = false
         self.backgroundView?.alpha = 0
+        #if !os(visionOS)
         self.keyboardDismissMode = .onDrag
+        #endif
         self.tableHeaderView = UIView(frame: CGRect(x: 0, y: 0, width: 0, height: CGFloat.leastNonzeroMagnitude))
         self.tableFooterView = UIView(frame: CGRect(x: 0, y: 0, width: 0, height: CGFloat.leastNonzeroMagnitude))
     }

@@ -302,7 +302,7 @@ open class Label: UILabel {
         isHidden: Bool = false,
         translatesAutoresizingMaskIntoConstraints: Bool = false,
         font: UIFont? = nil,
-        textColor: UIColor = .darkText,
+        textColor: UIColor = .defaultDarkText,
         textAlignment: NSTextAlignment = .natural,
         numberOfLines: Int = 0,
         minimumScaleFactor: CGFloat = 0,
@@ -479,4 +479,15 @@ extension TextOutputPresentableModel.TextModel {
         return ceil(size.width)
     }
 }
+
+public extension UIColor {
+    static var defaultDarkText: UIColor {
+        #if os(tvOS)
+        return .label
+        #else
+        return .darkText
+        #endif
+    }
+}
+
 #endif

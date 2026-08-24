@@ -65,7 +65,7 @@ public extension String {
         /// FONT: если size/weight передали — обновляем только их, сохраняя traits (italic и т.п.) из HTML
         if config?.size != nil || config?.weight != nil {
             attributed.enumerateAttribute(.font, in: whole, options: []) { value, range, _ in
-                #if os(watchOS)
+                #if os(watchOS) || os(tvOS)
                 let oldFont = (value as? Font) ?? Font.systemFont(ofSize: 17)
                 #else
                 let oldFont = (value as? Font) ?? Font.systemFont(ofSize: Font.systemFontSize)

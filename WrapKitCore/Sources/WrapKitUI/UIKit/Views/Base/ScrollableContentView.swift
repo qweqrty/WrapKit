@@ -42,7 +42,9 @@ extension ScrollableContentView {
     }
     
     private func setupUI() {
+        #if !os(visionOS)
         keyboardDismissMode = .onDrag
+        #endif
         showsVerticalScrollIndicator = false
         addSubview(contentView)
     }

@@ -53,7 +53,9 @@ extension ScrollableHStackView {
     
     private func setupUI() {
         clipsToBounds = false
+        #if !os(visionOS)
         keyboardDismissMode = .onDrag
+        #endif
         showsHorizontalScrollIndicator = false
         addSubview(contentView)
     }

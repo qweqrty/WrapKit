@@ -43,7 +43,7 @@ public protocol RefreshControlOutput: AnyObject {
     func display(isLoading: Bool)
 }
 
-#if canImport(UIKit) && !os(watchOS)
+#if canImport(UIKit) && !os(watchOS) && !os(tvOS)
 import UIKit
 
 extension RefreshControl: RefreshControlOutput {

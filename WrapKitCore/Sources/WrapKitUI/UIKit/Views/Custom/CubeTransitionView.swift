@@ -93,7 +93,9 @@ open class CubeView: UIScrollView, UIScrollViewDelegate {
         stackView.translatesAutoresizingMaskIntoConstraints = false
         showsHorizontalScrollIndicator = false
         showsVerticalScrollIndicator = false
+        #if !os(tvOS)
         isPagingEnabled = true
+        #endif
         bounces = true
         delegate = self
         

@@ -23,7 +23,9 @@ open class TableViewCell<ContentView: UIView>: UITableViewCell {
         contentView.backgroundColor = .clear
         backgroundView = nil
         backgroundColor = .clear
+        #if !os(tvOS) && !os(visionOS)
         separatorInset = .init(top: .zero, left: UIScreen.main.bounds.width, bottom: .zero, right: .zero) // needed to ignore AlgaComponents XSeparatorStyle
+        #endif
         contentView.addSubview(mainContentView)
         mainContentViewConstraints = mainContentView.anchor(
             .top(contentView.topAnchor),

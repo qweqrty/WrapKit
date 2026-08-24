@@ -27,7 +27,7 @@ extension UserInterfaceStyle {
                 }
             } else {
                 // iOS 12 and earlier fallback (using screen brightness)
-                #if os(visionOS)
+                #if os(visionOS) || os(tvOS)
                 return .dark
                 #else
                 if UIScreen.main.brightness < 0.5 {
