@@ -5,6 +5,8 @@
 //  Created by Gulzat Zheenbek kyzy on 21/8/26.
 //
 
+import UIKit
+
 public enum URLTarget {
     case url(URL)
     case urlString(String)
@@ -12,9 +14,6 @@ public enum URLTarget {
     case notificationSettings
     case defaultAppsSettings
 }
-
-#if canImport(UIKit)
-import UIKit
 
 public enum ApplicationURLUtils {
     
@@ -65,4 +64,3 @@ public enum ApplicationURLUtils {
         }
     }
 }
-#endif
