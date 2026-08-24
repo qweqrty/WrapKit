@@ -174,7 +174,7 @@ extension Button: ButtonOutput {
     
     public func display(style: ButtonStyle?) {
         guard let style else { return }
-        
+
         self.textColor = style.titleColor ?? .white
         self.textBackgroundColor = style.backgroundColor
         self.pressedTextColor = style.pressedTintColor
@@ -183,7 +183,7 @@ extension Button: ButtonOutput {
         self.loadingIndicatorColor = style.loadingIndicatorColor
         displayGlass(style: style)
     }
-    
+
     private func displayGlass(style: ButtonStyle) {
         guard let glassConfiguration = style.glassConfiguration else {
             resetGlassConfigurationIfNeeded()
@@ -291,6 +291,17 @@ extension Button: ButtonOutput {
         self.setTitle(title?.removingPercentEncoding ?? title, for: .normal)
     }
     
+    func displayTitleWithoutAnimation(_ title: String?) {
+        let resolvedTitle = title?.removingPercentEncoding ?? title
+        guard self.title(for: .normal) != resolvedTitle else { return }
+
+        UIView.performWithoutAnimation {
+            self.setTitle(resolvedTitle, for: .normal)
+            self.layoutIfNeeded()
+        }
+        applyInteractivityAndAccessibility()
+    }
+
     public func display(spacing: CGFloat) {
         self.spacing = spacing
     }
@@ -615,7 +626,7 @@ open class Button: UIButton {
 
 private extension Button {
     func resetGlassConfigurationIfNeeded() {
-        guard usesLiquidGlassConfiguration else { return }
+        guard usesLiquidGlassConfiguration || configuration != nil else { return }
         configurationUpdateHandler = nil
         if #available(iOS 15.0, *) {
             configuration = nil
