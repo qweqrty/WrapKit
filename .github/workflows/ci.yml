@@ -26,8 +26,8 @@ jobs:
             device: "iPhone 17 Pro"
     env:
       SCHEME_NAME: "WrapKit"
-      TUIST_VERSION: "4.38.2"
-      TUIST_SHA256: "14af45d18de9d3834ea32d4c9e572f8a69bf2c603963e950f4febbf5234d3b30"
+      XDG_CACHE_HOME: ${{ runner.temp }}/xdg-cache
+      WRAPKIT_CACHE_HOME: ${{ runner.temp }}/wrapkit-cache
 
     steps:
       # -----------------------------
@@ -52,6 +52,22 @@ jobs:
           sudo xcode-select -s "$xcode_path"
           xcodebuild -version
 
+      - name: Restore Tuist tool cache
+        id: tuist-tool-cache
+        continue-on-error: true
+        uses: actions/cache/restore@v4
+        with:
+          path: ${{ runner.temp }}/wrapkit-cache/tuist
+          key: wrapkit-tuist-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('Makefile', 'Scripts/ensure-tuist.sh') }}
+
+      - name: Restore SwiftPM dependency cache
+        id: swiftpm-cache
+        continue-on-error: true
+        uses: actions/cache/restore@v4
+        with:
+          path: ${{ runner.temp }}/xdg-cache/swifterpm
+          key: wrapkit-swiftpm-v3-${{ matrix.test_destination.runner }}-${{ runner.arch }}-xcode-${{ matrix.test_destination.xcode_version }}-${{ hashFiles('Tuist/Package.swift', 'Tuist/Package.resolved', 'Tuist/Package.registry.resolved', 'Tuist/Package.lock-state', 'Tuist/.swiftpm/configuration/registries.json') }}
+
       # -----------------------------
       # Install Tools
       # -----------------------------
@@ -60,25 +76,18 @@ jobs:
           brew install sourcery
           brew install swiftgen
           brew install swiftlint
-
-          tuist_archive="$RUNNER_TEMP/tuist.zip"
-          tuist_directory="$RUNNER_TEMP/tuist-$TUIST_VERSION"
-          curl -fsSL \
-            "https://github.com/tuist/tuist/releases/download/$TUIST_VERSION/tuist.zip" \
-            -o "$tuist_archive"
-          echo "$TUIST_SHA256  $tuist_archive" | shasum -a 256 -c -
-          rm -rf "$tuist_directory"
-          mkdir -p "$tuist_directory"
-          unzip -q "$tuist_archive" -d "$tuist_directory"
-          chmod +x "$tuist_directory/tuist"
-          sudo rm -f /opt/homebrew/bin/tuist
-          sudo ln -s "$tuist_directory/tuist" /opt/homebrew/bin/tuist
-          tuist version
       # -----------------------------
       # Generate / Build
       # -----------------------------
       - name: Run Makefile for Build
-        run: make project
+        run: make ci-project
+
+      - name: Read SwiftPM install mode
+        id: swiftpm-install
+        shell: bash
+        run: |
+          mode="$(cat Tuist/.build/.wrapkit-install-mode 2>/dev/null || true)"
+          echo "mode=$mode" >> "$GITHUB_OUTPUT"
 
       # -----------------------------
       # Ensure iOS Simulators
@@ -98,6 +107,22 @@ jobs:
             -workspace $SCHEME_NAME.xcworkspace \
             -scheme $SCHEME_NAME \
             -destination "platform=iOS Simulator,name=${{ matrix.test_destination.device }},OS=${{ matrix.test_destination.ios_version }}"
+
+      - name: Save Tuist tool cache
+        if: github.ref == 'refs/heads/main' && steps.tuist-tool-cache.outputs.cache-hit != 'true'
+        continue-on-error: true
+        uses: actions/cache/save@v4
+        with:
+          path: ${{ runner.temp }}/wrapkit-cache/tuist
+          key: ${{ steps.tuist-tool-cache.outputs.cache-primary-key }}
+
+      - name: Save Registry dependency cache
+        if: github.ref == 'refs/heads/main' && steps.swiftpm-cache.outputs.cache-hit != 'true' && steps.swiftpm-install.outputs.mode == 'registry'
+        continue-on-error: true
+        uses: actions/cache/save@v4
+        with:
+          path: ${{ runner.temp }}/xdg-cache/swifterpm
+          key: ${{ steps.swiftpm-cache.outputs.cache-primary-key }}
 
       # -----------------------------
       # Upload Snapshot Artifacts
