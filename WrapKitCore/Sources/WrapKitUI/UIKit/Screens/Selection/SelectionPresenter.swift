@@ -65,7 +65,7 @@ extension SelectionPresenter: SelectionInput, LifeCycleViewOutput {
         view?.display(shouldShowSearchBar: items.count > Self.shouldShowSearchBarThresholdCount)
         navBarView?.display(model: .init(
             style: configuration.navBar,
-            leadingCard: .init(title: .text(model.title)),
+            centerView: .keyValue(.init(.text(model.title), nil)),
             primeTrailingImage: configuration.content.backButtonImage.map { backButtonImage in
                     .init(image: backButtonImage, onPress: { [weak self] in
                         guard let self = self else { return }

@@ -48,7 +48,8 @@ public class SelectionContentView: UIView {
     public override func layoutSubviews() {
         super.layoutSubviews()
         
-        applyCornerStyle(.corners(.init(top: 12)))
+        let cornerRadius: CGFloat = isAvailableOS26 && isLiquidGlassEnabled ? 32 : 12
+        applyCornerStyle(.corners(.init(top: cornerRadius)))
     }
     
     required init?(coder: NSCoder) {
@@ -136,5 +137,4 @@ private extension SelectionContentView {
     }
 }
 #endif
-
 

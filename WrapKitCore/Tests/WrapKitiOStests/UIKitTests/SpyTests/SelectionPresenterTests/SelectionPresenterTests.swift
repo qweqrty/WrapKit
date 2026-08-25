@@ -35,8 +35,7 @@ final class SelectionPresenterTests: XCTestCase {
 
         let expectedModel = HeaderPresentableModel(
             style: config.navBar,
-            centerView: nil,
-            leadingCard: .init(id: headerSpy.capturedDisplayModel.first??.leadingCard?.id ?? "", title: .text("Select")),
+            centerView: .keyValue(.init(.text("Select"), nil)),
             primeTrailingImage: config.content.backButtonImage.map { .init(image: $0, onPress: headerSpy.capturedDisplayModel.first??.primeTrailingImage?.onPress) }
         )
 
