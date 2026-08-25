@@ -1110,7 +1110,7 @@ final class LabelSnapshotTests: XCTestCase {
     func test_label_output_html_Br() {
         // GIVEN
         let (sut, container) = makeSUT()
-        let snapshotName = "LABEL_HTML_BR"
+        let snapshotName = "LABEL_HTML"
 
         // THEN
         sut.display(htmlString: HtmlTestCases.example1, config: .init(size: 13, color: .red))
