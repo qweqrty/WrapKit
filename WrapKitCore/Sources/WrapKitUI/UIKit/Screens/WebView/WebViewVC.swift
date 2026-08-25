@@ -153,7 +153,7 @@ extension WebViewVC: WKNavigationDelegate {
             decisionHandler(.allow)
         case .cancelAndOpenExternally:
             decisionHandler(.cancel)
-            UIApplication.shared.open(url, options: [:], completionHandler: nil)
+            ApplicationURLUtils.open(.url(url))
         case .cancel:
             decisionHandler(.cancel)
         }
