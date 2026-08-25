@@ -1,5 +1,4 @@
-
-\#if os(iOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || targetEnvironment(macCatalyst)
 //
 //  SearchBarSnapshotTests.swift
 //  WrapKitTests
