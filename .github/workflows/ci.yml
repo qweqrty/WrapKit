@@ -26,8 +26,6 @@ jobs:
             device: "iPhone 17 Pro"
     env:
       SCHEME_NAME: "WrapKit"
-      XDG_CACHE_HOME: ${{ runner.temp }}/xdg-cache
-      WRAPKIT_CACHE_HOME: ${{ runner.temp }}/wrapkit-cache
 
     steps:
       # -----------------------------
@@ -51,6 +49,12 @@ jobs:
 
           sudo xcode-select -s "$xcode_path"
           xcodebuild -version
+
+      - name: Configure Cache Paths
+        shell: bash
+        run: |
+          echo "XDG_CACHE_HOME=$RUNNER_TEMP/xdg-cache" >> "$GITHUB_ENV"
+          echo "WRAPKIT_CACHE_HOME=$RUNNER_TEMP/wrapkit-cache" >> "$GITHUB_ENV"
 
       - name: Restore Tuist tool cache
         id: tuist-tool-cache
