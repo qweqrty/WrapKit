@@ -59,63 +59,11 @@ public struct SwitchControlPresentableModel {
     }
 }
 
-#if canImport(UIKit) && !os(watchOS)
+// - TODO: (MYO-7475): tvOS-реализация SwitchControl.
+// UISwitch на tvOS отсутствует. UISegmentedControl
+#if canImport(UIKit) && !os(watchOS) && !os(tvOS)
 import UIKit
 
-#if os(tvOS)
-open class SwitchControl: UISegmentedControl {
-    public var onPress: ((SwitchCotrolOutput & LoadingOutput) -> Void)?
-    public var isLoading: Bool?
-    private var switchStyle: SwitchControlPresentableModel.Style? {
-        didSet {
-            display(style: switchStyle)
-        }
-    }
-    private var wasUserSwitched = false
-
-    public var isOn: Bool {
-        get { selectedSegmentIndex == 1 }
-        set { selectedSegmentIndex = newValue ? 1 : 0 }
-    }
-
-    public init() {
-        super.init(items: Self.makeItems())
-        commonInit()
-    }
-
-    public init(style: SwitchControlPresentableModel.Style) {
-        super.init(items: Self.makeItems())
-        commonInit()
-        self.switchStyle = style
-        display(style: style)
-    }
-
-    private static func makeItems() -> [Any] {
-        [
-            WrapKit.Image(systemName: "xmark") as Any,
-            WrapKit.Image(systemName: "checkmark") as Any
-        ]
-    }
-
-    private func commonInit() {
-        selectedSegmentIndex = 0
-        addTarget(self, action: #selector(didPress), for: .valueChanged)
-    }
-
-    public func setOn(_ on: Bool, animated: Bool) {
-        selectedSegmentIndex = on ? 1 : 0
-    }
-
-    @objc private func didPress() {
-        wasUserSwitched = true
-        onPress?(self)
-    }
-
-    public required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-}
-#else
 open class SwitchControl: UISwitch {
     public var onPress: ((SwitchCotrolOutput & LoadingOutput) -> Void)?
     public var isLoading: Bool?
@@ -147,7 +95,6 @@ open class SwitchControl: UISwitch {
         fatalError("init(coder:) has not been implemented")
     }
 }
-#endif
 
 extension SwitchControl: SwitchCotrolOutput {
     
@@ -167,12 +114,8 @@ extension SwitchControl: SwitchCotrolOutput {
     }
     
     public func display(style: SwitchControlPresentableModel.Style?) {
-        #if os(tvOS)
-        selectedSegmentTintColor = style?.tintColor
-        #else
         onTintColor = style?.tintColor
         thumbTintColor = style?.thumbTintColor
-        #endif
         backgroundColor = style?.backgroundColor
         cornerRadius = style?.cornerRadius ?? 0
     }

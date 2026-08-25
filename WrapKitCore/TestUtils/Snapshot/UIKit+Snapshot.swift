@@ -1,4 +1,5 @@
-#if canImport(UIKit)
+// Snapshot-хелперы работают с UIView/UIWindow/UIScreen — только UIKit-платформы с окнами
+#if canImport(UIKit) && !os(watchOS) && !os(visionOS)
 import UIKit
 
 public extension UIViewController {

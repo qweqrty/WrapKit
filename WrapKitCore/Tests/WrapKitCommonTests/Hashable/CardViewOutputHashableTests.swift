@@ -1,3 +1,5 @@
+// Тест опирается на семантические цвета/изображения UIKit (.darkText, .systemBackground, .strokedCheckmark)
+#if canImport(UIKit) && !os(watchOS)
 import XCTest
 import Foundation
 import WrapKit
@@ -141,3 +143,4 @@ fileprivate extension CardViewPresentableModel.Style {
         )
     }
 }
+#endif

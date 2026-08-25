@@ -1,3 +1,4 @@
+#if os(iOS) || targetEnvironment(macCatalyst)
 //
 //  SwitchControlSnapshotTests.swift
 //  WrapKitTests
@@ -452,3 +453,4 @@ extension SwitchControlSnapshotTests {
         return container
     }
 }
+#endif

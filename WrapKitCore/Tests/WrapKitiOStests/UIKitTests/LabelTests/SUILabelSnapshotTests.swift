@@ -1,3 +1,4 @@
+#if os(iOS) || targetEnvironment(macCatalyst)
 ////
 ////  SUILabelSnapshotTests.swift
 ////  WrapKit
@@ -629,3 +630,4 @@
 //        return (adapter.weakReferenced, view)
 //    }
 //}
+#endif

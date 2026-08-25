@@ -1,3 +1,4 @@
+#if os(iOS) || targetEnvironment(macCatalyst)
 //
 //  TextfieldSnapshotTests.swift
 //  WrapKitTests
@@ -1774,3 +1775,4 @@ extension UITextField {
         return NSRange(location: loc, length: len)
     }
 }
+#endif

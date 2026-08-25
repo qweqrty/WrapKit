@@ -1,4 +1,5 @@
-#if canImport(SwiftUI)
+// Snapshot-хелперы построены на UIHostingController/UIScreen — только UIKit-платформы
+#if canImport(SwiftUI) && canImport(UIKit) && !os(watchOS) && !os(visionOS)
 import SwiftUI
 
 @available(iOS 17.0, macOS 14.0, tvOS 17.0, watchOS 10.0, *)

@@ -60,7 +60,9 @@ let package = Package(
                 "WrapKit",
             ],
             path: "WrapKitCore/TestUtils",
-            linkerSettings: [.linkedFramework("XCTest")]
+            linkerSettings: [
+                .linkedFramework("XCTest", .when(platforms: [.iOS, .macOS, .macCatalyst, .visionOS]))
+            ]
         ),
         .testTarget(
             name: "WrapKitTests",
