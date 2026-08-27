@@ -8,16 +8,24 @@ public extension XCTestCase {
         snapshot: UIImage,
         named name: String,
         precision: Float = 1,
+        perceptualPrecision: Float = 1,
+        alphaTolerance: UInt8 = 0,
         file: StaticString = #filePath,
         line: UInt = #line
     ) {
         let snapshotURL = makeSnapshotURL(named: name, file: file)
         
-        guard let storedSnapshotData = try? Data(contentsOf: snapshotURL), let oldImage = UIImage(data: storedSnapshotData) else {
+        guard let storedSnapshotData = try? Data(contentsOf: snapshotURL),
+              let oldImage = UIImage(data: storedSnapshotData, scale: snapshot.scale) else {
             XCTFail("Failed to load stored snapshot at URL: \(snapshotURL). Use the `record` method to store a snapshot before asserting.", file: file, line: line)
             return
         }
-        guard let diff = Diffing.image(precision: precision).diff(oldImage, snapshot) else { return }
+        let diffing = snapshotDiffing(
+            precision: precision,
+            perceptualPrecision: perceptualPrecision,
+            alphaTolerance: alphaTolerance
+        )
+        guard let diff = diffing.diff(oldImage, snapshot) else { return }
         
         let artifactsUrl = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
         let artifactsSubUrl = artifactsUrl.appendingPathComponent(name)
@@ -33,20 +41,71 @@ public extension XCTestCase {
         snapshot: UIImage,
         named name: String,
         precision: Float = 1,
+        perceptualPrecision: Float = 1,
+        alphaTolerance: UInt8 = 0,
         file: StaticString = #filePath,
         line: UInt = #line
     ) {
         let snapshotURL = makeSnapshotURL(named: name, file: file)
         
-        guard let storedSnapshotData = try? Data(contentsOf: snapshotURL), let oldImage = UIImage(data: storedSnapshotData) else {
+        guard let storedSnapshotData = try? Data(contentsOf: snapshotURL),
+              let oldImage = UIImage(data: storedSnapshotData, scale: snapshot.scale) else {
             XCTFail("Failed to load stored snapshot at URL: \(snapshotURL). Use the `record` method to store a snapshot before asserting.", file: file, line: line)
             return
         }
-        guard let diff = Diffing.image(precision: precision).diff(oldImage, snapshot)
+        guard snapshotDiffing(
+            precision: precision,
+            perceptualPrecision: perceptualPrecision,
+            alphaTolerance: alphaTolerance
+        ).diff(oldImage, snapshot) != nil
 //              diff.message.starts(with: "Images should be different.")
         else {
             XCTFail("Images should be different.", file: file, line: line)
             return
+        }
+    }
+
+    func assertSwiftUIParity(
+        snapshot swiftUISnapshot: UIImage,
+        matchingUIKit uiKitSnapshot: UIImage,
+        named name: String,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        assert(
+            reference: uiKitSnapshot,
+            snapshot: swiftUISnapshot,
+            diffing: .swiftUIParity,
+            artifactsName: "SwiftUI_\(name)",
+            file: file,
+            line: line
+        )
+    }
+
+    /// Use only when the scenario depends on UIKit-specific state that is not part of a shared
+    /// Output contract. This keeps the immutable UIKit baseline strict without pretending that
+    /// the same scenario was exercised by SwiftUI.
+    func assertUIKitOnlySnapshot(
+        snapshot: UIImage,
+        named name: String,
+        reason: String = "The scenario depends on UIKit-only state outside the shared Output contract.",
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        XCTContext.runActivity(named: "SwiftUI parity intentionally excluded: \(reason)") { _ in
+            assert(snapshot: snapshot, named: name, file: file, line: line)
+        }
+    }
+
+    func assertUIKitOnlySnapshotFail(
+        snapshot: UIImage,
+        named name: String,
+        reason: String = "The scenario depends on UIKit-only state outside the shared Output contract.",
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        XCTContext.runActivity(named: "SwiftUI parity intentionally excluded: \(reason)") { _ in
+            assertFail(snapshot: snapshot, named: name, file: file, line: line)
         }
     }
     
@@ -73,6 +132,21 @@ public extension XCTestCase {
             .appendingPathComponent("snapshots")
             .appendingPathComponent("\(name).png")
     }
+
+    private func snapshotDiffing(
+        precision: Float,
+        perceptualPrecision: Float,
+        alphaTolerance: UInt8
+    ) -> Diffing<UIImage> {
+        guard precision < 1 || perceptualPrecision < 1 || alphaTolerance > 0 else {
+            return .strictImage
+        }
+        return .image(
+            precision: precision,
+            perceptualPrecision: perceptualPrecision,
+            alphaTolerance: alphaTolerance
+        )
+    }
     
     private func makeSnapshotData(for snapshot: UIImage, file: StaticString, line: UInt) -> Data? {
         guard let data = snapshot.pngData() else {
@@ -82,6 +156,26 @@ public extension XCTestCase {
         
         return data
     }
+
+    private func assert(
+        reference: UIImage,
+        snapshot: UIImage,
+        diffing: Diffing<UIImage>,
+        artifactsName: String,
+        file: StaticString,
+        line: UInt
+    ) {
+        guard let diff = diffing.diff(reference, snapshot) else { return }
+
+        let artifactsURL = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
+            .appendingPathComponent(artifactsName)
+        try? FileManager.default.createDirectory(at: artifactsURL, withIntermediateDirectories: true)
+        try? reference.pngData()?.write(to: artifactsURL.appendingPathComponent("origin.png"))
+        try? diff.artifacts.diff.pngData()?.write(to: artifactsURL.appendingPathComponent("diff.png"))
+        try? diff.artifacts.image.pngData()?.write(to: artifactsURL.appendingPathComponent("new.png"))
+        XCTFail(diff.message + "\n Diff snapshot URL: \(artifactsURL)", file: file, line: line)
+    }
+
 }
 
 #endif

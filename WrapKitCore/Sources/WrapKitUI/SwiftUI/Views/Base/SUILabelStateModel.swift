@@ -24,15 +24,24 @@ public final class SUILabelStateModel: ObservableObject {
             .sink { [weak self] value in
                 guard let self, let value else { return }
                 self.cancelPendingAnimationCompletion()
-                self.presentable = value.model
-                self.isHidden = Self.shouldHide(value.model.model)
+                if let model = value.model {
+                    self.presentable = model
+                    self.isHidden = Self.shouldHide(model.model)
+                } else {
+                    self.presentable = .init(
+                        accessibilityIdentifier: nil,
+                        accessibility: nil,
+                        model: self.presentable.model
+                    )
+                    self.isHidden = true
+                }
             }
             .store(in: &cancellables)
         adapter.$displayTextState
             .sink { [weak self] value in
                 guard let self, let value else { return }
                 self.cancelPendingAnimationCompletion()
-                self.presentable = .text(value.text)
+                self.replaceContent(with: .text(value.text))
                 self.isHidden = value.text.isEmpty
             }
             .store(in: &cancellables)
@@ -40,7 +49,7 @@ public final class SUILabelStateModel: ObservableObject {
             .sink { [weak self] value in
                 guard let self, let value else { return }
                 self.cancelPendingAnimationCompletion()
-                self.presentable = .attributes(value.attributes)
+                self.replaceContent(with: .attributes(value.attributes))
                 self.isHidden = value.attributes.isEmpty
             }
             .store(in: &cancellables)
@@ -48,7 +57,9 @@ public final class SUILabelStateModel: ObservableObject {
             .sink { [weak self] value in
                 guard let self, let value else { return }
                 self.cancelPendingAnimationCompletion()
-                self.presentable = .init(model: value.textModel)
+                if let textModel = value.textModel {
+                    self.replaceContent(with: textModel)
+                }
                 self.isHidden = Self.shouldHide(value.textModel)
             }
             .store(in: &cancellables)
@@ -56,7 +67,7 @@ public final class SUILabelStateModel: ObservableObject {
             .sink { [weak self] value in
                 guard let self, let value else { return }
                 self.cancelPendingAnimationCompletion()
-                self.presentable = .attributedString(value.htmlString, config: value.config)
+                self.replaceContent(with: .attributedString(value.htmlString, config: value.config))
                 self.isHidden = value.htmlString?.isEmpty ?? true
             }
             .store(in: &cancellables)
@@ -64,7 +75,7 @@ public final class SUILabelStateModel: ObservableObject {
             .sink { [weak self] value in
                 guard let self, let value else { return }
                 self.cancelPendingAnimationCompletion()
-                self.presentable = .attributedString(value.htmlString, config: .default)
+                self.replaceContent(with: .attributedString(value.htmlString, config: .default))
                 self.isHidden = value.htmlString?.isEmpty ?? true
             }
             .store(in: &cancellables)
@@ -72,7 +83,7 @@ public final class SUILabelStateModel: ObservableObject {
             .sink { [weak self] value in
                 guard let self, let value else { return }
                 self.cancelPendingAnimationCompletion()
-                self.presentable = .animatedDecimal(
+                self.replaceContent(with: .animatedDecimal(
                     id: value.id,
                     from: value.startAmount,
                     to: value.endAmount,
@@ -80,13 +91,13 @@ public final class SUILabelStateModel: ObservableObject {
                     animationStyle: value.animationStyle,
                     duration: value.duration,
                     completion: nil
-                )
+                ))
                 self.isHidden = false
 
                 let completion = value.completion
                 let work = DispatchWorkItem { [weak self] in
                     guard let self else { return }
-                    self.presentable = .animatedDecimal(
+                    self.replaceContent(with: .animatedDecimal(
                         id: value.id,
                         from: value.endAmount,
                         to: value.endAmount,
@@ -94,7 +105,7 @@ public final class SUILabelStateModel: ObservableObject {
                         animationStyle: value.animationStyle,
                         duration: 0,
                         completion: nil
-                    )
+                    ))
                     completion?()
                 }
                 self.pendingAnimationCompletion = work
@@ -119,6 +130,37 @@ public final class SUILabelStateModel: ObservableObject {
     private func cancelPendingAnimationCompletion() {
         pendingAnimationCompletion?.cancel()
         pendingAnimationCompletion = nil
+    }
+
+    private func replaceContent(with replacement: TextOutputPresentableModel.TextModel) {
+        let current = presentable
+        let updatedModel: TextOutputPresentableModel.TextModel
+
+        if case .textStyled = replacement {
+            updatedModel = replacement
+        } else if case let .some(.textStyled(
+            _,
+            cornerStyle,
+            insets,
+            height,
+            backgroundColor
+        )) = current.model {
+            updatedModel = .textStyled(
+                text: replacement,
+                cornerStyle: cornerStyle,
+                insets: insets,
+                height: height,
+                backgroundColor: backgroundColor
+            )
+        } else {
+            updatedModel = replacement
+        }
+
+        presentable = .init(
+            accessibilityIdentifier: current.accessibilityIdentifier,
+            accessibility: current.accessibility,
+            model: updatedModel
+        )
     }
 
     private static func shouldHide(_ model: TextOutputPresentableModel.TextModel?) -> Bool {

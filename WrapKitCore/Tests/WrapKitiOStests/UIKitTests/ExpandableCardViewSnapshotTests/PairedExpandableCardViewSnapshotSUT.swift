@@ -2,163 +2,124 @@
 //  PairedExpandableCardViewSnapshotSUT.swift
 //  WrapKit
 //
-//  Created by Ulan Beishenkulov on 27/4/26.
-//
+
 import WrapKit
-import SwiftUI
+import WrapKitTestUtils
+import UIKit
 
 #if canImport(SwiftUI)
-final class PairedExpandableCardViewSnapshotSUT: NSObject, ExpandableCardViewOutput {
-    let uiKitView: ExpandableCardView
-    private let swiftUIAdapter: ExpandableCardViewOutputSwiftUIAdapter
+import SwiftUI
 
-    private var lastModel: Pair<CardViewPresentableModel, CardViewPresentableModel?>?
-    private var lastIsHidden: Bool = false
+final class PairedExpandableCardViewSnapshotSUT: NSObject, ExpandableCardViewOutput, PairedSnapshotSource {
+    let uiKitView: ExpandableCardView
+
+    private let uiKitContainer: UIView
+    private let swiftUIAdapter: ExpandableCardViewOutputSwiftUIAdapter
+    private let snapshotContainerHeight: CGFloat
+    private var snapshotStackSpacing: CGFloat = 0
+    private var snapshotPrimeCardHeight: CGFloat?
+    private var snapshotSecondaryCardHeight: CGFloat?
 
     init(
+        uiKitContainer: UIView,
         uiKitView: ExpandableCardView = ExpandableCardView(),
-        swiftUIAdapter: ExpandableCardViewOutputSwiftUIAdapter = ExpandableCardViewOutputSwiftUIAdapter()
+        swiftUIAdapter: ExpandableCardViewOutputSwiftUIAdapter = ExpandableCardViewOutputSwiftUIAdapter(),
+        snapshotContainerHeight: CGFloat = 390
     ) {
+        self.uiKitContainer = uiKitContainer
         self.uiKitView = uiKitView
         self.swiftUIAdapter = swiftUIAdapter
+        self.snapshotContainerHeight = snapshotContainerHeight
     }
-
-    var stackView: StackView { uiKitView.stackView }
-    var primeCardView: CardView { uiKitView.primeCardView }
-    var secondaryCardView: CardView { uiKitView.secondaryCardView }
 
     func layoutIfNeeded() {
         uiKitView.layoutIfNeeded()
     }
 
+    func configureSnapshotLayout(
+        stackSpacing: CGFloat,
+        primeCardHeight: CGFloat? = nil,
+        secondaryCardHeight: CGFloat? = nil
+    ) {
+        snapshotStackSpacing = stackSpacing
+        snapshotPrimeCardHeight = primeCardHeight
+        snapshotSecondaryCardHeight = secondaryCardHeight
+
+        uiKitView.stackView.spacing = stackSpacing
+        if let primeCardHeight {
+            uiKitView.primeCardView.constrainHeight(primeCardHeight)
+        }
+        if let secondaryCardHeight {
+            uiKitView.secondaryCardView.constrainHeight(secondaryCardHeight)
+        }
+    }
+
     func display(model: Pair<CardViewPresentableModel, CardViewPresentableModel?>) {
         uiKitView.display(model: model)
-        lastModel = model
         swiftUIAdapter.display(model: model)
     }
 
     func display(isHidden: Bool) {
         uiKitView.display(isHidden: isHidden)
-        lastIsHidden = isHidden
         swiftUIAdapter.display(isHidden: isHidden)
     }
 
+    func uiKitSnapshot(for appearance: SnapshotAppearance) -> UIImage {
+        uiKitContainer.snapshot(for: appearance.uiKitConfiguration)
+    }
+
     @available(iOS 17.0, *)
-    func swiftUISnapshot(for colorScheme: ColorScheme) -> UIImage {
-        uiKitView.layoutIfNeeded()
-
-        let resolvedPrimeHeight = resolvedHeight(
-            for: uiKitView.primeCardView,
-            fallback: uiKitView.primeCardView.exactHeightConstraintConstant
-        )
-        let resolvedSecondaryHeight = resolvedHeight(
-            for: uiKitView.secondaryCardView,
-            fallback: uiKitView.secondaryCardView.exactHeightConstraintConstant
-        )
-        let containerHeight = resolvedHeight(
-            for: uiKitView,
-            fallback: 390
-        ) ?? 390
-
-        let rootView = SnapshotMirroredExpandableCardContainer(
+    func swiftUISnapshot(for appearance: SnapshotAppearance) -> UIImage {
+        let content = SUIExpandableCardView(
             adapter: swiftUIAdapter,
-            stackSpacing: uiKitView.stackView.spacing,
-            primeCardHeight: resolvedPrimeHeight,
-            secondaryCardHeight: uiKitView.secondaryCardView.isHidden ? nil : resolvedSecondaryHeight,
-            containerHeight: containerHeight
+            stackSpacing: snapshotStackSpacing,
+            primeCardHeight: snapshotPrimeCardHeight,
+            secondaryCardHeight: snapshotSecondaryCardHeight
         )
+        let rootView = SnapshotMirroredExpandableCardContainer(
+            content: AnyView(content),
+            containerHeight: snapshotContainerHeight
+        )
+        .environment(\.colorScheme, appearance.colorScheme)
         .ignoresSafeArea(.all)
 
-        let hostingController = SwiftUI.UIHostingController(rootView: rootView)
+        let hostingController = UIHostingController(rootView: rootView)
+        hostingController.overrideUserInterfaceStyle = appearance.userInterfaceStyle
         hostingController.view.backgroundColor = .clear
 
-        let container = UIView(frame: CGRect(x: 0, y: 0, width: 390, height: 844))
-        container.backgroundColor = .clear
-        container.isOpaque = false
-        container.addSubview(hostingController.view)
-        hostingController.view.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            hostingController.view.topAnchor.constraint(equalTo: container.topAnchor),
-            hostingController.view.leadingAnchor.constraint(equalTo: container.leadingAnchor),
-            hostingController.view.trailingAnchor.constraint(equalTo: container.trailingAnchor),
-            hostingController.view.bottomAnchor.constraint(equalTo: container.bottomAnchor)
-        ])
+        prepareForRendering(hostingController)
+        return hostingController.snapshot(for: appearance.uiKitConfiguration)
+    }
 
-        replaySwiftUIState()
-
+    private func prepareForRendering(_ hostingController: UIViewController) {
+        hostingController.loadViewIfNeeded()
+        hostingController.view.frame = CGRect(origin: .zero, size: SnapshotConfiguration.size)
         let warmup: TimeInterval = 0.15
         RunLoop.main.run(until: Date().addingTimeInterval(warmup))
         hostingController.view.setNeedsLayout()
         hostingController.view.layoutIfNeeded()
         RunLoop.main.run(until: Date().addingTimeInterval(warmup))
-
-        return container.snapshot(
-            for: .iPhone(style: colorScheme == .dark ? .dark : .light)
-        )
-    }
-
-    private func resolvedHeight(for view: UIView, fallback: CGFloat?) -> CGFloat? {
-        if let fallback, fallback > 0 {
-            return fallback
-        }
-
-        let measuredHeight = view.bounds.height
-        if measuredHeight > 0 {
-            let scale = UIScreen.main.scale
-            return (measuredHeight * scale).rounded() / scale
-        }
-        return nil
-    }
-
-    private func replaySwiftUIState() {
-        let applyState = { [self] in
-            if let lastModel {
-                swiftUIAdapter.display(model: lastModel)
-            }
-            swiftUIAdapter.display(isHidden: lastIsHidden)
-        }
-
-        if Thread.isMainThread {
-            applyState()
-        } else {
-            DispatchQueue.main.sync {
-                applyState()
-            }
-        }
     }
 }
 
 @available(iOS 17.0, *)
-private struct SnapshotMirroredExpandableCardContainer: SwiftUI.View {
-    let adapter: ExpandableCardViewOutputSwiftUIAdapter
-    let stackSpacing: CGFloat
-    let primeCardHeight: CGFloat?
-    let secondaryCardHeight: CGFloat?
+private struct SnapshotMirroredExpandableCardContainer: View {
+    let content: AnyView
     let containerHeight: CGFloat
 
     var body: some View {
-        SwiftUI.VStack(spacing: 0) {
-            SUIExpandableCardView(
-                adapter: adapter,
-                stackSpacing: stackSpacing,
-                primeCardHeight: primeCardHeight,
-                secondaryCardHeight: secondaryCardHeight
-            )
-            .frame(maxWidth: .infinity, minHeight: containerHeight, maxHeight: containerHeight, alignment: .top)
-            SwiftUI.Spacer(minLength: 0)
+        VStack(spacing: 0) {
+            content
+                .frame(
+                    maxWidth: .infinity,
+                    minHeight: containerHeight,
+                    maxHeight: containerHeight,
+                    alignment: .top
+                )
+            Spacer(minLength: 0)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .background(SwiftUIColor.clear)
-    }
-}
-
-private extension UIView {
-    var exactHeightConstraintConstant: CGFloat? {
-        constraints.first { constraint in
-            constraint.firstAttribute == .height &&
-            constraint.relation == .equal &&
-            constraint.secondItem == nil
-        }?.constant
     }
 }
 #endif

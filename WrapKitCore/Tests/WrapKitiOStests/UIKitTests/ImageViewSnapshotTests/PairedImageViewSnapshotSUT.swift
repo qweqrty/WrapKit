@@ -1,355 +1,436 @@
-//
-//  PairedImageViewSnapshotSUT.swift
-//  WrapKit
-//
-//  Created by Ulan Beishenkulov on 22/4/26.
-//
-
 import Foundation
+import SwiftUI
 import WrapKit
 import WrapKitTestUtils
-import SwiftUI
+import XCTest
 
-final class PairedImageViewSnapshotSUT: NSObject {
+final class PairedImageViewSnapshotSUT: NSObject, ImageViewOutput, PairedSnapshotSource {
+    private struct SwiftUIHost {
+        let window: ImageSnapshotWindow
+        let controller: UIViewController
+    }
+
     let uiKitImageView = ImageView()
     let adapter = ImageViewOutputSwiftUIAdapter()
-    let state = PairedImageSnapshotState()
-    private var shouldCaptureSwiftUILoadingState = false
+    let configuration = PairedImageSnapshotConfiguration()
+    private let uiKitContainer = UIView()
+
+    private var lightHost: SwiftUIHost?
+    private var darkHost: SwiftUIHost?
+    private var lightSwiftUISnapshot: UIImage?
+    private var darkSwiftUISnapshot: UIImage?
+
+    override init() {
+        super.init()
+
+        uiKitContainer.frame = CGRect(x: 0, y: 0, width: 390, height: 300)
+        uiKitContainer.backgroundColor = .clear
+        uiKitContainer.addSubview(uiKitImageView)
+        uiKitImageView.anchor(
+            .top(uiKitContainer.topAnchor, constant: 0, priority: .required),
+            .leading(uiKitContainer.leadingAnchor, constant: 0, priority: .required),
+            .trailing(uiKitContainer.trailingAnchor, constant: 0, priority: .required),
+            .height(150, priority: .required)
+        )
+        uiKitContainer.layoutIfNeeded()
+
+        if #available(iOS 17, *) {
+            lightHost = makeSwiftUIHost(for: .light)
+            darkHost = makeSwiftUIHost(for: .dark)
+            settleSwiftUIHostsBeforeOutput()
+        }
+    }
+
+    deinit {
+        if #available(iOS 17, *) {
+            tearDownSwiftUIHost(lightHost)
+            tearDownSwiftUIHost(darkHost)
+        }
+    }
 
     func cleanup() {
-        uiKitImageView.display(image: nil, completion: nil)
-        uiKitImageView.display(onPress: nil)
-        uiKitImageView.display(onLongPress: nil)
+        invalidateSwiftUISnapshotCache()
+        display(image: nil, completion: nil)
+        display(onPress: nil)
+        display(onLongPress: nil)
+        display(size: nil)
+        display(borderWidth: nil)
+        display(borderColor: nil)
+        display(cornerRadius: nil)
+        display(alpha: nil)
+        display(isHidden: true)
+
         uiKitImageView.viewWhileLoadingView = nil
         uiKitImageView.fallbackView = nil
         uiKitImageView.wrongUrlPlaceholderImage = nil
-
-        state.backgroundColor = nil
-        state.viewWhileLoadingView = nil
-        state.fallbackView = nil
-        state.fallbackColor = nil
-        state.wrongUrlPlaceholderImage = nil
-        state.isHidden = true
-        state.alpha = nil
-
-        adapter.display(model: nil, completion: nil)
-        adapter.display(image: nil, completion: nil)
-        adapter.display(onPress: nil)
-        adapter.display(onLongPress: nil)
-        adapter.display(size: nil)
-        adapter.display(borderWidth: nil)
-        adapter.display(borderColor: nil)
-        adapter.display(cornerRadius: nil)
-        adapter.display(alpha: nil)
-        adapter.display(isHidden: true)
-        shouldCaptureSwiftUILoadingState = false
-        state.forceLoadingState = false
-        state.forceFallbackState = false
+        configuration.backgroundColor = nil
+        configuration.viewWhileLoadingView = nil
+        configuration.fallbackView = nil
+        configuration.wrongUrlPlaceholderImage = nil
     }
-}
 
-extension PairedImageViewSnapshotSUT {
     var backgroundColor: UIColor? {
         get { uiKitImageView.backgroundColor }
         set {
+            invalidateSwiftUISnapshotCache()
             uiKitImageView.backgroundColor = newValue
-            state.backgroundColor = newValue
+            configuration.backgroundColor = newValue
         }
     }
 
     var wrongUrlPlaceholderImage: UIImage? {
         get { uiKitImageView.wrongUrlPlaceholderImage }
         set {
+            invalidateSwiftUISnapshotCache()
             uiKitImageView.wrongUrlPlaceholderImage = newValue
-            state.wrongUrlPlaceholderImage = newValue
+            configuration.wrongUrlPlaceholderImage = newValue
         }
     }
 
-    var viewWhileLoadingView: ViewUIKit? {
-        get { uiKitImageView.viewWhileLoadingView }
-        set {
-            uiKitImageView.viewWhileLoadingView = newValue
-            state.viewWhileLoadingView = newValue.map { AnyView(PairedUIKitView(view: $0)) }
-            state.viewWhileLoadingColor = newValue?.backgroundColor
-        }
+    var onPress: (() -> Void)? { uiKitImageView.onPress }
+    var onLongPress: (() -> Void)? { uiKitImageView.onLongPress }
+
+    func configureLoadingView(color: UIColor?) {
+        invalidateSwiftUISnapshotCache()
+        uiKitImageView.viewWhileLoadingView = color.map { ViewUIKit(backgroundColor: $0) }
+        configuration.viewWhileLoadingView = color.map { AnyView(SwiftUI.Color(uiColor: $0)) }
     }
 
-    var fallbackView: ViewUIKit? {
-        get { uiKitImageView.fallbackView }
-        set {
-            uiKitImageView.fallbackView = newValue
-            state.fallbackView = newValue.map { AnyView(PairedUIKitView(view: $0)) }
-            state.fallbackColor = newValue?.backgroundColor
-        }
+    func configureFallbackView(color: UIColor?) {
+        invalidateSwiftUISnapshotCache()
+        uiKitImageView.fallbackView = color.map { ViewUIKit(backgroundColor: $0) }
+        configuration.fallbackView = color.map { AnyView(SwiftUI.Color(uiColor: $0)) }
     }
 
-    var onPress: (() -> Void)? {
-        get { uiKitImageView.onPress }
-        set {
-            uiKitImageView.onPress = newValue
-            adapter.display(onPress: newValue)
-        }
-    }
-
-    var onLongPress: (() -> Void)? {
-        get { uiKitImageView.onLongPress }
-        set {
-            uiKitImageView.onLongPress = newValue
-            adapter.display(onLongPress: newValue)
-        }
-    }
-}
-
-extension PairedImageViewSnapshotSUT: ImageViewOutput {
     func display(model: ImageViewPresentableModel?, completion: ((WrapKit.Image?) -> Void)?) {
-        let shouldCaptureLoading = shouldCaptureLoadingState(
-            hasCompletion: completion != nil,
-            image: model?.image
-        )
-        if shouldCaptureLoading {
-            uiKitImageView.display(model: model, completion: completion)
-        } else {
-            uiKitImageView.display(model: model) { [weak self] image in
-                self?.syncSwiftUIFinalState(with: image)
-                completion?(image)
-            }
-        }
-        adapter.display(model: model)
-        shouldCaptureSwiftUILoadingState = shouldCaptureLoading
-        state.forceLoadingState = shouldCaptureSwiftUILoadingState
-        if shouldCaptureSwiftUILoadingState {
-            state.forceFallbackState = false
-        }
+        invalidateSwiftUISnapshotCache()
+        let completions = makePairedCompletions(completion)
+        uiKitImageView.display(model: model, completion: completions.uiKit)
+        adapter.display(model: model, completion: completions.swiftUI)
     }
 
     func display(image: ImageEnum?, completion: ((WrapKit.Image?) -> Void)?) {
-        let shouldCaptureLoading = shouldCaptureLoadingState(
-            hasCompletion: completion != nil,
-            image: image
-        )
-        if shouldCaptureLoading {
-            uiKitImageView.display(image: image, completion: completion)
-        } else {
-            uiKitImageView.display(image: image) { [weak self] image in
-                self?.syncSwiftUIFinalState(with: image)
-                completion?(image)
-            }
-        }
-        adapter.display(image: image)
-        shouldCaptureSwiftUILoadingState = shouldCaptureLoading
-        state.forceLoadingState = shouldCaptureSwiftUILoadingState
-        if shouldCaptureSwiftUILoadingState {
-            state.forceFallbackState = false
-        }
+        invalidateSwiftUISnapshotCache()
+        let completions = makePairedCompletions(completion)
+        uiKitImageView.display(image: image, completion: completions.uiKit)
+        adapter.display(image: image, completion: completions.swiftUI)
     }
 
     func display(size: CGSize?) {
+        invalidateSwiftUISnapshotCache()
         uiKitImageView.display(size: size)
         adapter.display(size: size)
     }
 
     func display(onPress: (() -> Void)?) {
+        invalidateSwiftUISnapshotCache()
         uiKitImageView.display(onPress: onPress)
         adapter.display(onPress: onPress)
     }
 
     func display(onLongPress: (() -> Void)?) {
+        invalidateSwiftUISnapshotCache()
         uiKitImageView.display(onLongPress: onLongPress)
         adapter.display(onLongPress: onLongPress)
     }
 
     func display(contentModeIsFit: Bool) {
+        invalidateSwiftUISnapshotCache()
         uiKitImageView.display(contentModeIsFit: contentModeIsFit)
         adapter.display(contentModeIsFit: contentModeIsFit)
     }
 
     func display(borderWidth: CGFloat?) {
+        invalidateSwiftUISnapshotCache()
         uiKitImageView.display(borderWidth: borderWidth)
         adapter.display(borderWidth: borderWidth)
     }
 
     func display(borderColor: WrapKit.Color?) {
+        invalidateSwiftUISnapshotCache()
         uiKitImageView.display(borderColor: borderColor)
         adapter.display(borderColor: borderColor)
     }
 
     func display(cornerRadius: CGFloat?) {
+        invalidateSwiftUISnapshotCache()
         uiKitImageView.display(cornerRadius: cornerRadius)
         adapter.display(cornerRadius: cornerRadius)
     }
 
     func display(alpha: CGFloat?) {
+        invalidateSwiftUISnapshotCache()
         uiKitImageView.display(alpha: alpha)
         adapter.display(alpha: alpha)
-        state.alpha = alpha
     }
 
     func display(isHidden: Bool) {
+        invalidateSwiftUISnapshotCache()
         uiKitImageView.display(isHidden: isHidden)
         adapter.display(isHidden: isHidden)
-        state.isHidden = isHidden
-    }
-}
-
-private extension PairedImageViewSnapshotSUT {
-    func shouldCaptureLoadingState(hasCompletion: Bool, image: ImageEnum?) -> Bool {
-        guard hasCompletion == false, image?.isRemote == true else { return false }
-        return state.viewWhileLoadingView != nil && state.fallbackView == nil
     }
 
-    func syncSwiftUIFinalState(with image: WrapKit.Image?) {
-        state.forceLoadingState = false
-        state.forceFallbackState = image == nil && state.fallbackView != nil
-
-        if let image {
-            adapter.display(image: .asset(image.withRenderingMode(.alwaysOriginal)))
-        } else {
-            adapter.display(image: nil)
-        }
-    }
-}
-
-extension PairedImageViewSnapshotSUT {
     func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         uiKitImageView.touchesBegan(touches, with: event)
-        adapter.display(alpha: uiKitImageView.alpha)
     }
 
     func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         uiKitImageView.touchesEnded(touches, with: event)
-        adapter.display(alpha: uiKitImageView.alpha)
     }
 
-    func showFallbackForSnapshot() {
-        state.forceLoadingState = false
-        state.forceFallbackState = state.fallbackView != nil || state.fallbackColor != nil
+    func uiKitSnapshot(for appearance: SnapshotAppearance) -> UIImage {
+        uiKitContainer.snapshot(for: appearance.uiKitConfiguration)
     }
 
-    func showLoadingForSnapshot(color: UIColor?) {
-        state.forceFallbackState = false
-        state.forceLoadingState = true
-        if let color {
-            state.viewWhileLoadingColor = color
+    @available(iOS 17, *)
+    func swiftUISnapshot(for appearance: SnapshotAppearance) -> UIImage {
+        let style = appearance.colorScheme
+        if let cachedSnapshot = cachedSwiftUISnapshot(for: style) {
+            return cachedSnapshot
         }
+
+        let otherStyle: ColorScheme = style == .dark ? .light : .dark
+        guard let requestedHost = swiftUIHost(for: style),
+              let otherHost = swiftUIHost(for: otherStyle) else {
+            assertionFailure("SwiftUI image host must be prepared before sending Output events.")
+            return UIImage()
+        }
+
+        let requestedSnapshot = captureSwiftUISnapshot(host: requestedHost, for: style)
+        cacheSwiftUISnapshot(requestedSnapshot, for: style)
+
+        let otherSnapshot = captureSwiftUISnapshot(host: otherHost, for: otherStyle)
+        cacheSwiftUISnapshot(otherSnapshot, for: otherStyle)
+
+        return requestedSnapshot
     }
-}
 
-@available(iOS 17, *)
-extension PairedImageViewSnapshotSUT {
-    func swiftUISnapshot(for style: ColorScheme) -> UIImage {
-        let configuration = SUISnapshotConfiguration.iPhone(style: style)
-        let rootView = PairedImageSnapshotContainer(adapter: adapter, state: state)
-            .build(configuration: configuration, background: .clear)
+    private func makePairedCompletions(
+        _ completion: ((WrapKit.Image?) -> Void)?
+    ) -> (uiKit: ((WrapKit.Image?) -> Void)?, swiftUI: ((WrapKit.Image?) -> Void)?) {
+        guard let completion else { return (nil, nil) }
 
-        let hostingController = UIHostingController(rootView: rootView.ignoresSafeArea(.all))
-        hostingController.view.backgroundColor = .clear
-        let warmup = shouldCaptureSwiftUILoadingState ? 0.01 : 0.12
-        RunLoop.main.run(until: Date().addingTimeInterval(warmup))
-        hostingController.view.setNeedsLayout()
-        hostingController.view.layoutIfNeeded()
-        RunLoop.main.run(until: Date().addingTimeInterval(warmup))
+        let swiftUIConsumerCount: Int
+        if #available(iOS 17, *) {
+            // The persistent light and dark hosts must both consume the event before the public
+            // completion is released. Its image argument always remains UIKit's original result.
+            swiftUIConsumerCount = 2
+        } else {
+            swiftUIConsumerCount = 0
+        }
 
-        return hostingController.snapshot(
-            for: .iPhone(style: style == .dark ? .dark : .light)
+        let barrier = ImageCompletionBarrier(
+            swiftUIConsumerCount: swiftUIConsumerCount,
+            completion: completion
+        )
+        return (
+            uiKit: { barrier.recordUIKitResult($0) },
+            swiftUI: { barrier.recordSwiftUIResult($0) }
         )
     }
-}
 
-private extension ImageEnum {
-    var isRemote: Bool {
-        switch self {
-        case .url, .urlString:
-            return true
-        case .asset, .data:
-            return false
+    private func swiftUIHost(for style: ColorScheme) -> SwiftUIHost? {
+        style == .dark ? darkHost : lightHost
+    }
+
+    private func cachedSwiftUISnapshot(for style: ColorScheme) -> UIImage? {
+        style == .dark ? darkSwiftUISnapshot : lightSwiftUISnapshot
+    }
+
+    private func cacheSwiftUISnapshot(_ snapshot: UIImage, for style: ColorScheme) {
+        if style == .dark {
+            darkSwiftUISnapshot = snapshot
+        } else {
+            lightSwiftUISnapshot = snapshot
         }
+    }
+
+    private func invalidateSwiftUISnapshotCache() {
+        lightSwiftUISnapshot = nil
+        darkSwiftUISnapshot = nil
+    }
+
+    @available(iOS 17, *)
+    private func captureSwiftUISnapshot(
+        host: SwiftUIHost,
+        for style: ColorScheme
+    ) -> UIImage {
+        host.window.makeKeyAndVisible()
+        host.window.setNeedsLayout()
+        host.window.layoutIfNeeded()
+        RunLoop.main.run(until: Date().addingTimeInterval(0.05))
+        host.window.setNeedsLayout()
+        host.window.layoutIfNeeded()
+
+        return snapshotInPlace(host.window, for: style)
+    }
+
+    @available(iOS 17, *)
+    private func settleSwiftUIHostsBeforeOutput() {
+        let hosts = [lightHost, darkHost].compactMap { $0 }
+        hosts.forEach {
+            $0.window.makeKeyAndVisible()
+            $0.window.setNeedsLayout()
+            $0.window.layoutIfNeeded()
+        }
+        RunLoop.main.run(until: Date().addingTimeInterval(0.05))
+        hosts.forEach {
+            $0.window.setNeedsLayout()
+            $0.window.layoutIfNeeded()
+        }
+    }
+
+    @available(iOS 17, *)
+    private func makeSwiftUIHost(for style: ColorScheme) -> SwiftUIHost {
+        let swiftUIConfiguration = SUISnapshotConfiguration.iPhone(style: style)
+        let snapshotConfiguration = SnapshotConfiguration.iPhone(
+            style: style == .dark ? .dark : .light
+        )
+        let rootView = PairedImageSnapshotContainer(
+            adapter: adapter,
+            configuration: configuration
+        )
+        .build(configuration: swiftUIConfiguration, background: .clear)
+
+        let hostingController = UIHostingController(rootView: rootView.ignoresSafeArea(.all))
+        let interfaceStyle: UIUserInterfaceStyle = style == .dark ? .dark : .light
+        hostingController.overrideUserInterfaceStyle = interfaceStyle
+        hostingController.view.backgroundColor = .clear
+        hostingController.view.layoutMargins = snapshotConfiguration.layoutMargins
+
+        let hostWindow = ImageSnapshotWindow(configuration: snapshotConfiguration)
+        hostWindow.overrideUserInterfaceStyle = interfaceStyle
+        hostWindow.backgroundColor = .clear
+        if let windowScene = UIApplication.shared.connectedScenes
+            .compactMap({ $0 as? UIWindowScene })
+            .first(where: { $0.activationState == .foregroundActive }) {
+            hostWindow.windowScene = windowScene
+        }
+        hostWindow.rootViewController = hostingController
+        hostWindow.makeKeyAndVisible()
+        hostWindow.setNeedsLayout()
+        hostWindow.layoutIfNeeded()
+        return SwiftUIHost(window: hostWindow, controller: hostingController)
+    }
+
+    @available(iOS 17, *)
+    private func snapshotInPlace(_ window: UIWindow, for style: ColorScheme) -> UIImage {
+        let configuration = SnapshotConfiguration.iPhone(
+            style: style == .dark ? .dark : .light
+        )
+        let format = UIGraphicsImageRendererFormat(for: configuration.traitCollection)
+        format.scale = configuration.traitCollection.displayScale
+        format.preferredRange = .extended
+        format.opaque = false
+
+        return UIGraphicsImageRenderer(bounds: window.bounds, format: format).image { context in
+            if #available(iOS 26, *) {
+                window.drawHierarchy(in: window.bounds, afterScreenUpdates: true)
+            } else {
+                context.cgContext.setFillColorSpace(CGColorSpaceCreateDeviceRGB())
+                window.layer.render(in: context.cgContext)
+            }
+        }
+    }
+
+    @available(iOS 17, *)
+    private func tearDownSwiftUIHost(_ host: SwiftUIHost?) {
+        guard let host else { return }
+        host.window.rootViewController = nil
+        host.window.isHidden = true
+        host.window.resignKey()
+        host.window.windowScene = nil
     }
 }
 
-final class PairedImageSnapshotState: ObservableObject {
+private final class ImageSnapshotWindow: UIWindow {
+    let configuration: SnapshotConfiguration
+
+    init(configuration: SnapshotConfiguration) {
+        self.configuration = configuration
+        super.init(frame: CGRect(origin: .zero, size: configuration.size))
+        layoutMargins = configuration.layoutMargins
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    override var safeAreaInsets: UIEdgeInsets {
+        configuration.safeAreaInsets
+    }
+
+    override var traitCollection: UITraitCollection {
+        configuration.traitCollection
+    }
+}
+
+private final class ImageCompletionBarrier {
+    private var remainingSwiftUIConsumerCount: Int
+    private var didReceiveUIKitResult = false
+    private var uiKitImage: WrapKit.Image?
+    private var swiftUIImages: [WrapKit.Image?] = []
+    private var completion: ((WrapKit.Image?) -> Void)?
+
+    init(swiftUIConsumerCount: Int, completion: @escaping (WrapKit.Image?) -> Void) {
+        remainingSwiftUIConsumerCount = swiftUIConsumerCount
+        self.completion = completion
+    }
+
+    func recordUIKitResult(_ image: WrapKit.Image?) {
+        guard !didReceiveUIKitResult else { return }
+        didReceiveUIKitResult = true
+        uiKitImage = image
+        finishIfReady()
+    }
+
+    func recordSwiftUIResult(_ image: WrapKit.Image?) {
+        guard remainingSwiftUIConsumerCount > 0 else { return }
+        swiftUIImages.append(image)
+        remainingSwiftUIConsumerCount -= 1
+        finishIfReady()
+    }
+
+    private func finishIfReady() {
+        guard didReceiveUIKitResult, remainingSwiftUIConsumerCount == 0 else { return }
+        for swiftUIImage in swiftUIImages {
+            XCTAssertEqual(
+                swiftUIImage?.pngData(),
+                uiKitImage?.pngData(),
+                "SwiftUI and UIKit ImageViewOutput completions must return the same image."
+            )
+        }
+        let completion = completion
+        self.completion = nil
+        completion?(uiKitImage)
+    }
+}
+
+final class PairedImageSnapshotConfiguration: ObservableObject {
     @Published var backgroundColor: UIColor?
     @Published var viewWhileLoadingView: AnyView?
-    @Published var viewWhileLoadingColor: UIColor?
     @Published var fallbackView: AnyView?
-    @Published var fallbackColor: UIColor?
     @Published var wrongUrlPlaceholderImage: UIImage?
-    @Published var forceLoadingState: Bool = false
-    @Published var forceFallbackState: Bool = false
-    @Published var isHidden: Bool = false
-    @Published var alpha: CGFloat?
 }
 
 private struct PairedImageSnapshotContainer: View {
     let adapter: ImageViewOutputSwiftUIAdapter
-    @ObservedObject var state: PairedImageSnapshotState
+    @ObservedObject var configuration: PairedImageSnapshotConfiguration
 
     var body: some View {
-        ZStack(alignment: .topLeading) {
-            VStack(spacing: .zero) {
-                ZStack(alignment: .topLeading) {
-                    if !state.isHidden, let backgroundColor = state.backgroundColor {
-                        SwiftUIColor(backgroundColor).opacity(state.alpha ?? 1)
-                    }
+        VStack(spacing: 0) {
+            SUIImageView(
+                adapter: adapter,
+                viewWhileLoadingView: configuration.viewWhileLoadingView,
+                fallbackView: configuration.fallbackView,
+                wrongUrlPlaceholderImage: configuration.wrongUrlPlaceholderImage,
+                backgroundColor: configuration.backgroundColor.map { SwiftUI.Color(uiColor: $0) }
+            )
+            .frame(height: 150, alignment: .center)
+            .frame(maxWidth: .infinity, alignment: .leading)
 
-                    SUIImageView(
-                        adapter: adapter,
-                        viewWhileLoadingView: state.viewWhileLoadingView,
-                        fallbackView: state.fallbackView,
-                        wrongUrlPlaceholderImage: state.wrongUrlPlaceholderImage,
-                        backgroundColor: state.backgroundColor.map(SwiftUIColor.init)
-                    )
-                }
-                .frame(height: 150, alignment: .center)
-                .frame(maxWidth: .infinity, alignment: .leading)
-
-                Spacer()
-            }
-
-            if state.forceLoadingState, let loading = state.viewWhileLoadingView {
-                Group {
-                    if let color = state.viewWhileLoadingColor {
-                        SwiftUIColor(color)
-                    } else {
-                        loading
-                    }
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .frame(height: 150, alignment: .topLeading)
-            }
-
-            if state.forceFallbackState, let fallback = state.fallbackView {
-                Group {
-                    if let color = state.fallbackColor {
-                        SwiftUIColor(color)
-                    } else {
-                        fallback
-                    }
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .frame(height: 150, alignment: .topLeading)
-            }
-        }
-    }
-}
-
-private struct PairedUIKitView: UIViewRepresentable {
-    let view: UIView
-
-    func makeUIView(context: Context) -> UIView {
-        let container = UIView()
-        view.removeFromSuperview()
-        container.addSubview(view)
-        view.frame = container.bounds
-        view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        return container
-    }
-
-    func updateUIView(_ uiView: UIView, context: Context) {
-        if view.superview !== uiView {
-            view.removeFromSuperview()
-            uiView.addSubview(view)
-            view.frame = uiView.bounds
-            view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+            Spacer()
         }
     }
 }

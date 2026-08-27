@@ -136,14 +136,9 @@ public class ImageViewOutputSwiftUIAdapter: ObservableObject, ImageViewOutput {
     }
     @Published public var displayModelState: DisplayModelState? = nil
     public struct DisplayModelState {
-        public let model: ImageViewPresentableModel
+        public let model: ImageViewPresentableModel?
     }
     public func display(model: ImageViewPresentableModel?) {
-        guard let model else {
-            display(isHidden: true)
-            return
-        }
-        display(isHidden: false)
         displayModelState = .init(
             model: model
         )

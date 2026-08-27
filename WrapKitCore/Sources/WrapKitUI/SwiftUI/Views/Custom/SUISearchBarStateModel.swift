@@ -18,10 +18,10 @@ final class SUISearchBarStateModel: ObservableObject {
     let cornerRadius: CGFloat
     let padding: SwiftUI.EdgeInsets
     let textFieldAdapter = TextInputOutputSwiftUIAdapter()
-
-    var textFieldHeight: CGFloat {
-        appearance.font.lineHeight + padding.top + padding.bottom
-    }
+    let leftButtonAdapter: ButtonOutputSwiftUIAdapter
+    let rightButtonAdapter: ButtonOutputSwiftUIAdapter
+    let leftButtonStateModel: SUIButtonStateModel
+    let rightButtonStateModel: SUIButtonStateModel
 
     private var cancellables: Set<AnyCancellable> = []
 
@@ -32,10 +32,17 @@ final class SUISearchBarStateModel: ObservableObject {
         cornerRadius: CGFloat,
         padding: SwiftUI.EdgeInsets
     ) {
+        let leftButtonAdapter = ButtonOutputSwiftUIAdapter()
+        let rightButtonAdapter = ButtonOutputSwiftUIAdapter()
+
         self.appearance = appearance
         self.spacing = spacing
         self.cornerRadius = cornerRadius
         self.padding = padding
+        self.leftButtonAdapter = leftButtonAdapter
+        self.rightButtonAdapter = rightButtonAdapter
+        self.leftButtonStateModel = SUIButtonStateModel(adapter: leftButtonAdapter)
+        self.rightButtonStateModel = SUIButtonStateModel(adapter: rightButtonAdapter)
 
         adapter.$displayModelState
             .sink { [weak self] state in
@@ -57,6 +64,7 @@ final class SUISearchBarStateModel: ObservableObject {
             .sink { [weak self] state in
                 guard let state else { return }
                 self?.leftView = state.leftView
+                self?.leftButtonAdapter.display(model: state.leftView)
             }
             .store(in: &cancellables)
 
@@ -64,6 +72,7 @@ final class SUISearchBarStateModel: ObservableObject {
             .sink { [weak self] state in
                 guard let state else { return }
                 self?.rightView = state.rightView
+                self?.rightButtonAdapter.display(model: state.rightView)
             }
             .store(in: &cancellables)
 
@@ -94,20 +103,17 @@ final class SUISearchBarStateModel: ObservableObject {
 
     private func apply(model: SearchBarPresentableModel?) {
         isHidden = model == nil
-        guard let model else {
-            clear()
-            return
-        }
+        guard let model else { return }
 
         textField = model.textField
         isTextFieldHidden = model.textField == nil
         textFieldAdapter.display(model: model.textField)
         leftView = model.leftView
+        leftButtonAdapter.display(model: model.leftView)
         rightView = model.rightView
+        rightButtonAdapter.display(model: model.rightView)
         placeholder = model.placeholder
-        if model.textField?.placeholder == nil {
-            textFieldAdapter.display(placeholder: model.placeholder)
-        }
+        textFieldAdapter.display(placeholder: model.placeholder)
         if let backgroundColor = model.backgroundColor {
             self.backgroundColor = backgroundColor
         }
@@ -116,14 +122,5 @@ final class SUISearchBarStateModel: ObservableObject {
         }
     }
 
-    private func clear() {
-        textField = nil
-        textFieldAdapter.display(model: nil)
-        isTextFieldHidden = false
-        leftView = nil
-        rightView = nil
-        placeholder = nil
-        backgroundColor = nil
-    }
 }
 #endif

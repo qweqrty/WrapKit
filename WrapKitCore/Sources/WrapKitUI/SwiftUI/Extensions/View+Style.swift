@@ -83,48 +83,83 @@ private extension CornerStyle {
     }
 }
 
-struct SUICornerShape: Shape {
+struct SUICornerShape: InsettableShape {
     let style: CornerStyle
+    private var insetAmount: CGFloat = 0
+
+    init(style: CornerStyle) {
+        self.style = style
+    }
 
     func path(in rect: CGRect) -> Path {
-        let radii = cornerRadii(in: rect)
+        let insetRect = rect.insetBy(dx: insetAmount, dy: insetAmount)
+        let radii = cornerRadii(in: insetRect)
+
+        if #available(iOS 26, macOS 26, tvOS 26, watchOS 26, visionOS 26, *) {
+            if case .automatic = style {
+                return Capsule(style: .continuous).path(in: insetRect)
+            }
+            return Path(
+                roundedRect: insetRect,
+                cornerRadii: .init(
+                    topLeading: radii.topLeft,
+                    bottomLeading: radii.bottomLeft,
+                    bottomTrailing: radii.bottomRight,
+                    topTrailing: radii.topRight
+                ),
+                style: .continuous
+            )
+        }
+
         var path = Path()
 
-        path.move(to: CGPoint(x: rect.minX + radii.topLeft, y: rect.minY))
-        path.addLine(to: CGPoint(x: rect.maxX - radii.topRight, y: rect.minY))
+        path.move(to: CGPoint(x: insetRect.minX + radii.topLeft, y: insetRect.minY))
+        path.addLine(to: CGPoint(x: insetRect.maxX - radii.topRight, y: insetRect.minY))
         addArc(
             to: &path,
-            center: CGPoint(x: rect.maxX - radii.topRight, y: rect.minY + radii.topRight),
+            center: CGPoint(x: insetRect.maxX - radii.topRight, y: insetRect.minY + radii.topRight),
             radius: radii.topRight,
             startAngle: -90,
             endAngle: 0
         )
-        path.addLine(to: CGPoint(x: rect.maxX, y: rect.maxY - radii.bottomRight))
+        path.addLine(to: CGPoint(x: insetRect.maxX, y: insetRect.maxY - radii.bottomRight))
         addArc(
             to: &path,
-            center: CGPoint(x: rect.maxX - radii.bottomRight, y: rect.maxY - radii.bottomRight),
+            center: CGPoint(
+                x: insetRect.maxX - radii.bottomRight,
+                y: insetRect.maxY - radii.bottomRight
+            ),
             radius: radii.bottomRight,
             startAngle: 0,
             endAngle: 90
         )
-        path.addLine(to: CGPoint(x: rect.minX + radii.bottomLeft, y: rect.maxY))
+        path.addLine(to: CGPoint(x: insetRect.minX + radii.bottomLeft, y: insetRect.maxY))
         addArc(
             to: &path,
-            center: CGPoint(x: rect.minX + radii.bottomLeft, y: rect.maxY - radii.bottomLeft),
+            center: CGPoint(
+                x: insetRect.minX + radii.bottomLeft,
+                y: insetRect.maxY - radii.bottomLeft
+            ),
             radius: radii.bottomLeft,
             startAngle: 90,
             endAngle: 180
         )
-        path.addLine(to: CGPoint(x: rect.minX, y: rect.minY + radii.topLeft))
+        path.addLine(to: CGPoint(x: insetRect.minX, y: insetRect.minY + radii.topLeft))
         addArc(
             to: &path,
-            center: CGPoint(x: rect.minX + radii.topLeft, y: rect.minY + radii.topLeft),
+            center: CGPoint(x: insetRect.minX + radii.topLeft, y: insetRect.minY + radii.topLeft),
             radius: radii.topLeft,
             startAngle: 180,
             endAngle: 270
         )
         path.closeSubpath()
         return path
+    }
+
+    func inset(by amount: CGFloat) -> SUICornerShape {
+        var copy = self
+        copy.insetAmount += amount
+        return copy
     }
 
     private func addArc(
@@ -159,14 +194,20 @@ struct SUICornerShape: Shape {
                 bottomRight: maximumRadius
             )
         case .fixed(let radius):
+            let insetRadius = max(radius - insetAmount, 0)
             source = .init(
-                topLeft: radius,
-                topRight: radius,
-                bottomLeft: radius,
-                bottomRight: radius
+                topLeft: insetRadius,
+                topRight: insetRadius,
+                bottomLeft: insetRadius,
+                bottomRight: insetRadius
             )
         case .corners(let corners):
-            source = corners
+            source = .init(
+                topLeft: max(corners.topLeft - insetAmount, 0),
+                topRight: max(corners.topRight - insetAmount, 0),
+                bottomLeft: max(corners.bottomLeft - insetAmount, 0),
+                bottomRight: max(corners.bottomRight - insetAmount, 0)
+            )
         case .none:
             source = .init(topLeft: 0, topRight: 0, bottomLeft: 0, bottomRight: 0)
         }

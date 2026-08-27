@@ -9,16 +9,11 @@ import WrapKit
 import WrapKitTestUtils
 import XCTest
 
-#if canImport(SwiftUI)
-import SwiftUI
-#endif
-
 final class ExpandableCardViewSnapshotTests: XCTestCase {
-    private weak var currentPairedSUT: PairedExpandableCardViewSnapshotSUT?
     
     func test_expandableCardView_display_only_prime_model() {
         // GIVEN
-        let (sut, container) = makeSUT()
+        let sut = makeSUT()
         let snapshotName = "EXPANABLE_CARD_VIEW_DISPLAY_ONLY_PRIME_MODEL"
         
         // WHEN
@@ -50,18 +45,12 @@ final class ExpandableCardViewSnapshotTests: XCTestCase {
         sut.display(model: .init(primeModel, nil))
         
         // THEN
-        if #available(iOS 26, *) {
-            assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        } 
+        assert(snapshot: sut, named: snapshotName)
     }
     
     func test_fail_expandableCardView_display_only_prime_model() {
         // GIVEN
-        let (sut, container) = makeSUT()
+        let sut = makeSUT()
         let snapshotName = "EXPANABLE_CARD_VIEW_DISPLAY_ONLY_PRIME_MODEL"
         
         // WHEN
@@ -93,18 +82,12 @@ final class ExpandableCardViewSnapshotTests: XCTestCase {
         sut.display(model: .init(primeModel, nil))
         
         // THEN
-        if #available(iOS 26, *) {
-            assertPairedSnapshotFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertPairedSnapshotFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assertPairedSnapshotFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertPairedSnapshotFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assertFail(snapshot: sut, named: snapshotName)
     }
     
     func test_expandableCardView_display_both_models() {
         // GIVEN
-        let (sut, container) = makeSUT()
+        let sut = makeSUT()
         let snapshotName = "EXPANDABLECARDVIEW_DISPLAY_BOTH"
         
         // WHEN
@@ -158,22 +141,16 @@ final class ExpandableCardViewSnapshotTests: XCTestCase {
             title: .text("Secondary title")
         )
         
-        sut.stackView.spacing = 10
+        sut.configureSnapshotLayout(stackSpacing: 10)
         sut.display(model: .init(primeModel, secondaryModel))
         
         // THEN
-        if #available(iOS 26, *) {
-            assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        } 
+        assert(snapshot: sut, named: snapshotName)
     }
     
     func test_fail_expandableCardView_display_both_models() {
         // GIVEN
-        let (sut, container) = makeSUT()
+        let sut = makeSUT()
         let snapshotName = "EXPANDABLECARDVIEW_DISPLAY_BOTH"
         
         // WHEN
@@ -227,22 +204,16 @@ final class ExpandableCardViewSnapshotTests: XCTestCase {
             title: .text("Secondary title")
         )
         
-        sut.stackView.spacing = 10
+        sut.configureSnapshotLayout(stackSpacing: 10)
         sut.display(model: .init(primeModel, secondaryModel))
         
         // THEN
-        if #available(iOS 26, *) {
-            assertPairedSnapshotFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertPairedSnapshotFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assertPairedSnapshotFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertPairedSnapshotFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assertFail(snapshot: sut, named: snapshotName)
     }
     
     func test_expandableCardView_with_content() {
         // GIVEN
-        let (sut, container) = makeSUT()
+        let sut = makeSUT()
         let image = WrapKit.Image(systemName: "star.fill")
         let snapshotName = "EXPANDABLECARDVIEW_WITH_CONTENT"
         
@@ -304,43 +275,23 @@ final class ExpandableCardViewSnapshotTests: XCTestCase {
             leadingImage: .init(image: .asset(image)),
         )
         
-        sut.stackView.spacing = 10
-        sut.primeCardView.constrainHeight(120)
-        sut.secondaryCardView.constrainHeight(120)
+        sut.configureSnapshotLayout(
+            stackSpacing: 10,
+            primeCardHeight: 120,
+            secondaryCardHeight: 120
+        )
         
         sut.display(model: .init(primeModel, secondaryModel))
         
         sut.layoutIfNeeded()
         
         // THEN
-        if #available(iOS 26, *) {
-            assertPairedSnapshot(
-                snapshot: container.snapshot(for: .iPhone(style: .light)),
-                named: "iOS26_\(snapshotName)_LIGHT",
-                swiftUIPrecision: 0.97
-            )
-            assertPairedSnapshot(
-                snapshot: container.snapshot(for: .iPhone(style: .dark)),
-                named: "iOS26_\(snapshotName)_DARK",
-                swiftUIPrecision: 0.97
-            )
-        } else {
-            assertPairedSnapshot(
-                snapshot: container.snapshot(for: .iPhone(style: .light)),
-                named: "iOS18.5_\(snapshotName)_LIGHT",
-                swiftUIPrecision: 0.97
-            )
-            assertPairedSnapshot(
-                snapshot: container.snapshot(for: .iPhone(style: .dark)),
-                named: "iOS18.5_\(snapshotName)_DARK",
-                swiftUIPrecision: 0.97
-            )
-        } 
+        assert(snapshot: sut, named: snapshotName)
     }
     
     func test_fail_expandableCardView_with_content() {
         // GIVEN
-        let (sut, container) = makeSUT()
+        let sut = makeSUT()
         let image = WrapKit.Image(systemName: "star")
         let snapshotName = "EXPANDABLECARDVIEW_WITH_CONTENT"
         
@@ -402,112 +353,29 @@ final class ExpandableCardViewSnapshotTests: XCTestCase {
             leadingImage: .init(image: .asset(image)),
         )
         
-        sut.stackView.spacing = 10
-        sut.primeCardView.constrainHeight(120)
-        sut.secondaryCardView.constrainHeight(120)
+        sut.configureSnapshotLayout(
+            stackSpacing: 10,
+            primeCardHeight: 120,
+            secondaryCardHeight: 120
+        )
         
         sut.display(model: .init(primeModel, secondaryModel))
         
         sut.layoutIfNeeded()
         
         // THEN
-        if #available(iOS 26, *) {
-            assertPairedSnapshotFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertPairedSnapshotFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assertPairedSnapshotFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertPairedSnapshotFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assertFail(snapshot: sut, named: snapshotName)
     }
 }
 
 extension ExpandableCardViewSnapshotTests {
-    func recordPairedSnapshot(
-        snapshot: UIImage,
-        named name: String,
-        file: StaticString = #filePath,
-        line: UInt = #line
-    ) {
-        record(
-            snapshot: snapshot,
-            named: name,
-            file: file,
-            line: line
-        )
-    }
-
-    func assertPairedSnapshot(
-        snapshot: UIImage,
-        named name: String,
-        precision: Float = 1,
-        swiftUIPrecision: Float? = nil,
-        file: StaticString = #filePath,
-        line: UInt = #line
-    ) {
-        let uiKitName = resolvedUIKitSnapshotName(for: name, file: file)
-        assert(snapshot: snapshot, named: uiKitName, precision: precision, file: file, line: line)
-
-        if #available(iOS 17.0, *),
-           let swiftUISnapshot = currentPairedSUT?.swiftUISnapshot(for: colorScheme(from: name)) {
-            assert(
-                snapshot: swiftUISnapshot,
-                named: uiKitName,
-                precision: swiftUIPrecision ?? SwiftUISnapshotPrecision.standard,
-                file: file,
-                line: line
-            )
-        }
-    }
-
-    func assertPairedSnapshotFail(
-        snapshot: UIImage,
-        named name: String,
-        precision: Float = 1,
-        file: StaticString = #filePath,
-        line: UInt = #line
-    ) {
-        let uiKitName = resolvedUIKitSnapshotName(for: name, file: file)
-        assertFail(snapshot: snapshot, named: uiKitName, precision: precision, file: file, line: line)
-
-        if #available(iOS 17.0, *),
-           let swiftUISnapshot = currentPairedSUT?.swiftUISnapshot(for: colorScheme(from: name)) {
-            assertFail(
-                snapshot: swiftUISnapshot,
-                named: uiKitName,
-                precision: SwiftUISnapshotPrecision.fail,
-                file: file,
-                line: line
-            )
-        }
-    }
-
-    func resolvedUIKitSnapshotName(for snapshotName: String, file: StaticString) -> String {
-        if snapshotExists(named: snapshotName, file: file) {
-            return snapshotName
-        }
-        return snapshotName
-    }
-
-    func snapshotExists(named name: String, file: StaticString) -> Bool {
-        let url = URL(fileURLWithPath: String(describing: file))
-            .deletingLastPathComponent()
-            .appendingPathComponent("snapshots")
-            .appendingPathComponent("\(name).png")
-        return FileManager.default.fileExists(atPath: url.path)
-    }
-
-    func colorScheme(from snapshotName: String) -> ColorScheme {
-        snapshotName.hasSuffix("_DARK") ? .dark : .light
-    }
-
     func makeSUT(
         file: StaticString = #file,
         line: UInt = #line
-    ) -> (sut: PairedExpandableCardViewSnapshotSUT, container: UIView) {
-        
-        let sut = PairedExpandableCardViewSnapshotSUT()
+    ) -> PairedExpandableCardViewSnapshotSUT {
         let container = makeContainer()
-        
+        let sut = PairedExpandableCardViewSnapshotSUT(uiKitContainer: container)
+
         container.addSubview(sut.uiKitView)
         sut.uiKitView.anchor(
             .top(container.topAnchor, constant: 0, priority: .required),
@@ -515,15 +383,13 @@ extension ExpandableCardViewSnapshotTests {
             .trailing(container.trailingAnchor, constant: 0, priority: .required),
             .height(390, priority: .required)
         )
-        
         container.layoutIfNeeded()
-        
-        currentPairedSUT = sut
+
         checkForMemoryLeaks(sut, file: file, line: line)
         checkForMemoryLeaks(sut.uiKitView, file: file, line: line)
-        return (sut, container)
+        return sut
     }
-    
+
     func makeContainer() -> UIView {
         let container = UIView()
         container.frame = CGRect(x: 0, y: 0, width: 390, height: 844)

@@ -6,7 +6,7 @@
 //
 
 import Combine
-import UIKit
+import Foundation
 
 public final class SUIButtonStateModel: ObservableObject {
     @Published var presentable: ButtonPresentableModel = .init()
@@ -14,13 +14,13 @@ public final class SUIButtonStateModel: ObservableObject {
     @Published var isEnabled: Bool = true
     @Published var isLoading: Bool = false
     
-    @Published private var adapter: ButtonOutputSwiftUIAdapter
+    private let adapter: ButtonOutputSwiftUIAdapter
     
     private var cancellables: Set<AnyCancellable> = []
     
     public init(
         adapter: ButtonOutputSwiftUIAdapter,
-                loadingAdapter: LoadingOutputSwiftUIAdapter? = nil
+        loadingAdapter: LoadingOutputSwiftUIAdapter? = nil
     ) {
         self.adapter = adapter
         
@@ -28,9 +28,22 @@ public final class SUIButtonStateModel: ObservableObject {
             .compactMap { $0 }
             .sink { [weak self] value in
                 guard let self else { return }
-                self.presentable = value.model
-                self.isHidden = false
-                if let enabled = value.model.enabled {
+                let current = self.presentable
+                let model = value.model
+                self.presentable = ButtonPresentableModel(
+                    accessibilityIdentifier: model?.accessibilityIdentifier,
+                    accessibility: model?.accessibility,
+                    title: model?.title,
+                    image: model?.image,
+                    spacing: model?.spacing ?? current.spacing,
+                    height: model?.height ?? current.height,
+                    width: model?.width,
+                    style: model?.style ?? current.style,
+                    enabled: model?.enabled ?? current.enabled,
+                    onPress: model?.onPress
+                )
+                self.isHidden = model == nil
+                if let enabled = model?.enabled {
                     self.isEnabled = enabled
                 }
             }
@@ -46,7 +59,9 @@ public final class SUIButtonStateModel: ObservableObject {
         adapter.$displayEnabledState
             .compactMap { $0 }
             .sink { [weak self] value in
-                self?.isEnabled = value.enabled
+                guard let self else { return }
+                self.isEnabled = value.enabled
+                self.presentable = self.presentable.merging(enabled: value.enabled)
             }
             .store(in: &cancellables)
         
@@ -69,8 +84,8 @@ public final class SUIButtonStateModel: ObservableObject {
         adapter.$displayStyleState
             .compactMap { $0 }
             .sink { [weak self] value in
-                guard let self else { return }
-                self.presentable = self.presentable.merging(style: value.style)
+                guard let self, let style = value.style else { return }
+                self.presentable = self.presentable.merging(style: style)
             }
             .store(in: &cancellables)
         
@@ -98,6 +113,13 @@ public final class SUIButtonStateModel: ObservableObject {
             }
             .store(in: &cancellables)
         
+        loadingAdapter?.$isLoading
+            .compactMap { $0 }
+            .sink { [weak self] value in
+                self?.isLoading = value
+            }
+            .store(in: &cancellables)
+
         loadingAdapter?.$displayIsLoadingState
             .compactMap { $0 }
             .sink { [weak self] value in
@@ -114,6 +136,7 @@ private extension ButtonPresentableModel {
         style: ButtonStyle?? = .none,
         spacing: CGFloat? = nil,
         height: CGFloat? = nil,
+        enabled: Bool? = nil,
         onPress: (() -> Void)?? = .none
     ) -> ButtonPresentableModel {
         ButtonPresentableModel(
@@ -125,7 +148,7 @@ private extension ButtonPresentableModel {
             height: height ?? self.height,
             width: self.width,
             style: style ?? self.style,
-            enabled: self.enabled,
+            enabled: enabled ?? self.enabled,
             onPress: onPress ?? self.onPress
         )
     }

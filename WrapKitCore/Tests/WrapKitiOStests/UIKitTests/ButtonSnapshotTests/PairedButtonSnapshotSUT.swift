@@ -1,3 +1,8 @@
+//
+//  PairedButtonSnapshotSUT.swift
+//  WrapKitTests
+//
+
 import WrapKit
 import WrapKitTestUtils
 import UIKit
@@ -5,11 +10,13 @@ import UIKit
 #if canImport(SwiftUI)
 import SwiftUI
 
-final class PairedButtonSnapshotSUT {
+final class PairedButtonSnapshotSUT: ButtonOutput, LoadingOutput, PairedSnapshotSource {
     let uiKitButton: WrapKit.Button
+
+    private let uiKitContainer: UIView
     private let swiftUIAdapter: ButtonOutputSwiftUIAdapter
     private let loadingAdapter: LoadingOutputSwiftUIAdapter
-    private var lastStyle: WrapKit.ButtonStyle?
+    private let swiftUIView: AnyView
 
     init(
         height: CGFloat = 60,
@@ -17,41 +24,29 @@ final class PairedButtonSnapshotSUT {
         swiftUIAdapter: ButtonOutputSwiftUIAdapter = ButtonOutputSwiftUIAdapter(),
         loadingAdapter: LoadingOutputSwiftUIAdapter = LoadingOutputSwiftUIAdapter()
     ) {
+        let container = UIView()
+        container.frame = CGRect(x: 0, y: 0, width: 390, height: 300)
+        container.backgroundColor = .clear
+        container.addSubview(uiKitButton)
+        uiKitButton.anchor(
+            .top(container.topAnchor, constant: 0, priority: .required),
+            .leading(container.leadingAnchor, constant: 0, priority: .required),
+            .trailing(container.trailingAnchor, constant: 0, priority: .required),
+            .height(height, priority: .required)
+        )
+        container.layoutIfNeeded()
+
+        self.uiKitContainer = container
         self.uiKitButton = uiKitButton
         self.swiftUIAdapter = swiftUIAdapter
         self.loadingAdapter = loadingAdapter
         swiftUIAdapter.display(height: height)
-    }
-
-    var onPress: (() -> Void)? {
-        get { uiKitButton.onPress }
-        set {
-            uiKitButton.onPress = newValue
-            swiftUIAdapter.display(onPress: newValue)
-        }
-    }
-
-    var backgroundColor: UIColor? {
-        get { uiKitButton.backgroundColor }
-        set {
-            uiKitButton.backgroundColor = newValue
-            if let style = lastStyle {
-                let updated = WrapKit.ButtonStyle(
-                    backgroundColor: newValue,
-                    titleColor: style.titleColor,
-                    borderWidth: style.borderWidth,
-                    borderColor: style.borderColor,
-                    pressedColor: style.pressedColor,
-                    pressedTintColor: style.pressedTintColor,
-                    font: style.font,
-                    cornerStyle: style.cornerStyle,
-                    glassConfiguration: style.glassConfiguration,
-                    wrongUrlPlaceholderImage: style.wrongUrlPlaceholderImage,
-                    loadingIndicatorColor: style.loadingIndicatorColor
-                )
-                swiftUIAdapter.display(style: updated)
-            }
-        }
+        self.swiftUIView = AnyView(
+            SUIButton(
+                adapter: swiftUIAdapter,
+                loadingAdapter: loadingAdapter
+            )
+        )
     }
 
     var wrongUrlPlaceholderImage: UIImage? {
@@ -61,7 +56,6 @@ final class PairedButtonSnapshotSUT {
 
     func display(model: ButtonPresentableModel?) {
         uiKitButton.display(model: model)
-        lastStyle = model?.style
         swiftUIAdapter.display(model: model)
     }
 
@@ -76,7 +70,6 @@ final class PairedButtonSnapshotSUT {
     }
 
     func display(style: WrapKit.ButtonStyle?) {
-        lastStyle = style
         uiKitButton.display(style: style)
         swiftUIAdapter.display(style: style)
     }
@@ -96,6 +89,14 @@ final class PairedButtonSnapshotSUT {
         loadingAdapter.display(isLoading: isLoading)
     }
 
+    var isLoading: Bool? {
+        get { loadingAdapter.isLoading }
+        set {
+            uiKitButton.isLoading = newValue
+            loadingAdapter.isLoading = newValue
+        }
+    }
+
     func display(spacing: CGFloat) {
         uiKitButton.display(spacing: spacing)
         swiftUIAdapter.display(spacing: spacing)
@@ -106,72 +107,69 @@ final class PairedButtonSnapshotSUT {
         swiftUIAdapter.display(height: height)
     }
 
-    func display(_ onPress: (() -> Void)?) {
+    func display(onPress: (() -> Void)?) {
         uiKitButton.display(onPress: onPress)
         swiftUIAdapter.display(onPress: onPress)
     }
 
     func setImage(_ imageEnum: ImageEnum, completion: ((WrapKit.Image?) -> Void)?) {
-        uiKitButton.setImage(imageEnum) { [weak self] image in
-            self?.swiftUIAdapter.display(image: image)
-            completion?(image)
-        }
+        uiKitButton.setImage(imageEnum, completion: completion)
     }
 
     func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         uiKitButton.touchesBegan(touches, with: event)
-        guard let style = lastStyle else { return }
-        swiftUIAdapter.display(style: WrapKit.ButtonStyle(
-            backgroundColor: style.pressedColor ?? style.backgroundColor,
-            titleColor: style.pressedTintColor ?? style.titleColor,
-            borderWidth: style.borderWidth,
-            borderColor: style.borderColor,
-            pressedColor: style.pressedColor,
-            pressedTintColor: style.pressedTintColor,
-            font: style.font,
-            cornerStyle: style.cornerStyle,
-            glassConfiguration: style.glassConfiguration,
-            wrongUrlPlaceholderImage: style.wrongUrlPlaceholderImage,
-            loadingIndicatorColor: style.loadingIndicatorColor
-        ))
+    }
+
+    func uiKitSnapshot(for appearance: SnapshotAppearance) -> UIImage {
+        uiKitContainer.snapshot(for: appearance.uiKitConfiguration)
     }
 
     @available(iOS 17.0, *)
-    func swiftUISnapshot(for colorScheme: ColorScheme) -> UIImage {
-        let rootView = SnapshotMirroredButtonContainer(
-            adapter: swiftUIAdapter,
-            loadingAdapter: loadingAdapter
-        )
-        .environment(\.colorScheme, colorScheme)
+    func swiftUISnapshot(for appearance: SnapshotAppearance) -> UIImage {
+        let hostingController = makeSwiftUIHostingController(for: appearance)
+        prepareForRendering(hostingController)
+
+        return hostingController.snapshot(for: appearance.uiKitConfiguration)
+    }
+
+    @available(iOS 17.0, *)
+    private func makeSwiftUIHostingController(for appearance: SnapshotAppearance) -> UIViewController {
+        let rootView = SnapshotMirroredButtonContainer(content: swiftUIView)
+        .environment(\.colorScheme, appearance.colorScheme)
+        .transaction { transaction in
+            transaction.disablesAnimations = true
+            transaction.animation = nil
+        }
 
         let hostingController = UIHostingController(rootView: rootView)
-        hostingController.overrideUserInterfaceStyle = colorScheme == .dark ? .dark : .light
+        hostingController.overrideUserInterfaceStyle = appearance.userInterfaceStyle
         hostingController.view.backgroundColor = .clear
+        return hostingController
+    }
+
+    private func prepareForRendering(_ hostingController: UIViewController) {
+        hostingController.loadViewIfNeeded()
+        hostingController.view.frame = CGRect(origin: .zero, size: SnapshotConfiguration.size)
 
         let warmup: TimeInterval = 0.3
         RunLoop.main.run(until: Date().addingTimeInterval(warmup))
         hostingController.view.setNeedsLayout()
         hostingController.view.layoutIfNeeded()
         RunLoop.main.run(until: Date().addingTimeInterval(warmup))
-
-        return hostingController.snapshot(
-            for: .iPhone(style: colorScheme == .dark ? .dark : .light)
-        )
     }
 }
 
 @available(iOS 17.0, *)
 private struct SnapshotMirroredButtonContainer: View {
-    let adapter: ButtonOutputSwiftUIAdapter
-    let loadingAdapter: LoadingOutputSwiftUIAdapter
+    let content: AnyView
 
     var body: some View {
         VStack(spacing: 0) {
-            SUIButton(adapter: adapter, loadingAdapter: loadingAdapter)
+            content
                 .frame(maxWidth: .infinity)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .background(Color.clear)
+        .background(SwiftUIColor.clear)
         .ignoresSafeArea(.all)
     }
 }

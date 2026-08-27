@@ -2,82 +2,52 @@ import WrapKit
 import WrapKitTestUtils
 import XCTest
 
-#if canImport(SwiftUI)
-import enum SwiftUI.ColorScheme
-#endif
-
 final class EmptyViewSnapshotTests: XCTestCase {
 
-    private weak var currentPairedSUT: PairedEmptyViewSnapshotSUT?
-
     func test_emptyView_default_state() {
-        let (sut, container) = makeSUT()
+        let sut = makeSUT()
         let snapshotName = "EMPTYVIEW_DEFAULT_STATE"
 
         sut.display(title: .text("Empty view"))
         sut.display(backgroundColor: .cyan)
 
-        if #available(iOS 26, *) {
-            assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assert(snapshot: sut, named: snapshotName)
     }
 
     func test_fail_emptyView_default_state() {
-        let (sut, container) = makeSUT()
+        let sut = makeSUT()
         let snapshotName = "EMPTYVIEW_DEFAULT_STATE"
 
         sut.display(title: .text("Empty view."))
         sut.display(backgroundColor: .cyan)
 
-        if #available(iOS 26, *) {
-            assertPairedSnapshotFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertPairedSnapshotFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assertPairedSnapshotFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertPairedSnapshotFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assertFail(snapshot: sut, named: snapshotName)
     }
 
     func test_emptyView_with_subTitle() {
-        let (sut, container) = makeSUT()
+        let sut = makeSUT()
         let snapshotName = "EMPTYVIEW_WITH_SUBTITLE"
 
         sut.display(title: .text("Empty view"))
         sut.display(subtitle: .text("Subtitle"))
         sut.display(backgroundColor: .cyan)
 
-        if #available(iOS 26, *) {
-            assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assert(snapshot: sut, named: snapshotName)
     }
 
     func test_fail_emptyView_with_subTitle() {
-        let (sut, container) = makeSUT()
+        let sut = makeSUT()
         let snapshotName = "EMPTYVIEW_WITH_SUBTITLE"
 
         sut.display(title: .text("Empty view"))
         sut.display(subtitle: .text("Subtitle."))
         sut.display(backgroundColor: .cyan)
 
-        if #available(iOS 26, *) {
-            assertPairedSnapshotFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertPairedSnapshotFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assertPairedSnapshotFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertPairedSnapshotFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assertFail(snapshot: sut, named: snapshotName)
     }
 
     func test_emptyView_with_Button() {
-        let (sut, container) = makeSUT()
+        let sut = makeSUT()
         let snapshotName = "EMPTYVIEW_WITH_BUTTON"
 
         sut.display(title: .text("Empty view"))
@@ -85,17 +55,11 @@ final class EmptyViewSnapshotTests: XCTestCase {
         sut.display(buttonModel: makeButtonModel(backgroundColor: .systemBlue))
         sut.display(backgroundColor: .cyan)
 
-        if #available(iOS 26, *) {
-            assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assert(snapshot: sut, named: snapshotName)
     }
 
     func test_fail_emptyView_with_Button() {
-        let (sut, container) = makeSUT()
+        let sut = makeSUT()
         let snapshotName = "EMPTYVIEW_WITH_BUTTON"
 
         sut.display(title: .text("Empty view"))
@@ -103,18 +67,11 @@ final class EmptyViewSnapshotTests: XCTestCase {
         sut.display(buttonModel: makeButtonModel(backgroundColor: .blue))
         sut.display(backgroundColor: .cyan)
 
-        if #available(iOS 26, *) {
-            assertPairedSnapshotFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertPairedSnapshotFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assertPairedSnapshotFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertPairedSnapshotFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assertFail(snapshot: sut, named: snapshotName)
     }
 
-    // UIKit-only — image не реализован в SUIEmptyViewContent (TODO в коде)
     func test_emptyView_with_Image() {
-        let (sut, container) = makeSUT()
+        let sut = makeSUT()
         let snapshotName = "EMPTYVIEW_WITH_IMAGE"
 
         let image = Image(systemName: "star.fill")
@@ -123,17 +80,11 @@ final class EmptyViewSnapshotTests: XCTestCase {
         sut.display(image: ImageViewPresentableModel(image: .asset(image)))
         sut.display(backgroundColor: .cyan)
 
-        if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assert(snapshot: sut, named: snapshotName)
     }
 
     func test_fail_emptyView_with_Image() {
-        let (sut, container) = makeSUT()
+        let sut = makeSUT()
         let snapshotName = "EMPTYVIEW_WITH_IMAGE"
 
         let image = Image(systemName: "star")
@@ -142,129 +93,51 @@ final class EmptyViewSnapshotTests: XCTestCase {
         sut.display(image: ImageViewPresentableModel(image: .asset(image)))
         sut.display(backgroundColor: .cyan)
 
-        if #available(iOS 26, *) {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assertFail(snapshot: sut, named: snapshotName)
     }
 
     func test_emptyView_with_hidden() {
-        let (sut, container) = makeSUT()
+        let sut = makeSUT()
         let snapshotName = "EMPTYVIEW_WITH_HIDDEN"
 
         sut.display(backgroundColor: .cyan)
         sut.display(isHidden: true)
 
-        if #available(iOS 26, *) {
-            assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertPairedSnapshot(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assert(snapshot: sut, named: snapshotName)
     }
 
     func test_fail_emptyView_with_hidden() {
-        let (sut, container) = makeSUT()
+        let sut = makeSUT()
         let snapshotName = "EMPTYVIEW_WITH_HIDDEN"
 
         sut.display(backgroundColor: .cyan)
         sut.display(isHidden: false)
 
-        if #available(iOS 26, *) {
-            assertPairedSnapshotFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertPairedSnapshotFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assertPairedSnapshotFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertPairedSnapshotFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assertFail(snapshot: sut, named: snapshotName)
     }
 
-    // UIKit-only — display(model:) содержит image которое не реализовано в SwiftUI
     func test_emptyView_with_model() {
-        let (sut, container) = makeSUT()
+        let sut = makeSUT()
         let snapshotName = "EMPTYVIEW_WITH_MODEL"
 
         sut.display(backgroundColor: .cyan)
         sut.display(model: makeFullModel(titleText: "Title", subtitleText: "Subtitle"))
 
-        if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assert(snapshot: sut, named: snapshotName)
     }
 
     func test_fail_emptyView_with_model() {
-        let (sut, container) = makeSUT()
+        let sut = makeSUT()
         let snapshotName = "EMPTYVIEW_WITH_MODEL"
 
         sut.display(backgroundColor: .cyan)
         sut.display(model: makeFullModel(titleText: "Title.", subtitleText: "Subtitle."))
 
-        if #available(iOS 26, *) {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assertFail(snapshot: sut, named: snapshotName)
     }
 }
 
 extension EmptyViewSnapshotTests {
-
-    func assertPairedSnapshot(
-        snapshot: UIImage,
-        named name: String,
-        precision: Float = 1,
-        file: StaticString = #filePath,
-        line: UInt = #line
-    ) {
-        assert(snapshot: snapshot, named: name, precision: precision, file: file, line: line)
-
-        if #available(iOS 17.0, *),
-           let swiftUISnapshot = currentPairedSUT?.swiftUISnapshot(for: colorScheme(from: name)) {
-            assert(
-                snapshot: swiftUISnapshot,
-                named: name,
-                precision: SwiftUISnapshotPrecision.standard,
-                file: file,
-                line: line
-            )
-        }
-    }
-
-    func assertPairedSnapshotFail(
-        snapshot: UIImage,
-        named name: String,
-        precision: Float = 1,
-        file: StaticString = #filePath,
-        line: UInt = #line
-    ) {
-        assertFail(snapshot: snapshot, named: name, precision: precision, file: file, line: line)
-
-        if #available(iOS 17.0, *),
-           let swiftUISnapshot = currentPairedSUT?.swiftUISnapshot(for: colorScheme(from: name)) {
-            assertFail(
-                snapshot: swiftUISnapshot,
-                named: name,
-                precision: SwiftUISnapshotPrecision.fail,
-                file: file,
-                line: line
-            )
-        }
-    }
-
-    func colorScheme(from snapshotName: String) -> ColorScheme {
-        snapshotName.hasSuffix("_DARK") ? .dark : .light
-    }
-
     func makeButtonModel(backgroundColor: UIColor) -> ButtonPresentableModel {
         let image = Image(systemName: "star.fill")
         return ButtonPresentableModel(
@@ -301,9 +174,9 @@ extension EmptyViewSnapshotTests {
     func makeSUT(
         file: StaticString = #file,
         line: UInt = #line
-    ) -> (sut: PairedEmptyViewSnapshotSUT, container: UIView) {
-        let sut = PairedEmptyViewSnapshotSUT()
+    ) -> PairedEmptyViewSnapshotSUT {
         let container = makeContainer()
+        let sut = PairedEmptyViewSnapshotSUT(uiKitContainer: container)
 
         container.addSubview(sut.uiKitView)
         sut.uiKitView.anchor(
@@ -313,10 +186,9 @@ extension EmptyViewSnapshotTests {
         )
         container.layoutIfNeeded()
 
-        currentPairedSUT = sut
         checkForMemoryLeaks(sut, file: file, line: line)
         checkForMemoryLeaks(sut.uiKitView, file: file, line: line)
-        return (sut, container)
+        return sut
     }
 
     func makeContainer() -> UIView {

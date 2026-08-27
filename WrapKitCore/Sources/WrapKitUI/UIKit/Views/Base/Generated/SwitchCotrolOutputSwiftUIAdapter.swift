@@ -19,7 +19,7 @@ import UIKit
 #endif
 public class SwitchCotrolOutputSwiftUIAdapter: ObservableObject, SwitchCotrolOutput, LoadingOutput {
 
-    public var isLoading: Bool? = nil
+    @Published public var isLoading: Bool? = nil
 
     @Published public var displayIsLoadingState: DisplayIsLoadingState? = nil
     public struct DisplayIsLoadingState {

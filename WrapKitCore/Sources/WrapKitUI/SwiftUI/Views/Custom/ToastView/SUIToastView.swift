@@ -2,14 +2,9 @@ import Foundation
 
 #if canImport(SwiftUI)
 import SwiftUI
-#if canImport(UIKit)
-import UIKit
-#endif
 
 public struct SUIToastView: View {
     @StateObject private var stateModel: SUIToastViewStateModel
-    @State private var containerSize: CGSize = .zero
-    @State private var toastSize: CGSize = .zero
 
     public init(adapter: CommonToastOutputSwiftUIAdapter) {
         _stateModel = .init(wrappedValue: .init(adapter: adapter))
@@ -17,33 +12,39 @@ public struct SUIToastView: View {
 
     public var body: some View {
         GeometryReader { proxy in
-            ZStack {
+            ZStack(alignment: .top) {
+                SwiftUIColor.clear
                 if let item = stateModel.currentItem {
                     positionedToast(item, proxy: proxy)
                         .transition(transition(for: item.position))
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .measureSize($containerSize)
         }
     }
 
     @ViewBuilder
     private func positionedToast(_ item: SUIToastViewStateModel.ToastItem, proxy: GeometryProxy) -> some View {
         toastContent(item)
-            .measureSize($toastSize)
-            .position(
-                x: proxy.size.width / 2,
-                y: centerY(for: item.position, proxy: proxy)
-            )
+            .alignmentGuide(.top) { dimensions in
+                -verticalOrigin(
+                    for: item.position,
+                    toastHeight: dimensions.height,
+                    proxy: proxy
+                )
+            }
     }
 
     private func toastContent(_ item: SUIToastViewStateModel.ToastItem) -> some View {
         toastCardView
-            .frame(maxWidth: .infinity, minHeight: 52, alignment: .center)
+            .frame(maxWidth: .infinity, alignment: .center)
             .fixedSize(horizontal: false, vertical: true)
             .background(SwiftUIColor.clear)
             .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .strokeBorder(SwiftUIColor.black, lineWidth: 1)
+            )
             .shadow(
                 color: shadowColor(item.shadowColor),
                 radius: item.shadowColor == nil ? 0 : 4,
@@ -71,14 +72,7 @@ public struct SUIToastView: View {
 
     @ViewBuilder
     private var toastCardView: some View {
-        #if canImport(UIKit)
-        SUIToastCardRepresentable(
-            model: stateModel.currentCardModel,
-            measuredWidth: max(containerSize.width - 16, 0)
-        )
-        #else
         SUICardView(adapter: stateModel.cardAdapter)
-        #endif
     }
 
     private var dragGesture: some Gesture {
@@ -104,14 +98,16 @@ public struct SUIToastView: View {
         }
     }
 
-    private func centerY(for position: CommonToast.Position, proxy: GeometryProxy) -> CGFloat {
-        let height = max(toastSize.height, 52)
-
+    private func verticalOrigin(
+        for position: CommonToast.Position,
+        toastHeight: CGFloat,
+        proxy: GeometryProxy
+    ) -> CGFloat {
         switch position {
         case .top:
-            return proxy.safeAreaInsets.top + 20 + height / 2
+            return proxy.safeAreaInsets.top + 20
         case .bottom:
-            return proxy.size.height - bottomPadding(for: position, proxy: proxy) - height / 2
+            return proxy.size.height - bottomPadding(for: position, proxy: proxy) - toastHeight
         }
     }
 
@@ -135,51 +131,5 @@ public extension View {
         overlay(SUIToastView(adapter: adapter))
     }
 }
-
-#if canImport(UIKit)
-private struct SUIToastCardRepresentable: UIViewRepresentable {
-    let model: CardViewPresentableModel?
-    let measuredWidth: CGFloat
-
-    func makeUIView(context: Context) -> CardView {
-        let view = CardView()
-        view.setContentCompressionResistancePriority(.required, for: .vertical)
-        view.setContentHuggingPriority(.required, for: .vertical)
-        return view
-    }
-
-    func updateUIView(_ uiView: CardView, context: Context) {
-        if measuredWidth > 0, uiView.bounds.width != measuredWidth {
-            uiView.bounds.size.width = measuredWidth
-        }
-        uiView.display(model: model)
-        uiView.setNeedsLayout()
-        uiView.layoutIfNeeded()
-    }
-
-    @available(iOS 16.0, tvOS 16.0, *)
-    func sizeThatFits(_ proposal: ProposedViewSize, uiView: CardView, context: Context) -> CGSize? {
-        guard model != nil else { return .zero }
-
-        uiView.display(model: model)
-        let fallbackWidth = measuredWidth > 0 ? measuredWidth : uiView.bounds.width
-        let fittingWidth = max(proposal.width ?? fallbackWidth, 1)
-        uiView.bounds.size.width = fittingWidth
-        uiView.setNeedsLayout()
-        uiView.layoutIfNeeded()
-        let targetSize = CGSize(width: fittingWidth, height: UIView.layoutFittingCompressedSize.height)
-        let size = uiView.systemLayoutSizeFitting(
-            targetSize,
-            withHorizontalFittingPriority: .required,
-            verticalFittingPriority: .fittingSizeLevel
-        )
-        let height = max(52, ceil(size.height))
-        uiView.bounds.size.height = height
-        uiView.setNeedsLayout()
-        uiView.layoutIfNeeded()
-        return CGSize(width: fittingWidth, height: height)
-    }
-}
-#endif
 
 #endif

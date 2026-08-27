@@ -1,121 +1,120 @@
-import WrapKit
-import WrapKitTestUtils
+//
+//  LabelPairedSnapshotSUT.swift
+//  WrapKitTests
+//
+
 import SwiftUI
 import UIKit
+import WrapKit
+import WrapKitTestUtils
 
-final class PairedLabelSnapshotSUT: NSObject {
-    let uiKitLabel = Label()
-    let adapter = TextOutputSwiftUIAdapter()
-    private var currentModel: TextOutputPresentableModel?
-    private var explicitTextInsets: UIEdgeInsets = .zero
-    private var explicitBackgroundColor: UIColor?
-    private var explicitCornerStyle: CornerStyle?
-    private var explicitIsHidden: Bool?
-    private var swiftUIFont: UIFont = .systemFont(ofSize: 20)
-    private var swiftUITextColor: UIColor = .label
-    private var swiftUITextAlignment: NSTextAlignment = .natural
+final class PairedLabelSnapshotSUT: TextOutput, PairedSnapshotSource {
+    private static let defaultFont = UIFont.systemFont(ofSize: 20)
+    private static let defaultTextColor = UIColor.label
+    private static let defaultTextAlignment = NSTextAlignment.natural
 
-    override init() {
-        super.init()
-        swiftUIFont = uiKitLabel.font
-        swiftUITextColor = uiKitLabel.textColor
-        swiftUITextAlignment = uiKitLabel.textAlignment
+    let uiKitLabel: WrapKit.Label
+    let adapter: TextOutputSwiftUIAdapter
+
+    private let uiKitContainer: UIView
+    private var swiftUIView: AnyView
+    private var labelBackgroundColor: UIColor?
+    private var labelCornerStyle: CornerStyle?
+    private var snapshotTextInsets = UIEdgeInsets.zero
+    private var swiftUIFont = PairedLabelSnapshotSUT.defaultFont
+    private var swiftUITextColor = PairedLabelSnapshotSUT.defaultTextColor
+    private var swiftUITextAlignment = PairedLabelSnapshotSUT.defaultTextAlignment
+
+    init(
+        uiKitContainer: UIView,
+        adapter: TextOutputSwiftUIAdapter = TextOutputSwiftUIAdapter()
+    ) {
+        self.uiKitContainer = uiKitContainer
+        self.adapter = adapter
+        self.uiKitLabel = WrapKit.Label(
+            font: Self.defaultFont,
+            textColor: Self.defaultTextColor,
+            textAlignment: Self.defaultTextAlignment
+        )
+        self.swiftUIView = AnyView(SUILabel(adapter: adapter))
     }
-}
 
-extension PairedLabelSnapshotSUT {
     var backgroundColor: UIColor? {
-        get { uiKitLabel.backgroundColor }
+        get { labelBackgroundColor }
         set {
             uiKitLabel.backgroundColor = newValue
-            explicitBackgroundColor = newValue
-            syncSwiftUIModel()
+            labelBackgroundColor = newValue
         }
     }
 
     var textInsets: UIEdgeInsets {
-        get { uiKitLabel.textInsets }
+        get { snapshotTextInsets }
         set {
             uiKitLabel.textInsets = newValue
-            explicitTextInsets = newValue
-            syncSwiftUIModel()
+            snapshotTextInsets = newValue
         }
     }
 
     var cornerStyle: CornerStyle? {
-        get { uiKitLabel.cornerStyle }
+        get { labelCornerStyle }
         set {
             uiKitLabel.cornerStyle = newValue
-            explicitCornerStyle = newValue
-            syncSwiftUIModel()
+            labelCornerStyle = newValue
         }
     }
 
     var textColor: UIColor! {
-        get { uiKitLabel.textColor }
+        get { swiftUITextColor }
         set {
             uiKitLabel.textColor = newValue
-            if let newValue {
-                swiftUITextColor = newValue
-            }
-            syncSwiftUIModel()
+            guard let newValue else { return }
+            swiftUITextColor = newValue
+            rebuildSwiftUIView()
         }
     }
 
     var font: UIFont! {
-        get { uiKitLabel.font }
+        get { swiftUIFont }
         set {
             uiKitLabel.font = newValue
-            if let newValue {
-                swiftUIFont = newValue
-            }
-            syncSwiftUIModel()
+            guard let newValue else { return }
+            swiftUIFont = newValue
+            rebuildSwiftUIView()
         }
     }
 
     var textAlignment: NSTextAlignment {
-        get { uiKitLabel.textAlignment }
+        get { swiftUITextAlignment }
         set {
             uiKitLabel.textAlignment = newValue
             swiftUITextAlignment = newValue
-            syncSwiftUIModel()
+            rebuildSwiftUIView()
         }
     }
-}
 
-extension PairedLabelSnapshotSUT {
     func display(model: TextOutputPresentableModel?) {
-        performDisplay(model) {
-            uiKitLabel.display(model: model)
-        }
+        uiKitLabel.display(model: model)
+        adapter.display(model: model)
     }
 
     func display(textModel: TextOutputPresentableModel.TextModel?) {
-        let model = textModel.map { TextOutputPresentableModel(model: $0) }
-        performDisplay(model) {
-            uiKitLabel.display(textModel: textModel)
-        }
+        uiKitLabel.display(textModel: textModel)
+        adapter.display(textModel: textModel)
     }
 
     func display(text: String?) {
-        let model = TextOutputPresentableModel(model: .text(text))
-        performDisplay(model) {
-            uiKitLabel.display(text: text)
-        }
+        uiKitLabel.display(text: text)
+        adapter.display(text: text)
     }
 
     func display(attributes: [TextAttributes]) {
-        let model = TextOutputPresentableModel(model: .attributes(attributes))
-        performDisplay(model) {
-            uiKitLabel.display(attributes: attributes)
-        }
+        uiKitLabel.display(attributes: attributes)
+        adapter.display(attributes: attributes)
     }
 
     func display(htmlString: String?, config: HTMLAttributedStringConfig?) {
-        let model = TextOutputPresentableModel(model: .attributedString(htmlString, config: config))
-        performDisplay(model) {
-            uiKitLabel.display(htmlString: htmlString, config: config)
-        }
+        uiKitLabel.display(htmlString: htmlString, config: config)
+        adapter.display(htmlString: htmlString, config: config)
     }
 
     func display(
@@ -124,27 +123,11 @@ extension PairedLabelSnapshotSUT {
         to endAmount: Decimal,
         mapToString: ((Decimal) -> TextOutputPresentableModel.TextModel)?,
         animationStyle: LabelAnimationStyle = .none,
-        duration: TimeInterval = 1.0,
+        duration: TimeInterval = 1,
         completion: (() -> Void)? = nil
     ) {
-        explicitIsHidden = nil
-        let finalModel = mapToString?(endAmount) ?? .text(endAmount.asString())
-        let wrappedCompletion = { [weak self] in
-            self?.publish(model: .init(model: finalModel))
-            completion?()
-        }
-        let animatedModel = TextOutputPresentableModel(
-            model: .animatedDecimal(
-                id: id,
-                from: startAmount,
-                to: endAmount,
-                mapToString: mapToString,
-                animationStyle: animationStyle,
-                duration: duration,
-                completion: wrappedCompletion
-            )
-        )
-        currentModel = animatedModel
+        let pairedCompletion = makePairedCompletion(completion)
+
         uiKitLabel.display(
             id: id,
             from: startAmount,
@@ -152,9 +135,17 @@ extension PairedLabelSnapshotSUT {
             mapToString: mapToString,
             animationStyle: animationStyle,
             duration: duration,
-            completion: wrappedCompletion
+            completion: pairedCompletion
         )
-        publish(model: animatedModel)
+        adapter.display(
+            id: id,
+            from: startAmount,
+            to: endAmount,
+            mapToString: mapToString,
+            animationStyle: animationStyle,
+            duration: duration,
+            completion: pairedCompletion
+        )
     }
 
     func display(
@@ -162,7 +153,7 @@ extension PairedLabelSnapshotSUT {
         to endAmount: Decimal,
         mapToString: ((Decimal) -> TextOutputPresentableModel.TextModel)?,
         animationStyle: LabelAnimationStyle = .none,
-        duration: TimeInterval = 1.0,
+        duration: TimeInterval = 1,
         completion: (() -> Void)? = nil
     ) {
         display(
@@ -177,232 +168,118 @@ extension PairedLabelSnapshotSUT {
     }
 
     func display(isHidden: Bool) {
-        explicitIsHidden = isHidden
         uiKitLabel.display(isHidden: isHidden)
         adapter.display(isHidden: isHidden)
     }
-}
 
-private extension PairedLabelSnapshotSUT {
-    func performDisplay(
-        _ model: TextOutputPresentableModel?,
-        action: () -> Void
-    ) {
-        explicitIsHidden = nil
-        currentModel = model
-        action()
-        publish(model: model)
+    func uiKitSnapshot(for appearance: SnapshotAppearance) -> UIImage {
+        uiKitContainer.snapshot(for: appearance.uiKitConfiguration)
     }
 
-    func publish(model: TextOutputPresentableModel?) {
-        adapter.display(model: swiftUIModel(from: model, traitStyle: nil))
-    }
-
-    private func syncSwiftUIModel() {
-        guard currentModel != nil else { return }
-        publish(model: currentModel)
-    }
-
-    private func swiftUIModel(
-        from model: TextOutputPresentableModel?,
-        traitStyle: UIUserInterfaceStyle?
-    ) -> TextOutputPresentableModel? {
-        guard let model else { return nil }
-        return .init(
-            accessibilityIdentifier: model.accessibilityIdentifier,
-            model: swiftUITextModel(from: model.model, traitStyle: traitStyle)
+    @available(iOS 17.0, *)
+    func swiftUISnapshot(for appearance: SnapshotAppearance) -> UIImage {
+        let rootView = SnapshotMirroredLabelContainer(
+            content: swiftUIView,
+            textInsets: snapshotTextInsets,
+            backgroundColor: labelBackgroundColor,
+            cornerStyle: labelCornerStyle
         )
+        .environment(\.colorScheme, appearance.colorScheme)
+        .ignoresSafeArea(.all)
+
+        let hostingController = UIHostingController(rootView: rootView)
+        hostingController.overrideUserInterfaceStyle = appearance.userInterfaceStyle
+        hostingController.view.backgroundColor = .clear
+
+        prepareForRendering(hostingController)
+        return hostingController.snapshot(for: appearance.uiKitConfiguration)
     }
 
-    private func swiftUITextModel(
-        from model: TextOutputPresentableModel.TextModel?,
-        traitStyle: UIUserInterfaceStyle?
-    ) -> TextOutputPresentableModel.TextModel? {
-        guard let model else { return nil }
-        let resolvedModel = resolve(textModel: model, traitStyle: traitStyle)
-
-        guard shouldWrapTextModelInTextStyled(resolvedModel) else {
-            return resolvedModel
-        }
-
-        return .textStyled(
-            text: resolvedModel,
-            cornerStyle: explicitCornerStyle,
-            insets: EdgeInsets(
-                top: explicitTextInsets.top,
-                leading: explicitTextInsets.left,
-                bottom: explicitTextInsets.bottom,
-                trailing: explicitTextInsets.right
-            ),
-            backgroundColor: resolve(color: explicitBackgroundColor, traitStyle: traitStyle)
-        )
-    }
-
-    private func shouldWrapTextModelInTextStyled(_ model: TextOutputPresentableModel.TextModel) -> Bool {
-        let hasInsets = explicitTextInsets.top != 0 || explicitTextInsets.left != 0 || explicitTextInsets.bottom != 0 || explicitTextInsets.right != 0
-        let hasDecoration = hasInsets || explicitCornerStyle != nil || explicitBackgroundColor != nil
-
-        guard hasDecoration else { return false }
-
-        switch model {
-        case .text, .attributes, .attributedString, .textStyled:
-            return true
-        default:
-            return false
-        }
-    }
-
-    private func resolve(
-        textModel: TextOutputPresentableModel.TextModel,
-        traitStyle: UIUserInterfaceStyle?
-    ) -> TextOutputPresentableModel.TextModel {
-        guard let traitStyle else { return textModel }
-        switch textModel {
-        case .text:
-            return textModel
-        case .attributes(let attributes):
-            return .attributes(attributes.map { resolve(attribute: $0, traitStyle: traitStyle) })
-        case .attributedString(let html, let config):
-            return .attributedString(html, config: resolve(config: config, traitStyle: traitStyle))
-        case .animatedDecimal(let id, let from, let to, let mapToString, let animationStyle, let duration, let completion):
-            return .animatedDecimal(
-                id: id,
-                from: from,
-                to: to,
-                mapToString: mapToString,
-                animationStyle: animationStyle,
-                duration: duration,
-                completion: completion
+    private func rebuildSwiftUIView() {
+        swiftUIView = AnyView(
+            SUILabel(
+                adapter: adapter,
+                font: swiftUIFont,
+                textColor: swiftUITextColor,
+                textAlignment: swiftUITextAlignment
             )
-        case .animated(let id, let from, let to, let mapToString, let animationStyle, let duration, let completion):
-            return .animated(
-                id: id,
-                from,
-                to,
-                mapToString: mapToString,
-                animationStyle: animationStyle,
-                duration: duration,
-                completion: completion
-            )
-        case .textStyled(let text, let cornerStyle, let insets, let height, let backgroundColor):
-            return .textStyled(
-                text: resolve(textModel: text, traitStyle: traitStyle),
-                cornerStyle: cornerStyle,
-                insets: insets,
-                height: height,
-                backgroundColor: resolve(color: backgroundColor, traitStyle: traitStyle)
-            )
-        }
-    }
-
-    private func resolve(attribute: TextAttributes, traitStyle: UIUserInterfaceStyle) -> TextAttributes {
-        TextAttributes(
-            id: attribute.id,
-            text: attribute.text,
-            color: resolve(color: attribute.color, traitStyle: traitStyle),
-            font: attribute.font,
-            lineSpacing: attribute.lineSpacing,
-            underlineStyle: attribute.underlineStyle,
-            textAlignment: attribute.textAlignment,
-            leadingImage: attribute.leadingImage,
-            leadingImageBounds: attribute.leadingImageBounds,
-            trailingImage: attribute.trailingImage,
-            trailingImageBounds: attribute.trailingImageBounds,
-            onTap: attribute.onTap
         )
     }
 
-    private func resolve(config: HTMLAttributedStringConfig?, traitStyle: UIUserInterfaceStyle) -> HTMLAttributedStringConfig? {
-        guard var config else { return nil }
-        config.color = resolve(color: config.color, traitStyle: traitStyle)
-        return config
+    private func makePairedCompletion(_ completion: (() -> Void)?) -> (() -> Void)? {
+        guard let completion else { return nil }
+        let consumerCount = if #available(iOS 17.0, *) { 2 } else { 1 }
+        let barrier = CompletionBarrier(consumerCount: consumerCount, completion: completion)
+        return { barrier.call() }
     }
 
-    private func resolve(color: UIColor?, traitStyle: UIUserInterfaceStyle?) -> UIColor? {
-        guard
-            let color,
-            let traitStyle
-        else { return color }
-        return color.resolvedColor(with: UITraitCollection(userInterfaceStyle: traitStyle))
-    }
-}
-
-@available(iOS 17, *)
-extension PairedLabelSnapshotSUT {
-    func swiftUISnapshot(for style: ColorScheme) -> UIImage {
-        let traitStyle: UIUserInterfaceStyle = style == .dark ? .dark : .light
-        let resolvedTextColor = swiftUITextColor.resolvedColor(with: UITraitCollection(userInterfaceStyle: traitStyle))
-        if let currentModel {
-            adapter.display(model: swiftUIModel(from: currentModel, traitStyle: traitStyle))
-        }
-        if let explicitIsHidden {
-            adapter.display(isHidden: explicitIsHidden)
-        }
-
-        return SnapshotMirroredLabelContainer(
-            adapter: adapter,
-            font: swiftUIFont,
-            textColor: resolvedTextColor,
-            textAlignment: swiftUITextAlignment
-        )
-        .snapshot(
-            for: SUISnapshotConfiguration(
-                size: SUISnapshotConfiguration.size,
-                safeAreaInsets: EdgeInsets(),
-                layoutMargins: EdgeInsets(),
-                colorScheme: style
-            ),
-            background: .clear
-        )
+    private func prepareForRendering(_ hostingController: UIViewController) {
+        hostingController.loadViewIfNeeded()
+        hostingController.view.frame = CGRect(origin: .zero, size: SnapshotConfiguration.size)
+        RunLoop.main.run(until: Date().addingTimeInterval(0.05))
+        hostingController.view.setNeedsLayout()
+        hostingController.view.layoutIfNeeded()
     }
 }
 
-@available(iOS 17, *)
-final class PairedLabelSnapshotState: ObservableObject {
-    @Published var font: UIFont = .systemFont(ofSize: 20)
-    @Published var textColor: UIColor = .label
-    @Published var textAlignment: NSTextAlignment = .natural
-    @Published var textInsets: UIEdgeInsets = .zero
-    @Published var backgroundColor: UIColor = .clear
-    @Published var cornerStyle: CornerStyle?
-    @Published var currentModel: TextOutputPresentableModel.TextModel?
-    @Published var hasExplicitTextInsets = false
-    @Published var hasExplicitBackgroundColor = false
-    @Published var hasExplicitCornerStyle = false
+private final class CompletionBarrier {
+    private var remainingConsumerCount: Int
+    private var completion: (() -> Void)?
 
-    var shouldApplyDirectDecoration: Bool {
-        guard !isTextStyledModel else { return false }
-        return hasExplicitTextInsets || hasExplicitCornerStyle || hasExplicitBackgroundColor
+    init(consumerCount: Int, completion: @escaping () -> Void) {
+        remainingConsumerCount = consumerCount
+        self.completion = completion
     }
 
-    private var isTextStyledModel: Bool {
-        if case .textStyled = currentModel {
-            return true
-        }
-        return false
+    func call() {
+        guard remainingConsumerCount > 0 else { return }
+        remainingConsumerCount -= 1
+        guard remainingConsumerCount == 0 else { return }
+
+        let completion = completion
+        self.completion = nil
+        completion?()
     }
 }
 
-@available(iOS 17, *)
+@available(iOS 17.0, *)
 private struct SnapshotMirroredLabelContainer: View {
-    let adapter: TextOutputSwiftUIAdapter
-    let font: UIFont
-    let textColor: UIColor
-    let textAlignment: NSTextAlignment
+    let content: AnyView
+    let textInsets: UIEdgeInsets
+    let backgroundColor: UIColor?
+    let cornerStyle: CornerStyle?
 
     var body: some View {
         VStack(spacing: 0) {
-            SUILabel(
-                adapter: adapter,
-                font: font,
-                textColor: textColor,
-                textAlignment: textAlignment
-            )
-            .frame(maxWidth: .infinity, minHeight: 150, maxHeight: 150, alignment: .topLeading)
-
+            label
+                .frame(maxWidth: .infinity, minHeight: 150, maxHeight: 150, alignment: .topLeading)
             Spacer(minLength: 0)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        .background(SwiftUI.Color.clear)
+        .background(SwiftUIColor.clear)
+    }
+
+    @ViewBuilder
+    private var label: some View {
+        let content = content
+            .padding(EdgeInsets(
+                top: textInsets.top,
+                leading: textInsets.left,
+                bottom: textInsets.bottom,
+                trailing: textInsets.right
+            ))
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+            .background(backgroundColor.map { SwiftUIColor($0) } ?? .clear)
+
+        switch cornerStyle {
+        case .automatic:
+            content.clipShape(Capsule(style: .continuous))
+        case .fixed(let radius):
+            content.clipShape(RoundedRectangle(cornerRadius: radius, style: .continuous))
+        case .corners(let corners):
+            content.clipShape(RoundedRectangle(cornerRadius: corners.maximum, style: .continuous))
+        case .some(.none), .none:
+            content
+        }
     }
 }

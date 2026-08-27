@@ -10,9 +10,10 @@ import WrapKitTestUtils
 #if canImport(SwiftUI)
 import SwiftUI
 
-final class PairedSearchBarSnapshotSUT {
+final class PairedSearchBarSnapshotSUT: SearchBarOutput, PairedSnapshotSource {
     let uiKitView: SearchBar
 
+    private let uiKitContainer: UIView
     private let swiftUIAdapter: SearchBarOutputSwiftUIAdapter
     private let textFieldAppearance: TextfieldAppearance
     private let spacing: CGFloat
@@ -20,15 +21,17 @@ final class PairedSearchBarSnapshotSUT {
     init(
         textField: Textfield,
         textFieldAppearance: TextfieldAppearance,
+        uiKitContainer: UIView,
         spacing: CGFloat = 8,
         swiftUIAdapter: SearchBarOutputSwiftUIAdapter = SearchBarOutputSwiftUIAdapter()
     ) {
         self.uiKitView = withLiquidGlassDisabled {
             SearchBar(textfield: textField, spacing: spacing)
         }
+        self.uiKitContainer = uiKitContainer
+        self.swiftUIAdapter = swiftUIAdapter
         self.textFieldAppearance = textFieldAppearance
         self.spacing = spacing
-        self.swiftUIAdapter = swiftUIAdapter
     }
 
     func display(model: SearchBarPresentableModel?) {
@@ -66,18 +69,23 @@ final class PairedSearchBarSnapshotSUT {
         swiftUIAdapter.display(spacing: spacing)
     }
 
+    func uiKitSnapshot(for appearance: SnapshotAppearance) -> UIImage {
+        uiKitContainer.snapshot(for: appearance.uiKitConfiguration)
+    }
+
     @available(iOS 17.0, *)
-    func swiftUISnapshot(for colorScheme: ColorScheme) -> UIImage {
+    func swiftUISnapshot(for appearance: SnapshotAppearance) -> UIImage {
         withLiquidGlassDisabled {
             let rootView = SnapshotMirroredSearchBarContainer(
                 adapter: swiftUIAdapter,
                 textFieldAppearance: textFieldAppearance,
                 spacing: spacing
             )
+            .environment(\.colorScheme, appearance.colorScheme)
             .ignoresSafeArea(.all)
 
             let hostingController = UIHostingController(rootView: rootView)
-            hostingController.overrideUserInterfaceStyle = colorScheme == .dark ? .dark : .light
+            hostingController.overrideUserInterfaceStyle = appearance.userInterfaceStyle
             hostingController.view.backgroundColor = .clear
 
             let warmup: TimeInterval = 0.3
@@ -86,9 +94,7 @@ final class PairedSearchBarSnapshotSUT {
             hostingController.view.layoutIfNeeded()
             RunLoop.main.run(until: Date().addingTimeInterval(warmup))
 
-            return hostingController.snapshot(
-                for: .iPhone(style: colorScheme == .dark ? .dark : .light)
-            )
+            return hostingController.snapshot(for: appearance.uiKitConfiguration)
         }
     }
 }

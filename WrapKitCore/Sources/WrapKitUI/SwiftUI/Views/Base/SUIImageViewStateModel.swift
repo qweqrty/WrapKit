@@ -18,7 +18,7 @@ public final class SUIImageViewStateModel: ObservableObject {
     @Published private(set) var reloadToken = UUID()
 
     private(set) var pendingCompletion: ((Image?) -> Void)?
-    private let adapter: ImageViewOutputSwiftUIAdapter
+    private let adapter: ImageViewOutputSwiftUIAdapter?
     private var cancellables = Set<AnyCancellable>()
 
     init(adapter: ImageViewOutputSwiftUIAdapter) {
@@ -26,13 +26,32 @@ public final class SUIImageViewStateModel: ObservableObject {
         observeAdapter()
     }
 
+    init(model: ImageViewPresentableModel) {
+        self.adapter = nil
+        apply(model: model)
+    }
+
+    func apply(model: ImageViewPresentableModel) {
+        isHidden = false
+        self.model = self.model.mergingFullModel(model)
+        triggerReload(completion: nil)
+    }
+
     private func observeAdapter() {
+        guard let adapter else { return }
+
         adapter.$displayModelState
-            .compactMap { $0?.model }
-            .sink { [weak self] adapterModel in
+            .compactMap { $0 }
+            .sink { [weak self] state in
                 guard let self else { return }
+                guard let adapterModel = state.model else {
+                    self.isHidden = true
+                    self.model = self.model.clearingForNilModel()
+                    self.triggerReload(completion: nil)
+                    return
+                }
                 self.isHidden = false
-                self.model = adapterModel
+                self.model = self.model.mergingFullModel(adapterModel)
                 self.triggerReload(completion: nil)
             }
             .store(in: &cancellables)
@@ -48,20 +67,22 @@ public final class SUIImageViewStateModel: ObservableObject {
                 }
                 guard let adapterModel = state.model else {
                     self.isHidden = true
+                    self.model = self.model.clearingForNilModel()
+                    self.triggerReload(completion: nil)
                     state.completion?(nil)
                     return
                 }
                 self.isHidden = false
-                self.model = adapterModel
+                self.model = self.model.mergingFullModel(adapterModel)
                 self.triggerReload(completion: state.completion)
             }
             .store(in: &cancellables)
 
         adapter.$displayImageState
-            .compactMap { $0?.image }
-            .sink { [weak self] image in
+            .compactMap { $0 }
+            .sink { [weak self] state in
                 guard let self else { return }
-                self.model = self.model.updated(image: image)
+                self.model = self.model.replacingImage(state.image)
                 self.triggerReload(completion: nil)
             }
             .store(in: &cancellables)
@@ -75,7 +96,7 @@ public final class SUIImageViewStateModel: ObservableObject {
                         adapter?.displayImageCompletionState = nil
                     }
                 }
-                self.model = self.model.updated(image: state.image)
+                self.model = self.model.replacingImage(state.image)
                 self.triggerReload(completion: state.completion)
             }
             .store(in: &cancellables)
@@ -96,10 +117,10 @@ public final class SUIImageViewStateModel: ObservableObject {
             .store(in: &cancellables)
 
         adapter.$displayBorderColorState
-            .compactMap { $0?.borderColor }
-            .sink { [weak self] borderColor in
+            .compactMap { $0 }
+            .sink { [weak self] state in
                 guard let self else { return }
-                self.model = self.model.updated(borderColor: borderColor)
+                self.model = self.model.replacingBorderColor(state.borderColor)
             }
             .store(in: &cancellables)
 
@@ -120,18 +141,18 @@ public final class SUIImageViewStateModel: ObservableObject {
             .store(in: &cancellables)
 
         adapter.$displayOnPressState
-            .compactMap { $0?.onPress }
-            .sink { [weak self] onPress in
+            .compactMap { $0 }
+            .sink { [weak self] state in
                 guard let self else { return }
-                self.model = self.model.updated(onPress: onPress)
+                self.model = self.model.replacingOnPress(state.onPress)
             }
             .store(in: &cancellables)
 
         adapter.$displayOnLongPressState
-            .compactMap { $0?.onLongPress }
-            .sink { [weak self] onLongPress in
+            .compactMap { $0 }
+            .sink { [weak self] state in
                 guard let self else { return }
-                self.model = self.model.updated(onLongPress: onLongPress)
+                self.model = self.model.replacingOnLongPress(state.onLongPress)
             }
             .store(in: &cancellables)
 

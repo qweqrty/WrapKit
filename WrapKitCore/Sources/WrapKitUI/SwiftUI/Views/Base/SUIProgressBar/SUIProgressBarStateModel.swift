@@ -6,12 +6,14 @@
 //
 
 import Combine
-import UIKit
+import Foundation
 
 public final class SUIProgressBarStateModel: ObservableObject {
     @Published var isHidden: Bool = false
     @Published var progress: CGFloat = 0
     @Published var style: ProgressBarStyle? = nil
+    @Published var layoutHeight: CGFloat = 4
+    @Published var animatesProgressChanges = false
     
     private let adapter: ProgressBarOutputSwiftUIAdapter
     private var cancellables: Set<AnyCancellable> = []
@@ -25,14 +27,19 @@ public final class SUIProgressBarStateModel: ObservableObject {
                 guard let self else { return }
                 self.isHidden = value.model == nil
                 guard let model = value.model else { return }
+                self.animatesProgressChanges = false
                 self.progress = model.progress
-                if let style = model.style { self.style = style }
+                if let style = model.style {
+                    self.style = style
+                    self.updateLayoutHeight(from: style)
+                }
             }
             .store(in: &cancellables)
         
         adapter.$displayProgressState
             .compactMap { $0 }
             .sink { [weak self] value in
+                self?.animatesProgressChanges = true
                 self?.progress = value.progress
             }
             .store(in: &cancellables)
@@ -41,6 +48,7 @@ public final class SUIProgressBarStateModel: ObservableObject {
             .compactMap { $0 }
             .sink { [weak self] value in
                 self?.style = value.style
+                self?.updateLayoutHeight(from: value.style)
             }
             .store(in: &cancellables)
         
@@ -50,5 +58,10 @@ public final class SUIProgressBarStateModel: ObservableObject {
                 self?.isHidden = value.isHidden
             }
             .store(in: &cancellables)
+    }
+
+    private func updateLayoutHeight(from style: ProgressBarStyle?) {
+        guard let height = style?.height else { return }
+        layoutHeight = height
     }
 }

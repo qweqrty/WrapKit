@@ -15,6 +15,13 @@ public final class SUILoadingStateModel: ObservableObject {
     private var cancellables: Set<AnyCancellable> = []
     
     public init(adapter: LoadingOutputSwiftUIAdapter) {
+        adapter.$isLoading
+            .compactMap { $0 }
+            .sink { [weak self] value in
+                self?.isLoading = value
+            }
+            .store(in: &cancellables)
+
         adapter.$displayIsLoadingState
             .compactMap { $0 }
             .sink { [weak self] value in

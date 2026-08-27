@@ -8,10 +8,10 @@
 import SwiftUI
 
 public struct SUIRefreshControlModifier: ViewModifier {
-    @ObservedObject var stateModel: SUIRefreshControlStateModel
+    @StateObject var stateModel: SUIRefreshControlStateModel
 
     public init(adapter: RefreshControlOutputSwiftUIAdapter) {
-        self.stateModel = .init(adapter: adapter)
+        _stateModel = .init(wrappedValue: .init(adapter: adapter))
     }
 
     public func body(content: Content) -> some View {

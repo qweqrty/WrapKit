@@ -22,6 +22,10 @@ public struct SUISearchBar: View {
         ))
     }
 
+    init(stateModel: SUISearchBarStateModel) {
+        _stateModel = .init(wrappedValue: stateModel)
+    }
+
     public var body: some View {
         if !stateModel.isHidden {
             styledContent
@@ -30,7 +34,10 @@ public struct SUISearchBar: View {
 
     private var content: some View {
         HStack(alignment: .top, spacing: stateModel.spacing) {
-            buttonView(stateModel.leftView)
+            buttonView(
+                stateModel.leftButtonStateModel,
+                isPresented: stateModel.leftView != nil
+            )
             if !stateModel.isTextFieldHidden {
                 SUITextField(
                     adapter: stateModel.textFieldAdapter,
@@ -39,8 +46,12 @@ public struct SUISearchBar: View {
                     cornerStyle: .fixed(stateModel.cornerRadius)
                 )
             }
-            buttonView(stateModel.rightView)
+            buttonView(
+                stateModel.rightButtonStateModel,
+                isPresented: stateModel.rightView != nil
+            )
         }
+        .fixedSize(horizontal: false, vertical: true)
     }
 
     @ViewBuilder
@@ -58,18 +69,71 @@ public struct SUISearchBar: View {
     }
 
     @ViewBuilder
-    private func buttonView(_ model: ButtonPresentableModel?) -> some View {
-        if let model {
-            SUIButtonView(
-                model: model,
-                onPress: model.onPress,
-                isEnabled: model.enabled ?? true,
-                fillsAvailableWidth: false,
-                contentInsets: .init(top: 0, leading: 4, bottom: 0, trailing: 4)
-            )
-            .fixedSize(horizontal: true, vertical: false)
-            .frame(height: model.height ?? stateModel.textFieldHeight)
+    private func buttonView(
+        _ buttonStateModel: SUIButtonStateModel,
+        isPresented: Bool
+    ) -> some View {
+        if isPresented {
+            SUISearchBarButton(stateModel: buttonStateModel)
+                .fixedSize(horizontal: true, vertical: false)
         }
+    }
+}
+
+private struct SUISearchBarButton: View {
+    @ObservedObject var stateModel: SUIButtonStateModel
+
+    var body: some View {
+        roundedIntrinsicWidthButton
+            .frame(height: stateModel.presentable.height)
+            .frame(maxHeight: stateModel.presentable.height == nil ? .infinity : nil)
+    }
+
+    @ViewBuilder
+    private var roundedIntrinsicWidthButton: some View {
+        if #available(iOS 16, macOS 13, tvOS 16, watchOS 9, *) {
+            WholePointRoundedWidthLayout {
+                button(fillsAvailableWidth: true)
+            }
+        } else {
+            button(fillsAvailableWidth: false)
+        }
+    }
+
+    private func button(fillsAvailableWidth: Bool) -> some View {
+        SUIButtonView(
+            model: stateModel.presentable,
+            onPress: stateModel.presentable.onPress,
+            isEnabled: stateModel.isEnabled,
+            fillsAvailableWidth: fillsAvailableWidth
+        )
+    }
+}
+
+@available(iOS 16, macOS 13, tvOS 16, watchOS 9, *)
+private struct WholePointRoundedWidthLayout: Layout {
+    func sizeThatFits(
+        proposal: ProposedViewSize,
+        subviews: Subviews,
+        cache _: inout ()
+    ) -> CGSize {
+        guard let subview = subviews.first else { return .zero }
+        let size = subview.sizeThatFits(.init(width: nil, height: nil))
+        let proposedHeight = proposal.height.flatMap { $0.isFinite ? $0 : nil }
+        return .init(width: ceil(size.width), height: proposedHeight ?? size.height)
+    }
+
+    func placeSubviews(
+        in bounds: CGRect,
+        proposal _: ProposedViewSize,
+        subviews: Subviews,
+        cache _: inout ()
+    ) {
+        subviews.first?.place(
+            at: bounds.origin,
+            anchor: .topLeading,
+            proposal: .init(width: bounds.width, height: bounds.height)
+        )
     }
 }
 #endif

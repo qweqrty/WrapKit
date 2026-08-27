@@ -14,6 +14,7 @@ public final class SUIDatePickerStateModel: ObservableObject {
     @Published var maximumDate: Date? = nil
     @Published var mode: DatePickerMode = .date
     @Published var dateChanged: ((Date) -> Void)? = nil
+    @Published var setDateAnimated: Bool = false
 
     private let adapter: DatePickerViewOutputSwiftUIAdapter
     private var cancellables: Set<AnyCancellable> = []
@@ -25,6 +26,7 @@ public final class SUIDatePickerStateModel: ObservableObject {
             .compactMap { $0 }
             .sink { [weak self] value in
                 guard let self else { return }
+                self.setDateAnimated = false
                 self.date = value.model.value
                 self.minimumDate = value.model.minimumDate
                 self.maximumDate = value.model.maximumDate
@@ -36,6 +38,7 @@ public final class SUIDatePickerStateModel: ObservableObject {
         adapter.$displayDateState
             .compactMap { $0 }
             .sink { [weak self] value in
+                self?.setDateAnimated = false
                 self?.date = value.date
             }
             .store(in: &cancellables)
@@ -43,6 +46,7 @@ public final class SUIDatePickerStateModel: ObservableObject {
         adapter.$displaySetDateAnimatedState
             .compactMap { $0 }
             .sink { [weak self] value in
+                self?.setDateAnimated = value.animated
                 self?.date = value.setDate
             }
             .store(in: &cancellables)

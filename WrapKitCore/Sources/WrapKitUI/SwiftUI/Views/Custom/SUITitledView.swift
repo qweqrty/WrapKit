@@ -24,22 +24,43 @@ public struct SUITitledView<Content: View>: View {
         self.content = content()
     }
 
+    init(
+        stateModel: SUITitledViewStateModel,
+        spacing: CGFloat = 4,
+        @ViewBuilder content: () -> Content
+    ) {
+        _stateModel = .init(wrappedValue: stateModel)
+        self.spacing = spacing
+        self.content = content()
+    }
+
     public var body: some View {
         if !stateModel.isHidden {
             VStack(spacing: spacing) {
                 SUIHKeyValueFieldView(
                     adapter: stateModel.titlesAdapter,
-                    keyFont: .systemFont(ofSize: 17),
-                    valueFont: .systemFont(ofSize: 17)
+                    keyFont: .systemFont(ofSize: 20),
+                    keyTextColor: .label,
+                    valueFont: .systemFont(ofSize: 20),
+                    valueTextColor: .label,
+                    keyLineLimit: nil,
+                    valueLineLimit: nil,
+                    keyMinimumScaleFactor: 1,
+                    valueMinimumScaleFactor: 1
                 )
 
-                content
+                ZStack {
+                    SwiftUIColor.clear
+                        .frame(height: 0)
+                    content
+                }
 
                 SUIHKeyValueFieldView(
                     adapter: stateModel.bottomTitlesAdapter,
                     keyFont: .systemFont(ofSize: 18),
                     valueFont: .systemFont(ofSize: 14),
                     valueTextColor: .gray,
+                    keyMinimumScaleFactor: 1,
                     isHidden: true
                 )
             }

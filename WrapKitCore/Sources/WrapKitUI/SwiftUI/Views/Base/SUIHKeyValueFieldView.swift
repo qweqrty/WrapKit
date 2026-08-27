@@ -6,7 +6,6 @@
 import Foundation
 
 #if canImport(SwiftUI)
-import CoreText
 import SwiftUI
 
 public struct SUIHKeyValueFieldView: View {
@@ -19,6 +18,10 @@ public struct SUIHKeyValueFieldView: View {
     private let valueTextColor: Color
     private let spacing: CGFloat
     private let contentInsets: EdgeInsets
+    private let keyLineLimit: Int?
+    private let valueLineLimit: Int?
+    private let keyMinimumScaleFactor: CGFloat
+    private let valueMinimumScaleFactor: CGFloat
 
     public init(
         adapter: KeyValueFieldViewOutputSwiftUIAdapter,
@@ -29,6 +32,10 @@ public struct SUIHKeyValueFieldView: View {
         valueTextColor: Color = .black,
         spacing: CGFloat = 4,
         contentInsets: EdgeInsets = .zero,
+        keyLineLimit: Int? = 1,
+        valueLineLimit: Int? = 1,
+        keyMinimumScaleFactor: CGFloat = 0.5,
+        valueMinimumScaleFactor: CGFloat = 0.5,
         isHidden: Bool = false
     ) {
         _stateModel = .init(
@@ -45,6 +52,10 @@ public struct SUIHKeyValueFieldView: View {
         self.valueTextColor = valueTextColor
         self.spacing = spacing
         self.contentInsets = contentInsets
+        self.keyLineLimit = keyLineLimit
+        self.valueLineLimit = valueLineLimit
+        self.keyMinimumScaleFactor = keyMinimumScaleFactor
+        self.valueMinimumScaleFactor = valueMinimumScaleFactor
     }
 
     public var body: some View {
@@ -66,7 +77,9 @@ public struct SUIHKeyValueFieldView: View {
                     keyTitle,
                     font: keyFont,
                     textColor: keyTextColor,
-                    textAlignment: .left
+                    textAlignment: .left,
+                    lineLimit: keyLineLimit,
+                    minimumScaleFactor: keyMinimumScaleFactor
                 )
                 .frame(maxWidth: .infinity, alignment: .leading)
 
@@ -74,7 +87,9 @@ public struct SUIHKeyValueFieldView: View {
                     valueTitle,
                     font: valueFont,
                     textColor: valueTextColor,
-                    textAlignment: .right
+                    textAlignment: .right,
+                    lineLimit: valueLineLimit,
+                    minimumScaleFactor: valueMinimumScaleFactor
                 )
                 .fixedSize(horizontal: true, vertical: true)
             }
@@ -84,7 +99,9 @@ public struct SUIHKeyValueFieldView: View {
                 keyTitle,
                 font: keyFont,
                 textColor: keyTextColor,
-                textAlignment: .left
+                textAlignment: .left,
+                lineLimit: keyLineLimit,
+                minimumScaleFactor: keyMinimumScaleFactor
             )
             .frame(maxWidth: .infinity, alignment: .leading)
 
@@ -93,7 +110,9 @@ public struct SUIHKeyValueFieldView: View {
                 valueTitle,
                 font: valueFont,
                 textColor: valueTextColor,
-                textAlignment: .right
+                textAlignment: .right,
+                lineLimit: valueLineLimit,
+                minimumScaleFactor: valueMinimumScaleFactor
             )
             .frame(maxWidth: .infinity, alignment: .trailing)
 
@@ -107,77 +126,19 @@ public struct SUIHKeyValueFieldView: View {
         _ model: TextOutputPresentableModel?,
         font: Font,
         textColor: Color,
-        textAlignment: TextAlignment
+        textAlignment: TextAlignment,
+        lineLimit: Int?,
+        minimumScaleFactor: CGFloat
     ) -> some View {
-        if let text = model?.model?.text {
-            SUIHKeyValueText(
-                text: text.removingPercentEncoding ?? text,
+        if let model {
+            SUILabelView(
+                model: model,
                 font: font,
                 textColor: textColor,
                 textAlignment: textAlignment
             )
-            .frame(height: ceil(font.lineHeight), alignment: .center)
-            .accessibilityIdentifier(model?.accessibilityIdentifier ?? "")
-        }
-    }
-}
-
-private struct SUIHKeyValueText: View {
-    let text: String
-    let font: Font
-    let textColor: Color
-    let textAlignment: TextAlignment
-
-    @ViewBuilder
-    var body: some View {
-        if #available(iOS 15, macOS 12, tvOS 15, watchOS 8, *) {
-            coreTextBody
-        } else {
-            Text(text)
-                .font(SwiftUIFont(font))
-                .foregroundColor(SwiftUIColor(textColor))
-                .lineLimit(1)
-                .minimumScaleFactor(0.5)
-        }
-    }
-
-    @available(iOS 15, macOS 12, tvOS 15, watchOS 8, *)
-    private var coreTextBody: some View {
-        Canvas(opaque: false, colorMode: .linear, rendersAsynchronously: false) { graphicsContext, size in
-            let attributedString = NSAttributedString(
-                string: text,
-                attributes: [
-                    .font: font,
-                    .foregroundColor: textColor,
-                ]
-            )
-            let line = CTLineCreateWithAttributedString(attributedString as CFAttributedString)
-            let lineWidth = CGFloat(CTLineGetTypographicBounds(line, nil, nil, nil))
-            let origin = CGPoint(
-                x: originX(lineWidth: lineWidth, containerWidth: size.width),
-                y: abs(font.descender)
-            )
-
-            graphicsContext.withCGContext { context in
-                context.saveGState()
-                context.textMatrix = .identity
-                context.translateBy(x: 0, y: size.height)
-                context.scaleBy(x: 1, y: -1)
-                context.textPosition = origin
-                CTLineDraw(line, context)
-                context.restoreGState()
-            }
-        }
-    }
-
-    private func originX(lineWidth: CGFloat, containerWidth: CGFloat) -> CGFloat {
-        switch textAlignment {
-        case .center:
-            return max((containerWidth - lineWidth) / 2, 0)
-        case .right:
-            return max(containerWidth - lineWidth, 0)
-        default:
-            return 0
+            .lineLimit(lineLimit)
+            .minimumScaleFactor(minimumScaleFactor)
         }
     }
 }

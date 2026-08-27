@@ -8,10 +8,10 @@
 import SwiftUI
 
 public struct SUIDatePicker: View {
-    @ObservedObject var stateModel: SUIDatePickerStateModel
+    @StateObject var stateModel: SUIDatePickerStateModel
 
     public init(adapter: DatePickerViewOutputSwiftUIAdapter) {
-        self.stateModel = .init(adapter: adapter)
+        _stateModel = .init(wrappedValue: .init(adapter: adapter))
     }
 
     public var body: some View {
@@ -20,15 +20,18 @@ public struct SUIDatePicker: View {
             minimumDate: stateModel.minimumDate,
             maximumDate: stateModel.maximumDate,
             mode: stateModel.mode,
+            setDateAnimated: stateModel.setDateAnimated,
             dateChanged: stateModel.dateChanged
         )
     }
 }
 
 public struct SUIDatePickerView: View {
+    let date: Date
     let minimumDate: Date?
     let maximumDate: Date?
     let mode: DatePickerMode
+    let setDateAnimated: Bool
     let dateChanged: ((Date) -> Void)?
 
     @State private var internalDate: Date
@@ -38,12 +41,15 @@ public struct SUIDatePickerView: View {
         minimumDate: Date? = nil,
         maximumDate: Date? = nil,
         mode: DatePickerMode = .date,
+        setDateAnimated: Bool = false,
         dateChanged: ((Date) -> Void)? = nil
     ) {
+        self.date = date
         self._internalDate = State(initialValue: date)
         self.minimumDate = minimumDate
         self.maximumDate = maximumDate
         self.mode = mode
+        self.setDateAnimated = setDateAnimated
         self.dateChanged = dateChanged
     }
 
@@ -62,7 +68,17 @@ public struct SUIDatePickerView: View {
         )
         .datePickerStyle(.wheel)
         .labelsHidden()
-        .onChange(of: internalDate) { _ in }
+        .onChange(of: date) { newDate in
+            if internalDate != newDate {
+                if setDateAnimated {
+                    withAnimation {
+                        internalDate = newDate
+                    }
+                } else {
+                    internalDate = newDate
+                }
+            }
+        }
     }
 
     private var dateRange: ClosedRange<Date> {

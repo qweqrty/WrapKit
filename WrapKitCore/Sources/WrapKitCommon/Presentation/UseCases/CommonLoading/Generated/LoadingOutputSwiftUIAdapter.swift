@@ -31,6 +31,7 @@ public class LoadingOutputSwiftUIAdapter: ObservableObject, LoadingOutput {
         public let isLoading: Bool
     }
     public func display(isLoading: Bool) {
+        self.isLoading = isLoading
         displayIsLoadingState = .init(
             isLoading: isLoading
         )

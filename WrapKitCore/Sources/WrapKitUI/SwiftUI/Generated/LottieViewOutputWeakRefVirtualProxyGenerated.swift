@@ -16,9 +16,6 @@ import SwiftUI
 #if canImport(Lottie)
 import Lottie
 #endif
-#if canImport(UIKit)
-import UIKit
-#endif
 
 extension LottieViewOutput {
     public var weakReferenced: any LottieViewOutput {

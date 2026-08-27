@@ -79,6 +79,13 @@ public class MaskedTextfieldDelegate: NSObject, UITextFieldDelegate {
         self.backspacePressClearsText = backspacePressClearsText
         self.trailingSymbol = trailingSymbol
     }
+
+    public func update(format: Format) {
+        guard self.format.mask.format != format.mask.format
+                || !self.format.maskedTextColor.isEqual(format.maskedTextColor)
+        else { return }
+        self.format = format
+    }
     
     @discardableResult
     public func applyTo(textfield: Textfield) -> Self {

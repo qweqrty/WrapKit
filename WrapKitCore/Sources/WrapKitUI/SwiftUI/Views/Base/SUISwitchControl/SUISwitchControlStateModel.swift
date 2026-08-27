@@ -6,7 +6,6 @@
 //
 
 import Combine
-import UIKit
 
 public final class SUISwitchControlStateModel: ObservableObject {
     @Published var isHidden: Bool = false
@@ -28,11 +27,11 @@ public final class SUISwitchControlStateModel: ObservableObject {
             .sink { [weak self] value in
                 guard let self else { return }
                 self.isHidden = value.model == nil
+                self.onPress = value.model?.onPress
                 guard let model = value.model else { return }
                 if let isOn = model.isOn { self.isOn = isOn }
                 if let isEnabled = model.isEnabled { self.isEnabled = isEnabled }
                 if let style = model.style { self.style = style }
-                if let onPress = model.onPress { self.onPress = onPress }
                 if let accessibilityIdentifier = model.accessibilityIdentifier { self.accessibilityIdentifier = accessibilityIdentifier }
             }
             .store(in: &cancellables)
@@ -72,6 +71,13 @@ public final class SUISwitchControlStateModel: ObservableObject {
             }
             .store(in: &cancellables)
         
+        adapter.$isLoading
+            .compactMap { $0 }
+            .sink { [weak self] value in
+                self?.isLoading = value
+            }
+            .store(in: &cancellables)
+
         adapter.$displayIsLoadingState
             .compactMap { $0 }
             .sink { [weak self] value in

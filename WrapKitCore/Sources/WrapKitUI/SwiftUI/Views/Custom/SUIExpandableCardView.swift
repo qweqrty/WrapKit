@@ -31,6 +31,18 @@ public struct SUIExpandableCardView: View {
         self.secondaryCardHeight = secondaryCardHeight
     }
 
+    init(
+        stateModel: SUIExpandableCardViewStateModel,
+        stackSpacing: CGFloat,
+        primeCardHeight: CGFloat?,
+        secondaryCardHeight: CGFloat?
+    ) {
+        _stateModel = .init(wrappedValue: stateModel)
+        self.stackSpacing = stackSpacing
+        self.primeCardHeight = primeCardHeight
+        self.secondaryCardHeight = secondaryCardHeight
+    }
+
     public var body: some View {
         if !stateModel.isHidden {
             VStack(spacing: stackSpacing) {
@@ -73,7 +85,7 @@ public struct SUIExpandableCardView: View {
     }
 }
 
-private final class SUIExpandableCardViewStateModel: ObservableObject {
+final class SUIExpandableCardViewStateModel: ObservableObject {
     @Published var primeModel: CardViewPresentableModel?
     @Published var secondaryModel: CardViewPresentableModel?
     @Published var isHidden: Bool = false

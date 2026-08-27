@@ -7,16 +7,18 @@ import Combine
 final class SUICardViewStateModel: ObservableObject {
     @Published var isHidden: Bool = false
     @Published var accessibilityIdentifier: String?
+    @Published var accessibilityLabel: String?
+    @Published var accessibilityHint: String?
     @Published var style: CardViewPresentableModel.Style = .init(
         backgroundColor: .clear,
-        vStacklayoutMargins: .zero,
+        vStacklayoutMargins: .init(top: 0, leading: 8, bottom: 0, trailing: 8),
         hStacklayoutMargins: .zero,
         hStackViewDistribution: .fill,
-        leadingTitleKeyTextColor: .label,
-        titleKeyTextColor: .label,
-        trailingTitleKeyTextColor: .label,
-        titleValueTextColor: .label,
-        subTitleTextColor: .secondaryLabel,
+        leadingTitleKeyTextColor: .black,
+        titleKeyTextColor: .black,
+        trailingTitleKeyTextColor: .black,
+        titleValueTextColor: .black,
+        subTitleTextColor: .gray,
         leadingTitleKeyLabelFont: .systemFont(ofSize: 16),
         titleKeyLabelFont: .systemFont(ofSize: 16),
         trailingTitleKeyLabelFont: .systemFont(ofSize: 16),
@@ -24,7 +26,7 @@ final class SUICardViewStateModel: ObservableObject {
         subTitleLabelFont: .systemFont(ofSize: 16),
         cornerRadius: 0,
         stackSpace: 0,
-        hStackViewSpacing: 0,
+        hStackViewSpacing: 14,
         titleKeyNumberOfLines: 0,
         titleValueNumberOfLines: 0
     )
@@ -43,6 +45,9 @@ final class SUICardViewStateModel: ObservableObject {
     @Published var onPress: (() -> Void)?
     @Published var onLongPress: (() -> Void)?
     @Published var isUserInteractionEnabled: Bool = true
+    @Published private(set) var activeGradientBorderColors: [Color]?
+    @Published private(set) var trailingImageLeadingSpacing: CGFloat?
+    @Published private(set) var secondaryTrailingImageLeadingSpacing: CGFloat?
 
     let backgroundImageAdapter = ImageViewOutputSwiftUIAdapter()
     let leadingImageAdapter = ImageViewOutputSwiftUIAdapter()
@@ -52,7 +57,9 @@ final class SUICardViewStateModel: ObservableObject {
     let leadingTitlesAdapter = KeyValueFieldViewOutputSwiftUIAdapter()
     let titleViewsAdapter = KeyValueFieldViewOutputSwiftUIAdapter()
     let trailingTitlesAdapter = KeyValueFieldViewOutputSwiftUIAdapter()
+    let switchControlAdapter = SwitchCotrolOutputSwiftUIAdapter()
 
+    private var retainedBackgroundImage = ImageViewPresentableModel()
     private var cancellables: Set<AnyCancellable> = []
 
     init(adapter: CardViewOutputSwiftUIAdapter) {
@@ -150,7 +157,7 @@ final class SUICardViewStateModel: ObservableObject {
         adapter.$displaySwitchControlState
             .sink { [weak self] state in
                 guard let state else { return }
-                self?.switchControl = state.switchControl
+                self?.setSwitchControl(state.switchControl)
             }
             .store(in: &cancellables)
 
@@ -177,8 +184,15 @@ final class SUICardViewStateModel: ObservableObject {
 
         adapter.$displayIsUserInteractionEnabledState
             .sink { [weak self] state in
+                guard let state, let isEnabled = state.isUserInteractionEnabled else { return }
+                self?.isUserInteractionEnabled = isEnabled
+            }
+            .store(in: &cancellables)
+
+        adapter.$displayIsGradientBorderEnabledState
+            .sink { [weak self] state in
                 guard let state else { return }
-                self?.isUserInteractionEnabled = state.isUserInteractionEnabled ?? true
+                self?.applyGradientBorder(isEnabled: state.isGradientBorderEnabled)
             }
             .store(in: &cancellables)
 
@@ -187,12 +201,10 @@ final class SUICardViewStateModel: ObservableObject {
 
     private func apply(model: CardViewPresentableModel?) {
         isHidden = model == nil
-        guard let model else {
-            clearContent()
-            return
-        }
-
-        accessibilityIdentifier = model.accessibilityIdentifier
+        accessibilityIdentifier = model?.accessibilityIdentifier
+        accessibilityLabel = model?.accessibility?.label
+        accessibilityHint = model?.accessibility?.hint
+        guard let model else { return }
 
         if let style = model.style {
             self.style = style
@@ -209,15 +221,24 @@ final class SUICardViewStateModel: ObservableObject {
         setSubTitle(model.subTitle)
         setValueTitle(model.valueTitle)
         bottomSeparator = model.bottomSeparator
-        switchControl = model.switchControl
+        setSwitchControl(model.switchControl)
         onPress = model.onPress
         onLongPress = model.onLongPress
-        isUserInteractionEnabled = model.isUserInteractionEnabled ?? true
+        if let isUserInteractionEnabled = model.isUserInteractionEnabled {
+            self.isUserInteractionEnabled = isUserInteractionEnabled
+        }
+        applyGradientBorder(isEnabled: model.isGradientBorderEnabled)
     }
 
     private func setBackgroundImage(_ model: ImageViewPresentableModel?) {
-        backgroundImage = normalizeBackgroundImageModel(model)
-        backgroundImageAdapter.display(model: backgroundImage)
+        guard let model else {
+            backgroundImage = nil
+            backgroundImageAdapter.display(model: nil)
+            return
+        }
+        retainedBackgroundImage = retainedBackgroundImage.mergingFullModel(model)
+        backgroundImage = retainedBackgroundImage
+        backgroundImageAdapter.display(model: model)
     }
 
     private func setLeadingImage(_ model: ImageViewPresentableModel?) {
@@ -233,25 +254,47 @@ final class SUICardViewStateModel: ObservableObject {
     private func setTrailingImage(_ model: ImageViewPresentableModel?) {
         trailingImage = normalizeIconImageModel(model)
         trailingImageAdapter.display(model: trailingImage)
+        if let spacing = style.trailingImageLeadingSpacing {
+            trailingImageLeadingSpacing = spacing
+        }
     }
 
     private func setSecondaryTrailingImage(_ model: ImageViewPresentableModel?) {
         secondaryTrailingImage = normalizeIconImageModel(model)
         secondaryTrailingImageAdapter.display(model: secondaryTrailingImage)
+        if let spacing = style.secondaryTrailingImageLeadingSpacing {
+            secondaryTrailingImageLeadingSpacing = spacing
+        }
     }
 
     private func setTitle(_ model: TextOutputPresentableModel?) {
         title = model
-        syncTitleViewsAdapter()
+        titleViewsAdapter.display(keyTitle: model)
     }
 
     private func setValueTitle(_ model: TextOutputPresentableModel?) {
         valueTitle = model
-        syncTitleViewsAdapter()
+        titleViewsAdapter.display(valueTitle: model)
     }
 
     private func setSubTitle(_ model: TextOutputPresentableModel?) {
         subTitle = model
+    }
+
+    private func setSwitchControl(_ model: SwitchControlPresentableModel?) {
+        switchControl = model
+        switchControlAdapter.display(model: model)
+    }
+
+    private func applyGradientBorder(isEnabled: Bool) {
+        if isEnabled {
+            // UIKit treats this as an event: enabling before a style with gradient colors is
+            // ignored, and later style updates do not retroactively start or replace it.
+            guard let colors = style.gradientBorderColors, !colors.isEmpty else { return }
+            activeGradientBorderColors = colors
+        } else {
+            activeGradientBorderColors = nil
+        }
     }
 
     private func setLeadingTitles(_ model: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>?) {
@@ -262,45 +305,6 @@ final class SUICardViewStateModel: ObservableObject {
     private func setTrailingTitles(_ model: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>?) {
         trailingTitles = model
         trailingTitlesAdapter.display(model: model)
-    }
-
-    private func syncTitleViewsAdapter() {
-        titleViewsAdapter.display(model: .init(title, valueTitle))
-    }
-
-    private func clearContent() {
-        setBackgroundImage(nil)
-        setTitle(nil)
-        setLeadingTitles(nil)
-        setTrailingTitles(nil)
-        setLeadingImage(nil)
-        setSecondaryLeadingImage(nil)
-        setTrailingImage(nil)
-        setSecondaryTrailingImage(nil)
-        setSubTitle(nil)
-        setValueTitle(nil)
-        bottomSeparator = nil
-        switchControl = nil
-        onPress = nil
-        onLongPress = nil
-    }
-
-    private func normalizeBackgroundImageModel(_ model: ImageViewPresentableModel?) -> ImageViewPresentableModel? {
-        guard let model else { return nil }
-
-        return .init(
-            accessibilityIdentifier: model.accessibilityIdentifier,
-            accessibility: model.accessibility,
-            size: nil,
-            image: model.image,
-            onPress: model.onPress,
-            onLongPress: model.onLongPress,
-            contentModeIsFit: model.contentModeIsFit ?? true,
-            borderWidth: model.borderWidth,
-            borderColor: model.borderColor,
-            cornerRadius: model.cornerRadius,
-            alpha: model.alpha
-        )
     }
 
     private func normalizeIconImageModel(_ model: ImageViewPresentableModel?) -> ImageViewPresentableModel? {
@@ -327,13 +331,13 @@ final class SUICardViewStateModel: ObservableObject {
             borderWidth: model.borderWidth,
             borderColor: model.borderColor,
             cornerRadius: model.cornerRadius,
-            alpha: model.alpha
+            alpha: model.alpha,
+            systemSymbolName: model.systemSymbolName
         )
     }
 
     private func syncAdapters() {
         setBackgroundImage(backgroundImage)
-        setTitle(title)
         setLeadingTitles(leadingTitles)
         setTrailingTitles(trailingTitles)
         setLeadingImage(leadingImage)
@@ -342,6 +346,7 @@ final class SUICardViewStateModel: ObservableObject {
         setSecondaryTrailingImage(secondaryTrailingImage)
         setSubTitle(subTitle)
         setValueTitle(valueTitle)
+        setSwitchControl(switchControl)
     }
 }
 

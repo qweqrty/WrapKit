@@ -1,27 +1,31 @@
 import SwiftUI
 
-private final class SUIEmptyViewContentAdapters: ObservableObject {
-    let image = ImageViewOutputSwiftUIAdapter()
-    let title = TextOutputSwiftUIAdapter()
-    let subtitle = TextOutputSwiftUIAdapter()
-    let button = ButtonOutputSwiftUIAdapter()
-}
-
 public struct SUIEmptyView: View {
-    @ObservedObject var stateModel: SUIEmptyViewStateModel
+    @StateObject var stateModel: SUIEmptyViewStateModel
 
     public init(adapter: EmptyViewOutputSwiftUIAdapter) {
-        self.stateModel = .init(adapter: adapter)
+        _stateModel = .init(wrappedValue: .init(adapter: adapter))
+    }
+
+    init(stateModel: SUIEmptyViewStateModel) {
+        _stateModel = .init(wrappedValue: stateModel)
     }
 
     public var body: some View {
-        SUIEmptyViewContent(
-            title: stateModel.title,
-            subtitle: stateModel.subtitle,
-            buttonModel: stateModel.buttonModel,
-            image: stateModel.image
-        )
-        .opacity(stateModel.isHidden ? 0 : 1)
+        Group {
+            if !stateModel.isHidden {
+                SUIEmptyViewContent(
+                    title: stateModel.title,
+                    subtitle: stateModel.subtitle,
+                    buttonModel: stateModel.buttonModel,
+                    image: stateModel.image,
+                    isTitleHidden: stateModel.isTitleHidden,
+                    isSubtitleHidden: stateModel.isSubtitleHidden,
+                    isButtonHidden: stateModel.isButtonHidden,
+                    isImageHidden: stateModel.isImageHidden
+                )
+            }
+        }
         .animation(
             stateModel.animationConfig.isAnimated
                 ? .easeInOut(duration: stateModel.animationConfig.duration)
@@ -36,39 +40,95 @@ public struct SUIEmptyViewContent: View {
     let subtitle: TextOutputPresentableModel?
     let buttonModel: ButtonPresentableModel?
     let image: ImageViewPresentableModel?
+    let isTitleHidden: Bool
+    let isSubtitleHidden: Bool
+    let isButtonHidden: Bool
+    let isImageHidden: Bool
 
     public init(
         title: TextOutputPresentableModel? = nil,
         subtitle: TextOutputPresentableModel? = nil,
         buttonModel: ButtonPresentableModel? = nil,
-        image: ImageViewPresentableModel? = nil
+        image: ImageViewPresentableModel? = nil,
+        isTitleHidden: Bool = false,
+        isSubtitleHidden: Bool = false,
+        isButtonHidden: Bool = false,
+        isImageHidden: Bool = false
     ) {
         self.title = title
         self.subtitle = subtitle
         self.buttonModel = buttonModel
         self.image = image
+        self.isTitleHidden = isTitleHidden
+        self.isSubtitleHidden = isSubtitleHidden
+        self.isButtonHidden = isButtonHidden
+        self.isImageHidden = isImageHidden
     }
 
     public var body: some View {
         VStack(spacing: 16) {
-            if let image {
-                // SUIImageView требует adapter — пропустим пока или используем placeholder
-                // TODO: сделать SUIImageViewContent который принимает модель напрямую
+            if !isImageHidden {
+                if let image {
+                    SUIImageViewView(model: image)
+                } else {
+                    SwiftUIColor.clear.frame(height: 0)
+                }
             }
-            if let title {
-                SUILabelView(model: title)
+            if !isTitleHidden {
+                if let title {
+                    emptyLabel(title)
+                } else {
+                    SwiftUIColor.clear.frame(height: 0)
+                }
             }
-            if let subtitle {
-                SUILabelView(model: subtitle)
+            if !isSubtitleHidden {
+                if let subtitle {
+                    emptyLabel(subtitle)
+                } else {
+                    SwiftUIColor.clear.frame(height: 0)
+                }
             }
-            if let buttonModel {
+            if !isButtonHidden {
                 SUIButtonView(
-                    model: buttonModel,
-                    onPress: buttonModel.onPress,
-                    isEnabled: true
+                    model: emptyButtonModel(from: buttonModel ?? .init()),
+                    onPress: buttonModel?.onPress,
+                    isEnabled: true,
+                    fillsAvailableHeight: false
                 )
+                .frame(minHeight: systemButtonMinimumHeight)
             }
         }
         .padding(12)
+    }
+
+    private func emptyLabel(_ model: TextOutputPresentableModel) -> some View {
+        SUILabelView(
+            model: model,
+            font: .systemFont(ofSize: 20),
+            textColor: .label,
+            textAlignment: .natural
+        )
+        .fixedSize(horizontal: false, vertical: true)
+    }
+
+    private func emptyButtonModel(from model: ButtonPresentableModel) -> ButtonPresentableModel {
+        ButtonPresentableModel(
+            accessibilityIdentifier: model.accessibilityIdentifier,
+            title: model.title,
+            spacing: model.spacing,
+            style: model.style,
+            onPress: model.onPress
+        )
+    }
+
+    private var systemButtonMinimumHeight: CGFloat? {
+        guard buttonModel?.title != nil else {
+            // An empty UIButton keeps its regular control height.
+            return 34
+        }
+        guard isAvailableOS26 else { return nil }
+        // UIButton rounds its title label's line height to whole points for intrinsic sizing.
+        let font = buttonModel?.style?.font ?? .systemFont(ofSize: 18)
+        return ceil(font.lineHeight)
     }
 }

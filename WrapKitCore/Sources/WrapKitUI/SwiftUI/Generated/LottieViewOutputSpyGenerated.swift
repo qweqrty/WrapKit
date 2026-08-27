@@ -17,9 +17,6 @@ import SwiftUI
 #if canImport(Lottie)
 import Lottie
 #endif
-#if canImport(UIKit)
-import UIKit
-#endif
 
 public final class LottieViewOutputSpy: LottieViewOutput {
 

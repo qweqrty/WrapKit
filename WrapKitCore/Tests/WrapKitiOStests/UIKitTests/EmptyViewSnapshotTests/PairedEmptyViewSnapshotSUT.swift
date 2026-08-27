@@ -2,9 +2,6 @@
 //  PairedEmptyViewSnapshotSUT.swift
 //  WrapKit
 //
-//  Created by Urmatbek Marat Uulu on 25/5/26.
-//
-
 
 import WrapKit
 import WrapKitTestUtils
@@ -13,16 +10,20 @@ import UIKit
 #if canImport(SwiftUI)
 import SwiftUI
 
-final class PairedEmptyViewSnapshotSUT {
+final class PairedEmptyViewSnapshotSUT: EmptyViewOutput, PairedSnapshotSource {
     let uiKitView: WrapKit.EmptyView
+
+    private let uiKitContainer: UIView
     private let swiftUIAdapter: EmptyViewOutputSwiftUIAdapter
     private var swiftUIBackgroundColor: UIColor = .clear
     private var swiftUIIsHidden = false
 
     init(
+        uiKitContainer: UIView,
         uiKitView: WrapKit.EmptyView = EmptyView(),
         swiftUIAdapter: EmptyViewOutputSwiftUIAdapter = EmptyViewOutputSwiftUIAdapter()
     ) {
+        self.uiKitContainer = uiKitContainer
         self.uiKitView = uiKitView
         self.swiftUIAdapter = swiftUIAdapter
     }
@@ -56,7 +57,6 @@ final class PairedEmptyViewSnapshotSUT {
     func display(model: EmptyViewPresentableModel?) {
         uiKitView.display(model: model)
         swiftUIAdapter.display(model: model)
-        swiftUIIsHidden = model == nil
     }
 
     func display(backgroundColor: UIColor) {
@@ -64,44 +64,48 @@ final class PairedEmptyViewSnapshotSUT {
         swiftUIBackgroundColor = backgroundColor
     }
 
+    func uiKitSnapshot(for appearance: SnapshotAppearance) -> UIImage {
+        uiKitContainer.snapshot(for: appearance.uiKitConfiguration)
+    }
+
     @available(iOS 17.0, *)
-    func swiftUISnapshot(for colorScheme: ColorScheme) -> UIImage {
+    func swiftUISnapshot(for appearance: SnapshotAppearance) -> UIImage {
         let rootView = SnapshotMirroredEmptyViewContainer(
-            adapter: swiftUIAdapter,
+            content: AnyView(SUIEmptyView(adapter: swiftUIAdapter)),
             backgroundColor: swiftUIBackgroundColor,
-            isHidden: swiftUIIsHidden,
-            height: uiKitView.bounds.height
+            isHidden: swiftUIIsHidden
         )
-            .environment(\.colorScheme, colorScheme)
+        .environment(\.colorScheme, appearance.colorScheme)
 
         let hostingController = UIHostingController(rootView: rootView)
-        hostingController.overrideUserInterfaceStyle = colorScheme == .dark ? .dark : .light
+        hostingController.overrideUserInterfaceStyle = appearance.userInterfaceStyle
         hostingController.view.backgroundColor = .clear
 
+        prepareForRendering(hostingController)
+        return hostingController.snapshot(for: appearance.uiKitConfiguration)
+    }
+
+    private func prepareForRendering(_ hostingController: UIViewController) {
+        hostingController.loadViewIfNeeded()
+        hostingController.view.frame = CGRect(origin: .zero, size: SnapshotConfiguration.size)
         let warmup: TimeInterval = 0.3
         RunLoop.main.run(until: Date().addingTimeInterval(warmup))
         hostingController.view.setNeedsLayout()
         hostingController.view.layoutIfNeeded()
         RunLoop.main.run(until: Date().addingTimeInterval(warmup))
-
-        return hostingController.snapshot(
-            for: .iPhone(style: colorScheme == .dark ? .dark : .light)
-        )
     }
 }
 
 @available(iOS 17.0, *)
 private struct SnapshotMirroredEmptyViewContainer: View {
-    let adapter: EmptyViewOutputSwiftUIAdapter
+    let content: AnyView
     let backgroundColor: UIColor
     let isHidden: Bool
-    let height: CGFloat
 
     var body: some View {
         VStack(spacing: 0) {
-            SUIEmptyView(adapter: adapter)
+            content
                 .frame(maxWidth: .infinity)
-                .frame(height: height, alignment: .top)
                 .background(isHidden ? SwiftUIColor.clear : SwiftUIColor(backgroundColor))
             Spacer(minLength: 0)
         }

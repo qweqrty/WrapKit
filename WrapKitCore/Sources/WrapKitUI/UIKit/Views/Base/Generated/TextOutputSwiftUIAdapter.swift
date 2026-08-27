@@ -30,14 +30,10 @@ public class TextOutputSwiftUIAdapter: ObservableObject, TextOutput {
 
     @Published public var displayModelState: DisplayModelState? = nil
     public struct DisplayModelState {
-        public let model: TextOutputPresentableModel
+        public let model: TextOutputPresentableModel?
     }
     public func display(model: TextOutputPresentableModel?) {
-        guard let model else {
-            display(isHidden: true)
-            return
-        }
-        display(isHidden: false)
+        display(isHidden: model == nil)
         displayModelState = .init(
             model: model
         )
@@ -53,14 +49,10 @@ public class TextOutputSwiftUIAdapter: ObservableObject, TextOutput {
     }
     @Published public var displayTextState: DisplayTextState? = nil
     public struct DisplayTextState {
-        public let text: String
+        public let text: String?
     }
     public func display(text: String?) {
-        guard let text else {
-            display(isHidden: true)
-            return
-        }
-        display(isHidden: false)
+        display(isHidden: text.isEmpty)
         displayTextState = .init(
             text: text
         )

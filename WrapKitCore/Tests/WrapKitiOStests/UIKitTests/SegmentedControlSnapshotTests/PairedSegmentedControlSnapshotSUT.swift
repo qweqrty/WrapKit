@@ -3,93 +3,95 @@
 //  WrapKitTests
 //
 
-import UIKit
 import WrapKit
 import WrapKitTestUtils
+import UIKit
 
 #if canImport(SwiftUI)
 import SwiftUI
 
-final class PairedSegmentedControlSnapshotSUT {
+final class PairedSegmentedControlSnapshotSUT: SegmentedControlOutput, PairedSnapshotSource {
     let uiKitView: SegmentedControl
 
-    let adapter: SegmentedControlOutputSwiftUIAdapter
+    private let uiKitContainer: UIView
+    private let swiftUIAdapter: SegmentedControlOutputSwiftUIAdapter
     private var appearance: SegmentedControlAppearance
+    private let snapshotHeight: CGFloat
 
     init(
+        uiKitContainer: UIView,
         appearance: SegmentedControlAppearance,
+        snapshotHeight: CGFloat,
         swiftUIAdapter: SegmentedControlOutputSwiftUIAdapter = SegmentedControlOutputSwiftUIAdapter()
     ) {
+        self.uiKitContainer = uiKitContainer
         self.appearance = appearance
+        self.snapshotHeight = snapshotHeight
         self.uiKitView = SegmentedControl(appearance: appearance)
-        self.adapter = swiftUIAdapter
+        self.swiftUIAdapter = swiftUIAdapter
     }
 
     func display(appearence: SegmentedControlAppearance) {
         appearance = appearence
         uiKitView.display(appearence: appearence)
-        adapter.display(appearence: appearence)
+        swiftUIAdapter.display(appearence: appearence)
     }
 
     func display(segments: [SegmentControlModel]) {
         uiKitView.display(segments: segments)
-        adapter.display(segments: segments)
+        swiftUIAdapter.display(segments: segments)
+    }
+
+    func uiKitSnapshot(for appearance: SnapshotAppearance) -> UIImage {
+        uiKitContainer.snapshot(for: appearance.uiKitConfiguration)
     }
 
     @available(iOS 17.0, *)
-    func swiftUISnapshot(for colorScheme: ColorScheme) -> UIImage {
-        let traitStyle: UIUserInterfaceStyle = colorScheme == .dark ? .dark : .light
+    func swiftUISnapshot(for snapshotAppearance: SnapshotAppearance) -> UIImage {
         let rootView = SnapshotMirroredSegmentedControlContainer(
-            adapter: adapter,
-            appearance: resolvedAppearance(for: traitStyle),
+            content: AnyView(SUISegmentControlView(
+                adapter: swiftUIAdapter,
+                appearance: appearance
+            )),
             height: snapshotHeight
         )
+        .environment(\.colorScheme, snapshotAppearance.colorScheme)
         .ignoresSafeArea(.all)
 
         let hostingController = UIHostingController(rootView: rootView)
+        hostingController.overrideUserInterfaceStyle = snapshotAppearance.userInterfaceStyle
         hostingController.view.backgroundColor = .clear
+
+        prepareForRendering(hostingController)
+        return hostingController.snapshot(for: snapshotAppearance.uiKitConfiguration)
+    }
+
+    private func prepareForRendering(_ hostingController: UIViewController) {
+        hostingController.loadViewIfNeeded()
+        hostingController.view.frame = CGRect(origin: .zero, size: SnapshotConfiguration.size)
         hostingController.view.setNeedsLayout()
         hostingController.view.layoutIfNeeded()
-
-        return hostingController.snapshot(
-            for: .iPhone(style: colorScheme == .dark ? .dark : .light)
-        )
-    }
-
-    private var snapshotHeight: CGFloat {
-        let height = uiKitView.bounds.height
-        guard height > 0 else { return uiKitView.intrinsicContentSize.height }
-        return height
-    }
-
-    private func resolvedAppearance(for traitStyle: UIUserInterfaceStyle) -> SegmentedControlAppearance {
-        .init(
-            colors: .init(
-                textColor: appearance.colors.textColor.resolvedColor(with: UITraitCollection(userInterfaceStyle: traitStyle)),
-                backgroundColor: appearance.colors.backgroundColor.resolvedColor(with: UITraitCollection(userInterfaceStyle: traitStyle)),
-                selectedBackgroundColor: appearance.colors.selectedBackgroundColor.resolvedColor(with: UITraitCollection(userInterfaceStyle: traitStyle))
-            ),
-            font: appearance.font,
-            cornerRadius: appearance.cornerRadius
-        )
     }
 }
 
 @available(iOS 17.0, *)
 private struct SnapshotMirroredSegmentedControlContainer: View {
-    let adapter: SegmentedControlOutputSwiftUIAdapter
-    let appearance: SegmentedControlAppearance
+    let content: AnyView
     let height: CGFloat
 
     var body: some View {
         VStack(spacing: 0) {
-            SUISegmentControlView(adapter: adapter, appearance: appearance)
-                .frame(maxWidth: .infinity, minHeight: height, maxHeight: height, alignment: .top)
+            content
+                .frame(
+                    maxWidth: .infinity,
+                    minHeight: height,
+                    maxHeight: height,
+                    alignment: .top
+                )
             Spacer(minLength: 0)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .background(SwiftUIColor.clear)
     }
 }
-
 #endif

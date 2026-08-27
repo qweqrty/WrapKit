@@ -10,8 +10,39 @@ import Foundation
 import SwiftUI
 import CoreText
 
+private final class CoreTextAttachmentMetrics {
+    let bounds: CGRect
+
+    init(bounds: CGRect) {
+        self.bounds = bounds
+    }
+}
+
+private func releaseCoreTextAttachmentMetrics(_ pointer: UnsafeMutableRawPointer) {
+    Unmanaged<CoreTextAttachmentMetrics>.fromOpaque(pointer).release()
+}
+
+private func coreTextAttachmentAscent(_ pointer: UnsafeMutableRawPointer) -> CGFloat {
+    let bounds = Unmanaged<CoreTextAttachmentMetrics>.fromOpaque(pointer).takeUnretainedValue().bounds
+    return max(bounds.maxY, 0)
+}
+
+private func coreTextAttachmentDescent(_ pointer: UnsafeMutableRawPointer) -> CGFloat {
+    let bounds = Unmanaged<CoreTextAttachmentMetrics>.fromOpaque(pointer).takeUnretainedValue().bounds
+    return max(-bounds.minY, 0)
+}
+
+private func coreTextAttachmentWidth(_ pointer: UnsafeMutableRawPointer) -> CGFloat {
+    let bounds = Unmanaged<CoreTextAttachmentMetrics>.fromOpaque(pointer).takeUnretainedValue().bounds
+    return max(bounds.width, 0)
+}
+
+private let coreTextManualUnderlineStyleKey = NSAttributedString.Key(
+    "WrapKit.SUILabel.ManualUnderlineStyle"
+)
+
 public struct SUILabel: View {
-    @ObservedObject var stateModel: SUILabelStateModel
+    @StateObject var stateModel: SUILabelStateModel
 
     private let defaultFont: Font
     private let defaultTextColor: Color
@@ -23,7 +54,7 @@ public struct SUILabel: View {
         textColor: Color = .label,
         textAlignment: TextAlignment = .natural
     ) {
-        self.stateModel = .init(adapter: adapter)
+        _stateModel = StateObject(wrappedValue: SUILabelStateModel(adapter: adapter))
         self.defaultFont = font
         self.defaultTextColor = textColor
         self.defaultTextAlignment = textAlignment
@@ -70,80 +101,89 @@ public struct SUILabelView: View, Animatable {
     }
 
     public var body: some View {
-        switch model.model {
-        case .textStyled(let text, let cornerStyle, let insets, _, let backgroundColor):
-            SUILabelView(
-                model: .init(accessibilityIdentifier: model.accessibilityIdentifier, model: text),
-                font: defaultFont,
-                textColor: defaultTextColor,
-                textAlignment: defaultTextAlignment
-            )
-            .if(!insets.isZero) { $0.padding(insets.asSUIEdgeInsets) }
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-            .ifLet(backgroundColor) { $0.background(SwiftUIColor($1)) }
-            .ifLet(cornerStyle) { $0.cornerStyle($1) }
+        Group {
+            switch model.model {
+            case .textStyled(let text, let cornerStyle, let insets, _, let backgroundColor):
+                SUILabelView(
+                    model: .init(
+                        accessibilityIdentifier: model.accessibilityIdentifier,
+                        accessibility: model.accessibility,
+                        model: text
+                    ),
+                    font: defaultFont,
+                    textColor: defaultTextColor,
+                    textAlignment: defaultTextAlignment
+                )
+                .if(!insets.isZero) { $0.padding(insets.asSUIEdgeInsets) }
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                .ifLet(backgroundColor) { $0.background(SwiftUIColor($1)) }
+                .ifLet(cornerStyle) { $0.cornerStyle($1) }
 
-        case .animatedDecimal(_, let from, let to, let mapToString, let animationStyle, let duration, let completion):
-            animatedContainer(
-                from: from,
-                to: to,
-                mapToString: mapToString,
-                animationStyle: animationStyle,
-                duration: duration,
-                completion: completion
-            )
+            case .animatedDecimal(_, let from, let to, let mapToString, let animationStyle, let duration, let completion):
+                animatedContainer(
+                    from: from,
+                    to: to,
+                    mapToString: mapToString,
+                    animationStyle: animationStyle,
+                    duration: duration,
+                    completion: completion
+                )
 
-        case .animated(_, let from, let to, let mapToString, let animationStyle, let duration, let completion):
-            let mapper: ((Decimal) -> TextOutputPresentableModel.TextModel)? = if let mapToString {
-                { mapToString($0.doubleValue) }
-            } else {
-                nil
-            }
-            animatedContainer(
-                from: from.asDecimal(),
-                to: to.asDecimal(),
-                mapToString: mapper,
-                animationStyle: animationStyle,
-                duration: duration,
-                completion: completion
-            )
-
-        default:
-            if let inlineImageText {
-                verticallyCenteredContent {
-                    inlineImageText
-                        .font(SwiftUIFont(defaultFont))
-                        .textColor(SwiftUIColor(defaultTextColor))
-                        .multilineTextAlignment(multilineAlignment(from: defaultTextAlignment))
-                        .frame(
-                            maxWidth: .infinity,
-                            alignment: frameAlignment(from: defaultTextAlignment)
-                        )
-                }
-            } else if let plainText {
-                verticallyCenteredContent {
-                    Text(plainText)
-                        .font(SwiftUIFont(defaultFont))
-                        .textColor(SwiftUIColor(defaultTextColor))
-                        .multilineTextAlignment(multilineAlignment(from: defaultTextAlignment))
-                        .frame(
-                            maxWidth: .infinity,
-                            alignment: frameAlignment(from: defaultTextAlignment)
-                        )
-                }
-            } else if let nsAttributedText {
-                if #available(iOS 15, macOS 12, tvOS 15, watchOS 8, *) {
-                    CoreTextAttributedLabel(
-                        attributedText: coreTextAttributedString(from: nsAttributedText),
-                        alignment: effectiveTextAlignment(
-                            in: nsAttributedText,
-                            fallback: defaultTextAlignment
-                        )
-                    )
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            case .animated(_, let from, let to, let mapToString, let animationStyle, let duration, let completion):
+                let mapper: ((Decimal) -> TextOutputPresentableModel.TextModel)? = if let mapToString {
+                    { mapToString($0.doubleValue) }
                 } else {
+                    nil
+                }
+                animatedContainer(
+                    from: from.asDecimal(),
+                    to: to.asDecimal(),
+                    mapToString: mapper,
+                    animationStyle: animationStyle,
+                    duration: duration,
+                    completion: completion
+                )
+
+            default:
+                if let plainText {
                     verticallyCenteredContent {
-                        Text(nsAttributedText.string)
+                        Text(plainText)
+                            .font(SwiftUIFont(defaultFont))
+                            .textColor(SwiftUIColor(defaultTextColor))
+                            .multilineTextAlignment(multilineAlignment(from: defaultTextAlignment))
+                            .frame(
+                                maxWidth: .infinity,
+                                alignment: frameAlignment(from: defaultTextAlignment)
+                            )
+                    }
+                } else if let attributedContent {
+                    if #available(iOS 15, macOS 12, tvOS 15, watchOS 8, *) {
+                        CoreTextAttributedLabel(
+                            attributedText: coreTextAttributedString(
+                                from: attributedContent.attributedText
+                            ),
+                            alignment: effectiveTextAlignment(
+                                in: attributedContent.attributedText,
+                                fallback: defaultTextAlignment
+                            ),
+                            tapActions: attributedContent.tapActions
+                        )
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    } else {
+                        verticallyCenteredContent {
+                            Text(attributedContent.attributedText.string)
+                                .font(SwiftUIFont(defaultFont))
+                                .textColor(SwiftUIColor(defaultTextColor))
+                                .multilineTextAlignment(multilineAlignment(from: defaultTextAlignment))
+                                .frame(
+                                    maxWidth: .infinity,
+                                    alignment: frameAlignment(from: defaultTextAlignment)
+                                )
+                        }
+                    }
+                } else if let fallbackPlainText {
+                    verticallyCenteredContent {
+                        Text(fallbackPlainText)
                             .font(SwiftUIFont(defaultFont))
                             .textColor(SwiftUIColor(defaultTextColor))
                             .multilineTextAlignment(multilineAlignment(from: defaultTextAlignment))
@@ -153,19 +193,28 @@ public struct SUILabelView: View, Animatable {
                             )
                     }
                 }
-            } else if let fallbackPlainText {
-                verticallyCenteredContent {
-                    Text(fallbackPlainText)
-                        .font(SwiftUIFont(defaultFont))
-                        .textColor(SwiftUIColor(defaultTextColor))
-                        .multilineTextAlignment(multilineAlignment(from: defaultTextAlignment))
-                        .frame(
-                            maxWidth: .infinity,
-                            alignment: frameAlignment(from: defaultTextAlignment)
-                        )
-                }
             }
         }
+        .modifier(LabelAccessibilityModifier(
+            identifier: model.accessibilityIdentifier,
+            label: model.accessibility?.label,
+            hint: model.accessibility?.hint,
+            isTappable: hasTappableAttributes
+        ))
+    }
+
+    private var hasTappableAttributes: Bool {
+        func containsTap(_ textModel: TextOutputPresentableModel.TextModel?) -> Bool {
+            switch textModel {
+            case .attributes(let attributes):
+                return attributes.contains { $0.onTap != nil }
+            case .textStyled(let nested, _, _, _, _):
+                return containsTap(nested)
+            default:
+                return false
+            }
+        }
+        return containsTap(model.model)
     }
 
     private var plainText: String? {
@@ -197,25 +246,7 @@ public struct SUILabelView: View, Animatable {
         )
     }
 
-    private var inlineImageText: Text? {
-        guard case .attributes(let attributes) = model.model, !attributes.isEmpty else { return nil }
-        guard attributes.contains(where: { $0.leadingImage != nil || $0.trailingImage != nil }) else { return nil }
-
-        var result = Text("")
-        for attribute in attributes {
-            let text = attribute.text.removingPercentEncoding ?? attribute.text
-            if let leadingImage = attribute.leadingImage {
-                result = result + Text(SwiftUIImage(image: leadingImage)) + Text(" ")
-            }
-            result = result + Text(text)
-            if let trailingImage = attribute.trailingImage {
-                result = result + Text(" ") + Text(SwiftUIImage(image: trailingImage))
-            }
-        }
-        return result
-    }
-
-    private var nsAttributedText: NSAttributedString? {
+    private var attributedContent: SUILabelAttributedContent? {
         switch model.model {
         case .text(let string):
             let text = string?.removingPercentEncoding ?? string ?? ""
@@ -226,12 +257,12 @@ public struct SUILabelView: View, Animatable {
                 color: defaultTextColor,
                 textAlignment: defaultTextAlignment
             )
-            return attributed
+            return .init(
+                attributedText: attributed,
+                tapActions: []
+            )
 
         case .attributes(let attributes):
-            guard !attributes.contains(where: { $0.leadingImage != nil || $0.trailingImage != nil }) else {
-                return nil
-            }
             guard !attributes.isEmpty else { return nil }
             var normalized = attributes
             for index in normalized.indices {
@@ -242,7 +273,14 @@ public struct SUILabelView: View, Animatable {
                 textColor: defaultTextColor,
                 textAlignment: defaultTextAlignment
             )
-            return attributed
+            let tapActions = normalized.compactMap { attribute -> SUILabelTapAction? in
+                guard let range = attribute.range, let onTap = attribute.onTap else { return nil }
+                return .init(id: attribute.id, range: range, perform: onTap)
+            }
+            return .init(
+                attributedText: attributed,
+                tapActions: tapActions
+            )
 
         case .attributedString(let htmlString, let config):
             guard
@@ -251,7 +289,10 @@ public struct SUILabelView: View, Animatable {
             else {
                 return nil
             }
-            return attributed
+            return .init(
+                attributedText: attributed,
+                tapActions: []
+            )
 
         default:
             return nil
@@ -357,108 +398,215 @@ public struct SUILabelView: View, Animatable {
 
     private func coreTextAttributedString(from attributedText: NSAttributedString) -> NSAttributedString {
         let mutable = NSMutableAttributedString(attributedString: attributedText)
+        let source = NSAttributedString(attributedString: attributedText)
         let wholeRange = NSRange(location: 0, length: mutable.length)
-        let shouldForceDefaultColor = modelUsesOnlyDefaultColors
 
         mutable.enumerateAttributes(in: wholeRange) { attributes, range, _ in
-            if shouldForceDefaultColor {
+            if attributes[.foregroundColor] == nil
+                || attributes[.foregroundColor] as? Color == .label {
                 mutable.addAttribute(.foregroundColor, value: resolvedDefaultPlatformTextColor, range: range)
-            } else if attributes[.foregroundColor] == nil {
-                mutable.addAttribute(.foregroundColor, value: resolvedDefaultPlatformTextColor, range: range)
-            } else if let color = attributes[.foregroundColor] as? Color, color == .label {
-                mutable.addAttribute(.foregroundColor, value: resolvedDefaultPlatformTextColor, range: range)
+            }
+            if attributes[.font] == nil {
+                mutable.addAttribute(.font, value: defaultFont, range: range)
+            }
+            if attributes[.paragraphStyle] == nil {
+                mutable.addAttribute(
+                    .paragraphStyle,
+                    value: nearestParagraphStyle(in: source, around: range) ?? defaultParagraphStyle,
+                    range: range
+                )
             }
         }
 
         return mutable
     }
 
-    private var modelUsesOnlyDefaultColors: Bool {
-        guard case .attributes(let attributes) = model.model else { return false }
-        return attributes.allSatisfy { $0.color == nil }
+    private func nearestParagraphStyle(
+        in attributedText: NSAttributedString,
+        around range: NSRange
+    ) -> ParagraphStyle? {
+        if range.upperBound < attributedText.length,
+           let style = attributedText.attribute(
+               .paragraphStyle,
+               at: range.upperBound,
+               effectiveRange: nil
+           ) as? ParagraphStyle {
+            return style
+        }
+        if range.location > 0,
+           let style = attributedText.attribute(
+               .paragraphStyle,
+               at: range.location - 1,
+               effectiveRange: nil
+           ) as? ParagraphStyle {
+            return style
+        }
+        return nil
+    }
+
+    private var defaultParagraphStyle: ParagraphStyle {
+        let style = MutableParagraphStyle()
+        style.alignment = defaultTextAlignment
+        return style
     }
 
     private var resolvedDefaultPlatformTextColor: Color {
-        switch colorScheme {
-        case .dark:
-            return .white
-        default:
-            return .black
-        }
+        guard defaultTextColor == .label else { return defaultTextColor }
+        return colorScheme == .dark ? .white : .black
     }
 
+}
+
+private struct SUILabelAttributedContent {
+    let attributedText: NSAttributedString
+    let tapActions: [SUILabelTapAction]
+}
+
+struct SUILabelTapAction {
+    let id: String
+    let range: NSRange
+    let perform: () -> Void
+}
+
+private struct LabelAccessibilityModifier: ViewModifier {
+    let identifier: String?
+    let label: String?
+    let hint: String?
+    let isTappable: Bool
+
+    func body(content: Content) -> some View {
+        content
+            .accessibilityElement(children: .combine)
+            .ifLet(identifier) { view, identifier in
+                view.accessibilityIdentifier(identifier)
+            }
+            .ifLet(label) { view, label in
+                view.accessibilityLabel(SwiftUI.Text(label))
+            }
+            .ifLet(hint) { view, hint in
+                view.accessibilityHint(SwiftUI.Text(hint))
+            }
+            .if(isTappable) { view in
+                view.accessibilityAddTraits(.isButton)
+            }
+    }
 }
 
 @available(iOS 15, macOS 12, tvOS 15, watchOS 8, *)
 private struct CoreTextAttributedLabel: View {
     @Environment(\.displayScale) private var displayScale
-    private let verticalCorrection: CGFloat = -63
+    @Environment(\.colorScheme) private var colorScheme
+
+    private struct AttachmentPlacement {
+        let image: Image
+        let rect: CGRect
+    }
+
+    private struct LayoutResult {
+        let attributedText: NSAttributedString
+        let frame: CTFrame
+        let verticalInset: CGFloat
+    }
+
+    private struct TapRegion: Identifiable {
+        struct ID: Hashable {
+            let actionID: String
+            let lineIndex: Int
+        }
+
+        let id: ID
+        let rect: CGRect
+        let perform: () -> Void
+    }
 
     let attributedText: NSAttributedString
     let alignment: TextAlignment
+    let tapActions: [SUILabelTapAction]
 
     var body: some View {
-        GeometryReader { _ in
-            Canvas(opaque: false, colorMode: .linear, rendersAsynchronously: false) { context, size in
-                let scale = max(displayScale, 1)
-                let pixelWidth = max(Int(ceil(size.width * scale)), 1)
-                let pixelHeight = max(Int(ceil(size.height * scale)), 1)
+        GeometryReader { geometry in
+            ZStack(alignment: .topLeading) {
+                Canvas(opaque: false, colorMode: .linear, rendersAsynchronously: false) { context, size in
+                    guard let layout = makeLayout(in: size) else { return }
 
-                guard let bitmapContext = CGContext(
-                    data: nil,
-                    width: pixelWidth,
-                    height: pixelHeight,
-                    bitsPerComponent: 8,
-                    bytesPerRow: 0,
-                    space: CGColorSpaceCreateDeviceRGB(),
-                    bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
-                ) else { return }
+                    let scale = max(displayScale, 1)
+                    let pixelWidth = max(Int(ceil(size.width * scale)), 1)
+                    let pixelHeight = max(Int(ceil(size.height * scale)), 1)
+                    guard let bitmapContext = CGContext(
+                        data: nil,
+                        width: pixelWidth,
+                        height: pixelHeight,
+                        bitsPerComponent: 8,
+                        bytesPerRow: 0,
+                        space: CGColorSpaceCreateDeviceRGB(),
+                        bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+                    ) else { return }
 
-                let constrainedSize = CGSize(width: size.width, height: .greatestFiniteMagnitude)
-                let textOnlyAttributedText = textAttributedStringWithoutUnderline(from: attributedText)
-                let framesetter = CTFramesetterCreateWithAttributedString(textOnlyAttributedText as CFAttributedString)
-                let suggestedSize = CTFramesetterSuggestFrameSizeWithConstraints(
-                    framesetter,
-                    CFRange(location: 0, length: textOnlyAttributedText.length),
-                    nil,
-                    constrainedSize,
-                    nil
-                )
+                    bitmapContext.scaleBy(x: scale, y: scale)
+                    bitmapContext.textMatrix = .identity
+                    bitmapContext.translateBy(x: 0, y: size.height)
+                    bitmapContext.scaleBy(x: 1, y: -1)
+                    bitmapContext.translateBy(x: 0, y: layout.verticalInset)
+                    bitmapContext.setAllowsAntialiasing(true)
+                    bitmapContext.setShouldAntialias(true)
+                    bitmapContext.setShouldSmoothFonts(true)
+                    draw(frame: layout.frame, in: bitmapContext, scale: scale)
 
-                let textHeight = min(ceil(suggestedSize.height), size.height)
-                let verticalInset = max((size.height - textHeight) / 2, 0)
-                // CoreText uses bottom-left coordinates. Since we flip the drawing context to top-left
-                // before CTLineDraw, convert top inset into bottom-left space to avoid shifting text down.
-                let pathOriginY = max(size.height - textHeight - verticalInset, 0)
-                let pathRect = CGRect(x: 0, y: pathOriginY, width: size.width, height: max(textHeight, 1))
-                let path = CGPath(rect: pathRect, transform: nil)
-                let frame = CTFramesetterCreateFrame(
-                    framesetter,
-                    CFRange(location: 0, length: textOnlyAttributedText.length),
-                    path,
-                    nil
-                )
+                    guard let image = bitmapContext.makeImage() else { return }
+                    context.withCGContext { cgContext in
+                        cgContext.saveGState()
+                        cgContext.interpolationQuality = .high
+                        cgContext.draw(image, in: CGRect(origin: .zero, size: size))
+                        cgContext.restoreGState()
+                    }
 
-                bitmapContext.scaleBy(x: scale, y: scale)
-                bitmapContext.textMatrix = .identity
-                bitmapContext.translateBy(x: 0, y: size.height)
-                bitmapContext.scaleBy(x: 1, y: -1)
-                bitmapContext.setAllowsAntialiasing(true)
-                bitmapContext.setShouldAntialias(true)
-                bitmapContext.setShouldSmoothFonts(true)
-                draw(frame: frame, in: bitmapContext, scale: scale)
+                    for placement in attachmentPlacements(
+                        in: layout.frame,
+                        canvasHeight: size.height,
+                        verticalInset: layout.verticalInset
+                    ) {
+                        context.draw(SwiftUIImage(image: placement.image), in: placement.rect)
+                    }
+                }
 
-                guard let image = bitmapContext.makeImage() else { return }
-                context.withCGContext { cgContext in
-                    cgContext.saveGState()
-                    cgContext.interpolationQuality = .high
-                    cgContext.draw(image, in: CGRect(origin: .zero, size: size))
-                    cgContext.restoreGState()
+                ForEach(tapRegions(in: geometry.size)) { region in
+                    SwiftUIColor.clear
+                        .frame(width: region.rect.width, height: region.rect.height)
+                        .contentShape(Rectangle())
+                        .position(x: region.rect.midX, y: region.rect.midY)
+                        .accessibilityHidden(true)
+                        .onTapGesture(perform: region.perform)
                 }
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: frameAlignment(for: alignment))
-        .offset(y: verticalCorrection)
+    }
+
+    private func makeLayout(in size: CGSize) -> LayoutResult? {
+        guard size.width > 0, size.height > 0 else { return nil }
+
+        let text = textAttributedStringWithoutUnderline(from: attributedText)
+        let framesetter = CTFramesetterCreateWithAttributedString(text as CFAttributedString)
+        let suggestedSize = CTFramesetterSuggestFrameSizeWithConstraints(
+            framesetter,
+            CFRange(location: 0, length: text.length),
+            nil,
+            CGSize(width: size.width, height: .greatestFiniteMagnitude),
+            nil
+        )
+        let textHeight = min(ceil(suggestedSize.height), size.height)
+        let verticalInset = max((size.height - textHeight) / 2, 0)
+        let path = CGPath(
+            rect: CGRect(x: 0, y: 0, width: size.width, height: max(textHeight, 1)),
+            transform: nil
+        )
+        let frame = CTFramesetterCreateFrame(
+            framesetter,
+            CFRange(location: 0, length: text.length),
+            path,
+            nil
+        )
+        return .init(attributedText: text, frame: frame, verticalInset: verticalInset)
     }
 
     private func frameAlignment(for alignment: TextAlignment) -> Alignment {
@@ -472,9 +620,89 @@ private struct CoreTextAttributedLabel: View {
         }
     }
 
+    private func tapRegions(in size: CGSize) -> [TapRegion] {
+        guard !tapActions.isEmpty, let layout = makeLayout(in: size) else { return [] }
+
+        let lines = CTFrameGetLines(layout.frame) as? [CTLine] ?? []
+        guard !lines.isEmpty else { return [] }
+
+        var lineOrigins = Array(repeating: CGPoint.zero, count: lines.count)
+        CTFrameGetLineOrigins(layout.frame, CFRange(location: 0, length: 0), &lineOrigins)
+        let contentBounds = CGRect(origin: .zero, size: size)
+        let completeRange = NSRange(location: 0, length: layout.attributedText.length)
+        var regions: [TapRegion] = []
+
+        for action in tapActions {
+            let actionRange = NSIntersectionRange(action.range, completeRange)
+            guard actionRange.length > 0 else { continue }
+
+            for (lineIndex, line) in lines.enumerated() {
+                let lineRange = CTLineGetStringRange(line)
+                guard lineRange.location != kCFNotFound else { continue }
+                let intersection = NSIntersectionRange(
+                    actionRange,
+                    NSRange(location: lineRange.location, length: lineRange.length)
+                )
+                guard intersection.length > 0 else { continue }
+
+                let start = CTLineGetOffsetForStringIndex(line, intersection.location, nil)
+                let end = CTLineGetOffsetForStringIndex(line, intersection.upperBound, nil)
+                var ascent: CGFloat = 0
+                var descent: CGFloat = 0
+                CTLineGetTypographicBounds(line, &ascent, &descent, nil)
+
+                let origin = lineOrigins[lineIndex]
+                let coreTextRect = CGRect(
+                    x: origin.x + min(start, end),
+                    y: origin.y - descent,
+                    width: abs(end - start),
+                    height: ascent + descent
+                )
+                let viewRect = CGRect(
+                    x: coreTextRect.minX,
+                    y: size.height - coreTextRect.maxY - layout.verticalInset,
+                    width: coreTextRect.width,
+                    height: coreTextRect.height
+                ).intersection(contentBounds)
+                guard !viewRect.isNull, viewRect.width > 0, viewRect.height > 0 else { continue }
+
+                regions.append(.init(
+                    id: .init(actionID: action.id, lineIndex: lineIndex),
+                    rect: viewRect,
+                    perform: action.perform
+                ))
+            }
+        }
+        return regions
+    }
+
     private func textAttributedStringWithoutUnderline(from attributedText: NSAttributedString) -> NSAttributedString {
         let mutable = NSMutableAttributedString(attributedString: attributedText)
         let wholeRange = NSRange(location: 0, length: mutable.length)
+
+        mutable.enumerateAttribute(.attachment, in: wholeRange) { value, range, _ in
+            guard let attachment = value as? NSTextAttachment else { return }
+
+            let pointer = Unmanaged.passRetained(
+                CoreTextAttachmentMetrics(bounds: attachment.bounds)
+            ).toOpaque()
+            var callbacks = CTRunDelegateCallbacks(
+                version: kCTRunDelegateVersion1,
+                dealloc: releaseCoreTextAttachmentMetrics,
+                getAscent: coreTextAttachmentAscent,
+                getDescent: coreTextAttachmentDescent,
+                getWidth: coreTextAttachmentWidth
+            )
+            guard let delegate = CTRunDelegateCreate(&callbacks, pointer) else {
+                releaseCoreTextAttachmentMetrics(pointer)
+                return
+            }
+            mutable.addAttribute(
+                NSAttributedString.Key(kCTRunDelegateAttributeName as String),
+                value: delegate,
+                range: range
+            )
+        }
 
         mutable.enumerateAttribute(.underlineStyle, in: wholeRange) { value, range, _ in
             let rawValue: Int?
@@ -490,11 +718,62 @@ private struct CoreTextAttributedLabel: View {
             let style = UnderlineStyle(rawValue: rawValue)
 
             if style.contains(.byWord) || style.contains(.double) || style.contains(.thick) {
+                mutable.addAttribute(
+                    coreTextManualUnderlineStyleKey,
+                    value: NSNumber(value: rawValue),
+                    range: range
+                )
                 mutable.removeAttribute(.underlineStyle, range: range)
             }
         }
 
         return mutable
+    }
+
+    private func attachmentPlacements(
+        in frame: CTFrame,
+        canvasHeight: CGFloat,
+        verticalInset: CGFloat
+    ) -> [AttachmentPlacement] {
+        let lines = CTFrameGetLines(frame) as? [CTLine] ?? []
+        guard !lines.isEmpty else { return [] }
+
+        var lineOrigins = Array(repeating: CGPoint.zero, count: lines.count)
+        CTFrameGetLineOrigins(frame, CFRange(location: 0, length: 0), &lineOrigins)
+
+        return lines.enumerated().flatMap { lineIndex, line in
+            let lineOrigin = lineOrigins[lineIndex]
+            let runs = CTLineGetGlyphRuns(line) as? [CTRun] ?? []
+
+            return runs.compactMap { run -> AttachmentPlacement? in
+                let attributes = CTRunGetAttributes(run) as NSDictionary
+                guard let attachment = attributes[NSAttributedString.Key.attachment] as? NSTextAttachment,
+                      let image = attachment.image,
+                      attachment.bounds.width > 0,
+                      attachment.bounds.height > 0
+                else {
+                    return nil
+                }
+
+                var runPosition = CGPoint.zero
+                CTRunGetPositions(run, CFRange(location: 0, length: 1), &runPosition)
+                let coreTextRect = CGRect(
+                    x: lineOrigin.x + runPosition.x + attachment.bounds.origin.x,
+                    y: lineOrigin.y + runPosition.y + attachment.bounds.origin.y,
+                    width: attachment.bounds.width,
+                    height: attachment.bounds.height
+                )
+                return AttachmentPlacement(
+                    image: image,
+                    rect: CGRect(
+                        x: coreTextRect.minX,
+                        y: canvasHeight - coreTextRect.maxY - verticalInset,
+                        width: coreTextRect.width,
+                        height: coreTextRect.height
+                    )
+                )
+            }
+        }
     }
 
     private func draw(frame: CTFrame, in context: CGContext, scale: CGFloat) {
@@ -518,7 +797,11 @@ private struct CoreTextAttributedLabel: View {
         for run in runs {
             let attributes = CTRunGetAttributes(run) as NSDictionary
             let rawValue: Int?
-            if let number = attributes[kCTUnderlineStyleAttributeName] as? NSNumber {
+            if let number = attributes[coreTextManualUnderlineStyleKey] as? NSNumber {
+                rawValue = number.intValue
+            } else if let intValue = attributes[coreTextManualUnderlineStyleKey] as? Int {
+                rawValue = intValue
+            } else if let number = attributes[kCTUnderlineStyleAttributeName] as? NSNumber {
                 rawValue = number.intValue
             } else if let intValue = attributes[kCTUnderlineStyleAttributeName] as? Int {
                 rawValue = intValue
@@ -535,42 +818,77 @@ private struct CoreTextAttributedLabel: View {
             let style = UnderlineStyle(rawValue: rawValue)
             guard style.contains(.byWord) || style.contains(.double) || style.contains(.thick) else { continue }
 
-            let foregroundColor = (attributes[NSAttributedString.Key.foregroundColor] as? UIColor)?.cgColor
-                ?? (attributes[kCTForegroundColorAttributeName] as? UIColor)?.cgColor
-            context.setStrokeColor(foregroundColor ?? UIColor.label.cgColor)
+            let foregroundColor = coreGraphicsColor(
+                from: attributes[NSAttributedString.Key.foregroundColor]
+                    ?? attributes[kCTForegroundColorAttributeName]
+            )
+            context.setStrokeColor(
+                foregroundColor
+                    ?? CGColor(gray: colorScheme == .dark ? 1 : 0, alpha: 1)
+            )
 
             let baselineOffset = (attributes[NSAttributedString.Key.baselineOffset] as? NSNumber)?.doubleValue ?? 0
             let textRange = CTRunGetStringRange(run)
             let segments = underlineSegments(for: style, line: line, stringRange: textRange)
 
-            var ascent: CGFloat = 0
-            var descent: CGFloat = 0
-            CTRunGetTypographicBounds(run, CFRange(location: 0, length: 0), &ascent, &descent, nil)
-
-            let pixel = max(1 / scale, 0.5)
-            let underlineY = origin.y - descent + CGFloat(baselineOffset) - pixel
-            let spacing = pixel
-            let lineWidth = pixel
+            let font = coreTextFont(
+                from: attributes[NSAttributedString.Key.font]
+                    ?? attributes[kCTFontAttributeName]
+            )
+            let pixel = 1 / max(abs(scale), 1)
+            let nativeLineWidth = font.map(CTFontGetUnderlineThickness) ?? pixel
+            let nativePosition = font.map(CTFontGetUnderlinePosition) ?? -pixel
+            let lineWidth = style.contains(.thick)
+                ? max(nativeLineWidth * 2, pixel * 2)
+                : max(nativeLineWidth, pixel)
+            let underlineY = origin.y + nativePosition + CGFloat(baselineOffset)
+            let spacing = max(nativeLineWidth, pixel)
 
             context.saveGState()
             context.setLineWidth(lineWidth)
             context.setLineCap(.butt)
 
             for segment in segments {
+                let lowerBound = origin.x + segment.lowerBound
+                let upperBound = origin.x + segment.upperBound
                 if style.contains(.double) {
-                    context.move(to: CGPoint(x: segment.lowerBound, y: underlineY))
-                    context.addLine(to: CGPoint(x: segment.upperBound, y: underlineY))
-                    context.move(to: CGPoint(x: segment.lowerBound, y: underlineY - spacing - lineWidth))
-                    context.addLine(to: CGPoint(x: segment.upperBound, y: underlineY - spacing - lineWidth))
+                    context.move(to: CGPoint(x: lowerBound, y: underlineY))
+                    context.addLine(to: CGPoint(x: upperBound, y: underlineY))
+                    context.move(to: CGPoint(x: lowerBound, y: underlineY - spacing - lineWidth))
+                    context.addLine(to: CGPoint(x: upperBound, y: underlineY - spacing - lineWidth))
                 } else {
-                    context.move(to: CGPoint(x: segment.lowerBound, y: underlineY))
-                    context.addLine(to: CGPoint(x: segment.upperBound, y: underlineY))
+                    context.move(to: CGPoint(x: lowerBound, y: underlineY))
+                    context.addLine(to: CGPoint(x: upperBound, y: underlineY))
                 }
             }
 
             context.strokePath()
             context.restoreGState()
         }
+    }
+
+    private func coreGraphicsColor(from value: Any?) -> CGColor? {
+        if let color = value as? Color {
+            return color.cgColor
+        }
+        guard let object = value as AnyObject?,
+              CFGetTypeID(object) == CGColor.typeID
+        else {
+            return nil
+        }
+        return unsafeDowncast(object, to: CGColor.self)
+    }
+
+    private func coreTextFont(from value: Any?) -> CTFont? {
+        if let font = value as? Font {
+            return CTFontCreateWithName(font.fontName as CFString, font.pointSize, nil)
+        }
+        guard let object = value as AnyObject?,
+              CFGetTypeID(object) == CTFontGetTypeID()
+        else {
+            return nil
+        }
+        return unsafeDowncast(object, to: CTFont.self)
     }
 
     private func underlineSegments(for style: UnderlineStyle, line: CTLine, stringRange: CFRange) -> [ClosedRange<CGFloat>] {

@@ -10,46 +10,21 @@ import UIKit
 #if canImport(SwiftUI)
 import SwiftUI
 
-final class PairedCardViewSnapshotSUT {
+final class PairedCardViewSnapshotSUT: CardViewOutput, PairedSnapshotSource {
     let uiKitView: CardView
+    private let uiKitContainer: UIView
     private let swiftUIAdapter: CardViewOutputSwiftUIAdapter
-    private var standaloneBackgroundColor: WrapKit.Color?
-    private var lastStyle: CardViewPresentableModel.Style?
+    private let swiftUIView: AnyView
 
     init(
+        uiKitContainer: UIView,
         uiKitView: CardView = CardView(),
         swiftUIAdapter: CardViewOutputSwiftUIAdapter = CardViewOutputSwiftUIAdapter()
     ) {
+        self.uiKitContainer = uiKitContainer
         self.uiKitView = uiKitView
         self.swiftUIAdapter = swiftUIAdapter
-    }
-
-    var backgroundColor: WrapKit.Color? {
-        get { uiKitView.backgroundColor }
-        set {
-            uiKitView.backgroundColor = newValue
-            standaloneBackgroundColor = newValue
-            if var style = lastStyle, let newValue {
-                style.backgroundColor = newValue
-                swiftUIAdapter.display(style: style)
-            }
-        }
-    }
-
-    var onPress: (() -> Void)? {
-        get { uiKitView.onPress }
-        set {
-            uiKitView.onPress = newValue
-            swiftUIAdapter.display(onPress: newValue)
-        }
-    }
-
-    var onLongPress: (() -> Void)? {
-        get { uiKitView.onLongPress }
-        set {
-            uiKitView.onLongPress = newValue
-            swiftUIAdapter.display(onLongPress: newValue)
-        }
+        self.swiftUIView = AnyView(SUICardView(adapter: swiftUIAdapter))
     }
 
     func display(model: CardViewPresentableModel?) {
@@ -59,7 +34,6 @@ final class PairedCardViewSnapshotSUT {
 
     func display(style: CardViewPresentableModel.Style?) {
         uiKitView.display(style: style)
-        lastStyle = style
         swiftUIAdapter.display(style: style)
     }
 
@@ -148,42 +122,69 @@ final class PairedCardViewSnapshotSUT {
         swiftUIAdapter.display(isGradientBorderEnabled: isGradientBorderEnabled)
     }
 
+    func uiKitSnapshot(for appearance: SnapshotAppearance) -> UIImage {
+        uiKitContainer.snapshot(for: appearance.uiKitConfiguration)
+    }
+
     @available(iOS 17.0, *)
-    func swiftUISnapshot(for colorScheme: ColorScheme) -> UIImage {
-        let rootView = SnapshotMirroredCardContainer(
-            adapter: swiftUIAdapter,
-            standaloneBackgroundColor: standaloneBackgroundColor
+    func swiftUISnapshot(for appearance: SnapshotAppearance) -> UIImage {
+        let hostingController = makeSwiftUIHostingController(for: appearance)
+        prepareForRendering(hostingController)
+
+        return hostingController.snapshot(
+            for: appearance.uiKitConfiguration
         )
-        .ignoresSafeArea(.all)
+    }
+
+    func invokeSwiftUIStoredOnPressOutputForPostStateSnapshot() -> Bool {
+        guard let onPress = swiftUIAdapter.displayOnPressState?.onPress else { return false }
+        onPress()
+        return true
+    }
+
+    func invokeSwiftUIStoredOnLongPressOutputForPostStateSnapshot() -> Bool {
+        guard let onLongPress = swiftUIAdapter.displayOnLongPressState?.onLongPress else { return false }
+        onLongPress()
+        return true
+    }
+
+    @available(iOS 17.0, *)
+    private func makeSwiftUIHostingController(for appearance: SnapshotAppearance) -> UIViewController {
+        let rootView = SnapshotMirroredCardContainer(content: swiftUIView)
+            .environment(\.colorScheme, appearance.colorScheme)
+            .ignoresSafeArea(.all)
 
         let hostingController = UIHostingController(rootView: rootView)
+        hostingController.overrideUserInterfaceStyle = appearance.userInterfaceStyle
         hostingController.view.backgroundColor = .clear
+        return hostingController
+    }
+
+    private func prepareForRendering(_ hostingController: UIViewController) {
+        hostingController.loadViewIfNeeded()
+        hostingController.view.frame = CGRect(origin: .zero, size: SnapshotConfiguration.size)
         let warmup: TimeInterval = 0.12
         RunLoop.main.run(until: Date().addingTimeInterval(warmup))
         hostingController.view.setNeedsLayout()
         hostingController.view.layoutIfNeeded()
         RunLoop.main.run(until: Date().addingTimeInterval(warmup))
-
-        return hostingController.snapshot(
-            for: .iPhone(style: colorScheme == .dark ? .dark : .light)
-        )
     }
+
 }
 
 @available(iOS 17.0, *)
 private struct SnapshotMirroredCardContainer: View {
-    let adapter: CardViewOutputSwiftUIAdapter
-    let standaloneBackgroundColor: WrapKit.Color?
+    let content: AnyView
 
     var body: some View {
         VStack(spacing: 0) {
-            SUICardView(adapter: adapter)
+            content
                 .frame(maxWidth: .infinity, minHeight: 200, maxHeight: 200, alignment: .top)
-                .background(SwiftUIColor(standaloneBackgroundColor ?? .clear))
             Spacer(minLength: 0)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .background(SwiftUIColor.clear)
     }
 }
+
 #endif

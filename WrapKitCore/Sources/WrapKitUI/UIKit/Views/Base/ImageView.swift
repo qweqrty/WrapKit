@@ -36,6 +36,7 @@ public struct ImageViewPresentableModel: HashableWithReflection {
     public let accessibility: Accessibility?
     public let size: CGSize?
     public let image: ImageEnum?
+    let systemSymbolName: String?
     public let onPress: (() -> Void)?
     public let onLongPress: (() -> Void)?
     public let contentModeIsFit: Bool?
@@ -58,10 +59,71 @@ public struct ImageViewPresentableModel: HashableWithReflection {
         cornerRadius: CGFloat? = nil,
         alpha: CGFloat? = nil
     ) {
+        self.init(
+            accessibilityIdentifier: accessibilityIdentifier,
+            accessibility: accessibility,
+            size: size,
+            image: image,
+            onPress: onPress,
+            onLongPress: onLongPress,
+            contentModeIsFit: contentModeIsFit,
+            borderWidth: borderWidth,
+            borderColor: borderColor,
+            cornerRadius: cornerRadius,
+            alpha: alpha,
+            systemSymbolName: nil
+        )
+    }
+
+    /// Keeps the symbol semantic so UIKit and SwiftUI can render it natively.
+    public static func systemSymbol(
+        _ name: String,
+        accessibilityIdentifier: String? = nil,
+        accessibility: Accessibility? = nil,
+        size: CGSize? = nil,
+        onPress: (() -> Void)? = nil,
+        onLongPress: (() -> Void)? = nil,
+        contentModeIsFit: Bool? = nil,
+        borderWidth: CGFloat? = nil,
+        borderColor: Color? = nil,
+        cornerRadius: CGFloat? = nil,
+        alpha: CGFloat? = nil
+    ) -> Self {
+        .init(
+            accessibilityIdentifier: accessibilityIdentifier,
+            accessibility: accessibility,
+            size: size,
+            image: .asset(ImageFactory.systemImage(named: name)),
+            onPress: onPress,
+            onLongPress: onLongPress,
+            contentModeIsFit: contentModeIsFit,
+            borderWidth: borderWidth,
+            borderColor: borderColor,
+            cornerRadius: cornerRadius,
+            alpha: alpha,
+            systemSymbolName: name
+        )
+    }
+
+    init(
+        accessibilityIdentifier: String? = nil,
+        accessibility: Accessibility? = nil,
+        size: CGSize? = nil,
+        image: ImageEnum? = nil,
+        onPress: (() -> Void)? = nil,
+        onLongPress: (() -> Void)? = nil,
+        contentModeIsFit: Bool? = nil,
+        borderWidth: CGFloat? = nil,
+        borderColor: Color? = nil,
+        cornerRadius: CGFloat? = nil,
+        alpha: CGFloat? = nil,
+        systemSymbolName: String?
+    ) {
         self.accessibilityIdentifier = accessibilityIdentifier
         self.accessibility = accessibility
         self.size = size
         self.image = image
+        self.systemSymbolName = systemSymbolName
         self.onPress = onPress
         self.onLongPress = onLongPress
         self.contentModeIsFit = contentModeIsFit

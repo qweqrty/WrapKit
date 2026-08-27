@@ -8,7 +8,7 @@
 import SwiftUI
 
 public struct SUILoadingView: View {
-    @ObservedObject var stateModel: SUILoadingStateModel
+    @StateObject var stateModel: SUILoadingStateModel
     let color: SwiftUIColor
     let wrapperColor: SwiftUIColor
     let size: CGSize
@@ -23,7 +23,7 @@ public struct SUILoadingView: View {
         padding: EdgeInsets = .init(top: 25, leading: 25, bottom: 25, trailing: 25),
         dimBackgroundColor: SwiftUIColor = .clear
     ) {
-        self.stateModel = .init(adapter: adapter)
+        _stateModel = .init(wrappedValue: .init(adapter: adapter))
         self.color = color
         self.wrapperColor = wrapperColor
         self.size = size

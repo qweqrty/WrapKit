@@ -8,17 +8,34 @@
 import Foundation
 import SwiftUI
 
+enum SUIButtonLoadingIndicatorPhase {
+    case animated
+    case fixed(strokeStart: CGFloat, strokeEnd: CGFloat, rotation: Angle)
+}
+
 public struct SUIButton: View {
-    @ObservedObject var stateModel: SUIButtonStateModel
+    @StateObject var stateModel: SUIButtonStateModel
     let pressAnimations: Set<PressAnimation>
+    let loadingIndicatorPhase: SUIButtonLoadingIndicatorPhase
     
     public init(
         adapter: ButtonOutputSwiftUIAdapter,
         loadingAdapter: LoadingOutputSwiftUIAdapter? = nil,
         pressAnimations: Set<PressAnimation> = []
     ) {
-        self.stateModel = .init(adapter: adapter, loadingAdapter: loadingAdapter)
+        _stateModel = .init(wrappedValue: .init(adapter: adapter, loadingAdapter: loadingAdapter))
         self.pressAnimations = pressAnimations
+        self.loadingIndicatorPhase = .animated
+    }
+
+    init(
+        stateModel: SUIButtonStateModel,
+        pressAnimations: Set<PressAnimation> = [],
+        loadingIndicatorPhase: SUIButtonLoadingIndicatorPhase = .animated
+    ) {
+        _stateModel = .init(wrappedValue: stateModel)
+        self.pressAnimations = pressAnimations
+        self.loadingIndicatorPhase = loadingIndicatorPhase
     }
     
     @ViewBuilder
@@ -29,7 +46,8 @@ public struct SUIButton: View {
                 onPress: stateModel.presentable.onPress,
                 isEnabled: stateModel.isEnabled,
                 isLoading: stateModel.isLoading,
-                pressAnimations: pressAnimations
+                pressAnimations: pressAnimations,
+                loadingIndicatorPhase: loadingIndicatorPhase
             )
         }
     }
@@ -42,7 +60,9 @@ public struct SUIButtonView: View {
     let isLoading: Bool
     let pressAnimations: Set<PressAnimation>
     let fillsAvailableWidth: Bool
+    let fillsAvailableHeight: Bool
     let contentInsets: SwiftUI.EdgeInsets
+    let loadingIndicatorPhase: SUIButtonLoadingIndicatorPhase
     
     @State private var isPressed: Bool = false
     
@@ -53,6 +73,7 @@ public struct SUIButtonView: View {
         isLoading: Bool = false,
         pressAnimations: Set<PressAnimation> = [],
         fillsAvailableWidth: Bool = true,
+        fillsAvailableHeight: Bool = true,
         contentInsets: SwiftUI.EdgeInsets = .init()
     ) {
         self.model = model
@@ -61,7 +82,31 @@ public struct SUIButtonView: View {
         self.isLoading = isLoading
         self.pressAnimations = pressAnimations
         self.fillsAvailableWidth = fillsAvailableWidth
+        self.fillsAvailableHeight = fillsAvailableHeight
         self.contentInsets = contentInsets
+        self.loadingIndicatorPhase = .animated
+    }
+
+    init(
+        model: ButtonPresentableModel,
+        onPress: (() -> Void)?,
+        isEnabled: Bool,
+        isLoading: Bool,
+        pressAnimations: Set<PressAnimation>,
+        fillsAvailableWidth: Bool = true,
+        fillsAvailableHeight: Bool = true,
+        contentInsets: SwiftUI.EdgeInsets = .init(),
+        loadingIndicatorPhase: SUIButtonLoadingIndicatorPhase
+    ) {
+        self.model = model
+        self.onPress = onPress
+        self.isEnabled = isEnabled
+        self.isLoading = isLoading
+        self.pressAnimations = pressAnimations
+        self.fillsAvailableWidth = fillsAvailableWidth
+        self.fillsAvailableHeight = fillsAvailableHeight
+        self.contentInsets = contentInsets
+        self.loadingIndicatorPhase = loadingIndicatorPhase
     }
     
     @ViewBuilder
@@ -95,39 +140,90 @@ public struct SUIButtonView: View {
             action: { onPress?() },
             label: { buttonLabel }
         )
-        .opacity(isEnabled ? 1.0 : 0.5)
         .disabled(!isEnabled)
-        .accessibilityIdentifier(model.accessibilityIdentifier ?? "")
+        .allowsHitTesting(onPress != nil && isEnabled)
+        .if(onPress == nil) { view in
+            view
+                .accessibilityRemoveTraits(.isButton)
+                .accessibilityAddTraits(.isStaticText)
+        }
+        .ifLet(model.accessibilityIdentifier) { view, identifier in
+            view.accessibilityIdentifier(identifier)
+        }
+        .ifLet(model.accessibility?.label) { view, label in
+            view.accessibilityLabel(Text(label))
+        }
+        .ifLet(model.accessibility?.hint) { view, hint in
+            view.accessibilityHint(Text(hint))
+        }
+        .if(!isEnabled) { view in
+            view.compositingGroup().opacity(0.5)
+        }
     }
 
+    @ViewBuilder
     private var buttonLabel: some View {
+        if let requestedHeight = model.height {
+            if #available(iOS 16, macOS 13, tvOS 16, watchOS 9, *) {
+                ViewThatFits(in: .vertical) {
+                    decoratedButtonLabel(height: requestedHeight)
+                    decoratedButtonLabel(fillsAvailableHeight: fillsAvailableHeight)
+                }
+            } else {
+                decoratedButtonLabel(height: requestedHeight)
+            }
+        } else {
+            decoratedButtonLabel(fillsAvailableHeight: fillsAvailableHeight)
+        }
+    }
+
+    private var buttonLabelContent: some View {
         ZStack {
             HStack(spacing: model.spacing ?? 0) {
                 if let image = model.image {
                     SwiftUIImage(image: image)
+                        .renderingMode(image.swiftUIRenderingMode)
+                        .foregroundColor(.accentColor)
                 }
                 if let title = model.title {
                     Text(title.removingPercentEncoding ?? title)
-                        .font(model.style?.font.map { SwiftUIFont($0) })
+                        .font(titleFont)
                         .foregroundColor(titleColor)
                 }
             }
             .opacity(isLoading ? 0 : 1)
+
+            if isLoading {
+                SUIButtonLoadingIndicator(
+                    color: SwiftUIColor(model.style?.loadingIndicatorColor ?? .red),
+                    phase: loadingIndicatorPhase
+                )
+            }
         }
-        .frame(maxWidth: fillsAvailableWidth ? .infinity : nil)
-        .frame(width: model.width, height: model.height)
         .padding(contentInsets)
-        .background {
-            if !isLiquidGlassAvailable || model.style?.glassConfiguration == nil {
-                backgroundView
+    }
+
+    private func decoratedButtonLabel(
+        height: CGFloat? = nil,
+        fillsAvailableHeight: Bool = false
+    ) -> some View {
+        buttonLabelContent
+            .frame(
+                maxWidth: fillsAvailableWidth ? .infinity : nil,
+                maxHeight: fillsAvailableHeight ? .infinity : nil
+            )
+            .frame(width: model.width, height: height)
+            .background {
+                if !isLiquidGlassAvailable || model.style?.glassConfiguration == nil {
+                    backgroundView
+                }
             }
-        }
-        .cornerStyle(buttonCornerStyle)
-        .overlay {
-            if !isLiquidGlassAvailable || model.style?.glassConfiguration == nil {
-                borderView
+            .clipShape(SUIButtonCornerShape(style: buttonCornerStyle))
+            .overlay {
+                if !isLiquidGlassAvailable || model.style?.glassConfiguration == nil {
+                    borderView
+                }
             }
-        }
     }
 
     private var isLiquidGlassAvailable: Bool {
@@ -143,10 +239,16 @@ public struct SUIButtonView: View {
     }
 
     private var titleColor: SwiftUIColor? {
-        let color = isPressed ? model.style?.pressedTintColor : model.style?.titleColor
-        return color.map(SwiftUIColor.init)
+        let color = isPressed
+            ? model.style?.pressedTintColor ?? model.style?.titleColor ?? .white
+            : model.style?.titleColor ?? .white
+        return SwiftUIColor(color)
     }
-    
+
+    private var titleFont: SwiftUIFont {
+        SwiftUIFont(model.style?.font ?? .systemFont(ofSize: 18))
+    }
+
     @ViewBuilder
     private var backgroundView: some View {
         SwiftUIColor(
@@ -160,9 +262,92 @@ public struct SUIButtonView: View {
     private var borderView: some View {
         if let borderColor = model.style?.borderColor,
            (model.style?.borderWidth ?? 0) > 0 {
-            SUICornerShape(style: buttonCornerStyle)
-                .stroke(SwiftUIColor(borderColor), lineWidth: model.style?.borderWidth ?? 0)
+            SUIButtonCornerShape(style: buttonCornerStyle)
+                .strokeBorder(SwiftUIColor(borderColor), lineWidth: model.style?.borderWidth ?? 0)
         }
+    }
+}
+
+private struct SUIButtonCornerShape: InsettableShape {
+    let style: CornerStyle
+    private var insetAmount: CGFloat = 0
+
+    init(style: CornerStyle) {
+        self.style = style
+    }
+
+    func path(in rect: CGRect) -> Path {
+        switch style {
+        case .automatic:
+            return continuousRoundedRectangle(
+                radius: min(rect.width, rect.height) / 2,
+                in: rect
+            )
+        case .fixed(let radius):
+            return continuousRoundedRectangle(radius: radius, in: rect)
+        case .corners, .none:
+            return SUICornerShape(style: style)
+                .inset(by: insetAmount)
+                .path(in: rect)
+        }
+    }
+
+    func inset(by amount: CGFloat) -> SUIButtonCornerShape {
+        var copy = self
+        copy.insetAmount += amount
+        return copy
+    }
+
+    private func continuousRoundedRectangle(radius: CGFloat, in rect: CGRect) -> Path {
+        RoundedRectangle(cornerRadius: radius, style: .continuous)
+            .inset(by: insetAmount)
+            .path(in: rect)
+    }
+}
+
+private struct SUIButtonLoadingIndicator: View {
+    @State private var isAnimating = false
+
+    let color: SwiftUIColor
+    let phase: SUIButtonLoadingIndicatorPhase
+
+    var body: some View {
+        Circle()
+            .trim(from: strokeStart, to: strokeEnd)
+            .stroke(color, style: StrokeStyle(lineWidth: 2, lineCap: .butt))
+            .frame(width: 30, height: 30)
+            .rotationEffect(rotation)
+            .animation(animation, value: isAnimating)
+            .onAppear {
+                guard case .animated = phase else { return }
+                isAnimating = true
+            }
+    }
+
+    private var strokeStart: CGFloat {
+        switch phase {
+        case .animated: 0.1
+        case .fixed(let strokeStart, _, _): strokeStart
+        }
+    }
+
+    private var strokeEnd: CGFloat {
+        switch phase {
+        case .animated: 0.9
+        case .fixed(_, let strokeEnd, _): strokeEnd
+        }
+    }
+
+    private var rotation: Angle {
+        switch phase {
+        case .animated: .degrees(isAnimating ? 360 : 0)
+        case .fixed(_, _, let rotation): rotation
+        }
+    }
+
+    private var animation: SwiftUI.Animation? {
+        guard case .animated = phase else { return nil }
+        return .linear(duration: 1.7).repeatForever(autoreverses: false)
     }
 }
 

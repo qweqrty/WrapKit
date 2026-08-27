@@ -8,10 +8,6 @@ import SwiftUI
 import UIKit
 #endif
 
-#if canImport(AppKit)
-import AppKit
-#endif
-
 final class SUIToastViewStateModel: ObservableObject {
     struct ToastItem: Identifiable {
         let id = UUID()
@@ -341,7 +337,7 @@ final class SUIToastViewStateModel: ObservableObject {
     }
 
     private func toastIconImage() -> Image? {
-        ImageFactory.systemImage(named: "checkmark.circle.fill")
+        Image(named: "checkmark.circle.fill")
     }
 }
 

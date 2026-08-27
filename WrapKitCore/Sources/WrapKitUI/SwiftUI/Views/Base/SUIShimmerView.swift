@@ -18,7 +18,8 @@ public struct SUIShimmerView: View {
     
     public var body: some View {
         let colorOne = style.map { SwiftUIColor($0.gradientColorOne) } ?? SwiftUIColor(.clear)
-        let colorTwo = style.map { SwiftUIColor($0.gradientColorTwo) } ?? SwiftUIColor(UIColor(white: 0.95, alpha: 0.6))
+        let colorTwo = style.map { SwiftUIColor($0.gradientColorTwo) }
+            ?? SwiftUIColor(.sRGB, white: 0.95, opacity: 0.6)
         let cornerRadius = style?.cornerRadius ?? 0
         let backgroundColor = style.map { SwiftUIColor($0.backgroundColor) } ?? SwiftUIColor(.clear)
         

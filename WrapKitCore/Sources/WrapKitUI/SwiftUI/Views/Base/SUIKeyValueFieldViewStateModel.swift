@@ -13,6 +13,9 @@ final class SUIKeyValueFieldViewStateModel: ObservableObject {
     @Published var valueTitle: TextOutputPresentableModel?
     @Published var bottomImage: ImageViewPresentableModel?
     @Published var isHidden: Bool
+    @Published private(set) var isKeySlotHidden = false
+    @Published private(set) var isValueSlotHidden = false
+    @Published private(set) var isBottomImageSlotHidden = true
 
     let bottomImageAdapter = ImageViewOutputSwiftUIAdapter()
 
@@ -61,16 +64,20 @@ private extension SUIKeyValueFieldViewStateModel {
     func display(model: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>?) {
         keyTitle = model?.first
         valueTitle = model?.second
+        isKeySlotHidden = model?.first == nil
+        isValueSlotHidden = model?.second == nil
         updateVisibility()
     }
 
     func display(keyTitle: TextOutputPresentableModel?) {
         self.keyTitle = keyTitle
+        isKeySlotHidden = keyTitle == nil
         updateVisibility()
     }
 
     func display(valueTitle: TextOutputPresentableModel?) {
         self.valueTitle = valueTitle
+        isValueSlotHidden = valueTitle == nil
         updateVisibility()
     }
 
@@ -78,13 +85,13 @@ private extension SUIKeyValueFieldViewStateModel {
         guard displaysBottomImage else { return }
 
         self.bottomImage = bottomImage
+        isBottomImageSlotHidden = bottomImage == nil
         bottomImageAdapter.display(model: bottomImage)
-        updateVisibility()
     }
 
     func updateVisibility() {
-        let hasBottomImage = displaysBottomImage && bottomImage != nil
-        isHidden = keyTitle == nil && valueTitle == nil && !hasBottomImage
+        let bottomSlotIsHidden = !displaysBottomImage || isBottomImageSlotHidden
+        isHidden = isKeySlotHidden && isValueSlotHidden && bottomSlotIsHidden
     }
 }
 

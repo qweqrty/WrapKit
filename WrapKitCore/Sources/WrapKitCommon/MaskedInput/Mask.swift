@@ -18,7 +18,7 @@ public protocol Masking {
     func removeLiterals(from text: String) -> String
 }
 
-public enum MaskedCharacter {
+public enum MaskedCharacter: Equatable {
     case literal(Character)
     case specifier(placeholder: Character, allowedCharacters: CharacterSet)
     

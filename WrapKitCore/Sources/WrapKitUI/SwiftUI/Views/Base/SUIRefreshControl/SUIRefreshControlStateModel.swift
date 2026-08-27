@@ -25,9 +25,7 @@ public final class SUIRefreshControlStateModel: ObservableObject {
                 if let style = value.model?.style {
                     self.tintColor = style.tintColor
                 }
-                if let onRefresh = value.model?.onRefresh {
-                    self.onRefreshCallbacks = [onRefresh]
-                }
+                self.onRefreshCallbacks = [value.model?.onRefresh]
                 if let isLoading = value.model?.isLoading {
                     self.isLoading = isLoading
                 }
@@ -59,6 +57,17 @@ public final class SUIRefreshControlStateModel: ObservableObject {
             .compactMap { $0 }
             .sink { [weak self] value in
                 self?.isLoading = value.isLoading
+            }
+            .store(in: &cancellables)
+
+        if let directCallbacks = adapter.onRefresh {
+            onRefreshCallbacks = directCallbacks
+        }
+
+        adapter.$onRefresh
+            .dropFirst()
+            .sink { [weak self] callbacks in
+                self?.onRefreshCallbacks = callbacks ?? []
             }
             .store(in: &cancellables)
     }

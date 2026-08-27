@@ -5,12 +5,18 @@
 //  Created by Urmatbek Marat Uulu on 28/4/26.
 //
 
-
 import Combine
-import UIKit
+import Foundation
 
 public final class SUITextInputStateModel: ObservableObject {
+    enum Consumer: Equatable {
+        case textField
+        case textView
+        case chunkedTextField
+    }
+
     @Published var text: String = ""
+    @Published var chunkedCharacters: [String] = []
     @Published var placeholder: String? = nil
     @Published var isHidden: Bool = false
     @Published var isValid: Bool = true
@@ -19,12 +25,15 @@ public final class SUITextInputStateModel: ObservableObject {
     @Published var isSecureTextEntry: Bool = false
     @Published var isTextSelectionDisabled: Bool = false
     @Published var isClearButtonActive: Bool = true
+    @Published var isClearButtonConfigured: Bool = false
+    @Published var isClearButtonHidden: Bool = true
     @Published var trailingViewIsHidden: Bool = false
     @Published var leadingViewIsHidden: Bool = false
     @Published var keyboardType: KeyboardType = .default
     @Published var trailingSymbol: String? = nil
     @Published var inputView: TextInputPresentableModel.InputView? = nil
     @Published var inputAccessoryView: TextInputPresentableModel.AccessoryViewPresentableModel? = nil
+    @Published var inputAccessoryDateOnDoneTapped: ((Date) -> Void)? = nil
     @Published var appearance: TextfieldAppearance? = nil
     @Published var isFocused: Bool = false
     @Published var autocapitalizationType: TextAutocapitalizationType = .none
@@ -33,8 +42,10 @@ public final class SUITextInputStateModel: ObservableObject {
 
     var onBecomeFirstResponder: (() -> Void)? = nil
     var onResignFirstResponder: (() -> Void)? = nil
+    // Native SwiftUI TextField/TextEditor on iOS 15 has no deleteBackward hook.
+    // Keep the Output state without claiming that the callback can be delivered.
     var onTapBackspace: (() -> Void)? = nil
-    var onPaste: ((String?) -> Void)? = nil
+    @Published var onPaste: ((String?) -> Void)? = nil
     var onPress: (() -> Void)? = nil
     var leadingViewOnPress: (() -> Void)? = nil
     var trailingViewOnPress: (() -> Void)? = nil
@@ -45,10 +56,22 @@ public final class SUITextInputStateModel: ObservableObject {
     @Published var shouldResignFirstResponder: Bool = false
 
     private let adapter: TextInputOutputSwiftUIAdapter
+    private let consumer: Consumer
+    private var chunkedCharacterCount: Int?
     private var cancellables: Set<AnyCancellable> = []
 
-    public init(adapter: TextInputOutputSwiftUIAdapter) {
+    public convenience init(adapter: TextInputOutputSwiftUIAdapter) {
+        self.init(adapter: adapter, consumer: .textField)
+    }
+
+    init(
+        adapter: TextInputOutputSwiftUIAdapter,
+        consumer: Consumer,
+        chunkedCharacterCount: Int? = nil
+    ) {
         self.adapter = adapter
+        self.consumer = consumer
+        self.chunkedCharacterCount = chunkedCharacterCount.map { max(0, $0) }
         bindAdapter()
     }
 
@@ -61,8 +84,24 @@ public final class SUITextInputStateModel: ObservableObject {
                     return
                 }
                 self.isHidden = false
-                if let text = model.text { self.text = text.removingPercentEncoding ?? text }
-                if let placeholder = model.placeholder { self.placeholder = placeholder }
+                if self.consumer == .textField,
+                   let accessibilityIdentifier = model.accessibilityIdentifier {
+                    self.accessibilityIdentifier = accessibilityIdentifier
+                }
+                if self.consumer == .chunkedTextField {
+                    self.applyProgrammaticText(model.text)
+                    if let isValid = model.isValid { self.isValid = isValid }
+                    return
+                }
+                if self.consumer == .textField, self.isFocused {
+                    if let text = model.text {
+                        self.applyProgrammaticText(text)
+                    }
+                    if let isValid = model.isValid { self.isValid = isValid }
+                    return
+                }
+                self.applyProgrammaticText(model.text)
+                self.placeholder = model.placeholder
                 if let isValid = model.isValid { self.isValid = isValid }
                 if let isEnabledForEditing = model.isEnabledForEditing { self.isEnabledForEditing = isEnabledForEditing }
                 if let isUserInteractionEnabled = model.isUserInteractionEnabled { self.isUserInteractionEnabled = isUserInteractionEnabled }
@@ -77,21 +116,22 @@ public final class SUITextInputStateModel: ObservableObject {
                 self.onPress = model.onPress
                 self.leadingViewOnPress = model.leadingViewOnPress
                 self.trailingViewOnPress = model.trailingViewOnPress
-                self.accessibilityIdentifier = model.accessibilityIdentifier
-                self.inputAccessoryView = model.inputAccessoryView
+                if self.consumer != .textField,
+                   let accessibilityIdentifier = model.accessibilityIdentifier {
+                    self.accessibilityIdentifier = accessibilityIdentifier
+                }
                 if let didChangeText = model.didChangeText { self.didChangeText = didChangeText }
-                self.inputView = model.inputView
-                self.inputAccessoryView = model.inputAccessoryView
+                self.applyInputAccessoryView(model.inputAccessoryView)
+                self.applyInputView(model.inputView)
                 self.trailingSymbol = model.trailingSymbol
-                self.mask = model.mask
+                if let mask = model.mask { self.mask = mask }
             }
             .store(in: &cancellables)
 
         adapter.$displayTextState
             .compactMap { $0 }
             .sink { [weak self] value in
-                let newText = value.text?.removingPercentEncoding ?? value.text ?? ""
-                if self?.text != newText { self?.text = newText }
+                self?.applyProgrammaticText(value.text)
             }
             .store(in: &cancellables)
 
@@ -132,7 +172,10 @@ public final class SUITextInputStateModel: ObservableObject {
 
         adapter.$displayIsClearButtonActiveState
             .compactMap { $0 }
-            .sink { [weak self] value in self?.isClearButtonActive = value.isClearButtonActive }
+            .sink { [weak self] value in
+                self?.isClearButtonConfigured = true
+                self?.isClearButtonActive = value.isClearButtonActive
+            }
             .store(in: &cancellables)
 
         adapter.$displayTrailingViewIsHiddenState
@@ -157,12 +200,12 @@ public final class SUITextInputStateModel: ObservableObject {
 
         adapter.$displayInputViewState
             .compactMap { $0 }
-            .sink { [weak self] value in self?.inputView = value.inputView }
+            .sink { [weak self] value in self?.applyInputView(value.inputView) }
             .store(in: &cancellables)
 
         adapter.$displayInputAccessoryViewState
             .compactMap { $0 }
-            .sink { [weak self] value in self?.inputAccessoryView = value.inputAccessoryView }
+            .sink { [weak self] value in self?.applyInputAccessoryView(value.inputAccessoryView) }
             .store(in: &cancellables)
 
         adapter.$displayOnBecomeFirstResponderState
@@ -221,5 +264,111 @@ public final class SUITextInputStateModel: ObservableObject {
                 self?.mask = value.mask
             }
             .store(in: &cancellables)
+    }
+
+    private func applyProgrammaticText(_ value: String?) {
+        if consumer == .chunkedTextField {
+            applyProgrammaticChunkedText(value)
+            return
+        }
+
+        let newText = value?.removingPercentEncoding ?? value ?? ""
+        if text != newText {
+            text = newText
+        }
+    }
+
+    func applyUserText(_ value: String) {
+        text = value
+        if consumer == .textField, isClearButtonConfigured, isClearButtonActive {
+            isClearButtonHidden = value.isEmpty
+        }
+        didChangeText.forEach { $0(value) }
+    }
+
+    func configureChunkedCharacterCount(_ count: Int) {
+        guard consumer == .chunkedTextField else { return }
+
+        let count = max(0, count)
+        guard chunkedCharacterCount != count else { return }
+
+        chunkedCharacterCount = count
+        let source = chunkedCharacters.isEmpty ? Array(text).map(String.init) : chunkedCharacters
+        let normalized = normalizedChunkedCharacters(source, count: count)
+        if chunkedCharacters != normalized {
+            chunkedCharacters = normalized
+        }
+
+        let joined = normalized.joined()
+        if text != joined {
+            text = joined
+        }
+    }
+
+    func applyChunkedUserCharacters(_ characters: [String]) {
+        guard consumer == .chunkedTextField else { return }
+
+        let targetCount = chunkedCharacterCount ?? max(chunkedCharacters.count, characters.count)
+        let normalized = normalizedChunkedCharacters(characters, count: targetCount)
+        if chunkedCharacters != normalized {
+            chunkedCharacters = normalized
+        }
+
+        let joined = normalized.joined()
+        if text != joined {
+            text = joined
+        }
+        didChangeText.forEach { $0(joined) }
+    }
+
+    private func applyProgrammaticChunkedText(_ value: String?) {
+        let newCharacters = Array(value ?? "").map(String.init)
+        let targetCount = chunkedCharacterCount ?? max(chunkedCharacters.count, newCharacters.count)
+
+        guard !newCharacters.isEmpty else {
+            let cleared = Array(repeating: "", count: targetCount)
+            if chunkedCharacters != cleared {
+                chunkedCharacters = cleared
+            }
+            if !text.isEmpty {
+                text = ""
+            }
+            return
+        }
+
+        var mergedCharacters = normalizedChunkedCharacters(chunkedCharacters, count: targetCount)
+        for index in 0..<min(newCharacters.count, targetCount) {
+            mergedCharacters[index] = newCharacters[index]
+        }
+
+        if chunkedCharacters != mergedCharacters {
+            chunkedCharacters = mergedCharacters
+        }
+        let joined = mergedCharacters.joined()
+        if text != joined {
+            text = joined
+        }
+    }
+
+    private func normalizedChunkedCharacters(_ source: [String], count: Int) -> [String] {
+        (0..<count).map { index in
+            guard source.indices.contains(index) else { return "" }
+            return String(source[index].prefix(1))
+        }
+    }
+
+    private func applyInputAccessoryView(
+        _ accessoryView: TextInputPresentableModel.AccessoryViewPresentableModel?
+    ) {
+        inputAccessoryView = accessoryView
+        inputAccessoryDateOnDoneTapped = nil
+    }
+
+    private func applyInputView(_ newInputView: TextInputPresentableModel.InputView?) {
+        inputView = newInputView
+
+        guard case .date(let model) = newInputView else { return }
+        inputAccessoryView = model.accessoryView
+        inputAccessoryDateOnDoneTapped = model.accessoryView == nil ? nil : model.onDoneTapped
     }
 }
