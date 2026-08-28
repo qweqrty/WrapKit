@@ -17,6 +17,23 @@ public struct Accessibility: HashableWithReflection {
     }
 }
 
+public extension StringProtocol {
+    func accessibilitySpacedOut() -> String {
+        map(String.init).joined(separator: ", ")
+    }
+}
+
+#if canImport(UIKit)
+import UIKit
+
+public extension String {
+    func spelledOutForAccessibility() -> NSAttributedString {
+        guard !isEmpty else { return NSAttributedString(string: "") }
+        return NSAttributedString(string: self, attributes: [.accessibilitySpeechSpellOut: true])
+    }
+}
+#endif
+
 #if canImport(UIKit)
 import UIKit
 
