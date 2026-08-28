@@ -77,10 +77,8 @@ extension BottomSheetInteractiveDismissalTransition {
         offsetAnimator?.stopAnimation(false)
         offsetAnimator?.finishAnimation(at: .start)
         
-        heightAnimator = createHeightAnimator(
-            animating: presentedView, from: presentedView.frame.height
-        )
-        
+        heightAnimator = nil
+
         if !interactiveDismissal {
             offsetAnimator = createOffsetAnimator(
                 animating: presentedView, to: stretchOffset
@@ -121,12 +119,17 @@ extension BottomSheetInteractiveDismissalTransition {
         }
         
         if progress < 0 {
-            heightAnimator?.addCompletion { _ in
-                self.offsetAnimator?.stopAnimation(false)
-                self.offsetAnimator?.finishAnimation(at: .start)
+            if let heightAnimator {
+                heightAnimator.addCompletion { _ in
+                    self.offsetAnimator?.stopAnimation(false)
+                    self.offsetAnimator?.finishAnimation(at: .start)
+                }
+
+                heightAnimator.startAnimation()
+            } else {
+                offsetAnimator?.stopAnimation(false)
+                offsetAnimator?.finishAnimation(at: .start)
             }
-            
-            heightAnimator?.startAnimation()
         } else {
             offsetAnimator?.addCompletion { _ in
                 self.heightAnimator?.stopAnimation(false)

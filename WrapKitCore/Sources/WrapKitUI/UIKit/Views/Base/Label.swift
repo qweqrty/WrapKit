@@ -290,7 +290,12 @@ extension Label: TextOutput {
 }
 
 open class Label: UILabel {
-    public var textInsets: UIEdgeInsets = .zero
+    public var textInsets: UIEdgeInsets = .zero {
+        didSet {
+            invalidateIntrinsicContentSize()
+            setNeedsDisplay()
+        }
+    }
     public var cornerStyle: CornerStyle?
     
     let layoutManager = NSLayoutManager()
@@ -351,30 +356,40 @@ open class Label: UILabel {
         textContainer.maximumNumberOfLines = self.numberOfLines
         layoutManager.addTextContainer(textContainer)
     }
-    
+
     open override func layoutSubviews() {
         super.layoutSubviews()
 
-        textContainer.size = bounds.size
+        textContainer.size = bounds.inset(by: textInsets).size
     }
-    
+
+    open override func textRect(forBounds bounds: CGRect, limitedToNumberOfLines numberOfLines: Int) -> CGRect {
+        let insetBounds = bounds.inset(by: textInsets)
+        let textRect = super.textRect(forBounds: insetBounds, limitedToNumberOfLines: numberOfLines)
+        return textRect.inset(by: UIEdgeInsets(
+            top: -textInsets.top,
+            left: -textInsets.left,
+            bottom: -textInsets.bottom,
+            right: -textInsets.right
+        ))
+    }
+
     open override func drawText(in rect: CGRect) {
         super.drawText(in: rect.inset(by: textInsets))
         if let cornerStyle {
             applyCornerStyle(cornerStyle)
         }
     }
-    
+
     open override var intrinsicContentSize: CGSize {
         let base = super.intrinsicContentSize
         guard let text = text, !text.isEmpty else {
             return CGSize(width: base.width, height: 0)
         }
-        let width = max(animation?.animatedTextMaxWidth ?? 0, base.width)
-        return CGSize(
-            width: width + textInsets.left + textInsets.right,
-            height: base.height + textInsets.top + textInsets.bottom
-        )
+        let animatedWidth = animation?.animatedTextMaxWidth.map {
+            $0 + textInsets.left + textInsets.right
+        } ?? 0
+        return CGSize(width: max(animatedWidth, base.width), height: base.height)
     }
 
     public override var text: String? {
