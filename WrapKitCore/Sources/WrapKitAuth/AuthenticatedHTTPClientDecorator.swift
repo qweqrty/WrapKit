@@ -93,6 +93,8 @@ public class AuthenticatedHTTPClientDecorator: HTTPClient {
                             completion: { [weak self] tokens in
                                 if let accessToken = tokens?.accessToken, !accessToken.isEmpty {
                                     self?.retryRequest(request, completion: completion, compositeTask: compositeTask)
+                                } else {
+                                    completion(.failure(ServiceError.cancelled))
                                 }
                             }, compositeTask: compositeTask)
                     } else {
