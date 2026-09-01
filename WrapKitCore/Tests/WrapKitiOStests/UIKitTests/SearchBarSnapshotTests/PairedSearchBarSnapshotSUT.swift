@@ -17,21 +17,28 @@ final class PairedSearchBarSnapshotSUT: SearchBarOutput, PairedSnapshotSource {
     private let swiftUIAdapter: SearchBarOutputSwiftUIAdapter
     private let textFieldAppearance: TextfieldAppearance
     private let spacing: CGFloat
+    private let contentInsets: WrapKit.EdgeInsets
 
     init(
         textField: Textfield,
         textFieldAppearance: TextfieldAppearance,
         uiKitContainer: UIView,
         spacing: CGFloat = 8,
+        contentInsets: WrapKit.EdgeInsets = .zero,
         swiftUIAdapter: SearchBarOutputSwiftUIAdapter = SearchBarOutputSwiftUIAdapter()
     ) {
         self.uiKitView = withLiquidGlassDisabled {
-            SearchBar(textfield: textField, spacing: spacing)
+            SearchBar(
+                textfield: textField,
+                spacing: spacing,
+                contentInsets: contentInsets
+            )
         }
         self.uiKitContainer = uiKitContainer
         self.swiftUIAdapter = swiftUIAdapter
         self.textFieldAppearance = textFieldAppearance
         self.spacing = spacing
+        self.contentInsets = contentInsets
     }
 
     func display(model: SearchBarPresentableModel?) {
@@ -79,7 +86,8 @@ final class PairedSearchBarSnapshotSUT: SearchBarOutput, PairedSnapshotSource {
             let rootView = SnapshotMirroredSearchBarContainer(
                 adapter: swiftUIAdapter,
                 textFieldAppearance: textFieldAppearance,
-                spacing: spacing
+                spacing: spacing,
+                contentInsets: contentInsets
             )
             .environment(\.colorScheme, appearance.colorScheme)
             .ignoresSafeArea(.all)
@@ -111,13 +119,15 @@ private struct SnapshotMirroredSearchBarContainer: View {
     let adapter: SearchBarOutputSwiftUIAdapter
     let textFieldAppearance: TextfieldAppearance
     let spacing: CGFloat
+    let contentInsets: WrapKit.EdgeInsets
 
     var body: some View {
         VStack(spacing: 0) {
             SUISearchBar(
                 adapter: adapter,
                 textFieldAppearance: textFieldAppearance,
-                spacing: spacing
+                spacing: spacing,
+                contentInsets: contentInsets
             )
             .frame(maxWidth: .infinity, alignment: .top)
 

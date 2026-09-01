@@ -18,6 +18,8 @@ public final class SUIDatePickerStateModel: ObservableObject {
 
     private let adapter: DatePickerViewOutputSwiftUIAdapter
     private var cancellables: Set<AnyCancellable> = []
+    private var latestDateOutputSequence: UInt64 = 0
+    private var latestDateChangedOutputSequence: UInt64 = 0
 
     public init(adapter: DatePickerViewOutputSwiftUIAdapter) {
         self.adapter = adapter
@@ -26,36 +28,71 @@ public final class SUIDatePickerStateModel: ObservableObject {
             .compactMap { $0 }
             .sink { [weak self] value in
                 guard let self else { return }
-                self.setDateAnimated = false
-                self.date = value.model.value
+                self.applyDate(
+                    value.model.value,
+                    animated: false,
+                    outputSequence: value.outputSequence
+                )
                 self.minimumDate = value.model.minimumDate
                 self.maximumDate = value.model.maximumDate
                 self.mode = value.model.mode
-                self.dateChanged = value.model.dateChanged
+                self.applyDateChanged(
+                    value.model.dateChanged,
+                    outputSequence: value.outputSequence
+                )
             }
             .store(in: &cancellables)
 
         adapter.$displayDateState
             .compactMap { $0 }
             .sink { [weak self] value in
-                self?.setDateAnimated = false
-                self?.date = value.date
+                self?.applyDate(
+                    value.date,
+                    animated: false,
+                    outputSequence: value.outputSequence
+                )
             }
             .store(in: &cancellables)
 
         adapter.$displaySetDateAnimatedState
             .compactMap { $0 }
             .sink { [weak self] value in
-                self?.setDateAnimated = value.animated
-                self?.date = value.setDate
+                self?.applyDate(
+                    value.setDate,
+                    animated: value.animated,
+                    outputSequence: value.outputSequence
+                )
             }
             .store(in: &cancellables)
 
         adapter.$displayDateChangedState
             .compactMap { $0 }
             .sink { [weak self] value in
-                self?.dateChanged = value.dateChanged
+                self?.applyDateChanged(
+                    value.dateChanged,
+                    outputSequence: value.outputSequence
+                )
             }
             .store(in: &cancellables)
+    }
+
+    private func applyDate(
+        _ date: Date,
+        animated: Bool,
+        outputSequence: UInt64
+    ) {
+        guard outputSequence >= latestDateOutputSequence else { return }
+        latestDateOutputSequence = outputSequence
+        setDateAnimated = animated
+        self.date = date
+    }
+
+    private func applyDateChanged(
+        _ dateChanged: ((Date) -> Void)?,
+        outputSequence: UInt64
+    ) {
+        guard outputSequence >= latestDateChangedOutputSequence else { return }
+        latestDateChangedOutputSequence = outputSequence
+        self.dateChanged = dateChanged
     }
 }

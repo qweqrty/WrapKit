@@ -16,18 +16,42 @@ import SwiftUI
 import {{ importName }}
 #endif
 {% endfor %}
-public class {{ type.name }}SwiftUIAdapter{% for associatedType in type.associatedTypes|sortedValuesByKeys %}{% if forloop.first %}<{% endif %}{{ associatedType.name }}: {{ associatedType.typeName }}{% if not forloop.last %}{% if type.associatedTypes.count > 1 %},{% endif %}{% endif %}{% if forloop.last %}>{% endif %}{% endfor %}: ObservableObject, {{ type.name }}{% if type.name == "SwitchCotrolOutput" %}, LoadingOutput{% endif %} {
+public class {{ type.name }}SwiftUIAdapter{% for associatedType in type.associatedTypes|sortedValuesByKeys %}{% if forloop.first %}<{% endif %}{{ associatedType.name }}: {{ associatedType.typeName }}{% if not forloop.last %}{% if type.associatedTypes.count > 1 %},{% endif %}{% endif %}{% if forloop.last %}>{% endif %}{% endfor %}: ObservableObject, {{ type.name }}{% if type.name == "SwitchCotrolOutput" or type.name == "RefreshControlOutput" %}, LoadingOutput{% endif %} {
     {% for variable in type.variables %}
-        {% if variable.isOptional %}
+        {% if type.name == "RefreshControlOutput" and variable.name == "onRefresh" %}
+        @Published public var {{ variable.name }}: {{ variable.typeName }} = []
+        {% elif variable.isOptional %}
         @Published public var {{ variable.name }}: {{ variable.typeName }} = nil
         {% else %}
         @Published public var {{ variable.name }}: {{ variable.typeName }}
         {% endif %}
     {% endfor %}
 
-    {% if type.name == "SwitchCotrolOutput" %}
+    {% if type.name == "SwitchCotrolOutput" or type.name == "RefreshControlOutput" %}
     @Published public var isLoading: Bool? = nil
+    {% endif %}
 
+    {% if type.name == "DatePickerViewOutput" or type.name == "PickerViewOutput" or type.name == "EmptyViewOutput" or type.name == "TitledOutput" or type.name == "RefreshControlOutput" %}
+    private var nextOutputSequence: UInt64 = 0
+    {% endif %}
+
+    {% if type.name == "CommonToastOutput" %}
+    enum PendingCommand {
+        case display(CommonToast)
+        case hide
+    }
+
+    private var pendingCommands: [PendingCommand] = []
+    @Published var pendingCommandRevision: UInt64 = 0
+
+    func takePendingCommands() -> [PendingCommand] {
+        let commands = pendingCommands
+        pendingCommands.removeAll(keepingCapacity: true)
+        return commands
+    }
+    {% endif %}
+
+    {% if type.name == "SwitchCotrolOutput" %}
     @Published public var displayIsLoadingState: DisplayIsLoadingState? = nil
     public struct DisplayIsLoadingState {
         public let isLoading: Bool
@@ -56,7 +80,92 @@ public class {{ type.name }}SwiftUIAdapter{% for associatedType in type.associat
     {% for method in type.methods %}
     {% if not method.isStatic %}
     @Published public var {{ method.callName }}{% for param in method.parameters %}{{ param.name|upperFirstLetter }}{% endfor %}State: {{ method.callName|upperFirstLetter }}{% for param in method.parameters %}{{ param.name|upperFirstLetter }}{% endfor %}State? = nil
-    {% if type.name == "LoadingOutput" and method.parameters.count == 1 and method.parameters.first.name == "isLoading" %}
+    {% if type.name == "RefreshControlOutput" and method.parameters.count == 1 and method.parameters.first.name == "model" %}
+    public struct {{ method.callName|upperFirstLetter }}{% for param in method.parameters %}{{ param.name|upperFirstLetter }}{% endfor %}State {
+        public let outputSequence: UInt64
+        public let {{ method.parameters.first.name }}: {{ method.parameters.first.typeName }}
+    }
+    public func {{ method.name }} {
+        self.onRefresh = [{{ method.parameters.first.name }}?.onRefresh]
+        if let isLoading = {{ method.parameters.first.name }}?.isLoading {
+            self.isLoading = isLoading
+        }
+        nextOutputSequence &+= 1
+        {{ method.callName }}{% for param in method.parameters %}{{ param.name|upperFirstLetter }}{% endfor %}State = .init(
+            outputSequence: nextOutputSequence,
+            {{ method.parameters.first.name }}: {{ method.parameters.first.name }}
+        )
+    }
+    {% elif type.name == "RefreshControlOutput" and method.parameters.count == 1 and method.parameters.first.name == "style" %}
+    public struct {{ method.callName|upperFirstLetter }}{% for param in method.parameters %}{{ param.name|upperFirstLetter }}{% endfor %}State {
+        public let outputSequence: UInt64
+        public let {{ method.parameters.first.name }}: {{ method.parameters.first.typeName }}
+    }
+    public func {{ method.name }} {
+        nextOutputSequence &+= 1
+        {{ method.callName }}{% for param in method.parameters %}{{ param.name|upperFirstLetter }}{% endfor %}State = .init(
+            outputSequence: nextOutputSequence,
+            {{ method.parameters.first.name }}: {{ method.parameters.first.name }}
+        )
+    }
+    {% elif type.name == "RefreshControlOutput" and method.parameters.count == 1 and method.parameters.first.name == "onRefresh" %}
+    public struct {{ method.callName|upperFirstLetter }}{% for param in method.parameters %}{{ param.name|upperFirstLetter }}{% endfor %}State {
+        public let {{ method.parameters.first.name }}: {{ method.parameters.first.typeName }}
+    }
+    public func {{ method.name }} {
+        self.onRefresh = [{{ method.parameters.first.name }}]
+        {{ method.callName }}{% for param in method.parameters %}{{ param.name|upperFirstLetter }}{% endfor %}State = .init(
+            {{ method.parameters.first.name }}: {{ method.parameters.first.name }}
+        )
+    }
+    {% elif type.name == "RefreshControlOutput" and method.parameters.count == 1 and method.parameters.first.name == "appendingOnRefresh" %}
+    public struct {{ method.callName|upperFirstLetter }}{% for param in method.parameters %}{{ param.name|upperFirstLetter }}{% endfor %}State {
+        public let {{ method.parameters.first.name }}: {{ method.parameters.first.typeName }}
+    }
+    public func {{ method.name }} {
+        var callbacks = self.onRefresh ?? []
+        callbacks.append({{ method.parameters.first.name }})
+        self.onRefresh = callbacks
+        {{ method.callName }}{% for param in method.parameters %}{{ param.name|upperFirstLetter }}{% endfor %}State = .init(
+            {{ method.parameters.first.name }}: {{ method.parameters.first.name }}
+        )
+    }
+    {% elif type.name == "PickerViewOutput" and method.parameters.count == 1 and method.parameters.first.name == "model" %}
+    public struct {{ method.callName|upperFirstLetter }}{% for param in method.parameters %}{{ param.name|upperFirstLetter }}{% endfor %}State {
+        public let outputSequence: UInt64
+        public let {{ method.parameters.first.name }}: {{ method.parameters.first.typeName }}
+    }
+    public func {{ method.name }} {
+        self.componentsCount = {{ method.parameters.first.name }}?.componentsCount
+        self.rowsCount = {{ method.parameters.first.name }}?.rowsCount
+        self.titleForRowAt = {{ method.parameters.first.name }}?.titleForRowAt
+        self.didSelectAt = {{ method.parameters.first.name }}?.didSelectAt
+        nextOutputSequence &+= 1
+        {{ method.callName }}{% for param in method.parameters %}{{ param.name|upperFirstLetter }}{% endfor %}State = .init(
+            outputSequence: nextOutputSequence,
+            {{ method.parameters.first.name }}: {{ method.parameters.first.name }}
+        )
+    }
+    {% elif type.name == "PickerViewOutput" and method.parameters.count == 1 and method.parameters.first.name == "selectedRow" %}
+    public struct {{ method.callName|upperFirstLetter }}{% for param in method.parameters %}{{ param.name|upperFirstLetter }}{% endfor %}State {
+        public let outputSequence: UInt64
+        public let selectedRow: PickerViewPresentableModel.SelectedRow?
+    }
+    public func {{ method.name }} {
+        guard let selectedRow,
+              let componentsCount = componentsCount?(),
+              let rowsCount = rowsCount?(),
+              selectedRow.component >= 0,
+              selectedRow.component < componentsCount,
+              selectedRow.row >= 0,
+              selectedRow.row < rowsCount else { return }
+        nextOutputSequence &+= 1
+        {{ method.callName }}{% for param in method.parameters %}{{ param.name|upperFirstLetter }}{% endfor %}State = .init(
+            outputSequence: nextOutputSequence,
+            selectedRow: selectedRow
+        )
+    }
+    {% elif (type.name == "LoadingOutput" or type.name == "RefreshControlOutput") and method.parameters.count == 1 and method.parameters.first.name == "isLoading" %}
     public struct {{ method.callName|upperFirstLetter }}{% for param in method.parameters %}{{ param.name|upperFirstLetter }}{% endfor %}State {
         public let {{ method.parameters.first.name }}: {{ method.parameters.first.typeName }}
     }
@@ -105,6 +214,22 @@ public class {{ type.name }}SwiftUIAdapter{% for associatedType in type.associat
             {{ method.parameters.first.name }}: {{ method.parameters.first.name }}
         )
     }
+    {% elif type.name == "EmptyViewOutput" or type.name == "TitledOutput" %}
+    public struct {{ method.callName|upperFirstLetter }}{% for param in method.parameters %}{{ param.name|upperFirstLetter }}{% endfor %}State {
+        public let outputSequence: UInt64
+        {% for param in method.parameters %}
+        public let {{ param.name }}: {{ param.typeName }}
+        {% endfor %}
+    }
+    public func {{ method.name }} {
+        nextOutputSequence &+= 1
+        {{ method.callName }}{% for param in method.parameters %}{{ param.name|upperFirstLetter }}{% endfor %}State = .init(
+            outputSequence: nextOutputSequence,
+            {% for param in method.parameters %}
+            {{ param.name }}: {{ param.name }}{% if not forloop.last %}, {% endif %}
+            {% endfor %}
+        )
+    }
     {% elif type.implements.HiddableOutput and method.parameters.count == 1 and method.parameters.first.isOptional and (method.parameters.first.name == "model" or method.parameters.first.name == "text" or method.parameters.first.name == "attributes") %}
     public struct {{ method.callName|upperFirstLetter }}{% for param in method.parameters %}{{ param.name|upperFirstLetter }}{% endfor %}State {
         public let {{ method.parameters.first.name }}: {{ method.parameters.first.unwrappedTypeName }}
@@ -118,6 +243,41 @@ public class {{ type.name }}SwiftUIAdapter{% for associatedType in type.associat
         {{ method.callName }}{% for param in method.parameters %}{{ param.name|upperFirstLetter }}{% endfor %}State = .init(
             {{ method.parameters.first.name }}: {{ method.parameters.first.name }}
         )
+    }
+    {% elif type.name == "DatePickerViewOutput" %}
+    public struct {{ method.callName|upperFirstLetter }}{% for param in method.parameters %}{{ param.name|upperFirstLetter }}{% endfor %}State {
+        public let outputSequence: UInt64
+        {% for param in method.parameters %}
+        public let {{ param.name }}: {{ param.typeName }}
+        {% endfor %}
+    }
+    public func {{ method.name }} {
+        nextOutputSequence &+= 1
+        {{ method.callName }}{% for param in method.parameters %}{{ param.name|upperFirstLetter }}{% endfor %}State = .init(
+            outputSequence: nextOutputSequence,
+            {% for param in method.parameters %}
+            {{ param.name }}: {{ param.name }}{% if not forloop.last %}, {% endif %}
+            {% endfor %}
+        )
+    }
+    {% elif type.name == "CommonToastOutput" and method.parameters.count == 1 and method.parameters.first.name == "toast" %}
+    public struct {{ method.callName|upperFirstLetter }}{% for param in method.parameters %}{{ param.name|upperFirstLetter }}{% endfor %}State {
+        public let toast: CommonToast
+    }
+    public func {{ method.name }} {
+        pendingCommands.append(.display(toast))
+        {{ method.callName }}{% for param in method.parameters %}{{ param.name|upperFirstLetter }}{% endfor %}State = .init(
+            toast: toast
+        )
+        pendingCommandRevision &+= 1
+    }
+    {% elif type.name == "CommonToastOutput" and method.parameters.count == 0 %}
+    public struct {{ method.callName|upperFirstLetter }}State {
+    }
+    public func {{ method.name }} {
+        pendingCommands.append(.hide)
+        {{ method.callName }}State = .init()
+        pendingCommandRevision &+= 1
     }
     {% else %}
     public struct {{ method.callName|upperFirstLetter }}{% for param in method.parameters %}{{ param.name|upperFirstLetter }}{% endfor %}State {

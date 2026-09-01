@@ -60,6 +60,13 @@ public protocol PairedSnapshotSource: UIKitSnapshotSource {
     func swiftUISnapshot(for appearance: SnapshotAppearance) -> UIImage
 }
 
+/// Opt in when the immutable UIKit baseline uses a historical fixture proposal that is not a
+/// production-equivalent proposal for SwiftUI parity. The baseline remains strict, while the
+/// paired comparison renders both implementations under the same layout contract.
+public protocol PairedSnapshotParitySource: PairedSnapshotSource {
+    func uiKitParitySnapshot(for appearance: SnapshotAppearance) -> UIImage
+}
+
 public extension XCTestCase {
     func assert<Source: PairedSnapshotSource>(
         snapshot source: Source,
@@ -94,6 +101,27 @@ public extension XCTestCase {
             appearances: appearances,
             baselineAliases: baselineAliases,
             expectation: .differs,
+            file: file,
+            line: line
+        )
+    }
+
+    /// Compares the current UIKit and SwiftUI renders without requiring a stored UIKit baseline.
+    /// Use this only for a newly-added paired scenario that already has exact functional/layout
+    /// coverage and therefore cannot record a baseline as part of the current change.
+    func assertParity<Source: PairedSnapshotSource>(
+        snapshot source: Source,
+        named name: String,
+        appearances: [SnapshotAppearance] = SnapshotAppearance.allCases,
+        reason: String,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        verifyParityOnlySnapshot(
+            source,
+            named: name,
+            appearances: appearances,
+            reason: reason,
             file: file,
             line: line
         )
@@ -275,6 +303,9 @@ private extension XCTestCase {
 
             XCTContext.runActivity(named: appearance.activityName) { _ in
                 let uiKitSnapshot = source.uiKitSnapshot(for: appearance)
+                let uiKitParitySnapshot = (
+                    source as? any PairedSnapshotParitySource
+                )?.uiKitParitySnapshot(for: appearance) ?? uiKitSnapshot
                 let swiftUISnapshot: UIImage?
                 if #available(iOS 17.0, *) {
                     swiftUISnapshot = source.swiftUISnapshot(for: appearance)
@@ -294,12 +325,46 @@ private extension XCTestCase {
                 if let swiftUISnapshot {
                     assertSwiftUIParity(
                         snapshot: swiftUISnapshot,
-                        matchingUIKit: uiKitSnapshot,
+                        matchingUIKit: uiKitParitySnapshot,
                         named: baselineName,
                         file: file,
                         line: line
                     )
                 }
+            }
+        }
+    }
+
+    func verifyParityOnlySnapshot<Source: PairedSnapshotSource>(
+        _ source: Source,
+        named name: String,
+        appearances: [SnapshotAppearance],
+        reason: String,
+        file: StaticString,
+        line: UInt
+    ) {
+        guard #available(iOS 17.0, *) else { return }
+
+        appearances.forEach { appearance in
+            let snapshotName = pairedSnapshotName(
+                named: name,
+                appearance: appearance,
+                aliases: .none
+            )
+
+            XCTContext.runActivity(
+                named: "\(appearance.activityName) · parity only: \(reason)"
+            ) { _ in
+                let uiKitSnapshot = (
+                    source as? any PairedSnapshotParitySource
+                )?.uiKitParitySnapshot(for: appearance) ?? source.uiKitSnapshot(for: appearance)
+                assertSwiftUIParity(
+                    snapshot: source.swiftUISnapshot(for: appearance),
+                    matchingUIKit: uiKitSnapshot,
+                    named: snapshotName,
+                    file: file,
+                    line: line
+                )
             }
         }
     }

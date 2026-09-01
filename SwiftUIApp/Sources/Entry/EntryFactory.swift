@@ -7,91 +7,22 @@
 
 import Foundation
 import SwiftUI
-import WrapKit
-import Combine
 
 public protocol EntryViewFactory<T> {
     associatedtype T
-    func makeSplashScreen() -> T
+    func makeCatalogScreen() -> T
 }
 
 struct EntryViewSwiftUIFactory: EntryViewFactory {
     typealias T = AnyView
+
+    let initialDestination: CatalogOutputDestination?
+
+    init(initialDestination: CatalogOutputDestination? = nil) {
+        self.initialDestination = initialDestination
+    }
     
-    func makeSplashScreen() -> AnyView {
-        let presenter = SplashPresenter()
-        let contentView = SplashContentView(
-            lifeCycleOutput: presenter,
-            applicationLifecycleOutput: presenter
-        )
-        presenter.textOutput = contentView
-            .adapter
-            .weakReferenced
-            .mainQueueDispatched
-        presenter.imageViewOutput = contentView
-            .imageViewAdapter
-            .weakReferenced
-            .mainQueueDispatched
-        presenter.stackViewOutput = contentView
-            .stackViewAdapter
-            .weakReferenced
-            .mainQueueDispatched
-        presenter.toastView = contentView
-            .toastViewAdapter
-            .weakReferenced
-            .mainQueueDispatched
-        presenter.buttonOutput = contentView
-            .buttonAdapter
-            .weakReferenced
-            .mainQueueDispatched
-        presenter.buttonLoadingOutput = contentView.buttonLoadingAdapter
-            .weakReferenced
-            .mainQueueDispatched
-        presenter.loadingOutput = contentView
-            .loadingAdapter
-            .weakReferenced
-            .mainQueueDispatched
-        presenter.buttonWithShrink = contentView
-            .buttonWithShrinkAdapter
-            .weakReferenced
-            .mainQueueDispatched
-        presenter.switchControl = contentView
-            .switchControlAdapter
-            .weakReferenced
-            .mainQueueDispatched
-        presenter.switchControlLoading = contentView
-            .switchControlAdapter
-            .weakReferenced
-            .mainQueueDispatched
-        presenter.progressBar = contentView
-            .progressBarAdapter
-            .weakReferenced
-            .mainQueueDispatched
-        presenter.refreshControlOutput = contentView
-            .refreshControlAdapter
-            .weakReferenced
-            .mainQueueDispatched
-        presenter.datePickerOutput = contentView
-            .datePickerAdapter
-            .weakReferenced
-            .mainQueueDispatched
-        presenter.textField = contentView
-            .textFieldAdapter
-            .weakReferenced
-            .mainQueueDispatched
-        presenter.picker = contentView
-            .pickerViewAdapter
-            .weakReferenced
-            .mainQueueDispatched
-        presenter.tableView = contentView
-            .tableViewAdapter
-        presenter.emptyView = contentView
-            .emptyViewAdapter
-            .weakReferenced
-            .mainQueueDispatched
-        presenter.chunkedTextField = contentView
-            .chunkedTextFieldAdapter
-        
-        return AnyView(contentView)
+    func makeCatalogScreen() -> AnyView {
+        ComponentCatalogFactory().makeCatalog(initialDestination: initialDestination)
     }
 }

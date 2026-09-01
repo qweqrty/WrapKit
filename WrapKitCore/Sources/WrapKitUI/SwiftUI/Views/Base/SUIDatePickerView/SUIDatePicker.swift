@@ -54,6 +54,32 @@ public struct SUIDatePickerView: View {
     }
 
     public var body: some View {
+        pickerContent
+            .onChange(of: date) { newDate in
+                updateInternalDate(newDate)
+            }
+    }
+
+    @ViewBuilder
+    private var pickerContent: some View {
+#if os(iOS)
+        if mode == .countDownTimer {
+            SUIDatePickerCountDownView(
+                date: $internalDate,
+                minimumDate: minimumDate,
+                maximumDate: maximumDate,
+                setDateAnimated: setDateAnimated,
+                dateChanged: dateChanged
+            )
+        } else {
+            swiftUIDatePicker
+        }
+#else
+        swiftUIDatePicker
+#endif
+    }
+
+    private var swiftUIDatePicker: some View {
         DatePicker(
             "",
             selection: Binding(
@@ -68,16 +94,16 @@ public struct SUIDatePickerView: View {
         )
         .datePickerStyle(.wheel)
         .labelsHidden()
-        .onChange(of: date) { newDate in
-            if internalDate != newDate {
-                if setDateAnimated {
-                    withAnimation {
-                        internalDate = newDate
-                    }
-                } else {
-                    internalDate = newDate
-                }
+    }
+
+    private func updateInternalDate(_ newDate: Date) {
+        guard internalDate != newDate else { return }
+        if setDateAnimated {
+            withAnimation {
+                internalDate = newDate
             }
+        } else {
+            internalDate = newDate
         }
     }
 
@@ -96,10 +122,63 @@ public struct SUIDatePickerView: View {
         case .dateAndTime:
             return [.date, .hourAndMinute]
         case .countDownTimer:
+            // SwiftUI has no countdown-timer DatePicker mode. iOS uses the
+            // UIKit-backed branch above; other platforms retain a usable fallback.
             return .hourAndMinute
         }
     }
 }
+
+#if os(iOS)
+import UIKit
+
+struct SUIDatePickerCountDownView: UIViewRepresentable {
+    @Binding var date: Date
+    let minimumDate: Date?
+    let maximumDate: Date?
+    let setDateAnimated: Bool
+    let dateChanged: ((Date) -> Void)?
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(parent: self)
+    }
+
+    func makeUIView(context: Context) -> UIDatePicker {
+        let picker = UIDatePicker(frame: .zero)
+        picker.datePickerMode = .countDownTimer
+        if #available(iOS 13.4, *) {
+            picker.preferredDatePickerStyle = .wheels
+        }
+        picker.addTarget(
+            context.coordinator,
+            action: #selector(Coordinator.dateDidChange(_:)),
+            for: .valueChanged
+        )
+        return picker
+    }
+
+    func updateUIView(_ picker: UIDatePicker, context: Context) {
+        context.coordinator.parent = self
+        picker.minimumDate = minimumDate
+        picker.maximumDate = maximumDate
+        guard picker.date != date else { return }
+        picker.setDate(date, animated: setDateAnimated)
+    }
+
+    final class Coordinator: NSObject {
+        var parent: SUIDatePickerCountDownView
+
+        init(parent: SUIDatePickerCountDownView) {
+            self.parent = parent
+        }
+
+        @objc func dateDidChange(_ picker: UIDatePicker) {
+            parent.date = picker.date
+            parent.dateChanged?(picker.date)
+        }
+    }
+}
+#endif
 
 #Preview {
     SUIDatePickerView(

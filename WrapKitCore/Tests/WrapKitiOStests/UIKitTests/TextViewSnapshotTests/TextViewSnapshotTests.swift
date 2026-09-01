@@ -423,6 +423,38 @@ final class TextViewSnapshotTests: XCTestCase {
 
         assert(snapshot: sut, named: snapshotName)
     }
+
+    func test_TextView_didChangeText_notifies_callbacks_on_user_change() {
+        let sut = makeSUT()
+        var receivedTexts: [String?] = []
+        let callback: (String?) -> Void = { receivedTexts.append($0) }
+
+        sut.display(didChangeText: [callback])
+        sut.uiKitView.text = "Changed text"
+        sut.uiKitView.textViewDidChange(sut.uiKitView)
+
+        XCTAssertEqual(receivedTexts, ["Changed text"])
+    }
+
+    func test_TextView_isEnabledForEditing_updates_editability() {
+        let sut = makeSUT()
+
+        sut.display(isEnabledForEditing: false)
+        XCTAssertFalse(sut.uiKitView.isEditable)
+
+        sut.display(isEnabledForEditing: true)
+        XCTAssertTrue(sut.uiKitView.isEditable)
+    }
+
+    func test_TextView_isTextSelectionDisabled_updates_selectability() {
+        let sut = makeSUT()
+
+        sut.display(isTextSelectionDisabled: true)
+        XCTAssertFalse(sut.uiKitView.isSelectable)
+
+        sut.display(isTextSelectionDisabled: false)
+        XCTAssertTrue(sut.uiKitView.isSelectable)
+    }
 }
 
 extension TextViewSnapshotTests {

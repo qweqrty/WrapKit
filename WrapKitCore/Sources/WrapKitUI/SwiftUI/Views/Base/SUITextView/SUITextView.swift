@@ -41,6 +41,7 @@ public struct SUITextView: View {
                 shouldBecomeFirstResponder: $stateModel.shouldBecomeFirstResponder,
                 shouldResignFirstResponder: $stateModel.shouldResignFirstResponder,
                 onPress: stateModel.onPress,
+                onTapBackspace: stateModel.onTapBackspace,
                 onPaste: stateModel.onPaste,
                 leadingViewOnPress: stateModel.leadingViewOnPress,
                 trailingViewOnPress: stateModel.trailingViewOnPress,
@@ -81,6 +82,7 @@ public struct SUITextViewContent: View {
     @Binding var shouldBecomeFirstResponder: Bool
     @Binding var shouldResignFirstResponder: Bool
     let onPress: (() -> Void)?
+    let onTapBackspace: (() -> Void)?
     let onPaste: ((String?) -> Void)?
     let leadingViewOnPress: (() -> Void)?
     let trailingViewOnPress: (() -> Void)?
@@ -189,8 +191,10 @@ public struct SUITextViewContent: View {
         }
         .frame(minHeight: 100)
         .contentShape(Rectangle())
+        .allowsHitTesting(isUserInteractionEnabled)
         .simultaneousGesture(
             TapGesture().onEnded {
+                guard isUserInteractionEnabled else { return }
                 if !hasInputView {
                     onPress?()
                 }
@@ -267,6 +271,26 @@ public struct SUITextViewContent: View {
 
     @ViewBuilder
     private var inputContent: some View {
+        nativeInputContent
+        .font(SwiftUIFont(appearance.font))
+        .foregroundColor(currentTextColor)
+        .suiTextViewKeyboardType(keyboardType)
+        .if(isTextSelectionDisabled) { view in
+            view.textSelection(.disabled)
+        }
+        .disabled(!canEdit || hasInputView)
+        .accessibilityIdentifier(accessibilityIdentifier ?? "")
+        .if(true) { view in
+            if #available(iOS 15.0, *) {
+                view.textInputAutocapitalization(autocapitalizationType.asSUITextViewAutocapitalization)
+            } else {
+                view
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var nativeInputContent: some View {
         Group {
             if isSecureTextEntry {
                 SecureField("", text: nativeTextBinding)
@@ -283,21 +307,14 @@ public struct SUITextViewContent: View {
                     }
             }
         }
-        .font(SwiftUIFont(appearance.font))
-        .foregroundColor(currentTextColor)
-        .suiTextViewKeyboardType(keyboardType)
-        .if(isTextSelectionDisabled) { view in
-            view.textSelection(.disabled)
-        }
-        .disabled(!canEdit || hasInputView)
-        .accessibilityIdentifier(accessibilityIdentifier ?? "")
-        .if(true) { view in
-            if #available(iOS 15.0, *) {
-                view.textInputAutocapitalization(autocapitalizationType.asSUITextViewAutocapitalization)
-            } else {
-                view
-            }
-        }
+        .background(
+            SUITextInputEventBridge(
+                target: isSecureTextEntry ? .textField : .textView,
+                onTapBackspace: onTapBackspace,
+                onPaste: onPaste
+            )
+            .frame(width: 0, height: 0)
+        )
     }
 
     private var nativeTextBinding: Binding<String> {

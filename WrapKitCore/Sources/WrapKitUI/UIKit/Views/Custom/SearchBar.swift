@@ -52,12 +52,16 @@ public class SearchBar: ViewUIKit {
     public let textfield: Textfield
     public var rightView: Button = Button()
     
+    /// `contentInsets` inset the complete row of side controls and text field.
+    /// The text field keeps managing its own internal text padding independently.
     public init(
         textfield: Textfield,
-        spacing: CGFloat = 8
+        spacing: CGFloat = 8,
+        contentInsets: EdgeInsets = .zero
     ) {
         self.textfield = textfield
         self.stackView.spacing = spacing
+        self.stackView.layoutMargins = contentInsets.asUIEdgeInsets
         
         super.init(frame: .zero)
         

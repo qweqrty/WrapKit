@@ -37,7 +37,7 @@ public final class SUIButtonStateModel: ObservableObject {
                     image: model?.image,
                     spacing: model?.spacing ?? current.spacing,
                     height: model?.height ?? current.height,
-                    width: model?.width,
+                    width: model?.width ?? current.width,
                     style: model?.style ?? current.style,
                     enabled: model?.enabled ?? current.enabled,
                     onPress: model?.onPress
@@ -117,13 +117,6 @@ public final class SUIButtonStateModel: ObservableObject {
             .compactMap { $0 }
             .sink { [weak self] value in
                 self?.isLoading = value
-            }
-            .store(in: &cancellables)
-
-        loadingAdapter?.$displayIsLoadingState
-            .compactMap { $0 }
-            .sink { [weak self] value in
-                self?.isLoading = value.isLoading
             }
             .store(in: &cancellables)
     }

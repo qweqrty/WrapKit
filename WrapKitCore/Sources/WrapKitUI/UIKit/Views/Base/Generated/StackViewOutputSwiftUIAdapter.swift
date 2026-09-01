@@ -20,6 +20,9 @@ import UIKit
 public class StackViewOutputSwiftUIAdapter: ObservableObject, StackViewOutput {
 
 
+
+
+
     // Initializer
     public init(
     ) {

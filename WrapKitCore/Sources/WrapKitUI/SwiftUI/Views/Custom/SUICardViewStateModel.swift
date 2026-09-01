@@ -40,6 +40,7 @@ final class SUICardViewStateModel: ObservableObject {
     @Published var secondaryTrailingImage: ImageViewPresentableModel?
     @Published var subTitle: TextOutputPresentableModel?
     @Published var valueTitle: TextOutputPresentableModel?
+    @Published var bottomImage: ImageViewPresentableModel?
     @Published var bottomSeparator: CardViewPresentableModel.BottomSeparator?
     @Published var switchControl: SwitchControlPresentableModel?
     @Published var onPress: (() -> Void)?
@@ -54,6 +55,7 @@ final class SUICardViewStateModel: ObservableObject {
     let secondaryLeadingImageAdapter = ImageViewOutputSwiftUIAdapter()
     let trailingImageAdapter = ImageViewOutputSwiftUIAdapter()
     let secondaryTrailingImageAdapter = ImageViewOutputSwiftUIAdapter()
+    let bottomImageAdapter = ImageViewOutputSwiftUIAdapter()
     let leadingTitlesAdapter = KeyValueFieldViewOutputSwiftUIAdapter()
     let titleViewsAdapter = KeyValueFieldViewOutputSwiftUIAdapter()
     let trailingTitlesAdapter = KeyValueFieldViewOutputSwiftUIAdapter()
@@ -147,6 +149,13 @@ final class SUICardViewStateModel: ObservableObject {
             }
             .store(in: &cancellables)
 
+        adapter.$displayBottomImageState
+            .sink { [weak self] state in
+                guard let state else { return }
+                self?.setBottomImage(state.bottomImage)
+            }
+            .store(in: &cancellables)
+
         adapter.$displayBottomSeparatorState
             .sink { [weak self] state in
                 guard let state else { return }
@@ -220,6 +229,7 @@ final class SUICardViewStateModel: ObservableObject {
         setSecondaryTrailingImage(model.secondaryTrailingImage)
         setSubTitle(model.subTitle)
         setValueTitle(model.valueTitle)
+        setBottomImage(model.bottomImage)
         bottomSeparator = model.bottomSeparator
         setSwitchControl(model.switchControl)
         onPress = model.onPress
@@ -286,6 +296,11 @@ final class SUICardViewStateModel: ObservableObject {
         switchControlAdapter.display(model: model)
     }
 
+    private func setBottomImage(_ model: ImageViewPresentableModel?) {
+        bottomImage = model
+        bottomImageAdapter.display(model: model)
+    }
+
     private func applyGradientBorder(isEnabled: Bool) {
         if isEnabled {
             // UIKit treats this as an event: enabling before a style with gradient colors is
@@ -346,6 +361,7 @@ final class SUICardViewStateModel: ObservableObject {
         setSecondaryTrailingImage(secondaryTrailingImage)
         setSubTitle(subTitle)
         setValueTitle(valueTitle)
+        setBottomImage(bottomImage)
         setSwitchControl(switchControl)
     }
 }

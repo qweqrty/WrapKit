@@ -17,6 +17,9 @@ import Foundation
 public class WebViewOutputSwiftUIAdapter: ObservableObject, WebViewOutput {
 
 
+
+
+
     // Initializer
     public init(
     ) {

@@ -23,6 +23,9 @@ import SwiftUI
 public class HeaderOutputSwiftUIAdapter: ObservableObject, HeaderOutput {
 
 
+
+
+
     // Initializer
     public init(
     ) {

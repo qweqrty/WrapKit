@@ -21,6 +21,8 @@ public class SwitchCotrolOutputSwiftUIAdapter: ObservableObject, SwitchCotrolOut
 
     @Published public var isLoading: Bool? = nil
 
+
+
     @Published public var displayIsLoadingState: DisplayIsLoadingState? = nil
     public struct DisplayIsLoadingState {
         public let isLoading: Bool

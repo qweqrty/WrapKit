@@ -34,6 +34,12 @@ public extension XCTestCase {
         try? storedSnapshotData.write(to: artifactsSubUrl.appendingPathComponent("origin.png"))
         try? diff.artifacts.diff.pngData()?.write(to: artifactsSubUrl.appendingPathComponent("diff.png"))
         try? diff.artifacts.image.pngData()?.write(to: artifactsSubUrl.appendingPathComponent("new.png"))
+        attachSnapshotArtifacts(
+            reference: oldImage,
+            snapshot: diff.artifacts.image,
+            difference: diff.artifacts.diff,
+            name: name
+        )
         XCTFail(diff.message + "\n Diff snapshot URL: \(artifactsSubUrl)", file: file, line: line)
     }
     
@@ -173,7 +179,33 @@ public extension XCTestCase {
         try? reference.pngData()?.write(to: artifactsURL.appendingPathComponent("origin.png"))
         try? diff.artifacts.diff.pngData()?.write(to: artifactsURL.appendingPathComponent("diff.png"))
         try? diff.artifacts.image.pngData()?.write(to: artifactsURL.appendingPathComponent("new.png"))
+        attachSnapshotArtifacts(
+            reference: reference,
+            snapshot: diff.artifacts.image,
+            difference: diff.artifacts.diff,
+            name: artifactsName
+        )
         XCTFail(diff.message + "\n Diff snapshot URL: \(artifactsURL)", file: file, line: line)
+    }
+
+    private func attachSnapshotArtifacts(
+        reference: UIImage,
+        snapshot: UIImage,
+        difference: UIImage,
+        name: String
+    ) {
+        let artifacts: [(label: String, image: UIImage)] = [
+            ("Reference", reference),
+            ("New", snapshot),
+            ("Difference", difference)
+        ]
+
+        artifacts.forEach { artifact in
+            let attachment = XCTAttachment(image: artifact.image)
+            attachment.name = "\(name) · \(artifact.label)"
+            attachment.lifetime = .keepAlways
+            add(attachment)
+        }
     }
 
 }

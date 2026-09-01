@@ -17,6 +17,22 @@ import Foundation
 public class CommonToastOutputSwiftUIAdapter: ObservableObject, CommonToastOutput {
 
 
+
+    enum PendingCommand {
+        case display(CommonToast)
+        case hide
+    }
+
+    private var pendingCommands: [PendingCommand] = []
+    @Published var pendingCommandRevision: UInt64 = 0
+
+    func takePendingCommands() -> [PendingCommand] {
+        let commands = pendingCommands
+        pendingCommands.removeAll(keepingCapacity: true)
+        return commands
+    }
+
+
     // Initializer
     public init(
     ) {
@@ -27,15 +43,18 @@ public class CommonToastOutputSwiftUIAdapter: ObservableObject, CommonToastOutpu
         public let toast: CommonToast
     }
     public func display(_ toast: CommonToast) {
+        pendingCommands.append(.display(toast))
         displayToastState = .init(
             toast: toast
         )
+        pendingCommandRevision &+= 1
     }
     @Published public var hideState: HideState? = nil
     public struct HideState {
     }
     public func hide() {
-        hideState = .init(
-        )
+        pendingCommands.append(.hide)
+        hideState = .init()
+        pendingCommandRevision &+= 1
     }
 }

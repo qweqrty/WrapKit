@@ -39,6 +39,12 @@ public struct SUISegmentControlView: View {
     @available(iOS 26, macOS 26, tvOS 26, watchOS 26, *)
     private var nativeSegmentedControl: some View {
         nativeSegmentedPicker
+            .overlay {
+                GeometryReader { proxy in
+                    nativeSegmentLabels(containerWidth: proxy.size.width)
+                        .frame(width: proxy.size.width, height: proxy.size.height)
+                }
+            }
             .background(SwiftUIColor(stateModel.appearance.colors.backgroundColor))
             .cornerStyle(.fixed(stateModel.appearance.cornerRadius))
             .frame(minHeight: 32)
@@ -54,17 +60,38 @@ public struct SUISegmentControlView: View {
             )
         ) {
             ForEach(Array(stateModel.segments.enumerated()), id: \.offset) { index, segment in
-                Text(segment.title.removingPercentEncoding ?? segment.title)
-                    .font(SwiftUIFont(stateModel.appearance.font))
-                    .foregroundColor(SwiftUIColor(stateModel.appearance.colors.textColor))
-                    .lineLimit(1)
+                Text("")
                     .tag(index)
                     .accessibilityIdentifier(segment.accessibilityIdentifier ?? "")
+                    .accessibilityLabel(Text(segment.title.removingPercentEncoding ?? segment.title))
             }
         }
         .labelsHidden()
         .pickerStyle(.segmented)
         .tint(SwiftUIColor(stateModel.appearance.colors.selectedBackgroundColor))
+    }
+
+    @available(iOS 26, macOS 26, tvOS 26, watchOS 26, *)
+    private func nativeSegmentLabels(containerWidth: CGFloat) -> some View {
+        let segmentWidth = stateModel.segments.isEmpty
+            ? 0
+            : containerWidth / CGFloat(stateModel.segments.count)
+
+        return HStack(spacing: 0) {
+            ForEach(Array(stateModel.segments.enumerated()), id: \.offset) { _, segment in
+                Text(segment.title.removingPercentEncoding ?? segment.title)
+                    .font(SwiftUIFont(stateModel.appearance.font))
+                    .foregroundColor(SwiftUIColor(stateModel.appearance.colors.textColor))
+                    .lineLimit(1)
+                    .truncationMode(.tail)
+                    .frame(width: segmentWidth)
+                    .frame(maxHeight: .infinity)
+            }
+        }
+        .frame(width: containerWidth, alignment: .leading)
+        .frame(maxHeight: .infinity)
+        .allowsHitTesting(false)
+        .accessibilityHidden(true)
     }
 
     private var backgroundView: some View {

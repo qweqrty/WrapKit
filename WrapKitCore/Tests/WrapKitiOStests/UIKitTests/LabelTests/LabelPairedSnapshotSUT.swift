@@ -5,7 +5,7 @@
 
 import SwiftUI
 import UIKit
-import WrapKit
+@testable import WrapKit
 import WrapKitTestUtils
 
 final class PairedLabelSnapshotSUT: TextOutput, PairedSnapshotSource {
@@ -17,6 +17,7 @@ final class PairedLabelSnapshotSUT: TextOutput, PairedSnapshotSource {
     let adapter: TextOutputSwiftUIAdapter
 
     private let uiKitContainer: UIView
+    private let swiftUIStateModel: SUILabelStateModel
     private var swiftUIView: AnyView
     private var labelBackgroundColor: UIColor?
     private var labelCornerStyle: CornerStyle?
@@ -29,14 +30,16 @@ final class PairedLabelSnapshotSUT: TextOutput, PairedSnapshotSource {
         uiKitContainer: UIView,
         adapter: TextOutputSwiftUIAdapter = TextOutputSwiftUIAdapter()
     ) {
+        let stateModel = SUILabelStateModel(adapter: adapter)
         self.uiKitContainer = uiKitContainer
         self.adapter = adapter
+        self.swiftUIStateModel = stateModel
         self.uiKitLabel = WrapKit.Label(
             font: Self.defaultFont,
             textColor: Self.defaultTextColor,
             textAlignment: Self.defaultTextAlignment
         )
-        self.swiftUIView = AnyView(SUILabel(adapter: adapter))
+        self.swiftUIView = AnyView(SUILabel(stateModel: stateModel))
     }
 
     var backgroundColor: UIColor? {
@@ -198,7 +201,7 @@ final class PairedLabelSnapshotSUT: TextOutput, PairedSnapshotSource {
     private func rebuildSwiftUIView() {
         swiftUIView = AnyView(
             SUILabel(
-                adapter: adapter,
+                stateModel: swiftUIStateModel,
                 font: swiftUIFont,
                 textColor: swiftUITextColor,
                 textAlignment: swiftUITextAlignment

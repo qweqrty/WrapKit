@@ -69,7 +69,10 @@ public struct SUIProgressBarView: View {
                 if normalizedProgress > 0 {
                     SUIProgressBarCornerShape(style: cornerStyle)
                         .fill(style?.progressBarColor.map { SwiftUIColor($0) } ?? SwiftUIColor(.systemBlue))
-                        .frame(width: geo.size.width * normalizedProgress)
+                        .frame(
+                            width: geo.size.width * normalizedProgress,
+                            height: fillHeight
+                        )
                         .animation(animatesProgressChanges ? .easeInOut : nil, value: normalizedProgress)
                 }
             }
@@ -81,6 +84,10 @@ public struct SUIProgressBarView: View {
     private var trackHeight: CGFloat {
         let fillHeight = style?.height ?? 4
         return style?.trackHeight ?? (fillHeight - (fillHeight / 3).rounded(.up))
+    }
+
+    private var fillHeight: CGFloat {
+        layoutHeight ?? style?.height ?? 4
     }
 
     private var normalizedProgress: CGFloat {

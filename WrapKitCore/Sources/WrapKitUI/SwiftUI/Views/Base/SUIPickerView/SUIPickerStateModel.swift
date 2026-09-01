@@ -6,6 +6,7 @@
 //
 
 import Combine
+import SwiftUI
 
 public final class SUIPickerStateModel: ObservableObject {
     @Published var isHidden: Bool = false
@@ -14,12 +15,13 @@ public final class SUIPickerStateModel: ObservableObject {
     @Published var rows: [String] = []
     @Published var accessibilityIdentifier: String?
 
-    var didSelectAt: ((Int) -> Void)? = nil
+    @Published var didSelectAt: ((Int) -> Void)? = nil
 
     private let adapter: PickerViewOutputSwiftUIAdapter
     private var rowsCountProvider: (() -> Int)?
     private var titleProvider: ((Int) -> String?)?
     private var cancellables: Set<AnyCancellable> = []
+    private var latestSelectedRowOutputSequence: UInt64 = 0
 
     public init(adapter: PickerViewOutputSwiftUIAdapter) {
         self.adapter = adapter
@@ -30,6 +32,10 @@ public final class SUIPickerStateModel: ObservableObject {
                 guard let self else { return }
                 self.isHidden = value.model == nil
                 guard let model = value.model else {
+                    self.latestSelectedRowOutputSequence = max(
+                        self.latestSelectedRowOutputSequence,
+                        value.outputSequence
+                    )
                     self.componentsCount = 0
                     self.rows = []
                     self.selectedRows = [:]
@@ -46,7 +52,10 @@ public final class SUIPickerStateModel: ObservableObject {
                 self.accessibilityIdentifier = model.accessibilityIdentifier
                 self.reloadRows()
                 if let selectedRow = model.selectedRow {
-                    self.apply(selectedRow: selectedRow)
+                    self.apply(
+                        selectedRow: selectedRow,
+                        outputSequence: value.outputSequence
+                    )
                 }
             }
             .store(in: &cancellables)
@@ -55,7 +64,10 @@ public final class SUIPickerStateModel: ObservableObject {
             .compactMap { $0 }
             .sink { [weak self] value in
                 guard let self, let row = value.selectedRow else { return }
-                self.apply(selectedRow: row)
+                self.apply(
+                    selectedRow: row,
+                    outputSequence: value.outputSequence
+                )
             }
             .store(in: &cancellables)
 
@@ -70,7 +82,9 @@ public final class SUIPickerStateModel: ObservableObject {
         adapter.$componentsCount
             .dropFirst()
             .sink { [weak self] value in
-                self?.componentsCount = max(value?() ?? 0, 0)
+                guard let self else { return }
+                self.componentsCount = max(value?() ?? 0, 0)
+                self.normalizeSelectedRows()
             }
             .store(in: &cancellables)
 
@@ -99,18 +113,44 @@ public final class SUIPickerStateModel: ObservableObject {
     }
 
     private func reloadRows() {
-        let count = rowsCountProvider?() ?? 0
-        rows = (0..<count).compactMap { titleProvider?($0) }
+        let count = max(rowsCountProvider?() ?? 0, 0)
+        rows = (0..<count).map { titleProvider?($0) ?? "" }
+        normalizeSelectedRows()
     }
 
-    private func apply(selectedRow: PickerViewPresentableModel.SelectedRow) {
+    private func normalizeSelectedRows() {
+        guard componentsCount > 0, !rows.isEmpty else {
+            selectedRows = [:]
+            return
+        }
+
+        let lastRow = rows.count - 1
+        selectedRows = selectedRows.reduce(into: [:]) { result, selection in
+            let (component, row) = selection
+            guard component >= 0, component < componentsCount else { return }
+            result[component] = min(max(row, 0), lastRow)
+        }
+    }
+
+    private func apply(
+        selectedRow: PickerViewPresentableModel.SelectedRow,
+        outputSequence: UInt64
+    ) {
         guard selectedRow.component >= 0,
               selectedRow.component < componentsCount,
               selectedRow.row >= 0,
               selectedRow.row < rows.count
         else { return }
+        guard outputSequence >= latestSelectedRowOutputSequence else { return }
+        latestSelectedRowOutputSequence = outputSequence
 
-        selectedRows[selectedRow.component] = selectedRow.row
+        if selectedRow.animated {
+            withAnimation {
+                selectedRows[selectedRow.component] = selectedRow.row
+            }
+        } else {
+            selectedRows[selectedRow.component] = selectedRow.row
+        }
         selectedRow.selectedRowCompletion?(selectedRows[selectedRow.component] ?? selectedRow.row)
     }
 }

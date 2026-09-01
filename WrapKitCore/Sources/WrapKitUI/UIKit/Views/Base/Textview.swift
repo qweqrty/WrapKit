@@ -80,6 +80,7 @@ open class Textview: UITextView, UITextViewDelegate {
     
     public func textViewDidChange(_ textView: UITextView) {
         placeholderLabel.isHidden = !textView.text.isEmpty
+        didChangeText.forEach { $0(textView.text) }
         textDidChange?()
         applyAccessibility()
     }
@@ -325,8 +326,15 @@ extension Textview: TextInputOutput {
         updateAppearance(isValid: isValid)
         applyAccessibility()
     }
-    public func display(isEnabledForEditing: Bool) { applyAccessibility() }
-    public func display(isTextSelectionDisabled: Bool) { applyAccessibility() }
+    public func display(isEnabledForEditing: Bool) {
+        isEditable = isEnabledForEditing
+        applyAccessibility()
+    }
+
+    public func display(isTextSelectionDisabled: Bool) {
+        isSelectable = !isTextSelectionDisabled
+        applyAccessibility()
+    }
     
     public func display(placeholder: String?) {
         self.placeholderLabel.text = placeholder

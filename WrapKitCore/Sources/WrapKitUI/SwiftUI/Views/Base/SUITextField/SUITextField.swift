@@ -79,6 +79,7 @@ public struct SUITextField: View {
                     onBecomeFirstResponder: stateModel.onBecomeFirstResponder,
                     onResignFirstResponder: stateModel.onResignFirstResponder,
                     onPress: stateModel.onPress,
+                    onTapBackspace: stateModel.onTapBackspace,
                     onPaste: stateModel.onPaste,
                     leadingViewOnPress: stateModel.leadingViewOnPress,
                     trailingViewOnPress: stateModel.trailingViewOnPress,
@@ -102,11 +103,14 @@ public struct SUITextField: View {
         Binding(
             get: { stateModel.text },
             set: { newValue in
-                let cleanValue = stateModel.trailingSymbol.map {
-                    newValue.hasSuffix($0)
-                        ? String(newValue.dropLast($0.count))
-                        : newValue
-                } ?? newValue
+                let cleanValue: String
+                if stateModel.mask != nil,
+                   let trailingSymbol = stateModel.trailingSymbol,
+                   newValue.hasSuffix(trailingSymbol) {
+                    cleanValue = String(newValue.dropLast(trailingSymbol.count))
+                } else {
+                    cleanValue = newValue
+                }
                 stateModel.applyUserText(cleanValue)
             }
         )
@@ -137,6 +141,7 @@ public struct SUITextInputView: View {
     let onBecomeFirstResponder: (() -> Void)?
     let onResignFirstResponder: (() -> Void)?
     let onPress: (() -> Void)?
+    let onTapBackspace: (() -> Void)?
     let onPaste: ((String?) -> Void)?
     let leadingViewOnPress: (() -> Void)?
     let trailingViewOnPress: (() -> Void)?
@@ -224,6 +229,9 @@ public struct SUITextInputView: View {
             )
         )
         .suiTextFieldClip(style: cornerStyle)
+        // Mirrors UIView.isUserInteractionEnabled: disabling the input also
+        // disables every leading/trailing accessory and container gesture.
+        .allowsHitTesting(isUserInteractionEnabled)
         .animation(.easeInOut(duration: 0.1), value: isValid)
         .modifier(
             SUITextInputAccessoryModifier(
@@ -280,7 +288,10 @@ public struct SUITextInputView: View {
     private var leadingViewContent: some View {
         if let leadingView, !leadingViewIsHidden {
             leadingView
-                .onTapGesture { leadingViewOnPress?() }
+                .onTapGesture {
+                    guard isUserInteractionEnabled else { return }
+                    leadingViewOnPress?()
+                }
         }
     }
 
@@ -290,6 +301,7 @@ public struct SUITextInputView: View {
             if !isClearButtonConfigured || !isClearButtonHidden {
                 trailingView
                     .onTapGesture {
+                        guard isUserInteractionEnabled else { return }
                         if isClearButtonConfigured && isClearButtonActive {
                             text = ""
                         }
@@ -305,6 +317,8 @@ public struct SUITextInputView: View {
             ZStack(alignment: .leading) {
                 inputContent
                     .allowsHitTesting(!hasInputView)
+
+                maskTemplateContent
 
                 placeholderContent
 
@@ -322,6 +336,7 @@ public struct SUITextInputView: View {
                 .contentShape(Rectangle())
                 .simultaneousGesture(
                     TapGesture().onEnded {
+                        guard isUserInteractionEnabled else { return }
                         if !hasInputView {
                             onPress?()
                         }
@@ -348,20 +363,7 @@ public struct SUITextInputView: View {
 
     @ViewBuilder
     private var inputContent: some View {
-        Group {
-            if isSecureTextEntry {
-                SecureField("", text: nativeTextBinding)
-                    .focused($nativeFocus)
-            } else {
-                HStack(spacing: 0) {
-                    TextField("", text: nativeTextBinding)
-                        .focused($nativeFocus)
-                    if let trailingSymbol {
-                        Text(trailingSymbol)
-                    }
-                }
-            }
-        }
+        nativeInputContent
         .font(SwiftUIFont(appearance.font))
         .frame(minHeight: ceil(appearance.font.lineHeight))
         .foregroundColor(currentTextColor)
@@ -380,6 +382,55 @@ public struct SUITextInputView: View {
         }
     }
 
+    @ViewBuilder
+    private var nativeInputContent: some View {
+        Group {
+            if isSecureTextEntry {
+                SecureField("", text: nativeTextBinding)
+                    .focused($nativeFocus)
+            } else {
+                TextField("", text: nativeTextBinding)
+                    .focused($nativeFocus)
+            }
+        }
+        .background(
+            SUITextInputEventBridge(
+                target: .textField,
+                onTapBackspace: onTapBackspace,
+                onPaste: onPaste
+            )
+            .frame(width: 0, height: 0)
+        )
+    }
+
+    @ViewBuilder
+    private var maskTemplateContent: some View {
+        if !isSecureTextEntry,
+           let mask,
+           shouldDisplayMaskTemplate {
+            let appliedMask = mask.mask.applied(to: text)
+            HStack(spacing: 0) {
+                Text(appliedMask.input)
+                    .hidden()
+                Text(appliedMask.maskToInput + (trailingSymbol ?? ""))
+                    .foregroundColor(SwiftUIColor(mask.maskColor))
+            }
+            .font(SwiftUIFont(appearance.font))
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .allowsHitTesting(false)
+            .accessibilityHidden(true)
+        }
+    }
+
+    private var shouldDisplayMaskTemplate: Bool {
+        guard let mask else { return false }
+        let appliedMask = mask.mask.applied(to: text)
+        guard !appliedMask.maskToInput.isEmpty || trailingSymbol != nil else {
+            return false
+        }
+        return !text.isEmpty || isFocused || placeholder == nil
+    }
+
     private var nativeTextBinding: Binding<String> {
         Binding(
             get: {
@@ -390,11 +441,14 @@ public struct SUITextInputView: View {
                 return mask.mask.applied(to: text).input
             },
             set: { candidate in
-                let value = trailingSymbol.map {
-                    candidate.hasSuffix($0)
-                        ? String(candidate.dropLast($0.count))
-                        : candidate
-                } ?? candidate
+                let value: String
+                if mask != nil,
+                   let trailingSymbol,
+                   candidate.hasSuffix(trailingSymbol) {
+                    value = String(candidate.dropLast(trailingSymbol.count))
+                } else {
+                    value = candidate
+                }
                 text = normalizedText(value)
             }
         )

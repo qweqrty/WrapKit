@@ -72,7 +72,29 @@ public struct SUIToastView: View {
 
     @ViewBuilder
     private var toastCardView: some View {
-        SUICardView(adapter: stateModel.cardAdapter)
+        VStack(spacing: 0) {
+            SUICardView(adapter: stateModel.cardAdapter)
+
+            if !stateModel.currentButtons.isEmpty {
+                VStack(spacing: 0) {
+                    ForEach(stateModel.currentButtons.indices, id: \.self) { index in
+                        if let model = stateModel.actionButtonModel(at: index) {
+                            SUIButtonView(
+                                model: model,
+                                onPress: model.onPress,
+                                isEnabled: model.enabled ?? true,
+                                fillsAvailableHeight: false,
+                                contentInsets: CommonToastActionButtonAppearance.contentInsets.asSUIEdgeInsets
+                            )
+                        }
+                    }
+                }
+                .background(SwiftUIColor(stateModel.actionBackgroundColor))
+            }
+        }
+        .if(!stateModel.currentButtons.isEmpty) { content in
+            content.background(SwiftUIColor(stateModel.actionBackgroundColor))
+        }
     }
 
     private var dragGesture: some Gesture {

@@ -48,6 +48,25 @@ final class SwiftUIAccessibilityTestHost {
         firstElement { $0.accessibilityLabel == label }
     }
 
+    func element(withIdentifier identifier: String) -> NSObject? {
+        firstElement {
+            ($0 as? UIAccessibilityIdentification)?.accessibilityIdentifier == identifier
+        }
+    }
+
+    var frame: CGRect {
+        hostingController.view.convert(hostingController.view.bounds, to: nil)
+    }
+
+    func frame<T: UIView>(ofFirstSubviewType type: T.Type) -> CGRect? {
+        guard let view = firstSubview(of: type) else { return nil }
+        return view.convert(view.bounds, to: nil)
+    }
+
+    func firstSubview<T: UIView>(of type: T.Type) -> T? {
+        firstSubview(of: type, in: hostingController.view)
+    }
+
     func firstAccessibilityElement() -> NSObject? {
         firstElement { $0.isAccessibilityElement }
     }
@@ -123,6 +142,13 @@ final class SwiftUIAccessibilityTestHost {
         }
 
         return nil
+    }
+
+    private func firstSubview<T: UIView>(of type: T.Type, in view: UIView) -> T? {
+        if let match = view as? T {
+            return match
+        }
+        return view.subviews.lazy.compactMap { self.firstSubview(of: type, in: $0) }.first
     }
 }
 #endif

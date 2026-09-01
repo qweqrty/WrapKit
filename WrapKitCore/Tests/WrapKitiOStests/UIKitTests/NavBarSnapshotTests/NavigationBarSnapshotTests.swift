@@ -11,6 +11,25 @@ import WrapKitTestUtils
 import XCTest
 
 class NavigationBarSnapshotTests: XCTestCase {
+    func test_navigationBar_style_appliesSecondaryTypographyToCenterValueLabel() {
+        let navigationBar = NavigationBar()
+        let secondaryFont = UIFont.systemFont(ofSize: 17, weight: .semibold)
+
+        navigationBar.display(style: .init(
+            backgroundColor: .clear,
+            horizontalSpacing: 1,
+            primeFont: .systemFont(ofSize: 24),
+            primeColor: .blue,
+            secondaryFont: secondaryFont,
+            secondaryColor: .green,
+            numberOfLines: 3
+        ))
+
+        XCTAssertEqual(navigationBar.titleViews.valueLabel.font, secondaryFont)
+        XCTAssertEqual(navigationBar.titleViews.valueLabel.textColor, .green)
+        XCTAssertEqual(navigationBar.titleViews.valueLabel.numberOfLines, 3)
+    }
+
     func test_navigationBar_defaul_state() {
         let snapshotName = "NAVBAR_DEFAULT_STATE"
         
@@ -822,7 +841,6 @@ class NavigationBarSnapshotTests: XCTestCase {
         assertFail(snapshot: sut, named: snapshotName)
     }
     
-    // TODO: - bottom image doesnt appear
     func test_navigationBar_with_leadingCard_bottomImage() {
         let snapshotName = "NAVBAR_WITH_LEADINGCARD_BOTTOMIMAGE"
         

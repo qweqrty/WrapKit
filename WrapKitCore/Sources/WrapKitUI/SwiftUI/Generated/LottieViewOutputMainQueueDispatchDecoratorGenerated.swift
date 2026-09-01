@@ -10,9 +10,6 @@ import WrapKit
 #if canImport(Foundation)
 import Foundation
 #endif
-#if canImport(SwiftUI)
-import SwiftUI
-#endif
 #if canImport(Lottie)
 import Lottie
 #endif
@@ -33,10 +30,12 @@ extension MainQueueDispatchDecorator: LottieViewOutput where T: LottieViewOutput
 
     public var currentAnimationName: String? {
         get {
-            return decoratee.currentAnimationName          
+            return dispatchSync { decoratee.currentAnimationName }
         }
         set {
-            decoratee.currentAnimationName = newValue
+            dispatch { [weak self] in
+                self?.decoratee.currentAnimationName = newValue
+            }
         }
     }
 }

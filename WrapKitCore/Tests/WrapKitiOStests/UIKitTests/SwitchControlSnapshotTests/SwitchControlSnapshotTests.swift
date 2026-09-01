@@ -1,5 +1,6 @@
 import WrapKit
 import WrapKitTestUtils
+import UIKit
 import XCTest
 
 final class SwitchControlSnapshotTests: XCTestCase {
@@ -177,7 +178,7 @@ final class SwitchControlSnapshotTests: XCTestCase {
     }
 
     @available(iOS 17.0, *)
-    func test_swiftUISwitch_loadingBlocksCallbackThenResumes() throws {
+    func test_swiftUISwitch_loadingDisablesNativeControlThenValueChangeCallbackResumes() throws {
         let adapter = SwitchCotrolOutputSwiftUIAdapter()
         var pressCount = 0
         adapter.display(model: .init(
@@ -192,15 +193,64 @@ final class SwitchControlSnapshotTests: XCTestCase {
             size: CGSize(width: 100, height: 60)
         )
 
-        let loadingSwitch = try XCTUnwrap(host.firstAccessibilityElement())
-        _ = loadingSwitch.accessibilityActivate()
+        let loadingSwitch = try XCTUnwrap(host.firstSubview(of: UISwitch.self))
+        XCTAssertFalse(loadingSwitch.isEnabled)
         XCTAssertEqual(pressCount, 0)
 
         adapter.display(isLoading: false)
         host.settle()
-        let enabledSwitch = try XCTUnwrap(host.firstAccessibilityElement())
-        XCTAssertTrue(enabledSwitch.accessibilityActivate())
+        let enabledSwitch = try XCTUnwrap(host.firstSubview(of: UISwitch.self))
+        XCTAssertTrue(enabledSwitch.isEnabled)
+        enabledSwitch.setOn(true, animated: false)
+        enabledSwitch.sendActions(for: .valueChanged)
         XCTAssertEqual(pressCount, 1)
+    }
+
+    func test_uikitSwitch_mountReappliesStoredOutputStyle() {
+        guard #available(iOS 26.0, *) else { return }
+
+        let style = SwitchControlPresentableModel.Style(
+            tintColor: .systemPurple,
+            thumbTintColor: .systemYellow,
+            backgroundColor: .systemGreen,
+            cornerRadius: 9
+        )
+        let sut = SwitchControl()
+        sut.display(style: style)
+        sut.display(isOn: true)
+
+        let host = UIKitMountTestHost(rootView: sut, size: CGSize(width: 100, height: 60))
+        host.settle()
+
+        XCTAssertEqual(sut.onTintColor, style.tintColor)
+        XCTAssertEqual(sut.thumbTintColor, style.thumbTintColor)
+        XCTAssertEqual(sut.backgroundColor, style.backgroundColor)
+        XCTAssertEqual(sut.cornerRadiusValue(), style.cornerRadius, accuracy: 0.001)
+    }
+
+    func test_uikitCardSwitch_mountReappliesStoredOutputStyle() {
+        guard #available(iOS 26.0, *) else { return }
+
+        let style = SwitchControlPresentableModel.Style(
+            tintColor: .systemBlue,
+            thumbTintColor: .systemGreen,
+            backgroundColor: .white,
+            cornerRadius: 10
+        )
+        let sut = CardView()
+        sut.display(switchControl: .init(
+            isOn: true,
+            isEnabled: true,
+            style: style
+        ))
+
+        let host = UIKitMountTestHost(rootView: sut, size: CGSize(width: 390, height: 100))
+        host.settle()
+
+        XCTAssertEqual(sut.switchControl.onTintColor, style.tintColor)
+        XCTAssertEqual(sut.switchControl.thumbTintColor, style.thumbTintColor)
+        XCTAssertEqual(sut.switchControl.backgroundColor, style.backgroundColor)
+        XCTAssertEqual(sut.switchControl.cornerRadiusValue(), style.cornerRadius, accuracy: 0.001)
     }
 }
 
@@ -230,5 +280,45 @@ extension SwitchControlSnapshotTests {
         container.frame = CGRect(x: 0, y: 0, width: 390, height: 300)
         container.backgroundColor = .clear
         return container
+    }
+}
+
+private final class UIKitMountTestHost {
+    private let viewController = UIViewController()
+    private let window: UIWindow
+    private weak var previousKeyWindow: UIWindow?
+
+    init(rootView: UIView, size: CGSize) {
+        let foregroundScene = UIApplication.shared.connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+            .first { $0.activationState == .foregroundActive }
+        if let foregroundScene {
+            previousKeyWindow = foregroundScene.windows.first(where: \.isKeyWindow)
+            window = UIWindow(windowScene: foregroundScene)
+            window.frame = CGRect(origin: .zero, size: size)
+        } else {
+            window = UIWindow(frame: CGRect(origin: .zero, size: size))
+        }
+
+        window.rootViewController = viewController
+        viewController.view.frame = window.bounds
+        rootView.frame = viewController.view.bounds
+        rootView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        viewController.view.addSubview(rootView)
+        window.makeKeyAndVisible()
+        settle()
+    }
+
+    deinit {
+        window.isHidden = true
+        previousKeyWindow?.makeKeyAndVisible()
+    }
+
+    func settle() {
+        window.setNeedsLayout()
+        window.layoutIfNeeded()
+        viewController.view.setNeedsLayout()
+        viewController.view.layoutIfNeeded()
+        RunLoop.main.run(until: Date().addingTimeInterval(0.05))
     }
 }

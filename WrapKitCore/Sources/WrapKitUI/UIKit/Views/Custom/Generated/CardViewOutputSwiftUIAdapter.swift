@@ -26,6 +26,9 @@ import SwiftUI
 public class CardViewOutputSwiftUIAdapter: ObservableObject, CardViewOutput {
 
 
+
+
+
     // Initializer
     public init(
     ) {
@@ -137,6 +140,15 @@ public class CardViewOutputSwiftUIAdapter: ObservableObject, CardViewOutput {
     public func display(valueTitle: TextOutputPresentableModel?) {
         displayValueTitleState = .init(
             valueTitle: valueTitle
+        )
+    }
+    @Published public var displayBottomImageState: DisplayBottomImageState? = nil
+    public struct DisplayBottomImageState {
+        public let bottomImage: ImageViewPresentableModel?
+    }
+    public func display(bottomImage: ImageViewPresentableModel?) {
+        displayBottomImageState = .init(
+            bottomImage: bottomImage
         )
     }
     @Published public var displayBottomSeparatorState: DisplayBottomSeparatorState? = nil

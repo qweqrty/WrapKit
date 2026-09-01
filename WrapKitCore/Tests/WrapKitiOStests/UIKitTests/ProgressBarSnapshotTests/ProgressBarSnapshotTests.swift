@@ -251,14 +251,29 @@ final class ProgressBarSnapshotTests: XCTestCase {
     }
 
     func test_progressBar_styleWithoutHeight_preservesEstablishedHeight() {
-        let snapshotName = "PROGRESSBAR_WITH_HEIGHT"
+        guard #available(iOS 17.0, *) else { return }
+
         let sut = makeSUT()
 
-        sut.display(style: .init(backgroundColor: .systemRed, height: 50))
-        sut.display(style: .init(backgroundColor: .systemRed, trackHeight: 33))
+        sut.display(style: .init(
+            backgroundColor: .systemRed,
+            height: 50,
+            cornerStyle: .none
+        ))
+        sut.display(style: .init(
+            backgroundColor: .systemRed,
+            trackHeight: 33,
+            cornerStyle: .none
+        ))
         sut.display(progress: 100.0)
 
-        assert(snapshot: sut, named: snapshotName)
+        SnapshotAppearance.allCases.forEach { appearance in
+            let geometry = sut.retainedLayoutGeometry(for: appearance)
+            XCTAssertEqual(geometry.uiKitFillHeight, 50, accuracy: 0.01)
+            XCTAssertEqual(geometry.uiKitTrackHeight, 33, accuracy: 0.01)
+            XCTAssertEqual(geometry.swiftUIFillHeight, geometry.uiKitFillHeight, accuracy: 0.01)
+            XCTAssertEqual(geometry.swiftUITrackHeight, geometry.uiKitTrackHeight, accuracy: 0.01)
+        }
     }
 
     func test_fail_progressBar_styleWithoutHeight_preservesEstablishedHeight() {

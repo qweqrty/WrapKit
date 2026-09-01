@@ -22,6 +22,8 @@ final class SUIToastViewStateModel: ObservableObject {
     @Published var opacity: Double = 1
     @Published var scale: CGFloat = 1
     @Published private(set) var currentCardModel: CardViewPresentableModel?
+    @Published private(set) var currentButtons: [CommonToast.CustomToast.Button] = []
+    @Published private(set) var actionBackgroundColor: Color = .clear
 
     let cardAdapter = CardViewOutputSwiftUIAdapter()
 
@@ -37,6 +39,7 @@ final class SUIToastViewStateModel: ObservableObject {
     private var scheduledAt: Date?
     private var gestureDirection: DragDirection?
     private var isHoldingForA11y = false
+    private var currentToastOnPress: (() -> Void)?
     private let velocityThreshold: CGFloat = 500
     private var estimatedToastWidth: CGFloat {
         #if canImport(UIKit)
@@ -48,23 +51,30 @@ final class SUIToastViewStateModel: ObservableObject {
     private let estimatedToastHeight: CGFloat = 52
 
     init(adapter: CommonToastOutputSwiftUIAdapter) {
-        adapter.$displayToastState
-            .sink { [weak self] state in
-                guard let toast = state?.toast else { return }
-                self?.enqueue(toast)
+        adapter.$pendingCommandRevision
+            .dropFirst()
+            .sink { [weak self, weak adapter] _ in
+                guard let adapter else { return }
+                self?.apply(adapter.takePendingCommands())
             }
             .store(in: &cancellables)
 
-        adapter.$hideState
-            .sink { [weak self] state in
-                guard state != nil else { return }
-                self?.dismissCurrent()
-            }
-            .store(in: &cancellables)
+        apply(adapter.takePendingCommands())
 
         observeKeyboard()
         observeApplicationLifecycle()
         observeAccessibility()
+    }
+
+    private func apply(_ commands: [CommonToastOutputSwiftUIAdapter.PendingCommand]) {
+        commands.forEach { command in
+            switch command {
+            case .display(let toast):
+                enqueue(toast)
+            case .hide:
+                dismissCurrent()
+            }
+        }
     }
 
     func pauseTimer() {
@@ -98,6 +108,12 @@ final class SUIToastViewStateModel: ObservableObject {
     func displayCurrentCardModel() {
         guard let currentCardModel else { return }
         cardAdapter.display(model: currentCardModel)
+        applyCurrentToastPress()
+    }
+
+    func actionButtonModel(at index: Int) -> ButtonPresentableModel? {
+        guard currentButtons.indices.contains(index) else { return nil }
+        return CommonToastActionButtonAppearance.model(for: currentButtons[index], index: index)
     }
 
     func updateDrag(_ translation: CGSize) {
@@ -224,21 +240,29 @@ final class SUIToastViewStateModel: ObservableObject {
 
     private func configureCard(for toast: CommonToast) {
         switch toast {
-        case .error(let model), .success(let model), .warning(let model):
-            configureToast(model)
+        case .error(let model):
+            configureToast(model, iconName: "xmark.circle.fill")
+        case .success(let model):
+            configureToast(model, iconName: "checkmark.circle.fill")
+        case .warning(let model):
+            configureToast(model, iconName: "exclamationmark.triangle.fill")
         case .custom(let model):
             configureCustomToast(model)
         }
     }
 
-    private func configureToast(_ toast: CommonToast.Toast) {
+    private func configureToast(_ toast: CommonToast.Toast, iconName: String) {
+        currentButtons = []
+        actionBackgroundColor = .clear
         var model = toast.cardViewModel
         model.leadingImage = .init(
             size: .init(width: 32, height: 32),
-            image: .asset(toastIconImage())
+            image: .asset(ImageFactory.systemImage(named: iconName))
         )
+        currentToastOnPress = toast.onPress
         currentCardModel = model
         cardAdapter.display(model: model)
+        applyCurrentToastPress()
     }
 
     private func configureCustomToast(_ toast: CommonToast.CustomToast) {
@@ -255,8 +279,18 @@ final class SUIToastViewStateModel: ObservableObject {
             model.style?.backgroundColor = backgroundColor
         }
 
+        currentButtons = toast.buttons ?? []
+        actionBackgroundColor = toast.backgroundColor ?? model.style?.backgroundColor ?? .clear
+        currentToastOnPress = toast.common.onPress
         currentCardModel = model
         cardAdapter.display(model: model)
+        applyCurrentToastPress()
+    }
+
+    private func applyCurrentToastPress() {
+        guard let currentToastOnPress else { return }
+        cardAdapter.display(onPress: currentToastOnPress)
+        cardAdapter.display(isUserInteractionEnabled: true)
     }
 
     private func resetInteractionState() {
@@ -336,9 +370,6 @@ final class SUIToastViewStateModel: ObservableObject {
         resumeTimer()
     }
 
-    private func toastIconImage() -> Image? {
-        Image(named: "checkmark.circle.fill")
-    }
 }
 
 private extension CommonToast {

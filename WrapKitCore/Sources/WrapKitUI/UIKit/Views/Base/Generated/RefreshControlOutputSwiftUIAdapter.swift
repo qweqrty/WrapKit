@@ -17,8 +17,13 @@ import Foundation
 #if canImport(UIKit)
 import UIKit
 #endif
-public class RefreshControlOutputSwiftUIAdapter: ObservableObject, RefreshControlOutput {
-        @Published public var onRefresh: [(() -> Void)?]? = nil
+public class RefreshControlOutputSwiftUIAdapter: ObservableObject, RefreshControlOutput, LoadingOutput {
+        @Published public var onRefresh: [(() -> Void)?]? = []
+
+    @Published public var isLoading: Bool? = nil
+
+    private var nextOutputSequence: UInt64 = 0
+
 
 
     // Initializer
@@ -28,19 +33,29 @@ public class RefreshControlOutputSwiftUIAdapter: ObservableObject, RefreshContro
 
     @Published public var displayModelState: DisplayModelState? = nil
     public struct DisplayModelState {
+        public let outputSequence: UInt64
         public let model: RefreshControlPresentableModel?
     }
     public func display(model: RefreshControlPresentableModel?) {
+        self.onRefresh = [model?.onRefresh]
+        if let isLoading = model?.isLoading {
+            self.isLoading = isLoading
+        }
+        nextOutputSequence &+= 1
         displayModelState = .init(
+            outputSequence: nextOutputSequence,
             model: model
         )
     }
     @Published public var displayStyleState: DisplayStyleState? = nil
     public struct DisplayStyleState {
+        public let outputSequence: UInt64
         public let style: RefreshControlPresentableModel.Style
     }
     public func display(style: RefreshControlPresentableModel.Style) {
+        nextOutputSequence &+= 1
         displayStyleState = .init(
+            outputSequence: nextOutputSequence,
             style: style
         )
     }
@@ -49,6 +64,7 @@ public class RefreshControlOutputSwiftUIAdapter: ObservableObject, RefreshContro
         public let onRefresh: (() -> Void)?
     }
     public func display(onRefresh: (() -> Void)?) {
+        self.onRefresh = [onRefresh]
         displayOnRefreshState = .init(
             onRefresh: onRefresh
         )
@@ -58,6 +74,9 @@ public class RefreshControlOutputSwiftUIAdapter: ObservableObject, RefreshContro
         public let appendingOnRefresh: (() -> Void)?
     }
     public func display(appendingOnRefresh: (() -> Void)?) {
+        var callbacks = self.onRefresh ?? []
+        callbacks.append(appendingOnRefresh)
+        self.onRefresh = callbacks
         displayAppendingOnRefreshState = .init(
             appendingOnRefresh: appendingOnRefresh
         )
@@ -67,6 +86,7 @@ public class RefreshControlOutputSwiftUIAdapter: ObservableObject, RefreshContro
         public let isLoading: Bool
     }
     public func display(isLoading: Bool) {
+        self.isLoading = isLoading
         displayIsLoadingState = .init(
             isLoading: isLoading
         )

@@ -20,6 +20,9 @@ import UIKit
 public class TextInputOutputSwiftUIAdapter: ObservableObject, TextInputOutput {
 
 
+
+
+
     // Initializer
     public init(
     ) {

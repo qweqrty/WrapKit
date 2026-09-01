@@ -87,6 +87,11 @@ final class PairedCardViewSnapshotSUT: CardViewOutput, PairedSnapshotSource {
         swiftUIAdapter.display(valueTitle: valueTitle)
     }
 
+    func display(bottomImage: ImageViewPresentableModel?) {
+        uiKitView.display(bottomImage: bottomImage)
+        swiftUIAdapter.display(bottomImage: bottomImage)
+    }
+
     func display(bottomSeparator: CardViewPresentableModel.BottomSeparator?) {
         uiKitView.display(bottomSeparator: bottomSeparator)
         swiftUIAdapter.display(bottomSeparator: bottomSeparator)

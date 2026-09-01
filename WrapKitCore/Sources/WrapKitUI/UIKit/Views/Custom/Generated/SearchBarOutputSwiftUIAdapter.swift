@@ -23,6 +23,9 @@ import SwiftUI
 public class SearchBarOutputSwiftUIAdapter: ObservableObject, SearchBarOutput {
 
 
+
+
+
     // Initializer
     public init(
     ) {

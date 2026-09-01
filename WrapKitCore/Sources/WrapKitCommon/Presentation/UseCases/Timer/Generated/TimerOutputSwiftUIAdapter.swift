@@ -17,6 +17,9 @@ import Foundation
 public class TimerOutputSwiftUIAdapter: ObservableObject, TimerOutput {
 
 
+
+
+
     // Initializer
     public init(
     ) {

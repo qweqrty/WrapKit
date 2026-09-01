@@ -65,11 +65,7 @@ import UIKit
 open class SwitchControl: UISwitch {
     public var onPress: ((SwitchCotrolOutput & LoadingOutput) -> Void)?
     public var isLoading: Bool?
-    private var switchStyle: SwitchControlPresentableModel.Style? {
-        didSet {
-            display(style: switchStyle)
-        }
-    }
+    private var switchStyle: SwitchControlPresentableModel.Style?
     private var wasUserSwitched = false
     
     public init() {
@@ -80,8 +76,12 @@ open class SwitchControl: UISwitch {
     public init(style: SwitchControlPresentableModel.Style) {
         super.init(frame: .zero)
         addTarget(self, action: #selector(didPress), for: .valueChanged)
-        self.switchStyle = style
         display(style: style)
+    }
+
+    open override func didMoveToWindow() {
+        super.didMoveToWindow()
+        apply(style: switchStyle)
     }
     
     @objc private func didPress() {
@@ -106,12 +106,17 @@ extension SwitchControl: SwitchCotrolOutput {
         if let isOn = model?.isOn { display(isOn: isOn) }
         if let isEnabled = model?.isEnabled { display(isEnabled: isEnabled) }
         if let style = model?.style {
-            switchStyle = style
+            display(style: style)
         }
         display(onPress: model?.onPress)
     }
     
     public func display(style: SwitchControlPresentableModel.Style?) {
+        switchStyle = style
+        apply(style: style)
+    }
+
+    private func apply(style: SwitchControlPresentableModel.Style?) {
         onTintColor = style?.tintColor
         thumbTintColor = style?.thumbTintColor
         backgroundColor = style?.backgroundColor

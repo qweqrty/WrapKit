@@ -40,16 +40,14 @@ public final class SUITextInputStateModel: ObservableObject {
     @Published var mask: TextInputPresentableModel.Mask? = nil
     @Published var accessibilityIdentifier: String? = nil
 
-    var onBecomeFirstResponder: (() -> Void)? = nil
-    var onResignFirstResponder: (() -> Void)? = nil
-    // Native SwiftUI TextField/TextEditor on iOS 15 has no deleteBackward hook.
-    // Keep the Output state without claiming that the callback can be delivered.
-    var onTapBackspace: (() -> Void)? = nil
+    @Published var onBecomeFirstResponder: (() -> Void)? = nil
+    @Published var onResignFirstResponder: (() -> Void)? = nil
+    @Published var onTapBackspace: (() -> Void)? = nil
     @Published var onPaste: ((String?) -> Void)? = nil
-    var onPress: (() -> Void)? = nil
-    var leadingViewOnPress: (() -> Void)? = nil
-    var trailingViewOnPress: (() -> Void)? = nil
-    var didChangeText: [((String?) -> Void)] = []
+    @Published var onPress: (() -> Void)? = nil
+    @Published var leadingViewOnPress: (() -> Void)? = nil
+    @Published var trailingViewOnPress: (() -> Void)? = nil
+    @Published var didChangeText: [((String?) -> Void)] = []
 
     // startEditing / stopEditing
     @Published var shouldBecomeFirstResponder: Bool = false
@@ -103,8 +101,12 @@ public final class SUITextInputStateModel: ObservableObject {
                 self.applyProgrammaticText(model.text)
                 self.placeholder = model.placeholder
                 if let isValid = model.isValid { self.isValid = isValid }
-                if let isEnabledForEditing = model.isEnabledForEditing { self.isEnabledForEditing = isEnabledForEditing }
-                if let isUserInteractionEnabled = model.isUserInteractionEnabled { self.isUserInteractionEnabled = isUserInteractionEnabled }
+                if let isEnabledForEditing = model.isEnabledForEditing {
+                    self.applyEditingEnabled(isEnabledForEditing)
+                }
+                if let isUserInteractionEnabled = model.isUserInteractionEnabled {
+                    self.applyUserInteractionEnabled(isUserInteractionEnabled)
+                }
                 if let isSecureTextEntry = model.isSecureTextEntry { self.isSecureTextEntry = isSecureTextEntry }
                 if let isTextSelectionDisabled = model.isTextSelectionDisabled { self.isTextSelectionDisabled = isTextSelectionDisabled }
                 if let inputType = model.inputType { self.keyboardType = inputType }
@@ -152,12 +154,16 @@ public final class SUITextInputStateModel: ObservableObject {
 
         adapter.$displayIsEnabledForEditingState
             .compactMap { $0 }
-            .sink { [weak self] value in self?.isEnabledForEditing = value.isEnabledForEditing }
+            .sink { [weak self] value in
+                self?.applyEditingEnabled(value.isEnabledForEditing)
+            }
             .store(in: &cancellables)
 
         adapter.$displayIsUserInteractionEnabledState
             .compactMap { $0 }
-            .sink { [weak self] value in self?.isUserInteractionEnabled = value.isUserInteractionEnabled }
+            .sink { [weak self] value in
+                self?.applyUserInteractionEnabled(value.isUserInteractionEnabled)
+            }
             .store(in: &cancellables)
 
         adapter.$displayIsSecureTextEntryState
@@ -275,6 +281,20 @@ public final class SUITextInputStateModel: ObservableObject {
         let newText = value?.removingPercentEncoding ?? value ?? ""
         if text != newText {
             text = newText
+        }
+    }
+
+    private func applyEditingEnabled(_ isEnabled: Bool) {
+        isEnabledForEditing = isEnabled
+        if !isEnabled {
+            shouldResignFirstResponder = true
+        }
+    }
+
+    private func applyUserInteractionEnabled(_ isEnabled: Bool) {
+        isUserInteractionEnabled = isEnabled
+        if !isEnabled {
+            shouldResignFirstResponder = true
         }
     }
 

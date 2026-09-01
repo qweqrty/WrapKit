@@ -25,8 +25,17 @@ public final class SUILabelStateModel: ObservableObject {
                 guard let self, let value else { return }
                 self.cancelPendingAnimationCompletion()
                 if let model = value.model {
-                    self.presentable = model
-                    self.isHidden = Self.shouldHide(model.model)
+                    if let textModel = model.model {
+                        self.presentable = model
+                        self.isHidden = Self.shouldHide(textModel)
+                    } else {
+                        self.presentable = .init(
+                            accessibilityIdentifier: model.accessibilityIdentifier,
+                            accessibility: model.accessibility,
+                            model: self.presentable.model
+                        )
+                        self.isHidden = false
+                    }
                 } else {
                     self.presentable = .init(
                         accessibilityIdentifier: nil,

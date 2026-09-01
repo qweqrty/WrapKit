@@ -5,7 +5,6 @@
 //  Created by Urmatbek Marat Uulu on 30/4/26.
 //
 
-
 import SwiftUI
 
 public struct SUIPickerView: View {
@@ -59,9 +58,6 @@ public struct SUIPickerContent: View {
                 }
                 .pickerStyle(.wheel)
                 .labelsHidden()
-                .onChange(of: selectedRows[component] ?? 0) { newIndex in
-                    didSelectAt?(newIndex)
-                }
             }
         }
         .ifLet(accessibilityIdentifier) { view, identifier in
@@ -69,10 +65,13 @@ public struct SUIPickerContent: View {
         }
     }
 
-    private func selectedRowBinding(for component: Int) -> Binding<Int> {
+    func selectedRowBinding(for component: Int) -> Binding<Int> {
         Binding(
             get: { selectedRows[component] ?? 0 },
-            set: { selectedRows[component] = $0 }
+            set: { newRow in
+                selectedRows[component] = newRow
+                didSelectAt?(newRow)
+            }
         )
     }
 }

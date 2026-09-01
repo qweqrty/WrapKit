@@ -115,7 +115,7 @@ public struct SUINavigationBar: View {
     private func centerSection(model: HeaderPresentableModel, style: HeaderPresentableModel.Style) -> some View {
         switch model.centerView {
         case .keyValue(let pair):
-            VStack(spacing: 0) {
+            VStack(spacing: SUINavigationBarCenterLayoutMetrics.spacing) {
                 if let keyModel = pair.first {
                     SUILabelView(
                         model: keyModel,
@@ -139,10 +139,16 @@ public struct SUINavigationBar: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
 
         case .titledImage(let pair):
-            HStack(spacing: 8) {
+            VStack(spacing: SUINavigationBarCenterLayoutMetrics.spacing) {
                 if let imageModel = pair.first {
+                    let imageSize = SUINavigationBarCenterLayoutMetrics.resolvedImageSize(
+                        for: imageModel
+                    )
                     SUIImageViewView(model: imageModel)
-                        .frame(maxWidth: 24, maxHeight: 24)
+                        .frame(
+                            width: imageSize.width,
+                            height: imageSize.height
+                        )
                 }
 
                 if let titleModel = pair.second {
@@ -294,22 +300,23 @@ private struct SUINavigationBarSidesLayout: Layout {
         cache: inout ()
     ) {
         guard let leading = subviews.first, let trailing = subviews.last else { return }
-        let sideProposal = ProposedViewSize(
-            width: SUINavigationBarSideWidthResolver.equalSideProposalWidth(
-                availableWidth: bounds.width,
-                mainStackSpacing: mainStackSpacing
-            ),
-            height: bounds.height
+        let sideWidths = SUINavigationBarSideWidthResolver.resolvedSideWidths(
+            availableWidth: bounds.width,
+            mainStackSpacing: mainStackSpacing,
+            leadingIdealWidth: leading.sizeThatFits(.unspecified).width,
+            trailingIdealWidth: trailing.sizeThatFits(.unspecified).width
         )
+        let leadingProposal = ProposedViewSize(width: sideWidths.leading, height: bounds.height)
+        let trailingProposal = ProposedViewSize(width: sideWidths.trailing, height: bounds.height)
         leading.place(
             at: CGPoint(x: bounds.minX, y: bounds.minY),
             anchor: .topLeading,
-            proposal: sideProposal
+            proposal: leadingProposal
         )
         trailing.place(
             at: CGPoint(x: bounds.maxX, y: bounds.minY),
             anchor: .topTrailing,
-            proposal: sideProposal
+            proposal: trailingProposal
         )
     }
 
@@ -320,11 +327,52 @@ private struct SUINavigationBarSidesLayout: Layout {
 }
 
 enum SUINavigationBarSideWidthResolver {
+    static func resolvedSideWidths(
+        availableWidth: CGFloat,
+        mainStackSpacing: CGFloat,
+        leadingIdealWidth: CGFloat,
+        trailingIdealWidth: CGFloat
+    ) -> (leading: CGFloat, trailing: CGFloat) {
+        let equalWidth = equalSideProposalWidth(
+            availableWidth: availableWidth,
+            mainStackSpacing: mainStackSpacing
+        )
+        let contentWidth = equalWidth * 2
+        let leadingIdealWidth = max(leadingIdealWidth, 0)
+        let trailingIdealWidth = max(trailingIdealWidth, 0)
+
+        // UIKit keeps the wrapper widths equal with a low-priority constraint.
+        // Content compression wins when one side needs more than half the row.
+        if leadingIdealWidth <= equalWidth, trailingIdealWidth <= equalWidth {
+            return (equalWidth, equalWidth)
+        }
+
+        let totalIdealWidth = leadingIdealWidth + trailingIdealWidth
+        guard totalIdealWidth > contentWidth, totalIdealWidth > 0 else {
+            return (leadingIdealWidth, trailingIdealWidth)
+        }
+
+        // Auto Layout eventually has to break compression constraints in an
+        // impossible row. Scale both proposals so neither side escapes bounds.
+        let scale = contentWidth / totalIdealWidth
+        return (leadingIdealWidth * scale, trailingIdealWidth * scale)
+    }
+
     static func equalSideProposalWidth(
         availableWidth: CGFloat,
         mainStackSpacing: CGFloat
     ) -> CGFloat {
         max((availableWidth - max(mainStackSpacing, 0) * 2) / 2, 0)
+    }
+}
+
+enum SUINavigationBarCenterLayoutMetrics {
+    static let spacing: CGFloat = 4
+    static let defaultImageSize = CGSize(width: 24, height: 24)
+
+    static func resolvedImageSize(for model: ImageViewPresentableModel) -> CGSize {
+        let size = model.size ?? defaultImageSize
+        return CGSize(width: max(size.width, 0), height: max(size.height, 0))
     }
 }
 
@@ -353,20 +401,45 @@ private struct SUINavigationBarButtonView: View {
         if isPresented, !stateModel.isHidden {
             let model = stateModel.presentable
             if #available(iOS 26, macOS 26, tvOS 26, watchOS 26, *), isLiquidGlassEnabled {
-                button(model)
+                constrainedControl(
+                    button(model)
                     .wrapKitGlassButtonStyle(
                         model.style?.glassConfiguration ?? .glass,
                         tint: model.style?.backgroundColor.map(SwiftUIColor.init),
                         cornerStyle: .automatic
                     )
-                    .overlay(buttonBorder(model.style, cornerStyle: .automatic))
+                    .overlay(buttonBorder(model.style, cornerStyle: .automatic)),
+                    model: model
+                )
             } else {
-                button(model)
+                let cornerStyle = model.style?.cornerStyle ?? .none
+                constrainedControl(
+                    button(model)
                     .buttonStyle(.plain)
                     .background(SwiftUIColor(model.style?.backgroundColor ?? .clear))
-                    .cornerStyle(model.style?.cornerStyle ?? .none)
-                    .overlay(buttonBorder(model.style, cornerStyle: model.style?.cornerStyle ?? .none))
+                    .cornerStyle(cornerStyle)
+                    .overlay(buttonBorder(model.style, cornerStyle: cornerStyle)),
+                    model: model
+                )
             }
+        }
+    }
+
+    @ViewBuilder
+    private func constrainedControl<Content: View>(
+        _ content: Content,
+        model: ButtonPresentableModel
+    ) -> some View {
+        if model.width != nil || model.height != nil {
+            content
+                // Button styles, especially Liquid Glass, add their own outer
+                // padding. Width/height in the Output model describe the final
+                // control, not the label before that padding.
+                .frame(width: model.width, height: model.height)
+                .clipped()
+                .contentShape(Rectangle())
+        } else {
+            content
         }
     }
 
@@ -382,10 +455,12 @@ private struct SUINavigationBarButtonView: View {
                 if let title = model.title {
                     Text(title.removingPercentEncoding ?? title)
                         .font(model.style?.font.map(SwiftUIFont.init) ?? .body)
+                        .lineLimit(1)
+                        .fixedSize(horizontal: true, vertical: false)
                 }
             }
+            .fixedSize(horizontal: true, vertical: false)
             .foregroundColor(SwiftUIColor(model.style?.titleColor ?? tintColor))
-            .frame(width: model.width, height: model.height)
         }
         .disabled(!stateModel.isEnabled)
         .allowsHitTesting(model.onPress != nil && stateModel.isEnabled)

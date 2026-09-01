@@ -8,10 +8,7 @@
 import Foundation
 import SwiftUI
 
-enum SUIButtonLoadingIndicatorPhase {
-    case animated
-    case fixed(strokeStart: CGFloat, strokeEnd: CGFloat, rotation: Angle)
-}
+typealias SUIButtonLoadingIndicatorPhase = SUICircleStrokeSpinPhase
 
 public struct SUIButton: View {
     @StateObject var stateModel: SUIButtonStateModel
@@ -164,14 +161,7 @@ public struct SUIButtonView: View {
     @ViewBuilder
     private var buttonLabel: some View {
         if let requestedHeight = model.height {
-            if #available(iOS 16, macOS 13, tvOS 16, watchOS 9, *) {
-                ViewThatFits(in: .vertical) {
-                    decoratedButtonLabel(height: requestedHeight)
-                    decoratedButtonLabel(fillsAvailableHeight: fillsAvailableHeight)
-                }
-            } else {
-                decoratedButtonLabel(height: requestedHeight)
-            }
+            decoratedButtonLabel(height: requestedHeight)
         } else {
             decoratedButtonLabel(fillsAvailableHeight: fillsAvailableHeight)
         }
@@ -179,28 +169,47 @@ public struct SUIButtonView: View {
 
     private var buttonLabelContent: some View {
         ZStack {
-            HStack(spacing: model.spacing ?? 0) {
-                if let image = model.image {
-                    SwiftUIImage(image: image)
-                        .renderingMode(image.swiftUIRenderingMode)
-                        .foregroundColor(.accentColor)
-                }
-                if let title = model.title {
-                    Text(title.removingPercentEncoding ?? title)
-                        .font(titleFont)
-                        .foregroundColor(titleColor)
-                }
-            }
-            .opacity(isLoading ? 0 : 1)
+            legacySpacedContent
+                .opacity(isLoading ? 0 : 1)
 
             if isLoading {
-                SUIButtonLoadingIndicator(
+                SUICircleStrokeSpin(
                     color: SwiftUIColor(model.style?.loadingIndicatorColor ?? .red),
+                    size: CGSize(width: 30, height: 30),
                     phase: loadingIndicatorPhase
                 )
             }
         }
         .padding(contentInsets)
+    }
+
+    @ViewBuilder
+    private var legacySpacedContent: some View {
+        let content = HStack(spacing: model.spacing ?? 0) {
+            if let image = model.image {
+                SwiftUIImage(image: image)
+                    .renderingMode(image.swiftUIRenderingMode)
+                    .foregroundColor(.accentColor)
+            }
+            if let title = model.title {
+                Text(title.removingPercentEncoding ?? title)
+                    .font(titleFont)
+                    .foregroundColor(titleColor)
+                    .opacity(isEnabled ? 1 : 0.5)
+            }
+        }
+
+        if usesLiquidGlassConfiguration || (model.spacing ?? 0) == 0 {
+            content
+        } else if model.image != nil, model.title != nil {
+            content.padding(.trailing, model.spacing ?? 0)
+        } else if model.image != nil {
+            content.padding(.trailing, (model.spacing ?? 0) * 2)
+        } else if model.title != nil {
+            content.padding(.horizontal, model.spacing ?? 0)
+        } else {
+            content.padding(.trailing, (model.spacing ?? 0) * 2)
+        }
     }
 
     private func decoratedButtonLabel(
@@ -228,6 +237,10 @@ public struct SUIButtonView: View {
 
     private var isLiquidGlassAvailable: Bool {
         isAvailableOS26 && isLiquidGlassEnabled
+    }
+
+    private var usesLiquidGlassConfiguration: Bool {
+        isLiquidGlassAvailable && model.style?.glassConfiguration != nil
     }
 
     private var buttonCornerStyle: CornerStyle {
@@ -302,52 +315,6 @@ private struct SUIButtonCornerShape: InsettableShape {
         RoundedRectangle(cornerRadius: radius, style: .continuous)
             .inset(by: insetAmount)
             .path(in: rect)
-    }
-}
-
-private struct SUIButtonLoadingIndicator: View {
-    @State private var isAnimating = false
-
-    let color: SwiftUIColor
-    let phase: SUIButtonLoadingIndicatorPhase
-
-    var body: some View {
-        Circle()
-            .trim(from: strokeStart, to: strokeEnd)
-            .stroke(color, style: StrokeStyle(lineWidth: 2, lineCap: .butt))
-            .frame(width: 30, height: 30)
-            .rotationEffect(rotation)
-            .animation(animation, value: isAnimating)
-            .onAppear {
-                guard case .animated = phase else { return }
-                isAnimating = true
-            }
-    }
-
-    private var strokeStart: CGFloat {
-        switch phase {
-        case .animated: 0.1
-        case .fixed(let strokeStart, _, _): strokeStart
-        }
-    }
-
-    private var strokeEnd: CGFloat {
-        switch phase {
-        case .animated: 0.9
-        case .fixed(_, let strokeEnd, _): strokeEnd
-        }
-    }
-
-    private var rotation: Angle {
-        switch phase {
-        case .animated: .degrees(isAnimating ? 360 : 0)
-        case .fixed(_, _, let rotation): rotation
-        }
-    }
-
-    private var animation: SwiftUI.Animation? {
-        guard case .animated = phase else { return nil }
-        return .linear(duration: 1.7).repeatForever(autoreverses: false)
     }
 }
 

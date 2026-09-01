@@ -5,16 +5,148 @@
 //  Created by sunflow on 3/11/25.
 //
 
+import SwiftUI
 import UIKit
 import WrapKit
 import WrapKitTestUtils
 import XCTest
 
 final class LabelSnapshotTests: XCTestCase {
+    @available(iOS 17.0, *)
+    @MainActor
+    func test_swiftUILabel_htmlOverflow_fillsContainerAndKeepsFullAttributedContent() throws {
+        let size = CGSize(width: 390, height: 150)
+        let config = HTMLAttributedStringConfig(lineSpacing: 8)
+        let expectedText = try XCTUnwrap(
+            HtmlTestCases.lists.asHtmlAttributedString(config: config)
+        ).string
+        let host = SwiftUIAccessibilityTestHost(
+            rootView: SUILabelView(
+                model: .attributedString(HtmlTestCases.lists, config: config)
+            )
+            .frame(width: size.width, height: size.height),
+            size: size
+        )
+
+        let label = try XCTUnwrap(host.firstSubview(of: WrapKit.Label.self))
+        XCTAssertEqual(label.bounds.width, size.width, accuracy: 0.001)
+        XCTAssertEqual(label.bounds.height, size.height, accuracy: 0.001)
+        XCTAssertEqual(label.numberOfLines, 0)
+        XCTAssertEqual(label.attributedText?.string, expectedText)
+        XCTAssertGreaterThan(
+            label.sizeThatFits(
+                CGSize(width: size.width, height: CGFloat.greatestFiniteMagnitude)
+            ).height,
+            size.height
+        )
+    }
+
+    @available(iOS 17.0, *)
+    @MainActor
+    func test_swiftUILabel_nonHTMLAttributes_keepNativeSwiftUIRenderer() {
+        let host = SwiftUIAccessibilityTestHost(
+            rootView: SUILabelView(
+                model: .attributes([TextAttributes(text: "Native attributed text")])
+            )
+            .frame(width: 390, height: 150),
+            size: CGSize(width: 390, height: 150)
+        )
+
+        XCTAssertNil(host.firstSubview(of: WrapKit.Label.self))
+    }
+
+    @available(iOS 17.0, *)
+    @MainActor
+    func test_swiftUILabel_attachmentRasterGeometry_matchesUILabel() throws {
+        let image = try XCTUnwrap(
+            UIImage(systemName: "star.fill")?.withTintColor(.red, renderingMode: .alwaysOriginal)
+        )
+        let cases: [(name: String, attribute: TextAttributes)] = [
+            (
+                "leading",
+                TextAttributes(text: "Attachment", leadingImage: image)
+            ),
+            (
+                "trailing",
+                TextAttributes(text: "Attachment", trailingImage: image)
+            )
+        ]
+
+        for testCase in cases {
+            let snapshots = try renderedLabelPixels(attribute: testCase.attribute)
+            XCTAssertEqual(
+                snapshots.uiKit.dominantRedBounds,
+                snapshots.swiftUI.dominantRedBounds,
+                "Native attachment ink bounds diverged for the \(testCase.name) attachment."
+            )
+        }
+    }
+
+    @available(iOS 17.0, *)
+    @MainActor
+    func test_swiftUILabel_byWordUnderlineGeometry_matchesUILabel() throws {
+        let text = "gyp word"
+        let plain = try renderedLabelPixels(
+            attribute: TextAttributes(text: text, color: .red)
+        )
+        let underlined = try renderedLabelPixels(
+            attribute: TextAttributes(
+                text: text,
+                color: .red,
+                underlineStyle: [.single, .byWord]
+            )
+        )
+        let uiKitDecoration = underlined.uiKit.dominantRedInk.subtracting(
+            plain.uiKit.dominantRedInk
+        )
+        let swiftUIDecoration = underlined.swiftUI.dominantRedInk.subtracting(
+            plain.swiftUI.dominantRedInk
+        )
+
+        XCTAssertFalse(uiKitDecoration.isEmpty)
+        XCTAssertEqual(uiKitDecoration.bounds, swiftUIDecoration.bounds)
+        XCTAssertEqual(uiKitDecoration.rowRuns, swiftUIDecoration.rowRuns)
+        XCTAssertEqual(
+            uiKitDecoration.columnRunsByRow,
+            swiftUIDecoration.columnRunsByRow,
+            "By-word underline gaps and skip-ink geometry must follow UILabel."
+        )
+    }
+
+    @available(iOS 17.0, *)
+    @MainActor
+    func test_swiftUILabel_thickUnderlineVerticalMetrics_matchUILabel() throws {
+        let text = "Thick string"
+        let plain = try renderedLabelPixels(
+            attribute: TextAttributes(text: text, color: .red)
+        )
+        let underlined = try renderedLabelPixels(
+            attribute: TextAttributes(
+                text: text,
+                color: .red,
+                underlineStyle: [.thick]
+            )
+        )
+        let uiKitDecoration = underlined.uiKit.dominantRedInk.subtracting(
+            plain.uiKit.dominantRedInk
+        )
+        let swiftUIDecoration = underlined.swiftUI.dominantRedInk.subtracting(
+            plain.swiftUI.dominantRedInk
+        )
+
+        XCTAssertFalse(uiKitDecoration.isEmpty)
+        XCTAssertEqual(uiKitDecoration.bounds, swiftUIDecoration.bounds)
+        XCTAssertEqual(
+            uiKitDecoration.rowRuns,
+            swiftUIDecoration.rowRuns,
+            "Thick underline vertical position and thickness must follow UILabel."
+        )
+    }
+
     func test_labelOutput_animatedDecimalCircle_shouldDisplayWithoutClipping() throws {
         // UIKit-only structural contract: the progress subview/layer is not part of TextOutput.
         // GIVEN
-        let sut = Label(
+        let sut = WrapKit.Label(
             font: .systemFont(ofSize: 16),
             textAlignment: .center,
             numberOfLines: 1
@@ -293,6 +425,20 @@ final class LabelSnapshotTests: XCTestCase {
         // THEN
         assertFail(snapshot: sut, named: snapshotName)
     }
+
+    func test_fail_labelOutput_with_colorRangeMutation() {
+        // GIVEN
+        let sut = makeSUT()
+        let snapshotName = "LABEL_TITLE_WITH_COLOR"
+
+        // WHEN
+        let expandedBlueRange = TextAttributes(text: "BlueY", color: .blue)
+        let shortenedYellowRange = TextAttributes(text: "ellow", color: .yellow)
+        sut.display(model: .attributes([expandedBlueRange, shortenedYellowRange]))
+
+        // THEN
+        assertFail(snapshot: sut, named: snapshotName)
+    }
     
     func test_labelOutput_with_font_attributes() {
         //GIVEN
@@ -352,7 +498,7 @@ final class LabelSnapshotTests: XCTestCase {
         assertFail(snapshot: sut, named: snapshotName)
     }
     
-    // TODO: - strange double line layout
+    // Known UIKit behavior: double underline layout is platform-specific.
     func test_labelOutput_with_doubleLineText_attributes() {
         //GIVEN
         let sut = makeSUT()
@@ -383,7 +529,7 @@ final class LabelSnapshotTests: XCTestCase {
         assertFail(snapshot: sut, named: snapshotName, baselineAliases: .init(iOS18_5: [.light: "iOS18.5_LABEL_TITLE_WITH_DOUBLELINELIGHT"]))
     }
     
-    // TODO: - byWord doesnt work.
+    // Known UIKit behavior: by-word underlining does not split at every separator.
     func test_labelOutput_with_byWordText_attributes() {
         //GIVEN
         let sut = makeSUT()
@@ -412,7 +558,7 @@ final class LabelSnapshotTests: XCTestCase {
         assertFail(snapshot: sut, named: snapshotName)
     }
     
-    // TODO: - Dash doesnt work.
+    // Known UIKit behavior: dashed underline rendering is platform-specific.
     func test_labelOutput_with_patternDashText_attributes() {
         //GIVEN
         let sut = makeSUT()
@@ -443,7 +589,7 @@ final class LabelSnapshotTests: XCTestCase {
         assertFail(snapshot: sut, named: snapshotName)
     }
     
-    // TODO: - DashDot doesnt work.
+    // Known UIKit behavior: dash-dot underline rendering is platform-specific.
     func test_labelOutput_with_patternDashDotText_attributes() {
         //GIVEN
         let sut = makeSUT()
@@ -474,7 +620,7 @@ final class LabelSnapshotTests: XCTestCase {
         assertFail(snapshot: sut, named: snapshotName)
     }
     
-    // TODO: - DashDotDot doesnt work.
+    // Known UIKit behavior: dash-dot-dot underline rendering is platform-specific.
     func test_labelOutput_with_patternDashDotDotText_attributes() {
         //GIVEN
         let sut = makeSUT()
@@ -505,7 +651,7 @@ final class LabelSnapshotTests: XCTestCase {
         assertFail(snapshot: sut, named: snapshotName)
     }
     
-    // TODO: - Dot doesnt work.
+    // Known UIKit behavior: dotted underline rendering is platform-specific.
     func test_labelOutput_with_patternDotText_attributes() {
         //GIVEN
         let sut = makeSUT()
@@ -828,6 +974,23 @@ final class LabelSnapshotTests: XCTestCase {
         // THEN
         assert(snapshot: sut, named: snapshotName)
     }
+
+    func test_fail_label_output_html_Br() {
+        // GIVEN
+        let sut = makeSUT()
+        let snapshotName = "LABEL_HTML"
+
+        // WHEN
+        let htmlWithoutExplicitLineBreaks = HtmlTestCases.example1
+            .replacingOccurrences(of: "<br>", with: " ")
+        sut.display(
+            htmlString: htmlWithoutExplicitLineBreaks,
+            config: .init(size: 13, color: .red)
+        )
+
+        // THEN
+        assertFail(snapshot: sut, named: snapshotName)
+    }
     
     func test_label_output_html_boldItalic() {
         // GIVEN
@@ -851,6 +1014,20 @@ final class LabelSnapshotTests: XCTestCase {
 
         // THEN
         assert(snapshot: sut, named: snapshotName)
+    }
+
+    func test_fail_label_output_html_inlineStyleColor() {
+        // GIVEN
+        let sut = makeSUT()
+        let snapshotName = "LABEL_HTML_inlineStyle"
+
+        // WHEN
+        let htmlWithMutatedInlineColor = HtmlTestCases.inlineStyle
+            .replacingOccurrences(of: "#FF0000", with: "#00FFFF")
+        sut.display(htmlString: htmlWithMutatedInlineColor, config: .default)
+
+        // THEN
+        assertFail(snapshot: sut, named: snapshotName)
     }
     
     func test_label_output_html_paragraphs() {
@@ -891,6 +1068,23 @@ final class LabelSnapshotTests: XCTestCase {
         // THEN
         assert(snapshot: sut, named: snapshotName)
     }
+
+    func test_fail_label_output_html_longTextLineBreak() {
+        // GIVEN
+        let sut = makeSUT()
+        let snapshotName = "LABEL_HTML_longText"
+
+        // WHEN
+        let htmlWithExtraLineBreak = HtmlTestCases.longText
+            .replacingOccurrences(of: "<p>", with: "<p><br>")
+        sut.display(
+            htmlString: htmlWithExtraLineBreak,
+            config: .init(textAlignment: .center, lineBreakMode: .byWordWrapping)
+        )
+
+        // THEN
+        assertFail(snapshot: sut, named: snapshotName)
+    }
     
     func test_label_output_html_other() {
         // GIVEN
@@ -930,6 +1124,31 @@ final class LabelSnapshotTests: XCTestCase {
 }
 
 private extension LabelSnapshotTests {
+    @available(iOS 17.0, *)
+    @MainActor
+    func renderedLabelPixels(
+        attribute: TextAttributes,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) throws -> RenderedLabelPixels {
+        let sut = makeSUT(file: file, line: line)
+        sut.backgroundColor = .systemBlue
+        sut.display(attributes: [attribute])
+
+        return RenderedLabelPixels(
+            uiKit: try XCTUnwrap(
+                LabelRGBAPixels(image: sut.uiKitSnapshot(for: .light)),
+                file: file,
+                line: line
+            ),
+            swiftUI: try XCTUnwrap(
+                LabelRGBAPixels(image: sut.swiftUISnapshot(for: .light)),
+                file: file,
+                line: line
+            )
+        )
+    }
+
     func makeSUT(
         file: StaticString = #filePath,
         line: UInt = #line
@@ -956,5 +1175,138 @@ private extension LabelSnapshotTests {
         container.frame = CGRect(origin: .zero, size: SnapshotConfiguration.size)
         container.backgroundColor = .clear
         return container
+    }
+}
+
+private struct RenderedLabelPixels {
+    let uiKit: LabelRGBAPixels
+    let swiftUI: LabelRGBAPixels
+}
+
+private struct LabelRGBAPixels {
+    let width: Int
+    let height: Int
+    let bytes: [UInt8]
+
+    init?(image: UIImage) {
+        guard let image = image.cgImage else { return nil }
+        width = image.width
+        height = image.height
+        let bytesPerRow = width * 4
+        var bytes = [UInt8](repeating: 0, count: height * bytesPerRow)
+        let bitmapInfo = CGBitmapInfo.byteOrder32Big.rawValue
+            | CGImageAlphaInfo.premultipliedLast.rawValue
+        guard let context = CGContext(
+            data: &bytes,
+            width: width,
+            height: height,
+            bitsPerComponent: 8,
+            bytesPerRow: bytesPerRow,
+            space: CGColorSpaceCreateDeviceRGB(),
+            bitmapInfo: bitmapInfo
+        ) else {
+            return nil
+        }
+        context.draw(image, in: CGRect(x: 0, y: 0, width: width, height: height))
+        self.bytes = bytes
+    }
+
+    var dominantRedBounds: CGRect? {
+        dominantRedInk.bounds
+    }
+
+    var dominantRedInk: LabelPixelMask {
+        var indices = Set<Int>()
+        for byteIndex in stride(from: 0, to: bytes.count, by: 4) {
+            let red = Int(bytes[byteIndex])
+            let green = Int(bytes[byteIndex + 1])
+            let blue = Int(bytes[byteIndex + 2])
+            let alpha = Int(bytes[byteIndex + 3])
+            guard alpha > 32,
+                  red > 160,
+                  red > green + 60,
+                  red > blue + 60
+            else {
+                continue
+            }
+            indices.insert(byteIndex / 4)
+        }
+        return LabelPixelMask(width: width, indices: indices)
+    }
+}
+
+private struct LabelPixelMask {
+    struct Row: Equatable {
+        let y: Int
+        let columnRuns: [ClosedRange<Int>]
+    }
+
+    let width: Int
+    let indices: Set<Int>
+
+    var isEmpty: Bool {
+        indices.isEmpty
+    }
+
+    func subtracting(_ other: Self) -> Self {
+        precondition(width == other.width)
+        return .init(width: width, indices: indices.subtracting(other.indices))
+    }
+
+    var bounds: CGRect? {
+        guard let first = indices.first else { return nil }
+        var minimumX = first % width
+        var maximumX = minimumX
+        var minimumY = first / width
+        var maximumY = minimumY
+
+        for index in indices.dropFirst() {
+            let x = index % width
+            let y = index / width
+            minimumX = min(minimumX, x)
+            maximumX = max(maximumX, x)
+            minimumY = min(minimumY, y)
+            maximumY = max(maximumY, y)
+        }
+        return CGRect(
+            x: minimumX,
+            y: minimumY,
+            width: maximumX - minimumX + 1,
+            height: maximumY - minimumY + 1
+        )
+    }
+
+    var rowRuns: [ClosedRange<Int>] {
+        contiguousRuns(indices.map { $0 / width })
+    }
+
+    var columnRunsByRow: [Row] {
+        let rows = Dictionary(grouping: indices) { $0 / width }
+        return rows.keys.sorted().map { y in
+            Row(
+                y: y,
+                columnRuns: contiguousRuns((rows[y] ?? []).map { $0 % width })
+            )
+        }
+    }
+
+    private func contiguousRuns<S: Sequence>(_ values: S) -> [ClosedRange<Int>] where S.Element == Int {
+        let sorted = Set(values).sorted()
+        guard let first = sorted.first else { return [] }
+        var result: [ClosedRange<Int>] = []
+        var lowerBound = first
+        var upperBound = first
+
+        for value in sorted.dropFirst() {
+            if value == upperBound + 1 {
+                upperBound = value
+            } else {
+                result.append(lowerBound...upperBound)
+                lowerBound = value
+                upperBound = value
+            }
+        }
+        result.append(lowerBound...upperBound)
+        return result
     }
 }

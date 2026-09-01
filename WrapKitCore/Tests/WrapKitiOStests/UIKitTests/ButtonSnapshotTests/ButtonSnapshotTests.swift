@@ -597,6 +597,26 @@ final class ButtonSnapshotTests: XCTestCase {
         // THEN
         assert(snapshot: sut, named: snapshotName)
     }
+
+    @available(iOS 17.0, *)
+    func test_swiftUIButton_borderParity_forEvenAndOddWidths() {
+        [CGFloat(4), CGFloat(5)].forEach { borderWidth in
+            XCTContext.runActivity(named: "Border width \(borderWidth)") { _ in
+                let sut = makeSUT()
+                sut.display(style: .init(
+                    backgroundColor: .cyan,
+                    borderWidth: borderWidth,
+                    borderColor: .red
+                ))
+
+                assertSwiftUIParity(
+                    snapshot: sut.swiftUISnapshot(for: .light),
+                    matchingUIKit: sut.uiKitSnapshot(for: .light),
+                    named: "BUTTON_BORDER_WIDTH_\(Int(borderWidth))_PARITY"
+                )
+            }
+        }
+    }
     
     func test_fail_buttonOutput_style_borderWidth() {
         let snapshotName = "BUTTON_STYLE_BORDER_WIDTH_STATE"
@@ -617,7 +637,6 @@ final class ButtonSnapshotTests: XCTestCase {
         assertFail(snapshot: sut, named: snapshotName)
     }
     
-    // TODO: - Do it
     func test_buttonOutput_style_pressedColor() {
         let snapshotName = "BUTTON_STYLE_PRESSED_COLOR_STATE"
         
@@ -750,12 +769,12 @@ final class ButtonSnapshotTests: XCTestCase {
         assertFail(snapshot: sut, named: snapshotName)
     }
     
-    func test_buttonOutput_with_no_url() {
+    func test_buttonOutput_with_no_url() throws {
         let snapshotName = "BUTTON_OUTPUT_NO_URL"
         
         // GIVEN
         let sut = makeSUT()
-        sut.wrongUrlPlaceholderImage = UIImage(systemName: "xmark")!
+        sut.wrongUrlPlaceholderImage = try XCTUnwrap(UIImage(systemName: "xmark"))
         
         // WHEN
         sut.display(style: .init(backgroundColor: .cyan))
@@ -765,12 +784,12 @@ final class ButtonSnapshotTests: XCTestCase {
         assertUIKitOnlySnapshot(snapshot: sut, named: snapshotName, reason: "wrong-url placeholder belongs to UIKit image loading")
     }
     
-    func test_fail_buttonOutput_with_no_url() {
+    func test_fail_buttonOutput_with_no_url() throws {
         let snapshotName = "BUTTON_OUTPUT_NO_URL"
         
         // GIVEN
         let sut = makeSUT()
-        sut.wrongUrlPlaceholderImage = UIImage(systemName: "xmark")!
+        sut.wrongUrlPlaceholderImage = try XCTUnwrap(UIImage(systemName: "xmark"))
         
         // WHEN
         sut.display(style: .init(backgroundColor: .blue))
@@ -861,6 +880,41 @@ final class ButtonSnapshotTests: XCTestCase {
         XCTAssertEqual(pressCount, 0)
     }
 
+    func test_uikitButton_displayHeight_addsConstraintToExistingStorage() {
+        let button = WrapKit.Button()
+        button.anchoredConstraints = button.anchor(.width(1))
+
+        button.display(height: 44)
+
+        XCTAssertEqual(button.anchoredConstraints?.height?.constant, 44)
+        XCTAssertTrue(button.anchoredConstraints?.height?.isActive == true)
+    }
+
+    func test_uikitButton_displayModel_clearsStaleAccessibilityLabel() {
+        let button = WrapKit.Button()
+        button.display(model: .init(
+            accessibility: .init(label: "Initial label"),
+            title: "Title"
+        ))
+
+        button.display(model: .init(title: "Updated title"))
+
+        XCTAssertEqual(button.accessibilityLabel, "Updated title")
+        XCTAssertNotEqual(button.accessibilityLabel, "Initial label")
+    }
+
+    func test_uikitButton_automaticCornerStyle_tracksBoundsHeight() {
+        let button = WrapKit.Button()
+        button.bounds = CGRect(x: 0, y: 0, width: 200, height: 60)
+        button.display(style: .init(cornerStyle: .automatic))
+
+        button.bounds.size.height = 100
+        button.setNeedsLayout()
+        button.layoutIfNeeded()
+
+        XCTAssertEqual(button.layer.cornerRadius, 50, accuracy: 0.01)
+    }
+
     @available(iOS 17.0, *)
     func test_swiftUIButton_fixedFrame_containsContentInsets() {
         let view = SUIButtonView(
@@ -882,6 +936,23 @@ final class ButtonSnapshotTests: XCTestCase {
 
         XCTAssertEqual(size.width, 120, accuracy: 0.01)
         XCTAssertEqual(size.height, 48, accuracy: 0.01)
+    }
+
+    @available(iOS 17.0, *)
+    func test_swiftUIButton_zeroHeight_remainsZero() {
+        let view = SUIButtonView(
+            model: .init(title: "Hidden-height title", height: 0, width: 120),
+            isEnabled: true,
+            fillsAvailableWidth: false
+        )
+        let hostingController = UIHostingController(rootView: view)
+
+        let size = hostingController.sizeThatFits(
+            in: CGSize(width: 1_000, height: 1_000)
+        )
+
+        XCTAssertEqual(size.width, 120, accuracy: 0.01)
+        XCTAssertEqual(size.height, 0, accuracy: 0.01)
     }
 }
 

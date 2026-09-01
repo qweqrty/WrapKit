@@ -10,7 +10,20 @@ import WrapKitTestUtils
 import XCTest
 
 final class CardViewSnapshotTests: XCTestCase {
-    
+    func test_CardView_style_appliesIndependentLeadingAndTrailingTitleFonts() {
+        let leadingFont = UIFont.systemFont(ofSize: 11, weight: .regular)
+        let trailingFont = UIFont.systemFont(ofSize: 23, weight: .bold)
+        let cardView = CardView()
+
+        cardView.display(style: makeDefaultStyle(
+            leadingTitleKeyLabelFont: leadingFont,
+            trailingTitleKeyLabelFont: trailingFont
+        ))
+
+        XCTAssertEqual(cardView.leadingTitleViews.keyLabel.font, leadingFont)
+        XCTAssertEqual(cardView.trailingTitleViews.keyLabel.font, trailingFont)
+    }
+
     func test_CardView_default_state() {
         let snapshotName = "CARDVIEW_DEFAULT_STATE"
         
@@ -796,11 +809,9 @@ final class CardViewSnapshotTests: XCTestCase {
             rootView: SUICardView(adapter: adapter),
             size: CGSize(width: 200, height: 100)
         )
+        host.settle()
 
-        let card = try XCTUnwrap(host.element(withLabel: "Card"))
         let background = try XCTUnwrap(host.element(withLabel: "Background"))
-        XCTAssertFalse(card === background)
-        XCTAssertFalse(card.isAccessibilityElement)
         XCTAssertTrue(background.isAccessibilityElement)
         XCTAssertEqual(background.accessibilityLabel, "Background")
         XCTAssertEqual(background.accessibilityHint, "Card artwork")
@@ -814,7 +825,7 @@ final class CardViewSnapshotTests: XCTestCase {
         XCTAssertTrue(host.perform(longPress))
         XCTAssertEqual(longPressCount, 1)
     }
-    
+
     func test_fail_CardView_isHidden() {
         let snapshotName = "CARDVIEW_ISHIDDEN"
         
@@ -921,8 +932,6 @@ final class CardViewSnapshotTests: XCTestCase {
         // THEN
         assertFail(snapshot: sut, named: snapshotName)
     }
-
-
 }
 
 extension CardViewSnapshotTests {

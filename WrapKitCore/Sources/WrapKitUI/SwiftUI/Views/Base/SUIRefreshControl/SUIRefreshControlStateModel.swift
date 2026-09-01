@@ -6,13 +6,16 @@
 //
 
 import Combine
+import Foundation
 
 public final class SUIRefreshControlStateModel: ObservableObject {
     @Published var isLoading: Bool = false
     @Published var tintColor: Color? = nil
+    @Published var zPosition: CGFloat = -1
     @Published var onRefreshCallbacks: [(() -> Void)?] = []
     
     private let adapter: RefreshControlOutputSwiftUIAdapter
+    private var latestStyleOutputSequence: UInt64 = 0
     private var cancellables: Set<AnyCancellable> = []
     
     public init(adapter: RefreshControlOutputSwiftUIAdapter) {
@@ -22,10 +25,12 @@ public final class SUIRefreshControlStateModel: ObservableObject {
             .compactMap { $0 }
             .sink { [weak self] value in
                 guard let self else { return }
-                if let style = value.model?.style {
+                if let style = value.model?.style,
+                   value.outputSequence >= self.latestStyleOutputSequence {
+                    self.latestStyleOutputSequence = value.outputSequence
                     self.tintColor = style.tintColor
+                    self.zPosition = style.zPosition
                 }
-                self.onRefreshCallbacks = [value.model?.onRefresh]
                 if let isLoading = value.model?.isLoading {
                     self.isLoading = isLoading
                 }
@@ -35,21 +40,11 @@ public final class SUIRefreshControlStateModel: ObservableObject {
         adapter.$displayStyleState
             .compactMap { $0 }
             .sink { [weak self] value in
-                self?.tintColor = value.style.tintColor
-            }
-            .store(in: &cancellables)
-        
-        adapter.$displayOnRefreshState
-            .compactMap { $0 }
-            .sink { [weak self] value in
-                self?.onRefreshCallbacks = [value.onRefresh]
-            }
-            .store(in: &cancellables)
-        
-        adapter.$displayAppendingOnRefreshState
-            .compactMap { $0 }
-            .sink { [weak self] value in
-                self?.onRefreshCallbacks.append(value.appendingOnRefresh)
+                guard let self,
+                      value.outputSequence >= self.latestStyleOutputSequence else { return }
+                self.latestStyleOutputSequence = value.outputSequence
+                self.tintColor = value.style.tintColor
+                self.zPosition = value.style.zPosition
             }
             .store(in: &cancellables)
         
@@ -57,6 +52,14 @@ public final class SUIRefreshControlStateModel: ObservableObject {
             .compactMap { $0 }
             .sink { [weak self] value in
                 self?.isLoading = value.isLoading
+            }
+            .store(in: &cancellables)
+
+        adapter.$isLoading
+            .compactMap { $0 }
+            .removeDuplicates()
+            .sink { [weak self] isLoading in
+                self?.isLoading = isLoading
             }
             .store(in: &cancellables)
 
@@ -74,5 +77,21 @@ public final class SUIRefreshControlStateModel: ObservableObject {
     
     func triggerRefresh() {
         onRefreshCallbacks.forEach { $0?() }
+    }
+
+    func waitForLoadingToFinish(
+        pollIntervalNanoseconds: UInt64 = 100_000_000,
+        sleep: (UInt64) async throws -> Void = { nanoseconds in
+            try await Task.sleep(nanoseconds: nanoseconds)
+        }
+    ) async {
+        while isLoading {
+            guard !Task.isCancelled else { return }
+            do {
+                try await sleep(pollIntervalNanoseconds)
+            } catch {
+                return
+            }
+        }
     }
 }

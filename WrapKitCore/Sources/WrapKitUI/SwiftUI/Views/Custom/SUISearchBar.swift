@@ -5,13 +5,17 @@ import SwiftUI
 
 public struct SUISearchBar: View {
     @StateObject private var stateModel: SUISearchBarStateModel
+    private let contentInsets: EdgeInsets
 
+    /// `padding` controls the text field's internal padding, while `contentInsets`
+    /// inset the complete row of side controls and text field.
     public init(
         adapter: SearchBarOutputSwiftUIAdapter,
         textFieldAppearance: TextfieldAppearance,
         spacing: CGFloat = 8,
         cornerRadius: CGFloat = 10,
-        padding: SwiftUI.EdgeInsets = .init(top: 10, leading: 12, bottom: 10, trailing: 12)
+        padding: SwiftUI.EdgeInsets = .init(top: 10, leading: 12, bottom: 10, trailing: 12),
+        contentInsets: EdgeInsets = .zero
     ) {
         _stateModel = .init(wrappedValue: .init(
             adapter: adapter,
@@ -20,10 +24,15 @@ public struct SUISearchBar: View {
             cornerRadius: cornerRadius,
             padding: padding
         ))
+        self.contentInsets = contentInsets
     }
 
-    init(stateModel: SUISearchBarStateModel) {
+    init(
+        stateModel: SUISearchBarStateModel,
+        contentInsets: EdgeInsets = .zero
+    ) {
         _stateModel = .init(wrappedValue: stateModel)
+        self.contentInsets = contentInsets
     }
 
     public var body: some View {
@@ -58,12 +67,14 @@ public struct SUISearchBar: View {
     private var styledContent: some View {
         if #available(iOS 26, macOS 26, tvOS 26, watchOS 26, *), isLiquidGlassEnabled {
             content
+                .padding(contentInsets.asSUIEdgeInsets)
                 .glassEffect(
                     .clear.tint(stateModel.backgroundColor.map(SwiftUIColor.init)),
                     in: SUICornerShape(style: .automatic)
                 )
         } else {
             content
+                .padding(contentInsets.asSUIEdgeInsets)
                 .background(SwiftUIColor(stateModel.backgroundColor ?? .clear))
         }
     }

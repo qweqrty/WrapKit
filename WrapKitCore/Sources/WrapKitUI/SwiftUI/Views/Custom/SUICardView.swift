@@ -55,19 +55,24 @@ public struct SUICardView: View {
             .overlay(CardBorderOverlay(
                 style: style,
                 gradientBorderColors: stateModel.activeGradientBorderColors
-            ))
+            ).allowsHitTesting(false))
             .allowsHitTesting(stateModel.isUserInteractionEnabled)
-            .onTapGesture {
-                stateModel.onPress?()
+            .ifLet(stateModel.onPress) { view, action in
+                view.onTapGesture(perform: action)
             }
-            .onLongPressGesture(minimumDuration: 1) {
-                stateModel.onLongPress?()
+            .ifLet(stateModel.onLongPress) { view, action in
+                view.onLongPressGesture(minimumDuration: 1, perform: action)
             }
     }
 
     private func cardSurface(style: CardViewPresentableModel.Style) -> some View {
-        cardBody(style: style)
-            .clipShape(CardCornerShape(style: style.cornerStyle))
+        ZStack {
+            CardCornerShape(style: style.cornerStyle)
+                .fill(SwiftUIColor(style.backgroundColor))
+
+            cardBody(style: style)
+                .clipShape(CardCornerShape(style: style.cornerStyle))
+        }
     }
 
     private func cardBody(style: CardViewPresentableModel.Style) -> some View {
@@ -76,12 +81,12 @@ public struct SUICardView: View {
             VStack(spacing: 0) {
                 cardContent(style: style)
                 bottomSeparator
+                bottomImage
             }
             .padding(style.vStacklayoutMargins.asSUIEdgeInsets)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
-        .background(SwiftUIColor(style.backgroundColor))
     }
 
     @ViewBuilder
@@ -168,7 +173,13 @@ public struct SUICardView: View {
             }
         }
         if stateModel.switchControl != nil {
-            arrangedContainer(style: style, fillEquallyAlignment: .leading) {
+            // UISwitch has a wider physical frame than its alignment rect on iOS 26.
+            // Keep the semantic viewport for layout, but leave the physical overhang visible.
+            arrangedContainer(
+                style: style,
+                fillEquallyAlignment: .leading,
+                clipsFixedViewport: false
+            ) {
                 switchView
             }
         }
@@ -185,6 +196,7 @@ public struct SUICardView: View {
         leadingSpacing: CGFloat? = nil,
         fillRole: CardFillRole = .fixed,
         fillEquallyAlignment: Alignment = .center,
+        clipsFixedViewport: Bool = true,
         @ViewBuilder content: () -> some View
     ) -> some View {
         let inner = content()
@@ -193,7 +205,7 @@ public struct SUICardView: View {
             case .fill:
                 if fillRole.canCompress || fillRole.canExpand {
                     if #available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *) {
-                        CardFillFlexibleViewportLayout {
+                        CardFillViewportLayout(measuresContentAtProposedWidth: true) {
                             inner
                         }
                         .clipped()
@@ -203,9 +215,19 @@ public struct SUICardView: View {
                             .if(fillRole.canCompress) { $0.clipped() }
                     }
                 } else {
-                    inner
-                        .fixedSize(horizontal: true, vertical: true)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+                    if #available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *) {
+                        CardFillViewportLayout {
+                            inner
+                                .fixedSize(horizontal: true, vertical: true)
+                                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+                        }
+                        .if(clipsFixedViewport) { $0.clipped() }
+                    } else {
+                        inner
+                            .fixedSize(horizontal: true, vertical: true)
+                            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+                            .if(clipsFixedViewport) { $0.clipped() }
+                    }
                 }
             case .fillEqually:
                 inner
@@ -267,10 +289,7 @@ public struct SUICardView: View {
         if stateModel.trailingTitles != nil {
             SUIVKeyValueFieldView(
                 adapter: stateModel.trailingTitlesAdapter,
-                // Keep the existing CardView Output contract exactly. The legacy renderer
-                // leaves the trailing key label at its initializer font (16 pt):
-                // display(style:) applies trailingTitleKeyLabelFont to the leading label.
-                keyFont: .systemFont(ofSize: 16),
+                keyFont: style.trailingTitleKeyLabelFont,
                 keyTextColor: style.trailingTitleKeyTextColor,
                 valueFont: .systemFont(ofSize: 16),
                 valueTextColor: .black,
@@ -420,6 +439,16 @@ public struct SUICardView: View {
         }
     }
 
+    @ViewBuilder
+    private var bottomImage: some View {
+        if stateModel.bottomImage != nil {
+            HStack(spacing: 0) {
+                SUIImageView(adapter: stateModel.bottomImageAdapter)
+                Spacer(minLength: 0)
+            }
+        }
+    }
+
     private func isVisibleTextModel(_ model: TextOutputPresentableModel?) -> Bool {
         guard let model else { return false }
         return isVisibleTextModel(model.model)
@@ -450,6 +479,9 @@ struct CardFillRole: Equatable {
     var canExpand: Bool { expansionPriority != nil }
 
     static let flexibleText = Self(canCompress: true, expansionPriority: .flexibleText)
+    // UIKit gives subtitleLabel required horizontal compression resistance.
+    // Preserve that priority and clip only its allocated viewport as a final
+    // overflow safeguard when even required content cannot fit.
     static let subtitle = Self(canCompress: false, expansionPriority: .subtitle)
     static let fixed = Self(canCompress: false, expansionPriority: nil)
 }
@@ -484,7 +516,7 @@ enum CardFillHorizontalResolver {
         }
 
         let metadata = normalizedMetadata(items, count: idealWidths.count)
-        let gaps = resolvedGaps(items: metadata, defaultSpacing: defaultSpacing)
+        var gaps = resolvedGaps(items: metadata, defaultSpacing: defaultSpacing)
         var widths = idealWidths.map { max($0, 0) }
         let availableForItems = max(max(availableWidth, 0) - gaps.reduce(0, +), 0)
         let highestPriority = metadata.compactMap { $0.role.expansionPriority?.rawValue }.max()
@@ -510,10 +542,29 @@ enum CardFillHorizontalResolver {
                 widths[recipient] += availableForItems - resolvedTotal
             }
         } else {
-            var shortage = resolvedTotal - availableForItems
+            var shortage = max(
+                resolvedTotal + gaps.reduce(0, +) - max(availableWidth, 0),
+                0
+            )
             for index in widths.indices where metadata[index].role.canCompress && shortage > 0 {
                 let reduction = min(widths[index], shortage)
                 widths[index] -= reduction
+                shortage -= reduction
+            }
+
+            // A card can still be proposed an exceptionally narrow width where
+            // fixed images and controls alone do not fit. SwiftUI layouts must
+            // nevertheless stay inside that proposal. Clip fixed viewports only
+            // as a last resort, after every text viewport has been compressed.
+            for index in widths.indices where !metadata[index].role.canCompress && shortage > 0 {
+                let reduction = min(widths[index], shortage)
+                widths[index] -= reduction
+                shortage -= reduction
+            }
+
+            for index in gaps.indices.reversed() where shortage > 0 {
+                let reduction = min(gaps[index], shortage)
+                gaps[index] -= reduction
                 shortage -= reduction
             }
         }
@@ -581,7 +632,13 @@ private struct CardFillItemMetadataKey: LayoutValueKey {
 }
 
 @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
-private struct CardFillFlexibleViewportLayout: Layout {
+struct CardFillViewportLayout: Layout {
+    let measuresContentAtProposedWidth: Bool
+
+    init(measuresContentAtProposedWidth: Bool = false) {
+        self.measuresContentAtProposedWidth = measuresContentAtProposedWidth
+    }
+
     func sizeThatFits(
         proposal: ProposedViewSize,
         subviews: Subviews,
@@ -592,9 +649,15 @@ private struct CardFillFlexibleViewportLayout: Layout {
             return subview.sizeThatFits(proposal)
         }
         let width = finite(proposal.width)
-        let measured = subview.sizeThatFits(ProposedViewSize(width: width, height: nil))
+        let ideal = subview.sizeThatFits(.unspecified)
+        let measured: CGSize
+        if measuresContentAtProposedWidth, let width {
+            measured = subview.sizeThatFits(ProposedViewSize(width: width, height: nil))
+        } else {
+            measured = ideal
+        }
         return CGSize(
-            width: width ?? measured.width,
+            width: width ?? ideal.width,
             height: finite(proposal.height) ?? measured.height
         )
     }
@@ -620,7 +683,7 @@ private struct CardFillFlexibleViewportLayout: Layout {
 }
 
 @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
-private struct CardFillHorizontalLayout: Layout {
+struct CardFillHorizontalLayout: Layout {
     let defaultSpacing: CGFloat
 
     func sizeThatFits(
@@ -629,8 +692,12 @@ private struct CardFillHorizontalLayout: Layout {
         cache: inout ()
     ) -> CGSize {
         let isCompressionBreakpointProbe = proposal.width == 0 && proposal.height == nil
-        let measured = subviews.enumerated().compactMap {
-            index, subview -> (index: Int, ideal: CGSize, breakpointWidth: CGFloat, metadata: CardFillItemMetadata)? in
+        let measured: [(
+            index: Int,
+            ideal: CGSize,
+            breakpointWidth: CGFloat,
+            metadata: CardFillItemMetadata
+        )] = subviews.enumerated().compactMap { index, subview in
             let ideal = subview.sizeThatFits(.unspecified)
             guard isVisible(ideal) else { return nil }
             let breakpointWidth = subview.sizeThatFits(
@@ -824,13 +891,17 @@ private struct CardBackgroundImageView: View {
 
     var body: some View {
         GeometryReader { proxy in
+            let shape = RoundedRectangle(
+                cornerRadius: model.cornerRadius ?? 0,
+                style: .circular
+            )
             backgroundContent(in: proxy.size)
                 .frame(width: proxy.size.width, height: proxy.size.height, alignment: .center)
-                .clipShape(CardCornerShape(style: .fixed(model.cornerRadius ?? 0)))
+                .clipShape(shape)
                 .overlay {
                     if let borderColor = model.borderColor,
                        let borderWidth = model.borderWidth {
-                        CardCornerShape(style: .fixed(model.cornerRadius ?? 0))
+                        shape
                             .strokeBorder(SwiftUIColor(borderColor), lineWidth: borderWidth)
                     }
                 }

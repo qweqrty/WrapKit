@@ -24,6 +24,11 @@ public final class SUIEmptyViewStateModel: ObservableObject {
     private var cancellables: Set<AnyCancellable> = []
     private var retainedButtonModel: ButtonPresentableModel?
     private var retainedImageModel = ImageViewPresentableModel()
+    private var latestVisibilityOutputSequence: UInt64 = 0
+    private var latestTitleOutputSequence: UInt64 = 0
+    private var latestSubtitleOutputSequence: UInt64 = 0
+    private var latestButtonOutputSequence: UInt64 = 0
+    private var latestImageOutputSequence: UInt64 = 0
 
     public init(adapter: EmptyViewOutputSwiftUIAdapter) {
         self.adapter = adapter
@@ -32,59 +37,132 @@ public final class SUIEmptyViewStateModel: ObservableObject {
             .compactMap { $0 }
             .sink { [weak self] value in
                 guard let self else { return }
-                self.isHidden = value.model == nil
-                self.title = value.model?.title
-                self.subtitle = value.model?.subTitle
-                self.setButtonModel(value.model?.button)
-                self.setImageModel(value.model?.image)
-                self.isTitleHidden = value.model?.title == nil
-                self.isSubtitleHidden = value.model?.subTitle == nil
-                self.isButtonHidden = value.model?.button == nil
-                self.isImageHidden = value.model?.image == nil
-                self.animationConfig = value.model?.animationConfig
-                    ?? EmptyViewAnimationConfig(isAnimated: true, duration: 0.3)
+                self.applyVisibility(
+                    isHidden: value.model == nil,
+                    animationConfig: value.model?.animationConfig
+                        ?? EmptyViewAnimationConfig(isAnimated: true, duration: 0.3),
+                    outputSequence: value.outputSequence
+                )
+                self.applyTitle(
+                    value.model?.title,
+                    outputSequence: value.outputSequence
+                )
+                self.applySubtitle(
+                    value.model?.subTitle,
+                    outputSequence: value.outputSequence
+                )
+                self.applyButton(
+                    value.model?.button,
+                    outputSequence: value.outputSequence
+                )
+                self.applyImage(
+                    value.model?.image,
+                    outputSequence: value.outputSequence
+                )
             }
             .store(in: &cancellables)
 
         adapter.$displayTitleState
             .compactMap { $0 }
             .sink { [weak self] value in
-                self?.title = value.title
-                self?.isTitleHidden = value.title == nil
+                self?.applyTitle(
+                    value.title,
+                    outputSequence: value.outputSequence
+                )
             }
             .store(in: &cancellables)
 
         adapter.$displaySubtitleState
             .compactMap { $0 }
             .sink { [weak self] value in
-                self?.subtitle = value.subtitle
-                self?.isSubtitleHidden = value.subtitle == nil
+                self?.applySubtitle(
+                    value.subtitle,
+                    outputSequence: value.outputSequence
+                )
             }
             .store(in: &cancellables)
 
         adapter.$displayButtonModelState
             .compactMap { $0 }
             .sink { [weak self] value in
-                self?.setButtonModel(value.buttonModel)
-                self?.isButtonHidden = value.buttonModel == nil
+                self?.applyButton(
+                    value.buttonModel,
+                    outputSequence: value.outputSequence
+                )
             }
             .store(in: &cancellables)
 
         adapter.$displayImageState
             .compactMap { $0 }
             .sink { [weak self] value in
-                self?.setImageModel(value.image)
-                self?.isImageHidden = value.image == nil
+                self?.applyImage(
+                    value.image,
+                    outputSequence: value.outputSequence
+                )
             }
             .store(in: &cancellables)
 
         adapter.$displayIsHiddenState
             .compactMap { $0 }
             .sink { [weak self] value in
-                self?.animationConfig = .default
-                self?.isHidden = value.isHidden
+                self?.applyVisibility(
+                    isHidden: value.isHidden,
+                    animationConfig: .default,
+                    outputSequence: value.outputSequence
+                )
             }
             .store(in: &cancellables)
+    }
+
+    private func applyVisibility(
+        isHidden: Bool,
+        animationConfig: EmptyViewAnimationConfig,
+        outputSequence: UInt64
+    ) {
+        guard outputSequence >= latestVisibilityOutputSequence else { return }
+        latestVisibilityOutputSequence = outputSequence
+        self.animationConfig = animationConfig
+        self.isHidden = isHidden
+    }
+
+    private func applyTitle(
+        _ title: TextOutputPresentableModel?,
+        outputSequence: UInt64
+    ) {
+        guard outputSequence >= latestTitleOutputSequence else { return }
+        latestTitleOutputSequence = outputSequence
+        self.title = title
+        isTitleHidden = title == nil
+    }
+
+    private func applySubtitle(
+        _ subtitle: TextOutputPresentableModel?,
+        outputSequence: UInt64
+    ) {
+        guard outputSequence >= latestSubtitleOutputSequence else { return }
+        latestSubtitleOutputSequence = outputSequence
+        self.subtitle = subtitle
+        isSubtitleHidden = subtitle == nil
+    }
+
+    private func applyButton(
+        _ buttonModel: ButtonPresentableModel?,
+        outputSequence: UInt64
+    ) {
+        guard outputSequence >= latestButtonOutputSequence else { return }
+        latestButtonOutputSequence = outputSequence
+        setButtonModel(buttonModel)
+        isButtonHidden = buttonModel == nil
+    }
+
+    private func applyImage(
+        _ image: ImageViewPresentableModel?,
+        outputSequence: UInt64
+    ) {
+        guard outputSequence >= latestImageOutputSequence else { return }
+        latestImageOutputSequence = outputSequence
+        setImageModel(image)
+        isImageHidden = image == nil
     }
 
     private func setButtonModel(_ model: ButtonPresentableModel?) {
@@ -95,9 +173,14 @@ public final class SUIEmptyViewStateModel: ObservableObject {
 
         let merged = ButtonPresentableModel(
             accessibilityIdentifier: model.accessibilityIdentifier,
+            accessibility: model.accessibility,
             title: model.title,
+            image: model.image,
             spacing: model.spacing ?? retainedButtonModel?.spacing,
+            height: model.height ?? retainedButtonModel?.height,
+            width: model.width ?? retainedButtonModel?.width,
             style: model.style ?? retainedButtonModel?.style,
+            enabled: model.enabled ?? retainedButtonModel?.enabled,
             onPress: model.onPress
         )
         retainedButtonModel = merged

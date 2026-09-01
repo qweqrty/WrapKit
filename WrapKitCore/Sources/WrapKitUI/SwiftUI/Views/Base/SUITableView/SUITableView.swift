@@ -7,6 +7,14 @@
 
 import SwiftUI
 
+struct SUITableRefreshControlHiddenPreferenceKey: PreferenceKey {
+    static var defaultValue = false
+
+    static func reduce(value: inout Bool, nextValue: () -> Bool) {
+        value = value || nextValue()
+    }
+}
+
 public struct SUITableView<
     Header,
     Cell: Hashable,
@@ -15,7 +23,7 @@ public struct SUITableView<
     HeaderContent: View,
     FooterContent: View
 >: View {
-    @ObservedObject var adapter: TableOutputSwiftUIAdapter<Cell, Footer, Header>
+    @StateObject private var stateModel: SUITableViewStateModel<Header, Cell, Footer>
     let style: SUITableViewStyleType
     let cellContent: (Cell, IndexPath) -> CellContent
     let headerContent: (Header) -> HeaderContent
@@ -28,7 +36,7 @@ public struct SUITableView<
         @ViewBuilder headerContent: @escaping (Header) -> HeaderContent,
         @ViewBuilder footerContent: @escaping (Footer) -> FooterContent
     ) {
-        self.adapter = adapter
+        _stateModel = StateObject(wrappedValue: SUITableViewStateModel(adapter: adapter))
         self.style = style
         self.cellContent = cellContent
         self.headerContent = headerContent
@@ -36,12 +44,15 @@ public struct SUITableView<
     }
 
     public var body: some View {
-        let sections = adapter.displaySectionsState?.sections ?? []
         style.makeBody(
-            sections: sections,
+            stateModel: stateModel,
             cellContent: cellContent,
             headerContent: headerContent,
             footerContent: footerContent
+        )
+        .preference(
+            key: SUITableRefreshControlHiddenPreferenceKey.self,
+            value: stateModel.hidesRefreshControl
         )
     }
 }

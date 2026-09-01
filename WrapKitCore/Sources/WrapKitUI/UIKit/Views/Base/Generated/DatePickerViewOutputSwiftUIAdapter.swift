@@ -20,6 +20,10 @@ import UIKit
 public class DatePickerViewOutputSwiftUIAdapter: ObservableObject, DatePickerViewOutput {
 
 
+    private var nextOutputSequence: UInt64 = 0
+
+
+
     // Initializer
     public init(
     ) {
@@ -27,39 +31,51 @@ public class DatePickerViewOutputSwiftUIAdapter: ObservableObject, DatePickerVie
 
     @Published public var displayDateChangedState: DisplayDateChangedState? = nil
     public struct DisplayDateChangedState {
+        public let outputSequence: UInt64
         public let dateChanged: ((Date) -> Void)?
     }
     public func display(dateChanged: ((Date) -> Void)?) {
+        nextOutputSequence &+= 1
         displayDateChangedState = .init(
+            outputSequence: nextOutputSequence,
             dateChanged: dateChanged
         )
     }
     @Published public var displayDateState: DisplayDateState? = nil
     public struct DisplayDateState {
+        public let outputSequence: UInt64
         public let date: Date
     }
     public func display(date: Date) {
+        nextOutputSequence &+= 1
         displayDateState = .init(
+            outputSequence: nextOutputSequence,
             date: date
         )
     }
     @Published public var displaySetDateAnimatedState: DisplaySetDateAnimatedState? = nil
     public struct DisplaySetDateAnimatedState {
+        public let outputSequence: UInt64
         public let setDate: Date
         public let animated: Bool
     }
     public func display(setDate: Date, animated: Bool) {
+        nextOutputSequence &+= 1
         displaySetDateAnimatedState = .init(
+            outputSequence: nextOutputSequence,
             setDate: setDate, 
             animated: animated
         )
     }
     @Published public var displayModelState: DisplayModelState? = nil
     public struct DisplayModelState {
+        public let outputSequence: UInt64
         public let model: DatePickerPresentableModel
     }
     public func display(model: DatePickerPresentableModel) {
+        nextOutputSequence &+= 1
         displayModelState = .init(
+            outputSequence: nextOutputSequence,
             model: model
         )
     }

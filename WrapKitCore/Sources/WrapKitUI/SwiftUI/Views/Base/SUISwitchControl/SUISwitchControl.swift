@@ -1,4 +1,7 @@
 import SwiftUI
+#if os(iOS)
+import UIKit
+#endif
 
 public struct SUISwitchControl: View {
     @StateObject private var stateModel: SUISwitchControlStateModel
@@ -53,61 +56,68 @@ public struct SUISwitchControlView: View {
     @State private var internalIsOn: Bool
     
     public var body: some View {
-        ZStack {
-            styledToggle
-                .accessibilityIdentifier(accessibilityIdentifier ?? "")
-                .disabled(!isEnabled || isLoading)
-                .opacity(isEnabled ? 1 : 0.5)
-                .onAppear { internalIsOn = isOn }
-                .onChange(of: isOn) { newValue in
-                    internalIsOn = newValue
-                }
-            
-            if isLoading {
-                SUIShimmerView(style: style?.shimmerStyle)
-                    .frame(
-                        width: switchMetrics.width * 1.1,
-                        height: switchMetrics.height
-                    )
-                    .clipShape(
-                        RoundedRectangle(
-                            cornerRadius: style?.cornerRadius ?? switchMetrics.height / 2,
-                            style: .circular
-                        )
-                    )
-                    .allowsHitTesting(false)
+        styledToggle
+            .opacity(isEnabled ? 1 : 0.5)
+            .onAppear { internalIsOn = isOn }
+            .onChange(of: isOn) { newValue in
+                internalIsOn = newValue
             }
-        }
+            .overlay(alignment: .leading) {
+                if isLoading {
+                    GeometryReader { geometry in
+                        SUIShimmerView(style: style?.shimmerStyle)
+                            .frame(
+                                width: geometry.size.width * 1.1,
+                                height: geometry.size.height
+                            )
+                            .clipShape(
+                                RoundedRectangle(
+                                    cornerRadius: style?.cornerRadius ?? geometry.size.height / 2,
+                                    style: .circular
+                                )
+                            )
+                    }
+                    .allowsHitTesting(false)
+                }
+            }
     }
 
     @ViewBuilder
     private var styledToggle: some View {
-        if let style {
 #if os(iOS)
-            if #available(iOS 26.0, *) {
-                toggle
-                    .toggleStyle(.switch)
-                    .tint(SwiftUIColor(style.tintColor))
-                    .background {
-                        RoundedRectangle(
-                            cornerRadius: style.cornerRadius,
-                            style: .continuous
-                        )
-                        .fill(SwiftUIColor(style.backgroundColor))
-                    }
-            } else {
-                toggle
-                    .toggleStyle(LegacySwitchToggleStyle(style: style))
-            }
-#else
+        if #available(iOS 26.0, *) {
+            SUINativeSwitchView(
+                isOn: $internalIsOn,
+                isEnabled: isEnabled && !isLoading,
+                style: style,
+                accessibilityIdentifier: accessibilityIdentifier,
+                onToggle: onToggle
+            )
+        } else if let style {
             toggle
-                .toggleStyle(.switch)
-                .tint(SwiftUIColor(style.tintColor))
-#endif
+                .toggleStyle(LegacySwitchToggleStyle(style: style))
+                .accessibilityIdentifier(accessibilityIdentifier ?? "")
+                .disabled(!isEnabled || isLoading)
         } else {
             toggle
                 .toggleStyle(.switch)
+                .accessibilityIdentifier(accessibilityIdentifier ?? "")
+                .disabled(!isEnabled || isLoading)
         }
+#else
+        if let style {
+            toggle
+                .toggleStyle(.switch)
+                .tint(SwiftUIColor(style.tintColor))
+                .accessibilityIdentifier(accessibilityIdentifier ?? "")
+                .disabled(!isEnabled || isLoading)
+        } else {
+            toggle
+                .toggleStyle(.switch)
+                .accessibilityIdentifier(accessibilityIdentifier ?? "")
+                .disabled(!isEnabled || isLoading)
+        }
+#endif
     }
 
     private var toggle: some View {
@@ -121,16 +131,109 @@ public struct SUISwitchControlView: View {
         .labelsHidden()
     }
 
-    private var switchMetrics: (width: CGFloat, height: CGFloat) {
-#if os(iOS)
-        if #available(iOS 26.0, *) {
-            return (63, 28)
-        }
-#endif
-        return (LegacySwitchToggleStyle.width, LegacySwitchToggleStyle.height)
-    }
-    
 }
+
+#if os(iOS)
+@available(iOS 26.0, *)
+private struct SUINativeSwitchView: UIViewRepresentable {
+    @Binding var isOn: Bool
+
+    let isEnabled: Bool
+    let style: SwitchControlPresentableModel.Style?
+    let accessibilityIdentifier: String?
+    let onToggle: ((Bool) -> Void)?
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(parent: self)
+    }
+
+    func makeUIView(context: Context) -> SUINativeSwitchContainer {
+        let container = SUINativeSwitchContainer()
+        container.nativeSwitch.addTarget(
+            context.coordinator,
+            action: #selector(Coordinator.valueChanged(_:)),
+            for: .valueChanged
+        )
+        applyState(to: container.nativeSwitch)
+        return container
+    }
+
+    func updateUIView(_ container: SUINativeSwitchContainer, context: Context) {
+        context.coordinator.parent = self
+        applyState(to: container.nativeSwitch)
+    }
+
+    func sizeThatFits(
+        _ proposal: ProposedViewSize,
+        uiView: SUINativeSwitchContainer,
+        context: Context
+    ) -> CGSize? {
+        uiView.nativeSwitch.intrinsicContentSize
+    }
+
+    private func applyState(to nativeSwitch: UISwitch) {
+        if !nativeSwitch.isTracking, nativeSwitch.isOn != isOn {
+            nativeSwitch.setOn(isOn, animated: false)
+        }
+        nativeSwitch.isEnabled = isEnabled
+        nativeSwitch.accessibilityIdentifier = accessibilityIdentifier
+        nativeSwitch.onTintColor = style?.tintColor
+        nativeSwitch.thumbTintColor = style?.thumbTintColor
+        nativeSwitch.backgroundColor = style?.backgroundColor
+        nativeSwitch.applyCornerStyle(.fixed(style?.cornerRadius ?? 0))
+    }
+
+    final class Coordinator: NSObject {
+        var parent: SUINativeSwitchView
+
+        init(parent: SUINativeSwitchView) {
+            self.parent = parent
+        }
+
+        @objc func valueChanged(_ sender: UISwitch) {
+            parent.isOn = sender.isOn
+            parent.onToggle?(sender.isOn)
+        }
+    }
+}
+
+@available(iOS 26.0, *)
+private final class SUINativeSwitchContainer: UIView {
+    let nativeSwitch = UISwitch(frame: .zero)
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        isAccessibilityElement = false
+        addSubview(nativeSwitch)
+        accessibilityElements = [nativeSwitch]
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    override var intrinsicContentSize: CGSize {
+        nativeSwitch.intrinsicContentSize
+    }
+
+    override func sizeThatFits(_ size: CGSize) -> CGSize {
+        nativeSwitch.intrinsicContentSize
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        let alignmentSize = nativeSwitch.intrinsicContentSize
+        let alignmentRect = CGRect(
+            x: bounds.midX - alignmentSize.width / 2,
+            y: bounds.midY - alignmentSize.height / 2,
+            width: alignmentSize.width,
+            height: alignmentSize.height
+        )
+        nativeSwitch.frame = nativeSwitch.frame(forAlignmentRect: alignmentRect)
+    }
+}
+#endif
 
 private struct LegacySwitchToggleStyle: ToggleStyle {
     static let width: CGFloat = 51

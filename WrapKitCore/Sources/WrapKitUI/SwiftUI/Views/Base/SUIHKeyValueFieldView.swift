@@ -41,7 +41,7 @@ public struct SUIHKeyValueFieldView: View {
         _stateModel = .init(
             wrappedValue: .init(
                 adapter: adapter,
-                displaysBottomImage: false,
+                displaysBottomImage: true,
                 isHidden: isHidden
             )
         )
@@ -70,6 +70,18 @@ public struct SUIHKeyValueFieldView: View {
 
     @ViewBuilder
     private var content: some View {
+        VStack(alignment: .leading, spacing: spacing) {
+            if stateModel.keyTitle != nil || stateModel.valueTitle != nil {
+                textContent
+            }
+            if stateModel.bottomImage != nil {
+                bottomImageView
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var textContent: some View {
         switch (stateModel.keyTitle, stateModel.valueTitle) {
         case (.some(let keyTitle), .some(let valueTitle)):
             HStack(alignment: .center, spacing: spacing) {
@@ -118,6 +130,13 @@ public struct SUIHKeyValueFieldView: View {
 
         case (.none, .none):
             SwiftUICore.EmptyView()
+        }
+    }
+
+    private var bottomImageView: some View {
+        HStack(spacing: 0) {
+            SUIImageView(adapter: stateModel.bottomImageAdapter)
+            Spacer(minLength: 0)
         }
     }
 

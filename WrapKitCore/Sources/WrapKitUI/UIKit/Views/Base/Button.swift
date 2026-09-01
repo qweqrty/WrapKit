@@ -156,17 +156,18 @@ import UIKit
 extension Button: ButtonOutput {
     public func display(model: ButtonPresentableModel?) {
         isHidden = model == nil
-        accessibilityIdentifier = model?.accessibilityIdentifier
-        accessibilityLabel = model?.accessibility?.label
-        accessibilityHint = model?.accessibility?.hint
         display(style: model?.style) // need to be first
         if let spacing = model?.spacing { display(spacing: spacing) }
         display(title: model?.title)
         display(image: model?.image)
         if let height = model?.height { display(height: height) }
+        if let width = model?.width { display(width: width) }
         if let enabled = model?.enabled { updateAppearance(enabled: enabled) }
         // MARK: Apply accessibility AFTER all properties are set
         display(onPress: model?.onPress)
+        accessibilityIdentifier = model?.accessibilityIdentifier
+        accessibilityLabel = model?.accessibility?.label
+        accessibilityHint = model?.accessibility?.hint
     }
     
     public func display(image: Image?) {
@@ -178,10 +179,27 @@ extension Button: ButtonOutput {
     }
     
     public func display(height: CGFloat) {
-        if let anchoredConstraints = anchoredConstraints {
-            anchoredConstraints.height?.constant = height
-        } else {
+        if let heightConstraint = anchoredConstraints?.height {
+            heightConstraint.constant = height
+        } else if anchoredConstraints == nil {
             anchoredConstraints = anchor(.height(height))
+        } else {
+            let heightConstraint = heightAnchor.constraint(equalToConstant: height)
+            heightConstraint.isActive = true
+            anchoredConstraints?.height = heightConstraint
+        }
+    }
+
+    private func display(width: CGFloat) {
+        if let anchoredConstraints = anchoredConstraints,
+           let widthConstraint = anchoredConstraints.width {
+            widthConstraint.constant = width
+        } else if anchoredConstraints == nil {
+            anchoredConstraints = anchor(.width(width))
+        } else {
+            let widthConstraint = widthAnchor.constraint(equalToConstant: width)
+            widthConstraint.isActive = true
+            anchoredConstraints?.width = widthConstraint
         }
     }
     
@@ -204,6 +222,7 @@ extension Button: ButtonOutput {
             if let titleLabelFont = style.font { self.titleLabel?.font = titleLabelFont }
             self.layer.borderColor = style.borderColor?.cgColor
             self.layer.borderWidth = style.borderWidth
+            appliedLegacyCornerStyle = style.cornerStyle
             applyButtonCornerStyle(style.cornerStyle)
             return
         }
@@ -292,10 +311,12 @@ extension Button: ButtonOutput {
         if let titleLabelFont = style.font { self.titleLabel?.font = titleLabelFont }
 
         if #available(iOS 15.0, *), configuration != nil {
+            appliedLegacyCornerStyle = nil
             // borders + cornerRadius applied through configuration.background above
         } else {
             self.layer.borderColor = style.borderColor?.cgColor
             self.layer.borderWidth = style.borderWidth
+            appliedLegacyCornerStyle = style.cornerStyle
             applyButtonCornerStyle(style.cornerStyle)
         }
     }
@@ -358,6 +379,7 @@ open class Button: UIButton {
     }
 
     private var usesLiquidGlassConfiguration = false
+    private var appliedLegacyCornerStyle: CornerStyle?
 
     private var hasCustomContentInset: Bool {
         return contentInset.top != .zero
@@ -537,6 +559,14 @@ open class Button: UIButton {
         default:
             break
         }
+    }
+
+    open override func layoutSubviews() {
+        super.layoutSubviews()
+
+        guard let appliedLegacyCornerStyle else { return }
+        guard case .automatic = appliedLegacyCornerStyle else { return }
+        applyButtonCornerStyle(appliedLegacyCornerStyle)
     }
     
     @objc private func onTap() {

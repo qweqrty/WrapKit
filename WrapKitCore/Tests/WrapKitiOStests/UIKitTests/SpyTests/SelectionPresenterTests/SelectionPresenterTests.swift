@@ -191,6 +191,86 @@ final class SelectionPresenterTests: XCTestCase {
             XCTFail("Expected flow.close to be called with singleSelection")
         }
     }
+
+    func test_selectingSingleItemFromDisplayedRows_returnsItemAndClosesFlow() {
+        var callbackResult: SelectionType?
+        let components = makeSUT(
+            isMultipleSelection: false,
+            callback: { callbackResult = $0 }
+        )
+        components.sut.items[0].isSelected.set(model: true)
+        components.sut.viewDidLoad()
+
+        let displayedCell = components.viewSpy.capturedDisplayItems
+            .last?
+            .items
+            .first?
+            .cells[1]
+        guard let displayedCell else {
+            return XCTFail("Expected displayed selection row")
+        }
+        displayedCell.onTap?(IndexPath(row: 1, section: 0), displayedCell.cell)
+
+        let selectedStates = components.sut.items.map { $0.isSelected.get() == true }
+        let expectedStates = [false, true] + Array(repeating: false, count: 14)
+        XCTAssertEqual(selectedStates, expectedStates)
+        assertSingleSelection(callbackResult, expectedID: "2")
+        assertSingleSelection(components.flowSpy.capturedCloseResult.last ?? nil, expectedID: "2")
+    }
+
+    func test_selectingMultipleItemFromDisplayedRows_updatesSelection_thenFinishReturnsItems() {
+        var callbackResult: SelectionType?
+        let components = makeSUT(callback: { callbackResult = $0 })
+        components.sut.viewDidLoad()
+
+        let displayedCell = components.viewSpy.capturedDisplayItems
+            .last?
+            .items
+            .first?
+            .cells[1]
+        guard let displayedCell else {
+            return XCTFail("Expected displayed selection row")
+        }
+        displayedCell.onTap?(IndexPath(row: 1, section: 0), displayedCell.cell)
+
+        XCTAssertEqual(components.sut.items[1].isSelected.get(), true)
+        XCTAssertNil(callbackResult)
+        XCTAssertTrue(components.flowSpy.capturedCloseResult.isEmpty)
+        XCTAssertEqual(components.viewSpy.capturedDisplayItems.count, 2)
+
+        components.selectButton.capturedDisplayModel.first??.onPress?()
+
+        assertMultipleSelection(callbackResult, expectedIDs: ["2"])
+        assertMultipleSelection(components.flowSpy.capturedCloseResult.last ?? nil, expectedIDs: ["2"])
+    }
+
+    func test_finishingMultipleSelectionAfterSearch_returnsSelectionsFromFullList() {
+        var callbackResult: SelectionType?
+        let components = makeSUT(callback: { callbackResult = $0 })
+        components.sut.items[1].isSelected.set(model: true)
+        components.sut.items[4].isSelected.set(model: true)
+        components.sut.viewDidLoad()
+
+        components.sut.onSearch("Item 1")
+        let filteredCell = components.viewSpy.capturedDisplayItems
+            .last?
+            .items
+            .first?
+            .cells
+            .first
+        guard let filteredCell else {
+            return XCTFail("Expected filtered selection row")
+        }
+        filteredCell.onTap?(IndexPath(row: 0, section: 0), filteredCell.cell)
+
+        components.selectButton.capturedDisplayModel.first??.onPress?()
+
+        assertMultipleSelection(callbackResult, expectedIDs: ["1", "2", "5"])
+        assertMultipleSelection(
+            components.flowSpy.capturedCloseResult.last ?? nil,
+            expectedIDs: ["1", "2", "5"]
+        )
+    }
     
     func test_viewDidLoad_headerOutput_backButton_onPress() {
         // GIVEN
@@ -228,7 +308,10 @@ fileprivate extension SelectionPresenterTests {
         let flowSpy: SelectionFlowSpy
     }
     
-    func makeSUT(isMultipleSelection: Bool = true) -> SUTComponents {
+    func makeSUT(
+        isMultipleSelection: Bool = true,
+        callback: ((SelectionType?) -> Void)? = nil
+    ) -> SUTComponents {
         
         let items = (1...16).map { index in
             SelectionType.SelectionCellPresentableModel(
@@ -249,7 +332,7 @@ fileprivate extension SelectionPresenterTests {
             title: "Select",
             isMultipleSelectionEnabled: isMultipleSelection,
             items: items,
-            callback: nil,
+            callback: callback,
             emptyViewPresentableModel: .init(title: .text("Empty View")),
             screenViewAnalytics: nil)
         
@@ -287,8 +370,32 @@ fileprivate extension SelectionPresenterTests {
             flowSpy: flow
         )
     }
+
+    func assertSingleSelection(
+        _ result: SelectionType?,
+        expectedID: String,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        guard case let .singleSelection(item) = result else {
+            return XCTFail("Expected singleSelection", file: file, line: line)
+        }
+        XCTAssertEqual(item.id, expectedID, file: file, line: line)
+    }
+
+    func assertMultipleSelection(
+        _ result: SelectionType?,
+        expectedIDs: [String],
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        guard case let .multipleSelection(items) = result else {
+            return XCTFail("Expected multipleSelection", file: file, line: line)
+        }
+        XCTAssertEqual(items.map(\.id), expectedIDs, file: file, line: line)
+    }
     
-    private func nurSelection(isMultiply: Bool = false) -> SelectionConfiguration{
+    private func nurSelection(isMultiply: Bool = false) -> SelectionConfiguration {
         SelectionConfiguration(
             texts: SelectionConfiguration.Texts(
                 searchTitle: "Поиск",
@@ -328,7 +435,7 @@ fileprivate extension SelectionPresenterTests {
             ),
             searchBar: SelectionConfiguration.SearchBar.init(
                 textfieldAppearence: nurTextfieldAppearance(placeholderText: "placeholder"),
-                searchImage: Image(systemName: "magnifyingglass")!,
+                searchImage: Image(systemName: "magnifyingglass") ?? Image(),
                 tintColor: .lightGray
             ),
             resetButtonColors: SelectionConfiguration.ResetButtonColors(
@@ -343,7 +450,7 @@ fileprivate extension SelectionPresenterTests {
     }
     
     private func nurTextfieldAppearance(placeholderText: String? = nil) -> TextfieldAppearance {
-        TextfieldAppearance (
+        TextfieldAppearance(
             colors: .init(
                 textColor: .black,
                 selectedBorderColor: .blue,

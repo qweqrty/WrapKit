@@ -89,10 +89,11 @@ public struct SUIEmptyViewContent: View {
                 }
             }
             if !isButtonHidden {
+                let effectiveButtonModel = buttonModel ?? .init()
                 SUIButtonView(
-                    model: emptyButtonModel(from: buttonModel ?? .init()),
-                    onPress: buttonModel?.onPress,
-                    isEnabled: true,
+                    model: effectiveButtonModel,
+                    onPress: effectiveButtonModel.onPress,
+                    isEnabled: effectiveButtonModel.enabled ?? true,
                     fillsAvailableHeight: false
                 )
                 .frame(minHeight: systemButtonMinimumHeight)
@@ -106,19 +107,10 @@ public struct SUIEmptyViewContent: View {
             model: model,
             font: .systemFont(ofSize: 20),
             textColor: .label,
-            textAlignment: .natural
+            textAlignment: .center
         )
         .fixedSize(horizontal: false, vertical: true)
-    }
-
-    private func emptyButtonModel(from model: ButtonPresentableModel) -> ButtonPresentableModel {
-        ButtonPresentableModel(
-            accessibilityIdentifier: model.accessibilityIdentifier,
-            title: model.title,
-            spacing: model.spacing,
-            style: model.style,
-            onPress: model.onPress
-        )
+        .frame(maxWidth: .infinity, alignment: .center)
     }
 
     private var systemButtonMinimumHeight: CGFloat? {

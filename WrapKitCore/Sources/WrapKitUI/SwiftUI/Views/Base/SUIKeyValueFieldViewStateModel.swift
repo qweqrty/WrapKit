@@ -87,6 +87,7 @@ private extension SUIKeyValueFieldViewStateModel {
         self.bottomImage = bottomImage
         isBottomImageSlotHidden = bottomImage == nil
         bottomImageAdapter.display(model: bottomImage)
+        updateVisibility()
     }
 
     func updateVisibility() {

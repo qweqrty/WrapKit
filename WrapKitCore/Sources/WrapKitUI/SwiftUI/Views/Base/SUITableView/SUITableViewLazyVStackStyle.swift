@@ -36,18 +36,40 @@ public struct SUITableViewLazyVStackStyle {
                 if let header = section.header {
                     headerContent(header)
                 }
-                ForEach(section.cells.indices, id: \.self) { rowIndex in
-                    let cellModel = section.cells[rowIndex]
-                    cellContent(cellModel.cell, IndexPath(row: rowIndex, section: sectionIndex))
-                        .id("\(sectionIndex)_\(rowIndex)")
-                        .onTapGesture {
-                            cellModel.onTap?(IndexPath(row: rowIndex, section: sectionIndex), cellModel.cell)
-                        }
+                ForEach(suiTableIdentifiedCells(section.cells), id: \.id) { identifiedCell in
+                    let rowIndex = identifiedCell.rowIndex
+                    let cellModel = identifiedCell.model
+                    let indexPath = IndexPath(row: rowIndex, section: sectionIndex)
+                    row(
+                        cellModel: cellModel,
+                        indexPath: indexPath,
+                        content: cellContent(cellModel.cell, indexPath)
+                    )
                 }
                 if let footer = section.footer {
                     footerContent(footer)
                 }
             }
+        }
+    }
+
+    @ViewBuilder
+    private func row<Cell: Hashable, Content: View>(
+        cellModel: CellModel<Cell>,
+        indexPath: IndexPath,
+        content: Content
+    ) -> some View {
+        if let onTap = cellModel.onTap {
+            SwiftUI.Button {
+                onTap(indexPath, cellModel.cell)
+            } label: {
+                content
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+        } else {
+            content
         }
     }
 }

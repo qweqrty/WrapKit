@@ -10,12 +10,11 @@ import UIKit
 #if canImport(SwiftUI)
 import SwiftUI
 
-final class PairedSwitchControlSnapshotSUT: SwitchCotrolOutput, LoadingOutput, PairedSnapshotSource {
+final class PairedSwitchControlSnapshotSUT: SwitchCotrolOutput, LoadingOutput, PairedSnapshotParitySource {
     let uiKitView: SwitchControl
 
     private let uiKitContainer: UIView
     private let swiftUIAdapter: SwitchCotrolOutputSwiftUIAdapter
-    private var swiftUIBackgroundColor: UIColor?
     private var swiftUIStyle: SwitchControlPresentableModel.Style?
 
     init(
@@ -40,7 +39,11 @@ final class PairedSwitchControlSnapshotSUT: SwitchCotrolOutput, LoadingOutput, P
         get { uiKitView.backgroundColor }
         set {
             uiKitView.backgroundColor = newValue
-            swiftUIBackgroundColor = newValue
+            guard let newValue, let style = swiftUIStyle else { return }
+            let effectiveStyle = style.replacingBackgroundColor(with: newValue)
+            swiftUIStyle = effectiveStyle
+            uiKitView.display(style: effectiveStyle)
+            swiftUIAdapter.display(style: effectiveStyle)
         }
     }
 
@@ -52,7 +55,9 @@ final class PairedSwitchControlSnapshotSUT: SwitchCotrolOutput, LoadingOutput, P
     func display(model: SwitchControlPresentableModel?) {
         uiKitView.display(model: model)
         swiftUIAdapter.display(model: model)
-        swiftUIStyle = model?.style
+        if let style = model?.style {
+            swiftUIStyle = style
+        }
     }
 
     func display(onPress: ((SwitchCotrolOutput & LoadingOutput) -> Void)?) {
@@ -85,12 +90,28 @@ final class PairedSwitchControlSnapshotSUT: SwitchCotrolOutput, LoadingOutput, P
         uiKitContainer.snapshot(for: appearance.uiKitConfiguration)
     }
 
+    func uiKitParitySnapshot(for appearance: SnapshotAppearance) -> UIImage {
+        let container = UIView(frame: uiKitContainer.bounds)
+        container.backgroundColor = uiKitContainer.backgroundColor
+
+        let paritySwitch = SwitchControl()
+        paritySwitch.display(style: swiftUIStyle)
+        if swiftUIStyle == nil {
+            paritySwitch.backgroundColor = uiKitView.backgroundColor
+        }
+        paritySwitch.frame = CGRect(origin: .zero, size: paritySwitch.intrinsicContentSize)
+        container.addSubview(paritySwitch)
+        paritySwitch.display(isOn: uiKitView.isOn)
+        paritySwitch.display(isEnabled: uiKitView.isEnabled)
+        paritySwitch.display(isHidden: uiKitView.isHidden)
+
+        return container.snapshot(for: appearance.uiKitConfiguration)
+    }
+
     @available(iOS 17.0, *)
     func swiftUISnapshot(for appearance: SnapshotAppearance) -> UIImage {
         let rootView = SnapshotMirroredSwitchControlContainer(
-            content: AnyView(SUISwitchControl(adapter: swiftUIAdapter)),
-            backgroundColor: swiftUIBackgroundColor ?? swiftUIStyle?.backgroundColor ?? .clear,
-            cornerRadius: swiftUIStyle?.cornerRadius ?? 0
+            content: AnyView(SUISwitchControl(adapter: swiftUIAdapter))
         )
         .environment(\.colorScheme, appearance.colorScheme)
 
@@ -116,41 +137,31 @@ final class PairedSwitchControlSnapshotSUT: SwitchCotrolOutput, LoadingOutput, P
 @available(iOS 17.0, *)
 private struct SnapshotMirroredSwitchControlContainer: View {
     let content: AnyView
-    let backgroundColor: UIColor
-    let cornerRadius: CGFloat
-
-    private let constrainedWidth: CGFloat = 200
-    private let constrainedHeight: CGFloat = 50
-    private let switchAlignmentRectOverflow: CGFloat = 2
 
     var body: some View {
         VStack(spacing: 0) {
-            HStack {
+            HStack(spacing: 0) {
                 content
-                    .frame(
-                        width: constrainedWidth,
-                        height: constrainedHeight,
-                        alignment: .topLeading
-                    )
-                    .frame(
-                        width: constrainedWidth + switchAlignmentRectOverflow,
-                        height: constrainedHeight,
-                        alignment: .topLeading
-                    )
-                    .background(SwiftUIColor(backgroundColor))
-                    .clipShape(
-                        RoundedRectangle(
-                            cornerRadius: cornerRadius,
-                            style: .circular
-                        )
-                    )
-                Spacer()
+                    .fixedSize()
+                Spacer(minLength: 0)
             }
             Spacer(minLength: 0)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .background(SwiftUIColor.clear)
         .ignoresSafeArea(.all)
+    }
+}
+
+private extension SwitchControlPresentableModel.Style {
+    func replacingBackgroundColor(with backgroundColor: UIColor) -> Self {
+        .init(
+            tintColor: tintColor,
+            thumbTintColor: thumbTintColor,
+            backgroundColor: backgroundColor,
+            cornerRadius: cornerRadius,
+            shimmerStyle: shimmerStyle
+        )
     }
 }
 #endif

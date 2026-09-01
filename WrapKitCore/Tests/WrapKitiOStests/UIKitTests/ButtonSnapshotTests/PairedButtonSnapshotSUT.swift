@@ -3,7 +3,7 @@
 //  WrapKitTests
 //
 
-import WrapKit
+@testable import WrapKit
 import WrapKitTestUtils
 import UIKit
 
@@ -28,7 +28,7 @@ final class PairedButtonSnapshotSUT: ButtonOutput, LoadingOutput, PairedSnapshot
         container.frame = CGRect(x: 0, y: 0, width: 390, height: 300)
         container.backgroundColor = .clear
         container.addSubview(uiKitButton)
-        uiKitButton.anchor(
+        uiKitButton.anchoredConstraints = uiKitButton.anchor(
             .top(container.topAnchor, constant: 0, priority: .required),
             .leading(container.leadingAnchor, constant: 0, priority: .required),
             .trailing(container.trailingAnchor, constant: 0, priority: .required),
@@ -41,10 +41,18 @@ final class PairedButtonSnapshotSUT: ButtonOutput, LoadingOutput, PairedSnapshot
         self.swiftUIAdapter = swiftUIAdapter
         self.loadingAdapter = loadingAdapter
         swiftUIAdapter.display(height: height)
+        let stateModel = SUIButtonStateModel(
+            adapter: swiftUIAdapter,
+            loadingAdapter: loadingAdapter
+        )
         self.swiftUIView = AnyView(
             SUIButton(
-                adapter: swiftUIAdapter,
-                loadingAdapter: loadingAdapter
+                stateModel: stateModel,
+                loadingIndicatorPhase: .fixed(
+                    strokeStart: 0,
+                    strokeEnd: 1,
+                    rotation: .zero
+                )
             )
         )
     }

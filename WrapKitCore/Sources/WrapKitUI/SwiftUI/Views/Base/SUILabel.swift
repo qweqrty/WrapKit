@@ -9,6 +9,9 @@ import Foundation
 #if canImport(SwiftUI)
 import SwiftUI
 import CoreText
+#if canImport(UIKit) && !os(watchOS)
+import UIKit
+#endif
 
 private final class CoreTextAttachmentMetrics {
     let bounds: CGRect
@@ -55,6 +58,18 @@ public struct SUILabel: View {
         textAlignment: TextAlignment = .natural
     ) {
         _stateModel = StateObject(wrappedValue: SUILabelStateModel(adapter: adapter))
+        self.defaultFont = font
+        self.defaultTextColor = textColor
+        self.defaultTextAlignment = textAlignment
+    }
+
+    init(
+        stateModel: SUILabelStateModel,
+        font: Font = .systemFont(ofSize: 20),
+        textColor: Color = .label,
+        textAlignment: TextAlignment = .natural
+    ) {
+        _stateModel = StateObject(wrappedValue: stateModel)
         self.defaultFont = font
         self.defaultTextColor = textColor
         self.defaultTextAlignment = textAlignment
@@ -158,17 +173,22 @@ public struct SUILabelView: View, Animatable {
                     }
                 } else if let attributedContent {
                     if #available(iOS 15, macOS 12, tvOS 15, watchOS 8, *) {
-                        CoreTextAttributedLabel(
-                            attributedText: coreTextAttributedString(
-                                from: attributedContent.attributedText
-                            ),
-                            alignment: effectiveTextAlignment(
-                                in: attributedContent.attributedText,
-                                fallback: defaultTextAlignment
-                            ),
-                            tapActions: attributedContent.tapActions
-                        )
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+#if canImport(UIKit) && !os(watchOS)
+                        if isHTMLAttributedModel {
+                            SUIHTMLAttributedLabel(
+                                attributedText: attributedContent.attributedText,
+                                font: defaultFont,
+                                textColor: defaultTextColor,
+                                textAlignment: defaultTextAlignment
+                            )
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .clipped()
+                        } else {
+                            coreTextLabel(for: attributedContent)
+                        }
+#else
+                        coreTextLabel(for: attributedContent)
+#endif
                     } else {
                         verticallyCenteredContent {
                             Text(attributedContent.attributedText.string)
@@ -201,6 +221,22 @@ public struct SUILabelView: View, Animatable {
             hint: model.accessibility?.hint,
             isTappable: hasTappableAttributes
         ))
+    }
+
+    @available(iOS 15, macOS 12, tvOS 15, watchOS 8, *)
+    private func coreTextLabel(for attributedContent: SUILabelAttributedContent) -> some View {
+        CoreTextAttributedLabel(
+            attributedText: coreTextAttributedString(
+                from: attributedContent.attributedText
+            ),
+            alignment: effectiveTextAlignment(
+                in: attributedContent.attributedText,
+                fallback: defaultTextAlignment
+            ),
+            usesFoundationLayoutMetrics: isHTMLAttributedModel,
+            tapActions: attributedContent.tapActions
+        )
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     private var hasTappableAttributes: Bool {
@@ -457,6 +493,47 @@ public struct SUILabelView: View, Animatable {
 
 }
 
+#if canImport(UIKit) && !os(watchOS)
+private struct SUIHTMLAttributedLabel: UIViewRepresentable {
+    let attributedText: NSAttributedString
+    let font: Font
+    let textColor: Color
+    let textAlignment: TextAlignment
+
+    func makeUIView(context: Context) -> Label {
+        let label = Label(
+            font: font,
+            textColor: textColor,
+            textAlignment: textAlignment,
+            numberOfLines: 0
+        )
+        label.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        label.setContentHuggingPriority(.defaultLow, for: .vertical)
+        label.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+        label.setContentCompressionResistancePriority(.defaultLow, for: .vertical)
+        return label
+    }
+
+    func updateUIView(_ label: Label, context: Context) {
+        label.font = font
+        label.textColor = textColor
+        label.textAlignment = textAlignment
+        label.numberOfLines = 0
+        label.attributedText = attributedText
+    }
+
+    @available(iOS 16.0, tvOS 16.0, *)
+    func sizeThatFits(
+        _ proposal: ProposedViewSize,
+        uiView: Label,
+        context: Context
+    ) -> CGSize? {
+        guard let width = proposal.width, let height = proposal.height else { return nil }
+        return CGSize(width: width, height: height)
+    }
+}
+#endif
+
 private struct SUILabelAttributedContent {
     let attributedText: NSAttributedString
     let tapActions: [SUILabelTapAction]
@@ -521,6 +598,7 @@ private struct CoreTextAttributedLabel: View {
 
     let attributedText: NSAttributedString
     let alignment: TextAlignment
+    let usesFoundationLayoutMetrics: Bool
     let tapActions: [SUILabelTapAction]
 
     var body: some View {
@@ -546,11 +624,13 @@ private struct CoreTextAttributedLabel: View {
                     bitmapContext.textMatrix = .identity
                     bitmapContext.translateBy(x: 0, y: size.height)
                     bitmapContext.scaleBy(x: 1, y: -1)
+                    bitmapContext.saveGState()
                     bitmapContext.translateBy(x: 0, y: layout.verticalInset)
                     bitmapContext.setAllowsAntialiasing(true)
                     bitmapContext.setShouldAntialias(true)
                     bitmapContext.setShouldSmoothFonts(true)
                     draw(frame: layout.frame, in: bitmapContext, scale: scale)
+                    bitmapContext.restoreGState()
 
                     guard let image = bitmapContext.makeImage() else { return }
                     context.withCGContext { cgContext in
@@ -565,8 +645,29 @@ private struct CoreTextAttributedLabel: View {
                         canvasHeight: size.height,
                         verticalInset: layout.verticalInset
                     ) {
+#if canImport(UIKit) && !os(watchOS)
+                        let image = rasterizedUIKitAttachment(
+                            placement.image,
+                            size: placement.rect.size,
+                            scale: scale
+                        )
+                        context.draw(SwiftUIImage(image: image), in: placement.rect)
+#else
                         context.draw(SwiftUIImage(image: placement.image), in: placement.rect)
+#endif
                     }
+
+#if canImport(UIKit) && !os(watchOS)
+                    if let underlineImage = rasterizedUIKitUnderlineDecoration(
+                        canvasSize: size,
+                        scale: scale
+                    ) {
+                        context.draw(
+                            SwiftUIImage(image: underlineImage),
+                            in: CGRect(origin: .zero, size: size)
+                        )
+                    }
+#endif
                 }
 
                 ForEach(tapRegions(in: geometry.size)) { region in
@@ -587,17 +688,32 @@ private struct CoreTextAttributedLabel: View {
 
         let text = textAttributedStringWithoutUnderline(from: attributedText)
         let framesetter = CTFramesetterCreateWithAttributedString(text as CFAttributedString)
-        let suggestedSize = CTFramesetterSuggestFrameSizeWithConstraints(
-            framesetter,
-            CFRange(location: 0, length: text.length),
-            nil,
-            CGSize(width: size.width, height: .greatestFiniteMagnitude),
-            nil
-        )
-        let textHeight = min(ceil(suggestedSize.height), size.height)
-        let verticalInset = max((size.height - textHeight) / 2, 0)
+        let textHeight: CGFloat
+        let verticalInset: CGFloat
+        if usesFoundationLayoutMetrics {
+            let measuredHeight = text.boundingRect(
+                with: CGSize(width: size.width, height: .greatestFiniteMagnitude),
+                options: [.usesLineFragmentOrigin],
+                context: nil
+            ).height
+            let scale = max(displayScale, 1)
+            textHeight = max(ceil(measuredHeight * scale) / scale, 1)
+            verticalInset = textHeight > size.height
+                ? size.height - textHeight
+                : (size.height - textHeight) / 2
+        } else {
+            let suggestedSize = CTFramesetterSuggestFrameSizeWithConstraints(
+                framesetter,
+                CFRange(location: 0, length: text.length),
+                nil,
+                CGSize(width: size.width, height: .greatestFiniteMagnitude),
+                nil
+            )
+            textHeight = min(ceil(suggestedSize.height), size.height)
+            verticalInset = max((size.height - textHeight) / 2, 0)
+        }
         let path = CGPath(
-            rect: CGRect(x: 0, y: 0, width: size.width, height: max(textHeight, 1)),
+            rect: CGRect(x: 0, y: 0, width: size.width, height: textHeight),
             transform: nil
         )
         let frame = CTFramesetterCreateFrame(
@@ -717,6 +833,9 @@ private struct CoreTextAttributedLabel: View {
             guard let rawValue else { return }
             let style = UnderlineStyle(rawValue: rawValue)
 
+#if canImport(UIKit) && !os(watchOS)
+            mutable.removeAttribute(.underlineStyle, range: range)
+#else
             if style.contains(.byWord) || style.contains(.double) || style.contains(.thick) {
                 mutable.addAttribute(
                     coreTextManualUnderlineStyleKey,
@@ -725,6 +844,7 @@ private struct CoreTextAttributedLabel: View {
                 )
                 mutable.removeAttribute(.underlineStyle, range: range)
             }
+#endif
         }
 
         return mutable
@@ -787,9 +907,102 @@ private struct CoreTextAttributedLabel: View {
             let origin = lineOrigins[lineIndex]
             context.textPosition = origin
             CTLineDraw(line, context)
+#if !(canImport(UIKit) && !os(watchOS))
             drawUnderlineSegments(for: line, at: origin, in: context, scale: scale)
+#endif
         }
     }
+
+#if canImport(UIKit) && !os(watchOS)
+    private func rasterizedUIKitAttachment(
+        _ image: UIImage,
+        size: CGSize,
+        scale: CGFloat
+    ) -> UIImage {
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = scale
+        format.opaque = false
+        return UIGraphicsImageRenderer(size: size, format: format).image { _ in
+            image.draw(in: CGRect(origin: .zero, size: size))
+        }
+    }
+
+    private func rasterizedUIKitUnderlineDecoration(
+        canvasSize: CGSize,
+        scale: CGFloat
+    ) -> UIImage? {
+        guard let decoration = underlineDecorationAttributedString() else { return nil }
+
+        let textStorage = NSTextStorage(attributedString: decoration)
+        let layoutManager = NSLayoutManager()
+        let textContainer = NSTextContainer(size: canvasSize)
+        textContainer.lineFragmentPadding = 0
+        textContainer.maximumNumberOfLines = 0
+        layoutManager.addTextContainer(textContainer)
+        textStorage.addLayoutManager(layoutManager)
+
+        let glyphRange = layoutManager.glyphRange(for: textContainer)
+        guard glyphRange.length > 0 else { return nil }
+        let usedRect = layoutManager.usedRect(for: textContainer)
+        let drawingOrigin = CGPoint(
+            x: 0,
+            y: (canvasSize.height - usedRect.height) / 2 - usedRect.minY
+        )
+
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = scale
+        format.opaque = false
+        return UIGraphicsImageRenderer(size: canvasSize, format: format).image { _ in
+            layoutManager.drawGlyphs(forGlyphRange: glyphRange, at: drawingOrigin)
+        }
+    }
+
+    private func underlineDecorationAttributedString() -> NSAttributedString? {
+        let mutable = NSMutableAttributedString(attributedString: attributedText)
+        let wholeRange = NSRange(location: 0, length: mutable.length)
+        var containsUnderline = false
+
+        mutable.enumerateAttributes(in: wholeRange) { attributes, range, _ in
+            mutable.addAttribute(.foregroundColor, value: UIColor.clear, range: range)
+
+            guard let rawValue = underlineRawValue(from: attributes[.underlineStyle]), rawValue != 0 else {
+                return
+            }
+            containsUnderline = true
+            let sourceColor = attributes[.underlineColor]
+                ?? attributes[.foregroundColor]
+                ?? UIColor.label
+            mutable.addAttribute(
+                .underlineColor,
+                value: resolvedUIKitColor(from: sourceColor),
+                range: range
+            )
+        }
+
+        mutable.enumerateAttribute(.attachment, in: wholeRange) { value, range, _ in
+            guard let attachment = value as? NSTextAttachment else { return }
+            let transparentAttachment = NSTextAttachment()
+            transparentAttachment.bounds = attachment.bounds
+            transparentAttachment.image = UIImage()
+            mutable.addAttribute(.attachment, value: transparentAttachment, range: range)
+        }
+
+        return containsUnderline ? mutable : nil
+    }
+
+    private func underlineRawValue(from value: Any?) -> Int? {
+        if let number = value as? NSNumber {
+            return number.intValue
+        }
+        return value as? Int
+    }
+
+    private func resolvedUIKitColor(from value: Any) -> UIColor {
+        guard let color = value as? UIColor else { return .label }
+        let style: UIUserInterfaceStyle = colorScheme == .dark ? .dark : .light
+        return color.resolvedColor(with: UITraitCollection(userInterfaceStyle: style))
+    }
+#endif
 
     private func drawUnderlineSegments(for line: CTLine, at origin: CGPoint, in context: CGContext, scale: CGFloat) {
         let runs = CTLineGetGlyphRuns(line) as? [CTRun] ?? []
@@ -881,7 +1094,7 @@ private struct CoreTextAttributedLabel: View {
 
     private func coreTextFont(from value: Any?) -> CTFont? {
         if let font = value as? Font {
-            return CTFontCreateWithName(font.fontName as CFString, font.pointSize, nil)
+            return font as CTFont
         }
         guard let object = value as AnyObject?,
               CFGetTypeID(object) == CTFontGetTypeID()
@@ -1075,7 +1288,7 @@ extension NSUnderlineStyle {
         if #available(macOS 26.0, *) {
             $0.lineHeight(.multiple(factor: 1.17))
         } else {
-            // MARK: - TODO
+            // Line-height customization is unavailable on this platform.
         }
     } }
     .frame(height: 150, alignment: .center)
@@ -1090,7 +1303,7 @@ extension NSUnderlineStyle {
         if #available(macOS 26.0, *) {
             $0.lineHeight(.multiple(factor: 1.17))
         } else {
-            // MARK: - TODO
+            // Line-height customization is unavailable on this platform.
         }
     } }
     .frame(height: 150, alignment: .center)

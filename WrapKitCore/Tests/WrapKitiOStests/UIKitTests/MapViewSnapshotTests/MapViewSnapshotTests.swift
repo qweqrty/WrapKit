@@ -11,6 +11,18 @@ import XCTest
 
 final class MapViewSnapshotTests: XCTestCase {
 
+    func test_mapView_zoomButtonsKeepExplicitSquareCornersAfterLayout() {
+        let (sut, container) = makeSUT()
+
+        container.layoutIfNeeded()
+
+        XCTAssertEqual(sut.uiKitView.plusView.layer.cornerRadius, 0)
+        XCTAssertEqual(sut.uiKitView.minusView.layer.cornerRadius, 0)
+        XCTAssertEqual(sut.uiKitView.locationView.layer.maskedCorners, .allCorners)
+        XCTAssertEqual(sut.uiKitView.locationView.layer.cornerRadius, 8)
+        XCTAssertTrue(sut.uiKitView.locationView.layer.masksToBounds)
+    }
+
     func test_mapView_default_state() {
         let (sut, container) = makeSUT()
         let snapshotName = "MAPVIEW_DEFAULT_STATE"

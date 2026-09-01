@@ -20,6 +20,9 @@ import UIKit
 public class SegmentedControlOutputSwiftUIAdapter: ObservableObject, SegmentedControlOutput {
 
 
+
+
+
     // Initializer
     public init(
     ) {

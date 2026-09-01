@@ -74,7 +74,6 @@ final class PairedNavigationBarSnapshotSUT: NSObject, HeaderOutput, PairedSnapsh
     func swiftUISnapshot(for appearance: SnapshotAppearance) -> UIImage {
         let rootView = SnapshotMirroredNavigationBarContainer(adapter: swiftUIAdapter)
             .environment(\.colorScheme, appearance.colorScheme)
-            .ignoresSafeArea(.all)
         let hostingController = UIHostingController(rootView: rootView)
         hostingController.overrideUserInterfaceStyle = appearance.userInterfaceStyle
         hostingController.view.backgroundColor = .clear
@@ -95,16 +94,24 @@ final class PairedNavigationBarSnapshotSUT: NSObject, HeaderOutput, PairedSnapsh
 
 @available(iOS 17.0, *)
 private struct SnapshotMirroredNavigationBarContainer: View {
-    let adapter: HeaderOutputSwiftUIAdapter
+    @ObservedObject var adapter: HeaderOutputSwiftUIAdapter
 
     var body: some View {
         VStack(spacing: 0) {
             SUINavigationBar(adapter: adapter)
                 .frame(maxWidth: .infinity, alignment: .top)
+                .background(headerBackground.ignoresSafeArea(edges: .top))
             Spacer(minLength: 0)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .background(SwiftUIColor.clear)
+    }
+
+    private var headerBackground: SwiftUIColor {
+        let color = adapter.displayStyleState?.style?.backgroundColor
+            ?? adapter.displayModelState?.model.style?.backgroundColor
+            ?? .clear
+        return SwiftUIColor(color)
     }
 }
 #endif

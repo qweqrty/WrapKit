@@ -21,6 +21,9 @@ public class LoadingOutputSwiftUIAdapter: ObservableObject, LoadingOutput {
         @Published public var isLoading: Bool? = nil
 
 
+
+
+
     // Initializer
     public init(
     ) {

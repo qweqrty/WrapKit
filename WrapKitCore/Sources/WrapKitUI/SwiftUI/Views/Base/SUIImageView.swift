@@ -12,6 +12,10 @@ import SwiftUI
 import Kingfisher
 import Combine
 
+#if canImport(UIKit)
+import UIKit
+#endif
+
 public struct SUIImageView: View {
     let viewWhileLoadingView: AnyView?
     let fallbackView: AnyView?
@@ -71,7 +75,7 @@ public struct SUIImageView: View {
                         fallbackViewOrEmpty
                     }
 
-                    if isLoading {
+                    if shouldShowLoadingView {
                         loadingView
                     }
                 }
@@ -91,6 +95,20 @@ public struct SUIImageView: View {
 
     private var model: ImageViewPresentableModel {
         stateModel.model
+    }
+
+    private var shouldShowLoadingView: Bool {
+        if isLoading { return true }
+
+        // Output updates can be delivered before SwiftUI executes the reload callback. UIKit
+        // reveals its loading view synchronously for a valid remote URL, so derive that first
+        // frame from the model as well instead of briefly rendering an empty image container.
+        guard resolvedRemoteURL(for: colorScheme) != nil,
+              loadedImage == nil,
+              cachedRemoteImage(for: colorScheme) == nil,
+              !hasError
+        else { return false }
+        return true
     }
 
     @ViewBuilder
@@ -131,13 +149,55 @@ public struct SUIImageView: View {
 
     @ViewBuilder
     private func contentView(_ image: Image) -> some View {
+        #if canImport(UIKit)
+        if shouldRasterizeAssetSymbol {
+            resizableContentView(SUIVectorImageRasterCache.shared.image(for: image))
+        } else if shouldPrepareWrongURLPlaceholder, image.isSymbolImage {
+            preparedWrongURLPlaceholder(image)
+        } else {
+            resizableContentView(image)
+        }
+        #else
+        resizableContentView(image)
+        #endif
+    }
+
+    private var shouldRasterizeAssetSymbol: Bool {
+        guard case .asset = model.image else { return false }
+        return true
+    }
+
+    private var shouldPrepareWrongURLPlaceholder: Bool {
+        guard model.image?.isRemote == true else { return false }
+        return resolvedRemoteURL(for: colorScheme) == nil
+    }
+
+    #if canImport(UIKit)
+    private func preparedWrongURLPlaceholder(_ image: Image) -> some View {
+        GeometryReader { geometry in
+            let preparedImage = SUIVectorImageRasterCache.shared.preparedImage(
+                for: image,
+                size: geometry.size,
+                contentModeIsFit: model.contentModeIsFit ?? true
+            )
+            SwiftUIImage(image: preparedImage)
+                .renderingMode(.template)
+                .resizable()
+                .frame(width: geometry.size.width, height: geometry.size.height)
+                .foregroundColor(SwiftUI.Color.accentColor)
+        }
+    }
+    #endif
+
+    @ViewBuilder
+    private func resizableContentView(_ image: Image) -> some View {
         if shouldRenderTemplate {
             SwiftUIImage(image: image)
                 .renderingMode(.template)
                 .resizable()
                 .modifier(OptionalAspectRatio(contentModeIsFit: model.contentModeIsFit ?? true))
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
-                .foregroundColor(.accentColor)
+                .foregroundColor(SwiftUI.Color.accentColor)
         } else {
             SwiftUIImage(image: image)
                 .resizable()
@@ -187,7 +247,7 @@ public struct SUIImageView: View {
             completion?(image)
 
         case .url(let light, let dark):
-            let url = (mode == .dark ? dark : light) ?? light
+            let url = mode == .dark ? dark : light
             if shouldSkipReload(for: url) {
                 completion?(loadedImage)
                 return
@@ -195,7 +255,7 @@ public struct SUIImageView: View {
             loadImageFromURL(url, requestID: requestID, completion: completion)
 
         case .urlString(let light, let dark):
-            let urlString = (mode == .dark ? dark : light) ?? light
+            let urlString = mode == .dark ? dark : light
             let url = urlString.flatMap(URL.init(string:))
             if shouldSkipReload(for: url) {
                 completion?(loadedImage)
@@ -220,18 +280,7 @@ public struct SUIImageView: View {
     }
 
     private func cachedRemoteImage(for mode: ColorScheme) -> Image? {
-        let resolvedURL: URL?
-        switch model.image {
-        case .url(let light, let dark):
-            resolvedURL = (mode == .dark ? dark : light) ?? light
-        case .urlString(let light, let dark):
-            let urlString = (mode == .dark ? dark : light) ?? light
-            resolvedURL = urlString.flatMap(URL.init(string:))
-        default:
-            resolvedURL = nil
-        }
-
-        guard let resolvedURL else { return nil }
+        guard let resolvedURL = resolvedRemoteURL(for: mode) else { return nil }
         if let storedImage = SUIRemoteImageCache.shared.image(for: resolvedURL) {
             return storedImage
         }
@@ -242,6 +291,18 @@ public struct SUIImageView: View {
         }
 
         return nil
+    }
+
+    private func resolvedRemoteURL(for mode: ColorScheme) -> URL? {
+        switch model.image {
+        case .url(let light, let dark):
+            return mode == .dark ? dark : light
+        case .urlString(let light, let dark):
+            let string = mode == .dark ? dark : light
+            return string.flatMap(URL.init(string:))
+        case .asset, .data, nil:
+            return nil
+        }
     }
 
     private func loadImageFromURL(
@@ -478,7 +539,7 @@ extension ImageViewPresentableModel {
             onLongPress: model.onLongPress,
             contentModeIsFit: model.contentModeIsFit ?? contentModeIsFit,
             borderWidth: model.borderWidth ?? borderWidth,
-            borderColor: model.borderColor ?? borderColor,
+            borderColor: model.borderColor?.resolvedForImageLayer ?? borderColor,
             cornerRadius: model.cornerRadius ?? cornerRadius,
             alpha: model.alpha ?? alpha,
             systemSymbolName: model.systemSymbolName
@@ -507,7 +568,7 @@ extension ImageViewPresentableModel {
     }
 
     func replacingBorderColor(_ borderColor: Color?) -> ImageViewPresentableModel {
-        replacing(borderColor: borderColor)
+        replacing(borderColor: borderColor?.resolvedForImageLayer)
     }
 
     func replacingOnPress(_ onPress: (() -> Void)?) -> ImageViewPresentableModel {
@@ -579,6 +640,18 @@ extension ImageViewPresentableModel {
     }
 }
 
+private extension Color {
+    var resolvedForImageLayer: Color {
+        #if canImport(UIKit)
+        // UIImageView stores `layer.borderColor` as a concrete CGColor when Output is called.
+        // Resolve at the same boundary so a dynamic UIColor does not change later only in SwiftUI.
+        return resolvedColor(with: UITraitCollection.current)
+        #else
+        return self
+        #endif
+    }
+}
+
 private extension ImageEnum {
     var isRemote: Bool {
         switch self {
@@ -590,6 +663,121 @@ private extension ImageEnum {
     }
 }
 
+#if canImport(UIKit)
+private final class SUIVectorImageRasterCache {
+    static let shared = SUIVectorImageRasterCache()
+
+    private let images = NSCache<UIImage, UIImage>()
+    private let placeholderImages = NSCache<SUIPlaceholderRasterKey, UIImage>()
+    private let maximumPixelDimension: CGFloat = 1_024
+
+    private init() {
+        images.countLimit = 16
+        images.totalCostLimit = 32 * 1_024 * 1_024
+        placeholderImages.countLimit = 16
+        placeholderImages.totalCostLimit = 32 * 1_024 * 1_024
+    }
+
+    func image(for image: UIImage) -> UIImage {
+        guard image.isSymbolImage else { return image }
+        if let cachedImage = images.object(forKey: image) {
+            return cachedImage
+        }
+
+        let longestDimension = max(image.size.width, image.size.height)
+        guard longestDimension > 0 else { return image }
+        let format = UIGraphicsImageRendererFormat()
+        format.opaque = false
+        format.scale = maximumPixelDimension / longestDimension
+        format.preferredRange = .extended
+        let sourceImage = image.withRenderingMode(.alwaysOriginal)
+        let rasterizedImage = UIGraphicsImageRenderer(
+            size: image.size,
+            format: format
+        ).image { _ in
+            sourceImage.draw(at: .zero)
+        }.withRenderingMode(image.renderingMode)
+        let pixelCount = Int(maximumPixelDimension * maximumPixelDimension)
+        images.setObject(rasterizedImage, forKey: image, cost: pixelCount * 4)
+        return rasterizedImage
+    }
+
+    func preparedImage(
+        for image: UIImage,
+        size: CGSize,
+        contentModeIsFit: Bool
+    ) -> UIImage {
+        guard image.isSymbolImage, size.width > 0, size.height > 0 else { return image }
+        // ImageEnum carries an unnamed UIImage, so preserve UIImageView's public SF Symbol
+        // optical sizing in a raster canvas before handing the pixels back to SwiftUI.
+        let format = UIGraphicsImageRendererFormat()
+        format.opaque = false
+        format.scale = UITraitCollection.current.displayScale
+        format.preferredRange = .extended
+        let cacheKey = SUIPlaceholderRasterKey(
+            image: image,
+            size: size,
+            contentModeIsFit: contentModeIsFit,
+            displayScale: format.scale
+        )
+        if let cachedImage = placeholderImages.object(forKey: cacheKey) {
+            return cachedImage
+        }
+        let imageView = UIImageView(image: image)
+        imageView.bounds = CGRect(origin: .zero, size: size)
+        imageView.contentMode = contentModeIsFit ? .scaleAspectFit : .scaleAspectFill
+        imageView.tintColor = .white
+        imageView.layer.contentsScale = format.scale
+        let rasterizedImage = UIGraphicsImageRenderer(
+            size: size,
+            format: format
+        ).image { context in
+            imageView.layer.render(in: context.cgContext)
+        }.withRenderingMode(image.renderingMode)
+        let pixelCount = Int(size.width * format.scale * size.height * format.scale)
+        placeholderImages.setObject(rasterizedImage, forKey: cacheKey, cost: pixelCount * 4)
+        return rasterizedImage
+    }
+}
+
+private final class SUIPlaceholderRasterKey: NSObject {
+    private let image: UIImage
+    private let size: CGSize
+    private let contentModeIsFit: Bool
+    private let displayScale: CGFloat
+
+    init(
+        image: UIImage,
+        size: CGSize,
+        contentModeIsFit: Bool,
+        displayScale: CGFloat
+    ) {
+        self.image = image
+        self.size = size
+        self.contentModeIsFit = contentModeIsFit
+        self.displayScale = displayScale
+    }
+
+    override var hash: Int {
+        var hasher = Hasher()
+        hasher.combine(ObjectIdentifier(image))
+        hasher.combine(size.width)
+        hasher.combine(size.height)
+        hasher.combine(contentModeIsFit)
+        hasher.combine(displayScale)
+        return hasher.finalize()
+    }
+
+    override func isEqual(_ object: Any?) -> Bool {
+        guard let key = object as? SUIPlaceholderRasterKey else { return false }
+        return image === key.image &&
+            size == key.size &&
+            contentModeIsFit == key.contentModeIsFit &&
+            displayScale == key.displayScale
+    }
+}
+#endif
+
 // MARK: - View Modifiers
 private struct ImageViewContainerStyle: ViewModifier {
     let model: ImageViewPresentableModel?
@@ -598,18 +786,36 @@ private struct ImageViewContainerStyle: ViewModifier {
         return model?.alpha ?? 1.0
     }
 
+    @ViewBuilder
     func body(content: Content) -> some View {
+        let cornerRadius = model?.cornerRadius ?? 0
+        if #available(iOS 26.0, tvOS 26.0, visionOS 26.0, *) {
+            styled(
+                content,
+                shape: RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+            )
+        } else {
+            styled(
+                content,
+                shape: RoundedRectangle(cornerRadius: cornerRadius, style: .circular)
+            )
+        }
+    }
+
+    private func styled<CornerShape: InsettableShape>(
+        _ content: Content,
+        shape: CornerShape
+    ) -> some View {
         content
             .modifier(OptionalFrame(size: model?.size))
             .clipped()
-            .cornerRadius(model?.cornerRadius ?? 0)
+            .clipShape(shape)
             .ifLet(model?.borderWidth) {
                 $0.overlay(
-                    RoundedRectangle(cornerRadius: model?.cornerRadius ?? 0)
-                        .strokeBorder(
-                            SwiftUIColor(model?.borderColor ?? .black),
-                            lineWidth: $1
-                        )
+                    shape.strokeBorder(
+                        SwiftUIColor(model?.borderColor ?? .black),
+                        lineWidth: $1
+                    )
                 )
             }
             .opacity(effectiveOpacity)
@@ -619,7 +825,6 @@ private struct ImageViewContainerStyle: ViewModifier {
             ))
             .modifier(ImageViewAccessibilityModifier(model: model))
     }
-
 }
 
 private struct ImageViewInteractionModifier: ViewModifier {

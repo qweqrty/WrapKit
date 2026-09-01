@@ -84,6 +84,7 @@ final class PairedImageViewSnapshotSUT: NSObject, ImageViewOutput, PairedSnapsho
             invalidateSwiftUISnapshotCache()
             uiKitImageView.wrongUrlPlaceholderImage = newValue
             configuration.wrongUrlPlaceholderImage = newValue
+            settleSwiftUIConfigurationChange()
         }
     }
 
@@ -94,12 +95,14 @@ final class PairedImageViewSnapshotSUT: NSObject, ImageViewOutput, PairedSnapsho
         invalidateSwiftUISnapshotCache()
         uiKitImageView.viewWhileLoadingView = color.map { ViewUIKit(backgroundColor: $0) }
         configuration.viewWhileLoadingView = color.map { AnyView(SwiftUI.Color(uiColor: $0)) }
+        settleSwiftUIConfigurationChange()
     }
 
     func configureFallbackView(color: UIColor?) {
         invalidateSwiftUISnapshotCache()
         uiKitImageView.fallbackView = color.map { ViewUIKit(backgroundColor: $0) }
         configuration.fallbackView = color.map { AnyView(SwiftUI.Color(uiColor: $0)) }
+        settleSwiftUIConfigurationChange()
     }
 
     func display(model: ImageViewPresentableModel?, completion: ((WrapKit.Image?) -> Void)?) {
@@ -248,6 +251,21 @@ final class PairedImageViewSnapshotSUT: NSObject, ImageViewOutput, PairedSnapsho
     private func invalidateSwiftUISnapshotCache() {
         lightSwiftUISnapshot = nil
         darkSwiftUISnapshot = nil
+    }
+
+    private func settleSwiftUIConfigurationChange() {
+        guard #available(iOS 17.0, *) else { return }
+
+        let hosts = [lightHost, darkHost].compactMap { $0 }
+        hosts.forEach {
+            $0.window.setNeedsLayout()
+            $0.window.layoutIfNeeded()
+        }
+        RunLoop.main.run(until: Date().addingTimeInterval(0.05))
+        hosts.forEach {
+            $0.window.setNeedsLayout()
+            $0.window.layoutIfNeeded()
+        }
     }
 
     @available(iOS 17, *)
