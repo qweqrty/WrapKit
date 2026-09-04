@@ -17,6 +17,10 @@ export XDG_CACHE_HOME
 project: run-sourcery tuist-setup tuist-generate
 build: run-sourcery tuist-setup
 
+# ony codegen, no tuist
+.PHONY: codegen
+codegen: run-sourcery
+
 # Run Tuist clean, install, and generate commands
 tuist-setup:
 	@echo "=== Running Tuist setup ==="
