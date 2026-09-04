@@ -175,12 +175,29 @@ private struct SUINativeSwitchView: UIViewRepresentable {
         if !nativeSwitch.isTracking, nativeSwitch.isOn != isOn {
             nativeSwitch.setOn(isOn, animated: false)
         }
-        nativeSwitch.isEnabled = isEnabled
-        nativeSwitch.accessibilityIdentifier = accessibilityIdentifier
-        nativeSwitch.onTintColor = style?.tintColor
-        nativeSwitch.thumbTintColor = style?.thumbTintColor
-        nativeSwitch.backgroundColor = style?.backgroundColor
-        nativeSwitch.applyCornerStyle(.fixed(style?.cornerRadius ?? 0))
+        if nativeSwitch.isEnabled != isEnabled {
+            nativeSwitch.isEnabled = isEnabled
+        }
+        if nativeSwitch.accessibilityIdentifier != accessibilityIdentifier {
+            nativeSwitch.accessibilityIdentifier = accessibilityIdentifier
+        }
+        if nativeSwitch.onTintColor != style?.tintColor {
+            nativeSwitch.onTintColor = style?.tintColor
+        }
+        if nativeSwitch.thumbTintColor != style?.thumbTintColor {
+            nativeSwitch.thumbTintColor = style?.thumbTintColor
+        }
+        if nativeSwitch.backgroundColor != style?.backgroundColor {
+            nativeSwitch.backgroundColor = style?.backgroundColor
+        }
+
+        let cornerRadius = style?.cornerRadius ?? 0
+        if nativeSwitch.cornerRadiusValue() != cornerRadius {
+            nativeSwitch.applyCornerStyle(.fixed(cornerRadius))
+        }
+        if nativeSwitch.clipsToBounds {
+            nativeSwitch.clipsToBounds = false
+        }
     }
 
     final class Coordinator: NSObject {

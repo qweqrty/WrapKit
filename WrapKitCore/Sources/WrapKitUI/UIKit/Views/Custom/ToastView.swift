@@ -444,17 +444,17 @@ extension ToastView: CommonToastOutput {
         case .error:
             model.leadingImage = .init(
                 size: .init(width: 32, height: 32),
-                image: .asset(ImageFactory.systemImage(named: "xmark.circle.fill")),
+                image: .symbolName("xmark.circle.fill"),
             )
         case .success:
             model.leadingImage = .init(
                 size: .init(width: 32, height: 32),
-                image: .asset(ImageFactory.systemImage(named: "checkmark.circle.fill")),
+                image: .symbolName("checkmark.circle.fill"),
             )
         case .warning:
             model.leadingImage = .init(
                 size: .init(width: 32, height: 32),
-                image: .asset(ImageFactory.systemImage(named: "exclamationmark.triangle.fill")),
+                image: .symbolName("exclamationmark.triangle.fill"),
             )
         }
         

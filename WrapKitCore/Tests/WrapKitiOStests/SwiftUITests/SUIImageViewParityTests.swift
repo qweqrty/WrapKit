@@ -7,6 +7,19 @@ import XCTest
 @MainActor
 @available(iOS 17.0, *)
 final class SUIImageViewParityTests: XCTestCase {
+    func test_symbolNameIsTheSingleImageSourceAcrossModelUpdates() {
+        let model = ImageViewPresentableModel(
+            size: .init(width: 24, height: 24),
+            image: .symbolName("checkmark.circle.fill"),
+            contentModeIsFit: true
+        )
+
+        let updated = model.replacingBorderColor(.systemBlue)
+
+        XCTAssertEqual(updated.image, .symbolName("checkmark.circle.fill"))
+        XCTAssertNotNil(ImageFactory.systemImage(named: "checkmark.circle.fill"))
+    }
+
     func test_distinctRemoteURLsFollowColorSchemeChanges() throws {
         let server = try HangingHTTPServer()
         defer { server.stop() }

@@ -257,7 +257,7 @@ final class SUIToastViewStateModel: ObservableObject {
         var model = toast.cardViewModel
         model.leadingImage = .init(
             size: .init(width: 32, height: 32),
-            image: .asset(ImageFactory.systemImage(named: iconName))
+            image: .symbolName(iconName)
         )
         currentToastOnPress = toast.onPress
         currentCardModel = model

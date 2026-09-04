@@ -85,7 +85,7 @@ final class SelectionPresenterTests: XCTestCase {
         
         XCTAssertEqual(resetButtonSpy.messages.first, .displayModel(model: model))
     }
-    
+
     func test_viewDidLoad_searchButtonOutput_displayModel() {
         // GIVEN
         let components = makeSUT()
@@ -242,6 +242,35 @@ final class SelectionPresenterTests: XCTestCase {
 
         assertMultipleSelection(callbackResult, expectedIDs: ["2"])
         assertMultipleSelection(components.flowSpy.capturedCloseResult.last ?? nil, expectedIDs: ["2"])
+    }
+
+    func test_selectionRowsKeepStableTableIdentityAfterSelectionStateChanges() {
+        let components = makeSUT()
+        components.sut.viewDidLoad()
+
+        let rowsBeforeSelection = components.viewSpy.capturedDisplayItems
+            .last?
+            .items
+            .first?
+            .cells ?? []
+        rowsBeforeSelection[0].onTap?(
+            IndexPath(row: 0, section: 0),
+            rowsBeforeSelection[0].cell
+        )
+        let rowsAfterSelection = components.viewSpy.capturedDisplayItems
+            .last?
+            .items
+            .first?
+            .cells ?? []
+
+        XCTAssertEqual(
+            rowsBeforeSelection.map(\.accessibilityIdentifier),
+            components.sut.items.map(\.id)
+        )
+        XCTAssertEqual(
+            rowsAfterSelection.map(\.accessibilityIdentifier),
+            rowsBeforeSelection.map(\.accessibilityIdentifier)
+        )
     }
 
     func test_finishingMultipleSelectionAfterSearch_returnsSelectionsFromFullList() {

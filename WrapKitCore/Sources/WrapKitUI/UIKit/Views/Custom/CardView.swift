@@ -728,11 +728,18 @@ open class CardView: ViewUIKit {
     }
     
     private func setupPriorities() {
+        let flexibleTextHuggingPriority = UILayoutPriority(
+            rawValue: UILayoutPriority.defaultLow.rawValue - 1
+        )
+
         subtitleLabel.setContentHuggingPriority(.required, for: .horizontal)
         subtitleLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
         subtitleLabel.setContentCompressionResistancePriority(.required, for: .vertical)
         
-        titleViews.keyLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        titleViewsWrapperView.setContentHuggingPriority(flexibleTextHuggingPriority, for: .horizontal)
+        titleViews.setContentHuggingPriority(flexibleTextHuggingPriority, for: .horizontal)
+        titleViews.keyLabel.setContentHuggingPriority(flexibleTextHuggingPriority, for: .horizontal)
+        titleViews.valueLabel.setContentHuggingPriority(flexibleTextHuggingPriority, for: .horizontal)
         titleViews.keyLabel.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
         titleViews.keyLabel.setContentCompressionResistancePriority(.required, for: .vertical)
         titleViews.valueLabel.setContentCompressionResistancePriority(.required, for: .vertical)

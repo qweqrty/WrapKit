@@ -44,6 +44,7 @@ public extension Color {
 
 public enum ImageEnum: HashableWithReflection {
     case asset(Image?)
+    case symbolName(String)
     case data(Data?)
     case url(URL?, URL? = nil) // Light, Dark
     case urlString(String?, String? = nil) // Light, Dark

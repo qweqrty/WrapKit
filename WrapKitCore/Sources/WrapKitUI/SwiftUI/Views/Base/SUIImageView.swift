@@ -67,8 +67,8 @@ public struct SUIImageView: View {
                 SwiftUI.EmptyView()
             } else {
                 ZStack {
-                    if let systemSymbolName = model.systemSymbolName {
-                        systemSymbolView(named: systemSymbolName)
+                    if let symbolName {
+                        systemSymbolView(named: symbolName)
                     } else if let loadedImage = loadedImage ?? cachedRemoteImage(for: colorScheme) {
                         contentView(loadedImage)
                     } else if hasError {
@@ -95,6 +95,11 @@ public struct SUIImageView: View {
 
     private var model: ImageViewPresentableModel {
         stateModel.model
+    }
+
+    private var symbolName: String? {
+        guard case .symbolName(let name) = model.image else { return nil }
+        return name
     }
 
     private var shouldShowLoadingView: Bool {
@@ -231,6 +236,15 @@ public struct SUIImageView: View {
             lastLoadedRemoteURL = nil
             completion?(image)
 
+        case .symbolName(let name):
+            downloadTask?.cancel()
+            isLoading = false
+            let image = ImageFactory.systemImage(named: name)
+            loadedImage = image
+            shouldRenderTemplate = true
+            lastLoadedRemoteURL = nil
+            completion?(image)
+
         case .data(let data):
             downloadTask?.cancel()
             isLoading = false
@@ -300,7 +314,7 @@ public struct SUIImageView: View {
         case .urlString(let light, let dark):
             let string = mode == .dark ? dark : light
             return string.flatMap(URL.init(string:))
-        case .asset, .data, nil:
+        case .asset, .symbolName, .data, nil:
             return nil
         }
     }
@@ -527,6 +541,9 @@ extension ImageViewPresentableModel {
             if case .asset(let image) = model.image {
                 return image?.size ?? self.size
             }
+            if case .symbolName(let name) = model.image {
+                return ImageFactory.systemImage(named: name)?.size ?? self.size
+            }
             return self.size
         }()
 
@@ -541,8 +558,7 @@ extension ImageViewPresentableModel {
             borderWidth: model.borderWidth ?? borderWidth,
             borderColor: model.borderColor?.resolvedForImageLayer ?? borderColor,
             cornerRadius: model.cornerRadius ?? cornerRadius,
-            alpha: model.alpha ?? alpha,
-            systemSymbolName: model.systemSymbolName
+            alpha: model.alpha ?? alpha
         )
     }
 
@@ -558,8 +574,7 @@ extension ImageViewPresentableModel {
             borderWidth: borderWidth,
             borderColor: borderColor,
             cornerRadius: cornerRadius,
-            alpha: alpha,
-            systemSymbolName: nil
+            alpha: alpha
         )
     }
 
@@ -585,30 +600,18 @@ extension ImageViewPresentableModel {
         onLongPress: (() -> Void)?? = nil,
         borderColor: Color?? = nil
     ) -> ImageViewPresentableModel {
-        let resolvedImage: ImageEnum?
-        let resolvedSystemSymbolName: String?
-        switch image {
-        case .some(let replacement):
-            resolvedImage = replacement
-            resolvedSystemSymbolName = nil
-        case .none:
-            resolvedImage = self.image
-            resolvedSystemSymbolName = systemSymbolName
-        }
-
         return ImageViewPresentableModel(
             accessibilityIdentifier: accessibilityIdentifier,
             accessibility: accessibility,
             size: size,
-            image: resolvedImage,
+            image: image ?? self.image,
             onPress: onPress ?? self.onPress,
             onLongPress: onLongPress ?? self.onLongPress,
             contentModeIsFit: contentModeIsFit,
             borderWidth: borderWidth,
             borderColor: borderColor ?? self.borderColor,
             cornerRadius: cornerRadius,
-            alpha: alpha,
-            systemSymbolName: resolvedSystemSymbolName
+            alpha: alpha
         )
     }
 
@@ -634,8 +637,7 @@ extension ImageViewPresentableModel {
             borderWidth: borderWidth ?? self.borderWidth,
             borderColor: borderColor ?? self.borderColor,
             cornerRadius: cornerRadius ?? self.cornerRadius,
-            alpha: alpha ?? self.alpha,
-            systemSymbolName: image == nil ? systemSymbolName : nil
+            alpha: alpha ?? self.alpha
         )
     }
 }
@@ -657,7 +659,7 @@ private extension ImageEnum {
         switch self {
         case .url, .urlString:
             return true
-        case .asset, .data:
+        case .asset, .symbolName, .data:
             return false
         }
     }

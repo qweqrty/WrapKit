@@ -25,7 +25,6 @@ final class SwitchControlSnapshotTests: XCTestCase {
         assertFail(snapshot: sut, named: snapshotName)
     }
 
-    // TODO: - wrong appearance on ios26
     func test_switchControl_isOn_false() {
         let sut = makeSUT()
         let snapshotName = "SWITCHCONTROL_ISON_FALSE"
@@ -226,6 +225,7 @@ final class SwitchControlSnapshotTests: XCTestCase {
         XCTAssertEqual(sut.thumbTintColor, style.thumbTintColor)
         XCTAssertEqual(sut.backgroundColor, style.backgroundColor)
         XCTAssertEqual(sut.cornerRadiusValue(), style.cornerRadius, accuracy: 0.001)
+        XCTAssertFalse(sut.clipsToBounds)
     }
 
     func test_uikitCardSwitch_mountReappliesStoredOutputStyle() {
@@ -251,6 +251,7 @@ final class SwitchControlSnapshotTests: XCTestCase {
         XCTAssertEqual(sut.switchControl.thumbTintColor, style.thumbTintColor)
         XCTAssertEqual(sut.switchControl.backgroundColor, style.backgroundColor)
         XCTAssertEqual(sut.switchControl.cornerRadiusValue(), style.cornerRadius, accuracy: 0.001)
+        XCTAssertFalse(sut.switchControl.clipsToBounds)
     }
 }
 

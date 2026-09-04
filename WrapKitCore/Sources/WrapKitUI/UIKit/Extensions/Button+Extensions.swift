@@ -32,6 +32,10 @@ public extension Button {
         case .asset(let image):
             self.animatedSet(image, animation: animation)
             completion?(image)
+        case .symbolName(let name):
+            let image = ImageFactory.systemImage(named: name)
+            self.animatedSet(image, animation: animation)
+            completion?(image)
         case .url(let lightUrl, let darkUrl):
             let url = UserInterfaceStyle.current == .light ? lightUrl : darkUrl
             self.loadImage(url, animation: animation, kingfisherOptions: kingfisherOptions, completion: completion)

@@ -49,7 +49,7 @@ extension SelectionVC: SelectionOutput {
     }
     
     public func display(items: [TableSection<Void, SelectionType.SelectionCellPresentableModel, Void>], selectedCountTitle: String) {
-        contentView.emptyView.isHidden = !items.isEmpty
+        contentView.emptyView.isHidden = !items.flatMap(\.cells).isEmpty
         datasource.display(sections: items)
         let selectedItemsCount = items.flatMap(\.cells).filter { $0.cell.isSelected.get() == true }.count
         contentView.selectButton.setTitle("\(selectedCountTitle)\(selectedItemsCount == 0 ? "" : " (\(selectedItemsCount))")", for: .normal)

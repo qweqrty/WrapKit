@@ -20,6 +20,20 @@ final class SUIStackViewLayoutTests: XCTestCase {
         XCTAssertEqual(resolution.containerLength, 100)
     }
 
+    func test_fill_stretchesTextInsteadOfTrailingSelectionIndicator() {
+        let resolution = StackMainAxisResolver.resolve(
+            idealLengths: [80, 56, 22],
+            priorities: [-1, 0, 0],
+            proposedLength: 320,
+            distribution: .fill,
+            spacing: 8
+        )
+
+        XCTAssertEqual(resolution.lengths, [226, 56, 22])
+        XCTAssertEqual(resolution.origins, [0, 234, 298])
+        XCTAssertEqual(resolution.origins[2] + resolution.lengths[2], 320)
+    }
+
     func test_fillEqually_usesLargestIntrinsicLengthWithoutProposal() {
         let resolution = StackMainAxisResolver.resolve(
             idealLengths: [20, 50, 30],

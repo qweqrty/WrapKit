@@ -291,7 +291,7 @@ private extension CommonToastCatalogPresenter {
             toastOutput?.display(.custom(.init(
                 common: toast,
                 image: isSettingOn(.customImage)
-                    ? .asset(ImageFactory.systemImage(named: "sparkles"))
+                    ? .symbolName("sparkles")
                     : nil,
                 backgroundColor: isSettingOn(.customBackground)
                     ? .systemPurple.withAlphaComponent(0.12)
