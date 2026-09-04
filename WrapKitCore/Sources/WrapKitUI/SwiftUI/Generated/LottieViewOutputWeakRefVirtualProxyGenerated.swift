@@ -10,14 +10,8 @@ import WrapKit
 #if canImport(Foundation)
 import Foundation
 #endif
-#if canImport(SwiftUI)
-import SwiftUI
-#endif
 #if canImport(Lottie)
 import Lottie
-#endif
-#if canImport(UIKit)
-import UIKit
 #endif
 
 extension LottieViewOutput {

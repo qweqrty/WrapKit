@@ -1,5 +1,5 @@
 import UIKit
-@testable import WrapKit
+import WrapKit
 import XCTest
 
 final class ViewUIKitGradientBorderTests: XCTestCase {
@@ -80,7 +80,6 @@ final class ViewUIKitGradientBorderTests: XCTestCase {
 
         let gradient = try gradientBorderLayer(in: sut)
         let mask = try XCTUnwrap(gradient.mask as? CAShapeLayer)
-        let radii = sut.cornerRadiiValue()
         let pathPoints = try XCTUnwrap(mask.path).elementEndPoints
         guard pathPoints.count >= 2 else {
             return XCTFail("Expected the mask path to contain its initial edge")
@@ -90,8 +89,6 @@ final class ViewUIKitGradientBorderTests: XCTestCase {
         XCTAssertEqual(sut.layer.maskedCorners, .allCorners)
         XCTAssertEqual(gradient.frame, sut.bounds)
         XCTAssertEqual(mask.frame, gradient.bounds)
-        XCTAssertEqual(radii.topLeft, 4)
-        XCTAssertEqual(radii.topRight, 12)
         XCTAssertEqual(pathPoints[0].x, 4, accuracy: 0.001)
         XCTAssertEqual(pathPoints[0].y, 1, accuracy: 0.001)
         XCTAssertEqual(pathPoints[1].x, 88, accuracy: 0.001)

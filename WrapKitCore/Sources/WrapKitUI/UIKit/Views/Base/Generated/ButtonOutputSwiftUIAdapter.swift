@@ -22,6 +22,10 @@ import SwiftUI
 #endif
 public class ButtonOutputSwiftUIAdapter: ObservableObject, ButtonOutput {
 
+
+
+
+
     // Initializer
     public init(
     ) {
@@ -29,14 +33,10 @@ public class ButtonOutputSwiftUIAdapter: ObservableObject, ButtonOutput {
 
     @Published public var displayModelState: DisplayModelState? = nil
     public struct DisplayModelState {
-        public let model: ButtonPresentableModel
+        public let model: ButtonPresentableModel?
     }
     public func display(model: ButtonPresentableModel?) {
-        guard let model else {
-            display(isHidden: true)
-            return
-        }
-        display(isHidden: false)
+        display(isHidden: model == nil)
         displayModelState = .init(
             model: model
         )

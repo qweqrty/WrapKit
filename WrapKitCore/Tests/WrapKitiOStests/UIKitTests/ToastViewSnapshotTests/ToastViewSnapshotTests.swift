@@ -13,7 +13,7 @@ final class ToastViewSnapshotTests: XCTestCase {
 
     private let image = UIImage(systemName: "star.fill")
     private let failImage = UIImage(systemName: "star")
-    
+
     private var testContainer: UIWindow!
     private var animationsWereEnabled = true
     
@@ -65,13 +65,7 @@ final class ToastViewSnapshotTests: XCTestCase {
         wait(for: [exp], timeout: 2.0)
         
         // THEN
-        if #available(iOS 26, *) {
-            assert(snapshot: testContainer.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: testContainer.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assert(snapshot: testContainer.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: testContainer.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assert(snapshot: sut, named: snapshotName)
         
         sut.removeFromSuperview()
     }
@@ -105,13 +99,7 @@ final class ToastViewSnapshotTests: XCTestCase {
         wait(for: [exp], timeout: 2.0)
         
         // THEN
-        if #available(iOS 26, *) {
-            assertFail(snapshot: testContainer.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: testContainer.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assertFail(snapshot: testContainer.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: testContainer.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assertFail(snapshot: sut, named: snapshotName)
         
         sut.removeFromSuperview()
     }
@@ -148,13 +136,7 @@ final class ToastViewSnapshotTests: XCTestCase {
         wait(for: [exp], timeout: 2.0)
         
         // THEN
-        if #available(iOS 26, *) {
-            assert(snapshot: testContainer.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: testContainer.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assert(snapshot: testContainer.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: testContainer.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assert(snapshot: sut, named: snapshotName)
         
         sut.removeFromSuperview()
     }
@@ -170,16 +152,6 @@ final class ToastViewSnapshotTests: XCTestCase {
         let image = Image(systemName: "star")
         
         // WHEN
-        sut.cardView.display(model: .init(
-            style: makeDefaultStyle(),
-            title: .text("Toast Message"),
-            leadingImage: .init(
-                size: .init(width: 32, height: 32),
-                image: .asset(image),
-                borderColor: .red,
-            )
-        ))
-        
         let cardModel = CardViewPresentableModel(
             style: makeDefaultStyle(),
             title: .text("Toast Message"),
@@ -203,13 +175,7 @@ final class ToastViewSnapshotTests: XCTestCase {
         wait(for: [exp], timeout: 2.0)
         
         // THEN
-        if #available(iOS 26, *) {
-            assertFail(snapshot: testContainer.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: testContainer.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assertFail(snapshot: testContainer.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: testContainer.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assertFail(snapshot: sut, named: snapshotName)
         
         sut.removeFromSuperview()
     }
@@ -243,13 +209,7 @@ final class ToastViewSnapshotTests: XCTestCase {
         wait(for: [exp], timeout: 2.0)
         
         // THEN
-        if #available(iOS 26, *) {
-            assert(snapshot: testContainer.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: testContainer.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assert(snapshot: testContainer.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: testContainer.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assert(snapshot: sut, named: snapshotName)
         
         sut.removeFromSuperview()
     }
@@ -283,13 +243,7 @@ final class ToastViewSnapshotTests: XCTestCase {
         wait(for: [exp], timeout: 2.0)
         
         // THEN
-        if #available(iOS 26, *) {
-            assertFail(snapshot: testContainer.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: testContainer.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assertFail(snapshot: testContainer.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: testContainer.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assertFail(snapshot: sut, named: snapshotName)
         
         sut.removeFromSuperview()
     }
@@ -323,13 +277,7 @@ final class ToastViewSnapshotTests: XCTestCase {
         wait(for: [exp], timeout: 2.0)
         
         // THEN
-        if #available(iOS 26, *) {
-            assert(snapshot: testContainer.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: testContainer.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assert(snapshot: testContainer.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: testContainer.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assert(snapshot: sut, named: snapshotName)
         
         sut.removeFromSuperview()
     }
@@ -363,13 +311,7 @@ final class ToastViewSnapshotTests: XCTestCase {
         wait(for: [exp], timeout: 2.0)
         
         // THEN
-        if #available(iOS 26, *) {
-            assertFail(snapshot: testContainer.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: testContainer.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assertFail(snapshot: testContainer.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: testContainer.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assertFail(snapshot: sut, named: snapshotName)
         
         sut.removeFromSuperview()
     }
@@ -402,13 +344,7 @@ final class ToastViewSnapshotTests: XCTestCase {
         wait(for: [exp], timeout: 2.0)
         
         // THEN
-        if #available(iOS 26, *) {
-            assert(snapshot: testContainer.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: testContainer.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assert(snapshot: testContainer.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: testContainer.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assert(snapshot: sut, named: snapshotName)
         
         sut.removeFromSuperview()
     }
@@ -441,13 +377,7 @@ final class ToastViewSnapshotTests: XCTestCase {
         wait(for: [exp], timeout: 2.0)
         
         // THEN
-        if #available(iOS 26, *) {
-            assertFail(snapshot: testContainer.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: testContainer.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assertFail(snapshot: testContainer.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: testContainer.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assertFail(snapshot: sut, named: snapshotName)
         
         sut.removeFromSuperview()
     }
@@ -485,13 +415,7 @@ final class ToastViewSnapshotTests: XCTestCase {
         wait(for: [exp], timeout: 2.0)
         
         // THEN
-        if #available(iOS 26, *) {
-            assert(snapshot: testContainer.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: testContainer.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assert(snapshot: testContainer.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: testContainer.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assert(snapshot: sut, named: snapshotName)
         
         sut.removeFromSuperview()
     }
@@ -529,13 +453,7 @@ final class ToastViewSnapshotTests: XCTestCase {
         wait(for: [exp], timeout: 2.0)
         
         // THEN
-        if #available(iOS 26, *) {
-            assertFail(snapshot: testContainer.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: testContainer.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assertFail(snapshot: testContainer.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: testContainer.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assertFail(snapshot: sut, named: snapshotName)
         
         sut.removeFromSuperview()
     }
@@ -576,13 +494,7 @@ final class ToastViewSnapshotTests: XCTestCase {
         wait(for: [exp], timeout: 2.0)
         
         // THEN
-        if #available(iOS 26, *) {
-            assert(snapshot: testContainer.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: testContainer.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assert(snapshot: testContainer.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: testContainer.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assert(snapshot: sut, named: snapshotName)
         
         sut.removeFromSuperview()
     }
@@ -623,13 +535,7 @@ final class ToastViewSnapshotTests: XCTestCase {
         wait(for: [exp], timeout: 2.0)
         
         // THEN
-        if #available(iOS 26, *) {
-            assertFail(snapshot: testContainer.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: testContainer.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assertFail(snapshot: testContainer.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: testContainer.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assertFail(snapshot: sut, named: snapshotName)
         
         sut.removeFromSuperview()
     }
@@ -664,13 +570,7 @@ final class ToastViewSnapshotTests: XCTestCase {
         wait(for: [exp], timeout: 2.0)
         
         // THEN
-        if #available(iOS 26, *) {
-            assert(snapshot: testContainer.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: testContainer.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assert(snapshot: testContainer.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: testContainer.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assert(snapshot: sut, named: snapshotName)
         
         sut.removeFromSuperview()
     }
@@ -705,13 +605,7 @@ final class ToastViewSnapshotTests: XCTestCase {
         wait(for: [exp], timeout: 2.0)
         
         // THEN
-        if #available(iOS 26, *) {
-            assertFail(snapshot: testContainer.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: testContainer.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assertFail(snapshot: testContainer.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: testContainer.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assertFail(snapshot: sut, named: snapshotName)
         
         sut.removeFromSuperview()
     }
@@ -745,13 +639,7 @@ final class ToastViewSnapshotTests: XCTestCase {
         wait(for: [exp], timeout: 2.0)
         
         // THEN
-        if #available(iOS 26, *) {
-            assert(snapshot: testContainer.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: testContainer.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assert(snapshot: testContainer.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: testContainer.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assert(snapshot: sut, named: snapshotName)
         
         sut.removeFromSuperview()
     }
@@ -786,13 +674,7 @@ final class ToastViewSnapshotTests: XCTestCase {
         wait(for: [exp], timeout: 2.0)
         
         // THEN
-        if #available(iOS 26, *) {
-            assertFail(snapshot: testContainer.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: testContainer.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assertFail(snapshot: testContainer.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: testContainer.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assertFail(snapshot: sut, named: snapshotName)
         
         sut.removeFromSuperview()
     }
@@ -826,13 +708,7 @@ final class ToastViewSnapshotTests: XCTestCase {
         wait(for: [exp], timeout: 2.0)
         
         // THEN
-        if #available(iOS 26, *) {
-            assert(snapshot: testContainer.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: testContainer.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assert(snapshot: testContainer.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: testContainer.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assert(snapshot: sut, named: snapshotName)
         
         sut.removeFromSuperview()
     }
@@ -867,13 +743,7 @@ final class ToastViewSnapshotTests: XCTestCase {
         wait(for: [exp], timeout: 2.0)
         
         // THEN
-        if #available(iOS 26, *) {
-            assertFail(snapshot: testContainer.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: testContainer.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assertFail(snapshot: testContainer.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: testContainer.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assertFail(snapshot: sut, named: snapshotName)
         
         sut.removeFromSuperview()
     }
@@ -908,13 +778,7 @@ final class ToastViewSnapshotTests: XCTestCase {
         wait(for: [exp], timeout: 2.0)
         
         // THEN
-        if #available(iOS 26, *) {
-            assert(snapshot: testContainer.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: testContainer.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assert(snapshot: testContainer.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: testContainer.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assert(snapshot: sut, named: snapshotName)
         
         sut.removeFromSuperview()
     }
@@ -950,13 +814,7 @@ final class ToastViewSnapshotTests: XCTestCase {
         wait(for: [exp], timeout: 2.0)
         
         // THEN
-        if #available(iOS 26, *) {
-            assertFail(snapshot: testContainer.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: testContainer.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assertFail(snapshot: testContainer.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: testContainer.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assertFail(snapshot: sut, named: snapshotName)
         
         sut.removeFromSuperview()
     }
@@ -991,13 +849,7 @@ final class ToastViewSnapshotTests: XCTestCase {
         wait(for: [exp], timeout: 2.0)
         
         // THEN
-        if #available(iOS 26, *) {
-            assert(snapshot: testContainer.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: testContainer.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assert(snapshot: testContainer.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: testContainer.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assert(snapshot: sut, named: snapshotName)
         
         sut.removeFromSuperview()
     }
@@ -1034,13 +886,7 @@ final class ToastViewSnapshotTests: XCTestCase {
         wait(for: [exp], timeout: 2.0)
         
         // THEN
-        if #available(iOS 26, *) {
-            assertFail(snapshot: testContainer.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: testContainer.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assertFail(snapshot: testContainer.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: testContainer.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assertFail(snapshot: sut, named: snapshotName)
         
         sut.removeFromSuperview()
     }
@@ -1078,26 +924,21 @@ final class ToastViewSnapshotTests: XCTestCase {
         wait(for: [exp], timeout: 2.0)
         
         // THEN
-        if #available(iOS 26, *) {
-            assert(snapshot: testContainer.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: testContainer.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assert(snapshot: testContainer.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: testContainer.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assert(snapshot: sut, named: snapshotName)
         
         sut.removeFromSuperview()
     }
 }
 
-extension ToastViewSnapshotTests {
+private extension ToastViewSnapshotTests {
     func makeSUT(
         file: StaticString = #file,
         line: UInt = #line
-    ) -> ToastView {
-        let sut = ToastView(duration: nil, position: .top)
+    ) -> PairedToastViewSnapshotSUT {
+        let sut = PairedToastViewSnapshotSUT(uiKitContainer: testContainer)
         
         checkForMemoryLeaks(sut, file: file, line: line)
+        checkForMemoryLeaks(sut.uiKitView, file: file, line: line)
         return sut
     }
     

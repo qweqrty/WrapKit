@@ -36,15 +36,18 @@ public struct CellModel<Cell: Hashable>: HashableWithReflection {
 
     public let accessibilityIdentifier: String?
     public let cell: Cell
+    public let editingStyle: TableEditingStyle
     public let onTap: ((IndexPath, Cell) -> Void)?
 
     public init(
         accessibilityIdentifier: String? = nil,
         cell: Cell,
+        editingStyle: TableEditingStyle = .delete,
         onTap: ((IndexPath, Cell) -> Void)? = nil
     ) {
         self.accessibilityIdentifier = accessibilityIdentifier
         self.cell = cell
+        self.editingStyle = editingStyle
         self.onTap = onTap
     }
 
@@ -154,6 +157,10 @@ public class DiffableTableViewDataSource<Header, Cell: Hashable, Footer>: NSObje
     }
     
     public func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
+        guard let cellModel = cellModel(at: indexPath) else { return false }
+        if case .insert = cellModel.editingStyle {
+            return false
+        }
         return canMoveHandler?(indexPath) ?? false
     }
     
@@ -173,6 +180,14 @@ public class DiffableTableViewDataSource<Header, Cell: Hashable, Footer>: NSObje
     public func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
         return canEditHandler?(indexPath) ?? true
     }
+
+    public func tableView(
+        _ tableView: UITableView,
+        editingStyleForRowAt indexPath: IndexPath
+    ) -> UITableViewCell.EditingStyle {
+        guard commitEditingHandler != nil else { return .none }
+        return cellModel(at: indexPath)?.editingStyle.uiTableViewCellEditingStyle ?? .none
+    }
     
     public func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         let customStyle: TableEditingStyle
@@ -189,10 +204,12 @@ public class DiffableTableViewDataSource<Header, Cell: Hashable, Footer>: NSObje
     
     // MARK: - UITableViewDelegate Methods
     public func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        guard !hasInsertEditingStyle(at: indexPath) else { return nil }
         return trailingSwipeActionsConfigurationForRowAt?(indexPath) ?? .init(actions: [])
     }
     
     public func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        guard !hasInsertEditingStyle(at: indexPath) else { return nil }
         return leadingSwipeActionsConfigurationForRowAt?(indexPath) ?? .init(actions: [])
     }
     
@@ -225,6 +242,20 @@ public class DiffableTableViewDataSource<Header, Cell: Hashable, Footer>: NSObje
     
     public func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
         didScrollViewDidEndDecelerating?(scrollView)
+    }
+
+    private func cellModel(at indexPath: IndexPath) -> CellModel<Cell>? {
+        guard sections.indices.contains(indexPath.section),
+              sections[indexPath.section].cells.indices.contains(indexPath.row) else { return nil }
+        return sections[indexPath.section].cells[indexPath.row]
+    }
+
+    private func hasInsertEditingStyle(at indexPath: IndexPath) -> Bool {
+        guard let editingStyle = cellModel(at: indexPath)?.editingStyle else { return false }
+        if case .insert = editingStyle {
+            return true
+        }
+        return false
     }
     
     // MARK: - Header/Footer Views
@@ -369,6 +400,19 @@ private extension TableContextualAction.Style {
         switch self {
         case .destructive: .destructive
         case .normal: .normal
+        }
+    }
+}
+
+private extension TableEditingStyle {
+    var uiTableViewCellEditingStyle: UITableViewCell.EditingStyle {
+        switch self {
+        case .delete:
+            return .delete
+        case .insert:
+            return .insert
+        case .none:
+            return .none
         }
     }
 }

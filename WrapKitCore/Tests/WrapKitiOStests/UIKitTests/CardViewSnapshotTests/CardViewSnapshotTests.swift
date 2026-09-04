@@ -10,34 +10,38 @@ import WrapKitTestUtils
 import XCTest
 
 final class CardViewSnapshotTests: XCTestCase {
-    
-    private let image = Image(systemName: "star.fill")
-    private let secondImage = Image(systemName: "star")
-    
+    func test_CardView_style_appliesIndependentLeadingAndTrailingTitleFonts() {
+        let leadingFont = UIFont.systemFont(ofSize: 11, weight: .regular)
+        let trailingFont = UIFont.systemFont(ofSize: 23, weight: .bold)
+        let cardView = CardView()
+
+        cardView.display(style: makeDefaultStyle(
+            leadingTitleKeyLabelFont: leadingFont,
+            trailingTitleKeyLabelFont: trailingFont
+        ))
+
+        XCTAssertEqual(cardView.leadingTitleViews.keyLabel.font, leadingFont)
+        XCTAssertEqual(cardView.trailingTitleViews.keyLabel.font, trailingFont)
+    }
+
     func test_CardView_default_state() {
         let snapshotName = "CARDVIEW_DEFAULT_STATE"
         
         // GIVEN
-        let (sut, container) = makeSUT()
+        let sut = makeSUT()
         
         // WHEN
         sut.display(style: makeDefaultStyle())
         
         // THEN
-        if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assert(snapshot: sut, named: snapshotName)
     }
     
     func test_multipleSubtitle_cardView() {
         let snapshotName = "CARDVIEW_MULTIPLE_SUBTITLE_ROW_STATE"
         
         // GIVEN
-        let (sut, container) = makeSUT()
+        let sut = makeSUT()
         
         // WHEN
         sut.display(model: .init(
@@ -51,20 +55,14 @@ final class CardViewSnapshotTests: XCTestCase {
         ))
         
         // THEN
-        if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assert(snapshot: sut, named: snapshotName)
     }
     
     func test_multipleTitleSubtitle_cardView() {
         let snapshotName = "CARDVIEW_MULTIPLE_TITLE_SUBTITLE_ROW_STATE"
         
         // GIVEN
-        let (sut, container) = makeSUT()
+        let sut = makeSUT()
         
         // WHEN
         sut.display(model: .init(
@@ -76,279 +74,213 @@ final class CardViewSnapshotTests: XCTestCase {
         ))
         
         // THEN
-        if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assert(snapshot: sut, named: snapshotName)
     }
 
     func test_fail_CardView_default_state() {
         let snapshotName = "CARDVIEW_DEFAULT_STATE"
         
         // GIVEN
-        let (sut, container) = makeSUT()
+        let sut = makeSUT()
         
         // WHEN
         sut.display(style: makeAssertFailStyle())
         
         // THEN
-        if #available(iOS 26, *) {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assertFail(snapshot: sut, named: snapshotName)
     }
 
     func test_CardView_with_wrappedTitle_shouldRespectLayoutMargins() {
+        // UIKit composition test: it validates a WrapperView hierarchy rather than CardOutput
+        // state, so it has no single paired SwiftUI SUT.
         let snapshotName = "CARDVIEW_WITH_WRAPPED_TITLE_MARGINS"
 
         // GIVEN
         let container = makeWrappedTitleMarginsContainer()
 
         // THEN
-        if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assertUIKitOnlySnapshot(
+            view: container,
+            named: snapshotName,
+            reason: "The scenario validates a UIKit WrapperView composition outside CardViewOutput."
+        )
     }
 
     func test_CardView_with_backgroundImage() {
         let snapshotName = "CARDVIEW_WITH_BACKGROUNDIMAGE"
         
         // GIVEN
-        let (sut, container) = makeSUT()
+        let sut = makeSUT()
         
         // WHEN
         sut.display(style: makeDefaultStyle())
-        sut.display(backgroundImage: .init(image: .asset(image)))
+        sut.display(backgroundImage: .systemSymbol("star.fill"))
         
         // THEN
-        if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assert(snapshot: sut, named: snapshotName)
     }
     
     func test_fail_CardView_with_backgroundImage() {
         let snapshotName = "CARDVIEW_WITH_BACKGROUNDIMAGE"
         
         // GIVEN
-        let (sut, container) = makeSUT()
+        let sut = makeSUT()
         
         // WHEN
         sut.display(style: makeDefaultStyle())
-        sut.display(backgroundImage: .init(image: .asset(secondImage)))
+        sut.display(backgroundImage: .systemSymbol("star"))
         
         // THEN
-        if #available(iOS 26, *) {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assertFail(snapshot: sut, named: snapshotName)
     }
     
     func test_CardView_with_backgroundImage_contentModeIsFit_false() {
         let snapshotName = "CARDVIEW_WITH_BACKGROUNDIMAGE_CONTENTMODE_ISFIT_FALSE"
         
         // GIVEN
-        let (sut, container) = makeSUT()
+        let sut = makeSUT()
         
         // WHEN
         sut.display(style: makeDefaultStyle())
-        sut.display(backgroundImage: .init(image: .asset(image), contentModeIsFit: false))
+        sut.display(backgroundImage: .systemSymbol("star.fill", contentModeIsFit: false))
         
         // THEN
-        if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assert(snapshot: sut, named: snapshotName)
     }
     
     func test_fail_CardView_with_backgroundImage_contentModeIsFit_false() {
         let snapshotName = "CARDVIEW_WITH_BACKGROUNDIMAGE_CONTENTMODE_ISFIT_FALSE"
         
         // GIVEN
-        let (sut, container) = makeSUT()
+        let sut = makeSUT()
         
         // WHEN
         sut.display(style: makeDefaultStyle())
-        sut.display(backgroundImage: .init(image: .asset(image), contentModeIsFit: true))
+        sut.display(backgroundImage: .systemSymbol("star.fill", contentModeIsFit: true))
         
         // THEN
-        if #available(iOS 26, *) {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assertFail(snapshot: sut, named: snapshotName)
     }
     
     func test_CardView_with_backgroundImage_borederWidth_and_color() {
         let snapshotName = "CARDVIEW_WITH_BACKGROUNDIMAGE_BORDERWIDTH_AND_COLOR"
         
         // GIVEN
-        let (sut, container) = makeSUT()
+        let sut = makeSUT()
         
         // WHEN
-        sut.display(backgroundImage: .init(size: .init(width: 24, height: 24),
-                                           image: .asset(image),
-                                           borderWidth: 4,
-                                           borderColor: .black))
+        sut.display(backgroundImage: .systemSymbol(
+            "star.fill",
+            size: .init(width: 24, height: 24),
+            borderWidth: 4,
+            borderColor: .black
+        ))
         
         // THEN
-        if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assert(snapshot: sut, named: snapshotName)
     }
     
     func test_fail_CardView_with_backgroundImage_borederWidth_and_color() {
         let snapshotName = "CARDVIEW_WITH_BACKGROUNDIMAGE_BORDERWIDTH_AND_COLOR"
         
         // GIVEN
-        let (sut, container) = makeSUT()
+        let sut = makeSUT()
         
         // WHEN
-        sut.display(backgroundImage: .init(size: .init(width: 24, height: 24),
-                                           image: .asset(image),
-                                           borderWidth: 3,
-                                           borderColor: .black))
+        sut.display(backgroundImage: .systemSymbol(
+            "star.fill",
+            size: .init(width: 24, height: 24),
+            borderWidth: 3,
+            borderColor: .black
+        ))
         
         // THEN
-        if #available(iOS 26, *) {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assertFail(snapshot: sut, named: snapshotName)
     }
     
     func test_CardView_with_backgroundImage_cornderRadius() {
         let snapshotName = "CARDVIEW_WITH_BACKGROUNDIMAGE_CORNERRADIUS"
         
         // GIVEN
-        let (sut, container) = makeSUT()
+        let sut = makeSUT()
         
         // WHEN
-        let image = Image(systemName: "star.fill")
-        sut.display(backgroundImage: .init(size: .init(width: 24, height: 24),
-                                           image: .asset(image),
-                                           borderWidth: 4,
-                                           borderColor: .black,
-                                           cornerRadius: 20,
-                                          ))
+        sut.display(backgroundImage: .systemSymbol(
+            "star.fill",
+            size: .init(width: 24, height: 24),
+            borderWidth: 4,
+            borderColor: .black,
+            cornerRadius: 20
+        ))
         
         // THEN
-        if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assert(snapshot: sut, named: snapshotName)
     }
     
     func test_fail_CardView_with_backgroundImage_cornderRadius() {
         let snapshotName = "CARDVIEW_WITH_BACKGROUNDIMAGE_CORNERRADIUS"
         
         // GIVEN
-        let (sut, container) = makeSUT()
+        let sut = makeSUT()
         
         // WHEN
-        let image = Image(systemName: "star.fill")
-        sut.display(backgroundImage: .init(size: .init(width: 24, height: 24),
-                                           image: .asset(image),
-                                           borderWidth: 4,
-                                           borderColor: .black,
-                                           cornerRadius: 21,
-                                          ))
+        sut.display(backgroundImage: .systemSymbol(
+            "star.fill",
+            size: .init(width: 24, height: 24),
+            borderWidth: 4,
+            borderColor: .black,
+            cornerRadius: 21
+        ))
         
         // THEN
-        if #available(iOS 26, *) {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assertFail(snapshot: sut, named: snapshotName)
     }
     
     func test_CardView_with_backgroundImage_alpha() {
         let snapshotName = "CARDVIEW_WITH_BACKGROUNDIMAGE_ALPHA"
         
         // GIVEN
-        let (sut, container) = makeSUT()
+        let sut = makeSUT()
         
         // WHEN
-        sut.display(backgroundImage: .init(size: .init(width: 24, height: 24),
-                                           image: .asset(image),
-                                           borderWidth: 4,
-                                           borderColor: .black,
-                                           cornerRadius: 20,
-                                           alpha: 0.3
-                                          ))
+        sut.display(backgroundImage: .systemSymbol(
+            "star.fill",
+            size: .init(width: 24, height: 24),
+            borderWidth: 4,
+            borderColor: .black,
+            cornerRadius: 20,
+            alpha: 0.3
+        ))
         
         // THEN
-        if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assert(snapshot: sut, named: snapshotName)
     }
     
     func test_fail_CardView_with_backgroundImage_alpha() {
         let snapshotName = "CARDVIEW_WITH_BACKGROUNDIMAGE_ALPHA"
         
         // GIVEN
-        let (sut, container) = makeSUT()
+        let sut = makeSUT()
         
         // WHEN
-        sut.display(backgroundImage: .init(size: .init(width: 24, height: 24),
-                                           image: .asset(image),
-                                           borderWidth: 4,
-                                           borderColor: .black,
-                                           cornerRadius: 20,
-                                           alpha: 0.4
-                                          ))
+        sut.display(backgroundImage: .systemSymbol(
+            "star.fill",
+            size: .init(width: 24, height: 24),
+            borderWidth: 4,
+            borderColor: .black,
+            cornerRadius: 20,
+            alpha: 0.4
+        ))
         
         // THEN
-        if #available(iOS 26, *) {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assertFail(snapshot: sut, named: snapshotName)
     }
     
     func test_CardView_with_leadingTitles() {
         let snapshotName = "CARDVIEW_WITH_LEADINGTITLES"
         
         // GIVEN
-        let (sut, container) = makeSUT()
+        let sut = makeSUT()
         
         // WHEN
         sut.display(style: makeDefaultStyle())
@@ -357,20 +289,14 @@ final class CardViewSnapshotTests: XCTestCase {
         )
         
         // THEN
-        if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assert(snapshot: sut, named: snapshotName)
     }
     
     func test_fail_CardView_with_leadingTitles() {
         let snapshotName = "CARDVIEW_WITH_LEADINGTITLES"
         
         // GIVEN
-        let (sut, container) = makeSUT()
+        let sut = makeSUT()
         
         // WHEN
         sut.display(style: makeDefaultStyle())
@@ -379,180 +305,126 @@ final class CardViewSnapshotTests: XCTestCase {
         )
         
         // THEN
-        if #available(iOS 26, *) {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assertFail(snapshot: sut, named: snapshotName)
     }
     
     func test_CardView_with_trailingTitles() {
         let snapshotName = "CARDVIEW_WITH_TRAILINGTITLES"
         
         // GIVEN
-        let (sut, container) = makeSUT()
+        let sut = makeSUT()
         
         // WHEN
         sut.display(style: makeDefaultStyle())
         sut.display(trailingTitles: .init(.text("First"), .text("Second")))
         
         // THEN
-        if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assert(snapshot: sut, named: snapshotName)
     }
     
     func test_fail_CardView_with_trailingTitles() {
         let snapshotName = "CARDVIEW_WITH_TRAILINGTITLES"
         
         // GIVEN
-        let (sut, container) = makeSUT()
+        let sut = makeSUT()
         
         // WHEN
         sut.display(style: makeDefaultStyle())
         sut.display(trailingTitles: .init(.text("First."), .text("Second")))
         
         // THEN
-        if #available(iOS 26, *) {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assertFail(snapshot: sut, named: snapshotName)
     }
     
     func test_CardView_with_leadingImage() {
         let snapshotName = "CARDVIEW_WITH_LEADINGIMAGE"
         
         // GIVEN
-        let (sut, container) = makeSUT()
+        let sut = makeSUT()
         
         // WHEN
         sut.display(style: makeDefaultStyle())
-        sut.display(leadingImage: .init(image: .asset(image)))
+        sut.display(leadingImage: .systemSymbol("star.fill"))
         
         // THEN
-        if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assert(snapshot: sut, named: snapshotName)
     }
     
     func test_fail_CardView_with_leadingImage() {
         let snapshotName = "CARDVIEW_WITH_LEADINGIMAGE"
         
         // GIVEN
-        let (sut, container) = makeSUT()
+        let sut = makeSUT()
         
         // WHEN
         sut.display(style: makeDefaultStyle())
-        sut.display(leadingImage: .init(image: .asset(secondImage)))
+        sut.display(leadingImage: .systemSymbol("star"))
         
         // THEN
-        if #available(iOS 26, *) {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assertFail(snapshot: sut, named: snapshotName)
     }
     
     func test_CardView_with_trailingImage() {
         let snapshotName = "CARDVIEW_WITH_TRAILINGIMAGE"
         
         // GIVEN
-        let (sut, container) = makeSUT()
+        let sut = makeSUT()
         
         // WHEN
         sut.display(style: makeDefaultStyle())
-        sut.display(trailingImage: .init(image: .asset(image)))
+        sut.display(trailingImage: .systemSymbol("star.fill"))
         
         // THEN
-        if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assert(snapshot: sut, named: snapshotName)
     }
     
     func test_fail_CardView_with_trailingImage() {
         let snapshotName = "CARDVIEW_WITH_TRAILINGIMAGE"
         
         // GIVEN
-        let (sut, container) = makeSUT()
+        let sut = makeSUT()
         
         // WHEN
         sut.display(style: makeDefaultStyle())
-        sut.display(trailingImage: .init(image: .asset(secondImage)))
+        sut.display(trailingImage: .systemSymbol("star"))
         
         // THEN
-        if #available(iOS 26, *) {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assertFail(snapshot: sut, named: snapshotName)
     }
     
     func test_CardView_with_secondaryTrailingImage() {
         let snapshotName = "CARDVIEW_WITH_SECONDARYTRAILINGIMAGE"
         
         // GIVEN
-        let (sut, container) = makeSUT()
+        let sut = makeSUT()
         
         // WHEN
         sut.display(style: makeDefaultStyle())
-        sut.display(secondaryTrailingImage: .init(image: .asset(secondImage)))
+        sut.display(secondaryTrailingImage: .systemSymbol("star"))
         
         // THEN
-        if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assert(snapshot: sut, named: snapshotName)
     }
     
     func test_fail_CardView_with_secondaryTrailingImage() {
         let snapshotName = "CARDVIEW_WITH_SECONDARYTRAILINGIMAGE"
         
         // GIVEN
-        let (sut, container) = makeSUT()
+        let sut = makeSUT()
         
         // WHEN
         sut.display(style: makeDefaultStyle())
-        sut.display(secondaryTrailingImage: .init(image: .asset(image)))
+        sut.display(secondaryTrailingImage: .systemSymbol("star.fill"))
         
         // THEN
-        if #available(iOS 26, *) {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assertFail(snapshot: sut, named: snapshotName)
     }
     
     func test_CardView_with_subTitle() {
         let snapshotName = "CARDVIEW_WITH_SUBTITLE"
         
         // GIVEN
-        let (sut, container) = makeSUT()
+        let sut = makeSUT()
         
         // WHEN
         sut.display(style: makeDefaultStyle())
@@ -560,20 +432,14 @@ final class CardViewSnapshotTests: XCTestCase {
         sut.display(subTitle: .text("Subtitle"))
         
         // THEN
-        if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assert(snapshot: sut, named: snapshotName)
     }
     
     func test_fail_CardView_with_subTitle() {
         let snapshotName = "CARDVIEW_WITH_SUBTITLE"
         
         // GIVEN
-        let (sut, container) = makeSUT()
+        let sut = makeSUT()
         
         // WHEN
         sut.display(style: makeDefaultStyle())
@@ -581,60 +447,42 @@ final class CardViewSnapshotTests: XCTestCase {
         sut.display(subTitle: .text("Subtitle."))
         
         // THEN
-        if #available(iOS 26, *) {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assertFail(snapshot: sut, named: snapshotName)
     }
     
     func test_CardView_with_valueTitle() {
         let snapshotName = "CARDVIEW_WITH_VALUETITLE"
         
         // GIVEN
-        let (sut, container) = makeSUT()
+        let sut = makeSUT()
         
         // WHEN
         sut.display(style: makeDefaultStyle())
         sut.display(valueTitle: .text("Value title"))
         
         // THEN
-        if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assert(snapshot: sut, named: snapshotName)
     }
     
     func test_fail_CardView_with_valueTitle() {
         let snapshotName = "CARDVIEW_WITH_VALUETITLE"
         
         // GIVEN
-        let (sut, container) = makeSUT()
+        let sut = makeSUT()
         
         // WHEN
         sut.display(style: makeDefaultStyle())
         sut.display(valueTitle: .text("Value title."))
         
         // THEN
-        if #available(iOS 26, *) {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assertFail(snapshot: sut, named: snapshotName)
     }
     
     func test_CardView_with_title_value_subtitle() {
         let snapshotName = "CARDVIEW_WITH_TITLE_VALUE_SUBTITLE"
         
         // GIVEN
-        let (sut, container) = makeSUT()
+        let sut = makeSUT()
         
         // WHEN
         sut.display(style: makeDefaultStyle())
@@ -643,20 +491,14 @@ final class CardViewSnapshotTests: XCTestCase {
         sut.display(valueTitle: .text("Value title"))
         
         // THEN
-        if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assert(snapshot: sut, named: snapshotName)
     }
     
     func test_fail_CardView_with_title_value_subtitle() {
         let snapshotName = "CARDVIEW_WITH_TITLE_VALUE_SUBTITLE"
         
         // GIVEN
-        let (sut, container) = makeSUT()
+        let sut = makeSUT()
         
         // WHEN
         sut.display(style: makeDefaultStyle())
@@ -665,20 +507,14 @@ final class CardViewSnapshotTests: XCTestCase {
         sut.display(valueTitle: .text("Value title."))
         
         // THEN
-        if #available(iOS 26, *) {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assertFail(snapshot: sut, named: snapshotName)
     }
     
     func test_CardView_with_bottomSeparator() {
         let snapshotName = "CARDVIEW_WITH_BOTTOM_SEPARATOR"
         
         // GIVEN
-        let (sut, container) = makeSUT()
+        let sut = makeSUT()
         
         // WHEN
         sut.display(style: .init(
@@ -709,20 +545,14 @@ final class CardViewSnapshotTests: XCTestCase {
         sut.display(bottomSeparator: .init(color: .lightGray, height: 4))
         
         // THEN
-        if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assert(snapshot: sut, named: snapshotName)
     }
     
     func test_fail_CardView_with_bottomSeparator() {
         let snapshotName = "CARDVIEW_WITH_BOTTOM_SEPARATOR"
         
         // GIVEN
-        let (sut, container) = makeSUT()
+        let sut = makeSUT()
         
         // WHEN
         sut.display(style: .init(
@@ -753,20 +583,14 @@ final class CardViewSnapshotTests: XCTestCase {
         sut.display(bottomSeparator: .init(color: .gray, height: 4))
         
         // THEN
-        if #available(iOS 26, *) {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assertFail(snapshot: sut, named: snapshotName)
     }
     
     func test_CardView_with_switchControl() {
         let snapshotName = "CARDVIEW_WITH_SWITCHCONTROL"
         
         // GIVEN
-        let (sut, container) = makeSUT()
+        let sut = makeSUT()
         
         // WHEN
         sut.display(style: makeSwitchControlStyle())
@@ -779,20 +603,14 @@ final class CardViewSnapshotTests: XCTestCase {
         ))
         
         // THEN
-        if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assert(snapshot: sut, named: snapshotName)
     }
     
     func test_fail_CardView_with_switchControl() {
         let snapshotName = "CARDVIEW_WITH_SWITCHCONTROL"
         
         // GIVEN
-        let (sut, container) = makeSUT()
+        let sut = makeSUT()
         
         // WHEN
         sut.display(style: makeSwitchControlStyle())
@@ -805,20 +623,14 @@ final class CardViewSnapshotTests: XCTestCase {
         ))
         
         // THEN
-        if #available(iOS 26, *) {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assertFail(snapshot: sut, named: snapshotName)
     }
     
     func test_CardView_with_switchControl_isFalse() {
         let snapshotName = "CARDVIEW_WITH_SWITCHCONTROL_ISFALSE"
         
         // GIVEN
-        let (sut, container) = makeSUT()
+        let sut = makeSUT()
         
         // WHEN
         sut.display(style: makeSwitchControlStyle())
@@ -831,20 +643,14 @@ final class CardViewSnapshotTests: XCTestCase {
         ))
         
         // THEN
-        if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assert(snapshot: sut, named: snapshotName)
     }
     
     func test_fail_CardView_with_switchControl_isFalse() {
         let snapshotName = "CARDVIEW_WITH_SWITCHCONTROL_ISFALSE"
         
         // GIVEN
-        let (sut, container) = makeSUT()
+        let sut = makeSUT()
         
         // WHEN
         sut.display(style: makeDefaultStyle())
@@ -857,126 +663,122 @@ final class CardViewSnapshotTests: XCTestCase {
         ))
         
         // THEN
-        if #available(iOS 26, *) {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assertFail(snapshot: sut, named: snapshotName)
     }
     
-    // TODO: - need to simulate real tap
-    func test_CardView_onPress() {
+    func test_CardView_postOnPressOutputVisualState() {
         let snapshotName = "CARDVIEW_WITH_ONPRESS"
         
         // GIVEN
-        let (sut, container) = makeSUT()
+        let sut = makeSUT()
         
         // WHEN
         sut.display(style: makeDefaultStyle())
         
         sut.display(title: .text("Title"))
-        sut.display(onPress: { [weak sut] in
-            sut?.backgroundColor = .systemGreen
-        })
-        
-        sut.onPress?()
+        let pressedStyle = makeDefaultStyle(backgroundColor: .systemGreen)
+        var pressCount = 0
+        let onPress: () -> Void = { [weak sut] in
+            pressCount += 1
+            sut?.display(style: pressedStyle)
+        }
+        sut.display(onPress: onPress)
+
+        XCTContext.runActivity(named: "Post-callback visual state; gesture delivery is not a snapshot concern") { _ in
+            XCTAssertTrue(sut.invokeSwiftUIStoredOnPressOutputForPostStateSnapshot())
+            XCTAssertEqual(pressCount, 1)
+        }
         
         // THEN
-        if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assert(snapshot: sut, named: snapshotName)
     }
     
-    func test_fail_CardView_onPress() {
+    func test_fail_CardView_postOnPressOutputVisualState() {
         let snapshotName = "CARDVIEW_WITH_ONPRESS"
         
         // GIVEN
-        let (sut, container) = makeSUT()
+        let sut = makeSUT()
         
         // WHEN
         sut.display(style: makeDefaultStyle())
         
         sut.display(title: .text("Title"))
-        sut.display(onPress: { [weak sut] in
-            sut?.backgroundColor = .green
-        })
-        
-        sut.onPress?()
+        let pressedStyle = makeDefaultStyle(backgroundColor: .green)
+        var pressCount = 0
+        let onPress: () -> Void = { [weak sut] in
+            pressCount += 1
+            sut?.display(style: pressedStyle)
+        }
+        sut.display(onPress: onPress)
+
+        XCTContext.runActivity(named: "Post-callback visual state; gesture delivery is not a snapshot concern") { _ in
+            XCTAssertTrue(sut.invokeSwiftUIStoredOnPressOutputForPostStateSnapshot())
+            XCTAssertEqual(pressCount, 1)
+        }
         
         // THEN
-        if #available(iOS 26, *) {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assertFail(snapshot: sut, named: snapshotName)
     }
     
-    // TODO: - need to simulate real tap
-    func test_CardView_onLongPress() {
+    func test_CardView_postOnLongPressOutputVisualState() {
         let snapshotName = "CARDVIEW_WITH_ONLONGPRESS"
         
         // GIVEN
-        let (sut, container) = makeSUT()
+        let sut = makeSUT()
         
         // WHEN
         sut.display(style: makeDefaultStyle())
         
         sut.display(title: .text("Title"))
-        sut.display(onLongPress: { [weak sut] in
-            sut?.backgroundColor = .systemGreen
-        })
-        
-        sut.onLongPress?()
+        let pressedStyle = makeDefaultStyle(backgroundColor: .systemGreen)
+        var longPressCount = 0
+        let onLongPress: () -> Void = { [weak sut] in
+            longPressCount += 1
+            sut?.display(style: pressedStyle)
+        }
+        sut.display(onLongPress: onLongPress)
+
+        XCTContext.runActivity(named: "Post-callback visual state; gesture delivery is not a snapshot concern") { _ in
+            XCTAssertTrue(sut.invokeSwiftUIStoredOnLongPressOutputForPostStateSnapshot())
+            XCTAssertEqual(longPressCount, 1)
+        }
         
         // THEN
-        if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assert(snapshot: sut, named: snapshotName)
     }
     
-    func test_fail_CardView_onLongPress() {
+    func test_fail_CardView_postOnLongPressOutputVisualState() {
         let snapshotName = "CARDVIEW_WITH_ONLONGPRESS"
         
         // GIVEN
-        let (sut, container) = makeSUT()
+        let sut = makeSUT()
         
         // WHEN
         sut.display(style: makeDefaultStyle())
         
         sut.display(title: .text("Title"))
-        sut.display(onLongPress: { [weak sut] in
-            sut?.backgroundColor = .green
-        })
-        
-        sut.onLongPress?()
+        let pressedStyle = makeDefaultStyle(backgroundColor: .green)
+        var longPressCount = 0
+        let onLongPress: () -> Void = { [weak sut] in
+            longPressCount += 1
+            sut?.display(style: pressedStyle)
+        }
+        sut.display(onLongPress: onLongPress)
+
+        XCTContext.runActivity(named: "Post-callback visual state; gesture delivery is not a snapshot concern") { _ in
+            XCTAssertTrue(sut.invokeSwiftUIStoredOnLongPressOutputForPostStateSnapshot())
+            XCTAssertEqual(longPressCount, 1)
+        }
         
         // THEN
-        if #available(iOS 26, *) {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assertFail(snapshot: sut, named: snapshotName)
     }
     
     func test_CardView_isHidden() {
         let snapshotName = "CARDVIEW_ISHIDDEN"
         
         // GIVEN
-        let (sut, container) = makeSUT()
+        let sut = makeSUT()
         
         // WHEN
         sut.display(style: makeDefaultStyle())
@@ -984,20 +786,51 @@ final class CardViewSnapshotTests: XCTestCase {
         sut.display(isHidden: true)
         
         // THEN
-        if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assert(snapshot: sut, named: snapshotName)
     }
-    
+
+    @available(iOS 17.0, *)
+    func test_swiftUICard_exposesBackgroundImageAsAccessibleChildWithActions() throws {
+        let adapter = CardViewOutputSwiftUIAdapter()
+        var pressCount = 0
+        var longPressCount = 0
+        adapter.display(model: .init(
+            accessibilityIdentifier: "card",
+            accessibility: .init(label: "Card"),
+            backgroundImage: .systemSymbol(
+                "star.fill",
+                accessibilityIdentifier: "card.background",
+                accessibility: .init(label: "Background", hint: "Card artwork"),
+                onPress: { pressCount += 1 },
+                onLongPress: { longPressCount += 1 }
+            )
+        ))
+        let host = SwiftUIAccessibilityTestHost(
+            rootView: SUICardView(adapter: adapter),
+            size: CGSize(width: 200, height: 100)
+        )
+        host.settle()
+
+        let background = try XCTUnwrap(host.element(withLabel: "Background"))
+        XCTAssertTrue(background.isAccessibilityElement)
+        XCTAssertEqual(background.accessibilityLabel, "Background")
+        XCTAssertEqual(background.accessibilityHint, "Card artwork")
+
+        XCTAssertTrue(background.accessibilityActivate())
+        XCTAssertEqual(pressCount, 1)
+
+        let longPress = try XCTUnwrap(
+            background.accessibilityCustomActions?.first { $0.name == "Long press" }
+        )
+        XCTAssertTrue(host.perform(longPress))
+        XCTAssertEqual(longPressCount, 1)
+    }
+
     func test_fail_CardView_isHidden() {
         let snapshotName = "CARDVIEW_ISHIDDEN"
         
         // GIVEN
-        let (sut, container) = makeSUT()
+        let sut = makeSUT()
         
         // WHEN
         sut.display(style: makeDefaultStyle())
@@ -1005,19 +838,13 @@ final class CardViewSnapshotTests: XCTestCase {
         sut.display(isHidden: false)
         
         // THEN
-        if #available(iOS 26, *) {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assertFail(snapshot: sut, named: snapshotName)
     }
     
     func test_trailingImageLeadingZero() {
         let snapshotName = "trailingImageLeadingZero"
         // GIVEN
-        let (sut, container) = makeSUT()
+        let sut = makeSUT()
         
         // WHEN
         let style = makeDefaultStyle(
@@ -1029,25 +856,19 @@ final class CardViewSnapshotTests: XCTestCase {
         sut.display(style: style)
         sut.display(model: .init(
             title: .text("Title"),
-            leadingImage: .init(image: .asset(image)),
-            trailingImage: .init(image: .asset(image)),
+            leadingImage: .systemSymbol("star.fill"),
+            trailingImage: .systemSymbol("star.fill"),
             subTitle: .text("subTitle")
         ))
         
         // THEN
-        if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assert(snapshot: sut, named: snapshotName)
     }
     
     func test_trailingImageLeadingZeroShouldFail() {
         let snapshotName = "trailingImageLeadingDefault" // correct is "trailingImageLeadingZero"
         // GIVEN
-        let (sut, container) = makeSUT()
+        let sut = makeSUT()
         
         // WHEN
         let style = makeDefaultStyle(
@@ -1059,25 +880,19 @@ final class CardViewSnapshotTests: XCTestCase {
         sut.display(style: style)
         sut.display(model: .init(
             title: .text("Title"),
-            leadingImage: .init(image: .asset(image)),
-            trailingImage: .init(image: .asset(image)),
+            leadingImage: .systemSymbol("star.fill"),
+            trailingImage: .systemSymbol("star.fill"),
             subTitle: .text("subTitle")
         ))
         
         // THEN
-        if #available(iOS 26, *) {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assertFail(snapshot: sut, named: snapshotName)
     }
     
     func test_trailingImageLeadingDefault() {
         let snapshotName = "trailingImageLeadingDefault"
         // GIVEN
-        let (sut, container) = makeSUT()
+        let sut = makeSUT()
         
         // WHEN
         let style = makeDefaultStyle(
@@ -1087,25 +902,19 @@ final class CardViewSnapshotTests: XCTestCase {
         sut.display(style: style)
         sut.display(model: .init(
             title: .text("Title"),
-            leadingImage: .init(image: .asset(image)),
-            trailingImage: .init(image: .asset(image)),
+            leadingImage: .systemSymbol("star.fill"),
+            trailingImage: .systemSymbol("star.fill"),
             subTitle: .text("subTitle")
         ))
         
         // THEN
-        if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assert(snapshot: sut, named: snapshotName)
     }
     
     func test_trailingImageLeadingDefaultFail() {
         let snapshotName = "trailingImageLeadingZero" // correct is "trailingImageLeadingDefault"
         // GIVEN
-        let (sut, container) = makeSUT()
+        let sut = makeSUT()
         
         // WHEN
         let style = makeDefaultStyle(
@@ -1115,19 +924,13 @@ final class CardViewSnapshotTests: XCTestCase {
         sut.display(style: style)
         sut.display(model: .init(
             title: .text("Title"),
-            leadingImage: .init(image: .asset(image)),
-            trailingImage: .init(image: .asset(image)),
+            leadingImage: .systemSymbol("star.fill"),
+            trailingImage: .systemSymbol("star.fill"),
             subTitle: .text("subTitle")
         ))
         
         // THEN
-        if #available(iOS 26, *) {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assertFail(snapshot: sut, named: snapshotName)
     }
 }
 
@@ -1135,12 +938,14 @@ extension CardViewSnapshotTests {
     func makeSUT(
         file: StaticString = #file,
         line: UInt = #line
-    ) -> (sut: CardView, container: UIView) {
-        let sut = CardView()
+    ) -> PairedCardViewSnapshotSUT {
         let container = makeContainer()
+        let sut = PairedCardViewSnapshotSUT(uiKitContainer: container)
+        container.backgroundColor = .clear
+        container.isOpaque = false
         
-        container.addSubview(sut)
-        sut.anchor(
+        container.addSubview(sut.uiKitView)
+        sut.uiKitView.anchor(
             .top(container.topAnchor, constant: 0, priority: .required),
             .leading(container.leadingAnchor, constant: 0, priority: .required),
             .trailing(container.trailingAnchor, constant: 0, priority: .required),
@@ -1148,7 +953,8 @@ extension CardViewSnapshotTests {
         )
         
         checkForMemoryLeaks(sut, file: file, line: line)
-        return (sut, container)
+        checkForMemoryLeaks(sut.uiKitView, file: file, line: line)
+        return sut
     }
     
     func makeDefaultStyle(

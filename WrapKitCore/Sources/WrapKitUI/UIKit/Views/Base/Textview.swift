@@ -80,6 +80,7 @@ open class Textview: UITextView, UITextViewDelegate {
     
     public func textViewDidChange(_ textView: UITextView) {
         placeholderLabel.isHidden = !textView.text.isEmpty
+        didChangeText.forEach { $0(textView.text) }
         textDidChange?()
         applyAccessibility()
     }
@@ -289,7 +290,6 @@ extension Textview: TextInputOutput {
         display(text: model.text)
         if let isValid = model.isValid {
             display(isValid: isValid)
-            updateAppearance(isValid: isValid)
         }
         if let isEnabledForEditing = model.isEnabledForEditing { display(isEnabledForEditing: isEnabledForEditing) }
         if let isTextSelectionDisabled = model.isTextSelectionDisabled { display(isTextSelectionDisabled: isTextSelectionDisabled) }
@@ -321,9 +321,20 @@ extension Textview: TextInputOutput {
     }
     
     public func display(mask: TextInputPresentableModel.Mask) { }
-    public func display(isValid: Bool) { isValidState = isValid; applyAccessibility() }
-    public func display(isEnabledForEditing: Bool) { applyAccessibility() }
-    public func display(isTextSelectionDisabled: Bool) { applyAccessibility() }
+    public func display(isValid: Bool) {
+        isValidState = isValid
+        updateAppearance(isValid: isValid)
+        applyAccessibility()
+    }
+    public func display(isEnabledForEditing: Bool) {
+        isEditable = isEnabledForEditing
+        applyAccessibility()
+    }
+
+    public func display(isTextSelectionDisabled: Bool) {
+        isSelectable = !isTextSelectionDisabled
+        applyAccessibility()
+    }
     
     public func display(placeholder: String?) {
         self.placeholderLabel.text = placeholder

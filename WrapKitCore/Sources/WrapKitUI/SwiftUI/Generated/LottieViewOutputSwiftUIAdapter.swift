@@ -14,17 +14,15 @@ import SwiftUI
 #if canImport(Foundation)
 import Foundation
 #endif
-#if canImport(SwiftUI)
-import SwiftUI
-#endif
 #if canImport(Lottie)
 import Lottie
 #endif
-#if canImport(UIKit)
-import UIKit
-#endif
 public class LottieViewOutputSwiftUIAdapter: ObservableObject, LottieViewOutput {
         @Published public var currentAnimationName: String? = nil
+
+
+
+
 
     // Initializer
     public init(

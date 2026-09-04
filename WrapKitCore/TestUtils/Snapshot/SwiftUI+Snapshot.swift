@@ -1,16 +1,21 @@
 #if canImport(SwiftUI)
 import SwiftUI
 
+public enum SwiftUISnapshotPrecision {
+    public static let standard: Float = 0.98
+    public static let fail: Float = 1
+}
+
 @available(iOS 17.0, macOS 14.0, tvOS 17.0, watchOS 10.0, *)
 public extension View {
-    func snapshot(for configuration: SUISnapshotConfiguration, useUIKit: Bool = false) -> UIImage {
-        let view = self.build(configuration: configuration)
+    func snapshot(for configuration: SUISnapshotConfiguration, background: Color? = nil, useUIKit: Bool = false) -> UIImage {
+        let view = self.build(configuration: configuration, background: background)
 #if canImport(UIKit)
-        guard useUIKit else { return view.snapshot() }
+        guard useUIKit else { return view.snapshot(size: configuration.size) }
         return view.inHostController()
-            .snapshot(for: .iPhone(style: configuration.colorScheme.style))
+            .snapshot(for: configuration.uiKitSnapshotConfiguration)
 #else
-        return view.snapshot()
+        return view.snapshot(size: configuration.size)
 #endif
     }
 #if canImport(UIKit)
@@ -72,24 +77,25 @@ extension ColorScheme {
 @available(iOS 17.0, macOS 14.0, tvOS 17.0, watchOS 10.0, *)
 public extension View {
     @ViewBuilder
-    func build(configuration: SUISnapshotConfiguration) -> some View {
+    func build(configuration: SUISnapshotConfiguration, background: Color? = nil) -> some View {
         self
             .frame(width: configuration.size.width, height: configuration.size.height)
 //            .safeAreaPadding(configuration.safeAreaInsets)
             .contentMargins(.all, configuration.layoutMargins, for: .automatic)
             .colorScheme(configuration.colorScheme)
+            .background(background ?? (configuration.colorScheme == .dark ? Color.black : Color.white))
     }
 }
 
 @available(iOS 17.0, macOS 14.0, tvOS 17.0, watchOS 10.0, *)
 public extension View {
-    func snapshot() -> UIImage {
+    func snapshot(size: CGSize = SUISnapshotConfiguration.size) -> UIImage {
         let renderer = ImageRenderer(content: self)
         renderer.scale = UIScreen.main.scale
         if #available(iOS 26, macOS 26, watchOS 26, tvOS 26, *) {
             renderer.allowedDynamicRange = .high
         }
-        renderer.proposedSize = .init(SUISnapshotConfiguration.size)
+        renderer.proposedSize = .init(size)
         
         // Use UIGraphicsImageRenderer for proper anti-aliasing
         let format = UIGraphicsImageRendererFormat()
@@ -97,10 +103,10 @@ public extension View {
         format.preferredRange = .standard // SwftUI not passing with extended
         format.opaque = false
         
-        let uiKitRenderer = UIGraphicsImageRenderer(size: SUISnapshotConfiguration.size, format: format)
+        let uiKitRenderer = UIGraphicsImageRenderer(size: size, format: format)
         return uiKitRenderer.image { context in
             // Flip the coordinate system to match ImageRenderer's top-left origin
-            context.cgContext.translateBy(x: 0, y: SUISnapshotConfiguration.size.height)
+            context.cgContext.translateBy(x: 0, y: size.height)
             context.cgContext.scaleBy(x: 1, y: -1)
             
             let colorSpace = CGColorSpaceCreateDeviceRGB() // Default sRGB color space (IEC61966-2.1)
@@ -113,5 +119,29 @@ public extension View {
 //        return renderer.uiImage
     }
 }
+
+#if canImport(UIKit)
+private extension SUISnapshotConfiguration {
+    var uiKitSnapshotConfiguration: SnapshotConfiguration {
+        let defaultConfiguration = SnapshotConfiguration.iPhone(style: colorScheme.style)
+        return SnapshotConfiguration(
+            size: size,
+            safeAreaInsets: UIEdgeInsets(
+                top: safeAreaInsets.top,
+                left: safeAreaInsets.leading,
+                bottom: safeAreaInsets.bottom,
+                right: safeAreaInsets.trailing
+            ),
+            layoutMargins: UIEdgeInsets(
+                top: layoutMargins.top,
+                left: layoutMargins.leading,
+                bottom: layoutMargins.bottom,
+                right: layoutMargins.trailing
+            ),
+            traitCollection: defaultConfiguration.traitCollection
+        )
+    }
+}
+#endif
 
 #endif

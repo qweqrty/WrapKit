@@ -22,6 +22,10 @@ import Combine
 #endif
 public class ExpandableCardViewOutputSwiftUIAdapter: ObservableObject, ExpandableCardViewOutput {
 
+
+
+
+
     // Initializer
     public init(
     ) {

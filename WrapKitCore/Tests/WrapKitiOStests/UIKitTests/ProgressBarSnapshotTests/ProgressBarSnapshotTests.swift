@@ -1,15 +1,9 @@
-//
-//  ProgressBarSnapshotTests.swift
-//  WrapKitTests
-//
-//  Created by Urmatbek Marat Uulu on 12/11/25.
-//
-
 import WrapKit
 import WrapKitTestUtils
 import XCTest
 
 final class ProgressBarSnapshotTests: XCTestCase {
+
     func test_progressBar_presentableModel_preservesDynamicColors() {
         let trackColor = UIColor { traits in
             traits.userInterfaceStyle == .dark ? .black : .white
@@ -46,141 +40,71 @@ final class ProgressBarSnapshotTests: XCTestCase {
 
     func test_progressBar_defaul_state() {
         let snapshotName = "PROGRESSBAR_DEFAULT_STATE"
-        
-        // GIVEN
-        let (sut, container) = makeSUT()
+        let sut = makeSUT()
         
         // WHEN
         sut.display(style: .init(backgroundColor: .systemRed, height: 5.0, trackHeight: 5.0))
         sut.display(progress: 0.0)
-        
-        // THEN
-        if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+
+        assert(snapshot: sut, named: snapshotName)
     }
-    
+
     func test_fail_progressBar_defaul_state() {
         let snapshotName = "PROGRESSBAR_DEFAULT_STATE"
-        
-        // GIVEN
-        let (sut, container) = makeSUT()
-        
-        // WHEN
+        let sut = makeSUT()
+
         sut.display(style: .init(backgroundColor: .red, height: 5.0))
         sut.display(progress: 0.0)
-        
-        // THEN
-        if #available(iOS 26, *) {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+
+        assertFail(snapshot: sut, named: snapshotName)
     }
-    
+
     func test_progressBar_with_progressBar_color() {
         let snapshotName = "PROGRESSBAR_WITH_PROGRESSBAR_COLOR"
-        // GIVEN
-        let (sut, container) = makeSUT()
+        let sut = makeSUT()
         
         // WHEN
         sut.display(style: .init(backgroundColor: .systemRed, height: 6.0))
         sut.display(progress: 100.0)
-        
-        // THEN
-        if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+
+        assert(snapshot: sut, named: snapshotName)
     }
-    
+
     func test_fail_progressBar_with_progressBar_color() {
         let snapshotName = "PROGRESSBAR_WITH_PROGRESSBAR_COLOR"
-        // GIVEN
-        let (sut, container) = makeSUT()
-        
-        // WHEN
+        let sut = makeSUT()
+
         sut.display(style: .init(backgroundColor: .red, height: 5.0))
         sut.display(progress: 100.0)
-        
-        // THEN
-        if #available(iOS 26, *) {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+
+        assertFail(snapshot: sut, named: snapshotName)
     }
-    
+
     func test_progressBar_with_height() {
         let snapshotName = "PROGRESSBAR_WITH_HEIGHT"
-        
-        // GIVEN
-        let (sut, container) = makeSUT()
-        
-        // WHEN
+        let sut = makeSUT()
+
         sut.display(style: .init(backgroundColor: .systemRed, height: 50))
         sut.display(progress: 100.0)
-        
-        // THEN
-        if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+
+        assert(snapshot: sut, named: snapshotName)
     }
-    
+
     func test_fail_progressBar_with_height() {
         let snapshotName = "PROGRESSBAR_WITH_HEIGHT"
-        
-        // GIVEN
-        let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 375, height: 300))
-        window.backgroundColor = .systemBackground
-        window.makeKeyAndVisible()
-        let (sut, _) = makeSUT()
-        
-        // WHEN
+        let sut = makeSUT()
+
         sut.display(style: .init(backgroundColor: .systemRed, height: 51))
         sut.display(progress: 100.0)
-        
-        window.addSubview(sut)
-        sut.anchor(
-            .top(window.topAnchor, constant: 10, priority: .required),
-            .leading(window.leadingAnchor, constant: 10, priority: .required),
-            .trailing(window.trailingAnchor, constant: 10, priority: .required)
-        )
-        
-        // THEN
-        if #available(iOS 26, *) {
-            assertFail(snapshot: window.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: window.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assertFail(snapshot: window.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: window.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
-        
-        sut.removeFromSuperview()
-        window.isHidden = true
-        window.resignKey()
+
+        assertFail(snapshot: sut, named: snapshotName)
     }
     
     func test_progressBar_with_cornerStyle() {
         let snapshotName = "PROGRESSBAR_WITH_CORNERSTYLE"
         
         // GIVEN
-        let (sut, container) = makeSUT()
+        let sut = makeSUT()
         
         // WHEN
         sut.display(style: .init(
@@ -189,22 +113,15 @@ final class ProgressBarSnapshotTests: XCTestCase {
             height: 10,
             cornerStyle: .fixed(10)))
         sut.display(progress: 50.0)
-        
-        // THEN
-        if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+
+        assert(snapshot: sut, named: snapshotName)
     }
     
     func test_fail_progressBar_with_cornerStyle() {
         let snapshotName = "PROGRESSBAR_WITH_CORNERSTYLE"
         
         // GIVEN
-        let (sut, container) = makeSUT()
+        let sut = makeSUT()
         
         // WHEN
         sut.display(style: .init(
@@ -213,95 +130,69 @@ final class ProgressBarSnapshotTests: XCTestCase {
             height: 10,
             cornerStyle: .fixed(2)))
         sut.display(progress: 50.0)
-        
-        // THEN
-        if #available(iOS 26, *) {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+
+        assertFail(snapshot: sut, named: snapshotName)
     }
-    
+
     func test_progressBar_hidden() {
         let snapshotName = "PROGRESSBAR_HIDDEN"
-        
-        // GIVEN
-        let (sut, container) = makeSUT()
-        
-        // WHEN
+        let sut = makeSUT()
+
+        sut.display(style: .init(backgroundColor: .systemRed, height: 5.0))
         sut.display(progress: 50.0)
-        sut.display(isHidden: true)
-        
-        // THEN
-        if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        sut.display(model: nil)
+
+        assert(snapshot: sut, named: snapshotName)
     }
-    
+
     func test_fail_progressBar_hidden() {
         let snapshotName = "PROGRESSBAR_HIDDEN"
-        
-        // GIVEN
-        let (sut, container) = makeSUT()
-        
-        // WHEN
+        let sut = makeSUT()
+
+        sut.display(style: .init(backgroundColor: .systemRed, height: 5.0))
         sut.display(progress: 50.0)
+        sut.display(model: nil)
         sut.display(isHidden: false)
-        
-        // THEN
-        if #available(iOS 26, *) {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+
+        assertFail(snapshot: sut, named: snapshotName)
     }
     
     func test_progressBar_with_gradient() {
+        // UIKit implementation detail: gradientBackgroundColor/applyCornerStyle are not part of
+        // ProgressBarOutput, so there is no adapter state to mirror into SwiftUI here.
         let snapshotName = "PROGRESSBAR_WITH_GRADIENT"
         
         // GIVEN
-        let (sut, container) = makeSUT()
+        let sut = makeSUT()
         
         // WHEN
         sut.display(style: .init(backgroundColor: .clear, height: 6.0, cornerStyle: .fixed(4)))
         sut.display(progress: 100.0)
-        container.layoutIfNeeded()
         sut.applyCornerStyle(.fixed(4))
         sut.gradientBackgroundColor(
             width: 6,
-            colors: [.systemBlue, .systemPurple, .systemPink],
+            colors: [.systemBlue, .systemPurple, .systemRed],
             startPoint: CGPoint(x: 0, y: 0),
             endPoint: CGPoint(x: 1, y: 0)
         )
         
         // THEN
-        if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assertUIKitOnlySnapshot(
+            snapshot: sut,
+            named: snapshotName,
+            reason: "The gradient API is UIKit-only and is not part of ProgressBarOutput."
+        )
     }
     
     func test_fail_progressBar_with_gradient() {
         let snapshotName = "PROGRESSBAR_WITH_GRADIENT"
         
         // GIVEN
-        let (sut, container) = makeSUT()
+        let sut = makeSUT()
         
         // WHEN
         sut.display(style: .init(backgroundColor: .clear, height: 6.0, cornerStyle: .fixed(4)))
         sut.display(progress: 100.0)
-        container.layoutIfNeeded()
         sut.gradientBackgroundColor(
             width: 6,
             colors: [.systemGreen, .systemYellow, .systemOrange],
@@ -310,61 +201,90 @@ final class ProgressBarSnapshotTests: XCTestCase {
         )
         
         // THEN
-        if #available(iOS 26, *) {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assertUIKitOnlySnapshotFail(
+            snapshot: sut,
+            named: snapshotName,
+            reason: "The gradient API is UIKit-only and is not part of ProgressBarOutput."
+        )
     }
     
     func test_progressBar_half_filled() {
         let snapshotName = "PROGRESSBAR_HALF_FILLED"
         
         // GIVEN
-        let (sut, container) = makeSUT()
+        let sut = makeSUT()
         
         // WHEN
-        sut.display(style: .init(
-            backgroundColor: .systemGray4,
-            progressBarColor: .systemGreen,
-            height: 6.0,
-            cornerStyle: .fixed(4)))
-        sut.display(progress: 50.0)
+        sut.display(model: .init(
+            progress: 50.0,
+            style: .init(
+                backgroundColor: .systemGray4,
+                progressBarColor: .systemGreen,
+                height: 6.0,
+                cornerStyle: .fixed(4)
+            )
+        ))
         
         // THEN
-        if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assert(snapshot: sut, named: snapshotName)
     }
     
     func test_fail_progressBar_half_filled() {
         let snapshotName = "PROGRESSBAR_HALF_FILLED"
         
         // GIVEN
-        let (sut, container) = makeSUT()
+        let sut = makeSUT()
         
         // WHEN
-        sut.display(style: .init(
-            backgroundColor: .systemGray4,
-            progressBarColor: .systemGreen,
-            height: 6.0,
-            cornerStyle: .fixed(4)))
-        sut.display(progress: 51.0)
+        sut.display(model: .init(
+            progress: 51.0,
+            style: .init(
+                backgroundColor: .systemGray4,
+                progressBarColor: .systemGreen,
+                height: 6.0,
+                cornerStyle: .fixed(4)
+            )
+        ))
         
         // THEN
-        if #available(iOS 26, *) {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        assertFail(snapshot: sut, named: snapshotName)
+    }
+
+    func test_progressBar_styleWithoutHeight_preservesEstablishedHeight() {
+        guard #available(iOS 17.0, *) else { return }
+
+        let sut = makeSUT()
+
+        sut.display(style: .init(
+            backgroundColor: .systemRed,
+            height: 50,
+            cornerStyle: .none
+        ))
+        sut.display(style: .init(
+            backgroundColor: .systemRed,
+            trackHeight: 33,
+            cornerStyle: .none
+        ))
+        sut.display(progress: 100.0)
+
+        SnapshotAppearance.allCases.forEach { appearance in
+            let geometry = sut.retainedLayoutGeometry(for: appearance)
+            XCTAssertEqual(geometry.uiKitFillHeight, 50, accuracy: 0.01)
+            XCTAssertEqual(geometry.uiKitTrackHeight, 33, accuracy: 0.01)
+            XCTAssertEqual(geometry.swiftUIFillHeight, geometry.uiKitFillHeight, accuracy: 0.01)
+            XCTAssertEqual(geometry.swiftUITrackHeight, geometry.uiKitTrackHeight, accuracy: 0.01)
         }
+    }
+
+    func test_fail_progressBar_styleWithoutHeight_preservesEstablishedHeight() {
+        let snapshotName = "PROGRESSBAR_WITH_HEIGHT"
+        let sut = makeSUT()
+
+        sut.display(style: .init(backgroundColor: .systemRed, height: 51))
+        sut.display(style: .init(backgroundColor: .systemRed, trackHeight: 33))
+        sut.display(progress: 100.0)
+
+        assertFail(snapshot: sut, named: snapshotName)
     }
 }
 
@@ -372,23 +292,23 @@ extension ProgressBarSnapshotTests {
     func makeSUT(
         file: StaticString = #file,
         line: UInt = #line
-    ) -> (sut: ProgressBarView, container: UIView) {
-        let sut = ProgressBarView()
+    ) -> PairedProgressBarSnapshotSUT {
         let container = makeContainer()
-        
-        container.addSubview(sut)
-        sut.anchor(
+        let sut = PairedProgressBarSnapshotSUT(uiKitContainer: container)
+
+        container.addSubview(sut.uiKitView)
+        sut.uiKitView.anchor(
             .top(container.topAnchor, constant: 0, priority: .required),
             .leading(container.leadingAnchor, constant: 0, priority: .required),
-            .trailing(container.trailingAnchor, constant: 0, priority: .required),
+            .trailing(container.trailingAnchor, constant: 0, priority: .required)
         )
-        
         container.layoutIfNeeded()
-        
+
         checkForMemoryLeaks(sut, file: file, line: line)
-        return (sut, container)
+        checkForMemoryLeaks(sut.uiKitView, file: file, line: line)
+        return sut
     }
-    
+
     func makeContainer() -> UIView {
         let container = UIView()
         container.frame = CGRect(x: 0, y: 0, width: 390, height: 300)

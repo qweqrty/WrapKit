@@ -53,13 +53,7 @@ final class ShimmerViewSnapshotTests: XCTestCase {
         let snapshotName = "SHIMMERVIEW_INITIAL_STATE"
         
         // THEN
-        if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assertUIKitOnlySnapshot(view: container, named: snapshotName)
     }
     
     func test_shimmerView_with_background_color() {
@@ -71,13 +65,7 @@ final class ShimmerViewSnapshotTests: XCTestCase {
         sut.backgroundColor = .systemGray6
         
         // THEN
-        if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assertUIKitOnlySnapshot(view: container, named: snapshotName)
     }
     
     func test_fail_shimmerView_with_background_color() {
@@ -89,13 +77,7 @@ final class ShimmerViewSnapshotTests: XCTestCase {
         sut.backgroundColor = .systemGray5
         
         // THEN
-        if #available(iOS 26, *) {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assertUIKitOnlySnapshotFail(view: container, named: snapshotName)
     }
     
     // MARK: - Gradient Configuration Tests
@@ -110,13 +92,7 @@ final class ShimmerViewSnapshotTests: XCTestCase {
         sut.gradientColorTwo = .white.withAlphaComponent(0.8)
         
         // THEN
-        if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assertUIKitOnlySnapshot(view: container, named: snapshotName)
     }
     
     func test_fail_shimmerView_custom_gradient_colors() {
@@ -130,13 +106,7 @@ final class ShimmerViewSnapshotTests: XCTestCase {
         sut.gradientColorTwo = .white.withAlphaComponent(0.8)
         
         // THEN
-        if #available(iOS 26, *) {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assertUIKitOnlySnapshotFail(view: container, named: snapshotName)
     }
     
     func test_shimmerView_colored_gradient() {
@@ -150,13 +120,7 @@ final class ShimmerViewSnapshotTests: XCTestCase {
         sut.gradientColorTwo = .systemPurple.withAlphaComponent(0.6)
         
         // THEN
-        if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assertUIKitOnlySnapshot(view: container, named: snapshotName)
     }
     
     func test_fail_shimmerView_colored_gradient() {
@@ -170,13 +134,7 @@ final class ShimmerViewSnapshotTests: XCTestCase {
         sut.gradientColorTwo = .systemPurple.withAlphaComponent(0.6)
         
         // THEN
-        if #available(iOS 26, *) {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assertUIKitOnlySnapshotFail(view: container, named: snapshotName)
     }
     
     func test_shimmerView_with_style() {
@@ -195,13 +153,7 @@ final class ShimmerViewSnapshotTests: XCTestCase {
         sut.style = style
         
         // THEN
-        if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assertUIKitOnlySnapshot(view: container, named: snapshotName)
     }
     
     func test_fail_shimmerView_with_style() {
@@ -220,13 +172,7 @@ final class ShimmerViewSnapshotTests: XCTestCase {
         sut.style = style
         
         // THEN
-        if #available(iOS 26, *) {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assertUIKitOnlySnapshotFail(view: container, named: snapshotName)
     }
     
     func test_shimmerView_pill_shape() {
@@ -240,13 +186,7 @@ final class ShimmerViewSnapshotTests: XCTestCase {
         sut.layer.masksToBounds = true
         
         // THEN
-        if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assertUIKitOnlySnapshot(view: container, named: snapshotName)
     }
     
     func test_fail_shimmerView_pill_shape() {
@@ -260,13 +200,7 @@ final class ShimmerViewSnapshotTests: XCTestCase {
         sut.layer.masksToBounds = true
         
         // THEN
-        if #available(iOS 26, *) {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assertUIKitOnlySnapshotFail(view: container, named: snapshotName)
     }
     
     // MARK: - Real-World Use Cases
@@ -335,13 +269,7 @@ final class ShimmerViewSnapshotTests: XCTestCase {
         container.layoutIfNeeded()
         
         // THEN
-        if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assertUIKitOnlySnapshot(view: container, named: snapshotName)
     }
     
     func test_fail_shimmerView_skeleton_card() {
@@ -409,13 +337,7 @@ final class ShimmerViewSnapshotTests: XCTestCase {
         container.layoutIfNeeded()
         
         // THEN
-        if #available(iOS 26, *) {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        assertUIKitOnlySnapshotFail(view: container, named: snapshotName)
     }
 }
 
