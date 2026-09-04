@@ -1,5 +1,5 @@
 //
-//  PairedNavigationBarSnapshotSUT.swift
+//  SwiftUINavigationBarSnapshotSUT.swift
 //  WrapKitTests
 //
 
@@ -10,7 +10,7 @@ import WrapKitTestUtils
 #if canImport(SwiftUI)
 import SwiftUI
 
-final class PairedNavigationBarSnapshotSUT: NSObject, HeaderOutput, PairedSnapshotSource {
+final class SwiftUINavigationBarSnapshotSUT: NSObject, HeaderOutput, SwiftUISnapshotSource {
     let uiKitView: NavigationBar
 
     private let uiKitContainer: UIView
@@ -64,10 +64,6 @@ final class PairedNavigationBarSnapshotSUT: NSObject, HeaderOutput, PairedSnapsh
     func display(isHidden: Bool) {
         uiKitView.display(isHidden: isHidden)
         swiftUIAdapter.display(isHidden: isHidden)
-    }
-
-    func uiKitSnapshot(for appearance: SnapshotAppearance) -> UIImage {
-        uiKitContainer.snapshot(for: appearance.uiKitConfiguration)
     }
 
     @available(iOS 17.0, *)

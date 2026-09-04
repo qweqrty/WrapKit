@@ -1,5 +1,5 @@
 //
-//  SegmentedControlSnapshotTests.swift
+//  SUISegmentedControlSnapshotTests.swift
 //  WrapKitTests
 //
 
@@ -8,7 +8,7 @@ import WrapKit
 import WrapKitTestUtils
 import XCTest
 
-final class SegmentedControlSnapshotTests: XCTestCase {
+final class SUISegmentedControlSnapshotTests: XCTestCase {
 
     func test_SegmentedControl_default_state() {
         let snapshotName = "SEGMENTEDCONTROL_DEFAULT_STATE"
@@ -16,7 +16,7 @@ final class SegmentedControlSnapshotTests: XCTestCase {
 
         sut.display(segments: makeSegments())
 
-        assertSnapshots(of: sut.container, named: snapshotName)
+        assert(snapshot: sut, named: snapshotName)
     }
 
     func test_fail_SegmentedControl_default_state() {
@@ -29,7 +29,7 @@ final class SegmentedControlSnapshotTests: XCTestCase {
             .init(title: "Third", index: 2)
         ])
 
-        assertFailSnapshots(of: sut.container, named: snapshotName)
+        assertFail(snapshot: sut, named: snapshotName)
     }
 
     func test_SegmentedControl_with_appearance() {
@@ -39,7 +39,7 @@ final class SegmentedControlSnapshotTests: XCTestCase {
         sut.display(appearence: makeAccentAppearance())
         sut.display(segments: makeSegments())
 
-        assertSnapshots(of: sut.container, named: snapshotName)
+        assert(snapshot: sut, named: snapshotName)
     }
 
     func test_fail_SegmentedControl_with_appearance() {
@@ -49,7 +49,7 @@ final class SegmentedControlSnapshotTests: XCTestCase {
         sut.display(appearence: makeFailAccentAppearance())
         sut.display(segments: makeSegments())
 
-        assertFailSnapshots(of: sut.container, named: snapshotName)
+        assertFail(snapshot: sut, named: snapshotName)
     }
 
     func test_SegmentedControl_with_long_titles() {
@@ -62,7 +62,7 @@ final class SegmentedControlSnapshotTests: XCTestCase {
             .init(title: "Very long third", index: 2)
         ])
 
-        assertSnapshots(of: sut.container, named: snapshotName)
+        assert(snapshot: sut, named: snapshotName)
     }
 
     func test_fail_SegmentedControl_with_long_titles() {
@@ -75,22 +75,25 @@ final class SegmentedControlSnapshotTests: XCTestCase {
             .init(title: "Very long third", index: 2)
         ])
 
-        assertFailSnapshots(of: sut.container, named: snapshotName)
+        assertFail(snapshot: sut, named: snapshotName)
     }
 }
-private extension SegmentedControlSnapshotTests {
+private extension SUISegmentedControlSnapshotTests {
     func makeSUT(
         file: StaticString = #file,
         line: UInt = #line
-    ) -> SegmentedControlSnapshotSUT {
+    ) -> SwiftUISegmentedControlSnapshotSUT {
         let appearance = makeDefaultAppearance()
         let snapshotHeight: CGFloat = 32
         let container = makeContainer()
-        let view = SegmentedControl(appearance: appearance)
-        let sut = SegmentedControlSnapshotSUT(view: view, container: container)
+        let sut = SwiftUISegmentedControlSnapshotSUT(
+            uiKitContainer: container,
+            appearance: appearance,
+            snapshotHeight: snapshotHeight
+        )
 
-        container.addSubview(view)
-        view.anchor(
+        container.addSubview(sut.uiKitView)
+        sut.uiKitView.anchor(
             .top(container.topAnchor, constant: 0, priority: .required),
             .leading(container.leadingAnchor, constant: 0, priority: .required),
             .trailing(container.trailingAnchor, constant: 0, priority: .required),
@@ -99,55 +102,8 @@ private extension SegmentedControlSnapshotTests {
         container.layoutIfNeeded()
 
         checkForMemoryLeaks(sut, file: file, line: line)
-        checkForMemoryLeaks(view, file: file, line: line)
+        checkForMemoryLeaks(sut.uiKitView, file: file, line: line)
         return sut
-    }
-
-    func assertSnapshots(
-        of view: UIView,
-        named name: String,
-        file: StaticString = #filePath,
-        line: UInt = #line
-    ) {
-        assert(
-            snapshot: view.snapshot(for: .iPhone(style: .light)),
-            named: "\(snapshotOSPrefix)_\(name)_LIGHT",
-            file: file,
-            line: line
-        )
-        assert(
-            snapshot: view.snapshot(for: .iPhone(style: .dark)),
-            named: "\(snapshotOSPrefix)_\(name)_DARK",
-            file: file,
-            line: line
-        )
-    }
-
-    func assertFailSnapshots(
-        of view: UIView,
-        named name: String,
-        file: StaticString = #filePath,
-        line: UInt = #line
-    ) {
-        assertFail(
-            snapshot: view.snapshot(for: .iPhone(style: .light)),
-            named: "\(snapshotOSPrefix)_\(name)_LIGHT",
-            file: file,
-            line: line
-        )
-        assertFail(
-            snapshot: view.snapshot(for: .iPhone(style: .dark)),
-            named: "\(snapshotOSPrefix)_\(name)_DARK",
-            file: file,
-            line: line
-        )
-    }
-
-    var snapshotOSPrefix: String {
-        if #available(iOS 26.0, *) {
-            return "iOS26"
-        }
-        return "iOS18.5"
     }
 
     func makeContainer() -> UIView {
@@ -199,23 +155,5 @@ private extension SegmentedControlSnapshotTests {
             font: .systemFont(ofSize: 20, weight: .bold),
             cornerRadius: 14
         )
-    }
-}
-
-private final class SegmentedControlSnapshotSUT {
-    let view: SegmentedControl
-    let container: UIView
-
-    init(view: SegmentedControl, container: UIView) {
-        self.view = view
-        self.container = container
-    }
-
-    func display(appearence: SegmentedControlAppearance) {
-        view.display(appearence: appearence)
-    }
-
-    func display(segments: [SegmentControlModel]) {
-        view.display(segments: segments)
     }
 }

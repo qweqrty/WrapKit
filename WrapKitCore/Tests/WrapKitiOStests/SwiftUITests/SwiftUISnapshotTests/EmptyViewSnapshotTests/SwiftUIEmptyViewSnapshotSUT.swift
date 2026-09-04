@@ -1,5 +1,5 @@
 //
-//  PairedEmptyViewSnapshotSUT.swift
+//  SwiftUIEmptyViewSnapshotSUT.swift
 //  WrapKit
 //
 
@@ -10,7 +10,7 @@ import UIKit
 #if canImport(SwiftUI)
 import SwiftUI
 
-final class PairedEmptyViewSnapshotSUT: EmptyViewOutput, PairedSnapshotSource {
+final class SwiftUIEmptyViewSnapshotSUT: EmptyViewOutput, SwiftUISnapshotSource {
     let uiKitView: WrapKit.EmptyView
 
     private let uiKitContainer: UIView
@@ -62,10 +62,6 @@ final class PairedEmptyViewSnapshotSUT: EmptyViewOutput, PairedSnapshotSource {
     func display(backgroundColor: UIColor) {
         uiKitView.backgroundColor = backgroundColor
         swiftUIBackgroundColor = backgroundColor
-    }
-
-    func uiKitSnapshot(for appearance: SnapshotAppearance) -> UIImage {
-        uiKitContainer.snapshot(for: appearance.uiKitConfiguration)
     }
 
     @available(iOS 17.0, *)

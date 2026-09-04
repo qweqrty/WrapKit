@@ -1,5 +1,5 @@
 //
-//  LabelPairedSnapshotSUT.swift
+//  LabelSwiftUISnapshotSUT.swift
 //  WrapKitTests
 //
 
@@ -8,7 +8,7 @@ import UIKit
 @testable import WrapKit
 import WrapKitTestUtils
 
-final class PairedLabelSnapshotSUT: TextOutput, PairedSnapshotSource {
+final class SwiftUILabelSnapshotSUT: TextOutput, SwiftUISnapshotSource {
     private static let defaultFont = UIFont.systemFont(ofSize: 20)
     private static let defaultTextColor = UIColor.label
     private static let defaultTextAlignment = NSTextAlignment.natural
@@ -22,9 +22,9 @@ final class PairedLabelSnapshotSUT: TextOutput, PairedSnapshotSource {
     private var labelBackgroundColor: UIColor?
     private var labelCornerStyle: CornerStyle?
     private var snapshotTextInsets = UIEdgeInsets.zero
-    private var swiftUIFont = PairedLabelSnapshotSUT.defaultFont
-    private var swiftUITextColor = PairedLabelSnapshotSUT.defaultTextColor
-    private var swiftUITextAlignment = PairedLabelSnapshotSUT.defaultTextAlignment
+    private var swiftUIFont = SwiftUILabelSnapshotSUT.defaultFont
+    private var swiftUITextColor = SwiftUILabelSnapshotSUT.defaultTextColor
+    private var swiftUITextAlignment = SwiftUILabelSnapshotSUT.defaultTextAlignment
 
     init(
         uiKitContainer: UIView,
@@ -129,7 +129,7 @@ final class PairedLabelSnapshotSUT: TextOutput, PairedSnapshotSource {
         duration: TimeInterval = 1,
         completion: (() -> Void)? = nil
     ) {
-        let pairedCompletion = makePairedCompletion(completion)
+        let pairedCompletion = makeSwiftUICompletion(completion)
 
         uiKitLabel.display(
             id: id,
@@ -175,10 +175,6 @@ final class PairedLabelSnapshotSUT: TextOutput, PairedSnapshotSource {
         adapter.display(isHidden: isHidden)
     }
 
-    func uiKitSnapshot(for appearance: SnapshotAppearance) -> UIImage {
-        uiKitContainer.snapshot(for: appearance.uiKitConfiguration)
-    }
-
     @available(iOS 17.0, *)
     func swiftUISnapshot(for appearance: SnapshotAppearance) -> UIImage {
         let rootView = SnapshotMirroredLabelContainer(
@@ -209,7 +205,7 @@ final class PairedLabelSnapshotSUT: TextOutput, PairedSnapshotSource {
         )
     }
 
-    private func makePairedCompletion(_ completion: (() -> Void)?) -> (() -> Void)? {
+    private func makeSwiftUICompletion(_ completion: (() -> Void)?) -> (() -> Void)? {
         guard let completion else { return nil }
         let consumerCount = if #available(iOS 17.0, *) { 2 } else { 1 }
         let barrier = CompletionBarrier(consumerCount: consumerCount, completion: completion)

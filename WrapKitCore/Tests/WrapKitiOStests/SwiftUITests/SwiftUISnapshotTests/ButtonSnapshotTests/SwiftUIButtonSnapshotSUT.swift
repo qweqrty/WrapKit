@@ -1,5 +1,5 @@
 //
-//  PairedButtonSnapshotSUT.swift
+//  SwiftUIButtonSnapshotSUT.swift
 //  WrapKitTests
 //
 
@@ -10,7 +10,7 @@ import UIKit
 #if canImport(SwiftUI)
 import SwiftUI
 
-final class PairedButtonSnapshotSUT: ButtonOutput, LoadingOutput, PairedSnapshotSource {
+final class SwiftUIButtonSnapshotSUT: ButtonOutput, LoadingOutput, SwiftUISnapshotSource {
     let uiKitButton: WrapKit.Button
 
     private let uiKitContainer: UIView
@@ -126,10 +126,6 @@ final class PairedButtonSnapshotSUT: ButtonOutput, LoadingOutput, PairedSnapshot
 
     func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         uiKitButton.touchesBegan(touches, with: event)
-    }
-
-    func uiKitSnapshot(for appearance: SnapshotAppearance) -> UIImage {
-        uiKitContainer.snapshot(for: appearance.uiKitConfiguration)
     }
 
     @available(iOS 17.0, *)

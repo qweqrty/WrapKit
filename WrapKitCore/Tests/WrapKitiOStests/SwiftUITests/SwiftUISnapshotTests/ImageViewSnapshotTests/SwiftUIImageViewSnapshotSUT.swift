@@ -4,7 +4,7 @@ import WrapKit
 import WrapKitTestUtils
 import XCTest
 
-final class PairedImageViewSnapshotSUT: NSObject, ImageViewOutput, PairedSnapshotSource {
+final class SwiftUIImageViewSnapshotSUT: NSObject, ImageViewOutput, SwiftUISnapshotSource {
     private struct SwiftUIHost {
         let window: ImageSnapshotWindow
         let controller: UIViewController
@@ -12,7 +12,7 @@ final class PairedImageViewSnapshotSUT: NSObject, ImageViewOutput, PairedSnapsho
 
     let uiKitImageView = ImageView()
     let adapter = ImageViewOutputSwiftUIAdapter()
-    let configuration = PairedImageSnapshotConfiguration()
+    let configuration = SwiftUIImageSnapshotConfiguration()
     private let uiKitContainer = UIView()
 
     private var lightHost: SwiftUIHost?
@@ -107,14 +107,14 @@ final class PairedImageViewSnapshotSUT: NSObject, ImageViewOutput, PairedSnapsho
 
     func display(model: ImageViewPresentableModel?, completion: ((WrapKit.Image?) -> Void)?) {
         invalidateSwiftUISnapshotCache()
-        let completions = makePairedCompletions(completion)
+        let completions = makeSwiftUICompletions(completion)
         uiKitImageView.display(model: model, completion: completions.uiKit)
         adapter.display(model: model, completion: completions.swiftUI)
     }
 
     func display(image: ImageEnum?, completion: ((WrapKit.Image?) -> Void)?) {
         invalidateSwiftUISnapshotCache()
-        let completions = makePairedCompletions(completion)
+        let completions = makeSwiftUICompletions(completion)
         uiKitImageView.display(image: image, completion: completions.uiKit)
         adapter.display(image: image, completion: completions.swiftUI)
     }
@@ -181,10 +181,6 @@ final class PairedImageViewSnapshotSUT: NSObject, ImageViewOutput, PairedSnapsho
         uiKitImageView.touchesEnded(touches, with: event)
     }
 
-    func uiKitSnapshot(for appearance: SnapshotAppearance) -> UIImage {
-        uiKitContainer.snapshot(for: appearance.uiKitConfiguration)
-    }
-
     @available(iOS 17, *)
     func swiftUISnapshot(for appearance: SnapshotAppearance) -> UIImage {
         let style = appearance.colorScheme
@@ -208,7 +204,7 @@ final class PairedImageViewSnapshotSUT: NSObject, ImageViewOutput, PairedSnapsho
         return requestedSnapshot
     }
 
-    private func makePairedCompletions(
+    private func makeSwiftUICompletions(
         _ completion: ((WrapKit.Image?) -> Void)?
     ) -> (uiKit: ((WrapKit.Image?) -> Void)?, swiftUI: ((WrapKit.Image?) -> Void)?) {
         guard let completion else { return (nil, nil) }
@@ -304,7 +300,7 @@ final class PairedImageViewSnapshotSUT: NSObject, ImageViewOutput, PairedSnapsho
         let snapshotConfiguration = SnapshotConfiguration.iPhone(
             style: style == .dark ? .dark : .light
         )
-        let rootView = PairedImageSnapshotContainer(
+        let rootView = SwiftUIImageSnapshotContainer(
             adapter: adapter,
             configuration: configuration
         )
@@ -425,16 +421,16 @@ private final class ImageCompletionBarrier {
     }
 }
 
-final class PairedImageSnapshotConfiguration: ObservableObject {
+final class SwiftUIImageSnapshotConfiguration: ObservableObject {
     @Published var backgroundColor: UIColor?
     @Published var viewWhileLoadingView: AnyView?
     @Published var fallbackView: AnyView?
     @Published var wrongUrlPlaceholderImage: UIImage?
 }
 
-private struct PairedImageSnapshotContainer: View {
+private struct SwiftUIImageSnapshotContainer: View {
     let adapter: ImageViewOutputSwiftUIAdapter
-    @ObservedObject var configuration: PairedImageSnapshotConfiguration
+    @ObservedObject var configuration: SwiftUIImageSnapshotConfiguration
 
     var body: some View {
         VStack(spacing: 0) {

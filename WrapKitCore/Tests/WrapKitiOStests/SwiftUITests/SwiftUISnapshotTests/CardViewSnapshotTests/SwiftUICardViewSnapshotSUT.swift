@@ -1,5 +1,5 @@
 //
-//  PairedCardViewSnapshotSUT.swift
+//  SwiftUICardViewSnapshotSUT.swift
 //  WrapKitTests
 //
 
@@ -10,7 +10,7 @@ import UIKit
 #if canImport(SwiftUI)
 import SwiftUI
 
-final class PairedCardViewSnapshotSUT: CardViewOutput, PairedSnapshotSource {
+final class SwiftUICardViewSnapshotSUT: CardViewOutput, SwiftUISnapshotSource {
     let uiKitView: CardView
     private let uiKitContainer: UIView
     private let swiftUIAdapter: CardViewOutputSwiftUIAdapter
@@ -125,10 +125,6 @@ final class PairedCardViewSnapshotSUT: CardViewOutput, PairedSnapshotSource {
     func display(isGradientBorderEnabled: Bool) {
         uiKitView.display(isGradientBorderEnabled: isGradientBorderEnabled)
         swiftUIAdapter.display(isGradientBorderEnabled: isGradientBorderEnabled)
-    }
-
-    func uiKitSnapshot(for appearance: SnapshotAppearance) -> UIImage {
-        uiKitContainer.snapshot(for: appearance.uiKitConfiguration)
     }
 
     @available(iOS 17.0, *)

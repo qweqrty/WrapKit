@@ -1,5 +1,5 @@
 //
-//  PairedExpandableCardViewSnapshotSUT.swift
+//  SwiftUIExpandableCardViewSnapshotSUT.swift
 //  WrapKit
 //
 
@@ -10,7 +10,7 @@ import UIKit
 #if canImport(SwiftUI)
 import SwiftUI
 
-final class PairedExpandableCardViewSnapshotSUT: NSObject, ExpandableCardViewOutput, PairedSnapshotSource {
+final class SwiftUIExpandableCardViewSnapshotSUT: NSObject, ExpandableCardViewOutput, SwiftUISnapshotSource {
     let uiKitView: ExpandableCardView
 
     private let uiKitContainer: UIView
@@ -62,10 +62,6 @@ final class PairedExpandableCardViewSnapshotSUT: NSObject, ExpandableCardViewOut
     func display(isHidden: Bool) {
         uiKitView.display(isHidden: isHidden)
         swiftUIAdapter.display(isHidden: isHidden)
-    }
-
-    func uiKitSnapshot(for appearance: SnapshotAppearance) -> UIImage {
-        uiKitContainer.snapshot(for: appearance.uiKitConfiguration)
     }
 
     @available(iOS 17.0, *)

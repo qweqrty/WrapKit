@@ -1,5 +1,5 @@
 //
-//  PairedSegmentedControlSnapshotSUT.swift
+//  SwiftUISegmentedControlSnapshotSUT.swift
 //  WrapKitTests
 //
 
@@ -10,7 +10,7 @@ import UIKit
 #if canImport(SwiftUI)
 import SwiftUI
 
-final class PairedSegmentedControlSnapshotSUT: SegmentedControlOutput, PairedSnapshotSource {
+final class SwiftUISegmentedControlSnapshotSUT: SegmentedControlOutput, SwiftUISnapshotSource {
     let uiKitView: SegmentedControl
 
     private let uiKitContainer: UIView
@@ -40,10 +40,6 @@ final class PairedSegmentedControlSnapshotSUT: SegmentedControlOutput, PairedSna
     func display(segments: [SegmentControlModel]) {
         uiKitView.display(segments: segments)
         swiftUIAdapter.display(segments: segments)
-    }
-
-    func uiKitSnapshot(for appearance: SnapshotAppearance) -> UIImage {
-        uiKitContainer.snapshot(for: appearance.uiKitConfiguration)
     }
 
     @available(iOS 17.0, *)

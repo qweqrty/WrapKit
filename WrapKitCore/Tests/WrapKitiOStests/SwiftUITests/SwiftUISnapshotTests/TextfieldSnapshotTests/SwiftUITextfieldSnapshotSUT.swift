@@ -1,3 +1,11 @@
+//
+//  SwiftUITextfieldSnapshotSUT.swift
+//  WrapKit
+//
+//  Created by Urmatbek Marat Uulu on 21/5/26.
+//
+
+
 import WrapKit
 import WrapKitTestUtils
 import UIKit
@@ -5,39 +13,34 @@ import UIKit
 #if canImport(SwiftUI)
 import SwiftUI
 
-final class PairedTextViewSnapshotSUT: TextInputOutput, PairedSnapshotSource {
-    let uiKitView: Textview
+final class SwiftUITextfieldSnapshotSUT: TextInputOutput, SwiftUISnapshotSource {
+    let uiKitView: Textfield
     private let uiKitContainer: UIView
     private let swiftUIAdapter: TextInputOutputSwiftUIAdapter
     private var appearance: TextfieldAppearance
+    private let leadingSwiftUIView: AnyView?
+    private let trailingSwiftUIView: AnyView?
 
     init(
         appearance: TextfieldAppearance,
         uiKitContainer: UIView,
-        uiKitView: Textview? = nil,
-        swiftUIAdapter: TextInputOutputSwiftUIAdapter = TextInputOutputSwiftUIAdapter()
+        uiKitView: Textfield,
+        swiftUIAdapter: TextInputOutputSwiftUIAdapter = TextInputOutputSwiftUIAdapter(),
+        leadingSwiftUIView: AnyView? = nil,
+        trailingSwiftUIView: AnyView? = nil
     ) {
         self.appearance = appearance
         self.uiKitContainer = uiKitContainer
-        self.uiKitView = uiKitView ?? Textview(appearance: appearance)
+        self.uiKitView = uiKitView
         self.swiftUIAdapter = swiftUIAdapter
+        self.leadingSwiftUIView = leadingSwiftUIView
+        self.trailingSwiftUIView = trailingSwiftUIView
     }
 
-    var onPress: (() -> Void)? {
-        get { uiKitView.onPress }
-    }
-
-    var onPaste: ((String?) -> Void)? {
-        get { uiKitView.onPaste }
-    }
-
-    var onTapBackspace: (() -> Void)? {
-        get { uiKitView.onTapBackspace }
-    }
-
-    var placeholderLabel: UILabel {
-        uiKitView.placeholderLabel
-    }
+    var onPress: (() -> Void)? { uiKitView.onPress }
+    var onPaste: ((String?) -> Void)? { uiKitView.onPaste }
+    var leadingViewOnPress: (() -> Void)? { uiKitView.leadingViewOnPress }
+    var trailingViewOnPress: (() -> Void)? { uiKitView.trailingViewOnPress }
 
     func setDeselectedBackgroundColor(_ color: WrapKit.Color) {
         uiKitView.appearance.colors.deselectedBackgroundColor = color
@@ -62,11 +65,6 @@ final class PairedTextViewSnapshotSUT: TextInputOutput, PairedSnapshotSource {
     func stopEditing() {
         uiKitView.stopEditing()
         swiftUIAdapter.stopEditing()
-    }
-
-    func display(mask: TextInputPresentableModel.Mask) {
-        uiKitView.display(mask: mask)
-        swiftUIAdapter.display(mask: mask)
     }
 
     func display(placeholder: String?) {
@@ -94,6 +92,11 @@ final class PairedTextViewSnapshotSUT: TextInputOutput, PairedSnapshotSource {
         swiftUIAdapter.display(isUserInteractionEnabled: isUserInteractionEnabled)
     }
 
+    func display(isHidden: Bool) {
+        uiKitView.display(isHidden: isHidden)
+        swiftUIAdapter.display(isHidden: isHidden)
+    }
+
     func display(isSecureTextEntry: Bool) {
         uiKitView.display(isSecureTextEntry: isSecureTextEntry)
         swiftUIAdapter.display(isSecureTextEntry: isSecureTextEntry)
@@ -109,9 +112,14 @@ final class PairedTextViewSnapshotSUT: TextInputOutput, PairedSnapshotSource {
         swiftUIAdapter.display(trailingSymbol: trailingSymbol)
     }
 
-    func display(isHidden: Bool) {
-        uiKitView.display(isHidden: isHidden)
-        swiftUIAdapter.display(isHidden: isHidden)
+    func display(leadingViewIsHidden: Bool) {
+        uiKitView.display(leadingViewIsHidden: leadingViewIsHidden)
+        swiftUIAdapter.display(leadingViewIsHidden: leadingViewIsHidden)
+    }
+
+    func display(trailingViewIsHidden: Bool) {
+        uiKitView.display(trailingViewIsHidden: trailingViewIsHidden)
+        swiftUIAdapter.display(trailingViewIsHidden: trailingViewIsHidden)
     }
 
     func display(onPress: (() -> Void)?) {
@@ -139,6 +147,11 @@ final class PairedTextViewSnapshotSUT: TextInputOutput, PairedSnapshotSource {
         swiftUIAdapter.display(onTapBackspace: onTapBackspace)
     }
 
+    func display(didChangeText: [((String?) -> Void)]) {
+        uiKitView.display(didChangeText: didChangeText)
+        swiftUIAdapter.display(didChangeText: didChangeText)
+    }
+
     func display(leadingViewOnPress: (() -> Void)?) {
         uiKitView.display(leadingViewOnPress: leadingViewOnPress)
         swiftUIAdapter.display(leadingViewOnPress: leadingViewOnPress)
@@ -149,19 +162,9 @@ final class PairedTextViewSnapshotSUT: TextInputOutput, PairedSnapshotSource {
         swiftUIAdapter.display(trailingViewOnPress: trailingViewOnPress)
     }
 
-    func display(didChangeText: [((String?) -> Void)]) {
-        uiKitView.display(didChangeText: didChangeText)
-        swiftUIAdapter.display(didChangeText: didChangeText)
-    }
-
-    func display(trailingViewIsHidden: Bool) {
-        uiKitView.display(trailingViewIsHidden: trailingViewIsHidden)
-        swiftUIAdapter.display(trailingViewIsHidden: trailingViewIsHidden)
-    }
-
-    func display(leadingViewIsHidden: Bool) {
-        uiKitView.display(leadingViewIsHidden: leadingViewIsHidden)
-        swiftUIAdapter.display(leadingViewIsHidden: leadingViewIsHidden)
+    func display(mask: TextInputPresentableModel.Mask) {
+        uiKitView.display(mask: mask)
+        swiftUIAdapter.display(mask: mask)
     }
 
     func display(inputView: TextInputPresentableModel.InputView?) {
@@ -179,22 +182,23 @@ final class PairedTextViewSnapshotSUT: TextInputOutput, PairedSnapshotSource {
         swiftUIAdapter.display(inputAccessoryView: inputAccessoryView)
     }
 
+    func simulateUserTyping(_ string: String) {
+        uiKitView.simulateUserTyping(string)
+    }
+
     func deleteBackward() {
         uiKitView.deleteBackward()
     }
 
-    func uiKitSnapshot(for appearance: SnapshotAppearance) -> UIImage {
-        uiKitContainer.snapshot(for: appearance.uiKitConfiguration)
-    }
-
     @available(iOS 17.0, *)
     func swiftUISnapshot(for appearance: SnapshotAppearance) -> UIImage {
-
-        let rootView = SnapshotMirroredTextViewContainer(
+        let rootView = SnapshotMirroredTextfieldContainer(
             content: AnyView(
-                SUITextView(
+                SUITextField(
                     adapter: swiftUIAdapter,
-                    appearance: self.appearance
+                    appearance: self.appearance,
+                    leadingView: leadingSwiftUIView,
+                    trailingView: trailingSwiftUIView
                 )
             )
         )
@@ -203,15 +207,6 @@ final class PairedTextViewSnapshotSUT: TextInputOutput, PairedSnapshotSource {
         let hostingController = UIHostingController(rootView: rootView)
         hostingController.overrideUserInterfaceStyle = appearance.userInterfaceStyle
         hostingController.view.backgroundColor = .clear
-        if #unavailable(iOS 26.0) {
-            let safeAreaInsets = appearance.uiKitConfiguration.safeAreaInsets
-            hostingController.additionalSafeAreaInsets = UIEdgeInsets(
-                top: -safeAreaInsets.top,
-                left: -safeAreaInsets.left,
-                bottom: -safeAreaInsets.bottom,
-                right: -safeAreaInsets.right
-            )
-        }
 
         let warmup: TimeInterval = 0.3
         RunLoop.main.run(until: Date().addingTimeInterval(warmup))
@@ -224,14 +219,12 @@ final class PairedTextViewSnapshotSUT: TextInputOutput, PairedSnapshotSource {
 }
 
 @available(iOS 17.0, *)
-private struct SnapshotMirroredTextViewContainer: View {
+private struct SnapshotMirroredTextfieldContainer: View {
     let content: AnyView
 
     var body: some View {
         VStack(spacing: 0) {
-            content
-                .frame(maxWidth: .infinity)
-                .frame(height: 300)
+            content.frame(maxWidth: .infinity)
             Spacer(minLength: 0)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)

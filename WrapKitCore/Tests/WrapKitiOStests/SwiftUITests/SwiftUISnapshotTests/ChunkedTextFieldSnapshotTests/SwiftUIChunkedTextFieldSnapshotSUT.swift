@@ -1,5 +1,5 @@
 //
-//  PairedChunkedTextFieldSnapshotSUT.swift
+//  SwiftUIChunkedTextFieldSnapshotSUT.swift
 //  WrapKitTests
 //
 
@@ -10,7 +10,7 @@ import WrapKitTestUtils
 #if canImport(SwiftUI)
 import SwiftUI
 
-final class PairedChunkedTextFieldSnapshotSUT: TextInputOutput, PairedSnapshotSource {
+final class SwiftUIChunkedTextFieldSnapshotSUT: TextInputOutput, SwiftUISnapshotSource {
     let uiKitView: ChunkedTextField
 
     private let uiKitContainer: UIView
@@ -183,10 +183,6 @@ final class PairedChunkedTextFieldSnapshotSUT: TextInputOutput, PairedSnapshotSo
     func display(isClearButtonActive: Bool) {
         uiKitView.display(isClearButtonActive: isClearButtonActive)
         swiftUIAdapter.display(isClearButtonActive: isClearButtonActive)
-    }
-
-    func uiKitSnapshot(for appearance: SnapshotAppearance) -> UIImage {
-        uiKitContainer.snapshot(for: appearance.uiKitConfiguration)
     }
 
     @available(iOS 17.0, *)

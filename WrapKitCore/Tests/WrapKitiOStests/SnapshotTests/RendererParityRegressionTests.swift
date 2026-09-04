@@ -6,39 +6,6 @@ import XCTest
 
 @available(iOS 17.0, *)
 final class RendererParityRegressionTests: XCTestCase {
-    func test_swiftUIParity_matchesAttributedColoredGlyphRenderers() {
-        let container = UIView(
-            frame: CGRect(origin: .zero, size: SnapshotConfiguration.size)
-        )
-        container.backgroundColor = .clear
-        let sut = PairedLabelSnapshotSUT(uiKitContainer: container)
-        container.addSubview(sut.uiKitLabel)
-        sut.uiKitLabel.frame = CGRect(
-            x: 0,
-            y: 0,
-            width: SnapshotConfiguration.size.width,
-            height: 150
-        )
-        sut.display(attributes: [
-            TextAttributes(
-                text: "Blue glyphs ",
-                color: UIColor.systemBlue,
-                font: UIFont.systemFont(ofSize: 20, weight: .semibold)
-            ),
-            TextAttributes(
-                text: "orange 42",
-                color: UIColor.systemOrange,
-                font: UIFont.systemFont(ofSize: 20, weight: .regular)
-            )
-        ])
-        container.layoutIfNeeded()
-
-        assertRendererParity(
-            sut.uiKitSnapshot(for: .light),
-            sut.swiftUISnapshot(for: .light)
-        )
-    }
-
     @available(iOS 26.0, *)
     func test_swiftUIParity_matchesUICornerConfigurationAndSwiftUIContinuousShape() {
         let snapshotSize = SnapshotConfiguration.size

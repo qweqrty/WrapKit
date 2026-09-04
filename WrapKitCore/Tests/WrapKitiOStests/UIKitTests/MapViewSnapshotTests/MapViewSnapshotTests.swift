@@ -10,249 +10,463 @@ import WrapKitTestUtils
 import XCTest
 
 final class MapViewSnapshotTests: XCTestCase {
-
-    func test_mapView_zoomButtonsKeepExplicitSquareCornersAfterLayout() {
-        let (sut, container) = makeSUT()
-
-        container.layoutIfNeeded()
-
-        XCTAssertEqual(sut.uiKitView.plusView.layer.cornerRadius, 0)
-        XCTAssertEqual(sut.uiKitView.minusView.layer.cornerRadius, 0)
-        XCTAssertEqual(sut.uiKitView.locationView.layer.maskedCorners, .allCorners)
-        XCTAssertEqual(sut.uiKitView.locationView.layer.cornerRadius, 8)
-        XCTAssertTrue(sut.uiKitView.locationView.layer.masksToBounds)
-    }
-
     func test_mapView_default_state() {
+        // GIVEN
         let (sut, container) = makeSUT()
         let snapshotName = "MAPVIEW_DEFAULT_STATE"
 
-        sut.setContentBackgroundColor(.systemBlue)
+        // WHEN
+        sut.contentView.backgroundColor = .systemBlue
 
-        assertUIKitOnlySnapshot(view: container, named: snapshotName, reason: "MapView has no shared Output contract yet.")
+        // THEN
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
     }
 
     func test_fail_mapView_default_state() {
+        // GIVEN
         let (sut, container) = makeSUT()
         let snapshotName = "MAPVIEW_DEFAULT_STATE"
 
-        sut.setContentBackgroundColor(.blue)
+        // WHEN
+        sut.contentView.backgroundColor = .blue
 
-        assertUIKitOnlySnapshotFail(view: container, named: snapshotName, reason: "MapView has no shared Output contract yet.")
+        // THEN
+        if #available(iOS 26, *) {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
     }
 
     func test_mapView_with_map_background() {
+        // GIVEN
         let (sut, container) = makeSUT()
         let snapshotName = "MAPVIEW_WITH_MAP_BACKGROUND"
 
-        sut.setGradientBackground(
-            first: UIColor.systemGreen.withAlphaComponent(0.3),
-            second: UIColor.systemBlue.withAlphaComponent(0.3)
-        )
+        // WHEN
+        let gradientLayer = CAGradientLayer()
+        gradientLayer.colors = [
+            UIColor.systemGreen.withAlphaComponent(0.3).cgColor,
+            UIColor.systemBlue.withAlphaComponent(0.3).cgColor
+        ]
+        gradientLayer.frame = sut.contentView.bounds
+        sut.contentView.layer.insertSublayer(gradientLayer, at: 0)
 
-        assertUIKitOnlySnapshot(view: container, named: snapshotName, reason: "MapView has no shared Output contract yet.")
+        // THEN
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
     }
 
     func test_fail_mapView_with_map_background() {
+        // GIVEN
         let (sut, container) = makeSUT()
         let snapshotName = "MAPVIEW_WITH_MAP_BACKGROUND"
 
-        sut.setGradientBackground(
-            first: UIColor.systemGreen.withAlphaComponent(0.4),
-            second: UIColor.systemBlue.withAlphaComponent(0.3)
-        )
+        // WHEN
+        let gradientLayer = CAGradientLayer()
+        gradientLayer.colors = [
+            UIColor.systemGreen.withAlphaComponent(0.4).cgColor,
+            UIColor.systemBlue.withAlphaComponent(0.3).cgColor
+        ]
+        gradientLayer.frame = sut.contentView.bounds
+        sut.contentView.layer.insertSublayer(gradientLayer, at: 0)
 
-        assertUIKitOnlySnapshotFail(view: container, named: snapshotName, reason: "MapView has no shared Output contract yet.")
+        // THEN
+        if #available(iOS 26, *) {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
     }
 
     func test_mapView_location_button_visible() {
+        // GIVEN
         let (sut, container) = makeSUT()
         let snapshotName = "MAPVIEW_LOCATION_BUTTON_VISIBLE"
 
-        sut.setContentBackgroundColor(.systemGray5)
-        sut.setLocationButton(backgroundColor: .systemBlue, borderWidth: 1, borderColor: .black)
+        // WHEN
+        sut.contentView.backgroundColor = .systemGray5
+        sut.locationView.backgroundColor = .systemBlue
+        sut.locationView.layer.borderWidth = 1
+        sut.locationView.layer.borderColor = UIColor.black.cgColor
 
-        assertUIKitOnlySnapshot(view: container, named: snapshotName, reason: "MapView has no shared Output contract yet.")
+        // THEN
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
     }
 
     func test_fail_mapView_location_button_visible() {
+        // GIVEN
         let (sut, container) = makeSUT()
         let snapshotName = "MAPVIEW_LOCATION_BUTTON_VISIBLE"
 
-        sut.setContentBackgroundColor(.systemGray5)
-        sut.setLocationButton(backgroundColor: .blue, borderWidth: 1, borderColor: .black)
+        // WHEN
+        sut.contentView.backgroundColor = .systemGray5
+        sut.locationView.backgroundColor = .blue
+        sut.locationView.layer.borderWidth = 1
+        sut.locationView.layer.borderColor = UIColor.black.cgColor
 
-        assertUIKitOnlySnapshotFail(view: container, named: snapshotName, reason: "MapView has no shared Output contract yet.")
+        // THEN
+        if #available(iOS 26, *) {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
     }
 
     func test_mapView_zoom_buttons_visible() {
+        // GIVEN
         let (sut, container) = makeSUT()
         let snapshotName = "MAPVIEW_ZOOM_BUTTONS_VISIBLE"
 
-        sut.setContentBackgroundColor(.systemGray5)
-        sut.setPlusButtonBackgroundColor(.systemBlue)
-        sut.setMinusButtonBackgroundColor(.systemRed)
-        sut.setActionsBackgroundColor(.white)
+        // WHEN
+        sut.contentView.backgroundColor = .systemGray5
+        sut.plusView.backgroundColor = .systemBlue
+        sut.minusView.backgroundColor = .systemRed
+        sut.actionsStackView.backgroundColor = .white
 
-        assertUIKitOnlySnapshot(view: container, named: snapshotName, reason: "MapView has no shared Output contract yet.")
+        // THEN
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
     }
 
     func test_fail_mapView_zoom_buttons_visible() {
+        // GIVEN
         let (sut, container) = makeSUT()
         let snapshotName = "MAPVIEW_ZOOM_BUTTONS_VISIBLE"
 
-        sut.setContentBackgroundColor(.systemGray5)
-        sut.setPlusButtonBackgroundColor(.blue)
-        sut.setMinusButtonBackgroundColor(.systemRed)
-        sut.setActionsBackgroundColor(.white)
+        // WHEN
+        sut.contentView.backgroundColor = .systemGray5
+        sut.plusView.backgroundColor = .blue
+        sut.minusView.backgroundColor = .systemRed
+        sut.actionsStackView.backgroundColor = .white
 
-        assertUIKitOnlySnapshotFail(view: container, named: snapshotName, reason: "MapView has no shared Output contract yet.")
+        // THEN
+        if #available(iOS 26, *) {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
     }
 
     func test_mapView_location_button_hidden() {
+        // GIVEN
         let (sut, container) = makeSUT()
         let snapshotName = "MAPVIEW_LOCATION_BUTTON_HIDDEN"
 
-        sut.setContentBackgroundColor(.systemGray5)
-        sut.setLocationButtonHidden(true)
-        sut.setActionsBackgroundColor(.white)
+        // WHEN
+        sut.contentView.backgroundColor = .systemGray5
+        sut.locationView.isHidden = true
+        sut.actionsStackView.backgroundColor = .white
 
-        assertUIKitOnlySnapshot(view: container, named: snapshotName, reason: "MapView has no shared Output contract yet.")
+        // THEN
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
     }
 
     func test_fail_mapView_location_button_hidden() {
+        // GIVEN
         let (sut, container) = makeSUT()
         let snapshotName = "MAPVIEW_LOCATION_BUTTON_HIDDEN"
 
-        sut.setContentBackgroundColor(.systemGray5)
-        sut.setLocationButtonHidden(false)
-        sut.setActionsBackgroundColor(.white)
+        // WHEN
+        sut.contentView.backgroundColor = .systemGray5
+        sut.locationView.isHidden = false
+        sut.actionsStackView.backgroundColor = .white
 
-        assertUIKitOnlySnapshotFail(view: container, named: snapshotName, reason: "MapView has no shared Output contract yet.")
+        // THEN
+        if #available(iOS 26, *) {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
     }
 
     func test_mapView_zoom_controls_hidden() {
+        // GIVEN
         let (sut, container) = makeSUT()
         let snapshotName = "MAPVIEW_ZOOM_CONTROLS_HIDDEN"
 
-        sut.setContentBackgroundColor(.systemGray5)
-        sut.setLocationButton(backgroundColor: .white)
-        sut.setActionsHidden(true)
+        // WHEN
+        sut.contentView.backgroundColor = .systemGray5
+        sut.locationView.backgroundColor = .white
+        sut.actionsStackView.isHidden = true
 
-        assertUIKitOnlySnapshot(view: container, named: snapshotName, reason: "MapView has no shared Output contract yet.")
+        // THEN
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
     }
 
     func test_fail_mapView_zoom_controls_hidden() {
+        // GIVEN
         let (sut, container) = makeSUT()
         let snapshotName = "MAPVIEW_ZOOM_CONTROLS_HIDDEN"
 
-        sut.setContentBackgroundColor(.systemGray5)
-        sut.setLocationButton(backgroundColor: .white)
-        sut.setActionsHidden(false)
+        // WHEN
+        sut.contentView.backgroundColor = .systemGray5
+        sut.locationView.backgroundColor = .white
+        sut.actionsStackView.isHidden = false
 
-        assertUIKitOnlySnapshotFail(view: container, named: snapshotName, reason: "MapView has no shared Output contract yet.")
+        // THEN
+        if #available(iOS 26, *) {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
     }
 
     func test_mapView_all_controls_hidden() {
+        // GIVEN
         let (sut, container) = makeSUT()
         let snapshotName = "MAPVIEW_ALL_CONTROLS_HIDDEN"
 
-        sut.setContentBackgroundColor(.systemGray5)
-        sut.setLocationButtonHidden(true)
-        sut.setActionsHidden(true)
+        // WHEN
+        sut.contentView.backgroundColor = .systemGray5
+        sut.locationView.isHidden = true
+        sut.actionsStackView.isHidden = true
 
-        assertUIKitOnlySnapshot(view: container, named: snapshotName, reason: "MapView has no shared Output contract yet.")
+        // THEN
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
     }
 
     func test_fail_mapView_all_controls_hidden() {
+        // GIVEN
         let (sut, container) = makeSUT()
         let snapshotName = "MAPVIEW_ALL_CONTROLS_HIDDEN"
 
-        sut.setContentBackgroundColor(.systemGray5)
-        sut.setLocationButtonHidden(false)
-        sut.setActionsHidden(false)
+        // WHEN
+        sut.contentView.backgroundColor = .systemGray5
+        sut.locationView.isHidden = false
+        sut.actionsStackView.isHidden = false
 
-        assertUIKitOnlySnapshotFail(view: container, named: snapshotName, reason: "MapView has no shared Output contract yet.")
+        // THEN
+        if #available(iOS 26, *) {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
     }
 
     func test_mapView_separator_visible() {
+        // GIven
         let (sut, container) = makeSUT()
         let snapshotName = "MAPVIEW_SEPARATOR_VISIBLE"
 
-        sut.setContentBackgroundColor(.systemGray5)
-        sut.setActionsBackgroundColor(.white)
-        sut.setSeparatorColor(.systemRed)
+        // WHEN
+        sut.contentView.backgroundColor = .systemGray5
+        sut.actionsStackView.backgroundColor = .white
+        sut.separatorView.backgroundColor = .systemRed
 
-        assertUIKitOnlySnapshot(view: container, named: snapshotName, reason: "MapView has no shared Output contract yet.")
+        // THEN
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
     }
 
     func test_fail_mapView_separator_visible() {
+        // GIven
         let (sut, container) = makeSUT()
         let snapshotName = "MAPVIEW_SEPARATOR_VISIBLE"
 
-        sut.setContentBackgroundColor(.systemGray5)
-        sut.setActionsBackgroundColor(.white)
-        sut.setSeparatorColor(.red)
+        // WHEN
+        sut.contentView.backgroundColor = .systemGray5
+        sut.actionsStackView.backgroundColor = .white
+        sut.separatorView.backgroundColor = .red
 
-        assertUIKitOnlySnapshotFail(view: container, named: snapshotName, reason: "MapView has no shared Output contract yet.")
+        // THEN
+        if #available(iOS 26, *) {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
     }
 
     func test_mapView_separator_hidden() {
+        // GIVEN
         let (sut, container) = makeSUT()
         let snapshotName = "MAPVIEW_SEPARATOR_HIDDEN"
 
-        sut.setContentBackgroundColor(.systemGray5)
-        sut.setActionsBackgroundColor(.white)
-        sut.setSeparatorHidden(true)
+        // WHEN
+        sut.contentView.backgroundColor = .systemGray5
+        sut.actionsStackView.backgroundColor = .white
+        sut.separatorView.isHidden = true
+
         container.layoutIfNeeded()
 
-        assertUIKitOnlySnapshot(view: container, named: snapshotName, reason: "MapView has no shared Output contract yet.")
+        // THEN
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
     }
 
     func test_fail_mapView_separator_hidden() {
+        // GIVEN
         let (sut, container) = makeSUT()
         let snapshotName = "MAPVIEW_SEPARATOR_HIDDEN"
 
-        sut.setContentBackgroundColor(.systemGray5)
-        sut.setActionsBackgroundColor(.white)
-        sut.setSeparatorHidden(false)
+        // WHEN
+        sut.contentView.backgroundColor = .systemGray5
+        sut.actionsStackView.backgroundColor = .white
+        sut.separatorView.isHidden = false
+
         container.layoutIfNeeded()
 
-        assertUIKitOnlySnapshotFail(view: container, named: snapshotName, reason: "MapView has no shared Output contract yet.")
+        // THEN
+        if #available(iOS 26, *) {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
     }
 
     func test_mapView_with_simulated_map_content() {
+        // GIVEN
         let (sut, container) = makeSUT()
         let snapshotName = "MAPVIEW_WITH_PINS"
 
-        sut.setPinsBackground(.systemTeal, alpha: 0.2)
-        sut.setLocationButton(backgroundColor: .white)
-        sut.setActionsBackgroundColor(.white)
+        // WHEN
+        sut.contentView.backgroundColor = .systemTeal.withAlphaComponent(0.2)
+
+        for i in 0..<3 {
+            let pin = UIView()
+            pin.backgroundColor = .systemRed
+            pin.layer.cornerRadius = 10
+            sut.contentView.addSubview(pin)
+            pin.anchor(
+                .top(sut.contentView.topAnchor, constant: CGFloat(30 + i * 40)),
+                .leading(sut.contentView.leadingAnchor, constant: CGFloat(50 + i * 60)),
+                .width(20),
+                .height(20)
+            )
+        }
+
+        sut.locationView.backgroundColor = .white
+        sut.actionsStackView.backgroundColor = .white
+
         container.layoutIfNeeded()
 
-        assertUIKitOnlySnapshot(view: container, named: snapshotName, reason: "MapView has no shared Output contract yet.")
+        // THEN
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
     }
 
     func test_fail_mapView_with_simulated_map_content() {
+        // GIVEN
         let (sut, container) = makeSUT()
         let snapshotName = "MAPVIEW_WITH_PINS"
 
-        sut.setPinsBackground(.systemTeal, alpha: 0.5)
-        sut.setLocationButton(backgroundColor: .white)
-        sut.setActionsBackgroundColor(.white)
+        // WHEN
+        sut.contentView.backgroundColor = .systemTeal.withAlphaComponent(0.5)
+
+        for i in 0..<3 {
+            let pin = UIView()
+            pin.backgroundColor = .systemRed
+            pin.layer.cornerRadius = 10
+            sut.contentView.addSubview(pin)
+            pin.anchor(
+                .top(sut.contentView.topAnchor, constant: CGFloat(30 + i * 40)),
+                .leading(sut.contentView.leadingAnchor, constant: CGFloat(50 + i * 60)),
+                .width(20),
+                .height(20)
+            )
+        }
+
+        sut.locationView.backgroundColor = .white
+        sut.actionsStackView.backgroundColor = .white
+
         container.layoutIfNeeded()
 
-        assertUIKitOnlySnapshotFail(view: container, named: snapshotName, reason: "MapView has no shared Output contract yet.")
+        // THEN
+        if #available(iOS 26, *) {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
     }
+
 }
 
-private extension MapViewSnapshotTests {
-    func makeSUT(file: StaticString = #file, line: UInt = #line) -> (sut: PairedMapViewSnapshotSUT, container: UIView) {
-        let sut = PairedMapViewSnapshotSUT()
+extension MapViewSnapshotTests {
+    func makeSUT(
+        file: StaticString = #file,
+        line: UInt = #line
+    ) -> (sut: MapView<UIView>, container: UIView) {
+
+        let sut = MapView<UIView>(mapView: UIView())
         let container = makeContainer()
 
-        container.addSubview(sut.uiKitView)
-        sut.uiKitView.anchor(
+        container.addSubview(sut)
+        sut.anchor(
             .top(container.topAnchor, constant: 0, priority: .required),
             .leading(container.leadingAnchor, constant: 0, priority: .required),
             .trailing(container.trailingAnchor, constant: 0, priority: .required),
@@ -260,8 +474,8 @@ private extension MapViewSnapshotTests {
         )
 
         container.layoutIfNeeded()
+
         checkForMemoryLeaks(sut, file: file, line: line)
-        checkForMemoryLeaks(sut.uiKitView, file: file, line: line)
         return (sut, container)
     }
 

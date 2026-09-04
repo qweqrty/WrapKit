@@ -1,5 +1,5 @@
 //
-//  PairedSearchBarSnapshotSUT.swift
+//  SwiftUISearchBarSnapshotSUT.swift
 //  WrapKitTests
 //
 
@@ -10,7 +10,7 @@ import WrapKitTestUtils
 #if canImport(SwiftUI)
 import SwiftUI
 
-final class PairedSearchBarSnapshotSUT: SearchBarOutput, PairedSnapshotSource {
+final class SwiftUISearchBarSnapshotSUT: SearchBarOutput, SwiftUISnapshotSource {
     let uiKitView: SearchBar
 
     private let uiKitContainer: UIView
@@ -74,10 +74,6 @@ final class PairedSearchBarSnapshotSUT: SearchBarOutput, PairedSnapshotSource {
     func display(spacing: CGFloat) {
         uiKitView.display(spacing: spacing)
         swiftUIAdapter.display(spacing: spacing)
-    }
-
-    func uiKitSnapshot(for appearance: SnapshotAppearance) -> UIImage {
-        uiKitContainer.snapshot(for: appearance.uiKitConfiguration)
     }
 
     @available(iOS 17.0, *)

@@ -5,7 +5,7 @@ import UIKit
 #if canImport(SwiftUI)
 import SwiftUI
 
-final class PairedProgressBarSnapshotSUT: ProgressBarOutput, PairedSnapshotSource {
+final class SwiftUIProgressBarSnapshotSUT: ProgressBarOutput, SwiftUISnapshotSource {
     let uiKitView: ProgressBarView
 
     private let uiKitContainer: UIView
@@ -71,10 +71,6 @@ final class PairedProgressBarSnapshotSUT: ProgressBarOutput, PairedSnapshotSourc
             startPoint: startPoint,
             endPoint: endPoint
         )
-    }
-
-    func uiKitSnapshot(for appearance: SnapshotAppearance) -> UIImage {
-        uiKitContainer.snapshot(for: appearance.uiKitConfiguration)
     }
 
     @available(iOS 17.0, *)

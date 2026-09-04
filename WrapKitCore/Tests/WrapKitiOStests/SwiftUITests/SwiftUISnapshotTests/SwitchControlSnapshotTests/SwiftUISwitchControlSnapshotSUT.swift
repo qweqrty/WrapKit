@@ -1,5 +1,5 @@
 //
-//  PairedSwitchControlSnapshotSUT.swift
+//  SwiftUISwitchControlSnapshotSUT.swift
 //  WrapKit
 //
 
@@ -10,7 +10,7 @@ import UIKit
 #if canImport(SwiftUI)
 import SwiftUI
 
-final class PairedSwitchControlSnapshotSUT: SwitchCotrolOutput, LoadingOutput, PairedSnapshotParitySource {
+final class SwiftUISwitchControlSnapshotSUT: SwitchCotrolOutput, LoadingOutput, SwiftUISnapshotSource {
     let uiKitView: SwitchControl
 
     private let uiKitContainer: UIView
@@ -84,28 +84,6 @@ final class PairedSwitchControlSnapshotSUT: SwitchCotrolOutput, LoadingOutput, P
     func display(isHidden: Bool) {
         uiKitView.display(isHidden: isHidden)
         swiftUIAdapter.display(isHidden: isHidden)
-    }
-
-    func uiKitSnapshot(for appearance: SnapshotAppearance) -> UIImage {
-        uiKitContainer.snapshot(for: appearance.uiKitConfiguration)
-    }
-
-    func uiKitParitySnapshot(for appearance: SnapshotAppearance) -> UIImage {
-        let container = UIView(frame: uiKitContainer.bounds)
-        container.backgroundColor = uiKitContainer.backgroundColor
-
-        let paritySwitch = SwitchControl()
-        paritySwitch.display(style: swiftUIStyle)
-        if swiftUIStyle == nil {
-            paritySwitch.backgroundColor = uiKitView.backgroundColor
-        }
-        paritySwitch.frame = CGRect(origin: .zero, size: paritySwitch.intrinsicContentSize)
-        container.addSubview(paritySwitch)
-        paritySwitch.display(isOn: uiKitView.isOn)
-        paritySwitch.display(isEnabled: uiKitView.isEnabled)
-        paritySwitch.display(isHidden: uiKitView.isHidden)
-
-        return container.snapshot(for: appearance.uiKitConfiguration)
     }
 
     @available(iOS 17.0, *)
