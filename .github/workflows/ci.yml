@@ -59,6 +59,19 @@ jobs:
           fi
           echo "Генеренные файлы актуальны."
 
+      # contents.xcworkspacedata — локальный артефакт Xcode, в git его нет,
+      # поэтому в чистом клоне воркспейс пакета приходится создавать самим.
+      - name: Prepare SPM workspace
+        run: |
+          mkdir -p .swiftpm/xcode/package.xcworkspace
+          cat > .swiftpm/xcode/package.xcworkspace/contents.xcworkspacedata <<'XCWS'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <Workspace version = "1.0">
+             <FileRef location = "self:"></FileRef>
+          </Workspace>
+          XCWS
+          cat .swiftpm/xcode/package.xcworkspace/contents.xcworkspacedata
+
       - name: Build WrapKit for all platforms (SPM)
         run: |
           dest_for() {
