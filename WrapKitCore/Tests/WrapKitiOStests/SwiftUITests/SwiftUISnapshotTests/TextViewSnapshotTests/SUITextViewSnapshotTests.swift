@@ -8,6 +8,7 @@ import WrapKit
 import WrapKitTestUtils
 import XCTest
 
+@available(iOS 17.0, *)
 final class SUITextViewSnapshotTests: XCTestCase {
 
     func test_Textview_default_state() {
@@ -16,7 +17,13 @@ final class SUITextViewSnapshotTests: XCTestCase {
 
         sut.display(text: "DEFAULT STATE")
 
-        assert(snapshot: sut, named: snapshotName)
+        if #available(iOS 26, *) {
+            assert(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
+            assert(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS26_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.standard)
+        } else {
+            assert(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS18.5_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
+            assert(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS18.5_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.standard)
+        }
     }
 
     func test_fail_Textview_default_state() {
@@ -25,7 +32,13 @@ final class SUITextViewSnapshotTests: XCTestCase {
 
         sut.display(text: "DEFAULT STATE.")
 
-        assertFail(snapshot: sut, named: snapshotName)
+        if #available(iOS 26, *) {
+            assertFail(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.fail)
+            assertFail(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS26_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.fail)
+        } else {
+            assertFail(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS18.5_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.fail)
+            assertFail(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS18.5_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.fail)
+        }
     }
 
     func test_Textview_mask_as_placeholder() {
@@ -36,7 +49,13 @@ final class SUITextViewSnapshotTests: XCTestCase {
         let result = mask.applied(to: "")
         sut.display(placeholder: result.input + result.maskToInput)
 
-        assert(snapshot: sut, named: snapshotName)
+        if #available(iOS 26, *) {
+            assert(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
+            assert(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS26_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.standard)
+        } else {
+            assert(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS18.5_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
+            assert(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS18.5_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.standard)
+        }
     }
 
     func test_fail_Textview_mask_as_placeholder() {
@@ -47,7 +66,13 @@ final class SUITextViewSnapshotTests: XCTestCase {
         let result = mask.applied(to: "")
         sut.display(placeholder: result.input + result.maskToInput)
 
-        assertFail(snapshot: sut, named: snapshotName)
+        if #available(iOS 26, *) {
+            assertFail(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.fail)
+            assertFail(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS26_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.fail)
+        } else {
+            assertFail(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS18.5_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.fail)
+            assertFail(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS18.5_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.fail)
+        }
     }
 
     func test_Textview_mask_pattern() {
@@ -58,7 +83,13 @@ final class SUITextViewSnapshotTests: XCTestCase {
         let result = mask.applied(to: "")
         sut.display(placeholder: result.input + result.maskToInput)
 
-        assert(snapshot: sut, named: snapshotName)
+        if #available(iOS 26, *) {
+            assert(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
+            assert(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS26_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.standard)
+        } else {
+            assert(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS18.5_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
+            assert(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS18.5_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.standard)
+        }
     }
 
     func test_fail_Textview_mask_pattern() {
@@ -69,7 +100,13 @@ final class SUITextViewSnapshotTests: XCTestCase {
         let result = mask.applied(to: "")
         sut.display(placeholder: result.input + result.maskToInput)
 
-        assertFail(snapshot: sut, named: snapshotName)
+        if #available(iOS 26, *) {
+            assertFail(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.fail)
+            assertFail(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS26_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.fail)
+        } else {
+            assertFail(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS18.5_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.fail)
+            assertFail(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS18.5_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.fail)
+        }
     }
 
     func test_TextView_invalid_state() {
@@ -79,7 +116,13 @@ final class SUITextViewSnapshotTests: XCTestCase {
         sut.display(text: "Invalid text")
         sut.display(isValid: false)
 
-        assert(snapshot: sut, named: snapshotName)
+        if #available(iOS 26, *) {
+            assert(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
+            assert(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS26_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.standard)
+        } else {
+            assert(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS18.5_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
+            assert(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS18.5_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.standard)
+        }
     }
 
     func test_fail_TextView_invalid_state() {
@@ -89,7 +132,13 @@ final class SUITextViewSnapshotTests: XCTestCase {
         sut.display(text: "Invalid text")
         sut.display(isValid: true)
 
-        assertFail(snapshot: sut, named: snapshotName)
+        if #available(iOS 26, *) {
+            assertFail(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.fail)
+            assertFail(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS26_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.fail)
+        } else {
+            assertFail(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS18.5_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.fail)
+            assertFail(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS18.5_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.fail)
+        }
     }
 
     func test_TextView_valid_state() {
@@ -99,7 +148,13 @@ final class SUITextViewSnapshotTests: XCTestCase {
         sut.display(text: "Valid text")
         sut.display(isValid: true)
 
-        assert(snapshot: sut, named: snapshotName)
+        if #available(iOS 26, *) {
+            assert(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
+            assert(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS26_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.standard)
+        } else {
+            assert(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS18.5_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
+            assert(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS18.5_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.standard)
+        }
     }
 
     func test_fail_TextView_valid_state() {
@@ -109,7 +164,13 @@ final class SUITextViewSnapshotTests: XCTestCase {
         sut.display(text: "Valid text")
         sut.display(isValid: false)
 
-        assertFail(snapshot: sut, named: snapshotName)
+        if #available(iOS 26, *) {
+            assertFail(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.fail)
+            assertFail(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS26_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.fail)
+        } else {
+            assertFail(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS18.5_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.fail)
+            assertFail(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS18.5_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.fail)
+        }
     }
 
     func test_TextView_valid_to_invalid_transition() {
@@ -121,7 +182,13 @@ final class SUITextViewSnapshotTests: XCTestCase {
         sut.display(text: "test@")
         sut.display(isValid: false)
 
-        assert(snapshot: sut, named: snapshotName)
+        if #available(iOS 26, *) {
+            assert(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
+            assert(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS26_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.standard)
+        } else {
+            assert(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS18.5_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
+            assert(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS18.5_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.standard)
+        }
     }
 
     func test_fail_TextView_valid_to_invalid_transition() {
@@ -133,7 +200,13 @@ final class SUITextViewSnapshotTests: XCTestCase {
         sut.display(text: "test@e")
         sut.display(isValid: false)
 
-        assertFail(snapshot: sut, named: snapshotName)
+        if #available(iOS 26, *) {
+            assertFail(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.fail)
+            assertFail(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS26_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.fail)
+        } else {
+            assertFail(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS18.5_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.fail)
+            assertFail(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS18.5_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.fail)
+        }
     }
 
     func test_TextView_invalid_with_placeholder() {
@@ -143,7 +216,13 @@ final class SUITextViewSnapshotTests: XCTestCase {
         sut.display(placeholder: "Enter valid email")
         sut.display(isValid: false)
 
-        assert(snapshot: sut, named: snapshotName)
+        if #available(iOS 26, *) {
+            assert(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
+            assert(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS26_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.standard)
+        } else {
+            assert(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS18.5_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
+            assert(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS18.5_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.standard)
+        }
     }
 
     func test_fail_TextView_invalid_with_placeholder() {
@@ -153,7 +232,13 @@ final class SUITextViewSnapshotTests: XCTestCase {
         sut.display(placeholder: "Enter valid email.")
         sut.display(isValid: false)
 
-        assertFail(snapshot: sut, named: snapshotName)
+        if #available(iOS 26, *) {
+            assertFail(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.fail)
+            assertFail(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS26_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.fail)
+        } else {
+            assertFail(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS18.5_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.fail)
+            assertFail(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS18.5_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.fail)
+        }
     }
 
     func test_TextView_invalid_with_text_and_placeholder() {
@@ -164,7 +249,13 @@ final class SUITextViewSnapshotTests: XCTestCase {
         sut.display(text: "Invalid input!")
         sut.display(isValid: false)
 
-        assert(snapshot: sut, named: snapshotName)
+        if #available(iOS 26, *) {
+            assert(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
+            assert(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS26_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.standard)
+        } else {
+            assert(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS18.5_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
+            assert(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS18.5_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.standard)
+        }
     }
 
     func test_fail_TextView_invalid_with_text_and_placeholder() {
@@ -175,7 +266,13 @@ final class SUITextViewSnapshotTests: XCTestCase {
         sut.display(text: "Invalid input!.")
         sut.display(isValid: false)
 
-        assertFail(snapshot: sut, named: snapshotName)
+        if #available(iOS 26, *) {
+            assertFail(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.fail)
+            assertFail(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS26_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.fail)
+        } else {
+            assertFail(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS18.5_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.fail)
+            assertFail(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS18.5_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.fail)
+        }
     }
 
     func test_TextView_with_placeholder() {
@@ -184,7 +281,13 @@ final class SUITextViewSnapshotTests: XCTestCase {
 
         sut.display(placeholder: "Placeholder")
 
-        assert(snapshot: sut, named: snapshotName)
+        if #available(iOS 26, *) {
+            assert(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
+            assert(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS26_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.standard)
+        } else {
+            assert(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS18.5_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
+            assert(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS18.5_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.standard)
+        }
     }
 
     func test_fail_TextView_with_placeholder() {
@@ -193,7 +296,13 @@ final class SUITextViewSnapshotTests: XCTestCase {
 
         sut.display(placeholder: "Placeholder.")
 
-        assertFail(snapshot: sut, named: snapshotName)
+        if #available(iOS 26, *) {
+            assertFail(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.fail)
+            assertFail(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS26_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.fail)
+        } else {
+            assertFail(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS18.5_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.fail)
+            assertFail(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS18.5_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.fail)
+        }
     }
 
     func test_TextView_with_securityTextEntry() {
@@ -203,7 +312,13 @@ final class SUITextViewSnapshotTests: XCTestCase {
         sut.display(text: "password123")
         sut.display(isSecureTextEntry: false)
 
-        assert(snapshot: sut, named: snapshotName)
+        if #available(iOS 26, *) {
+            assert(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
+            assert(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS26_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.standard)
+        } else {
+            assert(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS18.5_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
+            assert(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS18.5_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.standard)
+        }
     }
 
     func test_TextView_onPress() {
@@ -219,7 +334,13 @@ final class SUITextViewSnapshotTests: XCTestCase {
         sut.onPress?()
         wait(for: [exp], timeout: 1.0)
 
-        assert(snapshot: sut, named: snapshotName)
+        if #available(iOS 26, *) {
+            assert(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
+            assert(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS26_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.standard)
+        } else {
+            assert(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS18.5_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
+            assert(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS18.5_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.standard)
+        }
     }
 
     func test_fail_TextView_onPress() {
@@ -235,7 +356,13 @@ final class SUITextViewSnapshotTests: XCTestCase {
         sut.onPress?()
         wait(for: [exp], timeout: 1.0)
 
-        assertFail(snapshot: sut, named: snapshotName)
+        if #available(iOS 26, *) {
+            assertFail(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.fail)
+            assertFail(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS26_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.fail)
+        } else {
+            assertFail(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS18.5_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.fail)
+            assertFail(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS18.5_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.fail)
+        }
     }
 
     func test_TextView_onPaste() {
@@ -250,7 +377,13 @@ final class SUITextViewSnapshotTests: XCTestCase {
         sut.onPaste?("Text to paste")
         wait(for: [exp], timeout: 1.0)
 
-        assert(snapshot: sut, named: snapshotName)
+        if #available(iOS 26, *) {
+            assert(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
+            assert(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS26_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.standard)
+        } else {
+            assert(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS18.5_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
+            assert(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS18.5_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.standard)
+        }
     }
 
     func test_fail_TextView_onPaste() {
@@ -265,7 +398,13 @@ final class SUITextViewSnapshotTests: XCTestCase {
         sut.onPaste?("Text to paste.")
         wait(for: [exp], timeout: 1.0)
 
-        assertFail(snapshot: sut, named: snapshotName)
+        if #available(iOS 26, *) {
+            assertFail(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.fail)
+            assertFail(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS26_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.fail)
+        } else {
+            assertFail(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS18.5_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.fail)
+            assertFail(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS18.5_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.fail)
+        }
     }
 
     func test_TextView_clearButtonActive() {
@@ -275,7 +414,13 @@ final class SUITextViewSnapshotTests: XCTestCase {
         sut.display(text: "Clear button")
         sut.display(isClearButtonActive: true)
 
-        assert(snapshot: sut, named: snapshotName)
+        if #available(iOS 26, *) {
+            assert(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
+            assert(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS26_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.standard)
+        } else {
+            assert(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS18.5_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
+            assert(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS18.5_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.standard)
+        }
     }
 
     func test_fail_TextView_clearButtonActive() {
@@ -285,7 +430,13 @@ final class SUITextViewSnapshotTests: XCTestCase {
         sut.display(text: "Clear button.")
         sut.display(isClearButtonActive: false)
 
-        assertFail(snapshot: sut, named: snapshotName)
+        if #available(iOS 26, *) {
+            assertFail(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.fail)
+            assertFail(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS26_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.fail)
+        } else {
+            assertFail(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS18.5_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.fail)
+            assertFail(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS18.5_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.fail)
+        }
     }
 
     func test_TextView_trailingSymbol() {
@@ -295,7 +446,13 @@ final class SUITextViewSnapshotTests: XCTestCase {
         sut.display(text: "Clear button")
         sut.display(trailingSymbol: "X")
 
-        assert(snapshot: sut, named: snapshotName)
+        if #available(iOS 26, *) {
+            assert(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
+            assert(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS26_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.standard)
+        } else {
+            assert(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS18.5_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
+            assert(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS18.5_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.standard)
+        }
     }
 
     func test_fail_TextView_trailingSymbol() {
@@ -305,7 +462,13 @@ final class SUITextViewSnapshotTests: XCTestCase {
         sut.display(text: "Clear button.")
         sut.display(trailingSymbol: "X")
 
-        assertFail(snapshot: sut, named: snapshotName)
+        if #available(iOS 26, *) {
+            assertFail(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.fail)
+            assertFail(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS26_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.fail)
+        } else {
+            assertFail(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS18.5_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.fail)
+            assertFail(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS18.5_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.fail)
+        }
     }
 
     func test_textview_emoji() {
@@ -314,7 +477,13 @@ final class SUITextViewSnapshotTests: XCTestCase {
 
         sut.display(model: .init(text: "it's fine 🙂"))
 
-        assert(snapshot: sut, named: snapshotName)
+        if #available(iOS 26, *) {
+            assert(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
+            assert(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS26_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.standard)
+        } else {
+            assert(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS18.5_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
+            assert(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS18.5_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.standard)
+        }
     }
 
     func test_textview_utfLikeText() {
@@ -323,11 +492,18 @@ final class SUITextViewSnapshotTests: XCTestCase {
 
         sut.display(model: .init(text: "Saima 500+O!TV- SALE 30%_850"))
 
-        assert(snapshot: sut, named: snapshotName)
+        if #available(iOS 26, *) {
+            assert(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
+            assert(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS26_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.standard)
+        } else {
+            assert(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS18.5_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
+            assert(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS18.5_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.standard)
+        }
     }
 
 }
 
+@available(iOS 17.0, *)
 extension SUITextViewSnapshotTests {
     func makePhoneMask() -> Mask {
         Mask(format: [
