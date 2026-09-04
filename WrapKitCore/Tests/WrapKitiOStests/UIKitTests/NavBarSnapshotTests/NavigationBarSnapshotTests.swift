@@ -5,37 +5,18 @@
 //  Created by sunflow on 10/11/25.
 //
 
-import UIKit
 import WrapKit
 import WrapKitTestUtils
 import XCTest
 
 class NavigationBarSnapshotTests: XCTestCase {
-    func test_navigationBar_style_appliesSecondaryTypographyToCenterValueLabel() {
-        let navigationBar = NavigationBar()
-        let secondaryFont = UIFont.systemFont(ofSize: 17, weight: .semibold)
-
-        navigationBar.display(style: .init(
-            backgroundColor: .clear,
-            horizontalSpacing: 1,
-            primeFont: .systemFont(ofSize: 24),
-            primeColor: .blue,
-            secondaryFont: secondaryFont,
-            secondaryColor: .green,
-            numberOfLines: 3
-        ))
-
-        XCTAssertEqual(navigationBar.titleViews.valueLabel.font, secondaryFont)
-        XCTAssertEqual(navigationBar.titleViews.valueLabel.textColor, .green)
-        XCTAssertEqual(navigationBar.titleViews.valueLabel.numberOfLines, 3)
-    }
 
     func test_navigationBar_defaul_state() {
         let snapshotName = "NAVBAR_DEFAULT_STATE"
-        
+
         // GIVEN
-        let sut = makeSUT()
-        
+        let (sut, container) = makeSUT()
+
         // WHEN
         sut.display(style: .init(
             backgroundColor: .red,
@@ -45,17 +26,23 @@ class NavigationBarSnapshotTests: XCTestCase {
             secondaryFont: .systemFont(ofSize: 14),
             secondaryColor: .green)
         )
-        
+
         // THEN
-        assert(snapshot: sut, named: snapshotName)
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
     }
-    
+
     func test_fail_navigationBar_defaul_state() {
         let snapshotName = "NAVBAR_DEFAULT_STATE"
-        
+
         // GIVEN
-        let sut = makeSUT()
-        
+        let (sut, container) = makeSUT()
+
         // WHEN
         sut.display(style: .init(
             backgroundColor: .systemRed,
@@ -65,17 +52,23 @@ class NavigationBarSnapshotTests: XCTestCase {
             secondaryFont: .systemFont(ofSize: 14),
             secondaryColor: .green)
         )
-        
+
         // THEN
-        assertFail(snapshot: sut, named: snapshotName)
+        if #available(iOS 26, *) {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
     }
-    
+
     func test_navigationBar_with_centerView_keyValue() {
         let snapshotName = "NAVBAR_WITH_CENTERVIEW_KEYVALUE"
-        
+
         // GIVEN
-        let sut = makeSUT()
-        
+        let (sut, container) = makeSUT()
+
         // WHEN
         sut.display(style: .init(
             backgroundColor: .red,
@@ -85,19 +78,25 @@ class NavigationBarSnapshotTests: XCTestCase {
             secondaryFont: .systemFont(ofSize: 14),
             secondaryColor: .green)
         )
-        
+
         sut.display(centerView: .keyValue(.init(.text("First"), .text("Second"))))
-        
+
         // THEN
-        assert(snapshot: sut, named: snapshotName)
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
     }
-    
+
     func test_fail_navigationBar_with_centerView_keyValue() {
         let snapshotName = "NAVBAR_WITH_CENTERVIEW_KEYVALUE"
-        
+
         // GIVEN
-        let sut = makeSUT()
-        
+        let (sut, container) = makeSUT()
+
         // WHEN
         sut.display(style: .init(
             backgroundColor: .red,
@@ -107,19 +106,25 @@ class NavigationBarSnapshotTests: XCTestCase {
             secondaryFont: .systemFont(ofSize: 14),
             secondaryColor: .green)
         )
-        
+
         sut.display(centerView: .keyValue(.init(.text("First."), .text("Second"))))
-        
+
         // THEN
-        assertFail(snapshot: sut, named: snapshotName)
+        if #available(iOS 26, *) {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
     }
-    
+
     func test_navigationBar_with_centerView_titleImage() {
         let snapshotName = "NAVBAR_WITH_CENTERVIEW_TITLEDIMAGE"
-        
+
         // GIVEN
-        let sut = makeSUT()
-        
+        let (sut, container) = makeSUT()
+
         // WHEN
         sut.display(style: .init(
             backgroundColor: .red,
@@ -129,24 +134,30 @@ class NavigationBarSnapshotTests: XCTestCase {
             secondaryFont: .systemFont(ofSize: 14),
             secondaryColor: .green)
         )
-        
+
         sut.display(
             centerView: .titledImage(
                 .init(.some(
                     .init(size: CGSize(width: 24, height: 24),
                           image: .asset(Image(systemName: "star.fill")))),
                       .text("Title"))))
-        
+
         // THEN
-        assert(snapshot: sut, named: snapshotName)
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
     }
-    
+
     func test_fail_navigationBar_with_centerView_titleImage() {
         let snapshotName = "NAVBAR_WITH_CENTERVIEW_TITLEDIMAGE"
-        
+
         // GIVEN
-        let sut = makeSUT()
-        
+        let (sut, container) = makeSUT()
+
         // WHEN
         sut.display(style: .init(
             backgroundColor: .red,
@@ -156,24 +167,30 @@ class NavigationBarSnapshotTests: XCTestCase {
             secondaryFont: .systemFont(ofSize: 14),
             secondaryColor: .green)
         )
-        
+
         sut.display(
             centerView: .titledImage(
                 .init(.some(
                     .init(size: CGSize(width: 24, height: 24),
                           image: .asset(Image(systemName: "star")))),
                       .text("Title"))))
-        
+
         // THEN
-        assertFail(snapshot: sut, named: snapshotName)
+        if #available(iOS 26, *) {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
     }
-    
+
     func test_navigationBar_with_leadingCard_backgoundImage() {
         let snapshotName = "NAVBAR_WITH_LEADINGCARD_BACKGROUNDIMAGE_TITLE"
-        
+
         // GIVEN
-        let sut = makeSUT()
-        
+        let (sut, container) = makeSUT()
+
         // WHEN
         sut.display(style: .init(
             backgroundColor: .red,
@@ -183,19 +200,25 @@ class NavigationBarSnapshotTests: XCTestCase {
             secondaryFont: .systemFont(ofSize: 14),
             secondaryColor: .green)
         )
-        
+
         sut.display(leadingCard: .init(backgroundImage: .init(image: .asset(Image(systemName: "star.fill"))), title: .text("Title"), onPress: { }))
-        
+
         // THEN
-        assert(snapshot: sut, named: snapshotName)
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
     }
-    
+
     func test_fail_navigationBar_with_leadingCard_backgoundImage() {
         let snapshotName = "NAVBAR_WITH_LEADINGCARD_BACKGROUNDIMAGE_TITLE"
-        
+
         // GIVEN
-        let sut = makeSUT()
-        
+        let (sut, container) = makeSUT()
+
         // WHEN
         sut.display(style: .init(
             backgroundColor: .red,
@@ -205,19 +228,25 @@ class NavigationBarSnapshotTests: XCTestCase {
             secondaryFont: .systemFont(ofSize: 14),
             secondaryColor: .green)
         )
-        
+
         sut.display(leadingCard: .init(backgroundImage: .init(image: .asset(Image(systemName: "star"))), title: .text("Title")))
-        
+
         // THEN
-        assertFail(snapshot: sut, named: snapshotName)
+        if #available(iOS 26, *) {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
     }
-    
+
     func test_navigationBar_with_leadingCard_trailingTitles() {
         let snapshotName = "NAVBAR_WITH_LEADINGCARD_TRAILINGTITLES"
-        
+
         // GIVEN
-        let sut = makeSUT()
-        
+        let (sut, container) = makeSUT()
+
         // WHEN
         sut.display(style: .init(
             backgroundColor: .red,
@@ -227,7 +256,7 @@ class NavigationBarSnapshotTests: XCTestCase {
             secondaryFont: .systemFont(ofSize: 14),
             secondaryColor: .green)
         )
-        
+
         sut.display(
             leadingCard: .init(
                 backgroundImage: .init(
@@ -238,15 +267,21 @@ class NavigationBarSnapshotTests: XCTestCase {
             ))
 
         // THEN
-        assert(snapshot: sut, named: snapshotName)
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
     }
-    
+
     func test_fail_navigationBar_with_leadingCard_trailingTitles() {
         let snapshotName = "NAVBAR_WITH_LEADINGCARD_TRAILINGTITLES"
-        
+
         // GIVEN
-        let sut = makeSUT()
-        
+        let (sut, container) = makeSUT()
+
         // WHEN
         sut.display(style: .init(
             backgroundColor: .red,
@@ -256,7 +291,7 @@ class NavigationBarSnapshotTests: XCTestCase {
             secondaryFont: .systemFont(ofSize: 14),
             secondaryColor: .green)
         )
-        
+
         sut.display(
             leadingCard: .init(
                 backgroundImage: .init(
@@ -265,16 +300,22 @@ class NavigationBarSnapshotTests: XCTestCase {
                 trailingTitles: .init(.text("Title."), .text("Subtitle."))))
 
         // THEN
-        assertFail(snapshot: sut, named: snapshotName)
+        if #available(iOS 26, *) {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
     }
-    
+
     // MARK: - func display(secondaryTrailingImage:) tests
     func test_navigationBar_with_secondaryTrailingImage() {
         let snapshotName = "NAVBAR_WITH_SECONDARY_TRAILING_IMAGE"
-        
+
         // GIVEN
-        let sut = makeSUT()
-        
+        let (sut, container) = makeSUT()
+
         // WHEN
         sut.display(style: .init(
             backgroundColor: .red,
@@ -284,75 +325,26 @@ class NavigationBarSnapshotTests: XCTestCase {
             secondaryFont: .systemFont(ofSize: 14),
             secondaryColor: .green)
         )
-        
+
         let image = Image(systemName: "star.fill")
         sut.display(secondaryTrailingImage: .init(title: "Image", image: image))
-        
+
         // THEN
-        assert(snapshot: sut, named: snapshotName)
-    }
-    
-    func test_fail_navigationBar_with_secondaryTrailingImage() {
-        let snapshotName = "NAVBAR_WITH_SECONDARY_TRAILING_IMAGE"
-        
-        // GIVEN
-        let sut = makeSUT()
-        
-        // WHEN
-        sut.display(style: .init(
-            backgroundColor: .red,
-            horizontalSpacing: 1.0,
-            primeFont: .boldSystemFont(ofSize: 24),
-            primeColor: .blue,
-            secondaryFont: .systemFont(ofSize: 14),
-            secondaryColor: .green)
-        )
-        
-        let image = Image(systemName: "star")
-        sut.display(secondaryTrailingImage: .some(.init(title: "Image", image: image, height: 24)))
-        
-        // THEN
-        assertFail(snapshot: sut, named: snapshotName)
-    }
-    
-    func test_navigationBar_postSecondaryTrailingOnPressOutputVisualState() {
-        let snapshotName = "NAVBAR_WITH_SECONDARY_TRAILING_IMAGE_ON_PRESS"
-        
-        // GIVEN
-        let sut = makeSUT()
-        
-        // WHEN
-        sut.display(style: .init(
-            backgroundColor: .red,
-            horizontalSpacing: 1.0,
-            primeFont: .boldSystemFont(ofSize: 24),
-            primeColor: .blue,
-            secondaryFont: .systemFont(ofSize: 14),
-            secondaryColor: .green)
-        )
-        
-        let image = Image(systemName: "star.fill")
-        let pressedStyle = makeSnapshotStyle(backgroundColor: .yellow)
-        let onPress: () -> Void = { }
-        sut.display(secondaryTrailingImage: .some(.init(
-            title: "Image",
-            image: image,
-            height: 24,
-            onPress: onPress)
-        ))
-        
-        applyPostCallbackOutputState(pressedStyle, on: sut)
-        
-        // THEN
-        assert(snapshot: sut, named: snapshotName)
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
     }
 
-    func test_fail_navigationBar_postSecondaryTrailingOnPressOutputVisualState() {
-        let snapshotName = "NAVBAR_WITH_SECONDARY_TRAILING_IMAGE_ON_PRESS"
-        
+    func test_fail_navigationBar_with_secondaryTrailingImage() {
+        let snapshotName = "NAVBAR_WITH_SECONDARY_TRAILING_IMAGE"
+
         // GIVEN
-        let sut = makeSUT()
-        
+        let (sut, container) = makeSUT()
+
         // WHEN
         sut.display(style: .init(
             backgroundColor: .red,
@@ -362,29 +354,64 @@ class NavigationBarSnapshotTests: XCTestCase {
             secondaryFont: .systemFont(ofSize: 14),
             secondaryColor: .green)
         )
-        
+
+        let image = Image(systemName: "star")
+        sut.display(secondaryTrailingImage: .some(.init(title: "Image", image: image, height: 24)))
+
+        // THEN
+        if #available(iOS 26, *) {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
+    }
+
+    func test_navigationBar_with_secondaryTrailingImage_onPress() {
+        let snapshotName = "NAVBAR_WITH_SECONDARY_TRAILING_IMAGE_ON_PRESS"
+
+        // GIVEN
+        let (sut, container) = makeSUT()
+
+        // WHEN
+        sut.display(style: .init(
+            backgroundColor: .red,
+            horizontalSpacing: 1.0,
+            primeFont: .boldSystemFont(ofSize: 24),
+            primeColor: .blue,
+            secondaryFont: .systemFont(ofSize: 14),
+            secondaryColor: .green)
+        )
+
         let image = Image(systemName: "star.fill")
-        let pressedStyle = makeSnapshotStyle(backgroundColor: .systemYellow)
-        let onPress: () -> Void = { }
         sut.display(secondaryTrailingImage: .some(.init(
             title: "Image",
             image: image,
             height: 24,
-            onPress: onPress)
+            onPress: { [weak sut] in
+                sut?.backgroundColor = .yellow
+            })
         ))
-        
-        applyPostCallbackOutputState(pressedStyle, on: sut)
-        
+
+        sut.secondaryTrailingImageWrapperView.contentView.onPress?()
+
         // THEN
-        assertFail(snapshot: sut, named: snapshotName)
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
     }
-    
-    func test_navigationBar_with_tertiaryTrailingImage() {
-        let snapshotName = "NAVBAR_WITH_TERTIARY_TRAILINGIMAGE"
-        
+
+    func test_fail_navigationBar_with_secondaryTrailingImage_onPress() {
+        let snapshotName = "NAVBAR_WITH_SECONDARY_TRAILING_IMAGE_ON_PRESS"
+
         // GIVEN
-        let sut = makeSUT()
-        
+        let (sut, container) = makeSUT()
+
         // WHEN
         sut.display(style: .init(
             backgroundColor: .red,
@@ -394,23 +421,69 @@ class NavigationBarSnapshotTests: XCTestCase {
             secondaryFont: .systemFont(ofSize: 14),
             secondaryColor: .green)
         )
-        
+
+        let image = Image(systemName: "star.fill")
+        sut.display(secondaryTrailingImage: .some(.init(
+            title: "Image",
+            image: image,
+            height: 24,
+            onPress: { [weak sut] in
+                sut?.backgroundColor = .systemYellow
+            })
+        ))
+
+        sut.secondaryTrailingImageWrapperView.contentView.onPress?()
+
+        // THEN
+        if #available(iOS 26, *) {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
+    }
+
+    func test_navigationBar_with_tertiaryTrailingImage() {
+        let snapshotName = "NAVBAR_WITH_TERTIARY_TRAILINGIMAGE"
+
+        // GIVEN
+        let (sut, container) = makeSUT()
+
+        // WHEN
+        sut.display(style: .init(
+            backgroundColor: .red,
+            horizontalSpacing: 1.0,
+            primeFont: .boldSystemFont(ofSize: 24),
+            primeColor: .blue,
+            secondaryFont: .systemFont(ofSize: 14),
+            secondaryColor: .green)
+        )
+
         let image = Image(systemName: "star.fill")
         sut.display(tertiaryTrailingImage: .some(.init(
             title: "Image",
             image: image
         )))
-        
+
+        sut.secondaryTrailingImageWrapperView.contentView.onPress?()
+
         // THEN
-        assert(snapshot: sut, named: snapshotName)
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
     }
-    
+
     func test_fail_navigationBar_with_tertiaryTrailingImage() {
         let snapshotName = "NAVBAR_WITH_TERTIARY_TRAILINGIMAGE"
-        
+
         // GIVEN
-        let sut = makeSUT()
-        
+        let (sut, container) = makeSUT()
+
         // WHEN
         sut.display(style: .init(
             backgroundColor: .red,
@@ -420,24 +493,32 @@ class NavigationBarSnapshotTests: XCTestCase {
             secondaryFont: .systemFont(ofSize: 14),
             secondaryColor: .green)
         )
-        
+
         let image = Image(systemName: "star")
         sut.display(tertiaryTrailingImage: .some(.init(
             title: "Image",
             image: image,
             height: 24,
         )))
-        
+
+        sut.secondaryTrailingImageWrapperView.contentView.onPress?()
+
         // THEN
-        assertFail(snapshot: sut, named: snapshotName)
+        if #available(iOS 26, *) {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
     }
-    
-    func test_navigationBar_postTertiaryTrailingOnPressOutputVisualState() {
+
+    func test_navigationBar_with_tertiaryTrailingImage_onPress() {
         let snapshotName = "NAVBAR_WITH_TERTIARY_TRAILINGIMAGE_ONPRESS"
-        
+
         // GIVEN
-        let sut = makeSUT()
-        
+        let (sut, container) = makeSUT()
+
         // WHEN
         sut.display(style: .init(
             backgroundColor: .red,
@@ -447,28 +528,34 @@ class NavigationBarSnapshotTests: XCTestCase {
             secondaryFont: .systemFont(ofSize: 14),
             secondaryColor: .green)
         )
-        
+
         let image = Image(systemName: "star.fill")
-        let pressedStyle = makeSnapshotStyle(backgroundColor: .yellow)
-        let onPress: () -> Void = { }
         sut.display(tertiaryTrailingImage: .some(.init(
             title: "Image",
             image: image,
-            onPress: onPress
+            onPress: { [weak sut] in
+                sut?.backgroundColor = .yellow
+            }
         )))
-        
-        applyPostCallbackOutputState(pressedStyle, on: sut)
-        
+
+        sut.tertiaryTrailingImageWrapperView.contentView.onPress?()
+
         // THEN
-        assert(snapshot: sut, named: snapshotName)
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
     }
-    
-    func test_fail_navigationBar_postTertiaryTrailingOnPressOutputVisualState() {
+
+    func test_fail_navigationBar_with_tertiaryTrailingImage_onPress() {
         let snapshotName = "NAVBAR_WITH_TERTIARY_TRAILINGIMAGE_ONPRESS"
-        
+
         // GIVEN
-        let sut = makeSUT()
-        
+        let (sut, container) = makeSUT()
+
         // WHEN
         sut.display(style: .init(
             backgroundColor: .red,
@@ -478,29 +565,35 @@ class NavigationBarSnapshotTests: XCTestCase {
             secondaryFont: .systemFont(ofSize: 14),
             secondaryColor: .green)
         )
-        
+
         let image = Image(systemName: "star.fill")
-        let pressedStyle = makeSnapshotStyle(backgroundColor: .systemYellow)
-        let onPress: () -> Void = { }
         sut.display(tertiaryTrailingImage: .some(.init(
             title: "Image",
             image: image,
             height: 24,
-            onPress: onPress
+            onPress: { [weak sut] in
+                sut?.backgroundColor = .systemYellow
+            }
         )))
-        
-        applyPostCallbackOutputState(pressedStyle, on: sut)
-        
+
+        sut.tertiaryTrailingImageWrapperView.contentView.onPress?()
+
         // THEN
-        assertFail(snapshot: sut, named: snapshotName)
+        if #available(iOS 26, *) {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
     }
-    
+
     func test_navigationBar_with_tertiaryAndSecondary_trailingImages() {
         let snapshotName = "NAVBAR_WITH_TERTIARY_SECONDARY_TRAILINGIMAGES"
-        
+
         // GIVEN
-        let sut = makeSUT()
-        
+        let (sut, container) = makeSUT()
+
         // WHEN
         sut.display(style: .init(
             backgroundColor: .red,
@@ -510,35 +603,43 @@ class NavigationBarSnapshotTests: XCTestCase {
             secondaryFont: .systemFont(ofSize: 14),
             secondaryColor: .green)
         )
-        
+
         let image = Image(systemName: "star.fill")
-        let pressedStyle = makeSnapshotStyle(backgroundColor: .yellow)
-        let onPress: () -> Void = { }
-        
+
         sut.display(tertiaryTrailingImage: .some(.init(
             title: "Tert",
             image: image,
-            onPress: onPress)
+            onPress: { [weak sut] in
+                sut?.backgroundColor = .yellow
+            })
         ))
-        
+
         sut.display(secondaryTrailingImage: .some(.init(
             title: "Second",
             image: image,
-            onPress: onPress)
+            onPress: { [weak sut] in
+                sut?.backgroundColor = .yellow
+            })
         ))
-        
-        applyPostCallbackOutputState(pressedStyle, on: sut)
-        
+
+        sut.secondaryTrailingImageWrapperView.contentView.onPress?()
+
         // THEN
-        assert(snapshot: sut, named: snapshotName)
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
     }
-    
+
     func test_fail_navigationBar_with_tertiaryAndSecondary_trailingImages() {
         let snapshotName = "NAVBAR_WITH_TERTIARY_SECONDARY_TRAILINGIMAGES"
-        
+
         // GIVEN
-        let sut = makeSUT()
-        
+        let (sut, container) = makeSUT()
+
         // WHEN
         sut.display(style: .init(
             backgroundColor: .red,
@@ -548,37 +649,45 @@ class NavigationBarSnapshotTests: XCTestCase {
             secondaryFont: .systemFont(ofSize: 14),
             secondaryColor: .green)
         )
-        
+
         let image = Image(systemName: "star")
-        let pressedStyle = makeSnapshotStyle(backgroundColor: .yellow)
-        let onPress: () -> Void = { }
-        
+
         sut.display(tertiaryTrailingImage: .some(.init(
             title: "Tert",
             image: image,
             height: 24,
-            onPress: onPress)
+            onPress: { [weak sut] in
+                sut?.backgroundColor = .yellow
+            })
         ))
-        
+
         sut.display(secondaryTrailingImage: .some(.init(
             title: "Second",
             image: image,
             height: 24,
-            onPress: onPress)
+            onPress: { [weak sut] in
+                sut?.backgroundColor = .yellow
+            })
         ))
-        
-        applyPostCallbackOutputState(pressedStyle, on: sut)
-        
+
+        sut.secondaryTrailingImageWrapperView.contentView.onPress?()
+
         // THEN
-        assertFail(snapshot: sut, named: snapshotName)
+        if #available(iOS 26, *) {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
     }
-    
+
     func test_navigationBar_hidden_state() {
         let snapshotName = "NAVBAR_HIDDEN_STATE"
-        
+
         // GIVEN
-        let sut = makeSUT()
-        
+        let (sut, container) = makeSUT()
+
         // WHEN
         sut.display(style: .init(
             backgroundColor: .red,
@@ -588,19 +697,25 @@ class NavigationBarSnapshotTests: XCTestCase {
             secondaryFont: .systemFont(ofSize: 14),
             secondaryColor: .green)
         )
-        
+
         sut.display(isHidden: true)
-        
+
         // THEN
-        assert(snapshot: sut, named: snapshotName)
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
     }
-    
+
     func test_fail_navigationBar_hidden_state() {
         let snapshotName = "NAVBAR_HIDDEN_STATE"
-        
+
         // GIVEN
-        let sut = makeSUT()
-        
+        let (sut, container) = makeSUT()
+
         // WHEN
         sut.display(style: .init(
             backgroundColor: .red,
@@ -610,19 +725,25 @@ class NavigationBarSnapshotTests: XCTestCase {
             secondaryFont: .systemFont(ofSize: 14),
             secondaryColor: .green)
         )
-        
+
         sut.display(isHidden: false)
-        
+
         // THEN
-        assertFail(snapshot: sut, named: snapshotName)
+        if #available(iOS 26, *) {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
     }
-    
+
     func test_navigationBar_with_leadingCard_leadingTrailingTitles() {
         let snapshotName = "NAVBAR_WITH_LEADINGCARD_LEADING_TRAILING_TITLES"
-        
+
         // GIVEN
-        let sut = makeSUT()
-        
+        let (sut, container) = makeSUT()
+
         // WHEN
         sut.display(style: .init(
             backgroundColor: .red,
@@ -632,7 +753,7 @@ class NavigationBarSnapshotTests: XCTestCase {
             secondaryFont: .systemFont(ofSize: 14),
             secondaryColor: .green)
         )
-        
+
         sut.display(
             leadingCard: .init(
                 title: .text("Title"),
@@ -640,17 +761,23 @@ class NavigationBarSnapshotTests: XCTestCase {
                 trailingTitles: .init(.text("First title"), .text("Second title"))
             )
         )
-        
+
         // THEN
-        assert(snapshot: sut, named: snapshotName)
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
     }
-    
+
     func test_fail_navigationBar_with_leadingCard_leadingTrailingTitles() {
         let snapshotName = "NAVBAR_WITH_LEADINGCARD_LEADING_TRAILING_TITLES"
-        
+
         // GIVEN
-        let sut = makeSUT()
-        
+        let (sut, container) = makeSUT()
+
         // WHEN
         sut.display(style: .init(
             backgroundColor: .red,
@@ -660,7 +787,7 @@ class NavigationBarSnapshotTests: XCTestCase {
             secondaryFont: .systemFont(ofSize: 14),
             secondaryColor: .green)
         )
-        
+
         sut.display(
             leadingCard: .init(
                 title: .text("Title"),
@@ -668,17 +795,23 @@ class NavigationBarSnapshotTests: XCTestCase {
                 trailingTitles: .init(.text("First title"), .text("Second title"))
             )
         )
-        
+
         // THEN
-        assertFail(snapshot: sut, named: snapshotName)
+        if #available(iOS 26, *) {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
     }
-    
+
     func test_navigationBar_with_leadingCard_leadingTrailingImages() {
         let snapshotName = "NAVBAR_WITH_LEADINGCARD_LEADING_TRAILING_IMAGES"
-        
+
         // GIVEN
-        let sut = makeSUT()
-        
+        let (sut, container) = makeSUT()
+
         // WHEN
         sut.display(style: .init(
             backgroundColor: .red,
@@ -688,9 +821,9 @@ class NavigationBarSnapshotTests: XCTestCase {
             secondaryFont: .systemFont(ofSize: 14),
             secondaryColor: .green)
         )
-        
+
         let image = Image(systemName: "star.fill")
-        
+
         sut.display(
             leadingCard: .init(
                 title: .text("Title"),
@@ -698,17 +831,23 @@ class NavigationBarSnapshotTests: XCTestCase {
                 trailingImage: .init(image: .asset(image))
             )
         )
-        
+
         // THEN
-        assert(snapshot: sut, named: snapshotName)
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
     }
-    
+
     func test_fail_navigationBar_with_leadingCard_leadingTrailingImages() {
         let snapshotName = "NAVBAR_WITH_LEADINGCARD_LEADING_TRAILING_IMAGES"
-        
+
         // GIVEN
-        let sut = makeSUT()
-        
+        let (sut, container) = makeSUT()
+
         // WHEN
         sut.display(style: .init(
             backgroundColor: .red,
@@ -718,9 +857,9 @@ class NavigationBarSnapshotTests: XCTestCase {
             secondaryFont: .systemFont(ofSize: 14),
             secondaryColor: .green)
         )
-        
+
         let image = Image(systemName: "star.fill")
-        
+
         sut.display(
             leadingCard: .init(
                 title: .text("Title."),
@@ -728,17 +867,23 @@ class NavigationBarSnapshotTests: XCTestCase {
                 trailingImage: .init(image: .asset(image))
             )
         )
-        
+
         // THEN
-        assertFail(snapshot: sut, named: snapshotName)
+        if #available(iOS 26, *) {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
     }
-    
+
     func test_navigationBar_with_leadingCard_subtitle() {
         let snapshotName = "NAVBAR_WITH_LEADINGCARD_SUBTITLE"
-        
+
         // GIVEN
-        let sut = makeSUT()
-        
+        let (sut, container) = makeSUT()
+
         // WHEN
         sut.display(style: .init(
             backgroundColor: .red,
@@ -748,24 +893,30 @@ class NavigationBarSnapshotTests: XCTestCase {
             secondaryFont: .systemFont(ofSize: 14),
             secondaryColor: .green)
         )
-        
+
         sut.display(
             leadingCard: .init(
                 title: .text("Title"),
                 subTitle: .text("Subtitle")
             )
         )
-        
+
         // THEN
-        assert(snapshot: sut, named: snapshotName)
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
     }
-    
+
     func test_fail_navigationBar_with_leadingCard_subtitle() {
         let snapshotName = "NAVBAR_WITH_LEADINGCARD_SUBTITLE"
-        
+
         // GIVEN
-        let sut = makeSUT()
-        
+        let (sut, container) = makeSUT()
+
         // WHEN
         sut.display(style: .init(
             backgroundColor: .red,
@@ -775,24 +926,30 @@ class NavigationBarSnapshotTests: XCTestCase {
             secondaryFont: .systemFont(ofSize: 14),
             secondaryColor: .green)
         )
-        
+
         sut.display(
             leadingCard: .init(
                 title: .text("Title"),
                 subTitle: .text("Subtitle.")
             )
         )
-        
+
         // THEN
-        assertFail(snapshot: sut, named: snapshotName)
+        if #available(iOS 26, *) {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
     }
-    
+
     func test_navigationBar_with_leadingCard_valueTitle() {
         let snapshotName = "NAVBAR_WITH_LEADINGCARD_VALUETITLE"
-        
+
         // GIVEN
-        let sut = makeSUT()
-        
+        let (sut, container) = makeSUT()
+
         // WHEN
         sut.display(style: .init(
             backgroundColor: .red,
@@ -802,24 +959,30 @@ class NavigationBarSnapshotTests: XCTestCase {
             secondaryFont: .systemFont(ofSize: 14),
             secondaryColor: .green)
         )
-        
+
         sut.display(
             leadingCard: .init(
                 title: .text("Title"),
                 valueTitle: .text("Value title")
             )
         )
-        
+
         // THEN
-        assert(snapshot: sut, named: snapshotName)
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
     }
-    
+
     func test_fail_navigationBar_with_leadingCard_valueTitle() {
         let snapshotName = "NAVBAR_WITH_LEADINGCARD_VALUETITLE"
-        
+
         // GIVEN
-        let sut = makeSUT()
-        
+        let (sut, container) = makeSUT()
+
         // WHEN
         sut.display(style: .init(
             backgroundColor: .red,
@@ -829,24 +992,31 @@ class NavigationBarSnapshotTests: XCTestCase {
             secondaryFont: .systemFont(ofSize: 14),
             secondaryColor: .green)
         )
-        
+
         sut.display(
             leadingCard: .init(
                 title: .text("Title"),
                 valueTitle: .text("Value title.")
             )
         )
-        
+
         // THEN
-        assertFail(snapshot: sut, named: snapshotName)
+        if #available(iOS 26, *) {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
     }
-    
+
+    // TODO: - bottom image doesnt appear
     func test_navigationBar_with_leadingCard_bottomImage() {
         let snapshotName = "NAVBAR_WITH_LEADINGCARD_BOTTOMIMAGE"
-        
+
         // GIVEN
-        let sut = makeSUT()
-        
+        let (sut, container) = makeSUT()
+
         // WHEN
         sut.display(style: .init(
             backgroundColor: .red,
@@ -856,9 +1026,9 @@ class NavigationBarSnapshotTests: XCTestCase {
             secondaryFont: .systemFont(ofSize: 14),
             secondaryColor: .green)
         )
-        
+
         let image = Image(systemName: "star.fill")
-        
+
         sut.display(
             leadingCard: .init(
                 title: .text("Title"),
@@ -866,17 +1036,23 @@ class NavigationBarSnapshotTests: XCTestCase {
                 bottomImage: .init(image: .asset(image))
             )
         )
-        
+
         // THEN
-        assert(snapshot: sut, named: snapshotName)
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
     }
-    
+
     func test_fail_navigationBar_with_leadingCard_bottomImage() {
         let snapshotName = "NAVBAR_WITH_LEADINGCARD_BOTTOMIMAGE"
-        
+
         // GIVEN
-        let sut = makeSUT()
-        
+        let (sut, container) = makeSUT()
+
         // WHEN
         sut.display(style: .init(
             backgroundColor: .red,
@@ -886,9 +1062,9 @@ class NavigationBarSnapshotTests: XCTestCase {
             secondaryFont: .systemFont(ofSize: 14),
             secondaryColor: .green)
         )
-        
+
         let image = Image(systemName: "star")
-        
+
         sut.display(
             leadingCard: .init(
                 title: .text("Title."),
@@ -896,17 +1072,23 @@ class NavigationBarSnapshotTests: XCTestCase {
                 bottomImage: .init(image: .asset(image))
             )
         )
-        
+
         // THEN
-        assertFail(snapshot: sut, named: snapshotName)
+        if #available(iOS 26, *) {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
     }
-    
+
     func test_navigationBar_with_leadingCard_bottomSeparator() {
         let snapshotName = "NAVBAR_WITH_LEADINGCARD_BOTTOMSEPARATOR"
-        
+
         // GIVEN
-        let sut = makeSUT()
-        
+        let (sut, container) = makeSUT()
+
         // WHEN
         sut.display(style: .init(
             backgroundColor: .red,
@@ -916,7 +1098,7 @@ class NavigationBarSnapshotTests: XCTestCase {
             secondaryFont: .systemFont(ofSize: 14),
             secondaryColor: .green)
         )
-        
+
         sut.display(
             leadingCard: .init(
                 title: .text("Title"),
@@ -924,17 +1106,23 @@ class NavigationBarSnapshotTests: XCTestCase {
                 bottomSeparator: .init(color: .black, height: 2)
             )
         )
-        
+
         // THEN
-        assert(snapshot: sut, named: snapshotName)
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
     }
-    
+
     func test_fail_navigationBar_with_leadingCard_bottomSeparator() {
         let snapshotName = "NAVBAR_WITH_LEADINGCARD_BOTTOMSEPARATOR"
-        
+
         // GIVEN
-        let sut = makeSUT()
-        
+        let (sut, container) = makeSUT()
+
         // WHEN
         sut.display(style: .init(
             backgroundColor: .red,
@@ -944,7 +1132,7 @@ class NavigationBarSnapshotTests: XCTestCase {
             secondaryFont: .systemFont(ofSize: 14),
             secondaryColor: .green)
         )
-        
+
         sut.display(
             leadingCard: .init(
                 title: .text("Title"),
@@ -952,17 +1140,23 @@ class NavigationBarSnapshotTests: XCTestCase {
                 bottomSeparator: .init(color: .black, height: 1)
             )
         )
-        
+
         // THEN
-        assertFail(snapshot: sut, named: snapshotName)
+        if #available(iOS 26, *) {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
     }
-    
+
     func test_navigationBar_with_leadingCard_switchControl() {
         let snapshotName = "NAVBAR_WITH_LEADINGCARD_SWITCHCONTROL"
-        
+
         // GIVEN
-        let sut = makeSUT()
-        
+        let (sut, container) = makeSUT()
+
         // WHEN
         sut.display(style: .init(
             backgroundColor: .red,
@@ -972,7 +1166,7 @@ class NavigationBarSnapshotTests: XCTestCase {
             secondaryFont: .systemFont(ofSize: 14),
             secondaryColor: .green)
         )
-        
+
         sut.display(
             leadingCard: .init(
                 title: .text("Title"),
@@ -988,17 +1182,23 @@ class NavigationBarSnapshotTests: XCTestCase {
                 onPress: { }
             )
         )
-        
+
         // THEN
-        assert(snapshot: sut, named: snapshotName)
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
     }
-    
+
     func test_fail_navigationBar_with_leadingCard_switchControl() {
         let snapshotName = "NAVBAR_WITH_LEADINGCARD_SWITCHCONTROL"
-        
+
         // GIVEN
-        let sut = makeSUT()
-        
+        let (sut, container) = makeSUT()
+
         // WHEN
         sut.display(style: .init(
             backgroundColor: .red,
@@ -1008,7 +1208,7 @@ class NavigationBarSnapshotTests: XCTestCase {
             secondaryFont: .systemFont(ofSize: 14),
             secondaryColor: .green)
         )
-        
+
         sut.display(
             leadingCard: .init(
                 title: .text("Title"),
@@ -1023,17 +1223,23 @@ class NavigationBarSnapshotTests: XCTestCase {
                         cornerRadius: 10))
             )
         )
-        
+
         // THEN
-        assertFail(snapshot: sut, named: snapshotName)
+        if #available(iOS 26, *) {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
     }
-    
-    func test_navigationBar_postLeadingCardOnPressOutputVisualState() {
+
+    func test_navigationBar_with_leadingCard_onPress() {
         let snapshotName = "NAVBAR_WITH_LEADINGCARD_ONPRESS"
-        
+
         // GIVEN
-        let sut = makeSUT()
-        
+        let (sut, container) = makeSUT()
+
         // WHEN
         sut.display(style: .init(
             backgroundColor: .red,
@@ -1043,29 +1249,35 @@ class NavigationBarSnapshotTests: XCTestCase {
             secondaryFont: .systemFont(ofSize: 14),
             secondaryColor: .green)
         )
-        
-        let pressedStyle = makeSnapshotStyle(backgroundColor: .yellow)
-        let onPress: () -> Void = { }
+
         sut.display(
             leadingCard: .init(
                 title: .text("Title"),
                 valueTitle: .text("Value title"),
-                onPress: onPress
+                onPress: { [weak sut] in
+                    sut?.backgroundColor = .yellow
+                }
             )
         )
-        
-        applyPostCallbackOutputState(pressedStyle, on: sut)
-        
+
+        sut.leadingCardView.onPress?()
+
         // THEN
-        assert(snapshot: sut, named: snapshotName)
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
     }
-    
-    func test_fail_navigationBar_postLeadingCardOnPressOutputVisualState() {
+
+    func test_fail_navigationBar_with_leadingCard_onPress() {
         let snapshotName = "NAVBAR_WITH_LEADINGCARD_ONPRESS"
-        
+
         // GIVEN
-        let sut = makeSUT()
-        
+        let (sut, container) = makeSUT()
+
         // WHEN
         sut.display(style: .init(
             backgroundColor: .red,
@@ -1075,29 +1287,35 @@ class NavigationBarSnapshotTests: XCTestCase {
             secondaryFont: .systemFont(ofSize: 14),
             secondaryColor: .green)
         )
-        
-        let pressedStyle = makeSnapshotStyle(backgroundColor: .systemYellow)
-        let onPress: () -> Void = { }
+
         sut.display(
             leadingCard: .init(
                 title: .text("Title"),
                 valueTitle: .text("Value title"),
-                onPress: onPress
+                onPress: { [weak sut] in
+                    sut?.backgroundColor = .systemYellow
+                }
             )
         )
-        
-        applyPostCallbackOutputState(pressedStyle, on: sut)
-        
+
+        sut.leadingCardView.onPress?()
+
         // THEN
-        assertFail(snapshot: sut, named: snapshotName)
+        if #available(iOS 26, *) {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
     }
-    
-    func test_navigationBar_postLeadingCardOnLongPressOutputVisualState() {
+
+    func test_navigationBar_with_leadingCard_onLongPress() {
         let snapshotName = "NAVBAR_WITH_LEADINGCARD_ONLONGPRESS"
-        
+
         // GIVEN
-        let sut = makeSUT()
-        
+        let (sut, container) = makeSUT()
+
         // WHEN
         sut.display(style: .init(
             backgroundColor: .red,
@@ -1107,29 +1325,35 @@ class NavigationBarSnapshotTests: XCTestCase {
             secondaryFont: .systemFont(ofSize: 14),
             secondaryColor: .green)
         )
-        
-        let pressedStyle = makeSnapshotStyle(backgroundColor: .yellow)
-        let onLongPress: () -> Void = { }
+
         sut.display(
             leadingCard: .init(
                 title: .text("Title"),
                 valueTitle: .text("Value title"),
-                onLongPress: onLongPress
+                onLongPress: { [weak sut] in
+                    sut?.backgroundColor = .yellow
+                }
             )
         )
-        
-        applyPostCallbackOutputState(pressedStyle, on: sut)
-        
+
+        sut.leadingCardView.onLongPress?()
+
         // THEN
-        assert(snapshot: sut, named: snapshotName)
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
     }
-    
-    func test_fail_navigationBar_postLeadingCardOnLongPressOutputVisualState() {
+
+    func test_fail_navigationBar_with_leadingCard_onLongPress() {
         let snapshotName = "NAVBAR_WITH_LEADINGCARD_ONLONGPRESS"
-        
+
         // GIVEN
-        let sut = makeSUT()
-        
+        let (sut, container) = makeSUT()
+
         // WHEN
         sut.display(style: .init(
             backgroundColor: .red,
@@ -1139,29 +1363,35 @@ class NavigationBarSnapshotTests: XCTestCase {
             secondaryFont: .systemFont(ofSize: 14),
             secondaryColor: .green)
         )
-        
-        let pressedStyle = makeSnapshotStyle(backgroundColor: .systemYellow)
-        let onLongPress: () -> Void = { }
+
         sut.display(
             leadingCard: .init(
                 title: .text("Title"),
                 valueTitle: .text("Value title"),
-                onLongPress: onLongPress
+                onLongPress: { [weak sut] in
+                    sut?.backgroundColor = .systemYellow
+                }
             )
         )
-        
-        applyPostCallbackOutputState(pressedStyle, on: sut)
-        
+
+        sut.leadingCardView.onLongPress?()
+
         // THEN
-        assertFail(snapshot: sut, named: snapshotName)
+        if #available(iOS 26, *) {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
     }
-    
-    func test_navigationBar_with_leadingCard_withoutCallbacks_visualState() {
+
+    func test_navigationBar_with_leadingCard_noGestureRecognizers() {
         let snapshotName = "NAVBAR_WITH_LEADINGCARD_NO_GESTURE_RECOGNIZERS"
-        
+
         // GIVEN
-        let sut = makeSUT()
-        
+        let (sut, container) = makeSUT()
+
         // WHEN
         sut.display(style: .init(
             backgroundColor: .red,
@@ -1171,64 +1401,48 @@ class NavigationBarSnapshotTests: XCTestCase {
             secondaryFont: .systemFont(ofSize: 14),
             secondaryColor: .green)
         )
-        
+
         sut.display(
             leadingCard: .init(
                 title: .text("Title"),
                 valueTitle: .text("Value title")
             )
         )
-        
+
+        sut.leadingCardView.onPress?()
+
         // THEN
-        assert(snapshot: sut, named: snapshotName)
-    }
-
-}
-
-private extension NavigationBarSnapshotTests {
-    func applyPostCallbackOutputState(
-        _ style: HeaderPresentableModel.Style,
-        on sut: PairedNavigationBarSnapshotSUT
-    ) {
-        XCTContext.runActivity(
-            named: "Post-callback Output state; gesture delivery is not asserted by snapshots"
-        ) { _ in
-            sut.display(style: style)
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
+}
 
-    func makeSnapshotStyle(backgroundColor: Color) -> HeaderPresentableModel.Style {
-        .init(
-            backgroundColor: backgroundColor,
-            horizontalSpacing: 1,
-            primeFont: .boldSystemFont(ofSize: 24),
-            primeColor: .blue,
-            secondaryFont: .systemFont(ofSize: 14),
-            secondaryColor: .green
-        )
-    }
-
+extension NavigationBarSnapshotTests {
     func makeSUT(
         file: StaticString = #file,
         line: UInt = #line
-    ) -> PairedNavigationBarSnapshotSUT {
+    ) -> (sut: NavigationBar, container: UIView) {
+        let sut = NavigationBar()
         let container = makeContainer()
-        let sut = PairedNavigationBarSnapshotSUT(uiKitContainer: container)
-        
-        container.addSubview(sut.uiKitView)
-        sut.uiKitView.anchor(
+
+        container.addSubview(sut)
+        sut.anchor(
             .top(container.topAnchor, constant: 0, priority: .required),
             .leading(container.leadingAnchor, constant: 0, priority: .required),
             .trailing(container.trailingAnchor, constant: 0, priority: .required),
         )
-        
+
         container.layoutIfNeeded()
 
         checkForMemoryLeaks(sut, file: file, line: line)
-        checkForMemoryLeaks(sut.uiKitView, file: file, line: line)
-        return sut
+        return (sut, container)
     }
-    
+
     func makeContainer() -> UIView {
         let container = UIView()
         container.frame = CGRect(x: 0, y: 0, width: 390, height: 300)

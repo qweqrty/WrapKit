@@ -5,131 +5,219 @@
 //  Created by Urmatbek Marat Uulu on 12/11/25.
 //
 
-import UIKit
 import WrapKit
 import WrapKitTestUtils
 import XCTest
 
 final class TitledViewSnapshotTests: XCTestCase {
-
     func test_titledView_defaul_state() {
-        let sut = makeSUT()
+        // GIVEN
+        let (sut, container) = makeSUT()
         let snapshotName = "TITLEDVIEW_DEFAULT_STATE"
 
+        // WHEN
         sut.display(titles: .init(.text("First title"), .text("Second title")))
 
-        assert(snapshot: sut, named: snapshotName)
+        // THEN
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
     }
 
     func test_fail_titledView_defaul_state() {
-        let sut = makeSUT()
+        // GIVEN
+        let (sut, container) = makeSUT()
         let snapshotName = "TITLEDVIEW_DEFAULT_STATE"
 
+        // WHEN
         sut.display(titles: .init(.text("First title."), .text("Second title")))
 
-        assertFail(snapshot: sut, named: snapshotName)
+        // THEN
+        if #available(iOS 26, *) {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
     }
 
     func test_titledView_with_bottomTitles() {
-        let sut = makeSUT()
+        // GIVEN
+        let (sut, container) = makeSUT()
         let snapshotName = "TITLEDVIEW_WITH_BOTTOMTTILES"
 
+        // WHEN
         sut.display(titles: .init(.text("First title"), .text("Second title")))
         sut.display(bottomTitles: .init(.text("First bottom"), .text("Second bottom")))
 
-        assert(snapshot: sut, named: snapshotName)
+        // THEN
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
     }
 
     func test_fail_titledView_with_bottomTitles() {
-        let sut = makeSUT()
+        // GIVEN
+        let (sut, container) = makeSUT()
         let snapshotName = "TITLEDVIEW_WITH_BOTTOMTTILES"
 
+        // WHEN
         sut.display(titles: .init(.text("First title"), .text("Second title")))
         sut.display(bottomTitles: .init(.text("First bottom."), .text("Second bottom")))
 
-        assertFail(snapshot: sut, named: snapshotName)
+        // THEN
+        if #available(iOS 26, *) {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
     }
 
     func test_titledView_with_leadingBottomTitle() {
-        let sut = makeSUT()
+        // GIVEN
+        let (sut, container) = makeSUT()
         let snapshotName = "TITLEDVIEW_WITH_LEADINGBOTTOMM_TITLE"
 
+        // WHEN
         sut.display(titles: .init(.text("First title"), .text("Second title")))
         sut.display(leadingBottomTitle: .text("Leading bottom title"))
 
-        assert(snapshot: sut, named: snapshotName)
+        // THEN
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
     }
 
     func test_fail_titledView_with_leadingBottomTitle() {
-        let sut = makeSUT()
+        // GIVEN
+        let (sut, container) = makeSUT()
         let snapshotName = "TITLEDVIEW_WITH_LEADINGBOTTOMM_TITLE"
 
+        // WHEN
         sut.display(titles: .init(.text("First title"), .text("Second title")))
         sut.display(leadingBottomTitle: .text("Leading bottom title."))
 
-        assertFail(snapshot: sut, named: snapshotName)
+        // THEN
+        if #available(iOS 26, *) {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
     }
 
     func test_titledView_with_trailingBottomTitle() {
-        let sut = makeSUT()
+        // GIVEN
+        let (sut, container) = makeSUT()
         let snapshotName = "TITLEDVIEW_WITH_TRAILINGBOTTOMM_TITLE"
 
+        // WHEN
         sut.display(titles: .init(.text("First title"), .text("Second title")))
         sut.display(trailingBottomTitle: .text("Trailing bottom title"))
 
-        assert(snapshot: sut, named: snapshotName)
+        // THEN
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
     }
 
     func test_fail_titledView_with_trailingBottomTitle() {
-        let sut = makeSUT()
+        // GIVEN
+        let (sut, container) = makeSUT()
         let snapshotName = "TITLEDVIEW_WITH_TRAILINGBOTTOMM_TITLE"
 
+        // WHEN
         sut.display(titles: .init(.text("First title"), .text("Second title")))
         sut.display(trailingBottomTitle: .text("Trailing bottom title."))
 
-        assertFail(snapshot: sut, named: snapshotName)
+        // THEN
+        if #available(iOS 26, *) {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
     }
 
     func test_titledView_with_isHidden() {
-        let sut = makeSUT()
+        // GIVEN
+        let (sut, container) = makeSUT()
         let snapshotName = "TITLEDVIEW_HIDDEN"
 
+        // WHEN
         sut.display(titles: .init(.text("First title"), .text("Second title")))
         sut.display(isHidden: true)
 
-        assert(snapshot: sut, named: snapshotName)
+        // THEN
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
     }
 
     func test_fail_titledView_with_isHidden() {
-        let sut = makeSUT()
+        // GIVEN
+        let (sut, container) = makeSUT()
         let snapshotName = "TITLEDVIEW_HIDDEN"
 
+        // WHEN
         sut.display(titles: .init(.text("First title"), .text("Second title")))
         sut.display(isHidden: false)
 
-        assertFail(snapshot: sut, named: snapshotName)
+        // THEN
+        if #available(iOS 26, *) {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
     }
 }
 
-private extension TitledViewSnapshotTests {
+extension TitledViewSnapshotTests {
     func makeSUT(
-        file: StaticString = #filePath,
+        file: StaticString = #file,
         line: UInt = #line
-    ) -> PairedTitledViewSnapshotSUT {
+    ) -> (sut: TitledView<UIView>, container: UIView) {
+        let sut = TitledView()
         let container = makeContainer()
-        let sut = PairedTitledViewSnapshotSUT(uiKitContainer: container)
 
-        container.addSubview(sut.uiKitView)
-        sut.uiKitView.anchor(
+        container.addSubview(sut)
+        sut.anchor(
             .top(container.topAnchor, constant: 0, priority: .required),
             .leading(container.leadingAnchor, constant: 0, priority: .required),
-            .trailing(container.trailingAnchor, constant: 0, priority: .required)
+            .trailing(container.trailingAnchor, constant: 0, priority: .required),
         )
+
         container.layoutIfNeeded()
 
         checkForMemoryLeaks(sut, file: file, line: line)
-        checkForMemoryLeaks(sut.uiKitView, file: file, line: line)
-        return sut
+        return (sut, container)
     }
 
     func makeContainer() -> UIView {

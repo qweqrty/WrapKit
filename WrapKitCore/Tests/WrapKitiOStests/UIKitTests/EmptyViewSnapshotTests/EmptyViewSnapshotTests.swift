@@ -1,194 +1,384 @@
+//
+//  EmptyViewSnapshotTests.swift
+//  WrapKitTests
+//
+//  Created by Urmatbek Marat Uulu on 14/11/25.
+//
+
 import WrapKit
 import WrapKitTestUtils
 import XCTest
 
 final class EmptyViewSnapshotTests: XCTestCase {
-
     func test_emptyView_default_state() {
-        let sut = makeSUT()
+        // GIVEN
+        let (sut, container) = makeSUT()
         let snapshotName = "EMPTYVIEW_DEFAULT_STATE"
 
+        // WHEN
         sut.display(title: .text("Empty view"))
-        sut.display(backgroundColor: .cyan)
+        sut.backgroundColor = .cyan
 
-        assert(snapshot: sut, named: snapshotName)
+        // THEN
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
     }
 
     func test_fail_emptyView_default_state() {
-        let sut = makeSUT()
+        // GIVEN
+        let (sut, container) = makeSUT()
         let snapshotName = "EMPTYVIEW_DEFAULT_STATE"
 
+        // WHEN
         sut.display(title: .text("Empty view."))
-        sut.display(backgroundColor: .cyan)
+        sut.backgroundColor = .cyan
 
-        assertFail(snapshot: sut, named: snapshotName)
+        // THEN
+        if #available(iOS 26, *) {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
     }
 
     func test_emptyView_with_subTitle() {
-        let sut = makeSUT()
+        // GIVEN
+        let (sut, container) = makeSUT()
         let snapshotName = "EMPTYVIEW_WITH_SUBTITLE"
 
+        // WHEN
         sut.display(title: .text("Empty view"))
         sut.display(subtitle: .text("Subtitle"))
-        sut.display(backgroundColor: .cyan)
+        sut.backgroundColor = .cyan
 
-        assert(snapshot: sut, named: snapshotName)
+        // THEN
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
     }
 
     func test_fail_emptyView_with_subTitle() {
-        let sut = makeSUT()
+        // GIVEN
+        let (sut, container) = makeSUT()
         let snapshotName = "EMPTYVIEW_WITH_SUBTITLE"
 
+        // WHEN
         sut.display(title: .text("Empty view"))
         sut.display(subtitle: .text("Subtitle."))
-        sut.display(backgroundColor: .cyan)
+        sut.backgroundColor = .cyan
 
-        assertFail(snapshot: sut, named: snapshotName)
+        // THEN
+        if #available(iOS 26, *) {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
     }
 
     func test_emptyView_with_Button() {
-        let sut = makeSUT()
+        // GIVEN
+        let (sut, container) = makeSUT()
         let snapshotName = "EMPTYVIEW_WITH_BUTTON"
 
-        sut.display(title: .text("Empty view"))
-        sut.display(subtitle: .text("Subtitle"))
-        sut.display(buttonModel: makeButtonModel(backgroundColor: .systemBlue))
-        sut.display(backgroundColor: .cyan)
-
-        assert(snapshot: sut, named: snapshotName)
-    }
-
-    func test_fail_emptyView_with_Button() {
-        let sut = makeSUT()
-        let snapshotName = "EMPTYVIEW_WITH_BUTTON"
-
-        sut.display(title: .text("Empty view"))
-        sut.display(subtitle: .text("Subtitle"))
-        sut.display(buttonModel: makeButtonModel(backgroundColor: .blue))
-        sut.display(backgroundColor: .cyan)
-
-        assertFail(snapshot: sut, named: snapshotName)
-    }
-
-    func test_emptyView_with_Image() {
-        let sut = makeSUT()
-        let snapshotName = "EMPTYVIEW_WITH_IMAGE"
-
         let image = Image(systemName: "star.fill")
-        sut.display(title: .text("Empty view"))
-        sut.display(subtitle: .text("Subtitle"))
-        sut.display(image: ImageViewPresentableModel(image: .asset(image)))
-        sut.display(backgroundColor: .cyan)
+        let buttonStyle = ButtonStyle(
+            backgroundColor: .systemBlue,
+            titleColor: .black,
+            borderWidth: 2,
+            borderColor: .red,
+            pressedColor: .green,
+            pressedTintColor: .yellow,
+            font: .systemFont(ofSize: 22),
+            cornerRadius: 5,
+            wrongUrlPlaceholderImage: image)
 
-        assert(snapshot: sut, named: snapshotName)
-    }
-
-    func test_fail_emptyView_with_Image() {
-        let sut = makeSUT()
-        let snapshotName = "EMPTYVIEW_WITH_IMAGE"
-
-        let image = Image(systemName: "star")
-        sut.display(title: .text("Empty view"))
-        sut.display(subtitle: .text("Subtitle"))
-        sut.display(image: ImageViewPresentableModel(image: .asset(image)))
-        sut.display(backgroundColor: .cyan)
-
-        assertFail(snapshot: sut, named: snapshotName)
-    }
-
-    func test_emptyView_with_hidden() {
-        let sut = makeSUT()
-        let snapshotName = "EMPTYVIEW_WITH_HIDDEN"
-
-        sut.display(backgroundColor: .cyan)
-        sut.display(isHidden: true)
-
-        assert(snapshot: sut, named: snapshotName)
-    }
-
-    func test_fail_emptyView_with_hidden() {
-        let sut = makeSUT()
-        let snapshotName = "EMPTYVIEW_WITH_HIDDEN"
-
-        sut.display(backgroundColor: .cyan)
-        sut.display(isHidden: false)
-
-        assertFail(snapshot: sut, named: snapshotName)
-    }
-
-    func test_emptyView_with_model() {
-        let sut = makeSUT()
-        let snapshotName = "EMPTYVIEW_WITH_MODEL"
-
-        sut.display(backgroundColor: .cyan)
-        sut.display(model: makeFullModel(titleText: "Title", subtitleText: "Subtitle"))
-
-        assert(snapshot: sut, named: snapshotName)
-    }
-
-    func test_fail_emptyView_with_model() {
-        let sut = makeSUT()
-        let snapshotName = "EMPTYVIEW_WITH_MODEL"
-
-        sut.display(backgroundColor: .cyan)
-        sut.display(model: makeFullModel(titleText: "Title.", subtitleText: "Subtitle."))
-
-        assertFail(snapshot: sut, named: snapshotName)
-    }
-}
-
-extension EmptyViewSnapshotTests {
-    func makeButtonModel(backgroundColor: UIColor) -> ButtonPresentableModel {
-        let image = Image(systemName: "star.fill")
-        return ButtonPresentableModel(
+        let buttonModel = ButtonPresentableModel(
             title: "Button",
             image: image,
             spacing: 2,
             height: 40,
-            style: ButtonStyle(
-                backgroundColor: backgroundColor,
-                titleColor: .black,
-                borderWidth: 2,
-                borderColor: .red,
-                pressedColor: .green,
-                pressedTintColor: .yellow,
-                font: .systemFont(ofSize: 22),
-                cornerRadius: 5,
-                wrongUrlPlaceholderImage: image
-            ),
-            enabled: true
+            style: buttonStyle,
+            enabled: true,
         )
+
+        // WHEN
+        sut.display(title: .text("Empty view"))
+        sut.display(subtitle: .text("Subtitle"))
+        sut.display(buttonModel: buttonModel)
+        sut.backgroundColor = .cyan
+
+        // THEN
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
     }
 
-    func makeFullModel(titleText: String, subtitleText: String) -> EmptyViewPresentableModel {
+    func test_fail_emptyView_with_Button() {
+        // GIVEN
+        let (sut, container) = makeSUT()
+        let snapshotName = "EMPTYVIEW_WITH_BUTTON"
+
         let image = Image(systemName: "star.fill")
-        return EmptyViewPresentableModel(
-            title: .text(titleText),
-            subTitle: .text(subtitleText),
-            button: makeButtonModel(backgroundColor: .systemBlue),
-            image: ImageViewPresentableModel(image: .asset(image)),
+        let buttonStyle = ButtonStyle(
+            backgroundColor: .blue,
+            titleColor: .black,
+            borderWidth: 2,
+            borderColor: .red,
+            pressedColor: .green,
+            pressedTintColor: .yellow,
+            font: .systemFont(ofSize: 22),
+            cornerRadius: 5,
+            wrongUrlPlaceholderImage: image)
+
+        let buttonModel = ButtonPresentableModel(
+            title: "Button",
+            image: image,
+            spacing: 2,
+            height: 40,
+            style: buttonStyle,
+            enabled: true,
+        )
+
+        // WHEN
+        sut.display(title: .text("Empty view"))
+        sut.display(subtitle: .text("Subtitle"))
+        sut.display(buttonModel: buttonModel)
+        sut.backgroundColor = .cyan
+
+        // THEN
+        if #available(iOS 26, *) {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
+    }
+
+    func test_emptyView_with_Image() {
+        // GIVEN
+        let (sut, container) = makeSUT()
+        let snapshotName = "EMPTYVIEW_WITH_IMAGE"
+
+        let image = Image(systemName: "star.fill")
+        let imageModel = ImageViewPresentableModel(image: .asset(image))
+        // WHEN
+        sut.display(title: .text("Empty view"))
+        sut.display(subtitle: .text("Subtitle"))
+        sut.display(image: imageModel)
+        sut.backgroundColor = .cyan
+
+        // THEN
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
+    }
+
+    func test_fail_emptyView_with_Image() {
+        // GIVEN
+        let (sut, container) = makeSUT()
+        let snapshotName = "EMPTYVIEW_WITH_IMAGE"
+
+        let image = Image(systemName: "star")
+        let imageModel = ImageViewPresentableModel(image: .asset(image))
+        // WHEN
+        sut.display(title: .text("Empty view"))
+        sut.display(subtitle: .text("Subtitle"))
+        sut.display(image: imageModel)
+        sut.backgroundColor = .cyan
+
+        // THEN
+        if #available(iOS 26, *) {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
+    }
+
+    func test_emptyView_with_hidden() {
+        // GIVEN
+        let (sut, container) = makeSUT()
+        let snapshotName = "EMPTYVIEW_WITH_HIDDEN"
+
+        // WHEN
+        sut.backgroundColor = .cyan
+        sut.display(isHidden: true)
+
+        // THEN
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
+    }
+
+    func test_fail_emptyView_with_hidden() {
+        // GIVEN
+        let (sut, container) = makeSUT()
+        let snapshotName = "EMPTYVIEW_WITH_HIDDEN"
+
+        // WHEN
+        sut.backgroundColor = .cyan
+        sut.display(isHidden: false)
+
+        // THEN
+        if #available(iOS 26, *) {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
+    }
+
+    func test_emptyView_with_model() {
+        // GIVEN
+        let (sut, container) = makeSUT()
+        let snapshotName = "EMPTYVIEW_WITH_MODEL"
+
+        let image = Image(systemName: "star.fill")
+        let imageModel = ImageViewPresentableModel(image: .asset(image))
+
+        let buttonStyle = ButtonStyle(
+            backgroundColor: .systemBlue,
+            titleColor: .black,
+            borderWidth: 2,
+            borderColor: .red,
+            pressedColor: .green,
+            pressedTintColor: .yellow,
+            font: .systemFont(ofSize: 22),
+            cornerRadius: 5,
+            wrongUrlPlaceholderImage: image)
+
+        let buttonModel = ButtonPresentableModel(
+            title: "Button",
+            image: image,
+            spacing: 2,
+            height: 40,
+            style: buttonStyle,
+            enabled: true,
+        )
+
+        // WHEN
+        sut.backgroundColor = .cyan
+
+        let model = EmptyViewPresentableModel(
+            title: .text("Title"),
+            subTitle: .text("Subtitle"),
+            button: buttonModel,
+            image: imageModel,
             animationConfig: .default
         )
+
+        sut.display(model: model)
+
+        // THEN
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
     }
 
+    func test_fail_emptyView_with_model() {
+        // GIVEN
+        let (sut, container) = makeSUT()
+        let snapshotName = "EMPTYVIEW_WITH_MODEL"
+
+        let image = Image(systemName: "star.fill")
+        let imageModel = ImageViewPresentableModel(image: .asset(image))
+
+        let buttonStyle = ButtonStyle(
+            backgroundColor: .systemBlue,
+            titleColor: .black,
+            borderWidth: 2,
+            borderColor: .red,
+            pressedColor: .green,
+            pressedTintColor: .yellow,
+            font: .systemFont(ofSize: 22),
+            cornerRadius: 5,
+            wrongUrlPlaceholderImage: image)
+
+        let buttonModel = ButtonPresentableModel(
+            title: "Button",
+            image: image,
+            spacing: 2,
+            height: 40,
+            style: buttonStyle,
+            enabled: true,
+        )
+
+        // WHEN
+        sut.backgroundColor = .cyan
+
+        let model = EmptyViewPresentableModel(
+            title: .text("Title."),
+            subTitle: .text("Subtitle."),
+            button: buttonModel,
+            image: imageModel,
+            animationConfig: .default
+        )
+
+        sut.display(model: model)
+
+        // THEN
+        if #available(iOS 26, *) {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
+    }
+}
+
+extension EmptyViewSnapshotTests {
     func makeSUT(
         file: StaticString = #file,
         line: UInt = #line
-    ) -> PairedEmptyViewSnapshotSUT {
-        let container = makeContainer()
-        let sut = PairedEmptyViewSnapshotSUT(uiKitContainer: container)
+    ) -> (sut: EmptyView, container: UIView) {
 
-        container.addSubview(sut.uiKitView)
-        sut.uiKitView.anchor(
+        let sut = EmptyView()
+        let container = makeContainer()
+
+        container.addSubview(sut)
+        sut.anchor(
             .top(container.topAnchor, constant: 0, priority: .required),
             .leading(container.leadingAnchor, constant: 0, priority: .required),
-            .trailing(container.trailingAnchor, constant: 0, priority: .required)
+            .trailing(container.trailingAnchor, constant: 0, priority: .required),
         )
+
         container.layoutIfNeeded()
 
         checkForMemoryLeaks(sut, file: file, line: line)
-        checkForMemoryLeaks(sut.uiKitView, file: file, line: line)
-        return sut
+        return (sut, container)
     }
 
     func makeContainer() -> UIView {
