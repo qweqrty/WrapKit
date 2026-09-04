@@ -1,3 +1,4 @@
+#if os(iOS) || targetEnvironment(macCatalyst)
 //
 //  HtmlExamples.swift
 //  WrapKitTests
@@ -108,3 +109,4 @@ enum HtmlTestCases {
     <p> • Оплачивая услуги О! вы получаете кешбэк 1%.</p>
     """
 }
+#endif

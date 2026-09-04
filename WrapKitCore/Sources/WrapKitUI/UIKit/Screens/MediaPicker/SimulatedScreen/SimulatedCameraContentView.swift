@@ -1,10 +1,4 @@
-//
-//  File.swift
-//  WrapKit
-//
-//  Created by Gulzat Zheenbek kyzy on 16/6/25.
-//
-
+#if os(iOS) || targetEnvironment(macCatalyst)
 import Foundation
 
 #if targetEnvironment(simulator)
@@ -86,5 +80,6 @@ extension SimulatedCameraContentView {
         )
     }
 }
+#endif
 #endif
 #endif

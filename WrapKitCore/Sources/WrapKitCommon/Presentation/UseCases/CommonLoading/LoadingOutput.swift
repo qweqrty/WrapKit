@@ -13,7 +13,7 @@ public protocol LoadingOutput: AnyObject {
     func display(isLoading: Bool)
 }
 
-#if canImport(UIKit)
+#if canImport(UIKit) && !os(watchOS)
 import UIKit
 
 public class CommonLoadingiOSAdapter: LoadingOutput {

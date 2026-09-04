@@ -1,3 +1,4 @@
+#if os(iOS) || targetEnvironment(macCatalyst)
 import Foundation
 
 enum ImageSnapshotFixture: String {
@@ -22,3 +23,4 @@ enum ImageSnapshotFixture: String {
 }
 
 private final class BundleToken {}
+#endif

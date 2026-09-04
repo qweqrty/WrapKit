@@ -5,6 +5,7 @@
 // swift-format-ignore-file
 // swiftformat:disable all
 
+#if os(iOS) || targetEnvironment(macCatalyst)
 #if canImport(WrapKit)
 import WrapKit
 #endif
@@ -40,3 +41,4 @@ public final class MediaPickerFlowSpy: MediaPickerFlow {
 
     // MARK: - Properties
 }
+#endif

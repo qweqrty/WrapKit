@@ -5,7 +5,7 @@
 //  Created by Dastan Mamyrov on 6/11/25.
 //
 
-#if canImport(UIKit)
+#if canImport(UIKit) && !os(watchOS)
 import UIKit
 
 public extension UIImage {
@@ -59,5 +59,13 @@ extension NSImage {
         newImage.unlockFocus()
         return newImage
     }
+}
+#endif
+
+#if os(watchOS)
+import UIKit
+
+public extension UIImage {
+    func resized(rect: CGRect, container: CGSize) -> UIImage { self }
 }
 #endif

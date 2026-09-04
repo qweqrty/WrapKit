@@ -1,3 +1,4 @@
+#if os(iOS) || targetEnvironment(macCatalyst)
 //
 //  ShimmerViewSnapshotTests.swift
 //  WrapKitTests
@@ -448,3 +449,4 @@ extension ShimmerViewSnapshotTests {
         return container
     }
 }
+#endif

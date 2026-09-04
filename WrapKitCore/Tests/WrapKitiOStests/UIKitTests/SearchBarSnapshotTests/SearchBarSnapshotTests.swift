@@ -1,3 +1,4 @@
+#if os(iOS) || targetEnvironment(macCatalyst)
 //
 //  SearchBarSnapshotTests.swift
 //  WrapKitTests
@@ -286,3 +287,4 @@ extension SearchBarSnapshotTests {
         return container
     }
 }
+#endif

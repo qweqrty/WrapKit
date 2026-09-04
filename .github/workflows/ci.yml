@@ -8,6 +8,157 @@ on:
   workflow_dispatch:
 
 jobs:
+  domain-platform-build:
+    runs-on: macos-26
+    env:
+      TUIST_VERSION: "4.38.2"
+      TUIST_SHA256: "14af45d18de9d3834ea32d4c9e572f8a69bf2c603963e950f4febbf5234d3b30"
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v5
+
+      - name: Select Xcode
+        run: |
+          sudo xcode-select -s /Applications/Xcode_26.6.app
+          xcodebuild -version
+
+      - name: Show available SDKs
+        run: |
+          xcodebuild -showsdks
+          xcodebuild -showsdks | grep -E "tvOS|watchOS|visionOS" || {
+            echo "::error::На образе нет SDK tvOS/watchOS/visionOS"
+            exit 1
+          }
+
+      - name: Install Tools
+        run: |
+          brew install sourcery
+
+          tuist_archive="$RUNNER_TEMP/tuist.zip"
+          tuist_directory="$RUNNER_TEMP/tuist-$TUIST_VERSION"
+          curl -fsSL \
+            "https://github.com/tuist/tuist/releases/download/$TUIST_VERSION/tuist.zip" \
+            -o "$tuist_archive"
+          echo "$TUIST_SHA256  $tuist_archive" | shasum -a 256 -c -
+          rm -rf "$tuist_directory"
+          mkdir -p "$tuist_directory"
+          unzip -q "$tuist_archive" -d "$tuist_directory"
+          chmod +x "$tuist_directory/tuist"
+          sudo rm -f /opt/homebrew/bin/tuist
+          sudo ln -s "$tuist_directory/tuist" /opt/homebrew/bin/tuist
+          tuist version
+
+      - name: Generate code
+        run: make codegen
+
+      - name: Check generated code is up to date
+        run: |
+          if ! git diff --exit-code --stat; then
+            echo "::error::Генеренные файлы расходятся с выводом кодогенерации. Прогони make project локально и закоммить результат."
+            exit 1
+          fi
+          echo "Генеренные файлы актуальны."
+
+      # contents.xcworkspacedata — локальный артефакт Xcode, в git его нет,
+      # поэтому в чистом клоне воркспейс пакета приходится создавать самим.
+      - name: Prepare SPM workspace
+        run: |
+          mkdir -p .swiftpm/xcode/package.xcworkspace
+          cat > .swiftpm/xcode/package.xcworkspace/contents.xcworkspacedata <<'XCWS'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <Workspace version = "1.0">
+             <FileRef location = "self:"></FileRef>
+          </Workspace>
+          XCWS
+          cat .swiftpm/xcode/package.xcworkspace/contents.xcworkspacedata
+
+      - name: Build WrapKit for all platforms (SPM)
+        run: |
+          dest_for() {
+            case "$1" in
+              iOS)         echo "generic/platform=iOS" ;;
+              macCatalyst) echo "generic/platform=macOS,variant=Mac Catalyst" ;;
+              macOS)       echo "generic/platform=macOS" ;;
+              tvOS)        echo "generic/platform=tvOS" ;;
+              watchOS)     echo "generic/platform=watchOS" ;;
+              visionOS)    echo "generic/platform=visionOS" ;;
+            esac
+          }
+          FAILED=""
+          for p in iOS macCatalyst macOS tvOS watchOS visionOS; do
+            echo "───────────── SPM / $p"
+            START=$(date +%s)
+            if xcodebuild build \
+                 -workspace .swiftpm/xcode/package.xcworkspace \
+                 -scheme WrapKit \
+                 -destination "$(dest_for $p)" \
+                 -derivedDataPath "$RUNNER_TEMP/dd/spm-$p" \
+                 -clonedSourcePackagesDirPath "$RUNNER_TEMP/spm-cache" \
+                 -skipPackagePluginValidation -skipMacroValidation \
+                 -quiet CODE_SIGNING_ALLOWED=NO > "build-spm-$p.log" 2>&1; then
+              echo "SPM $p ✅ $(( $(date +%s) - START ))s"
+            else
+              echo "SPM $p ❌ $(( $(date +%s) - START ))s"
+              grep "error:" "build-spm-$p.log" | sort -u | head -20
+              FAILED="$FAILED spm/$p"
+            fi
+            rm -rf "$RUNNER_TEMP/dd/spm-$p"
+          done
+          if [ -n "$FAILED" ]; then
+            echo "::error::Не собрались:$FAILED"
+            exit 1
+          fi
+          echo "Все 6 платформ собрались."
+
+      # Tuist-манифест описывает те же исходники отдельно и тоже заявляет destinations: .all,
+      # поэтому расходится с Package.swift незаметно.
+      - name: Build WrapKit for all platforms (Tuist)
+        run: |
+          make project
+          dest_for() {
+            case "$1" in
+              iOS)         echo "generic/platform=iOS" ;;
+              macCatalyst) echo "generic/platform=macOS,variant=Mac Catalyst" ;;
+              macOS)       echo "generic/platform=macOS" ;;
+              tvOS)        echo "generic/platform=tvOS" ;;
+              watchOS)     echo "generic/platform=watchOS" ;;
+              visionOS)    echo "generic/platform=visionOS" ;;
+            esac
+          }
+          FAILED=""
+          for p in iOS macCatalyst macOS tvOS watchOS visionOS; do
+            echo "───────────── Tuist / $p"
+            START=$(date +%s)
+            if xcodebuild build \
+                 -workspace Wrapkit.xcworkspace \
+                 -scheme WrapKit \
+                 -destination "$(dest_for $p)" \
+                 -derivedDataPath "$RUNNER_TEMP/dd/tuist-$p" \
+                 -skipPackagePluginValidation -skipMacroValidation \
+                 -quiet CODE_SIGNING_ALLOWED=NO > "build-tuist-$p.log" 2>&1; then
+              echo "Tuist $p ✅ $(( $(date +%s) - START ))s"
+            else
+              echo "Tuist $p ❌ $(( $(date +%s) - START ))s"
+              grep "error:" "build-tuist-$p.log" | sort -u | head -20
+              FAILED="$FAILED tuist/$p"
+            fi
+            rm -rf "$RUNNER_TEMP/dd/tuist-$p"
+          done
+          if [ -n "$FAILED" ]; then
+            echo "::error::Не собрались:$FAILED — расхождение Tuist-манифеста с Package.swift"
+            exit 1
+          fi
+          echo "Все 6 платформ собрались через Tuist."
+
+      - name: Upload platform build logs
+        if: failure()
+        uses: actions/upload-artifact@v6
+        with:
+          name: domain-platform-build-logs
+          path: build-*.log
+          if-no-files-found: ignore
+          retention-days: 10
+
   generate-build-test:
     runs-on: ${{ matrix.test_destination.runner }}
     strategy:

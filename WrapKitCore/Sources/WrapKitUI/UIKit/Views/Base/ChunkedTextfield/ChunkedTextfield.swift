@@ -1,6 +1,6 @@
 import Foundation
 
-#if canImport(UIKit)
+#if canImport(UIKit) && !os(watchOS)
 extension ChunkedTextField: TextInputOutput {
     public func display(inputAccessoryView: TextInputPresentableModel.AccessoryViewPresentableModel?) {
         
