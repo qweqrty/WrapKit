@@ -332,6 +332,9 @@ final class SUICardViewStateModel: ObservableObject {
             if case .asset(let image) = model.image {
                 return image?.size
             }
+            if case .symbolName(let name) = model.image {
+                return ImageFactory.systemImage(named: name)?.size
+            }
             return nil
         }()
 
@@ -346,8 +349,7 @@ final class SUICardViewStateModel: ObservableObject {
             borderWidth: model.borderWidth,
             borderColor: model.borderColor,
             cornerRadius: model.cornerRadius,
-            alpha: model.alpha,
-            systemSymbolName: model.systemSymbolName
+            alpha: model.alpha
         )
     }
 

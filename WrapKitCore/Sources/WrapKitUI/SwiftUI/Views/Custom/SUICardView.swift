@@ -922,8 +922,7 @@ private struct CardBackgroundImageView: View {
             image: model.image,
             onPress: model.onPress,
             onLongPress: model.onLongPress,
-            contentModeIsFit: model.contentModeIsFit,
-            systemSymbolName: model.systemSymbolName
+            contentModeIsFit: model.contentModeIsFit
         )
     }
 }

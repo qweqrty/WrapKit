@@ -247,6 +247,7 @@ private struct PickerCatalogView: View {
             CatalogDetailScreen(chrome: adapters.chrome) {
                 InputCatalogSurface {
                     SUIPickerView(adapter: adapters.picker)
+                        .frame(maxWidth: .infinity)
                         .frame(minHeight: 180)
                 }
 

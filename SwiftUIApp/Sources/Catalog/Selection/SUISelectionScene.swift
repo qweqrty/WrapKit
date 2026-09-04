@@ -204,6 +204,7 @@ private struct SUISelectionCell: View {
                 ? nil
                 : model.configuration.keyLabelNumberOfLines)
             .frame(maxWidth: .infinity, alignment: .leading)
+            .layoutPriority(-1)
 
             if let trailingTitle = model.trailingTitle {
                 SUILabelView(
@@ -334,8 +335,8 @@ enum CatalogSelectionAppearance {
         titleColor: .label,
         selectedTitleColor: .systemBlue,
         trailingColor: .secondaryLabel,
-        selectedImage: .asset(ImageFactory.systemImage(named: "largecircle.fill.circle")),
-        notSelectedImage: .asset(ImageFactory.systemImage(named: "circle")),
+        selectedImage: .symbolName("largecircle.fill.circle"),
+        notSelectedImage: .symbolName("circle"),
         lineColor: .separator,
         keyLabelNumberOfLines: 0
     )
@@ -346,8 +347,8 @@ enum CatalogSelectionAppearance {
         titleColor: .label,
         selectedTitleColor: .systemBlue,
         trailingColor: .secondaryLabel,
-        selectedImage: .asset(ImageFactory.systemImage(named: "checkmark.square.fill")),
-        notSelectedImage: .asset(ImageFactory.systemImage(named: "square")),
+        selectedImage: .symbolName("checkmark.square.fill"),
+        notSelectedImage: .symbolName("square"),
         lineColor: .separator,
         keyLabelNumberOfLines: 0
     )

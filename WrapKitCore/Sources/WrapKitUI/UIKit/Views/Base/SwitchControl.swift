@@ -121,6 +121,9 @@ extension SwitchControl: SwitchCotrolOutput {
         thumbTintColor = style?.thumbTintColor
         backgroundColor = style?.backgroundColor
         cornerRadius = style?.cornerRadius ?? 0
+        if #available(iOS 26.0, *) {
+            clipsToBounds = false
+        }
     }
     
     public func display(onPress: ((SwitchCotrolOutput & LoadingOutput) -> Void)?) {

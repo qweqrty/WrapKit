@@ -7,6 +7,44 @@ import XCTest
 
 @MainActor
 final class SUICardViewLayoutTests: XCTestCase {
+    func test_uiKitFillCard_expandsTitleBlockAndPinsTrailingImage() {
+        let sut = CardView(frame: CGRect(x: 0, y: 0, width: 320, height: 56))
+        sut.display(model: .init(
+            style: fillCardStyle,
+            title: .text("Compact"),
+            trailingImage: .init(
+                size: .init(width: 22, height: 22),
+                image: .symbolName("checkmark.circle.fill"),
+                contentModeIsFit: true
+            )
+        ))
+
+        sut.layoutIfNeeded()
+
+        XCTAssertGreaterThan(sut.titleViewsWrapperView.frame.width, 200)
+        XCTAssertEqual(
+            sut.trailingImageWrapperView.frame.maxX,
+            sut.hStackView.bounds.width - 12,
+            accuracy: 0.5
+        )
+    }
+
+    func test_swiftUIFillCard_expandsTitleBlockAndPinsTrailingImage() {
+        let resolution = CardFillHorizontalResolver.resolve(
+            idealWidths: [80, 22],
+            items: [
+                .init(role: .flexibleText, leadingSpacing: nil),
+                .fixed
+            ],
+            availableWidth: 296,
+            defaultSpacing: 8
+        )
+
+        XCTAssertEqual(resolution.widths, [266, 22])
+        XCTAssertEqual(resolution.origins, [0, 274])
+        XCTAssertEqual(maxX(of: resolution), 296)
+    }
+
     func test_bottomImageModel_updatesUIKitAndSwiftUIAndCanBeClearedIndependently() {
         let imageModel = ImageViewPresentableModel.systemSymbol(
             "ellipsis.rectangle.fill",
@@ -112,6 +150,7 @@ final class SUICardViewLayoutTests: XCTestCase {
         XCTAssertEqual(nativeSwitch.thumbTintColor, .systemYellow)
         XCTAssertEqual(nativeSwitch.backgroundColor, .systemGreen)
         XCTAssertEqual(nativeSwitch.cornerRadiusValue(), 9, accuracy: 0.001)
+        XCTAssertFalse(nativeSwitch.clipsToBounds)
     }
 
     func test_iOS26_adjacentNativeSwitchesKeepIndependentStylesAcrossUpdates() throws {
@@ -341,12 +380,28 @@ final class SUICardViewLayoutTests: XCTestCase {
                     : switchFrame.minX
 
                 XCTAssertGreaterThan(measuredSize.height, 0)
-                XCTAssertEqual(switchPixels?.size, referencePixels?.size)
+                XCTAssertEqual(switchPixels?.height, referencePixels?.height)
+                if let switchPixelWidth = switchPixels?.width,
+                   let referencePixelWidth = referencePixels?.width {
+                    // UIKit can place the physical iOS 26 switch on a half-pixel
+                    // while the card layout lands it on an integral pixel. The
+                    // integral placement may render one additional edge pixel,
+                    // but must never clip below the standalone reference width.
+                    XCTAssertGreaterThanOrEqual(switchPixelWidth, referencePixelWidth)
+                    XCTAssertLessThanOrEqual(switchPixelWidth - referencePixelWidth, 1)
+                } else {
+                    XCTFail("Expected visible switch pixels")
+                }
                 XCTAssertEqual(switchFrame.width, 61, accuracy: 0.001)
                 XCTAssertEqual(switchFrame.height, 28, accuracy: 0.001)
                 XCTAssertEqual(physicalSwitchFrame.width, 63, accuracy: 0.001)
-                XCTAssertEqual(physicalSwitchFrame.minX, switchFrame.minX - 1, accuracy: 0.001)
-                XCTAssertEqual(physicalSwitchFrame.maxX, switchFrame.maxX + 1, accuracy: 0.001)
+                XCTAssertLessThanOrEqual(physicalSwitchFrame.minX, switchFrame.minX)
+                XCTAssertGreaterThanOrEqual(physicalSwitchFrame.maxX, switchFrame.maxX)
+                XCTAssertEqual(
+                    physicalSwitchFrame.width - switchFrame.width,
+                    2,
+                    accuracy: 0.001
+                )
                 XCTAssertEqual(semanticInset, 12, accuracy: 0.001)
                 XCTAssertGreaterThanOrEqual(physicalSwitchFrame.minX, 0)
                 XCTAssertGreaterThanOrEqual(physicalSwitchFrame.minY, 0)
@@ -521,6 +576,30 @@ final class SUICardViewLayoutTests: XCTestCase {
         zip(resolution.origins, resolution.widths)
             .map { $0 + $1 }
             .max() ?? 0
+    }
+
+    private var fillCardStyle: CardViewPresentableModel.Style {
+        .init(
+            backgroundColor: .systemBackground,
+            vStacklayoutMargins: .zero,
+            hStacklayoutMargins: .init(horizontal: 12, vertical: 0),
+            hStackViewDistribution: .fill,
+            leadingTitleKeyTextColor: .label,
+            titleKeyTextColor: .label,
+            trailingTitleKeyTextColor: .label,
+            titleValueTextColor: .secondaryLabel,
+            subTitleTextColor: .secondaryLabel,
+            leadingTitleKeyLabelFont: .systemFont(ofSize: 16),
+            titleKeyLabelFont: .systemFont(ofSize: 16),
+            trailingTitleKeyLabelFont: .systemFont(ofSize: 16),
+            titleValueLabelFont: .systemFont(ofSize: 14),
+            subTitleLabelFont: .systemFont(ofSize: 14),
+            cornerRadius: 0,
+            stackSpace: 0,
+            hStackViewSpacing: 8,
+            titleKeyNumberOfLines: 1,
+            titleValueNumberOfLines: 1
+        )
     }
 
     private func assertNativeSwitch(

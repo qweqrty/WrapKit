@@ -59,5 +59,26 @@ final class SUIButtonStateModelTests: XCTestCase {
         XCTAssertEqual(sut.presentable.title, "Updated")
         XCTAssertEqual(sut.presentable.width, 180)
     }
+
+    func test_incrementalStyle_preservesFullModelContentAndConfiguration() {
+        let adapter = ButtonOutputSwiftUIAdapter()
+        let sut = SUIButtonStateModel(adapter: adapter)
+        let image = ImageFactory.systemImage(named: "star")
+
+        adapter.display(model: .init(
+            title: "BUTTON WITH height",
+            image: image,
+            spacing: 50,
+            height: 100,
+            style: .init(backgroundColor: .red)
+        ))
+        adapter.display(style: .init(backgroundColor: .cyan))
+
+        XCTAssertEqual(sut.presentable.title, "BUTTON WITH height")
+        XCTAssertNotNil(sut.presentable.image)
+        XCTAssertEqual(sut.presentable.spacing, 50)
+        XCTAssertEqual(sut.presentable.height, 100)
+        XCTAssertEqual(sut.presentable.style?.backgroundColor, .cyan)
+    }
 }
 #endif

@@ -196,6 +196,8 @@ public struct SUIButtonView: View {
                     .font(titleFont)
                     .foregroundColor(titleColor)
                     .opacity(isEnabled ? 1 : 0.5)
+                    // Prevents iOS 26 from dropping the text layer after a height update.
+                    .background(SwiftUIColor(.clear))
             }
         }
 

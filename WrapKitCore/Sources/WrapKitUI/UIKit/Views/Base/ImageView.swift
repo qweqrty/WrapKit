@@ -36,7 +36,6 @@ public struct ImageViewPresentableModel: HashableWithReflection {
     public let accessibility: Accessibility?
     public let size: CGSize?
     public let image: ImageEnum?
-    let systemSymbolName: String?
     public let onPress: (() -> Void)?
     public let onLongPress: (() -> Void)?
     public let contentModeIsFit: Bool?
@@ -59,23 +58,20 @@ public struct ImageViewPresentableModel: HashableWithReflection {
         cornerRadius: CGFloat? = nil,
         alpha: CGFloat? = nil
     ) {
-        self.init(
-            accessibilityIdentifier: accessibilityIdentifier,
-            accessibility: accessibility,
-            size: size,
-            image: image,
-            onPress: onPress,
-            onLongPress: onLongPress,
-            contentModeIsFit: contentModeIsFit,
-            borderWidth: borderWidth,
-            borderColor: borderColor,
-            cornerRadius: cornerRadius,
-            alpha: alpha,
-            systemSymbolName: nil
-        )
+        self.accessibilityIdentifier = accessibilityIdentifier
+        self.accessibility = accessibility
+        self.size = size
+        self.image = image
+        self.onPress = onPress
+        self.onLongPress = onLongPress
+        self.contentModeIsFit = contentModeIsFit
+        self.borderWidth = borderWidth
+        self.borderColor = borderColor
+        self.cornerRadius = cornerRadius
+        self.alpha = alpha
     }
 
-    /// Keeps the symbol semantic so UIKit and SwiftUI can render it natively.
+    /// Convenience for the semantic `ImageEnum.symbolName` source.
     public static func systemSymbol(
         _ name: String,
         accessibilityIdentifier: String? = nil,
@@ -93,44 +89,15 @@ public struct ImageViewPresentableModel: HashableWithReflection {
             accessibilityIdentifier: accessibilityIdentifier,
             accessibility: accessibility,
             size: size,
-            image: .asset(ImageFactory.systemImage(named: name)),
+            image: .symbolName(name),
             onPress: onPress,
             onLongPress: onLongPress,
             contentModeIsFit: contentModeIsFit,
             borderWidth: borderWidth,
             borderColor: borderColor,
             cornerRadius: cornerRadius,
-            alpha: alpha,
-            systemSymbolName: name
+            alpha: alpha
         )
-    }
-
-    init(
-        accessibilityIdentifier: String? = nil,
-        accessibility: Accessibility? = nil,
-        size: CGSize? = nil,
-        image: ImageEnum? = nil,
-        onPress: (() -> Void)? = nil,
-        onLongPress: (() -> Void)? = nil,
-        contentModeIsFit: Bool? = nil,
-        borderWidth: CGFloat? = nil,
-        borderColor: Color? = nil,
-        cornerRadius: CGFloat? = nil,
-        alpha: CGFloat? = nil,
-        systemSymbolName: String?
-    ) {
-        self.accessibilityIdentifier = accessibilityIdentifier
-        self.accessibility = accessibility
-        self.size = size
-        self.image = image
-        self.systemSymbolName = systemSymbolName
-        self.onPress = onPress
-        self.onLongPress = onLongPress
-        self.contentModeIsFit = contentModeIsFit
-        self.borderWidth = borderWidth
-        self.borderColor = borderColor
-        self.cornerRadius = cornerRadius
-        self.alpha = alpha
     }
 }
 
@@ -159,6 +126,11 @@ public extension ImageView {
         switch image {
         case .asset(let image):
             cancelDownloadTask()
+            self.animatedSet(image)
+            closure?(image)
+        case .symbolName(let name):
+            cancelDownloadTask()
+            let image = ImageFactory.systemImage(named: name)
             self.animatedSet(image)
             closure?(image)
         case .url(let lightUrl, let darkUrl):
@@ -236,7 +208,7 @@ public extension ImageView {
         case .urlString(let lightString, let darkString):
             let currentString = traitCollection.userInterfaceStyle == .dark ? darkString : lightString
             return URL(string: currentString ?? "") == url
-        case .asset, .data, nil:
+        case .asset, .symbolName, .data, nil:
             return false
         }
     }
@@ -360,7 +332,11 @@ open class ImageView: UIImageView {
         didSet {
             if let image = self.image {
                 if #available(iOS 13.0, *) {
-                    self.setImage(.asset(image.withTintColor(tintColor)))
+                    if case .symbolName = currentImageEnum {
+                        super.image = image.withRenderingMode(.alwaysTemplate)
+                    } else {
+                        self.setImage(.asset(image.withTintColor(tintColor)))
+                    }
                 }
                 super.tintColor = tintColor
             }
@@ -401,6 +377,8 @@ open class ImageView: UIImageView {
             if light == dark {
                 return
             }
+            setImage(currentImageEnum)
+        case .symbolName:
             setImage(currentImageEnum)
         case .asset, .data:
             if #available(iOS 13.0, *), let image = self.image, image.renderingMode == .alwaysTemplate {
@@ -498,6 +476,8 @@ extension ImageView: ImageViewOutput {
         switch model?.image {
         case .asset(let image) where model?.size == nil:
             display(size: image?.size)
+        case .symbolName(let name) where model?.size == nil:
+            display(size: ImageFactory.systemImage(named: name)?.size)
         default:
             break
         }

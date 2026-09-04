@@ -156,6 +156,24 @@ final class SUITableViewStateModelTests: XCTestCase {
         XCTAssertNotEqual(rows[0].id, rows[1].id)
     }
 
+    func test_rowIdentity_fromAccessibilityIdentifierSurvivesMutableCellHash() {
+        let selection = SelectionType.SelectionCellPresentableModel(
+            id: "compact",
+            title: "Compact",
+            configuration: selectionCellConfiguration
+        )
+        let before = suiTableIdentifiedCells([
+            CellModel(accessibilityIdentifier: selection.id, cell: selection)
+        ])
+
+        selection.isSelected.set(model: true)
+        let after = suiTableIdentifiedCells([
+            CellModel(accessibilityIdentifier: selection.id, cell: selection)
+        ])
+
+        XCTAssertEqual(before[0].id, after[0].id)
+    }
+
     func test_init_replaysStateButDropsPremountExpandCommandLikeUIKit() {
         let adapter = makeAdapter()
         let sections = makeSections(["Inbox", "Archive"])
@@ -846,6 +864,16 @@ final class SUITableViewStateModelTests: XCTestCase {
 
     private func makeAdapter() -> TableOutputSwiftUIAdapter<String, Void, Void> {
         TableOutputSwiftUIAdapter<String, Void, Void>()
+    }
+
+    private var selectionCellConfiguration: SelectionConfiguration.Cell {
+        .init(
+            titleFont: .systemFont(ofSize: 16),
+            trailingFont: .systemFont(ofSize: 14),
+            titleColor: .label,
+            trailingColor: .secondaryLabel,
+            lineColor: .separator
+        )
     }
 
     private func makeSections(_ cells: [String]) -> [TableSection<Void, String, Void>] {

@@ -5,6 +5,29 @@ import XCTest
 import UIKit
 
 final class CommonToastBehaviorTests: XCTestCase {
+    func test_regularToast_usesSemanticSymbolInBothImplementations() {
+        let uiKitSUT = ToastView(duration: nil, position: .top)
+        let swiftUIAdapter = CommonToastOutputSwiftUIAdapter()
+        let swiftUISUT = SUIToastViewStateModel(adapter: swiftUIAdapter)
+        let toast = CommonToast.success(.init(
+            keyTitle: "Saved",
+            position: .top,
+            duration: nil
+        ))
+
+        uiKitSUT.display(toast)
+        swiftUIAdapter.display(toast)
+
+        XCTAssertEqual(
+            uiKitSUT.cardView.leadingImageView.currentImageEnum,
+            .symbolName("checkmark.circle.fill")
+        )
+        XCTAssertEqual(
+            swiftUISUT.currentCardModel?.leadingImage?.image,
+            .symbolName("checkmark.circle.fill")
+        )
+    }
+
     func test_uikitToast_forwardsToastOnPressToRenderedCard() {
         var pressCount = 0
         let sut = ToastView(duration: nil, position: .top)
