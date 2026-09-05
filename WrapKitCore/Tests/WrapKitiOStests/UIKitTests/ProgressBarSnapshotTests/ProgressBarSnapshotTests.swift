@@ -231,8 +231,9 @@ final class ProgressBarSnapshotTests: XCTestCase {
         let (sut, container) = makeSUT()
 
         // WHEN
+        sut.display(style: .init(backgroundColor: .systemRed, height: 5.0))
         sut.display(progress: 50.0)
-        sut.display(isHidden: true)
+        sut.display(model: nil)
 
         // THEN
         if #available(iOS 26, *) {
@@ -251,7 +252,9 @@ final class ProgressBarSnapshotTests: XCTestCase {
         let (sut, container) = makeSUT()
 
         // WHEN
+        sut.display(style: .init(backgroundColor: .systemRed, height: 5.0))
         sut.display(progress: 50.0)
+        sut.display(model: nil)
         sut.display(isHidden: false)
 
         // THEN
@@ -275,9 +278,11 @@ final class ProgressBarSnapshotTests: XCTestCase {
         sut.display(progress: 100.0)
         container.layoutIfNeeded()
         sut.applyCornerStyle(.fixed(4))
+        let lightTraits = UITraitCollection(userInterfaceStyle: .light)
         sut.gradientBackgroundColor(
             width: 6,
-            colors: [.systemBlue, .systemPurple, .systemPink],
+            colors: [UIColor.systemBlue, .systemPurple, .systemPink]
+                .map { $0.resolvedColor(with: lightTraits) },
             startPoint: CGPoint(x: 0, y: 0),
             endPoint: CGPoint(x: 1, y: 0)
         )
@@ -302,9 +307,11 @@ final class ProgressBarSnapshotTests: XCTestCase {
         sut.display(style: .init(backgroundColor: .clear, height: 6.0, cornerStyle: .fixed(4)))
         sut.display(progress: 100.0)
         container.layoutIfNeeded()
+        let lightTraits = UITraitCollection(userInterfaceStyle: .light)
         sut.gradientBackgroundColor(
             width: 6,
-            colors: [.systemGreen, .systemYellow, .systemOrange],
+            colors: [UIColor.systemGreen, .systemYellow, .systemOrange]
+                .map { $0.resolvedColor(with: lightTraits) },
             startPoint: CGPoint(x: 0, y: 0),
             endPoint: CGPoint(x: 1, y: 0)
         )
@@ -326,12 +333,15 @@ final class ProgressBarSnapshotTests: XCTestCase {
         let (sut, container) = makeSUT()
 
         // WHEN
-        sut.display(style: .init(
-            backgroundColor: .systemGray4,
-            progressBarColor: .systemGreen,
-            height: 6.0,
-            cornerStyle: .fixed(4)))
-        sut.display(progress: 50.0)
+        sut.display(model: .init(
+            progress: 50.0,
+            style: .init(
+                backgroundColor: .systemGray4,
+                progressBarColor: .systemGreen,
+                height: 6.0,
+                cornerStyle: .fixed(4)
+            )
+        ))
 
         // THEN
         if #available(iOS 26, *) {
@@ -350,12 +360,15 @@ final class ProgressBarSnapshotTests: XCTestCase {
         let (sut, container) = makeSUT()
 
         // WHEN
-        sut.display(style: .init(
-            backgroundColor: .systemGray4,
-            progressBarColor: .systemGreen,
-            height: 6.0,
-            cornerStyle: .fixed(4)))
-        sut.display(progress: 51.0)
+        sut.display(model: .init(
+            progress: 51.0,
+            style: .init(
+                backgroundColor: .systemGray4,
+                progressBarColor: .systemGreen,
+                height: 6.0,
+                cornerStyle: .fixed(4)
+            )
+        ))
 
         // THEN
         if #available(iOS 26, *) {
@@ -365,6 +378,27 @@ final class ProgressBarSnapshotTests: XCTestCase {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
+    }
+
+    func test_progressBar_styleWithoutHeight_preservesEstablishedHeight() {
+        let (sut, container) = makeSUT()
+
+        sut.display(style: .init(
+            backgroundColor: .systemRed,
+            height: 50,
+            cornerStyle: CornerStyle.none
+        ))
+        sut.display(style: .init(
+            backgroundColor: .systemRed,
+            trackHeight: 33,
+            cornerStyle: CornerStyle.none
+        ))
+        sut.display(progress: 100.0)
+        container.layoutIfNeeded()
+
+        XCTAssertEqual(sut.bounds.height, 50, accuracy: 0.01)
+        XCTAssertEqual(sut.progressView.bounds.height, 50, accuracy: 0.01)
+        XCTAssertEqual(sut.trackView.bounds.height, 33, accuracy: 0.01)
     }
 }
 

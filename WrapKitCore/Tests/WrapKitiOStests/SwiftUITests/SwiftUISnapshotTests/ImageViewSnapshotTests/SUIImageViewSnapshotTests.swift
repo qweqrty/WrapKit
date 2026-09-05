@@ -692,8 +692,71 @@ final class SUIImageViewSnapshotTests: XCTestCase {
         }
     }
 
-    //MARK: - touches simulation
+    // MARK: - Touches simulation
 
+    func test_imageView_onPress_visualState() {
+        let snapshotName = "IMAGE_VIEW_ONPRESS"
+        let releasedSnapshotName = "IMAGE_VIEW_ONPRESS_RELEASED"
+
+        // GIVEN
+        let pressedSUT = makeSUT(pressedStateOverride: true)
+        let releasedSUT = makeSUT(pressedStateOverride: false)
+        let pressedImageLoaded = expectation(description: "Pressed image loaded")
+        let releasedImageLoaded = expectation(description: "Released image loaded")
+
+        // WHEN
+        pressedSUT.display(alpha: 0.3)
+        releasedSUT.display(alpha: 0.3)
+        pressedSUT.display(onPress: {})
+        releasedSUT.display(onPress: {})
+        let image = UIImage(systemName: "star.fill")
+        pressedSUT.display(image: .asset(image)) { _ in pressedImageLoaded.fulfill() }
+        releasedSUT.display(image: .asset(image)) { _ in releasedImageLoaded.fulfill() }
+
+        wait(for: [pressedImageLoaded, releasedImageLoaded], timeout: 1)
+
+        // THEN
+        if #available(iOS 26, *) {
+            assert(snapshot: pressedSUT.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
+            assert(snapshot: releasedSUT.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(releasedSnapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
+            assert(snapshot: releasedSUT.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS26_\(releasedSnapshotName)_DARK", precision: SwiftUISnapshotPrecision.standard)
+        } else {
+            assert(snapshot: pressedSUT.swiftUISnapshot(for: .light), named: "SwiftUI_iOS18.5_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
+            assert(snapshot: releasedSUT.swiftUISnapshot(for: .light), named: "SwiftUI_iOS18.5_\(releasedSnapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
+            assert(snapshot: releasedSUT.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS18.5_\(releasedSnapshotName)_DARK", precision: SwiftUISnapshotPrecision.standard)
+        }
+    }
+
+    func test_fail_imageView_onPress_visualState() {
+        let snapshotName = "IMAGE_VIEW_ONPRESS"
+        let releasedSnapshotName = "IMAGE_VIEW_ONPRESS_RELEASED"
+
+        // GIVEN
+        let pressedSUT = makeSUT(pressedStateOverride: true)
+        let releasedSUT = makeSUT(pressedStateOverride: false)
+        let pressedImageLoaded = expectation(description: "Pressed mutation image loaded")
+        let releasedImageLoaded = expectation(description: "Released mutation image loaded")
+
+        // WHEN
+        pressedSUT.display(onPress: {})
+        releasedSUT.display(onPress: {})
+        let image = UIImage(systemName: "star")
+        pressedSUT.display(image: .asset(image)) { _ in pressedImageLoaded.fulfill() }
+        releasedSUT.display(image: .asset(image)) { _ in releasedImageLoaded.fulfill() }
+
+        wait(for: [pressedImageLoaded, releasedImageLoaded], timeout: 1)
+
+        // THEN
+        if #available(iOS 26, *) {
+            assertFail(snapshot: pressedSUT.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.fail)
+            assertFail(snapshot: releasedSUT.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(releasedSnapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.fail)
+            assertFail(snapshot: releasedSUT.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS26_\(releasedSnapshotName)_DARK", precision: SwiftUISnapshotPrecision.fail)
+        } else {
+            assertFail(snapshot: pressedSUT.swiftUISnapshot(for: .light), named: "SwiftUI_iOS18.5_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.fail)
+            assertFail(snapshot: releasedSUT.swiftUISnapshot(for: .light), named: "SwiftUI_iOS18.5_\(releasedSnapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.fail)
+            assertFail(snapshot: releasedSUT.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS18.5_\(releasedSnapshotName)_DARK", precision: SwiftUISnapshotPrecision.fail)
+        }
+    }
 
     // MARK: - Completion calling directly
     func test_imageView_direct_onPress() {
@@ -809,11 +872,12 @@ final class SUIImageViewSnapshotTests: XCTestCase {
 @available(iOS 17.0, *)
 private extension SUIImageViewSnapshotTests {
     func makeSUT(
+        pressedStateOverride: Bool? = nil,
         file: StaticString = #file,
         line: UInt = #line
     ) -> SwiftUIImageViewSnapshotSUT {
-        let sut = SwiftUIImageViewSnapshotSUT()
-        checkForMemoryLeaks(sut.uiKitImageView, file: file, line: line)
+        let sut = SwiftUIImageViewSnapshotSUT(pressedStateOverride: pressedStateOverride)
+        checkForMemoryLeaks(sut, file: file, line: line)
         return sut
     }
 }

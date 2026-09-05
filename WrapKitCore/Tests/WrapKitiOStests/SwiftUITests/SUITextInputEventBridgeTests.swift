@@ -138,6 +138,83 @@ final class SUITextInputEventBridgeTests: XCTestCase {
         XCTAssertEqual(sut.text, "100%")
     }
 
+    func test_fullModelThenNil_hidesAndRetainsStateAndCallbacksLikeUIKit() {
+        let adapter = TextInputOutputSwiftUIAdapter()
+        var events: [String] = []
+        adapter.display(model: .init(
+            accessibilityIdentifier: "account.field",
+            text: "Account",
+            isValid: false,
+            isEnabledForEditing: false,
+            isTextSelectionDisabled: true,
+            placeholder: "Name",
+            isUserInteractionEnabled: false,
+            isSecureTextEntry: true,
+            trailingSymbol: "%",
+            autocapitalizationType: .words,
+            inputType: .emailAddress,
+            leadingViewOnPress: { events.append("leading") },
+            trailingViewOnPress: { events.append("trailing") },
+            onPress: { events.append("press") },
+            onPaste: { events.append("paste:\($0 ?? "nil")") },
+            onBecomeFirstResponder: { events.append("focus") },
+            onResignFirstResponder: { events.append("blur") },
+            onTapBackspace: { events.append("backspace") },
+            didChangeText: [{ events.append("change:\($0 ?? "nil")") }]
+        ))
+        let sut = SUITextInputStateModel(adapter: adapter)
+
+        XCTAssertFalse(sut.isHidden)
+        XCTAssertEqual(sut.accessibilityIdentifier, "account.field")
+        XCTAssertEqual(sut.text, "Account")
+        XCTAssertEqual(sut.placeholder, "Name")
+        XCTAssertFalse(sut.isValid)
+        XCTAssertFalse(sut.isEnabledForEditing)
+        XCTAssertTrue(sut.isTextSelectionDisabled)
+        XCTAssertFalse(sut.isUserInteractionEnabled)
+        XCTAssertTrue(sut.isSecureTextEntry)
+        XCTAssertEqual(sut.trailingSymbol, "%")
+        XCTAssertEqual(sut.keyboardType, .emailAddress)
+        if case .words = sut.autocapitalizationType {
+            // Expected.
+        } else {
+            XCTFail("Expected words autocapitalization")
+        }
+
+        adapter.display(model: nil)
+
+        XCTAssertTrue(sut.isHidden)
+        XCTAssertEqual(sut.accessibilityIdentifier, "account.field")
+        XCTAssertEqual(sut.text, "Account")
+        XCTAssertEqual(sut.placeholder, "Name")
+        XCTAssertFalse(sut.isValid)
+        XCTAssertFalse(sut.isEnabledForEditing)
+        XCTAssertTrue(sut.isTextSelectionDisabled)
+        XCTAssertFalse(sut.isUserInteractionEnabled)
+        XCTAssertTrue(sut.isSecureTextEntry)
+        XCTAssertEqual(sut.trailingSymbol, "%")
+        XCTAssertEqual(sut.keyboardType, .emailAddress)
+
+        sut.leadingViewOnPress?()
+        sut.trailingViewOnPress?()
+        sut.onPress?()
+        sut.onPaste?("value")
+        sut.onBecomeFirstResponder?()
+        sut.onResignFirstResponder?()
+        sut.onTapBackspace?()
+        sut.didChangeText.forEach { $0("value") }
+        XCTAssertEqual(events, [
+            "leading",
+            "trailing",
+            "press",
+            "paste:value",
+            "focus",
+            "blur",
+            "backspace",
+            "change:value"
+        ])
+    }
+
     func test_chunkedFullModel_matchesUIKitTextAndValidityScope() {
         let adapter = TextInputOutputSwiftUIAdapter()
         let sut = SUITextInputStateModel(
@@ -189,6 +266,35 @@ final class SUITextInputEventBridgeTests: XCTestCase {
         adapter.display(isUserInteractionEnabled: false)
 
         XCTAssertFalse(sut.isUserInteractionEnabled)
+        XCTAssertTrue(sut.shouldResignFirstResponder)
+    }
+
+    func test_secureTextEntryUpdatesTextViewState() {
+        let adapter = TextInputOutputSwiftUIAdapter()
+        let sut = SUITextInputStateModel(adapter: adapter, consumer: .textView)
+
+        adapter.display(isSecureTextEntry: true)
+        XCTAssertTrue(sut.isSecureTextEntry)
+
+        adapter.display(isSecureTextEntry: false)
+        XCTAssertFalse(sut.isSecureTextEntry)
+    }
+
+    func test_startEditingRequestsBecomeFirstResponder() {
+        let adapter = TextInputOutputSwiftUIAdapter()
+        let sut = SUITextInputStateModel(adapter: adapter)
+
+        adapter.startEditing()
+
+        XCTAssertTrue(sut.shouldBecomeFirstResponder)
+    }
+
+    func test_stopEditingRequestsResignFirstResponder() {
+        let adapter = TextInputOutputSwiftUIAdapter()
+        let sut = SUITextInputStateModel(adapter: adapter)
+
+        adapter.stopEditing()
+
         XCTAssertTrue(sut.shouldResignFirstResponder)
     }
 }

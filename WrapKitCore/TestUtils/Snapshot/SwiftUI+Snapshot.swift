@@ -2,7 +2,9 @@
 import SwiftUI
 
 public enum SwiftUISnapshotPrecision {
-    public static let standard: Float = 0.98
+    /// Positive snapshots must reject every visible change. `strictImage` still normalizes both
+    /// images and accepts only its bounded PNG/color-space quantization tolerance.
+    public static let standard: Float = 1
     public static let fail: Float = 1
 }
 
@@ -11,11 +13,13 @@ public extension View {
     func snapshot(for configuration: SUISnapshotConfiguration, background: Color? = nil, useUIKit: Bool = false) -> UIImage {
         let view = self.build(configuration: configuration, background: background)
 #if canImport(UIKit)
-        guard useUIKit else { return view.snapshot(size: configuration.size) }
+        guard useUIKit else {
+            return view.snapshot(size: configuration.size, scale: configuration.scale)
+        }
         return view.inHostController()
             .snapshot(for: configuration.uiKitSnapshotConfiguration)
 #else
-        return view.snapshot(size: configuration.size)
+        return view.snapshot(size: configuration.size, scale: configuration.scale)
 #endif
     }
 #if canImport(UIKit)
@@ -37,19 +41,37 @@ extension UIHostingController {
 }
 
 public struct SUISnapshotConfiguration {
-    public static let size = CGSize(width: 1170 / UIScreen.main.scale, height: 2532 / UIScreen.main.scale)
-    public static let sizePx = CGSize(width: 1170, height: 2532)
+    public static let size = SnapshotRenderDefaults.size
+    public static let sizePx = SnapshotRenderDefaults.pixelSize
+    public static let scale = SnapshotRenderDefaults.scale
     
     public let size: CGSize
     public let safeAreaInsets: EdgeInsets
     public let layoutMargins: EdgeInsets
     public let colorScheme: ColorScheme
+    public let scale: CGFloat
+    public let locale: Locale
+    public let dynamicTypeSize: DynamicTypeSize
+    public let layoutDirection: LayoutDirection
     
-    public init(size: CGSize, safeAreaInsets: EdgeInsets, layoutMargins: EdgeInsets, colorScheme: ColorScheme) {
+    public init(
+        size: CGSize,
+        safeAreaInsets: EdgeInsets,
+        layoutMargins: EdgeInsets,
+        colorScheme: ColorScheme,
+        scale: CGFloat = Self.scale,
+        locale: Locale = Locale(identifier: SnapshotRenderDefaults.localeIdentifier),
+        dynamicTypeSize: DynamicTypeSize = .medium,
+        layoutDirection: LayoutDirection = .leftToRight
+    ) {
         self.size = size
         self.safeAreaInsets = safeAreaInsets
         self.layoutMargins = layoutMargins
         self.colorScheme = colorScheme
+        self.scale = scale
+        self.locale = locale
+        self.dynamicTypeSize = dynamicTypeSize
+        self.layoutDirection = layoutDirection
     }
     
     public static func iPhone(style colorScheme: ColorScheme) -> SUISnapshotConfiguration {
@@ -76,22 +98,37 @@ extension ColorScheme {
 
 @available(iOS 17.0, macOS 14.0, tvOS 17.0, watchOS 10.0, *)
 public extension View {
+    func snapshotEnvironment(configuration: SUISnapshotConfiguration) -> some View {
+        self
+            .colorScheme(configuration.colorScheme)
+            .environment(\.displayScale, configuration.scale)
+            .environment(\.locale, configuration.locale)
+            .environment(\.layoutDirection, configuration.layoutDirection)
+            .dynamicTypeSize(configuration.dynamicTypeSize)
+            .transaction { transaction in
+                transaction.animation = nil
+                transaction.disablesAnimations = true
+            }
+    }
+
     @ViewBuilder
     func build(configuration: SUISnapshotConfiguration, background: Color? = nil) -> some View {
-        self
+        snapshotEnvironment(configuration: configuration)
             .frame(width: configuration.size.width, height: configuration.size.height)
 //            .safeAreaPadding(configuration.safeAreaInsets)
             .contentMargins(.all, configuration.layoutMargins, for: .automatic)
-            .colorScheme(configuration.colorScheme)
             .background(background ?? (configuration.colorScheme == .dark ? Color.black : Color.white))
     }
 }
 
 @available(iOS 17.0, macOS 14.0, tvOS 17.0, watchOS 10.0, *)
 public extension View {
-    func snapshot(size: CGSize = SUISnapshotConfiguration.size) -> UIImage {
+    func snapshot(
+        size: CGSize = SUISnapshotConfiguration.size,
+        scale: CGFloat = SUISnapshotConfiguration.scale
+    ) -> UIImage {
         let renderer = ImageRenderer(content: self)
-        renderer.scale = UIScreen.main.scale
+        renderer.scale = scale
         if #available(iOS 26, macOS 26, watchOS 26, tvOS 26, *) {
             renderer.allowedDynamicRange = .high
         }
@@ -99,7 +136,7 @@ public extension View {
         
         // Use UIGraphicsImageRenderer for proper anti-aliasing
         let format = UIGraphicsImageRendererFormat()
-        format.scale = UIScreen.main.scale
+        format.scale = scale
         format.preferredRange = .standard // SwftUI not passing with extended
         format.opaque = false
         
@@ -121,9 +158,14 @@ public extension View {
 }
 
 #if canImport(UIKit)
+@available(iOS 17.0, *)
 private extension SUISnapshotConfiguration {
     var uiKitSnapshotConfiguration: SnapshotConfiguration {
-        let defaultConfiguration = SnapshotConfiguration.iPhone(style: colorScheme.style)
+        let defaultConfiguration = SnapshotConfiguration.iPhone(
+            style: colorScheme.style,
+            contentSize: dynamicTypeSize.uiContentSizeCategory,
+            displayScale: scale
+        )
         return SnapshotConfiguration(
             size: size,
             safeAreaInsets: UIEdgeInsets(
@@ -140,6 +182,27 @@ private extension SUISnapshotConfiguration {
             ),
             traitCollection: defaultConfiguration.traitCollection
         )
+    }
+}
+
+@available(iOS 17.0, *)
+private extension DynamicTypeSize {
+    var uiContentSizeCategory: UIContentSizeCategory {
+        switch self {
+        case .xSmall: .extraSmall
+        case .small: .small
+        case .medium: .medium
+        case .large: .large
+        case .xLarge: .extraLarge
+        case .xxLarge: .extraExtraLarge
+        case .xxxLarge: .extraExtraExtraLarge
+        case .accessibility1: .accessibilityMedium
+        case .accessibility2: .accessibilityLarge
+        case .accessibility3: .accessibilityExtraLarge
+        case .accessibility4: .accessibilityExtraExtraLarge
+        case .accessibility5: .accessibilityExtraExtraExtraLarge
+        default: SnapshotRenderDefaults.contentSizeCategory
+        }
     }
 }
 #endif

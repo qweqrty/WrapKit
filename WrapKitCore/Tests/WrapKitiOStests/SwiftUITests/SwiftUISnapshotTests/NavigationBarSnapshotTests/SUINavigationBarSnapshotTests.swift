@@ -1019,13 +1019,12 @@ class SUINavigationBarSnapshotTests: XCTestCase {
             secondaryColor: .green)
         )
 
-        let image = Image(systemName: "star.fill")
-
         sut.display(
             leadingCard: .init(
-                title: .text("Title"),
-                valueTitle: .text("Value title"),
-                bottomImage: .init(image: .asset(image))
+                bottomImage: .systemSymbol(
+                    "star.fill",
+                    size: CGSize(width: 24, height: 24)
+                )
             )
         )
 
@@ -1055,13 +1054,12 @@ class SUINavigationBarSnapshotTests: XCTestCase {
             secondaryColor: .green)
         )
 
-        let image = Image(systemName: "star")
-
         sut.display(
             leadingCard: .init(
-                title: .text("Title."),
-                valueTitle: .text("Value title"),
-                bottomImage: .init(image: .asset(image))
+                bottomImage: .systemSymbol(
+                    "star",
+                    size: CGSize(width: 24, height: 24)
+                )
             )
         )
 
@@ -1441,27 +1439,9 @@ private extension SUINavigationBarSnapshotTests {
         file: StaticString = #file,
         line: UInt = #line
     ) -> SwiftUINavigationBarSnapshotSUT {
-        let container = makeContainer()
-        let sut = SwiftUINavigationBarSnapshotSUT(uiKitContainer: container)
-
-        container.addSubview(sut.uiKitView)
-        sut.uiKitView.anchor(
-            .top(container.topAnchor, constant: 0, priority: .required),
-            .leading(container.leadingAnchor, constant: 0, priority: .required),
-            .trailing(container.trailingAnchor, constant: 0, priority: .required),
-        )
-
-        container.layoutIfNeeded()
+        let sut = SwiftUINavigationBarSnapshotSUT()
 
         checkForMemoryLeaks(sut, file: file, line: line)
-        checkForMemoryLeaks(sut.uiKitView, file: file, line: line)
         return sut
-    }
-
-    func makeContainer() -> UIView {
-        let container = UIView()
-        container.frame = CGRect(x: 0, y: 0, width: 390, height: 300)
-        container.backgroundColor = .clear
-        return container
     }
 }

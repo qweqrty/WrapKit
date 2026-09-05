@@ -22,6 +22,7 @@ final class ToastViewSnapshotTests: XCTestCase {
         animationsWereEnabled = UIView.areAnimationsEnabled
         UIView.setAnimationsEnabled(false)
         testContainer = UIWindow(frame: CGRect(x: 0, y: 0, width: 390, height: 844))
+        testContainer.overrideUserInterfaceStyle = .light
         testContainer.isHidden = false
         testContainer.backgroundColor = .white
     }

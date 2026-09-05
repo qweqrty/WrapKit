@@ -7,6 +7,7 @@
 
 import WrapKit
 import WrapKitTestUtils
+import SwiftUI
 import XCTest
 
 @available(iOS 17.0, *)
@@ -101,6 +102,62 @@ final class SUICardViewSnapshotTests: XCTestCase {
         }
     }
 
+    func test_CardView_with_wrappedTitle_shouldRespectLayoutMargins() {
+        let snapshotName = "CARDVIEW_WITH_WRAPPED_TITLE_MARGINS"
+
+        if #available(iOS 26, *) {
+            assert(
+                snapshot: makeWrappedTitleMarginsSnapshot(for: .light),
+                named: "SwiftUI_iOS26_\(snapshotName)_LIGHT",
+                precision: SwiftUISnapshotPrecision.standard
+            )
+            assert(
+                snapshot: makeWrappedTitleMarginsSnapshot(for: .dark),
+                named: "SwiftUI_iOS26_\(snapshotName)_DARK",
+                precision: SwiftUISnapshotPrecision.standard
+            )
+        } else {
+            assert(
+                snapshot: makeWrappedTitleMarginsSnapshot(for: .light),
+                named: "SwiftUI_iOS18.5_\(snapshotName)_LIGHT",
+                precision: SwiftUISnapshotPrecision.standard
+            )
+            assert(
+                snapshot: makeWrappedTitleMarginsSnapshot(for: .dark),
+                named: "SwiftUI_iOS18.5_\(snapshotName)_DARK",
+                precision: SwiftUISnapshotPrecision.standard
+            )
+        }
+    }
+
+    func test_fail_CardView_with_wrappedTitle_shouldRespectLayoutMargins() {
+        let snapshotName = "CARDVIEW_WITH_WRAPPED_TITLE_MARGINS"
+
+        if #available(iOS 26, *) {
+            assertFail(
+                snapshot: makeWrappedTitleMarginsSnapshot(for: .light, horizontalMargin: 18),
+                named: "SwiftUI_iOS26_\(snapshotName)_LIGHT",
+                precision: SwiftUISnapshotPrecision.fail
+            )
+            assertFail(
+                snapshot: makeWrappedTitleMarginsSnapshot(for: .dark, horizontalMargin: 18),
+                named: "SwiftUI_iOS26_\(snapshotName)_DARK",
+                precision: SwiftUISnapshotPrecision.fail
+            )
+        } else {
+            assertFail(
+                snapshot: makeWrappedTitleMarginsSnapshot(for: .light, horizontalMargin: 18),
+                named: "SwiftUI_iOS18.5_\(snapshotName)_LIGHT",
+                precision: SwiftUISnapshotPrecision.fail
+            )
+            assertFail(
+                snapshot: makeWrappedTitleMarginsSnapshot(for: .dark, horizontalMargin: 18),
+                named: "SwiftUI_iOS18.5_\(snapshotName)_DARK",
+                precision: SwiftUISnapshotPrecision.fail
+            )
+        }
+    }
+
     func test_CardView_with_backgroundImage() {
         let snapshotName = "CARDVIEW_WITH_BACKGROUNDIMAGE"
 
@@ -128,7 +185,7 @@ final class SUICardViewSnapshotTests: XCTestCase {
         let sut = makeSUT()
 
         // WHEN
-        sut.display(style: makeDefaultStyle(backgroundColor: .blue))
+        sut.display(style: makeDefaultStyle())
         sut.display(backgroundImage: .systemSymbol("star"))
 
         // THEN
@@ -168,7 +225,7 @@ final class SUICardViewSnapshotTests: XCTestCase {
         let sut = makeSUT()
 
         // WHEN
-        sut.display(style: makeDefaultStyle(backgroundColor: .blue))
+        sut.display(style: makeDefaultStyle())
         sut.display(backgroundImage: .systemSymbol("star.fill", contentModeIsFit: true))
 
         // THEN
@@ -1150,48 +1207,36 @@ extension SUICardViewSnapshotTests {
         file: StaticString = #file,
         line: UInt = #line
     ) -> SwiftUICardViewSnapshotSUT {
-        let container = makeContainer()
-        let sut = SwiftUICardViewSnapshotSUT(uiKitContainer: container)
-        container.backgroundColor = .clear
-        container.isOpaque = false
-
-        container.addSubview(sut.uiKitView)
-        sut.uiKitView.anchor(
-            .top(container.topAnchor, constant: 0, priority: .required),
-            .leading(container.leadingAnchor, constant: 0, priority: .required),
-            .trailing(container.trailingAnchor, constant: 0, priority: .required),
-            .height(200, priority: .required)
-        )
+        let sut = SwiftUICardViewSnapshotSUT()
 
         checkForMemoryLeaks(sut, file: file, line: line)
-        checkForMemoryLeaks(sut.uiKitView, file: file, line: line)
         return sut
     }
 
     func makeDefaultStyle(
-        backgroundColor: Color = .systemRed,
-        vStacklayoutMargins: EdgeInsets = .init(top: 5, leading: 5, bottom: 5, trailing: 5),
-        hStacklayoutMargins: EdgeInsets = .zero,
+        backgroundColor: WrapKit.Color = .systemRed,
+        vStacklayoutMargins: WrapKit.EdgeInsets = .init(top: 5, leading: 5, bottom: 5, trailing: 5),
+        hStacklayoutMargins: WrapKit.EdgeInsets = .zero,
         hStackViewDistribution: StackViewDistribution = .fillEqually,
-        leadingTitleKeyTextColor: Color = .blue,
-        titleKeyTextColor: Color = .brown,
-        trailingTitleKeyTextColor: Color = .black,
-        titleValueTextColor: Color = .cyan,
-        subTitleTextColor: Color = .gray,
-        leadingTitleKeyLabelFont: Font = .boldSystemFont(ofSize: 22),
-        titleKeyLabelFont: Font = .systemFont(ofSize: 14),
-        trailingTitleKeyLabelFont: Font = .boldSystemFont(ofSize: 22),
-        titleValueLabelFont: Font = .systemFont(ofSize: 14),
-        subTitleLabelFont: Font = .systemFont(ofSize: 14, weight: .light),
+        leadingTitleKeyTextColor: WrapKit.Color = .blue,
+        titleKeyTextColor: WrapKit.Color = .brown,
+        trailingTitleKeyTextColor: WrapKit.Color = .black,
+        titleValueTextColor: WrapKit.Color = .cyan,
+        subTitleTextColor: WrapKit.Color = .gray,
+        leadingTitleKeyLabelFont: WrapKit.Font = .boldSystemFont(ofSize: 22),
+        titleKeyLabelFont: WrapKit.Font = .systemFont(ofSize: 14),
+        trailingTitleKeyLabelFont: WrapKit.Font = .boldSystemFont(ofSize: 22),
+        titleValueLabelFont: WrapKit.Font = .systemFont(ofSize: 14),
+        subTitleLabelFont: WrapKit.Font = .systemFont(ofSize: 14, weight: .light),
         subtitleNumberOfLines: Int = 0,
         cornerRadius: CGFloat = 20,
         stackSpace: CGFloat = 5.0,
         hStackViewSpacing: CGFloat = 2.0,
         titleKeyNumberOfLines: Int = 0,
         titleValueNumberOfLines: Int = 0,
-        borderColor: Color = .green,
+        borderColor: WrapKit.Color = .green,
         borderWidth: CGFloat = 4,
-        gradientBorderColors: [Color]? = nil,
+        gradientBorderColors: [WrapKit.Color]? = nil,
         trailingImageLeadingSpacing: CGFloat? = nil,
         secondaryTrailingImageLeadingSpacing: CGFloat? = nil
     ) -> CardViewPresentableModel.Style {
@@ -1277,54 +1322,14 @@ extension SUICardViewSnapshotTests {
         )
     }
 
-    func makeWrappedTitleMarginsContainer() -> UIView {
-        let container = UIView()
-        container.frame = CGRect(origin: .zero, size: SnapshotConfiguration.size)
-        container.backgroundColor = .red
-
-        let stackView = StackView(
-            axis: .vertical,
-            spacing: 24,
-            contentInset: .init(top: 24, left: 24, bottom: 24, right: 24)
-        )
-        container.addSubview(stackView)
-        stackView.anchor(
-            .top(container.topAnchor),
-            .leading(container.leadingAnchor),
-            .trailing(container.trailingAnchor)
-        )
-
-        stackView.addArrangedSubview(makeWrappedTitleMarginsWrapperView(
-            title: "Короткий пример текста для проверки отступов"
-        ))
-        stackView.addArrangedSubview(makeWrappedTitleMarginsWrapperView(
-            title: "Длинный пример текста для проверки переноса на вторую строку внутри карточки"
-        ))
-        stackView.addArrangedSubview(UIView())
-        container.layoutIfNeeded()
-        return container
-    }
-
-    func makeWrappedTitleMarginsWrapperView(title: String) -> WrapperView<CardView> {
-        return WrapperView(
-            contentView: makeWrappedTitleMarginsCardView(title: title),
-            contentViewConstraints: { contentView, superView in
-                contentView.anchor(
-                    .top(superView.topAnchor),
-                    .trailingLessThanEqual(superView.trailingAnchor),
-                    .leading(superView.leadingAnchor),
-                    .bottom(superView.bottomAnchor)
-                )
-            }
-        )
-    }
-
-    func makeWrappedTitleMarginsCardView(title: String) -> CardView {
-        let cardView = CardView()
-        cardView.display(style: makeDefaultStyle(
+    func makeWrappedTitleMarginsSnapshot(
+        for appearance: SnapshotAppearance,
+        horizontalMargin: CGFloat = 6
+    ) -> UIImage {
+        let style = makeDefaultStyle(
             backgroundColor: .systemGray5,
             vStacklayoutMargins: .zero,
-            hStacklayoutMargins: .init(horizontal: 6, vertical: 4),
+            hStacklayoutMargins: .init(horizontal: horizontalMargin, vertical: 4),
             hStackViewDistribution: .fill,
             titleKeyTextColor: .label,
             titleKeyLabelFont: .systemFont(ofSize: 13),
@@ -1335,10 +1340,34 @@ extension SUICardViewSnapshotTests {
             titleValueNumberOfLines: 0,
             borderColor: .clear,
             borderWidth: 0
+        )
+        let shortTitleAdapter = CardViewOutputSwiftUIAdapter()
+        shortTitleAdapter.display(model: .init(
+            style: style,
+            title: .text("Короткий пример текста для проверки отступов")
         ))
-        cardView.display(title: .text(title))
+        let longTitleAdapter = CardViewOutputSwiftUIAdapter()
+        longTitleAdapter.display(model: .init(
+            style: style,
+            title: .text("Длинный пример текста для проверки переноса на вторую строку внутри карточки")
+        ))
 
-        return cardView
+        let configuration = SUISnapshotConfiguration.iPhone(style: appearance.colorScheme)
+        let rootView = WrappedTitleMarginsCardSnapshotView(
+            shortTitleAdapter: shortTitleAdapter,
+            longTitleAdapter: longTitleAdapter
+        )
+        .snapshotEnvironment(configuration: configuration)
+        .ignoresSafeArea(.all)
+        let hostingController = UIHostingController(rootView: rootView)
+        hostingController.overrideUserInterfaceStyle = appearance.userInterfaceStyle
+        hostingController.view.backgroundColor = .clear
+        hostingController.loadViewIfNeeded()
+        hostingController.view.frame = CGRect(origin: .zero, size: SnapshotConfiguration.size)
+        hostingController.view.setNeedsLayout()
+        hostingController.view.layoutIfNeeded()
+
+        return hostingController.snapshot(for: appearance.uiKitConfiguration)
     }
 
     func makeSwitchControlStyle() -> CardViewPresentableModel.Style {
@@ -1367,10 +1396,21 @@ extension SUICardViewSnapshotTests {
         )
     }
 
-    func makeContainer() -> UIView {
-        let container = UIView()
-        container.frame = CGRect(x: 0, y: 0, width: 390, height: 300)
-        container.backgroundColor = .clear
-        return container
+}
+
+private struct WrappedTitleMarginsCardSnapshotView: View {
+    let shortTitleAdapter: CardViewOutputSwiftUIAdapter
+    let longTitleAdapter: CardViewOutputSwiftUIAdapter
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 24) {
+            SUICardView(adapter: shortTitleAdapter)
+                .fixedSize(horizontal: true, vertical: true)
+            SUICardView(adapter: longTitleAdapter)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .padding(24)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .background(SwiftUIColor(.red))
     }
 }

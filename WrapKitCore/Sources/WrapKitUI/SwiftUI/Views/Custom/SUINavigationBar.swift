@@ -77,10 +77,13 @@ public struct SUINavigationBar: View {
                         alignment: .leading
                     )
                     .clipped()
-                    .glassEffect(
-                        .regular.interactive(),
-                        in: SUICornerShape(style: .automatic)
-                    )
+                    .background {
+                        SwiftUIColor.clear
+                            .glassEffect(
+                                .regular.interactive(),
+                                in: SUICornerShape(style: .automatic)
+                            )
+                    }
             } else {
                 SUINavigationBarIntrinsicCompressingView(usesIntrinsicWidth: width == nil) {
                     SUICardView(
@@ -178,17 +181,20 @@ public struct SUINavigationBar: View {
             SUINavigationBarButtonView(
                 stateModel: stateModel.primeTrailingButtonStateModel,
                 isPresented: model.primeTrailingImage != nil,
-                tintColor: style.primeColor
+                tintColor: style.primeColor,
+                backgroundColor: SwiftUIColor(style.backgroundColor)
             )
             SUINavigationBarButtonView(
                 stateModel: stateModel.secondaryTrailingButtonStateModel,
                 isPresented: model.secondaryTrailingImage != nil,
-                tintColor: style.primeColor
+                tintColor: style.primeColor,
+                backgroundColor: SwiftUIColor(style.backgroundColor)
             )
             SUINavigationBarButtonView(
                 stateModel: stateModel.tertiaryTrailingButtonStateModel,
                 isPresented: model.tertiaryTrailingImage != nil,
-                tintColor: style.primeColor
+                tintColor: style.primeColor,
+                backgroundColor: SwiftUIColor(style.backgroundColor)
             )
         }
         .frame(maxHeight: .infinity, alignment: .trailing)
@@ -390,11 +396,35 @@ enum SUINavigationBarIntrinsicWidthResolver {
     }
 }
 
+@available(iOS 17.0, macOS 14.0, tvOS 17.0, watchOS 10.0, *)
+enum SUINavigationBarGlassForegroundResolver {
+    static func color(
+        over backgroundColor: SwiftUIColor,
+        environment: EnvironmentValues
+    ) -> SwiftUIColor? {
+        let background = backgroundColor.resolve(in: environment)
+        guard background.opacity >= 1 else {
+            // A translucent header can sit over arbitrary content. Let Liquid
+            // Glass resolve its foreground from the real backdrop instead of
+            // guessing one from the color scheme.
+            return nil
+        }
+        let backgroundLuminance = 0.2126 * background.linearRed
+            + 0.7152 * background.linearGreen
+            + 0.0722 * background.linearBlue
+        let effectiveLuminance = min(max(backgroundLuminance, 0), 1)
+
+        return effectiveLuminance > 0.5 ? .black : .white
+    }
+}
+
 private struct SUINavigationBarButtonView: View {
+    @Environment(\.self) private var environment
     @ObservedObject var stateModel: SUIButtonStateModel
 
     let isPresented: Bool
     let tintColor: Color
+    let backgroundColor: SwiftUIColor
 
     @ViewBuilder
     var body: some View {
@@ -451,16 +481,17 @@ private struct SUINavigationBarButtonView: View {
                 if let image = model.image {
                     SwiftUIImage(image: image)
                         .renderingMode(.template)
+                        .foregroundColor(foregroundColor(for: model, fallback: tintColor))
                 }
                 if let title = model.title {
                     Text(title.removingPercentEncoding ?? title)
                         .font(model.style?.font.map(SwiftUIFont.init) ?? .body)
+                        .foregroundColor(foregroundColor(for: model, fallback: .white))
                         .lineLimit(1)
                         .fixedSize(horizontal: true, vertical: false)
                 }
             }
             .fixedSize(horizontal: true, vertical: false)
-            .foregroundColor(SwiftUIColor(model.style?.titleColor ?? tintColor))
         }
         .disabled(!stateModel.isEnabled)
         .allowsHitTesting(model.onPress != nil && stateModel.isEnabled)
@@ -479,6 +510,25 @@ private struct SUINavigationBarButtonView: View {
         .ifLet(model.accessibility?.hint) { view, hint in
             view.accessibilityHint(Text(hint))
         }
+    }
+
+    private func foregroundColor(
+        for model: ButtonPresentableModel,
+        fallback: Color
+    ) -> SwiftUIColor? {
+        if let style = model.style {
+            return SwiftUIColor(style.titleColor ?? .white)
+        }
+        if #available(iOS 26, macOS 26, tvOS 26, watchOS 26, *), isLiquidGlassEnabled {
+            // Resolve opaque surfaces explicitly because SwiftUI can retain a
+            // previous snapshot environment. Translucent surfaces return nil
+            // so Liquid Glass can adapt to their real backdrop.
+            return SUINavigationBarGlassForegroundResolver.color(
+                over: backgroundColor,
+                environment: environment
+            )
+        }
+        return SwiftUIColor(fallback)
     }
 
     @ViewBuilder

@@ -144,7 +144,7 @@ final class SUISearchBarSnapshotTests: XCTestCase {
             cornerRadius: ButtonStyle.defaultCornerRadius
         )
         sut.display(leftView: .init(title: "Left View", style: buttonStyle))
-        sut.display(spacing: 8 + 1 / UIScreen.main.scale)
+        sut.display(spacing: 8 + 1 / SnapshotRenderDefaults.scale)
 
         if #available(iOS 26, *) {
             assertFail(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.fail)
@@ -225,6 +225,64 @@ final class SUISearchBarSnapshotTests: XCTestCase {
         }
     }
 
+    func test_SearchBar_with_symbolSideControlsAndContentInsets() {
+        let snapshotName = "SEARCHBAR_WITH_SYMBOL_SIDE_CONTROLS_AND_CONTENT_INSETS"
+        let sut = makeSUT(contentInsets: .init(horizontal: 8, vertical: 0))
+
+        sut.display(model: .init(
+            textField: .init(text: "WrapKit"),
+            leftView: makeSymbolButton(
+                identifier: "search.leading",
+                accessibilityLabel: "Search",
+                systemName: "magnifyingglass"
+            ),
+            rightView: makeSymbolButton(
+                identifier: "search.trailing",
+                accessibilityLabel: "Clear",
+                systemName: "xmark.circle.fill"
+            ),
+            backgroundColor: .secondarySystemBackground,
+            spacing: 8
+        ))
+
+        if #available(iOS 26, *) {
+            assert(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
+            assert(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS26_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.standard)
+        } else {
+            assert(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS18.5_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
+            assert(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS18.5_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.standard)
+        }
+    }
+
+    func test_fail_SearchBar_with_symbolSideControlsAndContentInsets() {
+        let snapshotName = "SEARCHBAR_WITH_SYMBOL_SIDE_CONTROLS_AND_CONTENT_INSETS"
+        let sut = makeSUT(contentInsets: .init(horizontal: 9, vertical: 0))
+
+        sut.display(model: .init(
+            textField: .init(text: "WrapKit"),
+            leftView: makeSymbolButton(
+                identifier: "search.leading",
+                accessibilityLabel: "Search",
+                systemName: "magnifyingglass"
+            ),
+            rightView: makeSymbolButton(
+                identifier: "search.trailing",
+                accessibilityLabel: "Clear",
+                systemName: "xmark.circle.fill"
+            ),
+            backgroundColor: .secondarySystemBackground,
+            spacing: 8
+        ))
+
+        if #available(iOS 26, *) {
+            assertFail(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.fail)
+            assertFail(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS26_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.fail)
+        } else {
+            assertFail(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS18.5_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.fail)
+            assertFail(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS18.5_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.fail)
+        }
+    }
+
     func test_fail_SearchBar_with_rightView_leftView() {
         let snapshotName = "SEARCHBAR_WITH_RIGHT_LEFT_VIEWS_VIEW"
         let sut = makeSUT()
@@ -262,47 +320,13 @@ private extension SUISearchBarSnapshotTests {
         line: UInt = #line
     ) -> SwiftUISearchBarSnapshotSUT {
         let appearance = makeTextFieldAppearance()
-        let textField = Textfield(appearance: appearance)
-        let container = makeContainer()
         let sut = SwiftUISearchBarSnapshotSUT(
-            textField: textField,
             textFieldAppearance: appearance,
-            uiKitContainer: container,
             contentInsets: contentInsets
         )
 
-        container.addSubview(sut.uiKitView)
-        sut.uiKitView.anchor(
-            .top(container.topAnchor, constant: 0, priority: .required),
-            .leading(container.leadingAnchor, constant: 0, priority: .required),
-            .trailing(container.trailingAnchor, constant: 0, priority: .required)
-        )
-
-        container.layoutIfNeeded()
-
         checkForMemoryLeaks(sut, file: file, line: line)
-        checkForMemoryLeaks(sut.uiKitView, file: file, line: line)
         return sut
-    }
-
-    func layout(_ sut: SwiftUISearchBarSnapshotSUT) {
-        sut.uiKitView.setNeedsLayout()
-        sut.uiKitView.superview?.setNeedsLayout()
-        sut.uiKitView.superview?.layoutIfNeeded()
-        sut.uiKitView.layoutIfNeeded()
-    }
-
-    func makeGeometryButton(systemName: String) -> ButtonPresentableModel {
-        .init(
-            image: ImageFactory.systemImage(named: systemName),
-            height: 44,
-            width: 44,
-            style: .init(
-                backgroundColor: .clear,
-                titleColor: .label,
-                cornerStyle: .none
-            )
-        )
     }
 
     func makeSymbolButton(
@@ -315,7 +339,6 @@ private extension SUISearchBarSnapshotTests {
             accessibilityIdentifier: identifier,
             accessibility: .init(label: accessibilityLabel),
             image: ImageFactory.systemImage(named: systemName),
-            height: 44,
             width: 44,
             style: .init(
                 backgroundColor: .clear,
@@ -346,10 +369,4 @@ private extension SUISearchBarSnapshotTests {
         )
     }
 
-    func makeContainer() -> UIView {
-        let container = UIView()
-        container.frame = CGRect(x: 0, y: 0, width: 390, height: 300)
-        container.backgroundColor = .clear
-        return container
-    }
 }

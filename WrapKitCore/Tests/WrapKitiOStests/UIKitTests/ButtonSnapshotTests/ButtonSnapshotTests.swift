@@ -9,6 +9,10 @@ import WrapKit
 import XCTest
 import WrapKitTestUtils
 
+#if canImport(SwiftUI)
+import class SwiftUI.UIHostingController
+#endif
+
 final class ButtonSnapshotTests: XCTestCase {
     func test_buttonOutput_default_state() {
         let snapshotName = "BUTTON_DEFAULT_STATE"
@@ -1087,6 +1091,102 @@ final class ButtonSnapshotTests: XCTestCase {
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
+
+    func test_uikitButton_accessibilityActivation_invokesOutputCallback() {
+        let button = WrapKit.Button()
+        var pressCount = 0
+
+        button.display(onPress: { pressCount += 1 })
+
+        XCTAssertTrue(button.accessibilityActivate())
+        XCTAssertEqual(pressCount, 1)
+    }
+
+    func test_uikitButton_disabledAccessibilityActivation_doesNotInvokeOutputCallback() {
+        let button = WrapKit.Button()
+        var pressCount = 0
+
+        button.display(onPress: { pressCount += 1 })
+        button.display(enabled: false)
+
+        XCTAssertFalse(button.accessibilityActivate())
+        XCTAssertEqual(pressCount, 0)
+    }
+
+    func test_uikitButton_displayHeight_addsConstraintToExistingStorage() {
+        let button = WrapKit.Button()
+        button.anchoredConstraints = button.anchor(.width(1))
+
+        button.display(height: 44)
+
+        XCTAssertEqual(button.anchoredConstraints?.height?.constant, 44)
+        XCTAssertTrue(button.anchoredConstraints?.height?.isActive == true)
+    }
+
+    func test_uikitButton_displayModel_clearsStaleAccessibilityLabel() {
+        let button = WrapKit.Button()
+        button.display(model: .init(
+            accessibility: .init(label: "Initial label"),
+            title: "Title"
+        ))
+
+        button.display(model: .init(title: "Updated title"))
+
+        XCTAssertEqual(button.accessibilityLabel, "Updated title")
+        XCTAssertNotEqual(button.accessibilityLabel, "Initial label")
+    }
+
+    func test_uikitButton_automaticCornerStyle_tracksBoundsHeight() {
+        let button = WrapKit.Button()
+        button.bounds = CGRect(x: 0, y: 0, width: 200, height: 60)
+        button.display(style: .init(cornerStyle: .automatic))
+
+        button.bounds.size.height = 100
+        button.setNeedsLayout()
+        button.layoutIfNeeded()
+
+        XCTAssertEqual(button.layer.cornerRadius, 50, accuracy: 0.01)
+    }
+
+    @available(iOS 17.0, *)
+    func test_swiftUIButton_fixedFrame_containsContentInsets() {
+        let view = SUIButtonView(
+            model: .init(
+                title: "Inset title",
+                height: 48,
+                width: 120,
+                style: .init(backgroundColor: .systemBlue)
+            ),
+            isEnabled: true,
+            fillsAvailableWidth: false,
+            contentInsets: .init(top: 8, leading: 12, bottom: 8, trailing: 12)
+        )
+        let hostingController = UIHostingController(rootView: view)
+
+        let size = hostingController.sizeThatFits(
+            in: CGSize(width: 1_000, height: 1_000)
+        )
+
+        XCTAssertEqual(size.width, 120, accuracy: 0.01)
+        XCTAssertEqual(size.height, 48, accuracy: 0.01)
+    }
+
+    @available(iOS 17.0, *)
+    func test_swiftUIButton_zeroHeight_remainsZero() {
+        let view = SUIButtonView(
+            model: .init(title: "Hidden-height title", height: 0, width: 120),
+            isEnabled: true,
+            fillsAvailableWidth: false
+        )
+        let hostingController = UIHostingController(rootView: view)
+
+        let size = hostingController.sizeThatFits(
+            in: CGSize(width: 1_000, height: 1_000)
+        )
+
+        XCTAssertEqual(size.width, 120, accuracy: 0.01)
+        XCTAssertEqual(size.height, 0, accuracy: 0.01)
+    }
 }
 
 extension ButtonSnapshotTests {
@@ -1099,7 +1199,7 @@ extension ButtonSnapshotTests {
         let container = makeContainer()
 
         container.addSubview(sut)
-        sut.anchor(
+        sut.anchoredConstraints = sut.anchor(
             .top(container.topAnchor, constant: 0, priority: .required),
             .leading(container.leadingAnchor, constant: 0, priority: .required),
             .trailing(container.trailingAnchor, constant: 0, priority: .required),

@@ -123,32 +123,13 @@ private extension SUISegmentedControlSnapshotTests {
     ) -> SwiftUISegmentedControlSnapshotSUT {
         let appearance = makeDefaultAppearance()
         let snapshotHeight: CGFloat = 32
-        let container = makeContainer()
         let sut = SwiftUISegmentedControlSnapshotSUT(
-            uiKitContainer: container,
             appearance: appearance,
             snapshotHeight: snapshotHeight
         )
 
-        container.addSubview(sut.uiKitView)
-        sut.uiKitView.anchor(
-            .top(container.topAnchor, constant: 0, priority: .required),
-            .leading(container.leadingAnchor, constant: 0, priority: .required),
-            .trailing(container.trailingAnchor, constant: 0, priority: .required),
-            .height(snapshotHeight)
-        )
-        container.layoutIfNeeded()
-
         checkForMemoryLeaks(sut, file: file, line: line)
-        checkForMemoryLeaks(sut.uiKitView, file: file, line: line)
         return sut
-    }
-
-    func makeContainer() -> UIView {
-        let container = UIView()
-        container.frame = CGRect(x: 0, y: 0, width: 390, height: 140)
-        container.backgroundColor = .clear
-        return container
     }
 
     func makeSegments() -> [SegmentControlModel] {

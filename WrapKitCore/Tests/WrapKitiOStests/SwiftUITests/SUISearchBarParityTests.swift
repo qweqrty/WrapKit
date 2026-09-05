@@ -11,91 +11,136 @@ final class SUISearchBarParityTests: XCTestCase {
     private let controlSize: CGFloat = 44
     private let spacing: CGFloat = 8
 
+    func test_fullModelThenNil_hidesContainerAndRetainsNestedStateAndActionsLikeUIKit() {
+        let adapter = SearchBarOutputSwiftUIAdapter()
+        let stateModel = SUISearchBarStateModel(
+            adapter: adapter,
+            appearance: makeAppearance(),
+            spacing: spacing,
+            cornerRadius: 12,
+            padding: .init()
+        )
+        let textFieldStateModel = SUITextInputStateModel(adapter: stateModel.textFieldAdapter)
+        var events: [String] = []
+
+        adapter.display(model: .init(
+            textField: .init(
+                accessibilityIdentifier: "search.field",
+                text: "Query",
+                onPress: { events.append("field") }
+            ),
+            leftView: .init(
+                title: "Search",
+                onPress: { events.append("leading") }
+            ),
+            rightView: .init(
+                title: "Clear",
+                onPress: { events.append("trailing") }
+            ),
+            placeholder: "Search items",
+            backgroundColor: .systemYellow,
+            spacing: 12
+        ))
+
+        XCTAssertFalse(stateModel.isHidden)
+        XCTAssertFalse(stateModel.isTextFieldHidden)
+        XCTAssertEqual(stateModel.textField?.text, "Query")
+        XCTAssertEqual(textFieldStateModel.text, "Query")
+        XCTAssertEqual(textFieldStateModel.placeholder, "Search items")
+        XCTAssertEqual(stateModel.leftView?.title, "Search")
+        XCTAssertEqual(stateModel.rightView?.title, "Clear")
+        XCTAssertEqual(stateModel.placeholder, "Search items")
+        XCTAssertTrue(stateModel.backgroundColor?.isEqual(UIColor.systemYellow) == true)
+        XCTAssertEqual(stateModel.spacing, 12)
+
+        adapter.display(model: nil)
+
+        XCTAssertTrue(stateModel.isHidden)
+        XCTAssertFalse(stateModel.isTextFieldHidden)
+        XCTAssertFalse(textFieldStateModel.isHidden)
+        XCTAssertEqual(stateModel.textField?.text, "Query")
+        XCTAssertEqual(textFieldStateModel.text, "Query")
+        XCTAssertEqual(textFieldStateModel.placeholder, "Search items")
+        XCTAssertEqual(stateModel.leftView?.title, "Search")
+        XCTAssertEqual(stateModel.rightView?.title, "Clear")
+        XCTAssertEqual(stateModel.placeholder, "Search items")
+        XCTAssertTrue(stateModel.backgroundColor?.isEqual(UIColor.systemYellow) == true)
+        XCTAssertEqual(stateModel.spacing, 12)
+
+        textFieldStateModel.onPress?()
+        stateModel.leftButtonStateModel.presentable.onPress?()
+        stateModel.rightButtonStateModel.presentable.onPress?()
+        XCTAssertEqual(events, ["field", "leading", "trailing"])
+    }
+
     @available(iOS 17.0, *)
     func test_bothSideControls_renderWithExactOuterAndInnerInsets() throws {
-        let host = makeSearchBarHost(left: true, textField: true, right: true)
-        let leading = try frame(ofLabel: "Search", in: host)
-        let textField = try textFieldFrame(in: host)
-        let trailing = try frame(ofLabel: "Clear", in: host)
+        let harness = makeSearchBarHost(left: true, textField: true, right: true)
+        let leading = try frame(of: .leading, in: harness)
+        let textField = try frame(of: .textField, in: harness)
+        let trailing = try frame(of: .trailing, in: harness)
 
-        assertControl(leading, startsAt: host.frame.minX + contentInset)
+        assertControl(leading, startsAt: harness.host.frame.minX + contentInset)
         XCTAssertEqual(textField.minX - leading.maxX, spacing, accuracy: 0.001)
         XCTAssertEqual(trailing.minX - textField.maxX, spacing, accuracy: 0.001)
-        assertControl(trailing, endsAt: host.frame.maxX - contentInset)
+        assertControl(trailing, endsAt: harness.host.frame.maxX - contentInset)
     }
 
     @available(iOS 17.0, *)
     func test_onlyLeadingControl_preservesOuterAndTextFieldInsets() throws {
-        let host = makeSearchBarHost(left: true, textField: true, right: false)
-        let leading = try frame(ofLabel: "Search", in: host)
-        let textField = try textFieldFrame(in: host)
+        let harness = makeSearchBarHost(left: true, textField: true, right: false)
+        let leading = try frame(of: .leading, in: harness)
+        let textField = try frame(of: .textField, in: harness)
 
-        assertControl(leading, startsAt: host.frame.minX + contentInset)
+        assertControl(leading, startsAt: harness.host.frame.minX + contentInset)
         XCTAssertEqual(textField.minX - leading.maxX, spacing, accuracy: 0.001)
-        XCTAssertEqual(textField.maxX, host.frame.maxX - contentInset, accuracy: 0.001)
-        XCTAssertNil(host.element(withIdentifier: "search.trailing"))
+        XCTAssertEqual(textField.maxX, harness.host.frame.maxX - contentInset, accuracy: 0.001)
+        XCTAssertNil(harness.layoutProbe.frame(for: .trailing))
     }
 
     @available(iOS 17.0, *)
     func test_onlyTrailingControl_preservesTextFieldAndOuterInsets() throws {
-        let host = makeSearchBarHost(left: false, textField: true, right: true)
-        let textField = try textFieldFrame(in: host)
-        let trailing = try frame(ofLabel: "Clear", in: host)
+        let harness = makeSearchBarHost(left: false, textField: true, right: true)
+        let textField = try frame(of: .textField, in: harness)
+        let trailing = try frame(of: .trailing, in: harness)
 
-        XCTAssertEqual(textField.minX, host.frame.minX + contentInset, accuracy: 0.001)
+        XCTAssertEqual(textField.minX, harness.host.frame.minX + contentInset, accuracy: 0.001)
         XCTAssertEqual(trailing.minX - textField.maxX, spacing, accuracy: 0.001)
-        assertControl(trailing, endsAt: host.frame.maxX - contentInset)
-        XCTAssertNil(host.element(withIdentifier: "search.leading"))
+        assertControl(trailing, endsAt: harness.host.frame.maxX - contentInset)
+        XCTAssertNil(harness.layoutProbe.frame(for: .leading))
     }
 
     @available(iOS 17.0, *)
     func test_nilTextField_keepsInsetsAroundIntrinsicSideControlContent() throws {
-        let host = makeSearchBarHost(left: true, textField: false, right: true)
-        let leading = try frame(ofLabel: "Search", in: host)
-        let trailing = try frame(ofLabel: "Clear", in: host)
+        let harness = makeSearchBarHost(left: true, textField: false, right: true)
+        let leading = try frame(of: .leading, in: harness)
+        let trailing = try frame(of: .trailing, in: harness)
         let intrinsicContentWidth = contentInset * 2 + controlSize * 2 + spacing
 
-        assertControl(leading, startsAt: host.frame.minX + contentInset)
+        assertControl(leading, startsAt: harness.host.frame.minX + contentInset)
         XCTAssertEqual(trailing.minX - leading.maxX, spacing, accuracy: 0.001)
         assertControl(
             trailing,
-            endsAt: host.frame.minX + intrinsicContentWidth - contentInset
+            endsAt: harness.host.frame.minX + intrinsicContentWidth - contentInset
         )
-        XCTAssertNil(host.element(withIdentifier: "search.field"))
+        XCTAssertNil(harness.layoutProbe.frame(for: .textField))
     }
 
     @available(iOS 17.0, *)
     func test_nilTextField_keepsBothRenderedSideCallbacksActive() throws {
-        let adapter = SearchBarOutputSwiftUIAdapter()
         var actions: [String] = []
-        adapter.display(model: .init(
-            textField: nil,
-            leftView: makeButton(
-                identifier: "search.leading",
-                accessibilityLabel: "Search",
-                systemName: "magnifyingglass",
-                backgroundColor: .systemRed,
-                onPress: { actions.append("leading") }
-            ),
-            rightView: makeButton(
-                identifier: "search.trailing",
-                accessibilityLabel: "Clear",
-                systemName: "xmark",
-                backgroundColor: .systemGreen,
-                onPress: { actions.append("trailing") }
-            ),
-            spacing: spacing
-        ))
-        let host = SwiftUIAccessibilityTestHost(
-            rootView: makeSearchBar(adapter: adapter)
-                .tint(.white)
-                .frame(width: containerWidth, alignment: .leading)
-                .ignoresSafeArea(),
-            size: CGSize(width: containerWidth, height: 80)
+        let harness = makeSearchBarHost(
+            left: true,
+            textField: false,
+            right: true,
+            leftOnPress: { actions.append("leading") },
+            rightOnPress: { actions.append("trailing") }
         )
 
-        let leading = try XCTUnwrap(host.element(withLabel: "Search"))
-        let trailing = try XCTUnwrap(host.element(withLabel: "Clear"))
+        _ = try frame(of: .leading, in: harness)
+        _ = try frame(of: .trailing, in: harness)
+        let leading = try XCTUnwrap(harness.host.element(withLabel: "Search"))
+        let trailing = try XCTUnwrap(harness.host.element(withLabel: "Clear"))
         XCTAssertTrue(leading.accessibilityActivate())
         XCTAssertTrue(trailing.accessibilityActivate())
 
@@ -131,8 +176,10 @@ private extension SUISearchBarParityTests {
     func makeSearchBarHost(
         left: Bool,
         textField: Bool,
-        right: Bool
-    ) -> SwiftUIAccessibilityTestHost {
+        right: Bool,
+        leftOnPress: (() -> Void)? = nil,
+        rightOnPress: (() -> Void)? = nil
+    ) -> SearchBarTestHarness {
         let adapter = SearchBarOutputSwiftUIAdapter()
         adapter.display(model: .init(
             textField: textField
@@ -142,39 +189,47 @@ private extension SUISearchBarParityTests {
                 identifier: "search.leading",
                 accessibilityLabel: "Search",
                 systemName: "magnifyingglass",
-                backgroundColor: .systemRed
+                backgroundColor: .systemRed,
+                onPress: leftOnPress
             ) : nil,
             rightView: right ? makeButton(
                 identifier: "search.trailing",
                 accessibilityLabel: "Clear",
                 systemName: "xmark",
-                backgroundColor: .systemGreen
+                backgroundColor: .systemGreen,
+                onPress: rightOnPress
             ) : nil,
             spacing: spacing
         ))
+        let stateModel = SUISearchBarStateModel(
+            adapter: adapter,
+            appearance: makeAppearance(),
+            spacing: spacing,
+            cornerRadius: 0,
+            padding: .init()
+        )
+        let layoutProbe = SUISearchBarLayoutProbe()
 
-        return SwiftUIAccessibilityTestHost(
-            rootView: makeSearchBar(adapter: adapter)
+        let host = SwiftUIAccessibilityTestHost(
+            rootView: SUISearchBar(
+                stateModel: stateModel,
+                contentInsets: .init(horizontal: contentInset, vertical: 0),
+                layoutProbe: layoutProbe
+            )
                 .tint(.white)
                 .frame(width: containerWidth, alignment: .leading)
                 .ignoresSafeArea(),
             size: CGSize(width: containerWidth, height: 80)
         )
+        return .init(host: host, stateModel: stateModel, layoutProbe: layoutProbe)
     }
 
     @available(iOS 17.0, *)
     func frame(
-        ofLabel accessibilityLabel: String,
-        in host: SwiftUIAccessibilityTestHost
+        of element: SUISearchBarLayoutElement,
+        in harness: SearchBarTestHarness
     ) throws -> CGRect {
-        try XCTUnwrap(
-            host.element(withLabel: accessibilityLabel)
-        ).accessibilityFrame
-    }
-
-    @available(iOS 17.0, *)
-    func textFieldFrame(in host: SwiftUIAccessibilityTestHost) throws -> CGRect {
-        try XCTUnwrap(host.frame(ofFirstSubviewType: UITextField.self))
+        try XCTUnwrap(harness.layoutProbe.frame(for: element))
     }
 
     func makeSearchBar(adapter: SearchBarOutputSwiftUIAdapter) -> SUISearchBar {
@@ -244,5 +299,12 @@ private extension SUISearchBarParityTests {
         }
         XCTAssertEqual(frame.width, controlSize, accuracy: 0.001, file: file, line: line)
     }
+}
+
+@available(iOS 17.0, *)
+private struct SearchBarTestHarness {
+    let host: SwiftUIAccessibilityTestHost
+    let stateModel: SUISearchBarStateModel
+    let layoutProbe: SUISearchBarLayoutProbe
 }
 #endif

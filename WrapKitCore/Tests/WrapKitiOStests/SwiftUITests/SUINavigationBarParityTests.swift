@@ -1,6 +1,7 @@
 #if canImport(SwiftUI) && canImport(UIKit)
 import SwiftUI
 @testable import WrapKit
+import WrapKitTestUtils
 import UIKit
 import XCTest
 
@@ -43,7 +44,9 @@ final class SUINavigationBarParityTests: XCTestCase {
         XCTAssertGreaterThan(imageFrame.height, 0)
         XCTAssertLessThanOrEqual(imageFrame.width, 24)
         XCTAssertLessThanOrEqual(imageFrame.height, 24)
-        XCTAssertEqual(imageFrame.midX, titleFrame.midX, accuracy: 0.001)
+        // Pixel-aligned views with odd/even physical widths can have centers half a pixel apart.
+        let halfPhysicalPixel = 0.5 / SnapshotRenderDefaults.scale
+        XCTAssertEqual(imageFrame.midX, titleFrame.midX, accuracy: halfPhysicalPixel + 0.001)
         XCTAssertGreaterThanOrEqual(titleFrame.minY - imageFrame.maxY, 4)
         XCTAssertLessThan(imageFrame.minY, titleFrame.minY)
     }
@@ -153,6 +156,49 @@ final class SUINavigationBarParityTests: XCTestCase {
         XCTAssertEqual(overflow.leading + overflow.trailing, 84, accuracy: 0.001)
         XCTAssertGreaterThanOrEqual(overflow.leading, 0)
         XCTAssertGreaterThanOrEqual(overflow.trailing, 0)
+    }
+
+    @available(iOS 17.0, *)
+    func test_glassForegroundResolver_usesOpaqueContrastAndDefersTranslucentBackdrop() {
+        var lightEnvironment = EnvironmentValues()
+        lightEnvironment.colorScheme = .light
+        var darkEnvironment = EnvironmentValues()
+        darkEnvironment.colorScheme = .dark
+
+        [lightEnvironment, darkEnvironment].forEach { environment in
+            XCTAssertEqual(
+                SUINavigationBarGlassForegroundResolver.color(
+                    over: SwiftUIColor(.red),
+                    environment: environment
+                )?.resolve(in: environment),
+                SwiftUIColor.white.resolve(in: environment)
+            )
+            XCTAssertEqual(
+                SUINavigationBarGlassForegroundResolver.color(
+                    over: SwiftUIColor(.yellow),
+                    environment: environment
+                )?.resolve(in: environment),
+                SwiftUIColor.black.resolve(in: environment)
+            )
+        }
+        XCTAssertNil(
+            SUINavigationBarGlassForegroundResolver.color(
+                over: SwiftUIColor.clear,
+                environment: lightEnvironment
+            )
+        )
+        XCTAssertNil(
+            SUINavigationBarGlassForegroundResolver.color(
+                over: SwiftUIColor.clear,
+                environment: darkEnvironment
+            )
+        )
+        XCTAssertNil(
+            SUINavigationBarGlassForegroundResolver.color(
+                over: SwiftUIColor.red.opacity(0.5),
+                environment: lightEnvironment
+            )
+        )
     }
 }
 

@@ -19,9 +19,10 @@ public struct SUIMapView: View {
                     controlButton(stateModel.locationButton, cornerRadius: 8)
                 }
 
-                if !stateModel.isActionsHidden {
-                    actionsView
-                }
+                actionsView
+                    .opacity(stateModel.isActionsHidden ? 0 : 1)
+                    .allowsHitTesting(!stateModel.isActionsHidden)
+                    .accessibilityHidden(stateModel.isActionsHidden)
             }
             .padding(.trailing, 12)
             .padding(.bottom, 12)

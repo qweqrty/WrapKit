@@ -10,6 +10,24 @@ import WrapKitTestUtils
 import XCTest
 
 class NavigationBarSnapshotTests: XCTestCase {
+    func test_navigationBar_style_appliesSecondaryTypographyToCenterValueLabel() {
+        let navigationBar = NavigationBar()
+        let secondaryFont = UIFont.systemFont(ofSize: 17, weight: .semibold)
+
+        navigationBar.display(style: .init(
+            backgroundColor: .clear,
+            horizontalSpacing: 1,
+            primeFont: .systemFont(ofSize: 24),
+            primeColor: .blue,
+            secondaryFont: secondaryFont,
+            secondaryColor: .green,
+            numberOfLines: 3
+        ))
+
+        XCTAssertEqual(navigationBar.titleViews.valueLabel.font, secondaryFont)
+        XCTAssertEqual(navigationBar.titleViews.valueLabel.textColor, .green)
+        XCTAssertEqual(navigationBar.titleViews.valueLabel.numberOfLines, 3)
+    }
 
     func test_navigationBar_defaul_state() {
         let snapshotName = "NAVBAR_DEFAULT_STATE"
@@ -1010,7 +1028,6 @@ class NavigationBarSnapshotTests: XCTestCase {
         }
     }
 
-    // TODO: - bottom image doesnt appear
     func test_navigationBar_with_leadingCard_bottomImage() {
         let snapshotName = "NAVBAR_WITH_LEADINGCARD_BOTTOMIMAGE"
 
@@ -1027,13 +1044,12 @@ class NavigationBarSnapshotTests: XCTestCase {
             secondaryColor: .green)
         )
 
-        let image = Image(systemName: "star.fill")
-
         sut.display(
             leadingCard: .init(
-                title: .text("Title"),
-                valueTitle: .text("Value title"),
-                bottomImage: .init(image: .asset(image))
+                bottomImage: .systemSymbol(
+                    "star.fill",
+                    size: CGSize(width: 24, height: 24)
+                )
             )
         )
 
@@ -1063,13 +1079,12 @@ class NavigationBarSnapshotTests: XCTestCase {
             secondaryColor: .green)
         )
 
-        let image = Image(systemName: "star")
-
         sut.display(
             leadingCard: .init(
-                title: .text("Title."),
-                valueTitle: .text("Value title"),
-                bottomImage: .init(image: .asset(image))
+                bottomImage: .systemSymbol(
+                    "star",
+                    size: CGSize(width: 24, height: 24)
+                )
             )
         )
 

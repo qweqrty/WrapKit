@@ -11,9 +11,6 @@ import UIKit
 import SwiftUI
 
 final class SwiftUIExpandableCardViewSnapshotSUT: NSObject, ExpandableCardViewOutput, SwiftUISnapshotSource {
-    let uiKitView: ExpandableCardView
-
-    private let uiKitContainer: UIView
     private let swiftUIAdapter: ExpandableCardViewOutputSwiftUIAdapter
     private let snapshotContainerHeight: CGFloat
     private var snapshotStackSpacing: CGFloat = 0
@@ -21,19 +18,11 @@ final class SwiftUIExpandableCardViewSnapshotSUT: NSObject, ExpandableCardViewOu
     private var snapshotSecondaryCardHeight: CGFloat?
 
     init(
-        uiKitContainer: UIView,
-        uiKitView: ExpandableCardView = ExpandableCardView(),
         swiftUIAdapter: ExpandableCardViewOutputSwiftUIAdapter = ExpandableCardViewOutputSwiftUIAdapter(),
         snapshotContainerHeight: CGFloat = 390
     ) {
-        self.uiKitContainer = uiKitContainer
-        self.uiKitView = uiKitView
         self.swiftUIAdapter = swiftUIAdapter
         self.snapshotContainerHeight = snapshotContainerHeight
-    }
-
-    func layoutIfNeeded() {
-        uiKitView.layoutIfNeeded()
     }
 
     func configureSnapshotLayout(
@@ -45,22 +34,13 @@ final class SwiftUIExpandableCardViewSnapshotSUT: NSObject, ExpandableCardViewOu
         snapshotPrimeCardHeight = primeCardHeight
         snapshotSecondaryCardHeight = secondaryCardHeight
 
-        uiKitView.stackView.spacing = stackSpacing
-        if let primeCardHeight {
-            uiKitView.primeCardView.constrainHeight(primeCardHeight)
-        }
-        if let secondaryCardHeight {
-            uiKitView.secondaryCardView.constrainHeight(secondaryCardHeight)
-        }
     }
 
     func display(model: Pair<CardViewPresentableModel, CardViewPresentableModel?>) {
-        uiKitView.display(model: model)
         swiftUIAdapter.display(model: model)
     }
 
     func display(isHidden: Bool) {
-        uiKitView.display(isHidden: isHidden)
         swiftUIAdapter.display(isHidden: isHidden)
     }
 
@@ -76,7 +56,7 @@ final class SwiftUIExpandableCardViewSnapshotSUT: NSObject, ExpandableCardViewOu
             content: AnyView(content),
             containerHeight: snapshotContainerHeight
         )
-        .environment(\.colorScheme, appearance.colorScheme)
+        .snapshotEnvironment(configuration: .iPhone(style: appearance.colorScheme))
         .ignoresSafeArea(.all)
 
         let hostingController = UIHostingController(rootView: rootView)

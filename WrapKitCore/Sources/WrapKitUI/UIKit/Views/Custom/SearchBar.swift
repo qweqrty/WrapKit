@@ -142,7 +142,6 @@ private extension SearchBar {
         backgroundColor = nil
         if #available(iOS 26, macOS 26, watchOS 26, tvOS 26, *) {
             (glassEffectView.effect as? UIGlassEffect)?.tintColor = color
-            glassEffectView.tintColor = color
         }
     }
 }

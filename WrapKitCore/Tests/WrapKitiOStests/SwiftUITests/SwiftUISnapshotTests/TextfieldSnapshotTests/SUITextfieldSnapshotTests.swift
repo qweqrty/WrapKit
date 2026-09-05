@@ -72,46 +72,6 @@ final class SUITextfieldSnapshotTests: XCTestCase {
         }
     }
 
-    func test_TextView_clearButtonActive() {
-        let snapshotName = "TEXTVIEW_CLEABUTTONACTIVE"
-        let clearButton = makeIcon(systemName: "star.fill")
-        let sut = makeSUT(
-            trailingView: .clear(trailingView: clearButton),
-            trailingSwiftUIView: makeSwiftUIIcon(systemName: "star.fill")
-        )
-
-        sut.display(text: "Clear button")
-        sut.display(isClearButtonActive: true)
-
-        if #available(iOS 26, *) {
-            assert(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
-            assert(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS26_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.standard)
-        } else {
-            assert(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS18.5_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
-            assert(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS18.5_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.standard)
-        }
-    }
-
-    func test_fail_TextView_clearButtonActive() {
-        let snapshotName = "TEXTVIEW_CLEABUTTONACTIVE"
-        let clearButton = makeIcon(systemName: "star.fill")
-        let sut = makeSUT(
-            trailingView: .clear(trailingView: clearButton),
-            trailingSwiftUIView: makeSwiftUIIcon(systemName: "star.fill")
-        )
-
-        sut.display(text: "Clear button.")
-        sut.display(isClearButtonActive: true)
-
-        if #available(iOS 26, *) {
-            assertFail(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.fail)
-            assertFail(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS26_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.fail)
-        } else {
-            assertFail(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS18.5_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.fail)
-            assertFail(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS18.5_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.fail)
-        }
-    }
-
     func test_Textfield_default_onPress() {
         let snapshotName = "TEXTFIELD_DEFAULT_ONPRESS"
         let sut = makeSUT()
@@ -192,10 +152,49 @@ final class SUITextfieldSnapshotTests: XCTestCase {
         }
     }
 
+    func test_Textfield_onTapBackspace() {
+        let snapshotName = "TEXTFIELD_ONTAPBACKSPACE"
+        let sut = makeSUT()
+
+        sut.display(text: "Text to delete")
+        sut.display(onTapBackspace: { [weak sut] in
+            sut?.setDeselectedBackgroundColor(.red)
+        })
+        sut.display(text: "Text to delet")
+        sut.onTapBackspace?()
+
+        if #available(iOS 26, *) {
+            assert(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
+            assert(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS26_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.standard)
+        } else {
+            assert(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS18.5_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
+            assert(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS18.5_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.standard)
+        }
+    }
+
+    func test_fail_Textfield_onTapBackspace() {
+        let snapshotName = "TEXTFIELD_ONTAPBACKSPACE"
+        let sut = makeSUT()
+
+        sut.display(text: "Text to delete.")
+        sut.display(onTapBackspace: { [weak sut] in
+            sut?.setDeselectedBackgroundColor(.red)
+        })
+        sut.display(text: "Text to delete")
+        sut.onTapBackspace?()
+
+        if #available(iOS 26, *) {
+            assertFail(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.fail)
+            assertFail(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS26_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.fail)
+        } else {
+            assertFail(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS18.5_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.fail)
+            assertFail(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS18.5_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.fail)
+        }
+    }
+
     func test_Textfield_leadingView() {
         let snapshotName = "TEXTFIELD_LEADINGVIEW"
-        let leadingIcon = makeIcon(systemName: "magnifyingglass")
-        let sut = makeSUT(leadingView: leadingIcon, leadingSwiftUIView: makeSwiftUIIcon(systemName: "magnifyingglass"))
+        let sut = makeSUT(leadingSwiftUIView: makeSwiftUIIcon(systemName: "magnifyingglass"))
 
         sut.display(text: "Search query")
 
@@ -210,8 +209,7 @@ final class SUITextfieldSnapshotTests: XCTestCase {
 
     func test_fail_Textfield_leadingView() {
         let snapshotName = "TEXTFIELD_LEADINGVIEW"
-        let leadingIcon = makeIcon(systemName: "mmagnifyingglass.circle.fill")
-        let sut = makeSUT(leadingView: leadingIcon, leadingSwiftUIView: makeSwiftUIIcon(systemName: "mmagnifyingglass.circle.fill"))
+        let sut = makeSUT(leadingSwiftUIView: makeSwiftUIIcon(systemName: "mmagnifyingglass.circle.fill"))
 
         sut.display(text: "Search query")
 
@@ -226,8 +224,7 @@ final class SUITextfieldSnapshotTests: XCTestCase {
 
     func test_Textfield_leadingView_isHidden() {
         let snapshotName = "TEXTFIELD_LEADINGVIEW_ISHIDDEN"
-        let leadingIcon = makeIcon(systemName: "magnifyingglass")
-        let sut = makeSUT(leadingView: leadingIcon, leadingSwiftUIView: makeSwiftUIIcon(systemName: "magnifyingglass"))
+        let sut = makeSUT(leadingSwiftUIView: makeSwiftUIIcon(systemName: "magnifyingglass"))
 
         sut.display(leadingViewIsHidden: true)
         sut.display(text: "Search query")
@@ -243,8 +240,7 @@ final class SUITextfieldSnapshotTests: XCTestCase {
 
     func test_fail_Textfield_leadingView_isHidden() {
         let snapshotName = "TEXTFIELD_LEADINGVIEW_ISHIDDEN"
-        let leadingIcon = makeIcon(systemName: "magnifyingglass")
-        let sut = makeSUT(leadingView: leadingIcon, leadingSwiftUIView: makeSwiftUIIcon(systemName: "magnifyingglass"))
+        let sut = makeSUT(leadingSwiftUIView: makeSwiftUIIcon(systemName: "magnifyingglass"))
 
         sut.display(leadingViewIsHidden: false)
         sut.display(text: "Search query")
@@ -260,8 +256,7 @@ final class SUITextfieldSnapshotTests: XCTestCase {
 
     func test_Textfield_trailingView_isHidden() {
         let snapshotName = "TEXTFIELD_TRAILINGVIEW_ISHIDDEN"
-        let trailingView = makeIcon(systemName: "magnifyingglass")
-        let sut = makeSUT(trailingView: .custom(trailingView: trailingView), trailingSwiftUIView: makeSwiftUIIcon(systemName: "magnifyingglass"))
+        let sut = makeSUT(trailingSwiftUIView: makeSwiftUIIcon(systemName: "magnifyingglass"))
 
         sut.display(trailingViewIsHidden: true)
         sut.display(text: "Search query")
@@ -277,8 +272,7 @@ final class SUITextfieldSnapshotTests: XCTestCase {
 
     func test_fail_Textfield_trailingView_isHidden() {
         let snapshotName = "TEXTFIELD_TRAILINGVIEW_ISHIDDEN"
-        let trailingView = makeIcon(systemName: "magnifyingglass")
-        let sut = makeSUT(trailingView: .custom(trailingView: trailingView), trailingSwiftUIView: makeSwiftUIIcon(systemName: "magnifyingglass"))
+        let sut = makeSUT(trailingSwiftUIView: makeSwiftUIIcon(systemName: "magnifyingglass"))
 
         sut.display(trailingViewIsHidden: false)
         sut.display(text: "Search query")
@@ -294,8 +288,7 @@ final class SUITextfieldSnapshotTests: XCTestCase {
 
     func test_Textfield_trailingView() {
         let snapshotName = "TEXTFIELD_TRAILINGVIEW"
-        let trailingIcon = makeIcon(systemName: "magnifyingglass")
-        let sut = makeSUT(trailingView: .custom(trailingView: trailingIcon), trailingSwiftUIView: makeSwiftUIIcon(systemName: "magnifyingglass"))
+        let sut = makeSUT(trailingSwiftUIView: makeSwiftUIIcon(systemName: "magnifyingglass"))
 
         sut.display(text: "Search query")
 
@@ -310,8 +303,7 @@ final class SUITextfieldSnapshotTests: XCTestCase {
 
     func test_fail_Textfield_trailingView() {
         let snapshotName = "TEXTFIELD_TRAILINGVIEW"
-        let trailingIcon = makeIcon(systemName: "magnifyingglass.circle.fill")
-        let sut = makeSUT(trailingView: .custom(trailingView: trailingIcon), trailingSwiftUIView: makeSwiftUIIcon(systemName: "magnifyingglass.circle.fill"))
+        let sut = makeSUT(trailingSwiftUIView: makeSwiftUIIcon(systemName: "magnifyingglass.circle.fill"))
 
         sut.display(text: "Search query")
 
@@ -326,9 +318,7 @@ final class SUITextfieldSnapshotTests: XCTestCase {
 
     func test_Textfield_leadingView_onPress() {
         let snapshotName = "TEXTFIELD_LEADINGVIEW_ONPRESS"
-        let leadingIcon = makeIcon(systemName: "magnifyingglass")
         let sut = makeSUT(
-            leadingView: leadingIcon,
             leadingSwiftUIView: makeSwiftUIIcon(systemName: "magnifyingglass")
         )
 
@@ -349,9 +339,7 @@ final class SUITextfieldSnapshotTests: XCTestCase {
 
     func test_fail_Textfield_leadingView_onPress() {
         let snapshotName = "TEXTFIELD_LEADINGVIEW_ONPRESS"
-        let leadingIcon = makeIcon(systemName: "magnifyingglass")
         let sut = makeSUT(
-            leadingView: leadingIcon,
             leadingSwiftUIView: makeSwiftUIIcon(systemName: "magnifyingglass")
         )
 
@@ -372,9 +360,7 @@ final class SUITextfieldSnapshotTests: XCTestCase {
 
     func test_Textfield_trailingView_onPress() {
         let snapshotName = "TEXTFIELD_TRAILING_ONPRESS"
-        let trailingView = makeIcon(systemName: "magnifyingglass")
         let sut = makeSUT(
-            trailingView: .custom(trailingView: trailingView),
             trailingSwiftUIView: makeSwiftUIIcon(systemName: "magnifyingglass")
         )
 
@@ -395,9 +381,7 @@ final class SUITextfieldSnapshotTests: XCTestCase {
 
     func test_fail_Textfield_trailingView_onPress() {
         let snapshotName = "TEXTFIELD_TRAILING_ONPRESS"
-        let trailingView = makeIcon(systemName: "magnifyingglass")
         let sut = makeSUT(
-            trailingView: .custom(trailingView: trailingView),
             trailingSwiftUIView: makeSwiftUIIcon(systemName: "magnifyingglass")
         )
 
@@ -640,10 +624,248 @@ final class SUITextfieldSnapshotTests: XCTestCase {
         }
     }
 
+    func test_Textfield_trailing_symbol_with_mask() {
+        let sut = makeSUT()
+        sut.display(mask: .init(mask: makeShortPhoneMask(countryCode: "7"), maskColor: .lightGray))
+        sut.display(text: "123")
+        sut.display(trailingSymbol: " (Mobile)")
+
+        assertSnapshotPair(of: sut, named: "TEXTFIELD_TRAILING_SYMBOL")
+    }
+
+    func test_fail_Textfield_trailing_symbol_with_mask() {
+        let sut = makeSUT()
+        sut.display(mask: .init(mask: makeShortPhoneMask(countryCode: "7"), maskColor: .lightGray))
+        sut.display(text: "123")
+        sut.display(trailingSymbol: " (Mobile.)")
+
+        assertSnapshotPair(of: sut, named: "TEXTFIELD_TRAILING_SYMBOL", expectingMatch: false)
+    }
+
+    func test_Textfield_trailing_symbol_currency() {
+        let sut = makeSUT()
+        sut.display(mask: .init(mask: makeCurrencyMask(), maskColor: .systemGray))
+        sut.display(text: "1500")
+        sut.display(trailingSymbol: " USD")
+
+        assertSnapshotPair(of: sut, named: "TEXTFIELD_CURRENCY_SYMBOL")
+    }
+
+    func test_fail_Textfield_trailing_symbol_currency() {
+        let sut = makeSUT()
+        sut.display(mask: .init(mask: makeCurrencyMask(), maskColor: .systemGray))
+        sut.display(text: "1500")
+        sut.display(trailingSymbol: " USD.")
+
+        assertSnapshotPair(of: sut, named: "TEXTFIELD_CURRENCY_SYMBOL", expectingMatch: false)
+    }
+
+    func test_Textfield_phone_mask_partial() {
+        let sut = makeSUT()
+        sut.display(mask: .init(mask: makePhoneMask(countryCode: "7"), maskColor: .lightGray))
+        sut.display(text: "123")
+
+        assertSnapshotPair(of: sut, named: "TEXTFIELD_PHONE_MASK_PARTIAL")
+    }
+
+    func test_fail_Textfield_phone_mask_partial() {
+        let sut = makeSUT()
+        sut.display(mask: .init(mask: makePhoneMask(countryCode: "8"), maskColor: .lightGray))
+        sut.display(text: "123")
+
+        assertSnapshotPair(of: sut, named: "TEXTFIELD_PHONE_MASK_PARTIAL", expectingMatch: false)
+    }
+
+    func test_Textfield_phone_mask_full() {
+        let sut = makeSUT()
+        sut.display(mask: .init(mask: makePhoneMask(countryCode: "7"), maskColor: .lightGray))
+        sut.display(text: "1234567890")
+
+        assertSnapshotPair(of: sut, named: "TEXTFIELD_PHONE_MASK_FULL")
+    }
+
+    func test_fail_Textfield_phone_mask_full() {
+        let sut = makeSUT()
+        sut.display(mask: .init(mask: makePhoneMask(countryCode: "8"), maskColor: .lightGray))
+        sut.display(text: "1234567890")
+
+        assertSnapshotPair(of: sut, named: "TEXTFIELD_PHONE_MASK_FULL", expectingMatch: false)
+    }
+
+    func test_Textfield_phone_mask_empty() {
+        let sut = makeSUT()
+        sut.display(mask: .init(mask: makePhoneMask(countryCode: "7"), maskColor: .lightGray))
+        sut.display(text: "")
+        sut.display(placeholder: "Enter phone number")
+
+        assertSnapshotPair(of: sut, named: "TEXTFIELD_PHONE_MASK_EMPTY")
+    }
+
+    func test_fail_Textfield_phone_mask_empty() {
+        let sut = makeSUT()
+        sut.display(mask: .init(mask: makePhoneMask(countryCode: "7"), maskColor: .lightGray))
+        sut.display(text: "123")
+        sut.display(placeholder: "Enter phone number")
+
+        assertSnapshotPair(of: sut, named: "TEXTFIELD_PHONE_MASK_EMPTY", expectingMatch: false)
+    }
+
+    func test_Textfield_credit_card_mask() {
+        let sut = makeSUT()
+        sut.display(mask: .init(mask: makeCreditCardMask(), maskColor: .systemGray))
+        sut.display(text: "12345678")
+
+        assertSnapshotPair(of: sut, named: "TEXTFIELD_CARD_MASK")
+    }
+
+    func test_fail_Textfield_credit_card_mask() {
+        let sut = makeSUT()
+        sut.display(mask: .init(mask: makeCreditCardMask(), maskColor: .systemGray))
+        sut.display(text: "22345678")
+
+        assertSnapshotPair(of: sut, named: "TEXTFIELD_CARD_MASK", expectingMatch: false)
+    }
+
+    func test_Textfield_date_mask() {
+        let sut = makeSUT()
+        sut.display(mask: .init(mask: makeDateMask(), maskColor: .systemGray3))
+        sut.display(text: "1512")
+
+        assertSnapshotPair(of: sut, named: "TEXTFIELD_DATE_MASK")
+    }
+
+    func test_fail_Textfield_date_mask() {
+        let sut = makeSUT()
+        sut.display(mask: .init(mask: makeDateMask(), maskColor: .systemGray3))
+        sut.display(text: "1612")
+
+        assertSnapshotPair(of: sut, named: "TEXTFIELD_DATE_MASK", expectingMatch: false)
+    }
+
+    func test_Textfield_mask_with_color() {
+        let sut = makeSUT()
+        sut.display(mask: .init(mask: makeCodeMask(), maskColor: .blue))
+        sut.display(text: "12")
+
+        assertSnapshotPair(of: sut, named: "TEXTFIELD_MASK_BLUE")
+    }
+
+    func test_fail_Textfield_mask_with_color() {
+        let sut = makeSUT()
+        sut.display(mask: .init(mask: makeCodeMask(), maskColor: .systemBlue))
+        sut.display(text: "12")
+
+        assertSnapshotPair(of: sut, named: "TEXTFIELD_MASK_BLUE", expectingMatch: false)
+    }
+
+    func test_Textfield_mask_with_initial_literals_and_presented_text() {
+        let sut = makeSUT()
+        sut.display(mask: .init(mask: makeInitialLiteralsMask(), maskColor: .systemGray))
+        sut.display(text: "98765")
+
+        assertSnapshotPair(of: sut, named: "TEXTFIELD_MASK_INITIAL_LITERALS")
+    }
+
+    func test_fail_Textfield_mask_with_initial_literals_and_presented_text() {
+        let sut = makeSUT()
+        sut.display(mask: .init(mask: makeInitialLiteralsMask(), maskColor: .systemGray))
+        sut.display(text: "88765")
+
+        assertSnapshotPair(of: sut, named: "TEXTFIELD_MASK_INITIAL_LITERALS", expectingMatch: false)
+    }
+
+    func test_Textfield_mask_with_literals_and_presented_text() {
+        let sut = makeSUT()
+        sut.display(mask: .init(mask: makeLiteralPrefixMask(), maskColor: .systemGray))
+        sut.display(text: "996553113555")
+
+        assertSnapshotPair(of: sut, named: "TEXTFIELD_MASK_CONSIDERS_LITERALS")
+    }
+
+    func test_fail_Textfield_mask_with_literals_and_presented_text() {
+        let sut = makeSUT()
+        sut.display(mask: .init(mask: makeLiteralPrefixMask(), maskColor: .systemGray))
+        sut.display(text: "995553113555")
+
+        assertSnapshotPair(of: sut, named: "TEXTFIELD_MASK_CONSIDERS_LITERALS", expectingMatch: false)
+    }
+
+    func test_Textfield_mask_with_literals_and_complex_presented_text() {
+        let sut = makeSUT()
+        sut.display(mask: .init(mask: makeComplexLiteralMask(), maskColor: .systemGray))
+        sut.display(text: "996553113555")
+
+        assertSnapshotPair(of: sut, named: "TEXTFIELD_MASK_CONSIDERS_COMPLEXT_LITERALS")
+    }
+
+    func test_fail_Textfield_mask_with_literals_and_complex_presented_text() {
+        let sut = makeSUT()
+        sut.display(mask: .init(mask: makeComplexLiteralMask(), maskColor: .systemGray))
+        sut.display(text: "996653113555")
+
+        assertSnapshotPair(of: sut, named: "TEXTFIELD_MASK_CONSIDERS_COMPLEXT_LITERALS", expectingMatch: false)
+    }
+
+    func test_Textfield_mask_with_literals_and_almost_complex_presented_text() {
+        let sut = makeSUT()
+        sut.display(mask: .init(mask: makeComplexLiteralMask(), maskColor: .systemGray))
+        sut.display(text: "96553113555")
+
+        assertSnapshotPair(of: sut, named: "TEXTFIELD_MASK_CONSIDERS_ALMOST_COMPLEXT_LITERALS")
+    }
+
+    func test_fail_Textfield_mask_with_literals_and_almost_complex_presented_text() {
+        let sut = makeSUT()
+        sut.display(mask: .init(mask: makeComplexLiteralMask(), maskColor: .systemGray))
+        sut.display(text: "97553113555")
+
+        assertSnapshotPair(
+            of: sut,
+            named: "TEXTFIELD_MASK_CONSIDERS_ALMOST_COMPLEXT_LITERALS",
+            expectingMatch: false
+        )
+    }
+
 }
 
 @available(iOS 17.0, *)
 extension SUITextfieldSnapshotTests {
+    func assertSnapshotPair(
+        of sut: SwiftUITextfieldSnapshotSUT,
+        named snapshotName: String,
+        expectingMatch: Bool = true,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        let prefix = if #available(iOS 26, *) { "SwiftUI_iOS26" } else { "SwiftUI_iOS18.5" }
+
+        for appearance in SnapshotAppearance.allCases {
+            let suffix = switch appearance {
+            case .light: "LIGHT"
+            case .dark: "DARK"
+            }
+            let name = "\(prefix)_\(snapshotName)_\(suffix)"
+            let snapshot = sut.swiftUISnapshot(for: appearance)
+            if expectingMatch {
+                assert(
+                    snapshot: snapshot,
+                    named: name,
+                    precision: SwiftUISnapshotPrecision.standard,
+                    file: file,
+                    line: line
+                )
+            } else {
+                assertFail(
+                    snapshot: snapshot,
+                    named: name,
+                    precision: SwiftUISnapshotPrecision.fail,
+                    file: file,
+                    line: line
+                )
+            }
+        }
+    }
+
     func makeSwiftUIIcon(systemName: String) -> AnyView {
         let image = makeSnapshotIconImage(systemName: systemName)
         return AnyView(
@@ -668,9 +890,108 @@ extension SUITextfieldSnapshotTests {
         ])
     }
 
+    func makeShortPhoneMask(countryCode: Character) -> Mask {
+        Mask(format: [
+            .literal("+"),
+            .literal(countryCode),
+            .literal(" "),
+            decimalSpecifier,
+            decimalSpecifier,
+            decimalSpecifier
+        ])
+    }
+
+    func makeCurrencyMask() -> Mask {
+        Mask(format: Array(repeating: decimalSpecifier, count: 4))
+    }
+
+    func makeCreditCardMask() -> Mask {
+        let group = Array(repeating: decimalSpecifier, count: 4)
+        return Mask(format: group + [.literal(" ")] + group + [.literal(" ")] + group + [.literal(" ")] + group)
+    }
+
+    func makeDateMask() -> Mask {
+        let dayOrMonth: MaskedCharacter = .specifier(
+            placeholder: "D",
+            allowedCharacters: .decimalDigits
+        )
+        let month: MaskedCharacter = .specifier(
+            placeholder: "M",
+            allowedCharacters: .decimalDigits
+        )
+        let year: MaskedCharacter = .specifier(
+            placeholder: "Y",
+            allowedCharacters: .decimalDigits
+        )
+        return Mask(format: [
+            dayOrMonth,
+            dayOrMonth,
+            .literal("/"),
+            month,
+            month,
+            .literal("/"),
+            year,
+            year,
+            year,
+            year
+        ])
+    }
+
+    func makeCodeMask() -> Mask {
+        Mask(format: [
+            .literal("C"),
+            .literal("O"),
+            .literal("D"),
+            .literal("E"),
+            .literal(":"),
+            .literal(" "),
+            decimalSpecifier,
+            decimalSpecifier,
+            decimalSpecifier
+        ])
+    }
+
+    func makeInitialLiteralsMask() -> Mask {
+        Mask(format: [
+            .literal("+"),
+            .literal("9"),
+            .literal("9"),
+            .literal("6"),
+            .literal(" "),
+            decimalSpecifier,
+            decimalSpecifier,
+            decimalSpecifier,
+            .literal("-"),
+            decimalSpecifier,
+            decimalSpecifier
+        ])
+    }
+
+    func makeLiteralPrefixMask() -> Mask {
+        Mask(format: [
+            .literal("+"),
+            .literal("9"),
+            .literal("9"),
+            .literal("6")
+        ] + Array(repeating: decimalSpecifier, count: 9))
+    }
+
+    func makeComplexLiteralMask() -> Mask {
+        let group = Array(repeating: decimalSpecifier, count: 3)
+        return Mask(format: [
+            .literal("+"),
+            .literal("9"),
+            .literal("9"),
+            .literal("6"),
+            .literal(" ")
+        ] + group + [.literal(" ")] + group + [.literal(" ")] + group)
+    }
+
+    private var decimalSpecifier: MaskedCharacter {
+        .specifier(placeholder: "#", allowedCharacters: .decimalDigits)
+    }
+
     func makeSUT(
-        leadingView: ViewUIKit? = nil,
-        trailingView: Textfield.TrailingViewStyle? = nil,
         leadingSwiftUIView: AnyView? = nil,
         trailingSwiftUIView: AnyView? = nil,
         file: StaticString = #file,
@@ -693,50 +1014,14 @@ extension SUITextfieldSnapshotTests {
             placeholder: .init(color: .systemGray, font: .systemFont(ofSize: 20))
         )
 
-        let uiKitView = Textfield(
-            appearance: appearance,
-            leadingView: leadingView,
-            trailingView: trailingView
-        )
-
-        let container = makeContainer()
         let sut = SwiftUITextfieldSnapshotSUT(
             appearance: appearance,
-            uiKitContainer: container,
-            uiKitView: uiKitView,
             leadingSwiftUIView: leadingSwiftUIView,
             trailingSwiftUIView: trailingSwiftUIView
         )
-        container.addSubview(sut.uiKitView)
-        sut.uiKitView.anchor(
-            .top(container.topAnchor, constant: 0, priority: .required),
-            .leading(container.leadingAnchor, constant: 0, priority: .required),
-            .trailing(container.trailingAnchor, constant: 0, priority: .required)
-        )
-        container.layoutIfNeeded()
 
         checkForMemoryLeaks(sut, file: file, line: line)
-        checkForMemoryLeaks(sut.uiKitView, file: file, line: line)
         return sut
-    }
-
-    func makeIcon(systemName: String, tintColor: UIColor = .systemGray) -> ViewUIKit {
-        let container = ViewUIKit()
-        let imageView = UIImageView()
-        imageView.image = UIImage(systemName: systemName)
-        imageView.tintColor = tintColor
-        imageView.contentMode = .scaleAspectFit
-        imageView.translatesAutoresizingMaskIntoConstraints = false
-        container.addSubview(imageView)
-        NSLayoutConstraint.activate([
-            imageView.widthAnchor.constraint(equalToConstant: 24),
-            imageView.heightAnchor.constraint(equalToConstant: 24),
-            imageView.topAnchor.constraint(equalTo: container.topAnchor),
-            imageView.bottomAnchor.constraint(equalTo: container.bottomAnchor),
-            imageView.leadingAnchor.constraint(equalTo: container.leadingAnchor),
-            imageView.trailingAnchor.constraint(equalTo: container.trailingAnchor)
-        ])
-        return container
     }
 
     func makeSnapshotIconImage(
@@ -763,7 +1048,7 @@ extension SUITextfieldSnapshotTests {
             height: renderedSize.height
         )
         let format = UIGraphicsImageRendererFormat()
-        format.scale = UIScreen.main.scale
+        format.scale = SnapshotRenderDefaults.scale
         format.opaque = false
         format.preferredRange = .standard
 
@@ -774,10 +1059,4 @@ extension SUITextfieldSnapshotTests {
         }
     }
 
-    func makeContainer() -> UIView {
-        let container = UIView()
-        container.frame = CGRect(x: 0, y: 0, width: 390, height: 300)
-        container.backgroundColor = .clear
-        return container
-    }
 }

@@ -1325,28 +1325,10 @@ private extension SUILabelSnapshotTests {
         file: StaticString = #filePath,
         line: UInt = #line
     ) -> SwiftUILabelSnapshotSUT {
-        let container = makeContainer()
-        let sut = SwiftUILabelSnapshotSUT(uiKitContainer: container)
-
-        container.addSubview(sut.uiKitLabel)
-        sut.uiKitLabel.anchor(
-            .top(container.topAnchor, constant: 0, priority: .required),
-            .leading(container.leadingAnchor, constant: 0, priority: .required),
-            .trailing(container.trailingAnchor, constant: 0, priority: .required),
-            .height(150, priority: .required)
-        )
-        container.layoutIfNeeded()
+        let sut = SwiftUILabelSnapshotSUT()
 
         checkForMemoryLeaks(sut, file: file, line: line)
-        checkForMemoryLeaks(sut.uiKitLabel, file: file, line: line)
         return sut
-    }
-
-    func makeContainer() -> UIView {
-        let container = UIView()
-        container.frame = CGRect(origin: .zero, size: SnapshotConfiguration.size)
-        container.backgroundColor = .clear
-        return container
     }
 }
 

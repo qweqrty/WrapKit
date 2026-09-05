@@ -54,5 +54,24 @@ final class SUIProgressBarStateModelTests: XCTestCase {
         XCTAssertEqual(sut.progress, 35)
         XCTAssertEqual(sut.layoutHeight, 28)
     }
+
+    func test_incrementalStyleWithoutHeight_preservesEstablishedLayoutHeight() {
+        let adapter = ProgressBarOutputSwiftUIAdapter()
+        let sut = SUIProgressBarStateModel(adapter: adapter)
+
+        adapter.display(style: .init(
+            backgroundColor: .systemRed,
+            height: 50,
+            cornerStyle: CornerStyle.none
+        ))
+        adapter.display(style: .init(
+            backgroundColor: .systemRed,
+            trackHeight: 33,
+            cornerStyle: CornerStyle.none
+        ))
+
+        XCTAssertEqual(sut.layoutHeight, 50)
+        XCTAssertEqual(sut.style?.trackHeight, 33)
+    }
 }
 #endif

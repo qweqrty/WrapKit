@@ -6,8 +6,11 @@ import XCTest
 
 @available(iOS 17.0, *)
 final class RendererParityRegressionTests: XCTestCase {
-    @available(iOS 26.0, *)
-    func test_swiftUIParity_matchesUICornerConfigurationAndSwiftUIContinuousShape() {
+    func test_swiftUIParity_matchesUICornerConfigurationAndSwiftUIContinuousShape() throws {
+        guard #available(iOS 26.0, *) else {
+            throw XCTSkip("UIKit cornerConfiguration requires iOS 26.")
+        }
+
         let snapshotSize = SnapshotConfiguration.size
         let componentSize = CGSize(width: snapshotSize.width, height: 200)
         let cornerRadius: CGFloat = 16

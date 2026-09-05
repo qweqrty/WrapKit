@@ -11,34 +11,26 @@ import UIKit
 import SwiftUI
 
 final class SwiftUISegmentedControlSnapshotSUT: SegmentedControlOutput, SwiftUISnapshotSource {
-    let uiKitView: SegmentedControl
-
-    private let uiKitContainer: UIView
     private let swiftUIAdapter: SegmentedControlOutputSwiftUIAdapter
     private var appearance: SegmentedControlAppearance
     private let snapshotHeight: CGFloat
 
     init(
-        uiKitContainer: UIView,
         appearance: SegmentedControlAppearance,
         snapshotHeight: CGFloat,
         swiftUIAdapter: SegmentedControlOutputSwiftUIAdapter = SegmentedControlOutputSwiftUIAdapter()
     ) {
-        self.uiKitContainer = uiKitContainer
         self.appearance = appearance
         self.snapshotHeight = snapshotHeight
-        self.uiKitView = SegmentedControl(appearance: appearance)
         self.swiftUIAdapter = swiftUIAdapter
     }
 
     func display(appearence: SegmentedControlAppearance) {
         appearance = appearence
-        uiKitView.display(appearence: appearence)
         swiftUIAdapter.display(appearence: appearence)
     }
 
     func display(segments: [SegmentControlModel]) {
-        uiKitView.display(segments: segments)
         swiftUIAdapter.display(segments: segments)
     }
 
@@ -51,7 +43,7 @@ final class SwiftUISegmentedControlSnapshotSUT: SegmentedControlOutput, SwiftUIS
             )),
             height: snapshotHeight
         )
-        .environment(\.colorScheme, snapshotAppearance.colorScheme)
+        .snapshotEnvironment(configuration: .iPhone(style: snapshotAppearance.colorScheme))
         .ignoresSafeArea(.all)
 
         let hostingController = UIHostingController(rootView: rootView)

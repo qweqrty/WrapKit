@@ -14,6 +14,7 @@ public struct SUIButton: View {
     @StateObject var stateModel: SUIButtonStateModel
     let pressAnimations: Set<PressAnimation>
     let loadingIndicatorPhase: SUIButtonLoadingIndicatorPhase
+    let pressedStateOverride: Bool?
     
     public init(
         adapter: ButtonOutputSwiftUIAdapter,
@@ -23,16 +24,19 @@ public struct SUIButton: View {
         _stateModel = .init(wrappedValue: .init(adapter: adapter, loadingAdapter: loadingAdapter))
         self.pressAnimations = pressAnimations
         self.loadingIndicatorPhase = .animated
+        self.pressedStateOverride = nil
     }
 
     init(
         stateModel: SUIButtonStateModel,
         pressAnimations: Set<PressAnimation> = [],
-        loadingIndicatorPhase: SUIButtonLoadingIndicatorPhase = .animated
+        loadingIndicatorPhase: SUIButtonLoadingIndicatorPhase = .animated,
+        pressedStateOverride: Bool? = nil
     ) {
         _stateModel = .init(wrappedValue: stateModel)
         self.pressAnimations = pressAnimations
         self.loadingIndicatorPhase = loadingIndicatorPhase
+        self.pressedStateOverride = pressedStateOverride
     }
     
     @ViewBuilder
@@ -44,7 +48,8 @@ public struct SUIButton: View {
                 isEnabled: stateModel.isEnabled,
                 isLoading: stateModel.isLoading,
                 pressAnimations: pressAnimations,
-                loadingIndicatorPhase: loadingIndicatorPhase
+                loadingIndicatorPhase: loadingIndicatorPhase,
+                pressedStateOverride: pressedStateOverride
             )
         }
     }
@@ -60,6 +65,7 @@ public struct SUIButtonView: View {
     let fillsAvailableHeight: Bool
     let contentInsets: SwiftUI.EdgeInsets
     let loadingIndicatorPhase: SUIButtonLoadingIndicatorPhase
+    let pressedStateOverride: Bool?
     
     @State private var isPressed: Bool = false
     
@@ -82,6 +88,7 @@ public struct SUIButtonView: View {
         self.fillsAvailableHeight = fillsAvailableHeight
         self.contentInsets = contentInsets
         self.loadingIndicatorPhase = .animated
+        self.pressedStateOverride = nil
     }
 
     init(
@@ -93,7 +100,8 @@ public struct SUIButtonView: View {
         fillsAvailableWidth: Bool = true,
         fillsAvailableHeight: Bool = true,
         contentInsets: SwiftUI.EdgeInsets = .init(),
-        loadingIndicatorPhase: SUIButtonLoadingIndicatorPhase
+        loadingIndicatorPhase: SUIButtonLoadingIndicatorPhase,
+        pressedStateOverride: Bool? = nil
     ) {
         self.model = model
         self.onPress = onPress
@@ -104,6 +112,7 @@ public struct SUIButtonView: View {
         self.fillsAvailableHeight = fillsAvailableHeight
         self.contentInsets = contentInsets
         self.loadingIndicatorPhase = loadingIndicatorPhase
+        self.pressedStateOverride = pressedStateOverride
     }
     
     @ViewBuilder
@@ -254,7 +263,7 @@ public struct SUIButtonView: View {
     }
 
     private var titleColor: SwiftUIColor? {
-        let color = isPressed
+        let color = effectivePressedState
             ? model.style?.pressedTintColor ?? model.style?.titleColor ?? .white
             : model.style?.titleColor ?? .white
         return SwiftUIColor(color)
@@ -267,10 +276,14 @@ public struct SUIButtonView: View {
     @ViewBuilder
     private var backgroundView: some View {
         SwiftUIColor(
-            isPressed
+            effectivePressedState
             ? model.style?.pressedColor ?? model.style?.backgroundColor ?? .clear
             : model.style?.backgroundColor ?? .clear
         )
+    }
+
+    private var effectivePressedState: Bool {
+        pressedStateOverride ?? isPressed
     }
     
     @ViewBuilder

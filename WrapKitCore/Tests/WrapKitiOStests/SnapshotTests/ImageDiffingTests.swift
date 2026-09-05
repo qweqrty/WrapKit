@@ -368,6 +368,15 @@ final class ImageDiffingTests: XCTestCase {
         assertParityRejects(at2x, at3x)
     }
 
+    func test_strictImage_rejectsSamePixelsWithDifferentScale() throws {
+        let image = makeImage(width: 32, height: 32)
+        let cgImage = try XCTUnwrap(image.cgImage)
+        let at2x = UIImage(cgImage: cgImage, scale: 2, orientation: .up)
+        let at3x = UIImage(cgImage: cgImage, scale: 3, orientation: .up)
+
+        XCTAssertNotNil(Diffing<UIImage>.strictImage.diff(at2x, at3x))
+    }
+
     func test_swiftUIParity_rejectsDifferentPixelDimensions() {
         let reference = makeImage(width: 32, height: 32)
         let wrongSize = makeImage(width: 33, height: 32)
@@ -381,8 +390,301 @@ final class ImageDiffingTests: XCTestCase {
     }
 }
 
+#if os(iOS)
+final class SnapshotRuntimeTests: XCTestCase {
+    func test_baselinePrefix_acceptsOnlyConfiguredCIRuntimes() {
+        XCTAssertEqual(
+            SnapshotRuntime.baselinePrefix(
+                for: OperatingSystemVersion(majorVersion: 18, minorVersion: 5, patchVersion: 0)
+            ),
+            "iOS18.5"
+        )
+        XCTAssertEqual(
+            SnapshotRuntime.baselinePrefix(
+                for: OperatingSystemVersion(majorVersion: 26, minorVersion: 2, patchVersion: 0)
+            ),
+            "iOS26"
+        )
+    }
+
+    func test_baselinePrefix_rejectsUnconfiguredRuntimes() {
+        let unsupportedVersions = [
+            OperatingSystemVersion(majorVersion: 18, minorVersion: 4, patchVersion: 0),
+            OperatingSystemVersion(majorVersion: 19, minorVersion: 0, patchVersion: 0),
+            OperatingSystemVersion(majorVersion: 26, minorVersion: 1, patchVersion: 0),
+            OperatingSystemVersion(majorVersion: 27, minorVersion: 0, patchVersion: 0)
+        ]
+
+        unsupportedVersions.forEach {
+            XCTAssertNil(SnapshotRuntime.baselinePrefix(for: $0))
+        }
+    }
+}
+#endif
+
+final class SnapshotBaselineValidatorTests: XCTestCase {
+    func test_validateBaselineData_rejectsMissingData() {
+        XCTAssertEqual(
+            SnapshotBaselineValidator.validateBaselineData(nil),
+            .missing
+        )
+    }
+
+    func test_validateBaselineData_rejectsEmptyData() {
+        XCTAssertEqual(
+            SnapshotBaselineValidator.validateBaselineData(Data()),
+            .empty
+        )
+    }
+
+    func test_validateBaselineData_rejectsJPEGStoredAtPNGPath() throws {
+        let jpegData = try XCTUnwrap(makeBaselineImage().jpegData(compressionQuality: 1))
+
+        XCTAssertEqual(
+            SnapshotBaselineValidator.validateBaselineData(jpegData),
+            .notPNG
+        )
+    }
+
+    func test_validateBaselineData_rejectsCorruptPNG() {
+        let corruptPNG = Data([137, 80, 78, 71, 13, 10, 26, 10, 0, 1, 2, 3])
+
+        XCTAssertEqual(
+            SnapshotBaselineValidator.validateBaselineData(corruptPNG),
+            .corruptPNG
+        )
+    }
+
+    func test_validateBaselineData_acceptsCompletePNG() throws {
+        let pngData = try XCTUnwrap(makeBaselineImage().pngData())
+
+        XCTAssertNil(SnapshotBaselineValidator.validateBaselineData(pngData))
+    }
+
+    func test_validateSnapshotPair_rejectsWrongPixelDimensions() {
+        let reference = makeBaselineImage(size: CGSize(width: 16, height: 12))
+        let snapshot = makeBaselineImage(size: CGSize(width: 17, height: 12))
+
+        XCTAssertEqual(
+            SnapshotBaselineValidator.validateSnapshotPair(
+                reference: reference,
+                snapshot: snapshot
+            ),
+            .incompatiblePixelDimensions(
+                expectedWidth: 48,
+                expectedHeight: 36,
+                actualWidth: 51,
+                actualHeight: 36
+            )
+        )
+    }
+
+    func test_validateSnapshotPair_rejectsWrongScaleWithSamePixels() throws {
+        let image = makeBaselineImage()
+        let cgImage = try XCTUnwrap(image.cgImage)
+        let reference = UIImage(cgImage: cgImage, scale: 3, orientation: .up)
+        let snapshot = UIImage(cgImage: cgImage, scale: 2, orientation: .up)
+
+        XCTAssertEqual(
+            SnapshotBaselineValidator.validateSnapshotPair(
+                reference: reference,
+                snapshot: snapshot
+            ),
+            .incompatibleScale(expected: 3, actual: 2)
+        )
+    }
+
+    func test_validateSnapshotPair_rejectsInvalidReferenceBitmap() {
+        XCTAssertEqual(
+            SnapshotBaselineValidator.validateSnapshotPair(
+                reference: UIImage(),
+                snapshot: makeBaselineImage()
+            ),
+            .invalidReferenceBitmap
+        )
+    }
+
+    func test_validateSnapshotPair_rejectsInvalidSnapshotBitmap() {
+        XCTAssertEqual(
+            SnapshotBaselineValidator.validateSnapshotPair(
+                reference: makeBaselineImage(),
+                snapshot: UIImage()
+            ),
+            .invalidSnapshotBitmap
+        )
+    }
+
+    func test_validateSnapshotPair_rejectsWrongOrientationWithSamePixels() throws {
+        let image = makeBaselineImage()
+        let cgImage = try XCTUnwrap(image.cgImage)
+        let reference = UIImage(cgImage: cgImage, scale: 3, orientation: .up)
+        let snapshot = UIImage(cgImage: cgImage, scale: 3, orientation: .left)
+
+        XCTAssertEqual(
+            SnapshotBaselineValidator.validateSnapshotPair(
+                reference: reference,
+                snapshot: snapshot
+            ),
+            .incompatibleOrientation(
+                expected: UIImage.Orientation.up.rawValue,
+                actual: UIImage.Orientation.left.rawValue
+            )
+        )
+    }
+
+    private func makeBaselineImage(size: CGSize = CGSize(width: 16, height: 12)) -> UIImage {
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = 3
+        format.preferredRange = .standard
+        format.opaque = true
+        return UIGraphicsImageRenderer(size: size, format: format).image { _ in
+            UIColor.systemBlue.setFill()
+            UIRectFill(CGRect(origin: .zero, size: size))
+        }
+    }
+}
+
+final class UIKitSnapshotRenderingTests: XCTestCase {
+    func test_snapshot_resolvesDynamicLayerColorsForRequestedAppearanceIndependentlyOfOrder() {
+        let size = CGSize(width: 80, height: 60)
+        let probe = SnapshotDynamicColorProbe(frame: CGRect(origin: .zero, size: size))
+        let lightConfiguration = snapshotConfiguration(size: size, style: .light)
+        let darkConfiguration = snapshotConfiguration(size: size, style: .dark)
+
+        let firstLightSnapshot = probe.snapshot(for: lightConfiguration)
+        let darkSnapshot = probe.snapshot(for: darkConfiguration)
+        let secondLightSnapshot = probe.snapshot(for: lightConfiguration)
+
+        XCTAssertNil(Diffing<UIImage>.strictImage.diff(firstLightSnapshot, secondLightSnapshot))
+        XCTAssertNotNil(Diffing<UIImage>.strictImage.diff(firstLightSnapshot, darkSnapshot))
+    }
+
+    func test_snapshot_propagatesAppearanceToNestedWindowIndependentlyOfOrder() {
+        let size = CGSize(width: 80, height: 60)
+        let window = UIWindow(frame: CGRect(origin: .zero, size: size))
+        let contentView = UIView(frame: window.bounds)
+        contentView.backgroundColor = .systemBackground
+        window.addSubview(contentView)
+        window.isHidden = false
+
+        let lightConfiguration = snapshotConfiguration(size: size, style: .light)
+        let darkConfiguration = snapshotConfiguration(size: size, style: .dark)
+
+        let firstLightSnapshot = window.snapshot(for: lightConfiguration)
+        let darkSnapshot = window.snapshot(for: darkConfiguration)
+        let secondLightSnapshot = window.snapshot(for: lightConfiguration)
+
+        XCTAssertNil(Diffing<UIImage>.strictImage.diff(firstLightSnapshot, secondLightSnapshot))
+        XCTAssertNotNil(Diffing<UIImage>.strictImage.diff(firstLightSnapshot, darkSnapshot))
+    }
+
+    func test_snapshot_laysOutHierarchyBeforeRemovingLayerAnimations() {
+        let size = CGSize(width: 80, height: 60)
+        let probe = SnapshotLayoutProbe(frame: CGRect(origin: .zero, size: size))
+        probe.setNeedsLayout()
+        let defaultConfiguration = SnapshotConfiguration.iPhone(style: .light)
+        let configuration = SnapshotConfiguration(
+            size: size,
+            safeAreaInsets: .zero,
+            layoutMargins: .zero,
+            traitCollection: defaultConfiguration.traitCollection
+        )
+
+        let snapshot = probe.snapshot(for: configuration)
+
+        XCTAssertGreaterThan(probe.layoutPassCount, 0)
+        XCTAssertEqual(probe.contentView.frame, CGRect(x: 10, y: 12, width: 24, height: 18))
+        XCTAssertNil(probe.layer.animationKeys())
+        XCTAssertNil(probe.contentView.layer.animationKeys())
+        XCTAssertEqual(snapshot.cgImage?.width, 240)
+        XCTAssertEqual(snapshot.cgImage?.height, 180)
+    }
+
+    private func snapshotConfiguration(
+        size: CGSize,
+        style: UIUserInterfaceStyle
+    ) -> SnapshotConfiguration {
+        let defaultConfiguration = SnapshotConfiguration.iPhone(style: style)
+        return SnapshotConfiguration(
+            size: size,
+            safeAreaInsets: .zero,
+            layoutMargins: .zero,
+            traitCollection: defaultConfiguration.traitCollection
+        )
+    }
+}
+
+private final class SnapshotDynamicColorProbe: UIView {
+    private let gradientLayer = CAGradientLayer()
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        layer.addSublayer(gradientLayer)
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        gradientLayer.frame = bounds
+        gradientLayer.colors = [
+            UIColor.systemPurple.resolvedColor(with: traitCollection).cgColor,
+            UIColor.systemRed.resolvedColor(with: traitCollection).cgColor
+        ]
+    }
+}
+
+private final class SnapshotLayoutProbe: UIView {
+    let contentView = UIView()
+    private(set) var layoutPassCount = 0
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        addSubview(contentView)
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        layoutPassCount += 1
+        contentView.frame = CGRect(x: 10, y: 12, width: 24, height: 18)
+        addLongRunningAnimation(to: layer, key: "root-layout-animation")
+        addLongRunningAnimation(to: contentView.layer, key: "child-layout-animation")
+    }
+
+    private func addLongRunningAnimation(to layer: CALayer, key: String) {
+        let animation = CABasicAnimation(keyPath: "opacity")
+        animation.fromValue = 0
+        animation.toValue = 1
+        animation.duration = 100
+        layer.add(animation, forKey: key)
+    }
+}
+
 @available(iOS 17.0, *)
 final class SwiftUISnapshotSizingTests: XCTestCase {
+    func test_snapshotEnvironment_usesConfiguredDisplayScale() {
+        let configuration = SUISnapshotConfiguration(
+            size: CGSize(width: 123, height: 77),
+            safeAreaInsets: EdgeInsets(),
+            layoutMargins: EdgeInsets(),
+            colorScheme: .light,
+            scale: 2
+        )
+        let actual = SnapshotDisplayScaleProbe(expectedScale: configuration.scale)
+            .snapshot(for: configuration)
+        let expected = Color.green.snapshot(for: configuration)
+
+        XCTAssertNil(Diffing<UIImage>.strictImage.diff(expected, actual))
+    }
+
     func test_swiftUISnapshot_usesRequestedImageRendererSize() {
         let configuration = makeSwiftUISnapshotConfiguration(size: CGSize(width: 123, height: 77))
 
@@ -390,8 +692,8 @@ final class SwiftUISnapshotSizingTests: XCTestCase {
 
         XCTAssertEqual(snapshot.size.width, 123, accuracy: 0.001)
         XCTAssertEqual(snapshot.size.height, 77, accuracy: 0.001)
-        XCTAssertEqual(snapshot.cgImage?.width, Int(123 * UIScreen.main.scale))
-        XCTAssertEqual(snapshot.cgImage?.height, Int(77 * UIScreen.main.scale))
+        XCTAssertEqual(snapshot.cgImage?.width, Int(123 * configuration.scale))
+        XCTAssertEqual(snapshot.cgImage?.height, Int(77 * configuration.scale))
     }
 
     func test_swiftUISnapshot_usesRequestedUIKitHostSize() {
@@ -401,8 +703,23 @@ final class SwiftUISnapshotSizingTests: XCTestCase {
 
         XCTAssertEqual(snapshot.size.width, 123, accuracy: 0.001)
         XCTAssertEqual(snapshot.size.height, 77, accuracy: 0.001)
-        XCTAssertEqual(snapshot.cgImage?.width, Int(123 * UIScreen.main.scale))
-        XCTAssertEqual(snapshot.cgImage?.height, Int(77 * UIScreen.main.scale))
+        XCTAssertEqual(snapshot.cgImage?.width, Int(123 * configuration.scale))
+        XCTAssertEqual(snapshot.cgImage?.height, Int(77 * configuration.scale))
+    }
+}
+
+@available(iOS 17.0, *)
+private struct SnapshotDisplayScaleProbe: View {
+    @Environment(\.displayScale) private var displayScale
+
+    let expectedScale: CGFloat
+
+    var body: some View {
+        if displayScale == expectedScale {
+            Color.green
+        } else {
+            Color.red
+        }
     }
 }
 
@@ -793,7 +1110,7 @@ private extension XCTestCase {
 
     func makeUIKitEllipseImage(size: CGSize) -> UIImage {
         let format = UIGraphicsImageRendererFormat()
-        format.scale = UIScreen.main.scale
+        format.scale = SnapshotRenderDefaults.scale
         format.opaque = false
         format.preferredRange = .standard
         return UIGraphicsImageRenderer(size: size, format: format).image { context in

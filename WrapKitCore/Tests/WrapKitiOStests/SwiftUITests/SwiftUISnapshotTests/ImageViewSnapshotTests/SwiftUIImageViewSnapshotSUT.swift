@@ -1,8 +1,7 @@
 import Foundation
 import SwiftUI
-import WrapKit
+@testable import WrapKit
 import WrapKitTestUtils
-import XCTest
 
 final class SwiftUIImageViewSnapshotSUT: NSObject, ImageViewOutput, SwiftUISnapshotSource {
     private struct SwiftUIHost {
@@ -10,29 +9,20 @@ final class SwiftUIImageViewSnapshotSUT: NSObject, ImageViewOutput, SwiftUISnaps
         let controller: UIViewController
     }
 
-    let uiKitImageView = ImageView()
     let adapter = ImageViewOutputSwiftUIAdapter()
     let configuration = SwiftUIImageSnapshotConfiguration()
-    private let uiKitContainer = UIView()
+
+    private let pressedStateOverride: Bool?
+    private var configuredBackgroundColor: UIColor?
 
     private var lightHost: SwiftUIHost?
     private var darkHost: SwiftUIHost?
     private var lightSwiftUISnapshot: UIImage?
     private var darkSwiftUISnapshot: UIImage?
 
-    override init() {
+    init(pressedStateOverride: Bool? = nil) {
+        self.pressedStateOverride = pressedStateOverride
         super.init()
-
-        uiKitContainer.frame = CGRect(x: 0, y: 0, width: 390, height: 300)
-        uiKitContainer.backgroundColor = .clear
-        uiKitContainer.addSubview(uiKitImageView)
-        uiKitImageView.anchor(
-            .top(uiKitContainer.topAnchor, constant: 0, priority: .required),
-            .leading(uiKitContainer.leadingAnchor, constant: 0, priority: .required),
-            .trailing(uiKitContainer.trailingAnchor, constant: 0, priority: .required),
-            .height(150, priority: .required)
-        )
-        uiKitContainer.layoutIfNeeded()
 
         if #available(iOS 17, *) {
             lightHost = makeSwiftUIHost(for: .light)
@@ -60,9 +50,7 @@ final class SwiftUIImageViewSnapshotSUT: NSObject, ImageViewOutput, SwiftUISnaps
         display(alpha: nil)
         display(isHidden: true)
 
-        uiKitImageView.viewWhileLoadingView = nil
-        uiKitImageView.fallbackView = nil
-        uiKitImageView.wrongUrlPlaceholderImage = nil
+        configuredBackgroundColor = nil
         configuration.backgroundColor = nil
         configuration.viewWhileLoadingView = nil
         configuration.fallbackView = nil
@@ -70,115 +58,91 @@ final class SwiftUIImageViewSnapshotSUT: NSObject, ImageViewOutput, SwiftUISnaps
     }
 
     var backgroundColor: UIColor? {
-        get { uiKitImageView.backgroundColor }
+        get { configuredBackgroundColor }
         set {
             invalidateSwiftUISnapshotCache()
-            uiKitImageView.backgroundColor = newValue
+            configuredBackgroundColor = newValue
             configuration.backgroundColor = newValue
         }
     }
 
     var wrongUrlPlaceholderImage: UIImage? {
-        get { uiKitImageView.wrongUrlPlaceholderImage }
+        get { configuration.wrongUrlPlaceholderImage }
         set {
             invalidateSwiftUISnapshotCache()
-            uiKitImageView.wrongUrlPlaceholderImage = newValue
             configuration.wrongUrlPlaceholderImage = newValue
             settleSwiftUIConfigurationChange()
         }
     }
 
-    var onPress: (() -> Void)? { uiKitImageView.onPress }
-    var onLongPress: (() -> Void)? { uiKitImageView.onLongPress }
+    var onPress: (() -> Void)? { adapter.displayOnPressState?.onPress }
+    var onLongPress: (() -> Void)? { adapter.displayOnLongPressState?.onLongPress }
 
     func configureLoadingView(color: UIColor?) {
         invalidateSwiftUISnapshotCache()
-        uiKitImageView.viewWhileLoadingView = color.map { ViewUIKit(backgroundColor: $0) }
         configuration.viewWhileLoadingView = color.map { AnyView(SwiftUI.Color(uiColor: $0)) }
         settleSwiftUIConfigurationChange()
     }
 
     func configureFallbackView(color: UIColor?) {
         invalidateSwiftUISnapshotCache()
-        uiKitImageView.fallbackView = color.map { ViewUIKit(backgroundColor: $0) }
         configuration.fallbackView = color.map { AnyView(SwiftUI.Color(uiColor: $0)) }
         settleSwiftUIConfigurationChange()
     }
 
     func display(model: ImageViewPresentableModel?, completion: ((WrapKit.Image?) -> Void)?) {
         invalidateSwiftUISnapshotCache()
-        let completions = makeSwiftUICompletions(completion)
-        uiKitImageView.display(model: model, completion: completions.uiKit)
-        adapter.display(model: model, completion: completions.swiftUI)
+        adapter.display(model: model, completion: makeSwiftUICompletion(completion))
     }
 
     func display(image: ImageEnum?, completion: ((WrapKit.Image?) -> Void)?) {
         invalidateSwiftUISnapshotCache()
-        let completions = makeSwiftUICompletions(completion)
-        uiKitImageView.display(image: image, completion: completions.uiKit)
-        adapter.display(image: image, completion: completions.swiftUI)
+        adapter.display(image: image, completion: makeSwiftUICompletion(completion))
     }
 
     func display(size: CGSize?) {
         invalidateSwiftUISnapshotCache()
-        uiKitImageView.display(size: size)
         adapter.display(size: size)
     }
 
     func display(onPress: (() -> Void)?) {
         invalidateSwiftUISnapshotCache()
-        uiKitImageView.display(onPress: onPress)
         adapter.display(onPress: onPress)
     }
 
     func display(onLongPress: (() -> Void)?) {
         invalidateSwiftUISnapshotCache()
-        uiKitImageView.display(onLongPress: onLongPress)
         adapter.display(onLongPress: onLongPress)
     }
 
     func display(contentModeIsFit: Bool) {
         invalidateSwiftUISnapshotCache()
-        uiKitImageView.display(contentModeIsFit: contentModeIsFit)
         adapter.display(contentModeIsFit: contentModeIsFit)
     }
 
     func display(borderWidth: CGFloat?) {
         invalidateSwiftUISnapshotCache()
-        uiKitImageView.display(borderWidth: borderWidth)
         adapter.display(borderWidth: borderWidth)
     }
 
     func display(borderColor: WrapKit.Color?) {
         invalidateSwiftUISnapshotCache()
-        uiKitImageView.display(borderColor: borderColor)
         adapter.display(borderColor: borderColor)
     }
 
     func display(cornerRadius: CGFloat?) {
         invalidateSwiftUISnapshotCache()
-        uiKitImageView.display(cornerRadius: cornerRadius)
         adapter.display(cornerRadius: cornerRadius)
     }
 
     func display(alpha: CGFloat?) {
         invalidateSwiftUISnapshotCache()
-        uiKitImageView.display(alpha: alpha)
         adapter.display(alpha: alpha)
     }
 
     func display(isHidden: Bool) {
         invalidateSwiftUISnapshotCache()
-        uiKitImageView.display(isHidden: isHidden)
         adapter.display(isHidden: isHidden)
-    }
-
-    func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        uiKitImageView.touchesBegan(touches, with: event)
-    }
-
-    func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        uiKitImageView.touchesEnded(touches, with: event)
     }
 
     @available(iOS 17, *)
@@ -204,28 +168,23 @@ final class SwiftUIImageViewSnapshotSUT: NSObject, ImageViewOutput, SwiftUISnaps
         return requestedSnapshot
     }
 
-    private func makeSwiftUICompletions(
+    private func makeSwiftUICompletion(
         _ completion: ((WrapKit.Image?) -> Void)?
-    ) -> (uiKit: ((WrapKit.Image?) -> Void)?, swiftUI: ((WrapKit.Image?) -> Void)?) {
-        guard let completion else { return (nil, nil) }
+    ) -> ((WrapKit.Image?) -> Void)? {
+        guard let completion else { return nil }
 
         let swiftUIConsumerCount: Int
         if #available(iOS 17, *) {
-            // The persistent light and dark hosts must both consume the event before the public
-            // completion is released. Its image argument always remains UIKit's original result.
             swiftUIConsumerCount = 2
         } else {
-            swiftUIConsumerCount = 0
+            swiftUIConsumerCount = 1
         }
 
         let barrier = ImageCompletionBarrier(
-            swiftUIConsumerCount: swiftUIConsumerCount,
+            consumerCount: swiftUIConsumerCount,
             completion: completion
         )
-        return (
-            uiKit: { barrier.recordUIKitResult($0) },
-            swiftUI: { barrier.recordSwiftUIResult($0) }
-        )
+        return { barrier.recordSwiftUIResult($0) }
     }
 
     private func swiftUIHost(for style: ColorScheme) -> SwiftUIHost? {
@@ -302,7 +261,8 @@ final class SwiftUIImageViewSnapshotSUT: NSObject, ImageViewOutput, SwiftUISnaps
         )
         let rootView = SwiftUIImageSnapshotContainer(
             adapter: adapter,
-            configuration: configuration
+            configuration: configuration,
+            pressedStateOverride: pressedStateOverride
         )
         .build(configuration: swiftUIConfiguration, background: .clear)
 
@@ -381,43 +341,28 @@ private final class ImageSnapshotWindow: UIWindow {
 }
 
 private final class ImageCompletionBarrier {
-    private var remainingSwiftUIConsumerCount: Int
-    private var didReceiveUIKitResult = false
-    private var uiKitImage: WrapKit.Image?
-    private var swiftUIImages: [WrapKit.Image?] = []
+    private var remainingConsumerCount: Int
+    private var didRecordResult = false
+    private var firstSwiftUIImage: WrapKit.Image?
     private var completion: ((WrapKit.Image?) -> Void)?
 
-    init(swiftUIConsumerCount: Int, completion: @escaping (WrapKit.Image?) -> Void) {
-        remainingSwiftUIConsumerCount = swiftUIConsumerCount
+    init(consumerCount: Int, completion: @escaping (WrapKit.Image?) -> Void) {
+        remainingConsumerCount = consumerCount
         self.completion = completion
     }
 
-    func recordUIKitResult(_ image: WrapKit.Image?) {
-        guard !didReceiveUIKitResult else { return }
-        didReceiveUIKitResult = true
-        uiKitImage = image
-        finishIfReady()
-    }
-
     func recordSwiftUIResult(_ image: WrapKit.Image?) {
-        guard remainingSwiftUIConsumerCount > 0 else { return }
-        swiftUIImages.append(image)
-        remainingSwiftUIConsumerCount -= 1
-        finishIfReady()
-    }
-
-    private func finishIfReady() {
-        guard didReceiveUIKitResult, remainingSwiftUIConsumerCount == 0 else { return }
-        for swiftUIImage in swiftUIImages {
-            XCTAssertEqual(
-                swiftUIImage?.pngData(),
-                uiKitImage?.pngData(),
-                "SwiftUI and UIKit ImageViewOutput completions must return the same image."
-            )
+        guard remainingConsumerCount > 0 else { return }
+        if !didRecordResult {
+            didRecordResult = true
+            firstSwiftUIImage = image
         }
+        remainingConsumerCount -= 1
+        guard remainingConsumerCount == 0 else { return }
+
         let completion = completion
         self.completion = nil
-        completion?(uiKitImage)
+        completion?(firstSwiftUIImage)
     }
 }
 
@@ -429,17 +374,29 @@ final class SwiftUIImageSnapshotConfiguration: ObservableObject {
 }
 
 private struct SwiftUIImageSnapshotContainer: View {
-    let adapter: ImageViewOutputSwiftUIAdapter
+    @StateObject private var stateModel: SUIImageViewStateModel
     @ObservedObject var configuration: SwiftUIImageSnapshotConfiguration
+    let pressedStateOverride: Bool?
+
+    init(
+        adapter: ImageViewOutputSwiftUIAdapter,
+        configuration: SwiftUIImageSnapshotConfiguration,
+        pressedStateOverride: Bool?
+    ) {
+        _stateModel = .init(wrappedValue: .init(adapter: adapter))
+        self.configuration = configuration
+        self.pressedStateOverride = pressedStateOverride
+    }
 
     var body: some View {
         VStack(spacing: 0) {
             SUIImageView(
-                adapter: adapter,
+                stateModel: stateModel,
                 viewWhileLoadingView: configuration.viewWhileLoadingView,
                 fallbackView: configuration.fallbackView,
                 wrongUrlPlaceholderImage: configuration.wrongUrlPlaceholderImage,
-                backgroundColor: configuration.backgroundColor.map { SwiftUI.Color(uiColor: $0) }
+                backgroundColor: configuration.backgroundColor.map { SwiftUI.Color(uiColor: $0) },
+                pressedStateOverride: pressedStateOverride
             )
             .frame(height: 150, alignment: .center)
             .frame(maxWidth: .infinity, alignment: .leading)

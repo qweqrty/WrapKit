@@ -7,6 +7,75 @@ import XCTest
 @MainActor
 @available(iOS 17.0, *)
 final class SUIImageViewParityTests: XCTestCase {
+    func test_fullModelThenNil_hidesClearsContentAndRetainsLayoutLikeUIKit() {
+        let adapter = ImageViewOutputSwiftUIAdapter()
+        let output: ImageViewOutput = adapter
+        var events: [String] = []
+        let size = CGSize(width: 32, height: 24)
+        let borderColor = UIColor.systemRed.resolvedColor(with: UITraitCollection.current)
+        output.display(model: .init(
+            accessibilityIdentifier: "status.image",
+            accessibility: .init(label: "Status", hint: "Opens details"),
+            size: size,
+            image: .symbolName("checkmark.circle.fill"),
+            onPress: { events.append("press") },
+            onLongPress: { events.append("longPress") },
+            contentModeIsFit: false,
+            borderWidth: 2,
+            borderColor: borderColor,
+            cornerRadius: 6,
+            alpha: 0.4
+        ))
+        let stateModel = SUIImageViewStateModel(adapter: adapter)
+
+        XCTAssertFalse(stateModel.isHidden)
+        XCTAssertEqual(stateModel.model.accessibilityIdentifier, "status.image")
+        XCTAssertEqual(stateModel.model.accessibility?.label, "Status")
+        XCTAssertEqual(stateModel.model.accessibility?.hint, "Opens details")
+        XCTAssertEqual(stateModel.model.size, size)
+        XCTAssertEqual(stateModel.model.image, .symbolName("checkmark.circle.fill"))
+        XCTAssertEqual(stateModel.model.contentModeIsFit, false)
+        XCTAssertEqual(stateModel.model.borderWidth, 2)
+        XCTAssertTrue(stateModel.model.borderColor?.isEqual(borderColor) == true)
+        XCTAssertEqual(stateModel.model.cornerRadius, 6)
+        XCTAssertEqual(stateModel.model.alpha, 0.4)
+        stateModel.model.onPress?()
+        stateModel.model.onLongPress?()
+
+        output.display(model: nil)
+
+        XCTAssertTrue(stateModel.isHidden)
+        XCTAssertNil(stateModel.model.accessibilityIdentifier)
+        XCTAssertNil(stateModel.model.accessibility)
+        XCTAssertNil(stateModel.model.image)
+        XCTAssertNil(stateModel.model.onPress)
+        XCTAssertNil(stateModel.model.onLongPress)
+        XCTAssertEqual(stateModel.model.size, size)
+        XCTAssertEqual(stateModel.model.contentModeIsFit, false)
+        XCTAssertEqual(stateModel.model.borderWidth, 2)
+        XCTAssertTrue(stateModel.model.borderColor?.isEqual(borderColor) == true)
+        XCTAssertEqual(stateModel.model.cornerRadius, 6)
+        XCTAssertEqual(stateModel.model.alpha, 0.4)
+        XCTAssertEqual(events, ["press", "longPress"])
+    }
+
+    func test_onPressOutputReplaysReplacementAndClearsAction() {
+        let adapter = ImageViewOutputSwiftUIAdapter()
+        let stateModel = SUIImageViewStateModel(adapter: adapter)
+        var events: [String] = []
+
+        adapter.display(onPress: { events.append("initial") })
+        stateModel.model.onPress?()
+
+        adapter.display(onPress: { events.append("replacement") })
+        stateModel.model.onPress?()
+
+        adapter.display(onPress: nil)
+
+        XCTAssertNil(stateModel.model.onPress)
+        XCTAssertEqual(events, ["initial", "replacement"])
+    }
+
     func test_symbolNameIsTheSingleImageSourceAcrossModelUpdates() {
         let model = ImageViewPresentableModel(
             size: .init(width: 24, height: 24),

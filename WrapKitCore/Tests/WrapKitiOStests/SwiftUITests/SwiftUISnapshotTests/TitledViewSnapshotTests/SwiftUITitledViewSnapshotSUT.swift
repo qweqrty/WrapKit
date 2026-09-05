@@ -11,53 +11,39 @@ import UIKit
 import SwiftUI
 
 final class SwiftUITitledViewSnapshotSUT: TitledOutput, SwiftUISnapshotSource {
-    let uiKitView: TitledView<UIView>
-
-    private let uiKitContainer: UIView
     private let swiftUIAdapter: TitledOutputSwiftUIAdapter
 
     init(
-        uiKitContainer: UIView,
-        uiKitView: TitledView<UIView> = TitledView(),
         swiftUIAdapter: TitledOutputSwiftUIAdapter = TitledOutputSwiftUIAdapter()
     ) {
-        self.uiKitContainer = uiKitContainer
-        self.uiKitView = uiKitView
         self.swiftUIAdapter = swiftUIAdapter
     }
 
     func display(model: TitledViewPresentableModel?) {
-        uiKitView.display(model: model)
         swiftUIAdapter.display(model: model)
     }
 
     func display(titles: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>) {
-        uiKitView.display(titles: titles)
         swiftUIAdapter.display(titles: titles)
     }
 
     func display(bottomTitles: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>) {
-        uiKitView.display(bottomTitles: bottomTitles)
         swiftUIAdapter.display(bottomTitles: bottomTitles)
     }
 
     func display(leadingBottomTitle: TextOutputPresentableModel?) {
-        uiKitView.display(leadingBottomTitle: leadingBottomTitle)
         swiftUIAdapter.display(leadingBottomTitle: leadingBottomTitle)
     }
 
     func display(trailingBottomTitle: TextOutputPresentableModel?) {
-        uiKitView.display(trailingBottomTitle: trailingBottomTitle)
         swiftUIAdapter.display(trailingBottomTitle: trailingBottomTitle)
     }
 
     func display(isUserInteractionEnabled: Bool) {
-        uiKitView.display(isUserInteractionEnabled: isUserInteractionEnabled)
         swiftUIAdapter.display(isUserInteractionEnabled: isUserInteractionEnabled)
     }
 
     func display(isHidden: Bool) {
-        uiKitView.display(isHidden: isHidden)
         swiftUIAdapter.display(isHidden: isHidden)
     }
 
@@ -66,7 +52,7 @@ final class SwiftUITitledViewSnapshotSUT: TitledOutput, SwiftUISnapshotSource {
         let rootView = SnapshotMirroredTitledViewContainer(
             content: AnyView(SUITitledView(adapter: swiftUIAdapter))
         )
-        .environment(\.colorScheme, appearance.colorScheme)
+        .snapshotEnvironment(configuration: .iPhone(style: appearance.colorScheme))
         .ignoresSafeArea(.all)
 
         let hostingController = UIHostingController(rootView: rootView)

@@ -45,6 +45,22 @@ final class SUICardViewLayoutTests: XCTestCase {
         XCTAssertEqual(maxX(of: resolution), 296)
     }
 
+    func test_fillLayout_expandsTitleBeforeAuxiliaryTrailingTitles() {
+        let resolution = CardFillHorizontalResolver.resolve(
+            idealWidths: [80, 50],
+            items: [
+                .init(role: .flexibleText, leadingSpacing: nil),
+                .init(role: .auxiliaryText, leadingSpacing: nil)
+            ],
+            availableWidth: 300,
+            defaultSpacing: 10
+        )
+
+        XCTAssertEqual(resolution.widths, [240, 50])
+        XCTAssertEqual(resolution.origins, [0, 250])
+        XCTAssertEqual(maxX(of: resolution), 300)
+    }
+
     func test_bottomImageModel_updatesUIKitAndSwiftUIAndCanBeClearedIndependently() {
         let imageModel = ImageViewPresentableModel.systemSymbol(
             "ellipsis.rectangle.fill",
@@ -570,6 +586,85 @@ final class SUICardViewLayoutTests: XCTestCase {
 
         XCTAssertGreaterThan(size.height, 30)
         XCTAssertLessThan(size.height, 50)
+    }
+
+    func test_attributedLabel_usesWrappedIntrinsicHeightAtProposedWidth() {
+        guard #available(iOS 16.0, tvOS 16.0, watchOS 9.0, *) else { return }
+
+        let label = SUILabelView(
+            model: .attributes([.init(
+                text: "A long attributed title must wrap instead of collapsing to the GeometryReader fallback size",
+                font: .systemFont(ofSize: 16)
+            )])
+        )
+        .fixedSize(horizontal: false, vertical: true)
+        let host = UIHostingController(rootView: label)
+        host.loadViewIfNeeded()
+
+        let size = host.sizeThatFits(in: CGSize(width: 180, height: 1_000))
+
+        XCTAssertGreaterThan(size.height, 40)
+        XCTAssertLessThan(size.height, 150)
+    }
+
+    func test_attributedLabel_intrinsicHeightIncludesAttachmentBounds() throws {
+        guard #available(iOS 16.0, tvOS 16.0, watchOS 9.0, *) else { return }
+
+        let image = try XCTUnwrap(UIImage(systemName: "star.fill"))
+        let attachmentBounds = CGRect(x: 0, y: 0, width: 40, height: 30)
+        let label = SUILabelView(
+            model: .attributes([.init(
+                text: "abc",
+                font: .systemFont(ofSize: 16),
+                leadingImage: image,
+                leadingImageBounds: attachmentBounds
+            )])
+        )
+        .fixedSize(horizontal: false, vertical: true)
+        let host = UIHostingController(rootView: label)
+        host.loadViewIfNeeded()
+
+        let size = host.sizeThatFits(in: CGSize(width: 180, height: 1_000))
+
+        XCTAssertGreaterThanOrEqual(size.height, attachmentBounds.height)
+        XCTAssertLessThan(size.height, 50)
+    }
+
+    @available(iOS 17.0, *)
+    func test_swiftUICard_exposesBackgroundImageAsAccessibleChildWithActions() throws {
+        let adapter = CardViewOutputSwiftUIAdapter()
+        var pressCount = 0
+        var longPressCount = 0
+        adapter.display(model: .init(
+            accessibilityIdentifier: "card",
+            accessibility: .init(label: "Card"),
+            backgroundImage: .systemSymbol(
+                "star.fill",
+                accessibilityIdentifier: "card.background",
+                accessibility: .init(label: "Background", hint: "Card artwork"),
+                onPress: { pressCount += 1 },
+                onLongPress: { longPressCount += 1 }
+            )
+        ))
+        let host = SwiftUIAccessibilityTestHost(
+            rootView: SUICardView(adapter: adapter),
+            size: CGSize(width: 200, height: 100)
+        )
+        host.settle()
+
+        let background = try XCTUnwrap(host.element(withLabel: "Background"))
+        XCTAssertTrue(background.isAccessibilityElement)
+        XCTAssertEqual(background.accessibilityLabel, "Background")
+        XCTAssertEqual(background.accessibilityHint, "Card artwork")
+
+        XCTAssertTrue(background.accessibilityActivate())
+        XCTAssertEqual(pressCount, 1)
+
+        let longPress = try XCTUnwrap(
+            background.accessibilityCustomActions?.first { $0.name == "Long press" }
+        )
+        XCTAssertTrue(host.perform(longPress))
+        XCTAssertEqual(longPressCount, 1)
     }
 
     private func maxX(of resolution: CardFillHorizontalResolution) -> CGFloat {

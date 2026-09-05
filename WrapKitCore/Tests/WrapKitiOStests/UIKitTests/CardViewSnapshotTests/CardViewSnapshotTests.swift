@@ -10,9 +10,19 @@ import WrapKitTestUtils
 import XCTest
 
 final class CardViewSnapshotTests: XCTestCase {
+    func test_CardView_style_appliesIndependentLeadingAndTrailingTitleFonts() {
+        let leadingFont = UIFont.systemFont(ofSize: 11, weight: .regular)
+        let trailingFont = UIFont.systemFont(ofSize: 23, weight: .bold)
+        let cardView = CardView()
 
-    private let image = Image(systemName: "star.fill")
-    private let secondImage = Image(systemName: "star")
+        cardView.display(style: makeDefaultStyle(
+            leadingTitleKeyLabelFont: leadingFont,
+            trailingTitleKeyLabelFont: trailingFont
+        ))
+
+        XCTAssertEqual(cardView.leadingTitleViews.keyLabel.font, leadingFont)
+        XCTAssertEqual(cardView.trailingTitleViews.keyLabel.font, trailingFont)
+    }
 
     func test_CardView_default_state() {
         let snapshotName = "CARDVIEW_DEFAULT_STATE"
@@ -120,6 +130,22 @@ final class CardViewSnapshotTests: XCTestCase {
         }
     }
 
+    func test_fail_CardView_with_wrappedTitle_shouldRespectLayoutMargins() {
+        let snapshotName = "CARDVIEW_WITH_WRAPPED_TITLE_MARGINS"
+
+        // GIVEN
+        let container = makeWrappedTitleMarginsContainer(horizontalMargin: 18)
+
+        // THEN
+        if #available(iOS 26, *) {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
+    }
+
     func test_CardView_with_backgroundImage() {
         let snapshotName = "CARDVIEW_WITH_BACKGROUNDIMAGE"
 
@@ -128,7 +154,7 @@ final class CardViewSnapshotTests: XCTestCase {
 
         // WHEN
         sut.display(style: makeDefaultStyle())
-        sut.display(backgroundImage: .init(image: .asset(image)))
+        sut.display(backgroundImage: .systemSymbol("star.fill"))
 
         // THEN
         if #available(iOS 26, *) {
@@ -148,7 +174,7 @@ final class CardViewSnapshotTests: XCTestCase {
 
         // WHEN
         sut.display(style: makeDefaultStyle())
-        sut.display(backgroundImage: .init(image: .asset(secondImage)))
+        sut.display(backgroundImage: .systemSymbol("star"))
 
         // THEN
         if #available(iOS 26, *) {
@@ -168,7 +194,7 @@ final class CardViewSnapshotTests: XCTestCase {
 
         // WHEN
         sut.display(style: makeDefaultStyle())
-        sut.display(backgroundImage: .init(image: .asset(image), contentModeIsFit: false))
+        sut.display(backgroundImage: .systemSymbol("star.fill", contentModeIsFit: false))
 
         // THEN
         if #available(iOS 26, *) {
@@ -188,7 +214,7 @@ final class CardViewSnapshotTests: XCTestCase {
 
         // WHEN
         sut.display(style: makeDefaultStyle())
-        sut.display(backgroundImage: .init(image: .asset(image), contentModeIsFit: true))
+        sut.display(backgroundImage: .systemSymbol("star.fill", contentModeIsFit: true))
 
         // THEN
         if #available(iOS 26, *) {
@@ -207,10 +233,12 @@ final class CardViewSnapshotTests: XCTestCase {
         let (sut, container) = makeSUT()
 
         // WHEN
-        sut.display(backgroundImage: .init(size: .init(width: 24, height: 24),
-                                           image: .asset(image),
-                                           borderWidth: 4,
-                                           borderColor: .black))
+        sut.display(backgroundImage: .systemSymbol(
+            "star.fill",
+            size: .init(width: 24, height: 24),
+            borderWidth: 4,
+            borderColor: .black
+        ))
 
         // THEN
         if #available(iOS 26, *) {
@@ -229,10 +257,12 @@ final class CardViewSnapshotTests: XCTestCase {
         let (sut, container) = makeSUT()
 
         // WHEN
-        sut.display(backgroundImage: .init(size: .init(width: 24, height: 24),
-                                           image: .asset(image),
-                                           borderWidth: 3,
-                                           borderColor: .black))
+        sut.display(backgroundImage: .systemSymbol(
+            "star.fill",
+            size: .init(width: 24, height: 24),
+            borderWidth: 3,
+            borderColor: .black
+        ))
 
         // THEN
         if #available(iOS 26, *) {
@@ -251,13 +281,13 @@ final class CardViewSnapshotTests: XCTestCase {
         let (sut, container) = makeSUT()
 
         // WHEN
-        let image = Image(systemName: "star.fill")
-        sut.display(backgroundImage: .init(size: .init(width: 24, height: 24),
-                                           image: .asset(image),
-                                           borderWidth: 4,
-                                           borderColor: .black,
-                                           cornerRadius: 20,
-                                          ))
+        sut.display(backgroundImage: .systemSymbol(
+            "star.fill",
+            size: .init(width: 24, height: 24),
+            borderWidth: 4,
+            borderColor: .black,
+            cornerRadius: 20
+        ))
 
         // THEN
         if #available(iOS 26, *) {
@@ -276,13 +306,13 @@ final class CardViewSnapshotTests: XCTestCase {
         let (sut, container) = makeSUT()
 
         // WHEN
-        let image = Image(systemName: "star.fill")
-        sut.display(backgroundImage: .init(size: .init(width: 24, height: 24),
-                                           image: .asset(image),
-                                           borderWidth: 4,
-                                           borderColor: .black,
-                                           cornerRadius: 21,
-                                          ))
+        sut.display(backgroundImage: .systemSymbol(
+            "star.fill",
+            size: .init(width: 24, height: 24),
+            borderWidth: 4,
+            borderColor: .black,
+            cornerRadius: 21
+        ))
 
         // THEN
         if #available(iOS 26, *) {
@@ -301,13 +331,14 @@ final class CardViewSnapshotTests: XCTestCase {
         let (sut, container) = makeSUT()
 
         // WHEN
-        sut.display(backgroundImage: .init(size: .init(width: 24, height: 24),
-                                           image: .asset(image),
-                                           borderWidth: 4,
-                                           borderColor: .black,
-                                           cornerRadius: 20,
-                                           alpha: 0.3
-                                          ))
+        sut.display(backgroundImage: .systemSymbol(
+            "star.fill",
+            size: .init(width: 24, height: 24),
+            borderWidth: 4,
+            borderColor: .black,
+            cornerRadius: 20,
+            alpha: 0.3
+        ))
 
         // THEN
         if #available(iOS 26, *) {
@@ -326,13 +357,14 @@ final class CardViewSnapshotTests: XCTestCase {
         let (sut, container) = makeSUT()
 
         // WHEN
-        sut.display(backgroundImage: .init(size: .init(width: 24, height: 24),
-                                           image: .asset(image),
-                                           borderWidth: 4,
-                                           borderColor: .black,
-                                           cornerRadius: 20,
-                                           alpha: 0.4
-                                          ))
+        sut.display(backgroundImage: .systemSymbol(
+            "star.fill",
+            size: .init(width: 24, height: 24),
+            borderWidth: 4,
+            borderColor: .black,
+            cornerRadius: 20,
+            alpha: 0.4
+        ))
 
         // THEN
         if #available(iOS 26, *) {
@@ -436,7 +468,7 @@ final class CardViewSnapshotTests: XCTestCase {
 
         // WHEN
         sut.display(style: makeDefaultStyle())
-        sut.display(leadingImage: .init(image: .asset(image)))
+        sut.display(leadingImage: .systemSymbol("star.fill"))
 
         // THEN
         if #available(iOS 26, *) {
@@ -456,7 +488,7 @@ final class CardViewSnapshotTests: XCTestCase {
 
         // WHEN
         sut.display(style: makeDefaultStyle())
-        sut.display(leadingImage: .init(image: .asset(secondImage)))
+        sut.display(leadingImage: .systemSymbol("star"))
 
         // THEN
         if #available(iOS 26, *) {
@@ -476,7 +508,7 @@ final class CardViewSnapshotTests: XCTestCase {
 
         // WHEN
         sut.display(style: makeDefaultStyle())
-        sut.display(trailingImage: .init(image: .asset(image)))
+        sut.display(trailingImage: .systemSymbol("star.fill"))
 
         // THEN
         if #available(iOS 26, *) {
@@ -496,7 +528,7 @@ final class CardViewSnapshotTests: XCTestCase {
 
         // WHEN
         sut.display(style: makeDefaultStyle())
-        sut.display(trailingImage: .init(image: .asset(secondImage)))
+        sut.display(trailingImage: .systemSymbol("star"))
 
         // THEN
         if #available(iOS 26, *) {
@@ -516,7 +548,7 @@ final class CardViewSnapshotTests: XCTestCase {
 
         // WHEN
         sut.display(style: makeDefaultStyle())
-        sut.display(secondaryTrailingImage: .init(image: .asset(secondImage)))
+        sut.display(secondaryTrailingImage: .systemSymbol("star"))
 
         // THEN
         if #available(iOS 26, *) {
@@ -536,7 +568,7 @@ final class CardViewSnapshotTests: XCTestCase {
 
         // WHEN
         sut.display(style: makeDefaultStyle())
-        sut.display(secondaryTrailingImage: .init(image: .asset(image)))
+        sut.display(secondaryTrailingImage: .systemSymbol("star.fill"))
 
         // THEN
         if #available(iOS 26, *) {
@@ -1029,8 +1061,8 @@ final class CardViewSnapshotTests: XCTestCase {
         sut.display(style: style)
         sut.display(model: .init(
             title: .text("Title"),
-            leadingImage: .init(image: .asset(image)),
-            trailingImage: .init(image: .asset(image)),
+            leadingImage: .systemSymbol("star.fill"),
+            trailingImage: .systemSymbol("star.fill"),
             subTitle: .text("subTitle")
         ))
 
@@ -1059,8 +1091,8 @@ final class CardViewSnapshotTests: XCTestCase {
         sut.display(style: style)
         sut.display(model: .init(
             title: .text("Title"),
-            leadingImage: .init(image: .asset(image)),
-            trailingImage: .init(image: .asset(image)),
+            leadingImage: .systemSymbol("star.fill"),
+            trailingImage: .systemSymbol("star.fill"),
             subTitle: .text("subTitle")
         ))
 
@@ -1087,8 +1119,8 @@ final class CardViewSnapshotTests: XCTestCase {
         sut.display(style: style)
         sut.display(model: .init(
             title: .text("Title"),
-            leadingImage: .init(image: .asset(image)),
-            trailingImage: .init(image: .asset(image)),
+            leadingImage: .systemSymbol("star.fill"),
+            trailingImage: .systemSymbol("star.fill"),
             subTitle: .text("subTitle")
         ))
 
@@ -1115,8 +1147,8 @@ final class CardViewSnapshotTests: XCTestCase {
         sut.display(style: style)
         sut.display(model: .init(
             title: .text("Title"),
-            leadingImage: .init(image: .asset(image)),
-            trailingImage: .init(image: .asset(image)),
+            leadingImage: .systemSymbol("star.fill"),
+            trailingImage: .systemSymbol("star.fill"),
             subTitle: .text("subTitle")
         ))
 
@@ -1260,7 +1292,7 @@ extension CardViewSnapshotTests {
         )
     }
 
-    func makeWrappedTitleMarginsContainer() -> UIView {
+    func makeWrappedTitleMarginsContainer(horizontalMargin: CGFloat = 6) -> UIView {
         let container = UIView()
         container.frame = CGRect(origin: .zero, size: SnapshotConfiguration.size)
         container.backgroundColor = .red
@@ -1278,19 +1310,27 @@ extension CardViewSnapshotTests {
         )
 
         stackView.addArrangedSubview(makeWrappedTitleMarginsWrapperView(
-            title: "Короткий пример текста для проверки отступов"
+            title: "Короткий пример текста для проверки отступов",
+            horizontalMargin: horizontalMargin
         ))
         stackView.addArrangedSubview(makeWrappedTitleMarginsWrapperView(
-            title: "Длинный пример текста для проверки переноса на вторую строку внутри карточки"
+            title: "Длинный пример текста для проверки переноса на вторую строку внутри карточки",
+            horizontalMargin: horizontalMargin
         ))
         stackView.addArrangedSubview(UIView())
         container.layoutIfNeeded()
         return container
     }
 
-    func makeWrappedTitleMarginsWrapperView(title: String) -> WrapperView<CardView> {
+    func makeWrappedTitleMarginsWrapperView(
+        title: String,
+        horizontalMargin: CGFloat
+    ) -> WrapperView<CardView> {
         return WrapperView(
-            contentView: makeWrappedTitleMarginsCardView(title: title),
+            contentView: makeWrappedTitleMarginsCardView(
+                title: title,
+                horizontalMargin: horizontalMargin
+            ),
             contentViewConstraints: { contentView, superView in
                 contentView.anchor(
                     .top(superView.topAnchor),
@@ -1302,12 +1342,15 @@ extension CardViewSnapshotTests {
         )
     }
 
-    func makeWrappedTitleMarginsCardView(title: String) -> CardView {
+    func makeWrappedTitleMarginsCardView(
+        title: String,
+        horizontalMargin: CGFloat
+    ) -> CardView {
         let cardView = CardView()
         cardView.display(style: makeDefaultStyle(
             backgroundColor: .systemGray5,
             vStacklayoutMargins: .zero,
-            hStacklayoutMargins: .init(horizontal: 6, vertical: 4),
+            hStacklayoutMargins: .init(horizontal: horizontalMargin, vertical: 4),
             hStackViewDistribution: .fill,
             titleKeyTextColor: .label,
             titleKeyLabelFont: .systemFont(ofSize: 13),

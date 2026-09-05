@@ -446,7 +446,6 @@ final class SUIButtonSnapshotTests: XCTestCase {
         }
     }
 
-
     func test_fail_buttonOutput_style_borderWidth() {
         let snapshotName = "BUTTON_STYLE_BORDER_WIDTH_STATE"
 
@@ -472,9 +471,97 @@ final class SUIButtonSnapshotTests: XCTestCase {
         }
     }
 
+    func test_buttonOutput_style_pressedColor() {
+        let snapshotName = "BUTTON_STYLE_PRESSED_COLOR_STATE"
 
+        // GIVEN
+        let sut = makeSUT(pressedStateOverride: true)
 
+        // WHEN
+        sut.display(style: .init(
+            backgroundColor: .blue,
+            pressedColor: .red
+        ))
 
+        // THEN
+        if #available(iOS 26, *) {
+            assert(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
+            assert(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS26_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.standard)
+        } else {
+            assert(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS18.5_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
+            assert(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS18.5_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.standard)
+        }
+    }
+
+    func test_fail_buttonOutput_style_pressedColor() {
+        let snapshotName = "BUTTON_STYLE_PRESSED_COLOR_STATE"
+
+        // GIVEN
+        let sut = makeSUT(pressedStateOverride: true)
+
+        // WHEN
+        sut.display(style: .init(
+            backgroundColor: .blue,
+            pressedColor: .systemRed
+        ))
+
+        // THEN
+        if #available(iOS 26, *) {
+            assertFail(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.fail)
+            assertFail(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS26_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.fail)
+        } else {
+            assertFail(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS18.5_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.fail)
+            assertFail(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS18.5_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.fail)
+        }
+    }
+
+    func test_buttonOutput_style_pressedTintColor() {
+        let snapshotName = "BUTTON_STYLE_PRESSED_TINTCOLOR_STATE"
+
+        // GIVEN
+        let sut = makeSUT(pressedStateOverride: true)
+
+        // WHEN
+        sut.display(style: .init(
+            backgroundColor: .white,
+            titleColor: .blue,
+            pressedTintColor: .red
+        ))
+        sut.display(title: "PRESSED TINT COLOR")
+
+        // THEN
+        if #available(iOS 26, *) {
+            assert(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
+            assert(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS26_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.standard)
+        } else {
+            assert(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS18.5_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
+            assert(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS18.5_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.standard)
+        }
+    }
+
+    func test_fail_buttonOutput_style_pressedTintColor() {
+        let snapshotName = "BUTTON_STYLE_PRESSED_TINTCOLOR_STATE"
+
+        // GIVEN
+        let sut = makeSUT(pressedStateOverride: true)
+
+        // WHEN
+        sut.display(style: .init(
+            backgroundColor: .white,
+            titleColor: .blue,
+            pressedTintColor: .systemRed
+        ))
+        sut.display(title: "PRESSED TINT COLOR")
+
+        // THEN
+        if #available(iOS 26, *) {
+            assertFail(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.fail)
+            assertFail(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS26_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.fail)
+        } else {
+            assertFail(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS18.5_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.fail)
+            assertFail(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS18.5_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.fail)
+        }
+    }
 
     func test_buttonOutput_style_font() {
         let snapshotName = "BUTTON_STYLE_FONT_STATE"
@@ -555,8 +642,6 @@ final class SUIButtonSnapshotTests: XCTestCase {
             assertFail(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS18.5_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.fail)
         }
     }
-
-
 
     func test_buttonOutput_isLoading_state() {
         let snapshotName = "BUTTON_OUTPUT_ISLOADING_STATE"
@@ -642,13 +727,16 @@ final class SUIButtonSnapshotTests: XCTestCase {
 private extension SUIButtonSnapshotTests {
     func makeSUT(
         height: CGFloat = 60,
+        pressedStateOverride: Bool? = nil,
         file: StaticString = #filePath,
         line: UInt = #line
     ) -> SwiftUIButtonSnapshotSUT {
-        let sut = SwiftUIButtonSnapshotSUT(height: height)
+        let sut = SwiftUIButtonSnapshotSUT(
+            height: height,
+            pressedStateOverride: pressedStateOverride
+        )
 
         checkForMemoryLeaks(sut, file: file, line: line)
-        checkForMemoryLeaks(sut.uiKitButton, file: file, line: line)
         return sut
     }
 }

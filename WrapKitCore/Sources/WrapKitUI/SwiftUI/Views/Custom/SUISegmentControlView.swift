@@ -41,8 +41,11 @@ public struct SUISegmentControlView: View {
         nativeSegmentedPicker
             .overlay {
                 GeometryReader { proxy in
-                    nativeSegmentLabels(containerWidth: proxy.size.width)
-                        .frame(width: proxy.size.width, height: proxy.size.height)
+                    ZStack(alignment: .leading) {
+                        nativeSelectedSegmentView(containerWidth: proxy.size.width)
+                        nativeSegmentLabels(containerWidth: proxy.size.width)
+                    }
+                    .frame(width: proxy.size.width, height: proxy.size.height)
                 }
             }
             .background(SwiftUIColor(stateModel.appearance.colors.backgroundColor))
@@ -72,6 +75,34 @@ public struct SUISegmentControlView: View {
     }
 
     @available(iOS 26, macOS 26, tvOS 26, watchOS 26, *)
+    @ViewBuilder
+    private func nativeSelectedSegmentView(containerWidth: CGFloat) -> some View {
+        let segmentWidth = segmentWidth(containerWidth: containerWidth)
+        let selectedIndex = stateModel.selectedIndex
+
+        if segmentWidth > 0, stateModel.segments.indices.contains(selectedIndex) {
+            let shape = RoundedRectangle(
+                cornerRadius: max(
+                    stateModel.appearance.cornerRadius - nativeSelectedSegmentVerticalInset,
+                    0
+                ),
+                style: .continuous
+            )
+
+            ZStack {
+                shape.fill(SwiftUIColor(stateModel.appearance.colors.backgroundColor))
+                shape.fill(SwiftUIColor(stateModel.appearance.colors.selectedBackgroundColor))
+            }
+            .frame(width: max(segmentWidth - nativeSelectedSegmentHorizontalInset * 2, 0))
+            .padding(.horizontal, nativeSelectedSegmentHorizontalInset)
+            .padding(.vertical, nativeSelectedSegmentVerticalInset)
+            .offset(x: CGFloat(selectedIndex) * segmentWidth)
+            .allowsHitTesting(false)
+            .accessibilityHidden(true)
+        }
+    }
+
+    @available(iOS 26, macOS 26, tvOS 26, watchOS 26, *)
     private func nativeSegmentLabels(containerWidth: CGFloat) -> some View {
         let segmentWidth = stateModel.segments.isEmpty
             ? 0
@@ -79,11 +110,8 @@ public struct SUISegmentControlView: View {
 
         return HStack(spacing: 0) {
             ForEach(Array(stateModel.segments.enumerated()), id: \.offset) { _, segment in
-                Text(segment.title.removingPercentEncoding ?? segment.title)
-                    .font(SwiftUIFont(stateModel.appearance.font))
-                    .foregroundColor(SwiftUIColor(stateModel.appearance.colors.textColor))
-                    .lineLimit(1)
-                    .truncationMode(.tail)
+                segmentText(segment.title)
+                    .frame(width: max(segmentWidth - nativeSegmentContentInsets * 2, 0))
                     .frame(width: segmentWidth)
                     .frame(maxHeight: .infinity)
             }
@@ -167,6 +195,18 @@ public struct SUISegmentControlView: View {
 
     private var selectedSegmentInset: CGFloat {
         4
+    }
+
+    private var nativeSelectedSegmentHorizontalInset: CGFloat {
+        2
+    }
+
+    private var nativeSelectedSegmentVerticalInset: CGFloat {
+        1
+    }
+
+    private var nativeSegmentContentInsets: CGFloat {
+        4.5
     }
 
     private var segmentContentInsets: CGFloat {

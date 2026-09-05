@@ -197,8 +197,6 @@ final class SwitchControlSnapshotTests: XCTestCase {
         sut.display(isOn: true)
         sut.display(isEnabled: true)
 
-        sut.backgroundColor = .blue
-
         // THEN
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
@@ -224,8 +222,6 @@ final class SwitchControlSnapshotTests: XCTestCase {
             shimmerStyle: nil))
         sut.display(isOn: true)
         sut.display(isEnabled: true)
-
-        sut.backgroundColor = .systemBlue
 
         // THEN
         if #available(iOS 26, *) {
@@ -254,8 +250,6 @@ final class SwitchControlSnapshotTests: XCTestCase {
         sut.display(isOn: true)
         sut.display(isEnabled: true)
 
-        sut.backgroundColor = .blue
-
         // THEN
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
@@ -282,8 +276,6 @@ final class SwitchControlSnapshotTests: XCTestCase {
             shimmerStyle: nil))
         sut.display(isOn: true)
         sut.display(isEnabled: true)
-
-        sut.backgroundColor = .systemBlue
 
         // THEN
         if #available(iOS 26, *) {
@@ -312,8 +304,6 @@ final class SwitchControlSnapshotTests: XCTestCase {
         sut.display(isOn: true)
         sut.display(isEnabled: true)
 
-        sut.backgroundColor = .blue
-
         // THEN
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)),
@@ -340,8 +330,6 @@ final class SwitchControlSnapshotTests: XCTestCase {
             shimmerStyle: nil))
         sut.display(isOn: true)
         sut.display(isEnabled: true)
-
-        sut.backgroundColor = .blue
 
         // THEN
         if #available(iOS 26, *) {
@@ -512,8 +500,7 @@ extension SwitchControlSnapshotTests {
         container.addSubview(sut)
         sut.anchor(
             .top(container.topAnchor, constant: 0, priority: .required),
-            .width(200, priority: .required),
-            .height(50, priority: .required)
+            .leading(container.leadingAnchor, constant: 0, priority: .required)
         )
 
         container.layoutIfNeeded()

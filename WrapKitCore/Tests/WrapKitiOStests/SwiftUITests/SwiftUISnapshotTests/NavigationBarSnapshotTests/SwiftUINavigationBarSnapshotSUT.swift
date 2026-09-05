@@ -11,65 +11,50 @@ import WrapKitTestUtils
 import SwiftUI
 
 final class SwiftUINavigationBarSnapshotSUT: NSObject, HeaderOutput, SwiftUISnapshotSource {
-    let uiKitView: NavigationBar
-
-    private let uiKitContainer: UIView
     private let swiftUIAdapter: HeaderOutputSwiftUIAdapter
 
     init(
-        uiKitContainer: UIView,
-        uiKitView: NavigationBar = NavigationBar(),
         swiftUIAdapter: HeaderOutputSwiftUIAdapter = HeaderOutputSwiftUIAdapter()
     ) {
-        self.uiKitContainer = uiKitContainer
-        self.uiKitView = uiKitView
         self.swiftUIAdapter = swiftUIAdapter
     }
 
     func display(model: HeaderPresentableModel?) {
-        uiKitView.display(model: model)
         swiftUIAdapter.display(model: model)
     }
 
     func display(style: HeaderPresentableModel.Style?) {
-        uiKitView.display(style: style)
         swiftUIAdapter.display(style: style)
     }
 
     func display(centerView: HeaderPresentableModel.CenterView?) {
-        uiKitView.display(centerView: centerView)
         swiftUIAdapter.display(centerView: centerView)
     }
 
     func display(leadingCard: CardViewPresentableModel?) {
-        uiKitView.display(leadingCard: leadingCard)
         swiftUIAdapter.display(leadingCard: leadingCard)
     }
 
     func display(primeTrailingImage: ButtonPresentableModel?) {
-        uiKitView.display(primeTrailingImage: primeTrailingImage)
         swiftUIAdapter.display(primeTrailingImage: primeTrailingImage)
     }
 
     func display(secondaryTrailingImage: ButtonPresentableModel?) {
-        uiKitView.display(secondaryTrailingImage: secondaryTrailingImage)
         swiftUIAdapter.display(secondaryTrailingImage: secondaryTrailingImage)
     }
 
     func display(tertiaryTrailingImage: ButtonPresentableModel?) {
-        uiKitView.display(tertiaryTrailingImage: tertiaryTrailingImage)
         swiftUIAdapter.display(tertiaryTrailingImage: tertiaryTrailingImage)
     }
 
     func display(isHidden: Bool) {
-        uiKitView.display(isHidden: isHidden)
         swiftUIAdapter.display(isHidden: isHidden)
     }
 
     @available(iOS 17.0, *)
     func swiftUISnapshot(for appearance: SnapshotAppearance) -> UIImage {
         let rootView = SnapshotMirroredNavigationBarContainer(adapter: swiftUIAdapter)
-            .environment(\.colorScheme, appearance.colorScheme)
+            .snapshotEnvironment(configuration: .iPhone(style: appearance.colorScheme))
         let hostingController = UIHostingController(rootView: rootView)
         hostingController.overrideUserInterfaceStyle = appearance.userInterfaceStyle
         hostingController.view.backgroundColor = .clear
@@ -81,10 +66,11 @@ final class SwiftUINavigationBarSnapshotSUT: NSObject, HeaderOutput, SwiftUISnap
     private func prepareForRendering(_ hostingController: UIViewController) {
         hostingController.loadViewIfNeeded()
         hostingController.view.frame = CGRect(origin: .zero, size: SnapshotConfiguration.size)
-        RunLoop.main.run(until: Date().addingTimeInterval(0.12))
+        let warmup: TimeInterval = 0.3
+        RunLoop.main.run(until: Date().addingTimeInterval(warmup))
         hostingController.view.setNeedsLayout()
         hostingController.view.layoutIfNeeded()
-        RunLoop.main.run(until: Date().addingTimeInterval(0.12))
+        RunLoop.main.run(until: Date().addingTimeInterval(warmup))
     }
 }
 

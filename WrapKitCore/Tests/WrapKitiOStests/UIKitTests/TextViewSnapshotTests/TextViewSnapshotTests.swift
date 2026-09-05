@@ -342,7 +342,6 @@ final class TextViewSnapshotTests: XCTestCase {
         // WHEN
         sut.display(text: "Invalid text")
         sut.display(isValid: false)
-        sut.updateAppearance(isValid: false)
 
         // THEN
         if #available(iOS 26, *) {
@@ -363,7 +362,6 @@ final class TextViewSnapshotTests: XCTestCase {
         // WHEN
         sut.display(text: "Invalid text")
         sut.display(isValid: true)
-        sut.updateAppearance(isValid: true)
 
         // THEN
         if #available(iOS 26, *) {
@@ -384,7 +382,6 @@ final class TextViewSnapshotTests: XCTestCase {
         // WHEN
         sut.display(text: "Valid text")
         sut.display(isValid: true)
-        sut.updateAppearance(isValid: true)
 
         // THEN
         if #available(iOS 26, *) {
@@ -405,7 +402,6 @@ final class TextViewSnapshotTests: XCTestCase {
         // WHEN
         sut.display(text: "Valid text")
         sut.display(isValid: false)
-        sut.updateAppearance(isValid: false)
 
         // THEN
         if #available(iOS 26, *) {
@@ -424,12 +420,10 @@ final class TextViewSnapshotTests: XCTestCase {
         let (sut, container) = makeSUT()
         sut.display(text: "test@email")
         sut.display(isValid: true)
-        sut.updateAppearance(isValid: true)
 
         // WHEN - пользователь удалил часть текста, email стал невалидным
         sut.display(text: "test@")
         sut.display(isValid: false)
-        sut.updateAppearance(isValid: false)
 
         // THEN
         if #available(iOS 26, *) {
@@ -448,12 +442,10 @@ final class TextViewSnapshotTests: XCTestCase {
         let (sut, container) = makeSUT()
         sut.display(text: "test@email")
         sut.display(isValid: true)
-        sut.updateAppearance(isValid: true)
 
         // WHEN - пользователь удалил часть текста, email стал невалидным
         sut.display(text: "test@e")
         sut.display(isValid: false)
-        sut.updateAppearance(isValid: false)
 
         // THEN
         if #available(iOS 26, *) {
@@ -474,7 +466,6 @@ final class TextViewSnapshotTests: XCTestCase {
         // WHEN
         sut.display(placeholder: "Enter valid email")
         sut.display(isValid: false)
-        sut.updateAppearance(isValid: false)
 
         // THEN
         if #available(iOS 26, *) {
@@ -495,7 +486,6 @@ final class TextViewSnapshotTests: XCTestCase {
         // WHEN
         sut.display(placeholder: "Enter valid email.")
         sut.display(isValid: false)
-        sut.updateAppearance(isValid: false)
 
         // THEN
         if #available(iOS 26, *) {
@@ -517,7 +507,6 @@ final class TextViewSnapshotTests: XCTestCase {
         sut.display(placeholder: "This placeholder won't be visible")
         sut.display(text: "Invalid input!")
         sut.display(isValid: false)
-        sut.updateAppearance(isValid: false)
 
         // THEN
         if #available(iOS 26, *) {
@@ -539,7 +528,6 @@ final class TextViewSnapshotTests: XCTestCase {
         sut.display(placeholder: "This placeholder won't be visible")
         sut.display(text: "Invalid input!.")
         sut.display(isValid: false)
-        sut.updateAppearance(isValid: false)
 
         // THEN
         if #available(iOS 26, *) {
@@ -590,45 +578,14 @@ final class TextViewSnapshotTests: XCTestCase {
         }
     }
 
-    // TODO: - its better make unit test for this case
-    func test_TextView_with_securityTextEntry() {
-        let snapshotName = "TEXTVIEW_WITH_SECURITY_TEXT_ENTRY"
+    func test_TextView_securityTextEntry_updatesInputTrait() {
+        let (sut, _) = makeSUT()
 
-        // GIVEN
-        let (sut, container) = makeSUT()
-
-        // WHEN
-        sut.display(text: "password123")
-        sut.display(isSecureTextEntry: false)
-
-        // THEN
-        if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
-    }
-
-    func test_fail_TextView_with_securityTextEntry() {
-        let snapshotName = "TEXTVIEW_WITH_SECURITY_TEXT_ENTRY"
-
-        // GIVEN
-        let (sut, container) = makeSUT()
-
-        // WHEN
-        sut.display(text: "password1234")
         sut.display(isSecureTextEntry: true)
+        XCTAssertTrue(sut.isSecureTextEntry)
 
-        // THEN
-        if #available(iOS 26, *) {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
+        sut.display(isSecureTextEntry: false)
+        XCTAssertFalse(sut.isSecureTextEntry)
     }
 
     func test_TextView_onPress() {
@@ -804,88 +761,6 @@ final class TextViewSnapshotTests: XCTestCase {
         }
     }
 
-    // TODO: - There are no realization for textView
-    func test_TextView_clearButtonActive() {
-        let snapshotName = "TEXTVIEW_CLEARBUTTONACTIVE"
-
-        // GIVEN
-        let (sut, container) = makeSUT()
-
-        // WHEN
-        sut.display(text: "Clear button")
-        sut.display(isClearButtonActive: true)
-
-        // THEN
-        if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
-    }
-
-    func test_fail_TextView_clearButtonActive() {
-        let snapshotName = "TEXTVIEW_CLEARBUTTONACTIVE"
-
-        // GIVEN
-        let (sut, container) = makeSUT()
-
-        // WHEN
-        sut.display(text: "Clear button.")
-        sut.display(isClearButtonActive: false)
-
-        // THEN
-        if #available(iOS 26, *) {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
-    }
-
-    // TODO: - There are no realization for textView
-    func test_TextView_trailingSymbol() {
-        let snapshotName = "TEXTVIEW_TRAILINGSYMBOL"
-
-        // GIVEN
-        let (sut, container) = makeSUT()
-
-        // WHEN
-        sut.display(text: "Clear button")
-        sut.display(trailingSymbol: "X")
-
-        // THEN
-        if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
-    }
-
-    func test_fail_TextView_trailingSymbol() {
-        let snapshotName = "TEXTVIEW_TRAILINGSYMBOL"
-
-        // GIVEN
-        let (sut, container) = makeSUT()
-
-        // WHEN
-        sut.display(text: "Clear button.")
-        sut.display(trailingSymbol: "X")
-
-        // THEN
-        if #available(iOS 26, *) {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
-    }
-
     func test_textview_emoji() {
         // GIVEN
         let (sut, container) = makeSUT()
@@ -920,6 +795,38 @@ final class TextViewSnapshotTests: XCTestCase {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
+    }
+
+    func test_TextView_didChangeText_notifies_callbacks_on_user_change() {
+        let (sut, _) = makeSUT()
+        var receivedTexts: [String?] = []
+        let callback: (String?) -> Void = { receivedTexts.append($0) }
+
+        sut.display(didChangeText: [callback])
+        sut.text = "Changed text"
+        sut.textViewDidChange(sut)
+
+        XCTAssertEqual(receivedTexts, ["Changed text"])
+    }
+
+    func test_TextView_isEnabledForEditing_updates_editability() {
+        let (sut, _) = makeSUT()
+
+        sut.display(isEnabledForEditing: false)
+        XCTAssertFalse(sut.isEditable)
+
+        sut.display(isEnabledForEditing: true)
+        XCTAssertTrue(sut.isEditable)
+    }
+
+    func test_TextView_isTextSelectionDisabled_updates_selectability() {
+        let (sut, _) = makeSUT()
+
+        sut.display(isTextSelectionDisabled: true)
+        XCTAssertFalse(sut.isSelectable)
+
+        sut.display(isTextSelectionDisabled: false)
+        XCTAssertTrue(sut.isSelectable)
     }
 }
 

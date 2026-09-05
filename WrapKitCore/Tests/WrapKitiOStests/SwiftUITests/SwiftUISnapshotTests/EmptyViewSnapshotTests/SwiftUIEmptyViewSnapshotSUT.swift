@@ -11,56 +11,42 @@ import UIKit
 import SwiftUI
 
 final class SwiftUIEmptyViewSnapshotSUT: EmptyViewOutput, SwiftUISnapshotSource {
-    let uiKitView: WrapKit.EmptyView
-
-    private let uiKitContainer: UIView
     private let swiftUIAdapter: EmptyViewOutputSwiftUIAdapter
     private var swiftUIBackgroundColor: UIColor = .clear
     private var swiftUIIsHidden = false
 
     init(
-        uiKitContainer: UIView,
-        uiKitView: WrapKit.EmptyView = EmptyView(),
         swiftUIAdapter: EmptyViewOutputSwiftUIAdapter = EmptyViewOutputSwiftUIAdapter()
     ) {
-        self.uiKitContainer = uiKitContainer
-        self.uiKitView = uiKitView
         self.swiftUIAdapter = swiftUIAdapter
     }
 
     func display(title: TextOutputPresentableModel?) {
-        uiKitView.display(title: title)
         swiftUIAdapter.display(title: title)
     }
 
     func display(subtitle: TextOutputPresentableModel?) {
-        uiKitView.display(subtitle: subtitle)
         swiftUIAdapter.display(subtitle: subtitle)
     }
 
     func display(buttonModel: ButtonPresentableModel?) {
-        uiKitView.display(buttonModel: buttonModel)
         swiftUIAdapter.display(buttonModel: buttonModel)
     }
 
     func display(image: ImageViewPresentableModel?) {
-        uiKitView.display(image: image)
         swiftUIAdapter.display(image: image)
     }
 
     func display(isHidden: Bool) {
-        uiKitView.display(isHidden: isHidden)
         swiftUIAdapter.display(isHidden: isHidden)
         swiftUIIsHidden = isHidden
     }
 
     func display(model: EmptyViewPresentableModel?) {
-        uiKitView.display(model: model)
         swiftUIAdapter.display(model: model)
     }
 
     func display(backgroundColor: UIColor) {
-        uiKitView.backgroundColor = backgroundColor
         swiftUIBackgroundColor = backgroundColor
     }
 
@@ -71,7 +57,7 @@ final class SwiftUIEmptyViewSnapshotSUT: EmptyViewOutput, SwiftUISnapshotSource 
             backgroundColor: swiftUIBackgroundColor,
             isHidden: swiftUIIsHidden
         )
-        .environment(\.colorScheme, appearance.colorScheme)
+        .snapshotEnvironment(configuration: .iPhone(style: appearance.colorScheme))
 
         let hostingController = UIHostingController(rootView: rootView)
         hostingController.overrideUserInterfaceStyle = appearance.userInterfaceStyle

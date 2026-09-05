@@ -21,6 +21,7 @@ public struct SUIImageView: View {
     let fallbackView: AnyView?
     let wrongUrlPlaceholderImage: Image?
     let backgroundColor: SwiftUIColor?
+    let pressedStateOverride: Bool?
 
     @StateObject private var stateModel: SUIImageViewStateModel
     @State private var loadedImage: Image?
@@ -45,6 +46,7 @@ public struct SUIImageView: View {
         self.fallbackView = fallbackView
         self.wrongUrlPlaceholderImage = wrongUrlPlaceholderImage
         self.backgroundColor = backgroundColor
+        self.pressedStateOverride = nil
     }
 
     init(
@@ -52,13 +54,15 @@ public struct SUIImageView: View {
         viewWhileLoadingView: AnyView? = nil,
         fallbackView: AnyView? = nil,
         wrongUrlPlaceholderImage: Image? = nil,
-        backgroundColor: SwiftUIColor? = nil
+        backgroundColor: SwiftUIColor? = nil,
+        pressedStateOverride: Bool? = nil
     ) {
         _stateModel = .init(wrappedValue: stateModel)
         self.viewWhileLoadingView = viewWhileLoadingView
         self.fallbackView = fallbackView
         self.wrongUrlPlaceholderImage = wrongUrlPlaceholderImage
         self.backgroundColor = backgroundColor
+        self.pressedStateOverride = pressedStateOverride
     }
 
     public var body: some View {
@@ -81,7 +85,10 @@ public struct SUIImageView: View {
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .ifLet(backgroundColor) { $0.background($1) }
-                .modifier(ImageViewContainerStyle(model: model))
+                .modifier(ImageViewContainerStyle(
+                    model: model,
+                    pressedStateOverride: pressedStateOverride
+                ))
                 .onChange(of: colorScheme) { newMode in
                     guard model.image?.isRemote == true else { return }
                     loadImage(for: newMode, completion: nil)
@@ -453,17 +460,12 @@ private struct FittedSystemSymbol: View {
     let name: String
     let contentModeIsFit: Bool
 
-    @State private var referenceSize: CGSize = .zero
-
     var body: some View {
         GeometryReader { proxy in
-            ZStack {
-                if let fontSize = fontSize(for: proxy.size) {
-                    symbol(fontSize: fontSize)
-                }
+            if let fontSize = fontSize(for: proxy.size) {
+                symbol(fontSize: fontSize)
+                    .frame(width: proxy.size.width, height: proxy.size.height, alignment: .center)
             }
-            .frame(width: proxy.size.width, height: proxy.size.height, alignment: .center)
-            .background(referenceSymbol)
         }
     }
 
@@ -475,14 +477,9 @@ private struct FittedSystemSymbol: View {
             .fixedSize()
     }
 
-    private var referenceSymbol: some View {
-        symbol(fontSize: Self.referenceFontSize)
-            .hidden()
-            .measureSize($referenceSize)
-    }
-
     private func fontSize(for availableSize: CGSize) -> CGFloat? {
-        guard referenceSize.width > 0,
+        guard let referenceSize = ImageFactory.systemImage(named: name)?.size,
+              referenceSize.width > 0,
               referenceSize.height > 0,
               availableSize.width > 0,
               availableSize.height > 0
@@ -783,6 +780,7 @@ private final class SUIPlaceholderRasterKey: NSObject {
 // MARK: - View Modifiers
 private struct ImageViewContainerStyle: ViewModifier {
     let model: ImageViewPresentableModel?
+    let pressedStateOverride: Bool?
     
     private var effectiveOpacity: CGFloat {
         return model?.alpha ?? 1.0
@@ -820,31 +818,67 @@ private struct ImageViewContainerStyle: ViewModifier {
                     )
                 )
             }
-            .opacity(effectiveOpacity)
             .modifier(ImageViewInteractionModifier(
+                baseOpacity: effectiveOpacity,
                 onPress: model?.onPress,
-                onLongPress: model?.onLongPress
+                onLongPress: model?.onLongPress,
+                pressedStateOverride: pressedStateOverride
             ))
             .modifier(ImageViewAccessibilityModifier(model: model))
     }
 }
 
 private struct ImageViewInteractionModifier: ViewModifier {
+    let baseOpacity: CGFloat
     let onPress: (() -> Void)?
     let onLongPress: (() -> Void)?
+    let pressedStateOverride: Bool?
+
+    @State private var isPressed = false
+
+    private var hasInteraction: Bool {
+        onPress != nil || onLongPress != nil
+    }
+
+    private var isVisuallyPressed: Bool {
+        pressedStateOverride ?? isPressed
+    }
 
     @ViewBuilder
     func body(content: Content) -> some View {
-        switch (onPress, onLongPress) {
-        case let (onPress?, onLongPress?):
-            content
-                .onTapGesture(perform: onPress)
-                .onLongPressGesture(minimumDuration: 1, perform: onLongPress)
-        case let (onPress?, nil):
+        if hasInteraction {
+            interactive(content)
+                .opacity(isVisuallyPressed ? 0.5 : baseOpacity)
+                .animation(
+                    isVisuallyPressed ? nil : .easeInOut(duration: 0.3),
+                    value: isVisuallyPressed
+                )
+        } else {
+            content.opacity(baseOpacity)
+        }
+    }
+
+    @ViewBuilder
+    private func interactive(_ content: Content) -> some View {
+        tappable(content)
+            .onLongPressGesture(
+                minimumDuration: 1,
+                maximumDistance: 10,
+                pressing: { isPressing in
+                    guard pressedStateOverride == nil else { return }
+                    isPressed = isPressing
+                },
+                perform: {
+                    onLongPress?()
+                }
+            )
+    }
+
+    @ViewBuilder
+    private func tappable(_ content: Content) -> some View {
+        if let onPress {
             content.onTapGesture(perform: onPress)
-        case let (nil, onLongPress?):
-            content.onLongPressGesture(minimumDuration: 1, perform: onLongPress)
-        case (nil, nil):
+        } else {
             content
         }
     }

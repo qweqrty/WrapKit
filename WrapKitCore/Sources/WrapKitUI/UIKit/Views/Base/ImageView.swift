@@ -268,6 +268,7 @@ open class ImageView: UIImageView {
     public var currentAnimator: UIViewPropertyAnimator?
     public var currentImageEnum: ImageEnum?
     internal var downloadTask: DownloadTask?
+    private var restingAlpha: CGFloat = 1
 
     open override var image: UIImage? {
         get {
@@ -431,6 +432,7 @@ open class ImageView: UIImageView {
         layoutIfNeeded()
         super.touchesBegan(touches, with: event)
         guard onLongPress != nil || onPress != nil else { return }
+        restingAlpha = alpha
         self.alpha = 0.5
     }
 
@@ -441,8 +443,9 @@ open class ImageView: UIImageView {
         super.touchesEnded(touches, with: event)
         guard onLongPress != nil || onPress != nil else { return }
 
-        UIView.animate(withDuration: 0.3, delay: 0, options: [.allowUserInteraction]) {
-            self.alpha = 1.0
+        UIView.animate(withDuration: 0.3, delay: 0, options: [.allowUserInteraction]) { [weak self] in
+            guard let self else { return }
+            alpha = restingAlpha
         }
     }
 
@@ -453,8 +456,9 @@ open class ImageView: UIImageView {
         super.touchesCancelled(touches, with: event)
         guard onLongPress != nil || onPress != nil else { return }
 
-        UIView.animate(withDuration: 0.3, delay: 0, options: [.allowUserInteraction]) {
-            self.alpha = 1.0
+        UIView.animate(withDuration: 0.3, delay: 0, options: [.allowUserInteraction]) { [weak self] in
+            guard let self else { return }
+            alpha = restingAlpha
         }
     }
 }
@@ -547,6 +551,7 @@ extension ImageView: ImageViewOutput {
 
     public func display(alpha: CGFloat?) {
         guard let alpha else { return }
+        restingAlpha = alpha
         self.alpha = alpha
     }
 

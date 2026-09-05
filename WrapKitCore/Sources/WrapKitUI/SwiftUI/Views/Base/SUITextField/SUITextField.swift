@@ -349,7 +349,7 @@ public struct SUITextInputView: View {
 
     @ViewBuilder
     private var placeholderContent: some View {
-        if text.isEmpty, let placeholder {
+        if shouldDisplayPlaceholder, let placeholder {
             Text(placeholder)
                 .font(appearance.placeholder.map { SwiftUIFont($0.font) })
                 .foregroundColor(
@@ -410,8 +410,13 @@ public struct SUITextInputView: View {
            shouldDisplayMaskTemplate {
             let appliedMask = mask.mask.applied(to: text)
             HStack(spacing: 0) {
-                Text(appliedMask.input)
-                    .hidden()
+                if text.isEmpty {
+                    Text(appliedMask.input)
+                        .foregroundColor(currentTextColor)
+                } else {
+                    Text(appliedMask.input)
+                        .hidden()
+                }
                 Text(appliedMask.maskToInput + (trailingSymbol ?? ""))
                     .foregroundColor(SwiftUIColor(mask.maskColor))
             }
@@ -428,14 +433,22 @@ public struct SUITextInputView: View {
         guard !appliedMask.maskToInput.isEmpty || trailingSymbol != nil else {
             return false
         }
-        return !text.isEmpty || isFocused || placeholder == nil
+        return !shouldDisplayPlaceholder
+    }
+
+    private var shouldDisplayPlaceholder: Bool {
+        guard text.isEmpty, placeholder != nil else { return false }
+        guard let mask else { return true }
+
+        let appliedMask = mask.mask.applied(to: text)
+        return !isFocused && appliedMask.input.isEmpty
     }
 
     private var nativeTextBinding: Binding<String> {
         Binding(
             get: {
                 guard let mask else { return text }
-                if text.isEmpty, !isFocused, placeholder != nil {
+                if shouldDisplayPlaceholder {
                     return ""
                 }
                 return mask.mask.applied(to: text).input

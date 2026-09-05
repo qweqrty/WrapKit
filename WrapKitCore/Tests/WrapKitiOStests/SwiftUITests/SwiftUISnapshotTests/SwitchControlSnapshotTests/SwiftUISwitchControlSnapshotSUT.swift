@@ -3,7 +3,7 @@
 //  WrapKit
 //
 
-import WrapKit
+@testable import WrapKit
 import WrapKitTestUtils
 import UIKit
 
@@ -11,87 +11,59 @@ import UIKit
 import SwiftUI
 
 final class SwiftUISwitchControlSnapshotSUT: SwitchCotrolOutput, LoadingOutput, SwiftUISnapshotSource {
-    let uiKitView: SwitchControl
-
-    private let uiKitContainer: UIView
     private let swiftUIAdapter: SwitchCotrolOutputSwiftUIAdapter
-    private var swiftUIStyle: SwitchControlPresentableModel.Style?
+    private let shimmerPhase: SUIShimmerPhase
 
     init(
-        uiKitContainer: UIView,
-        uiKitView: SwitchControl = SwitchControl(),
-        swiftUIAdapter: SwitchCotrolOutputSwiftUIAdapter = SwitchCotrolOutputSwiftUIAdapter()
+        swiftUIAdapter: SwitchCotrolOutputSwiftUIAdapter = SwitchCotrolOutputSwiftUIAdapter(),
+        shimmerPhase: SUIShimmerPhase = .fixed(horizontalOffset: 0)
     ) {
-        self.uiKitContainer = uiKitContainer
-        self.uiKitView = uiKitView
         self.swiftUIAdapter = swiftUIAdapter
+        self.shimmerPhase = shimmerPhase
     }
 
     var isLoading: Bool? {
         get { swiftUIAdapter.isLoading }
-        set {
-            uiKitView.isLoading = newValue
-            swiftUIAdapter.isLoading = newValue
-        }
-    }
-
-    var backgroundColor: UIColor? {
-        get { uiKitView.backgroundColor }
-        set {
-            uiKitView.backgroundColor = newValue
-            guard let newValue, let style = swiftUIStyle else { return }
-            let effectiveStyle = style.replacingBackgroundColor(with: newValue)
-            swiftUIStyle = effectiveStyle
-            uiKitView.display(style: effectiveStyle)
-            swiftUIAdapter.display(style: effectiveStyle)
-        }
+        set { swiftUIAdapter.isLoading = newValue }
     }
 
     func display(isOn: Bool) {
-        uiKitView.display(isOn: isOn)
         swiftUIAdapter.display(isOn: isOn)
     }
 
     func display(model: SwitchControlPresentableModel?) {
-        uiKitView.display(model: model)
         swiftUIAdapter.display(model: model)
-        if let style = model?.style {
-            swiftUIStyle = style
-        }
     }
 
     func display(onPress: ((SwitchCotrolOutput & LoadingOutput) -> Void)?) {
-        uiKitView.display(onPress: onPress)
         swiftUIAdapter.display(onPress: onPress)
     }
 
     func display(isEnabled: Bool) {
-        uiKitView.display(isEnabled: isEnabled)
         swiftUIAdapter.display(isEnabled: isEnabled)
     }
 
     func display(isLoading: Bool) {
-        uiKitView.display(isLoading: isLoading)
         swiftUIAdapter.display(isLoading: isLoading)
     }
 
     func display(style: SwitchControlPresentableModel.Style?) {
-        uiKitView.display(style: style)
         swiftUIAdapter.display(style: style)
-        swiftUIStyle = style
     }
 
     func display(isHidden: Bool) {
-        uiKitView.display(isHidden: isHidden)
         swiftUIAdapter.display(isHidden: isHidden)
     }
 
     @available(iOS 17.0, *)
     func swiftUISnapshot(for appearance: SnapshotAppearance) -> UIImage {
-        let rootView = SnapshotMirroredSwitchControlContainer(
-            content: AnyView(SUISwitchControl(adapter: swiftUIAdapter))
+        let rootView = SnapshotSwitchControlContainer(
+            content: AnyView(SUISwitchControl(
+                adapter: swiftUIAdapter,
+                shimmerPhase: shimmerPhase
+            ))
         )
-        .environment(\.colorScheme, appearance.colorScheme)
+        .snapshotEnvironment(configuration: .iPhone(style: appearance.colorScheme))
 
         let hostingController = UIHostingController(rootView: rootView)
         hostingController.overrideUserInterfaceStyle = appearance.userInterfaceStyle
@@ -113,7 +85,7 @@ final class SwiftUISwitchControlSnapshotSUT: SwitchCotrolOutput, LoadingOutput, 
 }
 
 @available(iOS 17.0, *)
-private struct SnapshotMirroredSwitchControlContainer: View {
+private struct SnapshotSwitchControlContainer: View {
     let content: AnyView
 
     var body: some View {
@@ -128,18 +100,6 @@ private struct SnapshotMirroredSwitchControlContainer: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .background(SwiftUIColor.clear)
         .ignoresSafeArea(.all)
-    }
-}
-
-private extension SwitchControlPresentableModel.Style {
-    func replacingBackgroundColor(with backgroundColor: UIColor) -> Self {
-        .init(
-            tintColor: tintColor,
-            thumbTintColor: thumbTintColor,
-            backgroundColor: backgroundColor,
-            cornerRadius: cornerRadius,
-            shimmerStyle: shimmerStyle
-        )
     }
 }
 #endif

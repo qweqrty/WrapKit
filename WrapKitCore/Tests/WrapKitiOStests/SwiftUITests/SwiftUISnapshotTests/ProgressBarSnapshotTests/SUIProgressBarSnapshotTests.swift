@@ -184,8 +184,6 @@ final class SUIProgressBarSnapshotTests: XCTestCase {
         }
     }
 
-
-
     func test_progressBar_half_filled() {
         let snapshotName = "PROGRESSBAR_HALF_FILLED"
 
@@ -264,26 +262,9 @@ extension SUIProgressBarSnapshotTests {
         file: StaticString = #file,
         line: UInt = #line
     ) -> SwiftUIProgressBarSnapshotSUT {
-        let container = makeContainer()
-        let sut = SwiftUIProgressBarSnapshotSUT(uiKitContainer: container)
-
-        container.addSubview(sut.uiKitView)
-        sut.uiKitView.anchor(
-            .top(container.topAnchor, constant: 0, priority: .required),
-            .leading(container.leadingAnchor, constant: 0, priority: .required),
-            .trailing(container.trailingAnchor, constant: 0, priority: .required)
-        )
-        container.layoutIfNeeded()
+        let sut = SwiftUIProgressBarSnapshotSUT()
 
         checkForMemoryLeaks(sut, file: file, line: line)
-        checkForMemoryLeaks(sut.uiKitView, file: file, line: line)
         return sut
-    }
-
-    func makeContainer() -> UIView {
-        let container = UIView()
-        container.frame = CGRect(x: 0, y: 0, width: 390, height: 300)
-        container.backgroundColor = .clear
-        return container
     }
 }

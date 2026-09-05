@@ -10,6 +10,18 @@ import WrapKitTestUtils
 import XCTest
 
 final class MapViewSnapshotTests: XCTestCase {
+    func test_mapView_zoomButtonsKeepExplicitSquareCornersAfterLayout() {
+        let (sut, container) = makeSUT()
+
+        container.layoutIfNeeded()
+
+        XCTAssertEqual(sut.plusView.layer.cornerRadius, 0)
+        XCTAssertEqual(sut.minusView.layer.cornerRadius, 0)
+        XCTAssertEqual(sut.locationView.layer.maskedCorners, .allCorners)
+        XCTAssertEqual(sut.locationView.layer.cornerRadius, 8)
+        XCTAssertTrue(sut.locationView.layer.masksToBounds)
+    }
+
     func test_mapView_default_state() {
         // GIVEN
         let (sut, container) = makeSUT()
@@ -53,9 +65,10 @@ final class MapViewSnapshotTests: XCTestCase {
 
         // WHEN
         let gradientLayer = CAGradientLayer()
+        let lightTraits = UITraitCollection(userInterfaceStyle: .light)
         gradientLayer.colors = [
-            UIColor.systemGreen.withAlphaComponent(0.3).cgColor,
-            UIColor.systemBlue.withAlphaComponent(0.3).cgColor
+            UIColor.systemGreen.resolvedColor(with: lightTraits).withAlphaComponent(0.3).cgColor,
+            UIColor.systemBlue.resolvedColor(with: lightTraits).withAlphaComponent(0.3).cgColor
         ]
         gradientLayer.frame = sut.contentView.bounds
         sut.contentView.layer.insertSublayer(gradientLayer, at: 0)
@@ -77,9 +90,10 @@ final class MapViewSnapshotTests: XCTestCase {
 
         // WHEN
         let gradientLayer = CAGradientLayer()
+        let lightTraits = UITraitCollection(userInterfaceStyle: .light)
         gradientLayer.colors = [
-            UIColor.systemGreen.withAlphaComponent(0.4).cgColor,
-            UIColor.systemBlue.withAlphaComponent(0.3).cgColor
+            UIColor.systemGreen.resolvedColor(with: lightTraits).withAlphaComponent(0.4).cgColor,
+            UIColor.systemBlue.resolvedColor(with: lightTraits).withAlphaComponent(0.3).cgColor
         ]
         gradientLayer.frame = sut.contentView.bounds
         sut.contentView.layer.insertSublayer(gradientLayer, at: 0)

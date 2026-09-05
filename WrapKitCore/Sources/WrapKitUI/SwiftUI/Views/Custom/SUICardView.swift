@@ -130,7 +130,7 @@ public struct SUICardView: View {
     @ViewBuilder
     private func cardArrangedSubviews(style: CardViewPresentableModel.Style) -> some View {
         if stateModel.leadingTitles != nil {
-            arrangedContainer(style: style, fillRole: .flexibleText) {
+            arrangedContainer(style: style, fillRole: .auxiliaryText) {
                 leadingTitlesView(style: style)
             }
         }
@@ -184,7 +184,7 @@ public struct SUICardView: View {
             }
         }
         if stateModel.trailingTitles != nil {
-            arrangedContainer(style: style, fillRole: .flexibleText) {
+            arrangedContainer(style: style, fillRole: .auxiliaryText) {
                 trailingTitlesView(style: style)
             }
         }
@@ -444,6 +444,7 @@ public struct SUICardView: View {
         if stateModel.bottomImage != nil {
             HStack(spacing: 0) {
                 SUIImageView(adapter: stateModel.bottomImageAdapter)
+                    .accentColor(SwiftUIColor(.black))
                 Spacer(minLength: 0)
             }
         }
@@ -479,6 +480,9 @@ struct CardFillRole: Equatable {
     var canExpand: Bool { expansionPriority != nil }
 
     static let flexibleText = Self(canCompress: true, expansionPriority: .flexibleText)
+    // UIKit leaves leading/trailing key-value blocks at the default hugging
+    // priority, while the central title block is one point lower and expands first.
+    static let auxiliaryText = Self(canCompress: true, expansionPriority: .auxiliaryText)
     // UIKit gives subtitleLabel required horizontal compression resistance.
     // Preserve that priority and clip only its allocated viewport as a final
     // overflow safeguard when even required content cannot fit.
@@ -488,6 +492,7 @@ struct CardFillRole: Equatable {
 
 enum CardFillExpansionPriority: Int, Equatable {
     case subtitle
+    case auxiliaryText
     case flexibleText
 }
 

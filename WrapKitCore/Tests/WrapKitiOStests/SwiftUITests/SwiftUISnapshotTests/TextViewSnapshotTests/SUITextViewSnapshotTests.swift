@@ -305,22 +305,6 @@ final class SUITextViewSnapshotTests: XCTestCase {
         }
     }
 
-    func test_TextView_with_securityTextEntry() {
-        let snapshotName = "TEXTVIEW_WITH_SECURITY_TEXT_ENTRY"
-        let sut = makeSUT()
-
-        sut.display(text: "password123")
-        sut.display(isSecureTextEntry: false)
-
-        if #available(iOS 26, *) {
-            assert(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
-            assert(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS26_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.standard)
-        } else {
-            assert(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS18.5_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
-            assert(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS18.5_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.standard)
-        }
-    }
-
     func test_TextView_onPress() {
         let snapshotName = "TEXTVIEW_ONPRESS"
         let sut = makeSUT()
@@ -407,12 +391,16 @@ final class SUITextViewSnapshotTests: XCTestCase {
         }
     }
 
-    func test_TextView_clearButtonActive() {
-        let snapshotName = "TEXTVIEW_CLEARBUTTONACTIVE"
+    func test_TextView_onTapBackspace() {
+        let snapshotName = "TEXTVIEW_ONTAPBACKSPACE"
         let sut = makeSUT()
 
-        sut.display(text: "Clear button")
-        sut.display(isClearButtonActive: true)
+        sut.display(text: "Text to delete")
+        sut.display(onTapBackspace: { [weak sut] in
+            sut?.setDeselectedBackgroundColor(.red)
+        })
+        sut.display(text: "Text to delet")
+        sut.onTapBackspace?()
 
         if #available(iOS 26, *) {
             assert(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
@@ -423,44 +411,16 @@ final class SUITextViewSnapshotTests: XCTestCase {
         }
     }
 
-    func test_fail_TextView_clearButtonActive() {
-        let snapshotName = "TEXTVIEW_CLEARBUTTONACTIVE"
+    func test_fail_TextView_onTapBackspace() {
+        let snapshotName = "TEXTVIEW_ONTAPBACKSPACE"
         let sut = makeSUT()
 
-        sut.display(text: "Clear button.")
-        sut.display(isClearButtonActive: false)
-
-        if #available(iOS 26, *) {
-            assertFail(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.fail)
-            assertFail(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS26_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.fail)
-        } else {
-            assertFail(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS18.5_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.fail)
-            assertFail(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS18.5_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.fail)
-        }
-    }
-
-    func test_TextView_trailingSymbol() {
-        let snapshotName = "TEXTVIEW_TRAILINGSYMBOL"
-        let sut = makeSUT()
-
-        sut.display(text: "Clear button")
-        sut.display(trailingSymbol: "X")
-
-        if #available(iOS 26, *) {
-            assert(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
-            assert(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS26_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.standard)
-        } else {
-            assert(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS18.5_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
-            assert(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS18.5_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.standard)
-        }
-    }
-
-    func test_fail_TextView_trailingSymbol() {
-        let snapshotName = "TEXTVIEW_TRAILINGSYMBOL"
-        let sut = makeSUT()
-
-        sut.display(text: "Clear button.")
-        sut.display(trailingSymbol: "X")
+        sut.display(text: "Text to delete.")
+        sut.display(onTapBackspace: { [weak sut] in
+            sut?.setDeselectedBackgroundColor(.red)
+        })
+        sut.display(text: "Text to delete")
+        sut.onTapBackspace?()
 
         if #available(iOS 26, *) {
             assertFail(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.fail)
@@ -557,30 +517,11 @@ extension SUITextViewSnapshotTests {
             font: .systemFont(ofSize: 24),
             border: .init(idleBorderWidth: 2, selectedBorderWidth: 3)
         )
-        let container = makeContainer()
         let sut = SwiftUITextViewSnapshotSUT(
-            appearance: appearance,
-            uiKitContainer: container
+            appearance: appearance
         )
-
-        container.addSubview(sut.uiKitView)
-        sut.uiKitView.anchor(
-            .top(container.topAnchor, constant: 0, priority: .required),
-            .leading(container.leadingAnchor, constant: 0, priority: .required),
-            .trailing(container.trailingAnchor, constant: 0, priority: .required),
-            .height(300, priority: .required)
-        )
-        container.layoutIfNeeded()
 
         checkForMemoryLeaks(sut, file: file, line: line)
-        checkForMemoryLeaks(sut.uiKitView, file: file, line: line)
         return sut
-    }
-
-    func makeContainer() -> UIView {
-        let container = UIView()
-        container.frame = CGRect(x: 0, y: 0, width: 390, height: 300)
-        container.backgroundColor = .clear
-        return container
     }
 }

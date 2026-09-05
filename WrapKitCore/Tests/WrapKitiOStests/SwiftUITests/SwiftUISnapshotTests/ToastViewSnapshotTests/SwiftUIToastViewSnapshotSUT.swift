@@ -64,7 +64,7 @@ final class SwiftUIToastViewSnapshotSUT: CommonToastOutput, SwiftUISnapshotSourc
         for colorScheme: ColorScheme
     ) -> SwiftUIHost {
         let rootView = SnapshotMirroredToastContainer(adapter: adapter)
-            .environment(\.colorScheme, colorScheme)
+            .snapshotEnvironment(configuration: .iPhone(style: colorScheme))
             .transaction { transaction in
                 transaction.animation = nil
                 transaction.disablesAnimations = true

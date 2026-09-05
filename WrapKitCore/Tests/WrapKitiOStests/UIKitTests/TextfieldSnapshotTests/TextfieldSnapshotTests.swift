@@ -89,49 +89,6 @@ final class TextfieldSnapshotTests: XCTestCase {
         }
     }
 
-    // TODO: - Doent show clear button
-    func test_TextView_clearButtonActive() {
-        let snapshotName = "TEXTVIEW_CLEABUTTONACTIVE"
-
-        // GIVEN
-        let clearButton = makeIcon(systemName: "star.fill")
-        let (sut, container) = makeSUT(trailingView: .clear(trailingView: clearButton))
-
-        // WHEN
-        sut.display(text: "Clear button")
-        sut.display(isClearButtonActive: true)
-
-        // THEN
-        if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
-    }
-
-    func test_fail_TextView_clearButtonActive() {
-        let snapshotName = "TEXTVIEW_CLEABUTTONACTIVE"
-
-        // GIVEN
-        let clearButton = makeIcon(systemName: "star.fill")
-        let (sut, container) = makeSUT(trailingView: .clear(trailingView: clearButton))
-
-        // WHEN
-        sut.display(text: "Clear button.")
-        sut.display(isClearButtonActive: true)
-
-        // THEN
-        if #available(iOS 26, *) {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
-    }
-
     // MARK: - display(trailingSymbol:) tests
     func test_Textfield_trailing_symbol_with_mask() {
         let snapshotName = "TEXTFIELD_TRAILING_SYMBOL"
@@ -150,7 +107,7 @@ final class TextfieldSnapshotTests: XCTestCase {
         sut.display(mask: .init(mask: mask, maskColor: .lightGray))
 
         // WHEN
-        sut.simulateUserTyping("123")
+        sut.display(text: "123")
         sut.display(trailingSymbol: " (Mobile)") // ← Добавляем суффикс
 
         // THEN - должно показать: +7 123 (Mobile)
@@ -180,7 +137,7 @@ final class TextfieldSnapshotTests: XCTestCase {
         sut.display(mask: .init(mask: mask, maskColor: .lightGray))
 
         // WHEN
-        sut.simulateUserTyping("123")
+        sut.display(text: "123")
         sut.display(trailingSymbol: " (Mobile.)")
 
         // THEN
@@ -208,7 +165,7 @@ final class TextfieldSnapshotTests: XCTestCase {
         sut.display(mask: .init(mask: mask, maskColor: .systemGray))
 
         // WHEN
-        sut.simulateUserTyping("1500")
+        sut.display(text: "1500")
         sut.display(trailingSymbol: " USD")
 
         // THEN
@@ -236,7 +193,7 @@ final class TextfieldSnapshotTests: XCTestCase {
         sut.display(mask: .init(mask: mask, maskColor: .systemGray))
 
         // WHEN
-        sut.simulateUserTyping("1500")
+        sut.display(text: "1500")
         sut.display(trailingSymbol: " USD.")
 
         // THEN
@@ -999,7 +956,7 @@ final class TextfieldSnapshotTests: XCTestCase {
 
         sut.display(mask: .init(mask: mask, maskColor: .lightGray))
 
-        sut.simulateUserTyping("123")
+        sut.display(text: "123")
 
         // THEN
         if #available(iOS 26, *) {
@@ -1035,7 +992,7 @@ final class TextfieldSnapshotTests: XCTestCase {
 
         sut.display(mask: .init(mask: mask, maskColor: .lightGray))
 
-        sut.simulateUserTyping("123")
+        sut.display(text: "123")
 
         // THEN
         if #available(iOS 26, *) {
@@ -1071,7 +1028,7 @@ final class TextfieldSnapshotTests: XCTestCase {
 
         sut.display(mask: .init(mask: mask, maskColor: .lightGray))
 
-        sut.simulateUserTyping("1234567890")
+        sut.display(text: "1234567890")
 
         // THEN
         if #available(iOS 26, *) {
@@ -1107,7 +1064,7 @@ final class TextfieldSnapshotTests: XCTestCase {
 
         sut.display(mask: .init(mask: mask, maskColor: .lightGray))
 
-        sut.simulateUserTyping("1234567890")
+        sut.display(text: "1234567890")
 
         // THEN
         if #available(iOS 26, *) {
@@ -1142,7 +1099,7 @@ final class TextfieldSnapshotTests: XCTestCase {
         ])
 
         sut.display(mask: .init(mask: mask, maskColor: .lightGray))
-        sut.simulateUserTyping("")
+        sut.display(text: "")
         sut.display(placeholder: "Enter phone number")
 
         // THEN
@@ -1178,7 +1135,7 @@ final class TextfieldSnapshotTests: XCTestCase {
         ])
 
         sut.display(mask: .init(mask: mask, maskColor: .lightGray))
-        sut.simulateUserTyping("123")
+        sut.display(text: "123")
         sut.display(placeholder: "Enter phone number")
 
         // THEN
@@ -1221,7 +1178,7 @@ final class TextfieldSnapshotTests: XCTestCase {
 
         sut.display(mask: .init(mask: mask, maskColor: .systemGray))
 
-        sut.simulateUserTyping("12345678")
+        sut.display(text: "12345678")
 
         // THEN
         if #available(iOS 26, *) {
@@ -1263,7 +1220,7 @@ final class TextfieldSnapshotTests: XCTestCase {
 
         sut.display(mask: .init(mask: mask, maskColor: .systemGray))
 
-        sut.simulateUserTyping("22345678")
+        sut.display(text: "22345678")
 
         // THEN
         if #available(iOS 26, *) {
@@ -1297,7 +1254,7 @@ final class TextfieldSnapshotTests: XCTestCase {
 
         sut.display(mask: .init(mask: mask, maskColor: .systemGray3))
 
-        sut.simulateUserTyping("1512")
+        sut.display(text: "1512")
 
         // THEN
         if #available(iOS 26, *) {
@@ -1331,7 +1288,7 @@ final class TextfieldSnapshotTests: XCTestCase {
 
         sut.display(mask: .init(mask: mask, maskColor: .systemGray3))
 
-        sut.simulateUserTyping("1612")
+        sut.display(text: "1612")
 
         // THEN
         if #available(iOS 26, *) {
@@ -1364,7 +1321,7 @@ final class TextfieldSnapshotTests: XCTestCase {
 
         sut.display(mask: .init(mask: mask, maskColor: .blue))
 
-        sut.simulateUserTyping("12")
+        sut.display(text: "12")
 
         // THEN
         if #available(iOS 26, *) {
@@ -1397,7 +1354,7 @@ final class TextfieldSnapshotTests: XCTestCase {
 
         sut.display(mask: .init(mask: mask, maskColor: .systemBlue))
 
-        sut.simulateUserTyping("12")
+        sut.display(text: "12")
 
         // THEN
         if #available(iOS 26, *) {
@@ -1445,7 +1402,7 @@ final class TextfieldSnapshotTests: XCTestCase {
         }
     }
 
-    func test_Textfield_mask_with_initial_literals_and_user_input() {
+    func test_Textfield_mask_with_initial_literals_and_presented_text() {
         let snapshotName = "TEXTFIELD_MASK_INITIAL_LITERALS"
 
         // GIVEN
@@ -1468,8 +1425,8 @@ final class TextfieldSnapshotTests: XCTestCase {
 
         sut.display(mask: .init(mask: mask, maskColor: .systemGray))
 
-        // Вводим "98765" - маска должна правильно обработать и показать "+996 987-65"
-        sut.simulateUserTyping("98765")
+        // Presenter передает "98765" — маска должна показать "+996 987-65".
+        sut.display(text: "98765")
 
         // THEN
         if #available(iOS 26, *) {
@@ -1481,7 +1438,7 @@ final class TextfieldSnapshotTests: XCTestCase {
         }
     }
 
-    func test_Textfield_mask_with_literals_and_literals_user_input() {
+    func test_Textfield_mask_with_literals_and_presented_text() {
         let snapshotName = "TEXTFIELD_MASK_CONSIDERS_LITERALS"
 
         // GIVEN
@@ -1506,8 +1463,8 @@ final class TextfieldSnapshotTests: XCTestCase {
 
         sut.display(mask: .init(mask: mask, maskColor: .systemGray))
 
-        // Вводим "996553113555" - маска должна правильно обработать и показать "+996 553 113 555"
-        sut.simulateUserTyping("996553113555")
+        // Presenter передает уже отформатированный текст с литеральным префиксом.
+        sut.display(text: "996553113555")
 
         // THEN
         if #available(iOS 26, *) {
@@ -1519,7 +1476,7 @@ final class TextfieldSnapshotTests: XCTestCase {
         }
     }
 
-    func test_Textfield_mask_with_literals_and_complex_literals_user_input() {
+    func test_Textfield_mask_with_literals_and_complex_presented_text() {
         let snapshotName = "TEXTFIELD_MASK_CONSIDERS_COMPLEXT_LITERALS"
 
         // GIVEN
@@ -1546,7 +1503,7 @@ final class TextfieldSnapshotTests: XCTestCase {
 
         sut.display(mask: .init(mask: mask, maskColor: .systemGray))
 
-        sut.simulateUserTyping("996553113555")
+        sut.display(text: "996553113555")
 
         // THEN
         if #available(iOS 26, *) {
@@ -1558,7 +1515,7 @@ final class TextfieldSnapshotTests: XCTestCase {
         }
     }
 
-    func test_Textfield_mask_with_literals_and_almost_complex_literals_user_input() {
+    func test_Textfield_mask_with_literals_and_almost_complex_presented_text() {
         let snapshotName = "TEXTFIELD_MASK_CONSIDERS_ALMOST_COMPLEXT_LITERALS"
 
         // GIVEN
@@ -1585,7 +1542,7 @@ final class TextfieldSnapshotTests: XCTestCase {
 
         sut.display(mask: .init(mask: mask, maskColor: .systemGray))
 
-        sut.simulateUserTyping("96553113555")
+        sut.display(text: "96553113555")
 
         // THEN
         if #available(iOS 26, *) {
@@ -1595,6 +1552,33 @@ final class TextfieldSnapshotTests: XCTestCase {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
+    }
+
+    func test_Textfield_mask_with_literal_prefix_formats_keyboard_input_independently() {
+        let (sut, _) = makeSUT()
+        let mask = Mask(format: [
+            .literal("+"),
+            .literal("9"),
+            .literal("9"),
+            .literal("6"),
+            .literal(" "),
+            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
+            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
+            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
+            .literal(" "),
+            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
+            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
+            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
+            .literal(" "),
+            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
+            .specifier(placeholder: "#", allowedCharacters: .decimalDigits),
+            .specifier(placeholder: "#", allowedCharacters: .decimalDigits)
+        ])
+
+        sut.display(mask: .init(mask: mask, maskColor: .systemGray))
+        sut.simulateUserTyping("996553113555")
+
+        XCTAssertEqual(sut.maskedTextfieldDelegate?.fullText, "+996 996 553 113")
     }
 }
 

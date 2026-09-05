@@ -267,7 +267,7 @@ private extension SUIChunkedTextFieldSnapshotTests {
             appearance: makeAppearance()
         )
 
-        checkForMemoryLeaks(sut.uiKitView, file: file, line: line)
+        checkForMemoryLeaks(sut, file: file, line: line)
         return sut
     }
 

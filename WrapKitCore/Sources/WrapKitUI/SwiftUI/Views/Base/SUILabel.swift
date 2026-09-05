@@ -602,10 +602,29 @@ private struct CoreTextAttributedLabel: View {
     let tapActions: [SUILabelTapAction]
 
     var body: some View {
+        let preparedAttributedText = textAttributedStringWithoutUnderline(from: attributedText)
+
+        Group {
+            if #available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *) {
+                CoreTextAttributedLabelSizingLayout(
+                    attributedText: preparedAttributedText,
+                    usesFoundationLayoutMetrics: usesFoundationLayoutMetrics,
+                    displayScale: displayScale
+                ) {
+                    drawing(attributedText: preparedAttributedText)
+                }
+            } else {
+                drawing(attributedText: preparedAttributedText)
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: frameAlignment(for: alignment))
+    }
+
+    private func drawing(attributedText: NSAttributedString) -> some View {
         GeometryReader { geometry in
             ZStack(alignment: .topLeading) {
                 Canvas(opaque: false, colorMode: .linear, rendersAsynchronously: false) { context, size in
-                    guard let layout = makeLayout(in: size) else { return }
+                    guard let layout = makeLayout(in: size, attributedText: attributedText) else { return }
 
                     let scale = max(displayScale, 1)
                     let pixelWidth = max(Int(ceil(size.width * scale)), 1)
@@ -670,7 +689,7 @@ private struct CoreTextAttributedLabel: View {
 #endif
                 }
 
-                ForEach(tapRegions(in: geometry.size)) { region in
+                ForEach(tapRegions(in: geometry.size, attributedText: attributedText)) { region in
                     SwiftUIColor.clear
                         .frame(width: region.rect.width, height: region.rect.height)
                         .contentShape(Rectangle())
@@ -680,18 +699,19 @@ private struct CoreTextAttributedLabel: View {
                 }
             }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: frameAlignment(for: alignment))
     }
 
-    private func makeLayout(in size: CGSize) -> LayoutResult? {
+    private func makeLayout(
+        in size: CGSize,
+        attributedText: NSAttributedString
+    ) -> LayoutResult? {
         guard size.width > 0, size.height > 0 else { return nil }
 
-        let text = textAttributedStringWithoutUnderline(from: attributedText)
-        let framesetter = CTFramesetterCreateWithAttributedString(text as CFAttributedString)
+        let framesetter = CTFramesetterCreateWithAttributedString(attributedText as CFAttributedString)
         let textHeight: CGFloat
         let verticalInset: CGFloat
         if usesFoundationLayoutMetrics {
-            let measuredHeight = text.boundingRect(
+            let measuredHeight = attributedText.boundingRect(
                 with: CGSize(width: size.width, height: .greatestFiniteMagnitude),
                 options: [.usesLineFragmentOrigin],
                 context: nil
@@ -704,7 +724,7 @@ private struct CoreTextAttributedLabel: View {
         } else {
             let suggestedSize = CTFramesetterSuggestFrameSizeWithConstraints(
                 framesetter,
-                CFRange(location: 0, length: text.length),
+                CFRange(location: 0, length: attributedText.length),
                 nil,
                 CGSize(width: size.width, height: .greatestFiniteMagnitude),
                 nil
@@ -718,11 +738,15 @@ private struct CoreTextAttributedLabel: View {
         )
         let frame = CTFramesetterCreateFrame(
             framesetter,
-            CFRange(location: 0, length: text.length),
+            CFRange(location: 0, length: attributedText.length),
             path,
             nil
         )
-        return .init(attributedText: text, frame: frame, verticalInset: verticalInset)
+        return .init(
+            attributedText: attributedText,
+            frame: frame,
+            verticalInset: verticalInset
+        )
     }
 
     private func frameAlignment(for alignment: TextAlignment) -> Alignment {
@@ -736,8 +760,13 @@ private struct CoreTextAttributedLabel: View {
         }
     }
 
-    private func tapRegions(in size: CGSize) -> [TapRegion] {
-        guard !tapActions.isEmpty, let layout = makeLayout(in: size) else { return [] }
+    private func tapRegions(
+        in size: CGSize,
+        attributedText: NSAttributedString
+    ) -> [TapRegion] {
+        guard !tapActions.isEmpty,
+              let layout = makeLayout(in: size, attributedText: attributedText)
+        else { return [] }
 
         let lines = CTFrameGetLines(layout.frame) as? [CTLine] ?? []
         guard !lines.isEmpty else { return [] }
@@ -1134,6 +1163,7 @@ private struct CoreTextAttributedLabel: View {
         return [startOffset...endOffset]
     }
 }
+
 #endif
 
 extension NSTextAlignment {

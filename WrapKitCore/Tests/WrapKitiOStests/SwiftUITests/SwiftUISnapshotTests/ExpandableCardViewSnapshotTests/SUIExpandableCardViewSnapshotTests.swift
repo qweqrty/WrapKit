@@ -308,8 +308,6 @@ final class SUIExpandableCardViewSnapshotTests: XCTestCase {
 
         sut.display(model: .init(primeModel, secondaryModel))
 
-        sut.layoutIfNeeded()
-
         // THEN
         if #available(iOS 26, *) {
             assert(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
@@ -392,8 +390,6 @@ final class SUIExpandableCardViewSnapshotTests: XCTestCase {
 
         sut.display(model: .init(primeModel, secondaryModel))
 
-        sut.layoutIfNeeded()
-
         // THEN
         if #available(iOS 26, *) {
             assertFail(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.fail)
@@ -411,27 +407,9 @@ extension SUIExpandableCardViewSnapshotTests {
         file: StaticString = #file,
         line: UInt = #line
     ) -> SwiftUIExpandableCardViewSnapshotSUT {
-        let container = makeContainer()
-        let sut = SwiftUIExpandableCardViewSnapshotSUT(uiKitContainer: container)
-
-        container.addSubview(sut.uiKitView)
-        sut.uiKitView.anchor(
-            .top(container.topAnchor, constant: 0, priority: .required),
-            .leading(container.leadingAnchor, constant: 0, priority: .required),
-            .trailing(container.trailingAnchor, constant: 0, priority: .required),
-            .height(390, priority: .required)
-        )
-        container.layoutIfNeeded()
+        let sut = SwiftUIExpandableCardViewSnapshotSUT()
 
         checkForMemoryLeaks(sut, file: file, line: line)
-        checkForMemoryLeaks(sut.uiKitView, file: file, line: line)
         return sut
-    }
-
-    func makeContainer() -> UIView {
-        let container = UIView()
-        container.frame = CGRect(x: 0, y: 0, width: 390, height: 844)
-        container.backgroundColor = .clear
-        return container
     }
 }
