@@ -383,16 +383,16 @@ final class SwitchControlSnapshotTests: XCTestCase {
 
         // WHEN
         let style = ShimmerStyle(
-            backgroundColor: .red,
-            gradientColorOne: .yellow,
-            gradientColorTwo: .black,
-            cornerRadius: 11)
+            backgroundColor: .systemYellow,
+            gradientColorOne: .systemPurple,
+            gradientColorTwo: .systemGreen,
+            cornerRadius: 10)
 
         sut.display(style: .init(
-            tintColor: .clear,
-            thumbTintColor: .clear,
+            tintColor: .systemGreen,
+            thumbTintColor: .cyan,
             backgroundColor: .clear,
-            cornerRadius: 11,
+            cornerRadius: 10,
             shimmerStyle: style))
 
         sut.display(isLoading: true)
@@ -438,8 +438,10 @@ final class SwitchControlSnapshotTests: XCTestCase {
         XCTAssertEqual(pressCount, 1)
     }
 
-    func test_uikitSwitch_mountReappliesStoredOutputStyle() {
-        guard #available(iOS 26.0, *) else { return }
+    func test_uikitSwitch_mountReappliesStoredOutputStyle() throws {
+        guard #available(iOS 26.0, *) else {
+            throw XCTSkip("Requires iOS 26 or newer")
+        }
 
         let style = SwitchControlPresentableModel.Style(
             tintColor: .systemPurple,
@@ -461,8 +463,10 @@ final class SwitchControlSnapshotTests: XCTestCase {
         XCTAssertFalse(sut.clipsToBounds)
     }
 
-    func test_uikitCardSwitch_mountReappliesStoredOutputStyle() {
-        guard #available(iOS 26.0, *) else { return }
+    func test_uikitCardSwitch_mountReappliesStoredOutputStyle() throws {
+        guard #available(iOS 26.0, *) else {
+            throw XCTSkip("Requires iOS 26 or newer")
+        }
 
         let style = SwitchControlPresentableModel.Style(
             tintColor: .systemBlue,

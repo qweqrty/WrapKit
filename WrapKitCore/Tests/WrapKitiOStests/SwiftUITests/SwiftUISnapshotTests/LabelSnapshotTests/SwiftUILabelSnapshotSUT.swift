@@ -15,67 +15,50 @@ final class SwiftUILabelSnapshotSUT: TextOutput, SwiftUISnapshotSource {
 
     let adapter: TextOutputSwiftUIAdapter
 
-    private let swiftUIStateModel: SUILabelStateModel
-    private var swiftUIView: AnyView
-    private var labelBackgroundColor: UIColor?
-    private var labelCornerStyle: CornerStyle?
-    private var snapshotTextInsets = UIEdgeInsets.zero
-    private var swiftUIFont = SwiftUILabelSnapshotSUT.defaultFont
-    private var swiftUITextColor = SwiftUILabelSnapshotSUT.defaultTextColor
-    private var swiftUITextAlignment = SwiftUILabelSnapshotSUT.defaultTextAlignment
+    private let configuration: LabelSnapshotConfiguration
+    private var hostingController: UIHostingController<AnyView>?
 
     init(adapter: TextOutputSwiftUIAdapter = TextOutputSwiftUIAdapter()) {
-        let stateModel = SUILabelStateModel(adapter: adapter)
         self.adapter = adapter
-        self.swiftUIStateModel = stateModel
-        self.swiftUIView = AnyView(SUILabel(stateModel: stateModel))
-    }
+        self.configuration = LabelSnapshotConfiguration(
+            font: Self.defaultFont,
+            textColor: Self.defaultTextColor,
+            textAlignment: Self.defaultTextAlignment
+        )
 
-    var backgroundColor: UIColor? {
-        get { labelBackgroundColor }
-        set {
-            labelBackgroundColor = newValue
+        if #available(iOS 17.0, *) {
+            hostingController = makeHostingController()
+            if let hostingController {
+                prepareForRendering(hostingController)
+                hostingController._render(seconds: 0)
+            }
         }
     }
 
-    var textInsets: UIEdgeInsets {
-        get { snapshotTextInsets }
-        set {
-            snapshotTextInsets = newValue
-        }
-    }
-
-    var cornerStyle: CornerStyle? {
-        get { labelCornerStyle }
-        set {
-            labelCornerStyle = newValue
-        }
+    var snapshotContainerBackgroundColor: UIColor? {
+        get { configuration.snapshotContainerBackgroundColor }
+        set { configuration.snapshotContainerBackgroundColor = newValue }
     }
 
     var textColor: UIColor! {
-        get { swiftUITextColor }
+        get { configuration.textColor }
         set {
             guard let newValue else { return }
-            swiftUITextColor = newValue
-            rebuildSwiftUIView()
+            configuration.textColor = newValue
         }
     }
 
     var font: UIFont! {
-        get { swiftUIFont }
+        get { configuration.font }
         set {
             guard let newValue else { return }
-            swiftUIFont = newValue
-            rebuildSwiftUIView()
+            configuration.font = newValue
         }
     }
 
     var textAlignment: NSTextAlignment {
-        get { swiftUITextAlignment }
-        set {
-            swiftUITextAlignment = newValue
-            rebuildSwiftUIView()
-        }
+        get { configuration.textAlignment }
+        set { configuration.textAlignment = newValue }
     }
 
     func display(model: TextOutputPresentableModel?) {
@@ -143,32 +126,28 @@ final class SwiftUILabelSnapshotSUT: TextOutput, SwiftUISnapshotSource {
 
     @available(iOS 17.0, *)
     func swiftUISnapshot(for appearance: SnapshotAppearance) -> UIImage {
-        let rootView = SnapshotMirroredLabelContainer(
-            content: swiftUIView,
-            textInsets: snapshotTextInsets,
-            backgroundColor: labelBackgroundColor,
-            cornerStyle: labelCornerStyle
-        )
-        .snapshotEnvironment(configuration: .iPhone(style: appearance.colorScheme))
-        .ignoresSafeArea(.all)
-
-        let hostingController = UIHostingController(rootView: rootView)
+        guard let hostingController else {
+            assertionFailure("SwiftUI label host must be prepared before sending Output events.")
+            return UIImage()
+        }
+        configuration.appearance = appearance
         hostingController.overrideUserInterfaceStyle = appearance.userInterfaceStyle
-        hostingController.view.backgroundColor = .clear
-
         prepareForRendering(hostingController)
         return hostingController.snapshot(for: appearance.uiKitConfiguration)
     }
 
-    private func rebuildSwiftUIView() {
-        swiftUIView = AnyView(
-            SUILabel(
-                stateModel: swiftUIStateModel,
-                font: swiftUIFont,
-                textColor: swiftUITextColor,
-                textAlignment: swiftUITextAlignment
-            )
+    @available(iOS 17.0, *)
+    private func makeHostingController() -> UIHostingController<AnyView> {
+        let rootView = SnapshotMirroredLabelContainer(
+            adapter: adapter,
+            configuration: configuration
         )
+        .snapshotEnvironment(configuration: .iPhone(style: .light))
+        .ignoresSafeArea(.all)
+        let hostingController = UIHostingController(rootView: AnyView(rootView))
+        hostingController.overrideUserInterfaceStyle = .light
+        hostingController.view.backgroundColor = .clear
+        return hostingController
     }
 
     private func prepareForRendering(_ hostingController: UIViewController) {
@@ -180,12 +159,24 @@ final class SwiftUILabelSnapshotSUT: TextOutput, SwiftUISnapshotSource {
     }
 }
 
+private final class LabelSnapshotConfiguration: ObservableObject {
+    @Published var appearance: SnapshotAppearance = .light
+    @Published var font: UIFont
+    @Published var textColor: UIColor
+    @Published var textAlignment: NSTextAlignment
+    @Published var snapshotContainerBackgroundColor: UIColor?
+
+    init(font: UIFont, textColor: UIColor, textAlignment: NSTextAlignment) {
+        self.font = font
+        self.textColor = textColor
+        self.textAlignment = textAlignment
+    }
+}
+
 @available(iOS 17.0, *)
 private struct SnapshotMirroredLabelContainer: View {
-    let content: AnyView
-    let textInsets: UIEdgeInsets
-    let backgroundColor: UIColor?
-    let cornerStyle: CornerStyle?
+    let adapter: TextOutputSwiftUIAdapter
+    @ObservedObject var configuration: LabelSnapshotConfiguration
 
     var body: some View {
         VStack(spacing: 0) {
@@ -195,29 +186,19 @@ private struct SnapshotMirroredLabelContainer: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .background(SwiftUIColor.clear)
+        .environment(\.colorScheme, configuration.appearance.colorScheme)
     }
 
-    @ViewBuilder
     private var label: some View {
-        let content = content
-            .padding(EdgeInsets(
-                top: textInsets.top,
-                leading: textInsets.left,
-                bottom: textInsets.bottom,
-                trailing: textInsets.right
-            ))
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-            .background(backgroundColor.map { SwiftUIColor($0) } ?? .clear)
-
-        switch cornerStyle {
-        case .automatic:
-            content.clipShape(Capsule(style: .continuous))
-        case .fixed(let radius):
-            content.clipShape(RoundedRectangle(cornerRadius: radius, style: .continuous))
-        case .corners(let corners):
-            content.clipShape(RoundedRectangle(cornerRadius: corners.maximum, style: .continuous))
-        case .some(CornerStyle.none), nil:
-            content
-        }
+        SUILabel(
+            adapter: adapter,
+            font: configuration.font,
+            textColor: configuration.textColor,
+            textAlignment: configuration.textAlignment
+        )
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .background(
+            configuration.snapshotContainerBackgroundColor.map { SwiftUIColor($0) } ?? .clear
+        )
     }
 }

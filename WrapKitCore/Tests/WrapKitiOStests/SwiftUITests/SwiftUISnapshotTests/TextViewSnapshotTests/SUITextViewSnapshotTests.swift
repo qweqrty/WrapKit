@@ -305,17 +305,19 @@ final class SUITextViewSnapshotTests: XCTestCase {
         }
     }
 
-    func test_TextView_onPress() {
+    func test_TextView_postOnPressCallback_visualState() {
         let snapshotName = "TEXTVIEW_ONPRESS"
         let sut = makeSUT()
         let exp = expectation(description: "Wait for completion")
 
         sut.display(text: "ON PRESS")
-        sut.display(onPress: { [weak sut] in
-            sut?.setDeselectedBackgroundColor(.red)
+        let onPress: () -> Void = { [weak sut] in
+            sut?.display(text: "PRESSED STATE")
             exp.fulfill()
-        })
-        sut.onPress?()
+        }
+        sut.display(onPress: onPress)
+        // The snapshot verifies only the Output state produced after the callback.
+        onPress()
         wait(for: [exp], timeout: 1.0)
 
         if #available(iOS 26, *) {
@@ -327,17 +329,19 @@ final class SUITextViewSnapshotTests: XCTestCase {
         }
     }
 
-    func test_fail_TextView_onPress() {
+    func test_fail_TextView_postOnPressCallback_visualState() {
         let snapshotName = "TEXTVIEW_ONPRESS"
         let sut = makeSUT()
         let exp = expectation(description: "Wait for completion")
 
         sut.display(text: "ON PRESS")
-        sut.display(onPress: { [weak sut] in
-            sut?.setDeselectedBackgroundColor(.systemRed)
+        let onPress: () -> Void = { [weak sut] in
+            sut?.display(text: "PRESSED STATE.")
             exp.fulfill()
-        })
-        sut.onPress?()
+        }
+        sut.display(onPress: onPress)
+        // The snapshot verifies only the Output state produced after the callback.
+        onPress()
         wait(for: [exp], timeout: 1.0)
 
         if #available(iOS 26, *) {
@@ -349,16 +353,18 @@ final class SUITextViewSnapshotTests: XCTestCase {
         }
     }
 
-    func test_TextView_onPaste() {
+    func test_TextView_postOnPasteCallback_visualState() {
         let snapshotName = "TEXTVIEW_ONPASTE"
         let sut = makeSUT()
         let exp = expectation(description: "Wait for completion")
 
-        sut.display(onPaste: { [weak sut] text in
+        let onPaste: (String?) -> Void = { [weak sut] text in
             sut?.display(text: text)
             exp.fulfill()
-        })
-        sut.onPaste?("Text to paste")
+        }
+        sut.display(onPaste: onPaste)
+        // The snapshot verifies only the Output state produced after the callback.
+        onPaste("Text to paste")
         wait(for: [exp], timeout: 1.0)
 
         if #available(iOS 26, *) {
@@ -370,16 +376,18 @@ final class SUITextViewSnapshotTests: XCTestCase {
         }
     }
 
-    func test_fail_TextView_onPaste() {
+    func test_fail_TextView_postOnPasteCallback_visualState() {
         let snapshotName = "TEXTVIEW_ONPASTE"
         let sut = makeSUT()
         let exp = expectation(description: "Wait for completion")
 
-        sut.display(onPaste: { [weak sut] text in
+        let onPaste: (String?) -> Void = { [weak sut] text in
             sut?.display(text: text)
             exp.fulfill()
-        })
-        sut.onPaste?("Text to paste.")
+        }
+        sut.display(onPaste: onPaste)
+        // The snapshot verifies only the Output state produced after the callback.
+        onPaste("Text to paste.")
         wait(for: [exp], timeout: 1.0)
 
         if #available(iOS 26, *) {
@@ -391,16 +399,15 @@ final class SUITextViewSnapshotTests: XCTestCase {
         }
     }
 
-    func test_TextView_onTapBackspace() {
+    func test_TextView_postOnTapBackspaceCallback_visualState() {
         let snapshotName = "TEXTVIEW_ONTAPBACKSPACE"
         let sut = makeSUT()
 
         sut.display(text: "Text to delete")
-        sut.display(onTapBackspace: { [weak sut] in
-            sut?.setDeselectedBackgroundColor(.red)
-        })
-        sut.display(text: "Text to delet")
-        sut.onTapBackspace?()
+        let onTapBackspace: () -> Void = { [weak sut] in sut?.display(text: "Text to delet") }
+        sut.display(onTapBackspace: onTapBackspace)
+        // The snapshot verifies only the Output state produced after the callback.
+        onTapBackspace()
 
         if #available(iOS 26, *) {
             assert(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
@@ -411,16 +418,15 @@ final class SUITextViewSnapshotTests: XCTestCase {
         }
     }
 
-    func test_fail_TextView_onTapBackspace() {
+    func test_fail_TextView_postOnTapBackspaceCallback_visualState() {
         let snapshotName = "TEXTVIEW_ONTAPBACKSPACE"
         let sut = makeSUT()
 
-        sut.display(text: "Text to delete.")
-        sut.display(onTapBackspace: { [weak sut] in
-            sut?.setDeselectedBackgroundColor(.red)
-        })
         sut.display(text: "Text to delete")
-        sut.onTapBackspace?()
+        let onTapBackspace: () -> Void = { [weak sut] in sut?.display(text: "Text to dele") }
+        sut.display(onTapBackspace: onTapBackspace)
+        // The snapshot verifies only the Output state produced after the callback.
+        onTapBackspace()
 
         if #available(iOS 26, *) {
             assertFail(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.fail)

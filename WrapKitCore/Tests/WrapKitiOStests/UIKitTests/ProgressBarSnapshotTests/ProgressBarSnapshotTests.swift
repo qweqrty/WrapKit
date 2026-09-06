@@ -71,7 +71,11 @@ final class ProgressBarSnapshotTests: XCTestCase {
         let (sut, container) = makeSUT()
 
         // WHEN
-        sut.display(style: .init(backgroundColor: .red, height: 5.0))
+        sut.display(style: .init(
+            backgroundColor: .blue,
+            height: 5.0,
+            trackHeight: 5.0
+        ))
         sut.display(progress: 0.0)
 
         // THEN
@@ -90,7 +94,11 @@ final class ProgressBarSnapshotTests: XCTestCase {
         let (sut, container) = makeSUT()
 
         // WHEN
-        sut.display(style: .init(backgroundColor: .systemRed, height: 6.0))
+        sut.display(style: .init(
+            backgroundColor: .systemRed,
+            progressBarColor: .cyan,
+            height: 6.0
+        ))
         sut.display(progress: 100.0)
 
         // THEN
@@ -109,7 +117,11 @@ final class ProgressBarSnapshotTests: XCTestCase {
         let (sut, container) = makeSUT()
 
         // WHEN
-        sut.display(style: .init(backgroundColor: .red, height: 5.0))
+        sut.display(style: .init(
+            backgroundColor: .systemRed,
+            progressBarColor: .magenta,
+            height: 6.0
+        ))
         sut.display(progress: 100.0)
 
         // THEN
@@ -146,34 +158,20 @@ final class ProgressBarSnapshotTests: XCTestCase {
         let snapshotName = "PROGRESSBAR_WITH_HEIGHT"
 
         // GIVEN
-        let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 375, height: 300))
-        window.backgroundColor = .systemBackground
-        window.makeKeyAndVisible()
-        let (sut, _) = makeSUT()
+        let (sut, container) = makeSUT()
 
         // WHEN
         sut.display(style: .init(backgroundColor: .systemRed, height: 51))
         sut.display(progress: 100.0)
 
-        window.addSubview(sut)
-        sut.anchor(
-            .top(window.topAnchor, constant: 10, priority: .required),
-            .leading(window.leadingAnchor, constant: 10, priority: .required),
-            .trailing(window.trailingAnchor, constant: 10, priority: .required)
-        )
-
         // THEN
         if #available(iOS 26, *) {
-            assertFail(snapshot: window.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: window.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assertFail(snapshot: window.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: window.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
-
-        sut.removeFromSuperview()
-        window.isHidden = true
-        window.resignKey()
     }
 
     func test_progressBar_with_cornerStyle() {
@@ -307,6 +305,7 @@ final class ProgressBarSnapshotTests: XCTestCase {
         sut.display(style: .init(backgroundColor: .clear, height: 6.0, cornerStyle: .fixed(4)))
         sut.display(progress: 100.0)
         container.layoutIfNeeded()
+        sut.applyCornerStyle(.fixed(4))
         let lightTraits = UITraitCollection(userInterfaceStyle: .light)
         sut.gradientBackgroundColor(
             width: 6,

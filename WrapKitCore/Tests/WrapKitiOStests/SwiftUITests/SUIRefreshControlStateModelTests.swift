@@ -1,5 +1,6 @@
 #if canImport(SwiftUI)
 @testable import WrapKit
+import Foundation
 import SwiftUI
 import XCTest
 #if canImport(UIKit)
@@ -63,6 +64,44 @@ final class SUIRefreshControlStateModelTests: XCTestCase {
         }
         XCTAssertEqual(callbacks.count, 1)
         XCTAssertNil(callbacks[0])
+    }
+
+    func test_remountUsesCurrentNilDirectCallbacksAndReleasesCallbackOwner() throws {
+        final class CallbackOwner {}
+
+        let adapter = RefreshControlOutputSwiftUIAdapter()
+        var calls = 0
+        weak var weakOwner: CallbackOwner?
+        var callback: (() -> Void)?
+        do {
+            let owner = CallbackOwner()
+            weakOwner = owner
+            callback = {
+                _ = owner
+                calls += 1
+            }
+        }
+        adapter.display(model: .init(onRefresh: callback))
+        callback = nil
+        var mountedStateModel: SUIRefreshControlStateModel? = .init(adapter: adapter)
+        let retainedCallback = try XCTUnwrap(mountedStateModel?.onRefreshCallbacks.first ?? nil)
+
+        XCTAssertNotNil(weakOwner)
+        mountedStateModel?.triggerRefresh()
+        XCTAssertEqual(calls, 1)
+
+        mountedStateModel = nil
+        adapter.onRefresh = nil
+        RunLoop.main.run(until: Date().addingTimeInterval(0.01))
+
+        XCTAssertNil(weakOwner)
+        retainedCallback()
+        XCTAssertEqual(calls, 1)
+
+        let remountedStateModel = SUIRefreshControlStateModel(adapter: adapter)
+        remountedStateModel.triggerRefresh()
+
+        XCTAssertTrue(remountedStateModel.onRefreshCallbacks.isEmpty)
     }
 
     func test_nilModelClearsCallbacksButRetainsStyleAndLoadingLikeUIKit() {
@@ -132,18 +171,18 @@ final class SUIRefreshControlStateModelTests: XCTestCase {
         XCTAssertEqual(sut.zPosition, 7)
     }
 
-    func test_loadingWaitReturnsWhenPollingTaskIsCancelled() async {
+    @MainActor
+    func test_loadingWaitReturnsWhenTaskIsCancelled() async {
         let adapter = RefreshControlOutputSwiftUIAdapter()
         let sut = SUIRefreshControlStateModel(adapter: adapter)
         adapter.display(isLoading: true)
-        var sleepCalls = 0
 
-        await sut.waitForLoadingToFinish(pollIntervalNanoseconds: 1) { _ in
-            sleepCalls += 1
-            throw CancellationError()
+        let task = Task {
+            await sut.waitForLoadingToFinish()
         }
+        task.cancel()
+        await task.value
 
-        XCTAssertEqual(sleepCalls, 1)
         XCTAssertTrue(sut.isLoading)
     }
 

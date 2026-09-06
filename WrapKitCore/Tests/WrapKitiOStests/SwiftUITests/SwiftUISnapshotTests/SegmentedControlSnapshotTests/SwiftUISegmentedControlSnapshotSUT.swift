@@ -12,7 +12,7 @@ import SwiftUI
 
 final class SwiftUISegmentedControlSnapshotSUT: SegmentedControlOutput, SwiftUISnapshotSource {
     private let swiftUIAdapter: SegmentedControlOutputSwiftUIAdapter
-    private var appearance: SegmentedControlAppearance
+    private let initialAppearance: SegmentedControlAppearance
     private let snapshotHeight: CGFloat
 
     init(
@@ -20,13 +20,12 @@ final class SwiftUISegmentedControlSnapshotSUT: SegmentedControlOutput, SwiftUIS
         snapshotHeight: CGFloat,
         swiftUIAdapter: SegmentedControlOutputSwiftUIAdapter = SegmentedControlOutputSwiftUIAdapter()
     ) {
-        self.appearance = appearance
+        self.initialAppearance = appearance
         self.snapshotHeight = snapshotHeight
         self.swiftUIAdapter = swiftUIAdapter
     }
 
     func display(appearence: SegmentedControlAppearance) {
-        appearance = appearence
         swiftUIAdapter.display(appearence: appearence)
     }
 
@@ -39,7 +38,7 @@ final class SwiftUISegmentedControlSnapshotSUT: SegmentedControlOutput, SwiftUIS
         let rootView = SnapshotMirroredSegmentedControlContainer(
             content: AnyView(SUISegmentControlView(
                 adapter: swiftUIAdapter,
-                appearance: appearance
+                appearance: initialAppearance
             )),
             height: snapshotHeight
         )

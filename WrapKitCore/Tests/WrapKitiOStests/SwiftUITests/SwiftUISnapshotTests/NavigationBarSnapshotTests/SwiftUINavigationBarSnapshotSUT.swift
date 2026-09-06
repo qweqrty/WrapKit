@@ -82,18 +82,10 @@ private struct SnapshotMirroredNavigationBarContainer: View {
         VStack(spacing: 0) {
             SUINavigationBar(adapter: adapter)
                 .frame(maxWidth: .infinity, alignment: .top)
-                .background(headerBackground.ignoresSafeArea(edges: .top))
             Spacer(minLength: 0)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .background(SwiftUIColor.clear)
-    }
-
-    private var headerBackground: SwiftUIColor {
-        let color = adapter.displayStyleState?.style?.backgroundColor
-            ?? adapter.displayModelState?.model.style?.backgroundColor
-            ?? .clear
-        return SwiftUIColor(color)
     }
 }
 #endif

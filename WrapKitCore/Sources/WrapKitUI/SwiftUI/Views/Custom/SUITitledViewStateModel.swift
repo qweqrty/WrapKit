@@ -9,14 +9,25 @@ import Foundation
 import Combine
 
 final class SUITitledViewStateModel: ObservableObject {
+    private struct OutputReplayCheckpoint {
+        let isHidden: Bool
+        let isUserInteractionEnabled: Bool
+        let titles: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>?
+        let bottomTitles: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>?
+        let titlesAdapter: KeyValueFieldViewOutputSwiftUIAdapter
+        let bottomTitlesAdapter: KeyValueFieldViewOutputSwiftUIAdapter
+    }
+
     @Published var isHidden = false
     @Published var isUserInteractionEnabled = true
 
-    let titlesAdapter = KeyValueFieldViewOutputSwiftUIAdapter()
-    let bottomTitlesAdapter = KeyValueFieldViewOutputSwiftUIAdapter()
+    let titlesAdapter: KeyValueFieldViewOutputSwiftUIAdapter
+    let bottomTitlesAdapter: KeyValueFieldViewOutputSwiftUIAdapter
 
     private var titles: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>?
     private var bottomTitles: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>?
+    private let adapter: TitledOutputSwiftUIAdapter
+    private var outputReplayConsumer: TitledOutputSwiftUIAdapter.OutputReplayConsumer?
     private var cancellables: Set<AnyCancellable> = []
     private var latestVisibilityOutputSequence: UInt64 = 0
     private var latestInteractionOutputSequence: UInt64 = 0
@@ -25,7 +36,23 @@ final class SUITitledViewStateModel: ObservableObject {
     private var latestTrailingBottomTitleOutputSequence: UInt64 = 0
 
     init(adapter: TitledOutputSwiftUIAdapter) {
-        adapter.$displayModelState
+        self.adapter = adapter
+        let outputReplayConsumer = adapter.claimOutputReplayConsumer()
+        self.outputReplayConsumer = outputReplayConsumer
+        let outputReplayCheckpoint = adapter.outputReplayCheckpoint(
+            as: OutputReplayCheckpoint.self,
+            consumer: outputReplayConsumer
+        )
+        let bufferedOutputReplayPublisher = adapter.bufferedOutputReplayPublisher(consumer: outputReplayConsumer)
+        titlesAdapter = outputReplayCheckpoint?.titlesAdapter
+            ?? KeyValueFieldViewOutputSwiftUIAdapter()
+        bottomTitlesAdapter = outputReplayCheckpoint?.bottomTitlesAdapter
+            ?? KeyValueFieldViewOutputSwiftUIAdapter()
+
+        adapter.outputReplayPublisher(
+            adapter.$displayModelState,
+            consumer: outputReplayConsumer
+        )
             .compactMap { $0 }
             .sink { [weak self] state in
                 self?.display(
@@ -35,7 +62,10 @@ final class SUITitledViewStateModel: ObservableObject {
             }
             .store(in: &cancellables)
 
-        adapter.$displayTitlesState
+        adapter.outputReplayPublisher(
+            adapter.$displayTitlesState,
+            consumer: outputReplayConsumer
+        )
             .compactMap { $0 }
             .sink { [weak self] state in
                 self?.display(
@@ -45,7 +75,10 @@ final class SUITitledViewStateModel: ObservableObject {
             }
             .store(in: &cancellables)
 
-        adapter.$displayBottomTitlesState
+        adapter.outputReplayPublisher(
+            adapter.$displayBottomTitlesState,
+            consumer: outputReplayConsumer
+        )
             .compactMap { $0 }
             .sink { [weak self] state in
                 self?.display(
@@ -55,7 +88,10 @@ final class SUITitledViewStateModel: ObservableObject {
             }
             .store(in: &cancellables)
 
-        adapter.$displayLeadingBottomTitleState
+        adapter.outputReplayPublisher(
+            adapter.$displayLeadingBottomTitleState,
+            consumer: outputReplayConsumer
+        )
             .compactMap { $0 }
             .sink { [weak self] state in
                 self?.display(
@@ -65,7 +101,10 @@ final class SUITitledViewStateModel: ObservableObject {
             }
             .store(in: &cancellables)
 
-        adapter.$displayTrailingBottomTitleState
+        adapter.outputReplayPublisher(
+            adapter.$displayTrailingBottomTitleState,
+            consumer: outputReplayConsumer
+        )
             .compactMap { $0 }
             .sink { [weak self] state in
                 self?.display(
@@ -75,7 +114,10 @@ final class SUITitledViewStateModel: ObservableObject {
             }
             .store(in: &cancellables)
 
-        adapter.$displayIsUserInteractionEnabledState
+        adapter.outputReplayPublisher(
+            adapter.$displayIsUserInteractionEnabledState,
+            consumer: outputReplayConsumer
+        )
             .compactMap { $0 }
             .sink { [weak self] state in
                 self?.display(
@@ -85,7 +127,10 @@ final class SUITitledViewStateModel: ObservableObject {
             }
             .store(in: &cancellables)
 
-        adapter.$displayIsHiddenState
+        adapter.outputReplayPublisher(
+            adapter.$displayIsHiddenState,
+            consumer: outputReplayConsumer
+        )
             .compactMap { $0 }
             .sink { [weak self] state in
                 self?.display(
@@ -94,6 +139,22 @@ final class SUITitledViewStateModel: ObservableObject {
                 )
             }
             .store(in: &cancellables)
+
+        adapter.outputReplayCheckpointRequestPublisher(consumer: outputReplayConsumer)
+            .sink { [weak self] in self?.persistReplayCheckpoint() }
+            .store(in: &cancellables)
+
+        if let outputReplayCheckpoint {
+            restore(outputReplayCheckpoint)
+        }
+
+        bufferedOutputReplayPublisher
+            .sink { [weak adapter] event in
+                adapter?.replayOutputEvent(event, consumer: outputReplayConsumer)
+            }
+            .store(in: &cancellables)
+
+        persistReplayCheckpoint()
     }
 }
 
@@ -125,6 +186,7 @@ private extension SUITitledViewStateModel {
         latestTitlesOutputSequence = outputSequence
         self.titles = titles
         titlesAdapter.display(model: titles)
+        persistReplayCheckpoint()
     }
 
     func display(
@@ -151,6 +213,7 @@ private extension SUITitledViewStateModel {
             )
         }
         bottomTitlesAdapter.display(model: self.bottomTitles)
+        persistReplayCheckpoint()
     }
 
     func display(
@@ -161,6 +224,7 @@ private extension SUITitledViewStateModel {
         latestLeadingBottomTitleOutputSequence = outputSequence
         bottomTitles = .init(leadingBottomTitle, bottomTitles?.second)
         bottomTitlesAdapter.display(keyTitle: leadingBottomTitle)
+        persistReplayCheckpoint()
     }
 
     func display(
@@ -171,18 +235,39 @@ private extension SUITitledViewStateModel {
         latestTrailingBottomTitleOutputSequence = outputSequence
         bottomTitles = .init(bottomTitles?.first, trailingBottomTitle)
         bottomTitlesAdapter.display(valueTitle: trailingBottomTitle)
+        persistReplayCheckpoint()
     }
 
     func display(isUserInteractionEnabled: Bool, outputSequence: UInt64) {
         guard outputSequence >= latestInteractionOutputSequence else { return }
         latestInteractionOutputSequence = outputSequence
         self.isUserInteractionEnabled = isUserInteractionEnabled
+        persistReplayCheckpoint()
     }
 
     func display(isHidden: Bool, outputSequence: UInt64) {
         guard outputSequence >= latestVisibilityOutputSequence else { return }
         latestVisibilityOutputSequence = outputSequence
         self.isHidden = isHidden
+        persistReplayCheckpoint()
+    }
+
+    func persistReplayCheckpoint() {
+        adapter.updateOutputReplayCheckpoint(consumer: outputReplayConsumer, OutputReplayCheckpoint(
+            isHidden: isHidden,
+            isUserInteractionEnabled: isUserInteractionEnabled,
+            titles: titles,
+            bottomTitles: bottomTitles,
+            titlesAdapter: titlesAdapter,
+            bottomTitlesAdapter: bottomTitlesAdapter
+        ))
+    }
+
+    private func restore(_ checkpoint: OutputReplayCheckpoint) {
+        isHidden = checkpoint.isHidden
+        isUserInteractionEnabled = checkpoint.isUserInteractionEnabled
+        titles = checkpoint.titles
+        bottomTitles = checkpoint.bottomTitles
     }
 }
 

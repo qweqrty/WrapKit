@@ -5,6 +5,50 @@ import SwiftUI
 import Combine
 
 final class SUICardViewStateModel: ObservableObject {
+    private struct SequencedOutput {
+        let sequence: UInt64
+        let apply: (SUICardViewStateModel) -> Void
+    }
+
+    private struct OutputReplayCheckpoint {
+        let isHidden: Bool
+        let accessibilityIdentifier: String?
+        let accessibilityLabel: String?
+        let accessibilityHint: String?
+        let style: CardViewPresentableModel.Style
+        let backgroundImage: ImageViewPresentableModel?
+        let title: TextOutputPresentableModel?
+        let leadingTitles: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>?
+        let trailingTitles: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>?
+        let leadingImage: ImageViewPresentableModel?
+        let secondaryLeadingImage: ImageViewPresentableModel?
+        let trailingImage: ImageViewPresentableModel?
+        let secondaryTrailingImage: ImageViewPresentableModel?
+        let subTitle: TextOutputPresentableModel?
+        let valueTitle: TextOutputPresentableModel?
+        let bottomImage: ImageViewPresentableModel?
+        let bottomSeparator: CardViewPresentableModel.BottomSeparator?
+        let switchControl: SwitchControlPresentableModel?
+        let onPress: (() -> Void)?
+        let onLongPress: (() -> Void)?
+        let isUserInteractionEnabled: Bool
+        let activeGradientBorderColors: [Color]?
+        let trailingImageLeadingSpacing: CGFloat?
+        let secondaryTrailingImageLeadingSpacing: CGFloat?
+        let retainedBackgroundImage: ImageViewPresentableModel
+        let backgroundImageAdapter: ImageViewOutputSwiftUIAdapter
+        let leadingImageAdapter: ImageViewOutputSwiftUIAdapter
+        let secondaryLeadingImageAdapter: ImageViewOutputSwiftUIAdapter
+        let trailingImageAdapter: ImageViewOutputSwiftUIAdapter
+        let secondaryTrailingImageAdapter: ImageViewOutputSwiftUIAdapter
+        let bottomImageAdapter: ImageViewOutputSwiftUIAdapter
+        let leadingTitlesAdapter: KeyValueFieldViewOutputSwiftUIAdapter
+        let titleViewsAdapter: KeyValueFieldViewOutputSwiftUIAdapter
+        let trailingTitlesAdapter: KeyValueFieldViewOutputSwiftUIAdapter
+        let switchControlAdapter: SwitchCotrolOutputSwiftUIAdapter
+        let subTitleAdapter: TextOutputSwiftUIAdapter
+    }
+
     @Published var isHidden: Bool = false
     @Published var accessibilityIdentifier: String?
     @Published var accessibilityLabel: String?
@@ -50,198 +94,558 @@ final class SUICardViewStateModel: ObservableObject {
     @Published private(set) var trailingImageLeadingSpacing: CGFloat?
     @Published private(set) var secondaryTrailingImageLeadingSpacing: CGFloat?
 
-    let backgroundImageAdapter = ImageViewOutputSwiftUIAdapter()
-    let leadingImageAdapter = ImageViewOutputSwiftUIAdapter()
-    let secondaryLeadingImageAdapter = ImageViewOutputSwiftUIAdapter()
-    let trailingImageAdapter = ImageViewOutputSwiftUIAdapter()
-    let secondaryTrailingImageAdapter = ImageViewOutputSwiftUIAdapter()
-    let bottomImageAdapter = ImageViewOutputSwiftUIAdapter()
-    let leadingTitlesAdapter = KeyValueFieldViewOutputSwiftUIAdapter()
-    let titleViewsAdapter = KeyValueFieldViewOutputSwiftUIAdapter()
-    let trailingTitlesAdapter = KeyValueFieldViewOutputSwiftUIAdapter()
-    let switchControlAdapter = SwitchCotrolOutputSwiftUIAdapter()
+    let backgroundImageAdapter: ImageViewOutputSwiftUIAdapter
+    let leadingImageAdapter: ImageViewOutputSwiftUIAdapter
+    let secondaryLeadingImageAdapter: ImageViewOutputSwiftUIAdapter
+    let trailingImageAdapter: ImageViewOutputSwiftUIAdapter
+    let secondaryTrailingImageAdapter: ImageViewOutputSwiftUIAdapter
+    let bottomImageAdapter: ImageViewOutputSwiftUIAdapter
+    let leadingTitlesAdapter: KeyValueFieldViewOutputSwiftUIAdapter
+    let titleViewsAdapter: KeyValueFieldViewOutputSwiftUIAdapter
+    let trailingTitlesAdapter: KeyValueFieldViewOutputSwiftUIAdapter
+    let switchControlAdapter: SwitchCotrolOutputSwiftUIAdapter
+    let subTitleAdapter: TextOutputSwiftUIAdapter
+    let subTitleStateModel: SUILabelStateModel
 
+    private let adapter: CardViewOutputSwiftUIAdapter
+
+    private var outputReplayConsumer: CardViewOutputSwiftUIAdapter.OutputReplayConsumer?
     private var retainedBackgroundImage = ImageViewPresentableModel()
     private var cancellables: Set<AnyCancellable> = []
+    private var latestVisibilityOutputSequence: UInt64 = 0
+    private var latestStyleOutputSequence: UInt64 = 0
+    private var latestBackgroundImageOutputSequence: UInt64 = 0
+    private var latestTitleOutputSequence: UInt64 = 0
+    private var latestLeadingTitlesOutputSequence: UInt64 = 0
+    private var latestTrailingTitlesOutputSequence: UInt64 = 0
+    private var latestLeadingImageOutputSequence: UInt64 = 0
+    private var latestSecondaryLeadingImageOutputSequence: UInt64 = 0
+    private var latestTrailingImageOutputSequence: UInt64 = 0
+    private var latestSecondaryTrailingImageOutputSequence: UInt64 = 0
+    private var latestSubTitleOutputSequence: UInt64 = 0
+    private var latestValueTitleOutputSequence: UInt64 = 0
+    private var latestBottomImageOutputSequence: UInt64 = 0
+    private var latestBottomSeparatorOutputSequence: UInt64 = 0
+    private var latestSwitchControlOutputSequence: UInt64 = 0
+    private var latestOnPressOutputSequence: UInt64 = 0
+    private var latestOnLongPressOutputSequence: UInt64 = 0
+    private var latestUserInteractionOutputSequence: UInt64 = 0
+    private var latestGradientBorderOutputSequence: UInt64 = 0
+    private var isCollectingInitialOutputs = true
+    private var initialOutputs: [SequencedOutput] = []
 
     init(adapter: CardViewOutputSwiftUIAdapter) {
-        adapter.$displayModelState
+        let outputReplayConsumer = adapter.claimOutputReplayConsumer()
+        self.outputReplayConsumer = outputReplayConsumer
+        let outputReplayCheckpoint = adapter.outputReplayCheckpoint(
+            as: OutputReplayCheckpoint.self,
+            consumer: outputReplayConsumer
+        )
+        let bufferedOutputReplayPublisher = adapter.bufferedOutputReplayPublisher(consumer: outputReplayConsumer)
+        self.adapter = adapter
+        backgroundImageAdapter = outputReplayCheckpoint?.backgroundImageAdapter
+            ?? ImageViewOutputSwiftUIAdapter()
+        leadingImageAdapter = outputReplayCheckpoint?.leadingImageAdapter
+            ?? ImageViewOutputSwiftUIAdapter()
+        secondaryLeadingImageAdapter = outputReplayCheckpoint?.secondaryLeadingImageAdapter
+            ?? ImageViewOutputSwiftUIAdapter()
+        trailingImageAdapter = outputReplayCheckpoint?.trailingImageAdapter
+            ?? ImageViewOutputSwiftUIAdapter()
+        secondaryTrailingImageAdapter = outputReplayCheckpoint?.secondaryTrailingImageAdapter
+            ?? ImageViewOutputSwiftUIAdapter()
+        bottomImageAdapter = outputReplayCheckpoint?.bottomImageAdapter
+            ?? ImageViewOutputSwiftUIAdapter()
+        leadingTitlesAdapter = outputReplayCheckpoint?.leadingTitlesAdapter
+            ?? KeyValueFieldViewOutputSwiftUIAdapter()
+        titleViewsAdapter = outputReplayCheckpoint?.titleViewsAdapter
+            ?? KeyValueFieldViewOutputSwiftUIAdapter()
+        trailingTitlesAdapter = outputReplayCheckpoint?.trailingTitlesAdapter
+            ?? KeyValueFieldViewOutputSwiftUIAdapter()
+        switchControlAdapter = outputReplayCheckpoint?.switchControlAdapter
+            ?? SwitchCotrolOutputSwiftUIAdapter()
+        subTitleAdapter = outputReplayCheckpoint?.subTitleAdapter
+            ?? TextOutputSwiftUIAdapter()
+        subTitleStateModel = SUILabelStateModel(adapter: subTitleAdapter)
+
+        if outputReplayCheckpoint == nil {
+            synchronizeChildAdapters()
+        }
+
+        adapter.outputReplayPublisher(
+            adapter.$displayModelState,
+            consumer: outputReplayConsumer
+        )
             .sink { [weak self] state in
-                guard let state else { return }
-                self?.apply(model: state.model)
+                guard let self, let state else { return }
+                receive(outputSequence: state.outputSequence) {
+                    $0.apply(model: state.model, outputSequence: state.outputSequence)
+                }
             }
             .store(in: &cancellables)
 
-        adapter.$displayStyleState
+        adapter.outputReplayPublisher(
+            adapter.$displayStyleState,
+            consumer: outputReplayConsumer
+        )
             .sink { [weak self] state in
-                guard let state, let style = state.style else { return }
-                self?.style = style
+                guard let self, let state, let style = state.style else { return }
+                receive(outputSequence: state.outputSequence) {
+                    $0.apply(style: style, outputSequence: state.outputSequence)
+                }
             }
             .store(in: &cancellables)
 
-        adapter.$displayBackgroundImageState
+        adapter.outputReplayPublisher(
+            adapter.$displayBackgroundImageState,
+            consumer: outputReplayConsumer
+        )
             .sink { [weak self] state in
-                guard let state else { return }
-                self?.setBackgroundImage(state.backgroundImage)
+                guard let self, let state else { return }
+                receive(outputSequence: state.outputSequence) {
+                    $0.apply(backgroundImage: state.backgroundImage, outputSequence: state.outputSequence)
+                }
             }
             .store(in: &cancellables)
 
-        adapter.$displayTitleState
+        adapter.outputReplayPublisher(
+            adapter.$displayTitleState,
+            consumer: outputReplayConsumer
+        )
             .sink { [weak self] state in
-                guard let state else { return }
-                self?.setTitle(state.title)
+                guard let self, let state else { return }
+                receive(outputSequence: state.outputSequence) {
+                    $0.apply(title: state.title, outputSequence: state.outputSequence)
+                }
             }
             .store(in: &cancellables)
 
-        adapter.$displayLeadingTitlesState
+        adapter.outputReplayPublisher(
+            adapter.$displayLeadingTitlesState,
+            consumer: outputReplayConsumer
+        )
             .sink { [weak self] state in
-                guard let state else { return }
-                self?.setLeadingTitles(state.leadingTitles)
+                guard let self, let state else { return }
+                receive(outputSequence: state.outputSequence) {
+                    $0.apply(leadingTitles: state.leadingTitles, outputSequence: state.outputSequence)
+                }
             }
             .store(in: &cancellables)
 
-        adapter.$displayTrailingTitlesState
+        adapter.outputReplayPublisher(
+            adapter.$displayTrailingTitlesState,
+            consumer: outputReplayConsumer
+        )
             .sink { [weak self] state in
-                guard let state else { return }
-                self?.setTrailingTitles(state.trailingTitles)
+                guard let self, let state else { return }
+                receive(outputSequence: state.outputSequence) {
+                    $0.apply(trailingTitles: state.trailingTitles, outputSequence: state.outputSequence)
+                }
             }
             .store(in: &cancellables)
 
-        adapter.$displayLeadingImageState
+        adapter.outputReplayPublisher(
+            adapter.$displayLeadingImageState,
+            consumer: outputReplayConsumer
+        )
             .sink { [weak self] state in
-                guard let state else { return }
-                self?.setLeadingImage(state.leadingImage)
+                guard let self, let state else { return }
+                receive(outputSequence: state.outputSequence) {
+                    $0.apply(leadingImage: state.leadingImage, outputSequence: state.outputSequence)
+                }
             }
             .store(in: &cancellables)
 
-        adapter.$displaySecondaryLeadingImageState
+        adapter.outputReplayPublisher(
+            adapter.$displaySecondaryLeadingImageState,
+            consumer: outputReplayConsumer
+        )
             .sink { [weak self] state in
-                guard let state else { return }
-                self?.setSecondaryLeadingImage(state.secondaryLeadingImage)
+                guard let self, let state else { return }
+                receive(outputSequence: state.outputSequence) {
+                    $0.apply(
+                        secondaryLeadingImage: state.secondaryLeadingImage,
+                        outputSequence: state.outputSequence
+                    )
+                }
             }
             .store(in: &cancellables)
 
-        adapter.$displayTrailingImageState
+        adapter.outputReplayPublisher(
+            adapter.$displayTrailingImageState,
+            consumer: outputReplayConsumer
+        )
             .sink { [weak self] state in
-                guard let state else { return }
-                self?.setTrailingImage(state.trailingImage)
+                guard let self, let state else { return }
+                receive(outputSequence: state.outputSequence) {
+                    $0.apply(trailingImage: state.trailingImage, outputSequence: state.outputSequence)
+                }
             }
             .store(in: &cancellables)
 
-        adapter.$displaySecondaryTrailingImageState
+        adapter.outputReplayPublisher(
+            adapter.$displaySecondaryTrailingImageState,
+            consumer: outputReplayConsumer
+        )
             .sink { [weak self] state in
-                guard let state else { return }
-                self?.setSecondaryTrailingImage(state.secondaryTrailingImage)
+                guard let self, let state else { return }
+                receive(outputSequence: state.outputSequence) {
+                    $0.apply(
+                        secondaryTrailingImage: state.secondaryTrailingImage,
+                        outputSequence: state.outputSequence
+                    )
+                }
             }
             .store(in: &cancellables)
 
-        adapter.$displaySubTitleState
+        adapter.outputReplayPublisher(
+            adapter.$displaySubTitleState,
+            consumer: outputReplayConsumer
+        )
             .sink { [weak self] state in
-                guard let state else { return }
-                self?.setSubTitle(state.subTitle)
+                guard let self, let state else { return }
+                receive(outputSequence: state.outputSequence) {
+                    $0.apply(subTitle: state.subTitle, outputSequence: state.outputSequence)
+                }
             }
             .store(in: &cancellables)
 
-        adapter.$displayValueTitleState
+        adapter.outputReplayPublisher(
+            adapter.$displayValueTitleState,
+            consumer: outputReplayConsumer
+        )
             .sink { [weak self] state in
-                guard let state else { return }
-                self?.setValueTitle(state.valueTitle)
+                guard let self, let state else { return }
+                receive(outputSequence: state.outputSequence) {
+                    $0.apply(valueTitle: state.valueTitle, outputSequence: state.outputSequence)
+                }
             }
             .store(in: &cancellables)
 
-        adapter.$displayBottomImageState
+        adapter.outputReplayPublisher(
+            adapter.$displayBottomImageState,
+            consumer: outputReplayConsumer
+        )
             .sink { [weak self] state in
-                guard let state else { return }
-                self?.setBottomImage(state.bottomImage)
+                guard let self, let state else { return }
+                receive(outputSequence: state.outputSequence) {
+                    $0.apply(bottomImage: state.bottomImage, outputSequence: state.outputSequence)
+                }
             }
             .store(in: &cancellables)
 
-        adapter.$displayBottomSeparatorState
+        adapter.outputReplayPublisher(
+            adapter.$displayBottomSeparatorState,
+            consumer: outputReplayConsumer
+        )
             .sink { [weak self] state in
-                guard let state else { return }
-                self?.bottomSeparator = state.bottomSeparator
+                guard let self, let state else { return }
+                receive(outputSequence: state.outputSequence) {
+                    $0.apply(bottomSeparator: state.bottomSeparator, outputSequence: state.outputSequence)
+                }
             }
             .store(in: &cancellables)
 
-        adapter.$displaySwitchControlState
+        adapter.outputReplayPublisher(
+            adapter.$displaySwitchControlState,
+            consumer: outputReplayConsumer
+        )
             .sink { [weak self] state in
-                guard let state else { return }
-                self?.setSwitchControl(state.switchControl)
+                guard let self, let state else { return }
+                receive(outputSequence: state.outputSequence) {
+                    $0.apply(switchControl: state.switchControl, outputSequence: state.outputSequence)
+                }
             }
             .store(in: &cancellables)
 
-        adapter.$displayOnPressState
+        adapter.outputReplayPublisher(
+            adapter.$displayOnPressState,
+            consumer: outputReplayConsumer
+        )
             .sink { [weak self] state in
-                guard let state else { return }
-                self?.onPress = state.onPress
+                guard let self, let state else { return }
+                receive(outputSequence: state.outputSequence) {
+                    $0.apply(onPress: state.onPress, outputSequence: state.outputSequence)
+                }
             }
             .store(in: &cancellables)
 
-        adapter.$displayOnLongPressState
+        adapter.outputReplayPublisher(
+            adapter.$displayOnLongPressState,
+            consumer: outputReplayConsumer
+        )
             .sink { [weak self] state in
-                guard let state else { return }
-                self?.onLongPress = state.onLongPress
+                guard let self, let state else { return }
+                receive(outputSequence: state.outputSequence) {
+                    $0.apply(onLongPress: state.onLongPress, outputSequence: state.outputSequence)
+                }
             }
             .store(in: &cancellables)
 
-        adapter.$displayIsHiddenState
+        adapter.outputReplayPublisher(
+            adapter.$displayIsHiddenState,
+            consumer: outputReplayConsumer
+        )
             .sink { [weak self] state in
-                guard let state else { return }
-                self?.isHidden = state.isHidden
+                guard let self, let state else { return }
+                receive(outputSequence: state.outputSequence) {
+                    $0.apply(isHidden: state.isHidden, outputSequence: state.outputSequence)
+                }
             }
             .store(in: &cancellables)
 
-        adapter.$displayIsUserInteractionEnabledState
+        adapter.outputReplayPublisher(
+            adapter.$displayIsUserInteractionEnabledState,
+            consumer: outputReplayConsumer
+        )
             .sink { [weak self] state in
-                guard let state, let isEnabled = state.isUserInteractionEnabled else { return }
-                self?.isUserInteractionEnabled = isEnabled
+                guard let self,
+                      let state,
+                      let isEnabled = state.isUserInteractionEnabled else { return }
+                receive(outputSequence: state.outputSequence) {
+                    $0.apply(isUserInteractionEnabled: isEnabled, outputSequence: state.outputSequence)
+                }
             }
             .store(in: &cancellables)
 
-        adapter.$displayIsGradientBorderEnabledState
+        adapter.outputReplayPublisher(
+            adapter.$displayIsGradientBorderEnabledState,
+            consumer: outputReplayConsumer
+        )
             .sink { [weak self] state in
-                guard let state else { return }
-                self?.applyGradientBorder(isEnabled: state.isGradientBorderEnabled)
+                guard let self, let state else { return }
+                receive(outputSequence: state.outputSequence) {
+                    $0.apply(
+                        isGradientBorderEnabled: state.isGradientBorderEnabled,
+                        outputSequence: state.outputSequence
+                    )
+                }
             }
             .store(in: &cancellables)
 
-        syncAdapters()
+        adapter.outputReplayCheckpointRequestPublisher(consumer: outputReplayConsumer)
+            .sink { [weak self] in self?.persistReplayCheckpoint() }
+            .store(in: &cancellables)
+
+        if let outputReplayCheckpoint {
+            restore(outputReplayCheckpoint)
+        }
+
+        bufferedOutputReplayPublisher
+            .sink { [weak adapter] event in
+                adapter?.replayOutputEvent(event, consumer: outputReplayConsumer)
+            }
+            .store(in: &cancellables)
+
+        replayInitialOutputs()
+        persistReplayCheckpoint()
     }
 
-    private func apply(model: CardViewPresentableModel?) {
-        isHidden = model == nil
+    private func apply(model: CardViewPresentableModel?, outputSequence: UInt64) {
+        apply(isHidden: model == nil, outputSequence: outputSequence)
         accessibilityIdentifier = model?.accessibilityIdentifier
         accessibilityLabel = model?.accessibility?.label
         accessibilityHint = model?.accessibility?.hint
-        guard let model else { return }
+        guard let model else {
+            persistReplayCheckpoint()
+            return
+        }
 
         if let style = model.style {
-            self.style = style
+            apply(style: style, outputSequence: outputSequence)
         }
 
-        setBackgroundImage(model.backgroundImage)
-        setTitle(model.title)
-        setLeadingTitles(model.leadingTitles)
-        setTrailingTitles(model.trailingTitles)
-        setLeadingImage(model.leadingImage)
-        setSecondaryLeadingImage(model.secondaryLeadingImage)
-        setTrailingImage(model.trailingImage)
-        setSecondaryTrailingImage(model.secondaryTrailingImage)
-        setSubTitle(model.subTitle)
-        setValueTitle(model.valueTitle)
-        setBottomImage(model.bottomImage)
-        bottomSeparator = model.bottomSeparator
-        setSwitchControl(model.switchControl)
-        onPress = model.onPress
-        onLongPress = model.onLongPress
+        apply(backgroundImage: model.backgroundImage, outputSequence: outputSequence)
+        apply(leadingTitles: model.leadingTitles, outputSequence: outputSequence)
+        apply(title: model.title, outputSequence: outputSequence)
+        apply(valueTitle: model.valueTitle, outputSequence: outputSequence)
+        apply(subTitle: model.subTitle, outputSequence: outputSequence)
+        apply(leadingImage: model.leadingImage, outputSequence: outputSequence)
+        apply(secondaryLeadingImage: model.secondaryLeadingImage, outputSequence: outputSequence)
+        apply(trailingImage: model.trailingImage, outputSequence: outputSequence)
+        apply(secondaryTrailingImage: model.secondaryTrailingImage, outputSequence: outputSequence)
+        apply(bottomImage: model.bottomImage, outputSequence: outputSequence)
+        apply(bottomSeparator: model.bottomSeparator, outputSequence: outputSequence)
+        apply(switchControl: model.switchControl, outputSequence: outputSequence)
+        apply(trailingTitles: model.trailingTitles, outputSequence: outputSequence)
+        apply(onPress: model.onPress, outputSequence: outputSequence)
+        apply(onLongPress: model.onLongPress, outputSequence: outputSequence)
         if let isUserInteractionEnabled = model.isUserInteractionEnabled {
-            self.isUserInteractionEnabled = isUserInteractionEnabled
+            apply(
+                isUserInteractionEnabled: isUserInteractionEnabled,
+                outputSequence: outputSequence
+            )
         }
-        applyGradientBorder(isEnabled: model.isGradientBorderEnabled)
+        apply(
+            isGradientBorderEnabled: model.isGradientBorderEnabled,
+            outputSequence: outputSequence
+        )
+        persistReplayCheckpoint()
+    }
+
+    private func receive(
+        outputSequence: UInt64,
+        apply: @escaping (SUICardViewStateModel) -> Void
+    ) {
+        let output = SequencedOutput(sequence: outputSequence, apply: apply)
+        if isCollectingInitialOutputs {
+            initialOutputs.append(output)
+        } else {
+            output.apply(self)
+        }
+    }
+
+    private func replayInitialOutputs() {
+        isCollectingInitialOutputs = false
+        let outputs = initialOutputs.sorted { $0.sequence < $1.sequence }
+        initialOutputs.removeAll()
+        outputs.forEach { $0.apply(self) }
+    }
+
+    private func apply(isHidden: Bool, outputSequence: UInt64) {
+        guard outputSequence >= latestVisibilityOutputSequence else { return }
+        latestVisibilityOutputSequence = outputSequence
+        self.isHidden = isHidden
+        persistReplayCheckpoint()
+    }
+
+    private func apply(style: CardViewPresentableModel.Style, outputSequence: UInt64) {
+        guard outputSequence >= latestStyleOutputSequence else { return }
+        latestStyleOutputSequence = outputSequence
+        self.style = style
+        persistReplayCheckpoint()
+    }
+
+    private func apply(backgroundImage: ImageViewPresentableModel?, outputSequence: UInt64) {
+        guard outputSequence >= latestBackgroundImageOutputSequence else { return }
+        latestBackgroundImageOutputSequence = outputSequence
+        setBackgroundImage(backgroundImage)
+        persistReplayCheckpoint()
+    }
+
+    private func apply(title: TextOutputPresentableModel?, outputSequence: UInt64) {
+        guard outputSequence >= latestTitleOutputSequence else { return }
+        latestTitleOutputSequence = outputSequence
+        setTitle(title)
+        persistReplayCheckpoint()
+    }
+
+    private func apply(
+        leadingTitles: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>?,
+        outputSequence: UInt64
+    ) {
+        guard outputSequence >= latestLeadingTitlesOutputSequence else { return }
+        latestLeadingTitlesOutputSequence = outputSequence
+        setLeadingTitles(leadingTitles)
+        persistReplayCheckpoint()
+    }
+
+    private func apply(
+        trailingTitles: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>?,
+        outputSequence: UInt64
+    ) {
+        guard outputSequence >= latestTrailingTitlesOutputSequence else { return }
+        latestTrailingTitlesOutputSequence = outputSequence
+        setTrailingTitles(trailingTitles)
+        persistReplayCheckpoint()
+    }
+
+    private func apply(leadingImage: ImageViewPresentableModel?, outputSequence: UInt64) {
+        guard outputSequence >= latestLeadingImageOutputSequence else { return }
+        latestLeadingImageOutputSequence = outputSequence
+        setLeadingImage(leadingImage)
+        persistReplayCheckpoint()
+    }
+
+    private func apply(secondaryLeadingImage: ImageViewPresentableModel?, outputSequence: UInt64) {
+        guard outputSequence >= latestSecondaryLeadingImageOutputSequence else { return }
+        latestSecondaryLeadingImageOutputSequence = outputSequence
+        setSecondaryLeadingImage(secondaryLeadingImage)
+        persistReplayCheckpoint()
+    }
+
+    private func apply(trailingImage: ImageViewPresentableModel?, outputSequence: UInt64) {
+        guard outputSequence >= latestTrailingImageOutputSequence else { return }
+        latestTrailingImageOutputSequence = outputSequence
+        setTrailingImage(trailingImage)
+        persistReplayCheckpoint()
+    }
+
+    private func apply(secondaryTrailingImage: ImageViewPresentableModel?, outputSequence: UInt64) {
+        guard outputSequence >= latestSecondaryTrailingImageOutputSequence else { return }
+        latestSecondaryTrailingImageOutputSequence = outputSequence
+        setSecondaryTrailingImage(secondaryTrailingImage)
+        persistReplayCheckpoint()
+    }
+
+    private func apply(subTitle: TextOutputPresentableModel?, outputSequence: UInt64) {
+        guard outputSequence >= latestSubTitleOutputSequence else { return }
+        latestSubTitleOutputSequence = outputSequence
+        setSubTitle(subTitle)
+        persistReplayCheckpoint()
+    }
+
+    private func apply(valueTitle: TextOutputPresentableModel?, outputSequence: UInt64) {
+        guard outputSequence >= latestValueTitleOutputSequence else { return }
+        latestValueTitleOutputSequence = outputSequence
+        setValueTitle(valueTitle)
+        persistReplayCheckpoint()
+    }
+
+    private func apply(bottomImage: ImageViewPresentableModel?, outputSequence: UInt64) {
+        guard outputSequence >= latestBottomImageOutputSequence else { return }
+        latestBottomImageOutputSequence = outputSequence
+        setBottomImage(bottomImage)
+        persistReplayCheckpoint()
+    }
+
+    private func apply(
+        bottomSeparator: CardViewPresentableModel.BottomSeparator?,
+        outputSequence: UInt64
+    ) {
+        guard outputSequence >= latestBottomSeparatorOutputSequence else { return }
+        latestBottomSeparatorOutputSequence = outputSequence
+        self.bottomSeparator = bottomSeparator
+        persistReplayCheckpoint()
+    }
+
+    private func apply(switchControl: SwitchControlPresentableModel?, outputSequence: UInt64) {
+        guard outputSequence >= latestSwitchControlOutputSequence else { return }
+        latestSwitchControlOutputSequence = outputSequence
+        setSwitchControl(switchControl)
+        persistReplayCheckpoint()
+    }
+
+    private func apply(onPress: (() -> Void)?, outputSequence: UInt64) {
+        guard outputSequence >= latestOnPressOutputSequence else { return }
+        latestOnPressOutputSequence = outputSequence
+        self.onPress = onPress
+        persistReplayCheckpoint()
+    }
+
+    private func apply(onLongPress: (() -> Void)?, outputSequence: UInt64) {
+        guard outputSequence >= latestOnLongPressOutputSequence else { return }
+        latestOnLongPressOutputSequence = outputSequence
+        self.onLongPress = onLongPress
+        persistReplayCheckpoint()
+    }
+
+    private func apply(isUserInteractionEnabled: Bool, outputSequence: UInt64) {
+        guard outputSequence >= latestUserInteractionOutputSequence else { return }
+        latestUserInteractionOutputSequence = outputSequence
+        self.isUserInteractionEnabled = isUserInteractionEnabled
+        persistReplayCheckpoint()
+    }
+
+    private func apply(isGradientBorderEnabled: Bool, outputSequence: UInt64) {
+        guard outputSequence >= latestGradientBorderOutputSequence else { return }
+        latestGradientBorderOutputSequence = outputSequence
+        applyGradientBorder(isEnabled: isGradientBorderEnabled)
+        persistReplayCheckpoint()
     }
 
     private func setBackgroundImage(_ model: ImageViewPresentableModel?) {
         guard let model else {
+            retainedBackgroundImage = retainedBackgroundImage.clearingForNilModel()
             backgroundImage = nil
             backgroundImageAdapter.display(model: nil)
             return
@@ -289,6 +693,7 @@ final class SUICardViewStateModel: ObservableObject {
 
     private func setSubTitle(_ model: TextOutputPresentableModel?) {
         subTitle = model
+        subTitleAdapter.display(model: model)
     }
 
     private func setSwitchControl(_ model: SwitchControlPresentableModel?) {
@@ -322,6 +727,22 @@ final class SUICardViewStateModel: ObservableObject {
         trailingTitlesAdapter.display(model: model)
     }
 
+    private func synchronizeChildAdapters() {
+        backgroundImageAdapter.display(model: backgroundImage)
+        leadingTitlesAdapter.display(model: leadingTitles)
+        // CardView's original setup synchronizes only the value slot. The key slot stays in
+        // its initial visible state until a title output is received, matching UIKit layout.
+        titleViewsAdapter.display(valueTitle: valueTitle)
+        trailingTitlesAdapter.display(model: trailingTitles)
+        leadingImageAdapter.display(model: leadingImage)
+        secondaryLeadingImageAdapter.display(model: secondaryLeadingImage)
+        trailingImageAdapter.display(model: trailingImage)
+        secondaryTrailingImageAdapter.display(model: secondaryTrailingImage)
+        bottomImageAdapter.display(model: bottomImage)
+        switchControlAdapter.display(model: switchControl)
+        subTitleAdapter.display(model: subTitle)
+    }
+
     private func normalizeIconImageModel(_ model: ImageViewPresentableModel?) -> ImageViewPresentableModel? {
         guard let model else { return nil }
 
@@ -353,19 +774,75 @@ final class SUICardViewStateModel: ObservableObject {
         )
     }
 
-    private func syncAdapters() {
-        setBackgroundImage(backgroundImage)
-        setLeadingTitles(leadingTitles)
-        setTrailingTitles(trailingTitles)
-        setLeadingImage(leadingImage)
-        setSecondaryLeadingImage(secondaryLeadingImage)
-        setTrailingImage(trailingImage)
-        setSecondaryTrailingImage(secondaryTrailingImage)
-        setSubTitle(subTitle)
-        setValueTitle(valueTitle)
-        setBottomImage(bottomImage)
-        setSwitchControl(switchControl)
+    private func persistReplayCheckpoint() {
+        adapter.updateOutputReplayCheckpoint(consumer: outputReplayConsumer, OutputReplayCheckpoint(
+            isHidden: isHidden,
+            accessibilityIdentifier: accessibilityIdentifier,
+            accessibilityLabel: accessibilityLabel,
+            accessibilityHint: accessibilityHint,
+            style: style,
+            backgroundImage: backgroundImage,
+            title: title,
+            leadingTitles: leadingTitles,
+            trailingTitles: trailingTitles,
+            leadingImage: leadingImage,
+            secondaryLeadingImage: secondaryLeadingImage,
+            trailingImage: trailingImage,
+            secondaryTrailingImage: secondaryTrailingImage,
+            subTitle: subTitle,
+            valueTitle: valueTitle,
+            bottomImage: bottomImage,
+            bottomSeparator: bottomSeparator,
+            switchControl: switchControl,
+            onPress: onPress,
+            onLongPress: onLongPress,
+            isUserInteractionEnabled: isUserInteractionEnabled,
+            activeGradientBorderColors: activeGradientBorderColors,
+            trailingImageLeadingSpacing: trailingImageLeadingSpacing,
+            secondaryTrailingImageLeadingSpacing: secondaryTrailingImageLeadingSpacing,
+            retainedBackgroundImage: retainedBackgroundImage,
+            backgroundImageAdapter: backgroundImageAdapter,
+            leadingImageAdapter: leadingImageAdapter,
+            secondaryLeadingImageAdapter: secondaryLeadingImageAdapter,
+            trailingImageAdapter: trailingImageAdapter,
+            secondaryTrailingImageAdapter: secondaryTrailingImageAdapter,
+            bottomImageAdapter: bottomImageAdapter,
+            leadingTitlesAdapter: leadingTitlesAdapter,
+            titleViewsAdapter: titleViewsAdapter,
+            trailingTitlesAdapter: trailingTitlesAdapter,
+            switchControlAdapter: switchControlAdapter,
+            subTitleAdapter: subTitleAdapter
+        ))
     }
+
+    private func restore(_ checkpoint: OutputReplayCheckpoint) {
+        isHidden = checkpoint.isHidden
+        accessibilityIdentifier = checkpoint.accessibilityIdentifier
+        accessibilityLabel = checkpoint.accessibilityLabel
+        accessibilityHint = checkpoint.accessibilityHint
+        style = checkpoint.style
+        backgroundImage = checkpoint.backgroundImage
+        title = checkpoint.title
+        leadingTitles = checkpoint.leadingTitles
+        trailingTitles = checkpoint.trailingTitles
+        leadingImage = checkpoint.leadingImage
+        secondaryLeadingImage = checkpoint.secondaryLeadingImage
+        trailingImage = checkpoint.trailingImage
+        secondaryTrailingImage = checkpoint.secondaryTrailingImage
+        subTitle = checkpoint.subTitle
+        valueTitle = checkpoint.valueTitle
+        bottomImage = checkpoint.bottomImage
+        bottomSeparator = checkpoint.bottomSeparator
+        switchControl = checkpoint.switchControl
+        onPress = checkpoint.onPress
+        onLongPress = checkpoint.onLongPress
+        isUserInteractionEnabled = checkpoint.isUserInteractionEnabled
+        activeGradientBorderColors = checkpoint.activeGradientBorderColors
+        trailingImageLeadingSpacing = checkpoint.trailingImageLeadingSpacing
+        secondaryTrailingImageLeadingSpacing = checkpoint.secondaryTrailingImageLeadingSpacing
+        retainedBackgroundImage = checkpoint.retainedBackgroundImage
+    }
+
 }
 
 #endif

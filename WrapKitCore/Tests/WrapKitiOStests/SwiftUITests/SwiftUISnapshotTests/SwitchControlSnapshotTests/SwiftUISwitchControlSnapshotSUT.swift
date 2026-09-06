@@ -12,14 +12,19 @@ import SwiftUI
 
 final class SwiftUISwitchControlSnapshotSUT: SwitchCotrolOutput, LoadingOutput, SwiftUISnapshotSource {
     private let swiftUIAdapter: SwitchCotrolOutputSwiftUIAdapter
-    private let shimmerPhase: SUIShimmerPhase
+    private var lightHostingController: UIViewController?
+    private var darkHostingController: UIViewController?
 
-    init(
-        swiftUIAdapter: SwitchCotrolOutputSwiftUIAdapter = SwitchCotrolOutputSwiftUIAdapter(),
-        shimmerPhase: SUIShimmerPhase = .fixed(horizontalOffset: 0)
-    ) {
+    init(swiftUIAdapter: SwitchCotrolOutputSwiftUIAdapter = SwitchCotrolOutputSwiftUIAdapter()) {
         self.swiftUIAdapter = swiftUIAdapter
-        self.shimmerPhase = shimmerPhase
+
+        if #available(iOS 17.0, *) {
+            lightHostingController = makeHostingController(for: .light)
+            darkHostingController = makeHostingController(for: .dark)
+            [lightHostingController, darkHostingController]
+                .compactMap { $0 }
+                .forEach(prepareForRendering)
+        }
     }
 
     var isLoading: Bool? {
@@ -57,20 +62,32 @@ final class SwiftUISwitchControlSnapshotSUT: SwitchCotrolOutput, LoadingOutput, 
 
     @available(iOS 17.0, *)
     func swiftUISnapshot(for appearance: SnapshotAppearance) -> UIImage {
+        guard let hostingController = hostingController(for: appearance) else {
+            assertionFailure("SwiftUI switch host must be prepared before sending Output events.")
+            return UIImage()
+        }
+        prepareForRendering(hostingController)
+        return hostingController.snapshot(for: appearance.uiKitConfiguration)
+    }
+
+    @available(iOS 17.0, *)
+    private func makeHostingController(for appearance: SnapshotAppearance) -> UIViewController {
         let rootView = SnapshotSwitchControlContainer(
-            content: AnyView(SUISwitchControl(
-                adapter: swiftUIAdapter,
-                shimmerPhase: shimmerPhase
-            ))
+            content: AnyView(SUISwitchControl(adapter: swiftUIAdapter))
         )
         .snapshotEnvironment(configuration: .iPhone(style: appearance.colorScheme))
 
         let hostingController = UIHostingController(rootView: rootView)
         hostingController.overrideUserInterfaceStyle = appearance.userInterfaceStyle
         hostingController.view.backgroundColor = .clear
+        return hostingController
+    }
 
-        prepareForRendering(hostingController)
-        return hostingController.snapshot(for: appearance.uiKitConfiguration)
+    private func hostingController(for appearance: SnapshotAppearance) -> UIViewController? {
+        switch appearance {
+        case .light: lightHostingController
+        case .dark: darkHostingController
+        }
     }
 
     private func prepareForRendering(_ hostingController: UIViewController) {

@@ -117,8 +117,6 @@ private extension SearchBar {
     func makeGlassEffectView() -> UIVisualEffectView? {
         if #available(iOS 26, macOS 26, watchOS 26, tvOS 26, *), isLiquidGlassEnabled {
             let glassEffect = UIGlassEffect(style: .clear)
-//            glassEffect.isInteractive = true
-            
             let glassEffectView = UIVisualEffectView(effect: glassEffect)
             glassEffectView.cornerConfiguration = .capsule()
             return glassEffectView
@@ -131,7 +129,6 @@ private extension SearchBar {
         guard glassEffectView != nil else { return }
         
         backgroundColor = nil
-//        applyCornerStyle(.automatic)
     }
     
     func updateGlassTint(_ color: UIColor?) {
@@ -141,7 +138,9 @@ private extension SearchBar {
         }
         backgroundColor = nil
         if #available(iOS 26, macOS 26, watchOS 26, tvOS 26, *) {
-            (glassEffectView.effect as? UIGlassEffect)?.tintColor = color
+            let glassEffect = UIGlassEffect(style: .clear)
+            glassEffect.tintColor = color
+            glassEffectView.effect = glassEffect
         }
     }
 }

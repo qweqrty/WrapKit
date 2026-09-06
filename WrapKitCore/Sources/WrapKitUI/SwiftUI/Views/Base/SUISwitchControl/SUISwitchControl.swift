@@ -5,18 +5,9 @@ import UIKit
 
 public struct SUISwitchControl: View {
     @StateObject private var stateModel: SUISwitchControlStateModel
-    private let shimmerPhase: SUIShimmerPhase
 
     public init(adapter: SwitchCotrolOutputSwiftUIAdapter) {
-        self.init(adapter: adapter, shimmerPhase: .animated)
-    }
-
-    init(
-        adapter: SwitchCotrolOutputSwiftUIAdapter,
-        shimmerPhase: SUIShimmerPhase
-    ) {
         _stateModel = .init(wrappedValue: .init(adapter: adapter))
-        self.shimmerPhase = shimmerPhase
     }
     
     public var body: some View {
@@ -31,8 +22,7 @@ public struct SUISwitchControl: View {
                     guard let stateModel else { return }
                     stateModel.isOn = newValue
                     stateModel.onPress?(stateModel.adapter)
-                },
-                shimmerPhase: shimmerPhase
+                }
             )
         }
     }
@@ -45,7 +35,6 @@ public struct SUISwitchControlView: View {
     let style: SwitchControlPresentableModel.Style?
     let onToggle: ((Bool) -> Void)?
     let accessibilityIdentifier: String?
-    private let shimmerPhase: SUIShimmerPhase
 
     public init(
         isOn: Bool,
@@ -55,33 +44,12 @@ public struct SUISwitchControlView: View {
         accessibilityIdentifier: String? = nil,
         onToggle: ((Bool) -> Void)? = nil,
     ) {
-        self.init(
-            isOn: isOn,
-            isEnabled: isEnabled,
-            isLoading: isLoading,
-            style: style,
-            accessibilityIdentifier: accessibilityIdentifier,
-            onToggle: onToggle,
-            shimmerPhase: .animated
-        )
-    }
-
-    init(
-        isOn: Bool,
-        isEnabled: Bool = true,
-        isLoading: Bool = false,
-        style: SwitchControlPresentableModel.Style? = nil,
-        accessibilityIdentifier: String? = nil,
-        onToggle: ((Bool) -> Void)? = nil,
-        shimmerPhase: SUIShimmerPhase
-    ) {
         self.isOn = isOn
         self.isEnabled = isEnabled
         self.isLoading = isLoading
         self.style = style
         self.accessibilityIdentifier = accessibilityIdentifier
         self.onToggle = onToggle
-        self.shimmerPhase = shimmerPhase
         _internalIsOn = .init(initialValue: isOn)
     }
     
@@ -97,10 +65,7 @@ public struct SUISwitchControlView: View {
             .overlay(alignment: .leading) {
                 if isLoading {
                     GeometryReader { geometry in
-                        SUIShimmerView(
-                            style: style?.shimmerStyle,
-                            phase: shimmerPhase
-                        )
+                        SUIShimmerView(style: style?.shimmerStyle)
                             .frame(
                                 width: geometry.size.width * shimmerWidthMultiplier,
                                 height: geometry.size.height

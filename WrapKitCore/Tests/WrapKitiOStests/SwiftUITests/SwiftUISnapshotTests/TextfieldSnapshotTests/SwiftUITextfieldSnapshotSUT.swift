@@ -14,7 +14,7 @@ import SwiftUI
 
 final class SwiftUITextfieldSnapshotSUT: TextInputOutput, SwiftUISnapshotSource {
     private let swiftUIAdapter: TextInputOutputSwiftUIAdapter
-    private var appearance: TextfieldAppearance
+    private let appearance: TextfieldAppearance
     private let leadingSwiftUIView: AnyView?
     private let trailingSwiftUIView: AnyView?
 
@@ -28,22 +28,6 @@ final class SwiftUITextfieldSnapshotSUT: TextInputOutput, SwiftUISnapshotSource 
         self.swiftUIAdapter = swiftUIAdapter
         self.leadingSwiftUIView = leadingSwiftUIView
         self.trailingSwiftUIView = trailingSwiftUIView
-    }
-
-    var onPress: (() -> Void)? { swiftUIAdapter.displayOnPressState?.onPress }
-    var onPaste: ((String?) -> Void)? { swiftUIAdapter.displayOnPasteState?.onPaste }
-    var onTapBackspace: (() -> Void)? {
-        swiftUIAdapter.displayOnTapBackspaceState?.onTapBackspace
-    }
-    var leadingViewOnPress: (() -> Void)? {
-        swiftUIAdapter.displayLeadingViewOnPressState?.leadingViewOnPress
-    }
-    var trailingViewOnPress: (() -> Void)? {
-        swiftUIAdapter.displayTrailingViewOnPressState?.trailingViewOnPress
-    }
-
-    func setDeselectedBackgroundColor(_ color: WrapKit.Color) {
-        appearance.colors.deselectedBackgroundColor = color
     }
 
     func display(model: TextInputPresentableModel?) {

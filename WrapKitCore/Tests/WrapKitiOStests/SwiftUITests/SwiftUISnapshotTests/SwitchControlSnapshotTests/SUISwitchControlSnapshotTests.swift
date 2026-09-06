@@ -244,17 +244,17 @@ final class SUISwitchControlSnapshotTests: XCTestCase {
         let sut = makeSUT()
         let snapshotName = "SWITCHCONTROL_WITH_SHIMMERSTYLE"
         let style = ShimmerStyle(
-            backgroundColor: .red,
-            gradientColorOne: .yellow,
-            gradientColorTwo: .black,
-            cornerRadius: 11
+            backgroundColor: .systemYellow,
+            gradientColorOne: .systemPurple,
+            gradientColorTwo: .systemGreen,
+            cornerRadius: 10
         )
 
         sut.display(style: .init(
-            tintColor: .clear,
-            thumbTintColor: .clear,
+            tintColor: .systemGreen,
+            thumbTintColor: .cyan,
             backgroundColor: .clear,
-            cornerRadius: 11,
+            cornerRadius: 10,
             shimmerStyle: style
         ))
         sut.display(isLoading: true)
@@ -268,7 +268,7 @@ final class SUISwitchControlSnapshotTests: XCTestCase {
         }
     }
 
-    func test_switchControl_fixedShimmerPhase_isDeterministic() throws {
+    func test_switchControl_loadingAppearance_isDeterministic() throws {
         let sut = makeSUT()
         let style = ShimmerStyle(
             backgroundColor: .systemYellow,

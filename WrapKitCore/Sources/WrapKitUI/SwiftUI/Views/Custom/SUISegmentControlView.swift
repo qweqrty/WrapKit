@@ -16,10 +16,6 @@ public struct SUISegmentControlView: View {
         ))
     }
 
-    init(stateModel: SUISegmentControlViewStateModel) {
-        _stateModel = .init(wrappedValue: stateModel)
-    }
-
     @ViewBuilder
     public var body: some View {
         if #available(iOS 26, macOS 26, tvOS 26, watchOS 26, *) {

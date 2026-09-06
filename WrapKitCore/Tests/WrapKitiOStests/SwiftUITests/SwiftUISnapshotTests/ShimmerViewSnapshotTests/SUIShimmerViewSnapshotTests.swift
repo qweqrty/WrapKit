@@ -113,7 +113,7 @@ final class SUIShimmerViewSnapshotTests: XCTestCase {
     func test_fail_shimmerView_pill_shape() {
         assertFailSnapshots(
             basicShimmer(
-                style: style(backgroundColor: .systemGray5, cornerRadius: 50)
+                style: style(backgroundColor: .systemGray6, cornerRadius: 0)
             ),
             named: "SHIMMERVIEW_PILL_SHAPE"
         )
@@ -121,36 +121,37 @@ final class SUIShimmerViewSnapshotTests: XCTestCase {
 
     func test_shimmerView_skeleton_card() {
         assertSnapshots(
-            skeletonCard(backgroundColor: .white),
+            skeletonCard(shimmerBackgroundColor: .systemGray6),
             named: "SHIMMERVIEW_SKELETON_CARD"
         )
     }
 
     func test_fail_shimmerView_skeleton_card() {
         assertFailSnapshots(
-            skeletonCard(backgroundColor: .gray),
+            skeletonCard(shimmerBackgroundColor: .systemGray5),
             named: "SHIMMERVIEW_SKELETON_CARD"
         )
     }
+
 }
 
 @available(iOS 17.0, *)
 private extension SUIShimmerViewSnapshotTests {
     func basicShimmer(style: ShimmerStyle?) -> AnyView {
         AnyView(
-            SUIShimmerView(style: style, phase: .fixed(horizontalOffset: 0))
+            SUIShimmerView(style: style)
                 .frame(width: 390, height: 100)
         )
     }
 
-    func skeletonCard(backgroundColor: UIColor) -> AnyView {
-        let shimmerStyle = style(backgroundColor: .systemGray6, cornerRadius: 4)
-        let avatarStyle = style(backgroundColor: .systemGray6, cornerRadius: 30)
+    func skeletonCard(shimmerBackgroundColor: UIColor) -> AnyView {
+        let shimmerStyle = style(backgroundColor: shimmerBackgroundColor, cornerRadius: 4)
+        let avatarStyle = style(backgroundColor: shimmerBackgroundColor, cornerRadius: 30)
 
         return AnyView(
             ZStack(alignment: .topLeading) {
                 RoundedRectangle(cornerRadius: 12, style: .continuous)
-                    .fill(SwiftUIColor(backgroundColor))
+                    .fill(SwiftUIColor.white)
                     .frame(width: 350, height: 120)
                     .shadow(
                         color: SwiftUIColor.black.opacity(0.1),
@@ -160,15 +161,15 @@ private extension SUIShimmerViewSnapshotTests {
                     )
                     .offset(x: 20, y: 20)
 
-                SUIShimmerView(style: avatarStyle, phase: .fixed(horizontalOffset: 0))
+                SUIShimmerView(style: avatarStyle)
                     .frame(width: 60, height: 60)
                     .offset(x: 36, y: 50)
 
-                SUIShimmerView(style: shimmerStyle, phase: .fixed(horizontalOffset: 0))
+                SUIShimmerView(style: shimmerStyle)
                     .frame(width: 242, height: 16)
                     .offset(x: 112, y: 50)
 
-                SUIShimmerView(style: shimmerStyle, phase: .fixed(horizontalOffset: 0))
+                SUIShimmerView(style: shimmerStyle)
                     .frame(width: 150, height: 12)
                     .offset(x: 112, y: 78)
             }

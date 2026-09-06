@@ -31,18 +31,6 @@ public struct SUIExpandableCardView: View {
         self.secondaryCardHeight = secondaryCardHeight
     }
 
-    init(
-        stateModel: SUIExpandableCardViewStateModel,
-        stackSpacing: CGFloat,
-        primeCardHeight: CGFloat?,
-        secondaryCardHeight: CGFloat?
-    ) {
-        _stateModel = .init(wrappedValue: stateModel)
-        self.stackSpacing = stackSpacing
-        self.primeCardHeight = primeCardHeight
-        self.secondaryCardHeight = secondaryCardHeight
-    }
-
     public var body: some View {
         if !stateModel.isHidden {
             VStack(spacing: stackSpacing) {
@@ -86,38 +74,131 @@ public struct SUIExpandableCardView: View {
 }
 
 final class SUIExpandableCardViewStateModel: ObservableObject {
+    private struct OutputReplayCheckpoint {
+        let primeModel: CardViewPresentableModel?
+        let secondaryModel: CardViewPresentableModel?
+        let isHidden: Bool
+        let primeCardAdapter: CardViewOutputSwiftUIAdapter
+        let secondaryCardAdapter: CardViewOutputSwiftUIAdapter
+        let latestModelOutputSequence: UInt64
+        let latestVisibilityOutputSequence: UInt64
+    }
+
     @Published var primeModel: CardViewPresentableModel?
     @Published var secondaryModel: CardViewPresentableModel?
     @Published var isHidden: Bool = false
 
-    let primeCardAdapter = CardViewOutputSwiftUIAdapter()
-    let secondaryCardAdapter = CardViewOutputSwiftUIAdapter()
+    let primeCardAdapter: CardViewOutputSwiftUIAdapter
+    let secondaryCardAdapter: CardViewOutputSwiftUIAdapter
 
+    private let adapter: ExpandableCardViewOutputSwiftUIAdapter
+    private var outputReplayConsumer: ExpandableCardViewOutputSwiftUIAdapter.OutputReplayConsumer?
     private var cancellables: Set<AnyCancellable> = []
+    private var latestModelOutputSequence: UInt64 = 0
+    private var latestVisibilityOutputSequence: UInt64 = 0
 
     init(adapter: ExpandableCardViewOutputSwiftUIAdapter) {
-        adapter.$displayModelState
+        self.adapter = adapter
+        let outputReplayConsumer = adapter.claimOutputReplayConsumer()
+        self.outputReplayConsumer = outputReplayConsumer
+        let outputReplayCheckpoint = adapter.outputReplayCheckpoint(
+            as: OutputReplayCheckpoint.self,
+            consumer: outputReplayConsumer
+        )
+        let bufferedOutputReplayPublisher = adapter.bufferedOutputReplayPublisher(
+            consumer: outputReplayConsumer
+        )
+        primeCardAdapter = outputReplayCheckpoint?.primeCardAdapter
+            ?? CardViewOutputSwiftUIAdapter()
+        secondaryCardAdapter = outputReplayCheckpoint?.secondaryCardAdapter
+            ?? CardViewOutputSwiftUIAdapter()
+
+        adapter.outputReplayPublisher(
+            adapter.$displayModelState,
+            consumer: outputReplayConsumer
+        )
             .sink { [weak self] state in
-                self?.apply(model: state?.model)
+                guard let self, let state else { return }
+                apply(
+                    model: state.model,
+                    outputSequence: state.outputSequence
+                )
             }
             .store(in: &cancellables)
 
-        adapter.$displayIsHiddenState
+        adapter.outputReplayPublisher(
+            adapter.$displayIsHiddenState,
+            consumer: outputReplayConsumer
+        )
             .sink { [weak self] state in
-                guard let state else { return }
-                self?.isHidden = state.isHidden
+                guard let self, let state else { return }
+                apply(
+                    isHidden: state.isHidden,
+                    outputSequence: state.outputSequence
+                )
             }
             .store(in: &cancellables)
+
+        adapter.outputReplayCheckpointRequestPublisher(consumer: outputReplayConsumer)
+            .sink { [weak self] in self?.persistReplayCheckpoint() }
+            .store(in: &cancellables)
+
+        if let outputReplayCheckpoint {
+            restore(outputReplayCheckpoint)
+        }
+
+        bufferedOutputReplayPublisher
+            .sink { [weak adapter] event in
+                adapter?.replayOutputEvent(event, consumer: outputReplayConsumer)
+            }
+            .store(in: &cancellables)
+
+        persistReplayCheckpoint()
     }
 
-    private func apply(model: Pair<CardViewPresentableModel, CardViewPresentableModel?>?) {
-        guard let model else { return }
+    private func apply(
+        model: Pair<CardViewPresentableModel, CardViewPresentableModel?>,
+        outputSequence: UInt64
+    ) {
+        guard outputSequence >= latestModelOutputSequence else { return }
+        latestModelOutputSequence = outputSequence
 
         primeModel = model.first
         secondaryModel = model.second
 
         primeCardAdapter.display(model: model.first)
         secondaryCardAdapter.display(model: model.second)
+        persistReplayCheckpoint()
+    }
+
+    private func apply(isHidden: Bool, outputSequence: UInt64) {
+        guard outputSequence >= latestVisibilityOutputSequence else { return }
+        latestVisibilityOutputSequence = outputSequence
+        self.isHidden = isHidden
+        persistReplayCheckpoint()
+    }
+
+    private func persistReplayCheckpoint() {
+        adapter.updateOutputReplayCheckpoint(
+            consumer: outputReplayConsumer,
+            OutputReplayCheckpoint(
+                primeModel: primeModel,
+                secondaryModel: secondaryModel,
+                isHidden: isHidden,
+                primeCardAdapter: primeCardAdapter,
+                secondaryCardAdapter: secondaryCardAdapter,
+                latestModelOutputSequence: latestModelOutputSequence,
+                latestVisibilityOutputSequence: latestVisibilityOutputSequence
+            )
+        )
+    }
+
+    private func restore(_ checkpoint: OutputReplayCheckpoint) {
+        primeModel = checkpoint.primeModel
+        secondaryModel = checkpoint.secondaryModel
+        isHidden = checkpoint.isHidden
+        latestModelOutputSequence = checkpoint.latestModelOutputSequence
+        latestVisibilityOutputSequence = checkpoint.latestVisibilityOutputSequence
     }
 }
 

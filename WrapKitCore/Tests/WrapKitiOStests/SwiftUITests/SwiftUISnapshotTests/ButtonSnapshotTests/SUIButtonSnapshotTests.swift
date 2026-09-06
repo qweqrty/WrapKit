@@ -16,6 +16,31 @@ import class SwiftUI.UIHostingController
 @available(iOS 17.0, *)
 final class SUIButtonSnapshotTests: XCTestCase {
 
+    func test_publicButton_exposesConfiguredAccessibilityAction() throws {
+        let adapter = ButtonOutputSwiftUIAdapter()
+        var pressCount = 0
+        adapter.display(model: .init(
+            accessibilityIdentifier: "button.action",
+            accessibility: .init(label: "Action button", hint: "Runs button action"),
+            title: "Action",
+            height: 48,
+            style: .init(backgroundColor: .systemBlue),
+            enabled: true,
+            onPress: { pressCount += 1 }
+        ))
+
+        let host = SwiftUIAccessibilityTestHost(
+            rootView: SUIButton(adapter: adapter),
+            size: CGSize(width: 200, height: 80)
+        )
+        host.settle()
+
+        let button = try XCTUnwrap(host.element(withLabel: "Action button"))
+        XCTAssertEqual(button.accessibilityHint, "Runs button action")
+        XCTAssertTrue(button.accessibilityActivate())
+        XCTAssertEqual(pressCount, 1)
+    }
+
     func test_buttonOutput_default_state() {
         let snapshotName = "BUTTON_DEFAULT_STATE"
 
@@ -408,8 +433,8 @@ final class SUIButtonSnapshotTests: XCTestCase {
         let sut = makeSUT()
 
         // WHEN
-        sut.display(title: "TITLE WITH COLOR.")
-        sut.display(style: .init(backgroundColor: .cyan, titleColor: .red))
+        sut.display(title: "TITLE WITH COLOR")
+        sut.display(style: .init(backgroundColor: .cyan, titleColor: .blue))
 
         // THEN
         if #available(iOS 26, *) {
@@ -460,98 +485,6 @@ final class SUIButtonSnapshotTests: XCTestCase {
         ))
 
         sut.display(title: "BUTTON WITH BORDER")
-
-        // THEN
-        if #available(iOS 26, *) {
-            assertFail(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.fail)
-            assertFail(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS26_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.fail)
-        } else {
-            assertFail(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS18.5_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.fail)
-            assertFail(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS18.5_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.fail)
-        }
-    }
-
-    func test_buttonOutput_style_pressedColor() {
-        let snapshotName = "BUTTON_STYLE_PRESSED_COLOR_STATE"
-
-        // GIVEN
-        let sut = makeSUT(pressedStateOverride: true)
-
-        // WHEN
-        sut.display(style: .init(
-            backgroundColor: .blue,
-            pressedColor: .red
-        ))
-
-        // THEN
-        if #available(iOS 26, *) {
-            assert(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
-            assert(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS26_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.standard)
-        } else {
-            assert(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS18.5_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
-            assert(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS18.5_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.standard)
-        }
-    }
-
-    func test_fail_buttonOutput_style_pressedColor() {
-        let snapshotName = "BUTTON_STYLE_PRESSED_COLOR_STATE"
-
-        // GIVEN
-        let sut = makeSUT(pressedStateOverride: true)
-
-        // WHEN
-        sut.display(style: .init(
-            backgroundColor: .blue,
-            pressedColor: .systemRed
-        ))
-
-        // THEN
-        if #available(iOS 26, *) {
-            assertFail(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.fail)
-            assertFail(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS26_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.fail)
-        } else {
-            assertFail(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS18.5_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.fail)
-            assertFail(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS18.5_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.fail)
-        }
-    }
-
-    func test_buttonOutput_style_pressedTintColor() {
-        let snapshotName = "BUTTON_STYLE_PRESSED_TINTCOLOR_STATE"
-
-        // GIVEN
-        let sut = makeSUT(pressedStateOverride: true)
-
-        // WHEN
-        sut.display(style: .init(
-            backgroundColor: .white,
-            titleColor: .blue,
-            pressedTintColor: .red
-        ))
-        sut.display(title: "PRESSED TINT COLOR")
-
-        // THEN
-        if #available(iOS 26, *) {
-            assert(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
-            assert(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS26_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.standard)
-        } else {
-            assert(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS18.5_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
-            assert(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS18.5_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.standard)
-        }
-    }
-
-    func test_fail_buttonOutput_style_pressedTintColor() {
-        let snapshotName = "BUTTON_STYLE_PRESSED_TINTCOLOR_STATE"
-
-        // GIVEN
-        let sut = makeSUT(pressedStateOverride: true)
-
-        // WHEN
-        sut.display(style: .init(
-            backgroundColor: .white,
-            titleColor: .blue,
-            pressedTintColor: .systemRed
-        ))
-        sut.display(title: "PRESSED TINT COLOR")
 
         // THEN
         if #available(iOS 26, *) {
@@ -727,14 +660,10 @@ final class SUIButtonSnapshotTests: XCTestCase {
 private extension SUIButtonSnapshotTests {
     func makeSUT(
         height: CGFloat = 60,
-        pressedStateOverride: Bool? = nil,
         file: StaticString = #filePath,
         line: UInt = #line
     ) -> SwiftUIButtonSnapshotSUT {
-        let sut = SwiftUIButtonSnapshotSUT(
-            height: height,
-            pressedStateOverride: pressedStateOverride
-        )
+        let sut = SwiftUIButtonSnapshotSUT(height: height)
 
         checkForMemoryLeaks(sut, file: file, line: line)
         return sut

@@ -7,30 +7,16 @@
 
 import SwiftUI
 
-enum SUIShimmerPhase {
-    case animated
-    case fixed(horizontalOffset: CGFloat)
-}
-
 public struct SUIShimmerView: View {
     @Environment(\.self) private var environment
+    @Environment(\.accessibilityReduceMotion) private var accessibilityReduceMotion
 
     let style: ShimmerStyle?
-    let phase: SUIShimmerPhase
 
-    @State private var isAnimating = false
+    @State private var horizontalProgress: CGFloat = -1
 
     public init(style: ShimmerStyle? = nil) {
         self.style = style
-        self.phase = .animated
-    }
-
-    init(
-        style: ShimmerStyle? = nil,
-        phase: SUIShimmerPhase
-    ) {
-        self.style = style
-        self.phase = phase
     }
     
     public var body: some View {
@@ -40,34 +26,55 @@ public struct SUIShimmerView: View {
         let cornerRadius = style?.cornerRadius ?? 0
         let backgroundColor = style.map { SwiftUIColor($0.backgroundColor) } ?? SwiftUIColor(.clear)
         
-        ZStack {
-            backgroundColor
+        GeometryReader { geometry in
+            ZStack {
+                backgroundColor
 
-            shimmerGradient(colors: [colorOne, colorTwo, colorOne])
+                gradient(colors: [colorOne, colorTwo, colorOne])
+                    .offset(
+                        x: accessibilityReduceMotion
+                            ? 0
+                            : horizontalProgress * geometry.size.width
+                    )
+            }
         }
         .cornerRadius(cornerRadius)
-        .onAppear {
-            guard case .animated = phase else { return }
-            isAnimating = true
+        .task(id: accessibilityReduceMotion) {
+            await animateShimmer()
         }
-        .onDisappear { isAnimating = false }
     }
 
-    @ViewBuilder
-    private func shimmerGradient(colors: [SwiftUIColor]) -> some View {
-        switch phase {
-        case .animated:
-            gradient(colors: colors)
-                .offset(x: isAnimating ? 400 : -400)
-                .animation(
-                    SwiftUI.Animation.linear(duration: 1.4)
-                        .delay(0)
-                        .repeatForever(autoreverses: false),
-                    value: isAnimating
+    @MainActor
+    private func animateShimmer() async {
+        guard !accessibilityReduceMotion else {
+            setHorizontalProgress(0)
+            return
+        }
+
+        while !Task.isCancelled {
+            setHorizontalProgress(-1)
+            await Task.yield()
+
+            guard !Task.isCancelled else { return }
+            withAnimation(.linear(duration: ShimmerAnimationTiming.sweepDuration)) {
+                horizontalProgress = 1
+            }
+
+            do {
+                try await Task.sleep(
+                    nanoseconds: ShimmerAnimationTiming.cycleDurationNanoseconds
                 )
-        case .fixed(let horizontalOffset):
-            gradient(colors: colors)
-                .offset(x: horizontalOffset)
+            } catch {
+                return
+            }
+        }
+    }
+
+    private func setHorizontalProgress(_ progress: CGFloat) {
+        var transaction = Transaction()
+        transaction.disablesAnimations = true
+        withTransaction(transaction) {
+            horizontalProgress = progress
         }
     }
 
@@ -148,4 +155,12 @@ public struct SUIShimmerView: View {
             opacity: interpolate(start.opacity, end.opacity)
         ))
     }
+}
+
+private enum ShimmerAnimationTiming {
+    static let sweepDuration: TimeInterval = 1.4
+    static let holdDuration: TimeInterval = 2.8
+    static let cycleDurationNanoseconds = UInt64(
+        (sweepDuration + holdDuration) * 1_000_000_000
+    )
 }

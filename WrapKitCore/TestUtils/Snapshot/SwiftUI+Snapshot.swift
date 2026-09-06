@@ -104,6 +104,7 @@ public extension View {
             .environment(\.displayScale, configuration.scale)
             .environment(\.locale, configuration.locale)
             .environment(\.layoutDirection, configuration.layoutDirection)
+            .environment(\._accessibilityReduceMotion, true)
             .dynamicTypeSize(configuration.dynamicTypeSize)
             .transaction { transaction in
                 transaction.animation = nil

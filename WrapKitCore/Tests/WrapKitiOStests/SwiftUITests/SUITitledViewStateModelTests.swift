@@ -1,8 +1,76 @@
-#if canImport(SwiftUI)
+#if canImport(SwiftUI) && canImport(UIKit)
 @testable import WrapKit
+import UIKit
 import XCTest
 
 final class SUITitledViewStateModelTests: XCTestCase {
+    func test_nilThenContentlessBottomTitlePreservesActionAcrossRemountLikeUIKit() throws {
+        final class ActionOwner {}
+
+        let uiKitView = TitledView<UIView>()
+        weak var uiKitOwner: ActionOwner?
+        do {
+            let owner = ActionOwner()
+            uiKitOwner = owner
+            uiKitView.display(model: .init(bottomTitles: .init(
+                .attributes([.init(text: "Retained helper", onTap: { _ = owner })]),
+                nil
+            )))
+        }
+        uiKitView.display(model: nil)
+        XCTAssertNotNil(uiKitOwner)
+        uiKitView.display(model: .init(bottomTitles: .init(.init(model: nil), nil)))
+        XCTAssertFalse(uiKitView.closingTitleVFieldView.keyLabel.isHidden)
+        XCTAssertNotNil(uiKitOwner)
+        uiKitView.display(leadingBottomTitle: .attributes([.init(text: "Replacement")]))
+        XCTAssertNil(uiKitOwner)
+
+        let adapter = TitledOutputSwiftUIAdapter()
+        var calls = 0
+        weak var weakOwner: ActionOwner?
+        do {
+            let owner = ActionOwner()
+            weakOwner = owner
+            adapter.display(model: .init(bottomTitles: .init(
+                .attributes([
+                    .init(text: "Retained helper", onTap: {
+                        _ = owner
+                        calls += 1
+                    })
+                ]),
+                nil
+            )))
+        }
+
+        adapter.display(model: nil)
+        XCTAssertNotNil(weakOwner)
+        adapter.display(model: .init(bottomTitles: .init(.init(model: nil), nil)))
+
+        var stateModel: SUITitledViewStateModel? = .init(adapter: adapter)
+        var bottomTitlesStateModel: SUIKeyValueFieldViewStateModel? = .init(
+            adapter: stateModel!.bottomTitlesAdapter,
+            displaysBottomImage: true,
+            isHidden: false
+        )
+        bottomTitlesStateModel = nil
+        stateModel = nil
+
+        let remountedStateModel = SUITitledViewStateModel(adapter: adapter)
+        let remountedBottomTitlesStateModel = SUIKeyValueFieldViewStateModel(
+            adapter: remountedStateModel.bottomTitlesAdapter,
+            displaysBottomImage: true,
+            isHidden: false
+        )
+        let action = try XCTUnwrap(firstTapAction(
+            in: remountedBottomTitlesStateModel.keyTitleStateModel.presentable.model
+        ))
+        action()
+        XCTAssertEqual(calls, 1)
+
+        adapter.display(leadingBottomTitle: .attributes([.init(text: "Replacement")]))
+        XCTAssertNil(weakOwner)
+    }
+
     func test_premountModelAndIncrementalOutputsHonorFinalWriteInEitherOrder() {
         let modelLastAdapter = TitledOutputSwiftUIAdapter()
         modelLastAdapter.display(leadingBottomTitle: .text("Old incremental helper"))
@@ -121,6 +189,18 @@ final class SUITitledViewStateModelTests: XCTestCase {
         XCTAssertEqual(stateModel.keyTitle?.plainText, key, file: file, line: line)
         XCTAssertEqual(stateModel.valueTitle?.plainText, value, file: file, line: line)
     }
+}
+
+private func firstTapAction(
+    in model: TextOutputPresentableModel.TextModel?,
+    file: StaticString = #filePath,
+    line: UInt = #line
+) -> (() -> Void)? {
+    guard case let .attributes(attributes)? = model else {
+        XCTFail("Expected text attributes", file: file, line: line)
+        return nil
+    }
+    return attributes.first?.onTap
 }
 
 private extension TextOutputPresentableModel {

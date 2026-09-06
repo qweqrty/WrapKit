@@ -222,10 +222,10 @@ final class ButtonSnapshotTests: XCTestCase {
         let exp = expectation(description: "Wait for complition")
 
         // WHEN
-        let light = ImageSnapshotFixture.light.url
-        sut.display(style: .init(backgroundColor: .blue))
+        let dark = ImageSnapshotFixture.dark.url
+        sut.display(style: .init(backgroundColor: .cyan))
 
-        sut.setImage(.url(light, light)) { _ in
+        sut.setImage(.url(dark, dark)) { _ in
             exp.fulfill()
         }
 
@@ -247,10 +247,10 @@ final class ButtonSnapshotTests: XCTestCase {
         let exp = expectation(description: "Wait for complition")
 
         // WHEN
-        let light = ImageSnapshotFixture.dark.url
+        let dark = ImageSnapshotFixture.dark.url
         sut.display(style: .init(backgroundColor: .cyan))
 
-        sut.setImage(.url(light, light)) { _ in
+        sut.setImage(.url(dark, dark)) { _ in
             exp.fulfill()
         }
 
@@ -272,8 +272,8 @@ final class ButtonSnapshotTests: XCTestCase {
         let exp = expectation(description: "Wait for complition")
 
         // WHEN
-        let light = ImageSnapshotFixture.dark.url
-        sut.display(style: .init(backgroundColor: .blue))
+        let light = ImageSnapshotFixture.light.url
+        sut.display(style: .init(backgroundColor: .cyan))
 
         sut.setImage(.url(light, light)) { _ in
             exp.fulfill()
@@ -322,10 +322,10 @@ final class ButtonSnapshotTests: XCTestCase {
         let exp = expectation(description: "Wait for complition")
 
         // WHEN
-        let light = ImageSnapshotFixture.light.urlString
-        sut.display(style: .init(backgroundColor: .blue))
+        let dark = ImageSnapshotFixture.dark.urlString
+        sut.display(style: .init(backgroundColor: .cyan))
 
-        sut.setImage(.urlString(light, light)) { _ in
+        sut.setImage(.urlString(dark, dark)) { _ in
             exp.fulfill()
         }
 
@@ -372,10 +372,10 @@ final class ButtonSnapshotTests: XCTestCase {
         let exp = expectation(description: "Wait for complition")
 
         // WHEN
-        let dark = ImageSnapshotFixture.dark.urlString
-        sut.display(style: .init(backgroundColor: .blue))
+        let light = ImageSnapshotFixture.light.urlString
+        sut.display(style: .init(backgroundColor: .cyan))
 
-        sut.setImage(.urlString(dark, dark)) { _ in
+        sut.setImage(.urlString(light, light)) { _ in
             exp.fulfill()
         }
 
@@ -396,8 +396,8 @@ final class ButtonSnapshotTests: XCTestCase {
         let (sut, container) = makeSUT()
 
         // WHEN
-        sut.setImage(.url(nil, nil), completion: nil)
         sut.display(style: .init(backgroundColor: .cyan))
+        sut.setImage(.url(nil, nil), completion: nil)
 
         // THEN
         if #available(iOS 26, *) {
@@ -416,8 +416,11 @@ final class ButtonSnapshotTests: XCTestCase {
         let (sut, container) = makeSUT()
 
         // WHEN
+        sut.display(style: .init(
+            backgroundColor: .cyan,
+            wrongUrlPlaceholderImage: UIImage(systemName: "xmark")!
+        ))
         sut.setImage(.url(nil, nil), completion: nil)
-        sut.display(style: .init(backgroundColor: .blue))
 
         // THEN
         if #available(iOS 26, *) {
@@ -436,8 +439,8 @@ final class ButtonSnapshotTests: XCTestCase {
         let (sut, container) = makeSUT()
 
         // WHEN
-        sut.setImage(.urlString(nil, nil), completion: nil)
         sut.display(style: .init(backgroundColor: .cyan))
+        sut.setImage(.urlString(nil, nil), completion: nil)
 
         // THEN
         if #available(iOS 26, *) {
@@ -456,8 +459,11 @@ final class ButtonSnapshotTests: XCTestCase {
         let (sut, container) = makeSUT()
 
         // WHEN
+        sut.display(style: .init(
+            backgroundColor: .cyan,
+            wrongUrlPlaceholderImage: UIImage(systemName: "xmark")!
+        ))
         sut.setImage(.urlString(nil, nil), completion: nil)
-        sut.display(style: .init(backgroundColor: .blue))
 
         // THEN
         if #available(iOS 26, *) {
@@ -528,11 +534,11 @@ final class ButtonSnapshotTests: XCTestCase {
         // WHEN
         sut.display(title: "BUTTON WITH TAP")
         sut.display(style: .init(backgroundColor: .cyan))
-        sut.display { [weak sut] in
-            sut?.backgroundColor = .red
+        let onPress: () -> Void = { [weak sut] in
+            sut?.display(style: .init(backgroundColor: .red))
         }
-
-        sut.onPress?()
+        sut.display(onPress: onPress)
+        onPress()
 
         // THEN
         if #available(iOS 26, *) {
@@ -553,11 +559,11 @@ final class ButtonSnapshotTests: XCTestCase {
         // WHEN
         sut.display(title: "BUTTON WITH TAP")
         sut.display(style: .init(backgroundColor: .cyan))
-        sut.display { [weak sut] in
-            sut?.backgroundColor = .systemRed
+        let onPress: () -> Void = { [weak sut] in
+            sut?.display(style: .init(backgroundColor: .systemRed))
         }
-
-        sut.onPress?()
+        sut.display(onPress: onPress)
+        onPress()
 
         // THEN
         if #available(iOS 26, *) {
@@ -729,8 +735,8 @@ final class ButtonSnapshotTests: XCTestCase {
         let (sut, container) = makeSUT()
 
         // WHEN
-        sut.display(title: "TITLE WITH COLOR.")
-        sut.display(style: .init(backgroundColor: .cyan, titleColor: .red))
+        sut.display(title: "TITLE WITH COLOR")
+        sut.display(style: .init(backgroundColor: .cyan, titleColor: .blue))
 
         // THEN
         if #available(iOS 26, *) {
@@ -977,10 +983,12 @@ final class ButtonSnapshotTests: XCTestCase {
 
         // GIVEN
         let (sut, container) = makeSUT()
-        sut.wrongUrlPlaceholderImage = UIImage(systemName: "xmark")!
 
         // WHEN
-        sut.display(style: .init(backgroundColor: .cyan))
+        sut.display(style: .init(
+            backgroundColor: .cyan,
+            wrongUrlPlaceholderImage: UIImage(systemName: "xmark")!
+        ))
         sut.setImage(.url(nil, nil), completion: nil)
 
         // THEN
@@ -998,10 +1006,12 @@ final class ButtonSnapshotTests: XCTestCase {
 
         // GIVEN
         let (sut, container) = makeSUT()
-        sut.wrongUrlPlaceholderImage = UIImage(systemName: "xmark")!
 
         // WHEN
-        sut.display(style: .init(backgroundColor: .blue))
+        sut.display(style: .init(
+            backgroundColor: .cyan,
+            wrongUrlPlaceholderImage: UIImage(systemName: "xmark.circle")!
+        ))
         sut.setImage(.url(nil, nil), completion: nil)
 
         // THEN

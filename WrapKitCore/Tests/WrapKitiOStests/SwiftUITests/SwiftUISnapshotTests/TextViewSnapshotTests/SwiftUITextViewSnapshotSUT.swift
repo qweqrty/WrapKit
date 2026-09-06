@@ -7,7 +7,7 @@ import SwiftUI
 
 final class SwiftUITextViewSnapshotSUT: TextInputOutput, SwiftUISnapshotSource {
     private let swiftUIAdapter: TextInputOutputSwiftUIAdapter
-    private var appearance: TextfieldAppearance
+    private let appearance: TextfieldAppearance
 
     init(
         appearance: TextfieldAppearance,
@@ -15,22 +15,6 @@ final class SwiftUITextViewSnapshotSUT: TextInputOutput, SwiftUISnapshotSource {
     ) {
         self.appearance = appearance
         self.swiftUIAdapter = swiftUIAdapter
-    }
-
-    var onPress: (() -> Void)? {
-        swiftUIAdapter.displayOnPressState?.onPress
-    }
-
-    var onPaste: ((String?) -> Void)? {
-        swiftUIAdapter.displayOnPasteState?.onPaste
-    }
-
-    var onTapBackspace: (() -> Void)? {
-        swiftUIAdapter.displayOnTapBackspaceState?.onTapBackspace
-    }
-
-    func setDeselectedBackgroundColor(_ color: WrapKit.Color) {
-        appearance.colors.deselectedBackgroundColor = color
     }
 
     func display(model: TextInputPresentableModel?) {

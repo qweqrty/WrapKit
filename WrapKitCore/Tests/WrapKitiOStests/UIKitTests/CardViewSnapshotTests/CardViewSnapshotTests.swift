@@ -274,6 +274,30 @@ final class CardViewSnapshotTests: XCTestCase {
         }
     }
 
+    func test_fail_CardView_with_backgroundImage_borderColor() {
+        let snapshotName = "CARDVIEW_WITH_BACKGROUNDIMAGE_BORDERWIDTH_AND_COLOR"
+
+        // GIVEN
+        let (sut, container) = makeSUT()
+
+        // WHEN
+        sut.display(backgroundImage: .systemSymbol(
+            "star.fill",
+            size: .init(width: 24, height: 24),
+            borderWidth: 4,
+            borderColor: .red
+        ))
+
+        // THEN
+        if #available(iOS 26, *) {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
+    }
+
     func test_CardView_with_backgroundImage_cornderRadius() {
         let snapshotName = "CARDVIEW_WITH_BACKGROUNDIMAGE_CORNERRADIUS"
 
@@ -879,7 +903,7 @@ final class CardViewSnapshotTests: XCTestCase {
         let (sut, container) = makeSUT()
 
         // WHEN
-        sut.display(style: makeDefaultStyle())
+        sut.display(style: makeSwitchControlStyle())
 
         sut.display(title: .text("Title"))
         sut.display(switchControl: .init(
@@ -898,7 +922,6 @@ final class CardViewSnapshotTests: XCTestCase {
         }
     }
 
-    // TODO: - need to simulate real tap
     func test_CardView_onPress() {
         let snapshotName = "CARDVIEW_WITH_ONPRESS"
 
@@ -909,11 +932,15 @@ final class CardViewSnapshotTests: XCTestCase {
         sut.display(style: makeDefaultStyle())
 
         sut.display(title: .text("Title"))
-        sut.display(onPress: { [weak sut] in
-            sut?.backgroundColor = .systemGreen
-        })
-
-        sut.onPress?()
+        let pressedStyle = makeDefaultStyle(backgroundColor: .systemGreen)
+        var pressCount = 0
+        let onPress: () -> Void = { [weak sut] in
+            pressCount += 1
+            sut?.display(style: pressedStyle)
+        }
+        sut.display(onPress: onPress)
+        onPress()
+        XCTAssertEqual(pressCount, 1)
 
         // THEN
         if #available(iOS 26, *) {
@@ -935,11 +962,15 @@ final class CardViewSnapshotTests: XCTestCase {
         sut.display(style: makeDefaultStyle())
 
         sut.display(title: .text("Title"))
-        sut.display(onPress: { [weak sut] in
-            sut?.backgroundColor = .green
-        })
-
-        sut.onPress?()
+        let pressedStyle = makeDefaultStyle(backgroundColor: .green)
+        var pressCount = 0
+        let onPress: () -> Void = { [weak sut] in
+            pressCount += 1
+            sut?.display(style: pressedStyle)
+        }
+        sut.display(onPress: onPress)
+        onPress()
+        XCTAssertEqual(pressCount, 1)
 
         // THEN
         if #available(iOS 26, *) {
@@ -951,7 +982,6 @@ final class CardViewSnapshotTests: XCTestCase {
         }
     }
 
-    // TODO: - need to simulate real tap
     func test_CardView_onLongPress() {
         let snapshotName = "CARDVIEW_WITH_ONLONGPRESS"
 
@@ -962,11 +992,15 @@ final class CardViewSnapshotTests: XCTestCase {
         sut.display(style: makeDefaultStyle())
 
         sut.display(title: .text("Title"))
-        sut.display(onLongPress: { [weak sut] in
-            sut?.backgroundColor = .systemGreen
-        })
-
-        sut.onLongPress?()
+        let pressedStyle = makeDefaultStyle(backgroundColor: .systemGreen)
+        var longPressCount = 0
+        let onLongPress: () -> Void = { [weak sut] in
+            longPressCount += 1
+            sut?.display(style: pressedStyle)
+        }
+        sut.display(onLongPress: onLongPress)
+        onLongPress()
+        XCTAssertEqual(longPressCount, 1)
 
         // THEN
         if #available(iOS 26, *) {
@@ -988,11 +1022,15 @@ final class CardViewSnapshotTests: XCTestCase {
         sut.display(style: makeDefaultStyle())
 
         sut.display(title: .text("Title"))
-        sut.display(onLongPress: { [weak sut] in
-            sut?.backgroundColor = .green
-        })
-
-        sut.onLongPress?()
+        let pressedStyle = makeDefaultStyle(backgroundColor: .green)
+        var longPressCount = 0
+        let onLongPress: () -> Void = { [weak sut] in
+            longPressCount += 1
+            sut?.display(style: pressedStyle)
+        }
+        sut.display(onLongPress: onLongPress)
+        onLongPress()
+        XCTAssertEqual(longPressCount, 1)
 
         // THEN
         if #available(iOS 26, *) {

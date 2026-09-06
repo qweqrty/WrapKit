@@ -6,7 +6,6 @@ import SwiftUI
 public struct SUISearchBar: View {
     @StateObject private var stateModel: SUISearchBarStateModel
     private let contentInsets: EdgeInsets
-    private let layoutProbe: SUISearchBarLayoutProbe?
 
     /// `padding` controls the text field's internal padding, while `contentInsets`
     /// inset the complete row of side controls and text field.
@@ -26,17 +25,6 @@ public struct SUISearchBar: View {
             padding: padding
         ))
         self.contentInsets = contentInsets
-        self.layoutProbe = nil
-    }
-
-    init(
-        stateModel: SUISearchBarStateModel,
-        contentInsets: EdgeInsets = .zero,
-        layoutProbe: SUISearchBarLayoutProbe? = nil
-    ) {
-        _stateModel = .init(wrappedValue: stateModel)
-        self.contentInsets = contentInsets
-        self.layoutProbe = layoutProbe
     }
 
     public var body: some View {
@@ -49,8 +37,7 @@ public struct SUISearchBar: View {
         HStack(alignment: .top, spacing: stateModel.spacing) {
             buttonView(
                 stateModel.leftButtonStateModel,
-                isPresented: stateModel.leftView != nil,
-                layoutElement: .leading
+                isPresented: stateModel.leftView != nil
             )
             if !stateModel.isTextFieldHidden {
                 SUITextField(
@@ -59,14 +46,10 @@ public struct SUISearchBar: View {
                     contentInsets: stateModel.padding,
                     cornerStyle: .fixed(stateModel.cornerRadius)
                 )
-                .ifLet(layoutProbe) { view, probe in
-                    view.measureFrame(probe.binding(for: .textField))
-                }
             }
             buttonView(
                 stateModel.rightButtonStateModel,
-                isPresented: stateModel.rightView != nil,
-                layoutElement: .trailing
+                isPresented: stateModel.rightView != nil
             )
         }
         .fixedSize(horizontal: false, vertical: true)
@@ -91,39 +74,12 @@ public struct SUISearchBar: View {
     @ViewBuilder
     private func buttonView(
         _ buttonStateModel: SUIButtonStateModel,
-        isPresented: Bool,
-        layoutElement: SUISearchBarLayoutElement
+        isPresented: Bool
     ) -> some View {
         if isPresented {
             SUISearchBarButton(stateModel: buttonStateModel)
                 .fixedSize(horizontal: true, vertical: false)
-                .ifLet(layoutProbe) { view, probe in
-                    view.measureFrame(probe.binding(for: layoutElement))
-                }
         }
-    }
-}
-
-enum SUISearchBarLayoutElement: Hashable {
-    case leading
-    case textField
-    case trailing
-}
-
-/// Internal render probe used by contract tests. It does not participate in
-/// production rendering unless explicitly supplied through the internal init.
-final class SUISearchBarLayoutProbe {
-    private var frames: [SUISearchBarLayoutElement: CGRect] = [:]
-
-    func frame(for element: SUISearchBarLayoutElement) -> CGRect? {
-        frames[element]
-    }
-
-    fileprivate func binding(for element: SUISearchBarLayoutElement) -> Binding<CGRect> {
-        Binding(
-            get: { [weak self] in self?.frames[element] ?? .zero },
-            set: { [weak self] in self?.frames[element] = $0 }
-        )
     }
 }
 

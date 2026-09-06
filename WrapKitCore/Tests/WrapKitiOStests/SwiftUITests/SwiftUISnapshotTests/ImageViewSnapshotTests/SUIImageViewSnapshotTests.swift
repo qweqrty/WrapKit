@@ -6,6 +6,8 @@
 //
 
 import WrapKit
+import SwiftUI
+import UIKit
 import XCTest
 import WrapKitTestUtils
 import Kingfisher
@@ -23,6 +25,37 @@ final class SUIImageViewSnapshotTests: XCTestCase {
         KingfisherManager.shared.cache.cleanExpiredCache()
         KingfisherManager.shared.cache.cleanExpiredMemoryCache()
         KingfisherManager.shared.cache.cleanExpiredDiskCache()
+    }
+
+    func test_publicImageView_exposesConfiguredAccessibilityActions() throws {
+        let adapter = ImageViewOutputSwiftUIAdapter()
+        var pressCount = 0
+        var longPressCount = 0
+        adapter.display(model: .systemSymbol(
+            "star.fill",
+            accessibilityIdentifier: "image.action",
+            accessibility: .init(label: "Action image", hint: "Runs image action"),
+            size: CGSize(width: 44, height: 44),
+            onPress: { pressCount += 1 },
+            onLongPress: { longPressCount += 1 }
+        ))
+
+        let host = SwiftUIAccessibilityTestHost(
+            rootView: SUIImageView(adapter: adapter),
+            size: CGSize(width: 100, height: 100)
+        )
+        host.settle()
+
+        let image = try XCTUnwrap(host.element(withLabel: "Action image"))
+        XCTAssertEqual(image.accessibilityHint, "Runs image action")
+        XCTAssertTrue(image.accessibilityActivate())
+        XCTAssertEqual(pressCount, 1)
+
+        let longPress = try XCTUnwrap(
+            image.accessibilityCustomActions?.first { $0.name == "Long press" }
+        )
+        XCTAssertTrue(host.perform(longPress))
+        XCTAssertEqual(longPressCount, 1)
     }
 
     func test_imageView_defaultState() {
@@ -109,9 +142,8 @@ final class SUIImageViewSnapshotTests: XCTestCase {
         let exp = expectation(description: "Wait for completion")
 
         // WHEN
-        let urlString = light
-        sut.display(image: .urlString(urlString, urlString)) { [weak sut] _ in
-            sut?.display(alpha: 0.5)
+        let urlString = dark
+        sut.display(image: .urlString(urlString, urlString)) { _ in
             exp.fulfill()
         }
 
@@ -157,8 +189,7 @@ final class SUIImageViewSnapshotTests: XCTestCase {
 
         // WHEN
         let urlString = light
-        sut.display(image: .urlString(urlString, urlString)) { [weak sut] _ in
-            sut?.display(alpha: 0.5)
+        sut.display(image: .urlString(urlString, urlString)) { _ in
             exp.fulfill()
         }
 
@@ -241,9 +272,8 @@ final class SUIImageViewSnapshotTests: XCTestCase {
         let exp = expectation(description: "Wait for completion")
 
         // WHEN
-        let url = URL(string: light)!
-        sut.display(image: .url(url, url)) { [weak sut] _ in
-            sut?.display(alpha: 0.5)
+        let url = URL(string: dark)!
+        sut.display(image: .url(url, url)) { _ in
             exp.fulfill()
         }
 
@@ -336,7 +366,7 @@ final class SUIImageViewSnapshotTests: XCTestCase {
         sut.configureLoadingView(color: .red)
 
         // WHEN
-        let url = server.url(path: "/image-view-loading-fail.png")
+        let url = server.url(path: "/image-view-loading.png")
         let requestStarted = expectation(description: "Loading request started")
         requestStarted.assertForOverFulfill = false
         server.observeStart { startedURL in
@@ -435,8 +465,7 @@ final class SUIImageViewSnapshotTests: XCTestCase {
         // WHEN
         let url = URL(string: light)!
 
-        sut.display(image: .url(url, url)) { [weak sut] _ in
-            sut?.display(alpha: 0.5)
+        sut.display(image: .url(url, url)) { _ in
             exp.fulfill()
         }
 
@@ -692,69 +721,55 @@ final class SUIImageViewSnapshotTests: XCTestCase {
         }
     }
 
-    // MARK: - Touches simulation
+    // MARK: - Interactive appearance
 
-    func test_imageView_onPress_visualState() {
-        let snapshotName = "IMAGE_VIEW_ONPRESS"
+    func test_imageView_onPress_releasedVisualState() {
         let releasedSnapshotName = "IMAGE_VIEW_ONPRESS_RELEASED"
 
         // GIVEN
-        let pressedSUT = makeSUT(pressedStateOverride: true)
-        let releasedSUT = makeSUT(pressedStateOverride: false)
-        let pressedImageLoaded = expectation(description: "Pressed image loaded")
-        let releasedImageLoaded = expectation(description: "Released image loaded")
+        let sut = makeSUT()
+        let imageLoaded = expectation(description: "Image loaded")
 
         // WHEN
-        pressedSUT.display(alpha: 0.3)
-        releasedSUT.display(alpha: 0.3)
-        pressedSUT.display(onPress: {})
-        releasedSUT.display(onPress: {})
+        sut.display(alpha: 0.3)
+        sut.display(onPress: {})
         let image = UIImage(systemName: "star.fill")
-        pressedSUT.display(image: .asset(image)) { _ in pressedImageLoaded.fulfill() }
-        releasedSUT.display(image: .asset(image)) { _ in releasedImageLoaded.fulfill() }
+        sut.display(image: .asset(image)) { _ in imageLoaded.fulfill() }
 
-        wait(for: [pressedImageLoaded, releasedImageLoaded], timeout: 1)
+        wait(for: [imageLoaded], timeout: 1)
 
         // THEN
         if #available(iOS 26, *) {
-            assert(snapshot: pressedSUT.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
-            assert(snapshot: releasedSUT.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(releasedSnapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
-            assert(snapshot: releasedSUT.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS26_\(releasedSnapshotName)_DARK", precision: SwiftUISnapshotPrecision.standard)
+            assert(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(releasedSnapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
+            assert(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS26_\(releasedSnapshotName)_DARK", precision: SwiftUISnapshotPrecision.standard)
         } else {
-            assert(snapshot: pressedSUT.swiftUISnapshot(for: .light), named: "SwiftUI_iOS18.5_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
-            assert(snapshot: releasedSUT.swiftUISnapshot(for: .light), named: "SwiftUI_iOS18.5_\(releasedSnapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
-            assert(snapshot: releasedSUT.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS18.5_\(releasedSnapshotName)_DARK", precision: SwiftUISnapshotPrecision.standard)
+            assert(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS18.5_\(releasedSnapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
+            assert(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS18.5_\(releasedSnapshotName)_DARK", precision: SwiftUISnapshotPrecision.standard)
         }
     }
 
-    func test_fail_imageView_onPress_visualState() {
-        let snapshotName = "IMAGE_VIEW_ONPRESS"
+    func test_fail_imageView_onPress_releasedVisualState() {
         let releasedSnapshotName = "IMAGE_VIEW_ONPRESS_RELEASED"
 
         // GIVEN
-        let pressedSUT = makeSUT(pressedStateOverride: true)
-        let releasedSUT = makeSUT(pressedStateOverride: false)
-        let pressedImageLoaded = expectation(description: "Pressed mutation image loaded")
-        let releasedImageLoaded = expectation(description: "Released mutation image loaded")
+        let sut = makeSUT()
+        let imageLoaded = expectation(description: "Mutation image loaded")
 
         // WHEN
-        pressedSUT.display(onPress: {})
-        releasedSUT.display(onPress: {})
-        let image = UIImage(systemName: "star")
-        pressedSUT.display(image: .asset(image)) { _ in pressedImageLoaded.fulfill() }
-        releasedSUT.display(image: .asset(image)) { _ in releasedImageLoaded.fulfill() }
+        sut.display(alpha: 0.4)
+        sut.display(onPress: {})
+        let image = UIImage(systemName: "star.fill")
+        sut.display(image: .asset(image)) { _ in imageLoaded.fulfill() }
 
-        wait(for: [pressedImageLoaded, releasedImageLoaded], timeout: 1)
+        wait(for: [imageLoaded], timeout: 1)
 
         // THEN
         if #available(iOS 26, *) {
-            assertFail(snapshot: pressedSUT.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.fail)
-            assertFail(snapshot: releasedSUT.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(releasedSnapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.fail)
-            assertFail(snapshot: releasedSUT.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS26_\(releasedSnapshotName)_DARK", precision: SwiftUISnapshotPrecision.fail)
+            assertFail(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(releasedSnapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.fail)
+            assertFail(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS26_\(releasedSnapshotName)_DARK", precision: SwiftUISnapshotPrecision.fail)
         } else {
-            assertFail(snapshot: pressedSUT.swiftUISnapshot(for: .light), named: "SwiftUI_iOS18.5_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.fail)
-            assertFail(snapshot: releasedSUT.swiftUISnapshot(for: .light), named: "SwiftUI_iOS18.5_\(releasedSnapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.fail)
-            assertFail(snapshot: releasedSUT.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS18.5_\(releasedSnapshotName)_DARK", precision: SwiftUISnapshotPrecision.fail)
+            assertFail(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS18.5_\(releasedSnapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.fail)
+            assertFail(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS18.5_\(releasedSnapshotName)_DARK", precision: SwiftUISnapshotPrecision.fail)
         }
     }
 
@@ -764,17 +779,21 @@ final class SUIImageViewSnapshotTests: XCTestCase {
 
         // GIVEN
         let sut = makeSUT()
-        let exp = expectation(description: "Wait for animation completion")
+        let imageLoaded = expectation(description: "Image loaded")
 
         // WHEN
-        sut.display(onPress: { [weak sut] in
-            sut?.backgroundColor = .red
-            exp.fulfill()
-        })
-
-        sut.onPress?()
-
-        wait(for: [exp], timeout: 1.0)
+        sut.display(image: .asset(UIImage(systemName: "star.fill"))) { _ in
+            imageLoaded.fulfill()
+        }
+        wait(for: [imageLoaded], timeout: 1.0)
+        var pressCount = 0
+        let onPress: () -> Void = { [weak sut] in
+            pressCount += 1
+            sut?.display(alpha: 0.3)
+        }
+        sut.display(onPress: onPress)
+        onPress()
+        XCTAssertEqual(pressCount, 1)
 
         // THEN
         if #available(iOS 26, *) {
@@ -791,17 +810,21 @@ final class SUIImageViewSnapshotTests: XCTestCase {
 
         // GIVEN
         let sut = makeSUT()
-        let exp = expectation(description: "Wait for animation completion")
+        let imageLoaded = expectation(description: "Image loaded")
 
         // WHEN
-        sut.display(onPress: { [weak sut] in
-            sut?.backgroundColor = .systemRed
-            exp.fulfill()
-        })
-
-        sut.onPress?()
-
-        wait(for: [exp], timeout: 1.0)
+        sut.display(image: .asset(UIImage(systemName: "star.fill"))) { _ in
+            imageLoaded.fulfill()
+        }
+        wait(for: [imageLoaded], timeout: 1.0)
+        var pressCount = 0
+        let onPress: () -> Void = { [weak sut] in
+            pressCount += 1
+            sut?.display(alpha: 0.4)
+        }
+        sut.display(onPress: onPress)
+        onPress()
+        XCTAssertEqual(pressCount, 1)
 
         // THEN
         if #available(iOS 26, *) {
@@ -818,17 +841,25 @@ final class SUIImageViewSnapshotTests: XCTestCase {
 
         // GIVEN
         let sut = makeSUT()
-        let exp = expectation(description: "Wait for onLongPress")
+        let initialImageLoaded = expectation(description: "Initial image loaded")
+        let finalImageLoaded = expectation(description: "Final image loaded")
 
         // WHEN
-        sut.display(onLongPress: { [weak sut] in
-            sut?.backgroundColor = .systemYellow
-            exp.fulfill()
-        })
-
-        sut.onLongPress?()
-
-        wait(for: [exp], timeout: 1.0)
+        sut.display(image: .asset(UIImage(systemName: "star.fill"))) { _ in
+            initialImageLoaded.fulfill()
+        }
+        wait(for: [initialImageLoaded], timeout: 1.0)
+        var longPressCount = 0
+        let onLongPress: () -> Void = { [weak sut] in
+            longPressCount += 1
+            sut?.display(image: .asset(UIImage(systemName: "heart.fill"))) { _ in
+                finalImageLoaded.fulfill()
+            }
+        }
+        sut.display(onLongPress: onLongPress)
+        onLongPress()
+        wait(for: [finalImageLoaded], timeout: 1.0)
+        XCTAssertEqual(longPressCount, 1)
 
         // THEN
         if #available(iOS 26, *) {
@@ -845,17 +876,25 @@ final class SUIImageViewSnapshotTests: XCTestCase {
 
         // GIVEN
         let sut = makeSUT()
-        let exp = expectation(description: "Wait for onLongPress")
+        let initialImageLoaded = expectation(description: "Initial image loaded")
+        let finalImageLoaded = expectation(description: "Final image loaded")
 
         // WHEN
-        sut.display(onLongPress: { [weak sut] in
-            sut?.backgroundColor = .yellow
-            exp.fulfill()
-        })
-
-        sut.onLongPress?()
-
-        wait(for: [exp], timeout: 1.0)
+        sut.display(image: .asset(UIImage(systemName: "star.fill"))) { _ in
+            initialImageLoaded.fulfill()
+        }
+        wait(for: [initialImageLoaded], timeout: 1.0)
+        var longPressCount = 0
+        let onLongPress: () -> Void = { [weak sut] in
+            longPressCount += 1
+            sut?.display(image: .asset(UIImage(systemName: "circle.fill"))) { _ in
+                finalImageLoaded.fulfill()
+            }
+        }
+        sut.display(onLongPress: onLongPress)
+        onLongPress()
+        wait(for: [finalImageLoaded], timeout: 1.0)
+        XCTAssertEqual(longPressCount, 1)
 
         // THEN
         if #available(iOS 26, *) {
@@ -872,11 +911,10 @@ final class SUIImageViewSnapshotTests: XCTestCase {
 @available(iOS 17.0, *)
 private extension SUIImageViewSnapshotTests {
     func makeSUT(
-        pressedStateOverride: Bool? = nil,
         file: StaticString = #file,
         line: UInt = #line
     ) -> SwiftUIImageViewSnapshotSUT {
-        let sut = SwiftUIImageViewSnapshotSUT(pressedStateOverride: pressedStateOverride)
+        let sut = SwiftUIImageViewSnapshotSUT()
         checkForMemoryLeaks(sut, file: file, line: line)
         return sut
     }

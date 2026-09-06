@@ -98,9 +98,8 @@ final class ImageViewSnapshotTests: XCTestCase {
         let exp = expectation(description: "Wait for completion")
 
         // WHEN
-        let urlString = light
-        sut.display(image: .urlString(urlString, urlString)) { [weak sut] _ in
-            sut?.backgroundColor = .red
+        let urlString = dark
+        sut.display(image: .urlString(urlString, urlString)) { _ in
             exp.fulfill()
         }
 
@@ -146,8 +145,7 @@ final class ImageViewSnapshotTests: XCTestCase {
 
         // WHEN
         let urlString = light
-        sut.display(image: .urlString(urlString, urlString)) { [weak sut] _ in
-            sut?.backgroundColor = .red
+        sut.display(image: .urlString(urlString, urlString)) { _ in
             exp.fulfill()
         }
 
@@ -230,9 +228,8 @@ final class ImageViewSnapshotTests: XCTestCase {
         let exp = expectation(description: "Wait for completion")
 
         // WHEN
-        let url = URL(string: light)!
-        sut.display(image: .url(url, url)) { [weak sut] _ in
-            sut?.backgroundColor = .red
+        let url = URL(string: dark)!
+        sut.display(image: .url(url, url)) { _ in
             exp.fulfill()
         }
 
@@ -324,7 +321,7 @@ final class ImageViewSnapshotTests: XCTestCase {
         sut.viewWhileLoadingView = ViewUIKit(backgroundColor: .red)
 
         // WHEN
-        let url = server.url(path: "/image-view-loading-fail.png")
+        let url = server.url(path: "/image-view-loading.png")
         let requestStarted = expectation(description: "Loading request started")
         server.observeStart { startedURL in
             guard startedURL == url else { return }
@@ -425,8 +422,7 @@ final class ImageViewSnapshotTests: XCTestCase {
         // WHEN
         let url = URL(string: light)!
 
-        sut.display(image: .url(url, url)) { [weak sut] _ in
-            sut?.backgroundColor = .red
+        sut.display(image: .url(url, url)) { _ in
             exp.fulfill()
         }
 
@@ -745,6 +741,7 @@ final class ImageViewSnapshotTests: XCTestCase {
         let (sut, container) = makeSUT()
 
         // WHEN
+        sut.display(alpha: 0.3)
         sut.display(onPress: {
 
         })
@@ -764,6 +761,8 @@ final class ImageViewSnapshotTests: XCTestCase {
         UIView.performWithoutAnimation {
             sut.touchesEnded(Set(), with: nil)
         }
+        sut.display(image: .asset(UIImage(systemName: "star.fill")))
+        sut.display(alpha: 0.4)
 
         if #available(iOS 26, *) {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(releasedSnapshotName)_LIGHT")
@@ -780,17 +779,16 @@ final class ImageViewSnapshotTests: XCTestCase {
 
         // GIVEN
         let (sut, container) = makeSUT()
-        let exp = expectation(description: "Wait for animation completion")
-
         // WHEN
-        sut.display(onPress: { [weak sut] in
-            sut?.backgroundColor = .red
-            exp.fulfill()
-        })
-
-        sut.onPress?()
-
-        wait(for: [exp], timeout: 1.0)
+        sut.display(image: .asset(UIImage(systemName: "star.fill")))
+        var pressCount = 0
+        let onPress: () -> Void = { [weak sut] in
+            pressCount += 1
+            sut?.display(alpha: 0.3)
+        }
+        sut.display(onPress: onPress)
+        XCTAssertTrue(sut.accessibilityActivate())
+        XCTAssertEqual(pressCount, 1)
 
         // THEN
         if #available(iOS 26, *) {
@@ -807,17 +805,16 @@ final class ImageViewSnapshotTests: XCTestCase {
 
         // GIVEN
         let (sut, container) = makeSUT()
-        let exp = expectation(description: "Wait for animation completion")
-
         // WHEN
-        sut.display(onPress: { [weak sut] in
-            sut?.backgroundColor = .systemRed
-            exp.fulfill()
-        })
-
-        sut.onPress?()
-
-        wait(for: [exp], timeout: 1.0)
+        sut.display(image: .asset(UIImage(systemName: "star.fill")))
+        var pressCount = 0
+        let onPress: () -> Void = { [weak sut] in
+            pressCount += 1
+            sut?.display(alpha: 0.4)
+        }
+        sut.display(onPress: onPress)
+        XCTAssertTrue(sut.accessibilityActivate())
+        XCTAssertEqual(pressCount, 1)
 
         // THEN
         if #available(iOS 26, *) {
@@ -829,22 +826,23 @@ final class ImageViewSnapshotTests: XCTestCase {
         }
     }
 
-    func test_imageView_direct_onLongPress() {
+    func test_imageView_direct_onLongPress() throws {
         let snapshotName = "IMAGE_VIEW_ONLONGPRESS_DIRECT"
 
         // GIVEN
         let (sut, container) = makeSUT()
-        let exp = expectation(description: "Wait for onLongPress")
-
         // WHEN
-        sut.display(onLongPress: { [weak sut] in
-            sut?.backgroundColor = .systemYellow
-            exp.fulfill()
-        })
-
-        sut.onLongPress?()
-
-        wait(for: [exp], timeout: 1.0)
+        sut.display(image: .asset(UIImage(systemName: "star.fill")))
+        var longPressCount = 0
+        let onLongPress: () -> Void = { [weak sut] in
+            longPressCount += 1
+            sut?.display(image: .asset(UIImage(systemName: "heart.fill")))
+        }
+        sut.display(onLongPress: onLongPress)
+        let action = try XCTUnwrap(sut.accessibilityCustomActions?.first)
+        XCTAssertEqual(action.name, "Long press")
+        XCTAssertTrue(try XCTUnwrap(action.actionHandler)(action))
+        XCTAssertEqual(longPressCount, 1)
 
         // THEN
         if #available(iOS 26, *) {
@@ -856,22 +854,23 @@ final class ImageViewSnapshotTests: XCTestCase {
         }
     }
 
-    func test_fail_imageView_direct_onLongPress() {
+    func test_fail_imageView_direct_onLongPress() throws {
         let snapshotName = "IMAGE_VIEW_ONLONGPRESS_DIRECT"
 
         // GIVEN
         let (sut, container) = makeSUT()
-        let exp = expectation(description: "Wait for onLongPress")
-
         // WHEN
-        sut.display(onLongPress: { [weak sut] in
-            sut?.backgroundColor = .yellow
-            exp.fulfill()
-        })
-
-        sut.onLongPress?()
-
-        wait(for: [exp], timeout: 1.0)
+        sut.display(image: .asset(UIImage(systemName: "star.fill")))
+        var longPressCount = 0
+        let onLongPress: () -> Void = { [weak sut] in
+            longPressCount += 1
+            sut?.display(image: .asset(UIImage(systemName: "circle.fill")))
+        }
+        sut.display(onLongPress: onLongPress)
+        let action = try XCTUnwrap(sut.accessibilityCustomActions?.first)
+        XCTAssertEqual(action.name, "Long press")
+        XCTAssertTrue(try XCTUnwrap(action.actionHandler)(action))
+        XCTAssertEqual(longPressCount, 1)
 
         // THEN
         if #available(iOS 26, *) {

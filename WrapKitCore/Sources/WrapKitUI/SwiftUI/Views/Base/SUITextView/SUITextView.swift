@@ -12,14 +12,6 @@ public struct SUITextView: View {
         self.appearance = appearance
     }
 
-    init(
-        stateModel: SUITextInputStateModel,
-        appearance: TextfieldAppearance
-    ) {
-        _stateModel = .init(wrappedValue: stateModel)
-        self.appearance = appearance
-    }
-
     public var body: some View {
         if !stateModel.isHidden {
             SUITextViewContent(
@@ -35,6 +27,8 @@ public struct SUITextView: View {
                 autocapitalizationType: stateModel.autocapitalizationType,
                 mask: stateModel.mask,
                 inputView: stateModel.inputView,
+                selectedInputDate: $stateModel.selectedInputDate,
+                selectedInputPickerRows: $stateModel.selectedInputPickerRows,
                 inputAccessoryView: stateModel.inputAccessoryView,
                 inputAccessoryDateOnDoneTapped: stateModel.inputAccessoryDateOnDoneTapped,
                 isFocused: $stateModel.isFocused,
@@ -76,6 +70,8 @@ public struct SUITextViewContent: View {
     let autocapitalizationType: TextAutocapitalizationType
     let mask: TextInputPresentableModel.Mask?
     let inputView: TextInputPresentableModel.InputView?
+    @Binding var selectedInputDate: Date
+    @Binding var selectedInputPickerRows: [Int: Int]
     let inputAccessoryView: TextInputPresentableModel.AccessoryViewPresentableModel?
     let inputAccessoryDateOnDoneTapped: ((Date) -> Void)?
     @Binding var isFocused: Bool
@@ -92,8 +88,6 @@ public struct SUITextViewContent: View {
 
     @FocusState private var nativeFocus: Bool
     @State private var isInputViewPresented = false
-    @State private var selectedDate = Date()
-    @State private var selectedPickerRows: [Int: Int] = [:]
 
     private var currentBorderColor: SwiftUIColor {
         if !isValid {
@@ -381,9 +375,9 @@ public struct SUITextViewContent: View {
         _ model: TextInputPresentableModel.InputView.DatePickerPresentableModel
     ) -> some View {
         let selection = Binding(
-            get: { selectedDate },
+            get: { selectedInputDate },
             set: { date in
-                selectedDate = date
+                selectedInputDate = date
                 model.onChange?(date)
             }
         )
@@ -428,7 +422,7 @@ public struct SUITextViewContent: View {
         SUIPickerContent(
             componentsCount: componentsCount,
             rows: rows,
-            selectedRows: $selectedPickerRows,
+            selectedRows: $selectedInputPickerRows,
             accessibilityIdentifier: model.accessibilityIdentifier,
             didSelectAt: model.didSelectAt
         )
@@ -438,7 +432,6 @@ public struct SUITextViewContent: View {
         guard canEdit else { return }
 
         if hasInputView {
-            prepareInputView()
             nativeFocus = false
             isInputViewPresented = true
             updateReportedFocus(true)
@@ -478,28 +471,6 @@ public struct SUITextViewContent: View {
         }
     }
 
-    private func prepareInputView() {
-        switch inputView {
-        case .date(let model):
-            selectedDate = model.value
-        case .custom(let model):
-            let componentsCount = max(model.componentsCount?() ?? 0, 0)
-            selectedPickerRows = Dictionary(
-                uniqueKeysWithValues: (0..<componentsCount).map { ($0, 0) }
-            )
-            if let selectedRow = model.selectedRow,
-               selectedRow.component >= 0,
-               selectedRow.component < componentsCount,
-               selectedRow.row >= 0,
-               selectedRow.row < max(model.rowsCount?() ?? 0, 0) {
-                selectedPickerRows[selectedRow.component] = selectedRow.row
-                selectedRow.selectedRowCompletion?(selectedRow.row)
-            }
-        case nil:
-            break
-        }
-    }
-
     private func performKeyboardAccessoryAction(_ buttonModel: ButtonPresentableModel) {
         buttonModel.onPress?()
         finishEditing()
@@ -507,7 +478,7 @@ public struct SUITextViewContent: View {
 
     private func performInputViewAccessoryAction(_ buttonModel: ButtonPresentableModel) {
         if case .date(let model) = inputView {
-            (inputAccessoryDateOnDoneTapped ?? model.onDoneTapped)?(selectedDate)
+            (inputAccessoryDateOnDoneTapped ?? model.onDoneTapped)?(selectedInputDate)
         }
         buttonModel.onPress?()
         finishEditing()

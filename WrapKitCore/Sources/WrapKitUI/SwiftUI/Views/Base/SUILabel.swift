@@ -63,28 +63,14 @@ public struct SUILabel: View {
         self.defaultTextAlignment = textAlignment
     }
 
-    init(
-        stateModel: SUILabelStateModel,
-        font: Font = .systemFont(ofSize: 20),
-        textColor: Color = .label,
-        textAlignment: TextAlignment = .natural
-    ) {
-        _stateModel = StateObject(wrappedValue: stateModel)
-        self.defaultFont = font
-        self.defaultTextColor = textColor
-        self.defaultTextAlignment = textAlignment
-    }
-
     @ViewBuilder
     public var body: some View {
-        if !stateModel.isHidden {
-            SUILabelView(
-                model: stateModel.presentable,
-                font: defaultFont,
-                textColor: defaultTextColor,
-                textAlignment: defaultTextAlignment
-            )
-        }
+        SUIOutputLabel(
+            stateModel: stateModel,
+            font: defaultFont,
+            textColor: defaultTextColor,
+            textAlignment: defaultTextAlignment
+        )
     }
 }
 

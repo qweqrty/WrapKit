@@ -171,16 +171,6 @@ final class ToastViewSnapshotTests: XCTestCase {
         let image = Image(systemName: "star")
 
         // WHEN
-        sut.cardView.display(model: .init(
-            style: makeDefaultStyle(),
-            title: .text("Toast Message"),
-            leadingImage: .init(
-                size: .init(width: 32, height: 32),
-                image: .asset(image),
-                borderColor: .red,
-            )
-        ))
-
         let cardModel = CardViewPresentableModel(
             style: makeDefaultStyle(),
             title: .text("Toast Message"),
@@ -927,7 +917,6 @@ final class ToastViewSnapshotTests: XCTestCase {
         let sut = makeSUT()
 
         let exp = expectation(description: "Wait for completion!")
-        let image = Image(systemName: "star")
 
         // WHEN
         let cardModel = CardViewPresentableModel(
@@ -1010,8 +999,6 @@ final class ToastViewSnapshotTests: XCTestCase {
         let sut = makeSUT()
 
         let exp = expectation(description: "Wait for completion!")
-
-        let image = Image(systemName: "star")
 
         // WHEN
         let cardModel = CardViewPresentableModel(

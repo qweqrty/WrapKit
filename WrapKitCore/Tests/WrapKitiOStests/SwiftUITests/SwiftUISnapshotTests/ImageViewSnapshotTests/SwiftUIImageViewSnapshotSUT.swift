@@ -9,10 +9,10 @@ final class SwiftUIImageViewSnapshotSUT: NSObject, ImageViewOutput, SwiftUISnaps
         let controller: UIViewController
     }
 
-    let adapter = ImageViewOutputSwiftUIAdapter()
+    private let lightAdapter = ImageViewOutputSwiftUIAdapter()
+    private let darkAdapter = ImageViewOutputSwiftUIAdapter()
     let configuration = SwiftUIImageSnapshotConfiguration()
 
-    private let pressedStateOverride: Bool?
     private var configuredBackgroundColor: UIColor?
 
     private var lightHost: SwiftUIHost?
@@ -20,8 +20,7 @@ final class SwiftUIImageViewSnapshotSUT: NSObject, ImageViewOutput, SwiftUISnaps
     private var lightSwiftUISnapshot: UIImage?
     private var darkSwiftUISnapshot: UIImage?
 
-    init(pressedStateOverride: Bool? = nil) {
-        self.pressedStateOverride = pressedStateOverride
+    override init() {
         super.init()
 
         if #available(iOS 17, *) {
@@ -75,9 +74,6 @@ final class SwiftUIImageViewSnapshotSUT: NSObject, ImageViewOutput, SwiftUISnaps
         }
     }
 
-    var onPress: (() -> Void)? { adapter.displayOnPressState?.onPress }
-    var onLongPress: (() -> Void)? { adapter.displayOnLongPressState?.onLongPress }
-
     func configureLoadingView(color: UIColor?) {
         invalidateSwiftUISnapshotCache()
         configuration.viewWhileLoadingView = color.map { AnyView(SwiftUI.Color(uiColor: $0)) }
@@ -92,57 +88,59 @@ final class SwiftUIImageViewSnapshotSUT: NSObject, ImageViewOutput, SwiftUISnaps
 
     func display(model: ImageViewPresentableModel?, completion: ((WrapKit.Image?) -> Void)?) {
         invalidateSwiftUISnapshotCache()
-        adapter.display(model: model, completion: makeSwiftUICompletion(completion))
+        let completion = makeSwiftUICompletion(completion)
+        adapters.forEach { $0.display(model: model, completion: completion) }
     }
 
     func display(image: ImageEnum?, completion: ((WrapKit.Image?) -> Void)?) {
         invalidateSwiftUISnapshotCache()
-        adapter.display(image: image, completion: makeSwiftUICompletion(completion))
+        let completion = makeSwiftUICompletion(completion)
+        adapters.forEach { $0.display(image: image, completion: completion) }
     }
 
     func display(size: CGSize?) {
         invalidateSwiftUISnapshotCache()
-        adapter.display(size: size)
+        adapters.forEach { $0.display(size: size) }
     }
 
     func display(onPress: (() -> Void)?) {
         invalidateSwiftUISnapshotCache()
-        adapter.display(onPress: onPress)
+        adapters.forEach { $0.display(onPress: onPress) }
     }
 
     func display(onLongPress: (() -> Void)?) {
         invalidateSwiftUISnapshotCache()
-        adapter.display(onLongPress: onLongPress)
+        adapters.forEach { $0.display(onLongPress: onLongPress) }
     }
 
     func display(contentModeIsFit: Bool) {
         invalidateSwiftUISnapshotCache()
-        adapter.display(contentModeIsFit: contentModeIsFit)
+        adapters.forEach { $0.display(contentModeIsFit: contentModeIsFit) }
     }
 
     func display(borderWidth: CGFloat?) {
         invalidateSwiftUISnapshotCache()
-        adapter.display(borderWidth: borderWidth)
+        adapters.forEach { $0.display(borderWidth: borderWidth) }
     }
 
     func display(borderColor: WrapKit.Color?) {
         invalidateSwiftUISnapshotCache()
-        adapter.display(borderColor: borderColor)
+        adapters.forEach { $0.display(borderColor: borderColor) }
     }
 
     func display(cornerRadius: CGFloat?) {
         invalidateSwiftUISnapshotCache()
-        adapter.display(cornerRadius: cornerRadius)
+        adapters.forEach { $0.display(cornerRadius: cornerRadius) }
     }
 
     func display(alpha: CGFloat?) {
         invalidateSwiftUISnapshotCache()
-        adapter.display(alpha: alpha)
+        adapters.forEach { $0.display(alpha: alpha) }
     }
 
     func display(isHidden: Bool) {
         invalidateSwiftUISnapshotCache()
-        adapter.display(isHidden: isHidden)
+        adapters.forEach { $0.display(isHidden: isHidden) }
     }
 
     @available(iOS 17, *)
@@ -208,6 +206,10 @@ final class SwiftUIImageViewSnapshotSUT: NSObject, ImageViewOutput, SwiftUISnaps
         darkSwiftUISnapshot = nil
     }
 
+    private var adapters: [ImageViewOutputSwiftUIAdapter] {
+        [lightAdapter, darkAdapter]
+    }
+
     private func settleSwiftUIConfigurationChange() {
         guard #available(iOS 17.0, *) else { return }
 
@@ -260,9 +262,8 @@ final class SwiftUIImageViewSnapshotSUT: NSObject, ImageViewOutput, SwiftUISnaps
             style: style == .dark ? .dark : .light
         )
         let rootView = SwiftUIImageSnapshotContainer(
-            adapter: adapter,
-            configuration: configuration,
-            pressedStateOverride: pressedStateOverride
+            adapter: style == .dark ? darkAdapter : lightAdapter,
+            configuration: configuration
         )
         .build(configuration: swiftUIConfiguration, background: .clear)
 
@@ -376,16 +377,13 @@ final class SwiftUIImageSnapshotConfiguration: ObservableObject {
 private struct SwiftUIImageSnapshotContainer: View {
     @StateObject private var stateModel: SUIImageViewStateModel
     @ObservedObject var configuration: SwiftUIImageSnapshotConfiguration
-    let pressedStateOverride: Bool?
 
     init(
         adapter: ImageViewOutputSwiftUIAdapter,
-        configuration: SwiftUIImageSnapshotConfiguration,
-        pressedStateOverride: Bool?
+        configuration: SwiftUIImageSnapshotConfiguration
     ) {
         _stateModel = .init(wrappedValue: .init(adapter: adapter))
         self.configuration = configuration
-        self.pressedStateOverride = pressedStateOverride
     }
 
     var body: some View {
@@ -395,11 +393,10 @@ private struct SwiftUIImageSnapshotContainer: View {
                 viewWhileLoadingView: configuration.viewWhileLoadingView,
                 fallbackView: configuration.fallbackView,
                 wrongUrlPlaceholderImage: configuration.wrongUrlPlaceholderImage,
-                backgroundColor: configuration.backgroundColor.map { SwiftUI.Color(uiColor: $0) },
-                pressedStateOverride: pressedStateOverride
+                backgroundColor: configuration.backgroundColor.map { SwiftUI.Color(uiColor: $0) }
             )
-            .frame(height: 150, alignment: .center)
-            .frame(maxWidth: .infinity, alignment: .leading)
+                .frame(height: 150, alignment: .center)
+                .frame(maxWidth: .infinity, alignment: .leading)
 
             Spacer()
         }

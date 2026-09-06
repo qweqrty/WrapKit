@@ -230,7 +230,7 @@ class SUINavigationBarSnapshotTests: XCTestCase {
             secondaryColor: .green)
         )
 
-        sut.display(leadingCard: .init(backgroundImage: .init(image: .asset(Image(systemName: "star"))), title: .text("Title")))
+        sut.display(leadingCard: .init(backgroundImage: .init(image: .asset(Image(systemName: "star"))), title: .text("Title"), onPress: { }))
 
         // THEN
         if #available(iOS 26, *) {
@@ -298,7 +298,9 @@ class SUINavigationBarSnapshotTests: XCTestCase {
                 backgroundImage: .init(
                     size: CGSize(width: 24, height: 24),
                     image: .asset(Image(systemName: "star.fill"))),
-                trailingTitles: .init(.text("Title."), .text("Subtitle."))))
+                trailingTitles: .init(.text("Title."), .text("Subtitle.")),
+                onPress: { }
+            ))
 
         // THEN
         if #available(iOS 26, *) {
@@ -357,7 +359,7 @@ class SUINavigationBarSnapshotTests: XCTestCase {
         )
 
         let image = Image(systemName: "star")
-        sut.display(secondaryTrailingImage: .some(.init(title: "Image", image: image, height: 24)))
+        sut.display(secondaryTrailingImage: .some(.init(title: "Image", image: image)))
 
         // THEN
         if #available(iOS 26, *) {
@@ -496,8 +498,7 @@ class SUINavigationBarSnapshotTests: XCTestCase {
         let image = Image(systemName: "star")
         sut.display(tertiaryTrailingImage: .some(.init(
             title: "Image",
-            image: image,
-            height: 24,
+            image: image
         )))
 
         // THEN
@@ -569,7 +570,6 @@ class SUINavigationBarSnapshotTests: XCTestCase {
         sut.display(tertiaryTrailingImage: .some(.init(
             title: "Image",
             image: image,
-            height: 24,
             onPress: onPress
         )))
 
@@ -645,21 +645,19 @@ class SUINavigationBarSnapshotTests: XCTestCase {
             secondaryColor: .green)
         )
 
-        let image = Image(systemName: "star")
-        let pressedStyle = makeSnapshotStyle(backgroundColor: .yellow)
+        let image = Image(systemName: "star.fill")
+        let pressedStyle = makeSnapshotStyle(backgroundColor: .systemYellow)
         let onPress: () -> Void = { }
 
         sut.display(tertiaryTrailingImage: .some(.init(
             title: "Tert",
             image: image,
-            height: 24,
             onPress: onPress)
         ))
 
         sut.display(secondaryTrailingImage: .some(.init(
             title: "Second",
             image: image,
-            height: 24,
             onPress: onPress)
         ))
 
@@ -852,11 +850,12 @@ class SUINavigationBarSnapshotTests: XCTestCase {
         )
 
         let image = Image(systemName: "star.fill")
+        let mutatedLeadingImage = Image(systemName: "heart.fill")
 
         sut.display(
             leadingCard: .init(
-                title: .text("Title."),
-                leadingImage: .init(image: .asset(image)),
+                title: .text("Title"),
+                leadingImage: .init(image: .asset(mutatedLeadingImage)),
                 trailingImage: .init(image: .asset(image))
             )
         )
@@ -1210,7 +1209,8 @@ class SUINavigationBarSnapshotTests: XCTestCase {
                         tintColor: .blue,
                         thumbTintColor: .systemRed,
                         backgroundColor: .clear,
-                        cornerRadius: 10))
+                        cornerRadius: 10)),
+                onPress: { }
             )
         )
 

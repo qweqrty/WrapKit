@@ -111,18 +111,6 @@ final class SwiftUICardViewSnapshotSUT: CardViewOutput, SwiftUISnapshotSource {
         )
     }
 
-    func invokeSwiftUIStoredOnPressOutputForPostStateSnapshot() -> Bool {
-        guard let onPress = swiftUIAdapter.displayOnPressState?.onPress else { return false }
-        onPress()
-        return true
-    }
-
-    func invokeSwiftUIStoredOnLongPressOutputForPostStateSnapshot() -> Bool {
-        guard let onLongPress = swiftUIAdapter.displayOnLongPressState?.onLongPress else { return false }
-        onLongPress()
-        return true
-    }
-
     @available(iOS 17.0, *)
     private func makeSwiftUIHostingController(for appearance: SnapshotAppearance) -> UIViewController {
         let rootView = SnapshotMirroredCardContainer(content: swiftUIView)

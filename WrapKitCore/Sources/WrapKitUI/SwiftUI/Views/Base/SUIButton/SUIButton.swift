@@ -8,13 +8,9 @@
 import Foundation
 import SwiftUI
 
-typealias SUIButtonLoadingIndicatorPhase = SUICircleStrokeSpinPhase
-
 public struct SUIButton: View {
     @StateObject var stateModel: SUIButtonStateModel
     let pressAnimations: Set<PressAnimation>
-    let loadingIndicatorPhase: SUIButtonLoadingIndicatorPhase
-    let pressedStateOverride: Bool?
     
     public init(
         adapter: ButtonOutputSwiftUIAdapter,
@@ -23,20 +19,6 @@ public struct SUIButton: View {
     ) {
         _stateModel = .init(wrappedValue: .init(adapter: adapter, loadingAdapter: loadingAdapter))
         self.pressAnimations = pressAnimations
-        self.loadingIndicatorPhase = .animated
-        self.pressedStateOverride = nil
-    }
-
-    init(
-        stateModel: SUIButtonStateModel,
-        pressAnimations: Set<PressAnimation> = [],
-        loadingIndicatorPhase: SUIButtonLoadingIndicatorPhase = .animated,
-        pressedStateOverride: Bool? = nil
-    ) {
-        _stateModel = .init(wrappedValue: stateModel)
-        self.pressAnimations = pressAnimations
-        self.loadingIndicatorPhase = loadingIndicatorPhase
-        self.pressedStateOverride = pressedStateOverride
     }
     
     @ViewBuilder
@@ -47,9 +29,7 @@ public struct SUIButton: View {
                 onPress: stateModel.presentable.onPress,
                 isEnabled: stateModel.isEnabled,
                 isLoading: stateModel.isLoading,
-                pressAnimations: pressAnimations,
-                loadingIndicatorPhase: loadingIndicatorPhase,
-                pressedStateOverride: pressedStateOverride
+                pressAnimations: pressAnimations
             )
         }
     }
@@ -64,10 +44,9 @@ public struct SUIButtonView: View {
     let fillsAvailableWidth: Bool
     let fillsAvailableHeight: Bool
     let contentInsets: SwiftUI.EdgeInsets
-    let loadingIndicatorPhase: SUIButtonLoadingIndicatorPhase
-    let pressedStateOverride: Bool?
     
     @State private var isPressed: Bool = false
+    @GestureState private var isGlassPressed: Bool = false
     
     public init(
         model: ButtonPresentableModel,
@@ -87,32 +66,6 @@ public struct SUIButtonView: View {
         self.fillsAvailableWidth = fillsAvailableWidth
         self.fillsAvailableHeight = fillsAvailableHeight
         self.contentInsets = contentInsets
-        self.loadingIndicatorPhase = .animated
-        self.pressedStateOverride = nil
-    }
-
-    init(
-        model: ButtonPresentableModel,
-        onPress: (() -> Void)?,
-        isEnabled: Bool,
-        isLoading: Bool,
-        pressAnimations: Set<PressAnimation>,
-        fillsAvailableWidth: Bool = true,
-        fillsAvailableHeight: Bool = true,
-        contentInsets: SwiftUI.EdgeInsets = .init(),
-        loadingIndicatorPhase: SUIButtonLoadingIndicatorPhase,
-        pressedStateOverride: Bool? = nil
-    ) {
-        self.model = model
-        self.onPress = onPress
-        self.isEnabled = isEnabled
-        self.isLoading = isLoading
-        self.pressAnimations = pressAnimations
-        self.fillsAvailableWidth = fillsAvailableWidth
-        self.fillsAvailableHeight = fillsAvailableHeight
-        self.contentInsets = contentInsets
-        self.loadingIndicatorPhase = loadingIndicatorPhase
-        self.pressedStateOverride = pressedStateOverride
     }
     
     @ViewBuilder
@@ -138,7 +91,24 @@ public struct SUIButtonView: View {
                 tint: glassTintColor,
                 cornerStyle: buttonCornerStyle
             )
+            .scaleEffect(
+                pressAnimations.contains(.shrink) && isGlassPressed ? 0.95 : 1
+            )
+            .animation(
+                .spring(response: 0.4, dampingFraction: 0.4, blendDuration: 0),
+                value: isGlassPressed
+            )
+            .simultaneousGesture(glassPressGesture)
             .overlay(borderView)
+    }
+
+    private var glassPressGesture: some Gesture {
+        DragGesture(minimumDistance: 0)
+            .updating($isGlassPressed) { value, isPressed, _ in
+                isPressed = isEnabled
+                    && onPress != nil
+                    && hypot(value.translation.width, value.translation.height) <= 10
+            }
     }
 
     private var baseButton: some View {
@@ -184,8 +154,7 @@ public struct SUIButtonView: View {
             if isLoading {
                 SUICircleStrokeSpin(
                     color: SwiftUIColor(model.style?.loadingIndicatorColor ?? .red),
-                    size: CGSize(width: 30, height: 30),
-                    phase: loadingIndicatorPhase
+                    size: CGSize(width: 30, height: 30)
                 )
             }
         }
@@ -198,7 +167,7 @@ public struct SUIButtonView: View {
             if let image = model.image {
                 SwiftUIImage(image: image)
                     .renderingMode(image.swiftUIRenderingMode)
-                    .foregroundColor(.accentColor)
+                    .foregroundColor(usesLiquidGlassConfiguration ? titleColor : .accentColor)
             }
             if let title = model.title {
                 Text(title.removingPercentEncoding ?? title)
@@ -259,11 +228,14 @@ public struct SUIButtonView: View {
     }
 
     private var glassTintColor: SwiftUIColor? {
-        model.style?.backgroundColor.map(SwiftUIColor.init)
+        let color = effectiveIsPressed
+            ? model.style?.pressedColor ?? model.style?.backgroundColor
+            : model.style?.backgroundColor
+        return color.map(SwiftUIColor.init)
     }
 
     private var titleColor: SwiftUIColor? {
-        let color = effectivePressedState
+        let color = effectiveIsPressed
             ? model.style?.pressedTintColor ?? model.style?.titleColor ?? .white
             : model.style?.titleColor ?? .white
         return SwiftUIColor(color)
@@ -276,14 +248,14 @@ public struct SUIButtonView: View {
     @ViewBuilder
     private var backgroundView: some View {
         SwiftUIColor(
-            effectivePressedState
-            ? model.style?.pressedColor ?? model.style?.backgroundColor ?? .clear
-            : model.style?.backgroundColor ?? .clear
+            effectiveIsPressed
+                ? model.style?.pressedColor ?? model.style?.backgroundColor ?? .clear
+                : model.style?.backgroundColor ?? .clear
         )
     }
 
-    private var effectivePressedState: Bool {
-        pressedStateOverride ?? isPressed
+    private var effectiveIsPressed: Bool {
+        usesLiquidGlassConfiguration ? isGlassPressed : isPressed
     }
     
     @ViewBuilder

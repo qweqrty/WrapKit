@@ -17,28 +17,16 @@ final class SwiftUIButtonSnapshotSUT: ButtonOutput, LoadingOutput, SwiftUISnapsh
 
     init(
         height: CGFloat = 60,
-        pressedStateOverride: Bool? = nil,
         swiftUIAdapter: ButtonOutputSwiftUIAdapter = ButtonOutputSwiftUIAdapter(),
         loadingAdapter: LoadingOutputSwiftUIAdapter = LoadingOutputSwiftUIAdapter()
     ) {
         self.swiftUIAdapter = swiftUIAdapter
         self.loadingAdapter = loadingAdapter
-        swiftUIAdapter.display(height: height)
-        let stateModel = SUIButtonStateModel(
+        self.swiftUIView = AnyView(SUIButton(
             adapter: swiftUIAdapter,
             loadingAdapter: loadingAdapter
-        )
-        self.swiftUIView = AnyView(
-            SUIButton(
-                stateModel: stateModel,
-                loadingIndicatorPhase: .fixed(
-                    strokeStart: 0,
-                    strokeEnd: 1,
-                    rotation: .zero
-                ),
-                pressedStateOverride: pressedStateOverride
-            )
-        )
+        ))
+        swiftUIAdapter.display(height: height)
     }
 
     func display(model: ButtonPresentableModel?) {
@@ -96,7 +84,9 @@ final class SwiftUIButtonSnapshotSUT: ButtonOutput, LoadingOutput, SwiftUISnapsh
 
     @available(iOS 17.0, *)
     private func makeSwiftUIHostingController(for appearance: SnapshotAppearance) -> UIViewController {
-        let rootView = SnapshotButtonContainer(content: swiftUIView)
+        let rootView = SnapshotButtonContainer(
+            content: swiftUIView
+        )
         .snapshotEnvironment(configuration: .iPhone(style: appearance.colorScheme))
         .transaction { transaction in
             transaction.disablesAnimations = true

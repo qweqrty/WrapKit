@@ -10,6 +10,39 @@ import WrapKitTestUtils
 import XCTest
 
 final class SearchBarSnapshotTests: XCTestCase {
+    func test_iOS26_searchBarUsesCapsuleGlassAndRoutesBackgroundColorToItsTint() throws {
+        guard #available(iOS 26.0, *), isLiquidGlassEnabled else {
+            throw XCTSkip("Liquid Glass requires iOS 26 and an enabled feature flag.")
+        }
+
+        let (sut, _) = makeSUT()
+        let glassView = try XCTUnwrap(sut.subviews.compactMap { $0 as? UIVisualEffectView }.first)
+        let glassEffect = try XCTUnwrap(glassView.effect as? UIGlassEffect)
+
+        XCTAssertFalse(glassEffect.isInteractive)
+        XCTAssertEqual(glassView.cornerConfiguration, .capsule())
+        XCTAssertTrue(sut.stackView.superview === glassView.contentView)
+        XCTAssertNil(sut.backgroundColor)
+
+        sut.display(backgroundColor: .systemYellow)
+
+        let yellowEffect = try XCTUnwrap(glassView.effect as? UIGlassEffect)
+        XCTAssertTrue(
+            yellowEffect.tintColor?.isEqual(UIColor.systemYellow) == true,
+            "Expected systemYellow glass tint, got \(String(describing: yellowEffect.tintColor))"
+        )
+        XCTAssertNil(sut.backgroundColor)
+
+        sut.display(model: .init(backgroundColor: .systemGreen))
+
+        let greenEffect = try XCTUnwrap(glassView.effect as? UIGlassEffect)
+        XCTAssertTrue(
+            greenEffect.tintColor?.isEqual(UIColor.systemGreen) == true,
+            "Expected systemGreen glass tint, got \(String(describing: greenEffect.tintColor))"
+        )
+        XCTAssertNil(sut.backgroundColor)
+    }
+
     func test_SearchBar_defaul_state() {
         let snapshotName = "SEARCHBAR_DEFAULT_STATE"
 

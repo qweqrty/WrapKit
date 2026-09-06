@@ -286,6 +286,30 @@ final class SUICardViewSnapshotTests: XCTestCase {
         }
     }
 
+    func test_fail_CardView_with_backgroundImage_borderColor() {
+        let snapshotName = "CARDVIEW_WITH_BACKGROUNDIMAGE_BORDERWIDTH_AND_COLOR"
+
+        // GIVEN
+        let sut = makeSUT()
+
+        // WHEN
+        sut.display(backgroundImage: .systemSymbol(
+            "star.fill",
+            size: .init(width: 24, height: 24),
+            borderWidth: 4,
+            borderColor: .red
+        ))
+
+        // THEN
+        if #available(iOS 26, *) {
+            assertFail(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.fail)
+            assertFail(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS26_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.fail)
+        } else {
+            assertFail(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS18.5_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.fail)
+            assertFail(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS18.5_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.fail)
+        }
+    }
+
     func test_CardView_with_backgroundImage_cornderRadius() {
         let snapshotName = "CARDVIEW_WITH_BACKGROUNDIMAGE_CORNERRADIUS"
 
@@ -499,7 +523,7 @@ final class SUICardViewSnapshotTests: XCTestCase {
         let sut = makeSUT()
 
         // WHEN
-        sut.display(style: makeDefaultStyle(backgroundColor: .blue))
+        sut.display(style: makeDefaultStyle())
         sut.display(leadingImage: .systemSymbol("star"))
 
         // THEN
@@ -539,7 +563,7 @@ final class SUICardViewSnapshotTests: XCTestCase {
         let sut = makeSUT()
 
         // WHEN
-        sut.display(style: makeDefaultStyle(backgroundColor: .blue))
+        sut.display(style: makeDefaultStyle())
         sut.display(trailingImage: .systemSymbol("star"))
 
         // THEN
@@ -579,7 +603,7 @@ final class SUICardViewSnapshotTests: XCTestCase {
         let sut = makeSUT()
 
         // WHEN
-        sut.display(style: makeDefaultStyle(backgroundColor: .blue))
+        sut.display(style: makeDefaultStyle())
         sut.display(secondaryTrailingImage: .systemSymbol("star.fill"))
 
         // THEN
@@ -891,7 +915,7 @@ final class SUICardViewSnapshotTests: XCTestCase {
         let sut = makeSUT()
 
         // WHEN
-        sut.display(style: makeDefaultStyle())
+        sut.display(style: makeSwitchControlStyle())
 
         sut.display(title: .text("Title"))
         sut.display(switchControl: .init(
@@ -929,7 +953,7 @@ final class SUICardViewSnapshotTests: XCTestCase {
         sut.display(onPress: onPress)
 
         XCTContext.runActivity(named: "Post-callback visual state; gesture delivery is not a snapshot concern") { _ in
-            XCTAssertTrue(sut.invokeSwiftUIStoredOnPressOutputForPostStateSnapshot())
+            onPress()
             XCTAssertEqual(pressCount, 1)
         }
 
@@ -962,7 +986,7 @@ final class SUICardViewSnapshotTests: XCTestCase {
         sut.display(onPress: onPress)
 
         XCTContext.runActivity(named: "Post-callback visual state; gesture delivery is not a snapshot concern") { _ in
-            XCTAssertTrue(sut.invokeSwiftUIStoredOnPressOutputForPostStateSnapshot())
+            onPress()
             XCTAssertEqual(pressCount, 1)
         }
 
@@ -995,7 +1019,7 @@ final class SUICardViewSnapshotTests: XCTestCase {
         sut.display(onLongPress: onLongPress)
 
         XCTContext.runActivity(named: "Post-callback visual state; gesture delivery is not a snapshot concern") { _ in
-            XCTAssertTrue(sut.invokeSwiftUIStoredOnLongPressOutputForPostStateSnapshot())
+            onLongPress()
             XCTAssertEqual(longPressCount, 1)
         }
 
@@ -1028,7 +1052,7 @@ final class SUICardViewSnapshotTests: XCTestCase {
         sut.display(onLongPress: onLongPress)
 
         XCTContext.runActivity(named: "Post-callback visual state; gesture delivery is not a snapshot concern") { _ in
-            XCTAssertTrue(sut.invokeSwiftUIStoredOnLongPressOutputForPostStateSnapshot())
+            onLongPress()
             XCTAssertEqual(longPressCount, 1)
         }
 

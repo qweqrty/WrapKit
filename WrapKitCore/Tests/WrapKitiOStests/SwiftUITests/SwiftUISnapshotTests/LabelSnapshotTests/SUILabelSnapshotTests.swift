@@ -123,9 +123,11 @@ final class SUILabelSnapshotTests: XCTestCase {
         let snapshotName = "LABEL_INSETS"
 
         // WHEN
-        sut.textInsets = UIEdgeInsets(top: 10, left: 80, bottom: 10, right: 20)
-        sut.backgroundColor = .cyan
-        sut.display(model: .text("Insetted text"))
+        sut.display(model: .textStyled(
+            text: .text("Insetted text"),
+            insets: .init(top: 10, leading: 80, bottom: 10, trailing: 20),
+            backgroundColor: .cyan
+        ))
 
         // THEN
         if #available(iOS 26, *) {
@@ -143,9 +145,11 @@ final class SUILabelSnapshotTests: XCTestCase {
         let snapshotName = "LABEL_INSETS"
 
         // WHEN
-        sut.textInsets = UIEdgeInsets(top: 15, left: 80, bottom: 10, right: 25)
-        sut.backgroundColor = .cyan
-        sut.display(model: .text("Insetted text"))
+        sut.display(model: .textStyled(
+            text: .text("Insetted text"),
+            insets: .init(top: 15, leading: 80, bottom: 10, trailing: 25),
+            backgroundColor: .cyan
+        ))
 
         // THEN
         if #available(iOS 26, *) {
@@ -184,7 +188,7 @@ final class SUILabelSnapshotTests: XCTestCase {
         let sut = makeSUT()
         let snapshotName = "LABEL_MULTIPLE_DISPLAY"
         // WHEN
-        sut.display(text: "First text.")
+        sut.display(text: "First text")
 
         let secondText = TextAttributes(text: "Second Text.")
 
@@ -207,9 +211,11 @@ final class SUILabelSnapshotTests: XCTestCase {
         let snapshotName = "LABEL_CORNER_AUTOMATIC"
 
         // WHEN
-        sut.cornerStyle = .automatic
-        sut.backgroundColor = .blue
-        sut.display(model: .text("Rounded"))
+        sut.display(model: .textStyled(
+            text: .text("Rounded"),
+            cornerStyle: .automatic,
+            backgroundColor: .blue
+        ))
 
         // THEN
         if #available(iOS 26, *) {
@@ -227,9 +233,11 @@ final class SUILabelSnapshotTests: XCTestCase {
         let snapshotName = "LABEL_CORNER_AUTOMATIC"
 
         // WHEN
-        sut.cornerStyle = CornerStyle.none
-        sut.backgroundColor = .blue
-        sut.display(model: .text("Rounded"))
+        sut.display(model: .textStyled(
+            text: .text("Rounded"),
+            cornerStyle: CornerStyle.none,
+            backgroundColor: .blue
+        ))
 
         // THEN
         if #available(iOS 26, *) {
@@ -247,9 +255,11 @@ final class SUILabelSnapshotTests: XCTestCase {
         let snapshotName = "LABEL_CORNER_FIXED"
 
         // WHEN
-        sut.cornerStyle = .fixed(30)
-        sut.backgroundColor = .blue
-        sut.display(model: .text("Rounded"))
+        sut.display(model: .textStyled(
+            text: .text("Rounded"),
+            cornerStyle: .fixed(30),
+            backgroundColor: .blue
+        ))
 
         // THEN
         if #available(iOS 26, *) {
@@ -267,9 +277,11 @@ final class SUILabelSnapshotTests: XCTestCase {
         let snapshotName = "LABEL_CORNER_FIXED"
 
         // WHEN
-        sut.cornerStyle = .fixed(31)
-        sut.backgroundColor = .blue
-        sut.display(model: .text("Rounded"))
+        sut.display(model: .textStyled(
+            text: .text("Rounded"),
+            cornerStyle: .fixed(31),
+            backgroundColor: .blue
+        ))
 
         // THEN
         if #available(iOS 26, *) {
@@ -287,9 +299,11 @@ final class SUILabelSnapshotTests: XCTestCase {
         let snapshotName = "LABEL_CORNER_NONE"
 
         // WHEN
-        sut.cornerStyle = CornerStyle.none
-        sut.backgroundColor = .blue
-        sut.display(model: .text("Rounded"))
+        sut.display(model: .textStyled(
+            text: .text("Rounded"),
+            cornerStyle: CornerStyle.none,
+            backgroundColor: .blue
+        ))
 
         // THEN
         if #available(iOS 26, *) {
@@ -307,9 +321,11 @@ final class SUILabelSnapshotTests: XCTestCase {
         let snapshotName = "LABEL_CORNER_NONE"
 
         // WHEN
-        sut.cornerStyle = .fixed(12)
-        sut.backgroundColor = .blue
-        sut.display(model: .text("Rounded"))
+        sut.display(model: .textStyled(
+            text: .text("Rounded"),
+            cornerStyle: .fixed(12),
+            backgroundColor: .blue
+        ))
 
         // THEN
         if #available(iOS 26, *) {
@@ -558,7 +574,7 @@ final class SUILabelSnapshotTests: XCTestCase {
 
         //WHEN
         let dashed = TextAttributes(text: "Dashed string", underlineStyle: [.patternDash])
-        sut.backgroundColor = .cyan
+        sut.snapshotContainerBackgroundColor = .cyan
 
         sut.display(model: .attributes([dashed]))
 
@@ -579,7 +595,7 @@ final class SUILabelSnapshotTests: XCTestCase {
 
         //WHEN
         let dashed = TextAttributes(text: "Dashed string", underlineStyle: [.single])
-        sut.backgroundColor = .cyan
+        sut.snapshotContainerBackgroundColor = .cyan
 
         sut.display(model: .attributes([dashed]))
 
@@ -601,7 +617,7 @@ final class SUILabelSnapshotTests: XCTestCase {
 
         //WHEN
         let dashDot = TextAttributes(text: "DashedDot string", underlineStyle: [.patternDashDot])
-        sut.backgroundColor = .systemBlue
+        sut.snapshotContainerBackgroundColor = .systemBlue
 
         sut.display(model: .attributes([dashDot]))
 
@@ -622,7 +638,7 @@ final class SUILabelSnapshotTests: XCTestCase {
 
         //WHEN
         let dashDot = TextAttributes(text: "DashedDot string", underlineStyle: [.single])
-        sut.backgroundColor = .systemBlue
+        sut.snapshotContainerBackgroundColor = .systemBlue
 
         sut.display(model: .attributes([dashDot]))
 
@@ -644,7 +660,7 @@ final class SUILabelSnapshotTests: XCTestCase {
 
         //WHEN
         let dashDotDot = TextAttributes(text: "Dash Dot Dot string", underlineStyle: [.patternDashDotDot])
-        sut.backgroundColor = .systemBlue
+        sut.snapshotContainerBackgroundColor = .systemBlue
 
         sut.display(model: .attributes([dashDotDot]))
 
@@ -665,7 +681,7 @@ final class SUILabelSnapshotTests: XCTestCase {
 
         //WHEN
         let dashDotDot = TextAttributes(text: "Dash Dot Dot string", underlineStyle: [.single])
-        sut.backgroundColor = .systemBlue
+        sut.snapshotContainerBackgroundColor = .systemBlue
 
         sut.display(model: .attributes([dashDotDot]))
 
@@ -687,7 +703,7 @@ final class SUILabelSnapshotTests: XCTestCase {
 
         //WHEN
         let dot = TextAttributes(text: "Dotted string", underlineStyle: [.patternDot])
-        sut.backgroundColor = .systemBlue
+        sut.snapshotContainerBackgroundColor = .systemBlue
 
         sut.display(model: .attributes([dot]))
 
@@ -708,7 +724,7 @@ final class SUILabelSnapshotTests: XCTestCase {
 
         //WHEN
         let dot = TextAttributes(text: "Dotted string", underlineStyle: [.single])
-        sut.backgroundColor = .systemBlue
+        sut.snapshotContainerBackgroundColor = .systemBlue
 
         sut.display(model: .attributes([dot]))
 
@@ -729,7 +745,7 @@ final class SUILabelSnapshotTests: XCTestCase {
 
         //WHEN
         let thick = TextAttributes(text: "Thick string", underlineStyle: [.thick])
-        sut.backgroundColor = .systemBlue
+        sut.snapshotContainerBackgroundColor = .systemBlue
 
         sut.display(model: .attributes([thick]))
 
@@ -750,7 +766,7 @@ final class SUILabelSnapshotTests: XCTestCase {
 
         //WHEN
         let thick = TextAttributes(text: "Thick string", underlineStyle: [.single])
-        sut.backgroundColor = .systemBlue
+        sut.snapshotContainerBackgroundColor = .systemBlue
 
         sut.display(model: .attributes([thick]))
 
@@ -770,7 +786,7 @@ final class SUILabelSnapshotTests: XCTestCase {
         let snapshotName = "LABEL_TITLE_WITH_LEADINGIMAGE"
         //WHEN
         let leadingImage = TextAttributes(text: "Text with leading image", leadingImage: UIImage(systemName: "star.fill"))
-        sut.backgroundColor = .systemBlue
+        sut.snapshotContainerBackgroundColor = .systemBlue
 
         sut.display(model: .attributes([leadingImage]))
 
@@ -790,7 +806,7 @@ final class SUILabelSnapshotTests: XCTestCase {
         let snapshotName = "LABEL_TITLE_WITH_LEADINGIMAGE"
         //WHEN
         let leadingImage = TextAttributes(text: "Text with leading image", leadingImage: UIImage(systemName: "star"))
-        sut.backgroundColor = .systemBlue
+        sut.snapshotContainerBackgroundColor = .systemBlue
 
         sut.display(model: .attributes([leadingImage]))
 
@@ -811,7 +827,7 @@ final class SUILabelSnapshotTests: XCTestCase {
 
         //WHEN
         let trailingImage = TextAttributes(text: "Text with trailing image", trailingImage: UIImage(systemName: "star.fill"))
-        sut.backgroundColor = .systemBlue
+        sut.snapshotContainerBackgroundColor = .systemBlue
 
         sut.display(model: .attributes([trailingImage]))
 
@@ -832,7 +848,7 @@ final class SUILabelSnapshotTests: XCTestCase {
 
         //WHEN
         let trailingImage = TextAttributes(text: "Text with trailing image", trailingImage: UIImage(systemName: "star"))
-        sut.backgroundColor = .systemBlue
+        sut.snapshotContainerBackgroundColor = .systemBlue
 
         sut.display(model: .attributes([trailingImage]))
 
@@ -856,12 +872,10 @@ final class SUILabelSnapshotTests: XCTestCase {
         exp.expectedFulfillmentCount = 3
 
         // WHEN
-        let first_attr = TextAttributes(text: "First") { [weak sut] in
-            sut?.backgroundColor = .red
+        let first_attr = TextAttributes(text: "First") {
             exp.fulfill()
         }
-        let second_attr = TextAttributes(text: "Second") { [weak sut] in
-            sut?.cornerStyle = .fixed(20)
+        let second_attr = TextAttributes(text: "Second") {
             exp.fulfill()
         }
 
@@ -871,7 +885,11 @@ final class SUILabelSnapshotTests: XCTestCase {
             exp.fulfill()
         }
 
-        sut.display(model: .attributes([first_attr, second_attr, third_attr]))
+        sut.display(model: .textStyled(
+            text: .attributes([first_attr, second_attr, third_attr]),
+            cornerStyle: .fixed(20),
+            backgroundColor: .red
+        ))
 
         first_attr.onTap?()
         second_attr.onTap?()
@@ -898,12 +916,10 @@ final class SUILabelSnapshotTests: XCTestCase {
         exp.expectedFulfillmentCount = 3
 
         // WHEN
-        let first_attr = TextAttributes(text: "First") { [weak sut] in
-            sut?.backgroundColor = .systemRed
+        let first_attr = TextAttributes(text: "First") {
             exp.fulfill()
         }
-        let second_attr = TextAttributes(text: "Second") { [weak sut] in
-            sut?.cornerStyle = .fixed(21)
+        let second_attr = TextAttributes(text: "Second") {
             exp.fulfill()
         }
 
@@ -913,7 +929,11 @@ final class SUILabelSnapshotTests: XCTestCase {
             exp.fulfill()
         }
 
-        sut.display(model: .attributes([first_attr, second_attr, third_attr]))
+        sut.display(model: .textStyled(
+            text: .attributes([first_attr, second_attr, third_attr]),
+            cornerStyle: .fixed(20),
+            backgroundColor: .red
+        ))
 
         first_attr.onTap?()
         second_attr.onTap?()
@@ -978,18 +998,16 @@ final class SUILabelSnapshotTests: XCTestCase {
 
         // WHEN
         sut.display(
-            id: "testAnimation",
             from: 0,
             to: 99,
             mapToString: mapToString,
             animationStyle: .none,
             duration: 0.1
-        ) { [weak sut] in
-            sut?.backgroundColor = .cyan
+        ) {
             exp.fulfill()
         }
 
-        wait(for: [exp], timeout: 2.0)
+        wait(for: [exp], timeout: 0.3)
 
         // THEN
         if #available(iOS 26, *) {
@@ -1032,12 +1050,12 @@ final class SUILabelSnapshotTests: XCTestCase {
         let snapshotName = "LABEL_TEXTATTRIBUTE_DEFAULT_BEHAVIOR_FONT"
 
         sut.textColor = .red
-        sut.font = .systemFont(ofSize: 16)
+        sut.font = .systemFont(ofSize: 17)
         sut.textAlignment = .right
 
         // WHEN
-        let bold = TextAttributes(text: "Text attribute with color", color: .systemBlue)
-        let regular = TextAttributes(text: "Text attribute with default label color.")
+        let bold = TextAttributes(text: "Text attribute with color", color: .blue)
+        let regular = TextAttributes(text: "Text attribute with default label color")
 
         sut.display(model: .attributes([bold, regular]))
 

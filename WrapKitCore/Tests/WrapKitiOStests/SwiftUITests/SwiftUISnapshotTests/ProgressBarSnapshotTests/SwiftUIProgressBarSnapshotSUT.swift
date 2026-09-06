@@ -7,7 +7,6 @@ import SwiftUI
 
 final class SwiftUIProgressBarSnapshotSUT: ProgressBarOutput, SwiftUISnapshotSource {
     private let swiftUIAdapter: ProgressBarOutputSwiftUIAdapter
-    private let swiftUIStateModel: SUIProgressBarStateModel
     private var lightHostingController: UIHostingController<AnyView>?
     private var darkHostingController: UIHostingController<AnyView>?
 
@@ -15,7 +14,6 @@ final class SwiftUIProgressBarSnapshotSUT: ProgressBarOutput, SwiftUISnapshotSou
         swiftUIAdapter: ProgressBarOutputSwiftUIAdapter = ProgressBarOutputSwiftUIAdapter()
     ) {
         self.swiftUIAdapter = swiftUIAdapter
-        self.swiftUIStateModel = SUIProgressBarStateModel(adapter: swiftUIAdapter)
 
         if #available(iOS 17.0, *) {
             lightHostingController = makeHostingController(for: .light)
@@ -57,7 +55,7 @@ final class SwiftUIProgressBarSnapshotSUT: ProgressBarOutput, SwiftUISnapshotSou
         for appearance: SnapshotAppearance
     ) -> UIHostingController<AnyView> {
         let rootView = SnapshotMirroredProgressBarContainer(
-            content: AnyView(SUIProgressBar(stateModel: swiftUIStateModel))
+            content: AnyView(SUIProgressBar(adaper: swiftUIAdapter))
         )
         .snapshotEnvironment(configuration: .iPhone(style: appearance.colorScheme))
         let hostingController = UIHostingController(rootView: AnyView(rootView))

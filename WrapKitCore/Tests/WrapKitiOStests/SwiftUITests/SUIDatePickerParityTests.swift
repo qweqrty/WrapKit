@@ -32,6 +32,23 @@ final class SUIDatePickerParityTests: XCTestCase {
         XCTAssertEqual(latestCallbackCount, 1)
     }
 
+    func test_remountRestoresDateWithoutRepeatingAnimatedCommand() {
+        let adapter = DatePickerViewOutputSwiftUIAdapter()
+        let displayedDate = Date(timeIntervalSince1970: 1_800_000_000)
+        var mountedStateModel: SUIDatePickerStateModel? = .init(adapter: adapter)
+
+        adapter.display(setDate: displayedDate, animated: true)
+
+        XCTAssertEqual(mountedStateModel?.date, displayedDate)
+        XCTAssertEqual(mountedStateModel?.setDateAnimated, true)
+
+        mountedStateModel = nil
+        let remountedStateModel = SUIDatePickerStateModel(adapter: adapter)
+
+        XCTAssertEqual(remountedStateModel.date, displayedDate)
+        XCTAssertFalse(remountedStateModel.setDateAnimated)
+    }
+
     func test_uikitAnimatedDateOutput_usesProvidedDate() {
         let sut = DatePickerView()
         let initialDate = Date(timeIntervalSince1970: 1_800_000_000)

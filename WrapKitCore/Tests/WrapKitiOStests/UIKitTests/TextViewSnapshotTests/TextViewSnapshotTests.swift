@@ -598,7 +598,7 @@ final class TextViewSnapshotTests: XCTestCase {
         // WHEN
         sut.display(text: "ON PRESS")
         sut.display(onPress: { [weak sut] in
-            sut?.appearance.colors.deselectedBackgroundColor = .red
+            sut?.display(text: "PRESSED STATE")
             exp.fulfill()
         })
 
@@ -626,7 +626,7 @@ final class TextViewSnapshotTests: XCTestCase {
         // WHEN
         sut.display(text: "ON PRESS")
         sut.display(onPress: { [weak sut] in
-            sut?.appearance.colors.deselectedBackgroundColor = .systemRed
+            sut?.display(text: "PRESSED STATE.")
             exp.fulfill()
         })
 
@@ -713,7 +713,7 @@ final class TextViewSnapshotTests: XCTestCase {
         // WHEN
         sut.display(text: "Text to delete")
         sut.display(onTapBackspace: { [weak sut] in
-            sut?.appearance.colors.deselectedBackgroundColor = .red
+            sut?.display(text: "Text to delet")
             exp.fulfill()
         })
 
@@ -740,9 +740,9 @@ final class TextViewSnapshotTests: XCTestCase {
         let exp = expectation(description: "Wait for completion")
 
         // WHEN
-        sut.display(text: "Text to delete.")
+        sut.display(text: "Text to delete")
         sut.display(onTapBackspace: { [weak sut] in
-            sut?.appearance.colors.deselectedBackgroundColor = .red
+            sut?.display(text: "Text to dele")
             exp.fulfill()
         })
 

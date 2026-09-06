@@ -9,6 +9,14 @@ import Combine
 import Foundation
 
 public final class SUIDatePickerStateModel: ObservableObject {
+    private struct OutputReplayCheckpoint {
+        let date: Date
+        let minimumDate: Date?
+        let maximumDate: Date?
+        let mode: DatePickerMode
+        let dateChanged: ((Date) -> Void)?
+    }
+
     @Published var date: Date = Date()
     @Published var minimumDate: Date? = nil
     @Published var maximumDate: Date? = nil
@@ -17,14 +25,26 @@ public final class SUIDatePickerStateModel: ObservableObject {
     @Published var setDateAnimated: Bool = false
 
     private let adapter: DatePickerViewOutputSwiftUIAdapter
+
+    private var outputReplayConsumer: DatePickerViewOutputSwiftUIAdapter.OutputReplayConsumer?
     private var cancellables: Set<AnyCancellable> = []
     private var latestDateOutputSequence: UInt64 = 0
     private var latestDateChangedOutputSequence: UInt64 = 0
 
     public init(adapter: DatePickerViewOutputSwiftUIAdapter) {
         self.adapter = adapter
+        let outputReplayConsumer = adapter.claimOutputReplayConsumer()
+        self.outputReplayConsumer = outputReplayConsumer
+        let outputReplayCheckpoint = adapter.outputReplayCheckpoint(
+            as: OutputReplayCheckpoint.self,
+            consumer: outputReplayConsumer
+        )
+        let bufferedOutputReplayPublisher = adapter.bufferedOutputReplayPublisher(consumer: outputReplayConsumer)
 
-        adapter.$displayModelState
+        adapter.outputReplayPublisher(
+            adapter.$displayModelState,
+            consumer: outputReplayConsumer
+        )
             .compactMap { $0 }
             .sink { [weak self] value in
                 guard let self else { return }
@@ -40,10 +60,14 @@ public final class SUIDatePickerStateModel: ObservableObject {
                     value.model.dateChanged,
                     outputSequence: value.outputSequence
                 )
+                self.persistReplayCheckpoint()
             }
             .store(in: &cancellables)
 
-        adapter.$displayDateState
+        adapter.outputReplayPublisher(
+            adapter.$displayDateState,
+            consumer: outputReplayConsumer
+        )
             .compactMap { $0 }
             .sink { [weak self] value in
                 self?.applyDate(
@@ -54,7 +78,10 @@ public final class SUIDatePickerStateModel: ObservableObject {
             }
             .store(in: &cancellables)
 
-        adapter.$displaySetDateAnimatedState
+        adapter.outputReplayPublisher(
+            adapter.$displaySetDateAnimatedState,
+            consumer: outputReplayConsumer
+        )
             .compactMap { $0 }
             .sink { [weak self] value in
                 self?.applyDate(
@@ -65,7 +92,10 @@ public final class SUIDatePickerStateModel: ObservableObject {
             }
             .store(in: &cancellables)
 
-        adapter.$displayDateChangedState
+        adapter.outputReplayPublisher(
+            adapter.$displayDateChangedState,
+            consumer: outputReplayConsumer
+        )
             .compactMap { $0 }
             .sink { [weak self] value in
                 self?.applyDateChanged(
@@ -74,6 +104,22 @@ public final class SUIDatePickerStateModel: ObservableObject {
                 )
             }
             .store(in: &cancellables)
+
+        adapter.outputReplayCheckpointRequestPublisher(consumer: outputReplayConsumer)
+            .sink { [weak self] in self?.persistReplayCheckpoint() }
+            .store(in: &cancellables)
+
+        if let outputReplayCheckpoint {
+            restore(outputReplayCheckpoint)
+        }
+
+        bufferedOutputReplayPublisher
+            .sink { [weak adapter] event in
+                adapter?.replayOutputEvent(event, consumer: outputReplayConsumer)
+            }
+            .store(in: &cancellables)
+
+        persistReplayCheckpoint()
     }
 
     private func applyDate(
@@ -85,6 +131,7 @@ public final class SUIDatePickerStateModel: ObservableObject {
         latestDateOutputSequence = outputSequence
         setDateAnimated = animated
         self.date = date
+        persistReplayCheckpoint()
     }
 
     private func applyDateChanged(
@@ -94,5 +141,25 @@ public final class SUIDatePickerStateModel: ObservableObject {
         guard outputSequence >= latestDateChangedOutputSequence else { return }
         latestDateChangedOutputSequence = outputSequence
         self.dateChanged = dateChanged
+        persistReplayCheckpoint()
+    }
+
+    private func persistReplayCheckpoint() {
+        adapter.updateOutputReplayCheckpoint(consumer: outputReplayConsumer, OutputReplayCheckpoint(
+            date: date,
+            minimumDate: minimumDate,
+            maximumDate: maximumDate,
+            mode: mode,
+            dateChanged: dateChanged
+        ))
+    }
+
+    private func restore(_ checkpoint: OutputReplayCheckpoint) {
+        date = checkpoint.date
+        minimumDate = checkpoint.minimumDate
+        maximumDate = checkpoint.maximumDate
+        mode = checkpoint.mode
+        dateChanged = checkpoint.dateChanged
+        setDateAnimated = false
     }
 }

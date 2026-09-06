@@ -67,7 +67,9 @@ final class ViewUIKitGradientBorderTests: XCTestCase {
     }
 
     func test_gradientBorder_preservesDifferentCornerRadiiOnIOS26() throws {
-        guard #available(iOS 26.0, *) else { return }
+        guard #available(iOS 26.0, *) else {
+            throw XCTSkip("Requires iOS 26 or newer")
+        }
         let sut = ViewUIKit(frame: CGRect(x: 0, y: 0, width: 100, height: 40))
         defer { sut.animations = [] }
         sut.bounds.origin = CGPoint(x: 17, y: 11)
@@ -96,7 +98,9 @@ final class ViewUIKitGradientBorderTests: XCTestCase {
     }
 
     func test_gradientBorder_fixedZeroClearsLegacyCornerRadiusOnIOS26() throws {
-        guard #available(iOS 26.0, *) else { return }
+        guard #available(iOS 26.0, *) else {
+            throw XCTSkip("Requires iOS 26 or newer")
+        }
         let sut = ViewUIKit(frame: CGRect(x: 0, y: 0, width: 100, height: 40))
         defer { sut.animations = [] }
 

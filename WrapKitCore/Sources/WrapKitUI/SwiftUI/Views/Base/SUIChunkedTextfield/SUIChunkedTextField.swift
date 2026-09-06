@@ -1,8 +1,7 @@
 import SwiftUI
 
 public struct SUIChunkedTextField: View {
-    private let adapter: TextInputOutputSwiftUIAdapter?
-    private let injectedStateModel: SUITextInputStateModel?
+    private let adapter: TextInputOutputSwiftUIAdapter
     let count: Int
     let appearance: TextfieldAppearance
 
@@ -12,38 +11,16 @@ public struct SUIChunkedTextField: View {
         appearance: TextfieldAppearance
     ) {
         self.adapter = adapter
-        self.injectedStateModel = nil
         self.count = count
         self.appearance = appearance
     }
 
-    init(
-        stateModel: SUITextInputStateModel,
-        count: Int,
-        appearance: TextfieldAppearance
-    ) {
-        stateModel.configureChunkedCharacterCount(count)
-        self.adapter = nil
-        self.injectedStateModel = stateModel
-        self.count = count
-        self.appearance = appearance
-    }
-
-    @ViewBuilder
     public var body: some View {
-        if let injectedStateModel {
-            SUIChunkedTextFieldStateView(
-                stateModel: injectedStateModel,
-                count: count,
-                appearance: appearance
-            )
-        } else if let adapter {
-            SUIOwnedChunkedTextFieldStateView(
-                adapter: adapter,
-                count: count,
-                appearance: appearance
-            )
-        }
+        SUIOwnedChunkedTextFieldStateView(
+            adapter: adapter,
+            count: count,
+            appearance: appearance
+        )
     }
 }
 

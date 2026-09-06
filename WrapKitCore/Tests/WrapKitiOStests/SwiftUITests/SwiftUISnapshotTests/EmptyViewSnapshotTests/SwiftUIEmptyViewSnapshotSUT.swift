@@ -12,8 +12,7 @@ import SwiftUI
 
 final class SwiftUIEmptyViewSnapshotSUT: EmptyViewOutput, SwiftUISnapshotSource {
     private let swiftUIAdapter: EmptyViewOutputSwiftUIAdapter
-    private var swiftUIBackgroundColor: UIColor = .clear
-    private var swiftUIIsHidden = false
+    var snapshotContainerBackgroundColor: UIColor = .clear
 
     init(
         swiftUIAdapter: EmptyViewOutputSwiftUIAdapter = EmptyViewOutputSwiftUIAdapter()
@@ -39,23 +38,17 @@ final class SwiftUIEmptyViewSnapshotSUT: EmptyViewOutput, SwiftUISnapshotSource 
 
     func display(isHidden: Bool) {
         swiftUIAdapter.display(isHidden: isHidden)
-        swiftUIIsHidden = isHidden
     }
 
     func display(model: EmptyViewPresentableModel?) {
         swiftUIAdapter.display(model: model)
     }
 
-    func display(backgroundColor: UIColor) {
-        swiftUIBackgroundColor = backgroundColor
-    }
-
     @available(iOS 17.0, *)
     func swiftUISnapshot(for appearance: SnapshotAppearance) -> UIImage {
         let rootView = SnapshotMirroredEmptyViewContainer(
             content: AnyView(SUIEmptyView(adapter: swiftUIAdapter)),
-            backgroundColor: swiftUIBackgroundColor,
-            isHidden: swiftUIIsHidden
+            snapshotContainerBackgroundColor: snapshotContainerBackgroundColor
         )
         .snapshotEnvironment(configuration: .iPhone(style: appearance.colorScheme))
 
@@ -81,14 +74,13 @@ final class SwiftUIEmptyViewSnapshotSUT: EmptyViewOutput, SwiftUISnapshotSource 
 @available(iOS 17.0, *)
 private struct SnapshotMirroredEmptyViewContainer: View {
     let content: AnyView
-    let backgroundColor: UIColor
-    let isHidden: Bool
+    let snapshotContainerBackgroundColor: UIColor
 
     var body: some View {
         VStack(spacing: 0) {
             content
                 .frame(maxWidth: .infinity)
-                .background(isHidden ? SwiftUIColor.clear : SwiftUIColor(backgroundColor))
+                .background(SwiftUIColor(snapshotContainerBackgroundColor))
             Spacer(minLength: 0)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)

@@ -21,16 +21,11 @@ final class SwiftUISearchBarSnapshotSUT: SearchBarOutput, SwiftUISnapshotSource 
         swiftUIAdapter: SearchBarOutputSwiftUIAdapter = SearchBarOutputSwiftUIAdapter()
     ) {
         self.swiftUIAdapter = swiftUIAdapter
-        let stateModel = SUISearchBarStateModel(
-            adapter: swiftUIAdapter,
-            appearance: textFieldAppearance,
-            spacing: spacing,
-            cornerRadius: 10,
-            padding: .init(top: 10, leading: 12, bottom: 10, trailing: 12)
-        )
         self.swiftUIView = AnyView(
             SUISearchBar(
-                stateModel: stateModel,
+                adapter: swiftUIAdapter,
+                textFieldAppearance: textFieldAppearance,
+                spacing: spacing,
                 contentInsets: contentInsets
             )
         )

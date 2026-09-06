@@ -5,34 +5,19 @@ import SwiftUI
 
 public struct SUICardView: View {
     @StateObject private var stateModel: SUICardViewStateModel
-    private let titleFontOverride: Font?
-    private let titleColorOverride: Color?
-    private let leadingImageTintOverride: Color?
+    private let leadingImageTint: Color?
 
     public init(adapter: CardViewOutputSwiftUIAdapter) {
         _stateModel = .init(wrappedValue: .init(adapter: adapter))
-        titleFontOverride = nil
-        titleColorOverride = nil
-        leadingImageTintOverride = nil
+        leadingImageTint = nil
     }
 
     init(
         adapter: CardViewOutputSwiftUIAdapter,
-        titleFontOverride: Font?,
-        titleColorOverride: Color?,
-        leadingImageTintOverride: Color?
+        leadingImageTint: Color?
     ) {
         _stateModel = .init(wrappedValue: .init(adapter: adapter))
-        self.titleFontOverride = titleFontOverride
-        self.titleColorOverride = titleColorOverride
-        self.leadingImageTintOverride = leadingImageTintOverride
-    }
-
-    init(stateModel: SUICardViewStateModel) {
-        _stateModel = .init(wrappedValue: stateModel)
-        titleFontOverride = nil
-        titleColorOverride = nil
-        leadingImageTintOverride = nil
+        self.leadingImageTint = leadingImageTint
     }
 
     public var body: some View {
@@ -91,8 +76,8 @@ public struct SUICardView: View {
 
     @ViewBuilder
     private var cardBackground: some View {
-        if let backgroundImage = stateModel.backgroundImage {
-            CardBackgroundImageView(model: backgroundImage)
+        if stateModel.backgroundImage != nil {
+            CardBackgroundImageView(adapter: stateModel.backgroundImageAdapter)
         }
     }
 
@@ -139,7 +124,7 @@ public struct SUICardView: View {
                 imageView(
                     stateModel.leadingImage,
                     adapter: stateModel.leadingImageAdapter,
-                    tintColor: leadingImageTintOverride ?? .black
+                    tintColor: leadingImageTint ?? .black
                 )
             }
         }
@@ -315,8 +300,8 @@ public struct SUICardView: View {
         if isVisibleTextModel(stateModel.title) || isVisibleTextModel(stateModel.valueTitle) {
             SUIVKeyValueFieldView(
                 adapter: stateModel.titleViewsAdapter,
-                keyFont: titleFontOverride ?? style.titleKeyLabelFont,
-                keyTextColor: titleColorOverride ?? style.titleKeyTextColor,
+                keyFont: style.titleKeyLabelFont,
+                keyTextColor: style.titleKeyTextColor,
                 valueFont: style.titleValueLabelFont,
                 valueTextColor: style.titleValueTextColor,
                 keyNumberOfLines: style.titleKeyNumberOfLines,
@@ -362,45 +347,14 @@ public struct SUICardView: View {
     @ViewBuilder
     private func subTitleView(style: CardViewPresentableModel.Style) -> some View {
         if isVisibleTextModel(stateModel.subTitle) {
-            styledLabel(
-                stateModel.subTitle,
+            SUIOutputLabel(
+                stateModel: stateModel.subTitleStateModel,
                 font: style.subTitleLabelFont,
-                color: style.subTitleTextColor,
-                numberOfLines: style.subtitleNumberOfLines,
-                alignment: .leading
+                textColor: style.subTitleTextColor,
+                textAlignment: .left
             )
+            .lineLimit(style.subtitleNumberOfLines == 0 ? nil : style.subtitleNumberOfLines)
             .frame(maxWidth: .infinity, alignment: .center)
-        }
-    }
-
-    @ViewBuilder
-    private func styledLabel(
-        _ model: TextOutputPresentableModel?,
-        font: Font,
-        color: Color,
-        numberOfLines: Int,
-        alignment: SwiftUI.Alignment
-    ) -> some View {
-        if let model {
-            SUILabelView(
-                model: model,
-                font: font,
-                textColor: color,
-                textAlignment: textAlignment(from: alignment)
-            )
-            .lineLimit(numberOfLines == 0 ? nil : numberOfLines)
-            .frame(maxWidth: CGFloat.infinity, alignment: alignment)
-        }
-    }
-
-    private func textAlignment(from alignment: SwiftUI.Alignment) -> TextAlignment {
-        switch alignment {
-        case .leading:
-            return .left
-        case .trailing:
-            return .right
-        default:
-            return .center
         }
     }
 
@@ -892,43 +846,16 @@ enum CardHorizontalDistributionResolver {
 }
 
 private struct CardBackgroundImageView: View {
-    let model: ImageViewPresentableModel
+    let adapter: ImageViewOutputSwiftUIAdapter
 
     var body: some View {
         GeometryReader { proxy in
-            let shape = RoundedRectangle(
-                cornerRadius: model.cornerRadius ?? 0,
-                style: .circular
+            SUIImageView(
+                adapter: adapter,
+                containerPresentation: .cardBackground
             )
-            backgroundContent(in: proxy.size)
                 .frame(width: proxy.size.width, height: proxy.size.height, alignment: .center)
-                .clipShape(shape)
-                .overlay {
-                    if let borderColor = model.borderColor,
-                       let borderWidth = model.borderWidth {
-                        shape
-                            .strokeBorder(SwiftUIColor(borderColor), lineWidth: borderWidth)
-                    }
-                }
         }
-        .opacity(model.alpha ?? 1)
-    }
-
-    @ViewBuilder
-    private func backgroundContent(in availableSize: CGSize) -> some View {
-        SUIImageViewView(model: contentModel(size: availableSize))
-    }
-
-    private func contentModel(size: CGSize) -> ImageViewPresentableModel {
-        .init(
-            accessibilityIdentifier: model.accessibilityIdentifier,
-            accessibility: model.accessibility,
-            size: size,
-            image: model.image,
-            onPress: model.onPress,
-            onLongPress: model.onLongPress,
-            contentModeIsFit: model.contentModeIsFit
-        )
     }
 }
 

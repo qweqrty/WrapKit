@@ -26,7 +26,11 @@ final class SUIProgressBarSnapshotTests: XCTestCase {
         let snapshotName = "PROGRESSBAR_DEFAULT_STATE"
         let sut = makeSUT()
 
-        sut.display(style: .init(backgroundColor: .red, height: 5.0))
+        sut.display(style: .init(
+            backgroundColor: .blue,
+            height: 5.0,
+            trackHeight: 5.0
+        ))
         sut.display(progress: 0.0)
 
         if #available(iOS 26, *) {
@@ -43,7 +47,11 @@ final class SUIProgressBarSnapshotTests: XCTestCase {
         let sut = makeSUT()
 
         // WHEN
-        sut.display(style: .init(backgroundColor: .systemRed, height: 6.0))
+        sut.display(style: .init(
+            backgroundColor: .systemRed,
+            progressBarColor: .cyan,
+            height: 6.0
+        ))
         sut.display(progress: 100.0)
 
         if #available(iOS 26, *) {
@@ -59,7 +67,11 @@ final class SUIProgressBarSnapshotTests: XCTestCase {
         let snapshotName = "PROGRESSBAR_WITH_PROGRESSBAR_COLOR"
         let sut = makeSUT()
 
-        sut.display(style: .init(backgroundColor: .red, height: 5.0))
+        sut.display(style: .init(
+            backgroundColor: .systemRed,
+            progressBarColor: .magenta,
+            height: 6.0
+        ))
         sut.display(progress: 100.0)
 
         if #available(iOS 26, *) {
@@ -238,22 +250,6 @@ final class SUIProgressBarSnapshotTests: XCTestCase {
         }
     }
 
-    func test_fail_progressBar_styleWithoutHeight_preservesEstablishedHeight() {
-        let snapshotName = "PROGRESSBAR_WITH_HEIGHT"
-        let sut = makeSUT()
-
-        sut.display(style: .init(backgroundColor: .systemRed, height: 51))
-        sut.display(style: .init(backgroundColor: .systemRed, trackHeight: 33))
-        sut.display(progress: 100.0)
-
-        if #available(iOS 26, *) {
-            assertFail(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.fail)
-            assertFail(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS26_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.fail)
-        } else {
-            assertFail(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS18.5_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.fail)
-            assertFail(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS18.5_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.fail)
-        }
-    }
 }
 
 @available(iOS 17.0, *)

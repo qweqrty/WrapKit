@@ -51,28 +51,6 @@ public extension XCTestCase {
         )
     }
 
-    func assert(
-        snapshot: UIImage,
-        named name: String,
-        baselineDirectory: URL,
-        precision: Float = 1,
-        perceptualPrecision: Float = 1,
-        alphaTolerance: UInt8 = 0,
-        file: StaticString = #filePath,
-        line: UInt = #line
-    ) {
-        assert(
-            snapshot: snapshot,
-            named: name,
-            snapshotURL: baselineDirectory.appendingPathComponent("\(name).png"),
-            precision: precision,
-            perceptualPrecision: perceptualPrecision,
-            alphaTolerance: alphaTolerance,
-            file: file,
-            line: line
-        )
-    }
-
     private func assert(
         snapshot: UIImage,
         named name: String,
@@ -136,28 +114,6 @@ public extension XCTestCase {
             snapshot: snapshot,
             named: name,
             snapshotURL: snapshotURL,
-            precision: precision,
-            perceptualPrecision: perceptualPrecision,
-            alphaTolerance: alphaTolerance,
-            file: file,
-            line: line
-        )
-    }
-
-    func assertFail(
-        snapshot: UIImage,
-        named name: String,
-        baselineDirectory: URL,
-        precision: Float = 1,
-        perceptualPrecision: Float = 1,
-        alphaTolerance: UInt8 = 0,
-        file: StaticString = #filePath,
-        line: UInt = #line
-    ) {
-        assertFail(
-            snapshot: snapshot,
-            named: name,
-            snapshotURL: baselineDirectory.appendingPathComponent("\(name).png"),
             precision: precision,
             perceptualPrecision: perceptualPrecision,
             alphaTolerance: alphaTolerance,

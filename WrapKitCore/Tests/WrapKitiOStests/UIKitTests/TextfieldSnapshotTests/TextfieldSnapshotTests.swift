@@ -215,7 +215,7 @@ final class TextfieldSnapshotTests: XCTestCase {
         // WHEN
         sut.display(text: "DEFAULT STATE")
         sut.display(onPress: { [weak sut] in
-            sut?.appearance.colors.deselectedBackgroundColor = .red
+            sut?.display(text: "PRESSED STATE")
         })
 
         sut.onPress?()
@@ -239,7 +239,7 @@ final class TextfieldSnapshotTests: XCTestCase {
         // WHEN
         sut.display(text: "DEFAULT STATE")
         sut.display(onPress: { [weak sut] in
-            sut?.appearance.colors.deselectedBackgroundColor = .systemRed
+            sut?.display(text: "PRESSED STATE.")
         })
 
         sut.onPress?()
@@ -322,7 +322,7 @@ final class TextfieldSnapshotTests: XCTestCase {
         // WHEN
         sut.display(text: "Text to delete")
         sut.display(onTapBackspace: { [weak sut] in
-            sut?.appearance.colors.deselectedBackgroundColor = .red
+            sut?.display(text: "Text to delet")
             exp.fulfill()
         })
 
@@ -348,9 +348,9 @@ final class TextfieldSnapshotTests: XCTestCase {
         let exp = expectation(description: "Wait for completion")
 
         // WHEN
-        sut.display(text: "Text to delete.")
+        sut.display(text: "Text to delete")
         sut.display(onTapBackspace: { [weak sut] in
-            sut?.appearance.colors.deselectedBackgroundColor = .red
+            sut?.display(text: "Text to dele")
             exp.fulfill()
         })
 
@@ -571,7 +571,7 @@ final class TextfieldSnapshotTests: XCTestCase {
         sut.display(text: "Search query")
 
         sut.display(leadingViewOnPress: { [weak sut] in
-            sut?.appearance.colors.deselectedBackgroundColor = .red
+            sut?.display(text: "Leading pressed")
         })
 
         sut.leadingViewOnPress?()
@@ -600,7 +600,7 @@ final class TextfieldSnapshotTests: XCTestCase {
         sut.display(text: "Search query")
 
         sut.display(leadingViewOnPress: { [weak sut] in
-            sut?.appearance.colors.deselectedBackgroundColor = .systemRed
+            sut?.display(text: "Leading pressed.")
         })
 
         sut.leadingViewOnPress?()
@@ -629,7 +629,7 @@ final class TextfieldSnapshotTests: XCTestCase {
         sut.display(text: "Search query")
 
         sut.display(trailingViewOnPress: { [weak sut] in
-            sut?.appearance.colors.deselectedBackgroundColor = .red
+            sut?.display(text: "Trailing pressed")
         })
 
         sut.trailingViewOnPress?()
@@ -658,7 +658,7 @@ final class TextfieldSnapshotTests: XCTestCase {
         sut.display(text: "Search query")
 
         sut.display(trailingViewOnPress: { [weak sut] in
-            sut?.appearance.colors.deselectedBackgroundColor = .systemRed
+            sut?.display(text: "Trailing pressed.")
         })
 
         sut.trailingViewOnPress?()
@@ -1579,6 +1579,19 @@ final class TextfieldSnapshotTests: XCTestCase {
         sut.simulateUserTyping("996553113555")
 
         XCTAssertEqual(sut.maskedTextfieldDelegate?.fullText, "+996 996 553 113")
+    }
+
+    func test_Textfield_clearButtonVisibility_tracksUserInputWhenActive() {
+        let clearView = makeIcon(systemName: "xmark.circle.fill")
+        let (sut, _) = makeSUT(trailingView: .clear(trailingView: clearView))
+        sut.display(isClearButtonActive: true)
+
+        sut.simulateUserTyping("A")
+        XCTAssertFalse(clearView.isHidden)
+
+        sut.text = ""
+        sut.sendActions(for: .editingChanged)
+        XCTAssertTrue(clearView.isHidden)
     }
 }
 
