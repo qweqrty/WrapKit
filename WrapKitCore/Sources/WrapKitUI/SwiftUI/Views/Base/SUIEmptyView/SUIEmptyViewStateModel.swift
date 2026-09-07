@@ -9,6 +9,24 @@ import Combine
 import SwiftUI
 
 public final class SUIEmptyViewStateModel: ObservableObject {
+    private struct OutputReplayCheckpoint {
+        let isHidden: Bool
+        let title: TextOutputPresentableModel?
+        let subtitle: TextOutputPresentableModel?
+        let buttonModel: ButtonPresentableModel?
+        let image: ImageViewPresentableModel?
+        let animationConfig: EmptyViewAnimationConfig
+        let isTitleHidden: Bool
+        let isSubtitleHidden: Bool
+        let isButtonHidden: Bool
+        let isImageHidden: Bool
+        let retainedButtonModel: ButtonPresentableModel?
+        let retainedImageModel: ImageViewPresentableModel
+        let titleAdapter: TextOutputSwiftUIAdapter
+        let subtitleAdapter: TextOutputSwiftUIAdapter
+        let imageAdapter: ImageViewOutputSwiftUIAdapter
+    }
+
     @Published var isHidden: Bool = false
     @Published var title: TextOutputPresentableModel? = nil
     @Published var subtitle: TextOutputPresentableModel? = nil
@@ -20,7 +38,15 @@ public final class SUIEmptyViewStateModel: ObservableObject {
     @Published var isButtonHidden = false
     @Published var isImageHidden = false
 
+    let titleStateModel: SUILabelStateModel
+    let subtitleStateModel: SUILabelStateModel
+    let imageAdapter: ImageViewOutputSwiftUIAdapter
+
     private let adapter: EmptyViewOutputSwiftUIAdapter
+    private let titleAdapter: TextOutputSwiftUIAdapter
+    private let subtitleAdapter: TextOutputSwiftUIAdapter
+
+    private var outputReplayConsumer: EmptyViewOutputSwiftUIAdapter.OutputReplayConsumer?
     private var cancellables: Set<AnyCancellable> = []
     private var retainedButtonModel: ButtonPresentableModel?
     private var retainedImageModel = ImageViewPresentableModel()
@@ -32,8 +58,26 @@ public final class SUIEmptyViewStateModel: ObservableObject {
 
     public init(adapter: EmptyViewOutputSwiftUIAdapter) {
         self.adapter = adapter
+        let outputReplayConsumer = adapter.claimOutputReplayConsumer()
+        self.outputReplayConsumer = outputReplayConsumer
+        let outputReplayCheckpoint = adapter.outputReplayCheckpoint(
+            as: OutputReplayCheckpoint.self,
+            consumer: outputReplayConsumer
+        )
+        let bufferedOutputReplayPublisher = adapter.bufferedOutputReplayPublisher(consumer: outputReplayConsumer)
+        titleAdapter = outputReplayCheckpoint?.titleAdapter
+            ?? TextOutputSwiftUIAdapter()
+        subtitleAdapter = outputReplayCheckpoint?.subtitleAdapter
+            ?? TextOutputSwiftUIAdapter()
+        imageAdapter = outputReplayCheckpoint?.imageAdapter
+            ?? ImageViewOutputSwiftUIAdapter()
+        titleStateModel = SUILabelStateModel(adapter: titleAdapter)
+        subtitleStateModel = SUILabelStateModel(adapter: subtitleAdapter)
 
-        adapter.$displayModelState
+        adapter.outputReplayPublisher(
+            adapter.$displayModelState,
+            consumer: outputReplayConsumer
+        )
             .compactMap { $0 }
             .sink { [weak self] value in
                 guard let self else { return }
@@ -62,7 +106,10 @@ public final class SUIEmptyViewStateModel: ObservableObject {
             }
             .store(in: &cancellables)
 
-        adapter.$displayTitleState
+        adapter.outputReplayPublisher(
+            adapter.$displayTitleState,
+            consumer: outputReplayConsumer
+        )
             .compactMap { $0 }
             .sink { [weak self] value in
                 self?.applyTitle(
@@ -72,7 +119,10 @@ public final class SUIEmptyViewStateModel: ObservableObject {
             }
             .store(in: &cancellables)
 
-        adapter.$displaySubtitleState
+        adapter.outputReplayPublisher(
+            adapter.$displaySubtitleState,
+            consumer: outputReplayConsumer
+        )
             .compactMap { $0 }
             .sink { [weak self] value in
                 self?.applySubtitle(
@@ -82,7 +132,10 @@ public final class SUIEmptyViewStateModel: ObservableObject {
             }
             .store(in: &cancellables)
 
-        adapter.$displayButtonModelState
+        adapter.outputReplayPublisher(
+            adapter.$displayButtonModelState,
+            consumer: outputReplayConsumer
+        )
             .compactMap { $0 }
             .sink { [weak self] value in
                 self?.applyButton(
@@ -92,7 +145,10 @@ public final class SUIEmptyViewStateModel: ObservableObject {
             }
             .store(in: &cancellables)
 
-        adapter.$displayImageState
+        adapter.outputReplayPublisher(
+            adapter.$displayImageState,
+            consumer: outputReplayConsumer
+        )
             .compactMap { $0 }
             .sink { [weak self] value in
                 self?.applyImage(
@@ -102,7 +158,10 @@ public final class SUIEmptyViewStateModel: ObservableObject {
             }
             .store(in: &cancellables)
 
-        adapter.$displayIsHiddenState
+        adapter.outputReplayPublisher(
+            adapter.$displayIsHiddenState,
+            consumer: outputReplayConsumer
+        )
             .compactMap { $0 }
             .sink { [weak self] value in
                 self?.applyVisibility(
@@ -112,6 +171,22 @@ public final class SUIEmptyViewStateModel: ObservableObject {
                 )
             }
             .store(in: &cancellables)
+
+        adapter.outputReplayCheckpointRequestPublisher(consumer: outputReplayConsumer)
+            .sink { [weak self] in self?.persistReplayCheckpoint() }
+            .store(in: &cancellables)
+
+        if let outputReplayCheckpoint {
+            restore(outputReplayCheckpoint)
+        }
+
+        bufferedOutputReplayPublisher
+            .sink { [weak adapter] event in
+                adapter?.replayOutputEvent(event, consumer: outputReplayConsumer)
+            }
+            .store(in: &cancellables)
+
+        persistReplayCheckpoint()
     }
 
     private func applyVisibility(
@@ -123,6 +198,7 @@ public final class SUIEmptyViewStateModel: ObservableObject {
         latestVisibilityOutputSequence = outputSequence
         self.animationConfig = animationConfig
         self.isHidden = isHidden
+        persistReplayCheckpoint()
     }
 
     private func applyTitle(
@@ -133,6 +209,8 @@ public final class SUIEmptyViewStateModel: ObservableObject {
         latestTitleOutputSequence = outputSequence
         self.title = title
         isTitleHidden = title == nil
+        titleAdapter.display(model: title)
+        persistReplayCheckpoint()
     }
 
     private func applySubtitle(
@@ -143,6 +221,8 @@ public final class SUIEmptyViewStateModel: ObservableObject {
         latestSubtitleOutputSequence = outputSequence
         self.subtitle = subtitle
         isSubtitleHidden = subtitle == nil
+        subtitleAdapter.display(model: subtitle)
+        persistReplayCheckpoint()
     }
 
     private func applyButton(
@@ -153,6 +233,7 @@ public final class SUIEmptyViewStateModel: ObservableObject {
         latestButtonOutputSequence = outputSequence
         setButtonModel(buttonModel)
         isButtonHidden = buttonModel == nil
+        persistReplayCheckpoint()
     }
 
     private func applyImage(
@@ -163,10 +244,21 @@ public final class SUIEmptyViewStateModel: ObservableObject {
         latestImageOutputSequence = outputSequence
         setImageModel(image)
         isImageHidden = image == nil
+        imageAdapter.display(model: self.image)
+        persistReplayCheckpoint()
     }
 
     private func setButtonModel(_ model: ButtonPresentableModel?) {
         guard let model else {
+            if let retainedButtonModel {
+                self.retainedButtonModel = ButtonPresentableModel(
+                    spacing: retainedButtonModel.spacing,
+                    height: retainedButtonModel.height,
+                    width: retainedButtonModel.width,
+                    style: retainedButtonModel.style,
+                    enabled: retainedButtonModel.enabled
+                )
+            }
             buttonModel = nil
             return
         }
@@ -195,5 +287,40 @@ public final class SUIEmptyViewStateModel: ObservableObject {
         }
         retainedImageModel = retainedImageModel.mergingFullModel(model)
         image = retainedImageModel
+    }
+
+    private func persistReplayCheckpoint() {
+        adapter.updateOutputReplayCheckpoint(consumer: outputReplayConsumer, OutputReplayCheckpoint(
+            isHidden: isHidden,
+            title: title,
+            subtitle: subtitle,
+            buttonModel: buttonModel,
+            image: image,
+            animationConfig: animationConfig,
+            isTitleHidden: isTitleHidden,
+            isSubtitleHidden: isSubtitleHidden,
+            isButtonHidden: isButtonHidden,
+            isImageHidden: isImageHidden,
+            retainedButtonModel: retainedButtonModel,
+            retainedImageModel: retainedImageModel,
+            titleAdapter: titleAdapter,
+            subtitleAdapter: subtitleAdapter,
+            imageAdapter: imageAdapter
+        ))
+    }
+
+    private func restore(_ checkpoint: OutputReplayCheckpoint) {
+        isHidden = checkpoint.isHidden
+        title = checkpoint.title
+        subtitle = checkpoint.subtitle
+        buttonModel = checkpoint.buttonModel
+        image = checkpoint.image
+        animationConfig = checkpoint.animationConfig
+        isTitleHidden = checkpoint.isTitleHidden
+        isSubtitleHidden = checkpoint.isSubtitleHidden
+        isButtonHidden = checkpoint.isButtonHidden
+        isImageHidden = checkpoint.isImageHidden
+        retainedButtonModel = checkpoint.retainedButtonModel
+        retainedImageModel = checkpoint.retainedImageModel
     }
 }

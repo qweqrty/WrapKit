@@ -10,10 +10,6 @@ public struct SUINavigationBar: View {
         _stateModel = .init(wrappedValue: .init(adapter: adapter))
     }
 
-    init(stateModel: SUINavigationBarStateModel) {
-        _stateModel = .init(wrappedValue: stateModel)
-    }
-
     public var body: some View {
         if !stateModel.isHidden {
             let model = stateModel.model
@@ -45,7 +41,10 @@ public struct SUINavigationBar: View {
             .padding(.top, 4)
             .padding(.bottom, 8)
             .padding(.horizontal, horizontalPadding)
-            .background(SwiftUIColor(style.backgroundColor))
+            .background(
+                SwiftUIColor(style.backgroundColor)
+                    .ignoresSafeArea(edges: .top)
+            )
         }
     }
 
@@ -66,9 +65,7 @@ public struct SUINavigationBar: View {
                 SUINavigationBarIntrinsicCompressingView(usesIntrinsicWidth: width == nil) {
                     SUICardView(
                         adapter: stateModel.leadingCardAdapter,
-                        titleFontOverride: nil,
-                        titleColorOverride: nil,
-                        leadingImageTintOverride: stateModel.leadingCardImageTint
+                        leadingImageTint: stateModel.leadingCardImageTint
                     )
                 }
                     .frame(
@@ -77,17 +74,18 @@ public struct SUINavigationBar: View {
                         alignment: .leading
                     )
                     .clipped()
-                    .glassEffect(
-                        .regular.interactive(),
-                        in: SUICornerShape(style: .automatic)
-                    )
+                    .background {
+                        SwiftUIColor.clear
+                            .glassEffect(
+                                .regular.interactive(),
+                                in: SUICornerShape(style: .automatic)
+                            )
+                    }
             } else {
                 SUINavigationBarIntrinsicCompressingView(usesIntrinsicWidth: width == nil) {
                     SUICardView(
                         adapter: stateModel.leadingCardAdapter,
-                        titleFontOverride: nil,
-                        titleColorOverride: nil,
-                        leadingImageTintOverride: stateModel.leadingCardImageTint
+                        leadingImageTint: stateModel.leadingCardImageTint
                     )
                 }
                     .frame(
@@ -116,9 +114,9 @@ public struct SUINavigationBar: View {
         switch model.centerView {
         case .keyValue(let pair):
             VStack(spacing: SUINavigationBarCenterLayoutMetrics.spacing) {
-                if let keyModel = pair.first {
-                    SUILabelView(
-                        model: keyModel,
+                if pair.first != nil {
+                    SUIOutputLabel(
+                        stateModel: stateModel.centerKeyStateModel,
                         font: style.primeFont,
                         textColor: style.primeColor,
                         textAlignment: .center
@@ -126,9 +124,9 @@ public struct SUINavigationBar: View {
                     .lineLimit(lineLimit(from: style))
                 }
 
-                if let valueModel = pair.second {
-                    SUILabelView(
-                        model: valueModel,
+                if pair.second != nil {
+                    SUIOutputLabel(
+                        stateModel: stateModel.centerValueStateModel,
                         font: style.secondaryFont,
                         textColor: style.secondaryColor,
                         textAlignment: .center
@@ -144,16 +142,16 @@ public struct SUINavigationBar: View {
                     let imageSize = SUINavigationBarCenterLayoutMetrics.resolvedImageSize(
                         for: imageModel
                     )
-                    SUIImageViewView(model: imageModel)
+                    SUIImageView(adapter: stateModel.centerTitledImageAdapter)
                         .frame(
                             width: imageSize.width,
                             height: imageSize.height
                         )
                 }
 
-                if let titleModel = pair.second {
-                    SUILabelView(
-                        model: titleModel,
+                if pair.second != nil {
+                    SUIOutputLabel(
+                        stateModel: stateModel.centerTitledImageTitleStateModel,
                         font: style.secondaryFont,
                         textColor: style.secondaryColor,
                         textAlignment: .center
@@ -178,17 +176,20 @@ public struct SUINavigationBar: View {
             SUINavigationBarButtonView(
                 stateModel: stateModel.primeTrailingButtonStateModel,
                 isPresented: model.primeTrailingImage != nil,
-                tintColor: style.primeColor
+                tintColor: style.primeColor,
+                backgroundColor: SwiftUIColor(style.backgroundColor)
             )
             SUINavigationBarButtonView(
                 stateModel: stateModel.secondaryTrailingButtonStateModel,
                 isPresented: model.secondaryTrailingImage != nil,
-                tintColor: style.primeColor
+                tintColor: style.primeColor,
+                backgroundColor: SwiftUIColor(style.backgroundColor)
             )
             SUINavigationBarButtonView(
                 stateModel: stateModel.tertiaryTrailingButtonStateModel,
                 isPresented: model.tertiaryTrailingImage != nil,
-                tintColor: style.primeColor
+                tintColor: style.primeColor,
+                backgroundColor: SwiftUIColor(style.backgroundColor)
             )
         }
         .frame(maxHeight: .infinity, alignment: .trailing)
@@ -251,10 +252,20 @@ private struct SUINavigationBarIntrinsicCompressingLayout: Layout {
         subviews: Subviews,
         cache: inout ()
     ) {
-        subviews.first?.place(
+        guard let subview = subviews.first else { return }
+        let contentWidth: CGFloat
+        if usesIntrinsicWidth {
+            contentWidth = SUINavigationBarIntrinsicWidthResolver.resolvedWidth(
+                idealWidth: subview.sizeThatFits(.unspecified).width,
+                proposedWidth: bounds.width
+            )
+        } else {
+            contentWidth = bounds.width
+        }
+        subview.place(
             at: bounds.origin,
             anchor: .topLeading,
-            proposal: ProposedViewSize(width: bounds.width, height: bounds.height)
+            proposal: ProposedViewSize(width: contentWidth, height: bounds.height)
         )
     }
 
@@ -300,11 +311,19 @@ private struct SUINavigationBarSidesLayout: Layout {
         cache: inout ()
     ) {
         guard let leading = subviews.first, let trailing = subviews.last else { return }
+        let leadingIdealWidth = leading.sizeThatFits(.unspecified).width
+        let trailingIdealWidth = trailing.sizeThatFits(.unspecified).width
         let sideWidths = SUINavigationBarSideWidthResolver.resolvedSideWidths(
             availableWidth: bounds.width,
             mainStackSpacing: mainStackSpacing,
-            leadingIdealWidth: leading.sizeThatFits(.unspecified).width,
-            trailingIdealWidth: trailing.sizeThatFits(.unspecified).width
+            leadingIdealWidth: leadingIdealWidth,
+            trailingIdealWidth: trailingIdealWidth,
+            leadingCompressionBreakpointWidth: leading.sizeThatFits(
+                ProposedViewSize(width: 0, height: nil)
+            ).width,
+            trailingCompressionBreakpointWidth: trailing.sizeThatFits(
+                ProposedViewSize(width: 0, height: nil)
+            ).width
         )
         let leadingProposal = ProposedViewSize(width: sideWidths.leading, height: bounds.height)
         let trailingProposal = ProposedViewSize(width: sideWidths.trailing, height: bounds.height)
@@ -331,7 +350,9 @@ enum SUINavigationBarSideWidthResolver {
         availableWidth: CGFloat,
         mainStackSpacing: CGFloat,
         leadingIdealWidth: CGFloat,
-        trailingIdealWidth: CGFloat
+        trailingIdealWidth: CGFloat,
+        leadingCompressionBreakpointWidth: CGFloat? = nil,
+        trailingCompressionBreakpointWidth: CGFloat? = nil
     ) -> (leading: CGFloat, trailing: CGFloat) {
         let equalWidth = equalSideProposalWidth(
             availableWidth: availableWidth,
@@ -347,15 +368,36 @@ enum SUINavigationBarSideWidthResolver {
             return (equalWidth, equalWidth)
         }
 
-        let totalIdealWidth = leadingIdealWidth + trailingIdealWidth
-        guard totalIdealWidth > contentWidth, totalIdealWidth > 0 else {
-            return (leadingIdealWidth, trailingIdealWidth)
+        let leadingWidth = widthWhenEqualityBreaks(
+            idealWidth: leadingIdealWidth,
+            equalWidth: equalWidth,
+            compressionBreakpointWidth: leadingCompressionBreakpointWidth
+        )
+        let trailingWidth = widthWhenEqualityBreaks(
+            idealWidth: trailingIdealWidth,
+            equalWidth: equalWidth,
+            compressionBreakpointWidth: trailingCompressionBreakpointWidth
+        )
+        let totalWidth = leadingWidth + trailingWidth
+        guard totalWidth > contentWidth, totalWidth > 0 else {
+            return (leadingWidth, trailingWidth)
         }
 
         // Auto Layout eventually has to break compression constraints in an
         // impossible row. Scale both proposals so neither side escapes bounds.
-        let scale = contentWidth / totalIdealWidth
-        return (leadingIdealWidth * scale, trailingIdealWidth * scale)
+        let scale = contentWidth / totalWidth
+        return (leadingWidth * scale, trailingWidth * scale)
+    }
+
+    private static func widthWhenEqualityBreaks(
+        idealWidth: CGFloat,
+        equalWidth: CGFloat,
+        compressionBreakpointWidth: CGFloat?
+    ) -> CGFloat {
+        guard idealWidth > equalWidth else { return idealWidth }
+        guard let compressionBreakpointWidth else { return idealWidth }
+        let breakpoint = min(max(compressionBreakpointWidth, 0), idealWidth)
+        return min(idealWidth, max(equalWidth, breakpoint))
     }
 
     static func equalSideProposalWidth(
@@ -390,11 +432,35 @@ enum SUINavigationBarIntrinsicWidthResolver {
     }
 }
 
+@available(iOS 17.0, macOS 14.0, tvOS 17.0, watchOS 10.0, *)
+enum SUINavigationBarGlassForegroundResolver {
+    static func color(
+        over backgroundColor: SwiftUIColor,
+        environment: EnvironmentValues
+    ) -> SwiftUIColor? {
+        let background = backgroundColor.resolve(in: environment)
+        guard background.opacity >= 1 else {
+            // A translucent header can sit over arbitrary content. Let Liquid
+            // Glass resolve its foreground from the real backdrop instead of
+            // guessing one from the color scheme.
+            return nil
+        }
+        let backgroundLuminance = 0.2126 * background.linearRed
+            + 0.7152 * background.linearGreen
+            + 0.0722 * background.linearBlue
+        let effectiveLuminance = min(max(backgroundLuminance, 0), 1)
+
+        return effectiveLuminance > 0.5 ? .black : .white
+    }
+}
+
 private struct SUINavigationBarButtonView: View {
+    @Environment(\.self) private var environment
     @ObservedObject var stateModel: SUIButtonStateModel
 
     let isPresented: Bool
     let tintColor: Color
+    let backgroundColor: SwiftUIColor
 
     @ViewBuilder
     var body: some View {
@@ -451,16 +517,17 @@ private struct SUINavigationBarButtonView: View {
                 if let image = model.image {
                     SwiftUIImage(image: image)
                         .renderingMode(.template)
+                        .foregroundColor(foregroundColor(for: model, fallback: tintColor))
                 }
                 if let title = model.title {
                     Text(title.removingPercentEncoding ?? title)
                         .font(model.style?.font.map(SwiftUIFont.init) ?? .body)
+                        .foregroundColor(foregroundColor(for: model, fallback: .white))
                         .lineLimit(1)
                         .fixedSize(horizontal: true, vertical: false)
                 }
             }
             .fixedSize(horizontal: true, vertical: false)
-            .foregroundColor(SwiftUIColor(model.style?.titleColor ?? tintColor))
         }
         .disabled(!stateModel.isEnabled)
         .allowsHitTesting(model.onPress != nil && stateModel.isEnabled)
@@ -479,6 +546,25 @@ private struct SUINavigationBarButtonView: View {
         .ifLet(model.accessibility?.hint) { view, hint in
             view.accessibilityHint(Text(hint))
         }
+    }
+
+    private func foregroundColor(
+        for model: ButtonPresentableModel,
+        fallback: Color
+    ) -> SwiftUIColor? {
+        if let style = model.style {
+            return SwiftUIColor(style.titleColor ?? .white)
+        }
+        if #available(iOS 26, macOS 26, tvOS 26, watchOS 26, *), isLiquidGlassEnabled {
+            // Resolve opaque surfaces explicitly to keep controls readable.
+            // Translucent surfaces return nil so Liquid Glass can adapt to
+            // their real backdrop.
+            return SUINavigationBarGlassForegroundResolver.color(
+                over: backgroundColor,
+                environment: environment
+            )
+        }
+        return SwiftUIColor(fallback)
     }
 
     @ViewBuilder

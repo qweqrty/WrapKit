@@ -9,109 +9,177 @@ import Combine
 import Foundation
 
 public final class SUIButtonStateModel: ObservableObject {
+    private struct OutputReplayCheckpoint {
+        let presentable: ButtonPresentableModel
+        let isHidden: Bool
+        let isEnabled: Bool
+    }
+
     @Published var presentable: ButtonPresentableModel = .init()
     @Published var isHidden: Bool = false
     @Published var isEnabled: Bool = true
     @Published var isLoading: Bool = false
-    
+
     private let adapter: ButtonOutputSwiftUIAdapter
-    
+
+    private var outputReplayConsumer: ButtonOutputSwiftUIAdapter.OutputReplayConsumer?
+
     private var cancellables: Set<AnyCancellable> = []
+    private var latestVisibilityOutputSequence: UInt64 = 0
+    private var latestEnabledOutputSequence: UInt64 = 0
+    private var latestTitleOutputSequence: UInt64 = 0
+    private var latestImageOutputSequence: UInt64 = 0
+    private var latestStyleOutputSequence: UInt64 = 0
+    private var latestSpacingOutputSequence: UInt64 = 0
+    private var latestHeightOutputSequence: UInt64 = 0
+    private var latestOnPressOutputSequence: UInt64 = 0
     
     public init(
         adapter: ButtonOutputSwiftUIAdapter,
         loadingAdapter: LoadingOutputSwiftUIAdapter? = nil
     ) {
         self.adapter = adapter
+        let outputReplayConsumer = adapter.claimOutputReplayConsumer()
+        self.outputReplayConsumer = outputReplayConsumer
+        let outputReplayCheckpoint = adapter.outputReplayCheckpoint(
+            as: OutputReplayCheckpoint.self,
+            consumer: outputReplayConsumer
+        )
+        let bufferedOutputReplayPublisher = adapter.bufferedOutputReplayPublisher(consumer: outputReplayConsumer)
         
-        adapter.$displayModelState
+        adapter.outputReplayPublisher(
+            adapter.$displayModelState,
+            consumer: outputReplayConsumer
+        )
             .compactMap { $0 }
             .sink { [weak self] value in
-                guard let self else { return }
-                let current = self.presentable
-                let model = value.model
-                self.presentable = ButtonPresentableModel(
-                    accessibilityIdentifier: model?.accessibilityIdentifier,
-                    accessibility: model?.accessibility,
-                    title: model?.title,
-                    image: model?.image,
-                    spacing: model?.spacing ?? current.spacing,
-                    height: model?.height ?? current.height,
-                    width: model?.width ?? current.width,
-                    style: model?.style ?? current.style,
-                    enabled: model?.enabled ?? current.enabled,
-                    onPress: model?.onPress
+                self?.apply(
+                    model: value.model,
+                    outputSequence: value.outputSequence
                 )
-                self.isHidden = model == nil
-                if let enabled = model?.enabled {
-                    self.isEnabled = enabled
-                }
             }
             .store(in: &cancellables)
         
-        adapter.$displayIsHiddenState
+        adapter.outputReplayPublisher(
+            adapter.$displayIsHiddenState,
+            consumer: outputReplayConsumer
+        )
             .compactMap { $0 }
             .sink { [weak self] value in
-                self?.isHidden = value.isHidden
+                self?.apply(
+                    isHidden: value.isHidden,
+                    outputSequence: value.outputSequence
+                )
             }
             .store(in: &cancellables)
         
-        adapter.$displayEnabledState
+        adapter.outputReplayPublisher(
+            adapter.$displayEnabledState,
+            consumer: outputReplayConsumer
+        )
             .compactMap { $0 }
             .sink { [weak self] value in
-                guard let self else { return }
-                self.isEnabled = value.enabled
-                self.presentable = self.presentable.merging(enabled: value.enabled)
+                self?.apply(
+                    enabled: value.enabled,
+                    outputSequence: value.outputSequence
+                )
             }
             .store(in: &cancellables)
         
-        adapter.$displayTitleState
+        adapter.outputReplayPublisher(
+            adapter.$displayTitleState,
+            consumer: outputReplayConsumer
+        )
             .compactMap { $0 }
             .sink { [weak self] value in
-                guard let self else { return }
-                self.presentable = self.presentable.merging(title: value.title)
+                self?.apply(
+                    title: value.title,
+                    outputSequence: value.outputSequence
+                )
             }
             .store(in: &cancellables)
         
-        adapter.$displayImageState
+        adapter.outputReplayPublisher(
+            adapter.$displayImageState,
+            consumer: outputReplayConsumer
+        )
             .compactMap { $0 }
             .sink { [weak self] value in
-                guard let self else { return }
-                self.presentable = self.presentable.merging(image: value.image)
+                self?.apply(
+                    image: value.image,
+                    outputSequence: value.outputSequence
+                )
             }
             .store(in: &cancellables)
         
-        adapter.$displayStyleState
+        adapter.outputReplayPublisher(
+            adapter.$displayStyleState,
+            consumer: outputReplayConsumer
+        )
             .compactMap { $0 }
             .sink { [weak self] value in
-                guard let self, let style = value.style else { return }
-                self.presentable = self.presentable.merging(style: style)
+                guard let style = value.style else { return }
+                self?.apply(
+                    style: style,
+                    outputSequence: value.outputSequence
+                )
             }
             .store(in: &cancellables)
         
-        adapter.$displaySpacingState
+        adapter.outputReplayPublisher(
+            adapter.$displaySpacingState,
+            consumer: outputReplayConsumer
+        )
             .compactMap { $0 }
             .sink { [weak self] value in
-                guard let self else { return }
-                self.presentable = self.presentable.merging(spacing: value.spacing)
+                self?.apply(
+                    spacing: value.spacing,
+                    outputSequence: value.outputSequence
+                )
             }
             .store(in: &cancellables)
         
-        adapter.$displayHeightState
+        adapter.outputReplayPublisher(
+            adapter.$displayHeightState,
+            consumer: outputReplayConsumer
+        )
             .compactMap { $0 }
             .sink { [weak self] value in
-                guard let self else { return }
-                self.presentable = self.presentable.merging(height: value.height)
+                self?.apply(
+                    height: value.height,
+                    outputSequence: value.outputSequence
+                )
             }
             .store(in: &cancellables)
         
-        adapter.$displayOnPressState
+        adapter.outputReplayPublisher(
+            adapter.$displayOnPressState,
+            consumer: outputReplayConsumer
+        )
             .compactMap { $0 }
             .sink { [weak self] value in
-                guard let self else { return }
-                self.presentable = self.presentable.merging(onPress: value.onPress)
+                self?.apply(
+                    onPress: value.onPress,
+                    outputSequence: value.outputSequence
+                )
             }
             .store(in: &cancellables)
+
+        adapter.outputReplayCheckpointRequestPublisher(consumer: outputReplayConsumer)
+            .sink { [weak self] in self?.persistReplayCheckpoint() }
+            .store(in: &cancellables)
+
+        if let outputReplayCheckpoint {
+            restore(outputReplayCheckpoint)
+        }
+
+        bufferedOutputReplayPublisher
+            .sink { [weak adapter] event in
+                adapter?.replayOutputEvent(event, consumer: outputReplayConsumer)
+            }
+            .store(in: &cancellables)
+
+        persistReplayCheckpoint()
         
         loadingAdapter?.$isLoading
             .compactMap { $0 }
@@ -119,6 +187,116 @@ public final class SUIButtonStateModel: ObservableObject {
                 self?.isLoading = value
             }
             .store(in: &cancellables)
+    }
+}
+
+private extension SUIButtonStateModel {
+    func apply(
+        model: ButtonPresentableModel?,
+        outputSequence: UInt64
+    ) {
+        let current = presentable
+        presentable = ButtonPresentableModel(
+            accessibilityIdentifier: model?.accessibilityIdentifier,
+            accessibility: model?.accessibility,
+            title: current.title,
+            image: current.image,
+            spacing: current.spacing,
+            height: current.height,
+            width: model?.width ?? current.width,
+            style: current.style,
+            enabled: current.enabled,
+            onPress: current.onPress
+        )
+
+        apply(isHidden: model == nil, outputSequence: outputSequence)
+        apply(title: model?.title, outputSequence: outputSequence)
+        apply(image: model?.image, outputSequence: outputSequence)
+        apply(onPress: model?.onPress, outputSequence: outputSequence)
+
+        if let spacing = model?.spacing {
+            apply(spacing: spacing, outputSequence: outputSequence)
+        }
+        if let height = model?.height {
+            apply(height: height, outputSequence: outputSequence)
+        }
+        if let style = model?.style {
+            apply(style: style, outputSequence: outputSequence)
+        }
+        if let enabled = model?.enabled {
+            apply(enabled: enabled, outputSequence: outputSequence)
+        }
+    }
+
+    func apply(isHidden: Bool, outputSequence: UInt64) {
+        guard outputSequence >= latestVisibilityOutputSequence else { return }
+        latestVisibilityOutputSequence = outputSequence
+        self.isHidden = isHidden
+        persistReplayCheckpoint()
+    }
+
+    func apply(enabled: Bool, outputSequence: UInt64) {
+        guard outputSequence >= latestEnabledOutputSequence else { return }
+        latestEnabledOutputSequence = outputSequence
+        isEnabled = enabled
+        presentable = presentable.merging(enabled: enabled)
+        persistReplayCheckpoint()
+    }
+
+    func apply(title: String?, outputSequence: UInt64) {
+        guard outputSequence >= latestTitleOutputSequence else { return }
+        latestTitleOutputSequence = outputSequence
+        presentable = presentable.merging(title: title)
+        persistReplayCheckpoint()
+    }
+
+    func apply(image: Image?, outputSequence: UInt64) {
+        guard outputSequence >= latestImageOutputSequence else { return }
+        latestImageOutputSequence = outputSequence
+        presentable = presentable.merging(image: image)
+        persistReplayCheckpoint()
+    }
+
+    func apply(style: ButtonStyle, outputSequence: UInt64) {
+        guard outputSequence >= latestStyleOutputSequence else { return }
+        latestStyleOutputSequence = outputSequence
+        presentable = presentable.merging(style: style)
+        persistReplayCheckpoint()
+    }
+
+    func apply(spacing: CGFloat, outputSequence: UInt64) {
+        guard outputSequence >= latestSpacingOutputSequence else { return }
+        latestSpacingOutputSequence = outputSequence
+        presentable = presentable.merging(spacing: spacing)
+        persistReplayCheckpoint()
+    }
+
+    func apply(height: CGFloat, outputSequence: UInt64) {
+        guard outputSequence >= latestHeightOutputSequence else { return }
+        latestHeightOutputSequence = outputSequence
+        presentable = presentable.merging(height: height)
+        persistReplayCheckpoint()
+    }
+
+    func apply(onPress: (() -> Void)?, outputSequence: UInt64) {
+        guard outputSequence >= latestOnPressOutputSequence else { return }
+        latestOnPressOutputSequence = outputSequence
+        presentable = presentable.merging(onPress: onPress)
+        persistReplayCheckpoint()
+    }
+
+    func persistReplayCheckpoint() {
+        adapter.updateOutputReplayCheckpoint(consumer: outputReplayConsumer, OutputReplayCheckpoint(
+            presentable: presentable.merging(enabled: isEnabled),
+            isHidden: isHidden,
+            isEnabled: isEnabled
+        ))
+    }
+
+    private func restore(_ checkpoint: OutputReplayCheckpoint) {
+        presentable = checkpoint.presentable
+        isHidden = checkpoint.isHidden
+        isEnabled = checkpoint.isEnabled
     }
 }
 

@@ -5,35 +5,35 @@
 
 import SwiftUI
 
-enum SUICircleStrokeSpinPhase {
-    case animated
-    case fixed(strokeStart: CGFloat, strokeEnd: CGFloat, rotation: Angle)
-}
-
 struct SUICircleStrokeSpin: View {
-    static let lineWidth: CGFloat = 2
+    private static let lineWidth: CGFloat = 2
 
+    @Environment(\.accessibilityReduceMotion) private var accessibilityReduceMotion
     @State private var isAnimating = false
 
     let color: SwiftUIColor
     let size: CGSize
-    let phase: SUICircleStrokeSpinPhase
 
     init(
         color: SwiftUIColor,
-        size: CGSize,
-        phase: SUICircleStrokeSpinPhase = .animated
+        size: CGSize
     ) {
         self.color = color
         self.size = size
-        self.phase = phase
     }
 
     var body: some View {
         indicator
             .frame(width: size.width, height: size.height)
-            .onAppear {
-                guard case .animated = phase else { return }
+            .task(id: accessibilityReduceMotion) {
+                guard !accessibilityReduceMotion else {
+                    isAnimating = false
+                    return
+                }
+
+                isAnimating = false
+                await Task.yield()
+                guard !Task.isCancelled else { return }
                 isAnimating = true
             }
             .onDisappear {
@@ -43,8 +43,13 @@ struct SUICircleStrokeSpin: View {
 
     @ViewBuilder
     private var indicator: some View {
-        switch phase {
-        case .animated:
+        if accessibilityReduceMotion {
+            Circle()
+                .stroke(
+                    color,
+                    style: StrokeStyle(lineWidth: Self.lineWidth, lineCap: .butt)
+                )
+        } else {
             SUICircleStrokeSpinShape(cycleProgress: isAnimating ? 1 : 0)
                 .stroke(
                     color,
@@ -57,14 +62,6 @@ struct SUICircleStrokeSpin: View {
                         .repeatForever(autoreverses: false),
                     value: isAnimating
                 )
-        case .fixed(let strokeStart, let strokeEnd, let rotation):
-            Circle()
-                .trim(from: strokeStart, to: strokeEnd)
-                .stroke(
-                    color,
-                    style: StrokeStyle(lineWidth: Self.lineWidth, lineCap: .butt)
-                )
-                .rotationEffect(rotation)
         }
     }
 }

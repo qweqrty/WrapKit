@@ -24,16 +24,6 @@ public struct SUITitledView<Content: View>: View {
         self.content = content()
     }
 
-    init(
-        stateModel: SUITitledViewStateModel,
-        spacing: CGFloat = 4,
-        @ViewBuilder content: () -> Content
-    ) {
-        _stateModel = .init(wrappedValue: stateModel)
-        self.spacing = spacing
-        self.content = content()
-    }
-
     public var body: some View {
         if !stateModel.isHidden {
             VStack(spacing: spacing) {

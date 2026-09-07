@@ -219,7 +219,7 @@ final class SUITableViewStateModelTests: XCTestCase {
         XCTAssertEqual(capturedIndexPaths, [IndexPath(row: 1, section: 0)])
     }
 
-    func test_editingActions_respectPerRowStyleAndRejectStaleRows() {
+    func test_editingActions_respectPerRowStyleAndRejectStaleRows() throws {
         let adapter = makeAdapter()
         adapter.display(sections: makeEditingSections())
         adapter.display(canEdit: { _ in true })
@@ -263,15 +263,16 @@ final class SUITableViewStateModelTests: XCTestCase {
         XCTAssertFalse(sut.performInsertion(at: stale))
 
         XCTAssertEqual(capturedEdits.count, 2)
-        guard capturedEdits.count == 2 else { return }
-        guard case .delete = capturedEdits[0].style else {
+        let firstEdit = try XCTUnwrap(capturedEdits.first)
+        let secondEdit = try XCTUnwrap(capturedEdits.dropFirst().first)
+        guard case .delete = firstEdit.style else {
             return XCTFail("Expected only the delete row to be deleted")
         }
-        XCTAssertEqual(capturedEdits[0].indexPath, delete)
-        guard case .insert = capturedEdits[1].style else {
+        XCTAssertEqual(firstEdit.indexPath, delete)
+        guard case .insert = secondEdit.style else {
             return XCTFail("Expected the insert row to request insertion")
         }
-        XCTAssertEqual(capturedEdits[1].indexPath, insert)
+        XCTAssertEqual(secondEdit.indexPath, insert)
     }
 
     func test_insertAction_requiresCanEditAndCommitHandler() {

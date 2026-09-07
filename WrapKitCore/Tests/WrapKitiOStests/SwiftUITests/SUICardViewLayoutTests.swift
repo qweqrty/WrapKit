@@ -45,6 +45,22 @@ final class SUICardViewLayoutTests: XCTestCase {
         XCTAssertEqual(maxX(of: resolution), 296)
     }
 
+    func test_fillLayout_expandsTitleBeforeAuxiliaryTrailingTitles() {
+        let resolution = CardFillHorizontalResolver.resolve(
+            idealWidths: [80, 50],
+            items: [
+                .init(role: .flexibleText, leadingSpacing: nil),
+                .init(role: .auxiliaryText, leadingSpacing: nil)
+            ],
+            availableWidth: 300,
+            defaultSpacing: 10
+        )
+
+        XCTAssertEqual(resolution.widths, [240, 50])
+        XCTAssertEqual(resolution.origins, [0, 250])
+        XCTAssertEqual(maxX(of: resolution), 300)
+    }
+
     func test_bottomImageModel_updatesUIKitAndSwiftUIAndCanBeClearedIndependently() {
         let imageModel = ImageViewPresentableModel.systemSymbol(
             "ellipsis.rectangle.fill",
@@ -86,8 +102,10 @@ final class SUICardViewLayoutTests: XCTestCase {
         XCTAssertEqual(size.height, 22, accuracy: 0.5)
     }
 
-    func test_iOS26_nativeSwitchUsesItsRealIntrinsicSize() {
-        guard #available(iOS 26.0, *) else { return }
+    func test_iOS26_nativeSwitchUsesItsRealIntrinsicSize() throws {
+        guard #available(iOS 26.0, *) else {
+            throw XCTSkip("Requires iOS 26 or newer")
+        }
 
         let view = SUISwitchControlView(
             isOn: false,
@@ -107,7 +125,9 @@ final class SUICardViewLayoutTests: XCTestCase {
     }
 
     func test_iOS26_nativeSwitchPreservesPhysicalFrameAroundIntrinsicAlignmentRect() throws {
-        guard #available(iOS 26.0, *) else { return }
+        guard #available(iOS 26.0, *) else {
+            throw XCTSkip("Requires iOS 26 or newer")
+        }
 
         let host = CardFillLayoutTestHost(
             rootView: SUISwitchControlView(isOn: false).fixedSize(),
@@ -129,7 +149,9 @@ final class SUICardViewLayoutTests: XCTestCase {
     }
 
     func test_iOS26_nativeSwitchConsumesEveryOutputStyleColor() throws {
-        guard #available(iOS 26.0, *) else { return }
+        guard #available(iOS 26.0, *) else {
+            throw XCTSkip("Requires iOS 26 or newer")
+        }
 
         let view = SUISwitchControlView(
             isOn: true,
@@ -154,7 +176,9 @@ final class SUICardViewLayoutTests: XCTestCase {
     }
 
     func test_iOS26_adjacentNativeSwitchesKeepIndependentStylesAcrossUpdates() throws {
-        guard #available(iOS 26.0, *) else { return }
+        guard #available(iOS 26.0, *) else {
+            throw XCTSkip("Requires iOS 26 or newer")
+        }
 
         let firstAdapter = SwitchCotrolOutputSwiftUIAdapter()
         let secondAdapter = SwitchCotrolOutputSwiftUIAdapter()
@@ -292,8 +316,10 @@ final class SUICardViewLayoutTests: XCTestCase {
         XCTAssertLessThanOrEqual(maxX(of: resolution), 349.001)
     }
 
-    func test_iOS26_tightCardWithLongTitle_rendersWholeSwitchInLTRAndRTL() {
-        guard #available(iOS 26.0, *) else { return }
+    func test_iOS26_tightCardWithLongTitle_rendersWholeSwitchInLTRAndRTL() throws {
+        guard #available(iOS 26.0, *) else {
+            throw XCTSkip("Requires iOS 26 or newer")
+        }
 
         let adapter = CardViewOutputSwiftUIAdapter()
         adapter.display(model: .init(
@@ -538,8 +564,10 @@ final class SUICardViewLayoutTests: XCTestCase {
         XCTAssertEqual(borderBounds.maxX, width - horizontalInset, accuracy: 0.001)
     }
 
-    func test_fillLayout_clipsFixedContentToItsResolvedViewport() {
-        guard #available(iOS 16.0, *) else { return }
+    func test_fillLayout_clipsFixedContentToItsResolvedViewport() throws {
+        guard #available(iOS 16.0, *) else {
+            throw XCTSkip("Requires iOS 16 or newer")
+        }
 
         let host = CardFillLayoutTestHost(
             rootView: CardFillFixedViewportFixture(),
@@ -552,8 +580,10 @@ final class SUICardViewLayoutTests: XCTestCase {
         XCTAssertGreaterThan(pixels.dominantBluePixelCount, 0)
     }
 
-    func test_flexibleViewport_usesWrappedHeightAtResolvedWidth() {
-        guard #available(iOS 16.0, *) else { return }
+    func test_flexibleViewport_usesWrappedHeightAtResolvedWidth() throws {
+        guard #available(iOS 16.0, *) else {
+            throw XCTSkip("Requires iOS 16 or newer")
+        }
 
         let wrapped = CardFillViewportLayout(measuresContentAtProposedWidth: true) {
             Text("Configure actions through public onRefresh")
@@ -570,6 +600,225 @@ final class SUICardViewLayoutTests: XCTestCase {
 
         XCTAssertGreaterThan(size.height, 30)
         XCTAssertLessThan(size.height, 50)
+    }
+
+    func test_attributedLabel_usesWrappedIntrinsicHeightAtProposedWidth() throws {
+        guard #available(iOS 16.0, tvOS 16.0, watchOS 9.0, *) else {
+            throw XCTSkip("Requires iOS 16 or newer")
+        }
+
+        let label = SUILabelView(
+            model: .attributes([.init(
+                text: "A long attributed title must wrap instead of collapsing to the GeometryReader fallback size",
+                font: .systemFont(ofSize: 16)
+            )])
+        )
+        .fixedSize(horizontal: false, vertical: true)
+        let host = UIHostingController(rootView: label)
+        host.loadViewIfNeeded()
+
+        let size = host.sizeThatFits(in: CGSize(width: 180, height: 1_000))
+
+        XCTAssertGreaterThan(size.height, 40)
+        XCTAssertLessThan(size.height, 150)
+    }
+
+    func test_attributedLabel_intrinsicHeightIncludesAttachmentBounds() throws {
+        guard #available(iOS 16.0, tvOS 16.0, watchOS 9.0, *) else {
+            throw XCTSkip("Requires iOS 16 or newer")
+        }
+
+        let image = try XCTUnwrap(UIImage(systemName: "star.fill"))
+        let attachmentBounds = CGRect(x: 0, y: 0, width: 40, height: 30)
+        let label = SUILabelView(
+            model: .attributes([.init(
+                text: "abc",
+                font: .systemFont(ofSize: 16),
+                leadingImage: image,
+                leadingImageBounds: attachmentBounds
+            )])
+        )
+        .fixedSize(horizontal: false, vertical: true)
+        let host = UIHostingController(rootView: label)
+        host.loadViewIfNeeded()
+
+        let size = host.sizeThatFits(in: CGSize(width: 180, height: 1_000))
+
+        XCTAssertGreaterThanOrEqual(size.height, attachmentBounds.height)
+        XCTAssertLessThan(size.height, 50)
+    }
+
+    @available(iOS 17.0, *)
+    func test_swiftUICard_exposesBackgroundImageAsAccessibleChildWithActions() throws {
+        let adapter = CardViewOutputSwiftUIAdapter()
+        var pressCount = 0
+        var longPressCount = 0
+        adapter.display(model: .init(
+            accessibilityIdentifier: "card",
+            accessibility: .init(label: "Card"),
+            backgroundImage: .systemSymbol(
+                "star.fill",
+                accessibilityIdentifier: "card.background",
+                accessibility: .init(label: "Background", hint: "Card artwork"),
+                onPress: { pressCount += 1 },
+                onLongPress: { longPressCount += 1 }
+            )
+        ))
+        let host = SwiftUIAccessibilityTestHost(
+            rootView: SUICardView(adapter: adapter),
+            size: CGSize(width: 200, height: 100)
+        )
+        host.settle()
+
+        let background = try XCTUnwrap(host.element(withLabel: "Background"))
+        XCTAssertTrue(background.isAccessibilityElement)
+        XCTAssertEqual(background.accessibilityLabel, "Background")
+        XCTAssertEqual(background.accessibilityHint, "Card artwork")
+
+        XCTAssertTrue(background.accessibilityActivate())
+        XCTAssertEqual(pressCount, 1)
+
+        let longPress = try XCTUnwrap(
+            background.accessibilityCustomActions?.first { $0.name == "Long press" }
+        )
+        XCTAssertTrue(host.perform(longPress))
+        XCTAssertEqual(longPressCount, 1)
+    }
+
+    @available(iOS 17.0, *)
+    func test_backgroundImageClosureOnlyReplacementUpdatesMountedViewAndSurvivesRemount() throws {
+        final class ActionOwner {}
+
+        let adapter = CardViewOutputSwiftUIAdapter()
+        var calls: [String] = []
+        weak var oldOwner: ActionOwner?
+        do {
+            let owner = ActionOwner()
+            oldOwner = owner
+            adapter.display(backgroundImage: .systemSymbol(
+                "star.fill",
+                accessibilityIdentifier: "card.background",
+                accessibility: .init(label: "Background"),
+                onPress: {
+                    _ = owner
+                    calls.append("old")
+                }
+            ))
+        }
+
+        var host: SwiftUIAccessibilityTestHost? = .init(
+            rootView: SUICardView(adapter: adapter),
+            size: CGSize(width: 200, height: 100)
+        )
+        host?.settle()
+        let initialElement = try XCTUnwrap(host?.element(withLabel: "Background"))
+        XCTAssertTrue(initialElement.accessibilityActivate())
+        XCTAssertEqual(calls, ["old"])
+
+        weak var latestOwner: ActionOwner?
+        do {
+            let owner = ActionOwner()
+            latestOwner = owner
+            adapter.display(backgroundImage: .systemSymbol(
+                "star.fill",
+                accessibilityIdentifier: "card.background",
+                accessibility: .init(label: "Background"),
+                onPress: {
+                    _ = owner
+                    calls.append("latest")
+                }
+            ))
+        }
+        host?.settle()
+
+        XCTAssertNil(oldOwner)
+        let updatedElement = try XCTUnwrap(host?.element(withLabel: "Background"))
+        XCTAssertTrue(updatedElement.accessibilityActivate())
+        XCTAssertEqual(calls, ["old", "latest"])
+
+        weak var firstHost = host
+        host = nil
+        XCTAssertNil(firstHost)
+        let remountedHost = SwiftUIAccessibilityTestHost(
+            rootView: SUICardView(adapter: adapter),
+            size: CGSize(width: 200, height: 100)
+        )
+        let remountedElement = try XCTUnwrap(
+            remountedHost.element(withLabel: "Background")
+        )
+        XCTAssertTrue(remountedElement.accessibilityActivate())
+        XCTAssertEqual(calls, ["old", "latest", "latest"])
+
+        adapter.display(backgroundImage: nil)
+        remountedHost.settle()
+
+        XCTAssertNil(latestOwner)
+        XCTAssertNil(remountedHost.element(withLabel: "Background"))
+        XCTAssertTrue(updatedElement.accessibilityActivate())
+        XCTAssertEqual(calls, ["old", "latest", "latest"])
+    }
+
+    func test_nilThenContentlessTitlePreservesActionAcrossRemountLikeUIKit() throws {
+        final class ActionOwner {}
+
+        let uiKitView = CardView()
+        weak var uiKitOwner: ActionOwner?
+        do {
+            let owner = ActionOwner()
+            uiKitOwner = owner
+            uiKitView.display(model: .init(title: .attributes([
+                .init(text: "Retained title", onTap: { _ = owner })
+            ])))
+        }
+        uiKitView.display(model: nil)
+        XCTAssertNotNil(uiKitOwner)
+        uiKitView.display(model: .init(title: .init(model: nil)))
+        XCTAssertFalse(uiKitView.titleViews.keyLabel.isHidden)
+        XCTAssertNotNil(uiKitOwner)
+        uiKitView.display(title: .attributes([.init(text: "Replacement")]))
+        XCTAssertNil(uiKitOwner)
+
+        let adapter = CardViewOutputSwiftUIAdapter()
+        var calls = 0
+        weak var weakOwner: ActionOwner?
+        do {
+            let owner = ActionOwner()
+            weakOwner = owner
+            adapter.display(model: .init(title: .attributes([
+                .init(text: "Retained title", onTap: {
+                    _ = owner
+                    calls += 1
+                })
+            ])))
+        }
+
+        adapter.display(model: nil)
+        XCTAssertNotNil(weakOwner)
+        adapter.display(model: .init(title: .init(model: nil)))
+
+        var stateModel: SUICardViewStateModel? = .init(adapter: adapter)
+        var titleStateModel: SUIKeyValueFieldViewStateModel? = .init(
+            adapter: stateModel!.titleViewsAdapter,
+            displaysBottomImage: true,
+            isHidden: false
+        )
+        titleStateModel = nil
+        stateModel = nil
+
+        let remountedStateModel = SUICardViewStateModel(adapter: adapter)
+        let remountedTitleStateModel = SUIKeyValueFieldViewStateModel(
+            adapter: remountedStateModel.titleViewsAdapter,
+            displaysBottomImage: true,
+            isHidden: false
+        )
+        let action = try XCTUnwrap(firstTapAction(
+            in: remountedTitleStateModel.keyTitleStateModel.presentable.model
+        ))
+        action()
+        XCTAssertEqual(calls, 1)
+
+        adapter.display(title: .attributes([.init(text: "Replacement")]))
+        XCTAssertNil(weakOwner)
     }
 
     private func maxX(of resolution: CardFillHorizontalResolution) -> CGFloat {
@@ -627,6 +876,18 @@ final class SUICardViewLayoutTests: XCTestCase {
             line: line
         )
     }
+}
+
+private func firstTapAction(
+    in model: TextOutputPresentableModel.TextModel?,
+    file: StaticString = #filePath,
+    line: UInt = #line
+) -> (() -> Void)? {
+    guard case let .attributes(attributes)? = model else {
+        XCTFail("Expected text attributes", file: file, line: line)
+        return nil
+    }
+    return attributes.first?.onTap
 }
 
 @available(iOS 16.0, *)

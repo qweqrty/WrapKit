@@ -21,6 +21,7 @@ public struct SUIImageView: View {
     let fallbackView: AnyView?
     let wrongUrlPlaceholderImage: Image?
     let backgroundColor: SwiftUIColor?
+    let containerPresentation: SUIImageViewContainerPresentation
 
     @StateObject private var stateModel: SUIImageViewStateModel
     @State private var loadedImage: Image?
@@ -45,6 +46,19 @@ public struct SUIImageView: View {
         self.fallbackView = fallbackView
         self.wrongUrlPlaceholderImage = wrongUrlPlaceholderImage
         self.backgroundColor = backgroundColor
+        containerPresentation = .standard
+    }
+
+    init(
+        adapter: ImageViewOutputSwiftUIAdapter,
+        containerPresentation: SUIImageViewContainerPresentation
+    ) {
+        _stateModel = .init(wrappedValue: .init(adapter: adapter))
+        viewWhileLoadingView = nil
+        fallbackView = nil
+        wrongUrlPlaceholderImage = nil
+        backgroundColor = nil
+        self.containerPresentation = containerPresentation
     }
 
     init(
@@ -59,6 +73,7 @@ public struct SUIImageView: View {
         self.fallbackView = fallbackView
         self.wrongUrlPlaceholderImage = wrongUrlPlaceholderImage
         self.backgroundColor = backgroundColor
+        containerPresentation = .standard
     }
 
     public var body: some View {
@@ -81,7 +96,12 @@ public struct SUIImageView: View {
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .ifLet(backgroundColor) { $0.background($1) }
-                .modifier(ImageViewContainerStyle(model: model))
+                .modifier(ImageViewContainerStyle(
+                    model: model,
+                    presentation: containerPresentation,
+                    onPress: onPressAction,
+                    onLongPress: onLongPressAction
+                ))
                 .onChange(of: colorScheme) { newMode in
                     guard model.image?.isRemote == true else { return }
                     loadImage(for: newMode, completion: nil)
@@ -89,12 +109,22 @@ public struct SUIImageView: View {
             }
         }
         .onReceive(stateModel.$reloadToken) { _ in
-            loadImage(for: colorScheme, completion: stateModel.pendingCompletion)
+            loadImage(for: colorScheme, completion: stateModel.takePendingCompletion())
         }
     }
 
     private var model: ImageViewPresentableModel {
         stateModel.model
+    }
+
+    private var onPressAction: (() -> Void)? {
+        guard model.onPress != nil else { return nil }
+        return { stateModel.performPress() }
+    }
+
+    private var onLongPressAction: (() -> Void)? {
+        guard model.onLongPress != nil else { return nil }
+        return { stateModel.performLongPress() }
     }
 
     private var symbolName: String? {
@@ -453,17 +483,12 @@ private struct FittedSystemSymbol: View {
     let name: String
     let contentModeIsFit: Bool
 
-    @State private var referenceSize: CGSize = .zero
-
     var body: some View {
         GeometryReader { proxy in
-            ZStack {
-                if let fontSize = fontSize(for: proxy.size) {
-                    symbol(fontSize: fontSize)
-                }
+            if let fontSize = fontSize(for: proxy.size) {
+                symbol(fontSize: fontSize)
+                    .frame(width: proxy.size.width, height: proxy.size.height, alignment: .center)
             }
-            .frame(width: proxy.size.width, height: proxy.size.height, alignment: .center)
-            .background(referenceSymbol)
         }
     }
 
@@ -475,14 +500,9 @@ private struct FittedSystemSymbol: View {
             .fixedSize()
     }
 
-    private var referenceSymbol: some View {
-        symbol(fontSize: Self.referenceFontSize)
-            .hidden()
-            .measureSize($referenceSize)
-    }
-
     private func fontSize(for availableSize: CGSize) -> CGFloat? {
-        guard referenceSize.width > 0,
+        guard let referenceSize = ImageFactory.systemImage(named: name)?.size,
+              referenceSize.width > 0,
               referenceSize.height > 0,
               availableSize.width > 0,
               availableSize.height > 0
@@ -498,21 +518,29 @@ private struct FittedSystemSymbol: View {
 }
 
 public struct SUIImageViewView: View {
-    let model: ImageViewPresentableModel
+    private let input: SUIImageViewInput
 
     @StateObject private var stateModel: SUIImageViewStateModel
 
     public init(model: ImageViewPresentableModel) {
-        self.model = model
+        input = SUIImageViewInput(model: model)
         _stateModel = .init(wrappedValue: .init(model: model))
     }
 
     public var body: some View {
         SUIImageView(stateModel: stateModel)
-            .onChange(of: model) { newModel in
-                stateModel.apply(model: newModel)
+            .onReceive(Just(input)) { newInput in
+                stateModel.apply(
+                    model: newInput.model,
+                    inputRevision: newInput.revision
+                )
             }
     }
+}
+
+private struct SUIImageViewInput {
+    let revision = UUID()
+    let model: ImageViewPresentableModel
 }
 
 private final class SUIRemoteImageCache {
@@ -583,7 +611,7 @@ extension ImageViewPresentableModel {
     }
 
     func replacingBorderColor(_ borderColor: Color?) -> ImageViewPresentableModel {
-        replacing(borderColor: borderColor?.resolvedForImageLayer)
+        replacing(borderColor: .some(borderColor?.resolvedForImageLayer))
     }
 
     func replacingOnPress(_ onPress: (() -> Void)?) -> ImageViewPresentableModel {
@@ -781,8 +809,16 @@ private final class SUIPlaceholderRasterKey: NSObject {
 #endif
 
 // MARK: - View Modifiers
+enum SUIImageViewContainerPresentation: Equatable {
+    case standard
+    case cardBackground
+}
+
 private struct ImageViewContainerStyle: ViewModifier {
     let model: ImageViewPresentableModel?
+    let presentation: SUIImageViewContainerPresentation
+    let onPress: (() -> Void)?
+    let onLongPress: (() -> Void)?
     
     private var effectiveOpacity: CGFloat {
         return model?.alpha ?? 1.0
@@ -791,7 +827,12 @@ private struct ImageViewContainerStyle: ViewModifier {
     @ViewBuilder
     func body(content: Content) -> some View {
         let cornerRadius = model?.cornerRadius ?? 0
-        if #available(iOS 26.0, tvOS 26.0, visionOS 26.0, *) {
+        if presentation == .cardBackground {
+            styled(
+                content,
+                shape: RoundedRectangle(cornerRadius: cornerRadius, style: .circular)
+            )
+        } else if #available(iOS 26.0, tvOS 26.0, visionOS 26.0, *) {
             styled(
                 content,
                 shape: RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
@@ -809,42 +850,90 @@ private struct ImageViewContainerStyle: ViewModifier {
         shape: CornerShape
     ) -> some View {
         content
-            .modifier(OptionalFrame(size: model?.size))
+            .modifier(OptionalFrame(size: frameSize))
             .clipped()
             .clipShape(shape)
-            .ifLet(model?.borderWidth) {
+            .ifLet(border) {
                 $0.overlay(
                     shape.strokeBorder(
-                        SwiftUIColor(model?.borderColor ?? .black),
-                        lineWidth: $1
+                        SwiftUIColor($1.color),
+                        lineWidth: $1.width
                     )
                 )
             }
-            .opacity(effectiveOpacity)
             .modifier(ImageViewInteractionModifier(
-                onPress: model?.onPress,
-                onLongPress: model?.onLongPress
+                baseOpacity: effectiveOpacity,
+                onPress: onPress,
+                onLongPress: onLongPress
             ))
-            .modifier(ImageViewAccessibilityModifier(model: model))
+            .modifier(ImageViewAccessibilityModifier(
+                model: model,
+                onPress: onPress,
+                onLongPress: onLongPress
+            ))
+    }
+
+    private var frameSize: CGSize? {
+        presentation == .standard ? model?.size : nil
+    }
+
+    private var border: (color: Color, width: CGFloat)? {
+        guard let width = model?.borderWidth else { return nil }
+        switch presentation {
+        case .standard:
+            return (model?.borderColor ?? .black, width)
+        case .cardBackground:
+            guard let color = model?.borderColor else { return nil }
+            return (color, width)
+        }
     }
 }
 
 private struct ImageViewInteractionModifier: ViewModifier {
+    let baseOpacity: CGFloat
     let onPress: (() -> Void)?
     let onLongPress: (() -> Void)?
 
+    @State private var isPressed = false
+
+    private var hasInteraction: Bool {
+        onPress != nil || onLongPress != nil
+    }
+
     @ViewBuilder
     func body(content: Content) -> some View {
-        switch (onPress, onLongPress) {
-        case let (onPress?, onLongPress?):
-            content
-                .onTapGesture(perform: onPress)
-                .onLongPressGesture(minimumDuration: 1, perform: onLongPress)
-        case let (onPress?, nil):
+        if hasInteraction {
+            interactive(content)
+                .opacity(isPressed ? 0.5 : baseOpacity)
+                .animation(
+                    isPressed ? nil : .easeInOut(duration: 0.3),
+                    value: isPressed
+                )
+        } else {
+            content.opacity(baseOpacity)
+        }
+    }
+
+    @ViewBuilder
+    private func interactive(_ content: Content) -> some View {
+        tappable(content)
+            .onLongPressGesture(
+                minimumDuration: 1,
+                maximumDistance: 10,
+                pressing: { isPressing in
+                    isPressed = isPressing
+                },
+                perform: {
+                    onLongPress?()
+                }
+            )
+    }
+
+    @ViewBuilder
+    private func tappable(_ content: Content) -> some View {
+        if let onPress {
             content.onTapGesture(perform: onPress)
-        case let (nil, onLongPress?):
-            content.onLongPressGesture(minimumDuration: 1, perform: onLongPress)
-        case (nil, nil):
+        } else {
             content
         }
     }
@@ -852,10 +941,12 @@ private struct ImageViewInteractionModifier: ViewModifier {
 
 private struct ImageViewAccessibilityModifier: ViewModifier {
     let model: ImageViewPresentableModel?
+    let onPress: (() -> Void)?
+    let onLongPress: (() -> Void)?
 
     @ViewBuilder
     func body(content: Content) -> some View {
-        if model?.onPress != nil || model?.onLongPress != nil {
+        if onPress != nil || onLongPress != nil {
             content
                 .accessibilityElement(children: .ignore)
                 .accessibilityIdentifier(model?.accessibilityIdentifier ?? "")
@@ -863,8 +954,8 @@ private struct ImageViewAccessibilityModifier: ViewModifier {
                 .accessibilityHint(SwiftUI.Text(model?.accessibility?.hint ?? ""))
                 .accessibilityAddTraits([.isImage, .isButton])
                 .modifier(ImageViewAccessibilityActionsModifier(
-                    onPress: model?.onPress,
-                    onLongPress: model?.onLongPress
+                    onPress: onPress,
+                    onLongPress: onLongPress
                 ))
         } else {
             content

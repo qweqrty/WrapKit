@@ -11,28 +11,273 @@ import WrapKit
 #if canImport(SwiftUI)
 import SwiftUI
 #endif
+{% if type.name == "ButtonOutput" or type.name == "DatePickerViewOutput" or type.name == "PickerViewOutput" or type.name == "EmptyViewOutput" or type.name == "TitledOutput" or type.name == "RefreshControlOutput" or type.name == "KeyValueFieldViewOutput" or type.name == "ImageViewOutput" or type.name == "ProgressBarOutput" or type.name == "StackViewOutput" or type.name == "SwitchCotrolOutput" or type.name == "TextOutput" or type.name == "TextInputOutput" or type.name == "CardViewOutput" or type.name == "HeaderOutput" or type.name == "SearchBarOutput" or type.name == "ExpandableCardViewOutput" %}
+#if canImport(Combine)
+import Combine
+#endif
+#if canImport(Dispatch)
+import Dispatch
+#endif
+{% endif %}
 {% for importName in type.allImports %}
 #if canImport({{ importName }})
 import {{ importName }}
 #endif
 {% endfor %}
 public class {{ type.name }}SwiftUIAdapter{% for associatedType in type.associatedTypes|sortedValuesByKeys %}{% if forloop.first %}<{% endif %}{{ associatedType.name }}: {{ associatedType.typeName }}{% if not forloop.last %}{% if type.associatedTypes.count > 1 %},{% endif %}{% endif %}{% if forloop.last %}>{% endif %}{% endfor %}: ObservableObject, {{ type.name }}{% if type.name == "SwitchCotrolOutput" or type.name == "RefreshControlOutput" %}, LoadingOutput{% endif %} {
+{% if type.name == "ButtonOutput" or type.name == "DatePickerViewOutput" or type.name == "PickerViewOutput" or type.name == "EmptyViewOutput" or type.name == "TitledOutput" or type.name == "RefreshControlOutput" or type.name == "KeyValueFieldViewOutput" or type.name == "ImageViewOutput" or type.name == "SwitchCotrolOutput" or type.name == "TextOutput" or type.name == "TextInputOutput" or type.name == "CardViewOutput" or type.name == "HeaderOutput" or type.name == "SearchBarOutput" or type.name == "ExpandableCardViewOutput" %}
+    private let outputReplayClosureStore = SwiftUIOutputReplayClosureStore()
+{% endif %}
+{% if type.name == "PickerViewOutput" or type.name == "RefreshControlOutput" %}
+    private var isSynchronizingOutputClosureProperties = false
+
+    private func synchronizeOutputClosureProperties(_ update: () -> Void) {
+        isSynchronizingOutputClosureProperties = true
+        defer { isSynchronizingOutputClosureProperties = false }
+        update()
+    }
+{% endif %}
     {% for variable in type.variables %}
         {% if type.name == "RefreshControlOutput" and variable.name == "onRefresh" %}
-        @Published public var {{ variable.name }}: {{ variable.typeName }} = []
+        @Published public var {{ variable.name }}: {{ variable.typeName }} = []{% if type.name == "ButtonOutput" or type.name == "DatePickerViewOutput" or type.name == "PickerViewOutput" or type.name == "EmptyViewOutput" or type.name == "TitledOutput" or type.name == "RefreshControlOutput" or type.name == "KeyValueFieldViewOutput" or type.name == "ImageViewOutput" or type.name == "ProgressBarOutput" or type.name == "StackViewOutput" or type.name == "SwitchCotrolOutput" or type.name == "TextOutput" or type.name == "TextInputOutput" or type.name == "CardViewOutput" or type.name == "HeaderOutput" or type.name == "SearchBarOutput" %} {
+            willSet {
+                dispatchPrecondition(condition: .onQueue(.main))
+                if !isSynchronizingOutputClosureProperties {
+                    outputReplayClosureStore.invalidate(prefix: "onRefresh")
+                }
+            }
+        }{% endif %}
         {% elif variable.isOptional %}
-        @Published public var {{ variable.name }}: {{ variable.typeName }} = nil
+        @Published public var {{ variable.name }}: {{ variable.typeName }} = nil{% if type.name == "ButtonOutput" or type.name == "DatePickerViewOutput" or type.name == "PickerViewOutput" or type.name == "EmptyViewOutput" or type.name == "TitledOutput" or type.name == "RefreshControlOutput" or type.name == "KeyValueFieldViewOutput" or type.name == "ImageViewOutput" or type.name == "ProgressBarOutput" or type.name == "StackViewOutput" or type.name == "SwitchCotrolOutput" or type.name == "TextOutput" or type.name == "TextInputOutput" or type.name == "CardViewOutput" or type.name == "HeaderOutput" or type.name == "SearchBarOutput" %} {
+            willSet {
+                dispatchPrecondition(condition: .onQueue(.main))
+                {% if type.name == "PickerViewOutput" %}
+                if !isSynchronizingOutputClosureProperties {
+                    outputReplayClosureStore.invalidate(prefix: "{{ variable.name }}")
+                }
+                {% endif %}
+            }
+        }{% endif %}
         {% else %}
-        @Published public var {{ variable.name }}: {{ variable.typeName }}
+        @Published public var {{ variable.name }}: {{ variable.typeName }}{% if type.name == "ButtonOutput" or type.name == "DatePickerViewOutput" or type.name == "PickerViewOutput" or type.name == "EmptyViewOutput" or type.name == "TitledOutput" or type.name == "RefreshControlOutput" or type.name == "KeyValueFieldViewOutput" or type.name == "ImageViewOutput" or type.name == "ProgressBarOutput" or type.name == "StackViewOutput" or type.name == "SwitchCotrolOutput" or type.name == "TextOutput" or type.name == "TextInputOutput" or type.name == "CardViewOutput" or type.name == "HeaderOutput" or type.name == "SearchBarOutput" %} {
+            willSet { dispatchPrecondition(condition: .onQueue(.main)) }
+        }{% endif %}
         {% endif %}
     {% endfor %}
 
     {% if type.name == "SwitchCotrolOutput" or type.name == "RefreshControlOutput" %}
-    @Published public var isLoading: Bool? = nil
+    @Published public var isLoading: Bool? = nil {
+        willSet { dispatchPrecondition(condition: .onQueue(.main)) }
+    }
     {% endif %}
 
-    {% if type.name == "DatePickerViewOutput" or type.name == "PickerViewOutput" or type.name == "EmptyViewOutput" or type.name == "TitledOutput" or type.name == "RefreshControlOutput" %}
+    {% if type.name == "ButtonOutput" or type.name == "DatePickerViewOutput" or type.name == "PickerViewOutput" or type.name == "EmptyViewOutput" or type.name == "TitledOutput" or type.name == "RefreshControlOutput" or type.name == "KeyValueFieldViewOutput" or type.name == "ImageViewOutput" or type.name == "ProgressBarOutput" or type.name == "StackViewOutput" or type.name == "SwitchCotrolOutput" or type.name == "TextOutput" or type.name == "TextInputOutput" or type.name == "CardViewOutput" or type.name == "HeaderOutput" or type.name == "SearchBarOutput" or type.name == "ExpandableCardViewOutput" %}
     private var nextOutputSequence: UInt64 = 0
+
+    enum OutputReplayEvent {
+        {% if type.name == "SwitchCotrolOutput" %}
+        case displayIsLoading(DisplayIsLoadingState)
+        {% endif %}
+        {% for method in type.methods %}
+        {% if not method.isStatic %}
+        {% if type.name == "HeaderOutput" and method.parameters.count == 1 and method.parameters.first.name == "model" %}
+        case {{ method.callName }}{% for param in method.parameters %}{{ param.name|upperFirstLetter }}{% endfor %}(DisplayModelReplayState)
+        {% else %}
+        case {{ method.callName }}{% for param in method.parameters %}{{ param.name|upperFirstLetter }}{% endfor %}({{ method.callName|upperFirstLetter }}{% for param in method.parameters %}{{ param.name|upperFirstLetter }}{% endfor %}State)
+        {% endif %}
+        {% endif %}
+        {% endfor %}
+    }
+
+    private var bufferedOutputReplayEvents: [OutputReplayEvent] = []
+    private var isBufferingOutputReplayEvents = true
+    private var outputReplayCheckpointStorage: Any?
+    private var pendingOutputReplayCheckpointStorage: Any?
+    private var outputReplayDeliveryDepth = 0
+    private var nextOutputReplayConsumerGeneration: UInt64 = 0
+    private var activeOutputReplayConsumerGeneration: UInt64 = 0
+    private let outputReplayCheckpointRequest = PassthroughSubject<Void, Never>()
+    private let outputReplayStateDelivery = PassthroughSubject<Any, Never>()
+
+    struct OutputReplayConsumer {
+        fileprivate let generation: UInt64
+    }
+
+    func claimOutputReplayConsumer() -> OutputReplayConsumer {
+        requireMainOutputReplayQueue()
+        nextOutputReplayConsumerGeneration &+= 1
+        activeOutputReplayConsumerGeneration = nextOutputReplayConsumerGeneration
+        return OutputReplayConsumer(generation: activeOutputReplayConsumerGeneration)
+    }
+
+    func outputReplayPublisher<State>(
+        _ publisher: Published<State?>.Publisher,
+        consumer: OutputReplayConsumer
+    ) -> AnyPublisher<State?, Never> {
+        requireMainOutputReplayQueue()
+        let livePublisher = publisher
+            .dropFirst()
+            .eraseToAnyPublisher()
+        let replayPublisher = outputReplayStateDelivery
+            .compactMap { $0 as? State }
+            .map(Optional.some)
+            .eraseToAnyPublisher()
+        return Publishers.Merge(livePublisher, replayPublisher)
+            .filter { [weak self] _ in
+                self?.isActiveOutputReplayConsumer(consumer) == true
+            }
+            .eraseToAnyPublisher()
+    }
+
+    func activeOutputReplayPublisher<Value>(
+        _ publisher: Published<Value>.Publisher,
+        consumer: OutputReplayConsumer,
+        dropFirst: Bool
+    ) -> AnyPublisher<Value, Never> {
+        requireMainOutputReplayQueue()
+        let publisher = dropFirst
+            ? publisher.dropFirst().eraseToAnyPublisher()
+            : publisher.eraseToAnyPublisher()
+        return publisher
+            .filter { [weak self] _ in
+                self?.isActiveOutputReplayConsumer(consumer) == true
+            }
+            .eraseToAnyPublisher()
+    }
+
+    func bufferedOutputReplayPublisher(
+        consumer: OutputReplayConsumer
+    ) -> AnyPublisher<OutputReplayEvent, Never> {
+        requireMainOutputReplayQueue()
+        guard isActiveOutputReplayConsumer(consumer) else {
+            return Empty(completeImmediately: true).eraseToAnyPublisher()
+        }
+        guard isBufferingOutputReplayEvents else {
+            return Empty(completeImmediately: true).eraseToAnyPublisher()
+        }
+        isBufferingOutputReplayEvents = false
+        let events = bufferedOutputReplayEvents
+        bufferedOutputReplayEvents.removeAll(keepingCapacity: false)
+        return events.publisher.eraseToAnyPublisher()
+    }
+
+    func replayOutputEvent(
+        _ event: OutputReplayEvent,
+        consumer: OutputReplayConsumer
+    ) {
+        requireMainOutputReplayQueue()
+        guard isActiveOutputReplayConsumer(consumer) else { return }
+        beginOutputReplayDelivery(event)
+        switch event {
+        {% if type.name == "SwitchCotrolOutput" %}
+        case .displayIsLoading(let state):
+            outputReplayStateDelivery.send(state)
+        {% endif %}
+        {% for method in type.methods %}
+        {% if not method.isStatic %}
+        case .{{ method.callName }}{% for param in method.parameters %}{{ param.name|upperFirstLetter }}{% endfor %}(let state):
+            outputReplayStateDelivery.send(state)
+        {% endif %}
+        {% endfor %}
+        }
+        finishOutputReplayDelivery()
+    }
+
+    private func bufferOutputReplayEvent(_ event: OutputReplayEvent) {
+        guard isBufferingOutputReplayEvents else { return }
+        bufferedOutputReplayEvents.append(event)
+    }
+
+    private func beginOutputReplayDelivery(_ event: OutputReplayEvent) {
+        requireMainOutputReplayQueue()
+        outputReplayDeliveryDepth += 1
+        bufferOutputReplayEvent(event)
+    }
+
+    private func finishOutputReplayDelivery() {
+        requireMainOutputReplayQueue()
+        outputReplayCheckpointRequest.send(())
+        outputReplayDeliveryDepth -= 1
+        if outputReplayDeliveryDepth == 0,
+           let checkpoint = pendingOutputReplayCheckpointStorage {
+            pendingOutputReplayCheckpointStorage = nil
+            commitOutputReplayCheckpoint(checkpoint)
+        }
+    }
+
+    private func requireMainOutputReplayQueue() {
+        dispatchPrecondition(condition: .onQueue(.main))
+    }
+
+    func isActiveOutputReplayConsumer(_ consumer: OutputReplayConsumer?) -> Bool {
+        requireMainOutputReplayQueue()
+        guard let consumer else { return false }
+        return consumer.generation == activeOutputReplayConsumerGeneration
+    }
+
+    func outputReplayCheckpoint<Checkpoint>(
+        as _: Checkpoint.Type,
+        consumer: OutputReplayConsumer
+    ) -> Checkpoint? {
+        requireMainOutputReplayQueue()
+        guard isActiveOutputReplayConsumer(consumer) else { return nil }
+        return outputReplayCheckpointStorage as? Checkpoint
+    }
+
+    func updateOutputReplayCheckpoint<Checkpoint>(
+        consumer: OutputReplayConsumer?,
+        _ checkpoint: Checkpoint
+    ) {
+        requireMainOutputReplayQueue()
+        guard let consumer, isActiveOutputReplayConsumer(consumer) else { return }
+        if outputReplayDeliveryDepth > 0 {
+            pendingOutputReplayCheckpointStorage = checkpoint
+            return
+        }
+        commitOutputReplayCheckpoint(checkpoint)
+    }
+
+    private func commitOutputReplayCheckpoint(_ checkpoint: Any) {
+        requireMainOutputReplayQueue()
+        outputReplayCheckpointStorage = checkpoint
+        bufferedOutputReplayEvents.removeAll(keepingCapacity: true)
+        isBufferingOutputReplayEvents = true
+    }
+
+    func outputReplayCheckpointRequestPublisher(
+        consumer: OutputReplayConsumer
+    ) -> AnyPublisher<Void, Never> {
+        requireMainOutputReplayQueue()
+        return outputReplayCheckpointRequest
+            .filter { [weak self] in
+                self?.isActiveOutputReplayConsumer(consumer) == true
+            }
+            .eraseToAnyPublisher()
+    }
+
+    {% if type.name == "TextInputOutput" %}
+    func resolveTextInputModelCallbackGroup(
+        outputSequence: UInt64,
+        path: String,
+        accepted: Bool
+    ) {
+        outputReplayClosureStore.resolveTextInputModelCallbackGroup(
+            outputSequence: outputSequence,
+            path: path,
+            accepted: accepted
+        )
+    }
+
+    func discardTextInputModelCallbackCandidate(outputSequence: UInt64) {
+        outputReplayClosureStore.discardTextInputModelCallbackCandidate(
+            outputSequence: outputSequence
+        )
+    }
+
+    func invalidateTextInputModelCallback(path: String) {
+        outputReplayClosureStore.invalidate(path: path)
+    }
+    {% endif %}
     {% endif %}
 
     {% if type.name == "CommonToastOutput" %}
@@ -52,13 +297,28 @@ public class {{ type.name }}SwiftUIAdapter{% for associatedType in type.associat
     {% endif %}
 
     {% if type.name == "SwitchCotrolOutput" %}
-    @Published public var displayIsLoadingState: DisplayIsLoadingState? = nil
+    @Published public var displayIsLoadingState: DisplayIsLoadingState? = nil {
+        willSet {
+            guard let state = newValue else { return }
+            beginOutputReplayDelivery(.displayIsLoading(state))
+        }
+        didSet {
+            guard displayIsLoadingState != nil else { return }
+            finishOutputReplayDelivery()
+        }
+    }
     public struct DisplayIsLoadingState {
+        let outputSequence: UInt64
         public let isLoading: Bool
     }
     public func display(isLoading: Bool) {
+        requireMainOutputReplayQueue()
         self.isLoading = isLoading
-        displayIsLoadingState = .init(isLoading: isLoading)
+        nextOutputSequence &+= 1
+        displayIsLoadingState = .init(
+            outputSequence: nextOutputSequence,
+            isLoading: isLoading
+        )
     }
     {% endif %}
 
@@ -79,14 +339,34 @@ public class {{ type.name }}SwiftUIAdapter{% for associatedType in type.associat
 
     {% for method in type.methods %}
     {% if not method.isStatic %}
-    @Published public var {{ method.callName }}{% for param in method.parameters %}{{ param.name|upperFirstLetter }}{% endfor %}State: {{ method.callName|upperFirstLetter }}{% for param in method.parameters %}{{ param.name|upperFirstLetter }}{% endfor %}State? = nil
+    @Published public var {{ method.callName }}{% for param in method.parameters %}{{ param.name|upperFirstLetter }}{% endfor %}State: {{ method.callName|upperFirstLetter }}{% for param in method.parameters %}{{ param.name|upperFirstLetter }}{% endfor %}State? = nil{% if type.name == "ButtonOutput" or type.name == "DatePickerViewOutput" or type.name == "PickerViewOutput" or type.name == "EmptyViewOutput" or type.name == "TitledOutput" or type.name == "RefreshControlOutput" or type.name == "KeyValueFieldViewOutput" or type.name == "ImageViewOutput" or type.name == "ProgressBarOutput" or type.name == "StackViewOutput" or type.name == "SwitchCotrolOutput" or type.name == "TextOutput" or type.name == "TextInputOutput" or type.name == "CardViewOutput" or type.name == "HeaderOutput" or type.name == "SearchBarOutput" or type.name == "ExpandableCardViewOutput" %}{% if type.name == "HeaderOutput" and method.parameters.count == 1 and method.parameters.first.name == "model" %} {
+        willSet { dispatchPrecondition(condition: .onQueue(.main)) }
+    }{% else %} {
+        willSet {
+            guard let state = newValue else { return }
+            beginOutputReplayDelivery(.{{ method.callName }}{% for param in method.parameters %}{{ param.name|upperFirstLetter }}{% endfor %}(state))
+        }
+        didSet {
+            guard {{ method.callName }}{% for param in method.parameters %}{{ param.name|upperFirstLetter }}{% endfor %}State != nil else { return }
+            finishOutputReplayDelivery()
+        }
+    }{% endif %}{% endif %}
     {% if type.name == "RefreshControlOutput" and method.parameters.count == 1 and method.parameters.first.name == "model" %}
     public struct {{ method.callName|upperFirstLetter }}{% for param in method.parameters %}{{ param.name|upperFirstLetter }}{% endfor %}State {
         public let outputSequence: UInt64
         public let {{ method.parameters.first.name }}: {{ method.parameters.first.typeName }}
     }
     public func {{ method.name }} {
-        self.onRefresh = [{{ method.parameters.first.name }}?.onRefresh]
+        {% if type.name == "ButtonOutput" or type.name == "DatePickerViewOutput" or type.name == "PickerViewOutput" or type.name == "EmptyViewOutput" or type.name == "TitledOutput" or type.name == "RefreshControlOutput" or type.name == "KeyValueFieldViewOutput" or type.name == "ImageViewOutput" or type.name == "ProgressBarOutput" or type.name == "StackViewOutput" or type.name == "SwitchCotrolOutput" or type.name == "TextOutput" or type.name == "TextInputOutput" or type.name == "CardViewOutput" or type.name == "HeaderOutput" or type.name == "SearchBarOutput" %}
+        requireMainOutputReplayQueue()
+        {% endif %}
+        let {{ method.parameters.first.name }} = outputReplayClosureStore.sanitize(
+            {{ method.parameters.first.name }},
+            path: "model"
+        )
+        synchronizeOutputClosureProperties {
+            self.onRefresh = [{{ method.parameters.first.name }}?.onRefresh]
+        }
         if let isLoading = {{ method.parameters.first.name }}?.isLoading {
             self.isLoading = isLoading
         }
@@ -102,6 +382,9 @@ public class {{ type.name }}SwiftUIAdapter{% for associatedType in type.associat
         public let {{ method.parameters.first.name }}: {{ method.parameters.first.typeName }}
     }
     public func {{ method.name }} {
+        {% if type.name == "ButtonOutput" or type.name == "DatePickerViewOutput" or type.name == "PickerViewOutput" or type.name == "EmptyViewOutput" or type.name == "TitledOutput" or type.name == "RefreshControlOutput" or type.name == "KeyValueFieldViewOutput" or type.name == "ImageViewOutput" or type.name == "ProgressBarOutput" or type.name == "StackViewOutput" or type.name == "SwitchCotrolOutput" or type.name == "TextOutput" or type.name == "TextInputOutput" or type.name == "CardViewOutput" or type.name == "HeaderOutput" or type.name == "SearchBarOutput" %}
+        requireMainOutputReplayQueue()
+        {% endif %}
         nextOutputSequence &+= 1
         {{ method.callName }}{% for param in method.parameters %}{{ param.name|upperFirstLetter }}{% endfor %}State = .init(
             outputSequence: nextOutputSequence,
@@ -110,23 +393,55 @@ public class {{ type.name }}SwiftUIAdapter{% for associatedType in type.associat
     }
     {% elif type.name == "RefreshControlOutput" and method.parameters.count == 1 and method.parameters.first.name == "onRefresh" %}
     public struct {{ method.callName|upperFirstLetter }}{% for param in method.parameters %}{{ param.name|upperFirstLetter }}{% endfor %}State {
+        let outputSequence: UInt64
         public let {{ method.parameters.first.name }}: {{ method.parameters.first.typeName }}
     }
     public func {{ method.name }} {
-        self.onRefresh = [{{ method.parameters.first.name }}]
+        {% if type.name == "ButtonOutput" or type.name == "DatePickerViewOutput" or type.name == "PickerViewOutput" or type.name == "EmptyViewOutput" or type.name == "TitledOutput" or type.name == "RefreshControlOutput" or type.name == "KeyValueFieldViewOutput" or type.name == "ImageViewOutput" or type.name == "ProgressBarOutput" or type.name == "StackViewOutput" or type.name == "SwitchCotrolOutput" or type.name == "TextOutput" or type.name == "TextInputOutput" or type.name == "CardViewOutput" or type.name == "HeaderOutput" or type.name == "SearchBarOutput" %}
+        requireMainOutputReplayQueue()
+        {% endif %}
+        let callbacks = outputReplayClosureStore.sanitizeRefreshActionsReplacement(
+            [{{ method.parameters.first.name }}],
+            path: "onRefresh"
+        )
+        let {{ method.parameters.first.name }} = callbacks[0]
+        synchronizeOutputClosureProperties {
+            self.onRefresh = callbacks
+        }
+        nextOutputSequence &+= 1
         {{ method.callName }}{% for param in method.parameters %}{{ param.name|upperFirstLetter }}{% endfor %}State = .init(
+            outputSequence: nextOutputSequence,
             {{ method.parameters.first.name }}: {{ method.parameters.first.name }}
         )
     }
     {% elif type.name == "RefreshControlOutput" and method.parameters.count == 1 and method.parameters.first.name == "appendingOnRefresh" %}
     public struct {{ method.callName|upperFirstLetter }}{% for param in method.parameters %}{{ param.name|upperFirstLetter }}{% endfor %}State {
+        let outputSequence: UInt64
         public let {{ method.parameters.first.name }}: {{ method.parameters.first.typeName }}
     }
     public func {{ method.name }} {
-        var callbacks = self.onRefresh ?? []
-        callbacks.append({{ method.parameters.first.name }})
-        self.onRefresh = callbacks
+        {% if type.name == "ButtonOutput" or type.name == "DatePickerViewOutput" or type.name == "PickerViewOutput" or type.name == "EmptyViewOutput" or type.name == "TitledOutput" or type.name == "RefreshControlOutput" or type.name == "KeyValueFieldViewOutput" or type.name == "ImageViewOutput" or type.name == "ProgressBarOutput" or type.name == "StackViewOutput" or type.name == "SwitchCotrolOutput" or type.name == "TextOutput" or type.name == "TextInputOutput" or type.name == "CardViewOutput" or type.name == "HeaderOutput" or type.name == "SearchBarOutput" %}
+        requireMainOutputReplayQueue()
+        {% endif %}
+        let callbackIndex = self.onRefresh?.count ?? 0
+        let rawAppendingOnRefresh = appendingOnRefresh
+        let {{ method.parameters.first.name }}: (() -> Void)?
+        if var callbacks = self.onRefresh {
+            {{ method.parameters.first.name }} = outputReplayClosureStore.sanitizeRefreshAppendingAction(
+                rawAppendingOnRefresh,
+                path: "onRefresh",
+                index: callbackIndex
+            )
+            callbacks.append({{ method.parameters.first.name }})
+            synchronizeOutputClosureProperties {
+                self.onRefresh = callbacks
+            }
+        } else {
+            {{ method.parameters.first.name }} = nil
+        }
+        nextOutputSequence &+= 1
         {{ method.callName }}{% for param in method.parameters %}{{ param.name|upperFirstLetter }}{% endfor %}State = .init(
+            outputSequence: nextOutputSequence,
             {{ method.parameters.first.name }}: {{ method.parameters.first.name }}
         )
     }
@@ -136,10 +451,21 @@ public class {{ type.name }}SwiftUIAdapter{% for associatedType in type.associat
         public let {{ method.parameters.first.name }}: {{ method.parameters.first.typeName }}
     }
     public func {{ method.name }} {
-        self.componentsCount = {{ method.parameters.first.name }}?.componentsCount
-        self.rowsCount = {{ method.parameters.first.name }}?.rowsCount
-        self.titleForRowAt = {{ method.parameters.first.name }}?.titleForRowAt
-        self.didSelectAt = {{ method.parameters.first.name }}?.didSelectAt
+        {% if type.name == "ButtonOutput" or type.name == "DatePickerViewOutput" or type.name == "PickerViewOutput" or type.name == "EmptyViewOutput" or type.name == "TitledOutput" or type.name == "RefreshControlOutput" or type.name == "KeyValueFieldViewOutput" or type.name == "ImageViewOutput" or type.name == "ProgressBarOutput" or type.name == "StackViewOutput" or type.name == "SwitchCotrolOutput" or type.name == "TextOutput" or type.name == "TextInputOutput" or type.name == "CardViewOutput" or type.name == "HeaderOutput" or type.name == "SearchBarOutput" %}
+        requireMainOutputReplayQueue()
+        {% endif %}
+        {% if type.name == "PickerViewOutput" %}
+        let {{ method.parameters.first.name }} = outputReplayClosureStore.sanitize(
+            {{ method.parameters.first.name }},
+            path: "{{ method.parameters.first.name }}"
+        )
+        {% endif %}
+        synchronizeOutputClosureProperties {
+            self.componentsCount = {{ method.parameters.first.name }}?.componentsCount
+            self.rowsCount = {{ method.parameters.first.name }}?.rowsCount
+            self.titleForRowAt = {{ method.parameters.first.name }}?.titleForRowAt
+            self.didSelectAt = {{ method.parameters.first.name }}?.didSelectAt
+        }
         nextOutputSequence &+= 1
         {{ method.callName }}{% for param in method.parameters %}{{ param.name|upperFirstLetter }}{% endfor %}State = .init(
             outputSequence: nextOutputSequence,
@@ -152,6 +478,9 @@ public class {{ type.name }}SwiftUIAdapter{% for associatedType in type.associat
         public let selectedRow: PickerViewPresentableModel.SelectedRow?
     }
     public func {{ method.name }} {
+        {% if type.name == "ButtonOutput" or type.name == "DatePickerViewOutput" or type.name == "PickerViewOutput" or type.name == "EmptyViewOutput" or type.name == "TitledOutput" or type.name == "RefreshControlOutput" or type.name == "KeyValueFieldViewOutput" or type.name == "ImageViewOutput" or type.name == "ProgressBarOutput" or type.name == "StackViewOutput" or type.name == "SwitchCotrolOutput" or type.name == "TextOutput" or type.name == "TextInputOutput" or type.name == "CardViewOutput" or type.name == "HeaderOutput" or type.name == "SearchBarOutput" %}
+        requireMainOutputReplayQueue()
+        {% endif %}
         guard let selectedRow,
               let componentsCount = componentsCount?(),
               let rowsCount = rowsCount?(),
@@ -159,59 +488,265 @@ public class {{ type.name }}SwiftUIAdapter{% for associatedType in type.associat
               selectedRow.component < componentsCount,
               selectedRow.row >= 0,
               selectedRow.row < rowsCount else { return }
+        let sanitizedSelectedRow = outputReplayClosureStore.sanitize(
+            selectedRow,
+            path: "selectedRow"
+        )!
         nextOutputSequence &+= 1
         {{ method.callName }}{% for param in method.parameters %}{{ param.name|upperFirstLetter }}{% endfor %}State = .init(
             outputSequence: nextOutputSequence,
-            selectedRow: selectedRow
+            selectedRow: sanitizedSelectedRow
         )
     }
-    {% elif (type.name == "LoadingOutput" or type.name == "RefreshControlOutput") and method.parameters.count == 1 and method.parameters.first.name == "isLoading" %}
+    {% elif type.name == "RefreshControlOutput" and method.parameters.count == 1 and method.parameters.first.name == "isLoading" %}
+    public struct {{ method.callName|upperFirstLetter }}{% for param in method.parameters %}{{ param.name|upperFirstLetter }}{% endfor %}State {
+        let outputSequence: UInt64
+        public let {{ method.parameters.first.name }}: {{ method.parameters.first.typeName }}
+    }
+    public func {{ method.name }} {
+        {% if type.name == "ButtonOutput" or type.name == "DatePickerViewOutput" or type.name == "PickerViewOutput" or type.name == "EmptyViewOutput" or type.name == "TitledOutput" or type.name == "RefreshControlOutput" or type.name == "KeyValueFieldViewOutput" or type.name == "ImageViewOutput" or type.name == "ProgressBarOutput" or type.name == "StackViewOutput" or type.name == "SwitchCotrolOutput" or type.name == "TextOutput" or type.name == "TextInputOutput" or type.name == "CardViewOutput" or type.name == "HeaderOutput" or type.name == "SearchBarOutput" %}
+        requireMainOutputReplayQueue()
+        {% endif %}
+        self.isLoading = {{ method.parameters.first.name }}
+        nextOutputSequence &+= 1
+        {{ method.callName }}{% for param in method.parameters %}{{ param.name|upperFirstLetter }}{% endfor %}State = .init(
+            outputSequence: nextOutputSequence,
+            {{ method.parameters.first.name }}: {{ method.parameters.first.name }}
+        )
+    }
+    {% elif type.name == "LoadingOutput" and method.parameters.count == 1 and method.parameters.first.name == "isLoading" %}
     public struct {{ method.callName|upperFirstLetter }}{% for param in method.parameters %}{{ param.name|upperFirstLetter }}{% endfor %}State {
         public let {{ method.parameters.first.name }}: {{ method.parameters.first.typeName }}
     }
     public func {{ method.name }} {
+        {% if type.name == "ButtonOutput" or type.name == "DatePickerViewOutput" or type.name == "PickerViewOutput" or type.name == "EmptyViewOutput" or type.name == "TitledOutput" or type.name == "RefreshControlOutput" or type.name == "KeyValueFieldViewOutput" or type.name == "ImageViewOutput" or type.name == "ProgressBarOutput" or type.name == "StackViewOutput" or type.name == "SwitchCotrolOutput" or type.name == "TextOutput" or type.name == "TextInputOutput" or type.name == "CardViewOutput" or type.name == "HeaderOutput" or type.name == "SearchBarOutput" %}
+        requireMainOutputReplayQueue()
+        {% endif %}
         self.isLoading = {{ method.parameters.first.name }}
         {{ method.callName }}{% for param in method.parameters %}{{ param.name|upperFirstLetter }}{% endfor %}State = .init(
             {{ method.parameters.first.name }}: {{ method.parameters.first.name }}
         )
     }
-    {% elif type.name == "ImageViewOutput" and method.parameters.count == 1 and method.parameters.first.name == "model" %}
+    {% elif type.name == "HeaderOutput" and method.parameters.count == 1 and method.parameters.first.name == "model" %}
     public struct {{ method.callName|upperFirstLetter }}{% for param in method.parameters %}{{ param.name|upperFirstLetter }}{% endfor %}State {
-        public let {{ method.parameters.first.name }}: {{ method.parameters.first.typeName }}
+        let outputSequence: UInt64
+        public let {{ method.parameters.first.name }}: {{ method.parameters.first.unwrappedTypeName }}
+    }
+    struct DisplayModelReplayState {
+        let outputSequence: UInt64
+        let model: {{ method.parameters.first.typeName }}
+    }
+    @Published var displayModelReplayState: DisplayModelReplayState? = nil {
+        willSet {
+            guard let state = newValue else { return }
+            beginOutputReplayDelivery(.displayModel(state))
+        }
+        didSet {
+            guard displayModelReplayState != nil else { return }
+            finishOutputReplayDelivery()
+        }
     }
     public func {{ method.name }} {
+        {% if type.name == "ButtonOutput" or type.name == "DatePickerViewOutput" or type.name == "PickerViewOutput" or type.name == "EmptyViewOutput" or type.name == "TitledOutput" or type.name == "RefreshControlOutput" or type.name == "KeyValueFieldViewOutput" or type.name == "ImageViewOutput" or type.name == "ProgressBarOutput" or type.name == "StackViewOutput" or type.name == "SwitchCotrolOutput" or type.name == "TextOutput" or type.name == "TextInputOutput" or type.name == "CardViewOutput" or type.name == "HeaderOutput" or type.name == "SearchBarOutput" %}
+        requireMainOutputReplayQueue()
+        {% endif %}
+        let {{ method.parameters.first.name }} = outputReplayClosureStore.sanitize(
+            {{ method.parameters.first.name }},
+            path: "{{ method.parameters.first.name }}"
+        )
+        display(isHidden: {{ method.parameters.first.name }} == nil)
+        nextOutputSequence &+= 1
+        let outputSequence = nextOutputSequence
+        displayModelReplayState = .init(
+            outputSequence: outputSequence,
+            model: {{ method.parameters.first.name }}
+        )
+        guard let {{ method.parameters.first.name }} else { return }
         {{ method.callName }}{% for param in method.parameters %}{{ param.name|upperFirstLetter }}{% endfor %}State = .init(
+            outputSequence: outputSequence,
             {{ method.parameters.first.name }}: {{ method.parameters.first.name }}
         )
     }
     {% elif type.name == "ButtonOutput" and method.parameters.count == 1 and method.parameters.first.name == "model" %}
     public struct {{ method.callName|upperFirstLetter }}{% for param in method.parameters %}{{ param.name|upperFirstLetter }}{% endfor %}State {
+        let outputSequence: UInt64
         public let {{ method.parameters.first.name }}: {{ method.parameters.first.typeName }}
     }
     public func {{ method.name }} {
+        {% if type.name == "ButtonOutput" or type.name == "DatePickerViewOutput" or type.name == "PickerViewOutput" or type.name == "EmptyViewOutput" or type.name == "TitledOutput" or type.name == "RefreshControlOutput" or type.name == "KeyValueFieldViewOutput" or type.name == "ImageViewOutput" or type.name == "ProgressBarOutput" or type.name == "StackViewOutput" or type.name == "SwitchCotrolOutput" or type.name == "TextOutput" or type.name == "TextInputOutput" or type.name == "CardViewOutput" or type.name == "HeaderOutput" or type.name == "SearchBarOutput" %}
+        requireMainOutputReplayQueue()
+        {% endif %}
+        let {{ method.parameters.first.name }} = outputReplayClosureStore.sanitize(
+            {{ method.parameters.first.name }},
+            path: "{{ method.parameters.first.name }}"
+        )
         display(isHidden: {{ method.parameters.first.name }} == nil)
+        nextOutputSequence &+= 1
         {{ method.callName }}{% for param in method.parameters %}{{ param.name|upperFirstLetter }}{% endfor %}State = .init(
+            outputSequence: nextOutputSequence,
             {{ method.parameters.first.name }}: {{ method.parameters.first.name }}
         )
     }
-    {% elif type.name == "TextOutput" and method.parameters.count == 1 and method.parameters.first.name == "model" %}
+    {% elif type.name == "ButtonOutput" %}
     public struct {{ method.callName|upperFirstLetter }}{% for param in method.parameters %}{{ param.name|upperFirstLetter }}{% endfor %}State {
-        public let {{ method.parameters.first.name }}: {{ method.parameters.first.typeName }}
+        let outputSequence: UInt64
+        {% for param in method.parameters %}
+        public let {{ param.name }}: {{ param.typeName }}
+        {% endfor %}
     }
     public func {{ method.name }} {
-        display(isHidden: {{ method.parameters.first.name }} == nil)
+        {% if type.name == "ButtonOutput" or type.name == "DatePickerViewOutput" or type.name == "PickerViewOutput" or type.name == "EmptyViewOutput" or type.name == "TitledOutput" or type.name == "RefreshControlOutput" or type.name == "KeyValueFieldViewOutput" or type.name == "ImageViewOutput" or type.name == "ProgressBarOutput" or type.name == "StackViewOutput" or type.name == "SwitchCotrolOutput" or type.name == "TextOutput" or type.name == "TextInputOutput" or type.name == "CardViewOutput" or type.name == "HeaderOutput" or type.name == "SearchBarOutput" %}
+        requireMainOutputReplayQueue()
+        {% endif %}
+        {% for param in method.parameters %}
+        {% if param.name == "onPress" %}
+        let {{ param.name }} = outputReplayClosureStore.sanitizePersistentAction(
+            {{ param.name }},
+            path: "{{ param.name }}"
+        )
+        {% else %}
+        let {{ param.name }} = outputReplayClosureStore.sanitize(
+            {{ param.name }},
+            path: "{{ param.name }}"
+        )
+        {% endif %}
+        {% endfor %}
+        nextOutputSequence &+= 1
         {{ method.callName }}{% for param in method.parameters %}{{ param.name|upperFirstLetter }}{% endfor %}State = .init(
-            {{ method.parameters.first.name }}: {{ method.parameters.first.name }}
+            outputSequence: nextOutputSequence,
+            {% for param in method.parameters %}
+            {{ param.name }}: {{ param.name }}{% if not forloop.last %}, {% endif %}
+            {% endfor %}
         )
     }
-    {% elif type.name == "TextOutput" and method.parameters.count == 1 and method.parameters.first.name == "text" %}
+    {% elif type.name == "TextInputOutput" and method.parameters.count == 1 and method.parameters.first.name == "model" %}
     public struct {{ method.callName|upperFirstLetter }}{% for param in method.parameters %}{{ param.name|upperFirstLetter }}{% endfor %}State {
-        public let {{ method.parameters.first.name }}: {{ method.parameters.first.typeName }}
+        let outputSequence: UInt64
+        public let model: TextInputPresentableModel?
     }
     public func {{ method.name }} {
-        display(isHidden: {{ method.parameters.first.name }}.isEmpty)
+        requireMainOutputReplayQueue()
+        nextOutputSequence &+= 1
+        let outputSequence = nextOutputSequence
+        let model = outputReplayClosureStore.prepareTextInputModel(
+            model,
+            outputSequence: outputSequence
+        )
         {{ method.callName }}{% for param in method.parameters %}{{ param.name|upperFirstLetter }}{% endfor %}State = .init(
-            {{ method.parameters.first.name }}: {{ method.parameters.first.name }}
+            outputSequence: outputSequence,
+            model: model
+        )
+    }
+    {% elif type.name == "SearchBarOutput" and method.parameters.count == 1 and method.parameters.first.name == "model" %}
+    public struct {{ method.callName|upperFirstLetter }}{% for param in method.parameters %}{{ param.name|upperFirstLetter }}{% endfor %}State {
+        let outputSequence: UInt64
+        public let model: SearchBarPresentableModel?
+        let textFieldReplayModel: SwiftUIOutputReplayConsumableValue<TextInputPresentableModel>?
+    }
+    public func {{ method.name }} {
+        requireMainOutputReplayQueue()
+        let preparedModel = outputReplayClosureStore.prepareSearchBarModel(model)
+        nextOutputSequence &+= 1
+        {{ method.callName }}{% for param in method.parameters %}{{ param.name|upperFirstLetter }}{% endfor %}State = .init(
+            outputSequence: nextOutputSequence,
+            model: preparedModel.retainedModel,
+            textFieldReplayModel: preparedModel.textField?.consumableModel
+        )
+    }
+    {% elif type.name == "SearchBarOutput" and method.parameters.count == 1 and method.parameters.first.name == "textField" %}
+    public struct {{ method.callName|upperFirstLetter }}{% for param in method.parameters %}{{ param.name|upperFirstLetter }}{% endfor %}State {
+        let outputSequence: UInt64
+        public let textField: TextInputPresentableModel?
+        let textFieldReplayModel: SwiftUIOutputReplayConsumableValue<TextInputPresentableModel>?
+    }
+    public func {{ method.name }} {
+        requireMainOutputReplayQueue()
+        let preparedTextField = outputReplayClosureStore.prepareSearchTextField(textField)
+        nextOutputSequence &+= 1
+        {{ method.callName }}{% for param in method.parameters %}{{ param.name|upperFirstLetter }}{% endfor %}State = .init(
+            outputSequence: nextOutputSequence,
+            textField: preparedTextField?.retainedModel,
+            textFieldReplayModel: preparedTextField?.consumableModel
+        )
+    }
+    {% elif type.name == "KeyValueFieldViewOutput" or type.name == "ImageViewOutput" or type.name == "ProgressBarOutput" or type.name == "StackViewOutput" or type.name == "SwitchCotrolOutput" or type.name == "TextOutput" or type.name == "TextInputOutput" or type.name == "CardViewOutput" or type.name == "HeaderOutput" or type.name == "SearchBarOutput" or type.name == "ExpandableCardViewOutput" %}
+    public struct {{ method.callName|upperFirstLetter }}{% for param in method.parameters %}{{ param.name|upperFirstLetter }}{% endfor %}State {
+        let outputSequence: UInt64
+        {% for param in method.parameters %}
+        public let {{ param.name }}: {{ param.typeName }}
+        {% endfor %}
+    }
+    public func {{ method.name }} {
+        {% if type.name == "ButtonOutput" or type.name == "DatePickerViewOutput" or type.name == "PickerViewOutput" or type.name == "EmptyViewOutput" or type.name == "TitledOutput" or type.name == "RefreshControlOutput" or type.name == "KeyValueFieldViewOutput" or type.name == "ImageViewOutput" or type.name == "ProgressBarOutput" or type.name == "StackViewOutput" or type.name == "SwitchCotrolOutput" or type.name == "TextOutput" or type.name == "TextInputOutput" or type.name == "CardViewOutput" or type.name == "HeaderOutput" or type.name == "SearchBarOutput" or type.name == "ExpandableCardViewOutput" %}
+        requireMainOutputReplayQueue()
+        {% endif %}
+        {% if type.name == "TextOutput" and method.parameters.first.name != "isHidden" and method.parameters.first.name != "model" %}
+        outputReplayClosureStore.invalidate(prefix: "textModel")
+        {% endif %}
+        {% if type.name == "ImageViewOutput" and (method.parameters.first.name == "model" or method.parameters.first.name == "image") %}
+        outputReplayClosureStore.invalidate(path: "completion")
+        {% endif %}
+        {% if type.name == "KeyValueFieldViewOutput" or type.name == "ImageViewOutput" or type.name == "SwitchCotrolOutput" or type.name == "TextOutput" or type.name == "TextInputOutput" or type.name == "CardViewOutput" or type.name == "HeaderOutput" or type.name == "SearchBarOutput" or type.name == "ExpandableCardViewOutput" %}
+        {% for param in method.parameters %}
+        {% if type.name == "TextOutput" and param.name == "model" %}
+        let {{ param.name }} = outputReplayClosureStore.sanitizeTextOutputUpdate(
+            {{ param.name }},
+            path: "{{ param.name }}"
+        )
+        {% elif type.name == "KeyValueFieldViewOutput" and param.name == "keyTitle" %}
+        let {{ param.name }} = outputReplayClosureStore.sanitize(
+            {{ param.name }},
+            path: "first"
+        )
+        {% elif type.name == "KeyValueFieldViewOutput" and param.name == "valueTitle" %}
+        let {{ param.name }} = outputReplayClosureStore.sanitize(
+            {{ param.name }},
+            path: "second"
+        )
+        {% elif param.name == "completion" and (type.name == "ImageViewOutput" or type.name == "TextOutput") %}
+        let {{ param.name }} = outputReplayClosureStore.sanitizeOnce(
+            {{ param.name }},
+            path: "{% if type.name == "TextOutput" %}textAnimation.completion{% else %}completion{% endif %}"
+        )
+        {% elif param.name == "onPress" and (type.name == "ImageViewOutput" or type.name == "SwitchCotrolOutput" or type.name == "CardViewOutput") %}
+        let {{ param.name }} = outputReplayClosureStore.sanitizePersistentAction(
+            {{ param.name }},
+            path: "{{ param.name }}"
+        )
+        {% elif param.name == "onLongPress" and (type.name == "ImageViewOutput" or type.name == "CardViewOutput") %}
+        let {{ param.name }} = outputReplayClosureStore.sanitizePersistentAction(
+            {{ param.name }},
+            path: "{{ param.name }}"
+        )
+        {% elif type.name == "TextInputOutput" and (param.name == "leadingViewOnPress" or param.name == "trailingViewOnPress" or param.name == "onPress" or param.name == "onPaste" or param.name == "onBecomeFirstResponder" or param.name == "onResignFirstResponder" or param.name == "onTapBackspace") %}
+        let {{ param.name }} = outputReplayClosureStore.sanitizePersistentAction(
+            {{ param.name }},
+            path: "{{ param.name }}"
+        )
+        {% elif type.name == "TextOutput" and param.name == "attributes" %}
+        let {{ param.name }} = outputReplayClosureStore.sanitize(
+            {{ param.name }},
+            path: "textModel.attributes"
+        )
+        {% elif type.name == "TextOutput" and param.name == "mapToString" %}
+        let {{ param.name }} = outputReplayClosureStore.sanitizeTextMap(
+            {{ param.name }},
+            path: "textAnimation.mapToString"
+        )
+        {% else %}
+        let {{ param.name }} = outputReplayClosureStore.sanitize(
+            {{ param.name }},
+            path: "{{ param.name }}"
+        )
+        {% endif %}
+        {% endfor %}
+        {% endif %}
+        nextOutputSequence &+= 1
+        {{ method.callName }}{% for param in method.parameters %}{{ param.name|upperFirstLetter }}{% endfor %}State = .init(
+            outputSequence: nextOutputSequence,
+            {% for param in method.parameters %}
+            {{ param.name }}: {{ param.name }}{% if not forloop.last %}, {% endif %}
+            {% endfor %}
         )
     }
     {% elif type.name == "EmptyViewOutput" or type.name == "TitledOutput" %}
@@ -222,6 +757,27 @@ public class {{ type.name }}SwiftUIAdapter{% for associatedType in type.associat
         {% endfor %}
     }
     public func {{ method.name }} {
+        {% if type.name == "ButtonOutput" or type.name == "DatePickerViewOutput" or type.name == "PickerViewOutput" or type.name == "EmptyViewOutput" or type.name == "TitledOutput" or type.name == "RefreshControlOutput" or type.name == "KeyValueFieldViewOutput" or type.name == "ImageViewOutput" or type.name == "ProgressBarOutput" or type.name == "StackViewOutput" or type.name == "SwitchCotrolOutput" or type.name == "TextOutput" or type.name == "TextInputOutput" or type.name == "CardViewOutput" or type.name == "HeaderOutput" or type.name == "SearchBarOutput" %}
+        requireMainOutputReplayQueue()
+        {% endif %}
+        {% for param in method.parameters %}
+        {% if type.name == "TitledOutput" and param.name == "leadingBottomTitle" %}
+        let {{ param.name }} = outputReplayClosureStore.sanitize(
+            {{ param.name }},
+            path: "bottomTitles.first"
+        )
+        {% elif type.name == "TitledOutput" and param.name == "trailingBottomTitle" %}
+        let {{ param.name }} = outputReplayClosureStore.sanitize(
+            {{ param.name }},
+            path: "bottomTitles.second"
+        )
+        {% else %}
+        let {{ param.name }} = outputReplayClosureStore.sanitize(
+            {{ param.name }},
+            path: "{{ param.name }}"
+        )
+        {% endif %}
+        {% endfor %}
         nextOutputSequence &+= 1
         {{ method.callName }}{% for param in method.parameters %}{{ param.name|upperFirstLetter }}{% endfor %}State = .init(
             outputSequence: nextOutputSequence,
@@ -235,6 +791,9 @@ public class {{ type.name }}SwiftUIAdapter{% for associatedType in type.associat
         public let {{ method.parameters.first.name }}: {{ method.parameters.first.unwrappedTypeName }}
     }
     public func {{ method.name }} {
+        {% if type.name == "ButtonOutput" or type.name == "DatePickerViewOutput" or type.name == "PickerViewOutput" or type.name == "EmptyViewOutput" or type.name == "TitledOutput" or type.name == "RefreshControlOutput" or type.name == "KeyValueFieldViewOutput" or type.name == "ImageViewOutput" or type.name == "ProgressBarOutput" or type.name == "StackViewOutput" or type.name == "SwitchCotrolOutput" or type.name == "TextOutput" or type.name == "TextInputOutput" or type.name == "CardViewOutput" or type.name == "HeaderOutput" or type.name == "SearchBarOutput" %}
+        requireMainOutputReplayQueue()
+        {% endif %}
         guard let {{ method.parameters.first.name }} else {
             display(isHidden: true)
             return
@@ -252,6 +811,22 @@ public class {{ type.name }}SwiftUIAdapter{% for associatedType in type.associat
         {% endfor %}
     }
     public func {{ method.name }} {
+        {% if type.name == "ButtonOutput" or type.name == "DatePickerViewOutput" or type.name == "PickerViewOutput" or type.name == "EmptyViewOutput" or type.name == "TitledOutput" or type.name == "RefreshControlOutput" or type.name == "KeyValueFieldViewOutput" or type.name == "ImageViewOutput" or type.name == "ProgressBarOutput" or type.name == "StackViewOutput" or type.name == "SwitchCotrolOutput" or type.name == "TextOutput" or type.name == "TextInputOutput" or type.name == "CardViewOutput" or type.name == "HeaderOutput" or type.name == "SearchBarOutput" %}
+        requireMainOutputReplayQueue()
+        {% endif %}
+        {% for param in method.parameters %}
+        {% if param.name == "dateChanged" %}
+        let {{ param.name }} = outputReplayClosureStore.sanitizePersistentAction(
+            {{ param.name }},
+            path: "{{ param.name }}"
+        )
+        {% else %}
+        let {{ param.name }} = outputReplayClosureStore.sanitize(
+            {{ param.name }},
+            path: "{{ param.name }}"
+        )
+        {% endif %}
+        {% endfor %}
         nextOutputSequence &+= 1
         {{ method.callName }}{% for param in method.parameters %}{{ param.name|upperFirstLetter }}{% endfor %}State = .init(
             outputSequence: nextOutputSequence,
@@ -265,6 +840,9 @@ public class {{ type.name }}SwiftUIAdapter{% for associatedType in type.associat
         public let toast: CommonToast
     }
     public func {{ method.name }} {
+        {% if type.name == "ButtonOutput" or type.name == "DatePickerViewOutput" or type.name == "PickerViewOutput" or type.name == "EmptyViewOutput" or type.name == "TitledOutput" or type.name == "RefreshControlOutput" or type.name == "KeyValueFieldViewOutput" or type.name == "ImageViewOutput" or type.name == "ProgressBarOutput" or type.name == "StackViewOutput" or type.name == "SwitchCotrolOutput" or type.name == "TextOutput" or type.name == "TextInputOutput" or type.name == "CardViewOutput" or type.name == "HeaderOutput" or type.name == "SearchBarOutput" %}
+        requireMainOutputReplayQueue()
+        {% endif %}
         pendingCommands.append(.display(toast))
         {{ method.callName }}{% for param in method.parameters %}{{ param.name|upperFirstLetter }}{% endfor %}State = .init(
             toast: toast
@@ -275,6 +853,9 @@ public class {{ type.name }}SwiftUIAdapter{% for associatedType in type.associat
     public struct {{ method.callName|upperFirstLetter }}State {
     }
     public func {{ method.name }} {
+        {% if type.name == "ButtonOutput" or type.name == "DatePickerViewOutput" or type.name == "PickerViewOutput" or type.name == "EmptyViewOutput" or type.name == "TitledOutput" or type.name == "RefreshControlOutput" or type.name == "KeyValueFieldViewOutput" or type.name == "ImageViewOutput" or type.name == "ProgressBarOutput" or type.name == "StackViewOutput" or type.name == "SwitchCotrolOutput" or type.name == "TextOutput" or type.name == "TextInputOutput" or type.name == "CardViewOutput" or type.name == "HeaderOutput" or type.name == "SearchBarOutput" %}
+        requireMainOutputReplayQueue()
+        {% endif %}
         pendingCommands.append(.hide)
         {{ method.callName }}State = .init()
         pendingCommandRevision &+= 1
@@ -286,6 +867,9 @@ public class {{ type.name }}SwiftUIAdapter{% for associatedType in type.associat
         {% endfor %}
     }
     public func {{ method.name }} {
+        {% if type.name == "ButtonOutput" or type.name == "DatePickerViewOutput" or type.name == "PickerViewOutput" or type.name == "EmptyViewOutput" or type.name == "TitledOutput" or type.name == "RefreshControlOutput" or type.name == "KeyValueFieldViewOutput" or type.name == "ImageViewOutput" or type.name == "ProgressBarOutput" or type.name == "StackViewOutput" or type.name == "SwitchCotrolOutput" or type.name == "TextOutput" or type.name == "TextInputOutput" or type.name == "CardViewOutput" or type.name == "HeaderOutput" or type.name == "SearchBarOutput" %}
+        requireMainOutputReplayQueue()
+        {% endif %}
         {{ method.callName }}{% for param in method.parameters %}{{ param.name|upperFirstLetter }}{% endfor %}State = .init(
             {% for param in method.parameters %}
             {{ param.name }}: {{ param.name }}{% if not forloop.last %}, {% endif %}

@@ -59,13 +59,21 @@ public struct SUIHKeyValueFieldView: View {
     }
 
     public var body: some View {
-        if !stateModel.isHidden {
+        if !isContentHidden {
             content
             .padding(contentInsets.asSUIEdgeInsets)
             .fixedSize(horizontal: false, vertical: true)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(SwiftUIColor(backgroundColor))
         }
+    }
+
+    private var isContentHidden: Bool {
+        stateModel.isHidden || (
+            stateModel.keyTitleStateModel.isHidden
+                && stateModel.valueTitleStateModel.isHidden
+                && stateModel.isBottomImageSlotHidden
+        )
     }
 
     @ViewBuilder
@@ -83,10 +91,10 @@ public struct SUIHKeyValueFieldView: View {
     @ViewBuilder
     private var textContent: some View {
         switch (stateModel.keyTitle, stateModel.valueTitle) {
-        case (.some(let keyTitle), .some(let valueTitle)):
+        case (.some, .some):
             HStack(alignment: .center, spacing: spacing) {
                 label(
-                    keyTitle,
+                    stateModel.keyTitleStateModel,
                     font: keyFont,
                     textColor: keyTextColor,
                     textAlignment: .left,
@@ -96,7 +104,7 @@ public struct SUIHKeyValueFieldView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
 
                 label(
-                    valueTitle,
+                    stateModel.valueTitleStateModel,
                     font: valueFont,
                     textColor: valueTextColor,
                     textAlignment: .right,
@@ -106,9 +114,9 @@ public struct SUIHKeyValueFieldView: View {
                 .fixedSize(horizontal: true, vertical: true)
             }
 
-        case (.some(let keyTitle), .none):
+        case (.some, .none):
             label(
-                keyTitle,
+                stateModel.keyTitleStateModel,
                 font: keyFont,
                 textColor: keyTextColor,
                 textAlignment: .left,
@@ -117,9 +125,9 @@ public struct SUIHKeyValueFieldView: View {
             )
             .frame(maxWidth: .infinity, alignment: .leading)
 
-        case (.none, .some(let valueTitle)):
+        case (.none, .some):
             label(
-                valueTitle,
+                stateModel.valueTitleStateModel,
                 font: valueFont,
                 textColor: valueTextColor,
                 textAlignment: .right,
@@ -142,23 +150,21 @@ public struct SUIHKeyValueFieldView: View {
 
     @ViewBuilder
     private func label(
-        _ model: TextOutputPresentableModel?,
+        _ stateModel: SUILabelStateModel,
         font: Font,
         textColor: Color,
         textAlignment: TextAlignment,
         lineLimit: Int?,
         minimumScaleFactor: CGFloat
     ) -> some View {
-        if let model {
-            SUILabelView(
-                model: model,
-                font: font,
-                textColor: textColor,
-                textAlignment: textAlignment
-            )
-            .lineLimit(lineLimit)
-            .minimumScaleFactor(minimumScaleFactor)
-        }
+        SUIOutputLabel(
+            stateModel: stateModel,
+            font: font,
+            textColor: textColor,
+            textAlignment: textAlignment
+        )
+        .lineLimit(lineLimit)
+        .minimumScaleFactor(minimumScaleFactor)
     }
 }
 

@@ -7,16 +7,15 @@ public struct SUIEmptyView: View {
         _stateModel = .init(wrappedValue: .init(adapter: adapter))
     }
 
-    init(stateModel: SUIEmptyViewStateModel) {
-        _stateModel = .init(wrappedValue: stateModel)
-    }
-
     public var body: some View {
         Group {
             if !stateModel.isHidden {
                 SUIEmptyViewContent(
                     title: stateModel.title,
                     subtitle: stateModel.subtitle,
+                    titleStateModel: stateModel.titleStateModel,
+                    subtitleStateModel: stateModel.subtitleStateModel,
+                    imageAdapter: stateModel.imageAdapter,
                     buttonModel: stateModel.buttonModel,
                     image: stateModel.image,
                     isTitleHidden: stateModel.isTitleHidden,
@@ -38,6 +37,9 @@ public struct SUIEmptyView: View {
 public struct SUIEmptyViewContent: View {
     let title: TextOutputPresentableModel?
     let subtitle: TextOutputPresentableModel?
+    let titleStateModel: SUILabelStateModel?
+    let subtitleStateModel: SUILabelStateModel?
+    let imageAdapter: ImageViewOutputSwiftUIAdapter?
     let buttonModel: ButtonPresentableModel?
     let image: ImageViewPresentableModel?
     let isTitleHidden: Bool
@@ -57,6 +59,35 @@ public struct SUIEmptyViewContent: View {
     ) {
         self.title = title
         self.subtitle = subtitle
+        titleStateModel = nil
+        subtitleStateModel = nil
+        imageAdapter = nil
+        self.buttonModel = buttonModel
+        self.image = image
+        self.isTitleHidden = isTitleHidden
+        self.isSubtitleHidden = isSubtitleHidden
+        self.isButtonHidden = isButtonHidden
+        self.isImageHidden = isImageHidden
+    }
+
+    init(
+        title: TextOutputPresentableModel?,
+        subtitle: TextOutputPresentableModel?,
+        titleStateModel: SUILabelStateModel,
+        subtitleStateModel: SUILabelStateModel,
+        imageAdapter: ImageViewOutputSwiftUIAdapter,
+        buttonModel: ButtonPresentableModel?,
+        image: ImageViewPresentableModel?,
+        isTitleHidden: Bool,
+        isSubtitleHidden: Bool,
+        isButtonHidden: Bool,
+        isImageHidden: Bool
+    ) {
+        self.title = title
+        self.subtitle = subtitle
+        self.titleStateModel = titleStateModel
+        self.subtitleStateModel = subtitleStateModel
+        self.imageAdapter = imageAdapter
         self.buttonModel = buttonModel
         self.image = image
         self.isTitleHidden = isTitleHidden
@@ -69,21 +100,25 @@ public struct SUIEmptyViewContent: View {
         VStack(spacing: 16) {
             if !isImageHidden {
                 if let image {
-                    SUIImageViewView(model: image)
+                    if let imageAdapter {
+                        SUIImageView(adapter: imageAdapter)
+                    } else {
+                        SUIImageViewView(model: image)
+                    }
                 } else {
                     SwiftUIColor.clear.frame(height: 0)
                 }
             }
             if !isTitleHidden {
                 if let title {
-                    emptyLabel(title)
+                    emptyLabel(title, stateModel: titleStateModel)
                 } else {
                     SwiftUIColor.clear.frame(height: 0)
                 }
             }
             if !isSubtitleHidden {
                 if let subtitle {
-                    emptyLabel(subtitle)
+                    emptyLabel(subtitle, stateModel: subtitleStateModel)
                 } else {
                     SwiftUIColor.clear.frame(height: 0)
                 }
@@ -102,13 +137,27 @@ public struct SUIEmptyViewContent: View {
         .padding(12)
     }
 
-    private func emptyLabel(_ model: TextOutputPresentableModel) -> some View {
-        SUILabelView(
-            model: model,
-            font: .systemFont(ofSize: 20),
-            textColor: .label,
-            textAlignment: .center
-        )
+    private func emptyLabel(
+        _ model: TextOutputPresentableModel,
+        stateModel: SUILabelStateModel?
+    ) -> some View {
+        Group {
+            if let stateModel {
+                SUIOutputLabel(
+                    stateModel: stateModel,
+                    font: .systemFont(ofSize: 20),
+                    textColor: .label,
+                    textAlignment: .center
+                )
+            } else {
+                SUILabelView(
+                    model: model,
+                    font: .systemFont(ofSize: 20),
+                    textColor: .label,
+                    textAlignment: .center
+                )
+            }
+        }
         .fixedSize(horizontal: false, vertical: true)
         .frame(maxWidth: .infinity, alignment: .center)
     }

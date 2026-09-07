@@ -13,7 +13,7 @@ extension Diffing where Value == UIImage {
     /// color-space conversion and PNG serialization is accepted.
     public static let strictImage = Diffing(
         toData: encodedPNG,
-        fromData: { decodedImage(from: $0, scale: UIScreen.main.scale) },
+        fromData: { decodedImage(from: $0, scale: SnapshotRenderDefaults.scale) },
         diff: { old, new in
             guard let message = strictCanonicalDifferenceMessage(old, new) else { return nil }
             let difference = diffInverse(old, new) ?? diffOverlap(old, new)
@@ -28,7 +28,7 @@ extension Diffing where Value == UIImage {
     /// contour. Geometry, scale, flat edges and non-edge pixels remain exact.
     public static let swiftUIParity = Diffing(
         toData: encodedPNG,
-        fromData: { decodedImage(from: $0, scale: UIScreen.main.scale) },
+        fromData: { decodedImage(from: $0, scale: SnapshotRenderDefaults.scale) },
         diff: { old, new in
             guard let message = SwiftUIParityImageComparator.differenceMessage(old, new) else {
                 return nil
@@ -54,15 +54,14 @@ extension Diffing where Value == UIImage {
     ///     comparison is enabled.
     ///   - allowsQuantizationTolerance: Whether sparse one- or two-step channel differences caused by
     ///     image serialization should be accepted before the requested precision is evaluated.
-    ///   - scale: Scale to use when loading the reference image from disk. If `nil` or the
-    ///     `UITraitCollection`s default value of `0.0`, the screens scale is used.
+    ///   - scale: Scale to use when loading the reference image from disk.
     /// - Returns: A new diffing strategy.
     public static func image(
         precision: Float = 1,
         perceptualPrecision: Float = 1,
         alphaTolerance: UInt8 = 0,
         allowsQuantizationTolerance: Bool = true,
-        scale: CGFloat = UIScreen.main.scale
+        scale: CGFloat = SnapshotRenderDefaults.scale
     ) -> Diffing {
         return Diffing(
             toData: encodedPNG,

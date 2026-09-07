@@ -28,12 +28,11 @@ final class SUICircleStrokeSpinTests: XCTestCase {
         XCTAssertEqual(completed.strokeEnd, 1)
     }
 
-    func test_animationTimeline_usesUIKitDurationsAndLineWidth() {
+    func test_animationTimeline_usesUIKitDurations() {
         XCTAssertEqual(SUICircleStrokeSpinAnimation.strokeEndDuration, 0.7)
         XCTAssertEqual(SUICircleStrokeSpinAnimation.strokeStartDelay, 0.5)
         XCTAssertEqual(SUICircleStrokeSpinAnimation.strokeStartDuration, 1.2)
         XCTAssertEqual(SUICircleStrokeSpinAnimation.cycleDuration, 1.7)
-        XCTAssertEqual(SUICircleStrokeSpin.lineWidth, 2)
     }
 }
 #endif

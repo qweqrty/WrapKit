@@ -14,10 +14,6 @@ public struct SUIProgressBar: View {
         _stateModel = .init(wrappedValue: .init(adapter: adaper))
     }
 
-    init(stateModel: SUIProgressBarStateModel) {
-        _stateModel = .init(wrappedValue: stateModel)
-    }
-    
     public var body: some View {
         if !stateModel.isHidden {
             SUIProgressBarView(

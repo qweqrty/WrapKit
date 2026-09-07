@@ -34,24 +34,6 @@ public struct SUITextField: View {
         self.cornerStyle = cornerStyle
     }
 
-    init(
-        stateModel: SUITextInputStateModel,
-        appearance: TextfieldAppearance,
-        leadingView: AnyView? = nil,
-        trailingView: AnyView? = nil,
-        contentInsets: SwiftUI.EdgeInsets = .init(top: 10, leading: 12, bottom: 10, trailing: 12),
-        midPadding: CGFloat = 6.67,
-        cornerStyle: CornerStyle = .fixed(10)
-    ) {
-        _stateModel = .init(wrappedValue: stateModel)
-        self.appearance = appearance
-        self.leadingView = leadingView
-        self.trailingView = trailingView
-        self.contentInsets = contentInsets
-        self.midPadding = midPadding
-        self.cornerStyle = cornerStyle
-    }
-    
     public var body: some View {
         if !stateModel.isHidden {
             if #available(iOS 15.0, *) {
@@ -85,6 +67,8 @@ public struct SUITextField: View {
                     trailingViewOnPress: stateModel.trailingViewOnPress,
                     autocapitalizationType: stateModel.autocapitalizationType,
                     inputView: stateModel.inputView,
+                    selectedInputDate: $stateModel.selectedInputDate,
+                    selectedInputPickerRows: $stateModel.selectedInputPickerRows,
                     mask: stateModel.mask,
                     accessibilityIdentifier: stateModel.accessibilityIdentifier,
                     inputAccessoryView: stateModel.inputAccessoryView,
@@ -147,6 +131,8 @@ public struct SUITextInputView: View {
     let trailingViewOnPress: (() -> Void)?
     let autocapitalizationType: TextAutocapitalizationType
     let inputView: TextInputPresentableModel.InputView?
+    @Binding var selectedInputDate: Date
+    @Binding var selectedInputPickerRows: [Int: Int]
     let mask: TextInputPresentableModel.Mask?
     let accessibilityIdentifier: String?
     let inputAccessoryView: TextInputPresentableModel.AccessoryViewPresentableModel?
@@ -157,8 +143,6 @@ public struct SUITextInputView: View {
     
     @FocusState private var nativeFocus: Bool
     @State private var isInputViewPresented = false
-    @State private var selectedDate = Date()
-    @State private var selectedPickerRows: [Int: Int] = [:]
     
     private var currentBorderColor: SwiftUIColor {
         if !isValid {
@@ -349,7 +333,7 @@ public struct SUITextInputView: View {
 
     @ViewBuilder
     private var placeholderContent: some View {
-        if text.isEmpty, let placeholder {
+        if shouldDisplayPlaceholder, let placeholder {
             Text(placeholder)
                 .font(appearance.placeholder.map { SwiftUIFont($0.font) })
                 .foregroundColor(
@@ -410,8 +394,13 @@ public struct SUITextInputView: View {
            shouldDisplayMaskTemplate {
             let appliedMask = mask.mask.applied(to: text)
             HStack(spacing: 0) {
-                Text(appliedMask.input)
-                    .hidden()
+                if text.isEmpty {
+                    Text(appliedMask.input)
+                        .foregroundColor(currentTextColor)
+                } else {
+                    Text(appliedMask.input)
+                        .hidden()
+                }
                 Text(appliedMask.maskToInput + (trailingSymbol ?? ""))
                     .foregroundColor(SwiftUIColor(mask.maskColor))
             }
@@ -428,14 +417,22 @@ public struct SUITextInputView: View {
         guard !appliedMask.maskToInput.isEmpty || trailingSymbol != nil else {
             return false
         }
-        return !text.isEmpty || isFocused || placeholder == nil
+        return !shouldDisplayPlaceholder
+    }
+
+    private var shouldDisplayPlaceholder: Bool {
+        guard text.isEmpty, placeholder != nil else { return false }
+        guard let mask else { return true }
+
+        let appliedMask = mask.mask.applied(to: text)
+        return !isFocused && appliedMask.input.isEmpty
     }
 
     private var nativeTextBinding: Binding<String> {
         Binding(
             get: {
                 guard let mask else { return text }
-                if text.isEmpty, !isFocused, placeholder != nil {
+                if shouldDisplayPlaceholder {
                     return ""
                 }
                 return mask.mask.applied(to: text).input
@@ -503,9 +500,9 @@ public struct SUITextInputView: View {
         _ model: TextInputPresentableModel.InputView.DatePickerPresentableModel
     ) -> some View {
         let selection = Binding(
-            get: { selectedDate },
+            get: { selectedInputDate },
             set: { date in
-                selectedDate = date
+                selectedInputDate = date
                 model.onChange?(date)
             }
         )
@@ -550,7 +547,7 @@ public struct SUITextInputView: View {
         SUIPickerContent(
             componentsCount: componentsCount,
             rows: rows,
-            selectedRows: $selectedPickerRows,
+            selectedRows: $selectedInputPickerRows,
             accessibilityIdentifier: model.accessibilityIdentifier,
             didSelectAt: model.didSelectAt
         )
@@ -560,7 +557,6 @@ public struct SUITextInputView: View {
         guard canEdit else { return }
 
         if hasInputView {
-            prepareInputView()
             nativeFocus = false
             isInputViewPresented = true
             updateReportedFocus(true)
@@ -600,28 +596,6 @@ public struct SUITextInputView: View {
         }
     }
 
-    private func prepareInputView() {
-        switch inputView {
-        case .date(let model):
-            selectedDate = model.value
-        case .custom(let model):
-            let componentsCount = max(model.componentsCount?() ?? 0, 0)
-            selectedPickerRows = Dictionary(
-                uniqueKeysWithValues: (0..<componentsCount).map { ($0, 0) }
-            )
-            if let selectedRow = model.selectedRow,
-               selectedRow.component >= 0,
-               selectedRow.component < componentsCount,
-               selectedRow.row >= 0,
-               selectedRow.row < max(model.rowsCount?() ?? 0, 0) {
-                selectedPickerRows[selectedRow.component] = selectedRow.row
-                selectedRow.selectedRowCompletion?(selectedRow.row)
-            }
-        case nil:
-            break
-        }
-    }
-
     private func performKeyboardAccessoryAction(_ buttonModel: ButtonPresentableModel) {
         buttonModel.onPress?()
         finishEditing()
@@ -629,7 +603,7 @@ public struct SUITextInputView: View {
 
     private func performInputViewAccessoryAction(_ buttonModel: ButtonPresentableModel) {
         if case .date(let model) = inputView {
-            (inputAccessoryDateOnDoneTapped ?? model.onDoneTapped)?(selectedDate)
+            (inputAccessoryDateOnDoneTapped ?? model.onDoneTapped)?(selectedInputDate)
         }
         buttonModel.onPress?()
         finishEditing()

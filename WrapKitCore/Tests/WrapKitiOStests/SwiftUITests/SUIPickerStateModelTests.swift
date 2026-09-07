@@ -1,5 +1,6 @@
 #if canImport(SwiftUI)
 @testable import WrapKit
+import Foundation
 import SwiftUI
 import XCTest
 
@@ -63,6 +64,55 @@ final class SUIPickerStateModelTests: XCTestCase {
         XCTAssertNil(adapter.rowsCount)
         XCTAssertNil(adapter.titleForRowAt)
         XCTAssertNil(adapter.didSelectAt)
+    }
+
+    func test_remountUsesCurrentNilDirectProvidersAndReleasesCallbackOwner() throws {
+        final class CallbackOwner {}
+
+        let adapter = PickerViewOutputSwiftUIAdapter()
+        var calls = 0
+        weak var weakOwner: CallbackOwner?
+        var callback: ((Int) -> Void)?
+        do {
+            let owner = CallbackOwner()
+            weakOwner = owner
+            callback = { _ in
+                _ = owner
+                calls += 1
+            }
+        }
+        adapter.display(model: .init(
+            componentsCount: { 1 },
+            rowsCount: { 1 },
+            titleForRowAt: { "Row \($0)" },
+            didSelectAt: callback
+        ))
+        callback = nil
+        var mountedStateModel: SUIPickerStateModel? = .init(adapter: adapter)
+        let retainedCallback = try XCTUnwrap(mountedStateModel?.didSelectAt)
+
+        XCTAssertNotNil(weakOwner)
+        XCTAssertEqual(mountedStateModel?.componentsCount, 1)
+        XCTAssertEqual(mountedStateModel?.rows, ["Row 0"])
+        retainedCallback(0)
+        XCTAssertEqual(calls, 1)
+
+        mountedStateModel = nil
+        adapter.componentsCount = nil
+        adapter.rowsCount = nil
+        adapter.titleForRowAt = nil
+        adapter.didSelectAt = nil
+        RunLoop.main.run(until: Date().addingTimeInterval(0.01))
+
+        XCTAssertNil(weakOwner)
+        retainedCallback(0)
+        XCTAssertEqual(calls, 1)
+
+        let remountedStateModel = SUIPickerStateModel(adapter: adapter)
+
+        XCTAssertEqual(remountedStateModel.componentsCount, 0)
+        XCTAssertTrue(remountedStateModel.rows.isEmpty)
+        XCTAssertNil(remountedStateModel.didSelectAt)
     }
 
     func test_rowsKeepProviderCountWhenSomeTitlesAreNil() {

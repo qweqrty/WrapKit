@@ -27,14 +27,6 @@ public struct SUISearchBar: View {
         self.contentInsets = contentInsets
     }
 
-    init(
-        stateModel: SUISearchBarStateModel,
-        contentInsets: EdgeInsets = .zero
-    ) {
-        _stateModel = .init(wrappedValue: stateModel)
-        self.contentInsets = contentInsets
-    }
-
     public var body: some View {
         if !stateModel.isHidden {
             styledContent

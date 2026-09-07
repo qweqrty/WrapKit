@@ -5,7 +5,7 @@ import UIKit
 
 public struct SUISwitchControl: View {
     @StateObject private var stateModel: SUISwitchControlStateModel
-    
+
     public init(adapter: SwitchCotrolOutputSwiftUIAdapter) {
         _stateModel = .init(wrappedValue: .init(adapter: adapter))
     }
@@ -35,7 +35,7 @@ public struct SUISwitchControlView: View {
     let style: SwitchControlPresentableModel.Style?
     let onToggle: ((Bool) -> Void)?
     let accessibilityIdentifier: String?
-    
+
     public init(
         isOn: Bool,
         isEnabled: Bool = true,
@@ -67,7 +67,7 @@ public struct SUISwitchControlView: View {
                     GeometryReader { geometry in
                         SUIShimmerView(style: style?.shimmerStyle)
                             .frame(
-                                width: geometry.size.width * 1.1,
+                                width: geometry.size.width * shimmerWidthMultiplier,
                                 height: geometry.size.height
                             )
                             .clipShape(
@@ -131,6 +131,15 @@ public struct SUISwitchControlView: View {
         .labelsHidden()
     }
 
+    private var shimmerWidthMultiplier: CGFloat {
+#if os(iOS)
+        if #available(iOS 26.0, *) {
+            return 1.1
+        }
+#endif
+        return 1
+    }
+
 }
 
 #if os(iOS)
@@ -171,7 +180,7 @@ private struct SUINativeSwitchView: UIViewRepresentable {
         uiView.nativeSwitch.intrinsicContentSize
     }
 
-    private func applyState(to nativeSwitch: UISwitch) {
+    private func applyState(to nativeSwitch: SUINativeSwitch) {
         if !nativeSwitch.isTracking, nativeSwitch.isOn != isOn {
             nativeSwitch.setOn(isOn, animated: false)
         }
@@ -181,23 +190,7 @@ private struct SUINativeSwitchView: UIViewRepresentable {
         if nativeSwitch.accessibilityIdentifier != accessibilityIdentifier {
             nativeSwitch.accessibilityIdentifier = accessibilityIdentifier
         }
-        if nativeSwitch.onTintColor != style?.tintColor {
-            nativeSwitch.onTintColor = style?.tintColor
-        }
-        if nativeSwitch.thumbTintColor != style?.thumbTintColor {
-            nativeSwitch.thumbTintColor = style?.thumbTintColor
-        }
-        if nativeSwitch.backgroundColor != style?.backgroundColor {
-            nativeSwitch.backgroundColor = style?.backgroundColor
-        }
-
-        let cornerRadius = style?.cornerRadius ?? 0
-        if nativeSwitch.cornerRadiusValue() != cornerRadius {
-            nativeSwitch.applyCornerStyle(.fixed(cornerRadius))
-        }
-        if nativeSwitch.clipsToBounds {
-            nativeSwitch.clipsToBounds = false
-        }
+        nativeSwitch.apply(style: style)
     }
 
     final class Coordinator: NSObject {
@@ -215,8 +208,43 @@ private struct SUINativeSwitchView: UIViewRepresentable {
 }
 
 @available(iOS 26.0, *)
+private final class SUINativeSwitch: UISwitch {
+    private var switchStyle: SwitchControlPresentableModel.Style?
+
+    func apply(style: SwitchControlPresentableModel.Style?) {
+        switchStyle = style
+        applyStoredStyle()
+    }
+
+    override func didMoveToWindow() {
+        super.didMoveToWindow()
+        applyStoredStyle()
+    }
+
+    private func applyStoredStyle() {
+        if onTintColor != switchStyle?.tintColor {
+            onTintColor = switchStyle?.tintColor
+        }
+        if thumbTintColor != switchStyle?.thumbTintColor {
+            thumbTintColor = switchStyle?.thumbTintColor
+        }
+        if backgroundColor != switchStyle?.backgroundColor {
+            backgroundColor = switchStyle?.backgroundColor
+        }
+
+        let cornerRadius = switchStyle?.cornerRadius ?? 0
+        if cornerRadiusValue() != cornerRadius {
+            applyCornerStyle(.fixed(cornerRadius))
+        }
+        if clipsToBounds {
+            clipsToBounds = false
+        }
+    }
+}
+
+@available(iOS 26.0, *)
 private final class SUINativeSwitchContainer: UIView {
-    let nativeSwitch = UISwitch(frame: .zero)
+    let nativeSwitch = SUINativeSwitch(frame: .zero)
 
     override init(frame: CGRect) {
         super.init(frame: frame)

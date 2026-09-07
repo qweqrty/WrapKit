@@ -190,7 +190,7 @@ public struct SUIVKeyValueFieldView: View {
     @ViewBuilder
     private var keyLabel: some View {
         label(
-            stateModel.keyTitle,
+            stateModel.keyTitleStateModel,
             font: keyFont,
             textColor: keyTextColor,
             textAlignment: keyTextAlignment,
@@ -202,7 +202,7 @@ public struct SUIVKeyValueFieldView: View {
     @ViewBuilder
     private var valueLabel: some View {
         label(
-            stateModel.valueTitle,
+            stateModel.valueTitleStateModel,
             font: valueFont,
             textColor: valueTextColor,
             textAlignment: valueTextAlignment,
@@ -220,26 +220,24 @@ public struct SUIVKeyValueFieldView: View {
 
     @ViewBuilder
     private func label(
-        _ model: TextOutputPresentableModel?,
+        _ stateModel: SUILabelStateModel,
         font: Font,
         textColor: Color,
         textAlignment: TextAlignment,
         numberOfLines: Int,
         minimumScaleFactor: CGFloat?
     ) -> some View {
-        if let model {
-            SUILabelView(
-                model: model,
-                font: font,
-                textColor: textColor,
-                textAlignment: textAlignment
-            )
-            .lineLimit(numberOfLines == 0 ? nil : numberOfLines)
-            .ifLet(minimumScaleFactor) { view, factor in
-                view.minimumScaleFactor(factor)
-            }
-            .frame(maxWidth: .infinity, alignment: alignment(from: textAlignment))
+        SUIOutputLabel(
+            stateModel: stateModel,
+            font: font,
+            textColor: textColor,
+            textAlignment: textAlignment
+        )
+        .lineLimit(numberOfLines == 0 ? nil : numberOfLines)
+        .ifLet(minimumScaleFactor) { view, factor in
+            view.minimumScaleFactor(factor)
         }
+        .frame(maxWidth: .infinity, alignment: alignment(from: textAlignment))
     }
 
     private func alignment(from textAlignment: TextAlignment) -> Alignment {

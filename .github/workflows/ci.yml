@@ -97,6 +97,8 @@ jobs:
           xcodebuild clean build test \
             -workspace $SCHEME_NAME.xcworkspace \
             -scheme $SCHEME_NAME \
+            -testLanguage en \
+            -testRegion US \
             -destination "platform=iOS Simulator,name=${{ matrix.test_destination.device }},OS=${{ matrix.test_destination.ios_version }}"
 
       # -----------------------------

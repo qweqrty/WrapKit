@@ -1,8 +1,84 @@
-#if canImport(SwiftUI)
+#if canImport(SwiftUI) && canImport(UIKit)
 @testable import WrapKit
 import XCTest
 
+@MainActor
 final class SUIEmptyViewStateModelTests: XCTestCase {
+    func test_nilThenContentlessTitlePreservesActionAcrossRemountLikeUIKit() throws {
+        final class ActionOwner {}
+
+        let uiKitView = EmptyView()
+        weak var uiKitOwner: ActionOwner?
+        do {
+            let owner = ActionOwner()
+            uiKitOwner = owner
+            uiKitView.display(title: .attributes([
+                .init(text: "Retained title", onTap: { _ = owner })
+            ]))
+        }
+        uiKitView.display(title: nil)
+        XCTAssertNotNil(uiKitOwner)
+        uiKitView.display(title: .init(model: nil))
+        XCTAssertFalse(uiKitView.titleLabel.isHidden)
+        XCTAssertNotNil(uiKitOwner)
+        uiKitView.display(title: .attributes([.init(text: "Replacement")]))
+        XCTAssertNil(uiKitOwner)
+
+        let adapter = EmptyViewOutputSwiftUIAdapter()
+        var calls = 0
+        weak var weakOwner: ActionOwner?
+        do {
+            let owner = ActionOwner()
+            weakOwner = owner
+            adapter.display(title: .attributes([
+                .init(text: "Retained title", onTap: {
+                    _ = owner
+                    calls += 1
+                })
+            ]))
+        }
+
+        adapter.display(title: nil)
+        XCTAssertNotNil(weakOwner)
+        adapter.display(title: .init(model: nil))
+
+        var sut: SUIEmptyViewStateModel? = .init(adapter: adapter)
+        sut = nil
+        let remountedSUT = SUIEmptyViewStateModel(adapter: adapter)
+
+        let action = try XCTUnwrap(firstTapAction(
+            in: remountedSUT.titleStateModel.presentable.model
+        ))
+        action()
+        XCTAssertEqual(calls, 1)
+
+        adapter.display(title: .attributes([.init(text: "Replacement")]))
+        XCTAssertNil(weakOwner)
+    }
+
+    func test_titleAnimationCompletionSurvivesPlainReplacementAndStateModelRemount() {
+        let completion = expectation(description: "Title animation completes")
+        let adapter = EmptyViewOutputSwiftUIAdapter()
+        var sut: SUIEmptyViewStateModel? = .init(adapter: adapter)
+
+        adapter.display(title: .init(model: .animatedDecimal(
+            from: 0,
+            to: 1,
+            mapToString: { .text($0.asString()) },
+            animationStyle: .none,
+            duration: 0.05,
+            completion: { completion.fulfill() }
+        )))
+        adapter.display(title: .text("Replacement"))
+
+        sut = nil
+        let remountedSUT = SUIEmptyViewStateModel(adapter: adapter)
+
+        wait(for: [completion], timeout: 0.5)
+        XCTAssertEqual(remountedSUT.title?.plainText, "Replacement")
+        XCTAssertEqual(remountedSUT.titleStateModel.presentable.model?.text, "1")
+    }
+
     func test_premountModelAndIncrementalOutputsHonorFinalWriteInEitherOrder() {
         let modelLastAdapter = EmptyViewOutputSwiftUIAdapter()
         modelLastAdapter.display(title: .text("Old incremental title"))
@@ -65,6 +141,35 @@ final class SUIEmptyViewStateModelTests: XCTestCase {
         XCTAssertTrue(sut.isButtonHidden)
     }
 
+    func test_nilButtonOutput_releasesSupersededActionOwner() throws {
+        final class ActionOwner {}
+
+        let adapter = EmptyViewOutputSwiftUIAdapter()
+        let sut = SUIEmptyViewStateModel(adapter: adapter)
+        var calls = 0
+        weak var weakOwner: ActionOwner?
+        do {
+            let owner = ActionOwner()
+            weakOwner = owner
+            adapter.display(buttonModel: .init(onPress: {
+                _ = owner
+                calls += 1
+            }))
+        }
+        let retainedAction = try XCTUnwrap(sut.buttonModel?.onPress)
+
+        XCTAssertNotNil(weakOwner)
+        retainedAction()
+        XCTAssertEqual(calls, 1)
+
+        adapter.display(buttonModel: nil)
+
+        XCTAssertNil(weakOwner)
+        XCTAssertNil(sut.buttonModel)
+        retainedAction()
+        XCTAssertEqual(calls, 1)
+    }
+
     func test_incrementalButtonModel_preservesUIKitLayoutAndEnabledState() {
         let adapter = EmptyViewOutputSwiftUIAdapter()
         let sut = SUIEmptyViewStateModel(adapter: adapter)
@@ -83,6 +188,81 @@ final class SUIEmptyViewStateModelTests: XCTestCase {
         XCTAssertEqual(sut.buttonModel?.width, 180)
         XCTAssertNotNil(sut.buttonModel?.style)
         XCTAssertEqual(sut.buttonModel?.enabled, false)
+    }
+
+    @available(iOS 17.0, *)
+    func test_imageClosureOnlyReplacementUpdatesMountedViewAndSurvivesRemount() throws {
+        final class ActionOwner {}
+
+        let adapter = EmptyViewOutputSwiftUIAdapter()
+        var calls: [String] = []
+        weak var oldOwner: ActionOwner?
+        do {
+            let owner = ActionOwner()
+            oldOwner = owner
+            adapter.display(image: .systemSymbol(
+                "star.fill",
+                accessibilityIdentifier: "empty.image",
+                accessibility: .init(label: "Empty image"),
+                size: .init(width: 32, height: 32),
+                onPress: {
+                    _ = owner
+                    calls.append("old")
+                }
+            ))
+        }
+
+        var host: SwiftUIAccessibilityTestHost? = .init(
+            rootView: SUIEmptyView(adapter: adapter),
+            size: CGSize(width: 200, height: 120)
+        )
+        host?.settle()
+        let initialElement = try XCTUnwrap(host?.element(withLabel: "Empty image"))
+        XCTAssertTrue(initialElement.accessibilityActivate())
+        XCTAssertEqual(calls, ["old"])
+
+        weak var latestOwner: ActionOwner?
+        do {
+            let owner = ActionOwner()
+            latestOwner = owner
+            adapter.display(image: .systemSymbol(
+                "star.fill",
+                accessibilityIdentifier: "empty.image",
+                accessibility: .init(label: "Empty image"),
+                size: .init(width: 32, height: 32),
+                onPress: {
+                    _ = owner
+                    calls.append("latest")
+                }
+            ))
+        }
+        host?.settle()
+
+        XCTAssertNil(oldOwner)
+        let updatedElement = try XCTUnwrap(host?.element(withLabel: "Empty image"))
+        XCTAssertTrue(updatedElement.accessibilityActivate())
+        XCTAssertEqual(calls, ["old", "latest"])
+
+        weak var firstHost = host
+        host = nil
+        XCTAssertNil(firstHost)
+        let remountedHost = SwiftUIAccessibilityTestHost(
+            rootView: SUIEmptyView(adapter: adapter),
+            size: CGSize(width: 200, height: 120)
+        )
+        let remountedElement = try XCTUnwrap(
+            remountedHost.element(withLabel: "Empty image")
+        )
+        XCTAssertTrue(remountedElement.accessibilityActivate())
+        XCTAssertEqual(calls, ["old", "latest", "latest"])
+
+        adapter.display(image: nil)
+        remountedHost.settle()
+
+        XCTAssertNil(latestOwner)
+        XCTAssertNil(remountedHost.element(withLabel: "Empty image"))
+        XCTAssertTrue(updatedElement.accessibilityActivate())
+        XCTAssertEqual(calls, ["old", "latest", "latest"])
     }
 
     func test_uiKitEmptyView_usesCenteredDefaultLabelsAndFullButtonSemantics() {
@@ -111,6 +291,18 @@ final class SUIEmptyViewStateModelTests: XCTestCase {
             44
         )
     }
+}
+
+private func firstTapAction(
+    in model: TextOutputPresentableModel.TextModel?,
+    file: StaticString = #filePath,
+    line: UInt = #line
+) -> (() -> Void)? {
+    guard case let .attributes(attributes)? = model else {
+        XCTFail("Expected text attributes", file: file, line: line)
+        return nil
+    }
+    return attributes.first?.onTap
 }
 
 private extension TextOutputPresentableModel {
