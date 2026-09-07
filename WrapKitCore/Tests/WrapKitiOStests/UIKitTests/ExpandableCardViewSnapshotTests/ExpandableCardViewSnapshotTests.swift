@@ -239,6 +239,7 @@ final class ExpandableCardViewSnapshotTests: XCTestCase {
         // GIVEN
         let (sut, container) = makeSUT()
         let image = Image(systemName: "star.fill")
+        let backgroundImage = makeSnapshotBackgroundImage()
         let snapshotName = "EXPANDABLECARDVIEW_WITH_CONTENT"
         
         // WHEN
@@ -264,7 +265,7 @@ final class ExpandableCardViewSnapshotTests: XCTestCase {
                 hStackViewSpacing: 2,
                 titleKeyNumberOfLines: 1,
                 titleValueNumberOfLines: 1),
-            backgroundImage: .init(image: .asset(image)),
+            backgroundImage: .init(image: .asset(backgroundImage)),
             title: .text("Prime title"),
             leadingTitles: .init(.text("First title"), .text("Second title")),
             trailingImage: .init(image: .asset(image)),
@@ -293,7 +294,7 @@ final class ExpandableCardViewSnapshotTests: XCTestCase {
                 hStackViewSpacing: 2,
                 titleKeyNumberOfLines: 1,
                 titleValueNumberOfLines: 1),
-            backgroundImage: .init(image: .asset(image)),
+            backgroundImage: .init(image: .asset(backgroundImage)),
             title: .text("Secondary title"),
             trailingTitles: .init(.text("First title"), .text("Second title")),
             leadingImage: .init(image: .asset(image)),
