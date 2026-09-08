@@ -1,12 +1,108 @@
 #if canImport(SwiftUI) && canImport(UIKit)
 import SwiftUI
 @testable import WrapKit
+import WrapKitTestUtils
 import UIKit
 import XCTest
 
 @MainActor
 @available(iOS 17.0, *)
 final class SUIImageViewParityTests: XCTestCase {
+    func test_squareImageBorder_hasExactRectangularCorners() throws {
+        let cornerRadii: [CGFloat?] = [nil, 0]
+        for cornerRadius in cornerRadii {
+            for appearance in SnapshotAppearance.allCases {
+                let adapter = ImageViewOutputSwiftUIAdapter()
+                adapter.display(model: .systemSymbol(
+                    "star.fill",
+                    size: squareBorderSize,
+                    borderWidth: squareBorderWidth,
+                    borderColor: .black,
+                    cornerRadius: cornerRadius
+                ))
+
+                let image = renderSquareBorder(
+                    SUIImageView(adapter: adapter),
+                    appearance: appearance
+                )
+
+                try assertRectangularBorderCoverage(
+                    image,
+                    context: "ImageView, cornerRadius=\(String(describing: cornerRadius)), \(appearance)"
+                )
+            }
+        }
+    }
+
+    func test_squareCardBackgroundBorder_hasExactRectangularCorners() throws {
+        let cornerRadii: [CGFloat?] = [nil, 0]
+        for cornerRadius in cornerRadii {
+            for appearance in SnapshotAppearance.allCases {
+                let adapter = CardViewOutputSwiftUIAdapter()
+                adapter.display(backgroundImage: .systemSymbol(
+                    "star.fill",
+                    size: .init(width: 24, height: 24),
+                    borderWidth: squareBorderWidth,
+                    borderColor: .black,
+                    cornerRadius: cornerRadius
+                ))
+
+                let image = renderSquareBorder(
+                    SUICardView(adapter: adapter),
+                    appearance: appearance
+                )
+
+                try assertRectangularBorderCoverage(
+                    image,
+                    context: "Card background, cornerRadius=\(String(describing: cornerRadius)), \(appearance)"
+                )
+            }
+        }
+    }
+
+    func test_squareBorder_translucentColorBlendsCornersOnce() throws {
+        for cardBackground in [false, true] {
+            for appearance in SnapshotAppearance.allCases {
+                let image = renderSquareBorder(
+                    width: squareBorderWidth,
+                    color: UIColor.black.withAlphaComponent(0.5),
+                    cardBackground: cardBackground,
+                    appearance: appearance
+                )
+
+                try assertRectangularBorderCoverage(
+                    image,
+                    opacity: 0.5,
+                    includeInterior: true,
+                    context: "Translucent border, cardBackground=\(cardBackground), \(appearance)"
+                )
+            }
+        }
+    }
+
+    func test_squareBorder_zeroFractionalHalfAndOversizedWidthsKeepRectangularCoverage() throws {
+        let widths: [CGFloat] = [0, 0.5, squareBorderSize.height / 2, squareBorderSize.width]
+        for borderWidth in widths {
+            for cardBackground in [false, true] {
+                for appearance in SnapshotAppearance.allCases {
+                    let image = renderSquareBorder(
+                        width: borderWidth,
+                        color: .black,
+                        cardBackground: cardBackground,
+                        appearance: appearance
+                    )
+
+                    try assertRectangularBorderCoverage(
+                        image,
+                        borderWidth: borderWidth,
+                        includeInterior: true,
+                        context: "Width=\(borderWidth), cardBackground=\(cardBackground), \(appearance)"
+                    )
+                }
+            }
+        }
+    }
+
     func test_fullModelThenNil_hidesClearsContentAndRetainsLayoutLikeUIKit() {
         let adapter = ImageViewOutputSwiftUIAdapter()
         let output: ImageViewOutput = adapter
@@ -529,6 +625,136 @@ final class SUIImageViewParityTests: XCTestCase {
 
         host.settle()
         wait(for: [completion], timeout: 1)
+    }
+
+    private var squareBorderSize: CGSize { .init(width: 390, height: 200) }
+    private var squareBorderWidth: CGFloat { 4 }
+
+    private func renderSquareBorder(
+        width: CGFloat,
+        color: UIColor,
+        cardBackground: Bool,
+        appearance: SnapshotAppearance
+    ) -> UIImage {
+        let model = ImageViewPresentableModel(
+            size: squareBorderSize,
+            borderWidth: width,
+            borderColor: color
+        )
+        if cardBackground {
+            let adapter = CardViewOutputSwiftUIAdapter()
+            adapter.display(backgroundImage: model)
+            return renderSquareBorder(SUICardView(adapter: adapter), appearance: appearance)
+        }
+        let adapter = ImageViewOutputSwiftUIAdapter()
+        adapter.display(model: model)
+        return renderSquareBorder(SUIImageView(adapter: adapter), appearance: appearance)
+    }
+
+    private func renderSquareBorder(
+        _ view: some View,
+        appearance: SnapshotAppearance
+    ) -> UIImage {
+        let rootView = view
+            .frame(width: squareBorderSize.width, height: squareBorderSize.height)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+            .snapshotEnvironment(configuration: .iPhone(style: appearance.colorScheme))
+            .ignoresSafeArea(.all)
+        let controller = UIHostingController(rootView: rootView)
+        controller.view.backgroundColor = .clear
+        controller.view.frame = CGRect(origin: .zero, size: SnapshotConfiguration.size)
+        RunLoop.main.run(until: Date().addingTimeInterval(0.12))
+        controller.view.setNeedsLayout()
+        controller.view.layoutIfNeeded()
+        RunLoop.main.run(until: Date().addingTimeInterval(0.12))
+        return controller.snapshot(for: appearance.uiKitConfiguration)
+    }
+
+    private func assertRectangularBorderCoverage(
+        _ image: UIImage,
+        borderWidth: CGFloat = 4,
+        opacity: CGFloat = 1,
+        includeInterior: Bool = false,
+        context: String,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) throws {
+        let cgImage = try XCTUnwrap(image.cgImage, file: file, line: line)
+        let scale = SnapshotRenderDefaults.scale
+        let width = Int(squareBorderSize.width * scale)
+        let height = Int(squareBorderSize.height * scale)
+        let border = borderWidth * scale
+        XCTAssertEqual(image.scale, scale, context, file: file, line: line)
+        XCTAssertEqual(cgImage.width, width, context, file: file, line: line)
+        guard cgImage.width == width, cgImage.height >= height else {
+            XCTFail("Unexpected snapshot dimensions: \(context)", file: file, line: line)
+            return
+        }
+
+        var pixels = [UInt8](repeating: 0, count: cgImage.width * cgImage.height * 4)
+        try pixels.withUnsafeMutableBytes { bytes in
+            let colorSpace = try XCTUnwrap(CGColorSpace(name: CGColorSpace.sRGB), file: file, line: line)
+            let bitmap = try XCTUnwrap(CGContext(
+                data: bytes.baseAddress,
+                width: cgImage.width,
+                height: cgImage.height,
+                bitsPerComponent: 8,
+                bytesPerRow: cgImage.width * 4,
+                space: colorSpace,
+                bitmapInfo: CGBitmapInfo.byteOrder32Big.rawValue | CGImageAlphaInfo.premultipliedLast.rawValue
+            ), file: file, line: line)
+            bitmap.draw(cgImage, in: CGRect(x: 0, y: 0, width: cgImage.width, height: cgImage.height))
+        }
+
+        // The four corners include the first clear pixel inside the bottom-right corner.
+        // Image-free fixtures also check the complete interior and the row below the view.
+        let probeSize = Int(ceil(border)) + 2
+        let regions: [(x: Range<Int>, y: Range<Int>)] = includeInterior
+            ? [(0..<width, 0..<min(height + 2, cgImage.height))]
+            : [
+                (0..<probeSize, 0..<probeSize),
+                ((width - probeSize)..<width, 0..<probeSize),
+                (0..<probeSize, (height - probeSize)..<height),
+                ((width - probeSize)..<width, (height - probeSize)..<height)
+            ]
+        let innerWidth = max(0, CGFloat(width) - 2 * border)
+        let innerHeight = max(0, CGFloat(height) - 2 * border)
+        var mismatchCount = 0
+        var mismatches: [String] = []
+        for region in regions {
+            for y in region.y {
+                for x in region.x {
+                    // Independent geometric oracle: coverage is the unit pixel's area
+                    // outside the inset rectangle, not a second rendering of the shape.
+                    let innerX = max(0, min(CGFloat(x + 1), border + innerWidth) - max(CGFloat(x), border))
+                    let innerY = max(0, min(CGFloat(y + 1), border + innerHeight) - max(CGFloat(y), border))
+                    let coverage: CGFloat = y < height ? 1 - innerX * innerY : 0
+                    let alpha = coverage * opacity * 255
+                    let expectedAlpha = Int(alpha.rounded())
+                    let tolerance = alpha == alpha.rounded() ? 0 : 1
+                    let index = (y * cgImage.width + x) * 4
+                    if pixels[index] != 0 || pixels[index + 1] != 0 || pixels[index + 2] != 0
+                        || abs(Int(pixels[index + 3]) - expectedAlpha) > tolerance {
+                        mismatchCount += 1
+                        if mismatches.count < 8 {
+                            let actual = Array(pixels[index..<(index + 4)])
+                            mismatches.append("(\(x),\(y)): \(actual), expected [0, 0, 0, \(expectedAlpha)]")
+                        }
+                    }
+                }
+            }
+        }
+
+        guard mismatchCount > 0 else { return }
+        let attachment = XCTAttachment(image: image)
+        attachment.name = "Non-rectangular border: \(context)"
+        attachment.lifetime = .keepAlways
+        add(attachment)
+        XCTFail(
+            "\(context): \(mismatchCount) incorrect border pixels. " + mismatches.joined(separator: "; "),
+            file: file,
+            line: line
+        )
     }
 }
 

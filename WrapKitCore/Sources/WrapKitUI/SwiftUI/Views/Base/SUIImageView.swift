@@ -853,13 +853,20 @@ private struct ImageViewContainerStyle: ViewModifier {
             .modifier(OptionalFrame(size: frameSize))
             .clipped()
             .clipShape(shape)
-            .ifLet(border) {
-                $0.overlay(
-                    shape.strokeBorder(
-                        SwiftUIColor($1.color),
-                        lineWidth: $1.width
-                    )
-                )
+            .ifLet(border) { view, border in
+                view.overlay {
+                    if (model?.cornerRadius ?? 0) == 0, border.width >= 0 {
+                        ImageViewSquareBorder(lineWidth: border.width).fill(
+                            SwiftUIColor(border.color),
+                            style: FillStyle(eoFill: true)
+                        )
+                    } else {
+                        shape.strokeBorder(
+                            SwiftUIColor(border.color),
+                            lineWidth: border.width
+                        )
+                    }
+                }
             }
             .modifier(ImageViewInteractionModifier(
                 baseOpacity: effectiveOpacity,
@@ -885,6 +892,27 @@ private struct ImageViewContainerStyle: ViewModifier {
         case .cardBackground:
             guard let color = model?.borderColor else { return nil }
             return (color, width)
+        }
+    }
+}
+
+// A filled ring keeps square inner corners exact without stroke-join coverage.
+private struct ImageViewSquareBorder: Shape {
+    var lineWidth: CGFloat
+
+    var animatableData: CGFloat {
+        get { lineWidth }
+        set { lineWidth = newValue }
+    }
+
+    func path(in rect: CGRect) -> Path {
+        guard lineWidth > 0 else { return Path() }
+        return Path { path in
+            path.addRect(rect)
+            let innerRect = rect.insetBy(dx: lineWidth, dy: lineWidth)
+            if innerRect.width > 0, innerRect.height > 0 {
+                path.addRect(innerRect)
+            }
         }
     }
 }
