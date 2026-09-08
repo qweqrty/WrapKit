@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -euo pipefail
+
 # Set up project root
 PROJECT_ROOT=$(git rev-parse --show-toplevel)
 

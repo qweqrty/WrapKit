@@ -1,0 +1,24 @@
+{
+  "originHash" : "b723f1c062e1ed57f34919bce0108f520764712c545f83773ca4f81144cfd884",
+  "pins" : [
+    {
+      "identity" : "airbnb.lottie-spm",
+      "kind" : "registry",
+      "location" : "",
+      "originalLocation" : "https://github.com/airbnb/lottie-spm",
+      "state" : {
+        "version" : "4.5.1"
+      }
+    },
+    {
+      "identity" : "onevcat.kingfisher",
+      "kind" : "registry",
+      "location" : "",
+      "originalLocation" : "https://github.com/onevcat/Kingfisher",
+      "state" : {
+        "version" : "7.12.0"
+      }
+    }
+  ],
+  "version" : 2
+}
