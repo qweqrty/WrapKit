@@ -135,7 +135,7 @@ public struct SUILabelView: View, Animatable {
 //                Text(text)
 //                    .font(suiFont)
 //                    .offset(y: -simpleTextYOffset)
-//                    .modify { if #available(iOS 26, macOS 26, watchOS 26, tvOS 26, *) {
+//                    .modify { if #available(iOS 26, macOS 26, watchOS 26, tvOS 26, visionOS 26, *) {
 //                        if #available(macOS 26.0, *) {
 //                            $0.lineHeight(.multiple(factor: simpleTextLineHeightMultiple))
 //                        } else {
@@ -415,7 +415,7 @@ extension NSUnderlineStyle {
                     text: "Text with leading image",
                     leadingImage: ImageFactory.systemImage(named: "star.fill")
                 )]),
-                cornerStyle: nil, insets: .zero, height: 150, backgroundColor: .systemBlue
+                cornerStyle: nil, insets: .zero, height: 150, backgroundColor: .blue
             ))
             
         }
@@ -431,7 +431,7 @@ extension NSUnderlineStyle {
     )
     .font(.system(size: 20))
     .offset(y: -1.2)
-    .modify { if #available(iOS 26, macOS 26, watchOS 26, tvOS 26, *) {
+    .modify { if #available(iOS 26, macOS 26, watchOS 26, tvOS 26, visionOS 26, *) {
         if #available(macOS 26.0, *) {
             $0.lineHeight(.multiple(factor: 1.17))
         } else {
@@ -446,7 +446,7 @@ extension NSUnderlineStyle {
     )
     .font(.system(size: 30))
     .offset(y: -1.2)
-    .modify { if #available(iOS 26, macOS 26, watchOS 26, tvOS 26, *) {
+    .modify { if #available(iOS 26, macOS 26, watchOS 26, tvOS 26, visionOS 26, *) {
         if #available(macOS 26.0, *) {
             $0.lineHeight(.multiple(factor: 1.17))
         } else {

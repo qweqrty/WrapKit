@@ -286,12 +286,14 @@ private struct ImageViewStyle: ViewModifier {
                     .stroke(borderColor, lineWidth: model?.borderWidth ?? 0)
             )
             .opacity(model?.alpha ?? 1.0)
+            #if !os(tvOS)
             .onTapGesture {
                 model?.onPress?()
             }
             .onLongPressGesture(minimumDuration: 1) {
                 model?.onLongPress?()
             }
+            #endif
     }
     
     private var borderColor: SwiftUIColor {

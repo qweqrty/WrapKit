@@ -110,7 +110,8 @@ public extension NSAttributedString {
         leadingImage: NSImage? = nil,
         leadingImageBounds: CGRect = .zero,
         trailingImage: NSImage? = nil,
-        trailingImageBounds: CGRect = .zero
+        trailingImageBounds: CGRect = .zero,
+        link: URL? = nil
     ) {
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.lineSpacing = lineSpacing

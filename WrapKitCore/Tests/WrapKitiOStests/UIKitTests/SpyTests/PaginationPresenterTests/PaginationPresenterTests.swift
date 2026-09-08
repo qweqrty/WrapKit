@@ -1,3 +1,4 @@
+#if os(iOS) || targetEnvironment(macCatalyst)
 //
 //  PaginationPresenterTests.swift
 //  WrapKit
@@ -363,3 +364,4 @@ fileprivate extension PaginationPresenterTests {
         )
     }
 }
+#endif

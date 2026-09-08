@@ -1,5 +1,5 @@
 import Foundation
-#if canImport(UIKit)
+#if canImport(UIKit) && !os(watchOS)
 import UIKit
 
 final public class BottomSheetPresentationController: UIPresentationController {

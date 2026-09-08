@@ -1,3 +1,5 @@
+#if os(iOS) || targetEnvironment(macCatalyst)
+#if canImport(UIKit) && !os(watchOS) && !os(tvOS)
 import WrapKit
 import WrapKitTestUtils
 import XCTest
@@ -297,3 +299,5 @@ extension SelectionConfiguration {
         )
     }
 }
+#endif
+#endif

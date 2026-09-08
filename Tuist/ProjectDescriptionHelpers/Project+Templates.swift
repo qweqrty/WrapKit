@@ -44,7 +44,7 @@ public extension ProjectDescription.DeploymentTargets {
     // Deployment targets with calculated risk assesments
     static let all: ProjectDescription.DeploymentTargets = .multiplatform(
         iOS: "15.0",
-        macOS: "10.15",
+        macOS: "11.0",
         watchOS: "8.0",
         tvOS: "15.0",
         visionOS: "1.0"

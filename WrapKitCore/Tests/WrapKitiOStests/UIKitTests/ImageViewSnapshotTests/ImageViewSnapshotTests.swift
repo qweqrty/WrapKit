@@ -1,3 +1,4 @@
+#if os(iOS) || targetEnvironment(macCatalyst)
 //
 //  ImageViewSnapshotTests.swift
 //  WrapKit
@@ -984,3 +985,4 @@ extension ImageViewSnapshotTests {
 
 fileprivate extension CardViewPresentableModel.Style {
 }
+#endif

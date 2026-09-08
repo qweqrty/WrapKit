@@ -1,3 +1,4 @@
+#if os(iOS) || targetEnvironment(macCatalyst)
 //
 //  TextViewSnapshotTests.swift
 //  WrapKitTests
@@ -969,3 +970,4 @@ extension TextViewSnapshotTests {
         return container
     }
 }
+#endif

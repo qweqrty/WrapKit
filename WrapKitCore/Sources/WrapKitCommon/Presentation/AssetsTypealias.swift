@@ -15,7 +15,7 @@ public typealias SwiftUIColor = SwiftUI.Color
 public typealias SwiftUIImage = SwiftUI.Image
 public typealias SwiftUIFont = SwiftUI.Font
 
-#elseif os(iOS) || os(tvOS) || os(watchOS)
+#elseif os(iOS) || os(tvOS) || os(watchOS) || os(visionOS)
 import UIKit
 public typealias Image = UIImage
 public typealias Color = UIColor
@@ -34,10 +34,14 @@ public typealias SwiftUIText = SwiftUI.Text
 
 public extension Color {
     static func dynamicColor(light: Color, dark: Color) -> Color {
+    #if os(watchOS)
+    return dark
+    #else
     guard #available(iOS 13.0, *) else { return light }
     return UIColor { traits in
       traits.userInterfaceStyle == .dark ? dark : light
     }
+    #endif
   }
 }
 #endif
@@ -66,15 +70,19 @@ public enum FontFactory {
         #elseif os(macOS)
         let systemFont = NSFont.systemFont(ofSize: size)
         return NSFontManager.shared.convert(systemFont, toHaveTrait: .italicFontMask)
+        #else
+        return Font.italicSystemFont(ofSize: size)
         #endif
     }
-
+    
     public static func bold(size: CGFloat) -> Font {
         #if os(iOS)
         return UIFont.boldSystemFont(ofSize: size)
         #elseif os(macOS)
         let systemFont = NSFont.systemFont(ofSize: size)
         return NSFontManager.shared.convert(systemFont, toHaveTrait: .boldFontMask)
+        #else
+        return Font.boldSystemFont(ofSize: size)
         #endif
     }
 
@@ -83,6 +91,8 @@ public enum FontFactory {
         return UIFont.systemFont(ofSize: size, weight: UIFont.Weight(rawValue: weight))
         #elseif os(macOS)
         return NSFont.systemFont(ofSize: size)
+        #else
+        return Font.systemFont(ofSize: size, weight: Weight(rawValue: weight))
         #endif
     }
 }

@@ -5,6 +5,7 @@
 // swift-format-ignore-file
 // swiftformat:disable all
 
+#if canImport(Lottie)
 #if canImport(WrapKit)
 import WrapKit
 #if canImport(Foundation)
@@ -37,4 +38,5 @@ extension WeakRefVirtualProxy: LottieViewOutput where T: LottieViewOutput {
         set { object?.currentAnimationName = newValue }
     }
 }
+#endif
 #endif

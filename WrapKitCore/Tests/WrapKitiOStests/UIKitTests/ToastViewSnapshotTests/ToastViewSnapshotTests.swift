@@ -1,3 +1,4 @@
+#if os(iOS) || targetEnvironment(macCatalyst)
 //
 //  ToastViewSnapshotTests.swift
 //  WrapKitTests
@@ -1153,3 +1154,4 @@ extension ToastViewSnapshotTests {
         )
     }
 }
+#endif

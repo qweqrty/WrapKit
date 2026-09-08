@@ -252,7 +252,7 @@ public struct CardViewPresentableModel: HashableWithReflection {
     }
 }
 
-#if canImport(UIKit)
+#if canImport(UIKit) && !os(watchOS)
 import UIKit
 import SwiftUI
 
@@ -371,9 +371,11 @@ extension CardView: CardViewOutput {
     
     public func display(switchControl: SwitchControlPresentableModel?) {
         switchWrapperView.isHidden = switchControl == nil
+        #if !os(tvOS)
         if let switchControl = switchControl {
             self.switchControl.display(model: switchControl)
         }
+        #endif
     }
     
     public func display(isUserInteractionEnabled: Bool?) {
@@ -640,7 +642,10 @@ open class CardView: ViewUIKit {
     public private(set) var secondaryTrailingImageView = ImageView()
     
     public let switchWrapperView = UIView(isHidden: true)
+    // TODO(MYO-7475): нет tvOS-реализации SwitchControl
+    #if !os(tvOS)
     public lazy var switchControl = SwitchControl()
+    #endif
     
     public let bottomImageWrapperView = UIView(isHidden: true)
     public private(set) var bottomImageView = ImageView(tintColor: .black)
@@ -716,8 +721,10 @@ open class CardView: ViewUIKit {
         titleViews.keyLabel.setContentHuggingPriority(.required, for: .vertical)
         titleViews.valueLabel.setContentHuggingPriority(.required, for: .vertical)
         
+        #if !os(tvOS)
         switchControl.setContentCompressionResistancePriority(.required, for: .horizontal)
         switchControl.setContentCompressionResistancePriority(.required, for: .vertical)
+        #endif
     }
     
     public required init?(coder: NSCoder) {
@@ -750,7 +757,9 @@ extension CardView {
         leadingTitleViewsWrapperView.addSubview(leadingTitleViews)
         titleViewsWrapperView.addSubview(titleViews)
         trailingTitleViewsWrapperView.addSubview(trailingTitleViews)
+        #if !os(tvOS)
         switchWrapperView.addSubview(switchControl)
+        #endif
     }
     
     func setupConstraints() {
@@ -832,6 +841,7 @@ extension CardView {
             .centerY(trailingImageWrapperView.centerYAnchor)
         )
         
+        #if !os(tvOS)
         switchControlConstraints = switchControl.anchor(
             .topGreaterThanEqual(switchWrapperView.topAnchor),
             .bottomLessThanEqual(switchWrapperView.bottomAnchor),
@@ -842,6 +852,7 @@ extension CardView {
             .centerX(switchWrapperView.centerXAnchor),
             .centerY(switchWrapperView.centerYAnchor)
         )
+        #endif
 
         vStackView.anchor(
             .leading(leadingAnchor),

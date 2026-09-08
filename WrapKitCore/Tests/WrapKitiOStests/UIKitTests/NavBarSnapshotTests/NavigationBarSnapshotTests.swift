@@ -1,3 +1,4 @@
+#if os(iOS) || targetEnvironment(macCatalyst)
 //
 //  NavigationBarSnapshotTests.swift
 //  WrapKitTests
@@ -1450,3 +1451,4 @@ extension NavigationBarSnapshotTests {
         return container
     }
 }
+#endif

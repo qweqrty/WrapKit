@@ -5,6 +5,7 @@
 // swift-format-ignore-file
 // swiftformat:disable all
 
+#if os(iOS) || targetEnvironment(macCatalyst)
 #if canImport(WrapKit)
 import WrapKit
 #if canImport(UIKit)
@@ -31,4 +32,5 @@ extension MainQueueDispatchDecorator: MediaPickerFlow where T: MediaPickerFlow {
     }
 
 }
+#endif
 #endif

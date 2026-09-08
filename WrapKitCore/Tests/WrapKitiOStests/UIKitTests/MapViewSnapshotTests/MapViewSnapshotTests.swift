@@ -1,3 +1,4 @@
+#if os(iOS) || targetEnvironment(macCatalyst)
 //
 //  MapViewSnapshotTests.swift
 //  WrapKitTests
@@ -486,3 +487,4 @@ extension MapViewSnapshotTests {
         return container
     }
 }
+#endif

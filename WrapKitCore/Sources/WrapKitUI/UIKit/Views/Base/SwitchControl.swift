@@ -59,7 +59,9 @@ public struct SwitchControlPresentableModel {
     }
 }
 
-#if canImport(UIKit)
+// - TODO: (MYO-7475): tvOS-реализация SwitchControl.
+// UISwitch на tvOS отсутствует. UISegmentedControl
+#if canImport(UIKit) && !os(watchOS) && !os(tvOS)
 import UIKit
 
 open class SwitchControl: UISwitch {

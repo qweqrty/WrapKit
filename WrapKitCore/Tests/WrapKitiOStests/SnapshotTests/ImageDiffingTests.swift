@@ -1,3 +1,5 @@
+#if os(iOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(tvOS)
 import UIKit
 import WrapKitTestUtils
 import XCTest
@@ -148,3 +150,5 @@ private extension ImageDiffingTests {
         return UIImage(cgImage: image)
     }
 }
+#endif
+#endif

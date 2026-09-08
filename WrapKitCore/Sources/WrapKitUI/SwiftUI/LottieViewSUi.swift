@@ -1,10 +1,4 @@
-//
-//  LottieSwiftUI.swift
-//  WrapKit
-//
-//  Created by Stanislav Li on 28/2/25.
-//
-
+#if canImport(Lottie)
 import Foundation
 import SwiftUI
 import Lottie
@@ -33,6 +27,7 @@ public struct LottieViewPresentableModel: HashableWithReflection {
     }
 }
 
+// sourcery: platformGuard = "canImport(Lottie)"
 public protocol LottieViewOutput: AnyObject {
     var currentAnimationName: String? { get set }
     func display(model: LottieViewPresentableModel)
@@ -76,7 +71,7 @@ public protocol LottieViewOutput: AnyObject {
 //    }
 //}
 
-#if canImport(UIKit)
+#if canImport(UIKit) && !os(watchOS)
 import UIKit
 
 open class LottieView: UIView, LottieViewOutput {
@@ -190,4 +185,5 @@ extension LottieAnimationView {
         self.init(animation: animation)
     }
 }
+#endif
 #endif

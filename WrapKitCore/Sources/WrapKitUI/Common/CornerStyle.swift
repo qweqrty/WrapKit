@@ -56,7 +56,7 @@ extension CornerStyle: ExpressibleByFloatLiteral {
     }
 }
 
-#if canImport(QuartzCore)
+#if canImport(QuartzCore) && !os(watchOS)
 import QuartzCore
 public extension CornerStyle.Corners {
     var maskedCorners: CACornerMask {

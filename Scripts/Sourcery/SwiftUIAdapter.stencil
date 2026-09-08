@@ -5,6 +5,7 @@
 // swift-format-ignore-file
 // swiftformat:disable all
 
+{% if type.annotations.platformGuard %}#if {{ type.annotations.platformGuard }}{% endif %}
 #if canImport(WrapKit)
 import WrapKit
 #endif
@@ -74,6 +75,7 @@ public class {{ type.name }}SwiftUIAdapter{% for associatedType in type.associat
     {% endif %}
     {% endfor %}
 }
+{% if type.annotations.platformGuard %}#endif{% endif %}
 // sourcery:end
 // sourcery:endfile
 {% endfor %}

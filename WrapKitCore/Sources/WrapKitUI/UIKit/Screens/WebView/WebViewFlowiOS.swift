@@ -5,7 +5,7 @@
 //  Created by Daniiar Erkinov on 10/2/25.
 //
 
-#if canImport(UIKit)
+#if canImport(WebKit) && canImport(UIKit) && !os(watchOS)
 import Foundation
 import UIKit
 

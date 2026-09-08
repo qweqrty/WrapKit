@@ -45,7 +45,7 @@ public extension String {
             .documentType: NSAttributedString.DocumentType.html,
             .characterEncoding: String.Encoding.utf8.rawValue
         ]
-        if #available(iOS 18.0, macOS 15.0, *) {
+        if #available(iOS 18.0, macOS 15.0, watchOS 11.0, tvOS 18.0, visionOS 2.0, *) {
             options[.textKit1ListMarkerFormatDocumentOption] = true
         }
 
@@ -65,7 +65,11 @@ public extension String {
         /// FONT: если size/weight передали — обновляем только их, сохраняя traits (italic и т.п.) из HTML
         if config?.size != nil || config?.weight != nil {
             attributed.enumerateAttribute(.font, in: whole, options: []) { value, range, _ in
+                #if os(watchOS) || os(tvOS)
+                let oldFont = (value as? Font) ?? Font.systemFont(ofSize: 17)
+                #else
                 let oldFont = (value as? Font) ?? Font.systemFont(ofSize: Font.systemFontSize)
+                #endif
                 let oldDescriptor = oldFont.fontDescriptor
 
                 let traits = oldDescriptor.symbolicTraits

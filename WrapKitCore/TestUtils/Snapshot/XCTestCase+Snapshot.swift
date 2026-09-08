@@ -1,4 +1,5 @@
-#if canImport(UIKit)
+// Diffing.image объявлен только для iOS/tvOS, снапшоты — для UIKit-платформ с окнами
+#if canImport(UIKit) && !os(watchOS) && !os(visionOS)
 #if canImport(XCTest)
 import UIKit
 import XCTest

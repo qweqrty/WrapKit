@@ -1,4 +1,4 @@
-#if canImport(UIKit)
+#if canImport(UIKit) && !os(watchOS) && !os(tvOS) && !os(visionOS)
 import UIKit
 
 public enum DirectionType {
