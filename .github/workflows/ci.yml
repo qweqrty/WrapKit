@@ -86,22 +86,26 @@ jobs:
           }
           FAILED=""
           for p in iOS macCatalyst macOS tvOS watchOS visionOS; do
-            echo "───────────── SPM / $p"
-            START=$(date +%s)
-            if xcodebuild build \
-                 -workspace .swiftpm/xcode/package.xcworkspace \
-                 -scheme WrapKit \
-                 -destination "$(dest_for $p)" \
-                 -derivedDataPath "$RUNNER_TEMP/dd/spm-$p" \
-                 -clonedSourcePackagesDirPath "$RUNNER_TEMP/spm-cache" \
-                 -skipPackagePluginValidation -skipMacroValidation \
-                 -quiet CODE_SIGNING_ALLOWED=NO > "build-spm-$p.log" 2>&1; then
-              echo "SPM $p ✅ $(( $(date +%s) - START ))s"
-            else
-              echo "SPM $p ❌ $(( $(date +%s) - START ))s"
-              grep "error:" "build-spm-$p.log" | sort -u | head -20
-              FAILED="$FAILED spm/$p"
-            fi
+            # DerivedData общий на платформу: WrapKit собирается один раз,
+            # WrapKitTestUtils переиспользует его модули.
+            for s in WrapKit WrapKitTestUtils; do
+              echo "───────────── SPM / $p / $s"
+              START=$(date +%s)
+              if xcodebuild build \
+                   -workspace .swiftpm/xcode/package.xcworkspace \
+                   -scheme "$s" \
+                   -destination "$(dest_for $p)" \
+                   -derivedDataPath "$RUNNER_TEMP/dd/spm-$p" \
+                   -clonedSourcePackagesDirPath "$RUNNER_TEMP/spm-cache" \
+                   -skipPackagePluginValidation -skipMacroValidation \
+                   -quiet CODE_SIGNING_ALLOWED=NO > "build-spm-$p-$s.log" 2>&1; then
+                echo "SPM $p / $s ✅ $(( $(date +%s) - START ))s"
+              else
+                echo "SPM $p / $s ❌ $(( $(date +%s) - START ))s"
+                grep "error:" "build-spm-$p-$s.log" | sort -u | head -20
+                FAILED="$FAILED spm/$p/$s"
+              fi
+            done
             rm -rf "$RUNNER_TEMP/dd/spm-$p"
           done
           if [ -n "$FAILED" ]; then
@@ -127,21 +131,23 @@ jobs:
           }
           FAILED=""
           for p in iOS macCatalyst macOS tvOS watchOS visionOS; do
-            echo "───────────── Tuist / $p"
-            START=$(date +%s)
-            if xcodebuild build \
-                 -workspace Wrapkit.xcworkspace \
-                 -scheme WrapKit \
-                 -destination "$(dest_for $p)" \
-                 -derivedDataPath "$RUNNER_TEMP/dd/tuist-$p" \
-                 -skipPackagePluginValidation -skipMacroValidation \
-                 -quiet CODE_SIGNING_ALLOWED=NO > "build-tuist-$p.log" 2>&1; then
-              echo "Tuist $p ✅ $(( $(date +%s) - START ))s"
-            else
-              echo "Tuist $p ❌ $(( $(date +%s) - START ))s"
-              grep "error:" "build-tuist-$p.log" | sort -u | head -20
-              FAILED="$FAILED tuist/$p"
-            fi
+            for s in WrapKit WrapKitTestUtils; do
+              echo "───────────── Tuist / $p / $s"
+              START=$(date +%s)
+              if xcodebuild build \
+                   -workspace Wrapkit.xcworkspace \
+                   -scheme "$s" \
+                   -destination "$(dest_for $p)" \
+                   -derivedDataPath "$RUNNER_TEMP/dd/tuist-$p" \
+                   -skipPackagePluginValidation -skipMacroValidation \
+                   -quiet CODE_SIGNING_ALLOWED=NO > "build-tuist-$p-$s.log" 2>&1; then
+                echo "Tuist $p / $s ✅ $(( $(date +%s) - START ))s"
+              else
+                echo "Tuist $p / $s ❌ $(( $(date +%s) - START ))s"
+                grep "error:" "build-tuist-$p-$s.log" | sort -u | head -20
+                FAILED="$FAILED tuist/$p/$s"
+              fi
+            done
             rm -rf "$RUNNER_TEMP/dd/tuist-$p"
           done
           if [ -n "$FAILED" ]; then
