@@ -473,10 +473,11 @@ private struct SUINavigationBarButtonView: View {
                         model.style?.glassConfiguration ?? .glass,
                         tint: model.style?.backgroundColor.map(SwiftUIColor.init),
                         cornerStyle: .automatic
-                    )
-                    .overlay(buttonBorder(model.style, cornerStyle: .automatic)),
-                    model: model
+                    ),
+                    model: model,
+                    cornerStyle: .automatic
                 )
+                .overlay(buttonBorder(model.style, cornerStyle: .automatic))
             } else {
                 let cornerStyle = model.style?.cornerStyle ?? .none
                 constrainedControl(
@@ -494,7 +495,8 @@ private struct SUINavigationBarButtonView: View {
     @ViewBuilder
     private func constrainedControl<Content: View>(
         _ content: Content,
-        model: ButtonPresentableModel
+        model: ButtonPresentableModel,
+        cornerStyle: CornerStyle = .none
     ) -> some View {
         if model.width != nil || model.height != nil {
             content
@@ -502,7 +504,7 @@ private struct SUINavigationBarButtonView: View {
                 // padding. Width/height in the Output model describe the final
                 // control, not the label before that padding.
                 .frame(width: model.width, height: model.height)
-                .clipped()
+                .clipShape(SUICornerShape(style: cornerStyle))
                 .contentShape(Rectangle())
         } else {
             content
@@ -572,7 +574,7 @@ private struct SUINavigationBarButtonView: View {
         if let borderColor = style?.borderColor,
            (style?.borderWidth ?? 0) > 0 {
             SUICornerShape(style: cornerStyle)
-                .stroke(
+                .strokeBorder(
                     SwiftUIColor(borderColor),
                     lineWidth: style?.borderWidth ?? 0
                 )

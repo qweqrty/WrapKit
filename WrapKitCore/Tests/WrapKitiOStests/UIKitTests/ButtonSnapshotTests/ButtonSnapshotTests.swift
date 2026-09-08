@@ -1136,14 +1136,32 @@ final class ButtonSnapshotTests: XCTestCase {
     func test_uikitButton_displayModel_clearsStaleAccessibilityLabel() {
         let button = WrapKit.Button()
         button.display(model: .init(
-            accessibility: .init(label: "Initial label"),
+            accessibility: .init(label: "Initial label", hint: "Initial hint"),
             title: "Title"
         ))
+
+        XCTAssertEqual(button.accessibilityLabel, "Initial label")
+        XCTAssertEqual(button.accessibilityHint, "Initial hint")
 
         button.display(model: .init(title: "Updated title"))
 
         XCTAssertEqual(button.accessibilityLabel, "Updated title")
         XCTAssertNotEqual(button.accessibilityLabel, "Initial label")
+        XCTAssertNil(button.accessibilityHint)
+    }
+
+    func test_uikitButton_displayNilModel_hidesButtonAndClearsAccessibility() {
+        let button = WrapKit.Button()
+        button.display(model: .init(
+            accessibility: .init(label: "Initial label", hint: "Initial hint"),
+            title: "Title"
+        ))
+
+        button.display(model: nil)
+
+        XCTAssertTrue(button.isHidden)
+        XCTAssertNil(button.accessibilityLabel)
+        XCTAssertNil(button.accessibilityHint)
     }
 
     func test_uikitButton_automaticCornerStyle_tracksBoundsHeight() {

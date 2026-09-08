@@ -476,6 +476,49 @@
         }
 
         @available(iOS 17.0, *)
+        func test_trailingButtonBorder_rendersInsideOutputBounds() throws {
+            let adapter = HeaderOutputSwiftUIAdapter()
+            let buttonSize = CGSize(width: 80, height: 24)
+            adapter.display(model: .init(
+                style: makeStyle(),
+                primeTrailingImage: .init(
+                    accessibilityIdentifier: "header.bordered",
+                    accessibility: .init(label: "Bordered button"),
+                    title: "Border",
+                    height: buttonSize.height,
+                    width: buttonSize.width,
+                    style: .init(
+                        backgroundColor: .white,
+                        titleColor: .black,
+                        borderWidth: 4,
+                        borderColor: .red,
+                        font: .systemFont(ofSize: 12),
+                        cornerStyle: .fixed(8)
+                    ),
+                    onPress: {}
+                )
+            ))
+            let host = makeHost(adapter: adapter)
+            let button = try XCTUnwrap(host.element(withIdentifier: "header.bordered"))
+            let buttonBounds = button.accessibilityFrame.offsetBy(
+                dx: -host.frame.minX,
+                dy: -host.frame.minY
+            )
+            XCTAssertEqual(buttonBounds.width, buttonSize.width, accuracy: 0.001)
+            XCTAssertEqual(buttonBounds.height, buttonSize.height, accuracy: 0.001)
+
+            let view = try XCTUnwrap(host.firstSubview(of: UIView.self))
+            let borderBounds = try renderedRedPixelBounds(in: view)
+            let onePhysicalPixel = 1 / UIScreen.main.scale
+            XCTAssertGreaterThan(borderBounds.width, 0, "The border must actually render")
+            XCTAssertGreaterThan(borderBounds.height, 0, "The border must actually render")
+            XCTAssertGreaterThanOrEqual(borderBounds.minX, buttonBounds.minX - onePhysicalPixel)
+            XCTAssertGreaterThanOrEqual(borderBounds.minY, buttonBounds.minY - onePhysicalPixel)
+            XCTAssertLessThanOrEqual(borderBounds.maxX, buttonBounds.maxX + onePhysicalPixel)
+            XCTAssertLessThanOrEqual(borderBounds.maxY, buttonBounds.maxY + onePhysicalPixel)
+        }
+
+        @available(iOS 17.0, *)
         func test_leadingCardWithLeadingAndTrailingTitles_usesUIKitHorizontalGeometry() throws {
             guard #available(iOS 26.0, *) else {
                 throw XCTSkip("The iOS 18 renderer uses the legacy navigation bar geometry")
@@ -643,6 +686,56 @@
     }
 
     private extension SUINavigationBarParityTests {
+        func renderedRedPixelBounds(in view: UIView) throws -> CGRect {
+            let format = UIGraphicsImageRendererFormat()
+            format.scale = UIScreen.main.scale
+            format.opaque = false
+            let image = UIGraphicsImageRenderer(bounds: view.bounds, format: format).image { _ in
+                XCTAssertTrue(view.drawHierarchy(in: view.bounds, afterScreenUpdates: true))
+            }
+            let cgImage = try XCTUnwrap(image.cgImage)
+            let width = cgImage.width
+            let height = cgImage.height
+            var pixels = [UInt8](repeating: 0, count: width * height * 4)
+            try pixels.withUnsafeMutableBytes { bytes in
+                let context = try XCTUnwrap(CGContext(
+                    data: bytes.baseAddress,
+                    width: width,
+                    height: height,
+                    bitsPerComponent: 8,
+                    bytesPerRow: width * 4,
+                    space: CGColorSpaceCreateDeviceRGB(),
+                    bitmapInfo: CGBitmapInfo.byteOrder32Big.rawValue
+                        | CGImageAlphaInfo.premultipliedLast.rawValue
+                ))
+                context.draw(cgImage, in: CGRect(x: 0, y: 0, width: width, height: height))
+            }
+
+            var minimumX = width
+            var minimumY = height
+            var maximumX = -1
+            var maximumY = -1
+            for index in stride(from: 0, to: pixels.count, by: 4) {
+                guard pixels[index] > 200, pixels[index + 1] < 80,
+                      pixels[index + 2] < 80, pixels[index + 3] > 200 else { continue }
+                let pixelIndex = index / 4
+                minimumX = min(minimumX, pixelIndex % width)
+                maximumX = max(maximumX, pixelIndex % width)
+                minimumY = min(minimumY, pixelIndex / width)
+                maximumY = max(maximumY, pixelIndex / width)
+            }
+            // An absent border must fail, not vacuously satisfy the containment checks.
+            let bounds: CGRect? = maximumX >= minimumX && maximumY >= minimumY
+                ? CGRect(
+                    x: CGFloat(minimumX) / image.scale,
+                    y: CGFloat(minimumY) / image.scale,
+                    width: CGFloat(maximumX - minimumX + 1) / image.scale,
+                    height: CGFloat(maximumY - minimumY + 1) / image.scale
+                )
+                : nil
+            return try XCTUnwrap(bounds, "Expected visible red border pixels in the rendered navigation bar")
+        }
+
         func firstTextAction(
             in model: TextOutputPresentableModel.TextModel?
         ) -> (() -> Void)? {

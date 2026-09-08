@@ -345,6 +345,7 @@ private final class ImageCompletionBarrier {
     private var remainingConsumerCount: Int
     private var didRecordResult = false
     private var firstSwiftUIImage: WrapKit.Image?
+    private var allConsumersLoadedImage = true
     private var completion: ((WrapKit.Image?) -> Void)?
 
     init(consumerCount: Int, completion: @escaping (WrapKit.Image?) -> Void) {
@@ -354,6 +355,7 @@ private final class ImageCompletionBarrier {
 
     func recordSwiftUIResult(_ image: WrapKit.Image?) {
         guard remainingConsumerCount > 0 else { return }
+        allConsumersLoadedImage = allConsumersLoadedImage && image != nil
         if !didRecordResult {
             didRecordResult = true
             firstSwiftUIImage = image
@@ -363,7 +365,7 @@ private final class ImageCompletionBarrier {
 
         let completion = completion
         self.completion = nil
-        completion?(firstSwiftUIImage)
+        completion?(allConsumersLoadedImage ? firstSwiftUIImage : nil)
     }
 }
 

@@ -76,7 +76,8 @@ final class ImageViewSnapshotTests: XCTestCase {
 
         // WHEN
         let urlString = light
-        sut.display(image: .urlString(urlString, urlString)) { _ in
+        sut.display(image: .urlString(urlString, urlString)) { image in
+            XCTAssertNotNil(image, "The bundled image fixture must load successfully.")
             exp.fulfill()
         }
 
@@ -99,7 +100,8 @@ final class ImageViewSnapshotTests: XCTestCase {
 
         // WHEN
         let urlString = dark
-        sut.display(image: .urlString(urlString, urlString)) { _ in
+        sut.display(image: .urlString(urlString, urlString)) { image in
+            XCTAssertNotNil(image, "The bundled image fixture must load successfully.")
             exp.fulfill()
         }
 
@@ -122,7 +124,8 @@ final class ImageViewSnapshotTests: XCTestCase {
 
         // WHEN
         let urlString = dark
-        sut.display(image: .urlString(urlString, urlString)) { _ in
+        sut.display(image: .urlString(urlString, urlString)) { image in
+            XCTAssertNotNil(image, "The bundled image fixture must load successfully.")
             exp.fulfill()
         }
 
@@ -145,7 +148,8 @@ final class ImageViewSnapshotTests: XCTestCase {
 
         // WHEN
         let urlString = light
-        sut.display(image: .urlString(urlString, urlString)) { _ in
+        sut.display(image: .urlString(urlString, urlString)) { image in
+            XCTAssertNotNil(image, "The bundled image fixture must load successfully.")
             exp.fulfill()
         }
 
@@ -207,6 +211,7 @@ final class ImageViewSnapshotTests: XCTestCase {
         // WHEN
         let url = URL(string: light)!
         sut.display(image: .url(url, url)) { image in
+            XCTAssertNotNil(image, "The bundled image fixture must load successfully.")
             exp.fulfill()
         }
 
@@ -229,7 +234,8 @@ final class ImageViewSnapshotTests: XCTestCase {
 
         // WHEN
         let url = URL(string: dark)!
-        sut.display(image: .url(url, url)) { _ in
+        sut.display(image: .url(url, url)) { image in
+            XCTAssertNotNil(image, "The bundled image fixture must load successfully.")
             exp.fulfill()
         }
 
@@ -399,6 +405,7 @@ final class ImageViewSnapshotTests: XCTestCase {
         let url = URL(string: dark)!
 
         sut.display(image: .url(url, url)) { image in
+            XCTAssertNotNil(image, "The bundled image fixture must load successfully.")
             exp.fulfill()
         }
 
@@ -422,7 +429,8 @@ final class ImageViewSnapshotTests: XCTestCase {
         // WHEN
         let url = URL(string: light)!
 
-        sut.display(image: .url(url, url)) { _ in
+        sut.display(image: .url(url, url)) { image in
+            XCTAssertNotNil(image, "The bundled image fixture must load successfully.")
             exp.fulfill()
         }
 

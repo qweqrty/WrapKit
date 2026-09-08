@@ -304,7 +304,7 @@ final class ShimmerViewSnapshotTests: XCTestCase {
         cardView.anchor(
             .top(container.topAnchor, constant: 20),
             .leading(container.leadingAnchor, constant: 20),
-            .trailing(container.trailingAnchor, constant: -20),
+            .trailing(container.trailingAnchor, constant: 20),
             .height(120)
         )
 
@@ -320,7 +320,7 @@ final class ShimmerViewSnapshotTests: XCTestCase {
         titleShimmer.anchor(
             .top(cardView.topAnchor, constant: 30),
             .leading(avatarShimmer.trailingAnchor, constant: 16),
-            .trailing(cardView.trailingAnchor, constant: -16),
+            .trailing(cardView.trailingAnchor, constant: 16),
             .height(16)
         )
 
@@ -378,7 +378,7 @@ final class ShimmerViewSnapshotTests: XCTestCase {
         cardView.anchor(
             .top(container.topAnchor, constant: 20),
             .leading(container.leadingAnchor, constant: 20),
-            .trailing(container.trailingAnchor, constant: -20),
+            .trailing(container.trailingAnchor, constant: 20),
             .height(120)
         )
 
@@ -394,7 +394,7 @@ final class ShimmerViewSnapshotTests: XCTestCase {
         titleShimmer.anchor(
             .top(cardView.topAnchor, constant: 30),
             .leading(avatarShimmer.trailingAnchor, constant: 16),
-            .trailing(cardView.trailingAnchor, constant: -16),
+            .trailing(cardView.trailingAnchor, constant: 16),
             .height(16)
         )
 

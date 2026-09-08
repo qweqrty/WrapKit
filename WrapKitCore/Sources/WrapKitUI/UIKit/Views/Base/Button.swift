@@ -166,7 +166,9 @@ extension Button: ButtonOutput {
         // MARK: Apply accessibility AFTER all properties are set
         display(onPress: model?.onPress)
         accessibilityIdentifier = model?.accessibilityIdentifier
-        accessibilityLabel = model?.accessibility?.label
+        if let label = model?.accessibility?.label {
+            accessibilityLabel = label
+        }
         accessibilityHint = model?.accessibility?.hint
     }
     

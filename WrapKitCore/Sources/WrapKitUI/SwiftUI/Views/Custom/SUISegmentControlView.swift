@@ -77,6 +77,10 @@ public struct SUISegmentControlView: View {
         let selectedIndex = stateModel.selectedIndex
 
         if segmentWidth > 0, stateModel.segments.indices.contains(selectedIndex) {
+#if os(iOS)
+            // UIKit keeps the iOS 26 selection capsule independent of the outer corner radius.
+            let shape = Capsule()
+#else
             let shape = RoundedRectangle(
                 cornerRadius: max(
                     stateModel.appearance.cornerRadius - nativeSelectedSegmentVerticalInset,
@@ -84,6 +88,7 @@ public struct SUISegmentControlView: View {
                 ),
                 style: .continuous
             )
+#endif
 
             ZStack {
                 shape.fill(SwiftUIColor(stateModel.appearance.colors.backgroundColor))
