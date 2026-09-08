@@ -476,6 +476,57 @@
         }
 
         @available(iOS 17.0, *)
+        func test_trailingButton_explicitTitleColorSurvivesHeaderPrimeColorUpdatesLikeUIKit() throws {
+            var presses = 0
+            let button = ButtonPresentableModel(
+                accessibilityIdentifier: "header.colored",
+                accessibility: .init(label: "Blue button"),
+                title: "Blue",
+                height: 44,
+                width: 100,
+                style: .init(titleColor: .blue),
+                onPress: { presses += 1 }
+            )
+            let initialModel = HeaderPresentableModel(
+                style: makeStyle(primeColor: .red),
+                primeTrailingImage: button
+            )
+            let nativeHeader = NavigationBar()
+            nativeHeader.display(model: initialModel)
+            let nativeHost = SwiftUIAccessibilityTestHost(
+                rootView: UIKitHeaderProbe(header: nativeHeader)
+                    .frame(width: containerWidth, height: 200)
+                    .ignoresSafeArea(),
+                size: CGSize(width: containerWidth, height: 200)
+            )
+            let adapter = HeaderOutputSwiftUIAdapter()
+            adapter.display(model: initialModel)
+            let swiftUIHost = makeHost(adapter: adapter)
+
+            for (color, name) in [(UIColor.red, "red"), (UIColor.green, "green")] {
+                let style = makeStyle(primeColor: color)
+                nativeHeader.display(style: style)
+                adapter.display(style: style)
+                nativeHost.settle()
+                swiftUIHost.settle()
+
+                XCTAssertEqual(nativeHeader.primeTrailingImageWrapperView.contentView.tintColor, color)
+                _ = try XCTUnwrap(swiftUIHost.element(withIdentifier: "header.colored"))
+                let nativePixels = try renderedColorCounts(in: nativeHeader, named: "UIKit blue button over \(name) header tint")
+                let swiftUIView = try XCTUnwrap(swiftUIHost.firstSubview(of: UIView.self))
+                let swiftUIPixels = try renderedColorCounts(in: swiftUIView, named: "SwiftUI blue button over \(name) header tint")
+
+                XCTAssertGreaterThan(nativePixels.blue, 10, "UIKit must visibly render the explicit blue foreground; counts=\(nativePixels)")
+                XCTAssertGreaterThan(swiftUIPixels.blue, 10, "SwiftUI must visibly render the explicit blue foreground; counts=\(swiftUIPixels)")
+                XCTAssertEqual(swiftUIPixels.red + swiftUIPixels.green, 0, "Header tint must not override the button's explicit foreground")
+            }
+
+            nativeHeader.primeTrailingImageWrapperView.contentView.sendActions(for: .touchUpInside)
+            XCTAssertTrue(try XCTUnwrap(swiftUIHost.element(withIdentifier: "header.colored")).accessibilityActivate())
+            XCTAssertEqual(presses, 2)
+        }
+
+        @available(iOS 17.0, *)
         func test_trailingButtonBorder_rendersInsideOutputBounds() throws {
             let adapter = HeaderOutputSwiftUIAdapter()
             let buttonSize = CGSize(width: 80, height: 24)
@@ -686,6 +737,64 @@
     }
 
     private extension SUINavigationBarParityTests {
+        struct UIKitHeaderProbe: UIViewRepresentable {
+            let header: NavigationBar
+
+            func makeUIView(context: Context) -> UIView {
+                let container = UIView()
+                container.addSubview(header)
+                header.translatesAutoresizingMaskIntoConstraints = false
+                NSLayoutConstraint.activate([
+                    header.topAnchor.constraint(equalTo: container.topAnchor),
+                    header.leadingAnchor.constraint(equalTo: container.leadingAnchor),
+                    header.trailingAnchor.constraint(equalTo: container.trailingAnchor)
+                ])
+                return container
+            }
+
+            func updateUIView(_ uiView: UIView, context: Context) {}
+        }
+
+        func renderedColorCounts(in view: UIView, named name: String) throws -> (red: Int, green: Int, blue: Int) {
+            let format = UIGraphicsImageRendererFormat()
+            format.scale = UIScreen.main.scale
+            format.opaque = false
+            let image = UIGraphicsImageRenderer(bounds: view.bounds, format: format).image { _ in
+                XCTAssertTrue(view.drawHierarchy(in: view.bounds, afterScreenUpdates: true))
+            }
+            let attachment = XCTAttachment(image: image)
+            attachment.name = name
+            attachment.lifetime = .keepAlways
+            add(attachment)
+
+            let cgImage = try XCTUnwrap(image.cgImage)
+            var pixels = [UInt8](repeating: 0, count: cgImage.width * cgImage.height * 4)
+            try pixels.withUnsafeMutableBytes { bytes in
+                let context = try XCTUnwrap(CGContext(
+                    data: bytes.baseAddress,
+                    width: cgImage.width,
+                    height: cgImage.height,
+                    bitsPerComponent: 8,
+                    bytesPerRow: cgImage.width * 4,
+                    space: CGColorSpaceCreateDeviceRGB(),
+                    bitmapInfo: CGBitmapInfo.byteOrder32Big.rawValue
+                        | CGImageAlphaInfo.premultipliedLast.rawValue
+                ))
+                context.draw(cgImage, in: CGRect(x: 0, y: 0, width: cgImage.width, height: cgImage.height))
+            }
+            var counts = [0, 0, 0]
+            for index in stride(from: 0, to: pixels.count, by: 4) where pixels[index + 3] > 200 {
+                for channel in 0..<3 {
+                    let otherChannels = (0..<3).filter { $0 != channel }
+                    if pixels[index + channel] > 180,
+                       otherChannels.allSatisfy({ pixels[index + $0] < 80 }) {
+                        counts[channel] += 1
+                    }
+                }
+            }
+            return (red: counts[0], green: counts[1], blue: counts[2])
+        }
+
         func renderedRedPixelBounds(in view: UIView) throws -> CGRect {
             let format = UIGraphicsImageRendererFormat()
             format.scale = UIScreen.main.scale

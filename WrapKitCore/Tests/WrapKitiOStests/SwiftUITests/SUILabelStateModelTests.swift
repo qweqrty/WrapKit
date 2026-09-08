@@ -6,6 +6,52 @@ import WrapKitTestUtils
 import XCTest
 
 final class SUILabelStateModelTests: XCTestCase {
+    @available(iOS 16.0, *)
+    @MainActor
+    func test_attributedTrailingNewline_preservesEmptyLineHeightLikeUIKit() {
+        let text = "CardView\nSubtitle\nMultiple\nRow"
+        let constraint = CGSize(width: 390, height: 1_000)
+        let cases: [(font: UIFont, lineSpacing: CGFloat, newline: String)] = [
+            (.systemFont(ofSize: 14, weight: .light), 4, "\n"),
+            (.systemFont(ofSize: 24), 0, "\r\n"),
+            (.boldSystemFont(ofSize: 18), 8, "\u{2028}")
+        ]
+
+        for testCase in cases {
+            var measuredHeights: [(uiKit: CGFloat, swiftUI: CGFloat)] = []
+            for suffix in ["", testCase.newline, testCase.newline + testCase.newline] {
+                let model = TextOutputPresentableModel.attributes([.init(
+                    text: text + suffix,
+                    font: testCase.font,
+                    lineSpacing: testCase.lineSpacing
+                )])
+                let label = WrapKit.Label(font: testCase.font)
+                label.display(model: model)
+                let host = UIHostingController(rootView:
+                    SUILabelView(model: model, font: testCase.font)
+                        .fixedSize(horizontal: false, vertical: true)
+                )
+                host.loadViewIfNeeded()
+                measuredHeights.append((
+                    label.sizeThatFits(constraint).height,
+                    host.sizeThatFits(in: constraint).height
+                ))
+            }
+
+            for index in 1..<measuredHeights.count {
+                let previous = measuredHeights[index - 1]
+                let current = measuredHeights[index]
+                XCTAssertGreaterThan(current.uiKit, previous.uiKit)
+                XCTAssertEqual(
+                    current.swiftUI - previous.swiftUI,
+                    current.uiKit - previous.uiKit,
+                    accuracy: 1,
+                    "The empty line must retain font and spacing: \(testCase), line \(index)"
+                )
+            }
+        }
+    }
+
     @available(iOS 17.0, *)
     @MainActor
     func test_htmlOverflow_fillsContainerAndKeepsFullAttributedContent() throws {

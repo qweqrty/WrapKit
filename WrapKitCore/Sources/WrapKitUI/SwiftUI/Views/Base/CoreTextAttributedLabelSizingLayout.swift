@@ -47,7 +47,7 @@ struct CoreTextAttributedLabelSizingLayout: Layout, @unchecked Sendable {
             width: proposedWidth ?? .greatestFiniteMagnitude,
             height: .greatestFiniteMagnitude
         )
-        let measured: CGSize
+        var measured: CGSize
         if usesFoundationLayoutMetrics {
             measured = attributedText.boundingRect(
                 with: constraint,
@@ -65,6 +65,7 @@ struct CoreTextAttributedLabelSizingLayout: Layout, @unchecked Sendable {
                 constraint,
                 nil
             )
+            measured.height += CoreTextAttributedLabelMetrics.trailingEmptyLineHeight(in: attributedText)
         }
 
         let scale = max(displayScale, 1)
@@ -77,6 +78,28 @@ struct CoreTextAttributedLabelSizingLayout: Layout, @unchecked Sendable {
     private func finite(_ value: CGFloat?) -> CGFloat? {
         guard let value, value.isFinite else { return nil }
         return max(value, 0)
+    }
+}
+
+enum CoreTextAttributedLabelMetrics {
+    static func trailingEmptyLineHeight(in attributedText: NSAttributedString) -> CGFloat {
+        guard let lastScalar = attributedText.string.unicodeScalars.last,
+              CharacterSet.newlines.contains(lastScalar),
+              let font = attributedText.attribute(
+                .font, at: attributedText.length - 1, effectiveRange: nil
+              ) as? Font
+        else { return 0 }
+
+        // A terminal line break creates an empty line with no glyphs. Core Text's
+        // framesetter measures only the preceding lines, so reserve its typographic height.
+        let coreTextFont = font as CTFont
+        let lineHeight = CTFontGetAscent(coreTextFont)
+            + CTFontGetDescent(coreTextFont)
+            + CTFontGetLeading(coreTextFont)
+        let paragraphStyle = attributedText.attribute(
+            .paragraphStyle, at: attributedText.length - 1, effectiveRange: nil
+        ) as? ParagraphStyle
+        return max(lineHeight + (paragraphStyle?.lineSpacing ?? 0), 0)
     }
 }
 #endif

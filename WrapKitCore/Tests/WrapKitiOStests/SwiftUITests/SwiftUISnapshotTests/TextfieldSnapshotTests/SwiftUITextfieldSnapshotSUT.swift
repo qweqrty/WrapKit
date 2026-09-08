@@ -140,6 +140,11 @@ final class SwiftUITextfieldSnapshotSUT: TextInputOutput, SwiftUISnapshotSource 
 
     @available(iOS 17.0, *)
     func swiftUISnapshot(for appearance: SnapshotAppearance) -> UIImage {
+        swiftUISnapshot(for: appearance, rendering: .automatic)
+    }
+
+    @available(iOS 17.0, *)
+    func swiftUISnapshot(for appearance: SnapshotAppearance, rendering: SnapshotRendering) -> UIImage {
         let rootView = SnapshotTextfieldContainer(
             content: AnyView(
                 SUITextField(
@@ -162,7 +167,7 @@ final class SwiftUITextfieldSnapshotSUT: TextInputOutput, SwiftUISnapshotSource 
         hostingController.view.layoutIfNeeded()
         RunLoop.main.run(until: Date().addingTimeInterval(warmup))
 
-        return hostingController.snapshot(for: appearance.uiKitConfiguration)
+        return hostingController.snapshot(for: appearance.uiKitConfiguration, rendering: rendering)
     }
 }
 

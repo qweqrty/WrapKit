@@ -726,11 +726,11 @@ final class TextfieldSnapshotTests: XCTestCase {
 
         // THEN
         if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light), rendering: .layer), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark), rendering: .layer), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light), rendering: .layer), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark), rendering: .layer), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
 
@@ -746,11 +746,36 @@ final class TextfieldSnapshotTests: XCTestCase {
 
         // THEN
         if #available(iOS 26, *) {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light), rendering: .layer), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark), rendering: .layer), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light), rendering: .layer), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark), rendering: .layer), named: "iOS18.5_\(snapshotName)_DARK")
+        }
+    }
+
+    func test_fail_Textfield_secureSnapshotRejectsMissingText() {
+        let snapshotName = "TEXTFIELD_ISSECURETEXT_TRUE_TEXT"
+        let (sut, container) = makeSUT()
+        sut.display(text: "MyPassword123")
+        sut.display(isSecureTextEntry: true)
+
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light), rendering: .layer), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark), rendering: .layer), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light), rendering: .layer), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark), rendering: .layer), named: "iOS18.5_\(snapshotName)_DARK")
+        }
+
+        sut.display(text: "")
+
+        if #available(iOS 26, *) {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light), rendering: .layer), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark), rendering: .layer), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light), rendering: .layer), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark), rendering: .layer), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
 

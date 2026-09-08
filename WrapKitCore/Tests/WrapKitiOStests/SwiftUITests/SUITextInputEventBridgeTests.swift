@@ -1,4 +1,5 @@
 #if canImport(SwiftUI)
+    import SwiftUI
     import UIKit
     @testable import WrapKit
     import XCTest
@@ -836,6 +837,187 @@
             adapter.stopEditing()
 
             XCTAssertTrue(sut.shouldResignFirstResponder)
+        }
+    }
+
+    @available(iOS 17.0, *)
+    @MainActor
+    final class SUITextFieldSecureEntryTests: XCTestCase {
+        private let password = "MyPassword123"
+
+        func test_swiftUI_secureOutputPreservesMountedTextAndRevealRendersIt() throws {
+            let adapter = TextInputOutputSwiftUIAdapter()
+            adapter.display(text: password)
+            adapter.display(isSecureTextEntry: true)
+            let host = SwiftUIAccessibilityTestHost(
+                rootView: SUITextField(adapter: adapter, appearance: appearance)
+                    .preferredColorScheme(.light),
+                size: CGSize(width: 320, height: 80)
+            )
+
+            try verifyMountedSecureEntry(
+                host: host,
+                setText: adapter.display(text:),
+                setSecure: adapter.display(isSecureTextEntry:)
+            )
+        }
+
+        func test_uiKit_secureOutputPreservesMountedTextAndRevealRendersIt() throws {
+            let field = Textfield(cornerStyle: CornerStyle.none, appearance: appearance)
+            field.display(text: password)
+            field.display(isSecureTextEntry: true)
+            let host = SwiftUIAccessibilityTestHost(
+                rootView: NativeField(field: field).preferredColorScheme(.light),
+                size: CGSize(width: 320, height: 80)
+            )
+
+            try verifyMountedSecureEntry(
+                host: host,
+                setText: field.display(text:),
+                setSecure: field.display(isSecureTextEntry:)
+            )
+        }
+
+        func test_systemTextField_secureEntryRendersMaskedGlyphs() throws {
+            let field = UITextField()
+            field.textColor = .black
+            field.backgroundColor = .white
+            field.font = .systemFont(ofSize: 24)
+            field.text = password
+            field.isSecureTextEntry = true
+            let host = SwiftUIAccessibilityTestHost(
+                rootView: NativeField(field: field).preferredColorScheme(.light),
+                size: CGSize(width: 320, height: 80)
+            )
+
+            try verifyMountedSecureEntry(
+                host: host,
+                setText: { field.text = $0 },
+                setSecure: { field.isSecureTextEntry = $0 }
+            )
+        }
+
+        private func verifyMountedSecureEntry(
+            host: SwiftUIAccessibilityTestHost,
+            setText: (String?) -> Void,
+            setSecure: (Bool) -> Void
+        ) throws {
+            let secureField = try XCTUnwrap(host.firstSubview(of: UITextField.self))
+            XCTAssertNotNil(secureField.window)
+            XCTAssertTrue(secureField.isSecureTextEntry)
+            XCTAssertEqual(secureField.text, password)
+            let textRange = try XCTUnwrap(secureField.textRange(
+                from: secureField.beginningOfDocument,
+                to: secureField.endOfDocument
+            ))
+            XCTAssertFalse(textRange.isEmpty)
+            let textRect = secureField.firstRect(for: textRange)
+            XCTAssertGreaterThan(textRect.width, 0)
+            XCTAssertGreaterThan(textRect.height, 0)
+            let secure = capture(secureField, named: "secure-populated")
+            XCTAssertEqual(try glyphColumnRuns(in: secure), password.count,
+                "Every secure character must produce a masked glyph in the native layer.")
+
+            setText("")
+            host.settle()
+            XCTAssertEqual(secureField.text, "")
+            let emptySecure = capture(secureField, named: "secure-empty")
+            XCTAssertEqual(try glyphColumnRuns(in: emptySecure), 0,
+                "Deleting secure text must remove its rendered glyphs.")
+
+            setText(password)
+            setSecure(false)
+            host.settle()
+            let revealedField = try XCTUnwrap(host.firstSubview(of: UITextField.self))
+            XCTAssertFalse(revealedField.isSecureTextEntry)
+            XCTAssertEqual(revealedField.text, password)
+            let revealed = capture(revealedField, named: "revealed-populated")
+
+            setText("")
+            host.settle()
+            XCTAssertEqual(revealedField.text, "")
+            let emptyRevealed = capture(revealedField, named: "revealed-empty")
+            XCTAssertGreaterThan(try glyphColumnRuns(in: revealed), 0,
+                "The positive reveal guard must render actual text, not only retain the Output model.")
+            XCTAssertEqual(try glyphColumnRuns(in: emptyRevealed), 0)
+        }
+
+        private func capture(_ field: UITextField, named name: String) -> UIImage {
+            let format = UIGraphicsImageRendererFormat()
+            format.scale = 1
+            format.opaque = true
+            let canvasBounds = field.bounds.integral
+            let renderer = UIGraphicsImageRenderer(bounds: canvasBounds, format: format)
+            // drawHierarchy suppresses secure content even for a plain UITextField.
+            // Layer capture observes the real masked glyphs without changing entry mode.
+            let layer = renderer.image { context in
+                UIColor.white.setFill()
+                context.fill(canvasBounds)
+                field.layer.render(in: context.cgContext)
+            }
+            attach(layer, named: name)
+            return layer
+        }
+
+        private func attach(_ image: UIImage, named name: String) {
+            let attachment = XCTAttachment(image: image)
+            attachment.name = name
+            attachment.lifetime = .keepAlways
+            add(attachment)
+        }
+
+        private func glyphColumnRuns(in image: UIImage) throws -> Int {
+            let image = try XCTUnwrap(image.cgImage)
+            var pixels = [UInt8](repeating: 0, count: image.width * image.height * 4)
+            try pixels.withUnsafeMutableBytes { buffer in
+                let context = try XCTUnwrap(CGContext(
+                    data: buffer.baseAddress,
+                    width: image.width,
+                    height: image.height,
+                    bitsPerComponent: 8,
+                    bytesPerRow: image.width * 4,
+                    space: CGColorSpaceCreateDeviceRGB(),
+                    bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+                        | CGBitmapInfo.byteOrder32Big.rawValue
+                ))
+                context.draw(image, in: CGRect(x: 0, y: 0, width: image.width, height: image.height))
+            }
+            var runs = 0
+            var previousColumnContainsInk = false
+            for x in 0..<image.width {
+                let containsInk = (0..<image.height).contains { y in
+                    let pixel = (y * image.width + x) * 4
+                    return pixels[pixel] < 128 && pixels[pixel + 1] < 128 && pixels[pixel + 2] < 128
+                }
+                if containsInk && !previousColumnContainsInk { runs += 1 }
+                previousColumnContainsInk = containsInk
+            }
+            return runs
+        }
+
+        private var appearance: TextfieldAppearance {
+            .init(
+                colors: .init(
+                    textColor: .black,
+                    selectedBorderColor: .clear,
+                    selectedBackgroundColor: .white,
+                    selectedErrorBorderColor: .clear,
+                    errorBorderColor: .clear,
+                    errorBackgroundColor: .white,
+                    deselectedBorderColor: .clear,
+                    deselectedBackgroundColor: .white,
+                    disabledTextColor: .gray,
+                    disabledBackgroundColor: .white
+                ),
+                font: .systemFont(ofSize: 24)
+            )
+        }
+
+        private struct NativeField: UIViewRepresentable {
+            let field: UITextField
+
+            func makeUIView(context: Context) -> UITextField { field }
+            func updateUIView(_ uiView: UITextField, context: Context) {}
         }
     }
 

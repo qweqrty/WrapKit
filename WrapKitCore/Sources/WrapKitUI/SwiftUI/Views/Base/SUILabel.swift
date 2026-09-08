@@ -715,7 +715,8 @@ private struct CoreTextAttributedLabel: View {
                 CGSize(width: size.width, height: .greatestFiniteMagnitude),
                 nil
             )
-            textHeight = min(ceil(suggestedSize.height), size.height)
+            let trailingLineHeight = CoreTextAttributedLabelMetrics.trailingEmptyLineHeight(in: attributedText)
+            textHeight = min(ceil(suggestedSize.height + trailingLineHeight), size.height)
             verticalInset = max((size.height - textHeight) / 2, 0)
         }
         let path = CGPath(

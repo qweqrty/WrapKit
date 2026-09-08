@@ -1,15 +1,24 @@
 #if canImport(UIKit)
 import UIKit
+#if canImport(XCTest)
+import XCTest
+#endif
+
+public enum SnapshotRendering {
+    case automatic
+    /// Captures native layers, including secure text omitted by drawHierarchy.
+    case layer
+}
 
 public extension UIViewController {
-    func snapshot(for configuration: SnapshotConfiguration) -> UIImage {
-        return SnapshotWindow(configuration: configuration, root: self).snapshot()
+    func snapshot(for configuration: SnapshotConfiguration, rendering: SnapshotRendering = .automatic) -> UIImage {
+        return SnapshotWindow(configuration: configuration, root: self).snapshot(rendering: rendering)
     }
 }
 
 public extension UIView {
-    func snapshot(for configuration: SnapshotConfiguration) -> UIImage {
-        return SnapshotWindow(configuration: configuration, rootView: self).snapshot()
+    func snapshot(for configuration: SnapshotConfiguration, rendering: SnapshotRendering = .automatic) -> UIImage {
+        return SnapshotWindow(configuration: configuration, rootView: self).snapshot(rendering: rendering)
     }
 }
 
@@ -104,7 +113,7 @@ private final class SnapshotWindow: UIWindow {
         configuration.traitCollection
     }
     
-    public func snapshot() -> UIImage {
+    public func snapshot(rendering: SnapshotRendering) -> UIImage {
         let animationsWereEnabled = UIView.areAnimationsEnabled
         UIView.setAnimationsEnabled(false)
         defer { UIView.setAnimationsEnabled(animationsWereEnabled) }
@@ -134,7 +143,12 @@ private final class SnapshotWindow: UIWindow {
                 layoutSnapshotHierarchy()
                 removeAllLayerAnimations()
             }
-            image = renderHierarchyImage()
+            switch rendering {
+            case .automatic:
+                image = renderHierarchyImage()
+            case .layer:
+                image = asImage(scale: traitCollection.displayScale)
+            }
         } else {
             layoutSnapshotHierarchy()
             removeAllLayerAnimations()
@@ -174,9 +188,18 @@ private final class SnapshotWindow: UIWindow {
         format.scale = traitCollection.displayScale
         format.preferredRange = .extended
         format.opaque = false
-        return UIGraphicsImageRenderer(bounds: bounds, format: format).image { _ in
-            drawHierarchy(in: bounds, afterScreenUpdates: true)
+        var didDrawHierarchy = false
+        let image = UIGraphicsImageRenderer(bounds: bounds, format: format).image { _ in
+            didDrawHierarchy = drawHierarchy(in: bounds, afterScreenUpdates: true)
         }
+        if !didDrawHierarchy {
+            #if canImport(XCTest)
+            XCTFail("Snapshot hierarchy rendering failed; the captured image is incomplete.")
+            #else
+            preconditionFailure("Snapshot hierarchy rendering failed; the captured image is incomplete.")
+            #endif
+        }
+        return image
     }
 
     private func removeAllLayerAnimations() {
