@@ -16,6 +16,10 @@ import Foundation
 #endif
 public class SelectionOutputSwiftUIAdapter: ObservableObject, SelectionOutput {
 
+
+
+
+
     // Initializer
     public init(
     ) {

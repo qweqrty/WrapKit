@@ -1,20 +1,29 @@
 #if canImport(UIKit)
 import UIKit
+#if canImport(XCTest)
+import XCTest
+#endif
+
+public enum SnapshotRendering {
+    case automatic
+    /// Captures native layers, including secure text omitted by drawHierarchy.
+    case layer
+}
 
 public extension UIViewController {
-    func snapshot(for configuration: SnapshotConfiguration) -> UIImage {
-        return SnapshotWindow(configuration: configuration, root: self).snapshot()
+    func snapshot(for configuration: SnapshotConfiguration, rendering: SnapshotRendering = .automatic) -> UIImage {
+        return SnapshotWindow(configuration: configuration, root: self).snapshot(rendering: rendering)
     }
 }
 
 public extension UIView {
-    func snapshot(for configuration: SnapshotConfiguration) -> UIImage {
-        return SnapshotWindow(configuration: configuration, rootView: self).snapshot()
+    func snapshot(for configuration: SnapshotConfiguration, rendering: SnapshotRendering = .automatic) -> UIImage {
+        return SnapshotWindow(configuration: configuration, rootView: self).snapshot(rendering: rendering)
     }
 }
 
 public struct SnapshotConfiguration {
-    public static let size = CGSize(width: 1170 / UIScreen.main.scale, height: 2532 / UIScreen.main.scale)
+    public static let size = SnapshotRenderDefaults.size
     
     public let size: CGSize
     public let safeAreaInsets: UIEdgeInsets
@@ -28,14 +37,18 @@ public struct SnapshotConfiguration {
         self.traitCollection = traitCollection
     }
     
-    public static func iPhone(style: UIUserInterfaceStyle, contentSize: UIContentSizeCategory = .medium) -> SnapshotConfiguration {
+    public static func iPhone(
+        style: UIUserInterfaceStyle,
+        contentSize: UIContentSizeCategory = SnapshotRenderDefaults.contentSizeCategory,
+        displayScale: CGFloat = SnapshotRenderDefaults.scale
+    ) -> SnapshotConfiguration {
         let forceTouch = UITraitCollection(forceTouchCapability: .unavailable)
         let layoutDirection = UITraitCollection(layoutDirection: .leftToRight)
         let contentSizeCategory = UITraitCollection(preferredContentSizeCategory: contentSize)
         let userInterfaceIdiom = UITraitCollection(userInterfaceIdiom: .phone)
         let horizontalSizeClass = UITraitCollection(horizontalSizeClass: .compact)
         let verticalSizeClass = UITraitCollection(verticalSizeClass: .regular)
-        let displayScale = UITraitCollection(displayScale: 3.0)
+        let displayScale = UITraitCollection(displayScale: displayScale)
         let accessibilityContrast = UITraitCollection(accessibilityContrast: .normal)
         let displayGamut = UITraitCollection(displayGamut: .SRGB) // was P3
         let userInterfaceStyle = UITraitCollection(userInterfaceStyle: style)
@@ -68,7 +81,9 @@ private final class SnapshotWindow: UIWindow {
     convenience init(configuration: SnapshotConfiguration, root: UIViewController) {
         self.init(frame: CGRect(origin: .zero, size: configuration.size))
         self.configuration = configuration
+        self.overrideUserInterfaceStyle = configuration.traitCollection.userInterfaceStyle
         self.layoutMargins = configuration.layoutMargins
+        root.overrideUserInterfaceStyle = configuration.traitCollection.userInterfaceStyle
         self.rootViewController = root
         self.isHidden = false
         root.view.layoutMargins = configuration.layoutMargins
@@ -77,7 +92,8 @@ private final class SnapshotWindow: UIWindow {
     convenience init(configuration: SnapshotConfiguration, rootView: UIView) {
         let viewController = UIViewController()
         viewController.view.addSubview(rootView)
-        if rootView is UIWindow {
+        if let rootWindow = rootView as? UIWindow {
+            rootWindow.overrideUserInterfaceStyle = configuration.traitCollection.userInterfaceStyle
             rootView.translatesAutoresizingMaskIntoConstraints = false
             NSLayoutConstraint.activate([
                 rootView.topAnchor.constraint(equalTo: viewController.view.topAnchor),
@@ -97,7 +113,11 @@ private final class SnapshotWindow: UIWindow {
         configuration.traitCollection
     }
     
-    public func snapshot() -> UIImage {
+    public func snapshot(rendering: SnapshotRendering) -> UIImage {
+        let animationsWereEnabled = UIView.areAnimationsEnabled
+        UIView.setAnimationsEnabled(false)
+        defer { UIView.setAnimationsEnabled(animationsWereEnabled) }
+
         let image: UIImage
         if #available(iOS 26, *) {
             if let scene = UIApplication.shared.connectedScenes
@@ -105,20 +125,33 @@ private final class SnapshotWindow: UIWindow {
                 windowScene = scene
             }
             makeKeyAndVisible()
-            layoutIfNeeded()
-            if containsGlassEffect() {
+            layoutSnapshotHierarchy()
+            let needsGlassWarmup = containsGlassEffect()
+            if needsGlassWarmup {
                 RunLoop.current.run(until: Date().addingTimeInterval(0.6))
             }
-            removeAllLayerAnimations()
             RunLoop.current.run(until: Date().addingTimeInterval(0.05))
-            let format = UIGraphicsImageRendererFormat(for: traitCollection)
-            format.scale = traitCollection.displayScale
-            format.preferredRange = .extended
-            format.opaque = false
-            image = UIGraphicsImageRenderer(bounds: bounds, format: format).image { _ in
-                drawHierarchy(in: bounds, afterScreenUpdates: true)
+            layoutSnapshotHierarchy()
+            removeAllLayerAnimations()
+
+            // The first hierarchy draw commits the contents of iOS 26 glass-backed
+            // views. Capture and discard that frame so the compared image contains
+            // the same fully rendered text and controls on the first appearance too.
+            if needsGlassWarmup {
+                _ = renderHierarchyImage()
+                RunLoop.current.run(until: Date().addingTimeInterval(0.05))
+                layoutSnapshotHierarchy()
+                removeAllLayerAnimations()
+            }
+            switch rendering {
+            case .automatic:
+                image = renderHierarchyImage()
+            case .layer:
+                image = asImage(scale: traitCollection.displayScale)
             }
         } else {
+            layoutSnapshotHierarchy()
+            removeAllLayerAnimations()
             image = asImage(scale: traitCollection.displayScale)
         }
 
@@ -130,6 +163,16 @@ private final class SnapshotWindow: UIWindow {
         return image
     }
 
+    private func layoutSnapshotHierarchy() {
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+        setNeedsLayout()
+        rootViewController?.view.setNeedsLayout()
+        layoutIfNeeded()
+        rootViewController?.view.layoutIfNeeded()
+        CATransaction.commit()
+    }
+
     private func containsGlassEffect() -> Bool {
         func walk(_ v: UIView) -> Bool {
             if v is UIVisualEffectView { return true }
@@ -137,6 +180,26 @@ private final class SnapshotWindow: UIWindow {
             return false
         }
         return walk(self)
+    }
+
+    @available(iOS 26, *)
+    private func renderHierarchyImage() -> UIImage {
+        let format = UIGraphicsImageRendererFormat(for: traitCollection)
+        format.scale = traitCollection.displayScale
+        format.preferredRange = .extended
+        format.opaque = false
+        var didDrawHierarchy = false
+        let image = UIGraphicsImageRenderer(bounds: bounds, format: format).image { _ in
+            didDrawHierarchy = drawHierarchy(in: bounds, afterScreenUpdates: true)
+        }
+        if !didDrawHierarchy {
+            #if canImport(XCTest)
+            XCTFail("Snapshot hierarchy rendering failed; the captured image is incomplete.")
+            #else
+            preconditionFailure("Snapshot hierarchy rendering failed; the captured image is incomplete.")
+            #endif
+        }
+        return image
     }
 
     private func removeAllLayerAnimations() {
@@ -153,7 +216,7 @@ private final class SnapshotWindow: UIWindow {
 }
 
 extension UIView {
-    func asImage(scale: CGFloat = UIScreen.main.scale) -> UIImage {
+    func asImage(scale: CGFloat = SnapshotRenderDefaults.scale) -> UIImage {
         let format = UIGraphicsImageRendererFormat(for: traitCollection)
         format.scale = scale // This ensures the correct resolution (1x, 2x, 3x, etc.)
         format.preferredRange =  .extended // UIKit not passing with standart

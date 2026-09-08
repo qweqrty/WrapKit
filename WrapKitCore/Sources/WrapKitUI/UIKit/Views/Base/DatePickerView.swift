@@ -84,7 +84,7 @@ extension DatePickerView: DatePickerViewOutput {
     }
     
     public func display(setDate: Date, animated: Bool) {
-        self.setDate(date, animated: animated)
+        self.setDate(setDate, animated: animated)
     }
     
     public func display(dateChanged: ((Date) -> Void)?) {

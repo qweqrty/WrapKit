@@ -49,10 +49,10 @@ final class LabelSnapshotTests: XCTestCase {
         // GIVEN
         let (sut, container) = makeSUT()
         let snapshotName = "LABEL_DEFAULT_STATE"
-        
+
         // WHEN
         sut.display(model: .text("default"))
-        
+
         // THEN
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -62,15 +62,15 @@ final class LabelSnapshotTests: XCTestCase {
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
     func test_fail_labelOutput_default_state() {
         // GIVEN
         let (sut, container) = makeSUT()
         let snapshotName = "LABEL_DEFAULT_STATE"
-        
+
         // WHEN
         sut.display(model: .text("nothing"))
-        
+
         // THEN
         if #available(iOS 26, *) {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -80,15 +80,15 @@ final class LabelSnapshotTests: XCTestCase {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
     func test_labelOutput_long_text() {
         //GIVEN
         let (sut, container) = makeSUT()
         let snapshotName = "LABEL_LONG_TITLE"
-        
+
         // WHEN
         sut.display(model: .text("This is really long text that should wrap and check for number of lines"))
-        
+
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
@@ -97,15 +97,15 @@ final class LabelSnapshotTests: XCTestCase {
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
     func test_fail_labelOutput_long_text() {
         //GIVEN
         let (sut, container) = makeSUT()
         let snapshotName = "LABEL_LONG_TITLE"
-        
+
         // WHEN
         sut.display(model: .text("This is really long text that should wrap and check for number of lines."))
-        
+
         if #available(iOS 26, *) {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
@@ -114,7 +114,7 @@ final class LabelSnapshotTests: XCTestCase {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
     func test_labelOutput_hidden_text() {
         //GIVEN
         let (sut, container) = makeSUT()
@@ -122,7 +122,7 @@ final class LabelSnapshotTests: XCTestCase {
         //WHEN
         sut.display(text: "Hidden")
         sut.display(isHidden: false)
-        
+
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
@@ -131,7 +131,7 @@ final class LabelSnapshotTests: XCTestCase {
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
     func test_fail_labelOutput_hidden_text() {
         //GIVEN
         let (sut, container) = makeSUT()
@@ -139,7 +139,7 @@ final class LabelSnapshotTests: XCTestCase {
         //WHEN
         sut.display(text: "Hidden")
         sut.display(isHidden: true)
-        
+
         if #available(iOS 26, *) {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
@@ -148,17 +148,19 @@ final class LabelSnapshotTests: XCTestCase {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
     func test_labelOutput_withInsets() {
         // GIVEN
         let (sut, container) = makeSUT()
         let snapshotName = "LABEL_INSETS"
-        
+
         // WHEN
-        sut.textInsets = UIEdgeInsets(top: 10, left: 80, bottom: 10, right: 20)
-        sut.backgroundColor = .cyan
-        sut.display(model: .text("Insetted text"))
-        
+        sut.display(model: .textStyled(
+            text: .text("Insetted text"),
+            insets: .init(top: 10, leading: 80, bottom: 10, trailing: 20),
+            backgroundColor: .cyan
+        ))
+
         // THEN
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -168,17 +170,19 @@ final class LabelSnapshotTests: XCTestCase {
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
     func test_fail_labelOutput_withInsets() {
         // GIVEN
         let (sut, container) = makeSUT()
         let snapshotName = "LABEL_INSETS"
-        
+
         // WHEN
-        sut.textInsets = UIEdgeInsets(top: 15, left: 80, bottom: 10, right: 25)
-        sut.backgroundColor = .cyan
-        sut.display(model: .text("Insetted text"))
-        
+        sut.display(model: .textStyled(
+            text: .text("Insetted text"),
+            insets: .init(top: 15, leading: 80, bottom: 10, trailing: 25),
+            backgroundColor: .cyan
+        ))
+
         // THEN
         if #available(iOS 26, *) {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -188,7 +192,7 @@ final class LabelSnapshotTests: XCTestCase {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
     // MARK: - attributedText перезаписывает обычный text
     func tests_labelOutput_multiple_display() {
         // GIVEN
@@ -196,11 +200,11 @@ final class LabelSnapshotTests: XCTestCase {
         let snapshotName = "LABEL_MULTIPLE_DISPLAY"
         // WHEN
         sut.display(text: "First text")
-        
+
         let secondText = TextAttributes(text: "Second Text")
-        
+
         sut.display(attributes: [secondText])
-        
+
         // THEN
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -210,18 +214,18 @@ final class LabelSnapshotTests: XCTestCase {
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
     func tests_fail_labelOutput_multiple_display() {
         // GIVEN
         let (sut, container) = makeSUT()
         let snapshotName = "LABEL_MULTIPLE_DISPLAY"
         // WHEN
-        sut.display(text: "First text.")
-        
+        sut.display(text: "First text")
+
         let secondText = TextAttributes(text: "Second Text.")
-        
+
         sut.display(attributes: [secondText])
-        
+
         // THEN
         if #available(iOS 26, *) {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -229,20 +233,22 @@ final class LabelSnapshotTests: XCTestCase {
         } else {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        } 
+        }
     }
-    
+
     // MARK: - Corener Style tests
     func test_labelOutput_with_automaticCornerStyle() {
         // GIVEN
         let (sut, container) = makeSUT()
         let snapshotName = "LABEL_CORNER_AUTOMATIC"
-        
+
         // WHEN
-        sut.cornerStyle = .automatic
-        sut.backgroundColor = .blue
-        sut.display(model: .text("Rounded"))
-        
+        sut.display(model: .textStyled(
+            text: .text("Rounded"),
+            cornerStyle: .automatic,
+            backgroundColor: .blue
+        ))
+
         // THEN
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -250,19 +256,21 @@ final class LabelSnapshotTests: XCTestCase {
         } else {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        } 
+        }
     }
-    
+
     func test_fail_labelOutput_with_automaticCornerStyle() {
         // GIVEN
         let (sut, container) = makeSUT()
         let snapshotName = "LABEL_CORNER_AUTOMATIC"
-        
+
         // WHEN
-        sut.cornerStyle = CornerStyle.none
-        sut.backgroundColor = .blue
-        sut.display(model: .text("Rounded"))
-        
+        sut.display(model: .textStyled(
+            text: .text("Rounded"),
+            cornerStyle: CornerStyle.none,
+            backgroundColor: .blue
+        ))
+
         // THEN
         if #available(iOS 26, *) {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -270,19 +278,21 @@ final class LabelSnapshotTests: XCTestCase {
         } else {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        } 
+        }
     }
-    
+
     func test_labelOutput_with_fixedCornerStyle() {
         // GIVEN
         let (sut, container) = makeSUT()
         let snapshotName = "LABEL_CORNER_FIXED"
-        
+
         // WHEN
-        sut.cornerStyle = .fixed(30)
-        sut.backgroundColor = .blue
-        sut.display(model: .text("Rounded"))
-        
+        sut.display(model: .textStyled(
+            text: .text("Rounded"),
+            cornerStyle: .fixed(30),
+            backgroundColor: .blue
+        ))
+
         // THEN
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -290,19 +300,21 @@ final class LabelSnapshotTests: XCTestCase {
         } else {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        } 
+        }
     }
-    
+
     func test_fail_labelOutput_with_fixedCornerStyle() {
         // GIVEN
         let (sut, container) = makeSUT()
         let snapshotName = "LABEL_CORNER_FIXED"
-        
+
         // WHEN
-        sut.cornerStyle = .fixed(31)
-        sut.backgroundColor = .blue
-        sut.display(model: .text("Rounded"))
-        
+        sut.display(model: .textStyled(
+            text: .text("Rounded"),
+            cornerStyle: .fixed(31),
+            backgroundColor: .blue
+        ))
+
         // THEN
         if #available(iOS 26, *) {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -310,19 +322,21 @@ final class LabelSnapshotTests: XCTestCase {
         } else {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        } 
+        }
     }
-    
+
     func test_labelOutput_with_noneCornerStyle() {
         // GIVEN
         let (sut, container) = makeSUT()
         let snapshotName = "LABEL_CORNER_NONE"
-        
+
         // WHEN
-        sut.cornerStyle = CornerStyle.none
-        sut.backgroundColor = .blue
-        sut.display(model: .text("Rounded"))
-        
+        sut.display(model: .textStyled(
+            text: .text("Rounded"),
+            cornerStyle: CornerStyle.none,
+            backgroundColor: .blue
+        ))
+
         // THEN
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -330,19 +344,21 @@ final class LabelSnapshotTests: XCTestCase {
         } else {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        } 
+        }
     }
-    
+
     func test_fail_labelOutput_with_noneCornerStyle() {
         // GIVEN
         let (sut, container) = makeSUT()
         let snapshotName = "LABEL_CORNER_NONE"
-        
+
         // WHEN
-        sut.cornerStyle = .fixed(1)
-        sut.backgroundColor = .blue
-        sut.display(model: .text("Rounded"))
-        
+        sut.display(model: .textStyled(
+            text: .text("Rounded"),
+            cornerStyle: .fixed(12),
+            backgroundColor: .blue
+        ))
+
         // THEN
         if #available(iOS 26, *) {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -350,21 +366,21 @@ final class LabelSnapshotTests: XCTestCase {
         } else {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        } 
+        }
     }
-    
+
     // MARK: - Tests for display with TextAttributes
     func test_labelOutput_with_color() {
         //GIVEN
         let (sut, container) = makeSUT()
         let snapshotName = "LABEL_TITLE_WITH_COLOR"
-        
+
         //WHEN
         let blue = TextAttributes(text: "Blue", color: .blue)
         let yellow = TextAttributes(text: "Yellow", color: .yellow)
-        
+
         sut.display(model: .attributes([blue, yellow]))
-        
+
         // THEN
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -372,20 +388,20 @@ final class LabelSnapshotTests: XCTestCase {
         } else {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        } 
+        }
     }
-    
+
     func test_fail_labelOutput_with_color() {
         //GIVEN
         let (sut, container) = makeSUT()
         let snapshotName = "LABEL_TITLE_WITH_COLOR"
-        
+
         //WHEN
         let blue = TextAttributes(text: "Blue", color: .systemBlue)
         let yellow = TextAttributes(text: "Yellow", color: .systemYellow)
-        
+
         sut.display(model: .attributes([blue, yellow]))
-        
+
         // THEN
         if #available(iOS 26, *) {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -393,18 +409,18 @@ final class LabelSnapshotTests: XCTestCase {
         } else {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        } 
+        }
     }
-    
+
     func test_labelOutput_with_font_attributes() {
         //GIVEN
         let (sut, container) = makeSUT()
         let snapshotName = "LABEL_TITLE_WITH_FONT"
-        
+
         //WHEN
         let bold = TextAttributes(text: "Bold", font: .boldSystemFont(ofSize: 16))
         let regular = TextAttributes(text: "Regular", font: .systemFont(ofSize: 16))
-        
+
         sut.display(model: .attributes([bold, regular]))
 
         // THEN
@@ -414,18 +430,18 @@ final class LabelSnapshotTests: XCTestCase {
         } else {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        } 
+        }
     }
-    
+
     func test_fail_labelOutput_with_font_attributes() {
         //GIVEN
         let (sut, container) = makeSUT()
         let snapshotName = "LABEL_TITLE_WITH_FONT"
-        
+
         //WHEN
         let bold = TextAttributes(text: "Bold", font: .boldSystemFont(ofSize: 17))
         let regular = TextAttributes(text: "Regular", font: .systemFont(ofSize: 15))
-        
+
         sut.display(model: .attributes([bold, regular]))
 
         // THEN
@@ -435,9 +451,9 @@ final class LabelSnapshotTests: XCTestCase {
         } else {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        } 
+        }
     }
-    
+
     func test_labelOutput_with_singleLineText_attributes() {
         //GIVEN
         let (sut, container) = makeSUT()
@@ -445,9 +461,9 @@ final class LabelSnapshotTests: XCTestCase {
         //WHEN
         let single = TextAttributes(text: "Single", underlineStyle: [.single])
         let line = TextAttributes(text: "Line", underlineStyle: [.single])
-        
+
         sut.display(model: .attributes([single, line]))
-        
+
         // THEN
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -455,9 +471,9 @@ final class LabelSnapshotTests: XCTestCase {
         } else {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        } 
+        }
     }
-    
+
     func test_fail_labelOutput_with_singleLineText_attributes() {
         //GIVEN
         let (sut, container) = makeSUT()
@@ -465,9 +481,9 @@ final class LabelSnapshotTests: XCTestCase {
         //WHEN
         let single = TextAttributes(text: "Single", underlineStyle: [.double])
         let line = TextAttributes(text: "Line", underlineStyle: [.double])
-        
+
         sut.display(model: .attributes([single, line]))
-        
+
         // THEN
         if #available(iOS 26, *) {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -475,63 +491,63 @@ final class LabelSnapshotTests: XCTestCase {
         } else {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        } 
+        }
     }
-    
+
     // TODO: - strange double line layout
     func test_labelOutput_with_doubleLineText_attributes() {
         //GIVEN
         let (sut, container) = makeSUT()
         let snapshotName = "LABEL_TITLE_WITH_DOUBLELINE"
-        
+
         //WHEN
         let double = TextAttributes(text: "Double", underlineStyle: [.double])
         let line = TextAttributes(text: "Line", underlineStyle: [.double])
-        
+
         sut.display(model: .attributes([double, line]))
-        
+
         // THEN
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        } 
+        }
     }
-    
+
     func test_fail_labelOutput_with_doubleLineText_attributes() {
         //GIVEN
         let (sut, container) = makeSUT()
         let snapshotName = "LABEL_TITLE_WITH_DOUBLELINE"
-        
+
         //WHEN
         let double = TextAttributes(text: "Double", underlineStyle: [.single])
         let line = TextAttributes(text: "Line", underlineStyle: [.single])
-        
+
         sut.display(model: .attributes([double, line]))
-        
+
         // THEN
         if #available(iOS 26, *) {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        } 
+        }
     }
-    
+
     // TODO: - byWord doesnt work.
     func test_labelOutput_with_byWordText_attributes() {
         //GIVEN
         let (sut, container) = makeSUT()
         let snapshotName = "LABEL_TITLE_WITH_BYWORD"
-        
+
         //WHEN
         let byWord = TextAttributes(text: "Single line By Word", underlineStyle: [.single, .byWord])
-        
+
         sut.display(model: .attributes([byWord]))
-        
+
         // THEN
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -539,19 +555,19 @@ final class LabelSnapshotTests: XCTestCase {
         } else {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        } 
+        }
     }
-    
+
     func test_fail_labelOutput_with_byWordText_attributes() {
         //GIVEN
         let (sut, container) = makeSUT()
         let snapshotName = "LABEL_TITLE_WITH_BYWORD"
-        
+
         //WHEN
         let byWord = TextAttributes(text: "Single line By Word", underlineStyle: [.single, .patternDash])
-        
+
         sut.display(model: .attributes([byWord]))
-        
+
         // THEN
         if #available(iOS 26, *) {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -559,21 +575,21 @@ final class LabelSnapshotTests: XCTestCase {
         } else {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        } 
+        }
     }
-    
+
     // TODO: - Dash doesnt work.
     func test_labelOutput_with_patternDashText_attributes() {
         //GIVEN
         let (sut, container) = makeSUT()
         let snapshotName = "LABEL_TITLE_WITH_DASH"
-        
+
         //WHEN
         let dashed = TextAttributes(text: "Dashed string", underlineStyle: [.patternDash])
         sut.backgroundColor = .cyan
-        
+
         sut.display(model: .attributes([dashed]))
-        
+
         // THEN
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -581,20 +597,20 @@ final class LabelSnapshotTests: XCTestCase {
         } else {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        } 
+        }
     }
-    
+
     func test_fail_labelOutput_with_patternDashText_attributes() {
         //GIVEN
         let (sut, container) = makeSUT()
         let snapshotName = "LABEL_TITLE_WITH_DASH"
-        
+
         //WHEN
         let dashed = TextAttributes(text: "Dashed string", underlineStyle: [.single])
         sut.backgroundColor = .cyan
-        
+
         sut.display(model: .attributes([dashed]))
-        
+
         // THEN
         if #available(iOS 26, *) {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -602,21 +618,21 @@ final class LabelSnapshotTests: XCTestCase {
         } else {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        } 
+        }
     }
-    
+
     // TODO: - DashDot doesnt work.
     func test_labelOutput_with_patternDashDotText_attributes() {
         //GIVEN
         let (sut, container) = makeSUT()
         let snapshotName = "LABEL_TITLE_WITH_DASHDOT"
-        
+
         //WHEN
         let dashDot = TextAttributes(text: "DashedDot string", underlineStyle: [.patternDashDot])
         sut.backgroundColor = .systemBlue
-        
+
         sut.display(model: .attributes([dashDot]))
-        
+
         // THEN
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -624,20 +640,20 @@ final class LabelSnapshotTests: XCTestCase {
         } else {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        } 
+        }
     }
-    
+
     func test_fail_labelOutput_with_patternDashDotText_attributes() {
         //GIVEN
         let (sut, container) = makeSUT()
         let snapshotName = "LABEL_TITLE_WITH_DASHDOT"
-        
+
         //WHEN
         let dashDot = TextAttributes(text: "DashedDot string", underlineStyle: [.single])
         sut.backgroundColor = .systemBlue
-        
+
         sut.display(model: .attributes([dashDot]))
-        
+
         // THEN
         if #available(iOS 26, *) {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -645,21 +661,21 @@ final class LabelSnapshotTests: XCTestCase {
         } else {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        } 
+        }
     }
-    
+
     // TODO: - DashDotDot doesnt work.
     func test_labelOutput_with_patternDashDotDotText_attributes() {
         //GIVEN
         let (sut, container) = makeSUT()
         let snapshotName = "LABEL_TITLE_WITH_DASHDOTDOT"
-        
+
         //WHEN
         let dashDotDot = TextAttributes(text: "Dash Dot Dot string", underlineStyle: [.patternDashDotDot])
         sut.backgroundColor = .systemBlue
-        
+
         sut.display(model: .attributes([dashDotDot]))
-        
+
         // THEN
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -667,20 +683,20 @@ final class LabelSnapshotTests: XCTestCase {
         } else {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        } 
+        }
     }
-    
+
     func test_fail_labelOutput_with_patterntDashDotDotText_attributes() {
         //GIVEN
         let (sut, container) = makeSUT()
         let snapshotName = "LABEL_TITLE_WITH_DASHDOTDOT"
-        
+
         //WHEN
         let dashDotDot = TextAttributes(text: "Dash Dot Dot string", underlineStyle: [.single])
         sut.backgroundColor = .systemBlue
-        
+
         sut.display(model: .attributes([dashDotDot]))
-        
+
         // THEN
         if #available(iOS 26, *) {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -688,21 +704,21 @@ final class LabelSnapshotTests: XCTestCase {
         } else {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        } 
+        }
     }
-    
+
     // TODO: - Dot doesnt work.
     func test_labelOutput_with_patternDotText_attributes() {
         //GIVEN
         let (sut, container) = makeSUT()
         let snapshotName = "LABEL_TITLE_WITH_DOT"
-        
+
         //WHEN
         let dot = TextAttributes(text: "Dotted string", underlineStyle: [.patternDot])
         sut.backgroundColor = .systemBlue
-        
+
         sut.display(model: .attributes([dot]))
-        
+
         // THEN
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -710,20 +726,20 @@ final class LabelSnapshotTests: XCTestCase {
         } else {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        } 
+        }
     }
-    
+
     func test_fail_labelOutput_with_patterntDotText_attributes() {
         //GIVEN
         let (sut, container) = makeSUT()
         let snapshotName = "LABEL_TITLE_WITH_DOT"
-        
+
         //WHEN
         let dot = TextAttributes(text: "Dotted string", underlineStyle: [.single])
         sut.backgroundColor = .systemBlue
-        
+
         sut.display(model: .attributes([dot]))
-        
+
         // THEN
         if #available(iOS 26, *) {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -731,20 +747,20 @@ final class LabelSnapshotTests: XCTestCase {
         } else {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        } 
+        }
     }
-    
+
     func test_labelOutput_with_thickUnderline_attributes() {
         //GIVEN
         let (sut, container) = makeSUT()
         let snapshotName = "LABEL_TITLE_WITH_THICK"
-        
+
         //WHEN
         let thick = TextAttributes(text: "Thick string", underlineStyle: [.thick])
         sut.backgroundColor = .systemBlue
-        
+
         sut.display(model: .attributes([thick]))
-        
+
         // THEN
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -752,20 +768,20 @@ final class LabelSnapshotTests: XCTestCase {
         } else {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        } 
+        }
     }
-    
+
     func test_fail_labelOutput_with_thickUnderline_attributes() {
         //GIVEN
         let (sut, container) = makeSUT()
         let snapshotName = "LABEL_TITLE_WITH_THICK"
-        
+
         //WHEN
         let thick = TextAttributes(text: "Thick string", underlineStyle: [.single])
         sut.backgroundColor = .systemBlue
-        
+
         sut.display(model: .attributes([thick]))
-        
+
         // THEN
         if #available(iOS 26, *) {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -773,9 +789,9 @@ final class LabelSnapshotTests: XCTestCase {
         } else {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        } 
+        }
     }
-    
+
     func test_labelOutput_with_leadingImage_attributes() {
         //GIVEN
         let (sut, container) = makeSUT()
@@ -783,7 +799,7 @@ final class LabelSnapshotTests: XCTestCase {
         //WHEN
         let leadingImage = TextAttributes(text: "Text with leading image", leadingImage: UIImage(systemName: "star.fill"))
         sut.backgroundColor = .systemBlue
-        
+
         sut.display(model: .attributes([leadingImage]))
 
         // THEN
@@ -793,9 +809,9 @@ final class LabelSnapshotTests: XCTestCase {
         } else {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        } 
+        }
     }
-    
+
     func test_fail_labelOutput_with_leadingImage_attributes() {
         //GIVEN
         let (sut, container) = makeSUT()
@@ -803,7 +819,7 @@ final class LabelSnapshotTests: XCTestCase {
         //WHEN
         let leadingImage = TextAttributes(text: "Text with leading image", leadingImage: UIImage(systemName: "star"))
         sut.backgroundColor = .systemBlue
-        
+
         sut.display(model: .attributes([leadingImage]))
 
         // THEN
@@ -813,84 +829,20 @@ final class LabelSnapshotTests: XCTestCase {
         } else {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        } 
+        }
     }
-    
+
     func test_labelOutput_with_trailingImage_attributes() {
         //GIVEN
         let (sut, container) = makeSUT()
         let snapshotName = "LABEL_TITLE_WITH_TRAILINGIMAGE"
-        
+
         //WHEN
         let trailingImage = TextAttributes(text: "Text with trailing image", trailingImage: UIImage(systemName: "star.fill"))
         sut.backgroundColor = .systemBlue
-        
+
         sut.display(model: .attributes([trailingImage]))
-        
-        // THEN
-        if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        } 
-    }
-    
-    func test_fail_labelOutput_with_trailingImage_attributes() {
-        //GIVEN
-        let (sut, container) = makeSUT()
-        let snapshotName = "LABEL_TITLE_WITH_TRAILINGIMAGE"
-        
-        //WHEN
-        let trailingImage = TextAttributes(text: "Text with trailing image", trailingImage: UIImage(systemName: "star"))
-        sut.backgroundColor = .systemBlue
-        
-        sut.display(model: .attributes([trailingImage]))
-        
-        // THEN
-        if #available(iOS 26, *) {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        } 
-    }
-    
-    // MARK: - Tests for label taps
-    func test_labelOutput_textAttributesOnTap() {
-        // GIVEN
-        let (sut, container) = makeSUT()
-        let snapshotName = "LABEL_TITLE_WITH_TEXTATTRIBUTES_ONTAP"
-        
-        let exp = expectation(description: "Wait for completion")
-        exp.expectedFulfillmentCount = 3
-        
-        // WHEN
-        let first_attr = TextAttributes(text: "First") { [weak sut] in
-            sut?.backgroundColor = .red
-            exp.fulfill()
-        }
-        let second_attr = TextAttributes(text: "Second") { [weak sut] in
-            sut?.cornerStyle = .fixed(20)
-            exp.fulfill()
-        }
-        
-        let third_attr = TextAttributes(text: "Third") { [weak sut] in
-            let updatedThird = TextAttributes(text: "Updated Third!")
-            sut?.display(attributes: [first_attr, second_attr, updatedThird])
-            exp.fulfill()
-        }
-        
-        sut.display(model: .attributes([first_attr, second_attr, third_attr]))
-        
-        first_attr.onTap?()
-        second_attr.onTap?()
-        third_attr.onTap?()
-        
-        wait(for: [exp], timeout: 5.0)
-        
+
         // THEN
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -898,41 +850,20 @@ final class LabelSnapshotTests: XCTestCase {
         } else {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        } 
+        }
     }
-    
-    func test_fail_labelOutput_textAttributesOnTap() {
-        // GIVEN
+
+    func test_fail_labelOutput_with_trailingImage_attributes() {
+        //GIVEN
         let (sut, container) = makeSUT()
-        let snapshotName = "LABEL_TITLE_WITH_TEXTATTRIBUTES_ONTAP"
-        
-        let exp = expectation(description: "Wait for completion")
-        exp.expectedFulfillmentCount = 3
-        
-        // WHEN
-        let first_attr = TextAttributes(text: "First") { [weak sut] in
-            sut?.backgroundColor = .systemRed
-            exp.fulfill()
-        }
-        let second_attr = TextAttributes(text: "Second") { [weak sut] in
-            sut?.cornerStyle = .fixed(21)
-            exp.fulfill()
-        }
-        
-        let third_attr = TextAttributes(text: "Third") { [weak sut] in
-            let updatedThird = TextAttributes(text: "Updated Third!.")
-            sut?.display(attributes: [first_attr, second_attr, updatedThird])
-            exp.fulfill()
-        }
-        
-        sut.display(model: .attributes([first_attr, second_attr, third_attr]))
-        
-        first_attr.onTap?()
-        second_attr.onTap?()
-        third_attr.onTap?()
-        
-        wait(for: [exp], timeout: 5.0)
-        
+        let snapshotName = "LABEL_TITLE_WITH_TRAILINGIMAGE"
+
+        //WHEN
+        let trailingImage = TextAttributes(text: "Text with trailing image", trailingImage: UIImage(systemName: "star"))
+        sut.backgroundColor = .systemBlue
+
+        sut.display(model: .attributes([trailingImage]))
+
         // THEN
         if #available(iOS 26, *) {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -940,14 +871,103 @@ final class LabelSnapshotTests: XCTestCase {
         } else {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        } 
+        }
     }
-    
+
+    // MARK: - Tests for label taps
+    func test_labelOutput_textAttributesOnTap() {
+        // GIVEN
+        let (sut, container) = makeSUT()
+        let snapshotName = "LABEL_TITLE_WITH_TEXTATTRIBUTES_ONTAP"
+
+        let exp = expectation(description: "Wait for completion")
+        exp.expectedFulfillmentCount = 3
+
+        // WHEN
+        let first_attr = TextAttributes(text: "First") {
+            exp.fulfill()
+        }
+        let second_attr = TextAttributes(text: "Second") {
+            exp.fulfill()
+        }
+
+        let third_attr = TextAttributes(text: "Third") { [weak sut] in
+            let updatedThird = TextAttributes(text: "Updated Third!")
+            sut?.display(attributes: [first_attr, second_attr, updatedThird])
+            exp.fulfill()
+        }
+
+        sut.display(model: .textStyled(
+            text: .attributes([first_attr, second_attr, third_attr]),
+            cornerStyle: .fixed(20),
+            backgroundColor: .red
+        ))
+
+        first_attr.onTap?()
+        second_attr.onTap?()
+        third_attr.onTap?()
+
+        wait(for: [exp], timeout: 5.0)
+
+        // THEN
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
+    }
+
+    func test_fail_labelOutput_textAttributesOnTap() {
+        // GIVEN
+        let (sut, container) = makeSUT()
+        let snapshotName = "LABEL_TITLE_WITH_TEXTATTRIBUTES_ONTAP"
+
+        let exp = expectation(description: "Wait for completion")
+        exp.expectedFulfillmentCount = 3
+
+        // WHEN
+        let first_attr = TextAttributes(text: "First") {
+            exp.fulfill()
+        }
+        let second_attr = TextAttributes(text: "Second") {
+            exp.fulfill()
+        }
+
+        let third_attr = TextAttributes(text: "Third") { [weak sut] in
+            let updatedThird = TextAttributes(text: "Updated Third!.")
+            sut?.display(attributes: [first_attr, second_attr, updatedThird])
+            exp.fulfill()
+        }
+
+        sut.display(model: .textStyled(
+            text: .attributes([first_attr, second_attr, third_attr]),
+            cornerStyle: .fixed(20),
+            backgroundColor: .red
+        ))
+
+        first_attr.onTap?()
+        second_attr.onTap?()
+        third_attr.onTap?()
+
+        wait(for: [exp], timeout: 5.0)
+
+        // THEN
+        if #available(iOS 26, *) {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
+    }
+
     func test_labelOutput_displayAnimatedNumber() {
         // GIVEN
         let (sut, container) = makeSUT()
         let snapshotName = "LABEL_ANIMATED_FINAL_STATE"
-        
+
         let exp = expectation(description: "Wait for animation completion")
 
         let mapToString: (Decimal) -> TextOutputPresentableModel.TextModel = { value in
@@ -966,22 +986,22 @@ final class LabelSnapshotTests: XCTestCase {
         }
 
         wait(for: [exp], timeout: 0.3)
-        
+
         // THEN
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName))_DARK")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
         } else {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        } 
+        }
     }
-    
+
     func test_fail_labelOutput_displayAnimatedNumber() {
         // GIVEN
         let (sut, container) = makeSUT()
         let snapshotName = "LABEL_ANIMATED_FINAL_STATE"
-        
+
         let exp = expectation(description: "Wait for animation completion")
 
         let mapToString: (Decimal) -> TextOutputPresentableModel.TextModel = { value in
@@ -990,44 +1010,42 @@ final class LabelSnapshotTests: XCTestCase {
 
         // WHEN
         sut.display(
-            id: "testAnimation",
             from: 0,
             to: 99,
             mapToString: mapToString,
             animationStyle: .none,
             duration: 0.1
-        ) { [weak sut] in
-            sut?.backgroundColor = .cyan
+        ) {
             exp.fulfill()
         }
 
-        wait(for: [exp], timeout: 2.0)
-        
+        wait(for: [exp], timeout: 0.3)
+
         // THEN
         if #available(iOS 26, *) {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName))_DARK")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
         } else {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        } 
+        }
     }
-    
+
     func test_labelOutput_default_TextAttribute_behavior() {
         // GIVEN
         let (sut, container) = makeSUT()
         let snapshotName = "LABEL_TEXTATTRIBUTE_DEFAULT_BEHAVIOR_FONT"
-        
+
         sut.textColor = .red
         sut.font = .systemFont(ofSize: 16)
         sut.textAlignment = .right
-        
+
         // WHEN
         let bold = TextAttributes(text: "Text attribute with color", color: .blue)
         let regular = TextAttributes(text: "Text attribute with default label color")
-        
+
         sut.display(model: .attributes([bold, regular]))
-        
+
         // THEN
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -1035,24 +1053,24 @@ final class LabelSnapshotTests: XCTestCase {
         } else {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        } 
+        }
     }
-    
+
     func test_fail_labelOutput_default_TextAttribute_behavior() {
         // GIVEN
         let (sut, container) = makeSUT()
         let snapshotName = "LABEL_TEXTATTRIBUTE_DEFAULT_BEHAVIOR_FONT"
-        
+
         sut.textColor = .red
-        sut.font = .systemFont(ofSize: 16)
+        sut.font = .systemFont(ofSize: 17)
         sut.textAlignment = .right
-        
+
         // WHEN
-        let bold = TextAttributes(text: "Text attribute with color", color: .systemBlue)
-        let regular = TextAttributes(text: "Text attribute with default label color.")
-        
+        let bold = TextAttributes(text: "Text attribute with color", color: .blue)
+        let regular = TextAttributes(text: "Text attribute with default label color")
+
         sut.display(model: .attributes([bold, regular]))
-        
+
         // THEN
         if #available(iOS 26, *) {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -1060,17 +1078,17 @@ final class LabelSnapshotTests: XCTestCase {
         } else {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        } 
+        }
     }
-    
+
     func test_labelOutput_with_cornerStyle_and_insets() {
         // GIVEN
         let (sut, container) = makeSUT()
         let snapshotName = "LABEL_CORNERSTYLE_INSETS"
-        
+
         // THEN
         sut.display(model: .textStyled(text: .text("Hello"), cornerStyle: .fixed(20), insets: .init(top: 20, leading: 50, bottom: 20, trailing: 20)))
-        
+
         // THEN
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -1078,17 +1096,17 @@ final class LabelSnapshotTests: XCTestCase {
         } else {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        } 
+        }
     }
-    
+
     func test_fail_labelOutput_with_cornerStyle_and_insets() {
         // GIVEN
         let (sut, container) = makeSUT()
         let snapshotName = "LABEL_CORNERSTYLE_INSETS"
-        
+
         // THEN
         sut.display(model: .textStyled(text: .text("Hello"), cornerStyle: .fixed(29), insets: .init(top: 21, leading: 50, bottom: 20, trailing: 20)))
-        
+
         // THEN
         if #available(iOS 26, *) {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -1096,7 +1114,7 @@ final class LabelSnapshotTests: XCTestCase {
         } else {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        } 
+        }
     }
 
     func test_label_output_html_Br() {
@@ -1116,7 +1134,27 @@ final class LabelSnapshotTests: XCTestCase {
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
+    func test_fail_label_output_html_Br() {
+        let (sut, container) = makeSUT()
+        let snapshotName = "LABEL_HTML"
+        let htmlWithoutExplicitLineBreaks = HtmlTestCases.example1
+            .replacingOccurrences(of: "<br>", with: " ")
+
+        sut.display(
+            htmlString: htmlWithoutExplicitLineBreaks,
+            config: .init(size: 13, color: .red)
+        )
+
+        if #available(iOS 26, *) {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
+    }
+
     func test_label_output_html_boldItalic() {
         // GIVEN
         let (sut, container) = makeSUT()
@@ -1134,7 +1172,7 @@ final class LabelSnapshotTests: XCTestCase {
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
     func test_label_output_html_inlineStyle() {
         // GIVEN
         let (sut, container) = makeSUT()
@@ -1152,7 +1190,24 @@ final class LabelSnapshotTests: XCTestCase {
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
+    func test_fail_label_output_html_inlineStyleColor() {
+        let (sut, container) = makeSUT()
+        let snapshotName = "LABEL_HTML_inlineStyle"
+        let htmlWithMutatedInlineColor = HtmlTestCases.inlineStyle
+            .replacingOccurrences(of: "#FF0000", with: "#00FFFF")
+
+        sut.display(htmlString: htmlWithMutatedInlineColor)
+
+        if #available(iOS 26, *) {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
+    }
+
     func test_label_output_html_paragraphs() {
         // GIVEN
         let (sut, container) = makeSUT()
@@ -1170,7 +1225,7 @@ final class LabelSnapshotTests: XCTestCase {
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
     func test_label_output_html_lists() {
         // GIVEN
         let (sut, container) = makeSUT()
@@ -1188,7 +1243,7 @@ final class LabelSnapshotTests: XCTestCase {
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
     func test_label_output_html_longText() {
         // GIVEN
         let (sut, container) = makeSUT()
@@ -1209,7 +1264,27 @@ final class LabelSnapshotTests: XCTestCase {
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
+    func test_fail_label_output_html_longTextLineBreak() {
+        let (sut, container) = makeSUT()
+        let snapshotName = "LABEL_HTML_longText"
+        let htmlWithExtraLineBreak = HtmlTestCases.longText
+            .replacingOccurrences(of: "<p>", with: "<p><br>")
+
+        sut.display(
+            htmlString: htmlWithExtraLineBreak,
+            config: .init(textAlignment: .center, lineBreakMode: .byWordWrapping)
+        )
+
+        if #available(iOS 26, *) {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
+    }
+
     func test_label_output_html_other() {
         // GIVEN
         let (sut, container) = makeSUT()
@@ -1227,7 +1302,7 @@ final class LabelSnapshotTests: XCTestCase {
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
     func test_labelOutput_emoji() {
         // GIVEN
         let (sut, container) = makeSUT()
@@ -1272,7 +1347,7 @@ extension LabelSnapshotTests {
     ) -> (sut: Label, container: UIView) {
         let sut = Label()
         let container = makeContainer()
-        
+
         container.addSubview(sut)
         sut.anchor(
             .top(container.topAnchor, constant: 0, priority: .required),
@@ -1280,11 +1355,11 @@ extension LabelSnapshotTests {
             .trailing(container.trailingAnchor, constant: 0, priority: .required),
             .height(150, priority: .required)
         )
-        
+
         checkForMemoryLeaks(sut, file: file, line: line)
         return (sut, container)
     }
-    
+
     func makeContainer() -> UIView {
         let container = UIView()
         container.frame = CGRect(origin: .zero, size: SnapshotConfiguration.size)

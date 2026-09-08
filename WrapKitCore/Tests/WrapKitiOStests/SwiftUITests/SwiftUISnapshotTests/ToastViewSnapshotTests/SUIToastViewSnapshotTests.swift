@@ -1,0 +1,1147 @@
+//
+//  SUIToastViewSnapshotTests.swift
+//  WrapKitTests
+//
+//  Created by Urmatbek Marat Uulu on 11/11/25.
+//
+
+import WrapKit
+import WrapKitTestUtils
+import XCTest
+
+@available(iOS 17.0, *)
+final class SUIToastViewSnapshotTests: XCTestCase {
+
+    private let image = UIImage(systemName: "star.fill")
+    private let failImage = UIImage(systemName: "star")
+
+    private var testContainer: UIWindow!
+    private var animationsWereEnabled = true
+
+    override func setUp() {
+        super.setUp()
+        animationsWereEnabled = UIView.areAnimationsEnabled
+        UIView.setAnimationsEnabled(false)
+        testContainer = UIWindow(frame: CGRect(x: 0, y: 0, width: 390, height: 844))
+        testContainer.isHidden = false
+        testContainer.backgroundColor = .white
+    }
+
+    override func tearDown() {
+        testContainer.layer.removeAllAnimations()
+        testContainer.isHidden = true
+        testContainer.windowScene = nil
+        testContainer = nil
+        UIView.setAnimationsEnabled(animationsWereEnabled)
+
+        super.tearDown()
+    }
+
+    func test_ToastView_default_state() {
+        let snapshotName = "TOASTVIEW_DEFAULT_STATE"
+
+        // GIVEN
+        let sut = makeSUT()
+
+        let exp = expectation(description: "Wait for completion!")
+
+        // WHEN
+        let cardModel = CardViewPresentableModel(
+            style: makeDefaultStyle(),
+            title: .text("Toast Message")
+        )
+
+        let toast = CommonToast.custom(.init(
+            common: .init(
+                cardViewModel: cardModel,
+                position: .top
+            )
+        ))
+
+        sut.display(toast)
+        sut.show(appWindow: testContainer) {
+            exp.fulfill()
+        }
+
+        wait(for: [exp], timeout: 2.0)
+
+        // THEN
+        if #available(iOS 26, *) {
+            assert(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
+            assert(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS26_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.standard)
+        } else {
+            assert(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS18.5_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
+            assert(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS18.5_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.standard)
+        }
+
+        sut.removeFromSuperview()
+    }
+
+    func test_fail_ToastView_default_state() {
+        let snapshotName = "TOASTVIEW_DEFAULT_STATE"
+
+        // GIVEN
+        let sut = makeSUT()
+
+        let exp = expectation(description: "Wait for completion!")
+
+        // WHEN
+        let cardModel = CardViewPresentableModel(
+            style: makeDefaultStyle(),
+            title: .text("Toast Message.")
+        )
+
+        let toast = CommonToast.custom(.init(
+            common: .init(
+                cardViewModel: cardModel,
+                position: .top
+            )
+        ))
+
+        sut.display(toast)
+        sut.show(appWindow: testContainer) {
+            exp.fulfill()
+        }
+
+        wait(for: [exp], timeout: 2.0)
+
+        // THEN
+        if #available(iOS 26, *) {
+            assertFail(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.fail)
+            assertFail(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS26_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.fail)
+        } else {
+            assertFail(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS18.5_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.fail)
+            assertFail(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS18.5_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.fail)
+        }
+
+        sut.removeFromSuperview()
+    }
+
+    func test_ToastView_with_leadingImage() {
+        let snapshotName = "TOASTVIEW_WITH_LEADINGIMAGE"
+
+        // GIVEN
+        let sut = makeSUT()
+
+        let exp = expectation(description: "Wait for completion!")
+
+        // WHEN
+        let cardModel = CardViewPresentableModel(
+            style: makeDefaultStyle(),
+            title: .text("Toast Message"),
+            leadingImage: .init(
+                size: .init(width: 32, height: 32),
+                image: .asset(image),
+                borderColor: .red,
+        ))
+
+        let toast = CommonToast.custom(.init(
+            common: .init(
+                cardViewModel: cardModel,
+                position: .top)
+        ))
+
+        sut.display(toast)
+        sut.show(appWindow: testContainer) {
+            exp.fulfill()
+        }
+
+        wait(for: [exp], timeout: 2.0)
+
+        // THEN
+        if #available(iOS 26, *) {
+            assert(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
+            assert(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS26_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.standard)
+        } else {
+            assert(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS18.5_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
+            assert(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS18.5_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.standard)
+        }
+
+        sut.removeFromSuperview()
+    }
+
+    func test_fail_ToastView_with_leadingImage() {
+        let snapshotName = "TOASTVIEW_WITH_LEADINGIMAGE"
+
+        // GIVEN
+        let sut = makeSUT()
+
+        let exp = expectation(description: "Wait for completion!")
+
+        let image = Image(systemName: "star")
+
+        // WHEN
+        let cardModel = CardViewPresentableModel(
+            style: makeDefaultStyle(),
+            title: .text("Toast Message"),
+            leadingImage: .init(
+                size: .init(width: 32, height: 32),
+                image: .asset(image),
+                borderColor: .red,
+        ))
+
+        let toast = CommonToast.custom(.init(
+            common: .init(
+                cardViewModel: cardModel,
+                position: .top)
+        ))
+
+        sut.display(toast)
+        sut.show(appWindow: testContainer) {
+            exp.fulfill()
+        }
+
+        wait(for: [exp], timeout: 2.0)
+
+        // THEN
+        if #available(iOS 26, *) {
+            assertFail(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.fail)
+            assertFail(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS26_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.fail)
+        } else {
+            assertFail(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS18.5_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.fail)
+            assertFail(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS18.5_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.fail)
+        }
+
+        sut.removeFromSuperview()
+    }
+
+    func test_ToastView_with_long_text() {
+        let snapshotName = "TOASTVIEW_WITH_LONGTEXT"
+
+        // GIVEN
+        let sut = makeSUT()
+
+        let exp = expectation(description: "Wait for completion!")
+
+        // WHEN
+        let cardModel = CardViewPresentableModel(
+            style: makeDefaultStyle(),
+            title: .text("This is a very long toast message that should wrap to multiple lines")
+        )
+
+        let toast = CommonToast.custom(.init(
+            common: .init(
+                cardViewModel: cardModel,
+                position: .top
+            )
+        ))
+
+        sut.display(toast)
+        sut.show(appWindow: testContainer) {
+            exp.fulfill()
+        }
+
+        wait(for: [exp], timeout: 2.0)
+
+        // THEN
+        if #available(iOS 26, *) {
+            assert(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
+            assert(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS26_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.standard)
+        } else {
+            assert(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS18.5_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
+            assert(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS18.5_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.standard)
+        }
+
+        sut.removeFromSuperview()
+    }
+
+    func test_fail_ToastView_with_long_text() {
+        let snapshotName = "TOASTVIEW_WITH_LONGTEXT"
+
+        // GIVEN
+        let sut = makeSUT()
+
+        let exp = expectation(description: "Wait for completion!")
+
+        // WHEN
+        let cardModel = CardViewPresentableModel(
+            style: makeDefaultStyle(),
+            title: .text("This is a very long toast message that should wrap to multiple lines.")
+        )
+
+        let toast = CommonToast.custom(.init(
+            common: .init(
+                cardViewModel: cardModel,
+                position: .top
+            )
+        ))
+
+        sut.display(toast)
+        sut.show(appWindow: testContainer) {
+            exp.fulfill()
+        }
+
+        wait(for: [exp], timeout: 2.0)
+
+        // THEN
+        if #available(iOS 26, *) {
+            assertFail(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.fail)
+            assertFail(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS26_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.fail)
+        } else {
+            assertFail(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS18.5_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.fail)
+            assertFail(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS18.5_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.fail)
+        }
+
+        sut.removeFromSuperview()
+    }
+
+    func test_ToastView_with_subTitle() {
+        let snapshotName = "TOASTVIEW_WITH_SUBTITLE"
+
+        // GIVEN
+        let sut = makeSUT()
+
+        let exp = expectation(description: "Wait for completion!")
+
+        // WHEN
+        let cardModel = CardViewPresentableModel(
+            style: makeDefaultStyle(),
+            title: .text("Title"),
+            subTitle: .text("Subtitle")
+        )
+
+        let toast = CommonToast.custom(.init(
+            common: .init(
+                cardViewModel: cardModel,
+                position: .top)
+        ))
+
+        sut.display(toast)
+        sut.show(appWindow: testContainer) {
+            exp.fulfill()
+        }
+
+        wait(for: [exp], timeout: 2.0)
+
+        // THEN
+        if #available(iOS 26, *) {
+            assert(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
+            assert(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS26_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.standard)
+        } else {
+            assert(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS18.5_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
+            assert(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS18.5_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.standard)
+        }
+
+        sut.removeFromSuperview()
+    }
+
+    func test_fail_ToastView_with_subTitle() {
+        let snapshotName = "TOASTVIEW_WITH_SUBTITLE"
+
+        // GIVEN
+        let sut = makeSUT()
+
+        let exp = expectation(description: "Wait for completion!")
+
+        // WHEN
+        let cardModel = CardViewPresentableModel(
+            style: makeDefaultStyle(),
+            title: .text("Title"),
+            subTitle: .text("Subtitle.")
+        )
+
+        let toast = CommonToast.custom(.init(
+            common: .init(
+                cardViewModel: cardModel,
+                position: .top)
+        ))
+
+        sut.display(toast)
+        sut.show(appWindow: testContainer) {
+            exp.fulfill()
+        }
+
+        wait(for: [exp], timeout: 2.0)
+
+        // THEN
+        if #available(iOS 26, *) {
+            assertFail(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.fail)
+            assertFail(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS26_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.fail)
+        } else {
+            assertFail(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS18.5_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.fail)
+            assertFail(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS18.5_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.fail)
+        }
+
+        sut.removeFromSuperview()
+    }
+
+    func test_ToastView_with_valueTitle() {
+        let snapshotName = "TOASTVIEW_WITH_VALUETITLE"
+
+        // GIVEN
+        let sut = makeSUT()
+
+        let exp = expectation(description: "Wait for completion!")
+
+        // WHEN
+        let cardModel = CardViewPresentableModel(
+            style: makeDefaultStyle(),
+            title: .text("Title"),
+            valueTitle: .text("Value title")
+        )
+
+        let toast = CommonToast.custom(.init(
+            common: .init(
+                cardViewModel: cardModel,
+                position: .top)))
+
+        sut.display(toast)
+        sut.show(appWindow: testContainer) {
+            exp.fulfill()
+        }
+
+        wait(for: [exp], timeout: 2.0)
+
+        // THEN
+        if #available(iOS 26, *) {
+            assert(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
+            assert(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS26_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.standard)
+        } else {
+            assert(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS18.5_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
+            assert(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS18.5_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.standard)
+        }
+
+        sut.removeFromSuperview()
+    }
+
+    func test_fail_ToastView_with_valueTitle() {
+        let snapshotName = "TOASTVIEW_WITH_VALUETITLE"
+
+        // GIVEN
+        let sut = makeSUT()
+
+        let exp = expectation(description: "Wait for completion!")
+
+        // WHEN
+        let cardModel = CardViewPresentableModel(
+            style: makeDefaultStyle(),
+            title: .text("Title"),
+            valueTitle: .text("Value title.")
+        )
+
+        let toast = CommonToast.custom(.init(
+            common: .init(
+                cardViewModel: cardModel,
+                position: .top)))
+
+        sut.display(toast)
+        sut.show(appWindow: testContainer) {
+            exp.fulfill()
+        }
+
+        wait(for: [exp], timeout: 2.0)
+
+        // THEN
+        if #available(iOS 26, *) {
+            assertFail(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.fail)
+            assertFail(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS26_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.fail)
+        } else {
+            assertFail(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS18.5_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.fail)
+            assertFail(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS18.5_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.fail)
+        }
+
+        sut.removeFromSuperview()
+    }
+
+    func test_ToastView_with_trailingImage() {
+        let snapshotName = "TOASTVIEW_WITH_TRAILINGIMAGE"
+
+        // GIVEN
+        let sut = makeSUT()
+
+        let exp = expectation(description: "Wait for completion!")
+
+        // WHEN
+        let cardModel = CardViewPresentableModel(
+            style: makeDefaultStyle(),
+            title: .text("Title"),
+            trailingImage: .init(
+                size: .init(width: 32, height: 32),
+                image: .asset(image),
+            )
+        )
+
+        let toast = CommonToast.custom(.init(
+            common: .init(
+                cardViewModel: cardModel,
+                position: .top
+            )
+        ))
+
+        sut.display(toast)
+        sut.show(appWindow: testContainer) {
+            exp.fulfill()
+        }
+
+        wait(for: [exp], timeout: 2.0)
+
+        // THEN
+        if #available(iOS 26, *) {
+            assert(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
+            assert(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS26_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.standard)
+        } else {
+            assert(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS18.5_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
+            assert(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS18.5_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.standard)
+        }
+
+        sut.removeFromSuperview()
+    }
+
+    func test_fail_ToastView_with_trailingImage() {
+        let snapshotName = "TOASTVIEW_WITH_TRAILINGIMAGE"
+
+        // GIVEN
+        let sut = makeSUT()
+
+        let exp = expectation(description: "Wait for completion!")
+
+        // WHEN
+        let cardModel = CardViewPresentableModel(
+            style: makeDefaultStyle(),
+            title: .text("Title"),
+            trailingImage: .init(
+                size: .init(width: 32, height: 32),
+                image: .asset(failImage),
+            )
+        )
+
+        let toast = CommonToast.custom(.init(
+            common: .init(
+                cardViewModel: cardModel,
+                position: .top
+            )
+        ))
+
+        sut.display(toast)
+        sut.show(appWindow: testContainer) {
+            exp.fulfill()
+        }
+
+        wait(for: [exp], timeout: 2.0)
+
+        // THEN
+        if #available(iOS 26, *) {
+            assertFail(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.fail)
+            assertFail(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS26_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.fail)
+        } else {
+            assertFail(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS18.5_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.fail)
+            assertFail(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS18.5_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.fail)
+        }
+
+        sut.removeFromSuperview()
+    }
+
+    func test_ToastView_with_switchControl() {
+        let snapshotName = "TOASTVIEW_WITH_SWITCHCONTROL"
+
+        // GIVEN
+        let sut = makeSUT()
+
+        let exp = expectation(description: "Wait for completion!")
+
+        // WHEN
+        let cardModel = CardViewPresentableModel(
+            style: makeDefaultStyle(),
+            title: .text("Title"),
+            switchControl: .init(
+                isOn: true,
+                isEnabled: true,
+                style: .init(tintColor: .red,
+                             thumbTintColor: .systemBlue,
+                             backgroundColor: .systemBackground,
+                             cornerRadius: 10))
+        )
+
+        let toast = CommonToast.custom(.init(
+            common: .init(
+                cardViewModel: cardModel,
+                position: .top
+            )
+        ))
+
+        sut.display(toast)
+        sut.show(appWindow: testContainer) {
+            exp.fulfill()
+        }
+
+        wait(for: [exp], timeout: 2.0)
+
+        // THEN
+        if #available(iOS 26, *) {
+            assert(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
+            assert(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS26_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.standard)
+        } else {
+            assert(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS18.5_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
+            assert(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS18.5_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.standard)
+        }
+
+        sut.removeFromSuperview()
+    }
+
+    func test_fail_ToastView_with_switchControl() {
+        let snapshotName = "TOASTVIEW_WITH_SWITCHCONTROL"
+
+        // GIVEN
+        let sut = makeSUT()
+
+        let exp = expectation(description: "Wait for completion!")
+
+        // WHEN
+        let cardModel = CardViewPresentableModel(
+            style: makeDefaultStyle(),
+            title: .text("Title"),
+            switchControl: .init(
+                isOn: true,
+                isEnabled: true,
+                style: .init(tintColor: .systemRed,
+                             thumbTintColor: .systemBlue,
+                             backgroundColor: .systemBackground,
+                             cornerRadius: 10))
+        )
+
+        let toast = CommonToast.custom(.init(
+            common: .init(
+                cardViewModel: cardModel,
+                position: .top
+            )
+        ))
+
+        sut.display(toast)
+        sut.show(appWindow: testContainer) {
+            exp.fulfill()
+        }
+
+        wait(for: [exp], timeout: 2.0)
+
+        // THEN
+        if #available(iOS 26, *) {
+            assertFail(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.fail)
+            assertFail(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS26_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.fail)
+        } else {
+            assertFail(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS18.5_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.fail)
+            assertFail(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS18.5_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.fail)
+        }
+
+        sut.removeFromSuperview()
+    }
+
+    func test_ToastView_with_bottomSeparator() {
+        let snapshotName = "TOASTVIEW_WITH_BOTTOMSEPARATOR"
+
+        // GIVEN
+        let sut = makeSUT()
+
+        let exp = expectation(description: "Wait for completion!")
+
+        // WHEN
+        let cardModel = CardViewPresentableModel(
+            style: makeDefaultStyle(),
+            title: .text("Title"),
+            bottomSeparator: .init(color: .black, height: 2.0)
+        )
+
+        let toast = CommonToast.custom(.init(
+            common: .init(
+                cardViewModel: cardModel,
+                position: .top
+            )
+        ))
+
+        sut.display(toast)
+        sut.show(appWindow: testContainer) {
+            exp.fulfill()
+        }
+
+        wait(for: [exp], timeout: 2.0)
+
+        // THEN
+        if #available(iOS 26, *) {
+            assert(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
+            assert(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS26_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.standard)
+        } else {
+            assert(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS18.5_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
+            assert(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS18.5_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.standard)
+        }
+
+        sut.removeFromSuperview()
+    }
+
+    func test_fail_ToastView_with_bottomSeparator() {
+        let snapshotName = "TOASTVIEW_WITH_BOTTOMSEPARATOR"
+
+        // GIVEN
+        let sut = makeSUT()
+
+        let exp = expectation(description: "Wait for completion!")
+
+        // WHEN
+        let cardModel = CardViewPresentableModel(
+            style: makeDefaultStyle(),
+            title: .text("Title"),
+            bottomSeparator: .init(color: .black, height: 1.0)
+        )
+
+        let toast = CommonToast.custom(.init(
+            common: .init(
+                cardViewModel: cardModel,
+                position: .top
+            )
+        ))
+
+        sut.display(toast)
+        sut.show(appWindow: testContainer) {
+            exp.fulfill()
+        }
+
+        wait(for: [exp], timeout: 2.0)
+
+        // THEN
+        if #available(iOS 26, *) {
+            assertFail(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.fail)
+            assertFail(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS26_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.fail)
+        } else {
+            assertFail(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS18.5_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.fail)
+            assertFail(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS18.5_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.fail)
+        }
+
+        sut.removeFromSuperview()
+    }
+
+    func test_ToastView_with_leadingTitles() {
+        let snapshotName = "TOASTVIEW_WITH_lEADINGTITLES"
+
+        // GIVEN
+        let sut = makeSUT()
+        let exp = expectation(description: "Wait for completion!")
+
+        // WHEN
+        let cardModel = CardViewPresentableModel(
+            style: makeDefaultStyle(),
+            title: .text("Title"),
+            leadingTitles: .init(.text("First title"), .text("Second title"))
+        )
+
+        let toast = CommonToast.custom(.init(
+            common: .init(
+                cardViewModel: cardModel,
+                position: .top
+            )
+        ))
+
+        sut.display(toast)
+        sut.show(appWindow: testContainer) {
+            exp.fulfill()
+        }
+
+        wait(for: [exp], timeout: 2.0)
+
+        // THEN
+        if #available(iOS 26, *) {
+            assert(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
+            assert(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS26_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.standard)
+        } else {
+            assert(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS18.5_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
+            assert(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS18.5_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.standard)
+        }
+
+        sut.removeFromSuperview()
+    }
+
+    func test_fail_ToastView_with_leadingTitles() {
+        let snapshotName = "TOASTVIEW_WITH_lEADINGTITLES"
+
+        // GIVEN
+        let sut = makeSUT()
+
+        let exp = expectation(description: "Wait for completion!")
+
+        // WHEN
+        let cardModel = CardViewPresentableModel(
+            style: makeDefaultStyle(),
+            title: .text("Title"),
+            leadingTitles: .init(.text("First title."), .text("Second title"))
+        )
+
+        let toast = CommonToast.custom(.init(
+            common: .init(
+                cardViewModel: cardModel,
+                position: .top
+            )
+        ))
+
+        sut.display(toast)
+        sut.show(appWindow: testContainer) {
+            exp.fulfill()
+        }
+
+        wait(for: [exp], timeout: 2.0)
+
+        // THEN
+        if #available(iOS 26, *) {
+            assertFail(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.fail)
+            assertFail(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS26_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.fail)
+        } else {
+            assertFail(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS18.5_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.fail)
+            assertFail(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS18.5_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.fail)
+        }
+
+        sut.removeFromSuperview()
+    }
+
+    func test_ToastView_with_trailingTitles() {
+        let snapshotName = "TOASTVIEW_WITH_TRAILINGTITLES"
+
+        // GIVEN
+        let sut = makeSUT()
+        let exp = expectation(description: "Wait for completion!")
+
+        // WHEN
+        let cardModel = CardViewPresentableModel(
+            style: makeDefaultStyle(),
+            title: .text("Title"),
+            trailingTitles: .init(.text("First title."), .text("Second title"))
+        )
+
+        let toast = CommonToast.custom(.init(
+            common: .init(
+                cardViewModel: cardModel,
+                position: .top
+            )
+        ))
+
+        sut.display(toast)
+        sut.show(appWindow: testContainer) {
+            exp.fulfill()
+        }
+
+        wait(for: [exp], timeout: 2.0)
+
+        // THEN
+        if #available(iOS 26, *) {
+            assert(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
+            assert(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS26_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.standard)
+        } else {
+            assert(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS18.5_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
+            assert(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS18.5_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.standard)
+        }
+
+        sut.removeFromSuperview()
+    }
+
+    func test_fail_ToastView_with_trailingTitles() {
+        let snapshotName = "TOASTVIEW_WITH_TRAILINGTITLES"
+
+        // GIVEN
+        let sut = makeSUT()
+
+        let exp = expectation(description: "Wait for completion!")
+
+        // WHEN
+        let cardModel = CardViewPresentableModel(
+            style: makeDefaultStyle(),
+            title: .text("Title"),
+            trailingTitles: .init(.text("First title"), .text("Second title"))
+        )
+
+        let toast = CommonToast.custom(.init(
+            common: .init(
+                cardViewModel: cardModel,
+                position: .top
+            )
+        ))
+
+        sut.display(toast)
+        sut.show(appWindow: testContainer) {
+            exp.fulfill()
+        }
+
+        wait(for: [exp], timeout: 2.0)
+
+        // THEN
+        if #available(iOS 26, *) {
+            assertFail(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.fail)
+            assertFail(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS26_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.fail)
+        } else {
+            assertFail(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS18.5_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.fail)
+            assertFail(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS18.5_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.fail)
+        }
+
+        sut.removeFromSuperview()
+    }
+
+    func test_ToastView_with_secondaryLeadingImage() {
+        let snapshotName = "TOASTVIEW_WITH_SECONDARYLEADINGIMAGE"
+
+        // GIVEN
+        let sut = makeSUT()
+
+        let exp = expectation(description: "Wait for completion!")
+
+        // WHEN
+        let cardModel = CardViewPresentableModel(
+            style: makeDefaultStyle(),
+            title: .text("Title"),
+            secondaryLeadingImage: .init(image: .asset(image))
+        )
+
+        let toast = CommonToast.custom(.init(
+            common: .init(
+                cardViewModel: cardModel,
+                position: .top
+            )
+        ))
+
+        sut.display(toast)
+        sut.show(appWindow: testContainer) {
+            exp.fulfill()
+        }
+
+        wait(for: [exp], timeout: 2.0)
+
+        // THEN
+        if #available(iOS 26, *) {
+            assert(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
+            assert(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS26_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.standard)
+        } else {
+            assert(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS18.5_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
+            assert(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS18.5_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.standard)
+        }
+
+        sut.removeFromSuperview()
+    }
+
+    func test_fail_ToastView_with_secondaryLeadingImage() {
+        let snapshotName = "TOASTVIEW_WITH_SECONDARYLEADINGIMAGE"
+
+        // GIVEN
+        let sut = makeSUT()
+
+        let exp = expectation(description: "Wait for completion!")
+        let image = Image(systemName: "star")
+
+        // WHEN
+        let cardModel = CardViewPresentableModel(
+            style: makeDefaultStyle(),
+            title: .text("Title"),
+            secondaryLeadingImage: .init(image: .asset(failImage))
+        )
+
+        let toast = CommonToast.custom(.init(
+            common: .init(
+                cardViewModel: cardModel,
+                position: .top
+            )
+        ))
+
+        sut.display(toast)
+        sut.show(appWindow: testContainer) {
+            exp.fulfill()
+        }
+
+        wait(for: [exp], timeout: 2.0)
+
+        // THEN
+        if #available(iOS 26, *) {
+            assertFail(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.fail)
+            assertFail(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS26_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.fail)
+        } else {
+            assertFail(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS18.5_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.fail)
+            assertFail(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS18.5_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.fail)
+        }
+
+        sut.removeFromSuperview()
+    }
+
+    func test_ToastView_with_secondaryTrailingImage() {
+        let snapshotName = "TOASTVIEW_WITH_SECONDARYTRAILINGIMAGE"
+
+        // GIVEN
+        let sut = makeSUT()
+
+        let exp = expectation(description: "Wait for completion!")
+
+        // WHEN
+        let cardModel = CardViewPresentableModel(
+            style: makeDefaultStyle(),
+            title: .text("Title"),
+            secondaryTrailingImage: .init(image: .asset(image))
+        )
+
+        let toast = CommonToast.custom(.init(
+            common: .init(
+                cardViewModel: cardModel,
+                position: .top
+            )
+        ))
+
+        sut.display(toast)
+        sut.show(appWindow: testContainer) {
+            exp.fulfill()
+        }
+
+        wait(for: [exp], timeout: 2.0)
+
+        // THEN
+        if #available(iOS 26, *) {
+            assert(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
+            assert(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS26_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.standard)
+        } else {
+            assert(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS18.5_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
+            assert(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS18.5_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.standard)
+        }
+
+        sut.removeFromSuperview()
+    }
+
+    func test_fail_ToastView_with_secondaryTrailingImage() {
+        let snapshotName = "TOASTVIEW_WITH_SECONDARYTRAILINGIMAGE"
+
+        // GIVEN
+        let sut = makeSUT()
+
+        let exp = expectation(description: "Wait for completion!")
+
+        let image = Image(systemName: "star")
+
+        // WHEN
+        let cardModel = CardViewPresentableModel(
+            style: makeDefaultStyle(),
+            title: .text("Title"),
+            secondaryTrailingImage: .init(image: .asset(failImage))
+        )
+
+        let toast = CommonToast.custom(.init(
+            common: .init(
+                cardViewModel: cardModel,
+                position: .top
+            )
+        ))
+
+        sut.display(toast)
+        sut.show(appWindow: testContainer) {
+            exp.fulfill()
+        }
+
+        wait(for: [exp], timeout: 2.0)
+
+        // THEN
+        if #available(iOS 26, *) {
+            assertFail(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.fail)
+            assertFail(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS26_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.fail)
+        } else {
+            assertFail(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS18.5_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.fail)
+            assertFail(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS18.5_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.fail)
+        }
+
+        sut.removeFromSuperview()
+    }
+
+    func test_ToastView_with_leadingImage_and_subtitle() {
+        let snapshotName = "TOASTVIEW_WITH_LEADINGIMAGE_AND_SUBTITLE"
+
+        // GIVEN
+        let sut = makeSUT()
+
+        let exp = expectation(description: "Wait for completion!")
+
+        let image = Image(systemName: "star")
+
+        // WHEN
+        let cardModel = CardViewPresentableModel(
+            style: makeCommonStyle(),
+            title: .attributes([.init(text: "Title is very long, and should be wrap on two or maybe three lines in depends of font and other parameters", color: .red, font: .systemFont(ofSize: 13))]),
+            leadingImage: .init(image: .asset(image)),
+            subTitle: .attributes([.init(text: "Subtitle", color: .blue, font: .systemFont(ofSize: 13))])
+        )
+
+        let toast = CommonToast.custom(.init(
+            common: .init(
+                cardViewModel: cardModel,
+                position: .top
+            )
+        ))
+
+        sut.display(toast)
+        sut.show(appWindow: testContainer) {
+            exp.fulfill()
+        }
+
+        wait(for: [exp], timeout: 2.0)
+
+        // THEN
+        if #available(iOS 26, *) {
+            assert(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
+            assert(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS26_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.standard)
+        } else {
+            assert(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS18.5_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
+            assert(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS18.5_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.standard)
+        }
+
+        sut.removeFromSuperview()
+    }
+}
+
+@available(iOS 17.0, *)
+private extension SUIToastViewSnapshotTests {
+    func makeSUT(
+        file: StaticString = #file,
+        line: UInt = #line
+    ) -> SwiftUIToastViewSnapshotSUT {
+        let sut = SwiftUIToastViewSnapshotSUT()
+
+        checkForMemoryLeaks(sut, file: file, line: line)
+        return sut
+    }
+
+    func makeCommonStyle() -> CardViewPresentableModel.Style {
+        .init(
+            backgroundColor: .green,
+            vStacklayoutMargins: .zero,
+            hStacklayoutMargins: .init(top: 12, leading: 12, bottom: 12, trailing: 12),
+            hStackViewDistribution: .fill,
+            leadingTitleKeyTextColor: .black,
+            titleKeyTextColor: .red,
+            trailingTitleKeyTextColor: .black,
+            titleValueTextColor: .yellow,
+            subTitleTextColor: .blue,
+            leadingTitleKeyLabelFont: .systemFont(ofSize: 13),
+            titleKeyLabelFont: .systemFont(ofSize: 13),
+            trailingTitleKeyLabelFont: .systemFont(ofSize: 13),
+            titleValueLabelFont: .systemFont(ofSize: 13),
+            subTitleLabelFont: .systemFont(ofSize: 13),
+            subtitleNumberOfLines: 1,
+            cornerRadius: 12,
+            stackSpace: 4,
+            hStackViewSpacing: 14,
+            titleKeyNumberOfLines: 0,
+            titleValueNumberOfLines: 0,
+            trailingImageLeadingSpacing: 0
+        )
+    }
+
+    func makeDefaultStyle() -> CardViewPresentableModel.Style {
+        return .init(
+            backgroundColor: .green,
+            vStacklayoutMargins: .init(top: 12, leading: 12, bottom: 12, trailing: 12),
+            hStacklayoutMargins: .zero,
+            hStackViewDistribution: .fill,
+            leadingTitleKeyTextColor: .black,
+            titleKeyTextColor: .black,
+            trailingTitleKeyTextColor: .black,
+            titleValueTextColor: .gray,
+            subTitleTextColor: .gray,
+            leadingTitleKeyLabelFont: .systemFont(ofSize: 14),
+            titleKeyLabelFont: .boldSystemFont(ofSize: 15),
+            trailingTitleKeyLabelFont: .systemFont(ofSize: 14),
+            titleValueLabelFont: .systemFont(ofSize: 14),
+            subTitleLabelFont: .systemFont(ofSize: 13),
+            cornerRadius: 12,
+            stackSpace: 4,
+            hStackViewSpacing: 12,
+            titleKeyNumberOfLines: 0,
+            titleValueNumberOfLines: 0,
+            borderColor: .lightGray,
+            borderWidth: 1
+        )
+    }
+}

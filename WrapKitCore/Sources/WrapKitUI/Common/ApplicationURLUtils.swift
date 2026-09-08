@@ -5,6 +5,7 @@
 //  Created by Gulzat Zheenbek kyzy on 21/8/26.
 //
 
+#if canImport(UIKit)
 import UIKit
 
 public enum URLTarget {
@@ -64,3 +65,4 @@ public enum ApplicationURLUtils {
         }
     }
 }
+#endif

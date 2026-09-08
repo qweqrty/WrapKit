@@ -16,6 +16,10 @@ import UIKit
 #endif
 public class ApplicationLifecycleOutputSwiftUIAdapter: ObservableObject, ApplicationLifecycleOutput {
 
+
+
+
+
     // Initializer
     public init(
     ) {

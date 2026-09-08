@@ -31,10 +31,12 @@ extension MainQueueDispatchDecorator: LoadingOutput where T: LoadingOutput {
 
     public var isLoading: Bool? {
         get {
-            return decoratee.isLoading          
+            return dispatchSync { decoratee.isLoading }
         }
         set {
-            decoratee.isLoading = newValue
+            dispatch { [weak self] in
+                self?.decoratee.isLoading = newValue
+            }
         }
     }
 }

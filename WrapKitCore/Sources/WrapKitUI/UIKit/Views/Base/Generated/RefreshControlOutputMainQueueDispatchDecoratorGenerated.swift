@@ -50,10 +50,12 @@ extension MainQueueDispatchDecorator: RefreshControlOutput where T: RefreshContr
 
     public var onRefresh: [(() -> Void)?]? {
         get {
-            return decoratee.onRefresh          
+            return dispatchSync { decoratee.onRefresh }
         }
         set {
-            decoratee.onRefresh = newValue
+            dispatch { [weak self] in
+                self?.decoratee.onRefresh = newValue
+            }
         }
     }
 }

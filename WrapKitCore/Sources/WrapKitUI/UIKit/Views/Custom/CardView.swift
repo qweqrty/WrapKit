@@ -23,6 +23,7 @@ public protocol CardViewOutput: AnyObject {
     func display(secondaryTrailingImage: ImageViewPresentableModel?)
     func display(subTitle: TextOutputPresentableModel?)
     func display(valueTitle: TextOutputPresentableModel?)
+    func display(bottomImage: ImageViewPresentableModel?)
     func display(bottomSeparator: CardViewPresentableModel.BottomSeparator?)
     func display(switchControl: SwitchControlPresentableModel?)
     func display(onPress: (() -> Void)?)
@@ -30,6 +31,12 @@ public protocol CardViewOutput: AnyObject {
     func display(isHidden: Bool)
     func display(isUserInteractionEnabled: Bool?)
     func display(isGradientBorderEnabled: Bool)
+}
+
+public extension CardViewOutput {
+    /// Keeps existing custom outputs source-compatible. WrapKit's UIKit and
+    /// SwiftUI implementations provide the concrete bottom-image rendering.
+    func display(bottomImage: ImageViewPresentableModel?) {}
 }
 
 public struct CardViewPresentableModel: HashableWithReflection {
@@ -59,6 +66,19 @@ public struct CardViewPresentableModel: HashableWithReflection {
         public let gradientBorderColors: [Color]?
         public let trailingImageLeadingSpacing: CGFloat?
         public let secondaryTrailingImageLeadingSpacing: CGFloat?
+
+        public var cornerRadius: CGFloat {
+            switch cornerStyle {
+            case .automatic:
+                return .greatestFiniteMagnitude
+            case .fixed(let radius):
+                return radius
+            case .corners(let corners):
+                return corners.maximum
+            case .none:
+                return .zero
+            }
+        }
         
         public init(
             backgroundColor: Color,
@@ -269,7 +289,7 @@ extension CardView: CardViewOutput {
         
         leadingTitleViews.keyLabel.font = style.leadingTitleKeyLabelFont
         titleViews.keyLabel.font = style.titleKeyLabelFont
-        leadingTitleViews.keyLabel.font = style.trailingTitleKeyLabelFont
+        trailingTitleViews.keyLabel.font = style.trailingTitleKeyLabelFont
         subtitleLabel.textColor = style.subTitleTextColor
         subtitleLabel.font = style.subTitleLabelFont
         leadingTitleViews.keyLabel.textColor = style.leadingTitleKeyTextColor
@@ -356,6 +376,11 @@ extension CardView: CardViewOutput {
         titleViews.valueLabel.display(model: valueTitle)
         titleViewsWrapperView.isHidden = titleViews.keyLabel.isHidden && titleViews.valueLabel.isHidden
     }
+
+    public func display(bottomImage: ImageViewPresentableModel?) {
+        bottomImageWrapperView.isHidden = bottomImage == nil
+        bottomImageView.display(model: bottomImage)
+    }
     
     public func display(bottomSeparator: CardViewPresentableModel.BottomSeparator?) {
         bottomSeparatorView.isHidden = bottomSeparator == nil
@@ -428,6 +453,9 @@ extension CardView: CardViewOutput {
         
         // SecondaryTrailingImage
         display(secondaryTrailingImage: model.secondaryTrailingImage)
+
+        // BottomImage
+        display(bottomImage: model.bottomImage)
         
         // bottomSeparatorView
         display(bottomSeparator: model.bottomSeparator)
@@ -477,7 +505,7 @@ open class CardView: ViewUIKit {
     }
 
     private func updateProxyIfNeeded() {
-        guard (onPress != nil || onLongPress != nil), !isHidden, alpha > 0.01 else { return }
+        guard onPress != nil || onLongPress != nil, !isHidden, alpha > 0.01 else { return }
 
         a11yProxy.accessibilityLabel = accessibilityTextSummary() ?? "Card"
         a11yProxy.activate = { [weak self] in self?.onPress?() }
@@ -530,7 +558,7 @@ open class CardView: ViewUIKit {
 
         var result: [Any] = []
 
-        if (onPress != nil || onLongPress != nil), !isHidden, alpha > 0.01 {
+        if onPress != nil || onLongPress != nil, !isHidden, alpha > 0.01 {
             updateProxyIfNeeded()
             result.append(a11yProxy)
         }
@@ -700,11 +728,18 @@ open class CardView: ViewUIKit {
     }
     
     private func setupPriorities() {
+        let flexibleTextHuggingPriority = UILayoutPriority(
+            rawValue: UILayoutPriority.defaultLow.rawValue - 1
+        )
+
         subtitleLabel.setContentHuggingPriority(.required, for: .horizontal)
         subtitleLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
         subtitleLabel.setContentCompressionResistancePriority(.required, for: .vertical)
         
-        titleViews.keyLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        titleViewsWrapperView.setContentHuggingPriority(flexibleTextHuggingPriority, for: .horizontal)
+        titleViews.setContentHuggingPriority(flexibleTextHuggingPriority, for: .horizontal)
+        titleViews.keyLabel.setContentHuggingPriority(flexibleTextHuggingPriority, for: .horizontal)
+        titleViews.valueLabel.setContentHuggingPriority(flexibleTextHuggingPriority, for: .horizontal)
         titleViews.keyLabel.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
         titleViews.keyLabel.setContentCompressionResistancePriority(.required, for: .vertical)
         titleViews.valueLabel.setContentCompressionResistancePriority(.required, for: .vertical)
@@ -751,6 +786,7 @@ extension CardView {
         titleViewsWrapperView.addSubview(titleViews)
         trailingTitleViewsWrapperView.addSubview(trailingTitleViews)
         switchWrapperView.addSubview(switchControl)
+        bottomImageWrapperView.addSubview(bottomImageView)
     }
     
     func setupConstraints() {
@@ -841,6 +877,13 @@ extension CardView {
             .trailing(switchWrapperView.trailingAnchor),
             .centerX(switchWrapperView.centerXAnchor),
             .centerY(switchWrapperView.centerYAnchor)
+        )
+
+        bottomImageView.anchor(
+            .top(bottomImageWrapperView.topAnchor),
+            .bottom(bottomImageWrapperView.bottomAnchor),
+            .leading(bottomImageWrapperView.leadingAnchor),
+            .trailingLessThanEqual(bottomImageWrapperView.trailingAnchor)
         )
 
         vStackView.anchor(

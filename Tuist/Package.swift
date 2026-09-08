@@ -22,6 +22,6 @@ let package = Package(
         .package(url: "https://github.com/onevcat/Kingfisher.git", from: "7.12.0"),
         .package(url: "https://github.com/marmelroy/PhoneNumberKit", from: "4.0.1"),
         .package(url: "https://github.com/devicekit/DeviceKit", from: "5.5.0"),
-        .package(url: "https://github.com/SnapKit/SnapKit.git", from: "5.0.1"),
+        .package(url: "https://github.com/SnapKit/SnapKit.git", from: "5.0.1")
     ]
 )

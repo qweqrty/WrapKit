@@ -39,10 +39,12 @@ extension MainQueueDispatchDecorator: {{ type.name }} where T: {{ type.name }} {
     {% for variable in type.variables %}
     public var {{ variable.name }}: {{ variable.typeName }} {
         get {
-            return decoratee.{{ variable.name }}          
+            return dispatchSync { decoratee.{{ variable.name }} }
         }
         set {
-            decoratee.{{ variable.name }} = newValue
+            dispatch { [weak self] in
+                self?.decoratee.{{ variable.name }} = newValue
+            }
         }
     }
     {% endfor %}
