@@ -121,7 +121,7 @@ final class AuthenticatedHTTPClientDecoratorLifecycleTests: XCTestCase {
         XCTAssertNil(context.access.get(), "A response from the ended session must not restore access")
         XCTAssertNil(context.refresh.get(), "A response from the ended session must not restore refresh")
         XCTAssertEqual(context.http.requests.count, 1, "Logout must prevent the pending request from retrying")
-        XCTAssertFalse(AuthenticationSession.shared.isRefreshing)
+        XCTAssertFalse(AuthenticatedHTTPClientDecorator.Session.shared.isRefreshing)
         XCTAssertEqual(context.failureCount(for: 1), 1)
     }
 
@@ -195,7 +195,7 @@ final class AuthenticatedHTTPClientDecoratorLifecycleTests: XCTestCase {
         let context = makeContext()
         context.dispatch(1)
 
-        AuthenticationSession.shared.updateCredentials {
+        AuthenticatedHTTPClientDecorator.Session.shared.updateCredentials {
             context.access.clear()
             context.refresh.clear()
         }
@@ -212,7 +212,7 @@ final class AuthenticatedHTTPClientDecoratorLifecycleTests: XCTestCase {
         context.dispatch(1)
         try context.respond(401, at: 0)
 
-        AuthenticationSession.shared.updateCredentials {
+        AuthenticatedHTTPClientDecorator.Session.shared.updateCredentials {
             context.access.set(model: "login_access")
             context.refresh.set(model: "login_refresh")
         }
@@ -292,7 +292,7 @@ final class AuthenticatedHTTPClientDecoratorLifecycleTests: XCTestCase {
         let context = makeContext()
         let client = context.makeClient()
         context.dispatch(1)
-        let sessionID = AuthenticationSession.shared.identifier
+        let sessionID = AuthenticatedHTTPClientDecorator.Session.shared.identifier
 
         client.invalidateAuthentication(sessionID: sessionID, accessToken: "old_access")
         client.invalidateAuthentication(sessionID: sessionID, accessToken: "old_access")
@@ -304,7 +304,7 @@ final class AuthenticatedHTTPClientDecoratorLifecycleTests: XCTestCase {
     }
 
     func test_invalidationCallbacks_canStartNewSessionReentrantly() {
-        let session = AuthenticationSession()
+        let session = AuthenticatedHTTPClientDecorator.Session()
         let original = session.identifier
         var invalidations = 0
         session.onInvalidation(of: original) {
@@ -317,7 +317,7 @@ final class AuthenticatedHTTPClientDecoratorLifecycleTests: XCTestCase {
     }
 
     func test_conditionalCredentialUpdate_rejectsLateLoginCompletion() {
-        let session = AuthenticationSession()
+        let session = AuthenticatedHTTPClientDecorator.Session()
         let oldSession = session.identifier
         var credential = "first"
         session.updateCredentials { credential = "second" }
@@ -331,7 +331,7 @@ final class AuthenticatedHTTPClientDecoratorLifecycleTests: XCTestCase {
     func test_newLoginReenteredDuringRefreshPersistence_doesNotOverwriteItsTokens() throws {
         let access = InMemoryStorage(model: "old_access")
         let refresh = InMemoryStorage(model: "old_refresh")
-        let session = AuthenticationSession()
+        let session = AuthenticatedHTTPClientDecorator.Session()
         let refresher = GatedTokenRefresher()
         var logoutCount = 0
         let client = AuthenticatedHTTPClientDecorator(
@@ -365,7 +365,7 @@ final class AuthenticatedHTTPClientDecoratorLifecycleTests: XCTestCase {
     func test_waiterJoiningDuringTokenPersistence_receivesCompletedRefresh() throws {
         let access = InMemoryStorage(model: "old_access")
         let refresh = InMemoryStorage(model: "old_refresh")
-        let session = AuthenticationSession()
+        let session = AuthenticatedHTTPClientDecorator.Session()
         let refresher = GatedTokenRefresher()
         let client = AuthenticatedHTTPClientDecorator(
             decoratee: GatedHTTPClient(), accessTokenStorage: access, refreshTokenStorage: refresh,
@@ -399,7 +399,7 @@ final class AuthenticatedHTTPClientDecoratorLifecycleTests: XCTestCase {
     func test_activeRefresh_retainsRefresherAfterStartingClientIsReleased() throws {
         let access = InMemoryStorage(model: "old_access")
         let refresh = InMemoryStorage(model: "old_refresh")
-        let session = AuthenticationSession()
+        let session = AuthenticatedHTTPClientDecorator.Session()
         let task = CompositeHTTPClientTask()
         var results: [Tokens?] = []
         weak var weakRefresher: GatedTokenRefresher?
@@ -427,6 +427,46 @@ final class AuthenticatedHTTPClientDecoratorLifecycleTests: XCTestCase {
         XCTAssertFalse(session.isRefreshing)
     }
 
+    func test_logoutDuringRefresh_doesNotAffectIndependentSession() throws {
+        let first = makeContext(session: AuthenticatedHTTPClientDecorator.Session())
+        let second = makeContext(session: AuthenticatedHTTPClientDecorator.Session())
+        first.dispatch(1)
+        second.dispatch(2)
+        try first.respond(401, at: 0)
+        try second.respond(403, at: 0)
+
+        XCTAssertTrue(first.session.isRefreshing)
+        XCTAssertTrue(second.session.isRefreshing)
+        XCTAssertEqual(first.refresher.requestCount, 1)
+        XCTAssertEqual(second.refresher.requestCount, 1)
+
+        first.session.invalidateCredentials {
+            first.access.clear()
+            first.refresh.clear()
+        }
+
+        XCTAssertEqual(first.failureCount(for: 1), 1)
+        XCTAssertFalse(first.session.isActive)
+        XCTAssertTrue(second.session.isActive)
+        XCTAssertTrue(second.session.isRefreshing)
+        XCTAssertEqual(second.failureCount(for: 2), 0)
+
+        try first.refresher.completeNext(.success(newTokens))
+        try second.refresher.completeNext(.success(newTokens))
+        try second.respond(200, at: 1)
+
+        XCTAssertNil(first.access.get())
+        XCTAssertNil(first.refresh.get())
+        XCTAssertEqual(first.http.requests.count, 1)
+        XCTAssertEqual(first.failureCount(for: 1), 1)
+        XCTAssertEqual(second.access.get(), "new_access")
+        XCTAssertEqual(second.refresh.get(), "new_refresh")
+        XCTAssertEqual(second.successCount(for: 2), 1)
+        XCTAssertEqual(second.failureCount(for: 2), 0)
+        XCTAssertEqual(second.logoutCount, 0)
+        XCTAssertFalse(second.session.isRefreshing)
+    }
+
     func test_concurrentPublicRefreshCalls_allJoinOneFlight() throws {
         let context = makeContext()
         let clients = (0..<20).map { _ in context.makeClient() }
@@ -436,13 +476,13 @@ final class AuthenticatedHTTPClientDecoratorLifecycleTests: XCTestCase {
             clients[index].refreshToken(for: "old_access", completion: { results.append($0) }, compositeTask: tasks[index])
         }
         XCTAssertEqual(context.refresher.requestCount, 1)
-        XCTAssertTrue(AuthenticationSession.shared.isRefreshing)
+        XCTAssertTrue(AuthenticatedHTTPClientDecorator.Session.shared.isRefreshing)
 
         try context.refresher.completeNext(.success(newTokens))
 
         XCTAssertEqual(results.count, clients.count)
         XCTAssertTrue(results.allSatisfy { $0?.accessToken == "new_access" })
-        XCTAssertFalse(AuthenticationSession.shared.isRefreshing)
+        XCTAssertFalse(AuthenticatedHTTPClientDecorator.Session.shared.isRefreshing)
     }
 
     func test_cancelLastWaiter_endsFlightAndLateRefreshCannotReplaceNextFlight() throws {
@@ -450,7 +490,7 @@ final class AuthenticatedHTTPClientDecoratorLifecycleTests: XCTestCase {
         let task = context.dispatch(1)
         try context.respond(401, at: 0)
         task.cancel()
-        XCTAssertFalse(AuthenticationSession.shared.isRefreshing)
+        XCTAssertFalse(AuthenticatedHTTPClientDecorator.Session.shared.isRefreshing)
         XCTAssertEqual(context.failureCount(for: 1), 1)
 
         context.dispatch(2)
@@ -458,19 +498,19 @@ final class AuthenticatedHTTPClientDecoratorLifecycleTests: XCTestCase {
         XCTAssertEqual(context.refresher.requestCount, 2)
         try context.refresher.completeNext(.success(Tokens(accessToken: "stale_access")))
         XCTAssertEqual(context.access.get(), "old_access")
-        XCTAssertTrue(AuthenticationSession.shared.isRefreshing)
+        XCTAssertTrue(AuthenticatedHTTPClientDecorator.Session.shared.isRefreshing)
         try context.refresher.completeNext(.success(newTokens))
         try context.respond(200, at: 2)
 
         XCTAssertEqual(context.access.get(), "new_access")
         XCTAssertEqual(context.successCount(for: 2), 1)
-        XCTAssertFalse(AuthenticationSession.shared.isRefreshing)
+        XCTAssertFalse(AuthenticatedHTTPClientDecorator.Session.shared.isRefreshing)
     }
 
     func test_newLoginReenteredDuringLogout_keepsBothNewTokens() {
         let access = InMemoryStorage(model: "old_access")
         let refresh = InMemoryStorage(model: "old_refresh")
-        let session = AuthenticationSession()
+        let session = AuthenticatedHTTPClientDecorator.Session()
         var logoutCount = 0
         let client = AuthenticatedHTTPClientDecorator(
             decoratee: GatedHTTPClient(), accessTokenStorage: access, refreshTokenStorage: refresh,
@@ -499,7 +539,7 @@ final class AuthenticatedHTTPClientDecoratorLifecycleTests: XCTestCase {
         let client = context.makeClient()
         context.keychain.rejectDeletes = true
 
-        AuthenticationSession.shared.invalidateCredentials {
+        AuthenticatedHTTPClientDecorator.Session.shared.invalidateCredentials {
             context.access.clear()
             context.refresh.clear()
         }
@@ -509,14 +549,14 @@ final class AuthenticatedHTTPClientDecoratorLifecycleTests: XCTestCase {
 
         XCTAssertEqual(context.access.get(), "old_access", "Fixture must reproduce a failed deletion")
         XCTAssertEqual(context.refresh.get(), "old_refresh")
-        XCTAssertFalse(AuthenticationSession.shared.isActive)
+        XCTAssertFalse(AuthenticatedHTTPClientDecorator.Session.shared.isActive)
         XCTAssertEqual(context.http.requests.count, 0)
         XCTAssertEqual(context.refresher.requestCount, 0)
         XCTAssertEqual(context.failureCount(for: 1), 1)
         XCTAssertEqual(refreshResults.count, 1)
         XCTAssertNil(refreshResults[0])
 
-        AuthenticationSession.shared.updateCredentials {
+        AuthenticatedHTTPClientDecorator.Session.shared.updateCredentials {
             context.access.set(model: "login_access")
             context.refresh.set(model: "login_refresh")
         }
@@ -562,8 +602,8 @@ final class AuthenticatedHTTPClientDecoratorLifecycleTests: XCTestCase {
         XCTAssertEqual(context.successCount(for: 1), 0)
         XCTAssertEqual(context.successCount(for: 2), 0)
         XCTAssertEqual(context.logoutCount, 1)
-        XCTAssertFalse(AuthenticationSession.shared.isRefreshing)
-        XCTAssertFalse(AuthenticationSession.shared.isActive)
+        XCTAssertFalse(AuthenticatedHTTPClientDecorator.Session.shared.isRefreshing)
+        XCTAssertFalse(AuthenticatedHTTPClientDecorator.Session.shared.isActive)
         if rejectsDeletion {
             XCTAssertEqual(context.access.get(), "old_access")
             XCTAssertEqual(context.refresh.get(), rejectedKey == "test_refresh" ? "old_refresh" : "new_refresh")
@@ -583,8 +623,8 @@ final class AuthenticatedHTTPClientDecoratorLifecycleTests: XCTestCase {
         Tokens(accessToken: "new_access", refreshToken: "new_refresh")
     }
 
-    private func makeContext() -> Context {
-        let context = Context()
+    private func makeContext(session: AuthenticatedHTTPClientDecorator.Session = .shared) -> Context {
+        let context = Context(session: session)
         contexts.append(context)
         // Drain the initial storage publication before each controlled event
         // sequence; no fixed sleep or racing background callbacks are needed.
@@ -597,8 +637,8 @@ final class AuthenticatedHTTPClientDecoratorLifecycleTests: XCTestCase {
     }
 
     private func resetRefreshState() {
-        AuthenticationSession.shared.updateCredentials {}
-        XCTAssertFalse(AuthenticationSession.shared.isRefreshing)
+        AuthenticatedHTTPClientDecorator.Session.shared.updateCredentials {}
+        XCTAssertFalse(AuthenticatedHTTPClientDecorator.Session.shared.isRefreshing)
     }
 
     private func drainMainQueue() {
@@ -610,6 +650,7 @@ final class AuthenticatedHTTPClientDecoratorLifecycleTests: XCTestCase {
 
 private extension AuthenticatedHTTPClientDecoratorLifecycleTests {
     final class Context {
+        let session: AuthenticatedHTTPClientDecorator.Session
         let keychain = InMemoryKeychain()
         let http = GatedHTTPClient()
         let refresher = GatedTokenRefresher()
@@ -620,7 +661,8 @@ private extension AuthenticatedHTTPClientDecoratorLifecycleTests {
         private var results: [Int: [HTTPClient.Result]] = [:]
         private(set) var logoutCount = 0
 
-        init() {
+        init(session: AuthenticatedHTTPClientDecorator.Session) {
+            self.session = session
             access = KeychainStorage(key: "test_access", keychain: keychain)
             refresh = KeychainStorage(key: "test_refresh", keychain: keychain)
             access.set(model: "old_access")
@@ -643,7 +685,8 @@ private extension AuthenticatedHTTPClientDecoratorLifecycleTests {
                 },
                 isAuthenticated: { _, response in
                     [401, 403].contains(response.statusCode) ? .needsRefresh(onErrorMessage: nil) : .authenticated
-                }
+                },
+                authenticationSession: session
             )
             clients.append(client)
             return client

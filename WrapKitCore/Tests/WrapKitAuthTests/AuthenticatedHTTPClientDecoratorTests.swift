@@ -13,11 +13,11 @@ import WrapKitTestUtils
 class AuthenticatedHTTPClientDecoratorTests: XCTestCase {
     override func setUp() {
         super.setUp()
-        AuthenticationSession.shared.updateCredentials {}
+        AuthenticatedHTTPClientDecorator.Session.shared.updateCredentials {}
     }
 
     override func tearDown() {
-        AuthenticationSession.shared.updateCredentials {}
+        AuthenticatedHTTPClientDecorator.Session.shared.updateCredentials {}
         super.tearDown()
     }
     
@@ -761,7 +761,7 @@ class AuthenticatedHTTPClientDecoratorTests: XCTestCase {
         httpClientSpy.completes(withStatusCode: 403, data: Data())
         XCTAssertEqual(onNotAuthenticatedCalled, 1)
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            AuthenticationSession.shared.updateCredentials {
+            AuthenticatedHTTPClientDecorator.Session.shared.updateCredentials {
                 storage.set(model: "new_valid_token")
                     .sink { _ in exp.fulfill() }
                     .store(in: &cancellables)
