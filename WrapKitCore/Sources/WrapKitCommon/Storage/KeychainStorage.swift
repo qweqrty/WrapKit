@@ -25,11 +25,15 @@ public class KeychainStorage: Storage {
     
     private let key: String
     private let keychain: Keychain
-    private let subject: CurrentValueSubject<Model?, Never>
-    private let dispatchQueue: DispatchQueue
+    private static let lock = NSLock()
+    private static let changes = CurrentValueSubject<Void, Never>(())
 
     public var publisher: AnyPublisher<Model?, Never> {
-        subject
+        // Read persisted state on subscription and after successful writes by
+        // any wrapper. An instance-local token would become stale after logout.
+        Self.changes
+            .map { [key, keychain] in Self.read(key: key, keychain: keychain) }
+            .removeDuplicates()
             .receive(on: DispatchQueue.main)
             .eraseToAnyPublisher()
     }
@@ -41,31 +45,23 @@ public class KeychainStorage: Storage {
     ) {
         self.key = key
         self.keychain = keychain
-        self.dispatchQueue = queue
-        
-        if let value = keychain.get(key) {
-            subject = CurrentValueSubject<Model?, Never>(value)
-        } else {
-            subject = CurrentValueSubject<Model?, Never>(nil)
-        }
     }
     
     public func get() -> Model? {
-        keychain.get(self.key)
+        Self.read(key: key, keychain: keychain)
     }
     
     @discardableResult
     public func set(model: Model?) -> AnyPublisher<Bool, Never> {
-        return Future<Bool, Never> { [weak self] promise in
-            if Thread.isMainThread {
-                self?.handleModelSetting(model: model, promise: promise)
-            } else {
-                self?.dispatchQueue.async {
-                    self?.handleModelSetting(model: model, promise: promise)
-                }
-            }
+        Self.lock.lock()
+        let isSuccess = model.map { keychain.set($0, forKey: key) } ?? keychain.delete(key)
+        Self.lock.unlock()
+
+        // A subscriber can read or write storage. Never call it under the lock.
+        if isSuccess {
+            Self.changes.send(())
         }
-        .eraseToAnyPublisher()
+        return Just(isSuccess).eraseToAnyPublisher()
     }
     
     @discardableResult
@@ -73,22 +69,10 @@ public class KeychainStorage: Storage {
         set(model: nil)
     }
 
-    private func handleModelSetting(model: Model?, promise: @escaping (Result<Bool, Never>) -> Void) {
-        let isSuccess: Bool
-        
-        if let model = model {
-            isSuccess = self.keychain.set(model, forKey: self.key)
-            if isSuccess {
-                self.subject.send(model)
-            }
-        } else {
-            isSuccess = self.keychain.delete(self.key)
-            if isSuccess {
-                self.subject.send(nil)
-            }
-        }
-        
-        promise(.success(isSuccess))
+    private static func read(key: String, keychain: Keychain) -> Model? {
+        lock.lock()
+        defer { lock.unlock() }
+        return keychain.get(key)
     }
     
     // Conformance to Equatable

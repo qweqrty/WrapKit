@@ -12,6 +12,72 @@ import WrapKitTestUtils
 
 final class TokenRefresherImplTests: XCTestCase {
     private var cancellables = Set<AnyCancellable>()
+
+    func test_refresh_withEmptyRefreshToken_doesNotCallService() {
+        let (sut, storage, service) = makeSUT()
+        storage.set(model: "")
+        var received: ServiceError?
+
+        sut.refresh { if case .failure(let error) = $0 { received = error } }
+
+        XCTAssertEqual(received, .internal)
+        XCTAssertEqual(service.makeCallCount, 0)
+    }
+
+    func test_cancelLastWaiter_allowsFreshRequestWithSameTokenAndIgnoresOldResult() {
+        let (sut, storage, service) = makeSUT()
+        storage.set(model: "same_refresh")
+        var firstResults: [Result<Tokens, ServiceError>] = []
+        var secondResults: [Result<Tokens, ServiceError>] = []
+        let task = sut.refreshTask { firstResults.append($0) }
+
+        task.cancel()
+        sut.refresh { secondResults.append($0) }
+        XCTAssertEqual(service.makeCallCount, 2)
+        service.complete(with: .success("stale"), at: 0)
+        XCTAssertTrue(secondResults.isEmpty)
+        service.complete(with: .success("current"), at: 1)
+
+        XCTAssertEqual(firstResults.count, 1)
+        guard case .failure(.cancelled) = firstResults[0] else { return XCTFail("Expected cancelled waiter") }
+        XCTAssertEqual(secondResults.count, 1)
+        guard case .success = secondResults[0] else { return XCTFail("Expected current flight success") }
+    }
+
+    func test_completionCanStartNextRefreshBeforePreviousPublisherFinishes() {
+        let (sut, storage, service) = makeSUT()
+        storage.set(model: "refresh")
+        var completions = 0
+        sut.refresh { _ in
+            completions += 1
+            sut.refresh { _ in completions += 1 }
+        }
+
+        service.complete(with: .success("first"), at: 0)
+        XCTAssertEqual(service.makeCallCount, 2)
+        XCTAssertEqual(completions, 1)
+        service.complete(with: .success("second"), at: 1)
+        XCTAssertEqual(completions, 2)
+    }
+
+    func test_synchronousServiceOutput_completesOnceAndAllowsNextRefresh() {
+        let storage = InMemoryStorage(model: "refresh")
+        let sut = TokenRefresherImpl(
+            refreshTokenStorage: storage, refreshService: ImmediateService(),
+            mapRefreshRequest: { $0 }, mapResponseToAccess: { $0 }
+        )
+        var received: [Tokens] = []
+        sut.refresh { if case .success(let tokens) = $0 { received.append(tokens) } }
+        sut.refresh { if case .success(let tokens) = $0 { received.append(tokens) } }
+
+        XCTAssertEqual(received.map(\.accessToken), ["new_access", "new_access"])
+    }
+
+    private struct ImmediateService: Service {
+        func make(request: String) -> AnyPublisher<String, ServiceError> {
+            Just("new_access").setFailureType(to: ServiceError.self).eraseToAnyPublisher()
+        }
+    }
     
     func test_refresh_deliversNewTokensOnSuccess_withoutRefreshMapper() {
         let (sut, storage, service) = makeSUT()

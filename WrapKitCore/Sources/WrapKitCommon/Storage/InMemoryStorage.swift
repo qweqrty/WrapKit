@@ -11,27 +11,40 @@ import Combine
 public class InMemoryStorage<Model: Hashable>: Storage, Hashable {
     public typealias Model = Model
 
-    private let subject: CurrentValueSubject<Model?, Never>
+    private let lock = NSLock()
+    private var model: Model?
+    private let changes = CurrentValueSubject<Void, Never>(())
+
     public var publisher: AnyPublisher<Model?, Never> {
-        subject
+        changes
+            .map { [self] in get() }
             .eraseToAnyPublisher()
     }
 
     public init(model: Model? = nil) {
-        self.subject = CurrentValueSubject(model)
+        self.model = model
     }
 
     public func get() -> Model? {
-        return subject.value
+        lock.lock()
+        defer { lock.unlock() }
+        return model
     }
 
     @discardableResult
     public func set(model: Model?) -> AnyPublisher<Bool, Never> {
+        lock.lock()
+        self.model = model
+        lock.unlock()
+
+        // Commit before returning success; only observer delivery is deferred.
+        // Read current state when delivering so queued writes cannot replay an
+        // older value after a later main-thread write or clear.
         if Thread.isMainThread {
-            subject.send(model)
+            changes.send(())
         } else {
-            DispatchQueue.main.async { [subject] in
-                subject.send(model)
+            DispatchQueue.main.async { [changes] in
+                changes.send(())
             }
         }
         return Just(true).eraseToAnyPublisher()
@@ -44,10 +57,10 @@ public class InMemoryStorage<Model: Hashable>: Storage, Hashable {
     
     // Hashable
     public func hash(into hasher: inout Hasher) {
-        hasher.combine(subject.value)
+        hasher.combine(get())
     }
 
     public static func == (lhs: InMemoryStorage<Model>, rhs: InMemoryStorage<Model>) -> Bool {
-        return lhs.subject.value == rhs.subject.value
+        return lhs.get() == rhs.get()
     }
 }
