@@ -665,17 +665,22 @@ class AuthenticatedHTTPClientDecoratorTests: XCTestCase {
         
         let exp1 = expectation(description: "Wait for request 1")
         
+        let started = DispatchGroup()
+        started.enter()
         DispatchQueue.global().async {
+            defer { started.leave() }
             sut.dispatch(request1) { result in
             }.resume()
         }
         
+        started.enter()
         DispatchQueue.global().async {
+            defer { started.leave() }
             sut.dispatch(request2) { result in
             }.resume()
         }
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+        started.notify(queue: .main) {
             httpClientSpy.completes(withStatusCode: 401, data: Data(), at: 0)
             httpClientSpy.completes(withStatusCode: 401, data: Data(), at: 1)
             tokenRefresherSpy.complete(with: .failure(.internal))

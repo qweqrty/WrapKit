@@ -12,7 +12,17 @@ public final class AuthenticationSession {
     private var invalidationHandlers: [UUID: () -> Void] = [:]
     private var lockDepth = 0
     private var deferredCallbacks: [() -> Void] = []
-    var refresh: AuthenticationRefresh?
+    struct Refresh {
+        let id = UUID()
+        let sessionID: UUID
+        let accessToken: String
+        let refreshToken: String?
+        let refresher: TokenRefresher
+        var waiters: [(id: UUID, completion: (Tokens?) -> Void)] = []
+        let task = CompositeHTTPClientTask()
+    }
+
+    var refresh: Refresh?
     var hasHandledUnauthenticated = false
     var refreshedAccessToken: String?
     var refreshedRefreshToken: String?
@@ -117,26 +127,5 @@ public final class AuthenticationSession {
         currentIdentifier = UUID()
         active = false
         return invalidateLocked()
-    }
-}
-
-final class AuthenticationRefresh {
-    struct Waiter {
-        let id: UUID
-        let completion: (Tokens?) -> Void
-    }
-
-    let sessionID: UUID
-    let accessToken: String
-    let refreshToken: String?
-    let refresher: TokenRefresher
-    var waiters: [Waiter] = []
-    let task = CompositeHTTPClientTask()
-
-    init(sessionID: UUID, accessToken: String, refreshToken: String?, refresher: TokenRefresher) {
-        self.sessionID = sessionID
-        self.accessToken = accessToken
-        self.refreshToken = refreshToken
-        self.refresher = refresher
     }
 }

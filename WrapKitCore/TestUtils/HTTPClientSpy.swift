@@ -20,11 +20,27 @@ public class HTTPClientSpy: HTTPClient {
         public func cancel() { cancelCallback() }
     }
     
-    public private(set) var messages: [(requests: URLRequest, completion: (Result) -> Void)] = []
-    private let queue = DispatchQueue(label: "com.httpclientspy.queue") // Serial queue for synchronization
-    public private(set) var resumedURLs: [URL] = []
-    public private(set) var cancelledURLs: [URL] = []
-    public private(set) var completedResponses: [HTTPClient.Result] = []
+    private let lock = NSLock()
+    private var recordedMessages: [(requests: URLRequest, completion: (Result) -> Void)] = []
+    private var recordedResumedURLs: [URL] = []
+    private var recordedCancelledURLs: [URL] = []
+    private var recordedCompletedResponses: [HTTPClient.Result] = []
+
+    public var messages: [(requests: URLRequest, completion: (Result) -> Void)] {
+        synchronized { recordedMessages }
+    }
+
+    public var resumedURLs: [URL] {
+        synchronized { recordedResumedURLs }
+    }
+
+    public var cancelledURLs: [URL] {
+        synchronized { recordedCancelledURLs }
+    }
+
+    public var completedResponses: [HTTPClient.Result] {
+        synchronized { recordedCompletedResponses }
+    }
     
     public var requestedURLs: [URL] {
         return messages.compactMap { $0.requests.url }
@@ -35,34 +51,44 @@ public class HTTPClientSpy: HTTPClient {
     }
     
     public func dispatch(_ request: URLRequest, completion: @escaping (Result) -> Void) -> HTTPClientTask {
-        queue.sync {
-                    messages.append((request, completion))
-                }
+        synchronized { recordedMessages.append((request, completion)) }
         return Task(resumeCallback: { [weak self] in
-            self?.resumedURLs.append(request.url!)
+            guard let self else { return }
+            self.synchronized { self.recordedResumedURLs.append(request.url!) }
         }, cancelCallback: { [weak self] in
-            self?.cancelledURLs.append(request.url!)
+            guard let self else { return }
+            self.synchronized { self.recordedCancelledURLs.append(request.url!) }
         })
     }
     
     public func completes(with error: Error, at index: Int = 0) {
-        queue.sync {
-            completedResponses.append(.failure(error))
-            messages[index].completion(.failure(error))
+        let result = HTTPClient.Result.failure(error)
+        let completion = synchronized {
+            recordedCompletedResponses.append(result)
+            return recordedMessages[index].completion
         }
+        completion(result)
     }
     
     public func completes(withStatusCode code: Int, data: Data, at index: Int = 0) {
-        queue.sync {
+        let (completion, result) = synchronized {
+            let message = recordedMessages[index]
             let response = HTTPURLResponse(
-                url: self.requestedURLs[index],
+                url: message.requests.url!,
                 statusCode: code,
                 httpVersion: nil,
                 headerFields: nil
             )!
             let result = HTTPClient.Result.success((data, response))
-            self.completedResponses.append(result)
-            self.messages[index].completion(result)
+            recordedCompletedResponses.append(result)
+            return (message.completion, result)
         }
+        completion(result)
+    }
+
+    private func synchronized<Value>(_ action: () -> Value) -> Value {
+        lock.lock()
+        defer { lock.unlock() }
+        return action()
     }
 }

@@ -333,8 +333,11 @@ final class TokenRefresherImplTests: XCTestCase {
                     DispatchQueue(label: "queue5")
                 ]
                 
+                let started = DispatchGroup()
                 for queue in queues {
+                    started.enter()
                     queue.async {
+                        defer { started.leave() }
                         sut.refresh { result in
                             switch result {
                             case let .success(tokens):
@@ -348,8 +351,8 @@ final class TokenRefresherImplTests: XCTestCase {
                     }
                 }
                 
-                // Give a tiny delay to ensure all calls are enqueued before completing the service
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                started.notify(queue: .main) {
+                    XCTAssertEqual(service.makeCallCount, 1)
                     service.complete(with: .success("response"), at: 0)
                 }
             }
@@ -378,8 +381,11 @@ final class TokenRefresherImplTests: XCTestCase {
                     DispatchQueue(label: "queue5")
                 ]
                 
+                let started = DispatchGroup()
                 for queue in queues {
+                    started.enter()
                     queue.async {
+                        defer { started.leave() }
                         sut.refresh { result in
                             switch result {
                             case let .success(tokens):
@@ -393,8 +399,8 @@ final class TokenRefresherImplTests: XCTestCase {
                     }
                 }
                 
-                // Give a tiny delay to ensure all calls are enqueued before completing the service
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                started.notify(queue: .main) {
+                    XCTAssertEqual(service.makeCallCount, 1)
                     service.complete(with: .success("response"), at: 0)
                 }
             }

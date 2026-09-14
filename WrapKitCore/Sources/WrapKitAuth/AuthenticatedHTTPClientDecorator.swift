@@ -124,7 +124,8 @@ public class AuthenticatedHTTPClientDecorator: HTTPClient {
         let expectedSession = sessionID ?? session.identifier
         let result = AuthenticationCompletion<Tokens?> { completion?($0) }
         let waiterID = UUID()
-        var start: AuthenticationRefresh?
+        var start: AuthenticationSession.Refresh?
+        var operationID: UUID?
         var immediate: Tokens?
         var shouldComplete = false
         session.synchronized {
@@ -144,15 +145,13 @@ public class AuthenticatedHTTPClientDecorator: HTTPClient {
                 shouldComplete = true
                 return
             }
-            let operation: AuthenticationRefresh
-            if let ongoing = session.refresh {
-                operation = ongoing
-            } else {
-                operation = AuthenticationRefresh(sessionID: expectedSession, accessToken: current, refreshToken: refreshTokenStorage.get(), refresher: tokenRefresher)
+            if session.refresh == nil {
+                let operation = AuthenticationSession.Refresh(sessionID: expectedSession, accessToken: current, refreshToken: refreshTokenStorage.get(), refresher: tokenRefresher)
                 session.refresh = operation
                 start = operation
             }
-            operation.waiters.append(.init(id: waiterID, completion: { [compositeTask] tokens in
+            operationID = session.refresh?.id
+            session.refresh?.waiters.append((id: waiterID, completion: { [compositeTask] tokens in
                 result.finish(compositeTask.isCancelled ? nil : tokens)
             }))
         }
@@ -162,9 +161,9 @@ public class AuthenticatedHTTPClientDecorator: HTTPClient {
         }
         compositeTask.add(AuthenticationCancellation { [session] in
             let abandoned = session.synchronized { () -> CompositeHTTPClientTask? in
-                guard let refresh = session.refresh else { return nil }
-                refresh.waiters.removeAll { $0.id == waiterID }
-                guard refresh.waiters.isEmpty else { return nil }
+                guard session.refresh?.id == operationID else { return nil }
+                session.refresh?.waiters.removeAll { $0.id == waiterID }
+                guard let refresh = session.refresh, refresh.waiters.isEmpty else { return nil }
                 session.refresh = nil
                 return refresh.task
             }
@@ -177,7 +176,7 @@ public class AuthenticatedHTTPClientDecorator: HTTPClient {
         // Starting the refresher reads/maps the refresh credential synchronously.
         // Keep that read in the same transaction as its session snapshot.
         let refreshTask = session.synchronized { () -> HTTPClientTask? in
-            guard session.refresh === operation else { return nil }
+            guard session.refresh?.id == operation.id else { return nil }
             return operation.refresher.refreshTask { [session, accessTokenStorage, refreshTokenStorage, onNotAuthenticated] response in
                 Self.completeRefresh(operation, with: response, message: message, session: session,
                                      accessTokenStorage: accessTokenStorage, refreshTokenStorage: refreshTokenStorage,
@@ -192,19 +191,21 @@ public class AuthenticatedHTTPClientDecorator: HTTPClient {
         handleUnauthenticated(message: message, sessionID: sessionID, token: token)
     }
 
-    private static func completeRefresh(_ operation: AuthenticationRefresh, with response: Result<Tokens, ServiceError>, message: String?,
+    private static func completeRefresh(_ operation: AuthenticationSession.Refresh, with response: Result<Tokens, ServiceError>, message: String?,
                                         session: AuthenticationSession, accessTokenStorage: any Storage<String>,
                                         refreshTokenStorage: any Storage<String>, onNotAuthenticated: ((String?) -> Void)?) {
         var tokens: Tokens?
-        var waiters: [AuthenticationRefresh.Waiter] = []
+        var waiters: [(id: UUID, completion: (Tokens?) -> Void)] = []
         var notify = false
         var invalidations: [() -> Void] = []
         var notificationSession: UUID?
         session.synchronized {
-            guard session.refresh === operation else { return }
+            guard session.refresh?.id == operation.id else { return }
             defer {
-                waiters = operation.waiters
-                if session.refresh === operation { session.refresh = nil }
+                if session.refresh?.id == operation.id {
+                    waiters = session.refresh?.waiters ?? []
+                    session.refresh = nil
+                }
             }
             guard session.identifier == operation.sessionID,
                   !session.hasHandledUnauthenticated,

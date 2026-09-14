@@ -362,6 +362,71 @@ final class AuthenticatedHTTPClientDecoratorLifecycleTests: XCTestCase {
         XCTAssertFalse(session.isRefreshing)
     }
 
+    func test_waiterJoiningDuringTokenPersistence_receivesCompletedRefresh() throws {
+        let access = InMemoryStorage(model: "old_access")
+        let refresh = InMemoryStorage(model: "old_refresh")
+        let session = AuthenticationSession()
+        let refresher = GatedTokenRefresher()
+        let client = AuthenticatedHTTPClientDecorator(
+            decoratee: GatedHTTPClient(), accessTokenStorage: access, refreshTokenStorage: refresh,
+            tokenRefresher: refresher,
+            enrichRequestWithToken: { request, _ in request }, isAuthenticated: { _ in .authenticated },
+            authenticationSession: session
+        )
+        let firstTask = CompositeHTTPClientTask()
+        let lateTask = CompositeHTTPClientTask()
+        var firstResults: [Tokens?] = []
+        var lateResults: [Tokens?] = []
+        let observation = refresh.publisher.sink { value in
+            guard value == "new_refresh" else { return }
+            client.refreshToken(for: "old_access", completion: { lateResults.append($0) }, compositeTask: lateTask)
+        }
+        defer { observation.cancel() }
+        client.refreshToken(for: "old_access", completion: { firstResults.append($0) }, compositeTask: firstTask)
+
+        try refresher.completeNext(.success(newTokens))
+
+        XCTAssertEqual(refresher.requestCount, 1)
+        XCTAssertEqual(firstResults.count, 1)
+        XCTAssertEqual(lateResults.count, 1)
+        XCTAssertEqual(firstResults.compactMap { $0?.accessToken }, ["new_access"])
+        XCTAssertEqual(lateResults.compactMap { $0?.accessToken }, ["new_access"])
+        XCTAssertEqual(access.get(), "new_access")
+        XCTAssertEqual(refresh.get(), "new_refresh")
+        XCTAssertFalse(session.isRefreshing)
+    }
+
+    func test_activeRefresh_retainsRefresherAfterStartingClientIsReleased() throws {
+        let access = InMemoryStorage(model: "old_access")
+        let refresh = InMemoryStorage(model: "old_refresh")
+        let session = AuthenticationSession()
+        let task = CompositeHTTPClientTask()
+        var results: [Tokens?] = []
+        weak var weakRefresher: GatedTokenRefresher?
+        weak var weakClient: AuthenticatedHTTPClientDecorator?
+        do {
+            let refresher = GatedTokenRefresher()
+            let client = AuthenticatedHTTPClientDecorator(
+                decoratee: GatedHTTPClient(), accessTokenStorage: access, refreshTokenStorage: refresh,
+                tokenRefresher: refresher,
+                enrichRequestWithToken: { request, _ in request }, isAuthenticated: { _ in .authenticated },
+                authenticationSession: session
+            )
+            weakRefresher = refresher
+            weakClient = client
+            client.refreshToken(for: "old_access", completion: { results.append($0) }, compositeTask: task)
+        }
+
+        XCTAssertNil(weakClient)
+        XCTAssertNotNil(weakRefresher)
+        try XCTUnwrap(weakRefresher).completeNext(.success(newTokens))
+
+        XCTAssertEqual(results.count, 1)
+        XCTAssertEqual(results.compactMap { $0?.accessToken }, ["new_access"])
+        XCTAssertNil(weakRefresher)
+        XCTAssertFalse(session.isRefreshing)
+    }
+
     func test_concurrentPublicRefreshCalls_allJoinOneFlight() throws {
         let context = makeContext()
         let clients = (0..<20).map { _ in context.makeClient() }
