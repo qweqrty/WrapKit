@@ -187,8 +187,23 @@ extension NavigationBar: HeaderOutput {
     }
     
     public func display(primeTrailingImage: ButtonPresentableModel?) {
-        primeTrailingImageWrapperView.isHidden = primeTrailingImage == nil
-        primeTrailingImageWrapperView.contentView.display(model: primeTrailingImage)
+        let isHidden = primeTrailingImage == nil
+        if primeTrailingImageWrapperView.isHidden != isHidden {
+            primeTrailingImageWrapperView.isHidden = isHidden
+        }
+
+        let textPresentation = primeTrailingImage.flatMap(TextOnlyButtonPresentation.init)
+        if let primeTrailingImage,
+           let textPresentation,
+           textPresentation == primeTrailingTextPresentation {
+            primeTrailingImageWrapperView.contentView.displayTitleWithoutAnimation(primeTrailingImage.title)
+            UIView.performWithoutAnimation {
+                self.layoutIfNeeded()
+            }
+        } else {
+            primeTrailingImageWrapperView.contentView.display(model: primeTrailingImage)
+        }
+        primeTrailingTextPresentation = textPresentation
     }
     
     public func display(secondaryTrailingImage: ButtonPresentableModel?) {
@@ -207,6 +222,8 @@ extension NavigationBar: HeaderOutput {
 }
 
 open class NavigationBar: UIView {
+    private var primeTrailingTextPresentation: TextOnlyButtonPresentation?
+
     public lazy var leadingStackWrapperView = UIView()
     public lazy var leadingStackView = StackView(axis: .horizontal, spacing: 12)
     
@@ -320,6 +337,28 @@ open class NavigationBar: UIView {
 }
 
 private extension NavigationBar {
+    struct TextOnlyButtonPresentation: Equatable {
+        let accessibilityIdentifier: String?
+        let accessibility: Accessibility?
+        let spacing: CGFloat?
+        let height: CGFloat?
+        let width: CGFloat?
+        let style: ButtonStyle?
+        let enabled: Bool?
+
+        init?(_ model: ButtonPresentableModel) {
+            guard model.title != nil, model.image == nil, model.onPress == nil else { return nil }
+
+            accessibilityIdentifier = model.accessibilityIdentifier
+            accessibility = model.accessibility
+            spacing = model.spacing
+            height = model.height
+            width = model.width
+            style = model.style
+            enabled = model.enabled
+        }
+    }
+
     func makeLeadingCardGlassEffectView() -> UIView {
         if #available(iOS 26, macOS 26, tvOS 26, watchOS 26, *) {
             let glassEffect = UIGlassEffect(style: .regular)
