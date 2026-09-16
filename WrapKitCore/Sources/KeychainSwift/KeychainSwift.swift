@@ -15,70 +15,19 @@ A collection of helper functions for saving text and data in the keychain.
 */
 open class KeychainSwift {
   
-  private let lock = NSRecursiveLock()
-  private var storedQueryParameters: [String: Any]?
-  private var storedResultCode: OSStatus = noErr
-  private var storedKeyPrefix = ""
-  private var storedAccessGroup: String?
-  private var storedSynchronizable = false
-
-  var lastQueryParameters: [String: Any]? { // Used by the unit tests
-    get {
-      lock.lock()
-      defer { lock.unlock() }
-      return storedQueryParameters
-    }
-    set {
-      lock.lock()
-      defer { lock.unlock() }
-      storedQueryParameters = newValue
-    }
-  }
+  var lastQueryParameters: [String: Any]? // Used by the unit tests
   
   /// Contains result code from the last operation. Value is noErr (0) for a successful result.
-  open var lastResultCode: OSStatus {
-    get {
-      lock.lock()
-      defer { lock.unlock() }
-      return storedResultCode
-    }
-    set {
-      lock.lock()
-      defer { lock.unlock() }
-      storedResultCode = newValue
-    }
-  }
+  open var lastResultCode: OSStatus = noErr
 
-  var keyPrefix: String { // Can be useful in test.
-    get {
-      lock.lock()
-      defer { lock.unlock() }
-      return storedKeyPrefix
-    }
-    set {
-      lock.lock()
-      defer { lock.unlock() }
-      storedKeyPrefix = newValue
-    }
-  }
+  var keyPrefix = "" // Can be useful in test.
   
   /**
 
   Specify an access group that will be used to access keychain items. Access groups can be used to share keychain items between applications. When access group value is nil all application access groups are being accessed. Access group name is used by all functions: set, get, delete and clear.
 
   */
-  open var accessGroup: String? {
-    get {
-      lock.lock()
-      defer { lock.unlock() }
-      return storedAccessGroup
-    }
-    set {
-      lock.lock()
-      defer { lock.unlock() }
-      storedAccessGroup = newValue
-    }
-  }
+  open var accessGroup: String?
   
   
   /**
@@ -89,18 +38,9 @@ open class KeychainSwift {
   Does not work on macOS.
    
   */
-  open var synchronizable: Bool {
-    get {
-      lock.lock()
-      defer { lock.unlock() }
-      return storedSynchronizable
-    }
-    set {
-      lock.lock()
-      defer { lock.unlock() }
-      storedSynchronizable = newValue
-    }
-  }
+  open var synchronizable: Bool = false
+
+  private let lock = NSLock()
 
   
   /// Instantiate a KeychainSwift object
@@ -157,6 +97,8 @@ open class KeychainSwift {
     lock.lock()
     defer { lock.unlock() }
     
+    deleteNoLock(key) // Delete any existing key before saving it
+
     let accessible = access?.value ?? KeychainSwiftAccessOptions.defaultOption.value
       
     let prefixedKey = keyWithPrefix(key)
@@ -172,27 +114,7 @@ open class KeychainSwift {
     query = addSynchronizableIfRequired(query, addingItems: true)
     lastQueryParameters = query
     
-    var existingItem: [String: Any] = [
-      KeychainSwiftConstants.klass: kSecClassGenericPassword,
-      KeychainSwiftConstants.attrAccount: prefixedKey
-    ]
-    existingItem = addAccessGroupWhenPresent(existingItem)
-    existingItem = addSynchronizableIfRequired(existingItem, addingItems: false)
-    let attributes: [String: Any] = [
-      KeychainSwiftConstants.valueData: value,
-      KeychainSwiftConstants.accessible: accessible
-    ]
-
-    // Update atomically: deleting first creates an empty-token window and
-    // loses the previous credential when the replacement cannot be saved.
-    lastResultCode = SecItemUpdate(existingItem as CFDictionary, attributes as CFDictionary)
-    if lastResultCode == errSecItemNotFound {
-      lastResultCode = SecItemAdd(query as CFDictionary, nil)
-      if lastResultCode == errSecDuplicateItem {
-        // Another KeychainSwift instance may have inserted the same account.
-        lastResultCode = SecItemUpdate(existingItem as CFDictionary, attributes as CFDictionary)
-      }
-    }
+    lastResultCode = SecItemAdd(query as CFDictionary, nil)
     
     return lastResultCode == noErr
   }
@@ -227,9 +149,6 @@ open class KeychainSwift {
   
   */
   open func get(_ key: String) -> String? {
-    lock.lock()
-    defer { lock.unlock() }
-
     if let data = getData(key) {
       
       if let currentString = String(data: data, encoding: .utf8) {
@@ -297,9 +216,6 @@ open class KeychainSwift {
 
   */
   open func getBool(_ key: String) -> Bool? {
-    lock.lock()
-    defer { lock.unlock() }
-
     guard let data = getData(key) else { return nil }
     guard let firstBit = data.first else { return nil }
     return firstBit == 1
@@ -330,9 +246,6 @@ open class KeychainSwift {
    
   */
   public var allKeys: [String] {
-    lock.lock()
-    defer { lock.unlock() }
-
     var query: [String: Any] = [
       KeychainSwiftConstants.klass : kSecClassGenericPassword,
       KeychainSwiftConstants.returnData : true,
