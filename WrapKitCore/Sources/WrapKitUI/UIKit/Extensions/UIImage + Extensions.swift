@@ -130,6 +130,5 @@ public extension UIImage {
         return UIImage(cgImage: croppedCGImage, scale: 1, orientation: .up)
     }
 }
-
 #endif
 
