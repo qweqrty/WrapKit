@@ -10,6 +10,83 @@ import XCTest
 import WrapKitTestUtils
 
 final class LabelSnapshotTests: XCTestCase {
+    func test_labelOutput_textInsets_areAddedOnceToIntrinsicContentSize() {
+        // GIVEN
+        let text = "Sample text"
+        let insets = UIEdgeInsets(top: 2, left: 8, bottom: 4, right: 8)
+        let labelWithoutInsets = Label(font: .systemFont(ofSize: 16), numberOfLines: 1)
+        let labelWithInsets = Label(font: .systemFont(ofSize: 16), numberOfLines: 1, textInsets: insets)
+
+        // WHEN
+        labelWithoutInsets.text = text
+        labelWithInsets.text = text
+
+        // THEN
+        XCTAssertEqual(
+            labelWithInsets.intrinsicContentSize.width,
+            labelWithoutInsets.intrinsicContentSize.width + insets.left + insets.right,
+            accuracy: 0.001
+        )
+        XCTAssertEqual(
+            labelWithInsets.intrinsicContentSize.height,
+            labelWithoutInsets.intrinsicContentSize.height + insets.top + insets.bottom,
+            accuracy: 0.001
+        )
+    }
+
+    func test_labelOutput_textInsets_areAddedOnceToSizeThatFits() {
+        // GIVEN
+        let text = "Sample text"
+        let insets = UIEdgeInsets(top: 2, left: 8, bottom: 4, right: 8)
+        let labelWithoutInsets = Label(font: .systemFont(ofSize: 16), numberOfLines: 1)
+        let labelWithInsets = Label(font: .systemFont(ofSize: 16), numberOfLines: 1, textInsets: insets)
+        let fittingSize = CGSize(width: 1_000, height: 1_000)
+
+        // WHEN
+        labelWithoutInsets.text = text
+        labelWithInsets.text = text
+        let sizeWithoutInsets = labelWithoutInsets.sizeThatFits(fittingSize)
+        let sizeWithInsets = labelWithInsets.sizeThatFits(fittingSize)
+
+        // THEN
+        XCTAssertEqual(
+            sizeWithInsets.width,
+            sizeWithoutInsets.width + insets.left + insets.right,
+            accuracy: 0.001
+        )
+        XCTAssertEqual(
+            sizeWithInsets.height,
+            sizeWithoutInsets.height + insets.top + insets.bottom,
+            accuracy: 0.001
+        )
+    }
+
+    func test_labelOutput_animatedDecimalTextInsets_areAddedOnceToIntrinsicContentSize() {
+        // GIVEN
+        let insets = UIEdgeInsets(top: 2, left: 8, bottom: 4, right: 8)
+        let labelWithoutInsets = Label(font: .systemFont(ofSize: 16), numberOfLines: 1)
+        let labelWithInsets = Label(font: .systemFont(ofSize: 16), numberOfLines: 1, textInsets: insets)
+        let mapToString: (Decimal) -> TextOutputPresentableModel.TextModel = {
+            .text(Int($0.doubleValue).asString())
+        }
+
+        // WHEN
+        labelWithoutInsets.display(from: 5, to: 0, mapToString: mapToString, duration: 60)
+        labelWithInsets.display(from: 5, to: 0, mapToString: mapToString, duration: 60)
+
+        // THEN
+        XCTAssertEqual(
+            labelWithInsets.intrinsicContentSize.width,
+            labelWithoutInsets.intrinsicContentSize.width + insets.left + insets.right,
+            accuracy: 0.001
+        )
+        XCTAssertEqual(
+            labelWithInsets.intrinsicContentSize.height,
+            labelWithoutInsets.intrinsicContentSize.height + insets.top + insets.bottom,
+            accuracy: 0.001
+        )
+    }
+
     func test_labelOutput_animatedDecimalCircle_shouldDisplayWithoutClipping() throws {
         // GIVEN
         let sut = Label(

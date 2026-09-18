@@ -8,6 +8,7 @@ public extension XCTestCase {
         snapshot: UIImage,
         named name: String,
         precision: Float = 1,
+        perceptualPrecision: Float = 1,
         file: StaticString = #filePath,
         line: UInt = #line
     ) {
@@ -17,7 +18,10 @@ public extension XCTestCase {
             XCTFail("Failed to load stored snapshot at URL: \(snapshotURL). Use the `record` method to store a snapshot before asserting.", file: file, line: line)
             return
         }
-        guard let diff = Diffing.image(precision: precision).diff(oldImage, snapshot) else { return }
+        guard let diff = Diffing.image(
+            precision: precision,
+            perceptualPrecision: perceptualPrecision
+        ).diff(oldImage, snapshot) else { return }
         
         let artifactsUrl = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
         let artifactsSubUrl = artifactsUrl.appendingPathComponent(name)
@@ -33,6 +37,7 @@ public extension XCTestCase {
         snapshot: UIImage,
         named name: String,
         precision: Float = 1,
+        perceptualPrecision: Float = 1,
         file: StaticString = #filePath,
         line: UInt = #line
     ) {
@@ -42,7 +47,10 @@ public extension XCTestCase {
             XCTFail("Failed to load stored snapshot at URL: \(snapshotURL). Use the `record` method to store a snapshot before asserting.", file: file, line: line)
             return
         }
-        guard let diff = Diffing.image(precision: precision).diff(oldImage, snapshot)
+        guard Diffing.image(
+            precision: precision,
+            perceptualPrecision: perceptualPrecision
+        ).diff(oldImage, snapshot) != nil
 //              diff.message.starts(with: "Images should be different.")
         else {
             XCTFail("Images should be different.", file: file, line: line)

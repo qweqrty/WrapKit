@@ -34,6 +34,8 @@ open class ViewController<ContentView: UIView>: UIViewController, LifeCycleViewO
     public let contentView: ContentView
     public var removingNavStackCountOnAppear: Int = 0
     public var interactivePopGestureRecognizer: UIGestureRecognizerDelegate?
+    open var shouldForceInitialLayoutBeforeAppearance = true
+    private var needsInitialLayoutPass = true
 
     public init(contentView: ContentView, lifeCycleViewOutput: LifeCycleViewOutput? = nil, applicationLifecycleOutput: ApplicationLifecycleOutput? = nil) {
         self.contentView = contentView
@@ -55,6 +57,7 @@ open class ViewController<ContentView: UIView>: UIViewController, LifeCycleViewO
         interactivePopGestureRecognizer = navigationController?.interactivePopGestureRecognizer?.delegate
         navigationController?.interactivePopGestureRecognizer?.delegate = nil
         LifeCycleViewOutput?.viewWillAppear()
+        performInitialLayoutPassIfNeeded()
     }
 
     open override func viewWillDisappear(_ animated: Bool) {
@@ -84,6 +87,15 @@ open class ViewController<ContentView: UIView>: UIViewController, LifeCycleViewO
     
     open override func loadView() {
         self.view = contentView
+    }
+
+    private func performInitialLayoutPassIfNeeded() {
+        guard shouldForceInitialLayoutBeforeAppearance, needsInitialLayoutPass else { return }
+        needsInitialLayoutPass = false
+        UIView.performWithoutAnimation {
+            view.setNeedsLayout()
+            view.layoutIfNeeded()
+        }
     }
 
     open override func viewDidAppear(_ animated: Bool) {

@@ -479,6 +479,7 @@ open class CardView: ViewUIKit {
     private func updateProxyIfNeeded() {
         guard (onPress != nil || onLongPress != nil), !isHidden, alpha > 0.01 else { return }
 
+        a11yProxy.accessibilityIdentifier = accessibilityIdentifier
         a11yProxy.accessibilityLabel = accessibilityTextSummary() ?? "Card"
         a11yProxy.activate = { [weak self] in self?.onPress?() }
 
@@ -601,7 +602,7 @@ open class CardView: ViewUIKit {
     private var style: CardViewPresentableModel.Style?
     public let vStackView = StackView(axis: .vertical, contentInset: .init(top: 0, left: 8, bottom: 0, right: 8))
     public let hStackView = StackView(alignment: .center, axis: .horizontal, spacing: 14)
-    public private(set) var backgroundImageView = ImageView()
+    public private(set) var backgroundImageView = ImageView(contentMode: .scaleToFill)
     
     public let leadingImageWrapperView = ViewUIKit(isHidden: true)
     public private(set) var leadingImageView = ImageView(tintColor: .black)

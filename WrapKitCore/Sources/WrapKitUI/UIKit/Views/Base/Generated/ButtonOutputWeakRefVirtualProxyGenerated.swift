@@ -16,6 +16,9 @@ import UIKit
 #if canImport(SwiftUI)
 import SwiftUI
 #endif
+#if canImport(CoreGraphics)
+import CoreGraphics
+#endif
 
 extension ButtonOutput {
     public var weakReferenced: any ButtonOutput {
@@ -33,6 +36,9 @@ extension WeakRefVirtualProxy: ButtonOutput where T: ButtonOutput {
     }
     public func display(image: Image?) {
         object?.display(image: image)
+    }
+    public func display(contentInset: EdgeInsets) {
+        object?.display(contentInset: contentInset)
     }
     public func display(style: ButtonStyle?) {
         object?.display(style: style)

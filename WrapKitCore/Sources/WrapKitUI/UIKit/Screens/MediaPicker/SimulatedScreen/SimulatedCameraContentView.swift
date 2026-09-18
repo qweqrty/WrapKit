@@ -40,9 +40,9 @@ public class SimulatedCameraContentView: ViewUIKit {
         view.backgroundColor = .darkGray
         return view
     }()
-    lazy var shutterButton = Button(style: .init(backgroundColor: .red, cornerRadius: 35))
+    lazy var shutterButton = Button(style: .init(backgroundColor: .solid(.red), cornerRadius: 35))
     lazy var cancelButton = Button(
-        style: .init(backgroundColor: .black, titleColor: .white),
+        style: .init(backgroundColor: .solid(.black), titleColor: .white),
         title: "Cancel"
     )
     
