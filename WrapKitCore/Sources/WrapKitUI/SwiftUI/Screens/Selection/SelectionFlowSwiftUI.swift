@@ -1,26 +1,26 @@
+#if os(iOS)
 import Combine
 import SwiftUI
-import WrapKit
 
-final class SelectionFlowSwiftUI: ObservableObject, SelectionFlow {
-    let configuration: SelectionFlow.Model
+public final class SelectionFlowSwiftUI: ObservableObject, SelectionFlow {
+    public let configuration: SelectionFlow.Model
 
-    @Published private(set) var isPresented = false
-    @Published private(set) var prefersFullHeight = false
-    private(set) var presentedScene: AnyView?
+    @Published public private(set) var isPresented = false
+    @Published public private(set) var prefersFullHeight = false
+    public private(set) var presentedScene: AnyView?
     private var interactiveDismissalCallback: ((SelectionType?) -> Void)?
 
     private let factory: SelectionFactorySwiftUI
 
-    init(
-        configuration: SelectionFlow.Model = CatalogSelectionAppearance.configuration,
+    public init(
+        configuration: SelectionFlow.Model,
         factory: SelectionFactorySwiftUI = .init()
     ) {
         self.configuration = configuration
         self.factory = factory
     }
 
-    func showSelection(model: SelectionPresenterModel) {
+    public func showSelection(model: SelectionPresenterModel) {
         prefersFullHeight = model.items.count > SelectionPresenter.shouldShowSearchBarThresholdCount
         interactiveDismissalCallback = model.callback
         presentedScene = factory.resolveSelection(
@@ -31,7 +31,7 @@ final class SelectionFlowSwiftUI: ObservableObject, SelectionFlow {
         isPresented = true
     }
 
-    func showSelection(model: ServicedSelectionModel<some Any, some Any>) {
+    public func showSelection(model: ServicedSelectionModel<some Any, some Any>) {
         prefersFullHeight = true
         interactiveDismissalCallback = model.model.callback
         presentedScene = factory.resolveSelection(
@@ -42,7 +42,7 @@ final class SelectionFlowSwiftUI: ObservableObject, SelectionFlow {
         isPresented = true
     }
 
-    func close(with _: SelectionType?) {
+    public func close(with _: SelectionType?) {
         interactiveDismissalCallback = nil
         isPresented = false
     }
@@ -61,10 +61,12 @@ final class SelectionFlowSwiftUI: ObservableObject, SelectionFlow {
     }
 }
 
-struct SelectionFactorySwiftUI: ISelectionFactory {
-    typealias Controller = AnyView
+public struct SelectionFactorySwiftUI: ISelectionFactory {
+    public typealias Controller = AnyView
 
-    func resolveSelection(
+    public init() {}
+
+    public func resolveSelection(
         configuration: SelectionFlow.Model,
         flow: SelectionFlow,
         model: SelectionPresenterModel
@@ -96,7 +98,7 @@ struct SelectionFactorySwiftUI: ISelectionFactory {
         ))
     }
 
-    func resolveSelection(
+    public func resolveSelection(
         configuration: SelectionFlow.Model,
         flow: SelectionFlow,
         model: ServicedSelectionModel<some Any, some Any>
@@ -197,11 +199,11 @@ private final class WeakSelectionFlow: SelectionFlow {
     }
 }
 
-struct SUISelectionSheetHost<Content: View>: View {
-    @ObservedObject var flow: SelectionFlowSwiftUI
+public struct SUISelectionSheetHost<Content: View>: View {
+    @ObservedObject private var flow: SelectionFlowSwiftUI
     private let content: Content
 
-    init(
+    public init(
         flow: SelectionFlowSwiftUI,
         @ViewBuilder content: () -> Content
     ) {
@@ -209,7 +211,7 @@ struct SUISelectionSheetHost<Content: View>: View {
         self.content = content()
     }
 
-    var body: some View {
+    public var body: some View {
         content.sheet(
             isPresented: presentationBinding,
             onDismiss: flow.didDismiss,
@@ -248,3 +250,4 @@ struct SUISelectionSheetHost<Content: View>: View {
         }
     }
 }
+#endif

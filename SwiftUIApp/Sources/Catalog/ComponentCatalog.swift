@@ -284,7 +284,7 @@ struct ComponentCatalogFactory {
     ) -> AnyView {
         let outputs = CatalogOutputData.outputs
         let adapters = ComponentCatalogAdapters(outputs: outputs)
-        let selectionFlow = injectedSelectionFlow ?? SelectionFlowSwiftUI()
+        let selectionFlow = injectedSelectionFlow ?? SelectionFlowSwiftUI(configuration: CatalogSelectionAppearance.configuration)
         let flow = ComponentCatalogFlow(factory: ComponentCatalogSceneFactory(
             selectionFlow: selectionFlow.mainQueueDispatched
         ))
