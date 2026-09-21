@@ -23,12 +23,7 @@ jobs:
           xcodebuild -version
 
       - name: Show available SDKs
-        run: |
-          xcodebuild -showsdks
-          xcodebuild -showsdks | grep -E "tvOS|watchOS|visionOS" || {
-            echo "::error::На образе нет SDK tvOS/watchOS/visionOS"
-            exit 1
-          }
+        run: xcodebuild -showsdks
 
       - name: Install Tools
         run: |
@@ -71,6 +66,22 @@ jobs:
           </Workspace>
           XCWS
           cat .swiftpm/xcode/package.xcworkspace/contents.xcworkspacedata
+
+      - name: Check platform availability
+        run: |
+          DESTS=$(xcodebuild -showdestinations -workspace .swiftpm/xcode/package.xcworkspace -scheme WrapKit 2>/dev/null)
+          MISSING=""
+          for p in tvOS watchOS visionOS; do
+            LINE=$(echo "$DESTS" | grep "name:Any $p Device")
+            if [ -z "$LINE" ] || echo "$LINE" | grep -q "error:"; then
+              MISSING="$MISSING $p"
+            fi
+          done
+          if [ -n "$MISSING" ]; then
+            echo "::error::На образе недоступны платформы:$MISSING"
+            exit 1
+          fi
+          echo "Платформы tvOS, watchOS и visionOS доступны."
 
       - name: Build WrapKit for all platforms (SPM)
         run: |
