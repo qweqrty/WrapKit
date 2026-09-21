@@ -156,9 +156,11 @@ open class TitledView<ContentView: UIView>: ViewUIKit {
 extension TitledView: TitledOutput {
     public func display(model: TitledViewPresentableModel?) {
         isHidden = model == nil
-        if let titles = model?.titles { display(titles: titles) }
-        if let bottomTitles = model?.bottomTitles { display(bottomTitles: bottomTitles) }
-        if let isUserInteractionEnabled = model?.isUserInteractionEnabled { display(isUserInteractionEnabled: isUserInteractionEnabled) }
+        titlesView.display(model: model?.titles)
+        closingTitleVFieldView.display(model: model?.bottomTitles)
+        if let model {
+            display(isUserInteractionEnabled: model.isUserInteractionEnabled)
+        }
     }
     public func display(titles: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>) {
         titlesView.display(model: titles)

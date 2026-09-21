@@ -1,8 +1,19 @@
+import Foundation
 import SwiftUI
 
 @main
 struct SwiftUIApp: App {
-    @StateObject private var flow = EntrySwiftUIFlow(factory: EntryViewSwiftUIFactory())
+    @StateObject private var flow: EntrySwiftUIFlow
+
+    init() {
+        let initialDestination = ProcessInfo.processInfo.arguments
+            .first(where: { $0.hasPrefix("--catalog-destination=") })
+            .map { String($0.dropFirst("--catalog-destination=".count)) }
+            .flatMap(CatalogOutputDestination.init(launchValue:))
+        _flow = StateObject(wrappedValue: EntrySwiftUIFlow(
+            factory: EntryViewSwiftUIFactory(initialDestination: initialDestination)
+        ))
+    }
 
     var body: some Scene {
         WindowGroup {
@@ -36,7 +47,7 @@ struct EntryView: View {
     
     private func onAppear() {
         if !hasAppeared {
-            flow.showSplash()
+            flow.showCatalog()
             hasAppeared = true
         }
     }

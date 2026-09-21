@@ -6,7 +6,7 @@
 //  Created by Ulan Beishenkulov on 16/12/25.
 //
 
-@testable import WrapKit
+import WrapKit
 import XCTest
 import WrapKitTestUtils
 

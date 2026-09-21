@@ -18,4 +18,18 @@ public extension SwiftUIImage {
     }
 }
 
+extension Image {
+    var rendersAsTemplate: Bool {
+#if os(macOS)
+        return isTemplate
+#else
+        return renderingMode != .alwaysOriginal
+#endif
+    }
+
+    var swiftUIRenderingMode: SwiftUIImage.TemplateRenderingMode {
+        rendersAsTemplate ? .template : .original
+    }
+}
+
 #endif

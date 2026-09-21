@@ -191,6 +191,9 @@ extension SegmentedControl: SegmentedControlOutput {
             self.insertSegment(action: action, at: index, animated: false)
         }
         self.selectedSegmentIndex = 0
+        invalidateIntrinsicContentSize()
+        superview?.setNeedsLayout()
+        superview?.layoutIfNeeded()
 
         if #unavailable(iOS 26) {
             setNeedsLayout()

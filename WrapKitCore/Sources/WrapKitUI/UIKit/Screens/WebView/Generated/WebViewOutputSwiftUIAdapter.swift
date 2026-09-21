@@ -16,6 +16,10 @@ import Foundation
 #endif
 public class WebViewOutputSwiftUIAdapter: ObservableObject, WebViewOutput {
 
+
+
+
+
     // Initializer
     public init(
     ) {

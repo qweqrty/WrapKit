@@ -71,8 +71,16 @@ public class EmptyView: UIView {
         }
     )
     
-    public lazy var titleLabel = Label()
-    public lazy var subTitleLabel = Label()
+    public lazy var titleLabel: Label = {
+        let label = Label()
+        label.textAlignment = .center
+        return label
+    }()
+    public lazy var subTitleLabel: Label = {
+        let label = Label()
+        label.textAlignment = .center
+        return label
+    }()
     public lazy var button = Button()
     
     public init() {
@@ -124,13 +132,7 @@ extension EmptyView: EmptyViewOutput {
     }
     
     public func display(buttonModel: ButtonPresentableModel?) {
-        button.isHidden = buttonModel == nil
-        guard let buttonModel else { return }
-        if let spacing = buttonModel.spacing { button.spacing = spacing }
-        button.onPress = buttonModel.onPress
-        button.display(style: buttonModel.style)
-        button.accessibilityIdentifier = buttonModel.accessibilityIdentifier
-        button.setTitle(buttonModel.title, for: .normal)
+        button.display(model: buttonModel)
     }
     
     public func display(model: EmptyViewPresentableModel?) {

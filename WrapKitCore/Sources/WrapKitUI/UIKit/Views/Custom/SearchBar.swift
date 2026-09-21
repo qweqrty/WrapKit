@@ -52,12 +52,16 @@ public class SearchBar: ViewUIKit {
     public let textfield: Textfield
     public var rightView: Button = Button()
     
+    /// `contentInsets` inset the complete row of side controls and text field.
+    /// The text field keeps managing its own internal text padding independently.
     public init(
         textfield: Textfield,
-        spacing: CGFloat = 8
+        spacing: CGFloat = 8,
+        contentInsets: EdgeInsets = .zero
     ) {
         self.textfield = textfield
         self.stackView.spacing = spacing
+        self.stackView.layoutMargins = contentInsets.asUIEdgeInsets
         
         super.init(frame: .zero)
         
@@ -116,8 +120,6 @@ private extension SearchBar {
         #else
         if #available(iOS 26, macOS 26, watchOS 26, tvOS 26, *), isLiquidGlassEnabled {
             let glassEffect = UIGlassEffect(style: .clear)
-//            glassEffect.isInteractive = true
-            
             let glassEffectView = UIVisualEffectView(effect: glassEffect)
             glassEffectView.cornerConfiguration = .capsule()
             return glassEffectView
@@ -131,7 +133,6 @@ private extension SearchBar {
         guard glassEffectView != nil else { return }
         
         backgroundColor = nil
-//        applyCornerStyle(.automatic)
     }
     
     func updateGlassTint(_ color: UIColor?) {
@@ -142,8 +143,9 @@ private extension SearchBar {
         backgroundColor = nil
         #if !os(visionOS)
         if #available(iOS 26, macOS 26, watchOS 26, tvOS 26, *) {
-            (glassEffectView.effect as? UIGlassEffect)?.tintColor = color
-            glassEffectView.tintColor = color
+            let glassEffect = UIGlassEffect(style: .clear)
+            glassEffect.tintColor = color
+            glassEffectView.effect = glassEffect
         }
         #endif
     }

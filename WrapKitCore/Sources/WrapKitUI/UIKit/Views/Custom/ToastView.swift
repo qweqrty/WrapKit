@@ -15,6 +15,11 @@ open class ToastView: UIView {
         view.bottomSeparatorView.isHidden = true
         return view
     }()
+
+    public private(set) var customActionButtons: [Button] = []
+
+    private let contentStackView = UIStackView()
+    private let customActionsStackView = UIStackView()
     
     private var showConstant: CGFloat = 0
     public var keyboardHeight: CGFloat = 0
@@ -173,7 +178,19 @@ open class ToastView: UIView {
         layer.cornerRadius = 12
         layer.borderWidth = 1
         layer.zPosition = 100
-        addSubview(cardView)
+
+        contentStackView.axis = .vertical
+        contentStackView.spacing = 0
+        customActionsStackView.axis = .vertical
+        customActionsStackView.spacing = 0
+        customActionsStackView.isHidden = true
+        customActionsStackView.layer.cornerRadius = 12
+        customActionsStackView.layer.maskedCorners = [.layerMinXMaxYCorner, .layerMaxXMaxYCorner]
+        customActionsStackView.clipsToBounds = true
+
+        addSubview(contentStackView)
+        contentStackView.addArrangedSubview(cardView)
+        contentStackView.addArrangedSubview(customActionsStackView)
         alpha = 0
     }
     
@@ -186,7 +203,7 @@ open class ToastView: UIView {
     }
 
     private func setupConstraints() {
-        cardView.fillSuperview()
+        contentStackView.fillSuperview()
     }
 
     private func setupGestures() {
@@ -420,27 +437,29 @@ extension ToastView: CommonToastOutput {
     }
     
     private func configureToast(_ toast: CommonToast.Toast, type: ToastType) {
+        configureCustomButtons(nil, backgroundColor: nil)
         var model = toast.cardViewModel
         
         switch type {
         case .error:
             model.leadingImage = .init(
                 size: .init(width: 32, height: 32),
-                image: .asset(Image(named: "checkmark.circle.fill")),
+                image: .symbolName("xmark.circle.fill"),
             )
         case .success:
             model.leadingImage = .init(
                 size: .init(width: 32, height: 32),
-                image: .asset(Image(named: "checkmark.circle.fill")),
+                image: .symbolName("checkmark.circle.fill"),
             )
         case .warning:
             model.leadingImage = .init(
                 size: .init(width: 32, height: 32),
-                image: .asset(Image(named: "checkmark.circle.fill")),
+                image: .symbolName("exclamationmark.triangle.fill"),
             )
         }
         
         cardView.display(model: model)
+        applyToastPress(toast.onPress)
         
         if let shadowColor = toast.shadowColor {
             self.shadowColor = shadowColor
@@ -460,11 +479,52 @@ extension ToastView: CommonToastOutput {
         if let backgroundColor = customToast.backgroundColor {
             model.style?.backgroundColor = backgroundColor
         }
+
+        configureCustomButtons(
+            customToast.buttons,
+            backgroundColor: customToast.backgroundColor ?? model.style?.backgroundColor
+        )
         
         cardView.display(model: model)
+        applyToastPress(customToast.common.onPress)
         
         if let shadowColor = customToast.common.shadowColor {
             self.shadowColor = shadowColor
+        }
+    }
+
+    private func applyToastPress(_ onPress: (() -> Void)?) {
+        guard let onPress else { return }
+        cardView.display(onPress: onPress)
+        cardView.display(isUserInteractionEnabled: true)
+    }
+
+    private func configureCustomButtons(
+        _ buttons: [CommonToast.CustomToast.Button]?,
+        backgroundColor: Color?
+    ) {
+        customActionsStackView.arrangedSubviews.forEach { view in
+            customActionsStackView.removeArrangedSubview(view)
+            view.removeFromSuperview()
+        }
+        customActionButtons.removeAll()
+
+        let buttons = buttons ?? []
+        customActionsStackView.isHidden = buttons.isEmpty
+        guard !buttons.isEmpty else {
+            customActionsStackView.backgroundColor = .clear
+            return
+        }
+
+        customActionsStackView.backgroundColor = backgroundColor ?? .systemBackground
+
+        buttons.enumerated().forEach { index, model in
+            let button = Button()
+            button.contentInset = CommonToastActionButtonAppearance.contentInsets.asUIEdgeInsets
+            button.display(model: CommonToastActionButtonAppearance.model(for: model, index: index))
+            button.contentHorizontalAlignment = .center
+            customActionsStackView.addArrangedSubview(button)
+            customActionButtons.append(button)
         }
     }
     

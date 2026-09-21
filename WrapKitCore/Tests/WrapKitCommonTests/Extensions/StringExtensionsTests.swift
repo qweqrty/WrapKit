@@ -1,6 +1,6 @@
 import Foundation
 import XCTest
-@testable import WrapKit
+import WrapKit
 
 final class StringExtensionsTests: XCTestCase {
 

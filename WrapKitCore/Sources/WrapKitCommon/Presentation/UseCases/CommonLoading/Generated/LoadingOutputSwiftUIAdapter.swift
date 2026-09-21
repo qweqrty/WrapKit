@@ -20,6 +20,10 @@ import UIKit
 public class LoadingOutputSwiftUIAdapter: ObservableObject, LoadingOutput {
         @Published public var isLoading: Bool? = nil
 
+
+
+
+
     // Initializer
     public init(
     ) {
@@ -30,6 +34,7 @@ public class LoadingOutputSwiftUIAdapter: ObservableObject, LoadingOutput {
         public let isLoading: Bool
     }
     public func display(isLoading: Bool) {
+        self.isLoading = isLoading
         displayIsLoadingState = .init(
             isLoading: isLoading
         )

@@ -80,19 +80,30 @@ open class ShimmerView: UIView {
     private func setupGradientLayer() {
         gradientLayer.startPoint = CGPoint(x: 0.0, y: 0.5)
         gradientLayer.endPoint = CGPoint(x: 1.0, y: 0.5)
-        
-        gradientLayer.colors = [
-            gradientColorOne.cgColor,
-            gradientColorTwo.cgColor,
-            gradientColorOne.cgColor
-        ]
-
+        updateGradientColors()
         gradientLayer.locations = [0.0, 0.5, 1.0]
+    }
+
+    private func updateGradientColors() {
+        gradientLayer.colors = [
+            gradientColorOne.resolvedColor(with: traitCollection).cgColor,
+            gradientColorTwo.resolvedColor(with: traitCollection).cgColor,
+            gradientColorOne.resolvedColor(with: traitCollection).cgColor
+        ]
     }
     
     open override func layoutSubviews() {
         super.layoutSubviews()
         gradientLayer.frame = self.bounds
+        updateGradientColors()
+    }
+
+    open override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        guard previousTraitCollection == nil
+            || traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection)
+        else { return }
+        updateGradientColors()
     }
     
     open func startShimmering(withDelay delay: TimeInterval = 2.8) {

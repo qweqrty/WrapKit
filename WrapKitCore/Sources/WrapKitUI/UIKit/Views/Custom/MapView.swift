@@ -37,7 +37,9 @@ open class MapView<ContentView: UIView>: UIView {
         actionsStackView.layer.cornerRadius = 8
         actionsStackView.layer.masksToBounds = true
         actionsStackView.clipsToBounds = true
+        locationView.layer.maskedCorners = .allCorners
         locationView.layer.cornerRadius = 8
+        locationView.layer.masksToBounds = true
     }
     
     public required init?(coder: NSCoder) {
@@ -81,8 +83,10 @@ private extension MapView {
             tintColor: .gray,
             contentInset: .init(top: 6, left: 6, bottom: 6, right: 6)
         )
-        view.cornerRadius = 0
-        view.backgroundColor = .white
+        view.display(style: .init(
+            backgroundColor: .white,
+            cornerStyle: .none
+        ))
         return view
     }
 }

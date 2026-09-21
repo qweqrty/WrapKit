@@ -11,33 +11,41 @@ import SwiftUI
 
 extension HKeyValueFieldView: KeyValueFieldViewOutput {
     public func display(model: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>?) {
-        isHidden = model?.first == nil && model?.second == nil
         display(keyTitle: model?.first)
         display(valueTitle: model?.second)
     }
     
     public func display(keyTitle: TextOutputPresentableModel?) {
-        isHidden = keyTitle == nil && valueLabel.isHidden
         keyLabel.isHidden = keyTitle == nil
         keyLabel.display(model: keyTitle)
+        updateVisibility()
     }
     
     public func display(valueTitle: TextOutputPresentableModel?) {
-        isHidden = valueTitle == nil && keyLabel.isHidden
         valueLabel.isHidden = valueTitle == nil
         valueLabel.display(model: valueTitle)
+        updateVisibility()
     }
     
     public func display(bottomImage: ImageViewPresentableModel?) {
-        // MARK: TODO
+        bottomImageWrapperView.isHidden = bottomImage == nil
+        bottomImageView.display(model: bottomImage)
+        updateVisibility()
+    }
+
+    private func updateVisibility() {
+        isHidden = keyLabel.isHidden && valueLabel.isHidden && bottomImageWrapperView.isHidden
     }
 }
 
 open class HKeyValueFieldView: ViewUIKit {
+    public let contentStackView = StackView(axis: .vertical)
     public let mainView = ViewUIKit(backgroundColor: .clear)
     public let mainStackView: StackView
     public let keyLabel: Label
     public let valueLabel: Label
+    public let bottomImageWrapperView = UIView(isHidden: true)
+    public let bottomImageView = ImageView(tintColor: .black)
     
     public init(
         backgroundColor: UIColor = .clear,
@@ -68,8 +76,10 @@ open class HKeyValueFieldView: ViewUIKit {
         super.init(frame: .zero)
        
         self.backgroundColor = backgroundColor
+        self.contentStackView.spacing = spacing
+        self.contentStackView.layoutMargins = contentInsets
         self.mainStackView.spacing = spacing
-        self.mainStackView.layoutMargins = contentInsets
+        self.mainStackView.layoutMargins = .zero
         self.isHidden = isHidden
         
         setupSubviews()
@@ -107,17 +117,26 @@ open class HKeyValueFieldView: ViewUIKit {
 
 extension HKeyValueFieldView {
     func setupSubviews() {
-        addSubview(mainView)
+        addSubview(contentStackView)
+        contentStackView.addArrangedSubview(mainView)
+        contentStackView.addArrangedSubview(bottomImageWrapperView)
         mainView.addSubview(mainStackView)
         mainStackView.addArrangedSubview(keyLabel)
         mainStackView.addArrangedSubview(valueLabel)
+        bottomImageWrapperView.addSubview(bottomImageView)
         valueLabel.setContentHuggingPriority(.required, for: .horizontal)
         valueLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
     }
     
     func setupConstraints() {
-        mainView.fillSuperview()
+        contentStackView.fillSuperview()
         mainStackView.fillSuperview()
+        bottomImageView.anchor(
+            .top(bottomImageWrapperView.topAnchor),
+            .bottom(bottomImageWrapperView.bottomAnchor),
+            .leading(bottomImageWrapperView.leadingAnchor),
+            .trailingLessThanEqual(bottomImageWrapperView.trailingAnchor)
+        )
     }
 }
 

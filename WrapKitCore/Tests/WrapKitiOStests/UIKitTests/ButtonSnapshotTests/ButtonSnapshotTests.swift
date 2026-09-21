@@ -10,17 +10,21 @@ import WrapKit
 import XCTest
 import WrapKitTestUtils
 
+#if canImport(SwiftUI)
+import class SwiftUI.UIHostingController
+#endif
+
 final class ButtonSnapshotTests: XCTestCase {
     func test_buttonOutput_default_state() {
         let snapshotName = "BUTTON_DEFAULT_STATE"
-        
+
         // GIVEN
         let (sut, container) = makeSUT()
-        
+
         // WHEN
         sut.display(title: "Default")
         sut.display(style: .init(backgroundColor: .cyan))
-        
+
         // THEN
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -30,17 +34,17 @@ final class ButtonSnapshotTests: XCTestCase {
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
     func test_fail_buttonOutput_default_state() {
         let snapshotName = "BUTTON_DEFAULT_STATE"
-        
+
         // GIVEN
         let (sut, container) = makeSUT()
-        
+
         // WHEN
         sut.display(title: "Default.")
         sut.display(style: .init(backgroundColor: .cyan))
-        
+
         // THEN
         if #available(iOS 26, *) {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -50,18 +54,18 @@ final class ButtonSnapshotTests: XCTestCase {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
     func test_buttonOutput_enabled_state() {
         let snapshotName = "BUTTON_ENABLED_STATE"
-        
+
         // GIVEN
         let (sut, container) = makeSUT()
-        
+
         // WHEN
         sut.display(title: "Enabled")
         sut.display(enabled: false)
         sut.display(style: .init(backgroundColor: .cyan))
-        
+
         // THEN
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -71,18 +75,18 @@ final class ButtonSnapshotTests: XCTestCase {
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
     func test_fail_buttonOutput_enabled_state() {
         let snapshotName = "BUTTON_ENABLED_STATE"
-        
+
         // GIVEN
         let (sut, container) = makeSUT()
-        
+
         // WHEN
         sut.display(title: "Enabled")
         sut.display(enabled: true)
         sut.display(style: .init(backgroundColor: .cyan))
-        
+
         // THEN
         if #available(iOS 26, *) {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -92,18 +96,18 @@ final class ButtonSnapshotTests: XCTestCase {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
     func test_buttonOutput_image_state() {
         let snapshotName = "BUTTON_IMAGE_STATE"
-        
+
         // GIVEN
         let (sut, container) = makeSUT()
-        
+
         // WHEN
         let image =  UIImage(systemName: "star.fill")
         sut.display(image: image)
         sut.display(style: .init(backgroundColor: .cyan))
-        
+
         // THEN
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -113,18 +117,18 @@ final class ButtonSnapshotTests: XCTestCase {
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
     func test_fail_buttonOutput_image_state() {
         let snapshotName = "BUTTON_IMAGE_STATE"
-        
+
         // GIVEN
         let (sut, container) = makeSUT()
-        
+
         // WHEN
         let image =  UIImage(systemName: "star")
         sut.display(image: image)
         sut.display(style: .init(backgroundColor: .cyan))
-        
+
         // THEN
         if #available(iOS 26, *) {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -134,25 +138,25 @@ final class ButtonSnapshotTests: XCTestCase {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
     // MARK: - Set image tests
     func test_buttonOutput_image_assets() {
         let snapshotName = "BUTTON_IMAGE_ASSET"
-        
+
         // GIVEN
         let (sut, container) = makeSUT()
         let exp = expectation(description: "Wait for complition")
-        
+
         // WHEN
         let image = UIImage(systemName: "star.fill")
         sut.display(style: .init(backgroundColor: .cyan))
-        
+
         sut.setImage(.asset(image)) { _ in
             exp.fulfill()
         }
-        
+
         wait(for: [exp], timeout: 1.0)
-        
+
         // THEN
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -160,24 +164,24 @@ final class ButtonSnapshotTests: XCTestCase {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
         }
     }
-    
+
     func test_fail_buttonOutput_image_assets() {
         let snapshotName = "BUTTON_IMAGE_ASSET"
-        
+
         // GIVEN
         let (sut, container) = makeSUT()
         let exp = expectation(description: "Wait for complition")
-        
+
         // WHEN
         let image = UIImage(systemName: "star")
         sut.display(style: .init(backgroundColor: .cyan))
-        
+
         sut.setImage(.asset(image)) { _ in
             exp.fulfill()
         }
-        
+
         wait(for: [exp], timeout: 1.0)
-        
+
         // THEN
         if #available(iOS 26, *) {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -185,24 +189,24 @@ final class ButtonSnapshotTests: XCTestCase {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
         }
     }
-    
+
     func test_buttonOutput_imageURL_state_light() {
         let snapshotName = "BUTTON_IMAGE_URL_STATE"
-        
+
         // GIVEN
         let (sut, container) = makeSUT()
         let exp = expectation(description: "Wait for complition")
-        
+
         // WHEN
         let light = ImageSnapshotFixture.light.url
         sut.display(style: .init(backgroundColor: .cyan))
-        
+
         sut.setImage(.url(light, light)) { _ in
             exp.fulfill()
         }
-        
+
         wait(for: [exp], timeout: 5.0)
-        
+
         // THEN
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -210,24 +214,24 @@ final class ButtonSnapshotTests: XCTestCase {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
         }
     }
-    
+
     func test_fail_buttonOutput_imageURL_state_light() {
         let snapshotName = "BUTTON_IMAGE_URL_STATE"
-        
+
         // GIVEN
         let (sut, container) = makeSUT()
         let exp = expectation(description: "Wait for complition")
-        
+
         // WHEN
-        let light = ImageSnapshotFixture.light.url
-        sut.display(style: .init(backgroundColor: .blue))
-        
-        sut.setImage(.url(light, light)) { _ in
+        let dark = ImageSnapshotFixture.dark.url
+        sut.display(style: .init(backgroundColor: .cyan))
+
+        sut.setImage(.url(dark, dark)) { _ in
             exp.fulfill()
         }
-        
+
         wait(for: [exp], timeout: 5.0)
-        
+
         // THEN
         if #available(iOS 26, *) {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -235,24 +239,24 @@ final class ButtonSnapshotTests: XCTestCase {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
         }
     }
-    
+
     func test_buttonOutput_imageURL_state_dark() {
         let snapshotName = "BUTTON_IMAGE_URL_STATE"
-        
+
         // GIVEN
         let (sut, container) = makeSUT()
         let exp = expectation(description: "Wait for complition")
-        
+
         // WHEN
-        let light = ImageSnapshotFixture.dark.url
+        let dark = ImageSnapshotFixture.dark.url
         sut.display(style: .init(backgroundColor: .cyan))
-        
-        sut.setImage(.url(light, light)) { _ in
+
+        sut.setImage(.url(dark, dark)) { _ in
             exp.fulfill()
         }
-        
+
         wait(for: [exp], timeout: 5.0)
-        
+
         // THEN
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
@@ -260,24 +264,24 @@ final class ButtonSnapshotTests: XCTestCase {
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
     func test_fail_buttonOutput_imageURL_state_dark() {
         let snapshotName = "BUTTON_IMAGE_URL_STATE"
-        
+
         // GIVEN
         let (sut, container) = makeSUT()
         let exp = expectation(description: "Wait for complition")
-        
+
         // WHEN
-        let light = ImageSnapshotFixture.dark.url
-        sut.display(style: .init(backgroundColor: .blue))
-        
+        let light = ImageSnapshotFixture.light.url
+        sut.display(style: .init(backgroundColor: .cyan))
+
         sut.setImage(.url(light, light)) { _ in
             exp.fulfill()
         }
-        
+
         wait(for: [exp], timeout: 5.0)
-        
+
         // THEN
         if #available(iOS 26, *) {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
@@ -285,24 +289,24 @@ final class ButtonSnapshotTests: XCTestCase {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
     func test_buttonOutput_imageURLString_state_light() {
         let snapshotName = "BUTTON_IMAGE_URLSTRING_STATE"
-        
+
         // GIVEN
         let (sut, container) = makeSUT()
         let exp = expectation(description: "Wait for complition")
-        
+
         // WHEN
         let light = ImageSnapshotFixture.light.urlString
         sut.display(style: .init(backgroundColor: .cyan))
-        
+
         sut.setImage(.urlString(light, light)) { _ in
             exp.fulfill()
         }
-        
+
         wait(for: [exp], timeout: 5.0)
-        
+
         // THEN
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -310,74 +314,74 @@ final class ButtonSnapshotTests: XCTestCase {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
         }
     }
-    
+
     func test_fail_buttonOutput_imageURLString_state_light() {
         let snapshotName = "BUTTON_IMAGE_URLSTRING_STATE"
-        
+
         // GIVEN
         let (sut, container) = makeSUT()
         let exp = expectation(description: "Wait for complition")
-        
+
+        // WHEN
+        let dark = ImageSnapshotFixture.dark.urlString
+        sut.display(style: .init(backgroundColor: .cyan))
+
+        sut.setImage(.urlString(dark, dark)) { _ in
+            exp.fulfill()
+        }
+
+        wait(for: [exp], timeout: 5.0)
+
+        // THEN
+        if #available(iOS 26, *) {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+        } else {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+        }
+    }
+
+    func test_buttonOutput_imageURLString_state_dark() {
+        let snapshotName = "BUTTON_IMAGE_URLSTRING_STATE"
+
+        // GIVEN
+        let (sut, container) = makeSUT()
+        let exp = expectation(description: "Wait for complition")
+
+        // WHEN
+        let dark = ImageSnapshotFixture.dark.urlString
+        sut.display(style: .init(backgroundColor: .cyan))
+
+        sut.setImage(.urlString(dark, dark)) { _ in
+            exp.fulfill()
+        }
+
+        wait(for: [exp], timeout: 5.0)
+
+        // THEN
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
+    }
+
+    func test_fail_buttonOutput_imageURLString_state_dark() {
+        let snapshotName = "BUTTON_IMAGE_URLSTRING_STATE"
+
+        // GIVEN
+        let (sut, container) = makeSUT()
+        let exp = expectation(description: "Wait for complition")
+
         // WHEN
         let light = ImageSnapshotFixture.light.urlString
-        sut.display(style: .init(backgroundColor: .blue))
-        
+        sut.display(style: .init(backgroundColor: .cyan))
+
         sut.setImage(.urlString(light, light)) { _ in
             exp.fulfill()
         }
-        
+
         wait(for: [exp], timeout: 5.0)
-        
-        // THEN
-        if #available(iOS 26, *) {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
-        } else {
-            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
-        }
-    }
-    
-    func test_buttonOutput_imageURLString_state_dark() {
-        let snapshotName = "BUTTON_IMAGE_URLSTRING_STATE"
-        
-        // GIVEN
-        let (sut, container) = makeSUT()
-        let exp = expectation(description: "Wait for complition")
-        
-        // WHEN
-        let dark = ImageSnapshotFixture.dark.urlString
-        sut.display(style: .init(backgroundColor: .cyan))
-        
-        sut.setImage(.urlString(dark, dark)) { _ in
-            exp.fulfill()
-        }
-        
-        wait(for: [exp], timeout: 5.0)
-        
-        // THEN
-        if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
-        } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
-        }
-    }
-    
-    func test_fail_buttonOutput_imageURLString_state_dark() {
-        let snapshotName = "BUTTON_IMAGE_URLSTRING_STATE"
-        
-        // GIVEN
-        let (sut, container) = makeSUT()
-        let exp = expectation(description: "Wait for complition")
-        
-        // WHEN
-        let dark = ImageSnapshotFixture.dark.urlString
-        sut.display(style: .init(backgroundColor: .blue))
-        
-        sut.setImage(.urlString(dark, dark)) { _ in
-            exp.fulfill()
-        }
-        
-        wait(for: [exp], timeout: 5.0)
-        
+
         // THEN
         if #available(iOS 26, *) {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
@@ -385,17 +389,17 @@ final class ButtonSnapshotTests: XCTestCase {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
     func test_buttonOutput_noUrl() {
         let snapshotName = "BUTTON_IMAGE_NOURL"
-        
+
         // GIVEN
         let (sut, container) = makeSUT()
-        
+
         // WHEN
-        sut.setImage(.url(nil, nil), completion: nil)
         sut.display(style: .init(backgroundColor: .cyan))
-        
+        sut.setImage(.url(nil, nil), completion: nil)
+
         // THEN
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -405,17 +409,20 @@ final class ButtonSnapshotTests: XCTestCase {
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
     func test_fail_buttonOutput_noUrl() {
         let snapshotName = "BUTTON_IMAGE_NOURL"
-        
+
         // GIVEN
         let (sut, container) = makeSUT()
-        
+
         // WHEN
+        sut.display(style: .init(
+            backgroundColor: .cyan,
+            wrongUrlPlaceholderImage: UIImage(systemName: "xmark")!
+        ))
         sut.setImage(.url(nil, nil), completion: nil)
-        sut.display(style: .init(backgroundColor: .blue))
-        
+
         // THEN
         if #available(iOS 26, *) {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -425,17 +432,17 @@ final class ButtonSnapshotTests: XCTestCase {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
     func test_buttonOutput_noURLString() {
         let snapshotName = "BUTTON_IMAGE_NOURLSTRING"
-        
+
         // GIVEN
         let (sut, container) = makeSUT()
-        
+
         // WHEN
-        sut.setImage(.urlString(nil, nil), completion: nil)
         sut.display(style: .init(backgroundColor: .cyan))
-        
+        sut.setImage(.urlString(nil, nil), completion: nil)
+
         // THEN
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -445,17 +452,20 @@ final class ButtonSnapshotTests: XCTestCase {
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
     func test_fail_buttonOutput_noURLString() {
         let snapshotName = "BUTTON_IMAGE_NOURLSTRING"
-        
+
         // GIVEN
         let (sut, container) = makeSUT()
-        
+
         // WHEN
+        sut.display(style: .init(
+            backgroundColor: .cyan,
+            wrongUrlPlaceholderImage: UIImage(systemName: "xmark")!
+        ))
         sut.setImage(.urlString(nil, nil), completion: nil)
-        sut.display(style: .init(backgroundColor: .blue))
-        
+
         // THEN
         if #available(iOS 26, *) {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -465,13 +475,13 @@ final class ButtonSnapshotTests: XCTestCase {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
     func test_buttonOutput_with_spacing() {
         let snapshotName = "BUTTON_WITH_SPACING"
-        
+
         // GIVEN
         let (sut, container) = makeSUT()
-        
+
         // WHEN
         sut.display(model: .init(
             title: "BUTTON WITH SPACING",
@@ -490,13 +500,13 @@ final class ButtonSnapshotTests: XCTestCase {
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
     func test_fail_buttonOutput_with_spacing() {
         let snapshotName = "BUTTON_WITH_SPACING"
-        
+
         // GIVEN
         let (sut, container) = makeSUT()
-        
+
         // WHEN
         sut.display(model: .init(
             title: "BUTTON WITH SPACING",
@@ -515,22 +525,22 @@ final class ButtonSnapshotTests: XCTestCase {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
     func test_buttonOutput_with_onPress() {
         let snapshotName = "BUTTON_WITH_TAP"
-        
+
         // GIVEN
         let (sut, container) = makeSUT()
-        
+
         // WHEN
         sut.display(title: "BUTTON WITH TAP")
         sut.display(style: .init(backgroundColor: .cyan))
-        sut.display { [weak sut] in
-            sut?.backgroundColor = .red
+        let onPress: () -> Void = { [weak sut] in
+            sut?.display(style: .init(backgroundColor: .red))
         }
+        sut.display(onPress: onPress)
+        onPress()
 
-        sut.onPress?()
-        
         // THEN
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -540,22 +550,22 @@ final class ButtonSnapshotTests: XCTestCase {
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
     func test_fail_buttonOutput_with_onPress() {
         let snapshotName = "BUTTON_WITH_TAP"
-        
+
         // GIVEN
         let (sut, container) = makeSUT()
-        
+
         // WHEN
         sut.display(title: "BUTTON WITH TAP")
         sut.display(style: .init(backgroundColor: .cyan))
-        sut.display { [weak sut] in
-            sut?.backgroundColor = .systemRed
+        let onPress: () -> Void = { [weak sut] in
+            sut?.display(style: .init(backgroundColor: .systemRed))
         }
+        sut.display(onPress: onPress)
+        onPress()
 
-        sut.onPress?()
-        
         // THEN
         if #available(iOS 26, *) {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -565,13 +575,13 @@ final class ButtonSnapshotTests: XCTestCase {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
     func test_buttonOutput_with_height() {
         let snapshotName = "BUTTON_WITH_HEIGHT"
-        
+
         // GIVEN
         let (sut, container) = makeSUT()
-        
+
         // WHEN
         sut.display(model: .init(
             title: "BUTTON WITH height",
@@ -591,13 +601,13 @@ final class ButtonSnapshotTests: XCTestCase {
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
     func test_fail_buttonOutput_with_height() {
         let snapshotName = "BUTTON_WITH_HEIGHT"
-        
+
         // GIVEN
         let (sut, container) = makeSUT()
-        
+
         // WHEN
         sut.display(model: .init(
             title: "BUTTON WITH height",
@@ -617,13 +627,13 @@ final class ButtonSnapshotTests: XCTestCase {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
     func test_buttonOutput_isHidden() {
         let snapshotName = "BUTTON_ISHIDDEN"
-        
+
         // GIVEN
         let (sut, container) = makeSUT()
-        
+
         // WHEN
         sut.display(title: "BUTTON IS HIDDEN")
         sut.display(style: .init(backgroundColor: .cyan))
@@ -638,13 +648,13 @@ final class ButtonSnapshotTests: XCTestCase {
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
     func test_fail_buttonOutput_isHidden() {
         let snapshotName = "BUTTON_ISHIDDEN"
-        
+
         // GIVEN
         let (sut, container) = makeSUT()
-        
+
         // WHEN
         sut.display(title: "BUTTON IS HIDDEN")
         sut.display(style: .init(backgroundColor: .cyan))
@@ -659,17 +669,17 @@ final class ButtonSnapshotTests: XCTestCase {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
     // MARK: - ButtonStyle tests
     func test_buttonOutput_style_backgroundColor() {
         let snapshotName = "BUTTON_STYLE_BACKGROUN_COLOR_STATE"
-        
+
         // GIVEN
         let (sut, container) = makeSUT()
-        
+
         // WHEN
         sut.display(style: .init(backgroundColor: .systemRed))
-        
+
         // THEN
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -679,16 +689,16 @@ final class ButtonSnapshotTests: XCTestCase {
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
     func test_fail_buttonOutput_style_backgroundColor() {
         let snapshotName = "BUTTON_STYLE_BACKGROUN_COLOR_STATE"
-        
+
         // GIVEN
         let (sut, container) = makeSUT()
-        
+
         // WHEN
         sut.display(style: .init(backgroundColor: .red))
-        
+
         // THEN
         if #available(iOS 26, *) {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -698,17 +708,17 @@ final class ButtonSnapshotTests: XCTestCase {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
     func test_buttonOutput_style_titleColor() {
         let snapshotName = "BUTTON_STYLE_TITLE_COLOR_STATE"
-        
+
         // GIVEN
         let (sut, container) = makeSUT()
-        
+
         // WHEN
         sut.display(title: "TITLE WITH COLOR")
         sut.display(style: .init(backgroundColor: .cyan, titleColor: .red))
-        
+
         // THEN
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -718,17 +728,17 @@ final class ButtonSnapshotTests: XCTestCase {
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
     func test_fail_buttonOutput_style_titleColor() {
         let snapshotName = "BUTTON_STYLE_TITLE_COLOR_STATE"
-        
+
         // GIVEN
         let (sut, container) = makeSUT()
-        
+
         // WHEN
-        sut.display(title: "TITLE WITH COLOR.")
-        sut.display(style: .init(backgroundColor: .cyan, titleColor: .red))
-        
+        sut.display(title: "TITLE WITH COLOR")
+        sut.display(style: .init(backgroundColor: .cyan, titleColor: .blue))
+
         // THEN
         if #available(iOS 26, *) {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -738,22 +748,22 @@ final class ButtonSnapshotTests: XCTestCase {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
     func test_buttonOutput_style_borderWidth() {
         let snapshotName = "BUTTON_STYLE_BORDER_WIDTH_STATE"
-        
+
         // GIVEN
         let (sut, container) = makeSUT()
-        
+
         // WHEN
         sut.display(style: .init(
             backgroundColor: .cyan,
             borderWidth: 4.0,
             borderColor: .red
         ))
-        
+
         sut.display(title: "BUTTON WITH BORDER")
-        
+
         // THEN
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -763,22 +773,22 @@ final class ButtonSnapshotTests: XCTestCase {
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
     func test_fail_buttonOutput_style_borderWidth() {
         let snapshotName = "BUTTON_STYLE_BORDER_WIDTH_STATE"
-        
+
         // GIVEN
         let (sut, container) = makeSUT()
-        
+
         // WHEN
         sut.display(style: .init(
             backgroundColor: .cyan,
             borderWidth: 5.0,
             borderColor: .red
         ))
-        
+
         sut.display(title: "BUTTON WITH BORDER")
-        
+
         // THEN
         if #available(iOS 26, *) {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -788,22 +798,21 @@ final class ButtonSnapshotTests: XCTestCase {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
-    // TODO: - Do it
+
     func test_buttonOutput_style_pressedColor() {
         let snapshotName = "BUTTON_STYLE_PRESSED_COLOR_STATE"
-        
+
         // GIVEN
         let (sut, container) = makeSUT()
-        
+
         // WHEN
         sut.display(style: .init(
             backgroundColor: .blue,
             pressedColor: .red,
         ))
-        
+
         sut.touchesBegan([UITouch()], with: nil)
-        
+
         // THEN
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -813,21 +822,21 @@ final class ButtonSnapshotTests: XCTestCase {
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
     func test_fail_buttonOutput_style_pressedColor() {
         let snapshotName = "BUTTON_STYLE_PRESSED_COLOR_STATE"
-        
+
         // GIVEN
         let (sut, container) = makeSUT()
-        
+
         // WHEN
         sut.display(style: .init(
             backgroundColor: .blue,
             pressedColor: .systemRed,
         ))
-        
+
         sut.touchesBegan([UITouch()], with: nil)
-        
+
         // THEN
         if #available(iOS 26, *) {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -837,13 +846,13 @@ final class ButtonSnapshotTests: XCTestCase {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
     func test_buttonOutput_style_pressedTintColor() {
         let snapshotName = "BUTTON_STYLE_PRESSED_TINTCOLOR_STATE"
-        
+
         // GIVEN
         let (sut, container) = makeSUT()
-        
+
         // WHEN
         sut.display(style: .init(
             backgroundColor: .white,
@@ -851,9 +860,9 @@ final class ButtonSnapshotTests: XCTestCase {
             pressedTintColor: .red,
         ))
         sut.display(title: "PRESSED TINT COLOR")
-        
+
         sut.touchesBegan([UITouch()], with: nil)
-        
+
         // THEN
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -863,13 +872,13 @@ final class ButtonSnapshotTests: XCTestCase {
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
     func test_fail_buttonOutput_style_pressedTintColor() {
         let snapshotName = "BUTTON_STYLE_PRESSED_TINTCOLOR_STATE"
-        
+
         // GIVEN
         let (sut, container) = makeSUT()
-        
+
         // WHEN
         sut.display(style: .init(
             backgroundColor: .white,
@@ -877,9 +886,9 @@ final class ButtonSnapshotTests: XCTestCase {
             pressedTintColor: .systemRed,
         ))
         sut.display(title: "PRESSED TINT COLOR")
-        
+
         sut.touchesBegan([UITouch()], with: nil)
-        
+
         // THEN
         if #available(iOS 26, *) {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -889,13 +898,13 @@ final class ButtonSnapshotTests: XCTestCase {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
     func test_buttonOutput_style_font() {
         let snapshotName = "BUTTON_STYLE_FONT_STATE"
-        
+
         // GIVEN
         let (sut, container) = makeSUT()
-        
+
         // WHEN
         sut.display(style: .init(backgroundColor: .cyan, font: .systemFont(ofSize: 24, weight: .bold)))
         sut.display(title: "BUTTON WITH FONT")
@@ -909,13 +918,13 @@ final class ButtonSnapshotTests: XCTestCase {
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
     func test_fail_buttonOutput_style_font() {
         let snapshotName = "BUTTON_STYLE_FONT_STATE"
-        
+
         // GIVEN
         let (sut, container) = makeSUT()
-        
+
         // WHEN
         sut.display(style: .init(backgroundColor: .cyan, font: .systemFont(ofSize: 25, weight: .bold)))
         sut.display(title: "BUTTON WITH FONT")
@@ -929,13 +938,13 @@ final class ButtonSnapshotTests: XCTestCase {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
     func test_buttonOutput_style_cornerRadius() {
         let snapshotName = "BUTTON_STYLE_CORNER_RADIUS_STATE"
-        
+
         // GIVEN
         let (sut, container) = makeSUT(height: 100)
-        
+
         // WHEN
         sut.display(title: "BUTTON WITH CORNER RADIUS")
         sut.display(style: .init(backgroundColor: .cyan, cornerRadius: 40))
@@ -949,13 +958,13 @@ final class ButtonSnapshotTests: XCTestCase {
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
     func test_fail_buttonOutput_style_cornerRadius() {
         let snapshotName = "BUTTON_STYLE_CORNER_RADIUS_STATE"
-        
+
         // GIVEN
         let (sut, container) = makeSUT(height: 100)
-        
+
         // WHEN
         sut.display(title: "BUTTON WITH CORNER RADIUS")
         sut.display(style: .init(backgroundColor: .cyan, cornerRadius: 41))
@@ -969,18 +978,20 @@ final class ButtonSnapshotTests: XCTestCase {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
     func test_buttonOutput_with_no_url() {
         let snapshotName = "BUTTON_OUTPUT_NO_URL"
-        
+
         // GIVEN
         let (sut, container) = makeSUT()
-        sut.wrongUrlPlaceholderImage = UIImage(systemName: "xmark")!
-        
+
         // WHEN
-        sut.display(style: .init(backgroundColor: .cyan))
+        sut.display(style: .init(
+            backgroundColor: .cyan,
+            wrongUrlPlaceholderImage: UIImage(systemName: "xmark")!
+        ))
         sut.setImage(.url(nil, nil), completion: nil)
-        
+
         // THEN
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -990,18 +1001,20 @@ final class ButtonSnapshotTests: XCTestCase {
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
     func test_fail_buttonOutput_with_no_url() {
         let snapshotName = "BUTTON_OUTPUT_NO_URL"
-        
+
         // GIVEN
         let (sut, container) = makeSUT()
-        sut.wrongUrlPlaceholderImage = UIImage(systemName: "xmark")!
-        
+
         // WHEN
-        sut.display(style: .init(backgroundColor: .blue))
+        sut.display(style: .init(
+            backgroundColor: .cyan,
+            wrongUrlPlaceholderImage: UIImage(systemName: "xmark.circle")!
+        ))
         sut.setImage(.url(nil, nil), completion: nil)
-        
+
         // THEN
         if #available(iOS 26, *) {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -1011,23 +1024,23 @@ final class ButtonSnapshotTests: XCTestCase {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
     func test_buttonOutput_isLoading_state() {
         let snapshotName = "BUTTON_OUTPUT_ISLOADING_STATE"
-        
+
         // GIVEN
         let (sut, container) = makeSUT()
-        
+
         // WHEN
         let style = ButtonStyle(
             backgroundColor: .systemBlue,
             loadingIndicatorColor: .red
         )
-        
+
         sut.display(title: "Button title")
         sut.display(style: style)
         sut.display(isLoading: true)
-        
+
         // THEN
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -1037,23 +1050,23 @@ final class ButtonSnapshotTests: XCTestCase {
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
     func test_fail_buttonOutput_isLoading_state() {
         let snapshotName = "BUTTON_OUTPUT_ISLOADING_STATE"
-        
+
         // GIVEN
         let (sut, container) = makeSUT()
-        
+
         // WHEN
         let style = ButtonStyle(
             backgroundColor: .systemBlue,
             loadingIndicatorColor: .red
         )
-        
+
         sut.display(title: "Button title")
         sut.display(style: style)
         sut.display(isLoading: false)
-        
+
         // THEN
         if #available(iOS 26, *) {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -1063,23 +1076,23 @@ final class ButtonSnapshotTests: XCTestCase {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
-    
+
     func test_buttonOutput_isLoading_state_false() {
         let snapshotName = "BUTTON_OUTPUT_ISLOADING_STATE_FALSE"
-        
+
         // GIVEN
         let (sut, container) = makeSUT()
-        
+
         // WHEN
         let style = ButtonStyle(
             backgroundColor: .systemBlue,
             loadingIndicatorColor: .red
         )
-        
+
         sut.display(title: "Button title")
         sut.display(style: style)
         sut.display(isLoading: false)
-        
+
         // THEN
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -1088,6 +1101,120 @@ final class ButtonSnapshotTests: XCTestCase {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
+    }
+
+    func test_uikitButton_accessibilityActivation_invokesOutputCallback() {
+        let button = WrapKit.Button()
+        var pressCount = 0
+
+        button.display(onPress: { pressCount += 1 })
+
+        XCTAssertTrue(button.accessibilityActivate())
+        XCTAssertEqual(pressCount, 1)
+    }
+
+    func test_uikitButton_disabledAccessibilityActivation_doesNotInvokeOutputCallback() {
+        let button = WrapKit.Button()
+        var pressCount = 0
+
+        button.display(onPress: { pressCount += 1 })
+        button.display(enabled: false)
+
+        XCTAssertFalse(button.accessibilityActivate())
+        XCTAssertEqual(pressCount, 0)
+    }
+
+    func test_uikitButton_displayHeight_addsConstraintToExistingStorage() {
+        let button = WrapKit.Button()
+        button.anchoredConstraints = button.anchor(.width(1))
+
+        button.display(height: 44)
+
+        XCTAssertEqual(button.anchoredConstraints?.height?.constant, 44)
+        XCTAssertTrue(button.anchoredConstraints?.height?.isActive == true)
+    }
+
+    func test_uikitButton_displayModel_clearsStaleAccessibilityLabel() {
+        let button = WrapKit.Button()
+        button.display(model: .init(
+            accessibility: .init(label: "Initial label", hint: "Initial hint"),
+            title: "Title"
+        ))
+
+        XCTAssertEqual(button.accessibilityLabel, "Initial label")
+        XCTAssertEqual(button.accessibilityHint, "Initial hint")
+
+        button.display(model: .init(title: "Updated title"))
+
+        XCTAssertEqual(button.accessibilityLabel, "Updated title")
+        XCTAssertNotEqual(button.accessibilityLabel, "Initial label")
+        XCTAssertNil(button.accessibilityHint)
+    }
+
+    func test_uikitButton_displayNilModel_hidesButtonAndClearsAccessibility() {
+        let button = WrapKit.Button()
+        button.display(model: .init(
+            accessibility: .init(label: "Initial label", hint: "Initial hint"),
+            title: "Title"
+        ))
+
+        button.display(model: nil)
+
+        XCTAssertTrue(button.isHidden)
+        XCTAssertNil(button.accessibilityLabel)
+        XCTAssertNil(button.accessibilityHint)
+    }
+
+    func test_uikitButton_automaticCornerStyle_tracksBoundsHeight() {
+        let button = WrapKit.Button()
+        button.bounds = CGRect(x: 0, y: 0, width: 200, height: 60)
+        button.display(style: .init(cornerStyle: .automatic))
+
+        button.bounds.size.height = 100
+        button.setNeedsLayout()
+        button.layoutIfNeeded()
+
+        XCTAssertEqual(button.layer.cornerRadius, 50, accuracy: 0.01)
+    }
+
+    @available(iOS 17.0, *)
+    func test_swiftUIButton_fixedFrame_containsContentInsets() {
+        let view = SUIButtonView(
+            model: .init(
+                title: "Inset title",
+                height: 48,
+                width: 120,
+                style: .init(backgroundColor: .systemBlue)
+            ),
+            isEnabled: true,
+            fillsAvailableWidth: false,
+            contentInsets: .init(top: 8, leading: 12, bottom: 8, trailing: 12)
+        )
+        let hostingController = UIHostingController(rootView: view)
+
+        let size = hostingController.sizeThatFits(
+            in: CGSize(width: 1_000, height: 1_000)
+        )
+
+        XCTAssertEqual(size.width, 120, accuracy: 0.01)
+        XCTAssertEqual(size.height, 48, accuracy: 0.01)
+    }
+
+    @available(iOS 17.0, *)
+    func test_swiftUIButton_zeroHeight_remainsZero() {
+        let view = SUIButtonView(
+            model: .init(title: "Hidden-height title", height: 0, width: 120),
+            isEnabled: true,
+            fillsAvailableWidth: false
+        )
+        let hostingController = UIHostingController(rootView: view)
+
+        let size = hostingController.sizeThatFits(
+            in: CGSize(width: 1_000, height: 1_000)
+        )
+
+        XCTAssertEqual(size.width, 120, accuracy: 0.01)
+        XCTAssertEqual(size.height, 0, accuracy: 0.01)
     }
 }
 
@@ -1099,21 +1226,21 @@ extension ButtonSnapshotTests {
     ) -> (sut: Button, container: UIView) {
         let sut = Button()
         let container = makeContainer()
-        
+
         container.addSubview(sut)
-        sut.anchor(
+        sut.anchoredConstraints = sut.anchor(
             .top(container.topAnchor, constant: 0, priority: .required),
             .leading(container.leadingAnchor, constant: 0, priority: .required),
             .trailing(container.trailingAnchor, constant: 0, priority: .required),
             .height(height, priority: .required)
         )
-        
+
         container.layoutIfNeeded()
-        
+
         checkForMemoryLeaks(sut, file: file, line: line)
         return (sut, container)
     }
-    
+
     func makeContainer() -> UIView {
             let container = UIView()
             container.frame = CGRect(x: 0, y: 0, width: 390, height: 300)

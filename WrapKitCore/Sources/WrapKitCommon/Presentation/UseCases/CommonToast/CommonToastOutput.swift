@@ -110,3 +110,28 @@ public enum CommonToast {
         }
     }
 }
+
+enum CommonToastActionButtonAppearance {
+    static let contentInsets = EdgeInsets(horizontal: 12, vertical: 12)
+
+    static func model(
+        for button: CommonToast.CustomToast.Button,
+        index: Int
+    ) -> ButtonPresentableModel {
+        .init(
+            accessibilityIdentifier: "commonToast.action.\(index)",
+            accessibility: .init(label: button.title),
+            title: button.title,
+            style: .init(
+                backgroundColor: .clear,
+                titleColor: .systemBlue,
+                pressedColor: .systemBlue.withAlphaComponent(0.1),
+                pressedTintColor: .systemBlue,
+                font: .systemFont(ofSize: 15, weight: .semibold),
+                cornerRadius: 0
+            ),
+            enabled: button.onPress != nil,
+            onPress: button.onPress
+        )
+    }
+}

@@ -1,13 +1,13 @@
 import Foundation
 
-public enum CornerStyle {
+public enum CornerStyle: Sendable {
     /// in SwiftUI is Capsule
     case automatic
     case fixed(CGFloat)
     case corners(Corners)
     case none
     
-    public struct Corners {
+    public struct Corners: Sendable {
         let topLeft, topRight, bottomLeft, bottomRight: CGFloat
         
         public init(
