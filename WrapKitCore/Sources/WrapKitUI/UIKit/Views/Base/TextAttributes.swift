@@ -138,4 +138,14 @@ public extension Color {
         return .label
         #endif
     }
+
+    static var defaultSecondaryLabel: Color {
+        #if os(macOS)
+        return .secondaryLabelColor
+        #elseif os(watchOS)
+        return .lightGray
+        #else
+        return .secondaryLabel
+        #endif
+    }
 }

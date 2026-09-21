@@ -9,9 +9,9 @@ import Foundation
             backgroundColor: .clear,
             horizontalSpacing: 12,
             primeFont: .systemFont(ofSize: 18),
-            primeColor: .label,
+            primeColor: .defaultLabel,
             secondaryFont: .systemFont(ofSize: 14),
-            secondaryColor: .secondaryLabel,
+            secondaryColor: .defaultSecondaryLabel,
             numberOfLines: 1
         )
         @Published var model: HeaderPresentableModel = .init(style: SUINavigationBarStateModel.defaultStyle)

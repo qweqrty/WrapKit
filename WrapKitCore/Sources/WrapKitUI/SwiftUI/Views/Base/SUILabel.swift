@@ -54,7 +54,7 @@ public struct SUILabel: View {
     public init(
         adapter: TextOutputSwiftUIAdapter,
         font: Font = .systemFont(ofSize: 20),
-        textColor: Color = .label,
+        textColor: Color = .defaultLabel,
         textAlignment: TextAlignment = .natural
     ) {
         _stateModel = StateObject(wrappedValue: SUILabelStateModel(adapter: adapter))
@@ -92,7 +92,7 @@ public struct SUILabelView: View, Animatable {
     public init(
         model: TextOutputPresentableModel,
         font: Font = .systemFont(ofSize: 20),
-        textColor: Color = .label,
+        textColor: Color = .defaultLabel,
         textAlignment: TextAlignment = .natural
     ) {
         self.model = model
@@ -333,7 +333,7 @@ public struct SUILabelView: View, Animatable {
         let wholeRange = NSRange(location: 0, length: mutable.length)
         mutable.enumerateAttribute(.link, in: wholeRange) { value, range, _ in
             guard value != nil else { return }
-            mutable.addAttribute(.foregroundColor, value: Color.systemBlue, range: range)
+            mutable.addAttribute(.foregroundColor, value: Color.blue, range: range)
         }
         return mutable
     }
@@ -425,7 +425,7 @@ public struct SUILabelView: View, Animatable {
 
         mutable.enumerateAttributes(in: wholeRange) { attributes, range, _ in
             if attributes[.foregroundColor] == nil
-                || attributes[.foregroundColor] as? Color == .label {
+                || attributes[.foregroundColor] as? Color == .defaultLabel {
                 mutable.addAttribute(.foregroundColor, value: resolvedDefaultPlatformTextColor, range: range)
             }
             if attributes[.font] == nil {
@@ -473,7 +473,7 @@ public struct SUILabelView: View, Animatable {
     }
 
     private var resolvedDefaultPlatformTextColor: Color {
-        guard defaultTextColor == .label else { return defaultTextColor }
+        guard defaultTextColor == .defaultLabel else { return defaultTextColor }
         return colorScheme == .dark ? .white : .black
     }
 
@@ -681,7 +681,9 @@ private struct CoreTextAttributedLabel: View {
                         .contentShape(Rectangle())
                         .position(x: region.rect.midX, y: region.rect.midY)
                         .accessibilityHidden(true)
+                        #if !os(tvOS)
                         .onTapGesture(perform: region.perform)
+                        #endif
                 }
             }
         }

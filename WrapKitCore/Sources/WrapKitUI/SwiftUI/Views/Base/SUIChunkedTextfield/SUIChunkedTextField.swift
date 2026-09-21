@@ -1,3 +1,4 @@
+#if !os(macOS) && !os(tvOS) && !os(watchOS)
 import SwiftUI
 
 public struct SUIChunkedTextField: View {
@@ -603,3 +604,4 @@ private extension View {
 #endif
     }
 }
+#endif

@@ -1,6 +1,6 @@
 import Foundation
 
-#if canImport(SwiftUI)
+#if canImport(SwiftUI) && !os(watchOS)
 import SwiftUI
 
 public struct SUISegmentControlView: View {

@@ -1,6 +1,6 @@
 import Foundation
 
-#if canImport(SwiftUI)
+#if canImport(SwiftUI) && !os(tvOS) && !os(macOS) && !os(watchOS)
 import SwiftUI
 
 public struct SUISearchBar: View {

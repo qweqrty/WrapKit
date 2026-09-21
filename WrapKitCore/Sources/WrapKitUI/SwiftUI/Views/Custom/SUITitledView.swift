@@ -30,9 +30,9 @@ public struct SUITitledView<Content: View>: View {
                 SUIHKeyValueFieldView(
                     adapter: stateModel.titlesAdapter,
                     keyFont: .systemFont(ofSize: 20),
-                    keyTextColor: .label,
+                    keyTextColor: .defaultLabel,
                     valueFont: .systemFont(ofSize: 20),
-                    valueTextColor: .label,
+                    valueTextColor: .defaultLabel,
                     keyLineLimit: nil,
                     valueLineLimit: nil,
                     keyMinimumScaleFactor: 1,

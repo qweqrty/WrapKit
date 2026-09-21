@@ -15,6 +15,12 @@ public typealias SwiftUIColor = SwiftUI.Color
 public typealias SwiftUIImage = SwiftUI.Image
 public typealias SwiftUIFont = SwiftUI.Font
 
+public extension NSFont {
+    var lineHeight: CGFloat {
+        ascender - descender + leading
+    }
+}
+
 #elseif os(iOS) || os(tvOS) || os(watchOS) || os(visionOS)
 import UIKit
 public typealias Image = UIImage

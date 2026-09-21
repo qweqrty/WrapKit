@@ -1,3 +1,4 @@
+#if !os(tvOS) && !os(macOS) && !os(watchOS)
 import SwiftUI
 
 private let suiTableRowMoveTypeIdentifier = "com.wrapkit.table-row-move"
@@ -681,3 +682,4 @@ private struct SUITableInteractiveRow<
     }
 #endif
 }
+#endif

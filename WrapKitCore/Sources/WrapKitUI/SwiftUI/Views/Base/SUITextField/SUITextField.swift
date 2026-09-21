@@ -5,6 +5,7 @@
 //  Created by Urmatbek Marat Uulu on 28/4/26.
 //
 
+#if !os(tvOS) && !os(macOS) && !os(watchOS)
 import SwiftUI
 
 public struct SUITextField: View {
@@ -835,3 +836,4 @@ private extension TextAutocapitalizationType {
         }
     }
 }
+#endif

@@ -150,6 +150,10 @@ public struct ButtonPresentableModel: HashableWithReflection {
     }
 }
 
+public enum PressAnimation: HashableWithReflection {
+    case shrink
+}
+
 #if canImport(UIKit) && !os(watchOS)
 import UIKit
 
@@ -356,10 +360,6 @@ extension Button: LoadingOutput {
         
         loader.display(isLoading: isLoading)
     }
-}
-
-public enum PressAnimation: HashableWithReflection {
-    case shrink
 }
 
 open class Button: UIButton {

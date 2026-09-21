@@ -151,9 +151,11 @@ public struct SUIImageView: View {
         if let fallbackView {
             fallbackView
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
+                #if !os(tvOS)
                 .onTapGesture {
                     loadImage(for: colorScheme, completion: nil)
                 }
+                #endif
         } else {
             SwiftUI.EmptyView()
         }
@@ -184,7 +186,7 @@ public struct SUIImageView: View {
 
     @ViewBuilder
     private func contentView(_ image: Image) -> some View {
-        #if canImport(UIKit)
+        #if canImport(UIKit) && !os(watchOS)
         if shouldRasterizeAssetSymbol {
             resizableContentView(SUIVectorImageRasterCache.shared.image(for: image))
         } else if shouldPrepareWrongURLPlaceholder, image.isSymbolImage {
@@ -207,7 +209,7 @@ public struct SUIImageView: View {
         return resolvedRemoteURL(for: colorScheme) == nil
     }
 
-    #if canImport(UIKit)
+    #if canImport(UIKit) && !os(watchOS)
     private func preparedWrongURLPlaceholder(_ image: Image) -> some View {
         GeometryReader { geometry in
             let preparedImage = SUIVectorImageRasterCache.shared.preparedImage(
@@ -672,7 +674,7 @@ extension ImageViewPresentableModel {
 
 private extension Color {
     var resolvedForImageLayer: Color {
-        #if canImport(UIKit)
+        #if canImport(UIKit) && !os(watchOS)
         // UIImageView stores `layer.borderColor` as a concrete CGColor when Output is called.
         // Resolve at the same boundary so a dynamic UIColor does not change later only in SwiftUI.
         return resolvedColor(with: UITraitCollection.current)
@@ -693,7 +695,7 @@ private extension ImageEnum {
     }
 }
 
-#if canImport(UIKit)
+#if canImport(UIKit) && !os(watchOS)
 private final class SUIVectorImageRasterCache {
     static let shared = SUIVectorImageRasterCache()
 
@@ -945,6 +947,7 @@ private struct ImageViewInteractionModifier: ViewModifier {
     @ViewBuilder
     private func interactive(_ content: Content) -> some View {
         tappable(content)
+            #if !os(tvOS)
             .onLongPressGesture(
                 minimumDuration: 1,
                 maximumDistance: 10,
@@ -955,15 +958,20 @@ private struct ImageViewInteractionModifier: ViewModifier {
                     onLongPress?()
                 }
             )
+            #endif
     }
 
     @ViewBuilder
     private func tappable(_ content: Content) -> some View {
+        #if !os(tvOS)
         if let onPress {
             content.onTapGesture(perform: onPress)
         } else {
             content
         }
+        #else
+        content
+        #endif
     }
 }
 

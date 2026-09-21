@@ -350,7 +350,9 @@ extension Textview: TextInputOutput {
         applyAccessibility()
     }
     public func display(isEnabledForEditing: Bool) {
+        #if !os(tvOS)
         isEditable = isEnabledForEditing
+        #endif
         applyAccessibility()
     }
 

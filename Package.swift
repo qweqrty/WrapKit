@@ -5,7 +5,7 @@ let package = Package(
     name: "WrapKit",
     platforms: [
         .iOS(.v15),
-        .macOS(.v11),
+        .macOS(.v12),
         .tvOS(.v15),
         .watchOS(.v8),
         .visionOS(.v1)
