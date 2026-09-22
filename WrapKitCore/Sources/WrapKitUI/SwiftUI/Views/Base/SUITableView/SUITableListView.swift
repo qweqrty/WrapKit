@@ -206,6 +206,7 @@ private struct SUITableInteractiveListContent<
                     ))
                     .onMove(perform: stateModel.moveAction(in: sectionIndex))
 
+                    #if os(iOS)
                     if section.cells.isEmpty, isEditing, stateModel.supportsMoving {
                         SUITableEmptySectionDropTarget(
                             stateModel: stateModel,
@@ -221,6 +222,7 @@ private struct SUITableInteractiveListContent<
                             }
                         }
                     }
+                    #endif
                 } header: {
                     if let header = section.header {
                         headerContent(header)

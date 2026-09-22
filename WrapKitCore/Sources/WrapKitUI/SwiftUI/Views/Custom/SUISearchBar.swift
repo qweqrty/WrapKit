@@ -60,10 +60,14 @@ public struct SUISearchBar: View {
         if #available(iOS 26, macOS 26, tvOS 26, watchOS 26, *), isLiquidGlassEnabled {
             content
                 .padding(contentInsets.asSUIEdgeInsets)
+                #if os(visionOS)
+                .background(SwiftUIColor(stateModel.backgroundColor ?? .clear))
+                #else
                 .glassEffect(
                     .clear.tint(stateModel.backgroundColor.map(SwiftUIColor.init)),
                     in: SUICornerShape(style: .automatic)
                 )
+                #endif
         } else {
             content
                 .padding(contentInsets.asSUIEdgeInsets)

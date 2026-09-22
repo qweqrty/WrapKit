@@ -42,7 +42,7 @@ final class SUIToastViewStateModel: ObservableObject {
     private var currentToastOnPress: (() -> Void)?
     private let velocityThreshold: CGFloat = 500
     private var estimatedToastWidth: CGFloat {
-        #if canImport(UIKit)
+        #if canImport(UIKit) && !os(visionOS)
         return max(UIScreen.main.bounds.width - 16, 1)
         #else
         return 320

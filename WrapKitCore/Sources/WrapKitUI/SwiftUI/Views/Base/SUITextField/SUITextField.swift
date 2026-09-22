@@ -621,7 +621,7 @@ private struct SUITextFieldDecoration: View {
 
     @ViewBuilder
     var body: some View {
-        if #available(iOS 26.0, *) {
+        if #available(iOS 26.0, visionOS 26.0, *) {
             switch style {
             case .automatic:
                 nativeDecoration(
@@ -654,7 +654,7 @@ private struct SUITextFieldDecoration: View {
         }
     }
 
-    @available(iOS 26.0, *)
+    @available(iOS 26.0, visionOS 26.0, *)
     private func nativeDecoration<Outer: Shape, Inner: Shape>(
         outer: Outer,
         inner: Inner
@@ -670,7 +670,7 @@ private struct SUITextFieldDecoration: View {
             }
     }
 
-    @available(iOS 26.0, *)
+    @available(iOS 26.0, visionOS 26.0, *)
     private func concentricRectangle(corners: CornerStyle.Corners) -> ConcentricRectangle {
         ConcentricRectangle(
             topLeadingCorner: .fixed(corners.topLeft),
@@ -697,7 +697,7 @@ private struct SUITextFieldDecoration: View {
 private extension View {
     @ViewBuilder
     func suiTextFieldContentClip(style: CornerStyle) -> some View {
-        if #available(iOS 26.0, *) {
+        if #available(iOS 26.0, visionOS 26.0, *) {
             switch style {
             case .automatic:
                 clipShape(Capsule(style: .continuous))
@@ -720,7 +720,7 @@ private extension View {
 
     @ViewBuilder
     func suiTextFieldClip(style: CornerStyle) -> some View {
-        if #available(iOS 26.0, *) {
+        if #available(iOS 26.0, visionOS 26.0, *) {
             self
         } else {
             cornerStyle(style)

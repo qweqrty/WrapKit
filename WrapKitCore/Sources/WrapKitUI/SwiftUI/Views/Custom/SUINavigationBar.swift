@@ -74,6 +74,7 @@ public struct SUINavigationBar: View {
                         alignment: .leading
                     )
                     .clipped()
+                    #if !os(visionOS)
                     .background {
                         SwiftUIColor.clear
                             .glassEffect(
@@ -81,6 +82,7 @@ public struct SUINavigationBar: View {
                                 in: SUICornerShape(style: .automatic)
                             )
                     }
+                    #endif
             } else {
                 SUINavigationBarIntrinsicCompressingView(usesIntrinsicWidth: width == nil) {
                     SUICardView(

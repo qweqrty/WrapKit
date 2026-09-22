@@ -562,7 +562,7 @@ private struct ChunkedTextFieldCellDecoration: View {
 
     @ViewBuilder
     var body: some View {
-        if #available(iOS 26.0, *) {
+        if #available(iOS 26.0, visionOS 26.0, *) {
             ConcentricRectangle(corners: .fixed(Self.cornerRadius), isUniform: true)
                 .fill(borderWidth > 0 ? borderColor : backgroundColor)
                 .overlay {
