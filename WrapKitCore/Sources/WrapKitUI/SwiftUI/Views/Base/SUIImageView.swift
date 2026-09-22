@@ -29,7 +29,6 @@ public struct SUIImageView: View {
     @State private var isLoading = false
     @State private var hasError = false
     @State private var downloadTask: DownloadTask?
-    @State private var lastLoadedRemoteURL: URL?
     @State private var activeRequestID = UUID()
 
     @Environment(\.colorScheme) private var colorScheme
@@ -263,7 +262,6 @@ public struct SUIImageView: View {
             isLoading = false
             loadedImage = image
             shouldRenderTemplate = image?.rendersAsTemplate ?? false
-            lastLoadedRemoteURL = nil
             completion?(image)
 
         case .symbolName(let name):
@@ -272,14 +270,12 @@ public struct SUIImageView: View {
             let image = ImageFactory.systemImage(named: name)
             loadedImage = image
             shouldRenderTemplate = true
-            lastLoadedRemoteURL = nil
             completion?(image)
 
         case .data(let data):
             downloadTask?.cancel()
             isLoading = false
             shouldRenderTemplate = false
-            lastLoadedRemoteURL = nil
             guard let data, let image = Image(data: data) else {
                 loadedImage = nil
                 // UIKit only clears invalid data; fallback is reserved for a failed remote request.
@@ -292,19 +288,11 @@ public struct SUIImageView: View {
 
         case .url(let light, let dark):
             let url = mode == .dark ? dark : light
-            if shouldSkipReload(for: url) {
-                completion?(loadedImage)
-                return
-            }
             loadImageFromURL(url, requestID: requestID, completion: completion)
 
         case .urlString(let light, let dark):
             let urlString = mode == .dark ? dark : light
             let url = urlString.flatMap(URL.init(string:))
-            if shouldSkipReload(for: url) {
-                completion?(loadedImage)
-                return
-            }
             loadImageFromURL(url, requestID: requestID, completion: completion)
 
         case nil:
@@ -313,28 +301,13 @@ public struct SUIImageView: View {
             loadedImage = nil
             shouldRenderTemplate = false
             hasError = false
-            lastLoadedRemoteURL = nil
             completion?(nil)
         }
     }
 
-    private func shouldSkipReload(for url: URL?) -> Bool {
-        guard let url else { return false }
-        return lastLoadedRemoteURL == url && loadedImage != nil && !isLoading
-    }
-
     private func cachedRemoteImage(for mode: ColorScheme) -> Image? {
         guard let resolvedURL = resolvedRemoteURL(for: mode) else { return nil }
-        if let storedImage = SUIRemoteImageCache.shared.image(for: resolvedURL) {
-            return storedImage
-        }
-
-        if let cachedImage = KingfisherManager.shared.cache.retrieveImageInMemoryCache(forKey: resolvedURL.absoluteString) {
-            SUIRemoteImageCache.shared.store(cachedImage, for: resolvedURL)
-            return cachedImage
-        }
-
-        return nil
+        return KingfisherManager.shared.cache.retrieveImageInMemoryCache(forKey: resolvedURL.absoluteString)
     }
 
     private func resolvedRemoteURL(for mode: ColorScheme) -> URL? {
@@ -357,7 +330,6 @@ public struct SUIImageView: View {
         guard let url else {
             downloadTask?.cancel()
             isLoading = false
-            lastLoadedRemoteURL = nil
             if let wrongUrlPlaceholderImage {
                 loadedImage = wrongUrlPlaceholderImage
                 shouldRenderTemplate = true
@@ -373,23 +345,11 @@ public struct SUIImageView: View {
             return
         }
 
-        if let storedImage = SUIRemoteImageCache.shared.image(for: url) {
-            loadedImage = storedImage
-            shouldRenderTemplate = false
-            hasError = false
-            isLoading = false
-            lastLoadedRemoteURL = url
-            completion?(storedImage)
-            return
-        }
-
         if let cachedImage = KingfisherManager.shared.cache.retrieveImageInMemoryCache(forKey: url.absoluteString) {
-            SUIRemoteImageCache.shared.store(cachedImage, for: url)
             loadedImage = cachedImage
             shouldRenderTemplate = false
             hasError = false
             isLoading = false
-            lastLoadedRemoteURL = url
             completion?(cachedImage)
             return
         }
@@ -427,11 +387,9 @@ public struct SUIImageView: View {
                             self.isLoading = false
                             switch result {
                             case .success(let value):
-                                SUIRemoteImageCache.shared.store(value.image, for: url)
                                 self.loadedImage = value.image
                                 self.shouldRenderTemplate = false
                                 self.hasError = false
-                                self.lastLoadedRemoteURL = url
                                 completion?(value.image)
                             case .failure:
                                 self.loadedImage = nil
@@ -454,11 +412,9 @@ public struct SUIImageView: View {
                             self.isLoading = false
                             switch result {
                             case .success(let value):
-                                SUIRemoteImageCache.shared.store(value.image, for: url)
                                 self.loadedImage = value.image
                                 self.shouldRenderTemplate = false
                                 self.hasError = false
-                                self.lastLoadedRemoteURL = url
                                 completion?(value.image)
                             case .failure:
                                 self.loadedImage = nil
@@ -541,22 +497,6 @@ public struct SUIImageViewView: View {
 private struct SUIImageViewInput {
     let revision = UUID()
     let model: ImageViewPresentableModel
-}
-
-private final class SUIRemoteImageCache {
-    static let shared = SUIRemoteImageCache()
-
-    private let cache = NSCache<NSString, Image>()
-
-    private init() {}
-
-    func image(for url: URL) -> Image? {
-        cache.object(forKey: url.absoluteString as NSString)
-    }
-
-    func store(_ image: Image, for url: URL) {
-        cache.setObject(image, forKey: url.absoluteString as NSString)
-    }
 }
 
 // MARK: - Model Extensions

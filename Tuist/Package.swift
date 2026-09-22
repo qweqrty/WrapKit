@@ -5,11 +5,9 @@ import PackageDescription
     import ProjectDescription
 
     let packageSettings = PackageSettings(
-        // Customize the product types for specific package product
-        // Default is .staticFramework
-        // productTypes: ["Alamofire": .framework,] 
+        // Share Kingfisher's cache and downloader across WrapKit and its consumers.
         productTypes: [
-            :
+            "Kingfisher": .framework
         ]
     )
 #endif
