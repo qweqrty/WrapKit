@@ -580,6 +580,7 @@ private struct StackViewCatalogScene: View {
     }
 }
 
+#if !os(tvOS) && !os(macOS) && !os(watchOS)
 private struct TableCatalogRow: Hashable, Identifiable {
     let id: Int
     let title: String
@@ -1096,9 +1097,11 @@ private final class TableCatalogPresenter: LifeCycleViewOutput {
         statusOutput?.display(model: .text(text))
     }
 }
+#endif
 
 enum TableCatalogSceneFactory {
     static func make(onBack: @escaping () -> Void) -> AnyView {
+        #if !os(tvOS) && !os(macOS) && !os(watchOS)
         let adapters = TableCatalogAdapters()
         let chrome = CatalogChromeAdapters()
         let editModeState = TableCatalogEditModeState()
@@ -1131,9 +1134,13 @@ enum TableCatalogSceneFactory {
             chrome: chrome,
             editModeState: editModeState
         ))
+        #else
+        return CatalogUnsupportedSceneFactory.make(title: "TableOutput", onBack: onBack)
+        #endif
     }
 }
 
+#if !os(tvOS) && !os(macOS) && !os(watchOS)
 private struct TableCatalogScene: View {
     let presenter: TableCatalogPresenter
     let adapters: TableCatalogAdapters
@@ -1278,6 +1285,7 @@ private struct TableCatalogScene: View {
         .padding(.bottom, 12)
     }
 }
+#endif
 
 private struct CatalogActionButtons<Action: Hashable>: View {
     let actions: [Action]

@@ -4,6 +4,7 @@ import WrapKit
 
 enum PickerCatalogSceneFactory {
     static func make(onBack: @escaping () -> Void) -> AnyView {
+        #if !os(tvOS) && !os(macOS)
         let adapters = PickerCatalogSceneAdapters()
         let presenter = PickerCatalogPresenter(onBack: onBack)
 
@@ -21,9 +22,13 @@ enum PickerCatalogSceneFactory {
         return AnyView(
             PickerCatalogView(presenter: presenter, adapters: adapters)
         )
+        #else
+        return CatalogUnsupportedSceneFactory.make(title: "PickerViewOutput", onBack: onBack)
+        #endif
     }
 }
 
+#if !os(tvOS) && !os(macOS)
 private final class PickerCatalogSceneAdapters {
     let chrome = CatalogChromeAdapters()
     let picker = PickerViewOutputSwiftUIAdapter()
@@ -272,3 +277,4 @@ private struct PickerCatalogView: View {
         }
     }
 }
+#endif

@@ -7,6 +7,7 @@ enum TextInputCatalogSceneFactory {
         onBack: @escaping () -> Void,
         selectionFlow: any SelectionFlow
     ) -> AnyView {
+        #if !os(tvOS) && !os(macOS) && !os(watchOS)
         let adapters = TextInputCatalogSceneAdapters()
         let presenter = TextInputCatalogPresenter(
             onBack: onBack,
@@ -36,9 +37,13 @@ enum TextInputCatalogSceneFactory {
                 configuration: .appleDefault
             )
         )
+        #else
+        return CatalogUnsupportedSceneFactory.make(title: "TextInputOutput", onBack: onBack)
+        #endif
     }
 }
 
+#if !os(tvOS) && !os(macOS) && !os(watchOS)
 private final class TextInputCatalogSceneAdapters {
     let chrome = CatalogChromeAdapters()
     let account = TextInputOutputSwiftUIAdapter()
@@ -714,3 +719,4 @@ private struct TextInputCatalogView: View {
         }
     }
 }
+#endif
