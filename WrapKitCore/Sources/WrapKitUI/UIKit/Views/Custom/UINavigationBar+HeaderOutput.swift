@@ -137,8 +137,8 @@ public final class NavigationItemHeaderOutput: HeaderOutput {
         if renderedTrailingItems[0]?.customView == nil {
             renderedTrailingItems[0]?.primaryAction = menu == nil ? primeTrailingAction : nil
         }
-        buttons[0].menu = menu
-        buttons[0].showsMenuAsPrimaryAction = menu != nil
+        buttons[0]?.menu = menu
+        buttons[0]?.showsMenuAsPrimaryAction = menu != nil
     }
 
     private let titledImage: TitledView<WrapperView<ImageView>> = {
@@ -151,7 +151,11 @@ public final class NavigationItemHeaderOutput: HeaderOutput {
         view.closingTitleVFieldView.isHidden = false
         return view
     }()
-    private let card: CardView = {
+    private var headerStyle: HeaderPresentableModel.Style?
+    private var isUpdatingModel = false
+    private var cardStorage: CardView?
+    private var card: CardView {
+        if let cardStorage { return cardStorage }
         let view = CardView()
         view.vStackView.layoutMargins = .init(top: 0, left: 10, bottom: 0, right: 10)
         view.hStackView.spacing = 8
@@ -160,9 +164,18 @@ public final class NavigationItemHeaderOutput: HeaderOutput {
         view.subtitleLabel.isHidden = true
         view.subtitleLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
         view.subtitleLabel.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
+        if let style = headerStyle {
+            view.leadingImageView.tintColor = style.primeColor
+            view.titleViews.keyLabel.font = style.primeFont
+            view.titleViews.keyLabel.textColor = style.primeColor
+        }
+        cardStorage = view
         return view
-    }()
-    private let buttons: [Button] = (0..<3).map { _ in
+    }
+    private var buttons: [Button?] = [nil, nil, nil]
+    private var buttonEnabled = [true, true, true]
+    private func customButton(at index: Int) -> Button {
+        if let button = buttons[index] { return button }
         let button = Button(contentInset: isAvailableOS26 && isLiquidGlassEnabled
             ? .init(top: 11, left: 11, bottom: 11, right: 11)
             : .init(top: 0, left: 8, bottom: 0, right: 8))
@@ -173,6 +186,8 @@ public final class NavigationItemHeaderOutput: HeaderOutput {
         }
         #endif
         button.isHidden = true
+        button.tintColor = primeColor
+        buttons[index] = button
         return button
     }
     private var visibleButtons = [false, false, false]
@@ -184,12 +199,12 @@ public final class NavigationItemHeaderOutput: HeaderOutput {
     private var hasCustomButtonStyle = [false, false, false]
 
     private var cardConstraints: [NSLayoutConstraint] = []
-    private lazy var titleHost = NativeHeaderContentView(content: titles)
-    private lazy var imageHost = NativeHeaderContentView(content: titledImage)
+    private lazy var titleHost = makeTitleHost(titles)
+    private lazy var imageHost = makeTitleHost(titledImage)
     private let leadingHost = UIView()
     private lazy var leadingSizedHost = NativeHeaderContentView(content: leadingHost)
     private lazy var leadingItem = makeBarItem(leadingSizedHost)
-    private lazy var trailingItems = buttons.map { makeBarItem(NativeHeaderContentView(content: $0)) }
+    private var trailingItems: [UIBarButtonItem?] = [nil, nil, nil]
     private lazy var glass: UIView = {
         #if os(iOS)
         if #available(iOS 26, *) {
@@ -214,6 +229,12 @@ public final class NavigationItemHeaderOutput: HeaderOutput {
     public func display(model: HeaderPresentableModel?) {
         display(isHidden: model == nil)
         guard let model else { return }
+        isUpdatingModel = true
+        defer {
+            isUpdatingModel = false
+            updateTrailingItems()
+            invalidateLayout()
+        }
         // Preserve the legacy renderer's styling precedence.
         display(centerView: model.centerView)
         display(style: model.style)
@@ -225,6 +246,7 @@ public final class NavigationItemHeaderOutput: HeaderOutput {
 
     public func display(style: HeaderPresentableModel.Style?) {
         guard let style else { return }
+        headerStyle = style
         let appearance = UINavigationBarAppearance()
         appearance.configureWithOpaqueBackground()
         appearance.backgroundColor = style.backgroundColor
@@ -235,11 +257,15 @@ public final class NavigationItemHeaderOutput: HeaderOutput {
         item?.compactScrollEdgeAppearance = appearance
         primeColor = style.primeColor
         item?.leftBarButtonItem?.tintColor = style.primeColor
+        if let button = item?.leftBarButtonItem?.customView as? AdaptiveHeaderButton {
+            button.titleFont = style.primeFont
+            button.tintColor = style.primeColor
+        }
         renderedTrailingItems.compactMap { $0 }.forEach { $0.tintColor = style.primeColor }
-        card.leadingImageView.tintColor = style.primeColor
-        buttons.forEach { $0.tintColor = style.primeColor }
-        card.titleViews.keyLabel.font = style.primeFont
-        card.titleViews.keyLabel.textColor = style.primeColor
+        cardStorage?.leadingImageView.tintColor = style.primeColor
+        buttons.compactMap { $0 }.forEach { $0.tintColor = style.primeColor }
+        cardStorage?.titleViews.keyLabel.font = style.primeFont
+        cardStorage?.titleViews.keyLabel.textColor = style.primeColor
         titles.keyLabel.font = style.primeFont
         titles.keyLabel.textColor = style.primeColor
         titles.keyLabel.numberOfLines = style.numberOfLines
@@ -267,7 +293,6 @@ public final class NavigationItemHeaderOutput: HeaderOutput {
 
     public func display(leadingCard: CardViewPresentableModel?) {
         if leadingCard?.style != nil { hasCustomLeadingStyle = true }
-        card.display(model: leadingCard)
         guard leadingCard != nil else {
             item?.leftBarButtonItem = nil
             return
@@ -275,7 +300,7 @@ public final class NavigationItemHeaderOutput: HeaderOutput {
         // A simple back/close icon is a native action, so UIKit can relocate it.
         // Rich cards retain the existing renderer and all their callbacks.
         if let model = leadingCard,
-           model.title == nil, model.leadingTitles == nil, model.trailingTitles == nil,
+           isPlainTitle(model.title), model.leadingTitles == nil, model.trailingTitles == nil,
            model.subTitle == nil, model.valueTitle == nil, model.backgroundImage == nil,
            model.secondaryLeadingImage == nil, model.trailingImage == nil,
            model.secondaryTrailingImage == nil, model.bottomImage == nil,
@@ -284,19 +309,37 @@ public final class NavigationItemHeaderOutput: HeaderOutput {
            model.onLongPress == nil, model.leadingImage?.onLongPress == nil,
            case let .asset(image)? = model.leadingImage?.image, let image {
             let action = UIAction(
-                title: model.accessibility?.label ?? model.leadingImage?.accessibility?.label ?? "",
+                title: model.title?.model?.text ?? "",
                 image: image
             ) { _ in (model.onPress ?? model.leadingImage?.onPress)?() }
-            let nativeItem = UIBarButtonItem(primaryAction: action)
+            let nativeItem: UIBarButtonItem
+            if let title = model.title?.model?.text, !title.isEmpty {
+                let button = AdaptiveHeaderButton(
+                    title: title, image: image, font: headerStyle?.primeFont, action: action
+                )
+                button.tintColor = primeColor
+                button.isEnabled = model.isUserInteractionEnabled ?? true
+                button.accessibilityIdentifier = model.accessibilityIdentifier
+                button.accessibilityLabel = model.accessibility?.label ?? title
+                button.accessibilityHint = model.accessibility?.hint
+                nativeItem = UIBarButtonItem(customView: button)
+            } else {
+                nativeItem = UIBarButtonItem(primaryAction: action)
+            }
             nativeItem.tintColor = primeColor
             nativeItem.isEnabled = model.isUserInteractionEnabled ?? true
             nativeItem.accessibilityIdentifier = model.accessibilityIdentifier
             nativeItem.accessibilityLabel = model.accessibility?.label ?? model.leadingImage?.accessibility?.label
             nativeItem.accessibilityHint = model.accessibility?.hint
+            #if os(iOS)
+            if #available(iOS 26, *) { nativeItem.sharesBackground = false }
+            if #available(iOS 27.1, *) { nativeItem.axisBehavior = .verticalPreferred }
+            #endif
             item?.leftBarButtonItem = nativeItem
             invalidateLayout()
             return
         }
+        card.display(model: leadingCard)
         NSLayoutConstraint.deactivate(cardConstraints)
         card.removeFromSuperview()
         glass.removeFromSuperview()
@@ -329,47 +372,76 @@ public final class NavigationItemHeaderOutput: HeaderOutput {
     public func display(secondaryTrailingImage: ButtonPresentableModel?) { display(button: secondaryTrailingImage, at: 1) }
     public func display(tertiaryTrailingImage: ButtonPresentableModel?) { display(button: tertiaryTrailingImage, at: 2) }
 
+    private func isPlainTitle(_ title: TextOutputPresentableModel?) -> Bool {
+        guard let model = title?.model else { return true }
+        if case .text = model { return true }
+        return false
+    }
+
     private func display(button: ButtonPresentableModel?, at index: Int) {
         visibleButtons[index] = button != nil
         if button?.style != nil { hasCustomButtonStyle[index] = true }
-        buttons[index].display(model: button)
-        buttons[index].isHidden = button == nil
+        guard let button else {
+            buttons[index]?.display(model: nil)
+            renderedTrailingItems[index] = nil
+            updateTrailingItems()
+            invalidateLayout()
+            return
+        }
+        if let enabled = button.enabled { buttonEnabled[index] = enabled }
         let barItem: UIBarButtonItem
-        if let model = button, !hasCustomButtonStyle[index], model.height == nil, model.width == nil, model.spacing == nil {
+        if !hasCustomButtonStyle[index], button.height == nil, button.width == nil, button.spacing == nil {
+            let model = button
             let action = UIAction(title: model.title ?? model.accessibility?.label ?? "", image: model.image) { _ in
                 model.onPress?()
             }
             let native = UIBarButtonItem(primaryAction: action)
             native.tintColor = primeColor
-            native.isEnabled = buttons[index].isEnabled
+            native.isEnabled = buttonEnabled[index]
             native.accessibilityLabel = model.accessibility?.label
             native.accessibilityHint = model.accessibility?.hint
             barItem = native
         } else {
-            barItem = trailingItems[index]
+            let custom = customButton(at: index)
+            custom.display(model: button)
+            custom.display(enabled: buttonEnabled[index])
+            if index == 0 {
+                custom.menu = primeTrailingMenu
+                custom.showsMenuAsPrimaryAction = primeTrailingMenu != nil
+            }
+            if trailingItems[index] == nil {
+                trailingItems[index] = makeBarItem(NativeHeaderContentView(content: custom))
+            }
+            barItem = trailingItems[index]!
         }
-        renderedTrailingItems[index] = button == nil ? nil : barItem
+        renderedTrailingItems[index] = barItem
         if index == 0 {
             primeTrailingAction = barItem.primaryAction
             barItem.menu = primeTrailingMenu
             if primeTrailingMenu != nil { barItem.primaryAction = nil }
         }
-        barItem.title = button?.title ?? button?.accessibility?.label
-        barItem.accessibilityIdentifier = button?.accessibilityIdentifier
+        barItem.title = button.title ?? button.accessibility?.label
+        barItem.accessibilityIdentifier = button.accessibilityIdentifier
         #if os(iOS)
+        if #available(iOS 26, *) { barItem.sharesBackground = false }
         if #available(iOS 27.1, *) {
-            // Text and wide custom controls stay horizontal. Compact icon controls
-            // can participate independently in the system's vertical bar.
-            let size = buttons[index].systemLayoutSizeFitting(UIView.layoutFittingCompressedSize)
-            if barItem.customView != nil {
-                barItem.axisBehavior = button?.title == nil && size.width <= 44 && size.height <= 44
+            if let custom = barItem.customView {
+                let size = custom.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize)
+                barItem.axisBehavior = button.title == nil && size.width <= 44 && size.height <= 44
                     ? .verticalPreferred : .horizontalOnly
+            } else if button.image != nil {
+                barItem.axisBehavior = .verticalPreferred
             }
         }
         #endif
+        updateTrailingItems()
+        invalidateLayout()
+    }
+
+    private func updateTrailingItems() {
+        guard !isUpdatingModel else { return }
         // UIKit lists trailing items from the outer edge inward.
         item?.rightBarButtonItems = renderedTrailingItems.reversed().compactMap { $0 }
-        invalidateLayout()
     }
 
     public func display(isHidden: Bool) {
@@ -385,13 +457,19 @@ public final class NavigationItemHeaderOutput: HeaderOutput {
     }
 
     private func invalidateLayout() {
-        titleHost.invalidateIntrinsicContentSize()
-        imageHost.invalidateIntrinsicContentSize()
-        trailingItems.forEach { $0.customView?.invalidateIntrinsicContentSize() }
-        leadingHost.invalidateIntrinsicContentSize()
-        leadingSizedHost.invalidateIntrinsicContentSize()
-        leadingHost.setNeedsLayout()
+        guard !isUpdatingModel else { return }
+        // Do not initialize unused custom controls while updating native items.
+        item?.titleView?.invalidateIntrinsicContentSize()
+        renderedTrailingItems.compactMap { $0?.customView }.forEach {
+            $0.invalidateIntrinsicContentSize()
+        }
+        item?.leftBarButtonItem?.customView?.invalidateIntrinsicContentSize()
+        item?.leftBarButtonItem?.customView?.setNeedsLayout()
         navigationBar?.setNeedsLayout()
+    }
+
+    private func makeTitleHost(_ content: UIView) -> UIView {
+        NativeHeaderTitleView(content: content)
     }
 
     private func makeBarItem(_ view: UIView) -> UIBarButtonItem {
@@ -416,6 +494,119 @@ public final class NavigationItemHeaderOutput: HeaderOutput {
         NSLayoutConstraint.activate(constraints)
         return constraints
     }
+}
+
+/// UIKit moves this item between horizontal and vertical bars. Only its label
+/// adapts to the system bar environment; there are no device or width checks.
+private final class AdaptiveHeaderButton: UIButton {
+    private let headerTitle: String
+    private let headerImage: UIImage
+    private var configuredVerticalBar: Bool?
+    private var configuredFont: UIFont?
+    var titleFont: UIFont? {
+        didSet { setNeedsUpdateConfiguration() }
+    }
+
+    init(title: String, image: UIImage, font: UIFont?, action: UIAction) {
+        headerTitle = title
+        headerImage = image
+        titleFont = font
+        super.init(frame: .zero)
+        addAction(action, for: .touchUpInside)
+        #if os(iOS)
+        if #available(iOS 27.1, *) {
+            registerForTraitChanges(UITraitCollection.systemTraitsAffectingVerticalBarEdge) {
+                (button: AdaptiveHeaderButton, _: UITraitCollection) in
+                button.setNeedsUpdateConfiguration()
+            }
+        }
+        #endif
+        updateConfiguration()
+    }
+
+    override func didMoveToWindow() {
+        super.didMoveToWindow()
+        setNeedsUpdateConfiguration()
+    }
+
+    override func updateConfiguration() {
+        super.updateConfiguration()
+        var usesVerticalBar = false
+        #if os(iOS)
+        if #available(iOS 27.1, *) {
+            usesVerticalBar = traitCollection.verticalBarEdge != .unspecified
+        }
+        #endif
+        guard configuredVerticalBar != usesVerticalBar || configuredFont != titleFont else { return }
+        configuredVerticalBar = usesVerticalBar
+        configuredFont = titleFont
+        var config = UIButton.Configuration.plain()
+        config.image = headerImage
+        config.title = usesVerticalBar ? nil : headerTitle
+        config.imagePadding = usesVerticalBar ? 0 : 8
+        config.contentInsets = .init(top: 11, leading: 11, bottom: 11, trailing: 11)
+        if let titleFont {
+            config.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { incoming in
+                var outgoing = incoming
+                outgoing.font = titleFont
+                return outgoing
+            }
+        }
+        configuration = config
+    }
+
+    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
+}
+
+/// Centers content inside the title slot allocated by UIKit. The screen's center
+/// can lie outside that slot when the native bar groups its trailing controls.
+private final class NativeHeaderTitleView: UIView {
+    private let content: UIView
+    private var contentWidth: NSLayoutConstraint!
+    private var measuredSize: CGSize?
+
+    init(content: UIView) {
+        self.content = content
+        super.init(frame: .zero)
+        addSubview(content)
+        content.translatesAutoresizingMaskIntoConstraints = false
+        contentWidth = content.widthAnchor.constraint(equalToConstant: 0)
+        NSLayoutConstraint.activate([
+            contentWidth, content.centerXAnchor.constraint(equalTo: centerXAnchor),
+            content.centerYAnchor.constraint(equalTo: centerYAnchor)
+        ])
+    }
+
+    private var naturalSize: CGSize {
+        if let measuredSize { return measuredSize }
+        contentWidth.isActive = false
+        let size = content.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize)
+        contentWidth.isActive = true
+        measuredSize = size
+        return size
+    }
+
+    override var intrinsicContentSize: CGSize {
+        CGSize(width: UIView.layoutFittingExpandedSize.width, height: naturalSize.height)
+    }
+
+    override func sizeThatFits(_ size: CGSize) -> CGSize {
+        CGSize(width: size.width, height: naturalSize.height)
+    }
+
+    override func invalidateIntrinsicContentSize() {
+        measuredSize = nil
+        super.invalidateIntrinsicContentSize()
+        setNeedsLayout()
+    }
+
+    override func layoutSubviews() {
+        let width = min(naturalSize.width, max(0, bounds.width))
+        if contentWidth.constant != width { contentWidth.constant = width }
+        super.layoutSubviews()
+    }
+
+    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 }
 
 /// Exposes Auto Layout content size to UINavigationBar without fixing the bar's
