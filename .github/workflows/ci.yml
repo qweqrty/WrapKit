@@ -176,6 +176,90 @@ jobs:
           if-no-files-found: ignore
           retention-days: 10
 
+  # SwiftUI app all platform build job
+  swiftui-app-platform-build:
+    runs-on: macos-26
+    continue-on-error: true
+    env:
+      TUIST_VERSION: "4.38.2"
+      TUIST_SHA256: "14af45d18de9d3834ea32d4c9e572f8a69bf2c603963e950f4febbf5234d3b30"
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v5
+
+      - name: Select Xcode
+        run: |
+          sudo xcode-select -s /Applications/Xcode_26.6.app
+          xcodebuild -version
+
+      - name: Install Tools
+        run: |
+          brew install sourcery
+
+          tuist_archive="$RUNNER_TEMP/tuist.zip"
+          tuist_directory="$RUNNER_TEMP/tuist-$TUIST_VERSION"
+          curl -fsSL \
+            "https://github.com/tuist/tuist/releases/download/$TUIST_VERSION/tuist.zip" \
+            -o "$tuist_archive"
+          echo "$TUIST_SHA256  $tuist_archive" | shasum -a 256 -c -
+          rm -rf "$tuist_directory"
+          mkdir -p "$tuist_directory"
+          unzip -q "$tuist_archive" -d "$tuist_directory"
+          chmod +x "$tuist_directory/tuist"
+          sudo rm -f /opt/homebrew/bin/tuist
+          sudo ln -s "$tuist_directory/tuist" /opt/homebrew/bin/tuist
+          tuist version
+
+      - name: Generate project
+        run: make project
+
+      - name: Build SwiftUIApp for all platforms
+        run: |
+          dest_for() {
+            case "$1" in
+              iOS)         echo "generic/platform=iOS" ;;
+              macCatalyst) echo "generic/platform=macOS,variant=Mac Catalyst" ;;
+              macOS)       echo "generic/platform=macOS" ;;
+              tvOS)        echo "generic/platform=tvOS" ;;
+              watchOS)     echo "generic/platform=watchOS" ;;
+              visionOS)    echo "generic/platform=visionOS" ;;
+            esac
+          }
+          FAILED=""
+          for p in iOS macCatalyst macOS tvOS watchOS visionOS; do
+            echo "───────────── SwiftUIApp / $p"
+            LOG="build-swiftuiapp-$p.log"
+            START=$(date +%s)
+            if xcodebuild build \
+                 -workspace Wrapkit.xcworkspace \
+                 -scheme SwiftUIApp \
+                 -destination "$(dest_for $p)" \
+                 -derivedDataPath "$RUNNER_TEMP/dd/swiftuiapp" \
+                 -skipPackagePluginValidation -skipMacroValidation \
+                 -quiet CODE_SIGNING_ALLOWED=NO > "$LOG" 2>&1; then
+              echo "SwiftUIApp $p ✅ $(( $(date +%s) - START ))s"
+              rm -f "$LOG"
+            else
+              echo "SwiftUIApp $p ❌ $(( $(date +%s) - START ))s"
+              grep "error:" "$LOG" | sort -u | head -50 || true
+              FAILED="$FAILED $p"
+            fi
+          done
+          if [ -n "$FAILED" ]; then
+            echo "::warning::SwiftUIApp не собрался на:$FAILED. Ошибки выше в логе шага, полные логи в артефакте swiftui-app-build-logs."
+          else
+            echo "SwiftUIApp собрался на всех 6 платформах."
+          fi
+
+      - name: Upload SwiftUIApp build logs
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: swiftui-app-build-logs
+          path: build-swiftuiapp-*.log
+          if-no-files-found: ignore
+          retention-days: 10
+
   generate-build-test:
     runs-on: ${{ matrix.test_destination.runner }}
     strategy:
