@@ -50,5 +50,9 @@
 	<string>$(LAUNCHSCREEN_NAME)</string>
 	<key>UIRequiresFullScreen</key>
 	<true/>
+	<key>WKApplication</key>
+	<true/>
+	<key>WKWatchOnly</key>
+	<true/>
 </dict>
 </plist>
