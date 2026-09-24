@@ -8,6 +8,7 @@
 import WrapKit
 import WrapKitTestUtils
 import XCTest
+import UIKit
 
 class NavigationBarSnapshotTests: XCTestCase {
     
@@ -394,7 +395,7 @@ class NavigationBarSnapshotTests: XCTestCase {
             })
         ))
         
-        sut.secondaryTrailingImageWrapperView.contentView.onPress?()
+        findView(Button.self, in: sut.topItem?.rightBarButtonItems?.last?.customView)?.onPress?()
         
         // THEN
         if #available(iOS 26, *) {
@@ -432,7 +433,7 @@ class NavigationBarSnapshotTests: XCTestCase {
             })
         ))
         
-        sut.secondaryTrailingImageWrapperView.contentView.onPress?()
+        findView(Button.self, in: sut.topItem?.rightBarButtonItems?.last?.customView)?.onPress?()
         
         // THEN
         if #available(iOS 26, *) {
@@ -466,7 +467,6 @@ class NavigationBarSnapshotTests: XCTestCase {
             image: image
         )))
         
-        sut.secondaryTrailingImageWrapperView.contentView.onPress?()
         
         // THEN
         if #available(iOS 26, *) {
@@ -501,7 +501,6 @@ class NavigationBarSnapshotTests: XCTestCase {
             height: 24,
         )))
         
-        sut.secondaryTrailingImageWrapperView.contentView.onPress?()
         
         // THEN
         if #available(iOS 26, *) {
@@ -538,7 +537,7 @@ class NavigationBarSnapshotTests: XCTestCase {
             }
         )))
         
-        sut.tertiaryTrailingImageWrapperView.contentView.onPress?()
+        findView(Button.self, in: sut.topItem?.rightBarButtonItems?.first?.customView)?.onPress?()
         
         // THEN
         if #available(iOS 26, *) {
@@ -576,7 +575,7 @@ class NavigationBarSnapshotTests: XCTestCase {
             }
         )))
         
-        sut.tertiaryTrailingImageWrapperView.contentView.onPress?()
+        findView(Button.self, in: sut.topItem?.rightBarButtonItems?.first?.customView)?.onPress?()
         
         // THEN
         if #available(iOS 26, *) {
@@ -622,7 +621,7 @@ class NavigationBarSnapshotTests: XCTestCase {
             })
         ))
         
-        sut.secondaryTrailingImageWrapperView.contentView.onPress?()
+        findView(Button.self, in: sut.topItem?.rightBarButtonItems?.last?.customView)?.onPress?()
         
         // THEN
         if #available(iOS 26, *) {
@@ -670,7 +669,7 @@ class NavigationBarSnapshotTests: XCTestCase {
             })
         ))
         
-        sut.secondaryTrailingImageWrapperView.contentView.onPress?()
+        findView(Button.self, in: sut.topItem?.rightBarButtonItems?.last?.customView)?.onPress?()
         
         // THEN
         if #available(iOS 26, *) {
@@ -1260,7 +1259,7 @@ class NavigationBarSnapshotTests: XCTestCase {
             )
         )
         
-        sut.leadingCardView.onPress?()
+        findView(CardView.self, in: sut.topItem?.leftBarButtonItem?.customView)?.onPress?()
         
         // THEN
         if #available(iOS 26, *) {
@@ -1298,7 +1297,7 @@ class NavigationBarSnapshotTests: XCTestCase {
             )
         )
         
-        sut.leadingCardView.onPress?()
+        findView(CardView.self, in: sut.topItem?.leftBarButtonItem?.customView)?.onPress?()
         
         // THEN
         if #available(iOS 26, *) {
@@ -1336,7 +1335,7 @@ class NavigationBarSnapshotTests: XCTestCase {
             )
         )
         
-        sut.leadingCardView.onLongPress?()
+        findView(CardView.self, in: sut.topItem?.leftBarButtonItem?.customView)?.onLongPress?()
         
         // THEN
         if #available(iOS 26, *) {
@@ -1374,7 +1373,7 @@ class NavigationBarSnapshotTests: XCTestCase {
             )
         )
         
-        sut.leadingCardView.onLongPress?()
+        findView(CardView.self, in: sut.topItem?.leftBarButtonItem?.customView)?.onLongPress?()
         
         // THEN
         if #available(iOS 26, *) {
@@ -1409,7 +1408,7 @@ class NavigationBarSnapshotTests: XCTestCase {
             )
         )
         
-        sut.leadingCardView.onPress?()
+        findView(CardView.self, in: sut.topItem?.leftBarButtonItem?.customView)?.onPress?()
         
         // THEN
         if #available(iOS 26, *) {
@@ -1426,9 +1425,10 @@ extension NavigationBarSnapshotTests {
     func makeSUT(
         file: StaticString = #file,
         line: UInt = #line
-    ) -> (sut: NavigationBar, container: UIView) {
-        let sut = NavigationBar()
+    ) -> (sut: UINavigationBar, container: UIView) {
+        let sut = UINavigationBar()
         let container = makeContainer()
+        sut.constrainHeight(sut.sizeThatFits(container.bounds.size).height)
         
         container.addSubview(sut)
         sut.anchor(
@@ -1449,4 +1449,10 @@ extension NavigationBarSnapshotTests {
         container.backgroundColor = .clear
         return container
     }
+}
+
+private func findView<T: UIView>(_ type: T.Type, in root: UIView?) -> T? {
+    guard let root else { return nil }
+    if let view = root as? T { return view }
+    return root.subviews.lazy.compactMap { findView(type, in: $0) }.first
 }

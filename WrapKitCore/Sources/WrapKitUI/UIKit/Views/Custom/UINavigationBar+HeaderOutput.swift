@@ -4,15 +4,42 @@ import ObjectiveC
 
 private var nativeHeaderStateKey: UInt8 = 0
 
+public extension UIViewController {
+    /// Retained by this screen's navigation item; safe to bind before push.
+    var headerOutput: NavigationItemHeaderOutput {
+        let output = navigationItem.nativeHeaderOutput
+        output.viewController = self
+        output.navigationBar = navigationController?.navigationBar
+        return output
+    }
+
+    /// Restores this screen's visibility without installing a navigation delegate.
+    func activateNavigationHeader(animated: Bool = false) {
+        guard let navigationController else { return }
+        if objc_getAssociatedObject(navigationItem, &nativeHeaderStateKey) == nil {
+            // Keep headerless screens hidden, including cancelled interactive pops.
+            headerOutput.display(isHidden: true)
+        }
+        navigationController.navigationBar.activateHeader(for: self, animated: animated)
+    }
+}
+
 extension UINavigationBar: HeaderOutput {
     /// For a standalone bar, display methods create an item if necessary.
     /// In a navigation controller, bind the presenter using `headerOutput(for:)`
     /// so updates from an inactive screen cannot change the visible screen.
-    private var currentHeaderOutput: NativeHeaderOutput {
+    private var currentHeaderOutput: NavigationItemHeaderOutput {
         if let item = topItem { return item.nativeHeaderOutput }
         let item = UINavigationItem()
         setItems([item], animated: false)
         return item.nativeHeaderOutput
+    }
+
+    /// Available before the first title model, so a factory can wire an existing shimmer.
+    public var headerTitleLabel: Label { currentHeaderOutput.headerTitleLabel }
+
+    public func display(primeTrailingMenu menu: UIMenu?) {
+        currentHeaderOutput.display(primeTrailingMenu: menu)
     }
 
     /// The navigation item retains the output, including when the presenter uses
@@ -37,8 +64,8 @@ extension UINavigationBar: HeaderOutput {
                 guard context.isCancelled,
                       let restored = context.viewController(forKey: .from),
                       let self else { return }
-                let restoredOutput = restored.navigationItem.nativeHeaderOutput
-                navigationController.setNavigationBarHidden(restoredOutput.hidden, animated: true)
+                let restoredOutput = objc_getAssociatedObject(restored.navigationItem, &nativeHeaderStateKey) as? NavigationItemHeaderOutput
+                navigationController.setNavigationBarHidden(restoredOutput?.hidden ?? true, animated: true)
                 self.setNeedsLayout()
             }
         } else {
@@ -82,17 +109,17 @@ extension UINavigationBar: HeaderOutput {
 }
 
 private extension UINavigationItem {
-    var nativeHeaderOutput: NativeHeaderOutput {
-        if let output = objc_getAssociatedObject(self, &nativeHeaderStateKey) as? NativeHeaderOutput {
+    var nativeHeaderOutput: NavigationItemHeaderOutput {
+        if let output = objc_getAssociatedObject(self, &nativeHeaderStateKey) as? NavigationItemHeaderOutput {
             return output
         }
-        let output = NativeHeaderOutput(item: self)
+        let output = NavigationItemHeaderOutput(item: self)
         objc_setAssociatedObject(self, &nativeHeaderStateKey, output, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         return output
     }
 }
 
-private final class NativeHeaderOutput: HeaderOutput {
+public final class NavigationItemHeaderOutput: HeaderOutput {
     weak var viewController: UIViewController?
     weak var navigationBar: UINavigationBar?
     private weak var item: UINavigationItem?
@@ -102,6 +129,18 @@ private final class NativeHeaderOutput: HeaderOutput {
         keyLabel: Label(font: .systemFont(ofSize: 18), textColor: .black, textAlignment: .center, numberOfLines: 1),
         valueLabel: Label(isHidden: true, font: .systemFont(ofSize: 14), textColor: .black, textAlignment: .center, numberOfLines: 1)
     )
+    public var headerTitleLabel: Label { titles.keyLabel }
+
+    public func display(primeTrailingMenu menu: UIMenu?) {
+        primeTrailingMenu = menu
+        renderedTrailingItems[0]?.menu = menu
+        if renderedTrailingItems[0]?.customView == nil {
+            renderedTrailingItems[0]?.primaryAction = menu == nil ? primeTrailingAction : nil
+        }
+        buttons[0].menu = menu
+        buttons[0].showsMenuAsPrimaryAction = menu != nil
+    }
+
     private let titledImage: TitledView<WrapperView<ImageView>> = {
         let view = TitledView(contentView: WrapperView(
             contentView: ImageView(),
@@ -123,7 +162,6 @@ private final class NativeHeaderOutput: HeaderOutput {
         view.subtitleLabel.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
         return view
     }()
-    private let trailing = UIStackView()
     private let buttons: [Button] = (0..<3).map { _ in
         let button = Button(contentInset: isAvailableOS26 && isLiquidGlassEnabled
             ? .init(top: 11, left: 11, bottom: 11, right: 11)
@@ -138,14 +176,20 @@ private final class NativeHeaderOutput: HeaderOutput {
         return button
     }
     private var visibleButtons = [false, false, false]
+    private var renderedTrailingItems: [UIBarButtonItem?] = [nil, nil, nil]
+    private var primeTrailingAction: UIAction?
+    private var primeTrailingMenu: UIMenu?
+    private var primeColor: UIColor?
+    private var hasCustomLeadingStyle = false
+    private var hasCustomButtonStyle = [false, false, false]
+
     private var cardConstraints: [NSLayoutConstraint] = []
     private lazy var titleHost = NativeHeaderContentView(content: titles)
     private lazy var imageHost = NativeHeaderContentView(content: titledImage)
-    private lazy var trailingHost = NativeHeaderContentView(content: trailing)
     private let leadingHost = UIView()
     private lazy var leadingSizedHost = NativeHeaderContentView(content: leadingHost)
     private lazy var leadingItem = makeBarItem(leadingSizedHost)
-    private lazy var trailingItem = makeBarItem(trailingHost)
+    private lazy var trailingItems = buttons.map { makeBarItem(NativeHeaderContentView(content: $0)) }
     private lazy var glass: UIView = {
         #if os(iOS)
         if #available(iOS 26, *) {
@@ -164,13 +208,10 @@ private final class NativeHeaderOutput: HeaderOutput {
         item.hidesBackButton = true
         item.largeTitleDisplayMode = .never
         item.titleView = UIView()
-        trailing.axis = .horizontal
-        trailing.alignment = .center
-        trailing.spacing = 12
-        buttons.forEach { trailing.addArrangedSubview($0) }
+        item.leftItemsSupplementBackButton = false
     }
 
-    func display(model: HeaderPresentableModel?) {
+    public func display(model: HeaderPresentableModel?) {
         display(isHidden: model == nil)
         guard let model else { return }
         // Preserve the legacy renderer's styling precedence.
@@ -182,7 +223,7 @@ private final class NativeHeaderOutput: HeaderOutput {
         display(tertiaryTrailingImage: model.tertiaryTrailingImage)
     }
 
-    func display(style: HeaderPresentableModel.Style?) {
+    public func display(style: HeaderPresentableModel.Style?) {
         guard let style else { return }
         let appearance = UINavigationBarAppearance()
         appearance.configureWithOpaqueBackground()
@@ -192,7 +233,9 @@ private final class NativeHeaderOutput: HeaderOutput {
         item?.scrollEdgeAppearance = appearance
         item?.compactAppearance = appearance
         item?.compactScrollEdgeAppearance = appearance
-        trailing.spacing = style.horizontalSpacing * 1.5
+        primeColor = style.primeColor
+        item?.leftBarButtonItem?.tintColor = style.primeColor
+        renderedTrailingItems.compactMap { $0 }.forEach { $0.tintColor = style.primeColor }
         card.leadingImageView.tintColor = style.primeColor
         buttons.forEach { $0.tintColor = style.primeColor }
         card.titleViews.keyLabel.font = style.primeFont
@@ -205,7 +248,7 @@ private final class NativeHeaderOutput: HeaderOutput {
         invalidateLayout()
     }
 
-    func display(centerView: HeaderPresentableModel.CenterView?) {
+    public func display(centerView: HeaderPresentableModel.CenterView?) {
         switch centerView {
         case .keyValue(let pair):
             titles.display(model: pair)
@@ -222,10 +265,36 @@ private final class NativeHeaderOutput: HeaderOutput {
         invalidateLayout()
     }
 
-    func display(leadingCard: CardViewPresentableModel?) {
+    public func display(leadingCard: CardViewPresentableModel?) {
+        if leadingCard?.style != nil { hasCustomLeadingStyle = true }
         card.display(model: leadingCard)
         guard leadingCard != nil else {
             item?.leftBarButtonItem = nil
+            return
+        }
+        // A simple back/close icon is a native action, so UIKit can relocate it.
+        // Rich cards retain the existing renderer and all their callbacks.
+        if let model = leadingCard,
+           model.title == nil, model.leadingTitles == nil, model.trailingTitles == nil,
+           model.subTitle == nil, model.valueTitle == nil, model.backgroundImage == nil,
+           model.secondaryLeadingImage == nil, model.trailingImage == nil,
+           model.secondaryTrailingImage == nil, model.bottomImage == nil,
+           model.bottomSeparator == nil, model.switchControl == nil,
+           !hasCustomLeadingStyle, !model.isGradientBorderEnabled,
+           model.onLongPress == nil, model.leadingImage?.onLongPress == nil,
+           case let .asset(image)? = model.leadingImage?.image, let image {
+            let action = UIAction(
+                title: model.accessibility?.label ?? model.leadingImage?.accessibility?.label ?? "",
+                image: image
+            ) { _ in (model.onPress ?? model.leadingImage?.onPress)?() }
+            let nativeItem = UIBarButtonItem(primaryAction: action)
+            nativeItem.tintColor = primeColor
+            nativeItem.isEnabled = model.isUserInteractionEnabled ?? true
+            nativeItem.accessibilityIdentifier = model.accessibilityIdentifier
+            nativeItem.accessibilityLabel = model.accessibility?.label ?? model.leadingImage?.accessibility?.label
+            nativeItem.accessibilityHint = model.accessibility?.hint
+            item?.leftBarButtonItem = nativeItem
+            invalidateLayout()
             return
         }
         NSLayoutConstraint.deactivate(cardConstraints)
@@ -243,29 +312,72 @@ private final class NativeHeaderOutput: HeaderOutput {
         }
         parent.addSubview(card)
         cardConstraints += pin(card, to: parent)
+        leadingItem.title = leadingCard?.accessibility?.label
+        leadingItem.accessibilityIdentifier = leadingCard?.accessibilityIdentifier
+        #if os(iOS)
+        if #available(iOS 27.1, *) {
+            let size = leadingSizedHost.intrinsicContentSize
+            leadingItem.axisBehavior = size.width <= 44 && size.height <= 44
+                ? .verticalPreferred : .horizontalOnly
+        }
+        #endif
         item?.leftBarButtonItem = leadingItem
         invalidateLayout()
     }
 
-    func display(primeTrailingImage: ButtonPresentableModel?) { display(button: primeTrailingImage, at: 0) }
-    func display(secondaryTrailingImage: ButtonPresentableModel?) { display(button: secondaryTrailingImage, at: 1) }
-    func display(tertiaryTrailingImage: ButtonPresentableModel?) { display(button: tertiaryTrailingImage, at: 2) }
+    public func display(primeTrailingImage: ButtonPresentableModel?) { display(button: primeTrailingImage, at: 0) }
+    public func display(secondaryTrailingImage: ButtonPresentableModel?) { display(button: secondaryTrailingImage, at: 1) }
+    public func display(tertiaryTrailingImage: ButtonPresentableModel?) { display(button: tertiaryTrailingImage, at: 2) }
 
     private func display(button: ButtonPresentableModel?, at index: Int) {
         visibleButtons[index] = button != nil
+        if button?.style != nil { hasCustomButtonStyle[index] = true }
         buttons[index].display(model: button)
         buttons[index].isHidden = button == nil
-        // One group preserves prime/secondary/tertiary order and model spacing.
-        item?.rightBarButtonItem = visibleButtons.contains(true) ? trailingItem : nil
+        let barItem: UIBarButtonItem
+        if let model = button, !hasCustomButtonStyle[index], model.height == nil, model.width == nil, model.spacing == nil {
+            let action = UIAction(title: model.title ?? model.accessibility?.label ?? "", image: model.image) { _ in
+                model.onPress?()
+            }
+            let native = UIBarButtonItem(primaryAction: action)
+            native.tintColor = primeColor
+            native.isEnabled = buttons[index].isEnabled
+            native.accessibilityLabel = model.accessibility?.label
+            native.accessibilityHint = model.accessibility?.hint
+            barItem = native
+        } else {
+            barItem = trailingItems[index]
+        }
+        renderedTrailingItems[index] = button == nil ? nil : barItem
+        if index == 0 {
+            primeTrailingAction = barItem.primaryAction
+            barItem.menu = primeTrailingMenu
+            if primeTrailingMenu != nil { barItem.primaryAction = nil }
+        }
+        barItem.title = button?.title ?? button?.accessibility?.label
+        barItem.accessibilityIdentifier = button?.accessibilityIdentifier
+        #if os(iOS)
+        if #available(iOS 27.1, *) {
+            // Text and wide custom controls stay horizontal. Compact icon controls
+            // can participate independently in the system's vertical bar.
+            let size = buttons[index].systemLayoutSizeFitting(UIView.layoutFittingCompressedSize)
+            if barItem.customView != nil {
+                barItem.axisBehavior = button?.title == nil && size.width <= 44 && size.height <= 44
+                    ? .verticalPreferred : .horizontalOnly
+            }
+        }
+        #endif
+        // UIKit lists trailing items from the outer edge inward.
+        item?.rightBarButtonItems = renderedTrailingItems.reversed().compactMap { $0 }
         invalidateLayout()
     }
 
-    func display(isHidden: Bool) {
+    public func display(isHidden: Bool) {
         hidden = isHidden
         if let controller = viewController {
             guard let navigationController = controller.navigationController,
-                  navigationController.topViewController === controller,
-                  navigationController.navigationBar === navigationBar else { return }
+                  navigationController.topViewController === controller else { return }
+            navigationBar = navigationController.navigationBar
             navigationController.setNavigationBarHidden(isHidden, animated: false)
         } else if navigationBar?.topItem === item {
             navigationBar?.isHidden = isHidden
@@ -275,7 +387,7 @@ private final class NativeHeaderOutput: HeaderOutput {
     private func invalidateLayout() {
         titleHost.invalidateIntrinsicContentSize()
         imageHost.invalidateIntrinsicContentSize()
-        trailingHost.invalidateIntrinsicContentSize()
+        trailingItems.forEach { $0.customView?.invalidateIntrinsicContentSize() }
         leadingHost.invalidateIntrinsicContentSize()
         leadingSizedHost.invalidateIntrinsicContentSize()
         leadingHost.setNeedsLayout()
