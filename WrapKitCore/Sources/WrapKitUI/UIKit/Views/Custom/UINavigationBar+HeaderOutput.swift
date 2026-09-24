@@ -300,7 +300,7 @@ public final class NavigationItemHeaderOutput: HeaderOutput {
         // A simple back/close icon is a native action, so UIKit can relocate it.
         // Rich cards retain the existing renderer and all their callbacks.
         if let model = leadingCard,
-           isPlainTitle(model.title), model.leadingTitles == nil, model.trailingTitles == nil,
+           isAdaptiveTitle(model.title), model.leadingTitles == nil, model.trailingTitles == nil,
            model.subTitle == nil, model.valueTitle == nil, model.backgroundImage == nil,
            model.secondaryLeadingImage == nil, model.trailingImage == nil,
            model.secondaryTrailingImage == nil, model.bottomImage == nil,
@@ -315,7 +315,7 @@ public final class NavigationItemHeaderOutput: HeaderOutput {
             let nativeItem: UIBarButtonItem
             if let title = model.title?.model?.text, !title.isEmpty {
                 let button = AdaptiveHeaderButton(
-                    title: title, image: image, font: headerStyle?.primeFont, action: action
+                    title: title, textModel: model.title?.model, image: image, font: headerStyle?.primeFont, action: action
                 )
                 button.tintColor = primeColor
                 button.isEnabled = model.isUserInteractionEnabled ?? true
@@ -372,10 +372,19 @@ public final class NavigationItemHeaderOutput: HeaderOutput {
     public func display(secondaryTrailingImage: ButtonPresentableModel?) { display(button: secondaryTrailingImage, at: 1) }
     public func display(tertiaryTrailingImage: ButtonPresentableModel?) { display(button: tertiaryTrailingImage, at: 2) }
 
-    private func isPlainTitle(_ title: TextOutputPresentableModel?) -> Bool {
+    private func isAdaptiveTitle(_ title: TextOutputPresentableModel?) -> Bool {
         guard let model = title?.model else { return true }
-        if case .text = model { return true }
-        return false
+        switch model {
+        case .text:
+            return true
+        case .attributes(let attributes):
+            // Keep independently tappable spans and attachments in CardView.
+            return attributes.allSatisfy {
+                $0.onTap == nil && $0.leadingImage == nil && $0.trailingImage == nil
+            }
+        default:
+            return false
+        }
     }
 
     private func display(button: ButtonPresentableModel?, at index: Int) {
@@ -500,15 +509,18 @@ public final class NavigationItemHeaderOutput: HeaderOutput {
 /// adapts to the system bar environment; there are no device or width checks.
 private final class AdaptiveHeaderButton: UIButton {
     private let headerTitle: String
+    private let textModel: TextOutputPresentableModel.TextModel?
     private let headerImage: UIImage
     private var configuredVerticalBar: Bool?
     private var configuredFont: UIFont?
+    private var configuredTintColor: UIColor?
     var titleFont: UIFont? {
         didSet { setNeedsUpdateConfiguration() }
     }
 
-    init(title: String, image: UIImage, font: UIFont?, action: UIAction) {
+    init(title: String, textModel: TextOutputPresentableModel.TextModel?, image: UIImage, font: UIFont?, action: UIAction) {
         headerTitle = title
+        self.textModel = textModel
         headerImage = image
         titleFont = font
         super.init(frame: .zero)
@@ -524,6 +536,11 @@ private final class AdaptiveHeaderButton: UIButton {
         updateConfiguration()
     }
 
+    override func tintColorDidChange() {
+        super.tintColorDidChange()
+        setNeedsUpdateConfiguration()
+    }
+
     override func didMoveToWindow() {
         super.didMoveToWindow()
         setNeedsUpdateConfiguration()
@@ -537,15 +554,23 @@ private final class AdaptiveHeaderButton: UIButton {
             usesVerticalBar = traitCollection.verticalBarEdge != .unspecified
         }
         #endif
-        guard configuredVerticalBar != usesVerticalBar || configuredFont != titleFont else { return }
+        guard configuredVerticalBar != usesVerticalBar || configuredFont != titleFont
+                || configuredTintColor != tintColor else { return }
         configuredVerticalBar = usesVerticalBar
         configuredFont = titleFont
+        configuredTintColor = tintColor
         var config = UIButton.Configuration.plain()
         config.image = headerImage
         config.title = usesVerticalBar ? nil : headerTitle
         config.imagePadding = usesVerticalBar ? 0 : 8
         config.contentInsets = .init(top: 11, leading: 11, bottom: 11, trailing: 11)
-        if let titleFont {
+        if !usesVerticalBar, case .attributes(var attributes)? = textModel {
+            config.title = nil
+            config.attributedTitle = AttributedString(attributes.makeNSAttributedString(
+                font: titleFont ?? .systemFont(ofSize: 18),
+                textColor: tintColor ?? .label
+            ))
+        } else if let titleFont {
             config.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { incoming in
                 var outgoing = incoming
                 outgoing.font = titleFont
