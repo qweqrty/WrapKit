@@ -51,18 +51,14 @@ open class ViewController<ContentView: UIView>: UIViewController, LifeCycleViewO
     // MARK: - View Controller Lifecycle
     open override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        navigationController?.setNavigationBarHidden(true, animated: false)
-        #if !os(tvOS)
         interactivePopGestureRecognizer = navigationController?.interactivePopGestureRecognizer?.delegate
         navigationController?.interactivePopGestureRecognizer?.delegate = nil
-        #endif
+        activateNavigationHeader(animated: animated)
         LifeCycleViewOutput?.viewWillAppear()
     }
 
     open override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        navigationController?.setNavigationBarHidden(true, animated: false)
-        #if !os(tvOS)
         navigationController?.interactivePopGestureRecognizer?.delegate = interactivePopGestureRecognizer
         #endif
         LifeCycleViewOutput?.viewWillDisappear()
