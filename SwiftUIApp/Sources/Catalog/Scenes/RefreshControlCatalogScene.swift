@@ -4,6 +4,7 @@ import WrapKit
 
 enum RefreshControlCatalogSceneFactory {
     static func make(onBack: @escaping () -> Void) -> AnyView {
+        #if os(iOS) || targetEnvironment(macCatalyst)
         let chrome = CatalogChromeAdapters()
         let adapters = RefreshControlCatalogAdapters()
         let presenter = RefreshControlCatalogPresenter(onBack: onBack)
@@ -23,9 +24,13 @@ enum RefreshControlCatalogSceneFactory {
             chrome: chrome,
             adapters: adapters
         ))
+        #else
+        return CatalogUnsupportedSceneFactory.make(title: "RefreshControlOutput", onBack: onBack)
+        #endif
     }
 }
 
+#if os(iOS) || targetEnvironment(macCatalyst)
 private final class RefreshControlCatalogAdapters {
     let status = TextOutputSwiftUIAdapter()
     let refresh = RefreshControlOutputSwiftUIAdapter()
@@ -243,3 +248,4 @@ private struct RefreshControlCatalogView: View {
         }
     }
 }
+#endif

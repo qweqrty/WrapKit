@@ -1168,7 +1168,9 @@ private struct TableCatalogScene: View {
                 )
                 .environment(\.editMode, $editModeState.editMode)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
+                #if os(iOS) || targetEnvironment(macCatalyst)
                 .refreshControl(adapter: adapters.refresh)
+                #endif
             }
             .background(SwiftUIColor(.systemGroupedBackground))
             .navigationBarHidden(true)
