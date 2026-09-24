@@ -6,6 +6,7 @@ enum TextOutputCatalogSceneFactory {
         onBack: @escaping () -> Void,
         selectionFlow: any SelectionFlow
     ) -> AnyView {
+        #if !os(tvOS)
         let adapters = TextOutputCatalogAdapters()
         let chrome = CatalogChromeAdapters()
         let presenter = TextOutputCatalogPresenter(
@@ -32,9 +33,13 @@ enum TextOutputCatalogSceneFactory {
                 chrome: chrome
             )
         )
+        #else
+        return CatalogUnsupportedSceneFactory.make(title: "TextOutput", onBack: onBack)
+        #endif
     }
 }
 
+#if !os(tvOS)
 private final class TextOutputCatalogPresenter: LifeCycleViewOutput {
     var headerOutput: HeaderOutput?
     var stackOutput: StackViewOutput?
@@ -447,3 +452,4 @@ private struct TextOutputCatalogView: View {
         }
     }
 }
+#endif

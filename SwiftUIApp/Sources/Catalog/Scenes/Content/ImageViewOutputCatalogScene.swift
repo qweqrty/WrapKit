@@ -3,6 +3,7 @@ import WrapKit
 
 enum ImageViewOutputCatalogSceneFactory {
     static func make(onBack: @escaping () -> Void) -> AnyView {
+        #if !os(tvOS)
         let adapters = ImageViewOutputCatalogAdapters()
         let chrome = CatalogChromeAdapters()
         let presenter = ImageViewOutputCatalogPresenter(onBack: onBack)
@@ -25,9 +26,13 @@ enum ImageViewOutputCatalogSceneFactory {
                 chrome: chrome
             )
         )
+        #else
+        return CatalogUnsupportedSceneFactory.make(title: "ImageViewOutput", onBack: onBack)
+        #endif
     }
 }
 
+#if !os(tvOS)
 private final class ImageViewOutputCatalogPresenter: LifeCycleViewOutput {
     var headerOutput: HeaderOutput?
     var stackOutput: StackViewOutput?
@@ -314,3 +319,4 @@ private struct ImageViewOutputCatalogView: View {
         }
     }
 }
+#endif

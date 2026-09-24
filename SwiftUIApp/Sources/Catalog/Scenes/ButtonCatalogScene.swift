@@ -3,6 +3,7 @@ import WrapKit
 
 enum ButtonCatalogSceneFactory {
     static func make(onBack: @escaping () -> Void) -> AnyView {
+        #if !os(tvOS)
         let chrome = CatalogChromeAdapters()
         let adapters = ButtonCatalogAdapters()
         let presenter = ButtonCatalogPresenter(onBack: onBack)
@@ -22,9 +23,13 @@ enum ButtonCatalogSceneFactory {
             chrome: chrome,
             adapters: adapters
         ))
+        #else
+        return CatalogUnsupportedSceneFactory.make(title: "ButtonOutput", onBack: onBack)
+        #endif
     }
 }
 
+#if !os(tvOS)
 private final class ButtonCatalogAdapters {
     let status = TextOutputSwiftUIAdapter()
     let primaryButton = ButtonOutputSwiftUIAdapter()
@@ -236,3 +241,4 @@ private struct ButtonCatalogView: View {
         }
     }
 }
+#endif

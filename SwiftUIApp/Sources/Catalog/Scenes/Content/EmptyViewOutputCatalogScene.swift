@@ -7,6 +7,7 @@ enum EmptyViewOutputCatalogSceneFactory {
         onBack: @escaping () -> Void,
         selectionFlow: any SelectionFlow
     ) -> AnyView {
+        #if !os(tvOS)
         let adapters = EmptyViewOutputCatalogAdapters()
         let chrome = CatalogChromeAdapters()
         let presenter = EmptyViewOutputCatalogPresenter(
@@ -29,9 +30,13 @@ enum EmptyViewOutputCatalogSceneFactory {
                 chrome: chrome
             )
         )
+        #else
+        return CatalogUnsupportedSceneFactory.make(title: "EmptyViewOutput", onBack: onBack)
+        #endif
     }
 }
 
+#if !os(tvOS)
 private final class EmptyViewOutputCatalogPresenter: LifeCycleViewOutput {
     var headerOutput: HeaderOutput?
     var stackOutput: StackViewOutput?
@@ -314,3 +319,4 @@ private struct EmptyViewOutputCatalogView: View {
         }
     }
 }
+#endif

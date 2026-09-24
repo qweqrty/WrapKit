@@ -3,6 +3,7 @@ import WrapKit
 
 enum TitledOutputCatalogSceneFactory {
     static func make(onBack: @escaping () -> Void) -> AnyView {
+        #if !os(tvOS)
         let adapters = TitledOutputCatalogAdapters()
         let chrome = CatalogChromeAdapters()
         let presenter = TitledOutputCatalogPresenter(onBack: onBack)
@@ -22,9 +23,13 @@ enum TitledOutputCatalogSceneFactory {
                 chrome: chrome
             )
         )
+        #else
+        return CatalogUnsupportedSceneFactory.make(title: "TitledOutput", onBack: onBack)
+        #endif
     }
 }
 
+#if !os(tvOS)
 private final class TitledOutputCatalogPresenter: LifeCycleViewOutput {
     var headerOutput: HeaderOutput?
     var stackOutput: StackViewOutput?
@@ -248,3 +253,4 @@ private struct TitledOutputCatalogView: View {
         }
     }
 }
+#endif

@@ -2,6 +2,7 @@ import Foundation
 import SwiftUI
 import WrapKit
 
+#if !os(tvOS)
 private enum HeaderCatalogSetting: String, CaseIterable, Hashable {
     case subtitle
     case titledImageCenter
@@ -270,9 +271,11 @@ private extension HeaderCatalogPresenter {
         )
     }
 }
+#endif
 
 enum HeaderCatalogSceneFactory {
     static func make(onBack: @escaping () -> Void) -> AnyView {
+        #if !os(tvOS)
         let adapters = HeaderCatalogAdapters()
         let chrome = CatalogChromeAdapters()
         let presenter = HeaderCatalogPresenter(onBack: onBack)
@@ -291,9 +294,13 @@ enum HeaderCatalogSceneFactory {
             adapters: adapters,
             chrome: chrome
         ))
+        #else
+        return CatalogUnsupportedSceneFactory.make(title: "HeaderOutput", onBack: onBack)
+        #endif
     }
 }
 
+#if !os(tvOS)
 private struct HeaderCatalogScene: View {
     let presenter: HeaderCatalogPresenter
     let adapters: HeaderCatalogAdapters
@@ -328,3 +335,4 @@ private struct HeaderCatalogScene: View {
         }
     }
 }
+#endif

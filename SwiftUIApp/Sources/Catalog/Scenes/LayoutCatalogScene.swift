@@ -312,6 +312,7 @@ private struct KeyValueFieldCatalogScene: View {
     }
 }
 
+#if !os(tvOS)
 private final class StackViewCatalogAdapters {
     let stack = StackViewOutputSwiftUIAdapter()
     let status = TextOutputSwiftUIAdapter()
@@ -504,12 +505,14 @@ private final class StackViewCatalogPresenter: LifeCycleViewOutput {
         statusOutput?.display(model: .text(text))
     }
 }
+#endif
 
 enum StackViewCatalogSceneFactory {
     static func make(
         onBack: @escaping () -> Void,
         selectionFlow: any SelectionFlow
     ) -> AnyView {
+        #if !os(tvOS)
         let adapters = StackViewCatalogAdapters()
         let chrome = CatalogChromeAdapters()
         let presenter = StackViewCatalogPresenter(
@@ -533,9 +536,13 @@ enum StackViewCatalogSceneFactory {
             adapters: adapters,
             chrome: chrome
         ))
+        #else
+        return CatalogUnsupportedSceneFactory.make(title: "StackViewOutput", onBack: onBack)
+        #endif
     }
 }
 
+#if !os(tvOS)
 private struct StackViewCatalogScene: View {
     let presenter: StackViewCatalogPresenter
     let adapters: StackViewCatalogAdapters
@@ -579,6 +586,7 @@ private struct StackViewCatalogScene: View {
         }
     }
 }
+#endif
 
 #if !os(tvOS) && !os(macOS) && !os(watchOS)
 private struct TableCatalogRow: Hashable, Identifiable {

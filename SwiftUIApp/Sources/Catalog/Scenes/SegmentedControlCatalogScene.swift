@@ -3,6 +3,7 @@ import WrapKit
 
 enum SegmentedControlCatalogSceneFactory {
     static func make(onBack: @escaping () -> Void) -> AnyView {
+        #if !os(tvOS) && !os(watchOS)
         let chrome = CatalogChromeAdapters()
         let adapters = SegmentedControlCatalogAdapters()
         let appearance = ControlsCatalogViewConfiguration.appleDefault.segmentAppearance
@@ -25,9 +26,13 @@ enum SegmentedControlCatalogSceneFactory {
             adapters: adapters,
             appearance: appearance
         ))
+        #else
+        return CatalogUnsupportedSceneFactory.make(title: "SegmentedControlOutput", onBack: onBack)
+        #endif
     }
 }
 
+#if !os(tvOS) && !os(watchOS)
 private final class SegmentedControlCatalogAdapters {
     let status = TextOutputSwiftUIAdapter()
     let segment = SegmentedControlOutputSwiftUIAdapter()
@@ -201,3 +206,4 @@ private struct SegmentedControlCatalogView: View {
         }
     }
 }
+#endif

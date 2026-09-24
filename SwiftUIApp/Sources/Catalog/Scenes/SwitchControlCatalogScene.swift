@@ -3,6 +3,7 @@ import WrapKit
 
 enum SwitchControlCatalogSceneFactory {
     static func make(onBack: @escaping () -> Void) -> AnyView {
+        #if !os(tvOS)
         let chrome = CatalogChromeAdapters()
         let adapters = SwitchControlCatalogAdapters()
         let presenter = SwitchControlCatalogPresenter(
@@ -24,9 +25,13 @@ enum SwitchControlCatalogSceneFactory {
             chrome: chrome,
             adapters: adapters
         ))
+        #else
+        return CatalogUnsupportedSceneFactory.make(title: "SwitchControlOutput", onBack: onBack)
+        #endif
     }
 }
 
+#if !os(tvOS)
 private final class SwitchControlCatalogAdapters {
     let status = TextOutputSwiftUIAdapter()
     let switchControl = SwitchCotrolOutputSwiftUIAdapter()
@@ -219,3 +224,4 @@ private struct SwitchControlCatalogView: View {
         }
     }
 }
+#endif
