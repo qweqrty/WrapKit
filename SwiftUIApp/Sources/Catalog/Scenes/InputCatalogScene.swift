@@ -243,7 +243,7 @@ struct InputCatalogSurface<Content: View>: View {
 
     var body: some View {
         SUIWrapperView(
-            backgroundColor: SwiftUI.Color(uiColor: .secondarySystemGroupedBackground),
+            backgroundColor: SwiftUIColor(.secondarySystemGroupedBackground),
             cornerRadius: 16,
             padding: .init(all: 16)
         ) {
@@ -271,7 +271,7 @@ struct InputCatalogStatus: View {
 
     var body: some View {
         SUIWrapperView(
-            backgroundColor: SwiftUI.Color(uiColor: .secondarySystemGroupedBackground),
+            backgroundColor: SwiftUIColor(.secondarySystemGroupedBackground),
             cornerRadius: 14,
             padding: .init(all: 14)
         ) {

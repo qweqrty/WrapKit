@@ -285,7 +285,7 @@ private struct KeyValueFieldCatalogScene: View {
                         contentInsets: .init(horizontal: 12, vertical: 10)
                     )
                     .background(
-                        SwiftUI.Color(uiColor: .secondarySystemBackground),
+                        SwiftUIColor(.secondarySystemBackground),
                         in: RoundedRectangle(cornerRadius: 12, style: .continuous)
                     )
                 }
@@ -1170,7 +1170,7 @@ private struct TableCatalogScene: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .refreshControl(adapter: adapters.refresh)
             }
-            .background(SwiftUI.Color(uiColor: .systemGroupedBackground))
+            .background(SwiftUIColor(.systemGroupedBackground))
             .navigationBarHidden(true)
         }
     }
@@ -1213,7 +1213,7 @@ private struct TableCatalogScene: View {
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
             .contentShape(Rectangle())
-            .background(SwiftUI.Color(uiColor: .secondarySystemGroupedBackground))
+            .background(SwiftUIColor(.secondarySystemGroupedBackground))
         case .addItem:
             SUILabelView(
                 model: .text("Add sample row"),
@@ -1223,7 +1223,7 @@ private struct TableCatalogScene: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
-            .background(SwiftUI.Color(uiColor: .secondarySystemGroupedBackground))
+            .background(SwiftUIColor(.secondarySystemGroupedBackground))
         case .status:
             CatalogStatusLabel(adapter: adapters.status)
                 .padding(.horizontal, 16)

@@ -399,7 +399,7 @@ private struct TextOutputCatalogView: View {
         LifeCycleView(lifeCycleOutput: presenter) {
             CatalogDetailScreen(chrome: chrome) {
                 SUIWrapperView(
-                    backgroundColor: SwiftUI.Color(uiColor: .secondarySystemGroupedBackground),
+                    backgroundColor: SwiftUIColor(.secondarySystemGroupedBackground),
                     cornerRadius: 12,
                     padding: .init(all: 12)
                 ) {

@@ -277,14 +277,26 @@ struct ComponentCatalogSceneFactory {
     }
 }
 
+#if os(iOS)
+typealias CatalogSelectionFlow = SelectionFlowSwiftUI
+#else
+final class CatalogSelectionFlow: ObservableObject, SelectionFlow {
+    init(configuration: SelectionFlow.Model) {}
+
+    func showSelection(model: SelectionPresenterModel) {}
+    func showSelection<Request, Response>(model: ServicedSelectionModel<Request, Response>) {}
+    func close(with result: SelectionType?) {}
+}
+#endif
+
 struct ComponentCatalogFactory {
     func makeCatalog(
-        selectionFlow injectedSelectionFlow: SelectionFlowSwiftUI? = nil,
+        selectionFlow injectedSelectionFlow: CatalogSelectionFlow? = nil,
         initialDestination: CatalogOutputDestination? = nil
     ) -> AnyView {
         let outputs = CatalogOutputData.outputs
         let adapters = ComponentCatalogAdapters(outputs: outputs)
-        let selectionFlow = injectedSelectionFlow ?? SelectionFlowSwiftUI(configuration: CatalogSelectionAppearance.configuration)
+        let selectionFlow = injectedSelectionFlow ?? CatalogSelectionFlow(configuration: CatalogSelectionAppearance.configuration)
         let flow = ComponentCatalogFlow(factory: ComponentCatalogSceneFactory(
             selectionFlow: selectionFlow.mainQueueDispatched
         ))
@@ -319,13 +331,13 @@ private struct ComponentCatalogView: View {
     private let presenter: ComponentCatalogPresenter
     private let adapters: ComponentCatalogAdapters
     @StateObject private var flow: ComponentCatalogFlow
-    @StateObject private var selectionFlow: SelectionFlowSwiftUI
+    @StateObject private var selectionFlow: CatalogSelectionFlow
 
     init(
         presenter: ComponentCatalogPresenter,
         flow: ComponentCatalogFlow,
         adapters: ComponentCatalogAdapters,
-        selectionFlow: SelectionFlowSwiftUI
+        selectionFlow: CatalogSelectionFlow
     ) {
         self.presenter = presenter
         _flow = StateObject(wrappedValue: flow)
@@ -334,29 +346,53 @@ private struct ComponentCatalogView: View {
     }
 
     var body: some View {
+        #if os(iOS)
         SUISelectionSheetHost(flow: selectionFlow) {
-            LifeCycleView(lifeCycleOutput: presenter) {
-                SUIStackView(axis: .vertical, spacing: 0) {
-                    SUINavigationBar(adapter: adapters.header)
+            catalog
+        }
+        #else
+        catalog
+        #endif
+    }
 
-                    SUITableView(
-                        adapter: adapters.table,
-                        style: .lazyVStack(scrollable: true),
-                        cellContent: { output, indexPath in
+    private var catalog: some View {
+        LifeCycleView(lifeCycleOutput: presenter) {
+            SUIStackView(axis: .vertical, spacing: 0) {
+                #if !os(tvOS)
+                SUINavigationBar(adapter: adapters.header)
+                #endif
+
+                #if os(macOS) || os(tvOS) || os(watchOS)
+                ScrollView {
+                    VStack(spacing: 12) {
+                        ForEach(CatalogOutputData.outputs) { output in
                             SUIButton(adapter: adapters.button(for: output))
-                                .padding(.horizontal, 16)
-                                .padding(.top, indexPath.row == 0 ? 12 : 0)
-                                .padding(.bottom, 12)
-                        },
-                        headerContent: { _ in SwiftUI.EmptyView() },
-                        footerContent: { _ in SwiftUI.EmptyView() }
-                    )
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        }
+                    }
+                    .padding(16)
                 }
-                .background(SwiftUI.Color(uiColor: .systemGroupedBackground))
-                .background(navigationLink)
-                .navigationBarHidden(true)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                #else
+                SUITableView(
+                    adapter: adapters.table,
+                    style: .lazyVStack(scrollable: true),
+                    cellContent: { output, indexPath in
+                        SUIButton(adapter: adapters.button(for: output))
+                            .padding(.horizontal, 16)
+                            .padding(.top, indexPath.row == 0 ? 12 : 0)
+                            .padding(.bottom, 12)
+                    },
+                    headerContent: { _ in SwiftUI.EmptyView() },
+                    footerContent: { _ in SwiftUI.EmptyView() }
+                )
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                #endif
             }
+            .background(SwiftUIColor(.systemGroupedBackground))
+            .background(navigationLink)
+            #if !os(macOS)
+            .navigationBarHidden(true)
+            #endif
         }
     }
 

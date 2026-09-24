@@ -1,4 +1,4 @@
-import UIKit
+import Foundation
 import WrapKit
 
 enum CatalogSelectionAppearance {
@@ -41,7 +41,7 @@ enum CatalogSelectionAppearance {
         ),
         searchBar: .init(
             textfieldAppearence: .catalogSelection,
-            searchImage: UIImage(systemName: "magnifyingglass") ?? UIImage(),
+            searchImage: ImageFactory.systemImage(named: "magnifyingglass") ?? WrapKit.Image(),
             tintColor: .secondaryLabel
         ),
         resetButtonColors: .init(
