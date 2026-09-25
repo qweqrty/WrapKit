@@ -14,16 +14,18 @@ jobs:
       fail-fast: false
       matrix:
         test_destination:
-          - runner: macos-15
-            xcode_version: "26.3"
-            xcode_path: /Applications/Xcode_26.3.app
-            ios_version: "18.5"
-            device: "iPhone 16 Pro"
-          - runner: macos-26
-            xcode_version: "26.6"
-            xcode_path: /Applications/Xcode_26.6.app
-            ios_version: "26.2"
-            device: "iPhone 17 Pro"
+          # Xcode 27.1 supplies the SDK; this image preinstalls iOS 27.0 runtimes.
+          # https://github.com/actions/runner-images/blob/main/images/macos/xcode-27-arm64-Readme.md
+          - runner: xcode-27
+            xcode_version: "27.1"
+            xcode_path: /Applications/Xcode_27.1.app
+            ios_version: "27.0"
+            device: "iPhone 18 Pro"
+          - runner: xcode-27
+            xcode_version: "27.1"
+            xcode_path: /Applications/Xcode_27.1.app
+            ios_version: "27.0"
+            device: "iPhone Air"
     env:
       SCHEME_NAME: "WrapKit"
 
@@ -52,6 +54,7 @@ jobs:
 
           sudo xcode-select -s "$xcode_path"
           xcodebuild -version
+          xcrun --sdk iphonesimulator --show-sdk-version
 
       - name: Configure Cache Paths
         shell: bash
@@ -105,8 +108,7 @@ jobs:
           xcrun simctl list devices
       # -----------------------------
       # Run Tests
-      # macOS 15 image: https://github.com/actions/runner-images/blob/main/images/macos/macos-15-arm64-Readme.md
-      # macOS 26 image: https://github.com/actions/runner-images/blob/main/images/macos/macos-26-arm64-Readme.md
+      # Xcode 27 image: https://github.com/actions/runner-images/blob/main/images/macos/xcode-27-arm64-Readme.md
       # -----------------------------
       - name: Run Tests on iOS ${{ matrix.test_destination.ios_version }}
         run: |
