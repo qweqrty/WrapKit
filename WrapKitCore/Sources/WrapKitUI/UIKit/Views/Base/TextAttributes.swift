@@ -148,4 +148,20 @@ public extension Color {
         return .secondaryLabel
         #endif
     }
+
+    static var defaultSystemBlue: Color {
+        #if os(watchOS)
+        return .blue
+        #else
+        return .systemBlue
+        #endif
+    }
+
+    static var defaultSystemRed: Color {
+        #if os(watchOS)
+        return .red
+        #else
+        return .systemRed
+        #endif
+    }
 }

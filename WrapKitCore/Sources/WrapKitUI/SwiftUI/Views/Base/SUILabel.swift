@@ -333,7 +333,7 @@ public struct SUILabelView: View, Animatable {
         let wholeRange = NSRange(location: 0, length: mutable.length)
         mutable.enumerateAttribute(.link, in: wholeRange) { value, range, _ in
             guard value != nil else { return }
-            mutable.addAttribute(.foregroundColor, value: Color.blue, range: range)
+            mutable.addAttribute(.foregroundColor, value: Color.defaultSystemBlue, range: range)
         }
         return mutable
     }

@@ -64,7 +64,7 @@ public struct SUIProgressBarView: View {
 
                 if normalizedProgress > 0 {
                     SUIProgressBarCornerShape(style: cornerStyle)
-                        .fill(style?.progressBarColor.map { SwiftUIColor($0) } ?? SwiftUIColor(.blue))
+                        .fill(style?.progressBarColor.map { SwiftUIColor($0) } ?? SwiftUIColor(.defaultSystemBlue))
                         .frame(
                             width: geo.size.width * normalizedProgress,
                             height: fillHeight
@@ -191,7 +191,7 @@ private struct SUIProgressBarCornerShape: Shape {
         progress: 50,
         style: .init(
             backgroundColor: .lightGray,
-            progressBarColor: .blue,
+            progressBarColor: .defaultSystemBlue,
             height: 20,
             cornerStyle: .fixed(16)
         )
