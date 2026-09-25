@@ -3,7 +3,7 @@
 //  WrapKit
 //
 
-#if canImport(SwiftUI)
+#if canImport(SwiftUI) && canImport(Lottie)
 import Lottie
 import SwiftUI
 

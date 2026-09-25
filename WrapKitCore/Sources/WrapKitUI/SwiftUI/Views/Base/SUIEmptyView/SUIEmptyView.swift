@@ -146,14 +146,14 @@ public struct SUIEmptyViewContent: View {
                 SUIOutputLabel(
                     stateModel: stateModel,
                     font: .systemFont(ofSize: 20),
-                    textColor: .label,
+                    textColor: .defaultLabel,
                     textAlignment: .center
                 )
             } else {
                 SUILabelView(
                     model: model,
                     font: .systemFont(ofSize: 20),
-                    textColor: .label,
+                    textColor: .defaultLabel,
                     textAlignment: .center
                 )
             }

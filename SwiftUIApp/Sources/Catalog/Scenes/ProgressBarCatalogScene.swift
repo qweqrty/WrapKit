@@ -3,6 +3,7 @@ import WrapKit
 
 enum ProgressBarCatalogSceneFactory {
     static func make(onBack: @escaping () -> Void) -> AnyView {
+        #if !os(tvOS)
         let chrome = CatalogChromeAdapters()
         let adapters = ProgressBarCatalogAdapters()
         let presenter = ProgressBarCatalogPresenter(onBack: onBack)
@@ -20,9 +21,13 @@ enum ProgressBarCatalogSceneFactory {
             chrome: chrome,
             adapters: adapters
         ))
+        #else
+        return CatalogUnsupportedSceneFactory.make(title: "ProgressBarOutput", onBack: onBack)
+        #endif
     }
 }
 
+#if !os(tvOS)
 private final class ProgressBarCatalogAdapters {
     let status = TextOutputSwiftUIAdapter()
     let progress = ProgressBarOutputSwiftUIAdapter()
@@ -163,3 +168,4 @@ private struct ProgressBarCatalogView: View {
         }
     }
 }
+#endif

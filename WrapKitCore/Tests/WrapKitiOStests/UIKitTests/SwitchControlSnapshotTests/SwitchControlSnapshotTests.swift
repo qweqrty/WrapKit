@@ -1,3 +1,4 @@
+#if os(iOS) || targetEnvironment(macCatalyst)
 //
 //  SwitchControlSnapshotTests.swift
 //  WrapKitTests
@@ -560,3 +561,4 @@ private final class UIKitMountTestHost {
         RunLoop.main.run(until: Date().addingTimeInterval(0.05))
     }
 }
+#endif

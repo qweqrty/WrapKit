@@ -1,3 +1,4 @@
+#if os(iOS) || targetEnvironment(macCatalyst)
 //
 //  EmptyViewSnapshotTests.swift
 //  WrapKitTests
@@ -388,3 +389,4 @@ extension EmptyViewSnapshotTests {
         return container
     }
 }
+#endif

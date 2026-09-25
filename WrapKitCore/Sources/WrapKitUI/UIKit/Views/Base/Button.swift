@@ -150,7 +150,11 @@ public struct ButtonPresentableModel: HashableWithReflection {
     }
 }
 
-#if canImport(UIKit)
+public enum PressAnimation: HashableWithReflection {
+    case shrink
+}
+
+#if canImport(UIKit) && !os(watchOS)
 import UIKit
 
 extension Button: ButtonOutput {
@@ -230,6 +234,7 @@ extension Button: ButtonOutput {
         }
         
         let previousConfiguration = configuration
+        #if !os(visionOS) // .glass()/.cornerConfiguation недоступны на visionOS
         if #available(iOS 26, macOS 26, watchOS 26, tvOS 26, *), isLiquidGlassEnabled {
             self.usesLiquidGlassConfiguration = true
             var config: UIButton.Configuration = switch glassConfiguration {
@@ -308,6 +313,7 @@ extension Button: ButtonOutput {
             }
             updateSpacings()
         }
+        #endif
 
         if let textColor = style.titleColor { self.setTitleColor(textColor, for: .normal) }
         if let titleLabelFont = style.font { self.titleLabel?.font = titleLabelFont }
@@ -354,10 +360,6 @@ extension Button: LoadingOutput {
         
         loader.display(isLoading: isLoading)
     }
-}
-
-public enum PressAnimation: HashableWithReflection {
-    case shrink
 }
 
 open class Button: UIButton {
@@ -579,7 +581,7 @@ open class Button: UIButton {
         let hasTargetActions = allTargets.contains { target in
             actions(forTarget: target, forControlEvent: .touchUpInside) != nil
         }
-        if #available(iOS 14.0, *) {
+        if #available(iOS 14.0, tvOS 17.0, *) {
             let hasMenu = menu != nil
             if !hasMenu && !hasTargetActions {
                 return false

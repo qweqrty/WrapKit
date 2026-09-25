@@ -1,3 +1,5 @@
+#if os(iOS) || targetEnvironment(macCatalyst)
+#if canImport(UIKit) && !os(watchOS)
 import UIKit
 import WrapKit
 import XCTest
@@ -158,3 +160,5 @@ private extension CGPath {
         return result
     }
 }
+#endif
+#endif

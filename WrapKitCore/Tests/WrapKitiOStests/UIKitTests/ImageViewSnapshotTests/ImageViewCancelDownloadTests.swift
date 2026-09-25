@@ -1,3 +1,4 @@
+#if os(iOS) || targetEnvironment(macCatalyst)
 //
 //  ImageViewCancelDownloadTests.swift
 //  WrapKit
@@ -265,3 +266,4 @@ private extension ImageViewCancelDownloadTests {
         return expectation
     }
 }
+#endif

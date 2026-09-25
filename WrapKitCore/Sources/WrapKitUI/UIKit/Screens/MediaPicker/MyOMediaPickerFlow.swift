@@ -1,10 +1,5 @@
-//
-//  File.swift
-//  WrapKit
-//
-//  Created by Gulzat Zheenbek kyzy on 16/6/25.
-//
-
+#if os(iOS) || targetEnvironment(macCatalyst)
+// sourcery: platformGuard = "os(iOS) || targetEnvironment(macCatalyst)"
 public protocol MediaPickerFlow {
     
     func showMediaPicker(
@@ -53,4 +48,5 @@ public class MediaPickerFlowiOS: MediaPickerFlow {
         navigationController?.dismiss(animated: true)
     }
 }
+#endif
 #endif

@@ -1,6 +1,6 @@
 import Foundation
 
-#if canImport(SwiftUI)
+#if canImport(SwiftUI) && !os(tvOS) && !os(watchOS)
 import SwiftUI
 
 public struct SUIToastView: View {

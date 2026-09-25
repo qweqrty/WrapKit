@@ -5,7 +5,7 @@
 //  Created by Stanislav Li on 27/11/23.
 //
 
-#if canImport(UIKit)
+#if canImport(UIKit) && !os(watchOS)
 import UIKit
 
 open class CubeView: UIScrollView, UIScrollViewDelegate {
@@ -93,7 +93,9 @@ open class CubeView: UIScrollView, UIScrollViewDelegate {
         stackView.translatesAutoresizingMaskIntoConstraints = false
         showsHorizontalScrollIndicator = false
         showsVerticalScrollIndicator = false
+        #if !os(tvOS)
         isPagingEnabled = true
+        #endif
         bounces = true
         delegate = self
         

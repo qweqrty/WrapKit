@@ -17,7 +17,7 @@ public struct Accessibility: HashableWithReflection {
     }
 }
 
-#if canImport(UIKit)
+#if canImport(UIKit) && !os(watchOS)
 import UIKit
 
 final class A11yProxy: UIAccessibilityElement {

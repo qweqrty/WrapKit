@@ -5,8 +5,7 @@
 //  Created by Gulzat Zheenbek kyzy on 21/8/26.
 //
 
-#if canImport(UIKit)
-import UIKit
+import Foundation
 
 public enum URLTarget {
     case url(URL)
@@ -15,6 +14,9 @@ public enum URLTarget {
     case notificationSettings
     case defaultAppsSettings
 }
+
+#if canImport(UIKit) && !os(watchOS)
+import UIKit
 
 public enum ApplicationURLUtils {
     
@@ -51,13 +53,13 @@ public enum ApplicationURLUtils {
             return URL(string: UIApplication.openSettingsURLString)
             
         case .notificationSettings:
-            guard #available(iOS 16.0, *) else {
+            guard #available(iOS 16.0, tvOS 16.0, visionOS 1.0, *) else {
                 return nil
             }
             
             return URL(string: UIApplication.openNotificationSettingsURLString)
         case .defaultAppsSettings:
-            guard #available(iOS 18.3, *) else {
+            guard #available(iOS 18.3, tvOS 18.3, visionOS 2.3, *) else {
                 return nil
             }
             

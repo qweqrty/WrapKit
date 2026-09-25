@@ -5,6 +5,7 @@
 // swift-format-ignore-file
 // swiftformat:disable all
 
+#if canImport(Lottie)
 #if canImport(WrapKit)
 import WrapKit
 #endif
@@ -45,3 +46,4 @@ public final class LottieViewOutputSpy: LottieViewOutput {
         }
     }
 }
+#endif

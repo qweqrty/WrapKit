@@ -1,3 +1,4 @@
+#if os(iOS) || targetEnvironment(macCatalyst)
 //
 //  LabelSnapshotTests.swift
 //  WrapKit
@@ -1367,3 +1368,4 @@ extension LabelSnapshotTests {
         return container
     }
 }
+#endif

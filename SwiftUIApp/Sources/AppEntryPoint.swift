@@ -28,7 +28,7 @@ struct EntryView: View {
     @State private var hasAppeared = false
 
     var body: some View {
-        if #available(macOS 13.0, iOS 16.0, *) {
+        if #available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *) {
             NavigationStack {
                 flow.currentView
             }

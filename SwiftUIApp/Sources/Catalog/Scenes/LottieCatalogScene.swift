@@ -1,8 +1,11 @@
 import Foundation
+#if canImport(Lottie)
 import Lottie
+#endif
 import SwiftUI
 import WrapKit
 
+#if !os(tvOS) && canImport(Lottie)
 private enum LottieCatalogSetting: String, CaseIterable, Hashable {
     case fastPlayback
 
@@ -30,12 +33,14 @@ private enum LottieLoopPreset: String, CaseIterable, Hashable {
         }
     }
 }
+#endif
 
 enum LottieCatalogSceneFactory {
     static func make(
         onBack: @escaping () -> Void,
         selectionFlow: any SelectionFlow
     ) -> AnyView {
+        #if !os(tvOS) && canImport(Lottie)
         let chrome = CatalogChromeAdapters()
         let adapters = LottieCatalogAdapters()
         let presenter = LottieCatalogPresenter(
@@ -60,9 +65,13 @@ enum LottieCatalogSceneFactory {
             chrome: chrome,
             adapters: adapters
         ))
+        #else
+        return CatalogUnsupportedSceneFactory.make(title: "LottieViewOutput", onBack: onBack)
+        #endif
     }
 }
 
+#if !os(tvOS) && canImport(Lottie)
 private final class LottieCatalogAdapters {
     let lottie = LottieViewOutputSwiftUIAdapter()
     let replayButton = ButtonOutputSwiftUIAdapter()
@@ -294,3 +303,4 @@ private struct LottieCatalogView: View {
         }
     }
 }
+#endif

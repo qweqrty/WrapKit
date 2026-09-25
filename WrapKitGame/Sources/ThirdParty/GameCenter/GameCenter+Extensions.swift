@@ -17,6 +17,7 @@ public enum GameCenterLaunchOption {
 }
 
 extension View {
+    #if !os(watchOS)
     public func gameCenter(
         isPresented: Binding<Bool>,
         launchOption: GameCenterLaunchOption = .default
@@ -25,8 +26,11 @@ extension View {
             isPresented: isPresented,
             launchOption: launchOption))
     }
+    #endif
 }
 
+// GKGameCenterViewController/GKGameCenterControllerDelegate недоступны на watchOS
+#if !os(watchOS)
 private struct GameCenterModifier: ViewModifier {
     @Binding var isPresented: Bool
     let launchOption: GameCenterLaunchOption
@@ -103,7 +107,7 @@ private class GameCenterController:
         case .challenges: return GKGameCenterViewController(state: .challenges)
         case .localPlayerProfile: return GKGameCenterViewController(state: .localPlayerProfile)
         case .dashboard: return GKGameCenterViewController(state: .dashboard)
-        case .localPlayerFriendsList: if #available(iOS 15.0, *) {
+        case .localPlayerFriendsList: if #available(iOS 15.0, macOS 12.0, tvOS 15.0, *) {
             return GKGameCenterViewController(state: .localPlayerFriendsList)
         } else {
             return GKGameCenterViewController(state: .default)
@@ -117,3 +121,4 @@ private class GameCenterController:
         }
     }
 }
+#endif

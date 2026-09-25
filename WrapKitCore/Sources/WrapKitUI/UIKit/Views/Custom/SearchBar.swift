@@ -42,7 +42,7 @@ public struct SearchBarPresentableModel {
     }
 }
 
-#if canImport(UIKit)
+#if canImport(UIKit) && !os(watchOS)
 import UIKit
 
 public class SearchBar: ViewUIKit {
@@ -115,6 +115,9 @@ public class SearchBar: ViewUIKit {
 
 private extension SearchBar {
     func makeGlassEffectView() -> UIVisualEffectView? {
+        #if os(visionOS)
+        return nil
+        #else
         if #available(iOS 26, macOS 26, watchOS 26, tvOS 26, *), isLiquidGlassEnabled {
             let glassEffect = UIGlassEffect(style: .clear)
             let glassEffectView = UIVisualEffectView(effect: glassEffect)
@@ -123,6 +126,7 @@ private extension SearchBar {
         } else {
             return nil
         }
+        #endif
     }
     
     func setupGlassAppearance() {
@@ -137,11 +141,13 @@ private extension SearchBar {
             return
         }
         backgroundColor = nil
+        #if !os(visionOS)
         if #available(iOS 26, macOS 26, watchOS 26, tvOS 26, *) {
             let glassEffect = UIGlassEffect(style: .clear)
             glassEffect.tintColor = color
             glassEffectView.effect = glassEffect
         }
+        #endif
     }
 }
 

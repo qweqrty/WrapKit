@@ -1,3 +1,4 @@
+#if !os(tvOS) && !os(macOS) && !os(watchOS)
 import SwiftUI
 
 private let suiTableRowMoveTypeIdentifier = "com.wrapkit.table-row-move"
@@ -205,6 +206,7 @@ private struct SUITableInteractiveListContent<
                     ))
                     .onMove(perform: stateModel.moveAction(in: sectionIndex))
 
+                    #if os(iOS)
                     if section.cells.isEmpty, isEditing, stateModel.supportsMoving {
                         SUITableEmptySectionDropTarget(
                             stateModel: stateModel,
@@ -220,6 +222,7 @@ private struct SUITableInteractiveListContent<
                             }
                         }
                     }
+                    #endif
                 } header: {
                     if let header = section.header {
                         headerContent(header)
@@ -681,3 +684,4 @@ private struct SUITableInteractiveRow<
     }
 #endif
 }
+#endif

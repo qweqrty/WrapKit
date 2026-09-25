@@ -5,6 +5,7 @@
 //  Created by Urmatbek Marat Uulu on 23/4/26.
 //
 
+#if os(iOS) || targetEnvironment(macCatalyst)
 import SwiftUI
 #if canImport(UIKit)
 import UIKit
@@ -221,3 +222,4 @@ public extension View {
         modifier(SUIRefreshControlModifier(adapter: adapter))
     }
 }
+#endif

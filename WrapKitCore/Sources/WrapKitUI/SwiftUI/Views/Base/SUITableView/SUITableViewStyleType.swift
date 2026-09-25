@@ -1,3 +1,4 @@
+#if !os(tvOS) && !os(macOS) && !os(watchOS)
 import SwiftUI
 
 public enum SUITableViewStyleType {
@@ -32,3 +33,4 @@ public enum SUITableViewStyleType {
         }
     }
 }
+#endif

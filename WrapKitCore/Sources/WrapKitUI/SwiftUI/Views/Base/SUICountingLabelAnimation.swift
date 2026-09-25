@@ -30,7 +30,7 @@ public struct SUICountingLabelAnimation: View {
         animationStyle: LabelAnimationStyle = .none,
         duration: TimeInterval = 1.0,
         font: Font = .systemFont(ofSize: 20),
-        textColor: Color = .label,
+        textColor: Color = .defaultLabel,
         textAlignment: TextAlignment = .natural,
         completion: (() -> Void)? = nil
     ) {

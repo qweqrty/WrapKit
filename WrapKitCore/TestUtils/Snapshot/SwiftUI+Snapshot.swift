@@ -1,4 +1,5 @@
-#if canImport(SwiftUI)
+// Snapshot-хелперы построены на UIHostingController/UIScreen — только UIKit-платформы
+#if canImport(SwiftUI) && canImport(UIKit) && !os(watchOS) && !os(visionOS)
 import SwiftUI
 
 public enum SwiftUISnapshotPrecision {

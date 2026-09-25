@@ -3,7 +3,7 @@
 //  WrapKit
 //
 
-#if canImport(UIKit)
+#if canImport(UIKit) && canImport(Lottie)
 import Foundation
 import Lottie
 import UIKit

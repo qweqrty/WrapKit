@@ -46,7 +46,7 @@ public struct EmptyViewPresentableModel: HashableWithReflection {
     }
 }
 
-#if canImport(UIKit)
+#if canImport(UIKit) && !os(watchOS)
 import UIKit
 
 public class EmptyView: UIView {

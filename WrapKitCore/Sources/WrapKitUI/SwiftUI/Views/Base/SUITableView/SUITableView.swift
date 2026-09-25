@@ -5,6 +5,7 @@
 //  Created by Urmatbek Marat Uulu on 13/5/26.
 //
 
+#if !os(tvOS) && !os(macOS) && !os(watchOS)
 import SwiftUI
 
 struct SUITableRefreshControlHiddenPreferenceKey: PreferenceKey {
@@ -56,3 +57,4 @@ public struct SUITableView<
         )
     }
 }
+#endif

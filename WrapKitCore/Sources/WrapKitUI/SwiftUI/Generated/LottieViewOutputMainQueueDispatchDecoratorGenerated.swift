@@ -5,6 +5,7 @@
 // swift-format-ignore-file
 // swiftformat:disable all
 
+#if canImport(Lottie)
 #if canImport(WrapKit)
 import WrapKit
 #if canImport(Foundation)
@@ -39,4 +40,5 @@ extension MainQueueDispatchDecorator: LottieViewOutput where T: LottieViewOutput
         }
     }
 }
+#endif
 #endif

@@ -14,10 +14,9 @@ let project = Project(
             scripts: [Scripts.swiftlint],
             dependencies: [
                 .external(name: "Kingfisher"),
-                .external(name: "Lottie"),
                 .external(name: "PhoneNumberKit"),
                 .external(name: "DeviceKit"),
-                .external(name: "Lottie")
+                .external(name: "Lottie", condition: .when([.ios, .macos, .tvos, .visionos, .catalyst]))
             ]
         ),
         .target(

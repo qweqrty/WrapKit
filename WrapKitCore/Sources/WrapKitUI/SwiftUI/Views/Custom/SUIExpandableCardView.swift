@@ -1,6 +1,6 @@
 import Foundation
 
-#if canImport(SwiftUI)
+#if canImport(SwiftUI) && !os(tvOS)
 import SwiftUI
 import Combine
 

@@ -5,7 +5,7 @@
 //  Created by Stanislav Li on 20/5/24.
 //
 
-#if canImport(UIKit)
+#if canImport(UIKit) && !os(watchOS)
 import UIKit
 
 public extension Masking {

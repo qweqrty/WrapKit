@@ -1,3 +1,4 @@
+#if os(iOS) || targetEnvironment(macCatalyst)
 //
 //  WrapperViewSnapshotTests.swift
 //  WrapKitTests
@@ -487,3 +488,4 @@ extension WrapperViewSnapshotTests {
         return container
     }
 }
+#endif

@@ -1,6 +1,6 @@
 import Foundation
 
-#if canImport(SwiftUI)
+#if canImport(SwiftUI) && !os(tvOS) && !os(watchOS)
 import Combine
 import SwiftUI
 
@@ -42,7 +42,7 @@ final class SUIToastViewStateModel: ObservableObject {
     private var currentToastOnPress: (() -> Void)?
     private let velocityThreshold: CGFloat = 500
     private var estimatedToastWidth: CGFloat {
-        #if canImport(UIKit)
+        #if canImport(UIKit) && !os(visionOS)
         return max(UIScreen.main.bounds.width - 16, 1)
         #else
         return 320

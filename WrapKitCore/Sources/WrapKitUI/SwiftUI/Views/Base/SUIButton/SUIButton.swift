@@ -98,10 +98,13 @@ public struct SUIButtonView: View {
                 .spring(response: 0.4, dampingFraction: 0.4, blendDuration: 0),
                 value: isGlassPressed
             )
+            #if !os(tvOS)
             .simultaneousGesture(glassPressGesture)
+            #endif
             .overlay(borderView)
     }
 
+    #if !os(tvOS)
     private var glassPressGesture: some Gesture {
         DragGesture(minimumDistance: 0)
             .updating($isGlassPressed) { value, isPressed, _ in
@@ -110,6 +113,7 @@ public struct SUIButtonView: View {
                     && hypot(value.translation.width, value.translation.height) <= 10
             }
     }
+    #endif
 
     private var baseButton: some View {
         SwiftUI.Button(

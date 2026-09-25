@@ -76,7 +76,7 @@ public struct HeaderPresentableModel: HashableWithReflection {
     }
 }
 
-#if canImport(UIKit)
+#if canImport(UIKit) && !os(watchOS)
 import UIKit
 
 extension NavigationBar: HeaderOutput {
@@ -324,6 +324,9 @@ open class NavigationBar: UIView {
 
 private extension NavigationBar {
     func makeLeadingCardGlassEffectView() -> UIView {
+        #if os(visionOS)
+        return UIView() // UIGlassEffect недоступен на visionOS
+        #else
         if #available(iOS 26, macOS 26, tvOS 26, watchOS 26, *), isLiquidGlassEnabled {
             let glassEffect = UIGlassEffect(style: .regular)
             glassEffect.isInteractive = true
@@ -334,6 +337,7 @@ private extension NavigationBar {
         } else {
             return UIView()
         }
+        #endif
     }
     
     func makeLeadingCardView(isHidden: Bool) -> CardView {
@@ -380,10 +384,12 @@ private extension NavigationBar {
                 )
             }
         )
+        #if !os(visionOS)
         if #available(iOS 26, macOS 26, tvOS 26, watchOS 26, *), isLiquidGlassEnabled {
             view.contentView.configuration = .glass()
             view.contentView.configuration?.cornerStyle = .capsule
         }
+        #endif
         return view
     }
 }

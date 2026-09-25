@@ -124,9 +124,9 @@ enum CommonToastActionButtonAppearance {
             title: button.title,
             style: .init(
                 backgroundColor: .clear,
-                titleColor: .systemBlue,
-                pressedColor: .systemBlue.withAlphaComponent(0.1),
-                pressedTintColor: .systemBlue,
+                titleColor: .defaultSystemBlue,
+                pressedColor: .defaultSystemBlue.withAlphaComponent(0.1),
+                pressedTintColor: .defaultSystemBlue,
                 font: .systemFont(ofSize: 15, weight: .semibold),
                 cornerRadius: 0
             ),

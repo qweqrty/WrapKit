@@ -1,3 +1,4 @@
+#if os(iOS) || targetEnvironment(macCatalyst)
 //
 //  ProgressBarSnapshotTests.swift
 //  WrapKitTests
@@ -429,3 +430,4 @@ extension ProgressBarSnapshotTests {
         return container
     }
 }
+#endif

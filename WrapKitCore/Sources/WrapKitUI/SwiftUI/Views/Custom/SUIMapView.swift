@@ -53,7 +53,7 @@ public struct SUIMapView: View {
 
                 ForEach(0..<3, id: \.self) { index in
                     Circle()
-                        .fill(SwiftUIColor(.systemRed))
+                        .fill(SwiftUIColor(.defaultSystemRed))
                         .frame(width: 20, height: 20)
                         .offset(
                             x: CGFloat(50 + index * 60),

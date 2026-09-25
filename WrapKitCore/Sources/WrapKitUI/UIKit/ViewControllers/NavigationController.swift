@@ -5,7 +5,7 @@
 //  Created by Stas Lee on 6/8/23.
 //
 
-#if canImport(UIKit)
+#if canImport(UIKit) && !os(watchOS)
 import UIKit
 
 open class NavigationController: UINavigationController {

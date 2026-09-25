@@ -5,13 +5,25 @@
 //  Created by Gulzat Zheenbek kyzy on 26/3/26.
 //
 
-#if canImport(UIKit)
+#if canImport(UIKit) && !os(watchOS)
 import UIKit
 
 final class NVActivityIndicatorAnimationIndefiniteAnimatedSpin: NVActivityIndicatorAnimationDelegate {
+    private static var screenScale: CGFloat {
+        #if os(visionOS)
+        return 2
+        #else
+        return UIScreen.main.scale
+        #endif
+    }
+
 
     func setUpAnimation(in layer: CALayer, size: CGSize, color: UIColor) {
+        #if os(visionOS)
+        let resolvedColor = color
+        #else
         let resolvedColor = color.resolvedColor(with: UIScreen.main.traitCollection)
+        #endif
 
         let strokeThickness: CGFloat = 2.2
         let inset: CGFloat = 1.0
@@ -39,7 +51,7 @@ final class NVActivityIndicatorAnimationIndefiniteAnimatedSpin: NVActivityIndica
         )
 
         let shapeLayer = CAShapeLayer()
-        shapeLayer.contentsScale = UIScreen.main.scale
+        shapeLayer.contentsScale = Self.screenScale
         shapeLayer.frame = CGRect(
             x: (layer.bounds.width - spinnerSide) / 2,
             y: (layer.bounds.height - spinnerSide) / 2,
@@ -75,13 +87,13 @@ final class NVActivityIndicatorAnimationIndefiniteAnimatedSpin: NVActivityIndica
     private func makeCodeAngleMask(frame: CGRect) -> CALayer {
         let container = CALayer()
         container.frame = frame
-        container.contentsScale = UIScreen.main.scale
+        container.contentsScale = Self.screenScale
 
         if #available(iOS 12.0, *) {
             let gradient = CAGradientLayer()
             gradient.type = .conic
             gradient.frame = container.bounds
-            gradient.contentsScale = UIScreen.main.scale
+            gradient.contentsScale = Self.screenScale
             gradient.startPoint = CGPoint(x: 0.5, y: 0.5)
             gradient.endPoint = CGPoint(x: 0.5, y: 0.0)
 

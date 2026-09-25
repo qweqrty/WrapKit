@@ -1,3 +1,4 @@
+#if os(iOS) || targetEnvironment(macCatalyst)
 //
 //  TimerPresenterTests.swift
 //  WrapKitTests
@@ -411,3 +412,4 @@ extension TimerPresenterTests {
         return SUTComponents(sut: sut, viewSpy: viewSpy)
     }
 }
+#endif

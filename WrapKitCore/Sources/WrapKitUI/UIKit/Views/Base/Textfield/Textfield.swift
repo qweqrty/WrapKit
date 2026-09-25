@@ -260,7 +260,7 @@ public struct TextInputPresentableModel: HashableWithReflection {
     }
 }
 
-#if canImport(UIKit)
+#if canImport(UIKit) && !os(watchOS)
 import UIKit
 
 public extension Textfield {
@@ -272,7 +272,7 @@ public extension Textfield {
         let container = UIView(frame: CGRect(
             x: 0,
             y: 0,
-            width: UIScreen.main.bounds.width,
+            width: Self.accessoryWidth,
             height: model.style.height
         ))
         container.backgroundColor = model.style.backgroundColor
@@ -283,9 +283,11 @@ public extension Textfield {
         let trailingButton = Button()
         trailingButton.display(model: toolbarModel)
         trailingButton.onPress = { [weak self] in
+            #if !os(tvOS)
             if let date = (self?.inputView as? UIDatePicker)?.date {
                 onDoneTapped?(date)
             }
+            #endif
             toolbarModel.onPress?()
             self?.endEditing(true)
         }
@@ -310,12 +312,16 @@ extension Textfield: TextInputOutput {
     
     public func display(inputAccessoryView: TextInputPresentableModel.AccessoryViewPresentableModel?) {
         guard let inputAccessoryView else {
+            #if !os(visionOS)
             self.inputAccessoryView = nil
+            #endif
             self.reloadInputViews()
             invalidateA11y()
             return
         }
+        #if !os(visionOS)
         self.inputAccessoryView = makeAccessoryView(model: inputAccessoryView)
+        #endif
         self.reloadInputViews()
         invalidateA11y()
     }
@@ -373,7 +379,9 @@ extension Textfield: TextInputOutput {
         display(trailingSymbol: model.trailingSymbol)
         
         if model.inputAccessoryView == nil, model.inputView == nil {
+            #if !os(visionOS)
             self.inputAccessoryView = nil
+            #endif
             self.reloadInputViews()
         }
         if let type = model.autocapitalizationType {
@@ -396,6 +404,9 @@ extension Textfield: TextInputOutput {
         }
         switch inputView {
         case .date(let model):
+            #if os(tvOS)
+            break // UIDatePicker недоступен на tvOS
+            #else
             let picker = DatePickerView()
             picker.datePickerMode = picker.mapMode(model.mode)
             picker.date = model.value
@@ -408,15 +419,24 @@ extension Textfield: TextInputOutput {
             self.inputView = picker
             
             guard let accessoryView = model.accessoryView else {
+                #if !os(visionOS)
                 self.inputAccessoryView = nil
+                #endif
                 invalidateA11y()
                 return
             }
+            #if !os(visionOS)
             self.inputAccessoryView = makeAccessoryView(model: accessoryView, onDoneTapped: model.onDoneTapped)
+            #endif
+            #endif
         case .custom(let model):
+            #if os(tvOS)
+            break
+            #else
             let pickerView = PickerView()
             pickerView.display(model: model)
             self.inputView = pickerView
+            #endif
         }
         self.reloadInputViews()
         invalidateA11y()
@@ -874,7 +894,9 @@ open class Textfield: UITextField {
                 builder.remove(menu: .standardEdit)
                 builder.remove(menu: .format)
                 builder.remove(menu: .lookup)
+                #if !os(tvOS)
                 builder.remove(menu: .autoFill)
+                #endif
             }
             disabledMenus.forEach {
                 builder.remove(menu: $0)
@@ -1143,11 +1165,15 @@ open class Textfield: UITextField {
     }
     
     open override func paste(_ sender: Any?) {
+        #if os(tvOS)
+        super.paste(sender)
+        #else
         if let onPaste {
             onPaste(UIPasteboard.general.string)
         } else {
             super.paste(sender)
         }
+        #endif
         invalidateA11y()
     }
     
@@ -1298,6 +1324,18 @@ private extension TextAutocapitalizationType {
         case .words: return .words
         case .none: return .none
         }
+    }
+}
+
+
+private extension Textfield {
+    /// UIScreen недоступен на visionOS — берём ширину из активной сцены/трейтов.
+    static var accessoryWidth: CGFloat {
+        #if os(visionOS)
+        return 1280
+        #else
+        return UIScreen.main.bounds.width
+        #endif
     }
 }
 

@@ -5,7 +5,7 @@
 //  Created by Stas Lee on 5/8/23.
 //
 
-#if canImport(UIKit)
+#if canImport(UIKit) && !os(watchOS)
 import UIKit
 
 open class ScrollableHStackView: UIScrollView {
@@ -53,7 +53,9 @@ extension ScrollableHStackView {
     
     private func setupUI() {
         clipsToBounds = false
+        #if !os(visionOS)
         keyboardDismissMode = .onDrag
+        #endif
         showsHorizontalScrollIndicator = false
         addSubview(contentView)
     }

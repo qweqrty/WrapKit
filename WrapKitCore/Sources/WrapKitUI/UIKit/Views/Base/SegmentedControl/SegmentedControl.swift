@@ -56,7 +56,7 @@ public protocol SegmentedControlOutput: AnyObject {
     func display(segments: [SegmentControlModel])
 }
 
-#if canImport(UIKit)
+#if canImport(UIKit) && !os(watchOS)
 import UIKit
 
 public class SegmentedControl: UISegmentedControl {

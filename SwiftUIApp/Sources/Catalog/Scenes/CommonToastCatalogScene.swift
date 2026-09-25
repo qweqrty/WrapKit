@@ -1,13 +1,16 @@
 import SwiftUI
 import WrapKit
 
+#if !os(tvOS) && !os(watchOS)
 // swiftlint:disable type_body_length
+#endif
 
 enum CommonToastCatalogSceneFactory {
     static func make(
         onBack: @escaping () -> Void,
         selectionFlow: any SelectionFlow
     ) -> AnyView {
+        #if !os(tvOS) && !os(watchOS)
         let chrome = CatalogChromeAdapters()
         let adapters = CommonToastCatalogAdapters()
         let presenter = CommonToastCatalogPresenter(
@@ -32,9 +35,13 @@ enum CommonToastCatalogSceneFactory {
             chrome: chrome,
             adapters: adapters
         ))
+        #else
+        return CatalogUnsupportedSceneFactory.make(title: "CommonToastOutput", onBack: onBack)
+        #endif
     }
 }
 
+#if !os(tvOS) && !os(watchOS)
 private final class CommonToastCatalogAdapters {
     let status = TextOutputSwiftUIAdapter()
     let toast = CommonToastOutputSwiftUIAdapter()
@@ -413,3 +420,4 @@ private extension ToastCatalogSetting {
 }
 
 // swiftlint:enable type_body_length
+#endif

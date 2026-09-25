@@ -5,7 +5,7 @@
 //  Created by Daniiar Erkinov on 3/7/24.
 //
 
-#if canImport(UIKit)
+#if canImport(UIKit) && !os(watchOS) && !os(tvOS)
 import UIKit
 
 open class SelectionVC: BottomSheetController<SelectionContentView> {

@@ -94,7 +94,7 @@ public protocol TableOutput<Header, Cell, Footer>: AnyObject {
     func displayHideRefreshControl()
 }
 
-#if canImport(UIKit)
+#if canImport(UIKit) && !os(watchOS)
 import Foundation
 import UIKit
 
@@ -118,8 +118,10 @@ public class DiffableTableViewDataSource<Header, Cell: Hashable, Footer>: NSObje
     private var canMoveHandler: ((IndexPath) -> Bool)?
     private var canEditHandler: ((IndexPath) -> Bool)?
     private var commitEditingHandler: ((TableEditingStyle, IndexPath) -> Void)?
+    #if !os(tvOS)
     private var trailingSwipeActionsConfigurationForRowAt: ((IndexPath) -> UISwipeActionsConfiguration?)?
     private var leadingSwipeActionsConfigurationForRowAt: ((IndexPath) -> UISwipeActionsConfiguration?)?
+    #endif
     
     private var sections: [TableSection<Header, Cell, Footer>] = []
     
@@ -203,6 +205,7 @@ public class DiffableTableViewDataSource<Header, Cell: Hashable, Footer>: NSObje
     }
     
     // MARK: - UITableViewDelegate Methods
+    #if !os(tvOS)
     public func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         guard !hasInsertEditingStyle(at: indexPath) else { return nil }
         return trailingSwipeActionsConfigurationForRowAt?(indexPath) ?? .init(actions: [])
@@ -212,6 +215,7 @@ public class DiffableTableViewDataSource<Header, Cell: Hashable, Footer>: NSObje
         guard !hasInsertEditingStyle(at: indexPath) else { return nil }
         return leadingSwipeActionsConfigurationForRowAt?(indexPath) ?? .init(actions: [])
     }
+    #endif
     
     public func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return heightForRowAt?(indexPath) ?? UITableView.automaticDimension
@@ -296,7 +300,9 @@ public class DiffableTableViewDataSource<Header, Cell: Hashable, Footer>: NSObje
 // MARK: - TableOutput Conformance
 extension DiffableTableViewDataSource: TableOutput & HiddableOutput {
     public func displayHideRefreshControl() {
+        #if !os(tvOS)
         tableView?.refreshControl = nil
+        #endif
     }
     
     public func display(expandTrailingActionsAt indexPath: IndexPath) {
@@ -314,6 +320,7 @@ extension DiffableTableViewDataSource: TableOutput & HiddableOutput {
     }
     
     public func display(leadingSwipeActionsForIndexPath: ((IndexPath) -> [TableContextualAction<Cell>])?) {
+        #if !os(tvOS)
         self.leadingSwipeActionsConfigurationForRowAt = { [weak self] indexPath in
             let contextualActions = leadingSwipeActionsForIndexPath?(indexPath).map { action in
                 let uiAction = UIContextualAction(
@@ -340,9 +347,11 @@ extension DiffableTableViewDataSource: TableOutput & HiddableOutput {
             configuration.performsFirstActionWithFullSwipe = true
             return configuration
         }
+        #endif
     }
     
     public func display(trailingSwipeActionsForIndexPath: ((IndexPath) -> [TableContextualAction<Cell>])?) {
+        #if !os(tvOS)
         self.trailingSwipeActionsConfigurationForRowAt = { [weak self] indexPath in
             let contextualActions = trailingSwipeActionsForIndexPath?(indexPath).map { action in
                 let uiAction = UIContextualAction(
@@ -369,6 +378,7 @@ extension DiffableTableViewDataSource: TableOutput & HiddableOutput {
             configuration.performsFirstActionWithFullSwipe = true
             return configuration
         }
+        #endif
     }
     
     public func display(sections: [TableSection<Header, Cell, Footer>]) {
@@ -395,6 +405,7 @@ extension DiffableTableViewDataSource: TableOutput & HiddableOutput {
     }
 }
 
+#if !os(tvOS)
 private extension TableContextualAction.Style {
     var asUIContextualActionStyle: UIContextualAction.Style {
         switch self {
@@ -403,6 +414,7 @@ private extension TableContextualAction.Style {
         }
     }
 }
+#endif
 
 private extension TableEditingStyle {
     var uiTableViewCellEditingStyle: UITableViewCell.EditingStyle {

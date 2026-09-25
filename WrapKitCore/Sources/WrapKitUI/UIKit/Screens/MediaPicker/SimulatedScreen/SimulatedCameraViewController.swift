@@ -1,10 +1,4 @@
-//
-//  File.swift
-//  WrapKit
-//
-//  Created by Gulzat Zheenbek kyzy on 16/6/25.
-//
-
+#if os(iOS) || targetEnvironment(macCatalyst)
 import Foundation
 
 #if canImport(UIKit)
@@ -45,5 +39,6 @@ extension SimulatedCameraViewController: UIAdaptivePresentationControllerDelegat
         onCapture?(nil)
     }
 }
+#endif
 #endif
 #endif

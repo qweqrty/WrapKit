@@ -1,6 +1,6 @@
 import Foundation
 
-#if canImport(SwiftUI)
+#if canImport(SwiftUI) && !os(watchOS)
 import SwiftUI
 
 public struct SUISegmentControlView: View {
@@ -18,7 +18,7 @@ public struct SUISegmentControlView: View {
 
     @ViewBuilder
     public var body: some View {
-        if #available(iOS 26, macOS 26, tvOS 26, watchOS 26, *) {
+        if #available(iOS 26, macOS 26, tvOS 26, watchOS 26, visionOS 26, *) {
             nativeSegmentedControl
         } else {
             GeometryReader { proxy in

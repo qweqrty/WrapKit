@@ -1,3 +1,4 @@
+#if !os(tvOS) && !os(macOS) && !os(watchOS)
 import Combine
 import Foundation
 
@@ -346,3 +347,4 @@ extension TableContextualAction {
         title != nil || image != nil
     }
 }
+#endif

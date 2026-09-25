@@ -1,3 +1,4 @@
+#if !os(tvOS)
 import SwiftUI
 #if os(iOS)
 import UIKit
@@ -336,3 +337,4 @@ private struct LegacySwitchToggleStyle: ToggleStyle {
 #Preview {
     SUISwitchControlView(isOn: true, isEnabled: true, isLoading: false, style: .init(tintColor: .red, thumbTintColor: .cyan, backgroundColor: .green, cornerRadius: 26), onToggle: nil)
 }
+#endif

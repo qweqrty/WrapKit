@@ -5,6 +5,7 @@
 //  Created by Urmatbek Marat Uulu on 27/4/26.
 //
 
+#if !os(macOS) && !os(watchOS) && !os(tvOS)
 import SwiftUI
 
 public struct SUIDatePicker: View {
@@ -189,3 +190,4 @@ struct SUIDatePickerCountDownView: UIViewRepresentable {
         dateChanged: { print($0) }
     )
 }
+#endif

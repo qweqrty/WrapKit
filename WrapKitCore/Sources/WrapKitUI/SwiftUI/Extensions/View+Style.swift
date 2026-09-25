@@ -24,6 +24,9 @@ extension View {
         tint: SwiftUIColor? = nil,
         cornerStyle: CornerStyle = .automatic
     ) -> some View {
+        #if os(visionOS)
+        self
+        #else
         if #available(iOS 26, macOS 26, tvOS 26, watchOS 26, *), isLiquidGlassEnabled {
             switch configuration {
             case .glass:
@@ -64,9 +67,11 @@ extension View {
         } else {
             self
         }
+        #endif
     }
 }
 
+#if !os(visionOS)
 private extension CornerStyle {
     @available(iOS 26, macOS 26, tvOS 26, watchOS 26, *)
     var buttonBorderShape: SwiftUI.ButtonBorderShape {
@@ -82,6 +87,7 @@ private extension CornerStyle {
         }
     }
 }
+#endif
 
 struct SUICornerShape: InsettableShape {
     let style: CornerStyle

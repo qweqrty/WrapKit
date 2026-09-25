@@ -1,3 +1,5 @@
+// XCUIElement.tap() недоступен на tvOS — там взаимодействие через remote/XCUIRemote
+#if !os(tvOS)
 //
 //  XCUIApplication+Extensions.swift
 //  WrapKitTestUtils
@@ -62,3 +64,4 @@ public extension XCUIApplication {
         }
     }
 }
+#endif

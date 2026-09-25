@@ -4,6 +4,7 @@ import WrapKit
 
 enum SearchBarCatalogSceneFactory {
     static func make(onBack: @escaping () -> Void) -> AnyView {
+        #if !os(tvOS) && !os(macOS) && !os(watchOS)
         let adapters = SearchBarCatalogSceneAdapters()
         let presenter = SearchBarCatalogPresenter(onBack: onBack)
 
@@ -22,9 +23,13 @@ enum SearchBarCatalogSceneFactory {
                 configuration: .appleDefault
             )
         )
+        #else
+        return CatalogUnsupportedSceneFactory.make(title: "SearchBarOutput", onBack: onBack)
+        #endif
     }
 }
 
+#if !os(tvOS) && !os(macOS) && !os(watchOS)
 private final class SearchBarCatalogSceneAdapters {
     let chrome = CatalogChromeAdapters()
     let searchBar = SearchBarOutputSwiftUIAdapter()
@@ -250,3 +255,4 @@ private enum SearchBarCatalogMetrics {
     static let sideControlSize: CGFloat = 44
     static let sideControlSpacing: CGFloat = 8
 }
+#endif

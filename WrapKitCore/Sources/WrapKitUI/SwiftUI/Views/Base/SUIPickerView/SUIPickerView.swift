@@ -5,6 +5,7 @@
 //  Created by Urmatbek Marat Uulu on 30/4/26.
 //
 
+#if !os(tvOS) && !os(macOS)
 import SwiftUI
 
 public struct SUIPickerView: View {
@@ -102,3 +103,4 @@ public extension SUIPickerContent {
         didSelectAt: { print($0) }
     )
 }
+#endif

@@ -12,7 +12,7 @@ public protocol KeyValueFieldViewOutput: AnyObject {
     func display(bottomImage: ImageViewPresentableModel?)
 }
 
-#if canImport(UIKit)
+#if canImport(UIKit) && !os(watchOS)
 import UIKit
 import SwiftUI
 

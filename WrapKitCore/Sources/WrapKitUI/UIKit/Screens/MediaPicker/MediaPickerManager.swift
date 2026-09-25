@@ -1,42 +1,7 @@
-//
-//  File.swift
-//  WrapKit
-//
-//  Created by Gulzat Zheenbek kyzy on 16/6/25.
-//
-
+#if os(iOS) || targetEnvironment(macCatalyst)
 import PhotosUI
 import UniformTypeIdentifiers
 import Combine
-
-public enum DesiredResultType {
-    case image
-    case data(DataType)
-    case url
-    
-    public enum DataType {
-        case png
-        case jpeg(CGFloat)
-        case heic
-    }
-}
-
-public struct MediaPickerConstants {
-    public static let imageIdent = "public.image"
-    public static let videoIdent = "public.movie"
-}
-
-public enum MediaPickerSource {
-    case camera(CameraPickerConfiguration)
-    case gallery(GalleryPickerConfiguration)
-    case file(DocumentPickerConfiguration)
-}
-
-public enum MediaPickerResultType {
-    case image([Image])
-    case data([Data])
-    case url([URL])
-}
 
 #if canImport(UIKit)
 import UIKit
@@ -307,4 +272,5 @@ extension MediaPickerManager: PHPickerViewControllerDelegate {
         return subject.eraseToAnyPublisher()
     }
 }
+#endif
 #endif

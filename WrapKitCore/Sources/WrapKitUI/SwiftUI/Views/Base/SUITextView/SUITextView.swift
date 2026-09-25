@@ -1,3 +1,4 @@
+#if !os(macOS) && !os(tvOS) && !os(watchOS)
 import SwiftUI
 
 public struct SUITextView: View {
@@ -640,3 +641,4 @@ private extension TextAutocapitalizationType {
         }
     }
 }
+#endif

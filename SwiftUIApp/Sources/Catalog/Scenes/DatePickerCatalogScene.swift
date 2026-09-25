@@ -7,6 +7,7 @@ enum DatePickerCatalogSceneFactory {
         onBack: @escaping () -> Void,
         selectionFlow: any SelectionFlow
     ) -> AnyView {
+        #if !os(macOS) && !os(watchOS) && !os(tvOS)
         let adapters = DatePickerCatalogSceneAdapters()
         let presenter = DatePickerCatalogPresenter(
             onBack: onBack,
@@ -27,9 +28,13 @@ enum DatePickerCatalogSceneFactory {
         return AnyView(
             DatePickerCatalogView(presenter: presenter, adapters: adapters)
         )
+        #else
+        return CatalogUnsupportedSceneFactory.make(title: "DatePickerViewOutput", onBack: onBack)
+        #endif
     }
 }
 
+#if !os(macOS) && !os(watchOS) && !os(tvOS)
 private final class DatePickerCatalogSceneAdapters {
     let chrome = CatalogChromeAdapters()
     let datePicker = DatePickerViewOutputSwiftUIAdapter()
@@ -271,3 +276,4 @@ private struct DatePickerCatalogView: View {
         }
     }
 }
+#endif

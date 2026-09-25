@@ -1,3 +1,4 @@
+#if os(iOS) || targetEnvironment(macCatalyst)
 //
 //  ButtonSnapshotTests.swift
 //  WrapKit
@@ -1247,3 +1248,4 @@ extension ButtonSnapshotTests {
             return container
         }
 }
+#endif

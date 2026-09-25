@@ -117,4 +117,36 @@ final class StringExtensionsTests: XCTestCase {
     func testToDateReturnsNilOnInvalidDateValue() {
         XCTAssertNil("2024-02-30".toDate(dateFormat: "yyyy-MM-dd"))
     }
+
+    func testIsURLAcceptsHttpsUrl() {
+        XCTAssertTrue("https://example.com/path".isURL)
+    }
+
+    func testIsURLRejectsPlainText() {
+        XCTAssertFalse("just some text".isURL)
+    }
+
+    func testIsURLRejectsEmptyString() {
+        XCTAssertFalse("".isURL)
+    }
+
+    func testExtractUrlReturnsHrefValue() {
+        let html = "<a href=\"https://example.com/faq\">FAQ</a>"
+
+        XCTAssertEqual(html.extractUrl, "https://example.com/faq")
+    }
+
+    func testExtractUrlReturnsEmptyStringWhenNoHref() {
+        XCTAssertEqual("<p>no links here</p>".extractUrl, "")
+    }
+
+    func testReplaceHtmlLinkTagWrapsTextWithSymbol() {
+        let html = "text <a href=\"https://example.com\">link</a> tail"
+
+        XCTAssertEqual(html.replaceHtmlLinkTag(with: "&"), "text &link& tail")
+    }
+
+    func testReplaceHtmlLinkTagLeavesStringWithoutLinksUnchanged() {
+        XCTAssertEqual("no links".replaceHtmlLinkTag(with: "&"), "no links")
+    }
 }

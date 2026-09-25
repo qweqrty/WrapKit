@@ -1,3 +1,4 @@
+#if !os(tvOS) && !os(macOS) && !os(watchOS)
 import SwiftUI
 
 #if canImport(UIKit)
@@ -309,4 +310,5 @@ private extension Array where Element: UIView {
             .0
     }
 }
+#endif
 #endif

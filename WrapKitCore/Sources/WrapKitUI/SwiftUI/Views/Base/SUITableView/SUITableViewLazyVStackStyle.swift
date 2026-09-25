@@ -1,3 +1,4 @@
+#if !os(tvOS) && !os(macOS) && !os(watchOS)
 import SwiftUI
 
 public struct SUITableViewLazyVStackStyle {
@@ -73,3 +74,4 @@ public struct SUITableViewLazyVStackStyle {
         }
     }
 }
+#endif

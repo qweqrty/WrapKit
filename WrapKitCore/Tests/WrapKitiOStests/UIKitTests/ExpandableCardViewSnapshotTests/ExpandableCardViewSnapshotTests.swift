@@ -1,3 +1,4 @@
+#if os(iOS) || targetEnvironment(macCatalyst)
 //
 //  ExpandableCardViewSnapshotTests.swift
 //  WrapKitTests
@@ -430,3 +431,4 @@ extension ExpandableCardViewSnapshotTests {
         return container
     }
 }
+#endif

@@ -5,7 +5,7 @@
 //  Created by Stas Lee on 12/1/24.
 //
 
-#if canImport(UIKit)
+#if canImport(WebKit) && canImport(UIKit) && !os(watchOS)
 #if canImport(MapKit)
 import Foundation
 import UIKit

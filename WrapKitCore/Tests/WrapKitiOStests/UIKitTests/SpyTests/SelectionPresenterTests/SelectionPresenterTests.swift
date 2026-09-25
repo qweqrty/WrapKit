@@ -1,3 +1,4 @@
+#if os(iOS) || targetEnvironment(macCatalyst)
 //
 //  SelectionPresenterTests.swift
 //  WrapKit
@@ -503,3 +504,4 @@ fileprivate extension SelectionPresenterTests {
     }
     
 }
+#endif

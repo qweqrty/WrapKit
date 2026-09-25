@@ -3,6 +3,7 @@ import WrapKit
 
 enum ExpandableCardViewOutputCatalogSceneFactory {
     static func make(onBack: @escaping () -> Void) -> AnyView {
+        #if !os(tvOS)
         let adapters = ExpandableCardViewOutputCatalogAdapters()
         let chrome = CatalogChromeAdapters()
         let presenter = ExpandableCardViewOutputCatalogPresenter(onBack: onBack)
@@ -24,9 +25,13 @@ enum ExpandableCardViewOutputCatalogSceneFactory {
                 chrome: chrome
             )
         )
+        #else
+        return CatalogUnsupportedSceneFactory.make(title: "ExpandableCardViewOutput", onBack: onBack)
+        #endif
     }
 }
 
+#if !os(tvOS)
 private final class ExpandableCardViewOutputCatalogPresenter: LifeCycleViewOutput {
     var headerOutput: HeaderOutput?
     var stackOutput: StackViewOutput?
@@ -242,3 +247,4 @@ private struct ExpandableCardViewOutputCatalogView: View {
         }
     }
 }
+#endif

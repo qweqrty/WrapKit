@@ -285,7 +285,7 @@ private struct KeyValueFieldCatalogScene: View {
                         contentInsets: .init(horizontal: 12, vertical: 10)
                     )
                     .background(
-                        SwiftUI.Color(uiColor: .secondarySystemBackground),
+                        SwiftUIColor(.secondarySystemBackground),
                         in: RoundedRectangle(cornerRadius: 12, style: .continuous)
                     )
                 }
@@ -312,6 +312,7 @@ private struct KeyValueFieldCatalogScene: View {
     }
 }
 
+#if !os(tvOS)
 private final class StackViewCatalogAdapters {
     let stack = StackViewOutputSwiftUIAdapter()
     let status = TextOutputSwiftUIAdapter()
@@ -504,12 +505,14 @@ private final class StackViewCatalogPresenter: LifeCycleViewOutput {
         statusOutput?.display(model: .text(text))
     }
 }
+#endif
 
 enum StackViewCatalogSceneFactory {
     static func make(
         onBack: @escaping () -> Void,
         selectionFlow: any SelectionFlow
     ) -> AnyView {
+        #if !os(tvOS)
         let adapters = StackViewCatalogAdapters()
         let chrome = CatalogChromeAdapters()
         let presenter = StackViewCatalogPresenter(
@@ -533,9 +536,13 @@ enum StackViewCatalogSceneFactory {
             adapters: adapters,
             chrome: chrome
         ))
+        #else
+        return CatalogUnsupportedSceneFactory.make(title: "StackViewOutput", onBack: onBack)
+        #endif
     }
 }
 
+#if !os(tvOS)
 private struct StackViewCatalogScene: View {
     let presenter: StackViewCatalogPresenter
     let adapters: StackViewCatalogAdapters
@@ -579,7 +586,9 @@ private struct StackViewCatalogScene: View {
         }
     }
 }
+#endif
 
+#if !os(tvOS) && !os(macOS) && !os(watchOS)
 private struct TableCatalogRow: Hashable, Identifiable {
     let id: Int
     let title: String
@@ -1096,9 +1105,11 @@ private final class TableCatalogPresenter: LifeCycleViewOutput {
         statusOutput?.display(model: .text(text))
     }
 }
+#endif
 
 enum TableCatalogSceneFactory {
     static func make(onBack: @escaping () -> Void) -> AnyView {
+        #if !os(tvOS) && !os(macOS) && !os(watchOS)
         let adapters = TableCatalogAdapters()
         let chrome = CatalogChromeAdapters()
         let editModeState = TableCatalogEditModeState()
@@ -1131,9 +1142,13 @@ enum TableCatalogSceneFactory {
             chrome: chrome,
             editModeState: editModeState
         ))
+        #else
+        return CatalogUnsupportedSceneFactory.make(title: "TableOutput", onBack: onBack)
+        #endif
     }
 }
 
+#if !os(tvOS) && !os(macOS) && !os(watchOS)
 private struct TableCatalogScene: View {
     let presenter: TableCatalogPresenter
     let adapters: TableCatalogAdapters
@@ -1168,9 +1183,11 @@ private struct TableCatalogScene: View {
                 )
                 .environment(\.editMode, $editModeState.editMode)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
+                #if os(iOS) || targetEnvironment(macCatalyst)
                 .refreshControl(adapter: adapters.refresh)
+                #endif
             }
-            .background(SwiftUI.Color(uiColor: .systemGroupedBackground))
+            .background(SwiftUIColor(.systemGroupedBackground))
             .navigationBarHidden(true)
         }
     }
@@ -1213,7 +1230,7 @@ private struct TableCatalogScene: View {
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
             .contentShape(Rectangle())
-            .background(SwiftUI.Color(uiColor: .secondarySystemGroupedBackground))
+            .background(SwiftUIColor(.secondarySystemGroupedBackground))
         case .addItem:
             SUILabelView(
                 model: .text("Add sample row"),
@@ -1223,7 +1240,7 @@ private struct TableCatalogScene: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
-            .background(SwiftUI.Color(uiColor: .secondarySystemGroupedBackground))
+            .background(SwiftUIColor(.secondarySystemGroupedBackground))
         case .status:
             CatalogStatusLabel(adapter: adapters.status)
                 .padding(.horizontal, 16)
@@ -1276,6 +1293,7 @@ private struct TableCatalogScene: View {
         .padding(.bottom, 12)
     }
 }
+#endif
 
 private struct CatalogActionButtons<Action: Hashable>: View {
     let actions: [Action]

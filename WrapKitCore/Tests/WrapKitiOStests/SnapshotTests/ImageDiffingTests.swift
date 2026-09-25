@@ -1,3 +1,5 @@
+#if os(iOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(tvOS)
 import SwiftUI
 import UIKit
 import WrapKitTestUtils
@@ -1150,3 +1152,5 @@ private extension XCTestCase {
         )
     }
 }
+#endif
+#endif
