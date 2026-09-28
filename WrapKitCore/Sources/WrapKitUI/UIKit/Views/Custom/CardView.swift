@@ -631,7 +631,7 @@ open class CardView: ViewUIKit {
     )
     
     public let subtitleLabelWrapperView = UIView(isHidden: true)
-    public let subtitleLabel = Label(font: .systemFont(ofSize: 16), textColor: .gray)
+    public let subtitleLabel = Label(font: .systemFont(ofSize: 16), textColor: .gray, textAlignment: .right)
     
     public let trailingImageWrapperView = ViewUIKit(isHidden: true)
     public private(set) var trailingImageView = ImageView(image: UIImage(named: "rightArrow"), tintColor: .black)
@@ -701,7 +701,7 @@ open class CardView: ViewUIKit {
     
     private func setupPriorities() {
         subtitleLabel.setContentHuggingPriority(.required, for: .horizontal)
-        subtitleLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
+        subtitleLabel.setContentCompressionResistancePriority(UILayoutPriority(751), for: .horizontal)
         subtitleLabel.setContentCompressionResistancePriority(.required, for: .vertical)
         
         titleViews.keyLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
