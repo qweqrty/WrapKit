@@ -11,15 +11,18 @@ import SwiftUI
 public struct SUITitledView<Content: View>: View {
     @StateObject private var stateModel: SUITitledViewStateModel
 
+    private let bottomTitlesHorizontalInset: CGFloat
     private let spacing: CGFloat
     private let content: Content
 
     public init(
         adapter: TitledOutputSwiftUIAdapter,
         spacing: CGFloat = 4,
+        bottomTitlesHorizontalInset: CGFloat = 0,
         @ViewBuilder content: () -> Content
     ) {
         _stateModel = .init(wrappedValue: .init(adapter: adapter))
+        self.bottomTitlesHorizontalInset = bottomTitlesHorizontalInset
         self.spacing = spacing
         self.content = content()
     }
@@ -52,7 +55,7 @@ public struct SUITitledView<Content: View>: View {
                     valueTextColor: .gray,
                     keyMinimumScaleFactor: 1,
                     isHidden: true
-                )
+                ).padding(.horizontal, bottomTitlesHorizontalInset)
             }
             .fixedSize(horizontal: false, vertical: true)
             .frame(maxWidth: .infinity, alignment: .top)

@@ -9,6 +9,7 @@ import Foundation
 import SwiftUI
 
 public struct SUIVKeyValueFieldView: View {
+    @Environment(\.suiKeyValueLoadingStyle) private var loadingStyle
     @Environment(\.displayScale) private var displayScale
 
     struct LayoutConfiguration {
@@ -196,7 +197,7 @@ public struct SUIVKeyValueFieldView: View {
             textAlignment: keyTextAlignment,
             numberOfLines: keyNumberOfLines,
             minimumScaleFactor: layoutConfiguration.keyMinimumScaleFactor
-        )
+        ).modifier(SUICardSkeleton(style: loadingStyle, width: 0.6, height: 0.33))
     }
 
     @ViewBuilder
@@ -208,7 +209,7 @@ public struct SUIVKeyValueFieldView: View {
             textAlignment: valueTextAlignment,
             numberOfLines: valueNumberOfLines,
             minimumScaleFactor: layoutConfiguration.valueMinimumScaleFactor
-        )
+        ).modifier(SUICardSkeleton(style: loadingStyle, width: 0.4, height: 0.45))
     }
 
     private func fillItem(@ViewBuilder content: () -> some View) -> some View {

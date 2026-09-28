@@ -514,8 +514,9 @@ private struct SUIHTMLAttributedLabel: UIViewRepresentable {
         uiView: Label,
         context: Context
     ) -> CGSize? {
-        guard let width = proposal.width, let height = proposal.height else { return nil }
-        return CGSize(width: width, height: height)
+        guard let width = proposal.width else { return nil }
+        let fitted = uiView.sizeThatFits(CGSize(width: width, height: .greatestFiniteMagnitude))
+        return CGSize(width: width, height: ceil(fitted.height))
     }
 }
 #endif

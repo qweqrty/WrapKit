@@ -89,21 +89,26 @@ struct SUISelectionScene: View {
 
     var body: some View {
         LifeCycleView(lifeCycleOutput: lifeCycleOutput) {
-            if #available(iOS 16.0, *) {
-                NavigationStack {
-                    selectionContent
-                        .navigationHeader(adapter: adapters.header)
-                }
-            } else {
-                VStack(spacing: 0) {
-                    SUINavigationBar(adapter: adapters.header)
-                    selectionContent
-                }
+            GeometryReader { container in
+            VStack(spacing: 0) {
+                GeometryReader { geometry in
+                    RoundedRectangle(cornerRadius: 2)
+                        .fill(SwiftUI.Color(uiColor: configuration.content.lineColor))
+                        .frame(width: geometry.size.width * 40 / 375, height: 4)
+                        .frame(maxWidth: .infinity)
+                        .padding(.top, 12)
+                }.frame(height: 24).ignoresSafeArea(.container, edges: .horizontal)
+                SUISelectionNativeHeader(adapter: adapters.header)
+                    .padding(.trailing, container.safeAreaInsets.trailing)
+                selectionContent(trailingInset: container.safeAreaInsets.trailing).padding(.top, 8)
+            }
+            .ignoresSafeArea(.container, edges: .horizontal)
+            .background(SwiftUI.Color(uiColor: configuration.content.backgroundColor))
             }
         }
     }
 
-    private var selectionContent: some View {
+    private func selectionContent(trailingInset: CGFloat) -> some View {
         SUIStackView(axis: .vertical, spacing: 0) {
             if stateModel.shouldShowSearch {
                 searchField
@@ -113,12 +118,13 @@ struct SUISelectionScene: View {
             }
 
             tableContent
+                .padding(.trailing, trailingInset)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
 
             if input.isMultipleSelectionEnabled {
                 selectionButtons
                     .padding(.horizontal, 12)
-                    .padding(.vertical, 12)
+                    .padding(.vertical, 0)
             }
         }
         .background(SwiftUI.Color(uiColor: configuration.content.backgroundColor))
@@ -172,13 +178,45 @@ struct SUISelectionScene: View {
     }
 
     private var selectionButtons: some View {
-        SUIStackView(axis: .horizontal, spacing: 12) {
-            SUIButton(adapter: adapters.resetButton, pressAnimations: [.shrink])
-                .frame(maxWidth: .infinity)
-            SUIButton(adapter: adapters.selectButton, pressAnimations: [.shrink])
-                .frame(maxWidth: .infinity)
+        GeometryReader { geometry in
+            HStack(spacing: 12) {
+                SUIButton(adapter: adapters.resetButton, pressAnimations: [.shrink])
+                    .frame(width: (geometry.size.width + 24) * 133 / 375)
+                SUIButton(adapter: adapters.selectButton, pressAnimations: [.shrink])
+                    .frame(maxWidth: .infinity)
+            }
+        }.frame(height: 48).ignoresSafeArea(.container, edges: .horizontal)
+    }
+}
+
+private struct SUISelectionNativeHeader: View {
+    @StateObject private var state: SUINavigationBarStateModel
+    init(adapter: HeaderOutputSwiftUIAdapter) {
+        _state = StateObject(wrappedValue: SUINavigationBarStateModel(adapter: adapter))
+    }
+    var body: some View {
+        NativeBar(state: state).frame(height: UINavigationBar().sizeThatFits(.zero).height)
+    }
+    private struct NativeBar: UIViewRepresentable {
+        @ObservedObject var state: SUINavigationBarStateModel
+        func makeUIView(context: Context) -> UIView {
+            let container = UIView()
+            container.clipsToBounds = true
+            let bar = UINavigationBar()
+            bar.setItems([UINavigationItem()], animated: false)
+            bar.translatesAutoresizingMaskIntoConstraints = false
+            container.addSubview(bar)
+            NSLayoutConstraint.activate([
+                bar.leadingAnchor.constraint(equalTo: container.leadingAnchor),
+                bar.trailingAnchor.constraint(equalTo: container.trailingAnchor),
+                bar.topAnchor.constraint(equalTo: container.topAnchor),
+                bar.bottomAnchor.constraint(equalTo: container.bottomAnchor)
+            ])
+            return container
         }
-        .fixedSize(horizontal: false, vertical: true)
+        func updateUIView(_ container: UIView, context: Context) {
+            (container.subviews.first as? UINavigationBar)?.display(model: state.model)
+        }
     }
 }
 
@@ -238,10 +276,10 @@ private struct SUISelectionCell: View {
                 .accentColor(.blue)
             }
         }
-        .frame(minHeight: 56)
+        .frame(minHeight: 57)
         .overlay(alignment: .bottom) {
             SwiftUI.Color(uiColor: model.configuration.lineColor)
-                .frame(height: 1 / UIScreen.main.scale)
+                .frame(height: 1)
         }
         .contentShape(Rectangle())
         .accessibilityElement(children: .combine)

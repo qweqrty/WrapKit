@@ -56,7 +56,7 @@ public struct SUICountingLabelAnimation: View {
                     duration: duration,
                     completion: nil
                 )
-                .padding(8)
+                .padding(-8)
             }
 
             SUILabelView(

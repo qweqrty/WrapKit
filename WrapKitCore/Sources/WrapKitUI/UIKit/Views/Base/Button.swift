@@ -644,6 +644,7 @@ open class Button: UIButton {
         isEnabled = enabled
         alpha = enabled ? 1.0 : 0.5
         titleLabel?.alpha = enabled ? 1.0 : 0.5
+        applyInteractivityAndAccessibility()
     }
     
     open override func accessibilityActivate() -> Bool {

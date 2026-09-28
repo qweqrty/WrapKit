@@ -34,36 +34,141 @@ private struct NativeNavigationHeaderModifier: ViewModifier {
             .toolbarBackground(.visible, for: .navigationBar)
             .toolbar {
                 if !state.isHidden {
-                    ToolbarItem(placement: .navigationBarLeading) {
-                        if state.model.leadingCard != nil {
-                            SUICardView(
-                                adapter: state.leadingCardAdapter,
-                                leadingImageTint: state.leadingCardImageTint
-                            )
-                            .fixedSize(horizontal: true, vertical: false)
+                    if state.model.leadingCard != nil {
+                        ToolbarItem(placement: .navigationBarLeading) {
+                            NativeNavigationHeaderLeading(state: state, style: style)
                         }
+                        .headerAxisBehavior(vertical: state.model.leadingCard?.isNativeHeaderAction == true)
                     }
                     ToolbarItem(placement: .principal) {
                         NativeNavigationHeaderTitle(state: state, style: style)
                     }
-                    // Separate items let SwiftUI manage placement and overflow.
-                    ToolbarItem(placement: .navigationBarTrailing) {
-                        if state.model.primeTrailingImage != nil {
+                    if state.model.primeTrailingImage != nil && !state.primeTrailingButtonStateModel.isHidden {
+                        ToolbarItem(placement: .navigationBarTrailing) {
                             NativeNavigationHeaderButton(state: state.primeTrailingButtonStateModel, tint: style.primeColor)
                         }
+                        .headerAxisBehavior(vertical: state.primeTrailingButtonStateModel.presentable.isVerticalHeaderAction)
                     }
-                    ToolbarItem(placement: .navigationBarTrailing) {
-                        if state.model.secondaryTrailingImage != nil {
+                    if state.model.secondaryTrailingImage != nil && !state.secondaryTrailingButtonStateModel.isHidden {
+                        if #available(iOS 26.0, *), state.model.primeTrailingImage != nil && !state.primeTrailingButtonStateModel.isHidden {
+                            ToolbarSpacer(.fixed, placement: .navigationBarTrailing)
+                        }
+                        ToolbarItem(placement: .navigationBarTrailing) {
                             NativeNavigationHeaderButton(state: state.secondaryTrailingButtonStateModel, tint: style.primeColor)
                         }
+                        .headerAxisBehavior(vertical: state.secondaryTrailingButtonStateModel.presentable.isVerticalHeaderAction)
                     }
-                    ToolbarItem(placement: .navigationBarTrailing) {
-                        if state.model.tertiaryTrailingImage != nil {
+                    if state.model.tertiaryTrailingImage != nil && !state.tertiaryTrailingButtonStateModel.isHidden {
+                        if #available(iOS 26.0, *),
+                           (state.model.primeTrailingImage != nil && !state.primeTrailingButtonStateModel.isHidden)
+                            || (state.model.secondaryTrailingImage != nil && !state.secondaryTrailingButtonStateModel.isHidden) {
+                            ToolbarSpacer(.fixed, placement: .navigationBarTrailing)
+                        }
+                        ToolbarItem(placement: .navigationBarTrailing) {
                             NativeNavigationHeaderButton(state: state.tertiaryTrailingButtonStateModel, tint: style.primeColor)
                         }
+                        .headerAxisBehavior(vertical: state.tertiaryTrailingButtonStateModel.presentable.isVerticalHeaderAction)
                     }
                 }
             }
+    }
+}
+
+// Match the UIKit header: compact actions participate in the vertical bar;
+// rich controls stay horizontal. Let the system choose the actual edge.
+@available(iOS 16.0, *)
+private extension ToolbarContent {
+    @ToolbarContentBuilder
+    func headerAxisBehavior(vertical: Bool) -> some ToolbarContent {
+        if #available(iOS 27.1, *) {
+            axisBehavior(vertical ? .verticalPreferred : .horizontalOnly)
+        } else {
+            self
+        }
+    }
+}
+
+private extension ButtonPresentableModel {
+    var isVerticalHeaderAction: Bool {
+        if style == nil && width == nil && height == nil && spacing == nil { return true }
+        return title == nil && (width ?? 44) <= 44 && (height ?? 44) <= 44
+    }
+}
+
+private extension CardViewPresentableModel {
+    var isNativeHeaderAction: Bool {
+        guard case let .asset(image)? = leadingImage?.image, image != nil else { return false }
+        if let text = title?.model {
+            switch text {
+            case .text: break
+            default: return false
+            }
+        }
+        return style == nil && leadingTitles == nil && trailingTitles == nil
+            && subTitle == nil && valueTitle == nil && backgroundImage == nil
+            && secondaryLeadingImage == nil && trailingImage == nil && secondaryTrailingImage == nil
+            && bottomImage == nil && bottomSeparator == nil && switchControl == nil
+            && !isGradientBorderEnabled && onLongPress == nil && leadingImage?.onLongPress == nil
+    }
+}
+
+@available(iOS 16.0, *)
+private struct NativeNavigationHeaderLeading: View {
+    @ObservedObject var state: SUINavigationBarStateModel
+    let style: HeaderPresentableModel.Style
+
+    var body: some View {
+        if let card = state.model.leadingCard, card.isNativeHeaderAction {
+            if #available(iOS 27.1, *) {
+                AdaptiveNativeNavigationHeaderAction(card: card, style: style)
+            } else {
+                NativeNavigationHeaderAction(card: card, style: style, showsTitle: true)
+            }
+        } else {
+            SUICardView(adapter: state.leadingCardAdapter, leadingImageTint: state.leadingCardImageTint)
+                .fixedSize(horizontal: true, vertical: false)
+        }
+    }
+
+}
+
+@available(iOS 27.1, *)
+private struct AdaptiveNativeNavigationHeaderAction: View {
+    @Environment(\.toolbarVerticalEdge) private var verticalEdge
+    let card: CardViewPresentableModel
+    let style: HeaderPresentableModel.Style
+
+    var body: some View {
+        NativeNavigationHeaderAction(card: card, style: style, showsTitle: verticalEdge == nil)
+    }
+}
+
+@available(iOS 16.0, *)
+private struct NativeNavigationHeaderAction: View {
+    let card: CardViewPresentableModel
+    let style: HeaderPresentableModel.Style
+    let showsTitle: Bool
+
+    var body: some View {
+        SwiftUI.Button {
+            (card.onPress ?? card.leadingImage?.onPress)?()
+        } label: {
+            HStack(spacing: style.horizontalSpacing) {
+                if case let .asset(image)? = card.leadingImage?.image, let image {
+                    SwiftUIImage(image: image).renderingMode(.template)
+                }
+                if showsTitle, let title = card.title {
+                    SUILabelView(model: title, font: style.primeFont, textColor: style.primeColor)
+                }
+            }
+        }
+        .tint(SwiftUIColor(style.primeColor))
+        .disabled(card.isUserInteractionEnabled == false)
+        .ifLet(card.accessibilityIdentifier) { $0.accessibilityIdentifier($1) }
+        .ifLet(card.accessibility?.label ?? card.leadingImage?.accessibility?.label ?? card.title?.model?.text) {
+            $0.accessibilityLabel(Text($1))
+        }
+        .ifLet(card.accessibility?.hint) { $0.accessibilityHint(Text($1)) }
     }
 }
 

@@ -103,6 +103,7 @@ public struct SUITextField: View {
 }
 
 public struct SUITextInputView: View {
+    @Environment(\.multilineTextAlignment) private var textAlignment
     @Binding var text: String
     let placeholder: String?
     let appearance: TextfieldAppearance
@@ -299,7 +300,7 @@ public struct SUITextInputView: View {
     @ViewBuilder
     private var textFieldContent: some View {
         if #available(iOS 15.0, *) {
-            ZStack(alignment: .leading) {
+            ZStack(alignment: textAlignment == .center ? .center : (textAlignment == .trailing ? .trailing : .leading)) {
                 inputContent
                     .allowsHitTesting(!hasInputView)
 

@@ -4,6 +4,7 @@ import Foundation
 import SwiftUI
 
 public struct SUICardView: View {
+    @Environment(\.suiCardLoadingStyle) private var loadingStyle
     @StateObject private var stateModel: SUICardViewStateModel
     private let leadingImageTint: Color?
 
@@ -125,7 +126,7 @@ public struct SUICardView: View {
                     stateModel.leadingImage,
                     adapter: stateModel.leadingImageAdapter,
                     tintColor: leadingImageTint ?? .black
-                )
+                ).modifier(SUICardSkeleton(style: loadingStyle))
             }
         }
         if stateModel.secondaryLeadingImage != nil {
@@ -136,11 +137,13 @@ public struct SUICardView: View {
         if isVisibleTextModel(stateModel.title) || isVisibleTextModel(stateModel.valueTitle) {
             arrangedContainer(style: style, fillRole: .flexibleText) {
                 titleBlockView(style: style)
+                    .environment(\.suiKeyValueLoadingStyle, loadingStyle)
             }
         }
         if isVisibleTextModel(stateModel.subTitle) {
             arrangedContainer(style: style, fillRole: .subtitle) {
                 subTitleView(style: style)
+                    .modifier(SUICardSkeleton(style: loadingStyle, width: 0.7, height: 0.2))
             }
         }
         if stateModel.secondaryTrailingImage != nil {
@@ -378,6 +381,8 @@ public struct SUICardView: View {
     private var switchView: some View {
         if stateModel.switchControl != nil {
             SUISwitchControl(adapter: stateModel.switchControlAdapter)
+                .onAppear { stateModel.switchControlAdapter.display(isLoading: loadingStyle != nil) }
+                .onChange(of: loadingStyle != nil) { stateModel.switchControlAdapter.display(isLoading: $0) }
         }
     }
 
