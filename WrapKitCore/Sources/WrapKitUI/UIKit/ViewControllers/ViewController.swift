@@ -60,7 +60,6 @@ open class ViewController<ContentView: UIView>: UIViewController, LifeCycleViewO
     open override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         navigationController?.interactivePopGestureRecognizer?.delegate = interactivePopGestureRecognizer
-        #endif
         LifeCycleViewOutput?.viewWillDisappear()
     }
     

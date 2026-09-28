@@ -89,27 +89,39 @@ struct SUISelectionScene: View {
 
     var body: some View {
         LifeCycleView(lifeCycleOutput: lifeCycleOutput) {
-            SUIStackView(axis: .vertical, spacing: 0) {
-                SUINavigationBar(adapter: adapters.header)
-
-                if stateModel.shouldShowSearch {
-                    searchField
-                        .padding(.horizontal, 12)
-                        .padding(.top, 8)
-                        .padding(.bottom, 8)
+            if #available(iOS 16.0, *) {
+                NavigationStack {
+                    selectionContent
+                        .navigationHeader(adapter: adapters.header)
                 }
-
-                tableContent
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-
-                if input.isMultipleSelectionEnabled {
-                    selectionButtons
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 12)
+            } else {
+                VStack(spacing: 0) {
+                    SUINavigationBar(adapter: adapters.header)
+                    selectionContent
                 }
             }
-            .background(SwiftUI.Color(uiColor: configuration.content.backgroundColor))
         }
+    }
+
+    private var selectionContent: some View {
+        SUIStackView(axis: .vertical, spacing: 0) {
+            if stateModel.shouldShowSearch {
+                searchField
+                    .padding(.horizontal, 12)
+                    .padding(.top, 8)
+                    .padding(.bottom, 8)
+            }
+
+            tableContent
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+            if input.isMultipleSelectionEnabled {
+                selectionButtons
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 12)
+            }
+        }
+        .background(SwiftUI.Color(uiColor: configuration.content.backgroundColor))
     }
 
     private var searchField: some View {
