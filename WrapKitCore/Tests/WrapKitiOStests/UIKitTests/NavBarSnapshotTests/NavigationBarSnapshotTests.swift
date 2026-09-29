@@ -1480,6 +1480,63 @@ private func findView<T: UIView>(_ type: T.Type, in root: UIView?) -> T? {
 /// Keep the same window alive between updates, as on the navigation demo screen.
 /// Recreating a snapshot window for each display call can hide invalidation bugs.
 final class NavigationBarUpdateSnapshotTests: XCTestCase {
+    func test_removeAllButtons_keepsOnlyTitleAndRestoresCustomCard() throws {
+        let sut = try makeLiveHeader()
+        let image = UIImage(systemName: "wallet.pass")?.withTintColor(.black, renderingMode: .alwaysOriginal)
+        let card = CardViewPresentableModel(title: .text("Back"),
+            secondaryLeadingImage: .init(size: CGSize(width: 24, height: 24), image: .asset(image)), onPress: {})
+        let button = ButtonPresentableModel(image: UIImage(systemName: "xmark"), onPress: {})
+        let model = HeaderPresentableModel(centerView: title, leadingCard: card,
+            primeTrailingImage: button, secondaryTrailingImage: button, tertiaryTrailingImage: button)
+
+        for index in 0..<2 {
+            sut.output.display(model: model)
+            XCTAssertNotNil(sut.root.navigationItem.leftBarButtonItem)
+            assertMatchesFresh(sut, name: "all_controls_on_\(index)", center: title,
+                               leading: card, slots: [button, button, button])
+
+            sut.output.display(leadingCard: nil)
+            for slot in 0..<3 { display(nil, at: slot, on: sut.output) }
+            XCTAssertNil(sut.root.navigationItem.leftBarButtonItem)
+            XCTAssertTrue(sut.root.navigationItem.rightBarButtonItems?.isEmpty ?? true)
+            XCTAssertFalse(sut.navigation.isNavigationBarHidden)
+            assertMatchesFresh(sut, name: "all_controls_off_\(index)", center: title)
+        }
+    }
+
+    func test_logoAndThreeTrailingButtons_toggleCustomLeadingImage() throws {
+        let sut = try makeLiveHeader()
+        // Match the Navigation demo's 32pt logo and 48pt wallet asset without
+        // depending on DesignSystem. No explicit image size is supplied there.
+        func asset(size: CGFloat, color: UIColor) -> UIImage {
+            UIGraphicsImageRenderer(size: CGSize(width: size, height: size)).image { context in
+                color.setFill()
+                context.fill(CGRect(x: 0, y: 0, width: size, height: size))
+            }.withRenderingMode(.alwaysOriginal)
+        }
+        let logo = HeaderPresentableModel.CenterView.titledImage(.init(
+            .init(image: .asset(asset(size: 32, color: .systemBlue))), .text("3.66.0")
+        ))
+        let wallet = ImageViewPresentableModel(image: .asset(asset(size: 48, color: .black)))
+        let button = ButtonPresentableModel(image: UIImage(systemName: "xmark"), onPress: {})
+        sut.output.display(model: .init(centerView: logo,
+            leadingCard: .init(title: .text("Назад"), onPress: {}),
+            primeTrailingImage: button, secondaryTrailingImage: button, tertiaryTrailingImage: button))
+        for (index, image) in [nil, wallet, nil, wallet, nil].enumerated() {
+            let card = CardViewPresentableModel(title: .text("Назад"), secondaryLeadingImage: image, onPress: {})
+            sut.output.display(leadingCard: card)
+            let customView = try XCTUnwrap(sut.root.navigationItem.leftBarButtonItem?.customView)
+            let fitting = customView.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize)
+            // A multiline label previously reported a 65,612pt width here;
+            // UIKit then trapped while measuring the bar's custom item.
+            XCTAssertGreaterThan(fitting.width, 0)
+            XCTAssertLessThan(fitting.width, sut.window.bounds.width)
+            guard fitting.width.isFinite, fitting.width < sut.window.bounds.width else { return }
+            assertMatchesFresh(sut, name: "logo_custom_\(index)", center: logo,
+                               leading: card, slots: [button, button, button])
+        }
+    }
+
     func test_titleWithTrailingButton_staysCenteredAfterRemoveAndRestore() throws {
         let sut = try makeLiveHeader()
         let button = ButtonPresentableModel(image: UIImage(systemName: "magnifyingglass"))

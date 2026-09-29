@@ -167,7 +167,7 @@ public final class NavigationItemHeaderOutput: HeaderOutput {
         view.subtitleLabel.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
         // Each field already has two labels. Wrapping either label needs more
         // than the native bar's height and truncates even short pairs of titles.
-        for titles in [view.leadingTitleViews, view.trailingTitleViews] {
+        for titles in [view.titleViews, view.leadingTitleViews, view.trailingTitleViews] {
             titles.keyLabel.numberOfLines = 1
             titles.valueLabel.numberOfLines = 1
         }
