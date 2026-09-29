@@ -9,6 +9,30 @@
     final class SUINavigationBarParityTests: XCTestCase {
         private let containerWidth: CGFloat = 390
 
+        func test_nativeHeaderActions_followSizeClassChangesWithoutRedisplayingPresenterModel() throws {
+            guard #available(iOS 27.1, *) else { throw XCTSkip("Requires adaptive bar axes") }
+            let controller = UIViewController()
+            let navigation = UINavigationController(rootViewController: controller)
+            navigation.loadViewIfNeeded()
+            let bar = navigation.navigationBar
+            let output = controller.headerOutput
+            output.display(model: .init(
+                leadingCard: .init(leadingImage: .init(image: .asset(UIImage(systemName: "chevron.left")))),
+                primeTrailingImage: .init(image: UIImage(systemName: "plus"))
+            ))
+            let leading = try XCTUnwrap(controller.navigationItem.leftBarButtonItem)
+            let trailing = try XCTUnwrap(controller.navigationItem.rightBarButtonItems?.first)
+            for sizeClass in [UIUserInterfaceSizeClass.compact, .regular, .compact] {
+                bar.traitOverrides.horizontalSizeClass = sizeClass
+                bar.layoutIfNeeded()
+                RunLoop.main.run(until: Date().addingTimeInterval(0.05))
+                let expected: UIBarButtonItem.AxisBehavior = sizeClass == .regular ? .horizontalOnly : .verticalPreferred
+                XCTAssertEqual(leading.axisBehavior, expected)
+                XCTAssertEqual(trailing.axisBehavior, expected)
+                XCTAssertTrue(controller.navigationItem.leftBarButtonItem === leading)
+            }
+        }
+
         func test_granularThenFullModelBeforeMount_replaysLatestValuesInPresenterOrder() {
             let adapter = HeaderOutputSwiftUIAdapter()
             adapter.display(style: makeStyle(horizontalSpacing: 4))

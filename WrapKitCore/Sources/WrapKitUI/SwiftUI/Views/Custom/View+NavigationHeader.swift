@@ -14,6 +14,7 @@ public extension View {
 @available(iOS 16.0, *)
 private struct NativeNavigationHeaderModifier: ViewModifier {
     @StateObject private var state: SUINavigationBarStateModel
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
     init(adapter: HeaderOutputSwiftUIAdapter) {
         _state = StateObject(wrappedValue: SUINavigationBarStateModel(adapter: adapter))
@@ -32,31 +33,32 @@ private struct NativeNavigationHeaderModifier: ViewModifier {
             .toolbar(state.isHidden ? .hidden : .visible, for: .navigationBar)
             .toolbarBackground(SwiftUIColor(style.backgroundColor), for: .navigationBar)
             .toolbarBackground(.visible, for: .navigationBar)
+            // Axis changes must replace toolbar actions, not the screen or presenter state.
             .toolbar {
                 if !state.isHidden {
                     if state.model.leadingCard != nil {
-                        ToolbarItem(placement: .navigationBarLeading) {
+                        ToolbarItem(id: "header-leading-\(horizontalSizeClass == .regular)", placement: .navigationBarLeading) {
                             NativeNavigationHeaderLeading(state: state, style: style)
                         }
-                        .headerAxisBehavior(vertical: state.model.leadingCard?.isNativeHeaderAction == true)
+                        .headerAxisBehavior(vertical: horizontalSizeClass != .regular && state.model.leadingCard?.isNativeHeaderAction == true)
                     }
                     ToolbarItem(placement: .principal) {
                         NativeNavigationHeaderTitle(state: state, style: style)
                     }
                     if state.model.primeTrailingImage != nil && !state.primeTrailingButtonStateModel.isHidden {
-                        ToolbarItem(placement: .navigationBarTrailing) {
+                        ToolbarItem(id: "header-primary-\(horizontalSizeClass == .regular)", placement: .navigationBarTrailing) {
                             NativeNavigationHeaderButton(state: state.primeTrailingButtonStateModel, tint: style.primeColor)
                         }
-                        .headerAxisBehavior(vertical: state.primeTrailingButtonStateModel.presentable.isVerticalHeaderAction)
+                        .headerAxisBehavior(vertical: horizontalSizeClass != .regular && state.primeTrailingButtonStateModel.presentable.isVerticalHeaderAction)
                     }
                     if state.model.secondaryTrailingImage != nil && !state.secondaryTrailingButtonStateModel.isHidden {
                         if #available(iOS 26.0, *), state.model.primeTrailingImage != nil && !state.primeTrailingButtonStateModel.isHidden {
                             ToolbarSpacer(.fixed, placement: .navigationBarTrailing)
                         }
-                        ToolbarItem(placement: .navigationBarTrailing) {
+                        ToolbarItem(id: "header-secondary-\(horizontalSizeClass == .regular)", placement: .navigationBarTrailing) {
                             NativeNavigationHeaderButton(state: state.secondaryTrailingButtonStateModel, tint: style.primeColor)
                         }
-                        .headerAxisBehavior(vertical: state.secondaryTrailingButtonStateModel.presentable.isVerticalHeaderAction)
+                        .headerAxisBehavior(vertical: horizontalSizeClass != .regular && state.secondaryTrailingButtonStateModel.presentable.isVerticalHeaderAction)
                     }
                     if state.model.tertiaryTrailingImage != nil && !state.tertiaryTrailingButtonStateModel.isHidden {
                         if #available(iOS 26.0, *),
@@ -64,10 +66,10 @@ private struct NativeNavigationHeaderModifier: ViewModifier {
                             || (state.model.secondaryTrailingImage != nil && !state.secondaryTrailingButtonStateModel.isHidden) {
                             ToolbarSpacer(.fixed, placement: .navigationBarTrailing)
                         }
-                        ToolbarItem(placement: .navigationBarTrailing) {
+                        ToolbarItem(id: "header-tertiary-\(horizontalSizeClass == .regular)", placement: .navigationBarTrailing) {
                             NativeNavigationHeaderButton(state: state.tertiaryTrailingButtonStateModel, tint: style.primeColor)
                         }
-                        .headerAxisBehavior(vertical: state.tertiaryTrailingButtonStateModel.presentable.isVerticalHeaderAction)
+                        .headerAxisBehavior(vertical: horizontalSizeClass != .regular && state.tertiaryTrailingButtonStateModel.presentable.isVerticalHeaderAction)
                     }
                 }
             }
@@ -75,7 +77,7 @@ private struct NativeNavigationHeaderModifier: ViewModifier {
 }
 
 // Match the UIKit header: compact actions participate in the vertical bar;
-// rich controls stay horizontal. Let the system choose the actual edge.
+// rich controls and regular-width screens stay in the horizontal bar.
 @available(iOS 16.0, *)
 private extension ToolbarContent {
     @ToolbarContentBuilder
@@ -135,11 +137,12 @@ private struct NativeNavigationHeaderLeading: View {
 @available(iOS 27.1, *)
 private struct AdaptiveNativeNavigationHeaderAction: View {
     @Environment(\.toolbarVerticalEdge) private var verticalEdge
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     let card: CardViewPresentableModel
     let style: HeaderPresentableModel.Style
 
     var body: some View {
-        NativeNavigationHeaderAction(card: card, style: style, showsTitle: verticalEdge == nil)
+        NativeNavigationHeaderAction(card: card, style: style, showsTitle: verticalEdge == nil || horizontalSizeClass == .regular)
     }
 }
 

@@ -219,7 +219,7 @@ public struct SUILabelView: View, Animatable {
                 in: attributedContent.attributedText,
                 fallback: defaultTextAlignment
             ),
-            usesFoundationLayoutMetrics: isHTMLAttributedModel,
+            usesFoundationLayoutMetrics: true,
             tapActions: attributedContent.tapActions
         )
         .frame(maxWidth: .infinity, maxHeight: .infinity)

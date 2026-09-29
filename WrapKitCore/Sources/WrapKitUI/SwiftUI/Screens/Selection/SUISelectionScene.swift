@@ -92,7 +92,7 @@ struct SUISelectionScene: View {
             GeometryReader { container in
             VStack(spacing: 0) {
                 GeometryReader { geometry in
-                    RoundedRectangle(cornerRadius: 2)
+                    Rectangle()
                         .fill(SwiftUI.Color(uiColor: configuration.content.lineColor))
                         .frame(width: geometry.size.width * 40 / 375, height: 4)
                         .frame(maxWidth: .infinity)
@@ -167,8 +167,11 @@ struct SUISelectionScene: View {
         SUITableView(
             adapter: adapters.table,
             style: .lazyVStack(scrollable: true),
-            cellContent: { model, _ in
-                SUISelectionCell(model: model)
+            cellContent: { model, indexPath in
+                let sections = adapters.table.displaySectionsState?.sections ?? []
+                let isLast = sections.indices.contains(indexPath.section)
+                    && indexPath.row == sections[indexPath.section].cells.count - 1
+                SUISelectionCell(model: model, showsSeparator: !isLast)
                     .id(model.id)
             },
             headerContent: { _ in SwiftUI.EmptyView() },
@@ -201,7 +204,6 @@ private struct SUISelectionNativeHeader: View {
         @ObservedObject var state: SUINavigationBarStateModel
         func makeUIView(context: Context) -> UIView {
             let container = UIView()
-            container.clipsToBounds = true
             let bar = UINavigationBar()
             bar.setItems([UINavigationItem()], animated: false)
             bar.translatesAutoresizingMaskIntoConstraints = false
@@ -224,8 +226,11 @@ private struct SUISelectionCell: View {
     let model: SelectionType.SelectionCellPresentableModel
     @State private var selected: Bool
 
-    init(model: SelectionType.SelectionCellPresentableModel) {
+    private let showsSeparator: Bool
+
+    init(model: SelectionType.SelectionCellPresentableModel, showsSeparator: Bool = true) {
         self.model = model
+        self.showsSeparator = showsSeparator
         _selected = .init(initialValue: model.isSelected.get() == true)
     }
 
@@ -278,8 +283,10 @@ private struct SUISelectionCell: View {
         }
         .frame(minHeight: 57)
         .overlay(alignment: .bottom) {
-            SwiftUI.Color(uiColor: model.configuration.lineColor)
-                .frame(height: 1)
+            if showsSeparator {
+                SwiftUI.Color(uiColor: model.configuration.lineColor)
+                    .frame(height: 1)
+            }
         }
         .contentShape(Rectangle())
         .accessibilityElement(children: .combine)

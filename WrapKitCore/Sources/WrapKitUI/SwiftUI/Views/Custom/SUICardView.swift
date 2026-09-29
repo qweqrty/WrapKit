@@ -7,10 +7,13 @@ public struct SUICardView: View {
     @Environment(\.suiCardLoadingStyle) private var loadingStyle
     @StateObject private var stateModel: SUICardViewStateModel
     private let leadingImageTint: Color?
+    private let trailingImagePressAnimations: Set<PressAnimation>
+    @State private var isTouchPressed = false
 
-    public init(adapter: CardViewOutputSwiftUIAdapter) {
+    public init(adapter: CardViewOutputSwiftUIAdapter, trailingImagePressAnimations: Set<PressAnimation> = []) {
         _stateModel = .init(wrappedValue: .init(adapter: adapter))
         leadingImageTint = nil
+        self.trailingImagePressAnimations = trailingImagePressAnimations
     }
 
     init(
@@ -19,6 +22,7 @@ public struct SUICardView: View {
     ) {
         _stateModel = .init(wrappedValue: .init(adapter: adapter))
         self.leadingImageTint = leadingImageTint
+        trailingImagePressAnimations = []
     }
 
     public var body: some View {
@@ -46,9 +50,15 @@ public struct SUICardView: View {
             .ifLet(stateModel.onPress) { view, action in
                 view.onTapGesture(perform: action)
             }
-            .ifLet(stateModel.onLongPress) { view, action in
-                view.onLongPressGesture(minimumDuration: 1, perform: action)
+            .if(stateModel.onPress != nil || stateModel.onLongPress != nil) { view in
+                view.onLongPressGesture(
+                    minimumDuration: 1,
+                    pressing: { isTouchPressed = $0 },
+                    perform: { stateModel.onLongPress?() }
+                )
             }
+            .opacity(isTouchPressed && (stateModel.onPress != nil || stateModel.onLongPress != nil) ? 0.5 : 1)
+            .animation(isTouchPressed ? nil : .easeInOut(duration: 0.3), value: isTouchPressed)
     }
 
     private func cardSurface(style: CardViewPresentableModel.Style) -> some View {
@@ -158,6 +168,7 @@ public struct SUICardView: View {
         if stateModel.trailingImage != nil {
             arrangedContainer(style: style, leadingSpacing: stateModel.trailingImageLeadingSpacing) {
                 imageView(stateModel.trailingImage, adapter: stateModel.trailingImageAdapter)
+                    .modifier(CardImagePressFeedback(shrinks: trailingImagePressAnimations.contains(.shrink)))
             }
         }
         if stateModel.switchControl != nil {
@@ -1081,6 +1092,21 @@ private struct CardAccessibilityModifier: ViewModifier {
             .ifLet(onLongPress) { view, action in
                 view.accessibilityAction(named: SwiftUI.Text("More options")) { action() }
             }
+    }
+}
+
+private struct CardImagePressFeedback: ViewModifier {
+    let shrinks: Bool
+    @State private var isPressed = false
+    @ViewBuilder func body(content: Content) -> some View {
+        if shrinks {
+            content
+                .scaleEffect(isPressed ? 0.95 : 1)
+                .animation(.spring(response: 0.4, dampingFraction: 0.4), value: isPressed)
+                .onLongPressGesture(minimumDuration: 1, pressing: { isPressed = $0 }, perform: {})
+        } else {
+            content
+        }
     }
 }
 
