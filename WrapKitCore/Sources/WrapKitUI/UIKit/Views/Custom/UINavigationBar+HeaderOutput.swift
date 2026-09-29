@@ -595,8 +595,8 @@ private final class AdaptiveHeaderButton: UIButton {
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 }
 
-/// Centers content inside the title slot allocated by UIKit. The screen's center
-/// can lie outside that slot when the native bar groups its trailing controls.
+/// Reports the content's natural size so UIKit can center the title and negotiate
+/// space with bar buttons. An expanded intrinsic width shifts the title on updates.
 private final class NativeHeaderTitleView: UIView {
     private let content: UIView
     private var contentWidth: NSLayoutConstraint!
@@ -624,11 +624,11 @@ private final class NativeHeaderTitleView: UIView {
     }
 
     override var intrinsicContentSize: CGSize {
-        CGSize(width: UIView.layoutFittingExpandedSize.width, height: naturalSize.height)
+        naturalSize
     }
 
     override func sizeThatFits(_ size: CGSize) -> CGSize {
-        CGSize(width: size.width, height: naturalSize.height)
+        CGSize(width: min(size.width, naturalSize.width), height: naturalSize.height)
     }
 
     override func invalidateIntrinsicContentSize() {
