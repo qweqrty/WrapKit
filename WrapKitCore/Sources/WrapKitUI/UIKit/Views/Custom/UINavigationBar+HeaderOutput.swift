@@ -165,6 +165,12 @@ public final class NavigationItemHeaderOutput: HeaderOutput {
         view.subtitleLabel.isHidden = true
         view.subtitleLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
         view.subtitleLabel.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
+        // Each field already has two labels. Wrapping either label needs more
+        // than the native bar's height and truncates even short pairs of titles.
+        for titles in [view.leadingTitleViews, view.trailingTitleViews] {
+            titles.keyLabel.numberOfLines = 1
+            titles.valueLabel.numberOfLines = 1
+        }
         if let style = headerStyle {
             view.leadingImageView.tintColor = style.primeColor
             view.titleViews.keyLabel.font = style.primeFont
