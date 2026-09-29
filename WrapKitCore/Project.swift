@@ -36,7 +36,7 @@ let project = Project(
             product: .app,
             bundleId: bundleId(for: "WrapKitTestHost"),
             deploymentTargets: .iOS("15.0"),
-            infoPlist: .extendingDefault(["UILaunchScreen": .dictionary([:])]),
+            infoPlist: .extendingDefault(with: ["UILaunchScreen": .dictionary([:])]),
             sources: ["TestHost/**"],
             dependencies: []
         ),
