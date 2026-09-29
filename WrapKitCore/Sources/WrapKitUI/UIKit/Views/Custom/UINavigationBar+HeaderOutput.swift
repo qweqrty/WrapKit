@@ -147,6 +147,7 @@ public final class NavigationItemHeaderOutput: HeaderOutput {
             contentViewConstraints: { contentView, _ in contentView.centerInSuperview() }
         ))
         view.closingTitleVFieldView.keyLabel.textAlignment = .center
+        view.closingTitleVFieldView.keyLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
         view.closingTitleVFieldView.valueLabel.textAlignment = .center
         view.closingTitleVFieldView.isHidden = false
         return view
@@ -333,6 +334,8 @@ public final class NavigationItemHeaderOutput: HeaderOutput {
             nativeItem.accessibilityHint = model.accessibility?.hint
             #if os(iOS)
             if #available(iOS 26, *) { nativeItem.sharesBackground = false }
+            #endif
+            #if os(iOS) && compiler(>=6.4)
             if #available(iOS 27.1, *) { nativeItem.axisBehavior = .verticalPreferred }
             #endif
             item?.leftBarButtonItem = nativeItem
@@ -357,7 +360,7 @@ public final class NavigationItemHeaderOutput: HeaderOutput {
         cardConstraints += pin(card, to: parent)
         leadingItem.title = leadingCard?.accessibility?.label
         leadingItem.accessibilityIdentifier = leadingCard?.accessibilityIdentifier
-        #if os(iOS)
+        #if os(iOS) && compiler(>=6.4)
         if #available(iOS 27.1, *) {
             let size = leadingSizedHost.intrinsicContentSize
             leadingItem.axisBehavior = size.width <= 44 && size.height <= 44
@@ -399,7 +402,8 @@ public final class NavigationItemHeaderOutput: HeaderOutput {
         }
         if let enabled = button.enabled { buttonEnabled[index] = enabled }
         let barItem: UIBarButtonItem
-        if !hasCustomButtonStyle[index], button.height == nil, button.width == nil, button.spacing == nil {
+        if !hasCustomButtonStyle[index], button.height == nil, button.width == nil, button.spacing == nil,
+           button.image == nil || button.title == nil {
             let model = button
             let action = UIAction(title: model.title ?? model.accessibility?.label ?? "", image: model.image) { _ in
                 model.onPress?()
@@ -433,6 +437,8 @@ public final class NavigationItemHeaderOutput: HeaderOutput {
         barItem.accessibilityIdentifier = button.accessibilityIdentifier
         #if os(iOS)
         if #available(iOS 26, *) { barItem.sharesBackground = false }
+        #endif
+        #if os(iOS) && compiler(>=6.4)
         if #available(iOS 27.1, *) {
             if let custom = barItem.customView {
                 let size = custom.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize)
@@ -525,7 +531,7 @@ private final class AdaptiveHeaderButton: UIButton {
         titleFont = font
         super.init(frame: .zero)
         addAction(action, for: .touchUpInside)
-        #if os(iOS)
+        #if os(iOS) && compiler(>=6.4)
         if #available(iOS 27.1, *) {
             registerForTraitChanges(UITraitCollection.systemTraitsAffectingVerticalBarEdge) {
                 (button: AdaptiveHeaderButton, _: UITraitCollection) in
@@ -549,7 +555,7 @@ private final class AdaptiveHeaderButton: UIButton {
     override func updateConfiguration() {
         super.updateConfiguration()
         var usesVerticalBar = false
-        #if os(iOS)
+        #if os(iOS) && compiler(>=6.4)
         if #available(iOS 27.1, *) {
             usesVerticalBar = traitCollection.verticalBarEdge != .unspecified
         }

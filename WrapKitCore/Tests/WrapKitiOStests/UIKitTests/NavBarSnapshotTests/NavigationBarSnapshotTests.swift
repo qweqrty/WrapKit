@@ -1425,29 +1425,15 @@ extension NavigationBarSnapshotTests {
     func makeSUT(
         file: StaticString = #file,
         line: UInt = #line
-    ) -> (sut: UINavigationBar, container: UIView) {
-        let sut = UINavigationBar()
-        let container = makeContainer()
-        sut.constrainHeight(sut.sizeThatFits(container.bounds.size).height)
-        
-        container.addSubview(sut)
-        sut.anchor(
-            .top(container.topAnchor, constant: 0, priority: .required),
-            .leading(container.leadingAnchor, constant: 0, priority: .required),
-            .trailing(container.trailingAnchor, constant: 0, priority: .required),
-        )
-        
-        container.layoutIfNeeded()
+    ) -> (sut: UINavigationBar, container: UIViewController) {
+        let root = UIViewController()
+        root.view.backgroundColor = .black
+        let container = UINavigationController(rootViewController: root)
+        container.loadViewIfNeeded()
+        let sut = container.navigationBar
         
         checkForMemoryLeaks(sut, file: file, line: line)
         return (sut, container)
-    }
-    
-    func makeContainer() -> UIView {
-        let container = UIView()
-        container.frame = CGRect(x: 0, y: 0, width: 390, height: 300)
-        container.backgroundColor = .clear
-        return container
     }
 }
 
