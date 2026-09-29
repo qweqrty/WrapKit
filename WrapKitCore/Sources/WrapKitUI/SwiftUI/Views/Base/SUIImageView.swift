@@ -263,7 +263,7 @@ public struct SUIImageView: View {
             downloadTask?.cancel()
             isLoading = false
             loadedImage = image
-            shouldRenderTemplate = image?.rendersAsTemplate ?? false
+            shouldRenderTemplate = image?.rendersAsTemplateInImageView ?? false
             completion?(image)
 
         case .symbolName(let name):
