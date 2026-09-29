@@ -307,8 +307,12 @@ final class SUIToastViewStateModel: ObservableObject {
                 guard let frame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else {
                     return nil
                 }
+                #if os(visionOS)
+                return frame.height
+                #else
                 let screenHeight = (notification.object as? UIScreen)?.bounds.height ?? frame.maxY
                 return max(0, screenHeight - frame.minY)
+                #endif
             }
             .sink { [weak self] height in
                 withAnimation(.easeInOut(duration: 0.3)) {

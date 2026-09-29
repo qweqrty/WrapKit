@@ -31,7 +31,11 @@ extension Image {
 #if os(macOS)
         return isTemplate
 #else
-        return renderingMode == .alwaysTemplate
+        switch renderingMode {
+        case .alwaysTemplate: return true
+        case .alwaysOriginal: return false
+        default: return isSymbolImage
+        }
 #endif
     }
 
