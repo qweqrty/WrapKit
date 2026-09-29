@@ -4,12 +4,18 @@ import PackageDescription
 #if TUIST
     import ProjectDescription
 
+    let dependencySettings = Settings.settings(base: [
+        "IPHONEOS_DEPLOYMENT_TARGET": "15.0"
+    ])
+
     let packageSettings = PackageSettings(
-        // Customize the product types for specific package product
-        // Default is .staticFramework
-        // productTypes: ["Alamofire": .framework,] 
-        productTypes: [
-            :
+        // Synthesized resource bundles do not inherit targetSettings.
+        productTypes: ["Kingfisher": .framework],
+        baseSettings: dependencySettings,
+        // Package deployment targets override base settings in generated targets.
+        targetSettings: [
+            "_LottieStub": dependencySettings,
+            "Kingfisher": dependencySettings
         ]
     )
 #endif
