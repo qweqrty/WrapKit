@@ -89,6 +89,7 @@ public struct SUIButtonView: View {
             .wrapKitGlassButtonStyle(
                 configuration,
                 tint: glassTintColor,
+                backgroundColor: glassTintColor,
                 cornerStyle: buttonCornerStyle
             )
             .scaleEffect(

@@ -9,17 +9,42 @@ enum SUITextInputEventTarget {
     case textView
 }
 
+/// Gives `SUITextInputView` synchronous access to the native field, so a rewrite of the user's
+/// input (mask formatting, `display(text:)` from `didChangeText`) lands in the same input event,
+/// the way UIKit's `MaskedTextfieldDelegate` does it.
+final class SUINativeTextInputHandle {
+    fileprivate weak var textField: UITextField?
+
+    private(set) var minimumCaretOffset = 0
+
+    func configured(minimumCaretOffset: Int) -> Self {
+        self.minimumCaretOffset = minimumCaretOffset
+        return self
+    }
+
+    @discardableResult
+    func replaceText(with text: String) -> Bool {
+        guard let textField, textField.markedTextRange == nil else { return false }
+        if textField.text != text {
+            textField.text = text
+        }
+        return true
+    }
+}
+
 /// Keeps the rendered control native SwiftUI while forwarding the two input
 /// events that SwiftUI does not expose on iOS.
 struct SUITextInputEventBridge: UIViewRepresentable {
     let target: SUITextInputEventTarget
     let onTapBackspace: (() -> Void)?
     let onPaste: ((String?) -> Void)?
+    var nativeTextHandle: SUINativeTextInputHandle? = nil
 
     func makeCoordinator() -> SUITextInputEventCoordinator {
         SUITextInputEventCoordinator(
             onTapBackspace: onTapBackspace,
-            onPaste: onPaste
+            onPaste: onPaste,
+            nativeTextHandle: nativeTextHandle
         )
     }
 
@@ -35,7 +60,8 @@ struct SUITextInputEventBridge: UIViewRepresentable {
     ) {
         context.coordinator.update(
             onTapBackspace: onTapBackspace,
-            onPaste: onPaste
+            onPaste: onPaste,
+            nativeTextHandle: nativeTextHandle
         )
         uiView.configure(target: target, coordinator: context.coordinator)
     }
@@ -112,21 +138,27 @@ final class SUITextInputEventCoordinator: NSObject,
     private weak var originalPasteDelegate: UITextPasteDelegate?
     private var onTapBackspace: (() -> Void)?
     private var onPaste: ((String?) -> Void)?
+    private var nativeTextHandle: SUINativeTextInputHandle?
 
     init(
         onTapBackspace: (() -> Void)?,
-        onPaste: ((String?) -> Void)?
+        onPaste: ((String?) -> Void)?,
+        nativeTextHandle: SUINativeTextInputHandle? = nil
     ) {
         self.onTapBackspace = onTapBackspace
         self.onPaste = onPaste
+        self.nativeTextHandle = nativeTextHandle
     }
 
     func update(
         onTapBackspace: (() -> Void)?,
-        onPaste: ((String?) -> Void)?
+        onPaste: ((String?) -> Void)?,
+        nativeTextHandle: SUINativeTextInputHandle? = nil
     ) {
         self.onTapBackspace = onTapBackspace
         self.onPaste = onPaste
+        self.nativeTextHandle = nativeTextHandle
+        nativeTextHandle?.textField = textField
         updatePasteDelegate()
     }
 
@@ -137,6 +169,7 @@ final class SUITextInputEventCoordinator: NSObject,
         }
         detach()
         self.textField = textField
+        nativeTextHandle?.textField = textField
         originalTextFieldDelegate = textField.delegate
         originalPasteDelegate = textField.pasteDelegate
         textField.delegate = self
@@ -210,6 +243,25 @@ final class SUITextInputEventCoordinator: NSObject,
             notifyBackspaceAfterNativeMutation()
         }
         return shouldChange
+    }
+
+    func textFieldDidChangeSelection(_ textField: UITextField) {
+        originalTextFieldDelegate?.textFieldDidChangeSelection?(textField)
+        clampCaret(in: textField)
+    }
+
+    private func clampCaret(in textField: UITextField) {
+        guard let minimum = nativeTextHandle?.minimumCaretOffset,
+              minimum > 0,
+              textField.markedTextRange == nil,
+              let selection = textField.selectedTextRange,
+              let lowerBound = textField.position(from: textField.beginningOfDocument, offset: minimum) else { return }
+        let start = textField.offset(from: textField.beginningOfDocument, to: selection.start)
+        guard start < minimum else { return }
+        let end = textField.offset(from: textField.beginningOfDocument, to: selection.end) < minimum
+            ? lowerBound
+            : selection.end
+        textField.selectedTextRange = textField.textRange(from: lowerBound, to: end)
     }
 
     private func notifyBackspaceAfterNativeMutation() {

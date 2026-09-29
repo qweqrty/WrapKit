@@ -27,6 +27,14 @@ extension Image {
 #endif
     }
 
+    var rendersAsTemplateInImageView: Bool {
+#if os(macOS)
+        return isTemplate
+#else
+        return renderingMode == .alwaysTemplate
+#endif
+    }
+
     var swiftUIRenderingMode: SwiftUIImage.TemplateRenderingMode {
         rendersAsTemplate ? .template : .original
     }
