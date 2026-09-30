@@ -148,6 +148,8 @@ public final class NavigationItemHeaderOutput: HeaderOutput {
         ))
         view.closingTitleVFieldView.keyLabel.textAlignment = .center
         view.closingTitleVFieldView.keyLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
+        view.closingTitleVFieldView.keyLabel.setContentCompressionResistancePriority(.required, for: .vertical)
+        view.contentView.contentView.setContentCompressionResistancePriority(.defaultLow, for: .vertical)
         view.closingTitleVFieldView.valueLabel.textAlignment = .center
         view.closingTitleVFieldView.isHidden = false
         return view
@@ -180,6 +182,8 @@ public final class NavigationItemHeaderOutput: HeaderOutput {
         return view
     }
     private var buttons: [Button?] = [nil, nil, nil]
+    private var buttonTitleColors: [UIColor?] = [nil, nil, nil]
+    private var buttonImages: [UIImage?] = [nil, nil, nil]
     private var buttonEnabled = [true, true, true]
     private func customButton(at index: Int) -> Button {
         if let button = buttons[index] { return button }
@@ -190,6 +194,12 @@ public final class NavigationItemHeaderOutput: HeaderOutput {
         if #available(iOS 26, *) {
             button.configuration = .glass()
             button.configuration?.cornerStyle = .capsule
+            MainActor.assumeIsolated {
+                button.registerForTraitChanges(UITraitCollection.systemTraitsAffectingColorAppearance) {
+                    [weak self] (_: Button, _: UITraitCollection) in
+                    self?.updateButtonImage(at: index)
+                }
+            }
         }
         #endif
         button.isHidden = true
@@ -207,7 +217,7 @@ public final class NavigationItemHeaderOutput: HeaderOutput {
 
     private var cardConstraints: [NSLayoutConstraint] = []
     private lazy var titleHost = makeTitleHost(titles)
-    private lazy var imageHost = makeTitleHost(titledImage)
+    private lazy var imageHost = NativeHeaderTitleView(content: titledImage, fitsHeight: true)
     private let leadingHost = UIView()
     private lazy var leadingSizedHost = NativeHeaderContentView(content: leadingHost)
     private lazy var leadingItem = makeBarItem(leadingSizedHost)
@@ -270,7 +280,11 @@ public final class NavigationItemHeaderOutput: HeaderOutput {
         }
         renderedTrailingItems.compactMap { $0 }.forEach { $0.tintColor = style.primeColor }
         cardStorage?.leadingImageView.tintColor = style.primeColor
-        buttons.compactMap { $0 }.forEach { $0.tintColor = style.primeColor }
+        for (index, button) in buttons.enumerated() {
+            button?.tintColor = style.primeColor
+            button?.textColor = buttonTitleColors[index] ?? style.primeColor
+            updateButtonImage(at: index)
+        }
         cardStorage?.titleViews.keyLabel.font = style.primeFont
         cardStorage?.titleViews.keyLabel.textColor = style.primeColor
         titles.keyLabel.font = style.primeFont
@@ -289,6 +303,8 @@ public final class NavigationItemHeaderOutput: HeaderOutput {
         case .titledImage(let pair):
             titledImage.closingTitleVFieldView.keyLabel.display(model: pair.second)
             titledImage.contentView.contentView.display(model: pair.first)
+            // In compact bars, shrink the logo before clipping the caption.
+            titledImage.contentView.contentView.anchoredConstraints?.height?.priority = .defaultHigh
             item?.titleView = pair.first == nil && pair.second == nil ? nil : imageHost
         case nil:
             item?.titleView = nil
@@ -332,6 +348,7 @@ public final class NavigationItemHeaderOutput: HeaderOutput {
                 nativeItem = UIBarButtonItem(customView: button)
             } else {
                 nativeItem = UIBarButtonItem(primaryAction: action)
+                nativeItem.isAccessibilityElement = true
             }
             nativeItem.tintColor = primeColor
             nativeItem.isEnabled = model.isUserInteractionEnabled ?? true
@@ -358,6 +375,15 @@ public final class NavigationItemHeaderOutput: HeaderOutput {
             leadingHost.addSubview(glass)
             parent = (glass as? UIVisualEffectView)?.contentView ?? glass
             cardConstraints = pin(glass, to: leadingHost)
+            #if os(iOS)
+            if #available(iOS 26, *) {
+                // Center small cards in a button-sized capsule; compact bars may still compress it.
+                let minimumHeight = glass.heightAnchor.constraint(greaterThanOrEqualToConstant: 44)
+                minimumHeight.priority = .defaultHigh
+                minimumHeight.isActive = true
+                cardConstraints.append(minimumHeight)
+            }
+            #endif
         } else {
             parent = leadingHost
             cardConstraints = []
@@ -398,7 +424,11 @@ public final class NavigationItemHeaderOutput: HeaderOutput {
 
     private func display(button: ButtonPresentableModel?, at index: Int) {
         visibleButtons[index] = button != nil
-        if button?.style != nil { hasCustomButtonStyle[index] = true }
+        buttonImages[index] = button?.image
+        if let style = button?.style {
+            hasCustomButtonStyle[index] = true
+            buttonTitleColors[index] = style.titleColor
+        }
         guard let button else {
             buttons[index]?.display(model: nil)
             renderedTrailingItems[index] = nil
@@ -415,6 +445,8 @@ public final class NavigationItemHeaderOutput: HeaderOutput {
                 model.onPress?()
             }
             let native = UIBarButtonItem(primaryAction: action)
+            // Expose the item, not UIKit's image-only fallback without its identifier.
+            native.isAccessibilityElement = true
             native.tintColor = primeColor
             native.isEnabled = buttonEnabled[index]
             native.accessibilityLabel = model.accessibility?.label
@@ -423,6 +455,10 @@ public final class NavigationItemHeaderOutput: HeaderOutput {
         } else {
             let custom = customButton(at: index)
             custom.display(model: button)
+            if let color = buttonTitleColors[index] ?? primeColor {
+                custom.textColor = color
+            }
+            updateButtonImage(at: index)
             custom.display(enabled: buttonEnabled[index])
             if index == 0 {
                 custom.menu = primeTrailingMenu
@@ -457,6 +493,17 @@ public final class NavigationItemHeaderOutput: HeaderOutput {
         #endif
         updateTrailingItems()
         invalidateLayout()
+    }
+
+    private func updateButtonImage(at index: Int) {
+        #if os(iOS)
+        guard #available(iOS 26, *), let button = buttons[index],
+              let image = buttonImages[index], image.renderingMode != .alwaysOriginal,
+              let color = primeColor else { return }
+        // Glass can render template icons in its default monochrome instead of the header tint.
+        // Keep the source image so later style/appearance updates can recolor it.
+        button.display(image: image.withTintColor(color.resolvedColor(with: button.traitCollection), renderingMode: .alwaysOriginal))
+        #endif
     }
 
     private func updateTrailingItems() {
@@ -600,9 +647,10 @@ private final class AdaptiveHeaderButton: UIButton {
 private final class NativeHeaderTitleView: UIView {
     private let content: UIView
     private var contentWidth: NSLayoutConstraint!
+    private var contentHeight: NSLayoutConstraint?
     private var measuredSize: CGSize?
 
-    init(content: UIView) {
+    init(content: UIView, fitsHeight: Bool = false) {
         self.content = content
         super.init(frame: .zero)
         addSubview(content)
@@ -612,13 +660,19 @@ private final class NativeHeaderTitleView: UIView {
             contentWidth, content.centerXAnchor.constraint(equalTo: centerXAnchor),
             content.centerYAnchor.constraint(equalTo: centerYAnchor)
         ])
+        if fitsHeight {
+            contentHeight = content.heightAnchor.constraint(equalToConstant: 0)
+            contentHeight?.isActive = true
+        }
     }
 
     private var naturalSize: CGSize {
         if let measuredSize { return measuredSize }
         contentWidth.isActive = false
+        contentHeight?.isActive = false
         let size = content.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize)
         contentWidth.isActive = true
+        contentHeight?.isActive = true
         measuredSize = size
         return size
     }
@@ -628,7 +682,8 @@ private final class NativeHeaderTitleView: UIView {
     }
 
     override func sizeThatFits(_ size: CGSize) -> CGSize {
-        CGSize(width: min(size.width, naturalSize.width), height: naturalSize.height)
+        CGSize(width: min(size.width, naturalSize.width),
+               height: contentHeight == nil ? naturalSize.height : min(size.height, naturalSize.height))
     }
 
     override func invalidateIntrinsicContentSize() {
@@ -640,6 +695,10 @@ private final class NativeHeaderTitleView: UIView {
     override func layoutSubviews() {
         let width = min(naturalSize.width, max(0, bounds.width))
         if contentWidth.constant != width { contentWidth.constant = width }
+        if let contentHeight {
+            let height = min(naturalSize.height, max(0, bounds.height))
+            if contentHeight.constant != height { contentHeight.constant = height }
+        }
         super.layoutSubviews()
     }
 

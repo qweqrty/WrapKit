@@ -1480,6 +1480,164 @@ private func findView<T: UIView>(_ type: T.Type, in root: UIView?) -> T? {
 /// Keep the same window alive between updates, as on the navigation demo screen.
 /// Recreating a snapshot window for each display call can hide invalidation bugs.
 final class NavigationBarUpdateSnapshotTests: XCTestCase {
+    func test_titledImage_keepsLogoAndCaptionInsideBarAfterUpdates() throws {
+        let sut = try makeLiveHeader()
+        let logo = UIGraphicsImageRenderer(size: CGSize(width: 32, height: 32)).image { context in
+            UIColor.systemPink.setFill()
+            context.fill(CGRect(x: 0, y: 0, width: 32, height: 32))
+        }
+        let button = ButtonPresentableModel(image: UIImage(systemName: "rectangle.portrait.and.arrow.right"))
+        let center = HeaderPresentableModel.CenterView.titledImage(.init(
+            .init(image: .asset(logo)), .text("Личный кабинет")
+        ))
+        sut.output.display(centerView: center)
+        for (index, trailing) in [button, nil, button].enumerated() {
+            sut.output.display(primeTrailingImage: trailing)
+            attach(sut.snapshot(), named: "logo_caption_fits_\(index)")
+            let host = try XCTUnwrap(sut.root.navigationItem.titleView)
+            let image = try XCTUnwrap(findView(ImageView.self, in: host))
+            let caption = try XCTUnwrap(findView(TitledView<WrapperView<ImageView>>.self, in: host)?.closingTitleVFieldView.keyLabel)
+            let bar = sut.navigation.navigationBar
+            for view in [image, caption] as [UIView] {
+                let frame = view.convert(view.bounds, to: host)
+                XCTAssertGreaterThanOrEqual(frame.minY, host.bounds.minY - 0.5)
+                XCTAssertLessThanOrEqual(frame.maxY, host.bounds.maxY + 0.5)
+            }
+            // iOS 26 can place the title host slightly above the bar's bounds.
+            // The caption must still stay above the bottom clipping edge.
+            XCTAssertLessThanOrEqual(caption.convert(caption.bounds, to: bar).maxY, bar.bounds.maxY + 0.5)
+            XCTAssertGreaterThan(image.bounds.height, 0)
+            XCTAssertGreaterThanOrEqual(caption.bounds.height, ceil(caption.font.lineHeight) - 0.5)
+        }
+    }
+
+    func test_customTrailingButtons_followHeaderColorAfterUpdates() throws {
+        let sut = try makeLiveHeader()
+        let model = ButtonPresentableModel(title: "Done", image: UIImage(systemName: "checkmark"), onPress: {})
+        sut.output.display(centerView: title)
+        for slot in 0..<3 { display(model, at: slot, on: sut.output) }
+        for (index, color) in [UIColor.label, .systemBlue].enumerated() {
+            sut.output.display(style: .init(backgroundColor: .systemGroupedBackground, horizontalSpacing: 8,
+                primeFont: .systemFont(ofSize: 18), primeColor: color,
+                secondaryFont: .systemFont(ofSize: 14), secondaryColor: .secondaryLabel))
+            for slot in 0..<3 {
+                display(nil, at: slot, on: sut.output)
+                display(model, at: slot, on: sut.output)
+            }
+            attach(sut.snapshot(), named: "custom_colors_\(index)")
+            let items = try XCTUnwrap(sut.root.navigationItem.rightBarButtonItems)
+            XCTAssertEqual(items.count, 3)
+            for item in items {
+                let button = try XCTUnwrap(findView(Button.self, in: item.customView))
+                XCTAssertEqual(button.tintColor, color)
+                XCTAssertEqual(button.textColor, color)
+                XCTAssertEqual(button.configuration?.baseForegroundColor ?? button.currentTitleColor, color)
+                if #available(iOS 26, *) {
+                    let expected = model.image?.withTintColor(color.resolvedColor(with: button.traitCollection), renderingMode: .alwaysOriginal)
+                    XCTAssertEqual(button.configuration?.image?.pngData(), expected?.pngData())
+                }
+            }
+        }
+    }
+
+    func test_customTrailingButton_preservesExplicitColorWhenHeaderStyleChanges() throws {
+        let sut = try makeLiveHeader()
+        let model = ButtonPresentableModel(title: "Done", image: UIImage(systemName: "checkmark"),
+            style: .init(titleColor: .systemPurple), onPress: {})
+        sut.output.display(primeTrailingImage: model)
+        sut.output.display(style: .init(backgroundColor: .systemGroupedBackground, horizontalSpacing: 8,
+            primeFont: .systemFont(ofSize: 18), primeColor: .systemBlue,
+            secondaryFont: .systemFont(ofSize: 14), secondaryColor: .secondaryLabel))
+        // A partial model keeps the previously supplied button style.
+        sut.output.display(primeTrailingImage: nil)
+        sut.output.display(primeTrailingImage: .init(title: "Done", image: UIImage(systemName: "checkmark"), onPress: {}))
+        attach(sut.snapshot(), named: "custom_explicit_color")
+        let button = try XCTUnwrap(findView(Button.self, in: sut.root.navigationItem.rightBarButtonItem?.customView))
+        XCTAssertEqual(button.textColor, .systemPurple)
+        XCTAssertEqual(button.configuration?.baseForegroundColor ?? button.currentTitleColor, .systemPurple)
+    }
+
+    func test_customTrailingButton_preservesOriginalImage() throws {
+        let sut = try makeLiveHeader()
+        let image = try XCTUnwrap(UIImage(systemName: "checkmark")?.withTintColor(.systemGreen, renderingMode: .alwaysOriginal))
+        sut.output.display(primeTrailingImage: .init(title: "Done", image: image, onPress: {}))
+        sut.output.display(style: .init(backgroundColor: .systemGroupedBackground, horizontalSpacing: 8,
+            primeFont: .systemFont(ofSize: 18), primeColor: .systemBlue,
+            secondaryFont: .systemFont(ofSize: 14), secondaryColor: .secondaryLabel))
+        attach(sut.snapshot(), named: "custom_original_color")
+        let button = try XCTUnwrap(findView(Button.self, in: sut.root.navigationItem.rightBarButtonItem?.customView))
+        XCTAssertTrue((button.configuration?.image ?? button.image(for: .normal)) === image)
+    }
+
+    func test_customTrailingButton_updatesDynamicImageColorWhenAppearanceChanges() throws {
+        let sut = try makeLiveHeader()
+        let image = try XCTUnwrap(UIImage(systemName: "checkmark"))
+        sut.output.display(primeTrailingImage: .init(title: "Done", image: image, onPress: {}))
+        let button = try XCTUnwrap(findView(Button.self, in: sut.root.navigationItem.rightBarButtonItem?.customView))
+        for (index, style) in [UIUserInterfaceStyle.light, .dark, .light].enumerated() {
+            sut.window.overrideUserInterfaceStyle = style
+            attach(sut.snapshot(), named: "custom_appearance_\(index)")
+            let color = UIColor.label.resolvedColor(with: button.traitCollection)
+            if #available(iOS 26, *) {
+                let expected = image.withTintColor(color, renderingMode: .alwaysOriginal)
+                XCTAssertEqual(button.configuration?.image?.pngData(), expected.pngData())
+            } else {
+                XCTAssertEqual(button.tintColor.resolvedColor(with: button.traitCollection), color)
+                XCTAssertTrue(button.image(for: .normal) === image)
+            }
+        }
+    }
+
+    func test_nativeTrailingButton_retainsIdentifierAndActionAfterUpdates() throws {
+        let sut = try makeLiveHeader()
+        var presses = 0
+        let button = ButtonPresentableModel(
+            accessibilityIdentifier: "navigation.search",
+            image: UIImage(systemName: "magnifyingglass"),
+            onPress: { presses += 1 }
+        )
+        sut.output.display(centerView: title)
+        for index in 0..<2 {
+            sut.output.display(primeTrailingImage: button)
+            attach(sut.snapshot(), named: "interactive_search_\(index)")
+            let item = try XCTUnwrap(sut.root.navigationItem.rightBarButtonItem)
+            XCTAssertEqual(item.accessibilityIdentifier, "navigation.search")
+            XCTAssertTrue(item.isAccessibilityElement)
+            XCTAssertTrue(item.isEnabled)
+            XCTAssertNotNil(item.primaryAction)
+            func actionControl(in view: UIView) -> UIControl? {
+                if let control = view as? UIControl, control.allControlEvents.contains(.primaryActionTriggered) {
+                    return control
+                }
+                return view.subviews.lazy.compactMap { actionControl(in: $0) }.first
+            }
+            let rendered = try XCTUnwrap(actionControl(in: sut.navigation.navigationBar))
+            XCTAssertTrue(rendered.isEnabled)
+            rendered.sendActions(for: .primaryActionTriggered)
+            XCTAssertEqual(presses, index + 1)
+            sut.output.display(primeTrailingImage: nil)
+            _ = sut.snapshot()
+        }
+    }
+
+    func test_nativeLeadingButton_exposesAccessibilityAndEnabledState() throws {
+        let sut = try makeLiveHeader()
+        for enabled in [false, true] {
+            sut.output.display(leadingCard: .init(
+                accessibilityIdentifier: "navigation.back",
+                leadingImage: .init(image: .asset(UIImage(systemName: "chevron.left"))),
+                onPress: {},
+                isUserInteractionEnabled: enabled
+            ))
+            attach(sut.snapshot(), named: "accessible_back_\(enabled)")
+            let item = try XCTUnwrap(sut.root.navigationItem.leftBarButtonItem)
+            XCTAssertTrue(item.isAccessibilityElement)
+            XCTAssertEqual(item.accessibilityIdentifier, "navigation.back")
+            XCTAssertEqual(item.isEnabled, enabled)
+            XCTAssertNotNil(item.primaryAction)
+        }
+    }
+
     func test_removeAllButtons_keepsOnlyTitleAndRestoresCustomCard() throws {
         let sut = try makeLiveHeader()
         let image = UIImage(systemName: "wallet.pass")?.withTintColor(.black, renderingMode: .alwaysOriginal)
@@ -1494,6 +1652,16 @@ final class NavigationBarUpdateSnapshotTests: XCTestCase {
             XCTAssertNotNil(sut.root.navigationItem.leftBarButtonItem)
             assertMatchesFresh(sut, name: "all_controls_on_\(index)", center: title,
                                leading: card, slots: [button, button, button])
+            if #available(iOS 26, *) {
+                let host = try XCTUnwrap(sut.root.navigationItem.leftBarButtonItem?.customView)
+                let cardView = try XCTUnwrap(findView(CardView.self, in: host))
+                let imageView = cardView.secondaryLeadingImageView
+                let imageFrame = imageView.convert(imageView.bounds, to: host)
+                XCTAssertGreaterThanOrEqual(host.bounds.height, 44)
+                XCTAssertGreaterThanOrEqual(imageFrame.minY, 10)
+                XCTAssertGreaterThanOrEqual(host.bounds.height - imageFrame.maxY, 10)
+                XCTAssertEqual(imageFrame.height, 24, accuracy: 0.5, "Padding must not stretch the icon")
+            }
 
             sut.output.display(leadingCard: nil)
             for slot in 0..<3 { display(nil, at: slot, on: sut.output) }
