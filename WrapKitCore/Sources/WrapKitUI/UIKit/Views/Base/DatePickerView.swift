@@ -43,7 +43,7 @@ public enum DatePickerMode: HashableWithReflection {
     case countDownTimer
 }
 
-#if canImport(UIKit)
+#if canImport(UIKit) && !os(watchOS) && !os(tvOS)
 import Foundation
 import UIKit
 
@@ -84,7 +84,7 @@ extension DatePickerView: DatePickerViewOutput {
     }
     
     public func display(setDate: Date, animated: Bool) {
-        self.setDate(date, animated: animated)
+        self.setDate(setDate, animated: animated)
     }
     
     public func display(dateChanged: ((Date) -> Void)?) {

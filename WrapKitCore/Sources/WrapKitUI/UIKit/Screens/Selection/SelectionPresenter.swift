@@ -145,7 +145,13 @@ extension SelectionPresenter: SelectionInput, LifeCycleViewOutput {
     
     public func onSearch(_ text: String?) {
         searchText = text ?? ""
-        view?.display(items: [.init(cells: itemsToPresent.map { .init(cell: $0, onTap: onSelect(at:model:)) })], selectedCountTitle: configuration.texts.selectedCountTitle)
+        view?.display(items: [.init(cells: itemsToPresent.map {
+            .init(
+                accessibilityIdentifier: $0.id,
+                cell: $0,
+                onTap: onSelect(at:model:)
+            )
+        })], selectedCountTitle: configuration.texts.selectedCountTitle)
         setupButton(canReset: items.contains(where: { $0.isSelected.get() == true }))
     }
     

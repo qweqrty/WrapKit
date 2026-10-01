@@ -1,3 +1,4 @@
+#if os(iOS) || targetEnvironment(macCatalyst)
 //
 //  ImageViewCancelDownloadTests.swift
 //  WrapKit
@@ -5,7 +6,7 @@
 //  Created by Ulan Beishenkulov on 16/12/25.
 //
 
-@testable import WrapKit
+import WrapKit
 import XCTest
 import WrapKitTestUtils
 
@@ -265,3 +266,4 @@ private extension ImageViewCancelDownloadTests {
         return expectation
     }
 }
+#endif

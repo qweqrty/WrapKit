@@ -5,7 +5,7 @@
 //  Created by Ulan Beishenkulov on 10/9/24.
 //
 
-#if canImport(UIKit)
+#if canImport(UIKit) && !os(watchOS) && !os(tvOS)
 import Foundation
 import UIKit
 

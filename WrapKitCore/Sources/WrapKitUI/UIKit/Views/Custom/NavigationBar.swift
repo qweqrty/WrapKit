@@ -76,7 +76,7 @@ public struct HeaderPresentableModel: HashableWithReflection {
     }
 }
 
-#if canImport(UIKit)
+#if canImport(UIKit) && !os(watchOS)
 import UIKit
 
 extension NavigationBar: HeaderOutput {
@@ -123,6 +123,9 @@ extension NavigationBar: HeaderOutput {
             titleViews.keyLabel.font = style.primeFont
             titleViews.keyLabel.textColor = style.primeColor
             titleViews.keyLabel.numberOfLines = style.numberOfLines
+            titleViews.valueLabel.font = style.secondaryFont
+            titleViews.valueLabel.textColor = style.secondaryColor
+            titleViews.valueLabel.numberOfLines = style.numberOfLines
             centerTitledImageView.closingTitleVFieldView.keyLabel.textColor = style.secondaryColor
             centerTitledImageView.closingTitleVFieldView.keyLabel.font = style.secondaryFont
         }
@@ -283,7 +286,7 @@ open class NavigationBar: UIView {
             .bottom(trailingStackWrapperView.bottomAnchor)
         )
         
-        if isAvailableOS26 {
+        if isAvailableOS26 && isLiquidGlassEnabled {
             mainStackViewConstraints = mainStackView.anchor(
                 .top(safeAreaLayoutGuide.topAnchor, constant: 4),
                 .leading(leadingAnchor, constant: 16),
@@ -321,7 +324,10 @@ open class NavigationBar: UIView {
 
 private extension NavigationBar {
     func makeLeadingCardGlassEffectView() -> UIView {
-        if #available(iOS 26, macOS 26, tvOS 26, watchOS 26, *) {
+        #if os(visionOS)
+        return UIView() // UIGlassEffect недоступен на visionOS
+        #else
+        if #available(iOS 26, macOS 26, tvOS 26, watchOS 26, *), isLiquidGlassEnabled {
             let glassEffect = UIGlassEffect(style: .regular)
             glassEffect.isInteractive = true
             let glassEffectView = UIVisualEffectView(effect: glassEffect)
@@ -331,6 +337,7 @@ private extension NavigationBar {
         } else {
             return UIView()
         }
+        #endif
     }
     
     func makeLeadingCardView(isHidden: Bool) -> CardView {
@@ -377,10 +384,12 @@ private extension NavigationBar {
                 )
             }
         )
-        if #available(iOS 26, macOS 26, tvOS 26, watchOS 26, *) {
+        #if !os(visionOS)
+        if #available(iOS 26, macOS 26, tvOS 26, watchOS 26, *), isLiquidGlassEnabled {
             view.contentView.configuration = .glass()
             view.contentView.configuration?.cornerStyle = .capsule
         }
+        #endif
         return view
     }
 }

@@ -56,7 +56,7 @@ public protocol SegmentedControlOutput: AnyObject {
     func display(segments: [SegmentControlModel])
 }
 
-#if canImport(UIKit)
+#if canImport(UIKit) && !os(watchOS)
 import UIKit
 
 public class SegmentedControl: UISegmentedControl {
@@ -191,6 +191,9 @@ extension SegmentedControl: SegmentedControlOutput {
             self.insertSegment(action: action, at: index, animated: false)
         }
         self.selectedSegmentIndex = 0
+        invalidateIntrinsicContentSize()
+        superview?.setNeedsLayout()
+        superview?.layoutIfNeeded()
 
         if #unavailable(iOS 26) {
             setNeedsLayout()

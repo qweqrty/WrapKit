@@ -23,6 +23,7 @@ public protocol CardViewOutput: AnyObject {
     func display(secondaryTrailingImage: ImageViewPresentableModel?)
     func display(subTitle: TextOutputPresentableModel?)
     func display(valueTitle: TextOutputPresentableModel?)
+    func display(bottomImage: ImageViewPresentableModel?)
     func display(bottomSeparator: CardViewPresentableModel.BottomSeparator?)
     func display(switchControl: SwitchControlPresentableModel?)
     func display(onPress: (() -> Void)?)
@@ -30,6 +31,12 @@ public protocol CardViewOutput: AnyObject {
     func display(isHidden: Bool)
     func display(isUserInteractionEnabled: Bool?)
     func display(isGradientBorderEnabled: Bool)
+}
+
+public extension CardViewOutput {
+    /// Keeps existing custom outputs source-compatible. WrapKit's UIKit and
+    /// SwiftUI implementations provide the concrete bottom-image rendering.
+    func display(bottomImage: ImageViewPresentableModel?) {}
 }
 
 public struct CardViewPresentableModel: HashableWithReflection {
@@ -59,6 +66,19 @@ public struct CardViewPresentableModel: HashableWithReflection {
         public let gradientBorderColors: [Color]?
         public let trailingImageLeadingSpacing: CGFloat?
         public let secondaryTrailingImageLeadingSpacing: CGFloat?
+
+        public var cornerRadius: CGFloat {
+            switch cornerStyle {
+            case .automatic:
+                return .greatestFiniteMagnitude
+            case .fixed(let radius):
+                return radius
+            case .corners(let corners):
+                return corners.maximum
+            case .none:
+                return .zero
+            }
+        }
         
         public init(
             backgroundColor: Color,
@@ -252,7 +272,7 @@ public struct CardViewPresentableModel: HashableWithReflection {
     }
 }
 
-#if canImport(UIKit)
+#if canImport(UIKit) && !os(watchOS)
 import UIKit
 import SwiftUI
 
@@ -269,7 +289,7 @@ extension CardView: CardViewOutput {
         
         leadingTitleViews.keyLabel.font = style.leadingTitleKeyLabelFont
         titleViews.keyLabel.font = style.titleKeyLabelFont
-        leadingTitleViews.keyLabel.font = style.trailingTitleKeyLabelFont
+        trailingTitleViews.keyLabel.font = style.trailingTitleKeyLabelFont
         subtitleLabel.textColor = style.subTitleTextColor
         subtitleLabel.font = style.subTitleLabelFont
         leadingTitleViews.keyLabel.textColor = style.leadingTitleKeyTextColor
@@ -356,6 +376,11 @@ extension CardView: CardViewOutput {
         titleViews.valueLabel.display(model: valueTitle)
         titleViewsWrapperView.isHidden = titleViews.keyLabel.isHidden && titleViews.valueLabel.isHidden
     }
+
+    public func display(bottomImage: ImageViewPresentableModel?) {
+        bottomImageWrapperView.isHidden = bottomImage == nil
+        bottomImageView.display(model: bottomImage)
+    }
     
     public func display(bottomSeparator: CardViewPresentableModel.BottomSeparator?) {
         bottomSeparatorView.isHidden = bottomSeparator == nil
@@ -371,9 +396,11 @@ extension CardView: CardViewOutput {
     
     public func display(switchControl: SwitchControlPresentableModel?) {
         switchWrapperView.isHidden = switchControl == nil
+        #if !os(tvOS)
         if let switchControl = switchControl {
             self.switchControl.display(model: switchControl)
         }
+        #endif
     }
     
     public func display(isUserInteractionEnabled: Bool?) {
@@ -428,6 +455,9 @@ extension CardView: CardViewOutput {
         
         // SecondaryTrailingImage
         display(secondaryTrailingImage: model.secondaryTrailingImage)
+
+        // BottomImage
+        display(bottomImage: model.bottomImage)
         
         // bottomSeparatorView
         display(bottomSeparator: model.bottomSeparator)
@@ -477,7 +507,7 @@ open class CardView: ViewUIKit {
     }
 
     private func updateProxyIfNeeded() {
-        guard (onPress != nil || onLongPress != nil), !isHidden, alpha > 0.01 else { return }
+        guard onPress != nil || onLongPress != nil, !isHidden, alpha > 0.01 else { return }
 
         a11yProxy.accessibilityLabel = accessibilityTextSummary() ?? "Card"
         a11yProxy.activate = { [weak self] in self?.onPress?() }
@@ -530,7 +560,7 @@ open class CardView: ViewUIKit {
 
         var result: [Any] = []
 
-        if (onPress != nil || onLongPress != nil), !isHidden, alpha > 0.01 {
+        if onPress != nil || onLongPress != nil, !isHidden, alpha > 0.01 {
             updateProxyIfNeeded()
             result.append(a11yProxy)
         }
@@ -640,7 +670,10 @@ open class CardView: ViewUIKit {
     public private(set) var secondaryTrailingImageView = ImageView()
     
     public let switchWrapperView = UIView(isHidden: true)
+    // TODO(MYO-7475): нет tvOS-реализации SwitchControl
+    #if !os(tvOS)
     public lazy var switchControl = SwitchControl()
+    #endif
     
     public let bottomImageWrapperView = UIView(isHidden: true)
     public private(set) var bottomImageView = ImageView(tintColor: .black)
@@ -700,11 +733,18 @@ open class CardView: ViewUIKit {
     }
     
     private func setupPriorities() {
+        let flexibleTextHuggingPriority = UILayoutPriority(
+            rawValue: UILayoutPriority.defaultLow.rawValue - 1
+        )
+
         subtitleLabel.setContentHuggingPriority(.required, for: .horizontal)
         subtitleLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
         subtitleLabel.setContentCompressionResistancePriority(.required, for: .vertical)
         
-        titleViews.keyLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        titleViewsWrapperView.setContentHuggingPriority(flexibleTextHuggingPriority, for: .horizontal)
+        titleViews.setContentHuggingPriority(flexibleTextHuggingPriority, for: .horizontal)
+        titleViews.keyLabel.setContentHuggingPriority(flexibleTextHuggingPriority, for: .horizontal)
+        titleViews.valueLabel.setContentHuggingPriority(flexibleTextHuggingPriority, for: .horizontal)
         titleViews.keyLabel.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
         titleViews.keyLabel.setContentCompressionResistancePriority(.required, for: .vertical)
         titleViews.valueLabel.setContentCompressionResistancePriority(.required, for: .vertical)
@@ -716,8 +756,10 @@ open class CardView: ViewUIKit {
         titleViews.keyLabel.setContentHuggingPriority(.required, for: .vertical)
         titleViews.valueLabel.setContentHuggingPriority(.required, for: .vertical)
         
+        #if !os(tvOS)
         switchControl.setContentCompressionResistancePriority(.required, for: .horizontal)
         switchControl.setContentCompressionResistancePriority(.required, for: .vertical)
+        #endif
     }
     
     public required init?(coder: NSCoder) {
@@ -750,7 +792,10 @@ extension CardView {
         leadingTitleViewsWrapperView.addSubview(leadingTitleViews)
         titleViewsWrapperView.addSubview(titleViews)
         trailingTitleViewsWrapperView.addSubview(trailingTitleViews)
+        #if !os(tvOS)
         switchWrapperView.addSubview(switchControl)
+        #endif
+        bottomImageWrapperView.addSubview(bottomImageView)
     }
     
     func setupConstraints() {
@@ -832,6 +877,7 @@ extension CardView {
             .centerY(trailingImageWrapperView.centerYAnchor)
         )
         
+        #if !os(tvOS)
         switchControlConstraints = switchControl.anchor(
             .topGreaterThanEqual(switchWrapperView.topAnchor),
             .bottomLessThanEqual(switchWrapperView.bottomAnchor),
@@ -841,6 +887,14 @@ extension CardView {
             .trailing(switchWrapperView.trailingAnchor),
             .centerX(switchWrapperView.centerXAnchor),
             .centerY(switchWrapperView.centerYAnchor)
+        )
+        #endif
+
+        bottomImageView.anchor(
+            .top(bottomImageWrapperView.topAnchor),
+            .bottom(bottomImageWrapperView.bottomAnchor),
+            .leading(bottomImageWrapperView.leadingAnchor),
+            .trailingLessThanEqual(bottomImageWrapperView.trailingAnchor)
         )
 
         vStackView.anchor(

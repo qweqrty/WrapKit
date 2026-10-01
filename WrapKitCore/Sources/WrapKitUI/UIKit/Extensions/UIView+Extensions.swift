@@ -5,7 +5,7 @@
 //  Created by Stas Lee on 5/8/23.
 //
 
-#if canImport(UIKit)
+#if canImport(UIKit) && !os(watchOS)
 import UIKit
 
 public extension UIView {
@@ -80,7 +80,11 @@ public extension UIView {
             self.layer.shadowPath = path ?? UIBezierPath(rect: bounds).cgPath
             
             self.layer.shouldRasterize = false
+            #if os(visionOS)
+            self.layer.rasterizationScale = scale ? UITraitCollection.current.displayScale : 1
+            #else
             self.layer.rasterizationScale = scale ? UIScreen.main.scale : 1
+            #endif
         }
     }
     
@@ -167,8 +171,12 @@ public extension UIView {
                 let view = UIActivityIndicatorView(style: .medium)
                 return view
             } else {
+                #if os(visionOS)
+                return UIActivityIndicatorView(style: .medium)
+                #else
                 let view = UIActivityIndicatorView(style: .white)
                 return view
+                #endif
             }
         }()
         loadingView.startAnimating()
@@ -316,7 +324,7 @@ public extension UIView {
 }
 
 public extension UIView {
-    @available(iOS 26.0, *)
+    @available(iOS 26.0, tvOS 26.0, *)
     func addScrollEdgeInteractionWith(_ scrollView: UIScrollView, at edge: UIRectEdge) {
         let interaction = UIScrollEdgeElementContainerInteraction()
         interaction.scrollView = scrollView

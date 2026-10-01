@@ -57,7 +57,7 @@ public struct PickerViewPresentableModel {
     }
 }
 
-#if canImport(UIKit)
+#if canImport(UIKit) && !os(watchOS) && !os(tvOS)
 import Foundation
 import UIKit
 
@@ -117,8 +117,10 @@ extension PickerView: PickerViewOutput {
         guard let selectedRow,
               let componentsCount = componentsCount?(),
               let rowsCount = rowsCount?(),
-              selectedRow.component <= rowsCount,
-              selectedRow.row <= rowsCount else { return }
+              selectedRow.component >= 0,
+              selectedRow.component < componentsCount,
+              selectedRow.row >= 0,
+              selectedRow.row < rowsCount else { return }
         reloadAllComponents()
         selectRow(selectedRow.row, inComponent: selectedRow.component, animated: selectedRow.animated)
         selectedRow.selectedRowCompletion?(self.selectedRow(inComponent: selectedRow.component))

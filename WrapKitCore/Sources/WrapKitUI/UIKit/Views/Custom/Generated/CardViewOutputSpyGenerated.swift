@@ -38,6 +38,7 @@ public final class CardViewOutputSpy: CardViewOutput {
         case displaySecondaryTrailingImage(secondaryTrailingImage: ImageViewPresentableModel?)
         case displaySubTitle(subTitle: TextOutputPresentableModel?)
         case displayValueTitle(valueTitle: TextOutputPresentableModel?)
+        case displayBottomImage(bottomImage: ImageViewPresentableModel?)
         case displayBottomSeparator(bottomSeparator: CardViewPresentableModel.BottomSeparator?)
         case displaySwitchControl(switchControl: SwitchControlPresentableModel?)
         case displayOnPress(onPress: (() -> Void)?)
@@ -62,6 +63,7 @@ public final class CardViewOutputSpy: CardViewOutput {
     public private(set) var capturedDisplaySecondaryTrailingImage: [ImageViewPresentableModel?] = []
     public private(set) var capturedDisplaySubTitle: [TextOutputPresentableModel?] = []
     public private(set) var capturedDisplayValueTitle: [TextOutputPresentableModel?] = []
+    public private(set) var capturedDisplayBottomImage: [ImageViewPresentableModel?] = []
     public private(set) var capturedDisplayBottomSeparator: [CardViewPresentableModel.BottomSeparator?] = []
     public private(set) var capturedDisplaySwitchControl: [SwitchControlPresentableModel?] = []
     public private(set) var capturedDisplayOnPress: [(() -> Void)?] = []
@@ -119,6 +121,10 @@ public final class CardViewOutputSpy: CardViewOutput {
     public func display(valueTitle: TextOutputPresentableModel?) {
         capturedDisplayValueTitle.append(valueTitle)
         messages.append(.displayValueTitle(valueTitle: valueTitle))
+    }
+    public func display(bottomImage: ImageViewPresentableModel?) {
+        capturedDisplayBottomImage.append(bottomImage)
+        messages.append(.displayBottomImage(bottomImage: bottomImage))
     }
     public func display(bottomSeparator: CardViewPresentableModel.BottomSeparator?) {
         capturedDisplayBottomSeparator.append(bottomSeparator)

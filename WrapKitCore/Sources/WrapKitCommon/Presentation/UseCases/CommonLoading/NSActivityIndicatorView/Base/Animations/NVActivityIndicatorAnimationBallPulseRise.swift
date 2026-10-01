@@ -25,7 +25,7 @@
 // SOFTWARE.
 //
 
-#if canImport(UIKit)
+#if canImport(UIKit) && !os(watchOS)
 import UIKit
 
 class NVActivityIndicatorAnimationBallPulseRise: NVActivityIndicatorAnimationDelegate {

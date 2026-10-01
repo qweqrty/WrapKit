@@ -12,7 +12,7 @@ public protocol KeyValueFieldViewOutput: AnyObject {
     func display(bottomImage: ImageViewPresentableModel?)
 }
 
-#if canImport(UIKit)
+#if canImport(UIKit) && !os(watchOS)
 import UIKit
 import SwiftUI
 
@@ -38,6 +38,7 @@ extension VKeyValueFieldView: KeyValueFieldViewOutput {
     public func display(bottomImage: ImageViewPresentableModel?) {
         bottomImageWrapperView.isHidden = bottomImage == nil
         bottomImageView.display(model: bottomImage)
+        isHidden = keyLabel.isHidden && valueLabel.isHidden && bottomImage == nil
     }
 }
 
