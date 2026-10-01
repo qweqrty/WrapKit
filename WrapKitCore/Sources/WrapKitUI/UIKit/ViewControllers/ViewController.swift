@@ -40,6 +40,7 @@ open class ViewController<ContentView: UIView>: UIViewController, LifeCycleViewO
         self.LifeCycleViewOutput = lifeCycleViewOutput
         self.ApplicationLifecycleOutput = applicationLifecycleOutput
         super.init(nibName: nil, bundle: nil)
+        extendedLayoutIncludesOpaqueBars = true
         registerForAppLifecycleNotifications()
     }
 
