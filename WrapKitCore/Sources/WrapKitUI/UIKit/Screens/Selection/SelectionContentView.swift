@@ -83,9 +83,9 @@ extension SelectionContentView {
     func setupConstraints() {
         lineView.anchor(
             .height(4),
-            .widthTo(widthAnchor, 40/375),
-            .top(topAnchor, constant: 12),
-            .centerX(centerXAnchor)
+            .widthTo(safeAreaLayoutGuide.widthAnchor, 40/375),
+            .top(safeAreaLayoutGuide.topAnchor, constant: 12),
+            .centerX(safeAreaLayoutGuide.centerXAnchor)
         )
         navigationBar.anchor(
             .top(lineView.bottomAnchor, constant: 8),
@@ -98,29 +98,29 @@ extension SelectionContentView {
         navigationBarHeightConstraint?.isActive = true
         resetButton.anchor(
             .height(buttonHeight),
-            .widthTo(widthAnchor, 133/375, priority: .defaultHigh)
+            .widthTo(safeAreaLayoutGuide.widthAnchor, 133/375, priority: .defaultHigh)
         )
         selectButton.anchor(.height(buttonHeight))
         searchBarConstraints = searchBar.anchor(
             .top(navigationBar.bottomAnchor, constant: Self.maxSearchBarTopSpacing),
-            .leading(leadingAnchor, constant: 12),
-            .trailing(trailingAnchor, constant: 12),
+            .leading(safeAreaLayoutGuide.leadingAnchor, constant: 12),
+            .trailing(safeAreaLayoutGuide.trailingAnchor, constant: 12),
             .height(Self.searchBarHeight)
         )
         tableStackViewConstraints = tableStackView.anchor(
             .top(searchBar.bottomAnchor, constant: 16),
-            .leading(leadingAnchor, constant: 12),
-            .trailing(trailingAnchor, constant: 12)
+            .leading(safeAreaLayoutGuide.leadingAnchor, constant: 12),
+            .trailing(safeAreaLayoutGuide.trailingAnchor, constant: 12)
         )
         spacerView.anchor(
             .top(tableStackView.bottomAnchor),
-            .leading(leadingAnchor),
-            .trailing(trailingAnchor)
+            .leading(safeAreaLayoutGuide.leadingAnchor),
+            .trailing(safeAreaLayoutGuide.trailingAnchor)
         )
         buttonsStackView.anchor(
             .top(spacerView.bottomAnchor),
-            .leading(leadingAnchor, constant: 12),
-            .trailing(trailingAnchor, constant: 12),
+            .leading(safeAreaLayoutGuide.leadingAnchor, constant: 12),
+            .trailing(safeAreaLayoutGuide.trailingAnchor, constant: 12),
             .bottom(safeAreaLayoutGuide.bottomAnchor)
         )
     }
