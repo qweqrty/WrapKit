@@ -1,0 +1,42 @@
+{
+  "originHash" : "3dd3d7a978a165a9df42ef2a532a5e32276849ce914624277c456169144fd43c",
+  "pins" : [
+    {
+      "identity" : "airbnb.lottie-spm",
+      "kind" : "registry",
+      "location" : "",
+      "originalLocation" : "https://github.com/airbnb/lottie-spm",
+      "state" : {
+        "version" : "4.5.1"
+      }
+    },
+    {
+      "identity" : "devicekit.devicekit",
+      "kind" : "registry",
+      "location" : "",
+      "originalLocation" : "https://github.com/devicekit/DeviceKit",
+      "state" : {
+        "version" : "5.5.0"
+      }
+    },
+    {
+      "identity" : "marmelroy.phonenumberkit",
+      "kind" : "registry",
+      "location" : "",
+      "originalLocation" : "https://github.com/marmelroy/PhoneNumberKit",
+      "state" : {
+        "version" : "4.0.1"
+      }
+    },
+    {
+      "identity" : "onevcat.kingfisher",
+      "kind" : "registry",
+      "location" : "",
+      "originalLocation" : "https://github.com/onevcat/Kingfisher",
+      "state" : {
+        "version" : "7.12.0"
+      }
+    }
+  ],
+  "version" : 2
+}
