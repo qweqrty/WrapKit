@@ -265,7 +265,11 @@ public final class NavigationItemHeaderOutput: HeaderOutput {
         guard let style else { return }
         headerStyle = style
         let appearance = UINavigationBarAppearance()
-        appearance.configureWithOpaqueBackground()
+        if style.backgroundColor.cgColor.alpha < 1 {
+            appearance.configureWithTransparentBackground()
+        } else {
+            appearance.configureWithOpaqueBackground()
+        }
         appearance.backgroundColor = style.backgroundColor
         appearance.shadowColor = .clear
         item?.standardAppearance = appearance
