@@ -5,18 +5,19 @@ import PackageDescription
     import ProjectDescription
 
     let dependencySettings = Settings.settings(base: [
-        "IPHONEOS_DEPLOYMENT_TARGET": "15.0"
+        "IPHONEOS_DEPLOYMENT_TARGET": "15.0",
+        "MACOSX_DEPLOYMENT_TARGET": "12.0"
     ])
+    let dependencyTargets = ["Kingfisher", "_LottieStub"]
 
     let packageSettings = PackageSettings(
-        // Synthesized resource bundles do not inherit targetSettings.
-        productTypes: ["Kingfisher": .framework],
+        // Synthesized resource bundles do not inherit targetSettings in Tuist.
+        // Keep resources in frameworks to avoid deployment targets rejected by Xcode 27.
+        productTypes: [
+            "Kingfisher": .framework
+        ],
         baseSettings: dependencySettings,
-        // Package deployment targets override base settings in generated targets.
-        targetSettings: [
-            "_LottieStub": dependencySettings,
-            "Kingfisher": dependencySettings
-        ]
+        targetSettings: Dictionary(uniqueKeysWithValues: dependencyTargets.map { ($0, dependencySettings) })
     )
 #endif
 
