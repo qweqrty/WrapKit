@@ -14,11 +14,11 @@ import SwiftUI
 #if canImport(Foundation)
 import Foundation
 #endif
-#if canImport(UIKit)
-import UIKit
-#endif
 #if canImport(SwiftUI)
 import SwiftUI
+#endif
+#if canImport(UIKit)
+import UIKit
 #endif
 public class HeaderOutputSwiftUIAdapter: ObservableObject, HeaderOutput {
 

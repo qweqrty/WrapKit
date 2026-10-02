@@ -40,6 +40,7 @@ open class ViewController<ContentView: UIView>: UIViewController, LifeCycleViewO
         self.LifeCycleViewOutput = lifeCycleViewOutput
         self.ApplicationLifecycleOutput = applicationLifecycleOutput
         super.init(nibName: nil, bundle: nil)
+        extendedLayoutIncludesOpaqueBars = true
         registerForAppLifecycleNotifications()
     }
 
@@ -51,15 +52,14 @@ open class ViewController<ContentView: UIView>: UIViewController, LifeCycleViewO
     // MARK: - View Controller Lifecycle
     open override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        navigationController?.setNavigationBarHidden(true, animated: false)
         interactivePopGestureRecognizer = navigationController?.interactivePopGestureRecognizer?.delegate
         navigationController?.interactivePopGestureRecognizer?.delegate = nil
+        activateNavigationHeader(animated: animated)
         LifeCycleViewOutput?.viewWillAppear()
     }
 
     open override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        navigationController?.setNavigationBarHidden(true, animated: false)
         navigationController?.interactivePopGestureRecognizer?.delegate = interactivePopGestureRecognizer
         LifeCycleViewOutput?.viewWillDisappear()
     }
