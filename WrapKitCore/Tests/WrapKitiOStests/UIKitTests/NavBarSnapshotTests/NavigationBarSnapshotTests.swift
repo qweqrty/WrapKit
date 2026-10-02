@@ -619,6 +619,11 @@ class NavigationBarSnapshotTests: XCTestCase {
         findView(Button.self, in: sut.topItem?.rightBarButtonItems?.last?.customView)?.onPress?()
         XCTAssertEqual(sut.topItem?.standardAppearance?.backgroundColor, .yellow)
         
+        // Both references use a light navigation bar, including in a dark window.
+        if #available(iOS 26, *) {
+            sut.overrideUserInterfaceStyle = .light
+        }
+
         // THEN
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
