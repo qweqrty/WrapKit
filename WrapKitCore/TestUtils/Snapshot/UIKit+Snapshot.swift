@@ -68,6 +68,11 @@ private final class SnapshotWindow: UIWindow {
     convenience init(configuration: SnapshotConfiguration, root: UIViewController) {
         self.init(frame: CGRect(origin: .zero, size: configuration.size))
         self.configuration = configuration
+        if #available(iOS 26, *) {
+            windowScene = UIApplication.shared.connectedScenes
+                .compactMap({ $0 as? UIWindowScene }).first
+            overrideUserInterfaceStyle = configuration.traitCollection.userInterfaceStyle
+        }
         self.layoutMargins = configuration.layoutMargins
         self.rootViewController = root
         self.isHidden = false
@@ -100,10 +105,6 @@ private final class SnapshotWindow: UIWindow {
     public func snapshot() -> UIImage {
         let image: UIImage
         if #available(iOS 26, *) {
-            if let scene = UIApplication.shared.connectedScenes
-                .compactMap({ $0 as? UIWindowScene }).first {
-                windowScene = scene
-            }
             makeKeyAndVisible()
             layoutIfNeeded()
             if containsGlassEffect() {
