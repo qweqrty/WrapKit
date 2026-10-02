@@ -75,6 +75,10 @@ public final class SUIImageViewStateModel: ObservableObject {
         return completion
     }
 
+    var intrinsicImageSize: CGSize? {
+        intrinsicSize(of: model.image)
+    }
+
     func performPress() {
         model.onPress?()
     }
@@ -435,10 +439,11 @@ public final class SUIImageViewStateModel: ObservableObject {
     }
 
     private func resolvedSize(for model: ImageViewPresentableModel) -> CGSize? {
-        if let size = model.size {
-            return size
-        }
-        switch model.image {
+        model.size ?? intrinsicSize(of: model.image)
+    }
+
+    private func intrinsicSize(of image: ImageEnum?) -> CGSize? {
+        switch image {
         case .asset(let image):
             return image?.size
         case .symbolName(let name):

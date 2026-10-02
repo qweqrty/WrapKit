@@ -97,6 +97,7 @@ public struct SUIImageView: View {
                 .ifLet(backgroundColor) { $0.background($1) }
                 .modifier(ImageViewContainerStyle(
                     model: model,
+                    intrinsicSize: stateModel.intrinsicImageSize,
                     presentation: containerPresentation,
                     onPress: onPressAction,
                     onLongPress: onLongPressAction
@@ -758,6 +759,7 @@ enum SUIImageViewContainerPresentation: Equatable {
 
 private struct ImageViewContainerStyle: ViewModifier {
     let model: ImageViewPresentableModel?
+    let intrinsicSize: CGSize?
     let presentation: SUIImageViewContainerPresentation
     let onPress: (() -> Void)?
     let onLongPress: (() -> Void)?
@@ -792,7 +794,7 @@ private struct ImageViewContainerStyle: ViewModifier {
         shape: CornerShape
     ) -> some View {
         content
-            .modifier(OptionalFrame(size: frameSize))
+            .modifier(OptionalFrame(size: frameSize, idealSize: idealSize))
             .clipped()
             .clipShape(shape)
             .ifLet(border) { view, border in
@@ -824,6 +826,10 @@ private struct ImageViewContainerStyle: ViewModifier {
 
     private var frameSize: CGSize? {
         presentation == .standard ? model?.size : nil
+    }
+
+    private var idealSize: CGSize? {
+        presentation == .standard ? intrinsicSize : nil
     }
 
     private var border: (color: Color, width: CGFloat)? {
@@ -964,12 +970,19 @@ private struct ImageViewAccessibilityActionsModifier: ViewModifier {
 
 private struct OptionalFrame: ViewModifier {
     let size: CGSize?
+    let idealSize: CGSize?
 
     func body(content: Content) -> some View {
         if let size = size {
             content.frame(width: size.width, height: size.height)
         } else {
-            content.frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+            content.frame(
+                idealWidth: idealSize?.width,
+                maxWidth: .infinity,
+                idealHeight: idealSize?.height,
+                maxHeight: .infinity,
+                alignment: .center
+            )
         }
     }
 }
