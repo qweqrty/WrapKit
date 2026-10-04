@@ -11,6 +11,7 @@ let project = Project(
             bundleId: wrapKit.bundleId,
             deploymentTargets: .all,
             sources: [.glob("Sources/**", excluding: ["**/Project.swift", "**/*Tests.swift"])],
+            resources: ["Sources/Resources/PrivacyInfo.xcprivacy"],
             scripts: [Scripts.swiftlint],
             dependencies: [
                 .external(name: "Kingfisher"),
@@ -51,6 +52,7 @@ let project = Project(
             dependencies: [
                 .target(name: wrapKitTestUtils.name),
                 .target(name: "WrapKitTestHost"),
+                .project(target: wrapKitGame.name, path: wrapKitGame.path),
                 .xctest
             ]
         )
