@@ -59,7 +59,8 @@ let package = Package(
                     )
                 ),
             ],
-            path: "WrapKitGame/Sources"
+            path: "WrapKitGame/Sources",
+            resources: [.process("Resources/PrivacyInfo.xcprivacy")]
         ),
         .target(
             name: "WrapKitTestUtils",
@@ -75,6 +76,7 @@ let package = Package(
             name: "WrapKitTests",
             dependencies: [
                 "WrapKit",
+                "WrapKitGame",
                 "WrapKitTestUtils",
                 "Kingfisher",
                 .product(

@@ -1,5 +1,7 @@
 # WrapKit
 
+SDK privacy declarations and release checks: [docs/PRIVACY.md](docs/PRIVACY.md).
+
 ## Project generation
 
 Run `make project`. The command uses the first working Tuist installation found in `PATH`, including Homebrew and mise shims.
