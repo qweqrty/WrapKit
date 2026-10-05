@@ -33,6 +33,12 @@ public final class SUILabelStateModel: ObservableObject {
     @Published var presentable: TextOutputPresentableModel = .text(nil)
     @Published var isHidden: Bool = false
     private(set) var animationRenderGeneration: UInt64 = 0
+    /// Bumped on every content replacement, even when the new content compares equal.
+    ///
+    /// `TextAttributes` equality ignores `id` and `onTap`, while each display revokes the
+    /// previous tap closures. Passing this revision to `SUILabelView` makes SwiftUI re-render
+    /// the label, so tap regions never keep revoked closures from an earlier output.
+    private(set) var contentRevision: UInt64 = 0
     
     @Published private var adapter: TextOutputSwiftUIAdapter
     private var outputReplayConsumer: TextOutputSwiftUIAdapter.OutputReplayConsumer?
@@ -362,6 +368,7 @@ public final class SUILabelStateModel: ObservableObject {
             updatedModel = replacement
         }
 
+        contentRevision &+= 1
         presentable = .init(
             accessibilityIdentifier: current.accessibilityIdentifier,
             accessibility: current.accessibility,

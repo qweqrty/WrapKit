@@ -442,6 +442,31 @@ final class SUILabelSnapshotTests: XCTestCase {
         }
     }
 
+    func test_labelOutput_redisplayOfEqualTappableAttributes_keepsSnapshot() {
+        //GIVEN
+        let sut = makeSUT()
+        let snapshotName = "LABEL_TITLE_WITH_FONT"
+        let makeAttributes = {
+            [
+                TextAttributes(text: "Bold", font: .boldSystemFont(ofSize: 16), onTap: {}),
+                TextAttributes(text: "Regular", font: .systemFont(ofSize: 16))
+            ]
+        }
+
+        //WHEN
+        sut.display(model: .attributes(makeAttributes()))
+        sut.display(model: .attributes(makeAttributes()))
+
+        // THEN
+        if #available(iOS 26, *) {
+            assert(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
+            assert(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS26_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.standard)
+        } else {
+            assert(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS18.5_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
+            assert(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS18.5_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.standard)
+        }
+    }
+
     func test_labelOutput_with_singleLineText_attributes() {
         //GIVEN
         let sut = makeSUT()

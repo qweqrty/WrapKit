@@ -3,11 +3,13 @@ import WrapKit
 
 enum TextOutputCatalogAction: String, CaseIterable, Hashable {
     case addLabelFragment
+    case redisplaySameLink
     case replayCountingAnimation
 
     var title: String {
         switch self {
         case .addLabelFragment: return "Add attributed fragment"
+        case .redisplaySameLink: return "Re-display the same link"
         case .replayCountingAnimation: return "Replay number animation"
         }
     }

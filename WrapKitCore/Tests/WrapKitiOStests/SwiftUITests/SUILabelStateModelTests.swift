@@ -564,6 +564,32 @@ final class SUILabelStateModelTests: XCTestCase {
         adapter.display(textModel: nil)
         XCTAssertNil(weakOwner)
     }
+
+    func test_equalContentRedisplay_bumpsContentRevisionAndKeepsOnlyLatestActionLive() throws {
+        let adapter = TextOutputSwiftUIAdapter()
+        let sut = SUILabelStateModel(adapter: adapter)
+        var calls: [String] = []
+
+        adapter.display(model: .attributes([
+            .init(text: "Link", onTap: { calls.append("first") })
+        ]))
+        let firstRevision = sut.contentRevision
+        let firstPresentable = sut.presentable
+
+        adapter.display(model: .attributes([
+            .init(text: "Link", onTap: { calls.append("second") })
+        ]))
+
+        XCTAssertEqual(
+            sut.presentable,
+            firstPresentable,
+            "Equal text compares equal, so SwiftUI can only notice the new closures via contentRevision"
+        )
+        XCTAssertGreaterThan(sut.contentRevision, firstRevision)
+        try invokeFirstAttributeAction(in: firstPresentable.model)
+        try invokeFirstAttributeAction(in: sut.presentable.model)
+        XCTAssertEqual(calls, ["second"])
+    }
 }
 
 private extension SUILabelStateModelTests {

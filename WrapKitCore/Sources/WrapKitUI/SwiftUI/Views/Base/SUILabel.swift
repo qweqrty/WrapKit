@@ -88,17 +88,22 @@ public struct SUILabelView: View, Animatable {
     private let defaultFont: Font
     private let defaultTextColor: Color
     private let defaultTextAlignment: TextAlignment
+    /// Forces a re-render when the content was re-displayed with equal text but new tap
+    /// closures (`TextAttributes` equality ignores `id` and `onTap`).
+    private let contentRevision: UInt64
 
     public init(
         model: TextOutputPresentableModel,
         font: Font = .systemFont(ofSize: 20),
         textColor: Color = .defaultLabel,
-        textAlignment: TextAlignment = .natural
+        textAlignment: TextAlignment = .natural,
+        contentRevision: UInt64 = 0
     ) {
         self.model = model
         self.defaultFont = font
         self.defaultTextColor = textColor
         self.defaultTextAlignment = textAlignment
+        self.contentRevision = contentRevision
     }
 
     public var body: some View {
@@ -113,7 +118,8 @@ public struct SUILabelView: View, Animatable {
                     ),
                     font: defaultFont,
                     textColor: defaultTextColor,
-                    textAlignment: defaultTextAlignment
+                    textAlignment: defaultTextAlignment,
+                    contentRevision: contentRevision
                 )
                 .if(!insets.isZero) { $0.padding(insets.asSUIEdgeInsets) }
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
@@ -220,7 +226,8 @@ public struct SUILabelView: View, Animatable {
                 fallback: defaultTextAlignment
             ),
             usesFoundationLayoutMetrics: isHTMLAttributedModel,
-            tapActions: attributedContent.tapActions
+            tapActions: attributedContent.tapActions,
+            contentRevision: contentRevision
         )
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
@@ -575,6 +582,7 @@ private struct CoreTextAttributedLabel: View {
         struct ID: Hashable {
             let actionID: String
             let lineIndex: Int
+            let contentRevision: UInt64
         }
 
         let id: ID
@@ -586,6 +594,7 @@ private struct CoreTextAttributedLabel: View {
     let alignment: TextAlignment
     let usesFoundationLayoutMetrics: Bool
     let tapActions: [SUILabelTapAction]
+    let contentRevision: UInt64
 
     var body: some View {
         let preparedAttributedText = textAttributedStringWithoutUnderline(from: attributedText)
@@ -801,7 +810,11 @@ private struct CoreTextAttributedLabel: View {
                 guard !viewRect.isNull, viewRect.width > 0, viewRect.height > 0 else { continue }
 
                 regions.append(.init(
-                    id: .init(actionID: action.id, lineIndex: lineIndex),
+                    id: .init(
+                        actionID: action.id,
+                        lineIndex: lineIndex,
+                        contentRevision: contentRevision
+                    ),
                     rect: viewRect,
                     perform: action.perform
                 ))

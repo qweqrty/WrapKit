@@ -57,6 +57,8 @@ private final class TextOutputCatalogPresenter: LifeCycleViewOutput {
     private var nextFragmentIndex = 0
     private var isModelVisible = true
     private var isHidden = false
+    private var linkDisplayCount = 0
+    private var linkTapCount = 0
 
     init(
         onBack: @escaping () -> Void,
@@ -101,6 +103,7 @@ private final class TextOutputCatalogPresenter: LifeCycleViewOutput {
     private func perform(_ action: TextOutputCatalogAction) {
         switch action {
         case .addLabelFragment: addLabelFragment()
+        case .redisplaySameLink: redisplaySameLink()
         case .replayCountingAnimation: replayCountingAnimation()
         }
     }
@@ -263,6 +266,43 @@ private final class TextOutputCatalogPresenter: LifeCycleViewOutput {
             output?.display(model: nil)
         }
         configureModeRow()
+    }
+
+    /// Sends text equal to the previous output with a fresh tap closure. The link must keep
+    /// responding after every re-display: the label has to drop the revoked closure.
+    private func redisplaySameLink() {
+        mode = .attributes
+        nextFragmentIndex = 0
+        linkDisplayCount += 1
+        let displayNumber = linkDisplayCount
+        attributes = [
+            .init(
+                text: "Equal text, new closure: ",
+                color: .secondaryLabel,
+                font: .systemFont(ofSize: 16)
+            ),
+            .init(
+                text: "tap the link",
+                color: .systemBlue,
+                font: .systemFont(ofSize: 16, weight: .semibold),
+                underlineStyle: .single,
+                onTap: { [weak self] in self?.linkTapped(fromDisplay: displayNumber) }
+            )
+        ]
+        if isModelVisible {
+            output?.display(attributes: attributes)
+        } else {
+            output?.display(model: nil)
+        }
+        statusOutput?.display(text: "Display #\(displayNumber) sent with the same text")
+        configureModeRow()
+    }
+
+    private func linkTapped(fromDisplay displayNumber: Int) {
+        linkTapCount += 1
+        statusOutput?.display(
+            text: "Link tapped \(linkTapCount) time(s), closure from display #\(displayNumber)"
+        )
     }
 
     private func replayCountingAnimation() {
