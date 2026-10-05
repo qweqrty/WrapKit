@@ -35,34 +35,42 @@ extension MainQueueDispatchDecorator: PickerViewOutput where T: PickerViewOutput
 
     public var componentsCount: (() -> Int?)? {
         get {
-            return decoratee.componentsCount          
+            return dispatchSync { decoratee.componentsCount }
         }
         set {
-            decoratee.componentsCount = newValue
+            dispatch { [weak self] in
+                self?.decoratee.componentsCount = newValue
+            }
         }
     }
     public var rowsCount: (() -> Int)? {
         get {
-            return decoratee.rowsCount          
+            return dispatchSync { decoratee.rowsCount }
         }
         set {
-            decoratee.rowsCount = newValue
+            dispatch { [weak self] in
+                self?.decoratee.rowsCount = newValue
+            }
         }
     }
     public var titleForRowAt: ((Int) -> String?)? {
         get {
-            return decoratee.titleForRowAt          
+            return dispatchSync { decoratee.titleForRowAt }
         }
         set {
-            decoratee.titleForRowAt = newValue
+            dispatch { [weak self] in
+                self?.decoratee.titleForRowAt = newValue
+            }
         }
     }
     public var didSelectAt: ((Int) -> Void)? {
         get {
-            return decoratee.didSelectAt          
+            return dispatchSync { decoratee.didSelectAt }
         }
         set {
-            decoratee.didSelectAt = newValue
+            dispatch { [weak self] in
+                self?.decoratee.didSelectAt = newValue
+            }
         }
     }
 }

@@ -6,6 +6,9 @@
 //
 
 import Foundation
+#if canImport(UIKit) && !os(watchOS)
+import UIKit
+#endif
 
 public extension String {
     static let post = "POST"
@@ -45,7 +48,7 @@ public extension String {
             .documentType: NSAttributedString.DocumentType.html,
             .characterEncoding: String.Encoding.utf8.rawValue
         ]
-        if #available(iOS 18.0, macOS 15.0, *) {
+        if #available(iOS 18.0, macOS 15.0, watchOS 11.0, tvOS 18.0, visionOS 2.0, *) {
             options[.textKit1ListMarkerFormatDocumentOption] = true
         }
 
@@ -65,7 +68,11 @@ public extension String {
         /// FONT: если size/weight передали — обновляем только их, сохраняя traits (italic и т.п.) из HTML
         if config?.size != nil || config?.weight != nil {
             attributed.enumerateAttribute(.font, in: whole, options: []) { value, range, _ in
+                #if os(watchOS) || os(tvOS)
+                let oldFont = (value as? Font) ?? Font.systemFont(ofSize: 17)
+                #else
                 let oldFont = (value as? Font) ?? Font.systemFont(ofSize: Font.systemFontSize)
+                #endif
                 let oldDescriptor = oldFont.fontDescriptor
 
                 let traits = oldDescriptor.symbolicTraits
@@ -156,6 +163,39 @@ public extension String {
         
         let cleanString = self.replacingOccurrences(of: formatter.groupingSeparator, with: "")
         return Int(cleanString)
+    }
+}
+
+public extension String {
+    var isURL: Bool {
+        guard let url = URL(string: self) else { return false }
+        #if canImport(UIKit) && !os(watchOS)
+        return UIApplication.shared.canOpenURL(url)
+        #else
+        return url.scheme != nil
+        #endif
+    }
+
+    var extractUrl: String {
+        let pattern = "href=\\\\*\"([^\\\\\"]*)\\\\*\""
+
+        guard let regex = try? NSRegularExpression(pattern: pattern, options: []) else { return "" }
+        let range = NSRange(startIndex..., in: self)
+
+        guard let match = regex.firstMatch(in: self, options: [], range: range),
+              let matchRange = Range(match.range(at: 1), in: self)
+        else { return "" }
+
+        return String(self[matchRange])
+    }
+
+    func replaceHtmlLinkTag(with symbol: String) -> String {
+        let pattern = "<a href=\\\\*\"([^\\\\\"]*)\\\\*\">(.*?)</a>"
+
+        guard let regex = try? NSRegularExpression(pattern: pattern, options: []) else { return "" }
+        let range = NSRange(self.startIndex..., in: self)
+
+        return regex.stringByReplacingMatches(in: self, options: [], range: range, withTemplate: "\(symbol)$2\(symbol)")
     }
 }
 

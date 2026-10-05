@@ -1,7 +1,7 @@
 #if canImport(UIKit)
 import XCTest
 import UIKit
-@testable import WrapKit
+import WrapKit
 
 class MaskingKeyboardTypeTests: XCTestCase {
 

@@ -1,3 +1,4 @@
+#if canImport(UIKit) && !os(watchOS)
 import UIKit
 
 open class ProtectedView: UIView {
@@ -212,3 +213,4 @@ private enum ProtectionState {
         instanceFlags.removeValue(forKey: ObjectIdentifier(view))
     }
 }
+#endif

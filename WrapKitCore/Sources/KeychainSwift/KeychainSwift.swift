@@ -15,8 +15,6 @@ A collection of helper functions for saving text and data in the keychain.
 */
 open class KeychainSwift {
   
-  var lastQueryParameters: [String: Any]? // Used by the unit tests
-  
   /// Contains result code from the last operation. Value is noErr (0) for a successful result.
   open var lastResultCode: OSStatus = noErr
 
@@ -112,7 +110,6 @@ open class KeychainSwift {
       
     query = addAccessGroupWhenPresent(query)
     query = addSynchronizableIfRequired(query, addingItems: true)
-    lastQueryParameters = query
     
     lastResultCode = SecItemAdd(query as CFDictionary, nil)
     
@@ -192,7 +189,6 @@ open class KeychainSwift {
     
     query = addAccessGroupWhenPresent(query)
     query = addSynchronizableIfRequired(query, addingItems: false)
-    lastQueryParameters = query
     
     var result: AnyObject?
     
@@ -290,7 +286,6 @@ open class KeychainSwift {
     
     query = addAccessGroupWhenPresent(query)
     query = addSynchronizableIfRequired(query, addingItems: false)
-    lastQueryParameters = query
     
     lastResultCode = SecItemDelete(query as CFDictionary)
     
@@ -314,7 +309,6 @@ open class KeychainSwift {
     var query: [String: Any] = [ kSecClass as String : kSecClassGenericPassword ]
     query = addAccessGroupWhenPresent(query)
     query = addSynchronizableIfRequired(query, addingItems: false)
-    lastQueryParameters = query
     
     lastResultCode = SecItemDelete(query as CFDictionary)
     

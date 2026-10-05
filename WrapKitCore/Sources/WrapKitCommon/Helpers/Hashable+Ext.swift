@@ -46,7 +46,7 @@ public extension HashableWithReflection {
         }
         #endif
 
-        #if canImport(AppKit)
+        #if canImport(AppKit) && !targetEnvironment(macCatalyst)
         if let image = value as? NSImage {
             hasher.combine(image.size.width)
             hasher.combine(image.size.height)
@@ -125,15 +125,19 @@ public extension HashableWithReflection {
             && li.renderingMode == ri.renderingMode
         }
         if let li = lhs as? UIColor, let ri = rhs as? UIColor {
+            #if os(watchOS)
+            return li == ri
+            #else
             return li.resolvedColor(with: .init(userInterfaceStyle: .light)) == ri.resolvedColor(with: .init(userInterfaceStyle: .light))
             && li.resolvedColor(with: .init(userInterfaceStyle: .dark)) == ri.resolvedColor(with: .init(userInterfaceStyle: .dark))
+            #endif
         }
         if let li = lhs as? UIFont, let ri = rhs as? UIFont {
             return li == ri // TODO: check HeaderViewStyle Tests, probably need to add check font details check
         }
 #endif
         
-#if canImport(AppKit)
+#if canImport(AppKit) && !targetEnvironment(macCatalyst)
         if let li = lhs as? NSImage, let ri = rhs as? NSImage {
             return (li.tiffRepresentation == ri.tiffRepresentation) || (li.size == ri.size && li.isTemplate == ri.isTemplate)
         }

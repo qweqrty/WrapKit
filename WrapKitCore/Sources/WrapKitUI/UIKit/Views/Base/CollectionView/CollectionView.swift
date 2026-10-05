@@ -5,7 +5,7 @@
 //  Created by Stas Lee on 5/8/23.
 //
 
-#if canImport(UIKit)
+#if canImport(UIKit) && !os(watchOS)
 import UIKit
 
 open class CollectionView: UICollectionView {
@@ -36,6 +36,33 @@ open class CollectionView: UICollectionView {
         }
     }
     
+    #if os(tvOS)
+    public init(
+        collectionViewLayout: UICollectionViewLayout = UICollectionViewFlowLayout(),
+        scrollDirection: UICollectionView.ScrollDirection = .vertical,
+        backgroundColor: UIColor = .clear,
+        cells: [AnyClass],
+        isPagingEnabled: Bool = false,
+        isScrollEnabled: Bool = true,
+        contentInset: UIEdgeInsets = .zero,
+        emptyPlaceholderView: UIView? = nil,
+        adjustHeight: Bool = false) {
+        if let collectionViewLayout = collectionViewLayout as? UICollectionViewFlowLayout {
+            collectionViewLayout.scrollDirection = scrollDirection
+        }
+
+        super.init(frame: .zero, collectionViewLayout: collectionViewLayout)
+        commonSetup(
+            backgroundColor: backgroundColor,
+            cells: cells,
+            isPagingEnabled: isPagingEnabled,
+            isScrollEnabled: isScrollEnabled,
+            contentInset: contentInset,
+            emptyPlaceholderView: emptyPlaceholderView,
+            adjustHeight: adjustHeight
+        )
+    }
+    #else
     public init(
         collectionViewLayout: UICollectionViewLayout = UICollectionViewFlowLayout(),
         scrollDirection: UICollectionView.ScrollDirection = .vertical,
@@ -50,13 +77,35 @@ open class CollectionView: UICollectionView {
         if let collectionViewLayout = collectionViewLayout as? UICollectionViewFlowLayout {
             collectionViewLayout.scrollDirection = scrollDirection
         }
-        
-        super.init(frame: .zero, collectionViewLayout: collectionViewLayout)
 
+        super.init(frame: .zero, collectionViewLayout: collectionViewLayout)
+        commonSetup(
+            backgroundColor: backgroundColor,
+            cells: cells,
+            isPagingEnabled: isPagingEnabled,
+            isScrollEnabled: isScrollEnabled,
+            contentInset: contentInset,
+            emptyPlaceholderView: emptyPlaceholderView,
+            adjustHeight: adjustHeight
+        )
+        self.refreshControl = refreshControl
+    }
+    #endif
+
+    private func commonSetup(
+        backgroundColor: UIColor,
+        cells: [AnyClass],
+        isPagingEnabled: Bool,
+        isScrollEnabled: Bool,
+        contentInset: UIEdgeInsets,
+        emptyPlaceholderView: UIView?,
+        adjustHeight: Bool
+    ) {
         self.backgroundColor = backgroundColor
         self.contentInset = contentInset
-        self.refreshControl = refreshControl
+        #if !os(tvOS)
         self.isPagingEnabled = isPagingEnabled
+        #endif
         self.backgroundView = emptyPlaceholderView
         self.isScrollEnabled = isScrollEnabled
         self.backgroundView?.isHidden = false

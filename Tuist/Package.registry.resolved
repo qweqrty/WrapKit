@@ -1,5 +1,5 @@
 {
-  "originHash" : "3ccfba91dd5ec060f6e13e760242f56ed7aa9e4c342df8b8fb43adffb967674f",
+  "originHash" : "50e2ae0f0f041b97df869cc1b26934cb1a157405b900d657fd9b8bcd5a048d2f",
   "pins" : [
     {
       "identity" : "airbnb.lottie-spm",
@@ -8,6 +8,24 @@
       "originalLocation" : "https://github.com/airbnb/lottie-spm",
       "state" : {
         "version" : "4.5.1"
+      }
+    },
+    {
+      "identity" : "devicekit.devicekit",
+      "kind" : "registry",
+      "location" : "",
+      "originalLocation" : "https://github.com/devicekit/DeviceKit",
+      "state" : {
+        "version" : "5.5.0"
+      }
+    },
+    {
+      "identity" : "marmelroy.phonenumberkit",
+      "kind" : "registry",
+      "location" : "",
+      "originalLocation" : "https://github.com/marmelroy/PhoneNumberKit",
+      "state" : {
+        "version" : "4.0.1"
       }
     },
     {
