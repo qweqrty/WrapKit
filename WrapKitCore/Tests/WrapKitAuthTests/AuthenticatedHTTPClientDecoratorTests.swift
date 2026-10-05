@@ -11,6 +11,15 @@ import Combine
 import WrapKitTestUtils
 
 class AuthenticatedHTTPClientDecoratorTests: XCTestCase {
+    override func setUp() {
+        super.setUp()
+        AuthenticatedHTTPClientDecorator.Session.shared.updateCredentials {}
+    }
+
+    override func tearDown() {
+        AuthenticatedHTTPClientDecorator.Session.shared.updateCredentials {}
+        super.tearDown()
+    }
     
     func test_dispatch_withAccessTokenAndAuthenticatedResponse_completesSuccessfully() {
         let (sut, storage, httpClientSpy, _) = makeSUT(isAuthenticated: { _ in .authenticated })
@@ -72,7 +81,9 @@ class AuthenticatedHTTPClientDecoratorTests: XCTestCase {
         tokenRefresherSpy.complete(with: .failure(.internal))
         
         XCTAssertEqual(onNotAuthenticatedCalled, 1)
-        XCTAssertNil(receivedResult, "Expected no result fired to client, but got \(String(describing: receivedResult))")
+        guard case .failure = receivedResult else {
+            return XCTFail("Refresh failure must finish the original request")
+        }
         XCTAssertEqual(tokenRefresherSpy.refreshCalledCount, 1, "Expected token refresher to be called only once")
         XCTAssertEqual(httpClientSpy.requestedURLs.count, 1, "Expected only one request attempt")
     }
@@ -206,7 +217,7 @@ class AuthenticatedHTTPClientDecoratorTests: XCTestCase {
         
         httpClientSpy.completes(withStatusCode: 401, data: Data("data".utf8))
         tokenRefresherSpy.complete(with: .success(Tokens(accessToken: "new_token")))
-        httpClientSpy.completes(withStatusCode: 200, data: Data("data1".utf8))
+        httpClientSpy.completes(withStatusCode: 200, data: Data("data1".utf8), at: 1)
         
         switch receivedResult {
         case .success((let data, let response)):
@@ -400,17 +411,21 @@ class AuthenticatedHTTPClientDecoratorTests: XCTestCase {
         XCTAssertEqual(httpClientSpy.requestedURLs.count, 1)
         XCTAssertEqual(accessStorage.get(), nil)
         XCTAssertEqual(refreshStorage.get(), nil)
-        XCTAssertNil(receivedResult)
+        guard case .failure = receivedResult else {
+            return XCTFail("An empty refreshed access token must finish the original request")
+        }
         XCTAssertEqual(notAuthenticatedCalled, 1)
     }
     
     func test_refreshToken_refreshSucceeds_returnsTokens() {
         let refreshStorage = InMemoryStorage<String>()
         let tokenRefresherSpy = TokenRefresherSpy()
-        let (sut, accessStorage, httpClientSpy, _) = makeSUT(
+        let (sut, accessStorage, _, _) = makeSUT(
             tokenRefresher: tokenRefresherSpy,
             refreshStorage: refreshStorage
         )
+        accessStorage.set(model: "old_access")
+        refreshStorage.set(model: "old_refresh")
         let exp = expectation(description: "Wait for completion")
         var receivedTokens: Tokens?
         sut.refreshToken(completion: { tokens in
@@ -420,15 +435,18 @@ class AuthenticatedHTTPClientDecoratorTests: XCTestCase {
         tokenRefresherSpy.complete(with: .success(Tokens(accessToken: "new_token")))
         wait(for: [exp], timeout: 1.0)
         XCTAssertEqual(receivedTokens?.accessToken, "new_token")
+        XCTAssertEqual(tokenRefresherSpy.refreshCalledCount, 1)
     }
     
     func test_refreshToken_refreshSucceedsWithEmptyAccessToken_returnsNil() {
         let refreshStorage = InMemoryStorage<String>()
         let tokenRefresherSpy = TokenRefresherSpy()
-        let (sut, accessStorage, httpClientSpy, _) = makeSUT(
+        let (sut, accessStorage, _, _) = makeSUT(
             tokenRefresher: tokenRefresherSpy,
             refreshStorage: refreshStorage
         )
+        accessStorage.set(model: "old_access")
+        refreshStorage.set(model: "old_refresh")
         let exp = expectation(description: "Wait for completion")
         var receivedTokens: Tokens?
         sut.refreshToken(completion: { tokens in
@@ -438,15 +456,18 @@ class AuthenticatedHTTPClientDecoratorTests: XCTestCase {
         tokenRefresherSpy.complete(with: .success(Tokens(accessToken: "")))
         wait(for: [exp], timeout: 1.0)
         XCTAssertNil(receivedTokens)
+        XCTAssertEqual(tokenRefresherSpy.refreshCalledCount, 1)
     }
     
     func test_refreshToken_refreshFails_returnsNil() {
         let refreshStorage = InMemoryStorage<String>()
         let tokenRefresherSpy = TokenRefresherSpy()
-        let (sut, accessStorage, httpClientSpy, _) = makeSUT(
+        let (sut, accessStorage, _, _) = makeSUT(
             tokenRefresher: tokenRefresherSpy,
             refreshStorage: refreshStorage
         )
+        accessStorage.set(model: "old_access")
+        refreshStorage.set(model: "old_refresh")
         let exp = expectation(description: "Wait for completion")
         var receivedTokens: Tokens?
         sut.refreshToken(completion: { tokens in
@@ -456,6 +477,7 @@ class AuthenticatedHTTPClientDecoratorTests: XCTestCase {
         tokenRefresherSpy.complete(with: .failure(ServiceError.internal))
         wait(for: [exp], timeout: 1.0)
         XCTAssertNil(receivedTokens)
+        XCTAssertEqual(tokenRefresherSpy.refreshCalledCount, 1)
     }
     
 //    func test_noRaceConditionWhenMultipleRequestsUseSameToken() {
@@ -643,17 +665,22 @@ class AuthenticatedHTTPClientDecoratorTests: XCTestCase {
         
         let exp1 = expectation(description: "Wait for request 1")
         
+        let started = DispatchGroup()
+        started.enter()
         DispatchQueue.global().async {
+            defer { started.leave() }
             sut.dispatch(request1) { result in
             }.resume()
         }
         
+        started.enter()
         DispatchQueue.global().async {
+            defer { started.leave() }
             sut.dispatch(request2) { result in
             }.resume()
         }
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+        started.notify(queue: .main) {
             httpClientSpy.completes(withStatusCode: 401, data: Data(), at: 0)
             httpClientSpy.completes(withStatusCode: 401, data: Data(), at: 1)
             tokenRefresherSpy.complete(with: .failure(.internal))
@@ -734,9 +761,11 @@ class AuthenticatedHTTPClientDecoratorTests: XCTestCase {
         httpClientSpy.completes(withStatusCode: 403, data: Data())
         XCTAssertEqual(onNotAuthenticatedCalled, 1)
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            storage.set(model: "new_valid_token")
-                        .sink { _ in exp.fulfill() }
-                        .store(in: &cancellables)
+            AuthenticatedHTTPClientDecorator.Session.shared.updateCredentials {
+                storage.set(model: "new_valid_token")
+                    .sink { _ in exp.fulfill() }
+                    .store(in: &cancellables)
+            }
             sut.dispatch(request2) { _ in
                 exp.fulfill()
             }.resume()
