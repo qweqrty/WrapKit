@@ -48,6 +48,26 @@ open class WebViewVC: ViewController<WebViewContentView> {
         guard contentView.webView.observationInfo != nil else { return }
         contentView.webView.removeObserver(self, forKeyPath: Self.estimatedProgressKeyPath)
     }
+    
+    open override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.interactivePopGestureRecognizer?.delegate = self
+    }
+}
+
+extension WebViewVC: UIGestureRecognizerDelegate {
+    public func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+        guard let nav = navigationController else { return false }
+        return nav.viewControllers.count > 1 && !contentView.webView.canGoBack
+    }
+
+    public func gestureRecognizer(
+        _ gestureRecognizer: UIGestureRecognizer,
+        shouldBeRequiredToFailBy other: UIGestureRecognizer
+    ) -> Bool {
+        guard let view = other.view else { return false }
+        return view.isDescendant(of: contentView.webView)
+    }
 }
 
 extension WebViewVC: WebViewOutput {
