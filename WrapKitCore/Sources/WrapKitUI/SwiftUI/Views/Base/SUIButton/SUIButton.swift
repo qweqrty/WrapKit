@@ -91,6 +91,7 @@ public struct SUIButtonView: View {
                 tint: glassTintColor,
                 cornerStyle: buttonCornerStyle
             )
+            .frame(height: model.height)
             .scaleEffect(
                 pressAnimations.contains(.shrink) && isGlassPressed ? 0.95 : 1
             )
@@ -143,7 +144,10 @@ public struct SUIButtonView: View {
 
     @ViewBuilder
     private var buttonLabel: some View {
-        if let requestedHeight = model.height {
+        if usesLiquidGlassConfiguration {
+            // Native glass owns its content insets; the requested height belongs to the styled button.
+            decoratedButtonLabel(fillsAvailableHeight: model.height != nil || fillsAvailableHeight)
+        } else if let requestedHeight = model.height {
             decoratedButtonLabel(height: requestedHeight)
         } else {
             decoratedButtonLabel(fillsAvailableHeight: fillsAvailableHeight)

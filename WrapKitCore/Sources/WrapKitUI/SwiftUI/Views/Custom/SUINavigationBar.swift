@@ -30,9 +30,12 @@ public struct SUINavigationBar: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else {
                     HStack(spacing: 8) {
-                        leadingSection(model: model)
-                        Spacer(minLength: 0)
-                        trailingSection(model: model, style: style)
+                        // Keep the fallback's type available below iOS 26 as well.
+                        TupleView((
+                            leadingSection(model: model),
+                            Spacer(minLength: 0),
+                            trailingSection(model: model, style: style)
+                        ))
                     }
                 }
             }
