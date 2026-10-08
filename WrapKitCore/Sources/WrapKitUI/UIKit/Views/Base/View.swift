@@ -34,13 +34,13 @@ public struct LifeCycleView<Content: View>: View {
     public var body: some View {
         content()
             .onAppear {
-                lifeCycleOutput?.viewWillAppear()
                 if !didAppear {
-                    lifeCycleOutput?.viewDidLoad()
                     didAppear = true
+                    lifeCycleOutput?.viewDidLoad()
                     // Initial check of the color scheme
                     checkColorSchemeChange()
                 }
+                lifeCycleOutput?.viewWillAppear()
                 lifeCycleOutput?.viewDidAppear()
             }
             .onDisappear {
