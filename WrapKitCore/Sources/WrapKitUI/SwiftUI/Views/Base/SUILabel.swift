@@ -214,6 +214,9 @@ public struct SUILabelView: View, Animatable {
                 if let style = item.underlineStyle, unsupportedUnderlines.contains(style) {
                     attributedString.underlineStyle = .single
                 } // others not working without, only with OR
+                if item.strikethroughStyle != nil {
+                    attributedString.strikethroughStyle = .single
+                }
                 print("attributedString \(attributedString)")
                 let textView = Text(attributedString)
                     .font(suiFont)
@@ -224,6 +227,9 @@ public struct SUILabelView: View, Animatable {
                     .ifLet(item.color) { $0.foregroundColor(SwiftUIColor($1)) }
                     .ifLet(item.underlineStyle) { view, _ in
                         view.underline() // #available(iOS 16, macOS 13, tvOS 16, watchOS 9, *)
+                    }
+                    .ifLet(item.strikethroughStyle) { view, _ in
+                        view.strikethrough()
                     }
                 result.append(textView)
             }
@@ -394,6 +400,12 @@ extension NSUnderlineStyle {
                         font: .systemFont(ofSize: 16, weight: Font.Weight(rawValue: 200)),
                         underlineStyle: .patternDot,
                         onTap: { print("didTap: patternDot ") }
+                    ),
+                    .init(
+                        text: "red 18 (strikethrough .single) \n\n",
+                        color: .red,
+                        font: .systemFont(ofSize: 18),
+                        strikethroughStyle: .single
                     ),
                     .init(
                         text: "The quick brown fox ",
