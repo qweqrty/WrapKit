@@ -10,11 +10,27 @@ import XCTest
 import WrapKitTestUtils
 
 #if canImport(SwiftUI)
-import class SwiftUI.UIHostingController
+import SwiftUI
 #endif
 
 @available(iOS 17.0, *)
 final class SUIButtonSnapshotTests: XCTestCase {
+
+    func test_buttonOutput_legacyHeight_matchesRequestedHeightBeforeAndAfterUpdates() throws {
+        try assertRequestedButtonHeight(style: .init(backgroundColor: .systemGreen))
+    }
+
+    func test_buttonOutput_glassHeight_matchesRequestedHeightBeforeAndAfterUpdates() throws {
+        let configurations: [WrapKit.ButtonStyle.GlassConfiguration] = [
+            .glass, .prominentGlass, .clearGlass, .prominentClearGlass
+        ]
+        for configuration in configurations {
+            try assertRequestedButtonHeight(style: .init(
+                backgroundColor: .systemGreen,
+                glassConfiguration: configuration
+            ))
+        }
+    }
 
     func test_publicButton_exposesConfiguredAccessibilityAction() throws {
         let adapter = ButtonOutputSwiftUIAdapter()
@@ -583,7 +599,7 @@ final class SUIButtonSnapshotTests: XCTestCase {
         let sut = makeSUT()
 
         // WHEN
-        let style = ButtonStyle(
+        let style = WrapKit.ButtonStyle(
             backgroundColor: .systemBlue,
             loadingIndicatorColor: .red
         )
@@ -609,7 +625,7 @@ final class SUIButtonSnapshotTests: XCTestCase {
         let sut = makeSUT()
 
         // WHEN
-        let style = ButtonStyle(
+        let style = WrapKit.ButtonStyle(
             backgroundColor: .systemBlue,
             loadingIndicatorColor: .red
         )
@@ -635,7 +651,7 @@ final class SUIButtonSnapshotTests: XCTestCase {
         let sut = makeSUT()
 
         // WHEN
-        let style = ButtonStyle(
+        let style = WrapKit.ButtonStyle(
             backgroundColor: .systemBlue,
             loadingIndicatorColor: .red
         )
@@ -658,6 +674,43 @@ final class SUIButtonSnapshotTests: XCTestCase {
 
 @available(iOS 17.0, *)
 private extension SUIButtonSnapshotTests {
+    func assertRequestedButtonHeight(
+        style: WrapKit.ButtonStyle,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) throws {
+        let adapter = ButtonOutputSwiftUIAdapter()
+        adapter.display(model: .init(
+            accessibilityIdentifier: "button.height",
+            title: "Action",
+            height: 48,
+            style: style,
+            enabled: true,
+            onPress: {}
+        ))
+        let host = SwiftUIAccessibilityTestHost(
+            rootView: VStack(spacing: 0) {
+                SUIButton(adapter: adapter)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top),
+            size: CGSize(width: 320, height: 160)
+        )
+
+        for (index, height) in [CGFloat(48), 72, 48].enumerated() {
+            if index > 0 {
+                adapter.display(height: height)
+            }
+            host.settle()
+            let button = try XCTUnwrap(
+                host.element(withIdentifier: "button.height"),
+                file: file,
+                line: line
+            )
+            XCTAssertEqual(button.accessibilityFrame.height, height, accuracy: 0.5, file: file, line: line)
+            XCTAssertEqual(button.accessibilityLabel, "Action", file: file, line: line)
+        }
+    }
+
     func makeSUT(
         height: CGFloat = 60,
         file: StaticString = #filePath,

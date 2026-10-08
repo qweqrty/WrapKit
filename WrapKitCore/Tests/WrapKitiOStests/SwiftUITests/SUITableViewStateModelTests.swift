@@ -911,8 +911,8 @@ final class SUITableViewStateModelTests: XCTestCase {
             adapter: adapter,
             style: .list,
             cellContent: { cell, _ in SwiftUI.Text(cell) },
-            headerContent: { _ in EmptyView() },
-            footerContent: { _ in EmptyView() }
+            headerContent: { _ in SwiftUI.EmptyView() },
+            footerContent: { _ in SwiftUI.EmptyView() }
         )
         .environment(\.editMode, .constant(editMode))
     }
@@ -927,8 +927,8 @@ final class SUITableViewStateModelTests: XCTestCase {
                 SwiftUI.Text(cell)
                     .frame(maxWidth: .infinity, minHeight: 56, alignment: .leading)
             },
-            headerContent: { _ in EmptyView() },
-            footerContent: { _ in EmptyView() }
+            headerContent: { _ in SwiftUI.EmptyView() },
+            footerContent: { _ in SwiftUI.EmptyView() }
         )
     }
 
