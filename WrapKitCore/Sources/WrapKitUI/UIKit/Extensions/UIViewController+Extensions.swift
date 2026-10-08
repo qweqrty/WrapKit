@@ -34,6 +34,7 @@ public struct AlertPresentableModel {
 }
 
 #if canImport(UIKit)
+import ObjectiveC.runtime
 import UIKit
 
 extension UIViewController: AlertOutput {
@@ -75,6 +76,7 @@ extension UIViewController: AlertOutput {
                     alert.addAction(UIAlertAction(title: cancelText, style: .cancel, handler: nil))
                 }
                 
+                alert.centerText()
                 self?.present(alert, animated: true, completion: nil)
             }
         }
@@ -106,6 +108,7 @@ extension UIViewController: AlertOutput {
                 alert.addAction(UIAlertAction(title: cancelText, style: .cancel, handler: nil))
             }
             
+            alert.centerText()
             self?.present(alert, animated: true, completion: nil)
         }
     }
@@ -137,9 +140,51 @@ extension UIViewController: AlertOutput {
             if let cancelText = model.cancelText {
                 alert.addAction(UIAlertAction(title: cancelText, style: .cancel, handler: nil))
             }
+            alert.centerText()
             self?.present(alert, animated: true, completion: nil)
         }
     }
+}
+
+private extension UIAlertController {
+    func centerText() {
+        _ = Self.centerTextOnLayout
+    }
+
+    @objc func wrapkit_viewDidLayoutSubviews() {
+        wrapkit_viewDidLayoutSubviews()
+
+        view.allSubviews
+            .compactMap { $0 as? UILabel }
+            .filter { [title, message].contains($0.text) }
+            .forEach { $0.textAlignment = .center }
+    }
+
+    static let centerTextOnLayout: Void = {
+        guard #available(iOS 26.0, *) else { return }
+
+        let originalSelector = #selector(UIViewController.viewDidLayoutSubviews)
+        let centeredSelector = #selector(wrapkit_viewDidLayoutSubviews)
+        guard let original = class_getInstanceMethod(UIAlertController.self, originalSelector),
+              let centered = class_getInstanceMethod(UIAlertController.self, centeredSelector)
+        else { return }
+
+        if class_addMethod(
+            UIAlertController.self,
+            originalSelector,
+            method_getImplementation(centered),
+            method_getTypeEncoding(centered)
+        ) {
+            class_replaceMethod(
+                UIAlertController.self,
+                centeredSelector,
+                method_getImplementation(original),
+                method_getTypeEncoding(original)
+            )
+        } else {
+            method_exchangeImplementations(original, centered)
+        }
+    }()
 }
 
 public extension UIViewController {
