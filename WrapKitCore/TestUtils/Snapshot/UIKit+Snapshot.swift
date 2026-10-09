@@ -99,11 +99,9 @@ private final class SnapshotWindow: UIWindow {
     
     public func snapshot() -> UIImage {
         let image: UIImage
-        if #available(iOS 26, *) {
-            if let scene = UIApplication.shared.connectedScenes
-                .compactMap({ $0 as? UIWindowScene }).first {
-                windowScene = scene
-            }
+        if #available(iOS 26, *),
+           let scene = UIApplication.shared.connectedScenes.compactMap({ $0 as? UIWindowScene }).first {
+            windowScene = scene
             makeKeyAndVisible()
             layoutIfNeeded()
             if containsGlassEffect() {
@@ -119,6 +117,8 @@ private final class SnapshotWindow: UIWindow {
                 drawHierarchy(in: bounds, afterScreenUpdates: true)
             }
         } else {
+            // Unhosted SwiftPM tests have no UIWindowScene; drawHierarchy would
+            // return an empty image there. Plain UIKit layers can render offscreen.
             image = asImage(scale: traitCollection.displayScale)
         }
 

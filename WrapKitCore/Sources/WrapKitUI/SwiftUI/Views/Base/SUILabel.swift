@@ -214,13 +214,17 @@ public struct SUILabelView: View, Animatable {
                 if let style = item.underlineStyle, unsupportedUnderlines.contains(style) {
                     attributedString.underlineStyle = .single
                 } // others not working without, only with OR
-                if item.strikethroughStyle != nil {
-                    attributedString.strikethroughStyle = .single
+                if let style = item.strikethroughStyle {
+                    if #available(iOS 18, macOS 15, tvOS 18, watchOS 11, *), style.requiresCustomStrikethrough {
+                        result.append(buildCustomStrikethroughText(nsAttributedString, item: item, style: style))
+                    } else {
+                        // Before TextRenderer, native Text can express only one line and its pattern.
+                        attributedString.strikethroughStyle = style.hasLine ? .init(pattern: style.suiStyle) : nil
+                        result.append(Text(attributedString).font(suiFont))
+                    }
+                } else {
+                    result.append(Text(attributedString).font(suiFont))
                 }
-                print("attributedString \(attributedString)")
-                let textView = Text(attributedString)
-                    .font(suiFont)
-                result.append(textView)
             } else {
                 let textView: Text = Text(item.text)
                     .ifLet(item.font) { $0.font(SwiftUIFont($1)) }
@@ -228,8 +232,8 @@ public struct SUILabelView: View, Animatable {
                     .ifLet(item.underlineStyle) { view, _ in
                         view.underline() // #available(iOS 16, macOS 13, tvOS 16, watchOS 9, *)
                     }
-                    .ifLet(item.strikethroughStyle) { view, _ in
-                        view.strikethrough()
+                    .ifLet(item.strikethroughStyle) { view, style in
+                        view.strikethrough(style.hasLine)
                     }
                 result.append(textView)
             }
@@ -243,7 +247,23 @@ public struct SUILabelView: View, Animatable {
         
         let textAlignment = attributes.first(where: { $0.textAlignment != nil })?.textAlignment
         
-        return result.reduce(Text(""), +)
+        let text = result.reduce(Text(""), +)
+        let decoratedText = text
+            .modify { text in
+                if #available(iOS 18, macOS 15, tvOS 18, watchOS 11, *),
+                   attributes.contains(where: { $0.strikethroughStyle?.requiresCustomStrikethrough == true }) {
+                    // Keep glyphs and native single-line decorations on Text's
+                    // normal rendering path; the renderer adds only advanced lines.
+                    text.overlay {
+                        text.textRenderer(SUIStrikethroughTextRenderer())
+                            .allowsHitTesting(false)
+                            .accessibilityHidden(true)
+                    }
+                } else {
+                    text
+                }
+            }
+        return decoratedText
             .modify { if #available(iOS 15, macOS 12, tvOS 15, watchOS 8, *) {
                 $0.environment(\.openURL, OpenURLAction { url in
                     if let id = url.host {
@@ -263,6 +283,51 @@ public struct SUILabelView: View, Animatable {
                     $0
                 }
             }
+    }
+
+    @available(iOS 18, macOS 15, tvOS 18, watchOS 11, *)
+    private func buildCustomStrikethroughText(
+        _ source: NSAttributedString,
+        item: TextAttributes,
+        style: UnderlineStyle
+    ) -> Text {
+        let attribute = SUIStrikethroughAttribute(
+            style: style,
+            font: item.font ?? defaultFont,
+            color: item.color ?? .label
+        )
+        var result = Text("")
+        source.enumerateAttribute(.strikethroughStyle, in: NSRange(location: 0, length: source.length)) { value, range, _ in
+            var attributedString = AttributedString(source.attributedSubstring(from: range))
+            if let underlineStyle = item.underlineStyle, unsupportedUnderlines.contains(underlineStyle) {
+                attributedString.underlineStyle = .single
+            }
+            attributedString.strikethroughStyle = nil
+            // Attachments and their padding have no decoration in the source model.
+            guard value != nil else {
+                result = result + Text(attributedString).font(suiFont)
+                return
+            }
+            guard style.contains(.byWord) else {
+                result = result + Text(attributedString).font(suiFont).customAttribute(attribute)
+                return
+            }
+
+            // Mark words, not whitespace. SwiftUI still owns wrapping and bidi layout.
+            var start = attributedString.startIndex
+            while start < attributedString.endIndex {
+                let isWhitespace = attributedString.characters[start].isWhitespace
+                var end = attributedString.characters.index(after: start)
+                while end < attributedString.endIndex,
+                      attributedString.characters[end].isWhitespace == isWhitespace {
+                    end = attributedString.characters.index(after: end)
+                }
+                let text = Text(AttributedString(attributedString[start..<end])).font(suiFont)
+                result = result + (isWhitespace ? text : text.customAttribute(attribute))
+                start = end
+            }
+        }
+        return result
     }
     
     private func buildSUIImageInText(bounds source: CGRect, image: Image) -> Text {
@@ -313,9 +378,17 @@ extension NSTextAlignment {
 }
 
 extension NSUnderlineStyle {
+    fileprivate var hasLine: Bool {
+        contains(.single) || contains(.thick) || contains(.double)
+    }
+
+    fileprivate var requiresCustomStrikethrough: Bool {
+        hasLine && ((rawValue & 0x0F) != Self.single.rawValue || contains(.byWord))
+    }
+
     @available(iOS 15, macOS 12, tvOS 15, watchOS 8, *)
     var suiStyle: SwiftUI.Text.LineStyle.Pattern {
-        switch self {
+        switch intersection([.patternDot, .patternDash, .patternDashDot, .patternDashDotDot]) {
         case .patternDash: return .dash
         case .patternDashDot: return .dashDot
         case .patternDashDotDot: return .dashDotDot
