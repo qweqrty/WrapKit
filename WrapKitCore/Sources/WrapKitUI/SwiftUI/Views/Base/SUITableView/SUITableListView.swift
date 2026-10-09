@@ -561,7 +561,6 @@ private struct SUITableInteractiveRow<
             accessibleCellContent
                 .offset(x: showsProgrammaticTrailingActions ? -trailingActionsWidth : 0)
         }
-        .clipped()
         .simultaneousGesture(
             DragGesture(minimumDistance: 4)
                 .onChanged { _ in
@@ -574,7 +573,8 @@ private struct SUITableInteractiveRow<
     }
 
     private var programmaticTrailingActions: some View {
-        HStack(spacing: 0) {
+        let appearance = SUITableProgrammaticActionAppearance.current
+        return HStack(spacing: appearance.spacing) {
             ForEach(
                 suiTableProgrammaticTrailingActions(trailingActions),
                 id: \.sourceIndex
@@ -584,9 +584,9 @@ private struct SUITableInteractiveRow<
                     stateModel.performSwipeAction(action, at: indexPath)
                 } label: {
                     contextualActionLabel(action)
-                        .font(.caption)
+                        .font(appearance.font)
                         .foregroundColor(.white)
-                        .padding(.horizontal, 12)
+                        .padding(.horizontal, appearance.titleHorizontalPadding)
                         .padding(.vertical, 10)
                         .frame(
                             minWidth: SUITableSwipeConfiguration.minimumProgrammaticActionWidth,
@@ -595,13 +595,18 @@ private struct SUITableInteractiveRow<
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
-                .background(programmaticBackgroundColor(for: action))
+                .background(
+                    programmaticBackgroundColor(for: action),
+                    in: RoundedRectangle(cornerRadius: appearance.cornerRadius, style: .continuous)
+                )
                 .suiTableActionAccessibility(title: action.title)
                 .accessibilityIdentifier(
                     "wrapkit.table.trailing.\(indexPath.section).\(indexPath.row).\(indexedAction.sourceIndex)"
                 )
             }
         }
+        .padding(.vertical, appearance.verticalInset)
+        .padding(.horizontal, appearance.horizontalInset)
         .fixedSize(horizontal: true, vertical: false)
         .background {
             GeometryReader { geometry in
@@ -685,5 +690,36 @@ private struct SUITableInteractiveRow<
         }
     }
 #endif
+}
+
+private struct SUITableProgrammaticActionAppearance {
+    let font: SwiftUI.Font
+    let titleHorizontalPadding: CGFloat
+    let cornerRadius: CGFloat
+    let verticalInset: CGFloat
+    let horizontalInset: CGFloat
+    let spacing: CGFloat
+
+    static var current: SUITableProgrammaticActionAppearance {
+        isAvailableOS26 && isLiquidGlassEnabled ? .liquidGlass : .classic
+    }
+
+    static let liquidGlass = SUITableProgrammaticActionAppearance(
+        font: .footnote,
+        titleHorizontalPadding: 12,
+        cornerRadius: 16,
+        verticalInset: 4,
+        horizontalInset: 10,
+        spacing: 10
+    )
+
+    static let classic = SUITableProgrammaticActionAppearance(
+        font: .subheadline.weight(.medium),
+        titleHorizontalPadding: 6,
+        cornerRadius: 0,
+        verticalInset: 0,
+        horizontalInset: 0,
+        spacing: 0
+    )
 }
 #endif
