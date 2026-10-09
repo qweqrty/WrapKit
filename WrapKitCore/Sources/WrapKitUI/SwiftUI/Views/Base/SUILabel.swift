@@ -1203,9 +1203,17 @@ extension NSTextAlignment {
 }
 
 extension NSUnderlineStyle {
+    fileprivate var hasLine: Bool {
+        contains(.single) || contains(.thick) || contains(.double)
+    }
+
+    fileprivate var requiresCustomStrikethrough: Bool {
+        hasLine && ((rawValue & 0x0F) != Self.single.rawValue || contains(.byWord))
+    }
+
     @available(iOS 15, macOS 12, tvOS 15, watchOS 8, *)
     var suiStyle: SwiftUI.Text.LineStyle.Pattern {
-        switch self {
+        switch intersection([.patternDot, .patternDash, .patternDashDot, .patternDashDotDot]) {
         case .patternDash: return .dash
         case .patternDashDot: return .dashDot
         case .patternDashDotDot: return .dashDotDot
