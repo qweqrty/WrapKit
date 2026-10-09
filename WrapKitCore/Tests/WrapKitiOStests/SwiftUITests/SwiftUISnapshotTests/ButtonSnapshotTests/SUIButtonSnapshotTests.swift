@@ -8,6 +8,7 @@
 import WrapKit
 import XCTest
 import WrapKitTestUtils
+import UIKit
 
 #if canImport(SwiftUI)
 import SwiftUI
@@ -15,6 +16,30 @@ import SwiftUI
 
 @available(iOS 17.0, *)
 final class SUIButtonSnapshotTests: XCTestCase {
+
+    @MainActor
+    func test_buttonOutput_filledGlass_preservesBackgroundAfterEnabledUpdates() {
+        let adapter = ButtonOutputSwiftUIAdapter()
+        let style = WrapKit.ButtonStyle(
+            backgroundColor: .systemGreen,
+            titleColor: .white,
+            font: .systemFont(ofSize: 17, weight: .semibold),
+            glassConfiguration: .glass
+        )
+        adapter.display(model: .init(
+            title: "Order details",
+            height: 48,
+            style: style,
+            enabled: true,
+            onPress: {}
+        ))
+        let host = makeGlassButtonHost(adapter: adapter)
+        assertSnapshots(host, named: "BUTTON_GLASS_FILLED_ENABLED")
+        adapter.display(enabled: false)
+        assertSnapshots(host, named: "BUTTON_GLASS_FILLED_DISABLED")
+        adapter.display(enabled: true)
+        assertSnapshots(host, named: "BUTTON_GLASS_FILLED_ENABLED")
+    }
 
     func test_buttonOutput_legacyHeight_matchesRequestedHeightBeforeAndAfterUpdates() throws {
         try assertRequestedButtonHeight(style: .init(backgroundColor: .systemGreen))
@@ -674,6 +699,55 @@ final class SUIButtonSnapshotTests: XCTestCase {
 
 @available(iOS 17.0, *)
 private extension SUIButtonSnapshotTests {
+    @MainActor
+    func makeGlassButtonHost(adapter: ButtonOutputSwiftUIAdapter) -> UIHostingController<AnyView> {
+        UIHostingController(rootView: AnyView(
+            SUIButton(adapter: adapter)
+                .padding(16)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(SwiftUIColor(WrapKit.Color.systemBackground))
+                .ignoresSafeArea(.all)
+                .transaction {
+                    $0.disablesAnimations = true
+                    $0.animation = nil
+                }
+        ))
+    }
+
+    @MainActor
+    func assertSnapshots(
+        _ host: UIViewController,
+        named name: String,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        for appearance in [SnapshotAppearance.light, .dark, .light] {
+            let configuration = SnapshotConfiguration(
+                size: CGSize(width: 320, height: 120),
+                safeAreaInsets: .zero,
+                layoutMargins: .zero,
+                traitCollection: UITraitCollection(traitsFrom: [
+                    SnapshotConfiguration.iPhone(style: appearance.userInterfaceStyle).traitCollection,
+                    // Native SwiftUI glass uses UIKit's active appearance to render its tinted fill.
+                    UITraitCollection(activeAppearance: .active)
+                ])
+            )
+            host.loadViewIfNeeded()
+            UIView.performWithoutAnimation {
+                host.overrideUserInterfaceStyle = appearance.userInterfaceStyle
+                host.view.frame = CGRect(origin: .zero, size: configuration.size)
+            }
+            RunLoop.main.run(until: Date().addingTimeInterval(0.3))
+            host.view.setNeedsLayout()
+            host.view.layoutIfNeeded()
+            let image = host.snapshot(for: configuration)
+            let os = isAvailableOS26 ? "iOS26" : "iOS18.5"
+            let theme = appearance == .light ? "LIGHT" : "DARK"
+            let snapshotName = "SwiftUI_\(os)_\(name)_\(theme)"
+            assert(snapshot: image, named: snapshotName, precision: SwiftUISnapshotPrecision.standard, file: file, line: line)
+        }
+    }
+
     func assertRequestedButtonHeight(
         style: WrapKit.ButtonStyle,
         file: StaticString = #filePath,
