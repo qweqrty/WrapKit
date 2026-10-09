@@ -150,9 +150,15 @@ public final class SUITableViewStateModel<Header, Cell: Hashable, Footer>: Obser
         edge: SUITableSwipeEdge
     ) -> [TableContextualAction<Cell>] {
         guard isEditable(at: indexPath) else { return [] }
-        if hasInsertEditingStyle(at: indexPath) {
-            return []
-        }
+        return revealableSwipeActions(at: indexPath, edge: edge)
+    }
+
+    func revealableSwipeActions(
+        at indexPath: IndexPath,
+        edge: SUITableSwipeEdge
+    ) -> [TableContextualAction<Cell>] {
+        guard cellModel(at: indexPath) != nil,
+              !hasInsertEditingStyle(at: indexPath) else { return [] }
         switch edge {
         case .leading:
             return leadingSwipeActions?(indexPath) ?? []
@@ -166,7 +172,7 @@ public final class SUITableViewStateModel<Header, Cell: Hashable, Footer>: Obser
         _ action: TableContextualAction<Cell>,
         at indexPath: IndexPath
     ) -> Bool {
-        guard isEditable(at: indexPath),
+        guard isEditable(at: indexPath) || areTrailingActionsExpanded(at: indexPath),
               !hasInsertEditingStyle(at: indexPath),
               let cell = cell(at: indexPath) else {
             collapseTrailingActions(at: indexPath)
@@ -310,14 +316,14 @@ public final class SUITableViewStateModel<Header, Cell: Hashable, Footer>: Obser
     }
 
     private func expandTrailingActions(at indexPath: IndexPath) {
-        guard swipeActions(at: indexPath, edge: .trailing).contains(where: \.hasVisibleContent)
+        guard revealableSwipeActions(at: indexPath, edge: .trailing).contains(where: \.hasVisibleContent)
         else { return }
         expandedTrailingActionsIndexPath = indexPath
     }
 
     private func collapseUnavailableTrailingActions() {
         guard let indexPath = expandedTrailingActionsIndexPath else { return }
-        guard swipeActions(at: indexPath, edge: .trailing).contains(where: \.hasVisibleContent)
+        guard revealableSwipeActions(at: indexPath, edge: .trailing).contains(where: \.hasVisibleContent)
         else {
             collapseTrailingActions()
             return

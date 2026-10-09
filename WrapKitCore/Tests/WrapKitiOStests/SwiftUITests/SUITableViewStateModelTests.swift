@@ -667,7 +667,7 @@ final class SUITableViewStateModelTests: XCTestCase {
         XCTAssertNil(sut.expandedTrailingActionsIndexPath)
     }
 
-    func test_expandTrailingActions_ignoresMissingUneditableAndActionlessRows() {
+    func test_expandTrailingActions_ignoresMissingAndActionlessRows() {
         let adapter = makeAdapter()
         adapter.display(sections: makeSections(["Inbox"]))
         adapter.display(trailingSwipeActionsForIndexPath: { _ in [] })
@@ -677,16 +677,35 @@ final class SUITableViewStateModelTests: XCTestCase {
         XCTAssertNil(sut.expandedTrailingActionsIndexPath)
 
         adapter.display(trailingSwipeActionsForIndexPath: { _ in [.init(title: "Info")] })
-        adapter.display(canEdit: { _ in false })
-        adapter.display(expandTrailingActionsAt: IndexPath(row: 0, section: 0))
-        XCTAssertNil(sut.expandedTrailingActionsIndexPath)
-
-        adapter.display(canEdit: { _ in true })
         adapter.display(expandTrailingActionsAt: IndexPath(row: 1, section: 0))
         XCTAssertNil(sut.expandedTrailingActionsIndexPath)
 
         adapter.display(trailingSwipeActionsForIndexPath: { _ in [.init()] })
         adapter.display(expandTrailingActionsAt: IndexPath(row: 0, section: 0))
+        XCTAssertNil(sut.expandedTrailingActionsIndexPath)
+    }
+
+    func test_expandTrailingActions_revealsUneditableRowWithoutUserSwipeLikeUIKit() {
+        let adapter = makeAdapter()
+        adapter.display(sections: makeSections(["Inbox"]))
+        var capturedCells: [String] = []
+        let action = TableContextualAction<String>(title: "Delete") { cell in
+            capturedCells.append(cell)
+        }
+        adapter.display(trailingSwipeActionsForIndexPath: { _ in [action] })
+        adapter.display(canEdit: { _ in false })
+        let sut = SUITableViewStateModel(adapter: adapter)
+        let indexPath = IndexPath(row: 0, section: 0)
+
+        XCTAssertTrue(sut.swipeActions(at: indexPath, edge: .trailing).isEmpty)
+        XCTAssertEqual(sut.revealableSwipeActions(at: indexPath, edge: .trailing).map(\.title), ["Delete"])
+        XCTAssertFalse(sut.performSwipeAction(action, at: indexPath))
+
+        adapter.display(expandTrailingActionsAt: indexPath)
+
+        XCTAssertEqual(sut.expandedTrailingActionsIndexPath, indexPath)
+        XCTAssertTrue(sut.performSwipeAction(action, at: indexPath))
+        XCTAssertEqual(capturedCells, ["Inbox"])
         XCTAssertNil(sut.expandedTrailingActionsIndexPath)
     }
 

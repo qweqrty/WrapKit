@@ -502,6 +502,8 @@ private struct SUITableInteractiveRow<
                     ) {
                         nativeContextualActions(trailingActions)
                     }
+            } else if trailingActions.contains(where: \.hasVisibleContent) {
+                programmaticRevealContent
             } else {
                 accessibleCellContent
             }
@@ -631,7 +633,7 @@ private struct SUITableInteractiveRow<
     }
 
     private var trailingActions: [TableContextualAction<Cell>] {
-        stateModel.swipeActions(at: indexPath, edge: .trailing)
+        stateModel.revealableSwipeActions(at: indexPath, edge: .trailing)
     }
 
     private var showsProgrammaticTrailingActions: Bool {

@@ -32,10 +32,10 @@ public struct SUILoadingView: View {
     }
     
     public var body: some View {
-        if stateModel.isLoading {
-            ZStack {
-                dimBackgroundColor
-                
+        ZStack {
+            dimBackgroundColor
+
+            if stateModel.isLoading {
                 SUIWrapperView(
                     backgroundColor: wrapperColor,
                     cornerRadius: 12,
@@ -51,6 +51,8 @@ public struct SUILoadingView: View {
                 }
             }
         }
+        .opacity(stateModel.isLoading ? 1 : 0)
+        .allowsHitTesting(stateModel.isLoading)
     }
     
 }
