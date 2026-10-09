@@ -23,6 +23,9 @@ import Kingfisher
 #if canImport(SwiftUI)
 import SwiftUI
 #endif
+#if canImport(CoreGraphics)
+import CoreGraphics
+#endif
 public class ImageViewOutputSwiftUIAdapter: ObservableObject, ImageViewOutput {
 
     // Initializer

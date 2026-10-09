@@ -41,7 +41,7 @@ extension VKeyValueFieldView: KeyValueFieldViewOutput {
     }
 }
 
-open class VKeyValueFieldView: UIView {
+open class VKeyValueFieldView: ViewUIKit {
     public lazy var stackView = StackView(axis: .vertical, spacing: 4)
     public lazy var keyLabel = Label(
         font: .systemFont(ofSize: 11),
