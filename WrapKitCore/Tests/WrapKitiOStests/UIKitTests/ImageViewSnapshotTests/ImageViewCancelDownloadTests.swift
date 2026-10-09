@@ -199,6 +199,7 @@ final class ImageViewCancelDownloadTests: XCTestCase {
 
         // THEN
         wait(for: [stopExpectation], timeout: 1.0)
+        XCTAssertNil(sut.kf.taskIdentifier)
         XCTAssertNil(sut.image)
         XCTAssertNil(sut.currentImageEnum)
         XCTAssertEqual(server.disconnectedURLs, [firstURL])

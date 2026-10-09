@@ -16,6 +16,9 @@ import UIKit
 #if canImport(SwiftUI)
 import SwiftUI
 #endif
+#if canImport(CoreGraphics)
+import CoreGraphics
+#endif
 
 extension ButtonOutput {
     public var mainQueueDispatched: any ButtonOutput {
@@ -38,6 +41,11 @@ extension MainQueueDispatchDecorator: ButtonOutput where T: ButtonOutput {
     public func display(image: Image?) {
         dispatch { [weak self] in
             self?.decoratee.display(image: image)
+        }
+    }
+    public func display(contentInset: EdgeInsets) {
+        dispatch { [weak self] in
+            self?.decoratee.display(contentInset: contentInset)
         }
     }
     public func display(style: ButtonStyle?) {
