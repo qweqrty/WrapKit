@@ -132,6 +132,12 @@ public struct SUIRepresentableLabel: UIViewRepresentable {
                         onTap: { print("didTap: patternDot ") }
                     ),
                     .init(
+                        text: "red 18 (strikethrough .single) \n\n",
+                        color: .red,
+                        font: .systemFont(ofSize: 18),
+                        strikethroughStyle: .single
+                    ),
+                    .init(
                         text: "The quick brown fox ",
                         color: .black,
                         font: .boldSystemFont(ofSize: 25),

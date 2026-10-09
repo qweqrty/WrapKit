@@ -776,6 +776,50 @@ final class LabelSnapshotTests: XCTestCase {
         } 
     }
     
+    func test_labelOutput_with_strikethrough_attributes() {
+        //GIVEN
+        let (sut, container) = makeSUT()
+        let snapshotName = "LABEL_TITLE_WITH_STRIKETHROUGH"
+        
+        //WHEN
+        let prefix = TextAttributes(text: "SILVER - ")
+        let oldPrice = TextAttributes(text: "175 som", strikethroughStyle: .single)
+        let price = TextAttributes(text: " 35 som")
+        
+        sut.display(model: .attributes([prefix, oldPrice, price]))
+        
+        // THEN
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        } 
+    }
+    
+    func test_fail_labelOutput_with_strikethrough_attributes() {
+        //GIVEN
+        let (sut, container) = makeSUT()
+        let snapshotName = "LABEL_TITLE_WITH_STRIKETHROUGH"
+        
+        //WHEN
+        let prefix = TextAttributes(text: "SILVER - ")
+        let oldPrice = TextAttributes(text: "175 som")
+        let price = TextAttributes(text: " 35 som")
+        
+        sut.display(model: .attributes([prefix, oldPrice, price]))
+        
+        // THEN
+        if #available(iOS 26, *) {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assertFail(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        } 
+    }
+    
     func test_labelOutput_with_leadingImage_attributes() {
         //GIVEN
         let (sut, container) = makeSUT()

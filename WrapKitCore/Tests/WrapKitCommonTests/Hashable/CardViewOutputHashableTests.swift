@@ -92,6 +92,18 @@ final class CardViewOutputHashableTests: XCTestCase {
         XCTAssertEqual(attr1, attr2)
         XCTAssertEqual([attr1], [attr2])
     }
+    
+    func test_TextAttributes_strikethroughStyle() {
+        let plain = TextAttributes(text: "175")
+        let struck = TextAttributes(text: "175", strikethroughStyle: .single)
+        let struckAgain = TextAttributes(text: "175", strikethroughStyle: .single)
+        
+        XCTAssertNil(plain.strikethroughStyle)
+        XCTAssertNotEqual(plain, struck)
+        XCTAssertEqual(struck, struckAgain)
+        XCTAssertNotEqual(plain.hashValue, struck.hashValue)
+        XCTAssertEqual(struck.hashValue, struckAgain.hashValue)
+    }
 }
 
 fileprivate extension CardViewPresentableModel.Style {

@@ -15,6 +15,7 @@ public extension NSAttributedString {
         color: UIColor?,
         lineSpacing: CGFloat = 0,
         underlineStyle: NSUnderlineStyle? = nil,
+        strikethroughStyle: NSUnderlineStyle? = nil,
         textAlignment: NSTextAlignment?,
         leadingImage: UIImage? = nil,
         leadingImageBounds: CGRect = .zero,
@@ -44,6 +45,9 @@ public extension NSAttributedString {
             if !underlineStyle.contains(.single) && !underlineStyle.contains(.thick) {
                 attributes[.baselineOffset] = 2 // to match UIKit underline offset
             }
+        }
+        if let strikethroughStyle {
+            attributes[.strikethroughStyle] = strikethroughStyle.rawValue
         }
         if let link {
             attributes[.link] = link
@@ -106,6 +110,7 @@ public extension NSAttributedString {
         color: NSColor?,
         lineSpacing: CGFloat = 0,
         underlineStyle: NSUnderlineStyle? = nil,
+        strikethroughStyle: NSUnderlineStyle? = nil,
         textAlignment: NSTextAlignment?,
         leadingImage: NSImage? = nil,
         leadingImageBounds: CGRect = .zero,
@@ -129,6 +134,9 @@ public extension NSAttributedString {
 
         if let underlineStyle {
             attributes[.underlineStyle] = underlineStyle.rawValue
+        }
+        if let strikethroughStyle {
+            attributes[.strikethroughStyle] = strikethroughStyle.rawValue
         }
         
         let attributedString = NSMutableAttributedString(string: "", attributes: attributes)
