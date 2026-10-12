@@ -68,7 +68,7 @@ public struct SUISwitchControlView: View {
                     GeometryReader { geometry in
                         SUIShimmerView(style: style?.shimmerStyle)
                             .frame(
-                                width: geometry.size.width * shimmerWidthMultiplier,
+                                width: geometry.size.width * shimmerWidthMultiplier + shimmerAlignmentOutsetWidth,
                                 height: geometry.size.height
                             )
                             .clipShape(
@@ -130,6 +130,18 @@ public struct SUISwitchControlView: View {
             }
         ))
         .labelsHidden()
+    }
+
+    private var shimmerAlignmentOutsetWidth: CGFloat {
+#if os(iOS)
+        if #available(iOS 26.0, *) {
+            return 0
+        }
+        if style != nil {
+            return LegacySwitchToggleStyle.alignmentOutsetWidth
+        }
+#endif
+        return 0
     }
 
     private var shimmerWidthMultiplier: CGFloat {
@@ -290,6 +302,24 @@ private struct LegacySwitchToggleStyle: ToggleStyle {
     private let thumbInset: CGFloat = 2
     private let style: SwitchControlPresentableModel.Style
 
+    private static let nativeAlignmentInsets: SwiftUI.EdgeInsets = {
+#if canImport(UIKit) && os(iOS)
+        let insets = UISwitch().alignmentRectInsets
+        return SwiftUI.EdgeInsets(
+            top: -insets.top,
+            leading: -insets.left,
+            bottom: -insets.bottom,
+            trailing: -insets.right
+        )
+#else
+        return SwiftUI.EdgeInsets()
+#endif
+    }()
+
+    static var alignmentOutsetWidth: CGFloat {
+        -(nativeAlignmentInsets.leading + nativeAlignmentInsets.trailing)
+    }
+
     init(style: SwitchControlPresentableModel.Style) {
         self.style = style
     }
@@ -312,6 +342,7 @@ private struct LegacySwitchToggleStyle: ToggleStyle {
                 .offset(x: thumbInset + (configuration.isOn ? horizontalTravel : 0))
         }
         .frame(width: Self.width, height: Self.height)
+        .padding(Self.nativeAlignmentInsets)
         .contentShape(Rectangle())
         .onTapGesture {
             guard isEnabled else { return }
