@@ -727,8 +727,10 @@ private struct CoreTextAttributedLabel: View {
                 nil
             )
             let trailingLineHeight = CoreTextAttributedLabelMetrics.trailingEmptyLineHeight(in: attributedText)
-            textHeight = min(ceil(suggestedSize.height + trailingLineHeight), size.height)
-            verticalInset = max((size.height - textHeight) / 2, 0)
+            // Core Text drops every line that does not fit the frame path, so the path keeps the
+            // measured height even when the proposed size is smaller; the overflow is centered and clipped like UILabel.
+            textHeight = max(ceil(suggestedSize.height + trailingLineHeight), 1)
+            verticalInset = (size.height - textHeight) / 2
         }
         let path = CGPath(
             rect: CGRect(x: 0, y: 0, width: size.width, height: textHeight),
@@ -878,6 +880,12 @@ private struct CoreTextAttributedLabel: View {
 #endif
         }
 
+#if canImport(UIKit) && !os(watchOS)
+        // Strikethrough is drawn with the underline decoration layer; Core Text would otherwise
+        // add its own continuous line that ignores `.byWord`.
+        mutable.removeAttribute(.strikethroughStyle, range: wholeRange)
+#endif
+
         return mutable
     }
 
@@ -991,23 +999,37 @@ private struct CoreTextAttributedLabel: View {
     private func underlineDecorationAttributedString() -> NSAttributedString? {
         let mutable = NSMutableAttributedString(attributedString: attributedText)
         let wholeRange = NSRange(location: 0, length: mutable.length)
-        var containsUnderline = false
+        var containsDecoration = false
 
         mutable.enumerateAttributes(in: wholeRange) { attributes, range, _ in
             mutable.addAttribute(.foregroundColor, value: UIColor.clear, range: range)
 
-            guard let rawValue = underlineRawValue(from: attributes[.underlineStyle]), rawValue != 0 else {
-                return
+            if let rawValue = underlineRawValue(from: attributes[.underlineStyle]), rawValue != 0 {
+                containsDecoration = true
+                let sourceColor = attributes[.underlineColor]
+                    ?? attributes[.foregroundColor]
+                    ?? UIColor.label
+                mutable.addAttribute(
+                    .underlineColor,
+                    value: resolvedUIKitColor(from: sourceColor),
+                    range: range
+                )
             }
-            containsUnderline = true
-            let sourceColor = attributes[.underlineColor]
-                ?? attributes[.foregroundColor]
-                ?? UIColor.label
-            mutable.addAttribute(
-                .underlineColor,
-                value: resolvedUIKitColor(from: sourceColor),
-                range: range
-            )
+
+            if let rawValue = underlineRawValue(from: attributes[.strikethroughStyle]), rawValue != 0 {
+                containsDecoration = true
+                let sourceColor = attributes[.strikethroughColor]
+                    ?? attributes[.foregroundColor]
+                    ?? UIColor.label
+                mutable.addAttribute(
+                    .strikethroughColor,
+                    value: resolvedUIKitColor(from: sourceColor),
+                    range: range
+                )
+                if UnderlineStyle(rawValue: rawValue).contains(.byWord) {
+                    removeStrikethroughFromWhitespace(in: mutable, range: range)
+                }
+            }
         }
 
         mutable.enumerateAttribute(.attachment, in: wholeRange) { value, range, _ in
@@ -1018,7 +1040,20 @@ private struct CoreTextAttributedLabel: View {
             mutable.addAttribute(.attachment, value: transparentAttachment, range: range)
         }
 
-        return containsUnderline ? mutable : nil
+        return containsDecoration ? mutable : nil
+    }
+
+    // TextKit draws a by-word strikethrough through spaces, so whitespace is left undecorated explicitly.
+    private func removeStrikethroughFromWhitespace(in text: NSMutableAttributedString, range: NSRange) {
+        let string = text.string as NSString
+        var location = range.location
+        while location < range.upperBound {
+            let character = string.character(at: location)
+            if let scalar = Unicode.Scalar(character), CharacterSet.whitespacesAndNewlines.contains(scalar) {
+                text.removeAttribute(.strikethroughStyle, range: NSRange(location: location, length: 1))
+            }
+            location += 1
+        }
     }
 
     private func underlineRawValue(from value: Any?) -> Int? {
@@ -1194,7 +1229,7 @@ extension NSTextAlignment {
 extension NSUnderlineStyle {
     @available(iOS 15, macOS 12, tvOS 15, watchOS 8, *)
     var suiStyle: SwiftUI.Text.LineStyle.Pattern {
-        switch self {
+        switch intersection([.patternDot, .patternDash, .patternDashDot, .patternDashDotDot]) {
         case .patternDash: return .dash
         case .patternDashDot: return .dashDot
         case .patternDashDotDot: return .dashDotDot
@@ -1279,6 +1314,12 @@ extension NSUnderlineStyle {
                         font: .systemFont(ofSize: 16, weight: Font.Weight(rawValue: 200)),
                         underlineStyle: .patternDot,
                         onTap: { print("didTap: patternDot ") }
+                    ),
+                    .init(
+                        text: "red 18 (strikethrough .single) \n\n",
+                        color: .red,
+                        font: .systemFont(ofSize: 18),
+                        strikethroughStyle: .single
                     ),
                     .init(
                         text: "The quick brown fox ",

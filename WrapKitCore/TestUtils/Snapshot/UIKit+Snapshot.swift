@@ -120,11 +120,9 @@ private final class SnapshotWindow: UIWindow {
         defer { UIView.setAnimationsEnabled(animationsWereEnabled) }
 
         let image: UIImage
-        if #available(iOS 26, *) {
-            if let scene = UIApplication.shared.connectedScenes
-                .compactMap({ $0 as? UIWindowScene }).first {
-                windowScene = scene
-            }
+        if #available(iOS 26, *),
+           let scene = UIApplication.shared.connectedScenes.compactMap({ $0 as? UIWindowScene }).first {
+            windowScene = scene
             makeKeyAndVisible()
             layoutSnapshotHierarchy()
             let needsGlassWarmup = containsGlassEffect()
