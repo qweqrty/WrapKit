@@ -262,10 +262,7 @@ final class SUILabelStrikethroughSnapshotTests: XCTestCase {
         }
         .padding(16)
 
-        let os = if #available(iOS 26, *) { "iOS26" } else { "iOS18.5" }
-        for (scheme, name) in [(ColorScheme.light, "LIGHT"), (.dark, "DARK")] {
-            assert(snapshot: render(gallery, scheme: scheme, size: CGSize(width: 390, height: 750)), named: "\(os)_SUI_LABEL_STRIKETHROUGH_STYLES_\(name)")
-        }
+        assertSnapshots(gallery, size: CGSize(width: 390, height: 750), named: "LABEL_STRIKETHROUGH_STYLES")
     }
 
     func test_mixed_strikethrough_segments_wrap_and_keep_underlining() {
@@ -289,10 +286,19 @@ final class SUILabelStrikethroughSnapshotTests: XCTestCase {
         ])
         let gallery = SUILabelView(model: model, font: .systemFont(ofSize: 28))
             .padding(16)
-        let os = if #available(iOS 26, *) { "iOS26" } else { "iOS18.5" }
+        assertSnapshots(gallery, size: CGSize(width: 290, height: 480), named: "LABEL_STRIKETHROUGH_MIXED")
+    }
 
-        for (scheme, name) in [(ColorScheme.light, "LIGHT"), (.dark, "DARK")] {
-            assert(snapshot: render(gallery, scheme: scheme, size: CGSize(width: 290, height: 480)), named: "\(os)_SUI_LABEL_STRIKETHROUGH_MIXED_\(name)")
+    private func assertSnapshots<V: View>(
+        _ view: V,
+        size: CGSize,
+        named name: String,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        let os = if #available(iOS 26, *) { "iOS26" } else { "iOS18.5" }
+        for (scheme, theme) in [(ColorScheme.light, "LIGHT"), (.dark, "DARK")] {
+            assert(snapshot: render(view, scheme: scheme, size: size), named: "SwiftUI_\(os)_\(name)_\(theme)", file: file, line: line)
         }
     }
 
