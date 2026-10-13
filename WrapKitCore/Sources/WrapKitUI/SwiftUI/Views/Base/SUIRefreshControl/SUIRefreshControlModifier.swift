@@ -105,6 +105,9 @@ private final class SUIRefreshControlProbeView: UIView {
     private var configuredTintColor: UIColor?
     private var configuredZPosition: CGFloat = 0
     private var configuredIsLoading = false
+    private weak var observedRefreshControl: UIRefreshControl?
+    private weak var loadingStateRefreshControl: UIRefreshControl?
+    private var appliedIsLoading: Bool?
     private var originalReplicatorSeedColors: [ObjectIdentifier: CGColor] = [:]
 
     func update(tintColor: UIColor?, zPosition: CGFloat, isLoading: Bool) {
@@ -134,13 +137,38 @@ private final class SUIRefreshControlProbeView: UIView {
 
     private func applyAppearance() {
         guard let refreshControl = nearestRefreshControl() else { return }
+        observeRefreshing(of: refreshControl)
         refreshControl.tintColor = configuredTintColor
         refreshControl.layer.zPosition = configuredZPosition
         applyIndicatorTint(in: refreshControl)
         applyLoadingState(to: refreshControl)
     }
 
+    /// On iOS 26 the indicator views are created when refreshing begins. A user pull does not
+    /// change any Output, so the probe would not run again and the indicator kept the system color.
+    private func observeRefreshing(of refreshControl: UIRefreshControl) {
+        guard observedRefreshControl !== refreshControl else { return }
+        observedRefreshControl?.removeTarget(self, action: #selector(refreshControlDidChange), for: .valueChanged)
+        observedRefreshControl = refreshControl
+        refreshControl.addTarget(self, action: #selector(refreshControlDidChange), for: .valueChanged)
+    }
+
+    @objc private func refreshControlDidChange() {
+        applyAppearance()
+        DispatchQueue.main.async { [weak self] in
+            self?.applyAppearance()
+        }
+    }
+
+    /// Like UIKit `RefreshControl.isLoading`, only a change of the output starts or stops refreshing.
+    /// A user pull is never ended here: SwiftUI ends it when the refresh action returns.
     private func applyLoadingState(to refreshControl: UIRefreshControl) {
+        if loadingStateRefreshControl !== refreshControl {
+            loadingStateRefreshControl = refreshControl
+            appliedIsLoading = nil
+        }
+        guard appliedIsLoading != configuredIsLoading else { return }
+        appliedIsLoading = configuredIsLoading
         if configuredIsLoading, !refreshControl.isRefreshing {
             refreshControl.beginRefreshing()
         } else if !configuredIsLoading, refreshControl.isRefreshing {
