@@ -103,7 +103,7 @@ public struct SUIImageView: View {
                     onLongPress: onLongPressAction
                 ))
                 .onChange(of: colorScheme) { newMode in
-                    guard model.image?.isRemote == true else { return }
+                    guard model.image?.followsColorScheme == true else { return }
                     loadImage(for: newMode, completion: nil)
                 }
             }
@@ -263,6 +263,9 @@ public struct SUIImageView: View {
         case .asset(let image):
             downloadTask?.cancel()
             isLoading = false
+            #if canImport(UIKit) && !os(watchOS)
+            let image = image?.resolvedForColorScheme(mode)
+            #endif
             loadedImage = image
             shouldRenderTemplate = image?.rendersAsTemplateInImageView ?? false
             completion?(image)
@@ -631,6 +634,16 @@ private extension ImageEnum {
         case .url, .urlString:
             return true
         case .asset, .symbolName, .data:
+            return false
+        }
+    }
+
+    /// Remote light/dark URLs and asset catalog variants change with the color scheme.
+    var followsColorScheme: Bool {
+        switch self {
+        case .url, .urlString, .asset:
+            return true
+        case .symbolName, .data:
             return false
         }
     }

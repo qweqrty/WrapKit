@@ -47,6 +47,50 @@ final class SUIRefreshControlStateModelTests: XCTestCase {
         ])
     }
 
+    func test_waitForLoadingToFinish_waitsForPresenterOutputAfterPull() async {
+        let adapter = await MainActor.run { RefreshControlOutputSwiftUIAdapter() }
+        let sut = await MainActor.run { SUIRefreshControlStateModel(adapter: adapter) }
+        var refreshCount = 0
+        await MainActor.run {
+            adapter.display(onRefresh: { refreshCount += 1 })
+            sut.triggerRefresh()
+        }
+        let finished = expectation(description: "Pull finished")
+        finished.isInverted = true
+        let waiter = Task {
+            await sut.waitForLoadingToFinish()
+            finished.fulfill()
+        }
+
+        await fulfillment(of: [finished], timeout: 0.3)
+
+        let didFinish = expectation(description: "Pull finished after presenter output")
+        let observer = Task {
+            await waiter.value
+            didFinish.fulfill()
+        }
+        await MainActor.run { adapter.display(isLoading: false) }
+        await fulfillment(of: [didFinish], timeout: 1)
+        observer.cancel()
+        XCTAssertEqual(refreshCount, 1)
+    }
+
+    func test_waitForLoadingToFinish_returnsWhenPresenterFinishesSynchronously() async {
+        let adapter = await MainActor.run { RefreshControlOutputSwiftUIAdapter() }
+        let sut = await MainActor.run { SUIRefreshControlStateModel(adapter: adapter) }
+        await MainActor.run {
+            adapter.display(onRefresh: { [weak adapter] in adapter?.display(isLoading: false) })
+            sut.triggerRefresh()
+        }
+        let finished = expectation(description: "Pull finished")
+        Task {
+            await sut.waitForLoadingToFinish()
+            finished.fulfill()
+        }
+
+        await fulfillment(of: [finished], timeout: 0.5)
+    }
+
     func test_modelSynchronizesPublicCallbackPropertyLikeUIKit() {
         let adapter = RefreshControlOutputSwiftUIAdapter()
         var refreshCount = 0
@@ -299,6 +343,36 @@ final class SUIRefreshControlStateModelTests: XCTestCase {
 
         XCTAssertGreaterThan(image.rgbaPixels.purplePixelCount, 0)
         adapter.display(isLoading: false)
+    }
+
+    func test_pullFromIdleKeepsHostedRefreshControlRefreshingUntilPresenterFinishes() throws {
+        let adapter = RefreshControlOutputSwiftUIAdapter()
+        var refreshCount = 0
+        adapter.display(onRefresh: { refreshCount += 1 })
+        let view = ScrollView {
+            LazyVStack {
+                ForEach(0..<30, id: \.self) { index in
+                    Text("Row \(index)")
+                }
+            }
+        }
+        .refreshControl(adapter: adapter)
+        let host = RefreshControlTestHost(rootView: view)
+        adapter.display(style: .init(tintColor: .systemPurple))
+        host.flushUpdates()
+        let refreshControl = try XCTUnwrap(host.renderedRefreshControls().first)
+
+        try host.revealRefreshingIndicator(refreshControl)
+        host.flushUpdates()
+
+        XCTAssertEqual(refreshCount, 1)
+        XCTAssertTrue(refreshControl.isRefreshing, "The pulled indicator stays until the presenter outputs isLoading(false)")
+        XCTAssertGreaterThan(host.renderedImage().rgbaPixels.purplePixelCount, 0)
+
+        adapter.display(isLoading: false)
+        host.flushUpdates()
+
+        XCTAssertFalse(refreshControl.isRefreshing)
     }
 
     func test_modifierRestoresDefaultIndicatorAppearanceWhenTintBecomesNil() throws {
