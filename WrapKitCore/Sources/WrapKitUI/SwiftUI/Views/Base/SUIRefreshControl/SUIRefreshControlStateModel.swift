@@ -15,12 +15,19 @@ public final class SUIRefreshControlStateModel: ObservableObject {
         let zPosition: CGFloat
     }
 
-    @Published var isLoading: Bool = false
+    @Published var isLoading: Bool = false {
+        didSet {
+            if !isLoading {
+                isAwaitingRefreshOutput = false
+            }
+        }
+    }
     @Published var tintColor: Color? = nil
     @Published var zPosition: CGFloat = -1
     @Published var onRefreshCallbacks: [(() -> Void)?] = []
 
     private let adapter: RefreshControlOutputSwiftUIAdapter
+    private var isAwaitingRefreshOutput = false
 
     private var outputReplayConsumer: RefreshControlOutputSwiftUIAdapter.OutputReplayConsumer?
     private var latestStyleOutputSequence: UInt64 = 0
@@ -126,6 +133,7 @@ public final class SUIRefreshControlStateModel: ObservableObject {
     }
     
     func triggerRefresh() {
+        isAwaitingRefreshOutput = true
         onRefreshCallbacks.forEach { $0?() }
     }
 
@@ -144,7 +152,7 @@ public final class SUIRefreshControlStateModel: ObservableObject {
     }
 
     func waitForLoadingToFinish() async {
-        while isLoading {
+        while isLoading || isAwaitingRefreshOutput {
             guard !Task.isCancelled else { return }
             do {
                 try await Task.sleep(nanoseconds: 100_000_000)
