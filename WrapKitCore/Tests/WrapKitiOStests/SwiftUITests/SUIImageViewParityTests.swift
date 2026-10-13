@@ -594,6 +594,20 @@ final class SUIImageViewParityTests: XCTestCase {
         XCTAssertEqual(host.centerColor(), .red, "UIImageView does not template-tint automatic non-symbol images")
     }
 
+    func test_dynamicTintedAssetFollowsColorSchemeLikeUIImageView() throws {
+        let tint = UIColor { $0.userInterfaceStyle == .dark ? .green : .blue }
+        let image = try appearanceAsset(resolvedFor: .light).withTintColor(tint)
+        let adapter = ImageViewOutputSwiftUIAdapter()
+        let appearance = ImageAppearanceFixture(.dark)
+        let host = AppearanceRenderHost(adapter: adapter, appearance: appearance)
+
+        adapter.display(model: .init(size: CGSize(width: 32, height: 32), image: .asset(image)))
+        XCTAssertEqual(host.centerColor(), .green, "Dynamic tint resolves for the dark scheme")
+
+        appearance.colorScheme = .light
+        XCTAssertEqual(host.centerColor(), .blue, "Dynamic tint follows the scheme change")
+    }
+
     func test_alwaysOriginalDerivedAssetKeepsItsVariantLikeUIImageView() throws {
         let image = try appearanceAsset(resolvedFor: .light).withRenderingMode(.alwaysOriginal)
         let adapter = ImageViewOutputSwiftUIAdapter()
