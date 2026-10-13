@@ -107,7 +107,7 @@ final class LabelStrikethroughSnapshotTests: XCTestCase {
             stack.addArrangedSubview(row)
         }
 
-        assertGallery(container, named: "LABEL_STRIKETHROUGH_STYLES")
+        assertSnapshots(container, named: "LABEL_STRIKETHROUGH_STYLES")
     }
 
     func test_mixed_strikethrough_segments_wrap_and_keep_underlining() {
@@ -123,7 +123,7 @@ final class LabelStrikethroughSnapshotTests: XCTestCase {
             .init(text: "Underline and thick strike", color: .label, underlineStyle: .single, strikethroughStyle: .thick)
         ]))
 
-        assertGallery(container, named: "LABEL_STRIKETHROUGH_MIXED")
+        assertSnapshots(container, named: "LABEL_STRIKETHROUGH_MIXED")
     }
 
     private func model(style: NSUnderlineStyle?) -> TextOutputPresentableModel {
@@ -146,7 +146,7 @@ final class LabelStrikethroughSnapshotTests: XCTestCase {
         ])
     }
 
-    private func assertGallery(_ container: UIView, named name: String, file: StaticString = #filePath, line: UInt = #line) {
+    private func assertSnapshots(_ container: UIView, named name: String, file: StaticString = #filePath, line: UInt = #line) {
         let os = if #available(iOS 26, *) { "iOS26" } else { "iOS18.5" }
         for (style, theme) in [(UIUserInterfaceStyle.light, "LIGHT"), (.dark, "DARK")] {
             let traits = SnapshotConfiguration.iPhone(style: style).traitCollection
