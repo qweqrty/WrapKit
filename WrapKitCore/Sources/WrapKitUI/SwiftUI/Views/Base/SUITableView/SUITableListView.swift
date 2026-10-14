@@ -1,5 +1,8 @@
 #if !os(tvOS) && !os(macOS) && !os(watchOS)
 import SwiftUI
+#if canImport(UIKit)
+import UIKit
+#endif
 
 private let suiTableRowMoveTypeIdentifier = "com.wrapkit.table-row-move"
 
@@ -86,6 +89,7 @@ public struct SUITableListView {
                             .onTapGesture {
                                 cellModel.onTap?(IndexPath(row: rowIndex, section: sectionIndex), cellModel.cell)
                             }
+                            .suiTableCellAccessibilityIdentifier(cellModel.accessibilityIdentifier)
                             .listRowInsets(SwiftUI.EdgeInsets())
                             .listRowBackground(SwiftUI.Color.clear)
                             .if(true) { view in
@@ -117,11 +121,32 @@ public struct SUITableListView {
         headerContent: @escaping (Header) -> some View,
         footerContent: @escaping (Footer) -> some View
     ) -> some View {
+        makeBody(
+            stateModel: stateModel,
+            cellContent: cellContent,
+            headerContent: headerContent,
+            footerContent: footerContent,
+            listHeaderContent: SwiftUI.EmptyView(),
+            listFooterContent: SwiftUI.EmptyView()
+        )
+    }
+
+    @ViewBuilder
+    public func makeBody<Cell: Hashable, Header, Footer, ListHeaderContent: View, ListFooterContent: View>(
+        stateModel: SUITableViewStateModel<Header, Cell, Footer>,
+        cellContent: @escaping (Cell, IndexPath) -> some View,
+        headerContent: @escaping (Header) -> some View,
+        footerContent: @escaping (Footer) -> some View,
+        listHeaderContent: ListHeaderContent,
+        listFooterContent: ListFooterContent
+    ) -> some View {
         SUITableInteractiveListContent(
             stateModel: stateModel,
             cellContent: cellContent,
             headerContent: headerContent,
-            footerContent: footerContent
+            footerContent: footerContent,
+            listHeaderContent: listHeaderContent,
+            listFooterContent: listFooterContent
         )
     }
 }
@@ -132,7 +157,9 @@ private struct SUITableInteractiveListContent<
     Footer,
     CellContent: View,
     HeaderContent: View,
-    FooterContent: View
+    FooterContent: View,
+    ListHeaderContent: View,
+    ListFooterContent: View
 >: View {
     @ObservedObject private var stateModel: SUITableViewStateModel<Header, Cell, Footer>
 #if os(iOS)
@@ -141,23 +168,32 @@ private struct SUITableInteractiveListContent<
     private let cellContent: (Cell, IndexPath) -> CellContent
     private let headerContent: (Header) -> HeaderContent
     private let footerContent: (Footer) -> FooterContent
+    private let listHeaderContent: ListHeaderContent
+    private let listFooterContent: ListFooterContent
 
     init(
         stateModel: SUITableViewStateModel<Header, Cell, Footer>,
         @ViewBuilder cellContent: @escaping (Cell, IndexPath) -> CellContent,
         @ViewBuilder headerContent: @escaping (Header) -> HeaderContent,
-        @ViewBuilder footerContent: @escaping (Footer) -> FooterContent
+        @ViewBuilder footerContent: @escaping (Footer) -> FooterContent,
+        listHeaderContent: ListHeaderContent,
+        listFooterContent: ListFooterContent
     ) {
         self.stateModel = stateModel
         self.cellContent = cellContent
         self.headerContent = headerContent
         self.footerContent = footerContent
+        self.listHeaderContent = listHeaderContent
+        self.listFooterContent = listFooterContent
     }
 
     @ViewBuilder
     var body: some View {
         let sections = stateModel.sections
         List {
+            if ListHeaderContent.self != SwiftUI.EmptyView.self {
+                listAccessoryRow(listHeaderContent)
+            }
             ForEach(sections.indices, id: \.self) { sectionIndex in
                 let section = sections[sectionIndex]
                 Section {
@@ -190,6 +226,7 @@ private struct SUITableInteractiveListContent<
                                 ) else { return }
                                 cellModel.onTap?(indexPath, cellModel.cell)
                             }
+                            .suiTableCellAccessibilityIdentifier(cellModel.accessibilityIdentifier)
                             .listRowInsets(SwiftUI.EdgeInsets())
                             .listRowBackground(SwiftUI.Color.clear)
                             .if(true) { view in
@@ -233,8 +270,26 @@ private struct SUITableInteractiveListContent<
                     }
                 }
             }
+            if ListFooterContent.self != SwiftUI.EmptyView.self {
+                listAccessoryRow(listFooterContent)
+            }
         }
         .listStyle(.plain)
+    }
+
+    private func listAccessoryRow<Content: View>(_ content: Content) -> some View {
+        content
+            .deleteDisabled(true)
+            .moveDisabled(true)
+            .listRowInsets(SwiftUI.EdgeInsets())
+            .listRowBackground(SwiftUI.Color.clear)
+            .if(true) { view in
+                if #available(iOS 15.0, *) {
+                    view.listRowSeparator(.hidden)
+                } else {
+                    view
+                }
+            }
     }
 
     @ViewBuilder
@@ -268,6 +323,19 @@ private struct SUITableInteractiveListContent<
 }
 
 private extension View {
+    @ViewBuilder
+    func suiTableCellAccessibilityIdentifier(_ identifier: String?) -> some View {
+#if os(iOS)
+        if let identifier {
+            background(SUITableCellAccessibilityIdentifierProbe(identifier: identifier))
+        } else {
+            self
+        }
+#else
+        self
+#endif
+    }
+
     @ViewBuilder
     func suiTableActionAccessibility(title: String?) -> some View {
         if let title {
@@ -324,6 +392,61 @@ private extension View {
 #endif
     }
 }
+
+#if os(iOS)
+private struct SUITableCellAccessibilityIdentifierProbe: UIViewRepresentable {
+    let identifier: String
+
+    func makeUIView(context: Context) -> SUITableCellAccessibilityIdentifierProbeView {
+        let view = SUITableCellAccessibilityIdentifierProbeView()
+        view.identifier = identifier
+        return view
+    }
+
+    func updateUIView(_ uiView: SUITableCellAccessibilityIdentifierProbeView, context: Context) {
+        uiView.identifier = identifier
+    }
+}
+
+private final class SUITableCellAccessibilityIdentifierProbeView: UIView {
+    var identifier: String? {
+        didSet { applyIdentifier() }
+    }
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        isUserInteractionEnabled = false
+        accessibilityElementsHidden = true
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    override func didMoveToWindow() {
+        super.didMoveToWindow()
+        applyIdentifier()
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        applyIdentifier()
+    }
+
+    private func applyIdentifier() {
+        var ancestor = superview
+        while let view = ancestor {
+            if view is UICollectionViewCell || view is UITableViewCell {
+                if view.accessibilityIdentifier != identifier {
+                    view.accessibilityIdentifier = identifier
+                }
+                return
+            }
+            ancestor = view.superview
+        }
+    }
+}
+#endif
 
 #if os(iOS)
 private struct SUITableRowDropTargetModifier<

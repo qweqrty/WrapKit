@@ -26,7 +26,9 @@ public struct SUIButton: View {
         if !stateModel.isHidden {
             SUIButtonView(
                 model: stateModel.presentable,
-                onPress: stateModel.presentable.onPress,
+                onPress: stateModel.presentable.onPress.map { _ in
+                    { [stateModel] in stateModel.presentable.onPress?() }
+                },
                 isEnabled: stateModel.isEnabled,
                 isLoading: stateModel.isLoading,
                 pressAnimations: pressAnimations

@@ -15,23 +15,59 @@ public struct SUITableViewLazyVStackStyle {
         headerContent: @escaping (Header) -> some View,
         footerContent: @escaping (Footer) -> some View
     ) -> some View {
-        if scrollable {
-            ScrollView {
-                content(sections: sections, cellContent: cellContent, headerContent: headerContent, footerContent: footerContent)
-            }
-        } else {
-            content(sections: sections, cellContent: cellContent, headerContent: headerContent, footerContent: footerContent)
-        }
+        makeBody(
+            sections: sections,
+            cellContent: cellContent,
+            headerContent: headerContent,
+            footerContent: footerContent,
+            listHeaderContent: SwiftUI.EmptyView(),
+            listFooterContent: SwiftUI.EmptyView()
+        )
     }
-    
+
     @ViewBuilder
-    private func content<Cell: Hashable, Header, Footer>(
+    public func makeBody<Cell: Hashable, Header, Footer, ListHeaderContent: View, ListFooterContent: View>(
         sections: [TableSection<Header, Cell, Footer>],
         cellContent: @escaping (Cell, IndexPath) -> some View,
         headerContent: @escaping (Header) -> some View,
-        footerContent: @escaping (Footer) -> some View
+        footerContent: @escaping (Footer) -> some View,
+        listHeaderContent: ListHeaderContent,
+        listFooterContent: ListFooterContent
+    ) -> some View {
+        if scrollable {
+            ScrollView {
+                content(
+                    sections: sections,
+                    cellContent: cellContent,
+                    headerContent: headerContent,
+                    footerContent: footerContent,
+                    listHeaderContent: listHeaderContent,
+                    listFooterContent: listFooterContent
+                )
+            }
+        } else {
+            content(
+                sections: sections,
+                cellContent: cellContent,
+                headerContent: headerContent,
+                footerContent: footerContent,
+                listHeaderContent: listHeaderContent,
+                listFooterContent: listFooterContent
+            )
+        }
+    }
+
+    @ViewBuilder
+    private func content<Cell: Hashable, Header, Footer, ListHeaderContent: View, ListFooterContent: View>(
+        sections: [TableSection<Header, Cell, Footer>],
+        cellContent: @escaping (Cell, IndexPath) -> some View,
+        headerContent: @escaping (Header) -> some View,
+        footerContent: @escaping (Footer) -> some View,
+        listHeaderContent: ListHeaderContent,
+        listFooterContent: ListFooterContent
     ) -> some View {
         LazyVStack(spacing: .zero) {
+            listHeaderContent
             ForEach(sections.indices, id: \.self) { sectionIndex in
                 let section = sections[sectionIndex]
                 if let header = section.header {
@@ -51,6 +87,7 @@ public struct SUITableViewLazyVStackStyle {
                     footerContent(footer)
                 }
             }
+            listFooterContent
         }
     }
 

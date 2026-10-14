@@ -515,7 +515,7 @@ private struct SUINavigationBarButtonView: View {
 
     private func button(_ model: ButtonPresentableModel, horizontalInset: CGFloat = 0) -> some View {
         SwiftUI.Button {
-            model.onPress?()
+            stateModel.presentable.onPress?()
         } label: {
             HStack(spacing: model.spacing ?? 0) {
                 if let image = model.image {
