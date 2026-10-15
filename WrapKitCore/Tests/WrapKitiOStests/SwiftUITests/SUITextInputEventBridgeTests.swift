@@ -821,6 +821,185 @@
         XCTAssertTrue(sut.isClearButtonHidden)
     }
 
+    func test_numericMaskInfersNumberKeyboardLikeUIKit() {
+        let adapter = TextInputOutputSwiftUIAdapter()
+        let sut = SUITextInputStateModel(adapter: adapter)
+
+        adapter.display(mask: .init(mask: Mask(format: [
+            .literal("+"),
+            .specifier(placeholder: "X", allowedCharacters: .decimalDigits)
+        ]), maskColor: .lightGray))
+
+        XCTAssertEqual(sut.keyboardType, .numberPad)
+    }
+
+    @MainActor
+    @available(iOS 17.0, *)
+    func test_textViewContentInsetsMoveTheNativeTextWithoutChangingDefaultPadding() throws {
+        let appearance = TextfieldAppearance(
+            colors: .init(
+                textColor: .blue,
+                selectedBorderColor: .clear,
+                selectedBackgroundColor: .white,
+                selectedErrorBorderColor: .clear,
+                errorBorderColor: .clear,
+                errorBackgroundColor: .white,
+                deselectedBorderColor: .clear,
+                deselectedBackgroundColor: .white,
+                disabledTextColor: .gray,
+                disabledBackgroundColor: .white
+            ),
+            font: .systemFont(ofSize: 16)
+        )
+        let defaultView = SUITextView(adapter: TextInputOutputSwiftUIAdapter(), appearance: appearance)
+        XCTAssertEqual(defaultView.contentInsets.top, 12)
+        XCTAssertEqual(defaultView.contentInsets.leading, 12)
+        XCTAssertEqual(defaultView.contentInsets.bottom, 12)
+        XCTAssertEqual(defaultView.contentInsets.trailing, 12)
+
+        func textOrigin(contentInsets: SwiftUI.EdgeInsets?) throws -> (native: CGPoint, pixels: CGPoint) {
+            let adapter = TextInputOutputSwiftUIAdapter()
+            adapter.display(text: "Comment")
+            let view: SUITextView
+            if let contentInsets {
+                view = SUITextView(adapter: adapter, appearance: appearance, minimumHeight: 80, contentInsets: contentInsets)
+            } else {
+                view = SUITextView(adapter: adapter, appearance: appearance, minimumHeight: 80)
+            }
+            let host = SwiftUIAccessibilityTestHost(
+                rootView: view.frame(width: 320, height: 80)
+                    .padding(.top, 100)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                    .ignoresSafeArea(),
+                size: CGSize(width: 320, height: 300)
+            )
+            let textView = try XCTUnwrap(host.firstSubview(of: UITextView.self))
+            XCTAssertEqual(textView.text, "Comment")
+            XCTAssertEqual(textView.adjustedContentInset.top, 0, accuracy: 0.5,
+                "The comment must be below the status-bar safe area, like the catalog screen")
+            let range = try XCTUnwrap(textView.textRange(from: textView.beginningOfDocument, to: textView.endOfDocument))
+            let rect = textView.convert(textView.firstRect(for: range), to: nil)
+            XCTAssertGreaterThan(rect.width, 0, "The native renderer must contain actual text")
+            let window = try XCTUnwrap(textView.window)
+            window.backgroundColor = .white
+            let format = UIGraphicsImageRendererFormat()
+            format.scale = 1
+            let rendered = UIGraphicsImageRenderer(bounds: window.bounds, format: format).image { context in
+                UIColor.white.setFill()
+                context.fill(window.bounds)
+                window.drawHierarchy(in: window.bounds, afterScreenUpdates: true)
+            }
+            let image = try XCTUnwrap(rendered.cgImage)
+            var bytes = [UInt8](repeating: 0, count: image.width * image.height * 4)
+            try bytes.withUnsafeMutableBytes { buffer in
+                let context = try XCTUnwrap(CGContext(
+                    data: buffer.baseAddress, width: image.width, height: image.height,
+                    bitsPerComponent: 8, bytesPerRow: image.width * 4, space: CGColorSpaceCreateDeviceRGB(),
+                    bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue | CGBitmapInfo.byteOrder32Big.rawValue
+                ))
+                context.draw(image, in: CGRect(x: 0, y: 0, width: image.width, height: image.height))
+            }
+            var origin = CGPoint(x: image.width, y: image.height)
+            for y in 0..<image.height {
+                for x in 0..<image.width {
+                    let offset = (y * image.width + x) * 4
+                    if bytes[offset] < 64, bytes[offset + 1] < 64, bytes[offset + 2] > 200 {
+                        origin.x = min(origin.x, CGFloat(x))
+                        origin.y = min(origin.y, CGFloat(y))
+                    }
+                }
+            }
+            XCTAssertLessThan(origin.x, CGFloat(image.width), "The rendered image must contain actual blue glyphs")
+            XCTAssertLessThan(origin.y, CGFloat(image.height), "The rendered image must contain actual blue glyphs")
+            return (CGPoint(x: rect.minX - host.frame.minX, y: rect.minY - host.frame.minY), origin)
+        }
+
+        let original = try textOrigin(contentInsets: nil)
+        let configured = try textOrigin(contentInsets: .init(top: 22, leading: 16, bottom: 22, trailing: 16))
+        XCTAssertEqual(configured.native.x - original.native.x, 4, accuracy: 0.5)
+        XCTAssertEqual(configured.native.y - original.native.y, 10, accuracy: 0.5)
+        XCTAssertEqual(configured.pixels.x - original.pixels.x, 4, accuracy: 0.5)
+        XCTAssertEqual(configured.pixels.y - original.pixels.y, 10, accuracy: 0.5)
+    }
+
+    func test_modelInputTypeOverridesInferredMaskKeyboardLikeUIKit() {
+        let adapter = TextInputOutputSwiftUIAdapter()
+        let sut = SUITextInputStateModel(adapter: adapter)
+
+        adapter.display(model: .init(
+            mask: .init(mask: Mask(format: [
+                .specifier(placeholder: "X", allowedCharacters: .decimalDigits)
+            ]), maskColor: .lightGray),
+            inputType: .phonePad
+        ))
+
+        XCTAssertEqual(sut.keyboardType, .phonePad)
+    }
+
+    func test_numericMaskDoesNotReplaceTextViewOrChunkedKeyboard() {
+        for consumer in [SUITextInputStateModel.Consumer.textView, .chunkedTextField] {
+            let adapter = TextInputOutputSwiftUIAdapter()
+            let sut = SUITextInputStateModel(adapter: adapter, consumer: consumer, chunkedCharacterCount: 4)
+            adapter.display(inputType: .emailAddress)
+
+            adapter.display(mask: .init(mask: Mask(format: [
+                .specifier(placeholder: "X", allowedCharacters: .decimalDigits)
+            ]), maskColor: .lightGray))
+
+            XCTAssertEqual(sut.keyboardType, .emailAddress, "Mask must not infer a keyboard for \(consumer)")
+        }
+    }
+
+    func test_modelNumericMaskDoesNotReplaceTextViewOrChunkedKeyboard() {
+        for consumer in [SUITextInputStateModel.Consumer.textView, .chunkedTextField] {
+            let adapter = TextInputOutputSwiftUIAdapter()
+            let sut = SUITextInputStateModel(adapter: adapter, consumer: consumer, chunkedCharacterCount: 4)
+            adapter.display(inputType: .emailAddress)
+
+            adapter.display(model: .init(mask: .init(mask: Mask(format: [
+                .specifier(placeholder: "X", allowedCharacters: .decimalDigits)
+            ]), maskColor: .lightGray)))
+
+            XCTAssertEqual(sut.keyboardType, .emailAddress, "Model mask must not infer a keyboard for \(consumer)")
+        }
+    }
+
+    func test_maskThenExplicitKeyboardRetainsLatestValueAcrossRemount() {
+        let adapter = TextInputOutputSwiftUIAdapter()
+        adapter.display(mask: .init(mask: Mask(format: [
+            .specifier(placeholder: "X", allowedCharacters: .decimalDigits)
+        ]), maskColor: .lightGray))
+        adapter.display(inputType: .phonePad)
+        var firstMount: SUITextInputStateModel? = .init(adapter: adapter)
+        XCTAssertEqual(firstMount?.keyboardType, .phonePad)
+        firstMount = nil
+
+        let remount = SUITextInputStateModel(adapter: adapter)
+
+        XCTAssertEqual(remount.keyboardType, .phonePad)
+    }
+
+    func test_maskLiteralsDoNotShowClearButtonAndClearingNotifiesPresenter() {
+        let adapter = TextInputOutputSwiftUIAdapter()
+        var changes: [String?] = []
+        adapter.display(mask: .init(mask: Mask(format: [
+            .literal("+"), .literal("9"),
+            .specifier(placeholder: "X", allowedCharacters: .decimalDigits)
+        ]), maskColor: .lightGray))
+        adapter.display(isClearButtonActive: true)
+        adapter.display(didChangeText: [{ changes.append($0) }])
+        let sut = SUITextInputStateModel(adapter: adapter)
+        sut.applyUserText("+9")
+        XCTAssertTrue(sut.isClearButtonHidden)
+        sut.applyUserText("+91")
+        XCTAssertFalse(sut.isClearButtonHidden)
+
+        sut.applyUserText("")
+
+        XCTAssertTrue(sut.isClearButtonHidden)
+        XCTAssertEqual(changes, ["+9", "+91", ""])
+    }
+
         func test_startEditingRequestsBecomeFirstResponder() {
             let adapter = TextInputOutputSwiftUIAdapter()
             let sut = SUITextInputStateModel(adapter: adapter)

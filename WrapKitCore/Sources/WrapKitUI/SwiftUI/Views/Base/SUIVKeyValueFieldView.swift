@@ -134,12 +134,12 @@ public struct SUIVKeyValueFieldView: View {
                     pixelTolerance: 1 / max(displayScale, 1)
                 ) {
                     if !stateModel.isKeySlotHidden {
-                        fillItem {
+                        fillItem(clipsContent: stateModel.keyTitle?.hasCircularCountingAnimation != true) {
                             keySlot
                         }
                     }
                     if !stateModel.isValueSlotHidden {
-                        fillItem {
+                        fillItem(clipsContent: stateModel.valueTitle?.hasCircularCountingAnimation != true) {
                             valueSlot
                         }
                     }
@@ -211,9 +211,10 @@ public struct SUIVKeyValueFieldView: View {
         )
     }
 
-    private func fillItem(@ViewBuilder content: () -> some View) -> some View {
+    private func fillItem(clipsContent: Bool = true, @ViewBuilder content: () -> some View) -> some View {
         SUIVKeyValueFillItem(
             pixelTolerance: 1 / max(displayScale, 1),
+            clipsContent: clipsContent,
             content: content
         )
     }
@@ -264,13 +265,16 @@ public struct SUIVKeyValueFieldView: View {
 
 private struct SUIVKeyValueFillItem<Content: View>: View {
     let pixelTolerance: CGFloat
+    let clipsContent: Bool
     let content: Content
 
     init(
         pixelTolerance: CGFloat,
+        clipsContent: Bool,
         @ViewBuilder content: () -> Content
     ) {
         self.pixelTolerance = pixelTolerance
+        self.clipsContent = clipsContent
         self.content = content()
     }
 
@@ -280,12 +284,12 @@ private struct SUIVKeyValueFillItem<Content: View>: View {
             SUIVKeyValueFillItemLayout(pixelTolerance: pixelTolerance) {
                 content
             }
-            .clipped()
+            .if(clipsContent) { $0.clipped() }
         } else {
             content
                 .fixedSize(horizontal: false, vertical: true)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
-                .clipped()
+                .if(clipsContent) { $0.clipped() }
         }
     }
 }

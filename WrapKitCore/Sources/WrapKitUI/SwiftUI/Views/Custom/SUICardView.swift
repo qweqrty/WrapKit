@@ -6,18 +6,22 @@ import SwiftUI
 public struct SUICardView: View {
     @StateObject private var stateModel: SUICardViewStateModel
     private let leadingImageTint: Color?
+    private let fitsNavigationBar: Bool
 
     public init(adapter: CardViewOutputSwiftUIAdapter) {
         _stateModel = .init(wrappedValue: .init(adapter: adapter))
         leadingImageTint = nil
+        fitsNavigationBar = false
     }
 
     init(
         adapter: CardViewOutputSwiftUIAdapter,
-        leadingImageTint: Color?
+        leadingImageTint: Color?,
+        fitsNavigationBar: Bool = false
     ) {
         _stateModel = .init(wrappedValue: .init(adapter: adapter))
         self.leadingImageTint = leadingImageTint
+        self.fitsNavigationBar = fitsNavigationBar
     }
 
     public var body: some View {
@@ -69,9 +73,9 @@ public struct SUICardView: View {
                 bottomImage
             }
             .padding(style.vStacklayoutMargins.asSUIEdgeInsets)
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+            .frame(maxWidth: .infinity, minHeight: fitsNavigationBar ? 0 : nil, maxHeight: .infinity, alignment: .center)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+        .frame(maxWidth: .infinity, minHeight: fitsNavigationBar ? 0 : nil, maxHeight: .infinity, alignment: .center)
     }
 
     @ViewBuilder
@@ -109,13 +113,17 @@ public struct SUICardView: View {
             }
         }
         .padding(style.hStacklayoutMargins.asSUIEdgeInsets)
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+        .frame(maxWidth: .infinity, minHeight: fitsNavigationBar ? 0 : nil, maxHeight: .infinity, alignment: .center)
     }
 
     @ViewBuilder
     private func cardArrangedSubviews(style: CardViewPresentableModel.Style) -> some View {
         if stateModel.leadingTitles != nil {
-            arrangedContainer(style: style, fillRole: .auxiliaryText) {
+            arrangedContainer(
+                style: style,
+                fillRole: hasCircularCountingAnimation(stateModel.leadingTitles) ? .fixed : .auxiliaryText,
+                clipsViewport: !hasCircularCountingAnimation(stateModel.leadingTitles)
+            ) {
                 leadingTitlesView(style: style)
             }
         }
@@ -163,13 +171,17 @@ public struct SUICardView: View {
             arrangedContainer(
                 style: style,
                 fillEquallyAlignment: .leading,
-                clipsFixedViewport: false
+                clipsViewport: false
             ) {
                 switchView
             }
         }
         if stateModel.trailingTitles != nil {
-            arrangedContainer(style: style, fillRole: .auxiliaryText) {
+            arrangedContainer(
+                style: style,
+                fillRole: hasCircularCountingAnimation(stateModel.trailingTitles) ? .fixed : .auxiliaryText,
+                clipsViewport: !hasCircularCountingAnimation(stateModel.trailingTitles)
+            ) {
                 trailingTitlesView(style: style)
             }
         }
@@ -181,7 +193,7 @@ public struct SUICardView: View {
         leadingSpacing: CGFloat? = nil,
         fillRole: CardFillRole = .fixed,
         fillEquallyAlignment: Alignment = .center,
-        clipsFixedViewport: Bool = true,
+        clipsViewport: Bool = true,
         @ViewBuilder content: () -> some View
     ) -> some View {
         let inner = content()
@@ -193,25 +205,25 @@ public struct SUICardView: View {
                         CardFillViewportLayout(measuresContentAtProposedWidth: true) {
                             inner
                         }
-                        .clipped()
+                        .if(clipsViewport) { $0.clipped() }
                     } else {
                         inner
                             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
-                            .if(fillRole.canCompress) { $0.clipped() }
+                            .if(fillRole.canCompress && clipsViewport) { $0.clipped() }
                     }
                 } else {
                     if #available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *) {
                         CardFillViewportLayout {
                             inner
-                                .fixedSize(horizontal: true, vertical: true)
+                                .fixedSize(horizontal: true, vertical: !fitsNavigationBar)
                                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
                         }
-                        .if(clipsFixedViewport) { $0.clipped() }
+                        .if(clipsViewport) { $0.clipped() }
                     } else {
                         inner
-                            .fixedSize(horizontal: true, vertical: true)
+                            .fixedSize(horizontal: true, vertical: !fitsNavigationBar)
                             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
-                            .if(clipsFixedViewport) { $0.clipped() }
+                            .if(clipsViewport) { $0.clipped() }
                     }
                 }
             case .fillEqually:
@@ -241,6 +253,13 @@ public struct SUICardView: View {
         } else {
             container
         }
+    }
+
+    private func hasCircularCountingAnimation(
+        _ titles: Pair<TextOutputPresentableModel?, TextOutputPresentableModel?>?
+    ) -> Bool {
+        titles?.first?.hasCircularCountingAnimation == true
+            || titles?.second?.hasCircularCountingAnimation == true
     }
 
     @ViewBuilder
@@ -366,10 +385,10 @@ public struct SUICardView: View {
     ) -> some View {
         if model != nil {
             if let tintColor {
-                SUIImageView(adapter: adapter)
+                SUIImageView(adapter: adapter, containerPresentation: fitsNavigationBar ? .navigationHeader : .standard)
                     .accentColor(SwiftUIColor(tintColor))
             } else {
-                SUIImageView(adapter: adapter)
+                SUIImageView(adapter: adapter, containerPresentation: fitsNavigationBar ? .navigationHeader : .standard)
             }
         }
     }

@@ -61,7 +61,8 @@ import Foundation
             appearance: TextfieldAppearance,
             spacing: CGFloat,
             cornerRadius: CGFloat,
-            padding: SwiftUI.EdgeInsets
+            padding: SwiftUI.EdgeInsets,
+            isClearButtonActive: Bool = false
         ) {
             let outputReplayConsumer = adapter.claimOutputReplayConsumer()
             self.outputReplayConsumer = outputReplayConsumer
@@ -82,6 +83,9 @@ import Foundation
             self.textFieldAdapter = textFieldAdapter
             self.leftButtonAdapter = leftButtonAdapter
             self.rightButtonAdapter = rightButtonAdapter
+            if isClearButtonActive, replayCheckpoint == nil {
+                textFieldAdapter.display(isClearButtonActive: true)
+            }
             leftButtonStateModel = SUIButtonStateModel(adapter: leftButtonAdapter)
             rightButtonStateModel = SUIButtonStateModel(adapter: rightButtonAdapter)
 

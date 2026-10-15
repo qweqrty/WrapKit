@@ -82,6 +82,27 @@ struct CoreTextAttributedLabelSizingLayout: Layout, @unchecked Sendable {
 }
 
 enum CoreTextAttributedLabelMetrics {
+    static func drawingHeight(
+        in attributedText: NSAttributedString,
+        width: CGFloat,
+        minimumHeight: CGFloat,
+        displayScale: CGFloat
+    ) -> CGFloat {
+        let framesetter = CTFramesetterCreateWithAttributedString(attributedText as CFAttributedString)
+        let measured = CTFramesetterSuggestFrameSizeWithConstraints(
+            framesetter,
+            CFRange(location: 0, length: attributedText.length),
+            nil,
+            CGSize(width: width, height: .greatestFiniteMagnitude),
+            nil
+        )
+        let scale = max(displayScale, 1)
+        // The frame must fit Core Text's lines even when the view uses UILabel's
+        // fractional metrics or is compressed. One pixel also avoids excluding a
+        // final line whose descent falls exactly on the frame boundary.
+        return max(minimumHeight, ceil(measured.height * scale) / scale) + 1 / scale
+    }
+
     static func trailingEmptyLineHeight(in attributedText: NSAttributedString) -> CGFloat {
         guard let lastScalar = attributedText.string.unicodeScalars.last,
               CharacterSet.newlines.contains(lastScalar),

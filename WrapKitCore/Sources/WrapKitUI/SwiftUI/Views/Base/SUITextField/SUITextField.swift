@@ -230,7 +230,7 @@ public struct SUITextInputView: View {
         .animation(.easeInOut(duration: 0.1), value: isValid)
         .modifier(
             SUITextInputAccessoryModifier(
-                model: hasInputView ? nil : inputAccessoryView,
+                model: isFocused && !hasInputView ? inputAccessoryView : nil,
                 onPress: performKeyboardAccessoryAction
             )
         )
@@ -303,6 +303,19 @@ public struct SUITextInputView: View {
                         trailingViewOnPress?()
                     }
             }
+        } else if !trailingViewIsHidden,
+                  isClearButtonConfigured, isClearButtonActive, !isClearButtonHidden {
+            SwiftUI.Button {
+                guard isUserInteractionEnabled else { return }
+                text = ""
+                trailingViewOnPress?()
+            } label: {
+                SwiftUI.Image(systemName: "xmark.circle.fill")
+                    .font(.system(size: 16))
+                    .foregroundColor(SwiftUIColor(appearance.placeholder?.color ?? appearance.colors.textColor))
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(Text("Clear text"))
         }
     }
 
@@ -822,14 +835,12 @@ private struct SUITextInputAccessoryModifier: ViewModifier {
     @ViewBuilder
     func body(content: Content) -> some View {
 #if os(iOS)
-        if let model {
-            content.toolbar {
+        content.toolbar {
+            if let model {
                 ToolbarItem(placement: .keyboard) {
                     SUITextInputAccessoryContent(model: model, onPress: onPress)
                 }
             }
-        } else {
-            content
         }
 #else
         content

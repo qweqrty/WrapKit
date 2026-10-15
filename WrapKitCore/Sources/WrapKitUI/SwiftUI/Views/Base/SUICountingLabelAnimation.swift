@@ -47,7 +47,17 @@ public struct SUICountingLabelAnimation: View {
     }
 
     public var body: some View {
-        ZStack {
+        SUILabelView(
+            model: .init(
+                accessibilityIdentifier: accessibilityIdentifier,
+                model: currentText
+            ),
+            font: font,
+            textColor: textColor,
+            textAlignment: textAlignment
+        )
+        .if(isCircular) { $0.fixedSize() }
+        .background {
             if case let .circle(color) = animationStyle {
                 SUICircularProgressView(
                     color: color,
@@ -56,18 +66,10 @@ public struct SUICountingLabelAnimation: View {
                     duration: duration,
                     completion: nil
                 )
-                .padding(8)
+                // UIKit draws the ring outside the label's text bounds. Keep it
+                // out of intrinsic measurement, including zero-width card probes.
+                .padding(-8)
             }
-
-            SUILabelView(
-                model: .init(
-                    accessibilityIdentifier: accessibilityIdentifier,
-                    model: currentText
-                ),
-                font: font,
-                textColor: textColor,
-                textAlignment: textAlignment
-            )
         }
         .onAppear {
             displayLinkManager.startAnimation(
@@ -83,6 +85,32 @@ public struct SUICountingLabelAnimation: View {
     private var currentText: TextOutputPresentableModel.TextModel {
         let currentValue = fromValue + (displayLinkManager.progress * (toValue - fromValue))
         return mapToString?(currentValue) ?? .text("")
+    }
+
+    private var isCircular: Bool {
+        if case .circle = animationStyle { return true }
+        return false
+    }
+}
+
+extension TextOutputPresentableModel {
+    var hasCircularCountingAnimation: Bool {
+        model?.hasCircularCountingAnimation ?? false
+    }
+}
+
+private extension TextOutputPresentableModel.TextModel {
+    var hasCircularCountingAnimation: Bool {
+        switch self {
+        case let .animated(_, _, _, _, style, _, _),
+             let .animatedDecimal(_, _, _, _, style, _, _):
+            if case .circle = style { return true }
+            return false
+        case let .textStyled(text, _, _, _, _):
+            return text.hasCircularCountingAnimation
+        default:
+            return false
+        }
     }
 }
 

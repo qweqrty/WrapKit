@@ -4,13 +4,19 @@ import SwiftUI
 public struct SUITextView: View {
     @StateObject var stateModel: SUITextInputStateModel
     let appearance: TextfieldAppearance
+    let minimumHeight: CGFloat
+    let contentInsets: SwiftUI.EdgeInsets
 
     public init(
         adapter: TextInputOutputSwiftUIAdapter,
-        appearance: TextfieldAppearance
+        appearance: TextfieldAppearance,
+        minimumHeight: CGFloat = 100,
+        contentInsets: SwiftUI.EdgeInsets = .init(top: 12, leading: 12, bottom: 12, trailing: 12)
     ) {
         _stateModel = .init(wrappedValue: .init(adapter: adapter, consumer: .textView))
         self.appearance = appearance
+        self.minimumHeight = minimumHeight
+        self.contentInsets = contentInsets
     }
 
     public var body: some View {
@@ -42,7 +48,9 @@ public struct SUITextView: View {
                 trailingViewOnPress: stateModel.trailingViewOnPress,
                 onBecomeFirstResponder: stateModel.onBecomeFirstResponder,
                 onResignFirstResponder: stateModel.onResignFirstResponder,
-                accessibilityIdentifier: stateModel.accessibilityIdentifier
+                accessibilityIdentifier: stateModel.accessibilityIdentifier,
+                minimumHeight: minimumHeight,
+                contentInsets: contentInsets
             )
         }
     }
@@ -86,6 +94,8 @@ public struct SUITextViewContent: View {
     let onBecomeFirstResponder: (() -> Void)?
     let onResignFirstResponder: (() -> Void)?
     let accessibilityIdentifier: String?
+    let minimumHeight: CGFloat
+    let contentInsets: SwiftUI.EdgeInsets
 
     @FocusState private var nativeFocus: Bool
     @State private var isInputViewPresented = false
@@ -161,16 +171,21 @@ public struct SUITextViewContent: View {
     public var body: some View {
         ZStack(alignment: .topLeading) {
             inputContent
-                .padding(.horizontal, 12)
-                .padding(.vertical, 4)
+                // TextEditor already supplies an 8pt vertical text-container inset.
+                .padding(.init(
+                    top: contentInsets.top - 8,
+                    leading: contentInsets.leading,
+                    bottom: contentInsets.bottom - 8,
+                    trailing: contentInsets.trailing
+                ))
                 .allowsHitTesting(!hasInputView)
 
             if shouldShowPlaceholder, let placeholder {
                 Text(placeholder)
                     .font(currentPlaceholderFont)
                     .foregroundColor(currentPlaceholderColor)
-                    .padding(.top, 12)
-                    .padding(.leading, 16)
+                    .padding(.top, contentInsets.top)
+                    .padding(.leading, contentInsets.leading + 4)
                     .allowsHitTesting(false)
             }
 
@@ -184,7 +199,7 @@ public struct SUITextViewContent: View {
                     }
             }
         }
-        .frame(minHeight: 100)
+        .frame(minHeight: minimumHeight)
         .contentShape(Rectangle())
         .allowsHitTesting(isUserInteractionEnabled)
         .simultaneousGesture(
@@ -216,6 +231,7 @@ public struct SUITextViewContent: View {
         .modifier(
             SUITextViewAccessoryModifier(
                 model: hasInputView ? nil : inputAccessoryView,
+                isFocused: isFocused,
                 onPress: performKeyboardAccessoryAction
             )
         )
@@ -562,6 +578,7 @@ private struct SUITextViewAccessoryContent: View {
 
 private struct SUITextViewAccessoryModifier: ViewModifier {
     let model: TextInputPresentableModel.AccessoryViewPresentableModel?
+    let isFocused: Bool
     let onPress: (ButtonPresentableModel) -> Void
 
     @ViewBuilder
@@ -569,8 +586,10 @@ private struct SUITextViewAccessoryModifier: ViewModifier {
 #if os(iOS)
         if let model {
             content.toolbar {
-                ToolbarItem(placement: .keyboard) {
-                    SUITextViewAccessoryContent(model: model, onPress: onPress)
+                if isFocused {
+                    ToolbarItem(placement: .keyboard) {
+                        SUITextViewAccessoryContent(model: model, onPress: onPress)
+                    }
                 }
             }
         } else {

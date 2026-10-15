@@ -487,6 +487,11 @@ public final class SUITextInputStateModel: ObservableObject {
                 guard let self, self.shouldApply(.mask, outputSequence: value.outputSequence) else { return }
                 defer { self.persistReplayCheckpoint() }
                 self.mask = value.mask
+                #if canImport(UIKit) && !os(watchOS)
+                if self.consumer == .textField, self.shouldApply(.inputType, outputSequence: value.outputSequence) {
+                    self.keyboardType = KeyboardType(rawValue: value.mask.mask.keyboardType().rawValue) ?? .default
+                }
+                #endif
                 self.updateClearButtonVisibility()
             }
             .store(in: &cancellables)
@@ -574,6 +579,16 @@ public final class SUITextInputStateModel: ObservableObject {
         if let isTextSelectionDisabled = model.isTextSelectionDisabled,
            shouldApply(.textSelection, outputSequence: outputSequence) {
             self.isTextSelectionDisabled = isTextSelectionDisabled
+        }
+        if let mask = model.mask,
+           shouldApply(.mask, outputSequence: outputSequence) {
+            self.mask = mask
+            #if canImport(UIKit) && !os(watchOS)
+            if consumer == .textField, shouldApply(.inputType, outputSequence: outputSequence) {
+                keyboardType = KeyboardType(rawValue: mask.mask.keyboardType().rawValue) ?? .default
+            }
+            #endif
+            updateClearButtonVisibility()
         }
         if let inputType = model.inputType,
            shouldApply(.inputType, outputSequence: outputSequence) {
@@ -735,11 +750,6 @@ public final class SUITextInputStateModel: ObservableObject {
         }
         if shouldApply(.trailingSymbol, outputSequence: outputSequence) {
             trailingSymbol = model.trailingSymbol
-        }
-        if let mask = model.mask,
-           shouldApply(.mask, outputSequence: outputSequence) {
-            self.mask = mask
-            updateClearButtonVisibility()
         }
     }
 

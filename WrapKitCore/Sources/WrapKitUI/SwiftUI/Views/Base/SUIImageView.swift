@@ -93,7 +93,7 @@ public struct SUIImageView: View {
                         loadingView
                     }
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
                 .ifLet(backgroundColor) { $0.background($1) }
                 .modifier(ImageViewContainerStyle(
                     model: model,
@@ -233,13 +233,13 @@ public struct SUIImageView: View {
                 .renderingMode(.template)
                 .resizable()
                 .modifier(OptionalAspectRatio(contentModeIsFit: model.contentModeIsFit ?? true))
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+                .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity, alignment: .center)
                 .foregroundColor(SwiftUI.Color.accentColor)
         } else {
             SwiftUIImage(image: image)
                 .resizable()
                 .modifier(OptionalAspectRatio(contentModeIsFit: model.contentModeIsFit ?? true))
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+                .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity, alignment: .center)
         }
     }
 
@@ -755,6 +755,7 @@ private final class SUIPlaceholderRasterKey: NSObject {
 enum SUIImageViewContainerPresentation: Equatable {
     case standard
     case cardBackground
+    case navigationHeader
 }
 
 private struct ImageViewContainerStyle: ViewModifier {
@@ -829,13 +830,17 @@ private struct ImageViewContainerStyle: ViewModifier {
     }
 
     private var idealSize: CGSize? {
-        presentation == .standard ? intrinsicSize : nil
+        switch presentation {
+        case .standard: intrinsicSize
+        case .cardBackground: nil
+        case .navigationHeader: model?.size ?? intrinsicSize
+        }
     }
 
     private var border: (color: Color, width: CGFloat)? {
         guard let width = model?.borderWidth else { return nil }
         switch presentation {
-        case .standard:
+        case .standard, .navigationHeader:
             return (model?.borderColor ?? .black, width)
         case .cardBackground:
             guard let color = model?.borderColor else { return nil }
@@ -977,8 +982,10 @@ private struct OptionalFrame: ViewModifier {
             content.frame(width: size.width, height: size.height)
         } else {
             content.frame(
+                minWidth: 0,
                 idealWidth: idealSize?.width,
                 maxWidth: .infinity,
+                minHeight: 0,
                 idealHeight: idealSize?.height,
                 maxHeight: .infinity,
                 alignment: .center

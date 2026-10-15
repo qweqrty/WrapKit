@@ -563,7 +563,7 @@ private struct LabelAccessibilityModifier: ViewModifier {
 }
 
 @available(iOS 15, macOS 12, tvOS 15, watchOS 8, *)
-private struct CoreTextAttributedLabel: View {
+struct CoreTextAttributedLabel: View {
     @Environment(\.displayScale) private var displayScale
     @Environment(\.colorScheme) private var colorScheme
 
@@ -730,8 +730,14 @@ private struct CoreTextAttributedLabel: View {
             textHeight = min(ceil(suggestedSize.height + trailingLineHeight), size.height)
             verticalInset = max((size.height - textHeight) / 2, 0)
         }
+        let drawingHeight = CoreTextAttributedLabelMetrics.drawingHeight(
+            in: attributedText,
+            width: size.width,
+            minimumHeight: textHeight,
+            displayScale: displayScale
+        )
         let path = CGPath(
-            rect: CGRect(x: 0, y: 0, width: size.width, height: textHeight),
+            rect: CGRect(x: 0, y: 0, width: size.width, height: drawingHeight),
             transform: nil
         )
         let frame = CTFramesetterCreateFrame(
@@ -743,7 +749,8 @@ private struct CoreTextAttributedLabel: View {
         return .init(
             attributedText: attributedText,
             frame: frame,
-            verticalInset: verticalInset
+            // Keep the same top baseline after enlarging the Core Text frame.
+            verticalInset: verticalInset + textHeight - drawingHeight
         )
     }
 

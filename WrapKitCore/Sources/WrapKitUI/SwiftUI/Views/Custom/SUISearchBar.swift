@@ -6,6 +6,8 @@ import SwiftUI
 public struct SUISearchBar: View {
     @StateObject private var stateModel: SUISearchBarStateModel
     private let contentInsets: EdgeInsets
+    private let leadingView: AnyView?
+    private let clearButtonView: AnyView?
 
     /// `padding` controls the text field's internal padding, while `contentInsets`
     /// inset the complete row of side controls and text field.
@@ -15,16 +17,21 @@ public struct SUISearchBar: View {
         spacing: CGFloat = 8,
         cornerRadius: CGFloat = 10,
         padding: SwiftUI.EdgeInsets = .init(top: 10, leading: 12, bottom: 10, trailing: 12),
-        contentInsets: EdgeInsets = .zero
+        contentInsets: EdgeInsets = .zero,
+        leadingView: AnyView? = nil,
+        clearButtonView: AnyView? = nil
     ) {
         _stateModel = .init(wrappedValue: .init(
             adapter: adapter,
             appearance: textFieldAppearance,
             spacing: spacing,
             cornerRadius: cornerRadius,
-            padding: padding
+            padding: padding,
+            isClearButtonActive: clearButtonView != nil
         ))
         self.contentInsets = contentInsets
+        self.leadingView = leadingView
+        self.clearButtonView = clearButtonView
     }
 
     public var body: some View {
@@ -43,6 +50,8 @@ public struct SUISearchBar: View {
                 SUITextField(
                     adapter: stateModel.textFieldAdapter,
                     appearance: stateModel.appearance,
+                    leadingView: leadingView,
+                    trailingView: clearButtonView,
                     contentInsets: stateModel.padding,
                     cornerStyle: .fixed(stateModel.cornerRadius)
                 )
