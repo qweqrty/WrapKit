@@ -162,6 +162,70 @@ final class SUIAlertOutputTests: XCTestCase {
 }
 
 @MainActor
+final class SUIAlertViewTests: XCTestCase {
+    func test_alertIsConsumedAndNotReplayedAfterRemount() {
+        let adapter = AlertOutputSwiftUIAdapter()
+        var host: AlertTestHost? = makeHost(adapter: adapter)
+
+        adapter.showAlert(model: .init(title: "Confirm", actions: [.init(title: "OK")]))
+        host?.waitForPresentation()
+
+        XCTAssertNotNil(host?.presentedController)
+        XCTAssertNil(adapter.showAlertModelState)
+        host?.dismissAlert()
+        host = nil
+
+        let remountedHost = makeHost(adapter: adapter)
+        remountedHost.settle()
+
+        XCTAssertNil(remountedHost.presentedController)
+        XCTAssertNil(adapter.showAlertModelState)
+    }
+
+    func test_actionSheetIsConsumedAndNotReplayedAfterRemount() {
+        let adapter = AlertOutputSwiftUIAdapter()
+        var host: AlertTestHost? = makeHost(adapter: adapter)
+
+        adapter.showActionSheet(model: .init(title: "Format", actions: [.init(title: "PDF")], cancelText: "Cancel"))
+        host?.waitForPresentation()
+
+        XCTAssertNotNil(host?.presentedController)
+        XCTAssertNil(adapter.showActionSheetModelState)
+        host?.dismissAlert()
+        host = nil
+
+        let remountedHost = makeHost(adapter: adapter)
+        remountedHost.settle()
+
+        XCTAssertNil(remountedHost.presentedController)
+        XCTAssertNil(adapter.showActionSheetModelState)
+    }
+
+    func test_textFieldAlertIsConsumedAndNotReplayedAfterRemount() {
+        let adapter = AlertOutputSwiftUIAdapter()
+        var host: AlertTestHost? = makeHost(adapter: adapter)
+
+        adapter.showTextFieldAlert(model: .init(title: "Name", placeholder: "Enter name", actions: [.init(title: "Save")]))
+        host?.waitForPresentation()
+
+        XCTAssertNotNil(host?.presentedController)
+        XCTAssertNil(adapter.showTextFieldAlertModelState)
+        host?.dismissAlert()
+        host = nil
+
+        let remountedHost = makeHost(adapter: adapter)
+        remountedHost.settle()
+
+        XCTAssertNil(remountedHost.presentedController)
+        XCTAssertNil(adapter.showTextFieldAlertModelState)
+    }
+
+    private func makeHost(adapter: AlertOutputSwiftUIAdapter) -> AlertTestHost {
+        AlertTestHost(adapter: adapter, rootView: AnyView(Text("Scene").alertView(adapter: adapter)))
+    }
+}
+
+@MainActor
 private final class AlertTestHost {
     let navigation: UINavigationController
     private let hosting: AlertHostingController
@@ -170,12 +234,13 @@ private final class AlertTestHost {
 
     init(
         adapter: AlertOutputSwiftUIAdapter,
+        rootView: AnyView? = nil,
         showImmediately: Bool = true,
         size: CGSize = CGSize(width: 390, height: 844),
         horizontalSizeClass: UIUserInterfaceSizeClass = .compact
     ) {
         // A plain hosting controller proves the modifier is independent of SUIHostingController.
-        hosting = AlertHostingController(rootView: AnyView(Text("Scene").alertOutput(adapter: adapter)))
+        hosting = AlertHostingController(rootView: rootView ?? AnyView(Text("Scene").alertOutput(adapter: adapter)))
         navigation = UINavigationController(rootViewController: hosting)
         navigation.setOverrideTraitCollection(UITraitCollection(horizontalSizeClass: horizontalSizeClass), forChild: hosting)
         let scene = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }
@@ -200,6 +265,10 @@ private final class AlertTestHost {
 
     var alert: UIAlertController? {
         findAlert(in: navigation)
+    }
+
+    var presentedController: UIViewController? {
+        hosting.presentedViewController ?? navigation.presentedViewController
     }
 
     var sceneController: UIViewController { hosting }
@@ -227,6 +296,19 @@ private final class AlertTestHost {
         let deadline = Date().addingTimeInterval(3)
         while Date() < deadline {
             if let alert, !alert.isBeingPresented, !alert.isBeingDismissed, alert.viewIfLoaded?.window != nil {
+                return
+            }
+            settle()
+        }
+    }
+
+    func waitForPresentation() {
+        let deadline = Date().addingTimeInterval(3)
+        while Date() < deadline {
+            if let presentedController,
+               !presentedController.isBeingPresented,
+               !presentedController.isBeingDismissed,
+               presentedController.viewIfLoaded?.window != nil {
                 return
             }
             settle()

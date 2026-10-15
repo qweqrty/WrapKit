@@ -1,6 +1,7 @@
 import Foundation
 
 #if canImport(SwiftUI)
+import Combine
 import SwiftUI
 
 public extension View {
@@ -42,16 +43,16 @@ private struct SUIAlertModifier: ViewModifier {
                 buttons: { model in buttons(for: model, inputText: inputText) },
                 message: { model in message(for: model) }
             ))
-            // Events are consumed so a re-created view doesn't present them again.
-            .onReceive(adapter.$showAlertModelState.compactMap { $0 }) { state in
+            // Consume events after @Published stores them, so a re-created view doesn't present them again.
+            .onReceive(adapter.$showAlertModelState.compactMap { $0 }.receive(on: RunLoop.main)) { state in
                 adapter.showAlertModelState = nil
                 alert = state.model
             }
-            .onReceive(adapter.$showActionSheetModelState.compactMap { $0 }) { state in
+            .onReceive(adapter.$showActionSheetModelState.compactMap { $0 }.receive(on: RunLoop.main)) { state in
                 adapter.showActionSheetModelState = nil
                 actionSheet = state.model
             }
-            .onReceive(adapter.$showTextFieldAlertModelState.compactMap { $0 }) { state in
+            .onReceive(adapter.$showTextFieldAlertModelState.compactMap { $0 }.receive(on: RunLoop.main)) { state in
                 adapter.showTextFieldAlertModelState = nil
                 inputText = ""
                 textFieldAlert = state.model
