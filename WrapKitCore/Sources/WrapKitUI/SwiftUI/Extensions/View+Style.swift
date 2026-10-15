@@ -22,12 +22,27 @@ extension View {
     func wrapKitGlassButtonStyle(
         _ configuration: ButtonStyle.GlassConfiguration,
         tint: SwiftUIColor? = nil,
+        backgroundColor: SwiftUIColor? = nil,
         cornerStyle: CornerStyle = .automatic
     ) -> some View {
         #if os(visionOS)
         self
         #else
-        if #available(iOS 26, macOS 26, tvOS 26, watchOS 26, *), isLiquidGlassEnabled {
+        if #available(iOS 26, macOS 26, tvOS 26, watchOS 26, *), isLiquidGlassEnabled,
+           let backgroundColor,
+           configuration == .glass || configuration == .clearGlass {
+            if #available(iOS 26.1, macOS 26.1, tvOS 26.1, watchOS 26.1, *) {
+                self
+                    .buttonBorderShape(cornerStyle.buttonBorderShape)
+                    .buttonStyle(.glass(configuration == .clearGlass ? .clear.tint(backgroundColor) : .regular.tint(backgroundColor)))
+                    .tint(tint)
+            } else {
+                self
+                    .buttonBorderShape(cornerStyle.buttonBorderShape)
+                    .buttonStyle(.glassProminent)
+                    .tint(backgroundColor)
+            }
+        } else if #available(iOS 26, macOS 26, tvOS 26, watchOS 26, *), isLiquidGlassEnabled {
             switch configuration {
             case .glass:
                 self

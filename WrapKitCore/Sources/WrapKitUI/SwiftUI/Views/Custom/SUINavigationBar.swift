@@ -486,7 +486,7 @@ private struct SUINavigationBarButtonView: View {
             } else {
                 let cornerStyle = model.style?.cornerStyle ?? .none
                 constrainedControl(
-                    button(model)
+                    button(model, horizontalInset: model.width == nil ? 8 : 0)
                     .buttonStyle(.plain)
                     .background(SwiftUIColor(model.style?.backgroundColor ?? .clear))
                     .cornerStyle(cornerStyle)
@@ -516,9 +516,9 @@ private struct SUINavigationBarButtonView: View {
         }
     }
 
-    private func button(_ model: ButtonPresentableModel) -> some View {
+    private func button(_ model: ButtonPresentableModel, horizontalInset: CGFloat = 0) -> some View {
         SwiftUI.Button {
-            model.onPress?()
+            stateModel.presentable.onPress?()
         } label: {
             HStack(spacing: model.spacing ?? 0) {
                 if let image = model.image {
@@ -535,6 +535,7 @@ private struct SUINavigationBarButtonView: View {
                 }
             }
             .fixedSize(horizontal: true, vertical: false)
+            .padding(.horizontal, horizontalInset)
         }
         .disabled(!stateModel.isEnabled)
         .allowsHitTesting(model.onPress != nil && stateModel.isEnabled)

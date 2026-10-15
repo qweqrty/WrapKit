@@ -287,6 +287,7 @@ public final class SUITextInputStateModel: ObservableObject {
                 defer { self.persistReplayCheckpoint() }
                 self.isClearButtonConfigured = true
                 self.isClearButtonActive = value.isClearButtonActive
+                self.updateClearButtonVisibility()
             }
             .store(in: &cancellables)
 
@@ -486,6 +487,7 @@ public final class SUITextInputStateModel: ObservableObject {
                 guard let self, self.shouldApply(.mask, outputSequence: value.outputSequence) else { return }
                 defer { self.persistReplayCheckpoint() }
                 self.mask = value.mask
+                self.updateClearButtonVisibility()
             }
             .store(in: &cancellables)
 
@@ -737,6 +739,7 @@ public final class SUITextInputStateModel: ObservableObject {
         if let mask = model.mask,
            shouldApply(.mask, outputSequence: outputSequence) {
             self.mask = mask
+            updateClearButtonVisibility()
         }
     }
 
@@ -780,6 +783,7 @@ public final class SUITextInputStateModel: ObservableObject {
         let newText = value?.removingPercentEncoding ?? value ?? ""
         if text != newText {
             text = newText
+            updateClearButtonVisibility()
         }
     }
 
@@ -824,10 +828,16 @@ public final class SUITextInputStateModel: ObservableObject {
     func applyUserText(_ value: String) {
         defer { persistReplayCheckpoint() }
         text = value
-        if consumer == .textField, isClearButtonConfigured, isClearButtonActive {
-            isClearButtonHidden = value.isEmpty
-        }
+        updateClearButtonVisibility()
         didChangeText.forEach { $0(value) }
+    }
+
+    /// Mirrors UIKit `Textfield`: the clear button tracks the user's input only, so mask literals
+    /// such as a phone prefix don't count as text.
+    private func updateClearButtonVisibility() {
+        guard consumer == .textField, isClearButtonConfigured, isClearButtonActive else { return }
+        let userInput = mask.map { $0.mask.extractUserInput(from: text) } ?? text
+        isClearButtonHidden = userInput.isEmpty
     }
 
     func configureChunkedCharacterCount(_ count: Int) {

@@ -407,6 +407,53 @@ final class SUIImageViewParityTests: XCTestCase {
         XCTAssertEqual(sut.model.alpha, 0.5)
     }
 
+    func test_imageOutputWithAssetExposesIntrinsicSizeWithoutFixingSizeLikeUIKit() {
+        let adapter = ImageViewOutputSwiftUIAdapter()
+        let sut = SUIImageViewStateModel(adapter: adapter)
+
+        adapter.display(image: .asset(makeImage(size: CGSize(width: 30, height: 20))))
+
+        XCTAssertNil(sut.model.size)
+        XCTAssertEqual(sut.intrinsicImageSize, CGSize(width: 30, height: 20))
+
+        adapter.display(image: .url(nil, nil))
+
+        XCTAssertNil(sut.model.size)
+        XCTAssertNil(sut.intrinsicImageSize)
+    }
+
+    func test_assetImageFillsProposedSizeLikeUIKitConstraints() {
+        let adapter = ImageViewOutputSwiftUIAdapter()
+        adapter.display(image: .asset(makeImage(size: CGSize(width: 30, height: 20))))
+
+        let size = fittingSize(of: SUIImageView(adapter: adapter))
+
+        XCTAssertEqual(size, CGSize(width: 200, height: 150))
+    }
+
+    func test_assetImageUsesIntrinsicSizeOnUnconstrainedAxesLikeUIKit() {
+        let adapter = ImageViewOutputSwiftUIAdapter()
+        adapter.display(image: .asset(makeImage(size: CGSize(width: 30, height: 20))))
+
+        let verticalSize = fittingSize(
+            of: SUIImageView(adapter: adapter).fixedSize(horizontal: false, vertical: true)
+        )
+        let size = fittingSize(of: SUIImageView(adapter: adapter).fixedSize())
+
+        XCTAssertEqual(verticalSize, CGSize(width: 200, height: 20))
+        XCTAssertEqual(size, CGSize(width: 30, height: 20))
+    }
+
+    func test_explicitSizeWinsOverIntrinsicSizeLikeUIKitConstraints() {
+        let adapter = ImageViewOutputSwiftUIAdapter()
+        adapter.display(size: CGSize(width: 24, height: 26))
+        adapter.display(image: .asset(makeImage(size: CGSize(width: 30, height: 20))))
+
+        let size = fittingSize(of: SUIImageView(adapter: adapter).fixedSize())
+
+        XCTAssertEqual(size, CGSize(width: 24, height: 26))
+    }
+
     func test_premountLatestCompletionOverloadWinsAcrossModelAndImageOutputs() {
         let adapter = ImageViewOutputSwiftUIAdapter()
         var events: [String] = []
@@ -629,6 +676,17 @@ final class SUIImageViewParityTests: XCTestCase {
 
     private var squareBorderSize: CGSize { .init(width: 390, height: 200) }
     private var squareBorderWidth: CGFloat { 4 }
+
+    private func fittingSize<Content: View>(of view: Content) -> CGSize {
+        UIHostingController(rootView: view).sizeThatFits(in: CGSize(width: 200, height: 150))
+    }
+
+    private func makeImage(size: CGSize) -> UIImage {
+        UIGraphicsImageRenderer(size: size).image { context in
+            UIColor.systemBlue.setFill()
+            context.fill(CGRect(origin: .zero, size: size))
+        }
+    }
 
     private func renderSquareBorder(
         width: CGFloat,

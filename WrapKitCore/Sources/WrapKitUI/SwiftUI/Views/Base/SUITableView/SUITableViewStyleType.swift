@@ -9,11 +9,13 @@ public enum SUITableViewStyleType {
     case lazyVStack(scrollable: Bool = false)
     
     @ViewBuilder
-    func makeBody<Cell: Hashable, Header, Footer>(
+    func makeBody<Cell: Hashable, Header, Footer, ListHeaderContent: View, ListFooterContent: View>(
         stateModel: SUITableViewStateModel<Header, Cell, Footer>,
         cellContent: @escaping (Cell, IndexPath) -> some View,
         headerContent: @escaping (Header) -> some View,
-        footerContent: @escaping (Footer) -> some View
+        footerContent: @escaping (Footer) -> some View,
+        listHeaderContent: ListHeaderContent,
+        listFooterContent: ListFooterContent
     ) -> some View {
         switch self {
         case .list:
@@ -21,14 +23,18 @@ public enum SUITableViewStyleType {
                 stateModel: stateModel,
                 cellContent: cellContent,
                 headerContent: headerContent,
-                footerContent: footerContent
+                footerContent: footerContent,
+                listHeaderContent: listHeaderContent,
+                listFooterContent: listFooterContent
             )
         case .lazyVStack(let scrollable):
             SUITableViewLazyVStackStyle(scrollable: scrollable).makeBody(
                 sections: stateModel.sections,
                 cellContent: cellContent,
                 headerContent: headerContent,
-                footerContent: footerContent
+                footerContent: footerContent,
+                listHeaderContent: listHeaderContent,
+                listFooterContent: listFooterContent
             )
         }
     }

@@ -172,6 +172,44 @@ final class SUIRefreshControlStateModelTests: XCTestCase {
     }
 
     @MainActor
+    func test_triggeredRefreshWaitsUntilOutputStopsLoadingLikeUIKitPull() async {
+        let adapter = RefreshControlOutputSwiftUIAdapter()
+        let sut = SUIRefreshControlStateModel(adapter: adapter)
+        var calls = 0
+        adapter.display(isLoading: false)
+        adapter.display(onRefresh: { calls += 1 })
+        var isFinished = false
+
+        sut.triggerRefresh()
+        let task = Task {
+            await sut.waitForLoadingToFinish()
+            isFinished = true
+        }
+        try? await Task.sleep(nanoseconds: 300_000_000)
+
+        XCTAssertEqual(calls, 1)
+        XCTAssertFalse(sut.isLoading)
+        XCTAssertFalse(isFinished)
+
+        adapter.display(isLoading: false)
+        await task.value
+
+        XCTAssertTrue(isFinished)
+    }
+
+    @MainActor
+    func test_triggeredRefreshFinishesWhenOutputStopsLoadingSynchronously() async {
+        let adapter = RefreshControlOutputSwiftUIAdapter()
+        let sut = SUIRefreshControlStateModel(adapter: adapter)
+        adapter.display(onRefresh: { adapter.display(isLoading: false) })
+
+        sut.triggerRefresh()
+        await sut.waitForLoadingToFinish()
+
+        XCTAssertFalse(sut.isLoading)
+    }
+
+    @MainActor
     func test_loadingWaitReturnsWhenTaskIsCancelled() async {
         let adapter = RefreshControlOutputSwiftUIAdapter()
         let sut = SUIRefreshControlStateModel(adapter: adapter)

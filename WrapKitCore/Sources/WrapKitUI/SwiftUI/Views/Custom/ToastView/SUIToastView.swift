@@ -5,9 +5,12 @@ import SwiftUI
 
 public struct SUIToastView: View {
     @StateObject private var stateModel: SUIToastViewStateModel
+    private let borderColor: SwiftUIColor
 
-    public init(adapter: CommonToastOutputSwiftUIAdapter) {
+    /// - Parameter borderColor: mirrors `ToastView.layer.borderColor` in UIKit.
+    public init(adapter: CommonToastOutputSwiftUIAdapter, borderColor: SwiftUIColor = .black) {
         _stateModel = .init(wrappedValue: .init(adapter: adapter))
+        self.borderColor = borderColor
     }
 
     public var body: some View {
@@ -21,6 +24,8 @@ public struct SUIToastView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
+        // The keyboard offset is applied from `keyboardHeight`; the keyboard safe area would count it twice.
+        .ignoresSafeArea(.keyboard)
     }
 
     @ViewBuilder
@@ -43,7 +48,7 @@ public struct SUIToastView: View {
             .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
             .overlay(
                 RoundedRectangle(cornerRadius: 12, style: .continuous)
-                    .strokeBorder(SwiftUIColor.black, lineWidth: 1)
+                    .strokeBorder(borderColor, lineWidth: 1)
             )
             .shadow(
                 color: shadowColor(item.shadowColor),
@@ -116,7 +121,8 @@ public struct SUIToastView: View {
         case .top:
             return 0
         case .bottom(let additionalBottomPadding):
-            return proxy.safeAreaInsets.bottom + stateModel.keyboardHeight + additionalBottomPadding + 24
+            // The keyboard covers the bottom safe area (home indicator), so they don't add up.
+            return max(proxy.safeAreaInsets.bottom, stateModel.keyboardHeight) + additionalBottomPadding + 24
         }
     }
 
@@ -149,8 +155,8 @@ public struct SUIToastView: View {
 }
 
 public extension View {
-    func toastView(adapter: CommonToastOutputSwiftUIAdapter) -> some View {
-        overlay(SUIToastView(adapter: adapter))
+    func toastView(adapter: CommonToastOutputSwiftUIAdapter, borderColor: SwiftUIColor = .black) -> some View {
+        overlay(SUIToastView(adapter: adapter, borderColor: borderColor))
     }
 }
 

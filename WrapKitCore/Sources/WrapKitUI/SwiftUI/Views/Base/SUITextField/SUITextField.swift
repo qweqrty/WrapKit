@@ -16,6 +16,7 @@ public struct SUITextField: View {
     let contentInsets: SwiftUI.EdgeInsets
     let midPadding: CGFloat
     let cornerStyle: CornerStyle
+    let textAlignment: SwiftUI.TextAlignment
     
     public init(
         adapter: TextInputOutputSwiftUIAdapter,
@@ -24,7 +25,8 @@ public struct SUITextField: View {
         trailingView: AnyView? = nil,
         contentInsets: SwiftUI.EdgeInsets = .init(top: 10, leading: 12, bottom: 10, trailing: 12),
         midPadding: CGFloat = 6.67,
-        cornerStyle: CornerStyle = .fixed(10)
+        cornerStyle: CornerStyle = .fixed(10),
+        textAlignment: SwiftUI.TextAlignment = .leading
     ) {
         _stateModel = .init(wrappedValue: .init(adapter: adapter))
         self.appearance = appearance
@@ -33,6 +35,7 @@ public struct SUITextField: View {
         self.contentInsets = contentInsets
         self.midPadding = midPadding
         self.cornerStyle = cornerStyle
+        self.textAlignment = textAlignment
     }
 
     public var body: some View {
@@ -76,7 +79,8 @@ public struct SUITextField: View {
                     inputAccessoryDateOnDoneTapped: stateModel.inputAccessoryDateOnDoneTapped,
                     contentInsets: contentInsets,
                     midPadding: midPadding,
-                    cornerStyle: cornerStyle
+                    cornerStyle: cornerStyle,
+                    textAlignment: textAlignment
                 )
             } else {
                 // Fallback on earlier versions
@@ -141,9 +145,15 @@ public struct SUITextInputView: View {
     let contentInsets: SwiftUI.EdgeInsets
     let midPadding: CGFloat
     let cornerStyle: CornerStyle
+    var textAlignment: SwiftUI.TextAlignment = .leading
     
     @FocusState private var nativeFocus: Bool
     @State private var isInputViewPresented = false
+    @State private var pendingNativeText: String?
+    
+    @State private var ignoredNativeEcho: String?
+    @State private var nativeTextHandle = SUINativeTextInputHandle()
+    @State private var maskRemainderSize: CGSize = .zero
     
     private var currentBorderColor: SwiftUIColor {
         if !isValid {
@@ -336,6 +346,8 @@ public struct SUITextInputView: View {
     private var placeholderContent: some View {
         if shouldDisplayPlaceholder, let placeholder {
             Text(placeholder)
+                .multilineTextAlignment(textAlignment)
+                .frame(maxWidth: .infinity, alignment: frameAlignment)
                 .font(appearance.placeholder.map { SwiftUIFont($0.font) })
                 .foregroundColor(
                     SwiftUIColor(!isUserInteractionEnabled
@@ -351,6 +363,14 @@ public struct SUITextInputView: View {
         nativeInputContent
         .font(SwiftUIFont(appearance.font))
         .frame(minHeight: ceil(appearance.font.lineHeight))
+        .multilineTextAlignment(textAlignment)
+        .padding(.trailing, maskRemainderInset)
+        .background(alignment: .trailing) {
+            SwiftUIColor.clear
+                .frame(width: maskRemainderInset)
+                .contentShape(Rectangle())
+                .onTapGesture { beginEditing() }
+        }
         .foregroundColor(currentTextColor)
         .suiKeyboardType(keyboardType)
         .if(isTextSelectionDisabled) { view in
@@ -382,7 +402,8 @@ public struct SUITextInputView: View {
             SUITextInputEventBridge(
                 target: .textField,
                 onTapBackspace: onTapBackspace,
-                onPaste: onPaste
+                onPaste: onPaste,
+                nativeTextHandle: nativeTextHandle.configured(minimumCaretOffset: leadingMaskLiteralCount)
             )
             .frame(width: 0, height: 0)
         )
@@ -395,7 +416,7 @@ public struct SUITextInputView: View {
            shouldDisplayMaskTemplate {
             let appliedMask = mask.mask.applied(to: text)
             HStack(spacing: 0) {
-                if text.isEmpty {
+                if text.isEmpty, textAlignment == .leading {
                     Text(appliedMask.input)
                         .foregroundColor(currentTextColor)
                 } else {
@@ -404,9 +425,10 @@ public struct SUITextInputView: View {
                 }
                 Text(appliedMask.maskToInput + (trailingSymbol ?? ""))
                     .foregroundColor(SwiftUIColor(mask.maskColor))
+                    .measureSize($maskRemainderSize)
             }
             .font(SwiftUIFont(appearance.font))
-            .frame(maxWidth: .infinity, alignment: .leading)
+            .frame(maxWidth: .infinity, alignment: frameAlignment)
             .allowsHitTesting(false)
             .accessibilityHidden(true)
         }
@@ -432,13 +454,11 @@ public struct SUITextInputView: View {
     private var nativeTextBinding: Binding<String> {
         Binding(
             get: {
-                guard let mask else { return text }
-                if shouldDisplayPlaceholder {
-                    return ""
-                }
-                return mask.mask.applied(to: text).input
+                pendingNativeText ?? displayedNativeText
             },
             set: { candidate in
+                if let ignoredNativeEcho, candidate == ignoredNativeEcho { return }
+
                 let value: String
                 if mask != nil,
                    let trailingSymbol,
@@ -448,8 +468,48 @@ public struct SUITextInputView: View {
                     value = candidate
                 }
                 text = normalizedText(value)
+
+                let displayed = displayedNativeText
+                guard displayed != candidate else { return }
+                ignoredNativeEcho = candidate
+                if !nativeTextHandle.replaceText(with: displayed) {
+                    pendingNativeText = candidate
+                }
+                DispatchQueue.main.async {
+                    ignoredNativeEcho = nil
+                    pendingNativeText = nil
+                }
             }
         )
+    }
+
+    private var frameAlignment: Alignment {
+        switch textAlignment {
+        case .center: return .center
+        case .trailing: return .trailing
+        default: return .leading
+        }
+    }
+
+    private var maskRemainderInset: CGFloat {
+        guard textAlignment != .leading, shouldDisplayMaskTemplate else { return 0 }
+        return maskRemainderSize.width
+    }
+
+    private var leadingMaskLiteralCount: Int {
+        guard let format = mask?.mask.format else { return 0 }
+        return format.prefix { character in
+            if case .literal = character { return true }
+            return false
+        }.count
+    }
+
+    private var displayedNativeText: String {
+        guard let mask else { return text }
+        if shouldDisplayPlaceholder {
+            return ""
+        }
+        return mask.mask.applied(to: text).input
     }
 
     private func normalizedText(_ candidate: String) -> String {
