@@ -62,6 +62,7 @@ public extension HashableWithReflection {
             hashAny(textAttributes.font as Any, into: &hasher)
             hasher.combine(textAttributes.lineSpacing)
             hashAny(textAttributes.underlineStyle as Any, into: &hasher)
+            hashAny(textAttributes.strikethroughStyle as Any, into: &hasher)
             hashAny(textAttributes.textAlignment as Any, into: &hasher)
             hashAny(textAttributes.leadingImage as Any, into: &hasher)
             hasher.combine(textAttributes.leadingImageBounds)

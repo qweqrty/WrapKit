@@ -826,6 +826,9 @@ public final class SUITextInputStateModel: ObservableObject {
     }
 
     func applyUserText(_ value: String) {
+        // SwiftUI writes the binding again with the same text when the field resigns focus;
+        // UITextField sends editingChanged only for a real change, so didChangeText stays silent.
+        guard value != text else { return }
         defer { persistReplayCheckpoint() }
         text = value
         updateClearButtonVisibility()

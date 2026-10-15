@@ -557,6 +557,69 @@ final class SUIImageViewParityTests: XCTestCase {
         wait(for: [darkRequest], timeout: 1)
     }
 
+    func test_assetAppearanceVariantFollowsColorSchemeChangesLikeUIImageView() throws {
+        let image = try appearanceAsset(resolvedFor: .light)
+        let adapter = ImageViewOutputSwiftUIAdapter()
+        let appearance = ImageAppearanceFixture(.light)
+        let host = AppearanceRenderHost(adapter: adapter, appearance: appearance)
+
+        adapter.display(model: .init(size: CGSize(width: 32, height: 32), image: .asset(image)))
+        XCTAssertEqual(host.centerColor(), .red, "Light scheme shows the light variant")
+
+        appearance.colorScheme = .dark
+        XCTAssertEqual(host.centerColor(), .blue, "Switching to dark re-resolves the asset variant")
+
+        appearance.colorScheme = .light
+        XCTAssertEqual(host.centerColor(), .red, "Switching back restores the light variant")
+    }
+
+    func test_assetResolvedInLightIsShownAsDarkVariantInDarkScheme() throws {
+        let image = try appearanceAsset(resolvedFor: .light)
+        let adapter = ImageViewOutputSwiftUIAdapter()
+        let host = AppearanceRenderHost(adapter: adapter, appearance: ImageAppearanceFixture(.dark))
+
+        adapter.display(model: .init(size: CGSize(width: 32, height: 32), image: .asset(image)))
+
+        XCTAssertEqual(host.centerColor(), .blue)
+    }
+
+    func test_automaticNonSymbolAssetRendersOriginalColorsLikeUIImageView() throws {
+        let image = try appearanceAsset(resolvedFor: .light)
+        XCTAssertEqual(image.renderingMode, .automatic)
+        let adapter = ImageViewOutputSwiftUIAdapter()
+        let host = AppearanceRenderHost(adapter: adapter, appearance: ImageAppearanceFixture(.light), tint: .green)
+
+        adapter.display(model: .init(size: CGSize(width: 32, height: 32), image: .asset(image)))
+
+        XCTAssertEqual(host.centerColor(), .red, "UIImageView does not template-tint automatic non-symbol images")
+    }
+
+    func test_dynamicTintedAssetFollowsColorSchemeLikeUIImageView() throws {
+        let tint = UIColor { $0.userInterfaceStyle == .dark ? .green : .blue }
+        let image = try appearanceAsset(resolvedFor: .light).withTintColor(tint)
+        let adapter = ImageViewOutputSwiftUIAdapter()
+        let appearance = ImageAppearanceFixture(.dark)
+        let host = AppearanceRenderHost(adapter: adapter, appearance: appearance)
+
+        adapter.display(model: .init(size: CGSize(width: 32, height: 32), image: .asset(image)))
+        XCTAssertEqual(host.centerColor(), .green, "Dynamic tint resolves for the dark scheme")
+
+        appearance.colorScheme = .light
+        XCTAssertEqual(host.centerColor(), .blue, "Dynamic tint follows the scheme change")
+    }
+
+    func test_alwaysOriginalDerivedAssetKeepsItsVariantLikeUIImageView() throws {
+        let image = try appearanceAsset(resolvedFor: .light).withRenderingMode(.alwaysOriginal)
+        let adapter = ImageViewOutputSwiftUIAdapter()
+        let appearance = ImageAppearanceFixture(.light)
+        let host = AppearanceRenderHost(adapter: adapter, appearance: appearance)
+
+        adapter.display(model: .init(size: CGSize(width: 32, height: 32), image: .asset(image)))
+        appearance.colorScheme = .dark
+
+        XCTAssertEqual(host.centerColor(), .red, "UIImageView cannot re-resolve a derived image either")
+    }
+
     func test_lightOnlyURLDoesNotFallbackInDarkAppearance() throws {
         let server = try HangingHTTPServer()
         defer { server.stop() }
@@ -849,6 +912,64 @@ private struct ImageModelInputView: View {
 
     var body: some View {
         SUIImageViewView(model: input.model)
+    }
+}
+
+// MARK: - Asset appearance helpers
+
+private final class AppearanceAssetBundleToken {}
+
+private func appearanceAsset(resolvedFor style: UIUserInterfaceStyle) throws -> UIImage {
+    try XCTUnwrap(UIImage(
+        named: "appearance_vector",
+        in: Bundle(for: AppearanceAssetBundleToken.self),
+        compatibleWith: UITraitCollection(userInterfaceStyle: style)
+    ))
+}
+
+private enum ProbeColor: Equatable {
+    case red, green, blue, other(UInt8, UInt8, UInt8)
+}
+
+@MainActor
+private final class AppearanceRenderHost {
+    private let window: UIWindow
+    private let controller: UIViewController
+
+    init(
+        adapter: ImageViewOutputSwiftUIAdapter,
+        appearance: ImageAppearanceFixture,
+        tint: SwiftUI.Color? = nil
+    ) {
+        let root = ImageAppearanceHarness(adapter: adapter, appearance: appearance)
+            .frame(width: 32, height: 32)
+            .accentColor(tint)
+        controller = UIHostingController(rootView: root)
+        window = UIWindow(frame: CGRect(x: 0, y: 0, width: 32, height: 32))
+        window.rootViewController = controller
+        window.isHidden = false
+    }
+
+    func centerColor() -> ProbeColor {
+        RunLoop.main.run(until: Date().addingTimeInterval(0.15))
+        controller.view.setNeedsLayout()
+        controller.view.layoutIfNeeded()
+        RunLoop.main.run(until: Date().addingTimeInterval(0.15))
+        var pixel = [UInt8](repeating: 0, count: 4)
+        pixel.withUnsafeMutableBytes { buffer in
+            guard let context = CGContext(
+                data: buffer.baseAddress, width: 1, height: 1, bitsPerComponent: 8, bytesPerRow: 4,
+                space: CGColorSpaceCreateDeviceRGB(),
+                bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+            ) else { return }
+            context.translateBy(x: -16, y: -16)
+            controller.view.layer.render(in: context)
+        }
+        let (r, g, b) = (pixel[0], pixel[1], pixel[2])
+        if r > 200, g < 60, b < 60 { return .red }
+        if r < 60, g > 200, b < 60 { return .green }
+        if r < 60, g < 60, b > 200 { return .blue }
+        return .other(r, g, b)
     }
 }
 #endif
