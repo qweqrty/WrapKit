@@ -44,7 +44,8 @@ let package = Package(
                     )
                 ),
             ],
-            path: "WrapKitCore/Sources"
+            path: "WrapKitCore/Sources",
+            resources: [.process("Resources")]
         ),
         .target(
             name: "WrapKitGame",

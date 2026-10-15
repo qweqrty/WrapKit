@@ -15,6 +15,30 @@ import class SwiftUI.UIHostingController
 #endif
 
 final class ButtonSnapshotTests: XCTestCase {
+    @MainActor
+    func test_buttonOutput_filledGlass_preservesBackgroundAfterEnabledUpdates() {
+        let button = WrapKit.Button()
+        button.display(model: .init(
+            title: "Order details",
+            height: 48,
+            style: .init(
+                backgroundColor: .systemGreen,
+                titleColor: .white,
+                font: .systemFont(ofSize: 17, weight: .semibold),
+                glassConfiguration: .glass
+            ),
+            enabled: true,
+            onPress: {}
+        ))
+        let host = makeGlassButtonHost(button: button)
+
+        assertSnapshots(host, named: "BUTTON_GLASS_FILLED_ENABLED")
+        button.display(enabled: false)
+        assertSnapshots(host, named: "BUTTON_GLASS_FILLED_DISABLED")
+        button.display(enabled: true)
+        assertSnapshots(host, named: "BUTTON_GLASS_FILLED_ENABLED")
+    }
+
     func test_buttonOutput_default_state() {
         let snapshotName = "BUTTON_DEFAULT_STATE"
 
@@ -1247,5 +1271,57 @@ extension ButtonSnapshotTests {
             container.backgroundColor = .clear
             return container
         }
+}
+
+private extension ButtonSnapshotTests {
+    @MainActor
+    func makeGlassButtonHost(button: WrapKit.Button) -> UIViewController {
+        let host = UIViewController()
+        host.view.backgroundColor = .systemBackground
+        host.view.addSubview(button)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            button.leadingAnchor.constraint(equalTo: host.view.leadingAnchor, constant: 16),
+            button.trailingAnchor.constraint(equalTo: host.view.trailingAnchor, constant: -16),
+            button.centerYAnchor.constraint(equalTo: host.view.centerYAnchor)
+        ])
+        return host
+    }
+
+    @MainActor
+    func assertSnapshots(
+        _ host: UIViewController,
+        named name: String,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        for appearance in [SnapshotAppearance.light, .dark, .light] {
+            let configuration = SnapshotConfiguration(
+                size: CGSize(width: 320, height: 120),
+                safeAreaInsets: .zero,
+                layoutMargins: .zero,
+                traitCollection: UITraitCollection(traitsFrom: [
+                    SnapshotConfiguration.iPhone(style: appearance.userInterfaceStyle).traitCollection,
+                    UITraitCollection(activeAppearance: .active)
+                ])
+            )
+            host.loadViewIfNeeded()
+            host.overrideUserInterfaceStyle = appearance.userInterfaceStyle
+            host.view.frame = CGRect(origin: .zero, size: configuration.size)
+            RunLoop.main.run(until: Date().addingTimeInterval(0.3))
+            host.view.setNeedsLayout()
+            host.view.layoutIfNeeded()
+            let image = host.snapshot(for: configuration)
+            let os = isAvailableOS26 ? "iOS26" : "iOS18.5"
+            let theme = appearance == .light ? "LIGHT" : "DARK"
+            assert(
+                snapshot: image,
+                named: "\(os)_\(name)_\(theme)",
+                precision: SwiftUISnapshotPrecision.standard,
+                file: file,
+                line: line
+            )
+        }
+    }
 }
 #endif

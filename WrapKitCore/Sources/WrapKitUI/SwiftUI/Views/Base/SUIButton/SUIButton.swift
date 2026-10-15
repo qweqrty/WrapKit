@@ -49,6 +49,7 @@ public struct SUIButtonView: View {
     
     @State private var isPressed: Bool = false
     @GestureState private var isGlassPressed: Bool = false
+    @Environment(\.self) private var environment
     
     public init(
         model: ButtonPresentableModel,
@@ -72,8 +73,7 @@ public struct SUIButtonView: View {
     
     @ViewBuilder
     public var body: some View {
-        if let glassConfiguration = model.style?.glassConfiguration,
-           isLiquidGlassAvailable {
+        if let glassConfiguration = renderedGlassConfiguration {
             glassButton(configuration: glassConfiguration)
         } else {
             legacyButton
@@ -94,6 +94,7 @@ public struct SUIButtonView: View {
                 backgroundColor: glassTintColor,
                 cornerStyle: buttonCornerStyle
             )
+            .frame(height: model.height)
             .scaleEffect(
                 pressAnimations.contains(.shrink) && isGlassPressed ? 0.95 : 1
             )
@@ -146,7 +147,10 @@ public struct SUIButtonView: View {
 
     @ViewBuilder
     private var buttonLabel: some View {
-        if let requestedHeight = model.height {
+        if renderedGlassConfiguration != nil {
+            // Native glass owns its content insets; the requested height belongs to the styled button.
+            decoratedButtonLabel(fillsAvailableHeight: model.height != nil || fillsAvailableHeight)
+        } else if let requestedHeight = model.height {
             decoratedButtonLabel(height: requestedHeight)
         } else {
             decoratedButtonLabel(fillsAvailableHeight: fillsAvailableHeight)
@@ -210,13 +214,13 @@ public struct SUIButtonView: View {
             )
             .frame(width: model.width, height: height)
             .background {
-                if !isLiquidGlassAvailable || model.style?.glassConfiguration == nil {
+                if renderedGlassConfiguration == nil {
                     backgroundView
                 }
             }
             .clipShape(SUIButtonCornerShape(style: buttonCornerStyle))
             .overlay {
-                if !isLiquidGlassAvailable || model.style?.glassConfiguration == nil {
+                if renderedGlassConfiguration == nil {
                     borderView
                 }
             }
@@ -228,6 +232,23 @@ public struct SUIButtonView: View {
 
     private var usesLiquidGlassConfiguration: Bool {
         isLiquidGlassAvailable && model.style?.glassConfiguration != nil
+    }
+
+    private var renderedGlassConfiguration: ButtonStyle.GlassConfiguration? {
+        guard isLiquidGlassAvailable, let configuration = model.style?.glassConfiguration else {
+            return nil
+        }
+        guard configuration == .glass, let backgroundColor = model.style?.backgroundColor else {
+            return configuration
+        }
+        if #available(iOS 17, macOS 14, tvOS 17, watchOS 10, *) {
+            guard SwiftUIColor(backgroundColor).resolve(in: environment).opacity > 0 else {
+                return configuration
+            }
+            // Regular SwiftUI glass ignores an explicit fill; disabled prominent glass removes it.
+            return isEnabled ? .prominentGlass : nil
+        }
+        return configuration
     }
 
     private var buttonCornerStyle: CornerStyle {

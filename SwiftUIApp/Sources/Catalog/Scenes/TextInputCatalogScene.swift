@@ -620,13 +620,20 @@ private extension TextInputCatalogPresenter {
     }
 
     var phoneMaskFormat: [MaskedCharacter] {
-        [.literal("(")] + digits(3) + [.literal(")"), .literal(" ")]
-            + digits(3) + [.literal("-")] + digits(4)
+        let parts: [[MaskedCharacter]] = [
+            [.literal("(")], digits(3), [.literal(")"), .literal(" ")],
+            digits(3), [.literal("-")], digits(4)
+        ]
+        return parts.flatMap { $0 }
     }
 
     var paymentCardMaskFormat: [MaskedCharacter] {
-        digits(4) + [.literal(" ")] + digits(4) + [.literal(" ")]
-            + digits(4) + [.literal(" ")] + digits(4)
+        let separator: [MaskedCharacter] = [.literal(" ")]
+        let parts: [[MaskedCharacter]] = [
+            digits(4), separator, digits(4), separator,
+            digits(4), separator, digits(4)
+        ]
+        return parts.flatMap { $0 }
     }
 
     func digits(_ count: Int) -> [MaskedCharacter] {

@@ -33,7 +33,8 @@ struct SUIOutputLabel: View {
                     model: stateModel.presentable,
                     font: font,
                     textColor: textColor,
-                    textAlignment: textAlignment
+                    textAlignment: textAlignment,
+                    contentRevision: stateModel.contentRevision
                 )
                 .id(stateModel.animationRenderGeneration)
             }
