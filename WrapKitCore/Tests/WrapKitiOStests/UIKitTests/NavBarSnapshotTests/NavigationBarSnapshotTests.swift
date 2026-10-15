@@ -1,14 +1,8 @@
 #if os(iOS) || targetEnvironment(macCatalyst)
-//
-//  NavigationBarSnapshotTests.swift
-//  WrapKitTests
-//
-//  Created by sunflow on 10/11/25.
-//
-
 import WrapKit
 import WrapKitTestUtils
 import XCTest
+import UIKit
 
 class NavigationBarSnapshotTests: XCTestCase {
     func test_iOS26_leadingCardUsesInteractiveCapsuleGlassOnlyWhileItHasActions() throws {
@@ -16,31 +10,28 @@ class NavigationBarSnapshotTests: XCTestCase {
             throw XCTSkip("Liquid Glass requires iOS 26 and an enabled feature flag.")
         }
 
-        let sut = NavigationBar()
-        let glassView = try XCTUnwrap(sut.leadingCardGlassEffectView as? UIVisualEffectView)
-        let glassEffect = try XCTUnwrap(glassView.effect as? UIGlassEffect)
-
-        XCTAssertTrue(glassView.isHidden)
-        XCTAssertTrue(glassEffect.isInteractive)
-        XCTAssertEqual(glassView.cornerConfiguration, .capsule())
+        let sut = UINavigationBar()
+        XCTAssertNil(sut.topItem?.leftBarButtonItem)
 
         sut.display(leadingCard: .init(title: .text("Press"), onPress: {}))
 
-        XCTAssertFalse(glassView.isHidden)
-        XCTAssertTrue(glassView.superview === sut.leadingStackView)
-        XCTAssertTrue(sut.leadingCardView.superview === glassView.contentView)
+        let glassView = try XCTUnwrap(findView(UIVisualEffectView.self, in: sut.topItem?.leftBarButtonItem?.customView))
+        let glassEffect = try XCTUnwrap(glassView.effect as? UIGlassEffect)
+        let card = try XCTUnwrap(findView(CardView.self, in: glassView.contentView))
+        XCTAssertTrue(glassEffect.isInteractive)
+        XCTAssertEqual(glassView.cornerConfiguration, .capsule())
+        XCTAssertTrue(card.superview === glassView.contentView)
 
         sut.display(leadingCard: .init(title: .text("Static")))
 
-        XCTAssertTrue(glassView.isHidden)
         XCTAssertNil(glassView.superview)
-        XCTAssertTrue(sut.leadingCardView.superview === sut.leadingStackView)
+        XCTAssertNil(findView(UIVisualEffectView.self, in: sut.topItem?.leftBarButtonItem?.customView))
+        XCTAssertNotNil(findView(CardView.self, in: sut.topItem?.leftBarButtonItem?.customView))
 
         sut.display(leadingCard: .init(title: .text("Long press"), onLongPress: {}))
 
-        XCTAssertFalse(glassView.isHidden)
-        XCTAssertTrue(glassView.superview === sut.leadingStackView)
-        XCTAssertTrue(sut.leadingCardView.superview === glassView.contentView)
+        XCTAssertTrue(findView(UIVisualEffectView.self, in: sut.topItem?.leftBarButtonItem?.customView) === glassView)
+        XCTAssertTrue(card.superview === glassView.contentView)
     }
 
     func test_iOS26_allTrailingButtonsKeepGlassCapsuleConfigurationAfterDisplay() throws {
@@ -48,22 +39,21 @@ class NavigationBarSnapshotTests: XCTestCase {
             throw XCTSkip("Liquid Glass requires iOS 26 and an enabled feature flag.")
         }
 
-        let sut = NavigationBar()
+        let sut = UINavigationBar()
         var expectedConfiguration = UIButton.Configuration.glass()
         expectedConfiguration.cornerStyle = .capsule
-        let model = ButtonPresentableModel(onPress: {})
+        let model = ButtonPresentableModel(title: "Action", image: UIImage(systemName: "star"), onPress: {})
 
         sut.display(primeTrailingImage: model)
         sut.display(secondaryTrailingImage: model)
         sut.display(tertiaryTrailingImage: model)
 
-        for wrapper in [
-            sut.primeTrailingImageWrapperView,
-            sut.secondaryTrailingImageWrapperView,
-            sut.tertiaryTrailingImageWrapperView,
-        ] {
-            XCTAssertFalse(wrapper.isHidden)
-            let configuration = try XCTUnwrap(wrapper.contentView.configuration)
+        let items = try XCTUnwrap(sut.topItem?.rightBarButtonItems)
+        XCTAssertEqual(items.count, 3)
+        for item in items {
+            let button = try XCTUnwrap(findView(Button.self, in: item.customView))
+            XCTAssertFalse(button.isHidden)
+            let configuration = try XCTUnwrap(button.configuration)
             XCTAssertEqual(configuration.cornerStyle, expectedConfiguration.cornerStyle)
             XCTAssertTrue(
                 String(reflecting: configuration).contains("baseStyle=glass"),
@@ -72,8 +62,8 @@ class NavigationBarSnapshotTests: XCTestCase {
         }
     }
 
-    func test_navigationBar_style_appliesSecondaryTypographyToCenterValueLabel() {
-        let navigationBar = NavigationBar()
+    func test_navigationBar_style_appliesSecondaryTypographyToCenterValueLabel() throws {
+        let navigationBar = UINavigationBar()
         let secondaryFont = UIFont.systemFont(ofSize: 17, weight: .semibold)
 
         navigationBar.display(style: .init(
@@ -85,10 +75,12 @@ class NavigationBarSnapshotTests: XCTestCase {
             secondaryColor: .green,
             numberOfLines: 3
         ))
+        navigationBar.display(centerView: .keyValue(.init(.text("Title"), .text("Subtitle"))))
 
-        XCTAssertEqual(navigationBar.titleViews.valueLabel.font, secondaryFont)
-        XCTAssertEqual(navigationBar.titleViews.valueLabel.textColor, .green)
-        XCTAssertEqual(navigationBar.titleViews.valueLabel.numberOfLines, 3)
+        let titles = try XCTUnwrap(findView(VKeyValueFieldView.self, in: navigationBar.topItem?.titleView))
+        XCTAssertEqual(titles.valueLabel.font, secondaryFont)
+        XCTAssertEqual(titles.valueLabel.textColor, .green)
+        XCTAssertEqual(titles.valueLabel.numberOfLines, 3)
     }
 
     func test_navigationBar_defaul_state() {
@@ -153,7 +145,7 @@ class NavigationBarSnapshotTests: XCTestCase {
         sut.display(style: .init(
             backgroundColor: .red,
             horizontalSpacing: 1.0,
-            primeFont: .boldSystemFont(ofSize: 24),
+            primeFont: .boldSystemFont(ofSize: 18),
             primeColor: .blue,
             secondaryFont: .systemFont(ofSize: 14),
             secondaryColor: .green)
@@ -181,7 +173,7 @@ class NavigationBarSnapshotTests: XCTestCase {
         sut.display(style: .init(
             backgroundColor: .red,
             horizontalSpacing: 1.0,
-            primeFont: .boldSystemFont(ofSize: 24),
+            primeFont: .boldSystemFont(ofSize: 18),
             primeColor: .blue,
             secondaryFont: .systemFont(ofSize: 14),
             secondaryColor: .green)
@@ -281,7 +273,7 @@ class NavigationBarSnapshotTests: XCTestCase {
             secondaryColor: .green)
         )
 
-        sut.display(leadingCard: .init(backgroundImage: .init(image: .asset(Image(systemName: "star.fill"))), title: .text("Title"), onPress: { }))
+        sut.display(leadingCard: .init(backgroundImage: .init(size: .init(width: 120, height: 44), image: .asset(Image(systemName: "star.fill"))), title: .text("Title")))
 
         // THEN
         if #available(iOS 26, *) {
@@ -309,7 +301,7 @@ class NavigationBarSnapshotTests: XCTestCase {
             secondaryColor: .green)
         )
 
-        sut.display(leadingCard: .init(backgroundImage: .init(image: .asset(Image(systemName: "star"))), title: .text("Title"), onPress: { }))
+        sut.display(leadingCard: .init(backgroundImage: .init(size: .init(width: 120, height: 44), image: .asset(Image(systemName: "star"))), title: .text("Title")))
 
         // THEN
         if #available(iOS 26, *) {
@@ -339,11 +331,10 @@ class NavigationBarSnapshotTests: XCTestCase {
 
         sut.display(
             leadingCard: .init(
-                backgroundImage: .init(
-                    size: CGSize(width: 24, height: 24),
-                    image: .asset(Image(systemName: "star.fill"))),
                 trailingTitles: .init(.text("Title"), .text("Subtitle")),
-                onPress: { }
+                leadingImage: .init(
+                    size: CGSize(width: 24, height: 24),
+                    image: .asset(Image(systemName: "star.fill")))
             ))
 
         // THEN
@@ -374,12 +365,10 @@ class NavigationBarSnapshotTests: XCTestCase {
 
         sut.display(
             leadingCard: .init(
-                backgroundImage: .init(
-                    size: CGSize(width: 24, height: 24),
-                    image: .asset(Image(systemName: "star.fill"))),
                 trailingTitles: .init(.text("Title."), .text("Subtitle.")),
-                onPress: { }
-            ))
+                leadingImage: .init(
+                    size: CGSize(width: 24, height: 24),
+                    image: .asset(Image(systemName: "star.fill")))))
 
         // THEN
         if #available(iOS 26, *) {
@@ -438,7 +427,7 @@ class NavigationBarSnapshotTests: XCTestCase {
         )
 
         let image = Image(systemName: "star")
-        sut.display(secondaryTrailingImage: .some(.init(title: "Image", image: image)))
+        sut.display(secondaryTrailingImage: .some(.init(title: "Image", image: image, height: 24)))
 
         // THEN
         if #available(iOS 26, *) {
@@ -467,18 +456,17 @@ class NavigationBarSnapshotTests: XCTestCase {
         )
 
         let image = Image(systemName: "star.fill")
-        let pressedStyle = makeSnapshotStyle(backgroundColor: .yellow)
-        let onPress: () -> Void = { [weak sut] in
-            sut?.display(style: pressedStyle)
-        }
         sut.display(secondaryTrailingImage: .some(.init(
             title: "Image",
             image: image,
             height: 24,
-            onPress: onPress)
+            onPress: { [weak sut] in
+                sut?.display(style: Self.headerStyle(backgroundColor: .yellow))
+            })
         ))
 
-        onPress()
+        findView(Button.self, in: sut.topItem?.rightBarButtonItems?.last?.customView)?.onPress?()
+        XCTAssertEqual(sut.topItem?.standardAppearance?.backgroundColor, .yellow)
 
         // THEN
         if #available(iOS 26, *) {
@@ -507,18 +495,17 @@ class NavigationBarSnapshotTests: XCTestCase {
         )
 
         let image = Image(systemName: "star.fill")
-        let pressedStyle = makeSnapshotStyle(backgroundColor: .systemYellow)
-        let onPress: () -> Void = { [weak sut] in
-            sut?.display(style: pressedStyle)
-        }
         sut.display(secondaryTrailingImage: .some(.init(
             title: "Image",
             image: image,
             height: 24,
-            onPress: onPress)
+            onPress: { [weak sut] in
+                sut?.display(style: Self.headerStyle(backgroundColor: .systemYellow))
+            })
         ))
 
-        onPress()
+        findView(Button.self, in: sut.topItem?.rightBarButtonItems?.last?.customView)?.onPress?()
+        XCTAssertEqual(sut.topItem?.standardAppearance?.backgroundColor, .systemYellow)
 
         // THEN
         if #available(iOS 26, *) {
@@ -552,6 +539,7 @@ class NavigationBarSnapshotTests: XCTestCase {
             image: image
         )))
 
+
         // THEN
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -581,8 +569,10 @@ class NavigationBarSnapshotTests: XCTestCase {
         let image = Image(systemName: "star")
         sut.display(tertiaryTrailingImage: .some(.init(
             title: "Image",
-            image: image
+            image: image,
+            height: 24,
         )))
+
 
         // THEN
         if #available(iOS 26, *) {
@@ -611,17 +601,16 @@ class NavigationBarSnapshotTests: XCTestCase {
         )
 
         let image = Image(systemName: "star.fill")
-        let pressedStyle = makeSnapshotStyle(backgroundColor: .yellow)
-        let onPress: () -> Void = { [weak sut] in
-            sut?.display(style: pressedStyle)
-        }
         sut.display(tertiaryTrailingImage: .some(.init(
             title: "Image",
             image: image,
-            onPress: onPress
+            onPress: { [weak sut] in
+                sut?.display(style: Self.headerStyle(backgroundColor: .yellow))
+            }
         )))
 
-        onPress()
+        findView(Button.self, in: sut.topItem?.rightBarButtonItems?.first?.customView)?.onPress?()
+        XCTAssertEqual(sut.topItem?.standardAppearance?.backgroundColor, .yellow)
 
         // THEN
         if #available(iOS 26, *) {
@@ -650,17 +639,17 @@ class NavigationBarSnapshotTests: XCTestCase {
         )
 
         let image = Image(systemName: "star.fill")
-        let pressedStyle = makeSnapshotStyle(backgroundColor: .systemYellow)
-        let onPress: () -> Void = { [weak sut] in
-            sut?.display(style: pressedStyle)
-        }
         sut.display(tertiaryTrailingImage: .some(.init(
             title: "Image",
             image: image,
-            onPress: onPress
+            height: 24,
+            onPress: { [weak sut] in
+                sut?.display(style: Self.headerStyle(backgroundColor: .systemYellow))
+            }
         )))
 
-        onPress()
+        findView(Button.self, in: sut.topItem?.rightBarButtonItems?.first?.customView)?.onPress?()
+        XCTAssertEqual(sut.topItem?.standardAppearance?.backgroundColor, .systemYellow)
 
         // THEN
         if #available(iOS 26, *) {
@@ -689,24 +678,30 @@ class NavigationBarSnapshotTests: XCTestCase {
         )
 
         let image = Image(systemName: "star.fill")
-        let pressedStyle = makeSnapshotStyle(backgroundColor: .yellow)
-        let onPress: () -> Void = { [weak sut] in
-            sut?.display(style: pressedStyle)
-        }
 
         sut.display(tertiaryTrailingImage: .some(.init(
             title: "Tert",
             image: image,
-            onPress: onPress)
+            onPress: { [weak sut] in
+                sut?.display(style: Self.headerStyle(backgroundColor: .yellow))
+            })
         ))
 
         sut.display(secondaryTrailingImage: .some(.init(
             title: "Second",
             image: image,
-            onPress: onPress)
+            onPress: { [weak sut] in
+                sut?.display(style: Self.headerStyle(backgroundColor: .yellow))
+            })
         ))
 
-        onPress()
+        findView(Button.self, in: sut.topItem?.rightBarButtonItems?.last?.customView)?.onPress?()
+        XCTAssertEqual(sut.topItem?.standardAppearance?.backgroundColor, .yellow)
+
+        // Both references use a light navigation bar, including in a dark window.
+        if #available(iOS 26, *) {
+            sut.overrideUserInterfaceStyle = .light
+        }
 
         // THEN
         if #available(iOS 26, *) {
@@ -734,25 +729,28 @@ class NavigationBarSnapshotTests: XCTestCase {
             secondaryColor: .green)
         )
 
-        let image = Image(systemName: "star.fill")
-        let pressedStyle = makeSnapshotStyle(backgroundColor: .systemYellow)
-        let onPress: () -> Void = { [weak sut] in
-            sut?.display(style: pressedStyle)
-        }
+        let image = Image(systemName: "star")
 
         sut.display(tertiaryTrailingImage: .some(.init(
             title: "Tert",
             image: image,
-            onPress: onPress)
+            height: 24,
+            onPress: { [weak sut] in
+                sut?.display(style: Self.headerStyle(backgroundColor: .yellow))
+            })
         ))
 
         sut.display(secondaryTrailingImage: .some(.init(
             title: "Second",
             image: image,
-            onPress: onPress)
+            height: 24,
+            onPress: { [weak sut] in
+                sut?.display(style: Self.headerStyle(backgroundColor: .yellow))
+            })
         ))
 
-        onPress()
+        findView(Button.self, in: sut.topItem?.rightBarButtonItems?.last?.customView)?.onPress?()
+        XCTAssertEqual(sut.topItem?.standardAppearance?.backgroundColor, .yellow)
 
         // THEN
         if #available(iOS 26, *) {
@@ -852,6 +850,20 @@ class NavigationBarSnapshotTests: XCTestCase {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
+        guard let card = findView(CardView.self, in: sut.topItem?.leftBarButtonItem?.customView) else {
+            return XCTFail("Expected a leading card")
+        }
+        let labels = [
+            card.leadingTitleViews.keyLabel, card.leadingTitleViews.valueLabel,
+            card.titleViews.keyLabel,
+            card.trailingTitleViews.keyLabel, card.trailingTitleViews.valueLabel
+        ]
+        for label in labels {
+            XCTAssertGreaterThanOrEqual(
+                label.bounds.width + 1, label.intrinsicContentSize.width,
+                "Truncated: \(label.text ?? "")"
+            )
+        }
     }
 
     func test_fail_navigationBar_with_leadingCard_leadingTrailingTitles() {
@@ -941,12 +953,11 @@ class NavigationBarSnapshotTests: XCTestCase {
         )
 
         let image = Image(systemName: "star.fill")
-        let mutatedLeadingImage = Image(systemName: "heart.fill")
 
         sut.display(
             leadingCard: .init(
-                title: .text("Title"),
-                leadingImage: .init(image: .asset(mutatedLeadingImage)),
+                title: .text("Title."),
+                leadingImage: .init(image: .asset(image)),
                 trailingImage: .init(image: .asset(image))
             )
         )
@@ -1093,7 +1104,7 @@ class NavigationBarSnapshotTests: XCTestCase {
         }
     }
 
-    func test_navigationBar_with_leadingCard_bottomImage() {
+    func test_navigationBar_with_leadingCard_bottomImage() throws {
         let snapshotName = "NAVBAR_WITH_LEADINGCARD_BOTTOMIMAGE"
 
         // GIVEN
@@ -1119,11 +1130,19 @@ class NavigationBarSnapshotTests: XCTestCase {
         )
 
         // THEN
+        let lightSnapshot = container.snapshot(for: .iPhone(style: .light))
+        let card = try XCTUnwrap(findView(CardView.self, in: sut.topItem?.leftBarButtonItem?.customView))
+        XCTAssertFalse(card.bottomImageWrapperView.isHidden)
+        XCTAssertFalse(card.bottomImageView.isHidden)
+        XCTAssertNotNil(card.bottomImageView.image)
+        XCTAssertGreaterThan(card.bottomImageView.bounds.width, 0)
+        XCTAssertGreaterThan(card.bottomImageView.bounds.height, 0)
+
         if #available(iOS 26, *) {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: lightSnapshot, named: "iOS26_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: lightSnapshot, named: "iOS18.5_\(snapshotName)_LIGHT")
             assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
     }
@@ -1300,8 +1319,7 @@ class NavigationBarSnapshotTests: XCTestCase {
                         tintColor: .blue,
                         thumbTintColor: .systemRed,
                         backgroundColor: .clear,
-                        cornerRadius: 10)),
-                onPress: { }
+                        cornerRadius: 10))
             )
         )
 
@@ -1331,19 +1349,18 @@ class NavigationBarSnapshotTests: XCTestCase {
             secondaryColor: .green)
         )
 
-        let pressedStyle = makeSnapshotStyle(backgroundColor: .yellow)
-        let onPress: () -> Void = { [weak sut] in
-            sut?.display(style: pressedStyle)
-        }
         sut.display(
             leadingCard: .init(
                 title: .text("Title"),
                 valueTitle: .text("Value title"),
-                onPress: onPress
+                onPress: { [weak sut] in
+                    sut?.display(style: Self.headerStyle(backgroundColor: .yellow))
+                }
             )
         )
 
-        onPress()
+        findView(CardView.self, in: sut.topItem?.leftBarButtonItem?.customView)?.onPress?()
+        XCTAssertEqual(sut.topItem?.standardAppearance?.backgroundColor, .yellow)
 
         // THEN
         if #available(iOS 26, *) {
@@ -1371,19 +1388,18 @@ class NavigationBarSnapshotTests: XCTestCase {
             secondaryColor: .green)
         )
 
-        let pressedStyle = makeSnapshotStyle(backgroundColor: .systemYellow)
-        let onPress: () -> Void = { [weak sut] in
-            sut?.display(style: pressedStyle)
-        }
         sut.display(
             leadingCard: .init(
                 title: .text("Title"),
                 valueTitle: .text("Value title"),
-                onPress: onPress
+                onPress: { [weak sut] in
+                    sut?.display(style: Self.headerStyle(backgroundColor: .systemYellow))
+                }
             )
         )
 
-        onPress()
+        findView(CardView.self, in: sut.topItem?.leftBarButtonItem?.customView)?.onPress?()
+        XCTAssertEqual(sut.topItem?.standardAppearance?.backgroundColor, .systemYellow)
 
         // THEN
         if #available(iOS 26, *) {
@@ -1411,19 +1427,18 @@ class NavigationBarSnapshotTests: XCTestCase {
             secondaryColor: .green)
         )
 
-        let pressedStyle = makeSnapshotStyle(backgroundColor: .yellow)
-        let onLongPress: () -> Void = { [weak sut] in
-            sut?.display(style: pressedStyle)
-        }
         sut.display(
             leadingCard: .init(
                 title: .text("Title"),
                 valueTitle: .text("Value title"),
-                onLongPress: onLongPress
+                onLongPress: { [weak sut] in
+                    sut?.display(style: Self.headerStyle(backgroundColor: .yellow))
+                }
             )
         )
 
-        onLongPress()
+        findView(CardView.self, in: sut.topItem?.leftBarButtonItem?.customView)?.onLongPress?()
+        XCTAssertEqual(sut.topItem?.standardAppearance?.backgroundColor, .yellow)
 
         // THEN
         if #available(iOS 26, *) {
@@ -1451,19 +1466,18 @@ class NavigationBarSnapshotTests: XCTestCase {
             secondaryColor: .green)
         )
 
-        let pressedStyle = makeSnapshotStyle(backgroundColor: .systemYellow)
-        let onLongPress: () -> Void = { [weak sut] in
-            sut?.display(style: pressedStyle)
-        }
         sut.display(
             leadingCard: .init(
                 title: .text("Title"),
                 valueTitle: .text("Value title"),
-                onLongPress: onLongPress
+                onLongPress: { [weak sut] in
+                    sut?.display(style: Self.headerStyle(backgroundColor: .systemYellow))
+                }
             )
         )
 
-        onLongPress()
+        findView(CardView.self, in: sut.topItem?.leftBarButtonItem?.customView)?.onLongPress?()
+        XCTAssertEqual(sut.topItem?.standardAppearance?.backgroundColor, .systemYellow)
 
         // THEN
         if #available(iOS 26, *) {
@@ -1498,6 +1512,8 @@ class NavigationBarSnapshotTests: XCTestCase {
             )
         )
 
+        findView(CardView.self, in: sut.topItem?.leftBarButtonItem?.customView)?.onPress?()
+
         // THEN
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -1510,7 +1526,7 @@ class NavigationBarSnapshotTests: XCTestCase {
 }
 
 extension NavigationBarSnapshotTests {
-    func makeSnapshotStyle(backgroundColor: Color) -> HeaderPresentableModel.Style {
+    private static func headerStyle(backgroundColor: UIColor) -> HeaderPresentableModel.Style {
         .init(
             backgroundColor: backgroundColor,
             horizontalSpacing: 1,
@@ -1524,28 +1540,21 @@ extension NavigationBarSnapshotTests {
     func makeSUT(
         file: StaticString = #file,
         line: UInt = #line
-    ) -> (sut: NavigationBar, container: UIView) {
-        let sut = NavigationBar()
-        let container = makeContainer()
-
-        container.addSubview(sut)
-        sut.anchor(
-            .top(container.topAnchor, constant: 0, priority: .required),
-            .leading(container.leadingAnchor, constant: 0, priority: .required),
-            .trailing(container.trailingAnchor, constant: 0, priority: .required),
-        )
-
-        container.layoutIfNeeded()
+    ) -> (sut: UINavigationBar, container: UIViewController) {
+        let root = UIViewController()
+        root.view.backgroundColor = .black
+        let container = UINavigationController(rootViewController: root)
+        container.loadViewIfNeeded()
+        let sut = container.navigationBar
 
         checkForMemoryLeaks(sut, file: file, line: line)
         return (sut, container)
     }
+}
 
-    func makeContainer() -> UIView {
-        let container = UIView()
-        container.frame = CGRect(x: 0, y: 0, width: 390, height: 300)
-        container.backgroundColor = .clear
-        return container
-    }
+private func findView<T: UIView>(_ type: T.Type, in root: UIView?) -> T? {
+    guard let root else { return nil }
+    if let view = root as? T { return view }
+    return root.subviews.lazy.compactMap { findView(type, in: $0) }.first
 }
 #endif

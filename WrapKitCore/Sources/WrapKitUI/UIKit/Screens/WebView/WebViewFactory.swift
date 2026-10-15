@@ -43,7 +43,7 @@ public class WebViewFactoryiOS: WebViewFactory {
             onBackSwipeStateChange: style.onBackSwipeStateChange
         )
         presenter.view = vc.weakReferenced.mainQueueDispatched
-        presenter.navBarView = contentView.navigationBar.weakReferenced.mainQueueDispatched
+        presenter.navBarView = vc.headerOutput.weakReferenced.mainQueueDispatched
         presenter.progressBarView = contentView.progressBarView.weakReferenced.mainQueueDispatched
         presenter.refreshControlView = contentView.refreshControl.weakReferenced.mainQueueDispatched
         vc.hidesBottomBarWhenPushed = style.hidesBottomBarWhenPushed

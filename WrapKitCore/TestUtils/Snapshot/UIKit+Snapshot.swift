@@ -82,7 +82,11 @@ private final class SnapshotWindow: UIWindow {
     convenience init(configuration: SnapshotConfiguration, root: UIViewController) {
         self.init(frame: CGRect(origin: .zero, size: configuration.size))
         self.configuration = configuration
-        self.overrideUserInterfaceStyle = configuration.traitCollection.userInterfaceStyle
+        if #available(iOS 26, *) {
+            windowScene = UIApplication.shared.connectedScenes
+                .compactMap({ $0 as? UIWindowScene }).first
+        }
+        overrideUserInterfaceStyle = configuration.traitCollection.userInterfaceStyle
         self.layoutMargins = configuration.layoutMargins
         root.overrideUserInterfaceStyle = configuration.traitCollection.userInterfaceStyle
         self.rootViewController = root
@@ -121,10 +125,6 @@ private final class SnapshotWindow: UIWindow {
 
         let image: UIImage
         if #available(iOS 26, *) {
-            if let scene = UIApplication.shared.connectedScenes
-                .compactMap({ $0 as? UIWindowScene }).first {
-                windowScene = scene
-            }
             makeKeyAndVisible()
             layoutSnapshotHierarchy()
             let needsGlassWarmup = containsGlassEffect()

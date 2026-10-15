@@ -491,10 +491,12 @@
                 style: makeStyle(primeColor: .red),
                 primeTrailingImage: button
             )
-            let nativeHeader = NavigationBar()
+            let nativeController = UINavigationController(rootViewController: UIViewController())
+            nativeController.loadViewIfNeeded()
+            let nativeHeader = nativeController.navigationBar
             nativeHeader.display(model: initialModel)
             let nativeHost = SwiftUIAccessibilityTestHost(
-                rootView: UIKitHeaderProbe(header: nativeHeader)
+                rootView: UIKitHeaderProbe(navigationController: nativeController)
                     .frame(width: containerWidth, height: 200)
                     .ignoresSafeArea(),
                 size: CGSize(width: containerWidth, height: 200)
@@ -510,7 +512,11 @@
                 nativeHost.settle()
                 swiftUIHost.settle()
 
-                XCTAssertEqual(nativeHeader.primeTrailingImageWrapperView.contentView.tintColor, color)
+                let nativeButton = try XCTUnwrap(findView(
+                    Button.self,
+                    in: nativeHeader.topItem?.rightBarButtonItem?.customView
+                ))
+                XCTAssertEqual(nativeButton.tintColor, color)
                 _ = try XCTUnwrap(swiftUIHost.element(withIdentifier: "header.colored"))
                 let nativePixels = try renderedColorCounts(in: nativeHeader, named: "UIKit blue button over \(name) header tint")
                 let swiftUIView = try XCTUnwrap(swiftUIHost.firstSubview(of: UIView.self))
@@ -521,7 +527,11 @@
                 XCTAssertEqual(swiftUIPixels.red + swiftUIPixels.green, 0, "Header tint must not override the button's explicit foreground")
             }
 
-            nativeHeader.primeTrailingImageWrapperView.contentView.sendActions(for: .touchUpInside)
+            let nativeButton = try XCTUnwrap(findView(
+                Button.self,
+                in: nativeHeader.topItem?.rightBarButtonItem?.customView
+            ))
+            nativeButton.sendActions(for: .touchUpInside)
             XCTAssertTrue(try XCTUnwrap(swiftUIHost.element(withIdentifier: "header.colored")).accessibilityActivate())
             XCTAssertEqual(presses, 2)
         }
@@ -583,36 +593,21 @@
                 secondaryFont: .systemFont(ofSize: 14),
                 secondaryColor: .green
             )
-            let leadingCard = CardViewPresentableModel(
-                accessibilityIdentifier: "navigation.leading-card",
-                accessibility: .init(label: "Leading card"),
-                title: .text(
-                    accessibilityIdentifier: "navigation.leading-card.title",
-                    accessibility: .init(label: "Card title"),
-                    "Title"
-                ),
-                leadingTitles: .init(
-                    .text(
-                        accessibilityIdentifier: "navigation.leading-card.leading-key",
-                        accessibility: .init(label: "Leading key"),
-                        "First title"
-                    ),
-                    .text("Second title")
-                ),
-                trailingTitles: .init(
-                    .text(
-                        accessibilityIdentifier: "navigation.leading-card.trailing-key",
-                        accessibility: .init(label: "Trailing key"),
-                        "First title"
-                    ),
-                    .text("Second title")
-                )
+            // A wider key excludes the legacy card's long-value compression
+            // policy from intrinsic geometry parity. The original long-value
+            // case remains covered at phone width by the native integration test.
+            let leadingCard = makeLeadingAndTrailingTitlesCard(
+                leadingKey: "Second title", leadingValue: "First title"
             )
+            // The legacy SwiftUI bar reserves equal leading/trailing slots;
+            // native UIKit negotiates the whole leading area. Compare intrinsic
+            // card geometry with enough fixed space for either layout policy.
+            let comparisonWidth: CGFloat = 780
 
             let adapter = HeaderOutputSwiftUIAdapter()
             adapter.display(style: style)
             adapter.display(leadingCard: leadingCard)
-            let swiftUIHost = makeHost(adapter: adapter)
+            let swiftUIHost = makeHost(adapter: adapter, width: comparisonWidth)
             let swiftUICardFrame = try frame(ofLabel: "Leading card", in: swiftUIHost)
                 .offsetBy(dx: -swiftUIHost.frame.minX, dy: -swiftUIHost.frame.minY)
             let swiftUILeadingFrame = try frame(ofLabel: "Leading key", in: swiftUIHost)
@@ -622,33 +617,93 @@
             let swiftUITrailingFrame = try frame(ofLabel: "Trailing key", in: swiftUIHost)
                 .offsetBy(dx: -swiftUIHost.frame.minX, dy: -swiftUIHost.frame.minY)
 
-            let uiKitView = NavigationBar(frame: CGRect(x: 0, y: 0, width: containerWidth, height: 80))
+            let nativeController = UINavigationController(rootViewController: UIViewController())
+            nativeController.loadViewIfNeeded()
+            let uiKitView = nativeController.navigationBar
             uiKitView.display(style: style)
             uiKitView.display(leadingCard: leadingCard)
-            uiKitView.setNeedsLayout()
-            uiKitView.layoutIfNeeded()
-            let uiKitLeadingFrame = uiKitView.leadingCardView.leadingTitleViews.keyLabel.convert(
-                uiKitView.leadingCardView.leadingTitleViews.keyLabel.bounds,
-                to: uiKitView
+            let nativeHost = SwiftUIAccessibilityTestHost(
+                rootView: UIKitHeaderProbe(navigationController: nativeController)
+                    .frame(width: comparisonWidth, height: 200)
+                    .ignoresSafeArea(),
+                size: CGSize(width: comparisonWidth, height: 200)
             )
-            let uiKitTitleFrame = uiKitView.leadingCardView.titleViews.keyLabel.convert(
-                uiKitView.leadingCardView.titleViews.keyLabel.bounds,
-                to: uiKitView
+            nativeHost.settle()
+            let uiKitCard = try XCTUnwrap(findView(
+                CardView.self,
+                in: uiKitView.topItem?.leftBarButtonItem?.customView
+            ))
+            let uiKitLeadingFrame = uiKitCard.leadingTitleViews.keyLabel.convert(
+                uiKitCard.leadingTitleViews.keyLabel.bounds,
+                to: uiKitCard
             )
-            let uiKitTrailingFrame = uiKitView.leadingCardView.trailingTitleViews.keyLabel.convert(
-                uiKitView.leadingCardView.trailingTitleViews.keyLabel.bounds,
-                to: uiKitView
+            let uiKitTitleFrame = uiKitCard.titleViews.keyLabel.convert(
+                uiKitCard.titleViews.keyLabel.bounds,
+                to: uiKitCard
             )
-            let uiKitTrailingTextWidth = uiKitView.leadingCardView.trailingTitleViews.keyLabel
+            let uiKitTrailingFrame = uiKitCard.trailingTitleViews.keyLabel.convert(
+                uiKitCard.trailingTitleViews.keyLabel.bounds,
+                to: uiKitCard
+            )
+            let uiKitTrailingTextWidth = uiKitCard.trailingTitleViews.keyLabel
                 .intrinsicContentSize.width
+            let uiKitLeadingTextMinX = uiKitLeadingFrame.midX
+                - uiKitCard.leadingTitleViews.keyLabel.intrinsicContentSize.width / 2
             let uiKitTrailingTextMinX = uiKitTrailingFrame.midX - uiKitTrailingTextWidth / 2
+            _ = try renderedColorCounts(in: uiKitView, named: "Native leading titles geometry")
+            _ = try renderedColorCounts(in: XCTUnwrap(swiftUIHost.firstSubview(of: UIView.self)), named: "SwiftUI leading titles geometry")
 
             let halfPhysicalPixel = 0.5 / SnapshotRenderDefaults.scale
-            XCTAssertEqual(swiftUILeadingFrame.minX, uiKitLeadingFrame.minX, accuracy: halfPhysicalPixel)
-            XCTAssertEqual(swiftUITitleFrame.minX, uiKitTitleFrame.minX, accuracy: halfPhysicalPixel)
-            XCTAssertEqual(swiftUITrailingFrame.minX, uiKitTrailingTextMinX, accuracy: halfPhysicalPixel)
+            // UIKit owns the bar's outer margins. Compare the card's internal
+            // geometry independently of where the native bar places the item.
+            XCTAssertEqual(
+                swiftUITitleFrame.minX - swiftUILeadingFrame.minX,
+                uiKitTitleFrame.minX - uiKitLeadingTextMinX,
+                accuracy: halfPhysicalPixel
+            )
+            XCTAssertEqual(
+                swiftUITrailingFrame.minX - swiftUILeadingFrame.minX,
+                uiKitTrailingTextMinX - uiKitLeadingTextMinX,
+                accuracy: halfPhysicalPixel
+            )
             XCTAssertEqual(swiftUITrailingFrame.width, uiKitTrailingTextWidth, accuracy: halfPhysicalPixel)
-            XCTAssertEqual(swiftUICardFrame.width, uiKitView.leadingCardView.hStackView.frame.width, accuracy: halfPhysicalPixel)
+            XCTAssertEqual(swiftUICardFrame.width, uiKitCard.hStackView.frame.width, accuracy: halfPhysicalPixel)
+        }
+
+        @available(iOS 17.0, *)
+        func test_nativeLeadingCard_keepsAllFiveTitlesUntruncatedAtPhoneWidth() throws {
+            let controller = UINavigationController(rootViewController: UIViewController())
+            controller.loadViewIfNeeded()
+            let bar = controller.navigationBar
+            bar.display(style: makeStyle(primeFont: .boldSystemFont(ofSize: 24), primeColor: .blue))
+            bar.display(leadingCard: makeLeadingAndTrailingTitlesCard())
+            let host = SwiftUIAccessibilityTestHost(
+                rootView: UIKitHeaderProbe(navigationController: controller)
+                    .frame(width: containerWidth, height: 200)
+                    .ignoresSafeArea(),
+                size: CGSize(width: containerWidth, height: 200)
+            )
+            host.settle()
+            let card = try XCTUnwrap(findView(CardView.self, in: bar.topItem?.leftBarButtonItem?.customView))
+            let labels = [
+                card.leadingTitleViews.keyLabel, card.leadingTitleViews.valueLabel,
+                card.titleViews.keyLabel,
+                card.trailingTitleViews.keyLabel, card.trailingTitleViews.valueLabel
+            ]
+            XCTAssertEqual(labels.map(\.text), ["First title", "Second title", "Title", "First title", "Second title"])
+            let halfPhysicalPixel = 0.5 / SnapshotRenderDefaults.scale
+            for label in labels {
+                XCTAssertFalse(label.isHidden)
+                XCTAssertEqual(label.numberOfLines, 1)
+                XCTAssertGreaterThanOrEqual(label.bounds.width + halfPhysicalPixel, label.intrinsicContentSize.width)
+                XCTAssertGreaterThanOrEqual(label.bounds.height + halfPhysicalPixel, label.intrinsicContentSize.height)
+                let frame = label.convert(label.bounds, to: bar)
+                XCTAssertGreaterThanOrEqual(frame.minX, -halfPhysicalPixel)
+                XCTAssertGreaterThanOrEqual(frame.minY, -halfPhysicalPixel)
+                XCTAssertLessThanOrEqual(frame.maxX, bar.bounds.maxX + halfPhysicalPixel)
+                XCTAssertLessThanOrEqual(frame.maxY, bar.bounds.maxY + halfPhysicalPixel)
+            }
+            _ = try renderedColorCounts(in: bar, named: "Native phone-width leading titles")
         }
 
         func test_sideWidthResolver_prefersEqualityButContainsImpossibleOverflow() {
@@ -737,22 +792,20 @@
     }
 
     private extension SUINavigationBarParityTests {
-        struct UIKitHeaderProbe: UIViewRepresentable {
-            let header: NavigationBar
+        func findView<T: UIView>(_ type: T.Type, in root: UIView?) -> T? {
+            guard let root else { return nil }
+            if let view = root as? T { return view }
+            return root.subviews.lazy.compactMap { self.findView(type, in: $0) }.first
+        }
 
-            func makeUIView(context: Context) -> UIView {
-                let container = UIView()
-                container.addSubview(header)
-                header.translatesAutoresizingMaskIntoConstraints = false
-                NSLayoutConstraint.activate([
-                    header.topAnchor.constraint(equalTo: container.topAnchor),
-                    header.leadingAnchor.constraint(equalTo: container.leadingAnchor),
-                    header.trailingAnchor.constraint(equalTo: container.trailingAnchor)
-                ])
-                return container
+        struct UIKitHeaderProbe: UIViewControllerRepresentable {
+            let navigationController: UINavigationController
+
+            func makeUIViewController(context: Context) -> UINavigationController {
+                navigationController
             }
 
-            func updateUIView(_ uiView: UIView, context: Context) {}
+            func updateUIViewController(_ uiViewController: UINavigationController, context: Context) {}
         }
 
         func renderedColorCounts(in view: UIView, named name: String) throws -> (red: Int, green: Int, blue: Int) {
@@ -786,8 +839,12 @@
             for index in stride(from: 0, to: pixels.count, by: 4) where pixels[index + 3] > 200 {
                 for channel in 0..<3 {
                     let otherChannels = (0..<3).filter { $0 != channel }
-                    if pixels[index + channel] > 180,
-                       otherChannels.allSatisfy({ pixels[index + $0] < 80 }) {
+                    // Liquid Glass adjusts foreground luminance for contrast:
+                    // explicit blue can render as (0, 0, 123), not (0, 0, 255).
+                    // Require a visible saturated hue, not one fixed brightness.
+                    let intensity = pixels[index + channel]
+                    if intensity > 80,
+                       otherChannels.allSatisfy({ pixels[index + $0] < intensity / 3 }) {
                         counts[channel] += 1
                     }
                 }
@@ -859,12 +916,47 @@
         }
 
         @available(iOS 17.0, *)
-        func makeHost(adapter: HeaderOutputSwiftUIAdapter) -> SwiftUIAccessibilityTestHost {
-            SwiftUIAccessibilityTestHost(
+        func makeHost(
+            adapter: HeaderOutputSwiftUIAdapter,
+            width: CGFloat? = nil
+        ) -> SwiftUIAccessibilityTestHost {
+            let width = width ?? containerWidth
+            return SwiftUIAccessibilityTestHost(
                 rootView: SUINavigationBar(adapter: adapter)
-                    .frame(width: containerWidth, alignment: .top)
+                    .frame(width: width, alignment: .top)
                     .ignoresSafeArea(),
-                size: CGSize(width: containerWidth, height: 80)
+                size: CGSize(width: width, height: 80)
+            )
+        }
+
+        func makeLeadingAndTrailingTitlesCard(
+            leadingKey: String = "First title",
+            leadingValue: String = "Second title"
+        ) -> CardViewPresentableModel {
+            .init(
+                accessibilityIdentifier: "navigation.leading-card",
+                accessibility: .init(label: "Leading card"),
+                title: .text(
+                    accessibilityIdentifier: "navigation.leading-card.title",
+                    accessibility: .init(label: "Card title"),
+                    "Title"
+                ),
+                leadingTitles: .init(
+                    .text(
+                        accessibilityIdentifier: "navigation.leading-card.leading-key",
+                        accessibility: .init(label: "Leading key"),
+                        leadingKey
+                    ),
+                    .text(leadingValue)
+                ),
+                trailingTitles: .init(
+                    .text(
+                        accessibilityIdentifier: "navigation.leading-card.trailing-key",
+                        accessibility: .init(label: "Trailing key"),
+                        "First title"
+                    ),
+                    .text("Second title")
+                )
             )
         }
 

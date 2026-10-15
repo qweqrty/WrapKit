@@ -131,6 +131,12 @@ import Foundation
             centerKeyStateModel = SUILabelStateModel(adapter: centerKeyAdapter)
             centerValueStateModel = SUILabelStateModel(adapter: centerValueAdapter)
             centerTitledImageTitleStateModel = SUILabelStateModel(adapter: centerTitledImageTitleAdapter)
+            // Hidden actions must also remove their toolbar separator.
+            for button in [primeTrailingButtonStateModel, secondaryTrailingButtonStateModel, tertiaryTrailingButtonStateModel] {
+                button.$isHidden.removeDuplicates().dropFirst()
+                    .sink { [weak self] _ in self?.objectWillChange.send() }
+                    .store(in: &cancellables)
+            }
             if replayCheckpoint == nil {
                 leadingCardAdapter.display(style: effectiveLeadingCardStyle)
             }

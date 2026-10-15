@@ -53,9 +53,13 @@ final class SwiftUINavigationBarSnapshotSUT: NSObject, HeaderOutput, SwiftUISnap
 
     @available(iOS 17.0, *)
     func swiftUISnapshot(for appearance: SnapshotAppearance) -> UIImage {
+        let configuration = SUISnapshotConfiguration.iPhone(style: appearance.colorScheme)
         let rootView = SnapshotMirroredNavigationBarContainer(adapter: swiftUIAdapter)
-            .snapshotEnvironment(configuration: .iPhone(style: appearance.colorScheme))
+            .safeAreaPadding(configuration.safeAreaInsets)
+            .snapshotEnvironment(configuration: configuration)
         let hostingController = UIHostingController(rootView: rootView)
+        // Use the snapshot's safe area, not the test host device's status bar.
+        hostingController.safeAreaRegions = []
         hostingController.overrideUserInterfaceStyle = appearance.userInterfaceStyle
         hostingController.view.backgroundColor = .clear
 
