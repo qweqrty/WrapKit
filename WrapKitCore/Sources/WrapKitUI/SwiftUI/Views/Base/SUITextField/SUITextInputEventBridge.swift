@@ -9,6 +9,95 @@ enum SUITextInputEventTarget {
     case textView
 }
 
+/// Reveals the decorated control after the native scroll view adopts its new bounds.
+struct SUITextInputVisibilityObserver: UIViewRepresentable {
+    let isFocused: Bool
+
+    func makeUIView(context: Context) -> SUITextInputVisibilityView {
+        let view = SUITextInputVisibilityView()
+        view.isUserInteractionEnabled = false
+        view.configure(isFocused: isFocused)
+        return view
+    }
+
+    func updateUIView(_ uiView: SUITextInputVisibilityView, context: Context) {
+        uiView.configure(isFocused: isFocused)
+    }
+
+    static func dismantleUIView(_ uiView: SUITextInputVisibilityView, coordinator: ()) {
+        uiView.detach()
+    }
+}
+
+final class SUITextInputVisibilityView: UIView {
+    private var isInputFocused = false
+    private weak var scrollView: UIScrollView?
+    private var boundsObservation: NSKeyValueObservation?
+
+    func configure(isFocused: Bool) {
+        isInputFocused = isFocused
+        attachToScrollView()
+        revealIfNeeded()
+    }
+
+    override func didMoveToSuperview() {
+        super.didMoveToSuperview()
+        attachToScrollView()
+        revealIfNeeded()
+    }
+
+    override func didMoveToWindow() {
+        super.didMoveToWindow()
+        if window == nil {
+            detach()
+        } else {
+            attachToScrollView()
+            revealIfNeeded()
+        }
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        attachToScrollView()
+        revealIfNeeded()
+    }
+
+    func detach() {
+        boundsObservation = nil
+        scrollView = nil
+    }
+
+    private func attachToScrollView() {
+        guard window != nil else { return }
+        var ancestor = superview
+        while let view = ancestor, !(view is UIScrollView) {
+            ancestor = view.superview
+        }
+        let nearestScrollView = ancestor as? UIScrollView
+        guard scrollView !== nearestScrollView else { return }
+        detach()
+        scrollView = nearestScrollView
+        boundsObservation = nearestScrollView?.layer.observe(\.bounds, options: [.old, .new]) { [weak self] _, change in
+            guard change.oldValue?.size != change.newValue?.size else { return }
+            self?.revealIfNeeded()
+        }
+    }
+
+    private func revealIfNeeded() {
+        guard isInputFocused,
+              window != nil,
+              let scrollView,
+              !scrollView.isDragging,
+              !scrollView.isDecelerating,
+              !bounds.isEmpty else { return }
+        let control = convert(bounds, to: scrollView)
+        let viewport = scrollView.bounds.inset(by: scrollView.adjustedContentInset)
+        guard viewport.height >= control.height,
+              control.minY < viewport.minY || control.maxY > viewport.maxY else { return }
+        scrollView.scrollRectToVisible(control, animated: false)
+    }
+}
+
 /// Gives `SUITextInputView` synchronous access to the native field, so a rewrite of the user's
 /// input (mask formatting, `display(text:)` from `didChangeText`) lands in the same input event,
 /// the way UIKit's `MaskedTextfieldDelegate` does it.

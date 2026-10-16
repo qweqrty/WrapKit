@@ -27,6 +27,11 @@ public protocol ApplicationLifecycleOutput: AnyObject {
 #if canImport(UIKit) && !os(watchOS)
 import UIKit
 
+@MainActor
+public protocol NavigationBarStyleProviding {
+    var navigationBarStyle: HeaderPresentableModel.Style { get }
+}
+
 open class ViewController<ContentView: UIView>: UIViewController, LifeCycleViewOutput, ApplicationLifecycleOutput {
     private let LifeCycleViewOutput: LifeCycleViewOutput?
     private let ApplicationLifecycleOutput: ApplicationLifecycleOutput?
@@ -88,6 +93,9 @@ open class ViewController<ContentView: UIView>: UIViewController, LifeCycleViewO
     
     open override func loadView() {
         self.view = contentView
+        if let styleProvider = contentView as? any NavigationBarStyleProviding {
+            headerOutput.display(style: styleProvider.navigationBarStyle)
+        }
     }
 
     open override func viewDidAppear(_ animated: Bool) {

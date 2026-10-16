@@ -11,11 +11,11 @@ public struct TableContextualAction<Cell> {
         case normal
         case destructive
     }
-    let style: Style
-    let backgroundColor: Color?
-    let image: Image?
-    let title: String?
-    let onPress: ((Cell) -> Void)?
+    public let style: Style
+    public let backgroundColor: Color?
+    public let image: Image?
+    public let title: String?
+    public let onPress: ((Cell) -> Void)?
 
     public init(
         style: Style = .normal,

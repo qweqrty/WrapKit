@@ -213,6 +213,7 @@ public struct SUITextInputView: View {
             trailingViewContent
         }
         .padding(contentInsets)
+        .background(SUITextInputVisibilityObserver(isFocused: isFocused))
         .fixedSize(horizontal: false, vertical: true)
         .suiTextFieldContentClip(style: cornerStyle)
         .background(

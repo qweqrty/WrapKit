@@ -613,6 +613,9 @@ struct CoreTextAttributedLabel: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: frameAlignment(for: alignment))
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(SwiftUI.Text(attributedText.string))
+        .accessibilityAddTraits(.isStaticText)
     }
 
     private func drawing(attributedText: NSAttributedString) -> some View {

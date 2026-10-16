@@ -1200,6 +1200,170 @@
         }
     }
 
+    @MainActor
+    final class SUITextInputVisibilityTests: XCTestCase {
+        func test_focusedControlRevealsAfterNativeViewportShrinks() {
+            let (window, scroll, control) = makeScrollHost(isFocused: true)
+            defer { window.isHidden = true }
+            XCTAssertEqual(scroll.contentOffset.y, 0)
+
+            scroll.bounds.size.height = 75
+
+            let visible = scroll.bounds.inset(by: scroll.adjustedContentInset)
+            let frame = control.convert(control.bounds, to: scroll)
+            XCTAssertGreaterThan(scroll.contentOffset.y, 0)
+            XCTAssertGreaterThanOrEqual(frame.minY, visible.minY)
+            XCTAssertLessThanOrEqual(frame.maxY, visible.maxY)
+            XCTAssertEqual(control.bounds.height, 48)
+        }
+
+        func test_unfocusedControlDoesNotScrollAfterViewportShrinks() {
+            let (window, scroll, _) = makeScrollHost(isFocused: false)
+            defer { window.isHidden = true }
+
+            scroll.bounds.size.height = 75
+
+            XCTAssertEqual(scroll.contentOffset.y, 0)
+        }
+
+        func test_focusedControlRevealsAfterNativeFrameShrinks() {
+            let (window, scroll, control) = makeScrollHost(isFocused: true)
+            defer { window.isHidden = true }
+
+            scroll.frame.size.height = 75
+
+            let visible = scroll.bounds.inset(by: scroll.adjustedContentInset)
+            let frame = control.convert(control.bounds, to: scroll)
+            XCTAssertEqual(scroll.bounds.height, 75)
+            XCTAssertGreaterThanOrEqual(frame.minY, visible.minY)
+            XCTAssertLessThanOrEqual(frame.maxY, visible.maxY)
+        }
+
+        func test_focusedControlRevealsAfterNativeLayerBoundsShrink() {
+            let (window, scroll, control) = makeScrollHost(isFocused: true)
+            defer { window.isHidden = true }
+
+            scroll.layer.bounds.size.height = 75
+
+            let visible = scroll.bounds.inset(by: scroll.adjustedContentInset)
+            let frame = control.convert(control.bounds, to: scroll)
+            XCTAssertEqual(scroll.bounds.height, 75)
+            XCTAssertGreaterThanOrEqual(frame.minY, visible.minY)
+            XCTAssertLessThanOrEqual(frame.maxY, visible.maxY)
+        }
+
+        func test_contentOffsetChangeDoesNotTriggerAutomaticReveal() {
+            let (window, scroll, _) = makeScrollHost(isFocused: true)
+            defer { window.isHidden = true }
+            scroll.bounds.size.height = 75
+            XCTAssertGreaterThan(scroll.contentOffset.y, 0)
+
+            scroll.contentOffset = .zero
+
+            XCTAssertEqual(scroll.contentOffset.y, 0, "An origin-only change must not fight manual scrolling.")
+        }
+
+        func test_movingControlOutsideScrollViewDetachesObservation() {
+            let (window, scroll, control) = makeScrollHost(isFocused: true)
+            defer { window.isHidden = true }
+            window.rootViewController?.view.addSubview(control)
+
+            scroll.bounds.size.height = 75
+
+            XCTAssertEqual(scroll.contentOffset.y, 0)
+        }
+
+        private func makeScrollHost(isFocused: Bool) -> (UIWindow, UIScrollView, SUITextInputVisibilityView) {
+            let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 320, height: 400))
+            let controller = UIViewController()
+            window.rootViewController = controller
+            controller.view.frame = window.bounds
+            let scroll = UIScrollView(frame: CGRect(x: 0, y: 0, width: 320, height: 300))
+            scroll.contentInsetAdjustmentBehavior = .never
+            scroll.contentInset = UIEdgeInsets(top: 8, left: 0, bottom: 12, right: 0)
+            scroll.contentSize = CGSize(width: 320, height: 600)
+            controller.view.addSubview(scroll)
+            let control = SUITextInputVisibilityView(frame: CGRect(x: 12, y: 240, width: 296, height: 48))
+            scroll.addSubview(control)
+            window.isHidden = false
+            scroll.contentOffset = .zero
+            control.configure(isFocused: isFocused)
+            return (window, scroll, control)
+        }
+    }
+
+    @available(iOS 17.0, *)
+    @MainActor
+    final class SUITextFieldPaddedVisibilityTests: XCTestCase {
+        func test_nativeFocusPreservesCallbacksAndRevealsTheWholePaddedControl() throws {
+            let adapter = TextInputOutputSwiftUIAdapter()
+            var outputCallbacks: [Bool] = []
+            adapter.display(onBecomeFirstResponder: { outputCallbacks.append(true) })
+            adapter.display(onResignFirstResponder: { outputCallbacks.append(false) })
+            let host = SwiftUIAccessibilityTestHost(
+                rootView: ScrollView {
+                    VStack(spacing: 0) {
+                        SwiftUIColor.clear.frame(height: 200)
+                        SUITextField(
+                            adapter: adapter,
+                            appearance: appearance,
+                            contentInsets: .init(top: 13, leading: 12, bottom: 13, trailing: 12)
+                        )
+                        SwiftUIColor.clear.frame(height: 200)
+                    }
+                },
+                size: CGSize(width: 320, height: 400)
+            )
+            let field = try XCTUnwrap(host.firstSubview(of: UITextField.self))
+            let control = try XCTUnwrap(host.firstSubview(of: SUITextInputVisibilityView.self))
+            let scroll = try XCTUnwrap(host.firstSubview(of: UIScrollView.self))
+            defer {
+                adapter.stopEditing()
+                host.settle()
+            }
+            XCTAssertEqual(control.bounds.height, field.bounds.height + 26, accuracy: 0.5)
+            XCTAssertLessThan(field.bounds.height, control.bounds.height)
+
+            adapter.startEditing()
+            host.settle()
+
+            XCTAssertTrue(field.isFirstResponder)
+            XCTAssertEqual(outputCallbacks, [true])
+            scroll.contentInsetAdjustmentBehavior = .never
+            scroll.contentInset = .zero
+            scroll.frame.size.height = 75
+
+            let visible = scroll.bounds.inset(by: scroll.adjustedContentInset)
+            let frame = control.convert(control.bounds, to: scroll)
+            XCTAssertGreaterThanOrEqual(frame.minY, visible.minY - 0.5)
+            XCTAssertLessThanOrEqual(frame.maxY, visible.maxY + 0.5)
+
+            adapter.stopEditing()
+            host.settle()
+
+            XCTAssertFalse(field.isFirstResponder)
+            XCTAssertEqual(outputCallbacks, [true, false])
+        }
+
+        private var appearance: TextfieldAppearance {
+            .init(
+                colors: .init(
+                    textColor: .black,
+                    selectedBorderColor: .clear,
+                    selectedBackgroundColor: .white,
+                    selectedErrorBorderColor: .clear,
+                    errorBorderColor: .clear,
+                    errorBackgroundColor: .white,
+                    deselectedBorderColor: .clear,
+                    deselectedBackgroundColor: .white,
+                    disabledTextColor: .gray,
+                    disabledBackgroundColor: .white
+                ),
+                font: .systemFont(ofSize: 18)
+            )
+        }
+    }
+
     private final class TextFieldDelegateStub: NSObject, UITextFieldDelegate {
         let shouldChange: Bool
 

@@ -8,6 +8,58 @@ import XCTest
 @MainActor
 @available(iOS 16.0, *)
 final class SUILabelLayoutTests: XCTestCase {
+    @available(iOS 17.0, *)
+    func test_attributedCanvasExposesVisibleTextAsStaticTextAndUpdatesIt() throws {
+        let adapter = TextOutputSwiftUIAdapter()
+        adapter.display(model: .init(
+            accessibilityIdentifier: "pin.instruction",
+            model: .attributes([.init(text: "Enter your "), .init(text: "PIN2 code")])
+        ))
+        let host = SwiftUIAccessibilityTestHost(rootView: SUILabel(adapter: adapter))
+
+        let instruction = try XCTUnwrap(host.element(withIdentifier: "pin.instruction"), host.diagnosticDescription)
+        XCTAssertEqual(instruction.accessibilityLabel, "Enter your PIN2 code")
+        XCTAssertTrue(instruction.accessibilityTraits.contains(.staticText))
+        XCTAssertFalse(instruction.accessibilityTraits.contains(.button))
+
+        adapter.display(attributes: [.init(text: "Updated PIN2 instruction")])
+        host.settle()
+
+        XCTAssertNil(host.element(withLabel: "Enter your PIN2 code"))
+        XCTAssertNotNil(host.element(withLabel: "Updated PIN2 instruction"), host.diagnosticDescription)
+    }
+
+    @available(iOS 17.0, *)
+    func test_attributedCanvasPreservesExplicitAccessibilityLabelAndHint() throws {
+        let adapter = TextOutputSwiftUIAdapter()
+        adapter.display(model: .init(
+            accessibilityIdentifier: "pin.instruction",
+            accessibility: .init(label: "PIN instructions", hint: "Ask your mobile operator"),
+            model: .attributes([.init(text: "Enter your PIN2 code")])
+        ))
+        let host = SwiftUIAccessibilityTestHost(rootView: SUILabel(adapter: adapter))
+
+        let instruction = try XCTUnwrap(host.element(withIdentifier: "pin.instruction"), host.diagnosticDescription)
+        XCTAssertEqual(instruction.accessibilityLabel, "PIN instructions")
+        XCTAssertEqual(instruction.accessibilityHint, "Ask your mobile operator")
+        XCTAssertTrue(instruction.accessibilityTraits.contains(.staticText))
+        XCTAssertNil(host.element(withLabel: "Enter your PIN2 code"))
+    }
+
+    @available(iOS 17.0, *)
+    func test_tappableAttributedCanvasKeepsButtonTraitAndVisibleText() throws {
+        let adapter = TextOutputSwiftUIAdapter()
+        adapter.display(model: .init(
+            accessibilityIdentifier: "pin.help",
+            model: .attributes([.init(text: "Get PIN2 help", onTap: {})])
+        ))
+        let host = SwiftUIAccessibilityTestHost(rootView: SUILabel(adapter: adapter))
+
+        let help = try XCTUnwrap(host.element(withIdentifier: "pin.help"), host.diagnosticDescription)
+        XCTAssertEqual(help.accessibilityLabel, "Get PIN2 help")
+        XCTAssertTrue(help.accessibilityTraits.contains(.button))
+    }
+
     func test_foundationSizedFrame_containsEveryFontCatalogLine() {
         for size in [CGFloat(50), 40, 30, 27, 24, 19, 17, 15, 13] {
             for weight in [UIFont.Weight.regular, .bold] {
