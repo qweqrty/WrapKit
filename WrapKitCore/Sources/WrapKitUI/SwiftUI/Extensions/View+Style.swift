@@ -43,6 +43,7 @@ extension View {
                     .tint(backgroundColor)
             }
         } else if #available(iOS 26, macOS 26, tvOS 26, watchOS 26, *), isLiquidGlassEnabled {
+                   AnyView(Group {
             switch configuration {
             case .glass:
                 self
@@ -79,7 +80,9 @@ extension View {
                         .tint(tint)
                 }
             }
-        } else {
+        
+                   })
+               } else {
             self
         }
         #endif

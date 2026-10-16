@@ -4,13 +4,17 @@ import Foundation
 import SwiftUI
 
 public struct SUICardView: View {
+    @Environment(\.suiCardLoadingStyle) private var loadingStyle
     @StateObject private var stateModel: SUICardViewStateModel
     private let leadingImageTint: Color?
+    private let trailingImagePressAnimations: Set<PressAnimation>
+    @State private var isTouchPressed = false
     private let fitsNavigationBar: Bool
 
-    public init(adapter: CardViewOutputSwiftUIAdapter) {
+    public init(adapter: CardViewOutputSwiftUIAdapter, trailingImagePressAnimations: Set<PressAnimation> = []) {
         _stateModel = .init(wrappedValue: .init(adapter: adapter))
         leadingImageTint = nil
+        self.trailingImagePressAnimations = trailingImagePressAnimations
         fitsNavigationBar = false
     }
 
@@ -21,6 +25,7 @@ public struct SUICardView: View {
     ) {
         _stateModel = .init(wrappedValue: .init(adapter: adapter))
         self.leadingImageTint = leadingImageTint
+        trailingImagePressAnimations = []
         self.fitsNavigationBar = fitsNavigationBar
     }
 
@@ -49,9 +54,15 @@ public struct SUICardView: View {
             .ifLet(stateModel.onPress) { view, action in
                 view.onTapGesture(perform: action)
             }
-            .ifLet(stateModel.onLongPress) { view, action in
-                view.onLongPressGesture(minimumDuration: 1, perform: action)
+            .if(stateModel.onPress != nil || stateModel.onLongPress != nil) { view in
+                view.onLongPressGesture(
+                    minimumDuration: 1,
+                    pressing: { isTouchPressed = $0 },
+                    perform: { stateModel.onLongPress?() }
+                )
             }
+            .opacity(isTouchPressed && (stateModel.onPress != nil || stateModel.onLongPress != nil) ? 0.5 : 1)
+            .animation(isTouchPressed ? nil : .easeInOut(duration: 0.3), value: isTouchPressed)
     }
 
     private func cardSurface(style: CardViewPresentableModel.Style) -> some View {
@@ -133,7 +144,7 @@ public struct SUICardView: View {
                     stateModel.leadingImage,
                     adapter: stateModel.leadingImageAdapter,
                     tintColor: leadingImageTint ?? .black
-                )
+                ).modifier(SUICardSkeleton(style: loadingStyle))
             }
         }
         if stateModel.secondaryLeadingImage != nil {
@@ -144,11 +155,13 @@ public struct SUICardView: View {
         if isVisibleTextModel(stateModel.title) || isVisibleTextModel(stateModel.valueTitle) {
             arrangedContainer(style: style, fillRole: .flexibleText) {
                 titleBlockView(style: style)
+                    .environment(\.suiKeyValueLoadingStyle, loadingStyle)
             }
         }
         if isVisibleTextModel(stateModel.subTitle) {
             arrangedContainer(style: style, fillRole: .subtitle) {
                 subTitleView(style: style)
+                    .modifier(SUICardSkeleton(style: loadingStyle, width: 0.7, height: 0.2))
             }
         }
         if stateModel.secondaryTrailingImage != nil {
@@ -163,6 +176,7 @@ public struct SUICardView: View {
         if stateModel.trailingImage != nil {
             arrangedContainer(style: style, leadingSpacing: stateModel.trailingImageLeadingSpacing) {
                 imageView(stateModel.trailingImage, adapter: stateModel.trailingImageAdapter)
+                    .modifier(CardImagePressFeedback(shrinks: trailingImagePressAnimations.contains(.shrink)))
             }
         }
         if stateModel.switchControl != nil {
@@ -397,6 +411,8 @@ public struct SUICardView: View {
     private var switchView: some View {
         if stateModel.switchControl != nil {
             SUISwitchControl(adapter: stateModel.switchControlAdapter)
+                .onAppear { stateModel.switchControlAdapter.display(isLoading: loadingStyle != nil) }
+                .onChange(of: loadingStyle != nil) { stateModel.switchControlAdapter.display(isLoading: $0) }
         }
     }
 
@@ -1095,6 +1111,21 @@ private struct CardAccessibilityModifier: ViewModifier {
             .ifLet(onLongPress) { view, action in
                 view.accessibilityAction(named: SwiftUI.Text("More options")) { action() }
             }
+    }
+}
+
+private struct CardImagePressFeedback: ViewModifier {
+    let shrinks: Bool
+    @State private var isPressed = false
+    @ViewBuilder func body(content: Content) -> some View {
+        if shrinks {
+            content
+                .scaleEffect(isPressed ? 0.95 : 1)
+                .animation(.spring(response: 0.4, dampingFraction: 0.4), value: isPressed)
+                .onLongPressGesture(minimumDuration: 1, pressing: { isPressed = $0 }, perform: {})
+        } else {
+            content
+        }
     }
 }
 

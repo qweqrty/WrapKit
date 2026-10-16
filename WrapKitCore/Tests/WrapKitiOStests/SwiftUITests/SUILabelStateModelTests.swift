@@ -54,7 +54,7 @@ final class SUILabelStateModelTests: XCTestCase {
 
     @available(iOS 17.0, *)
     @MainActor
-    func test_htmlOverflow_fillsContainerAndKeepsFullAttributedContent() throws {
+    func test_htmlOverflow_takesContentHeightAndKeepsFullAttributedContent() throws {
         let size = CGSize(width: 390, height: 150)
         let config = HTMLAttributedStringConfig(lineSpacing: 8)
         let expectedText = try XCTUnwrap(
@@ -69,16 +69,16 @@ final class SUILabelStateModelTests: XCTestCase {
         )
 
         let label = try XCTUnwrap(host.firstSubview(of: WrapKit.Label.self))
-        XCTAssertEqual(label.bounds.width, size.width, accuracy: 0.001)
-        XCTAssertEqual(label.bounds.height, size.height, accuracy: 0.001)
-        XCTAssertEqual(label.numberOfLines, 0)
-        XCTAssertEqual(label.attributedText?.string, expectedText)
-        XCTAssertGreaterThan(
+        let contentHeight = ceil(
             label.sizeThatFits(
                 CGSize(width: size.width, height: CGFloat.greatestFiniteMagnitude)
-            ).height,
-            size.height
+            ).height
         )
+        XCTAssertEqual(label.bounds.width, size.width, accuracy: 0.001)
+        XCTAssertEqual(label.bounds.height, contentHeight, accuracy: 0.001)
+        XCTAssertEqual(label.numberOfLines, 0)
+        XCTAssertEqual(label.attributedText?.string, expectedText)
+        XCTAssertGreaterThan(contentHeight, size.height)
     }
 
     @available(iOS 17.0, *)

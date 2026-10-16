@@ -164,3 +164,38 @@ private enum ShimmerAnimationTiming {
         (sweepDuration + holdDuration) * 1_000_000_000
     )
 }
+
+private struct SUICardLoadingStyleKey: EnvironmentKey {
+    static let defaultValue: ShimmerStyle? = nil
+}
+private struct SUIKeyValueLoadingStyleKey: EnvironmentKey {
+    static let defaultValue: ShimmerStyle? = nil
+}
+public extension EnvironmentValues {
+    var suiCardLoadingStyle: ShimmerStyle? {
+        get { self[SUICardLoadingStyleKey.self] }
+        set { self[SUICardLoadingStyleKey.self] = newValue }
+    }
+}
+extension EnvironmentValues {
+    var suiKeyValueLoadingStyle: ShimmerStyle? {
+        get { self[SUIKeyValueLoadingStyleKey.self] }
+        set { self[SUIKeyValueLoadingStyleKey.self] = newValue }
+    }
+}
+struct SUICardSkeleton: ViewModifier {
+    let style: ShimmerStyle?
+    var width: CGFloat = 1
+    var height: CGFloat = 1
+    func body(content: Content) -> some View {
+        content.opacity(style == nil ? 1 : 0).overlay {
+            if let style {
+                GeometryReader { geometry in
+                    SUIShimmerView(style: style)
+                        .frame(width: geometry.size.width * width, height: geometry.size.height * height)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+                }.allowsHitTesting(false)
+            }
+        }
+    }
+}

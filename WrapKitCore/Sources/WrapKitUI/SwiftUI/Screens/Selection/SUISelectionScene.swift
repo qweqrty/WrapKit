@@ -105,7 +105,7 @@ struct SUISelectionScene: View {
                 if input.isMultipleSelectionEnabled {
                     selectionButtons
                         .padding(.horizontal, 12)
-                        .padding(.vertical, 12)
+                        .padding(.vertical, 0)
                 }
             }
             .background(SwiftUI.Color(uiColor: configuration.content.backgroundColor))
@@ -149,8 +149,11 @@ struct SUISelectionScene: View {
         SUITableView(
             adapter: adapters.table,
             style: .lazyVStack(scrollable: true),
-            cellContent: { model, _ in
-                SUISelectionCell(model: model)
+            cellContent: { model, indexPath in
+                let sections = adapters.table.displaySectionsState?.sections ?? []
+                let isLast = sections.indices.contains(indexPath.section)
+                    && indexPath.row == sections[indexPath.section].cells.count - 1
+                SUISelectionCell(model: model, showsSeparator: !isLast)
                     .id(model.id)
             },
             headerContent: { _ in SwiftUI.EmptyView() },
@@ -160,13 +163,14 @@ struct SUISelectionScene: View {
     }
 
     private var selectionButtons: some View {
-        SUIStackView(axis: .horizontal, spacing: 12) {
-            SUIButton(adapter: adapters.resetButton, pressAnimations: [.shrink])
-                .frame(maxWidth: .infinity)
-            SUIButton(adapter: adapters.selectButton, pressAnimations: [.shrink])
-                .frame(maxWidth: .infinity)
-        }
-        .fixedSize(horizontal: false, vertical: true)
+        GeometryReader { geometry in
+            HStack(spacing: 12) {
+                SUIButton(adapter: adapters.resetButton, pressAnimations: [.shrink])
+                    .frame(width: (geometry.size.width + 24) * 133 / 375)
+                SUIButton(adapter: adapters.selectButton, pressAnimations: [.shrink])
+                    .frame(maxWidth: .infinity)
+            }
+        }.frame(height: 48).ignoresSafeArea(.container, edges: .horizontal)
     }
 }
 
@@ -174,8 +178,11 @@ private struct SUISelectionCell: View {
     let model: SelectionType.SelectionCellPresentableModel
     @State private var selected: Bool
 
-    init(model: SelectionType.SelectionCellPresentableModel) {
+    private let showsSeparator: Bool
+
+    init(model: SelectionType.SelectionCellPresentableModel, showsSeparator: Bool = true) {
         self.model = model
+        self.showsSeparator = showsSeparator
         _selected = .init(initialValue: model.isSelected.get() == true)
     }
 
@@ -226,10 +233,12 @@ private struct SUISelectionCell: View {
                 .accentColor(.blue)
             }
         }
-        .frame(minHeight: 56)
+        .frame(minHeight: 57)
         .overlay(alignment: .bottom) {
-            SwiftUI.Color(uiColor: model.configuration.lineColor)
-                .frame(height: 1 / UIScreen.main.scale)
+            if showsSeparator {
+                SwiftUI.Color(uiColor: model.configuration.lineColor)
+                    .frame(height: 1)
+            }
         }
         .contentShape(Rectangle())
         .accessibilityElement(children: .combine)

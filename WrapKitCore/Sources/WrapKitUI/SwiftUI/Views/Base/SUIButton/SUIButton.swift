@@ -11,14 +11,17 @@ import SwiftUI
 public struct SUIButton: View {
     @StateObject var stateModel: SUIButtonStateModel
     let pressAnimations: Set<PressAnimation>
+    let disabledTitleOpacity: Double
     
     public init(
         adapter: ButtonOutputSwiftUIAdapter,
         loadingAdapter: LoadingOutputSwiftUIAdapter? = nil,
-        pressAnimations: Set<PressAnimation> = []
+        pressAnimations: Set<PressAnimation> = [],
+        disabledTitleOpacity: Double = 0.5
     ) {
         _stateModel = .init(wrappedValue: .init(adapter: adapter, loadingAdapter: loadingAdapter))
         self.pressAnimations = pressAnimations
+        self.disabledTitleOpacity = disabledTitleOpacity
     }
     
     @ViewBuilder
@@ -31,7 +34,8 @@ public struct SUIButton: View {
                 },
                 isEnabled: stateModel.isEnabled,
                 isLoading: stateModel.isLoading,
-                pressAnimations: pressAnimations
+                pressAnimations: pressAnimations,
+                disabledTitleOpacity: disabledTitleOpacity
             )
         }
     }
@@ -43,6 +47,7 @@ public struct SUIButtonView: View {
     let isEnabled: Bool
     let isLoading: Bool
     let pressAnimations: Set<PressAnimation>
+    let disabledTitleOpacity: Double
     let fillsAvailableWidth: Bool
     let fillsAvailableHeight: Bool
     let contentInsets: SwiftUI.EdgeInsets
@@ -59,13 +64,15 @@ public struct SUIButtonView: View {
         pressAnimations: Set<PressAnimation> = [],
         fillsAvailableWidth: Bool = true,
         fillsAvailableHeight: Bool = true,
-        contentInsets: SwiftUI.EdgeInsets = .init()
+        contentInsets: SwiftUI.EdgeInsets = .init(),
+        disabledTitleOpacity: Double = 0.5
     ) {
         self.model = model
         self.onPress = onPress
         self.isEnabled = isEnabled
         self.isLoading = isLoading
         self.pressAnimations = pressAnimations
+        self.disabledTitleOpacity = disabledTitleOpacity
         self.fillsAvailableWidth = fillsAvailableWidth
         self.fillsAvailableHeight = fillsAvailableHeight
         self.contentInsets = contentInsets
@@ -184,7 +191,7 @@ public struct SUIButtonView: View {
                 Text(title.removingPercentEncoding ?? title)
                     .font(titleFont)
                     .foregroundColor(titleColor)
-                    .opacity(isEnabled ? 1 : 0.5)
+                    .opacity(isEnabled ? 1 : disabledTitleOpacity)
                     // Prevents iOS 26 from dropping the text layer after a height update.
                     .background(SwiftUIColor(.clear))
             }

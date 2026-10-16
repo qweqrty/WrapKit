@@ -1,6 +1,16 @@
 #if !os(macOS) && !os(tvOS) && !os(watchOS)
 import SwiftUI
 
+private struct SUIChunkedCellHeightKey: EnvironmentKey {
+    static let defaultValue: CGFloat? = nil
+}
+public extension EnvironmentValues {
+    var suiChunkedCellHeight: CGFloat? {
+        get { self[SUIChunkedCellHeightKey.self] }
+        set { self[SUIChunkedCellHeightKey.self] = newValue }
+    }
+}
+
 public struct SUIChunkedTextField: View {
     private let adapter: TextInputOutputSwiftUIAdapter
     let count: Int
@@ -110,7 +120,8 @@ public struct SUIChunkedTextFieldContent: View {
     private let modelCharacters: Binding<[String]>?
     private let onUserCharactersChange: (([String]) -> Void)?
 
-    @FocusState private var focusedIndex: Int?
+    @State private var focusedIndex: Int?
+    @StateObject private var editors = ChunkedEditors()
     @State private var equalizedCellHeight: CGFloat?
 
     public init(
@@ -271,7 +282,7 @@ public struct SUIChunkedTextFieldContent: View {
             count: fieldCount
         )
         applyUserCharacters(updatedCharacters)
-        focusedIndex = (startIndex..<fieldCount).first { updatedCharacters[$0].isEmpty }
+        focusedIndex = (startIndex..<fieldCount).first { updatedCharacters[$0].isEmpty } ?? max(fieldCount - 1, 0)
     }
 
     static func applyingPaste(
@@ -305,6 +316,7 @@ public struct SUIChunkedTextFieldContent: View {
                     character: characterBinding(for: index),
                     index: index,
                     focusedIndex: $focusedIndex,
+                    editors: editors,
                     appearance: appearance,
                     isValid: isValid,
                     isEnabled: canEdit,
@@ -410,9 +422,14 @@ public struct SUIChunkedTextFieldContent: View {
             return
         }
 
-        characters[index] = String(insertedCharacters.suffix(1))
+        let isAppending = !currentCharacter.isEmpty && digits.hasPrefix(currentCharacter)
+            && digits.count > currentCharacter.count
+        let pendingIndex = max(index, focusedIndex ?? index)
+        let destination = pendingIndex > index ? min(pendingIndex, fieldCount - 1)
+            : (isAppending ? min(index + 1, fieldCount - 1) : index)
+        characters[destination] = String(insertedCharacters.suffix(1))
         applyUserCharacters(characters)
-        focusedIndex = index < fieldCount - 1 ? index + 1 : nil
+        focusedIndex = min(destination + 1, fieldCount - 1)
     }
 
     private static func characters(from text: String, count: Int) -> [String] {
@@ -482,7 +499,8 @@ public struct SUIChunkedTextFieldContent: View {
 private struct SingleCharTextField: View {
     @Binding var character: String
     let index: Int
-    let focusedIndex: FocusState<Int?>.Binding
+    let focusedIndex: Binding<Int?>
+    let editors: ChunkedEditors
     let appearance: TextfieldAppearance
     let isValid: Bool
     let isEnabled: Bool
@@ -492,6 +510,8 @@ private struct SingleCharTextField: View {
     let focusedBorderColor: SwiftUIColor
     let equalizedHeight: CGFloat?
     let accessibilityIdentifier: String?
+
+    @Environment(\.suiChunkedCellHeight) private var cellHeight
 
     private var isFocused: Bool {
         focusedIndex.wrappedValue == index
@@ -504,15 +524,9 @@ private struct SingleCharTextField: View {
     }
 
     var body: some View {
-        Group {
-            if isSecureTextEntry {
-                SecureField("", text: $character)
-                    .focused(focusedIndex, equals: index)
-            } else {
-                TextField("", text: $character)
-                    .focused(focusedIndex, equals: index)
-            }
-        }
+        ChunkedCharacterEditor(character: $character, focusedIndex: focusedIndex, editors: editors,
+            index: index, appearance: appearance, isEnabled: isEnabled,
+            isSecure: isSecureTextEntry, identifier: accessibilityIdentifier)
             .font(SwiftUIFont(appearance.font))
             .foregroundColor(SwiftUIColor(
                 isEnabled
@@ -527,6 +541,7 @@ private struct SingleCharTextField: View {
             .disabled(!isEnabled)
             .accessibilityIdentifier(accessibilityIdentifier ?? "")
         .padding(10)
+        .frame(height: cellHeight)
         .background(
             GeometryReader { proxy in
                 SwiftUIColor.clear.preference(
@@ -550,6 +565,73 @@ private struct SingleCharTextField: View {
             )
         )
         .animation(.easeInOut(duration: 0.1), value: isFocused)
+    }
+}
+
+private final class WeakChunkedEditor {
+    weak var field: UITextField?
+    init(_ field: UITextField) { self.field = field }
+}
+private final class ChunkedEditors: ObservableObject {
+    var fields: [Int: WeakChunkedEditor] = [:]
+}
+
+private struct ChunkedCharacterEditor: UIViewRepresentable {
+    @Binding var character: String
+    @Binding var focusedIndex: Int?
+    let editors: ChunkedEditors
+    let index: Int
+    let appearance: TextfieldAppearance
+    let isEnabled: Bool
+    let isSecure: Bool
+    let identifier: String?
+
+    func makeCoordinator() -> Coordinator { Coordinator(self) }
+    func makeUIView(context: Context) -> UITextField {
+        let field = UITextField()
+        field.delegate = context.coordinator
+        editors.fields[index] = WeakChunkedEditor(field)
+        field.keyboardType = .numberPad
+        field.textContentType = .oneTimeCode
+        field.textAlignment = .center
+        field.tintColor = .clear
+        field.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        field.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+        return field
+    }
+    func updateUIView(_ field: UITextField, context: Context) {
+        context.coordinator.parent = self
+        if field.text != character { field.text = character }
+        field.font = appearance.font
+        field.textColor = isEnabled ? appearance.colors.textColor : appearance.colors.disabledTextColor
+        field.isEnabled = isEnabled
+        field.isSecureTextEntry = isSecure
+        field.accessibilityIdentifier = identifier
+        if focusedIndex == index && isEnabled && !field.isFirstResponder {
+            field.becomeFirstResponder()
+        } else if focusedIndex == nil && field.isFirstResponder {
+            field.resignFirstResponder()
+        }
+    }
+    final class Coordinator: NSObject, UITextFieldDelegate {
+        var parent: ChunkedCharacterEditor
+        init(_ parent: ChunkedCharacterEditor) { self.parent = parent }
+        func textFieldDidBeginEditing(_ textField: UITextField) {
+            if parent.focusedIndex != parent.index { parent.focusedIndex = parent.index }
+        }
+        func textFieldDidEndEditing(_ textField: UITextField) {
+            if parent.focusedIndex == parent.index { parent.focusedIndex = nil }
+        }
+        func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange,
+                       replacementString string: String) -> Bool {
+            let value = (textField.text ?? "") as NSString
+            parent.character = value.replacingCharacters(in: range, with: string)
+            textField.text = parent.character
+            if let next = parent.focusedIndex, next != parent.index {
+                parent.editors.fields[next]?.field?.becomeFirstResponder()
+            }
+            return false
+        }
     }
 }
 

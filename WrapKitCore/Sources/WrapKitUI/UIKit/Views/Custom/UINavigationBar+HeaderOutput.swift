@@ -1,4 +1,4 @@
-#if canImport(UIKit)
+#if canImport(UIKit) && !os(watchOS)
 import UIKit
 import ObjectiveC
 
@@ -121,7 +121,61 @@ private extension UINavigationItem {
 
 public final class NavigationItemHeaderOutput: HeaderOutput {
     weak var viewController: UIViewController?
-    weak var navigationBar: UINavigationBar?
+    weak var navigationBar: UINavigationBar? {
+        didSet {
+            guard navigationBar !== oldValue else { return }
+            cancelAxisObservation?()
+            cancelAxisObservation = nil
+            #if os(iOS) && compiler(>=6.4)
+            if #available(iOS 27.1, *), let navigationBar {
+                MainActor.assumeIsolated {
+                    let registration = navigationBar.registerForTraitChanges(
+                        [UITraitHorizontalSizeClass.self] + UITraitCollection.systemTraitsAffectingVerticalBarEdge
+                    ) {
+                        [weak self] (_: UINavigationBar, _: UITraitCollection) in
+                        self?.updateAdaptiveAxes()
+                    }
+                    cancelAxisObservation = { [weak navigationBar] in
+                        MainActor.assumeIsolated { navigationBar?.unregisterForTraitChanges(registration) }
+                    }
+                    updateAdaptiveAxes()
+                }
+            }
+            #endif
+        }
+    }
+    private var cancelAxisObservation: (() -> Void)?
+    private let adaptiveAxisItems = NSHashTable<UIBarButtonItem>.weakObjects()
+
+    #if os(iOS) && compiler(>=6.4)
+    @available(iOS 27.1, *)
+    private func configureAxis(for item: UIBarButtonItem, supportsVertical: Bool) {
+        if supportsVertical { adaptiveAxisItems.add(item) } else { adaptiveAxisItems.remove(item) }
+        let sizeClass = navigationBar?.traitCollection.horizontalSizeClass
+            ?? viewController?.traitCollection.horizontalSizeClass
+        item.axisBehavior = supportsVertical && sizeClass != .regular ? .verticalPreferred : .horizontalOnly
+    }
+
+    @available(iOS 27.1, *)
+    private func updateAdaptiveAxes() {
+        var changed = false
+        for item in adaptiveAxisItems.allObjects {
+            let previous = item.axisBehavior
+            configureAxis(for: item, supportsVertical: true)
+            changed = changed || previous != item.axisBehavior
+        }
+        guard changed, let item else { return }
+        // Updating axisBehavior alone does not rebuild the bar's placement groups.
+        // Reinstall the same actions so transitions preserve callbacks and state.
+        let leading = item.leftBarButtonItems
+        let trailing = item.rightBarButtonItems
+        item.setLeftBarButtonItems(nil, animated: false)
+        item.setRightBarButtonItems(nil, animated: false)
+        item.setLeftBarButtonItems(leading, animated: false)
+        item.setRightBarButtonItems(trailing, animated: false)
+        navigationBar?.setNeedsLayout()
+    }
+    #endif
     private weak var item: UINavigationItem?
     private(set) var hidden = false
 
@@ -133,12 +187,14 @@ public final class NavigationItemHeaderOutput: HeaderOutput {
 
     public func display(primeTrailingMenu menu: UIMenu?) {
         primeTrailingMenu = menu
+        #if !os(tvOS)
         renderedTrailingItems[0]?.menu = menu
         if renderedTrailingItems[0]?.customView == nil {
             renderedTrailingItems[0]?.primaryAction = menu == nil ? primeTrailingAction : nil
         }
         buttons[0]?.menu = menu
         buttons[0]?.showsMenuAsPrimaryAction = menu != nil
+        #endif
     }
 
     private let titledImage: TitledView<WrapperView<ImageView>> = {
@@ -237,10 +293,14 @@ public final class NavigationItemHeaderOutput: HeaderOutput {
 
     init(item: UINavigationItem) {
         self.item = item
+        #if !os(tvOS)
         item.hidesBackButton = true
         item.largeTitleDisplayMode = .never
+        #endif
         item.titleView = UIView()
+        #if !os(tvOS)
         item.leftItemsSupplementBackButton = false
+        #endif
     }
 
     public func display(model: HeaderPresentableModel?) {
@@ -366,7 +426,7 @@ public final class NavigationItemHeaderOutput: HeaderOutput {
             if #available(iOS 26, *) { nativeItem.sharesBackground = false }
             #endif
             #if os(iOS) && compiler(>=6.4)
-            if #available(iOS 27.1, *) { nativeItem.axisBehavior = .verticalPreferred }
+            if #available(iOS 27.1, *) { configureAxis(for: nativeItem, supportsVertical: true) }
             #endif
             item?.leftBarButtonItem = nativeItem
             invalidateLayout()
@@ -402,8 +462,7 @@ public final class NavigationItemHeaderOutput: HeaderOutput {
         #if os(iOS) && compiler(>=6.4)
         if #available(iOS 27.1, *) {
             let size = leadingSizedHost.intrinsicContentSize
-            leadingItem.axisBehavior = size.width <= 44 && size.height <= 44
-                ? .verticalPreferred : .horizontalOnly
+            configureAxis(for: leadingItem, supportsVertical: size.width <= 44 && size.height <= 44)
         }
         #endif
         item?.leftBarButtonItem = leadingItem
@@ -467,10 +526,12 @@ public final class NavigationItemHeaderOutput: HeaderOutput {
             }
             updateButtonImage(at: index)
             custom.display(enabled: buttonEnabled[index])
+            #if !os(tvOS)
             if index == 0 {
                 custom.menu = primeTrailingMenu
                 custom.showsMenuAsPrimaryAction = primeTrailingMenu != nil
             }
+            #endif
             if trailingItems[index] == nil {
                 trailingItems[index] = makeBarItem(NativeHeaderContentView(content: custom))
             }
@@ -479,8 +540,10 @@ public final class NavigationItemHeaderOutput: HeaderOutput {
         renderedTrailingItems[index] = barItem
         if index == 0 {
             primeTrailingAction = barItem.primaryAction
+            #if !os(tvOS)
             barItem.menu = primeTrailingMenu
             if primeTrailingMenu != nil { barItem.primaryAction = nil }
+            #endif
         }
         barItem.title = button.title ?? button.accessibility?.label
         barItem.accessibilityIdentifier = button.accessibilityIdentifier
@@ -491,10 +554,9 @@ public final class NavigationItemHeaderOutput: HeaderOutput {
         if #available(iOS 27.1, *) {
             if let custom = barItem.customView {
                 let size = custom.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize)
-                barItem.axisBehavior = button.title == nil && size.width <= 44 && size.height <= 44
-                    ? .verticalPreferred : .horizontalOnly
+                configureAxis(for: barItem, supportsVertical: button.title == nil && size.width <= 44 && size.height <= 44)
             } else if button.image != nil {
-                barItem.axisBehavior = .verticalPreferred
+                configureAxis(for: barItem, supportsVertical: true)
             }
         }
         #endif
@@ -593,7 +655,7 @@ private final class AdaptiveHeaderButton: UIButton {
         addAction(action, for: .touchUpInside)
         #if os(iOS) && compiler(>=6.4)
         if #available(iOS 27.1, *) {
-            registerForTraitChanges(UITraitCollection.systemTraitsAffectingVerticalBarEdge) {
+            registerForTraitChanges(UITraitCollection.systemTraitsAffectingVerticalBarEdge + [UITraitHorizontalSizeClass.self]) {
                 (button: AdaptiveHeaderButton, _: UITraitCollection) in
                 button.setNeedsUpdateConfiguration()
             }
@@ -617,7 +679,7 @@ private final class AdaptiveHeaderButton: UIButton {
         var usesVerticalBar = false
         #if os(iOS) && compiler(>=6.4)
         if #available(iOS 27.1, *) {
-            usesVerticalBar = traitCollection.verticalBarEdge != .unspecified
+            usesVerticalBar = traitCollection.verticalBarEdge != .unspecified && traitCollection.horizontalSizeClass != .regular
         }
         #endif
         guard configuredVerticalBar != usesVerticalBar || configuredFont != titleFont

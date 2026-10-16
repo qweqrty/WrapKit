@@ -20,12 +20,14 @@ public struct SUINavigationBar: View {
 
                 if #available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *) {
                     SUINavigationBarSidesLayout(mainStackSpacing: 8) {
-                        SUINavigationBarSideSlot {
-                            leadingSection(model: model)
-                        }
-                        SUINavigationBarSideSlot {
-                            trailingSection(model: model, style: style)
-                        }
+                        TupleView((
+                            SUINavigationBarSideSlot {
+                                leadingSection(model: model)
+                            },
+                            SUINavigationBarSideSlot {
+                                trailingSection(model: model, style: style)
+                            }
+                        ))
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else {
@@ -65,6 +67,7 @@ public struct SUINavigationBar: View {
             if #available(iOS 26, macOS 26, tvOS 26, watchOS 26, *),
                isLiquidGlassEnabled,
                leadingCard.onPress != nil || leadingCard.onLongPress != nil {
+                AnyView(Group {
                 SUINavigationBarIntrinsicCompressingView(usesIntrinsicWidth: width == nil) {
                     SUICardView(
                         adapter: stateModel.leadingCardAdapter,
@@ -86,6 +89,8 @@ public struct SUINavigationBar: View {
                             )
                     }
                     #endif
+            
+                })
             } else {
                 SUINavigationBarIntrinsicCompressingView(usesIntrinsicWidth: width == nil) {
                     SUICardView(
@@ -178,24 +183,26 @@ public struct SUINavigationBar: View {
     @ViewBuilder
     private func trailingSection(model: HeaderPresentableModel, style: HeaderPresentableModel.Style) -> some View {
         HStack(spacing: max(style.horizontalSpacing * 1.5, 0)) {
+            TupleView((
             SUINavigationBarButtonView(
                 stateModel: stateModel.primeTrailingButtonStateModel,
                 isPresented: model.primeTrailingImage != nil,
                 tintColor: style.primeColor,
                 backgroundColor: SwiftUIColor(style.backgroundColor)
-            )
+            ),
             SUINavigationBarButtonView(
                 stateModel: stateModel.secondaryTrailingButtonStateModel,
                 isPresented: model.secondaryTrailingImage != nil,
                 tintColor: style.primeColor,
                 backgroundColor: SwiftUIColor(style.backgroundColor)
-            )
+            ),
             SUINavigationBarButtonView(
                 stateModel: stateModel.tertiaryTrailingButtonStateModel,
                 isPresented: model.tertiaryTrailingImage != nil,
                 tintColor: style.primeColor,
                 backgroundColor: SwiftUIColor(style.backgroundColor)
             )
+            ))
         }
         .frame(maxHeight: .infinity, alignment: .trailing)
     }
@@ -472,6 +479,7 @@ private struct SUINavigationBarButtonView: View {
         if isPresented, !stateModel.isHidden {
             let model = stateModel.presentable
             if #available(iOS 26, macOS 26, tvOS 26, watchOS 26, *), isLiquidGlassEnabled {
+                AnyView(Group {
                 constrainedControl(
                     button(model)
                     .wrapKitGlassButtonStyle(
@@ -483,6 +491,8 @@ private struct SUINavigationBarButtonView: View {
                     cornerStyle: .automatic
                 )
                 .overlay(buttonBorder(model.style, cornerStyle: .automatic))
+            
+                })
             } else {
                 let cornerStyle = model.style?.cornerStyle ?? .none
                 constrainedControl(

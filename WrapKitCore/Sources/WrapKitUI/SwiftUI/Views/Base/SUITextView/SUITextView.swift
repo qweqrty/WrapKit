@@ -585,8 +585,16 @@ private struct SUITextViewAccessoryModifier: ViewModifier {
     func body(content: Content) -> some View {
 #if os(iOS)
         if let model {
-            content.toolbar {
-                if isFocused {
+            if #available(iOS 16.0, *) {
+                content.toolbar {
+                    if isFocused {
+                        ToolbarItem(placement: .keyboard) {
+                            SUITextViewAccessoryContent(model: model, onPress: onPress)
+                        }
+                    }
+                }
+            } else {
+                content.toolbar {
                     ToolbarItem(placement: .keyboard) {
                         SUITextViewAccessoryContent(model: model, onPress: onPress)
                     }

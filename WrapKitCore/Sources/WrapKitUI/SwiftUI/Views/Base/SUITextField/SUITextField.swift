@@ -231,7 +231,8 @@ public struct SUITextInputView: View {
         .animation(.easeInOut(duration: 0.1), value: isValid)
         .modifier(
             SUITextInputAccessoryModifier(
-                model: isFocused && !hasInputView ? inputAccessoryView : nil,
+                model: hasInputView ? nil : inputAccessoryView,
+                isFocused: isFocused,
                 onPress: performKeyboardAccessoryAction
             )
         )
@@ -831,17 +832,28 @@ private struct SUITextInputAccessoryContent: View {
 
 private struct SUITextInputAccessoryModifier: ViewModifier {
     let model: TextInputPresentableModel.AccessoryViewPresentableModel?
+    let isFocused: Bool
     let onPress: (ButtonPresentableModel) -> Void
 
     @ViewBuilder
     func body(content: Content) -> some View {
 #if os(iOS)
-        content.toolbar {
-            if let model {
+        if #available(iOS 16.0, *) {
+            content.toolbar {
+                if isFocused, let model {
+                    ToolbarItem(placement: .keyboard) {
+                        SUITextInputAccessoryContent(model: model, onPress: onPress)
+                    }
+                }
+            }
+        } else if let model {
+            content.toolbar {
                 ToolbarItem(placement: .keyboard) {
                     SUITextInputAccessoryContent(model: model, onPress: onPress)
                 }
             }
+        } else {
+            content
         }
 #else
         content

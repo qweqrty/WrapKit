@@ -23,7 +23,7 @@ extension Image {
 #if os(macOS)
         return isTemplate
 #else
-        return renderingMode != .alwaysOriginal
+        return renderingMode == .alwaysTemplate || (renderingMode == .automatic && isSymbolImage)
 #endif
     }
 

@@ -67,6 +67,7 @@ public struct SUISearchBar: View {
     @ViewBuilder
     private var styledContent: some View {
         if #available(iOS 26, macOS 26, tvOS 26, watchOS 26, *), isLiquidGlassEnabled {
+            AnyView(Group {
             content
                 .padding(contentInsets.asSUIEdgeInsets)
                 #if os(visionOS)
@@ -77,6 +78,8 @@ public struct SUISearchBar: View {
                     in: SUICornerShape(style: .automatic)
                 )
                 #endif
+        
+            })
         } else {
             content
                 .padding(contentInsets.asSUIEdgeInsets)

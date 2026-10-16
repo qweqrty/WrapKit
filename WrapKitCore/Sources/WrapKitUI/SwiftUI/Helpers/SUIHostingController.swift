@@ -28,8 +28,10 @@ open class SUIHostingController<Content: SwiftUI.View>: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
 
+    #if !os(tvOS)
     open override var childForStatusBarStyle: UIViewController? { hostingController }
     open override var childForStatusBarHidden: UIViewController? { hostingController }
+    #endif
 
     public func sizeThatFits(in size: CGSize) -> CGSize {
         hostingController.sizeThatFits(in: size)
