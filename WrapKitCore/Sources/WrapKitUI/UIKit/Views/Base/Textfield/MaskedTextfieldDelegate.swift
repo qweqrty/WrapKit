@@ -26,6 +26,7 @@ public class MaskedTextfieldDelegate: NSObject, UITextFieldDelegate {
     
     public var input: String { format.mask.applied(to: fullText).input }
     public var onlySpecifiersIfMaskedText: String { format.mask.extractUserInput(from: fullText) }
+    public var hasMaskTemplate: Bool { !format.mask.format.isEmpty }
     public lazy var fullText: String = format.mask.applied(to: "").input {
         didSet {
             guard !isUpdatingUI else {
