@@ -163,10 +163,21 @@ final class SwiftUIAnimationCompositionTests: XCTestCase {
             rootView: ShimmerAnimationFixture(highlightColor: .yellow),
             size: CGSize(width: 160, height: 60)
         )
-        let frames = host.sampleFrames(count: 62, interval: 0.035)
+        let frames = host.sampleFrames(for: 9, interval: 0.035)
         XCTAssertTrue(frames.allSatisfy(\.didDrawHierarchy))
 
         let masks = frames.map { FixturePixelMask(image: $0.image, color: .yellow) }
+        let origin = try XCTUnwrap(frames.first).captureStartedAt
+        let timeline = zip(frames, masks).enumerated().map { index, sample in
+            let (frame, mask) = sample
+            return String(format: "%03d %.3f...%.3f pixels=%d", index,
+                          frame.captureStartedAt - origin, frame.captureFinishedAt - origin, mask.indices.count)
+        }.joined(separator: "\n")
+        let attachment = XCTAttachment(string: timeline)
+        attachment.name = "shimmer-capture-timeline"
+        attachment.lifetime = .deleteOnSuccess
+        add(attachment)
+
         let visibleMasks = masks.filter { !$0.indices.isEmpty }
         XCTAssertGreaterThanOrEqual(
             visibleMasks.count,
@@ -183,9 +194,39 @@ final class SwiftUIAnimationCompositionTests: XCTestCase {
             4,
             "The public shimmer highlight must move horizontally."
         )
-        XCTAssertTrue(
-            masks.suffix(8).allSatisfy { $0.indices.isEmpty },
-            "The shimmer must stay offscreen during UIKit's pause between sweeps."
+        let firstSweepStart = try XCTUnwrap(masks.firstIndex { !$0.indices.isEmpty })
+        let pauseStart = try XCTUnwrap(
+            masks.indices.dropFirst(firstSweepStart + 1).first { masks[$0].indices.isEmpty },
+            "The shimmer must leave the control after its first visible sweep."
+        )
+        let secondSweepStart = try XCTUnwrap(
+            masks.indices.dropFirst(pauseStart + 1).first { !masks[$0].indices.isEmpty },
+            "The shimmer must return after the pause, not remain permanently offscreen."
+        )
+        let secondSweepEnd = masks.indices.dropFirst(secondSweepStart + 1)
+            .first { masks[$0].indices.isEmpty } ?? masks.endIndex
+        for sweep in [masks[firstSweepStart..<pauseStart], masks[secondSweepStart..<secondSweepEnd]] {
+            XCTAssertGreaterThanOrEqual(sweep.count, 2, "Each visible shimmer sweep must contain multiple captured frames.")
+            XCTAssertGreaterThan(maximumSymmetricDifference(in: Array(sweep)), 8)
+            XCTAssertGreaterThan(horizontalCentroidRange(in: Array(sweep)), 4)
+        }
+
+        let firstBlank = frames[pauseStart]
+        let lastBlank = frames[secondSweepStart - 1]
+        let previousVisible = frames[pauseStart - 1]
+        let nextVisible = frames[secondSweepStart]
+        // Both transition times lie between neighboring captures. Require a full 2.8s
+        // observed blank interval; capture uncertainty is diagnostic, not a timing allowance.
+        let boundaryUncertainty = (firstBlank.captureFinishedAt - previousVisible.captureStartedAt)
+            + (nextVisible.captureFinishedAt - lastBlank.captureStartedAt)
+        let expectedPause: TimeInterval = 2.8
+        let observedPause = lastBlank.captureStartedAt - firstBlank.captureFinishedAt
+        let timing = String(format: "Observed blank interval: %.3fs; boundary uncertainty: %.3fs.",
+                            observedPause, boundaryUncertainty)
+        XCTAssertGreaterThanOrEqual(
+            observedPause, expectedPause,
+            "The shimmer must stay offscreen for UIKit's 2.8s pause between moving sweeps. "
+                + timing + " See shimmer-capture-timeline."
         )
     }
 
@@ -556,6 +597,8 @@ private final class LiveSwiftUIAnimationHost<Content: View> {
     struct Frame {
         let image: UIImage
         let didDrawHierarchy: Bool
+        let captureStartedAt: TimeInterval
+        let captureFinishedAt: TimeInterval
     }
 
     private let hostingController: UIHostingController<Content>
@@ -599,6 +642,26 @@ private final class LiveSwiftUIAnimationHost<Content: View> {
         }
     }
 
+    func sampleFrames(for duration: TimeInterval, interval: TimeInterval) -> [Frame] {
+        precondition(duration > 0 && interval > 0)
+        let startedAt = ProcessInfo.processInfo.systemUptime
+        let deadline = startedAt + duration
+        var nextCaptureAt = startedAt
+        var frames: [Frame] = []
+        repeat {
+            let delay = min(nextCaptureAt, deadline) - ProcessInfo.processInfo.systemUptime
+            if delay > 0 {
+                RunLoop.main.run(until: Date().addingTimeInterval(delay))
+            }
+            guard ProcessInfo.processInfo.systemUptime < deadline else { break }
+            frames.append(captureFrame())
+            // Skip missed ticks instead of adding another interval after a slow capture.
+            let elapsed = ProcessInfo.processInfo.systemUptime - startedAt
+            nextCaptureAt = startedAt + (floor(elapsed / interval) + 1) * interval
+        } while ProcessInfo.processInfo.systemUptime < deadline
+        return frames
+    }
+
     private func settle(for interval: TimeInterval) {
         window.setNeedsLayout()
         window.layoutIfNeeded()
@@ -610,6 +673,7 @@ private final class LiveSwiftUIAnimationHost<Content: View> {
     }
 
     private func captureFrame() -> Frame {
+        let startedAt = ProcessInfo.processInfo.systemUptime
         let format = UIGraphicsImageRendererFormat()
         format.scale = 1
         format.opaque = true
@@ -622,7 +686,12 @@ private final class LiveSwiftUIAnimationHost<Content: View> {
                 afterScreenUpdates: true
             )
         }
-        return Frame(image: image, didDrawHierarchy: didDrawHierarchy)
+        return Frame(
+            image: image,
+            didDrawHierarchy: didDrawHierarchy,
+            captureStartedAt: startedAt,
+            captureFinishedAt: ProcessInfo.processInfo.systemUptime
+        )
     }
 }
 

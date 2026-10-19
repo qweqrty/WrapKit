@@ -33,7 +33,8 @@ final class SUIButtonSnapshotTests: XCTestCase {
             enabled: true,
             onPress: {}
         ))
-        let host = makeGlassButtonHost(adapter: adapter)
+        let host = FilledGlassButtonSnapshotHost(rootViewController: makeGlassButtonHost(adapter: adapter))
+        defer { host.tearDown() }
         assertSnapshots(host, named: "BUTTON_GLASS_FILLED_ENABLED")
         adapter.display(enabled: false)
         assertSnapshots(host, named: "BUTTON_GLASS_FILLED_DISABLED")
@@ -701,7 +702,7 @@ final class SUIButtonSnapshotTests: XCTestCase {
 private extension SUIButtonSnapshotTests {
     @MainActor
     func makeGlassButtonHost(adapter: ButtonOutputSwiftUIAdapter) -> UIHostingController<AnyView> {
-        UIHostingController(rootView: AnyView(
+        let host = UIHostingController(rootView: AnyView(
             SUIButton(adapter: adapter)
                 .padding(16)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -712,39 +713,34 @@ private extension SUIButtonSnapshotTests {
                     $0.animation = nil
                 }
         ))
+        // The fixture owns its insets; device status-bar geometry must not move the button.
+        if #unavailable(iOS 26.0) {
+            host.safeAreaRegions = []
+        }
+        return host
     }
 
     @MainActor
     func assertSnapshots(
-        _ host: UIViewController,
+        _ host: FilledGlassButtonSnapshotHost,
         named name: String,
         file: StaticString = #filePath,
         line: UInt = #line
     ) {
         for appearance in [SnapshotAppearance.light, .dark, .light] {
-            let configuration = SnapshotConfiguration(
-                size: CGSize(width: 320, height: 120),
-                safeAreaInsets: .zero,
-                layoutMargins: .zero,
-                traitCollection: UITraitCollection(traitsFrom: [
-                    SnapshotConfiguration.iPhone(style: appearance.userInterfaceStyle).traitCollection,
-                    // Native SwiftUI glass uses UIKit's active appearance to render its tinted fill.
-                    UITraitCollection(activeAppearance: .active)
-                ])
-            )
-            host.loadViewIfNeeded()
-            UIView.performWithoutAnimation {
-                host.overrideUserInterfaceStyle = appearance.userInterfaceStyle
-                host.view.frame = CGRect(origin: .zero, size: configuration.size)
-            }
-            RunLoop.main.run(until: Date().addingTimeInterval(0.3))
-            host.view.setNeedsLayout()
-            host.view.layoutIfNeeded()
-            let image = host.snapshot(for: configuration)
+            let image = host.snapshot(style: appearance.userInterfaceStyle, file: file, line: line)
             let os = isAvailableOS26 ? "iOS26" : "iOS18.5"
             let theme = appearance == .light ? "LIGHT" : "DARK"
             let snapshotName = "SwiftUI_\(os)_\(name)_\(theme)"
-            assert(snapshot: image, named: snapshotName, precision: SwiftUISnapshotPrecision.standard, file: file, line: line)
+            assert(
+                snapshot: image,
+                named: snapshotName,
+                precision: SwiftUISnapshotPrecision.standard,
+                // Bound native-glass color rounding per pixel, not by a mismatch budget.
+                perceptualPrecision: isAvailableOS26 ? 0.99 : 1,
+                file: file,
+                line: line
+            )
         }
     }
 

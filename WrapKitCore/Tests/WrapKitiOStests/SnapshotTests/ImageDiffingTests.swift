@@ -82,6 +82,41 @@ final class LegacyImageDiffingTests: XCTestCase {
 }
 
 final class ImageDiffingTests: XCTestCase {
+    func test_perceptualGlassComparison_normalizesPersistedExtendedP3AndStandardSRGB() throws {
+        let extended = makeRendererRangeRoundedImage(
+            preferredRange: .extended,
+            color: UIColor(red: 51.0 / 255, green: 153.0 / 255, blue: 102.0 / 255, alpha: 1),
+            cornerRadius: 0
+        )
+        // One channel step avoids the byte-equality fast path while remaining below DeltaE 1.
+        let standard = makeRendererRangeRoundedImage(
+            preferredRange: .standard,
+            color: UIColor(red: 52.0 / 255, green: 153.0 / 255, blue: 102.0 / 255, alpha: 1),
+            cornerRadius: 0
+        )
+        let persisted = try XCTUnwrap(UIImage(data: try XCTUnwrap(extended.pngData()), scale: extended.scale))
+        try requireExtendedRangeSupport(persisted)
+
+        XCTAssertNil(Diffing<UIImage>.strictImage.diff(persisted, standard))
+        XCTAssertNil(Diffing<UIImage>.image(
+            precision: 1, perceptualPrecision: 0.99, alphaTolerance: 1,
+            allowsQuantizationTolerance: false
+        ).diff(persisted, standard))
+    }
+
+    func test_perceptualGlassComparison_rejectsShiftMissingFillAndAlphaChanges() {
+        let diffing = Diffing<UIImage>.image(precision: 1, perceptualPrecision: 0.99)
+        XCTAssertNotNil(diffing.diff(
+            makeRenderedRectangleImage(originX: 4),
+            makeRenderedRectangleImage(originX: 4 + 1.0 / 3.0)
+        ))
+        XCTAssertNotNil(diffing.diff(
+            makeImage(red: 100, green: 195, blue: 102),
+            makeImage(red: 255, green: 255, blue: 255)
+        ))
+        XCTAssertNotNil(diffing.diff(makeImage(alpha: 255), makeImage(alpha: 0)))
+    }
+
     func test_strictImageDiffing_allowsFinalOneStepQuantizationDifference() {
         let reference = makeImage()
         let actual = makeImage(changedPixelIndices: [0], changedRed: 101)
@@ -1126,7 +1161,8 @@ private extension XCTestCase {
 
     func makeRendererRangeRoundedImage(
         preferredRange: UIGraphicsImageRendererFormat.Range,
-        color: UIColor
+        color: UIColor,
+        cornerRadius: CGFloat = 12
     ) -> UIImage {
         let size = CGSize(width: 96, height: 48)
         let format = UIGraphicsImageRendererFormat()
@@ -1138,7 +1174,7 @@ private extension XCTestCase {
             color.setFill()
             UIBezierPath(
                 roundedRect: CGRect(x: 4, y: 4, width: 88, height: 40),
-                cornerRadius: 12
+                cornerRadius: cornerRadius
             ).fill()
         }
     }

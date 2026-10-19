@@ -1318,6 +1318,10 @@ private extension ButtonSnapshotTests {
                 snapshot: image,
                 named: "\(os)_\(name)_\(theme)",
                 precision: SwiftUISnapshotPrecision.standard,
+                // Native glass varies by a few channel steps on antialiased edges.
+                // Every pixel must still match within DeltaE 1, with no spatial tolerance
+                // or permitted fraction of mismatching pixels.
+                perceptualPrecision: isAvailableOS26 ? 0.99 : 1,
                 file: file,
                 line: line
             )

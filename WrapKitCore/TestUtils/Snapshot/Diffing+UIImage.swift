@@ -406,17 +406,34 @@ private func compare(
         return "Newly-taken snapshot does not match reference."
     }
     if perceptualPrecision < 1 {
+        // Use the same persisted, premultiplied sRGB pixels as strict snapshots.
+        // Comparing raw extended-range PNGs lets ImageIO's alpha metadata change colors.
+        guard let oldCanonical = canonicalSnapshot(old),
+              let newCanonical = canonicalSnapshot(new) else {
+            return "Snapshot data could not be normalized for perceptual comparison."
+        }
+        if let geometryDifference = canonicalGeometryDifferenceMessage(
+            old, oldCanonical, new, newCanonical
+        ) {
+            return geometryDifference
+        }
+        let referenceData = Data(oldCanonical.rgba)
+        let snapshotData = Data(newCanonical.rgba)
         if let alphaDifference = alphaDifferenceMessage(
-            oldData,
-            newerData,
+            oldCanonical.rgba,
+            newCanonical.rgba,
             pixelCount: pixelCount,
             tolerance: alphaTolerance
         ) {
             return alphaDifference
         }
         return perceptuallyCompare(
-            CIImage(cgImage: oldCgImage),
-            CIImage(cgImage: newCgImage),
+            CIImage(bitmapData: referenceData, bytesPerRow: oldCanonical.width * 4,
+                    size: CGSize(width: oldCanonical.width, height: oldCanonical.height),
+                    format: .RGBA8, colorSpace: imageContextColorSpace),
+            CIImage(bitmapData: snapshotData, bytesPerRow: newCanonical.width * 4,
+                    size: CGSize(width: newCanonical.width, height: newCanonical.height),
+                    format: .RGBA8, colorSpace: imageContextColorSpace),
             pixelPrecision: precision,
             perceptualPrecision: perceptualPrecision
         )
@@ -443,13 +460,11 @@ private func compare(
 }
 
 private func alphaDifferenceMessage(
-    _ oldData: UnsafeMutableRawPointer,
-    _ newData: UnsafeMutableRawPointer,
+    _ oldBytes: [UInt8],
+    _ newBytes: [UInt8],
     pixelCount: Int,
     tolerance: UInt8
 ) -> String? {
-    let oldBytes = oldData.assumingMemoryBound(to: UInt8.self)
-    let newBytes = newData.assumingMemoryBound(to: UInt8.self)
     var maximumDifference: UInt8 = 0
     var differentPixelCount = 0
     var pixelIndex = 0

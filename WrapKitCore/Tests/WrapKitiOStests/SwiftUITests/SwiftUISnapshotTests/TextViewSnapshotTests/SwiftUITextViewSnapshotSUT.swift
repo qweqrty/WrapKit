@@ -138,18 +138,12 @@ final class SwiftUITextViewSnapshotSUT: TextInputOutput, SwiftUISnapshotSource {
         )
         .snapshotEnvironment(configuration: .iPhone(style: appearance.colorScheme))
 
-        let hostingController = UIHostingController(rootView: rootView)
+        let hostingController = TextViewSnapshotHostingController(rootView: rootView)
+        if #unavailable(iOS 26.0) {
+            hostingController.safeAreaRegions = []
+        }
         hostingController.overrideUserInterfaceStyle = appearance.userInterfaceStyle
         hostingController.view.backgroundColor = .clear
-        if #unavailable(iOS 26.0) {
-            let safeAreaInsets = appearance.uiKitConfiguration.safeAreaInsets
-            hostingController.additionalSafeAreaInsets = UIEdgeInsets(
-                top: -safeAreaInsets.top,
-                left: -safeAreaInsets.left,
-                bottom: -safeAreaInsets.bottom,
-                right: -safeAreaInsets.right
-            )
-        }
 
         let warmup: TimeInterval = 0.3
         RunLoop.main.run(until: Date().addingTimeInterval(warmup))
@@ -158,6 +152,24 @@ final class SwiftUITextViewSnapshotSUT: TextInputOutput, SwiftUISnapshotSource {
         RunLoop.main.run(until: Date().addingTimeInterval(warmup))
 
         return hostingController.snapshot(for: appearance.uiKitConfiguration)
+    }
+}
+
+@available(iOS 17.0, *)
+private final class TextViewSnapshotHostingController<Content: View>: UIHostingController<Content> {
+    override func viewSafeAreaInsetsDidChange() {
+        super.viewSafeAreaInsetsDidChange()
+        guard #unavailable(iOS 26.0) else { return }
+        // TextEditor inherits UIKit's actual window insets, even when the SwiftUI root
+        // ignores safe areas. Cancel those insets instead of assuming a 47pt status bar.
+        let insets = view.safeAreaInsets
+        guard insets != .zero else { return }
+        additionalSafeAreaInsets = UIEdgeInsets(
+            top: additionalSafeAreaInsets.top - insets.top,
+            left: additionalSafeAreaInsets.left - insets.left,
+            bottom: additionalSafeAreaInsets.bottom - insets.bottom,
+            right: additionalSafeAreaInsets.right - insets.right
+        )
     }
 }
 
