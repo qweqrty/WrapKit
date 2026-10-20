@@ -4,7 +4,7 @@ import UIKit
 
 final public class BottomSheetPresentationController: UIPresentationController {
     
-    private lazy var backdropView: UIView = {
+    private(set) lazy var backdropView: UIView = {
         let view = UIView()
         view.backgroundColor = .black
         view.alpha = 0
@@ -26,6 +26,16 @@ final public class BottomSheetPresentationController: UIPresentationController {
     
     private lazy var panGestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(onPan))
     var panToDismissEnabled: Bool = true
+    var onTapOutside: (() -> Void)?
+    var onPanToDismiss: (() -> Void)?
+    var highlightedSourceViewIdentifier: String?
+
+    private var pendingDismissReason: DismissReason?
+
+    enum DismissReason {
+        case tapOutside
+        case panToDismiss
+    }
     
     public init(
         presentedViewController: UIViewController,
@@ -47,11 +57,13 @@ final public class BottomSheetPresentationController: UIPresentationController {
         guard
             let presentedView = presentedView,
             let containerView = containerView,
+            !presentedViewController.isBeingDismissed,
             !presentedView.frame.contains(gestureRecognizer.location(in: containerView))
         else {
             return
         }
         
+        guard beginDismissal(reason: .tapOutside) else { return }
         presentingViewController.dismiss(animated: true)
     }
     
@@ -70,7 +82,10 @@ final public class BottomSheetPresentationController: UIPresentationController {
                 moving: presentedView, interactiveDismissal: panToDismissEnabled
             )
         case .changed:
-            if panToDismissEnabled && progress > 0 && !presentedViewController.isBeingDismissed {
+            if panToDismissEnabled,
+               progress > 0,
+               !presentedViewController.isBeingDismissed,
+               beginDismissal(reason: .panToDismiss) {
                 presentingViewController.dismiss(animated: true)
             }
             bottomSheetInteractiveDismissalTransition.move(
@@ -140,6 +155,11 @@ final public class BottomSheetPresentationController: UIPresentationController {
             containerView?.removeGestureRecognizer(tapGestureRecognizer)
         }
     }
+
+    public override func containerViewWillLayoutSubviews() {
+        super.containerViewWillLayoutSubviews()
+        updateBackdropMask()
+    }
     
     public override func dismissalTransitionWillBegin() {
         guard let transitionCoordinator = presentingViewController.transitionCoordinator else {
@@ -152,6 +172,7 @@ final public class BottomSheetPresentationController: UIPresentationController {
     }
     
     public override func dismissalTransitionDidEnd(_ completed: Bool) {
+        notifyDismissalCallbackIfNeeded(completed: completed)
         if completed {
             backdropView.removeFromSuperview()
             presentedView?.removeGestureRecognizer(panGestureRecognizer)
@@ -164,6 +185,82 @@ final public class BottomSheetPresentationController: UIPresentationController {
         coordinator.animate(alongsideTransition: nil) { _ in
             self.panGestureRecognizer.isEnabled = true
         }
+    }
+
+    @discardableResult
+    func beginDismissal(reason: DismissReason) -> Bool {
+        guard pendingDismissReason == nil else { return false }
+        pendingDismissReason = reason
+        return true
+    }
+
+    private func notifyDismissalCallbackIfNeeded(completed: Bool) {
+        defer { pendingDismissReason = nil }
+        guard completed else { return }
+        switch pendingDismissReason {
+        case .tapOutside:
+            onTapOutside?()
+        case .panToDismiss:
+            onPanToDismiss?()
+        case .none:
+            break
+        }
+    }
+}
+
+extension BottomSheetPresentationController {
+    func updateBackdropMask() {
+        guard let sourceView = highlightedSourceView, !backdropView.bounds.isEmpty else {
+            backdropView.layer.mask = nil
+            return
+        }
+
+        let sourceContainerView = sourceView.highlightContainerView(in: presentingViewController.view)
+        let highlightedFrame = sourceContainerView.convert(sourceContainerView.bounds, to: backdropView)
+        let path = UIBezierPath(rect: backdropView.bounds)
+        path.append(UIBezierPath(
+            roundedRect: highlightedFrame,
+            cornerRadius: sourceContainerView.highlightCornerRadius
+        ))
+
+        let maskLayer = CAShapeLayer()
+        maskLayer.frame = backdropView.bounds
+        maskLayer.fillColor = UIColor.black.cgColor
+        maskLayer.fillRule = .evenOdd
+        maskLayer.path = path.cgPath
+        backdropView.layer.mask = maskLayer
+    }
+
+    var highlightedSourceView: UIView? {
+        guard let highlightedSourceViewIdentifier else { return nil }
+        let presentingView = presentingViewController.view
+        if presentingView?.accessibilityIdentifier == highlightedSourceViewIdentifier {
+            return presentingView
+        }
+        return presentingView?.allSubviews.first {
+            $0.accessibilityIdentifier == highlightedSourceViewIdentifier
+        }
+    }
+}
+
+private extension UIView {
+    func highlightContainerView(in rootView: UIView?) -> UIView {
+        guard let rootView else { return self }
+        var view = superview
+        while let candidate = view, candidate !== rootView {
+            if !candidate.bounds.isEmpty,
+               candidate.bounds.width <= bounds.width + 44,
+               candidate.bounds.height <= bounds.height + 44 {
+                return candidate
+            }
+            view = candidate.superview
+        }
+        return self
+    }
+
+    var highlightCornerRadius: CGFloat {
+        if layer.cornerRadius > 0 { return layer.cornerRadius }
+        return min(bounds.width, bounds.height) / 2
     }
 }
 

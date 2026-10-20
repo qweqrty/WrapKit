@@ -8,6 +8,60 @@ import XCTest
 @MainActor
 @available(iOS 17.0, *)
 final class SUIImageViewParityTests: XCTestCase {
+    func test_fillWidthLayoutAndInsets_surviveGranularOutputsNilAndRemount() {
+        let adapter = ImageViewOutputSwiftUIAdapter()
+        let layout = ImageViewPresentableModel.Layout.fillWidth(heightByWidthRatio: 0.29)
+        let insets = WrapKit.EdgeInsets(top: 3, leading: 12, bottom: 5, trailing: 10)
+        adapter.display(model: .init(layout: layout, image: .symbolName("photo"), contentInsets: insets))
+        var firstMount: SUIImageViewStateModel? = .init(adapter: adapter)
+        XCTAssertEqual(firstMount?.model.layout, layout)
+        XCTAssertEqual(firstMount?.model.contentInsets, insets)
+
+        adapter.display(alpha: 0.6)
+        adapter.display(image: .symbolName("star"))
+        adapter.display(borderWidth: 2)
+        adapter.display(onPress: {})
+        XCTAssertEqual(firstMount?.model.layout, layout)
+        XCTAssertEqual(firstMount?.model.contentInsets, insets)
+
+        adapter.display(model: nil)
+        XCTAssertTrue(firstMount?.isHidden == true)
+        XCTAssertEqual(firstMount?.model.layout, layout)
+        XCTAssertEqual(firstMount?.model.contentInsets, insets)
+        firstMount = nil
+
+        let remounted = SUIImageViewStateModel(adapter: adapter)
+        XCTAssertTrue(remounted.isHidden)
+        XCTAssertEqual(remounted.model.layout, layout)
+        XCTAssertEqual(remounted.model.contentInsets, insets)
+        adapter.display(isHidden: false)
+        XCTAssertFalse(remounted.isHidden)
+    }
+
+    func test_explicitSizeOutput_replacesFillWidthLayoutWithoutDiscardingInsets() {
+        let adapter = ImageViewOutputSwiftUIAdapter()
+        adapter.display(model: .init(layout: .fillWidth(heightByWidthRatio: 0.5), contentInsets: .init(all: 8)))
+        let state = SUIImageViewStateModel(adapter: adapter)
+        let size = CGSize(width: 48, height: 24)
+
+        adapter.display(size: size)
+
+        XCTAssertEqual(state.model.layout, .fixed(size))
+        XCTAssertEqual(state.model.size, size)
+        XCTAssertEqual(state.model.contentInsets, .init(all: 8))
+    }
+
+    func test_fullModel_withoutNewLayoutKeepsLegacyAssetIntrinsicSizeAndUpdatesInsets() {
+        let asset = UIGraphicsImageRenderer(size: CGSize(width: 30, height: 20)).image { _ in }
+        let state = SUIImageViewStateModel(model: .init(layout: .fillWidth(heightByWidthRatio: 0.5), contentInsets: .init(all: 8)))
+
+        state.apply(model: .init(image: .asset(asset), contentInsets: .zero))
+
+        XCTAssertEqual(state.model.layout, .fixed(asset.size))
+        XCTAssertEqual(state.model.contentInsets, .zero)
+        XCTAssertEqual(state.model.image, .asset(asset))
+    }
+
     func test_squareImageBorder_hasExactRectangularCorners() throws {
         let cornerRadii: [CGFloat?] = [nil, 0]
         for cornerRadius in cornerRadii {

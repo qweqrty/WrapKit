@@ -253,6 +253,8 @@ public final class SUIEmptyViewStateModel: ObservableObject {
             if let retainedButtonModel {
                 self.retainedButtonModel = ButtonPresentableModel(
                     spacing: retainedButtonModel.spacing,
+                    contentInset: retainedButtonModel.contentInset,
+                    isGlassEffectEnabled: retainedButtonModel.isGlassEffectEnabled,
                     height: retainedButtonModel.height,
                     width: retainedButtonModel.width,
                     style: retainedButtonModel.style,
@@ -269,6 +271,8 @@ public final class SUIEmptyViewStateModel: ObservableObject {
             title: model.title,
             image: model.image,
             spacing: model.spacing ?? retainedButtonModel?.spacing,
+            contentInset: model.contentInset ?? retainedButtonModel?.contentInset,
+            isGlassEffectEnabled: model.isGlassEffectEnabled ?? retainedButtonModel?.isGlassEffectEnabled,
             height: model.height ?? retainedButtonModel?.height,
             width: model.width ?? retainedButtonModel?.width,
             style: model.style ?? retainedButtonModel?.style,

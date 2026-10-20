@@ -357,6 +357,13 @@ open class Label: UILabel {
 
         textContainer.size = bounds.size
     }
+
+    open override func didMoveToWindow() {
+        super.didMoveToWindow()
+        #if !os(tvOS)
+        presentPendingTooltipIfNeeded()
+        #endif
+    }
     
     open override func drawText(in rect: CGRect) {
         super.drawText(in: rect.inset(by: textInsets))

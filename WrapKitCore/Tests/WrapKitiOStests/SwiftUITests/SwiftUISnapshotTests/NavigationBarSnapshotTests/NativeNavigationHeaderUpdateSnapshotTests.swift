@@ -71,6 +71,59 @@ final class NativeNavigationHeaderUpdateSnapshotTests: XCTestCase {
         }
     }
 
+    func test_trailingButton_contentInsetBypassesNativeFastPathAndUpdatesWhileMounted() throws {
+        let identifier = "native.header.inset-button"
+        let image = UIGraphicsImageRenderer(size: CGSize(width: 24, height: 12)).image { context in
+            UIColor.green.setFill()
+            context.fill(CGRect(x: 0, y: 0, width: 24, height: 12))
+        }
+        let paddedAction = ButtonPresentableModel(
+            accessibilityIdentifier: identifier, image: image,
+            contentInset: .init(top: 0, leading: 32, bottom: 0, trailing: 32), onPress: {}
+        )
+        let live = makeHeader(leading: nil, trailing: paddedAction)
+        live.adapter.display(secondaryTrailingImage: nil)
+        live.adapter.display(tertiaryTrailingImage: nil)
+        _ = try capture(live, named: "native_trailing_explicit_insets")
+        let paddedFrame = try XCTUnwrap(live.host.element(withIdentifier: identifier)).accessibilityFrame
+        XCTAssertGreaterThanOrEqual(paddedFrame.width, image.size.width + 64,
+                                    "Explicit content insets must not be discarded by the native toolbar fast path")
+
+        live.adapter.display(primeTrailingImage: .init(accessibilityIdentifier: identifier, image: image, onPress: {}))
+        _ = try capture(live, named: "native_trailing_nil_preserves_insets")
+        let retainedFrame = try XCTUnwrap(live.host.element(withIdentifier: identifier)).accessibilityFrame
+        XCTAssertEqual(retainedFrame.width, paddedFrame.width, accuracy: 0.5)
+
+        live.adapter.display(primeTrailingImage: .init(
+            accessibilityIdentifier: identifier, image: image, contentInset: .zero, onPress: {}
+        ))
+        _ = try capture(live, named: "native_trailing_explicit_zero_insets")
+        let zeroInsetFrame = try XCTUnwrap(live.host.element(withIdentifier: identifier)).accessibilityFrame
+        let baselineFrame: CGRect = try {
+            let baseline = makeHeader(leading: nil, trailing: .init(
+                accessibilityIdentifier: identifier, image: image, contentInset: .zero, onPress: {}
+            ))
+            baseline.adapter.display(secondaryTrailingImage: nil)
+            baseline.adapter.display(tertiaryTrailingImage: nil)
+            _ = try capture(baseline, named: "native_trailing_fresh_zero_inset_toolbar")
+            return try XCTUnwrap(baseline.host.element(withIdentifier: identifier)).accessibilityFrame
+        }()
+        let frames = "Native inset frames: padded=\(paddedFrame), retained=\(retainedFrame), zero=\(zeroInsetFrame), freshZero=\(baselineFrame)"
+        print(frames)
+        let geometry = XCTAttachment(string: frames)
+        geometry.name = "native_trailing_inset_frames"
+        geometry.lifetime = .keepAlways
+        add(geometry)
+        XCTAssertEqual(zeroInsetFrame.width, baselineFrame.width, accuracy: 0.5,
+                       "Explicit zero must match a fresh zero-inset control in this runtime's native toolbar")
+        XCTAssertGreaterThan(paddedFrame.width, zeroInsetFrame.width)
+
+        live.adapter.display(primeTrailingImage: paddedAction)
+        _ = try capture(live, named: "native_trailing_explicit_insets_restored")
+        let restoredFrame = try XCTUnwrap(live.host.element(withIdentifier: identifier)).accessibilityFrame
+        XCTAssertEqual(restoredFrame.width, paddedFrame.width, accuracy: 0.5)
+    }
+
     private struct LiveHeader {
         let adapter: HeaderOutputSwiftUIAdapter
         let host: SwiftUIAccessibilityTestHost

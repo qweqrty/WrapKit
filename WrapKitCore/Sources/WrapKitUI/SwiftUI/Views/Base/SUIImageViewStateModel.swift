@@ -32,6 +32,7 @@ public final class SUIImageViewStateModel: ObservableObject {
     private var latestVisibilityOutputSequence: UInt64 = 0
     private var latestImageOutputSequence: UInt64 = 0
     private var latestSizeOutputSequence: UInt64 = 0
+    private var latestContentInsetsOutputSequence: UInt64 = 0
     private var latestOnPressOutputSequence: UInt64 = 0
     private var latestOnLongPressOutputSequence: UInt64 = 0
     private var latestContentModeOutputSequence: UInt64 = 0
@@ -316,8 +317,11 @@ public final class SUIImageViewStateModel: ObservableObject {
 
         guard let model else { return }
 
-        if let size = resolvedSize(for: model) {
-            apply(size: size, outputSequence: outputSequence)
+        if let layout = resolvedLayout(for: model) {
+            apply(layout: layout, outputSequence: outputSequence)
+        }
+        if let contentInsets = model.contentInsets {
+            apply(contentInsets: contentInsets, outputSequence: outputSequence)
         }
         if let contentModeIsFit = model.contentModeIsFit {
             apply(
@@ -349,11 +353,12 @@ public final class SUIImageViewStateModel: ObservableObject {
         model = ImageViewPresentableModel(
             accessibilityIdentifier: accessibilityIdentifier,
             accessibility: accessibility,
-            size: model.size,
+            layout: model.layout,
             image: model.image,
             onPress: model.onPress,
             onLongPress: model.onLongPress,
             contentModeIsFit: model.contentModeIsFit,
+            contentInsets: model.contentInsets,
             borderWidth: model.borderWidth,
             borderColor: model.borderColor,
             cornerRadius: model.cornerRadius,
@@ -383,9 +388,20 @@ public final class SUIImageViewStateModel: ObservableObject {
     }
 
     private func apply(size: CGSize, outputSequence: UInt64) {
+        apply(layout: .fixed(size), outputSequence: outputSequence)
+    }
+
+    private func apply(layout: ImageViewPresentableModel.Layout, outputSequence: UInt64) {
         guard outputSequence >= latestSizeOutputSequence else { return }
         latestSizeOutputSequence = outputSequence
-        model = model.updated(size: size)
+        model = model.updated(layout: layout)
+        persistReplayCheckpoint()
+    }
+
+    private func apply(contentInsets: EdgeInsets, outputSequence: UInt64) {
+        guard outputSequence >= latestContentInsetsOutputSequence else { return }
+        latestContentInsetsOutputSequence = outputSequence
+        model = model.updated(contentInsets: contentInsets)
         persistReplayCheckpoint()
     }
 
@@ -438,8 +454,8 @@ public final class SUIImageViewStateModel: ObservableObject {
         persistReplayCheckpoint()
     }
 
-    private func resolvedSize(for model: ImageViewPresentableModel) -> CGSize? {
-        model.size ?? intrinsicSize(of: model.image)
+    private func resolvedLayout(for model: ImageViewPresentableModel) -> ImageViewPresentableModel.Layout? {
+        model.layout ?? intrinsicSize(of: model.image).map(ImageViewPresentableModel.Layout.fixed)
     }
 
     private func intrinsicSize(of image: ImageEnum?) -> CGSize? {

@@ -578,6 +578,8 @@ private extension SwiftUIOutputReplayClosureStore {
             title: model.title,
             image: model.image,
             spacing: model.spacing,
+            contentInset: model.contentInset,
+            isGlassEffectEnabled: model.isGlassEffectEnabled,
             height: model.height,
             width: model.width,
             style: model.style,
@@ -695,6 +697,8 @@ extension SwiftUIOutputReplayClosureStore {
             title: model.title,
             image: model.image,
             spacing: model.spacing,
+            contentInset: model.contentInset,
+            isGlassEffectEnabled: model.isGlassEffectEnabled,
             height: model.height,
             width: model.width,
             style: model.style,
@@ -726,7 +730,7 @@ extension SwiftUIOutputReplayClosureStore {
         return ImageViewPresentableModel(
             accessibilityIdentifier: model.accessibilityIdentifier,
             accessibility: model.accessibility,
-            size: model.size,
+            layout: model.layout,
             image: model.image,
             onPress: sanitizePersistentAction(
                 model.onPress,
@@ -737,6 +741,7 @@ extension SwiftUIOutputReplayClosureStore {
                 path: childPath("onLongPress", of: path)
             ),
             contentModeIsFit: model.contentModeIsFit,
+            contentInsets: model.contentInsets,
             borderWidth: model.borderWidth,
             borderColor: model.borderColor,
             cornerRadius: model.cornerRadius,
@@ -1503,6 +1508,8 @@ private extension SwiftUIOutputReplayClosureStore {
             title: button.title,
             image: button.image,
             spacing: button.spacing,
+            contentInset: button.contentInset,
+            isGlassEffectEnabled: button.isGlassEffectEnabled,
             height: button.height,
             width: button.width,
             style: button.style,

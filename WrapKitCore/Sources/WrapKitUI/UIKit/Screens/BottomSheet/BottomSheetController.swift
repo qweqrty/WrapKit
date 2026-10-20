@@ -121,6 +121,24 @@ open class BottomSheetController<View: UIView>: ViewController<View> {
             bottomSheetTransitioningDelegate.panToDismissEnabled = panToDismissEnabled
         }
     }
+
+    open var onTapOutside: (() -> Void)? {
+        didSet {
+            bottomSheetTransitioningDelegate.onTapOutside = onTapOutside
+        }
+    }
+
+    open var onPanToDismiss: (() -> Void)? {
+        didSet {
+            bottomSheetTransitioningDelegate.onPanToDismiss = onPanToDismiss
+        }
+    }
+
+    open var highlightedSourceViewIdentifier: String? {
+        didSet {
+            bottomSheetTransitioningDelegate.highlightedSourceViewIdentifier = highlightedSourceViewIdentifier
+        }
+    }
 }
 
 #endif

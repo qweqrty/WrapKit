@@ -478,7 +478,9 @@ private struct SUINavigationBarButtonView: View {
     var body: some View {
         if isPresented, !stateModel.isHidden {
             let model = stateModel.presentable
-            if #available(iOS 26, macOS 26, tvOS 26, watchOS 26, *), isLiquidGlassEnabled {
+            if #available(iOS 26, macOS 26, tvOS 26, watchOS 26, *),
+               isLiquidGlassEnabled, model.isGlassEffectEnabled != false,
+               !usesLegacyGradient(model) {
                 AnyView(Group {
                 constrainedControl(
                     button(model)
@@ -497,14 +499,20 @@ private struct SUINavigationBarButtonView: View {
                 let cornerStyle = model.style?.cornerStyle ?? .none
                 constrainedControl(
                     button(model, horizontalInset: model.width == nil ? 8 : 0)
-                    .buttonStyle(.plain)
-                    .background(SwiftUIColor(model.style?.backgroundColor ?? .clear))
-                    .cornerStyle(cornerStyle)
-                    .overlay(buttonBorder(model.style, cornerStyle: cornerStyle)),
+                        .buttonStyle(.plain),
                     model: model
                 )
+                .background { buttonBackground(model.style) }
+                .cornerStyle(cornerStyle)
+                .overlay(buttonBorder(model.style, cornerStyle: cornerStyle))
             }
         }
+    }
+
+    private func usesLegacyGradient(_ model: ButtonPresentableModel) -> Bool {
+        guard model.style?.glassConfiguration == nil,
+              case .gradient? = model.style?.backgroundStyle else { return false }
+        return true
     }
 
     @ViewBuilder
@@ -534,7 +542,8 @@ private struct SUINavigationBarButtonView: View {
                 if let image = model.image {
                     SwiftUIImage(image: image)
                         .renderingMode(.template)
-                        .foregroundColor(foregroundColor(for: model, fallback: tintColor))
+                        .foregroundColor(model.style?.imageTintColor.map(SwiftUIColor.init)
+                            ?? foregroundColor(for: model, fallback: tintColor))
                 }
                 if let title = model.title {
                     Text(title.removingPercentEncoding ?? title)
@@ -545,7 +554,9 @@ private struct SUINavigationBarButtonView: View {
                 }
             }
             .fixedSize(horizontal: true, vertical: false)
-            .padding(.horizontal, horizontalInset)
+            .padding(model.contentInset?.asSUIEdgeInsets ?? .init(
+                top: 0, leading: horizontalInset, bottom: 0, trailing: horizontalInset
+            ))
         }
         .disabled(!stateModel.isEnabled)
         .allowsHitTesting(model.onPress != nil && stateModel.isEnabled)
@@ -573,7 +584,8 @@ private struct SUINavigationBarButtonView: View {
         if let style = model.style {
             return SwiftUIColor(style.titleColor ?? .white)
         }
-        if #available(iOS 26, macOS 26, tvOS 26, watchOS 26, *), isLiquidGlassEnabled {
+        if #available(iOS 26, macOS 26, tvOS 26, watchOS 26, *),
+           isLiquidGlassEnabled, model.isGlassEffectEnabled != false {
             // Resolve opaque surfaces explicitly to keep controls readable.
             // Translucent surfaces return nil so Liquid Glass can adapt to
             // their real backdrop.
@@ -583,6 +595,22 @@ private struct SUINavigationBarButtonView: View {
             )
         }
         return SwiftUIColor(fallback)
+    }
+
+    @ViewBuilder
+    private func buttonBackground(_ style: ButtonStyle?) -> some View {
+        switch style?.backgroundStyle {
+        case .solid(let color):
+            SwiftUIColor(color ?? .clear)
+        case .gradient(let gradient):
+            LinearGradient(
+                colors: gradient.colors.map(SwiftUIColor.init),
+                startPoint: UnitPoint(x: gradient.startPoint.x, y: gradient.startPoint.y),
+                endPoint: UnitPoint(x: gradient.endPoint.x, y: gradient.endPoint.y)
+            )
+        case .none:
+            SwiftUIColor(style?.backgroundColor ?? .clear)
+        }
     }
 
     @ViewBuilder

@@ -5,6 +5,78 @@
 
     @MainActor
     final class SwiftUIOutputReplayClosureStoreTests: XCTestCase {
+        func test_nestedCardImageLayout_survivesSanitizingNormalizationAndRemount() throws {
+            let adapter = CardViewOutputSwiftUIAdapter()
+            let layout = ImageViewPresentableModel.Layout.fillWidth(heightByWidthRatio: 0.29)
+            let insets = EdgeInsets(top: 3, leading: 5, bottom: 7, trailing: 11)
+            var calls = 0
+            adapter.display(model: .init(leadingImage: .init(
+                layout: layout, image: .symbolName("gift"), onPress: { calls += 1 }, contentInsets: insets
+            )))
+            let retained = try XCTUnwrap(adapter.displayModelState?.model?.leadingImage)
+            var mounted: SUICardViewStateModel? = SUICardViewStateModel(adapter: adapter)
+            let normalized = try XCTUnwrap(mounted?.leadingImage)
+            mounted = nil
+
+            let remounted = SUICardViewStateModel(adapter: adapter)
+            let restored = try XCTUnwrap(remounted.leadingImage)
+
+            for image in [retained, normalized, restored] {
+                XCTAssertEqual(image.layout, layout)
+                XCTAssertEqual(image.contentInsets, insets)
+            }
+            restored.onPress?()
+            XCTAssertEqual(calls, 1)
+            adapter.display(leadingImage: nil)
+            restored.onPress?()
+            XCTAssertEqual(calls, 1)
+        }
+
+        func test_nestedTextInputButtonConfiguration_survivesSanitizingPreparationAndRemount() throws {
+            let adapter = TextInputOutputSwiftUIAdapter()
+            let inset = EdgeInsets(top: 3, leading: 5, bottom: 7, trailing: 11)
+            let gradient = ColorStyle.gradient(.init(colors: [.red, .blue]))
+            var calls = 0
+            adapter.display(model: .init(inputAccessoryView: .init(trailingButton: .init(
+                title: "Done", contentInset: inset, isGlassEffectEnabled: false,
+                style: .init(backgroundColor: gradient, imageTintColor: .green), onPress: { calls += 1 }
+            ))))
+            let retained = try XCTUnwrap(adapter.displayModelState?.model?.inputAccessoryView?.trailingButton)
+            var mounted: SUITextInputStateModel? = SUITextInputStateModel(adapter: adapter)
+            let prepared = try XCTUnwrap(mounted?.inputAccessoryView?.trailingButton)
+            mounted = nil
+
+            let remounted = SUITextInputStateModel(adapter: adapter)
+            let restored = try XCTUnwrap(remounted.inputAccessoryView?.trailingButton)
+
+            for button in [retained, prepared, restored] {
+                XCTAssertEqual(button.contentInset, inset)
+                XCTAssertEqual(button.isGlassEffectEnabled, false)
+                XCTAssertEqual(button.style?.backgroundStyle, gradient)
+                XCTAssertEqual(button.style?.imageTintColor, .green)
+            }
+            restored.onPress?()
+            XCTAssertEqual(calls, 1)
+
+            adapter.display(inputAccessoryView: nil)
+            restored.onPress?()
+            XCTAssertEqual(calls, 1, "Preserving button configuration must not bypass callback revocation")
+        }
+
+        func test_headerNestedButtonSanitizer_preservesInsetsAndGlassOverride() throws {
+            let adapter = HeaderOutputSwiftUIAdapter()
+            adapter.display(model: .init(primeTrailingImage: .init(
+                title: "Action", contentInset: .init(all: 9), isGlassEffectEnabled: false,
+                style: .init(imageTintColor: .red), onPress: {}
+            )))
+
+            let button = try XCTUnwrap(adapter.displayModelState?.model.primeTrailingImage)
+
+            XCTAssertEqual(button.contentInset, .init(all: 9))
+            XCTAssertEqual(button.isGlassEffectEnabled, false)
+            XCTAssertEqual(button.style?.imageTintColor, .red)
+        }
+
         func test_buttonGranularNilKeepsOldPublicDataButRevokesItsAction() throws {
             final class ActionOwner {}
 

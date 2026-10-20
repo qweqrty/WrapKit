@@ -63,18 +63,20 @@ private struct NativeNavigationHeaderModifier: ViewModifier {
                     }
                     if state.model.primeTrailingImage != nil && !state.primeTrailingButtonStateModel.isHidden {
                         ToolbarItem(id: "header-primary-\(toolbarLayoutID)", placement: .navigationBarTrailing) {
-                            NativeNavigationHeaderButton(state: state.primeTrailingButtonStateModel, tint: style.primeColor)
+                            NativeNavigationHeaderButton(state: state.primeTrailingButtonStateModel, style: style)
                         }
                         .headerAxisBehavior(vertical: horizontalSizeClass != .regular && state.primeTrailingButtonStateModel.presentable.isVerticalHeaderAction)
+                        .headerGlassVisibility(enabled: state.primeTrailingButtonStateModel.presentable.isGlassEffectEnabled)
                     }
                     if state.model.secondaryTrailingImage != nil && !state.secondaryTrailingButtonStateModel.isHidden {
                         if #available(iOS 26.0, *), state.model.primeTrailingImage != nil && !state.primeTrailingButtonStateModel.isHidden {
                             ToolbarSpacer(.fixed, placement: .navigationBarTrailing)
                         }
                         ToolbarItem(id: "header-secondary-\(toolbarLayoutID)", placement: .navigationBarTrailing) {
-                            NativeNavigationHeaderButton(state: state.secondaryTrailingButtonStateModel, tint: style.primeColor)
+                            NativeNavigationHeaderButton(state: state.secondaryTrailingButtonStateModel, style: style)
                         }
                         .headerAxisBehavior(vertical: horizontalSizeClass != .regular && state.secondaryTrailingButtonStateModel.presentable.isVerticalHeaderAction)
+                        .headerGlassVisibility(enabled: state.secondaryTrailingButtonStateModel.presentable.isGlassEffectEnabled)
                     }
                     if state.model.tertiaryTrailingImage != nil && !state.tertiaryTrailingButtonStateModel.isHidden {
                         if #available(iOS 26.0, *),
@@ -83,9 +85,10 @@ private struct NativeNavigationHeaderModifier: ViewModifier {
                             ToolbarSpacer(.fixed, placement: .navigationBarTrailing)
                         }
                         ToolbarItem(id: "header-tertiary-\(toolbarLayoutID)", placement: .navigationBarTrailing) {
-                            NativeNavigationHeaderButton(state: state.tertiaryTrailingButtonStateModel, tint: style.primeColor)
+                            NativeNavigationHeaderButton(state: state.tertiaryTrailingButtonStateModel, style: style)
                         }
                         .headerAxisBehavior(vertical: horizontalSizeClass != .regular && state.tertiaryTrailingButtonStateModel.presentable.isVerticalHeaderAction)
+                        .headerGlassVisibility(enabled: state.tertiaryTrailingButtonStateModel.presentable.isGlassEffectEnabled)
                     }
                 }
             }
@@ -96,6 +99,15 @@ private struct NativeNavigationHeaderModifier: ViewModifier {
 // rich controls and regular-width screens stay in the horizontal bar.
 @available(iOS 16.0, *)
 private extension ToolbarContent {
+    @ToolbarContentBuilder
+    func headerGlassVisibility(enabled: Bool?) -> some ToolbarContent {
+        if #available(iOS 26.0, *), let enabled {
+            sharedBackgroundVisibility(enabled ? .automatic : .hidden)
+        } else {
+            self
+        }
+    }
+
     @ToolbarContentBuilder
     func headerAxisBehavior(vertical: Bool) -> some ToolbarContent {
         #if compiler(>=6.4)
@@ -251,12 +263,13 @@ private struct NativeNavigationHeaderTitle: View {
 @available(iOS 16.0, *)
 private struct NativeNavigationHeaderButton: View {
     @ObservedObject var state: SUIButtonStateModel
-    let tint: Color
+    let style: HeaderPresentableModel.Style
 
     var body: some View {
         if !state.isHidden {
             let model = state.presentable
-            if model.style == nil && model.width == nil && model.height == nil && model.spacing == nil {
+            if model.style == nil && model.width == nil && model.height == nil && model.spacing == nil
+                && model.contentInset == nil && model.isGlassEffectEnabled != false {
                 SwiftUI.Button {
                     model.onPress?()
                 } label: {
@@ -267,7 +280,7 @@ private struct NativeNavigationHeaderButton: View {
                         Text(model.title?.removingPercentEncoding ?? model.title ?? "")
                     }
                 }
-                .tint(SwiftUIColor(tint))
+                .tint(SwiftUIColor(style.primeColor))
                 .disabled(!state.isEnabled || model.onPress == nil)
                 .ifLet(model.accessibilityIdentifier) { view, identifier in
                     view.accessibilityIdentifier(identifier)
@@ -280,15 +293,34 @@ private struct NativeNavigationHeaderButton: View {
                 }
             } else {
                 SUIButtonView(
-                    model: model,
+                    model: applyingHeaderFallback(to: model),
                     onPress: model.onPress,
                     isEnabled: state.isEnabled,
                     fillsAvailableWidth: false,
                     fillsAvailableHeight: false
                 )
-                .tint(SwiftUIColor(tint))
+                .tint(SwiftUIColor(style.primeColor))
             }
         }
+    }
+
+    private func applyingHeaderFallback(to model: ButtonPresentableModel) -> ButtonPresentableModel {
+        guard model.style == nil,
+              model.contentInset != nil || model.isGlassEffectEnabled == false else { return model }
+        return .init(
+            accessibilityIdentifier: model.accessibilityIdentifier,
+            accessibility: model.accessibility,
+            title: model.title,
+            image: model.image,
+            spacing: model.spacing,
+            contentInset: model.contentInset,
+            isGlassEffectEnabled: model.isGlassEffectEnabled,
+            height: model.height,
+            width: model.width,
+            style: .init(titleColor: style.primeColor, font: style.primeFont, cornerStyle: .none),
+            enabled: model.enabled,
+            onPress: model.onPress
+        )
     }
 }
 #endif

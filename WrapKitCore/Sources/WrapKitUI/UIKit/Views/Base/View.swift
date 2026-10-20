@@ -254,6 +254,9 @@ open class ViewUIKit: UIView {
 
     override open func didMoveToWindow() {
         super.didMoveToWindow()
+        #if !os(tvOS)
+        presentPendingTooltipIfNeeded()
+        #endif
         guard !gradientBorderColors.isEmpty else { return }
         if window == nil {
             gradientBorderLayer.removeAnimation(forKey: gradientBorderAnimationKey)

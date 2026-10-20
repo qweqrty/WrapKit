@@ -277,5 +277,154 @@ final class SUIButtonStateModelTests: XCTestCase {
         XCTAssertEqual(sut.presentable.height, 100)
         XCTAssertEqual(sut.presentable.style?.backgroundColor, .cyan)
     }
+
+    func test_fullModel_appliesContentInsetGlassOverrideAndGradientImageStyle() {
+        let adapter = ButtonOutputSwiftUIAdapter()
+        let sut = SUIButtonStateModel(adapter: adapter)
+        let inset = EdgeInsets(top: 3, leading: 7, bottom: 11, trailing: 13)
+        let gradient = ColorStyle.gradient(.init(
+            colors: [.red, .blue], startPoint: .init(x: 0, y: 0), endPoint: .init(x: 1, y: 1)
+        ))
+
+        adapter.display(model: .init(
+            title: "Gradient", contentInset: inset, isGlassEffectEnabled: false,
+            style: .init(backgroundColor: gradient, imageTintColor: .green, glassConfiguration: .glass)
+        ))
+
+        XCTAssertEqual(sut.presentable.contentInset, inset)
+        XCTAssertEqual(sut.presentable.isGlassEffectEnabled, false)
+        XCTAssertEqual(sut.presentable.style?.backgroundStyle, gradient)
+        XCTAssertEqual(sut.presentable.style?.imageTintColor, .green)
+        XCTAssertEqual(sut.presentable.style?.glassConfiguration, .glass)
+    }
+
+    func test_granularContentInset_preservesModelAndStyle() {
+        let adapter = ButtonOutputSwiftUIAdapter()
+        let sut = SUIButtonStateModel(adapter: adapter)
+        let gradient = ColorStyle.gradient(.init(colors: [.red, .blue]))
+        adapter.display(model: .init(
+            accessibilityIdentifier: "button.insets", title: "Padded", image: ImageFactory.systemImage(named: "star"),
+            spacing: 5, isGlassEffectEnabled: false, height: 48, width: 180,
+            style: .init(backgroundColor: gradient, imageTintColor: .green), enabled: false
+        ))
+
+        adapter.display(contentInset: .init(all: 9))
+
+        XCTAssertEqual(sut.presentable.contentInset, .init(all: 9))
+        XCTAssertEqual(sut.presentable.accessibilityIdentifier, "button.insets")
+        XCTAssertEqual(sut.presentable.title, "Padded")
+        XCTAssertNotNil(sut.presentable.image)
+        XCTAssertEqual(sut.presentable.spacing, 5)
+        XCTAssertEqual(sut.presentable.height, 48)
+        XCTAssertEqual(sut.presentable.width, 180)
+        XCTAssertEqual(sut.presentable.isGlassEffectEnabled, false)
+        XCTAssertEqual(sut.presentable.style?.backgroundStyle, gradient)
+        XCTAssertEqual(sut.presentable.style?.imageTintColor, .green)
+        XCTAssertFalse(sut.isEnabled)
+    }
+
+    func test_premountContentInsetAndFullModelHonorFinalWriteInEitherOrder() {
+        let modelLastAdapter = ButtonOutputSwiftUIAdapter()
+        modelLastAdapter.display(contentInset: .init(all: 4))
+        modelLastAdapter.display(model: .init(contentInset: .init(all: 12)))
+        let insetLastAdapter = ButtonOutputSwiftUIAdapter()
+        insetLastAdapter.display(model: .init(contentInset: .init(all: 12)))
+        insetLastAdapter.display(contentInset: .init(all: 4))
+
+        XCTAssertEqual(SUIButtonStateModel(adapter: modelLastAdapter).presentable.contentInset, .init(all: 12))
+        XCTAssertEqual(SUIButtonStateModel(adapter: insetLastAdapter).presentable.contentInset, .init(all: 4))
+    }
+
+    func test_fullModelWithoutOptionalConfiguration_preservesContentInsetAndGlassOverride() {
+        let adapter = ButtonOutputSwiftUIAdapter()
+        let sut = SUIButtonStateModel(adapter: adapter)
+        adapter.display(model: .init(contentInset: .init(all: 8), isGlassEffectEnabled: false))
+
+        adapter.display(model: .init(title: "Updated"))
+        adapter.display(title: "Granular title")
+        adapter.display(style: .init(backgroundColor: .red))
+
+        XCTAssertEqual(sut.presentable.contentInset, .init(all: 8))
+        XCTAssertEqual(sut.presentable.isGlassEffectEnabled, false)
+        XCTAssertEqual(sut.presentable.title, "Granular title")
+    }
+
+    func test_explicitZeroContentInsetAndTrueGlassOverride_replaceEarlierValues() {
+        let adapter = ButtonOutputSwiftUIAdapter()
+        let sut = SUIButtonStateModel(adapter: adapter)
+        adapter.display(model: .init(contentInset: .init(all: 8), isGlassEffectEnabled: false))
+
+        adapter.display(contentInset: .zero)
+        adapter.display(model: .init(isGlassEffectEnabled: true))
+
+        XCTAssertEqual(sut.presentable.contentInset, .zero)
+        XCTAssertEqual(sut.presentable.isGlassEffectEnabled, true)
+    }
+
+    func test_staleFullModel_doesNotOverwriteLaterContentInsetOrGlassOverride() {
+        let adapter = ButtonOutputSwiftUIAdapter()
+        let sut = SUIButtonStateModel(adapter: adapter)
+        adapter.display(model: .init(contentInset: .init(all: 4), isGlassEffectEnabled: false))
+        let earlierModel = adapter.displayModelState
+        adapter.display(contentInset: .init(all: 12))
+        adapter.display(model: .init(isGlassEffectEnabled: true))
+
+        adapter.displayModelState = earlierModel
+
+        XCTAssertEqual(sut.presentable.contentInset, .init(all: 12))
+        XCTAssertEqual(sut.presentable.isGlassEffectEnabled, true)
+    }
+
+    func test_remount_restoresGradientTintInsetsAndGlassFromCheckpoint() {
+        let adapter = ButtonOutputSwiftUIAdapter()
+        let gradient = ColorStyle.gradient(.init(colors: [.red, .blue]))
+        weak var firstStateModel: SUIButtonStateModel?
+        autoreleasepool {
+            let sut = SUIButtonStateModel(adapter: adapter)
+            firstStateModel = sut
+            adapter.display(model: .init(
+                title: "Saved", contentInset: .init(all: 4), isGlassEffectEnabled: false,
+                style: .init(backgroundColor: gradient, imageTintColor: .green)
+            ))
+            adapter.display(contentInset: .init(all: 10))
+            adapter.display(title: "Checkpoint")
+        }
+        XCTAssertNil(firstStateModel)
+
+        let remounted = SUIButtonStateModel(adapter: adapter)
+
+        XCTAssertEqual(remounted.presentable.title, "Checkpoint")
+        XCTAssertEqual(remounted.presentable.contentInset, .init(all: 10))
+        XCTAssertEqual(remounted.presentable.isGlassEffectEnabled, false)
+        XCTAssertEqual(remounted.presentable.style?.backgroundStyle, gradient)
+        XCTAssertEqual(remounted.presentable.style?.imageTintColor, .green)
+    }
+
+    func test_contentInsetPublishedWhileUnmounted_replaysAfterCheckpoint() {
+        let adapter = ButtonOutputSwiftUIAdapter()
+        autoreleasepool {
+            let sut = SUIButtonStateModel(adapter: adapter)
+            adapter.display(model: .init(contentInset: .init(all: 3), isGlassEffectEnabled: false))
+            withExtendedLifetime(sut) {}
+        }
+
+        adapter.display(contentInset: .init(all: 17))
+        let remounted = SUIButtonStateModel(adapter: adapter)
+
+        XCTAssertEqual(remounted.presentable.contentInset, .init(all: 17))
+        XCTAssertEqual(remounted.presentable.isGlassEffectEnabled, false)
+    }
+
+    func test_newMountTakesLeaseForContentInsetWithoutUpdatingPreviousStateModel() {
+        let adapter = ButtonOutputSwiftUIAdapter()
+        let first = SUIButtonStateModel(adapter: adapter)
+        adapter.display(contentInset: .init(all: 3))
+
+        let second = SUIButtonStateModel(adapter: adapter)
+        adapter.display(contentInset: .init(all: 9))
+
+        XCTAssertEqual(first.presentable.contentInset, .init(all: 3))
+        XCTAssertEqual(second.presentable.contentInset, .init(all: 9))
+    }
 }
 #endif

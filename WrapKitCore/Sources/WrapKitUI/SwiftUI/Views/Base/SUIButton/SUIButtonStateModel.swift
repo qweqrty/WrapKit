@@ -31,6 +31,8 @@ public final class SUIButtonStateModel: ObservableObject {
     private var latestImageOutputSequence: UInt64 = 0
     private var latestStyleOutputSequence: UInt64 = 0
     private var latestSpacingOutputSequence: UInt64 = 0
+    private var latestContentInsetOutputSequence: UInt64 = 0
+    private var latestGlassEffectEnabledOutputSequence: UInt64 = 0
     private var latestHeightOutputSequence: UInt64 = 0
     private var latestOnPressOutputSequence: UInt64 = 0
     
@@ -140,6 +142,19 @@ public final class SUIButtonStateModel: ObservableObject {
             .store(in: &cancellables)
         
         adapter.outputReplayPublisher(
+            adapter.$displayContentInsetState,
+            consumer: outputReplayConsumer
+        )
+            .compactMap { $0 }
+            .sink { [weak self] value in
+                self?.apply(
+                    contentInset: value.contentInset,
+                    outputSequence: value.outputSequence
+                )
+            }
+            .store(in: &cancellables)
+
+        adapter.outputReplayPublisher(
             adapter.$displayHeightState,
             consumer: outputReplayConsumer
         )
@@ -202,6 +217,8 @@ private extension SUIButtonStateModel {
             title: current.title,
             image: current.image,
             spacing: current.spacing,
+            contentInset: current.contentInset,
+            isGlassEffectEnabled: current.isGlassEffectEnabled,
             height: current.height,
             width: model?.width ?? current.width,
             style: current.style,
@@ -216,6 +233,12 @@ private extension SUIButtonStateModel {
 
         if let spacing = model?.spacing {
             apply(spacing: spacing, outputSequence: outputSequence)
+        }
+        if let contentInset = model?.contentInset {
+            apply(contentInset: contentInset, outputSequence: outputSequence)
+        }
+        if let isGlassEffectEnabled = model?.isGlassEffectEnabled {
+            apply(isGlassEffectEnabled: isGlassEffectEnabled, outputSequence: outputSequence)
         }
         if let height = model?.height {
             apply(height: height, outputSequence: outputSequence)
@@ -278,6 +301,20 @@ private extension SUIButtonStateModel {
         persistReplayCheckpoint()
     }
 
+    func apply(contentInset: EdgeInsets, outputSequence: UInt64) {
+        guard outputSequence >= latestContentInsetOutputSequence else { return }
+        latestContentInsetOutputSequence = outputSequence
+        presentable = presentable.merging(contentInset: contentInset)
+        persistReplayCheckpoint()
+    }
+
+    func apply(isGlassEffectEnabled: Bool, outputSequence: UInt64) {
+        guard outputSequence >= latestGlassEffectEnabledOutputSequence else { return }
+        latestGlassEffectEnabledOutputSequence = outputSequence
+        presentable = presentable.merging(isGlassEffectEnabled: isGlassEffectEnabled)
+        persistReplayCheckpoint()
+    }
+
     func apply(onPress: (() -> Void)?, outputSequence: UInt64) {
         guard outputSequence >= latestOnPressOutputSequence else { return }
         latestOnPressOutputSequence = outputSequence
@@ -306,6 +343,8 @@ private extension ButtonPresentableModel {
         image: Image?? = .none,
         style: ButtonStyle?? = .none,
         spacing: CGFloat? = nil,
+        contentInset: EdgeInsets? = nil,
+        isGlassEffectEnabled: Bool? = nil,
         height: CGFloat? = nil,
         enabled: Bool? = nil,
         onPress: (() -> Void)?? = .none
@@ -316,6 +355,8 @@ private extension ButtonPresentableModel {
             title: title ?? self.title,
             image: image ?? self.image,
             spacing: spacing ?? self.spacing,
+            contentInset: contentInset ?? self.contentInset,
+            isGlassEffectEnabled: isGlassEffectEnabled ?? self.isGlassEffectEnabled,
             height: height ?? self.height,
             width: self.width,
             style: style ?? self.style,

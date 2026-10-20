@@ -24,6 +24,24 @@ final public class BottomSheetTransitioningDelegate: NSObject, UIViewControllerT
             bottomSheetPresentationController?.panToDismissEnabled = panToDismissEnabled
         }
     }
+
+    var onTapOutside: (() -> Void)? {
+        didSet {
+            bottomSheetPresentationController?.onTapOutside = onTapOutside
+        }
+    }
+
+    var onPanToDismiss: (() -> Void)? {
+        didSet {
+            bottomSheetPresentationController?.onPanToDismiss = onPanToDismiss
+        }
+    }
+
+    var highlightedSourceViewIdentifier: String? {
+        didSet {
+            bottomSheetPresentationController?.highlightedSourceViewIdentifier = highlightedSourceViewIdentifier
+        }
+    }
     
     public init(
         preferredSheetTopInset: CGFloat,
@@ -64,6 +82,9 @@ final public class BottomSheetTransitioningDelegate: NSObject, UIViewControllerT
         )
         bottomSheetPresentationController.tapGestureRecognizer.isEnabled = tapToDismissEnabled
         bottomSheetPresentationController.panToDismissEnabled = panToDismissEnabled
+        bottomSheetPresentationController.onTapOutside = onTapOutside
+        bottomSheetPresentationController.onPanToDismiss = onPanToDismiss
+        bottomSheetPresentationController.highlightedSourceViewIdentifier = highlightedSourceViewIdentifier
         
         self.bottomSheetPresentationController = bottomSheetPresentationController
         

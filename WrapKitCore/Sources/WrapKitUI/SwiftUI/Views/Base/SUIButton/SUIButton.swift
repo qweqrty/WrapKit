@@ -176,7 +176,7 @@ public struct SUIButtonView: View {
                 )
             }
         }
-        .padding(contentInsets)
+        .padding(model.contentInset?.asSUIEdgeInsets ?? contentInsets)
     }
 
     @ViewBuilder
@@ -184,8 +184,9 @@ public struct SUIButtonView: View {
         let content = HStack(spacing: model.spacing ?? 0) {
             if let image = model.image {
                 SwiftUIImage(image: image)
-                    .renderingMode(image.swiftUIRenderingMode)
-                    .foregroundColor(usesLiquidGlassConfiguration ? titleColor : .accentColor)
+                    .renderingMode(model.style?.imageTintColor == nil ? image.swiftUIRenderingMode : .template)
+                    .foregroundColor(model.style?.imageTintColor.map(SwiftUIColor.init)
+                        ?? (usesLiquidGlassConfiguration ? titleColor : .accentColor))
             }
             if let title = model.title {
                 Text(title.removingPercentEncoding ?? title)
@@ -234,7 +235,7 @@ public struct SUIButtonView: View {
     }
 
     private var isLiquidGlassAvailable: Bool {
-        isAvailableOS26 && isLiquidGlassEnabled
+        isAvailableOS26 && isLiquidGlassEnabled && model.isGlassEffectEnabled != false
     }
 
     private var usesLiquidGlassConfiguration: Bool {
@@ -282,11 +283,22 @@ public struct SUIButtonView: View {
 
     @ViewBuilder
     private var backgroundView: some View {
-        SwiftUIColor(
-            effectiveIsPressed
-                ? model.style?.pressedColor ?? model.style?.backgroundColor ?? .clear
-                : model.style?.backgroundColor ?? .clear
-        )
+        if effectiveIsPressed, let pressedColor = model.style?.pressedColor {
+            SwiftUIColor(pressedColor)
+        } else {
+            switch model.style?.backgroundStyle {
+            case .solid(let color):
+                SwiftUIColor(color ?? .clear)
+            case .gradient(let gradient):
+                LinearGradient(
+                    colors: gradient.colors.map(SwiftUIColor.init),
+                    startPoint: UnitPoint(x: gradient.startPoint.x, y: gradient.startPoint.y),
+                    endPoint: UnitPoint(x: gradient.endPoint.x, y: gradient.endPoint.y)
+                )
+            case .none:
+                SwiftUIColor(model.style?.backgroundColor ?? .clear)
+            }
+        }
     }
 
     private var effectiveIsPressed: Bool {

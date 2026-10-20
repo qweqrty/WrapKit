@@ -26,6 +26,7 @@ public final class ButtonOutputSpy: ButtonOutput {
         case displayModel(model: ButtonPresentableModel?)
         case displayEnabled(enabled: Bool)
         case displayImage(image: Image?)
+        case displayContentInset(contentInset: EdgeInsets)
         case displayStyle(style: ButtonStyle?)
         case displayTitle(title: String?)
         case displaySpacing(spacing: CGFloat)
@@ -40,6 +41,7 @@ public final class ButtonOutputSpy: ButtonOutput {
     public private(set) var capturedDisplayModel: [ButtonPresentableModel?] = []
     public private(set) var capturedDisplayEnabled: [Bool] = []
     public private(set) var capturedDisplayImage: [Image?] = []
+    public private(set) var capturedDisplayContentInset: [EdgeInsets] = []
     public private(set) var capturedDisplayStyle: [ButtonStyle?] = []
     public private(set) var capturedDisplayTitle: [String?] = []
     public private(set) var capturedDisplaySpacing: [CGFloat] = []
@@ -60,6 +62,10 @@ public final class ButtonOutputSpy: ButtonOutput {
     public func display(image: Image?) {
         capturedDisplayImage.append(image)
         messages.append(.displayImage(image: image))
+    }
+    public func display(contentInset: EdgeInsets) {
+        capturedDisplayContentInset.append(contentInset)
+        messages.append(.displayContentInset(contentInset: contentInset))
     }
     public func display(style: ButtonStyle?) {
         capturedDisplayStyle.append(style)

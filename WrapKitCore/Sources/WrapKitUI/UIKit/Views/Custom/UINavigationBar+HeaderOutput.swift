@@ -239,8 +239,11 @@ public final class NavigationItemHeaderOutput: HeaderOutput {
     }
     private var buttons: [Button?] = [nil, nil, nil]
     private var buttonTitleColors: [UIColor?] = [nil, nil, nil]
+    private var buttonImageTintColors: [UIColor?] = [nil, nil, nil]
     private var buttonImages: [UIImage?] = [nil, nil, nil]
     private var buttonEnabled = [true, true, true]
+    private var buttonContentInsets: [EdgeInsets?] = [nil, nil, nil]
+    private var buttonGlassEffects: [Bool?] = [nil, nil, nil]
     private func customButton(at index: Int) -> Button {
         if let button = buttons[index] { return button }
         let button = Button(contentInset: isAvailableOS26 && isLiquidGlassEnabled
@@ -494,6 +497,7 @@ public final class NavigationItemHeaderOutput: HeaderOutput {
         if let style = button?.style {
             hasCustomButtonStyle[index] = true
             buttonTitleColors[index] = style.titleColor
+            buttonImageTintColors[index] = style.imageTintColor
         }
         guard let button else {
             buttons[index]?.display(model: nil)
@@ -503,8 +507,11 @@ public final class NavigationItemHeaderOutput: HeaderOutput {
             return
         }
         if let enabled = button.enabled { buttonEnabled[index] = enabled }
+        if let inset = button.contentInset { buttonContentInsets[index] = inset }
+        if let enabled = button.isGlassEffectEnabled { buttonGlassEffects[index] = enabled }
         let barItem: UIBarButtonItem
         if !hasCustomButtonStyle[index], button.height == nil, button.width == nil, button.spacing == nil,
+           buttonContentInsets[index] == nil,
            button.image == nil || button.title == nil {
             let model = button
             let action = UIAction(title: model.title ?? model.accessibility?.label ?? "", image: model.image) { _ in
@@ -520,7 +527,22 @@ public final class NavigationItemHeaderOutput: HeaderOutput {
             barItem = native
         } else {
             let custom = customButton(at: index)
-            custom.display(model: button)
+            let defaultGlassStyle = !hasCustomButtonStyle[index] && buttonGlassEffects[index] != nil
+                ? ButtonStyle(titleColor: primeColor, glassConfiguration: .glass) : nil
+            custom.display(model: .init(
+                accessibilityIdentifier: button.accessibilityIdentifier,
+                accessibility: button.accessibility,
+                title: button.title,
+                image: button.image,
+                spacing: button.spacing,
+                contentInset: buttonContentInsets[index],
+                isGlassEffectEnabled: buttonGlassEffects[index],
+                height: button.height,
+                width: button.width,
+                style: button.style ?? defaultGlassStyle,
+                enabled: button.enabled,
+                onPress: button.onPress
+            ))
             if let color = buttonTitleColors[index] ?? primeColor {
                 custom.textColor = color
             }
@@ -548,7 +570,12 @@ public final class NavigationItemHeaderOutput: HeaderOutput {
         barItem.title = button.title ?? button.accessibility?.label
         barItem.accessibilityIdentifier = button.accessibilityIdentifier
         #if os(iOS)
-        if #available(iOS 26, *) { barItem.sharesBackground = false }
+        if #available(iOS 26, *) {
+            barItem.sharesBackground = false
+            if let isGlassEffectEnabled = buttonGlassEffects[index] {
+                barItem.hidesSharedBackground = !isGlassEffectEnabled
+            }
+        }
         #endif
         #if os(iOS) && compiler(>=6.4)
         if #available(iOS 27.1, *) {
@@ -568,7 +595,7 @@ public final class NavigationItemHeaderOutput: HeaderOutput {
         #if os(iOS)
         guard #available(iOS 26, *), let button = buttons[index],
               let image = buttonImages[index], image.renderingMode != .alwaysOriginal,
-              let color = primeColor else { return }
+              let color = buttonImageTintColors[index] ?? primeColor else { return }
         // Glass can render template icons in its default monochrome instead of the header tint.
         // Keep the source image so later style/appearance updates can recolor it.
         button.display(image: image.withTintColor(color.resolvedColor(with: button.traitCollection), renderingMode: .alwaysOriginal))

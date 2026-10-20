@@ -11,7 +11,9 @@ public struct ButtonStyle: HashableWithReflection {
     public static let defaultCornerRadius: CGFloat = 12
     
     public let backgroundColor: Color?
+    public let backgroundStyle: ColorStyle?
     public let titleColor: Color?
+    public let imageTintColor: Color?
     public let borderWidth: CGFloat
     public let borderColor: Color?
     public let pressedColor: Color?
@@ -38,6 +40,7 @@ public struct ButtonStyle: HashableWithReflection {
     public init(
         backgroundColor: Color? = nil,
         titleColor: Color? = nil,
+        imageTintColor: Color? = nil,
         borderWidth: CGFloat = 0,
         borderColor: Color? = nil,
         pressedColor: Color? = nil,
@@ -51,6 +54,37 @@ public struct ButtonStyle: HashableWithReflection {
         self.init(
             backgroundColor: backgroundColor,
             titleColor: titleColor,
+            imageTintColor: imageTintColor,
+            borderWidth: borderWidth,
+            borderColor: borderColor,
+            pressedColor: pressedColor,
+            pressedTintColor: pressedTintColor,
+            font: font,
+            cornerStyle: .fixed(cornerRadius),
+            glassConfiguration: glassConfiguration,
+            wrongUrlPlaceholderImage: wrongUrlPlaceholderImage,
+            loadingIndicatorColor: loadingIndicatorColor
+        )
+    }
+
+    public init(
+        backgroundColor: ColorStyle,
+        titleColor: Color? = nil,
+        imageTintColor: Color? = nil,
+        borderWidth: CGFloat = 0,
+        borderColor: Color? = nil,
+        pressedColor: Color? = nil,
+        pressedTintColor: Color? = nil,
+        font: Font? = nil,
+        cornerRadius: CGFloat,
+        glassConfiguration: GlassConfiguration? = nil,
+        wrongUrlPlaceholderImage: Image? = nil,
+        loadingIndicatorColor: Color? = nil
+    ) {
+        self.init(
+            backgroundColor: backgroundColor,
+            titleColor: titleColor,
+            imageTintColor: imageTintColor,
             borderWidth: borderWidth,
             borderColor: borderColor,
             pressedColor: pressedColor,
@@ -66,6 +100,7 @@ public struct ButtonStyle: HashableWithReflection {
     public init(
         backgroundColor: Color? = nil,
         titleColor: Color? = nil,
+        imageTintColor: Color? = nil,
         borderWidth: CGFloat = 0,
         borderColor: Color? = nil,
         pressedColor: Color? = nil,
@@ -76,8 +111,77 @@ public struct ButtonStyle: HashableWithReflection {
         wrongUrlPlaceholderImage: Image? = nil,
         loadingIndicatorColor: Color? = nil
     ) {
-        self.backgroundColor = backgroundColor
+        self.init(
+            legacyBackgroundColor: backgroundColor,
+            backgroundStyle: backgroundColor.map(ColorStyle.solid),
+            titleColor: titleColor,
+            imageTintColor: imageTintColor,
+            borderWidth: borderWidth,
+            borderColor: borderColor,
+            pressedColor: pressedColor,
+            pressedTintColor: pressedTintColor,
+            font: font,
+            cornerStyle: cornerStyle,
+            glassConfiguration: glassConfiguration,
+            wrongUrlPlaceholderImage: wrongUrlPlaceholderImage,
+            loadingIndicatorColor: loadingIndicatorColor
+        )
+    }
+
+    public init(
+        backgroundColor: ColorStyle,
+        titleColor: Color? = nil,
+        imageTintColor: Color? = nil,
+        borderWidth: CGFloat = 0,
+        borderColor: Color? = nil,
+        pressedColor: Color? = nil,
+        pressedTintColor: Color? = nil,
+        font: Font? = nil,
+        cornerStyle: CornerStyle = isAvailableOS26 && isLiquidGlassEnabled ? .automatic : .fixed(ButtonStyle.defaultCornerRadius),
+        glassConfiguration: GlassConfiguration? = nil,
+        wrongUrlPlaceholderImage: Image? = nil,
+        loadingIndicatorColor: Color? = nil
+    ) {
+        let legacyBackgroundColor: Color? = switch backgroundColor {
+        case .solid(let color): color
+        case .gradient: nil
+        }
+        self.init(
+            legacyBackgroundColor: legacyBackgroundColor,
+            backgroundStyle: backgroundColor,
+            titleColor: titleColor,
+            imageTintColor: imageTintColor,
+            borderWidth: borderWidth,
+            borderColor: borderColor,
+            pressedColor: pressedColor,
+            pressedTintColor: pressedTintColor,
+            font: font,
+            cornerStyle: cornerStyle,
+            glassConfiguration: glassConfiguration,
+            wrongUrlPlaceholderImage: wrongUrlPlaceholderImage,
+            loadingIndicatorColor: loadingIndicatorColor
+        )
+    }
+
+    private init(
+        legacyBackgroundColor: Color?,
+        backgroundStyle: ColorStyle?,
+        titleColor: Color?,
+        imageTintColor: Color?,
+        borderWidth: CGFloat,
+        borderColor: Color?,
+        pressedColor: Color?,
+        pressedTintColor: Color?,
+        font: Font?,
+        cornerStyle: CornerStyle,
+        glassConfiguration: GlassConfiguration?,
+        wrongUrlPlaceholderImage: Image?,
+        loadingIndicatorColor: Color?
+    ) {
+        self.backgroundColor = legacyBackgroundColor
+        self.backgroundStyle = backgroundStyle
         self.titleColor = titleColor
+        self.imageTintColor = imageTintColor
         self.borderColor = borderColor
         self.pressedColor = pressedColor
         self.pressedTintColor = pressedTintColor
@@ -105,12 +209,19 @@ public protocol ButtonOutput: HiddableOutput {
     func display(model: ButtonPresentableModel?)
     func display(enabled: Bool)
     func display(image: Image?)
+    func display(contentInset: EdgeInsets)
     func display(style: ButtonStyle?)
     func display(title: String?)
     func display(spacing: CGFloat)
     func display(onPress: (() -> Void)?)
     func display(height: CGFloat)
     func display(isHidden: Bool)
+}
+
+public extension ButtonOutput {
+    // Preserves source compatibility for external renderers predating content insets.
+    // WrapKit's UIKit and SwiftUI renderers implement this output explicitly.
+    func display(contentInset: EdgeInsets) {}
 }
 
 public struct ButtonPresentableModel: HashableWithReflection {
@@ -121,6 +232,8 @@ public struct ButtonPresentableModel: HashableWithReflection {
     public let title: String?
     public let image: Image?
     public let spacing: CGFloat?
+    public let contentInset: EdgeInsets?
+    public let isGlassEffectEnabled: Bool?
     public let onPress: (() -> Void)?
     public let style: ButtonStyle?
     public let enabled: Bool?
@@ -131,6 +244,8 @@ public struct ButtonPresentableModel: HashableWithReflection {
         title: String? = nil,
         image: Image? = nil,
         spacing: CGFloat? = nil,
+        contentInset: EdgeInsets? = nil,
+        isGlassEffectEnabled: Bool? = nil,
         height: CGFloat? = nil,
         width: CGFloat? = nil,
         style: ButtonStyle? = nil,
@@ -140,6 +255,8 @@ public struct ButtonPresentableModel: HashableWithReflection {
         self.accessibilityIdentifier = accessibilityIdentifier
         self.accessibility = accessibility
         self.spacing = spacing
+        self.contentInset = contentInset
+        self.isGlassEffectEnabled = isGlassEffectEnabled
         self.image = image
         self.onPress = onPress
         self.title = title
@@ -160,8 +277,16 @@ import UIKit
 extension Button: ButtonOutput {
     public func display(model: ButtonPresentableModel?) {
         isHidden = model == nil
-        display(style: model?.style) // need to be first
+        let previousGlassEnabled = isGlassEffectEnabled
+        if let enabled = model?.isGlassEffectEnabled { isGlassEffectEnabled = enabled }
+        if !isGlassEffectEnabled {
+            configurationUpdateHandler = nil
+            configuration = nil
+            usesLiquidGlassConfiguration = false
+        }
+        display(style: model?.style ?? (previousGlassEnabled != isGlassEffectEnabled ? appliedStyle : nil))
         if let spacing = model?.spacing { display(spacing: spacing) }
+        if let contentInset = model?.contentInset { display(contentInset: contentInset) }
         display(title: model?.title)
         display(image: model?.image)
         if let height = model?.height { display(height: height) }
@@ -178,6 +303,10 @@ extension Button: ButtonOutput {
     
     public func display(image: Image?) {
         setImage(image, for: .normal)
+    }
+
+    public func display(contentInset: EdgeInsets) {
+        self.contentInset = contentInset.asUIEdgeInsets
     }
     
     public func display(enabled: Bool) {
@@ -211,31 +340,44 @@ extension Button: ButtonOutput {
     
     public func display(style: ButtonStyle?) {
         guard let style else { return }
+        appliedStyle = style
+        restoreImageTintAppearance()
+        configuredImageTintColor = style.imageTintColor
         
         self.textColor = style.titleColor ?? .white
         self.textBackgroundColor = style.backgroundColor
+        normalBackgroundStyle = style.backgroundStyle
         self.pressedTextColor = style.pressedTintColor
         self.pressedBackgroundColor = style.pressedColor
         self.wrongUrlPlaceholderImage = style.wrongUrlPlaceholderImage
         self.loadingIndicatorColor = style.loadingIndicatorColor
         displayGlass(style: style)
+        applyImageTintColor(style.imageTintColor)
     }
     
     private func displayGlass(style: ButtonStyle) {
-        guard let glassConfiguration = style.glassConfiguration else {
-            resetGlassConfigurationIfNeeded()
+        guard isGlassEffectEnabled, let glassConfiguration = style.glassConfiguration else {
+            if !isGlassEffectEnabled {
+                configurationUpdateHandler = nil
+                configuration = nil
+                usesLiquidGlassConfiguration = false
+            } else {
+                resetGlassConfigurationIfNeeded()
+            }
             if let textColor = style.titleColor { self.setTitleColor(textColor, for: .normal) }
             if let titleLabelFont = style.font { self.titleLabel?.font = titleLabelFont }
             self.layer.borderColor = style.borderColor?.cgColor
             self.layer.borderWidth = style.borderWidth
             appliedLegacyCornerStyle = style.cornerStyle
             applyButtonCornerStyle(style.cornerStyle)
+            applyBackgroundStyle(style.backgroundStyle)
             return
         }
         
         let previousConfiguration = configuration
         #if !os(visionOS) // .glass()/.cornerConfiguation недоступны на visionOS
         if #available(iOS 26, macOS 26, watchOS 26, tvOS 26, *), isLiquidGlassEnabled {
+            removeBackgroundGradient()
             self.usesLiquidGlassConfiguration = true
             var config: UIButton.Configuration = switch glassConfiguration {
             case .glass: .glass()
@@ -297,13 +439,17 @@ extension Button: ButtonOutput {
                         UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 0.4, initialSpringVelocity: 6, options: .allowUserInteraction) { [unowned self] in
                             updated.background.backgroundColor = self.textBackgroundColor
                             updated.baseForegroundColor = self.textColor
-                            updated.imageColorTransformer = nil
+                            updated.imageColorTransformer = self.configuredImageTintColor.map { color in
+                                UIConfigurationColorTransformer { _ in color }
+                            }
                             button.transform = .identity
                         }
                     } else {
                         updated.background.backgroundColor = self.textBackgroundColor
                         updated.baseForegroundColor = self.textColor
-                        updated.imageColorTransformer = nil
+                        updated.imageColorTransformer = self.configuredImageTintColor.map { color in
+                            UIConfigurationColorTransformer { _ in color }
+                        }
                         button.transform = .identity
                     }
                     isPreviouslyHighlighted = false
@@ -326,6 +472,7 @@ extension Button: ButtonOutput {
             self.layer.borderWidth = style.borderWidth
             appliedLegacyCornerStyle = style.cornerStyle
             applyButtonCornerStyle(style.cornerStyle)
+            applyBackgroundStyle(style.backgroundStyle)
         }
     }
     
@@ -363,6 +510,25 @@ extension Button: LoadingOutput {
 }
 
 open class Button: UIButton {
+    private static let backgroundGradientLayerName = "ButtonBackgroundGradientLayer"
+
+    private struct ImageTintAppearance {
+        let normalImage: UIImage?
+        let highlightedImage: UIImage?
+        let selectedImage: UIImage?
+        let disabledImage: UIImage?
+        let normalSymbolConfiguration: UIImage.SymbolConfiguration?
+        let highlightedSymbolConfiguration: UIImage.SymbolConfiguration?
+        let selectedSymbolConfiguration: UIImage.SymbolConfiguration?
+        let disabledSymbolConfiguration: UIImage.SymbolConfiguration?
+        let tintColor: UIColor?
+        let imageViewTintColor: UIColor?
+        let hadConfiguration: Bool
+        let configurationImage: UIImage?
+        let configurationImageColorTransform: ((UIColor) -> UIColor)?
+        let configurationSymbolConfiguration: UIImage.SymbolConfiguration?
+    }
+
     var currentAnimator: UIViewPropertyAnimator?
     public var currentImageEnum: ImageEnum?
     
@@ -383,6 +549,15 @@ open class Button: UIButton {
     }
 
     private var usesLiquidGlassConfiguration = false
+    private var isGlassEffectEnabled = true
+    private var appliedStyle: ButtonStyle?
+    private var configuredImageTintColor: UIColor?
+    private var imageTintAppearance: ImageTintAppearance?
+    public var normalBackgroundStyle: ColorStyle?
+
+    private var backgroundGradientLayer: CAGradientLayer? {
+        layer.sublayers?.first { $0.name == Self.backgroundGradientLayerName } as? CAGradientLayer
+    }
     private var appliedLegacyCornerStyle: CornerStyle?
 
     private var hasCustomContentInset: Bool {
@@ -409,12 +584,36 @@ open class Button: UIButton {
     }
     
     open override func setImage(_ image: UIImage?, for state: UIControl.State) {
-        if #available(iOS 15.0, *), var configuration {
-            configuration.image = image
-            self.configuration = configuration
-        } else {
-            super.setImage(image, for: state)
+        if let configuredImageTintColor, imageTintAppearance != nil {
+            restoreImageTintAppearance()
+            setImageWithoutApplyingStyleTint(image, for: state)
+            applyImageTintColor(configuredImageTintColor)
+            return
         }
+
+        setImageWithoutApplyingStyleTint(image, for: state)
+    }
+
+    private func setImageWithoutApplyingStyleTint(_ image: UIImage?, for state: UIControl.State) {
+        super.setImage(image, for: state)
+
+        if #available(iOS 15.0, *), var configuration {
+            if imageTintAppearance != nil {
+                configuration.image = tintedImageForCurrentState()
+                self.configuration = configuration
+            } else if state == .normal || state == imageStateForCurrentControlState {
+                configuration.image = image
+                self.configuration = configuration
+            }
+        }
+    }
+
+    @available(iOS 15.0, *)
+    open override func updateConfiguration() {
+        super.updateConfiguration()
+        guard imageTintAppearance != nil, var configuration else { return }
+        configuration.image = tintedImageForCurrentState()
+        self.configuration = configuration
     }
 
     open override func setTitle(_ title: String?, for state: UIControl.State) {
@@ -556,6 +755,9 @@ open class Button: UIButton {
     
     open override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         super.traitCollectionDidChange(previousTraitCollection)
+        if case .gradient = normalBackgroundStyle, !usesLiquidGlassConfiguration {
+            applyBackgroundStyle(normalBackgroundStyle)
+        }
         
         switch currentImageEnum {
         case .url, .urlString:
@@ -567,10 +769,21 @@ open class Button: UIButton {
 
     open override func layoutSubviews() {
         super.layoutSubviews()
-
-        guard let appliedLegacyCornerStyle else { return }
-        guard case .automatic = appliedLegacyCornerStyle else { return }
-        applyButtonCornerStyle(appliedLegacyCornerStyle)
+        if let appliedLegacyCornerStyle, case .automatic = appliedLegacyCornerStyle {
+            applyButtonCornerStyle(appliedLegacyCornerStyle)
+        }
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+        if let backgroundGradientLayer {
+            // UIButton can insert its lazily created image view behind an existing layer.
+            if layer.sublayers?.first !== backgroundGradientLayer {
+                layer.insertSublayer(backgroundGradientLayer, at: 0)
+            }
+            backgroundGradientLayer.frame = bounds
+            backgroundGradientLayer.cornerRadius = layer.cornerRadius
+            backgroundGradientLayer.maskedCorners = layer.maskedCorners
+        }
+        CATransaction.commit()
     }
     
     @objc private func onTap() {
@@ -608,7 +821,12 @@ open class Button: UIButton {
                     self.transform = CGAffineTransform(scaleX: 0.95, y: 0.95)
                 }
             }
-            self.backgroundColor = self.pressedBackgroundColor ?? self.textBackgroundColor
+            if let pressedBackgroundColor = self.pressedBackgroundColor {
+                self.removeBackgroundGradient()
+                self.backgroundColor = pressedBackgroundColor
+            } else {
+                self.applyBackgroundStyle(self.normalBackgroundStyle)
+            }
             self.setTitleColor(self.pressedTextColor ?? self.textColor, for: .normal)
         }
         super.touchesBegan(touches, with: event)
@@ -620,7 +838,7 @@ open class Button: UIButton {
             return
         }
         self.transform = CGAffineTransform(scaleX: 1, y: 1)
-        self.backgroundColor = textBackgroundColor
+        applyBackgroundStyle(normalBackgroundStyle)
         self.setTitleColor(textColor, for: .normal)
         
         super.touchesCancelled(touches, with: event)
@@ -634,7 +852,7 @@ open class Button: UIButton {
         UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 0.4, initialSpringVelocity: 6, options: .allowUserInteraction) { [weak self] in
             guard let self else { return }
             self.transform = CGAffineTransform(scaleX: 1, y: 1)
-            self.backgroundColor = self.textBackgroundColor
+            self.applyBackgroundStyle(self.normalBackgroundStyle)
             self.setTitleColor(self.textColor, for: .normal)
         }
         super.touchesEnded(touches, with: event)
@@ -659,9 +877,186 @@ open class Button: UIButton {
         }
         return super.accessibilityActivate()
     }
+
+    private func applyBackgroundStyle(_ style: ColorStyle?) {
+        switch style {
+        case .solid(let color):
+            removeBackgroundGradient()
+            textBackgroundColor = color
+            backgroundColor = color
+        case .gradient(let gradient):
+            let colors = gradient.colors
+            guard !colors.isEmpty else {
+                removeBackgroundGradient()
+                textBackgroundColor = .clear
+                backgroundColor = .clear
+                return
+            }
+            textBackgroundColor = .clear
+            backgroundColor = .clear
+            applyBackgroundGradient(
+                colors: colors,
+                startPoint: gradient.startPoint,
+                endPoint: gradient.endPoint
+            )
+        case .none:
+            removeBackgroundGradient()
+            textBackgroundColor = .clear
+            backgroundColor = .clear
+        }
+    }
+
+    private func applyBackgroundGradient(
+        colors: [Color],
+        startPoint: CGPoint,
+        endPoint: CGPoint
+    ) {
+        let gradientLayer = backgroundGradientLayer ?? CAGradientLayer()
+        gradientLayer.name = Self.backgroundGradientLayerName
+        gradientLayer.colors = colors.map { $0.resolvedColor(with: traitCollection).cgColor }
+        gradientLayer.startPoint = startPoint
+        gradientLayer.endPoint = endPoint
+        gradientLayer.frame = bounds
+        gradientLayer.cornerRadius = layer.cornerRadius
+        gradientLayer.maskedCorners = layer.maskedCorners
+        gradientLayer.masksToBounds = true
+
+        if gradientLayer.superlayer == nil {
+            layer.insertSublayer(gradientLayer, at: 0)
+        }
+    }
+
+    private func removeBackgroundGradient() {
+        backgroundGradientLayer?.removeFromSuperlayer()
+    }
 }
 
 private extension Button {
+    func applyImageTintColor(_ imageTintColor: UIColor?) {
+        guard let imageTintColor else {
+            restoreImageTintAppearance()
+            return
+        }
+
+        captureImageTintAppearanceIfNeeded()
+        if let font = titleLabel?.font {
+            let configuration = UIImage.SymbolConfiguration(pointSize: font.pointSize, weight: .regular)
+            setPreferredSymbolConfiguration(configuration, forImageIn: .normal)
+            setPreferredSymbolConfiguration(configuration, forImageIn: .highlighted)
+            setPreferredSymbolConfiguration(configuration, forImageIn: .selected)
+            setPreferredSymbolConfiguration(configuration, forImageIn: .disabled)
+        }
+
+        guard let imageTintAppearance else { return }
+        let normalImage = (imageTintAppearance.normalImage ?? imageTintAppearance.configurationImage)?
+            .withRenderingMode(.alwaysTemplate)
+        let highlightedImage = (imageTintAppearance.highlightedImage ?? normalImage)?
+            .withRenderingMode(.alwaysTemplate)
+        let selectedImage = (imageTintAppearance.selectedImage ?? normalImage)?
+            .withRenderingMode(.alwaysTemplate)
+        let disabledImage = (imageTintAppearance.disabledImage ?? normalImage)?
+            .withRenderingMode(.alwaysTemplate)
+
+        super.setImage(normalImage, for: .normal)
+        super.setImage(highlightedImage, for: .highlighted)
+        super.setImage(selectedImage, for: .selected)
+        super.setImage(disabledImage, for: .disabled)
+
+        if #available(iOS 15.0, *), var configuration {
+            configuration.image = tintedImageForCurrentState()
+            configuration.imageColorTransformer = UIConfigurationColorTransformer { _ in
+                imageTintColor
+            }
+            self.configuration = configuration
+        }
+
+        tintColor = imageTintColor
+        imageView?.tintColor = imageTintColor
+        setNeedsLayout()
+    }
+
+    func captureImageTintAppearanceIfNeeded() {
+        guard imageTintAppearance == nil else { return }
+
+        let hadConfiguration: Bool
+        let configurationImage: UIImage?
+        let configurationImageColorTransform: ((UIColor) -> UIColor)?
+        let configurationSymbolConfiguration: UIImage.SymbolConfiguration?
+        if #available(iOS 15.0, *), let configuration {
+            hadConfiguration = true
+            configurationImage = configuration.image
+            configurationImageColorTransform = configuration.imageColorTransformer?.transform
+            configurationSymbolConfiguration = configuration.preferredSymbolConfigurationForImage
+        } else {
+            hadConfiguration = false
+            configurationImage = nil
+            configurationImageColorTransform = nil
+            configurationSymbolConfiguration = nil
+        }
+
+        imageTintAppearance = .init(
+            normalImage: image(for: .normal),
+            highlightedImage: image(for: .highlighted),
+            selectedImage: image(for: .selected),
+            disabledImage: image(for: .disabled),
+            normalSymbolConfiguration: preferredSymbolConfigurationForImage(in: .normal),
+            highlightedSymbolConfiguration: preferredSymbolConfigurationForImage(in: .highlighted),
+            selectedSymbolConfiguration: preferredSymbolConfigurationForImage(in: .selected),
+            disabledSymbolConfiguration: preferredSymbolConfigurationForImage(in: .disabled),
+            tintColor: tintColor,
+            imageViewTintColor: imageView?.tintColor,
+            hadConfiguration: hadConfiguration,
+            configurationImage: configurationImage,
+            configurationImageColorTransform: configurationImageColorTransform,
+            configurationSymbolConfiguration: configurationSymbolConfiguration
+        )
+    }
+
+    var imageStateForCurrentControlState: UIControl.State {
+        if !isEnabled { return .disabled }
+        if isHighlighted { return .highlighted }
+        if isSelected { return .selected }
+        return .normal
+    }
+
+    func tintedImageForCurrentState() -> UIImage? {
+        image(for: imageStateForCurrentControlState) ?? image(for: .normal)
+    }
+
+    func restoreImageTintAppearance() {
+        guard let imageTintAppearance else { return }
+
+        // Restore the underlying state images even while a configuration is
+        // active. They become visible again if a later style removes that
+        // configuration (for example, when leaving Liquid Glass).
+        super.setImage(imageTintAppearance.normalImage, for: .normal)
+        super.setImage(imageTintAppearance.highlightedImage, for: .highlighted)
+        super.setImage(imageTintAppearance.selectedImage, for: .selected)
+        super.setImage(imageTintAppearance.disabledImage, for: .disabled)
+
+        if #available(iOS 15.0, *), var configuration {
+            configuration.image = imageTintAppearance.hadConfiguration
+                ? imageTintAppearance.configurationImage
+                : imageTintAppearance.normalImage
+            configuration.imageColorTransformer = imageTintAppearance.configurationImageColorTransform.map {
+                UIConfigurationColorTransformer($0)
+            }
+            configuration.preferredSymbolConfigurationForImage = imageTintAppearance.hadConfiguration
+                ? imageTintAppearance.configurationSymbolConfiguration
+                : imageTintAppearance.normalSymbolConfiguration
+            self.configuration = configuration
+        }
+
+        setPreferredSymbolConfiguration(imageTintAppearance.normalSymbolConfiguration, forImageIn: .normal)
+        setPreferredSymbolConfiguration(imageTintAppearance.highlightedSymbolConfiguration, forImageIn: .highlighted)
+        setPreferredSymbolConfiguration(imageTintAppearance.selectedSymbolConfiguration, forImageIn: .selected)
+        setPreferredSymbolConfiguration(imageTintAppearance.disabledSymbolConfiguration, forImageIn: .disabled)
+        tintColor = imageTintAppearance.tintColor
+        imageView?.tintColor = imageTintAppearance.imageViewTintColor
+        self.imageTintAppearance = nil
+        setNeedsLayout()
+    }
+
     func resetGlassConfigurationIfNeeded() {
         guard usesLiquidGlassConfiguration else { return }
         configurationUpdateHandler = nil

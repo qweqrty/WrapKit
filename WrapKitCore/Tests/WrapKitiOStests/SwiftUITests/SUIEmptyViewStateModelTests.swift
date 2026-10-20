@@ -110,6 +110,8 @@ final class SUIEmptyViewStateModelTests: XCTestCase {
             title: "Retry",
             image: image,
             spacing: 7,
+            contentInset: .init(all: 8),
+            isGlassEffectEnabled: false,
             height: 44,
             width: 180,
             style: .init(backgroundColor: .systemBlue),
@@ -123,6 +125,8 @@ final class SUIEmptyViewStateModelTests: XCTestCase {
         XCTAssertEqual(sut.buttonModel?.title, "Retry")
         XCTAssertNotNil(sut.buttonModel?.image)
         XCTAssertEqual(sut.buttonModel?.spacing, 7)
+        XCTAssertEqual(sut.buttonModel?.contentInset, .init(all: 8))
+        XCTAssertEqual(sut.buttonModel?.isGlassEffectEnabled, false)
         XCTAssertEqual(sut.buttonModel?.height, 44)
         XCTAssertEqual(sut.buttonModel?.width, 180)
         XCTAssertNotNil(sut.buttonModel?.style)
@@ -176,6 +180,8 @@ final class SUIEmptyViewStateModelTests: XCTestCase {
 
         adapter.display(buttonModel: .init(
             title: "Initial",
+            contentInset: .init(all: 6),
+            isGlassEffectEnabled: false,
             height: 44,
             width: 180,
             style: .init(backgroundColor: .systemBlue),
@@ -184,10 +190,31 @@ final class SUIEmptyViewStateModelTests: XCTestCase {
         adapter.display(buttonModel: .init(title: "Updated"))
 
         XCTAssertEqual(sut.buttonModel?.title, "Updated")
+        XCTAssertEqual(sut.buttonModel?.contentInset, .init(all: 6))
+        XCTAssertEqual(sut.buttonModel?.isGlassEffectEnabled, false)
         XCTAssertEqual(sut.buttonModel?.height, 44)
         XCTAssertEqual(sut.buttonModel?.width, 180)
         XCTAssertNotNil(sut.buttonModel?.style)
         XCTAssertEqual(sut.buttonModel?.enabled, false)
+    }
+
+    func test_hiddenButton_preservesInsetsAndGlassOverrideWhenShownAgain() {
+        let adapter = EmptyViewOutputSwiftUIAdapter()
+        let sut = SUIEmptyViewStateModel(adapter: adapter)
+        adapter.display(buttonModel: .init(title: "Initial", contentInset: .init(all: 9), isGlassEffectEnabled: false))
+
+        adapter.display(buttonModel: nil)
+        adapter.display(buttonModel: .init(title: "Retry"))
+
+        XCTAssertFalse(sut.isButtonHidden)
+        XCTAssertEqual(sut.buttonModel?.title, "Retry")
+        XCTAssertEqual(sut.buttonModel?.contentInset, .init(all: 9))
+        XCTAssertEqual(sut.buttonModel?.isGlassEffectEnabled, false)
+
+        adapter.display(buttonModel: .init(contentInset: .zero, isGlassEffectEnabled: true))
+
+        XCTAssertEqual(sut.buttonModel?.contentInset, .zero)
+        XCTAssertEqual(sut.buttonModel?.isGlassEffectEnabled, true)
     }
 
     @available(iOS 17.0, *)

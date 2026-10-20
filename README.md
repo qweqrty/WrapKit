@@ -1,5 +1,11 @@
 # WrapKit
 
+## DOM-5742 integration
+
+`DOM-5742` is based on `3.1.987` and restores the shared UIKit APIs needed by Cabinet and Registrar. Changes to Button, CardView and header integration must retain the UIKit snapshot contract. The separate authentication/refresh fixes are not part of this branch.
+
+Publish the matching branches in dependency order: **WrapKit → DesignSystem → Features → Registrar → Dashboard**. Consumers use Git branch `DOM-5742` until the corresponding versions are published. Temporary local package paths are for uncommitted validation only and must not remain in the manifests.
+
 ## Project generation
 
 Run `make project`. The command uses the first working Tuist installation found in `PATH`, including Homebrew and mise shims.

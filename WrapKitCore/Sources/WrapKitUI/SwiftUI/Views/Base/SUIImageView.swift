@@ -505,27 +505,28 @@ private struct SUIImageViewInput {
 // MARK: - Model Extensions
 extension ImageViewPresentableModel {
     func mergingFullModel(_ model: ImageViewPresentableModel) -> ImageViewPresentableModel {
-        let resolvedSize: CGSize? = {
-            if let size = model.size {
-                return size
+        let resolvedLayout: Layout? = {
+            if let layout = model.layout {
+                return layout
             }
             if case .asset(let image) = model.image {
-                return image?.size ?? self.size
+                return (image?.size).map(Layout.fixed) ?? self.layout
             }
             if case .symbolName(let name) = model.image {
-                return ImageFactory.systemImage(named: name)?.size ?? self.size
+                return (ImageFactory.systemImage(named: name)?.size).map(Layout.fixed) ?? self.layout
             }
-            return self.size
+            return self.layout
         }()
 
         return ImageViewPresentableModel(
             accessibilityIdentifier: model.accessibilityIdentifier,
             accessibility: model.accessibility,
-            size: resolvedSize,
+            layout: resolvedLayout,
             image: model.image,
             onPress: model.onPress,
             onLongPress: model.onLongPress,
             contentModeIsFit: model.contentModeIsFit ?? contentModeIsFit,
+            contentInsets: model.contentInsets ?? contentInsets,
             borderWidth: model.borderWidth ?? borderWidth,
             borderColor: model.borderColor?.resolvedForImageLayer ?? borderColor,
             cornerRadius: model.cornerRadius ?? cornerRadius,
@@ -537,11 +538,12 @@ extension ImageViewPresentableModel {
         return ImageViewPresentableModel(
             accessibilityIdentifier: nil,
             accessibility: nil,
-            size: size,
+            layout: layout,
             image: nil,
             onPress: nil,
             onLongPress: nil,
             contentModeIsFit: contentModeIsFit,
+            contentInsets: contentInsets,
             borderWidth: borderWidth,
             borderColor: borderColor,
             cornerRadius: cornerRadius,
@@ -574,11 +576,12 @@ extension ImageViewPresentableModel {
         return ImageViewPresentableModel(
             accessibilityIdentifier: accessibilityIdentifier,
             accessibility: accessibility,
-            size: size,
+            layout: layout,
             image: image ?? self.image,
             onPress: onPress ?? self.onPress,
             onLongPress: onLongPress ?? self.onLongPress,
             contentModeIsFit: contentModeIsFit,
+            contentInsets: contentInsets,
             borderWidth: borderWidth,
             borderColor: borderColor ?? self.borderColor,
             cornerRadius: cornerRadius,
@@ -587,11 +590,13 @@ extension ImageViewPresentableModel {
     }
 
     func updated(
+        layout: Layout? = nil,
         size: CGSize? = nil,
         image: ImageEnum? = nil,
         onPress: (() -> Void)? = nil,
         onLongPress: (() -> Void)? = nil,
         contentModeIsFit: Bool? = nil,
+        contentInsets: EdgeInsets? = nil,
         borderWidth: CGFloat? = nil,
         borderColor: Color? = nil,
         cornerRadius: CGFloat? = nil,
@@ -600,11 +605,12 @@ extension ImageViewPresentableModel {
         ImageViewPresentableModel(
             accessibilityIdentifier: accessibilityIdentifier,
             accessibility: accessibility,
-            size: size ?? self.size,
+            layout: layout ?? size.map(Layout.fixed) ?? self.layout,
             image: image ?? self.image,
             onPress: onPress ?? self.onPress,
             onLongPress: onLongPress ?? self.onLongPress,
             contentModeIsFit: contentModeIsFit ?? self.contentModeIsFit,
+            contentInsets: contentInsets ?? self.contentInsets,
             borderWidth: borderWidth ?? self.borderWidth,
             borderColor: borderColor ?? self.borderColor,
             cornerRadius: cornerRadius ?? self.cornerRadius,

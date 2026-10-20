@@ -762,11 +762,12 @@ final class SUICardViewStateModel: ObservableObject {
         return .init(
             accessibilityIdentifier: model.accessibilityIdentifier,
             accessibility: model.accessibility,
-            size: resolvedSize,
+            layout: model.layout ?? resolvedSize.map(ImageViewPresentableModel.Layout.fixed),
             image: model.image,
             onPress: model.onPress,
             onLongPress: model.onLongPress,
             contentModeIsFit: model.contentModeIsFit ?? true,
+            contentInsets: model.contentInsets,
             borderWidth: model.borderWidth,
             borderColor: model.borderColor,
             cornerRadius: model.cornerRadius,
