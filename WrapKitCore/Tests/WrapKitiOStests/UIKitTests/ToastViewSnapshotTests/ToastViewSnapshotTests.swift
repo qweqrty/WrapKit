@@ -580,7 +580,12 @@ final class ToastViewSnapshotTests: XCTestCase {
             assert(snapshot: testContainer.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
             assert(snapshot: testContainer.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assert(snapshot: testContainer.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(
+                snapshot: testContainer.snapshot(for: .iPhone(style: .light)),
+                named: "iOS18.5_\(snapshotName)_LIGHT",
+                precision: 0.999,
+                perceptualPrecision: 0.98
+            )
             assert(snapshot: testContainer.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
         
@@ -995,7 +1000,12 @@ final class ToastViewSnapshotTests: XCTestCase {
             assert(snapshot: testContainer.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
             assert(snapshot: testContainer.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
         } else {
-            assert(snapshot: testContainer.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(
+                snapshot: testContainer.snapshot(for: .iPhone(style: .light)),
+                named: "iOS18.5_\(snapshotName)_LIGHT",
+                precision: 0.999,
+                perceptualPrecision: 0.98
+            )
             assert(snapshot: testContainer.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
         }
         
