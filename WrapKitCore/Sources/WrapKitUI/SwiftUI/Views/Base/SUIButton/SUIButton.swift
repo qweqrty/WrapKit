@@ -53,7 +53,7 @@ public struct SUIButtonView: View {
     let contentInsets: SwiftUI.EdgeInsets
     
     @State private var isPressed: Bool = false
-    @GestureState private var isGlassPressed: Bool = false
+    @State private var isGlassPressed: Bool = false
     @Environment(\.self) private var environment
     
     public init(
@@ -110,21 +110,20 @@ public struct SUIButtonView: View {
                 value: isGlassPressed
             )
             #if !os(tvOS)
-            .simultaneousGesture(glassPressGesture)
+            // Track press/release only; the native Button owns activation and scroll cancellation.
+            .onLongPressGesture(
+                minimumDuration: .infinity,
+                maximumDistance: 10,
+                pressing: { isGlassPressed = $0 && isEnabled && onPress != nil },
+                perform: {}
+            )
             #endif
             .overlay(borderView)
-    }
-
-    #if !os(tvOS)
-    private var glassPressGesture: some Gesture {
-        DragGesture(minimumDistance: 0)
-            .updating($isGlassPressed) { value, isPressed, _ in
-                isPressed = isEnabled
-                    && onPress != nil
-                    && hypot(value.translation.width, value.translation.height) <= 10
+            .onChange(of: isEnabled && onPress != nil) { canPress in
+                if !canPress { isGlassPressed = false }
             }
+            .onDisappear { isGlassPressed = false }
     }
-    #endif
 
     private var baseButton: some View {
         SwiftUI.Button(

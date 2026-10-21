@@ -143,12 +143,12 @@ private struct NativeNavigationHeaderLeading: View {
         if let card = state.model.leadingCard, card.isNativeHeaderAction {
             #if compiler(>=6.4)
             if #available(iOS 27.1, *) {
-                AdaptiveNativeNavigationHeaderAction(card: card, style: style)
+                AdaptiveNativeNavigationHeaderAction(state: state, style: style)
             } else {
-                NativeNavigationHeaderAction(card: card, style: style, showsTitle: true)
+                NativeNavigationHeaderAction(state: state, style: style, showsTitle: true)
             }
             #else
-            NativeNavigationHeaderAction(card: card, style: style, showsTitle: true)
+            NativeNavigationHeaderAction(state: state, style: style, showsTitle: true)
             #endif
         } else {
             SUICardView(adapter: state.leadingCardAdapter, leadingImageTint: state.leadingCardImageTint, fitsNavigationBar: true)
@@ -163,41 +163,44 @@ private struct NativeNavigationHeaderLeading: View {
 private struct AdaptiveNativeNavigationHeaderAction: View {
     @Environment(\.toolbarVerticalEdge) private var verticalEdge
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
-    let card: CardViewPresentableModel
+    @ObservedObject var state: SUINavigationBarStateModel
     let style: HeaderPresentableModel.Style
 
     var body: some View {
-        NativeNavigationHeaderAction(card: card, style: style, showsTitle: verticalEdge == nil || horizontalSizeClass == .regular)
+        NativeNavigationHeaderAction(state: state, style: style, showsTitle: verticalEdge == nil || horizontalSizeClass == .regular)
     }
 }
 #endif
 
 @available(iOS 16.0, *)
 private struct NativeNavigationHeaderAction: View {
-    let card: CardViewPresentableModel
+    @ObservedObject var state: SUINavigationBarStateModel
     let style: HeaderPresentableModel.Style
     let showsTitle: Bool
 
     var body: some View {
-        SwiftUI.Button {
-            (card.onPress ?? card.leadingImage?.onPress)?()
-        } label: {
-            HStack(spacing: style.horizontalSpacing) {
-                if case let .asset(image)? = card.leadingImage?.image, let image {
-                    SwiftUIImage(image: image).renderingMode(.template)
-                }
-                if showsTitle, let title = card.title {
-                    SUILabelView(model: title, font: style.primeFont, textColor: style.primeColor)
+        if let card = state.model.leadingCard {
+            SwiftUI.Button {
+                let currentCard = state.model.leadingCard
+                (currentCard?.onPress ?? currentCard?.leadingImage?.onPress)?()
+            } label: {
+                HStack(spacing: style.horizontalSpacing) {
+                    if case let .asset(image)? = card.leadingImage?.image, let image {
+                        SwiftUIImage(image: image).renderingMode(.template)
+                    }
+                    if showsTitle, let title = card.title {
+                        SUILabelView(model: title, font: style.primeFont, textColor: style.primeColor)
+                    }
                 }
             }
+            .tint(SwiftUIColor(style.primeColor))
+            .disabled(card.isUserInteractionEnabled == false)
+            .ifLet(card.accessibilityIdentifier) { $0.accessibilityIdentifier($1) }
+            .ifLet(card.accessibility?.label ?? card.leadingImage?.accessibility?.label ?? card.title?.model?.text) {
+                $0.accessibilityLabel(Text($1))
+            }
+            .ifLet(card.accessibility?.hint) { $0.accessibilityHint(Text($1)) }
         }
-        .tint(SwiftUIColor(style.primeColor))
-        .disabled(card.isUserInteractionEnabled == false)
-        .ifLet(card.accessibilityIdentifier) { $0.accessibilityIdentifier($1) }
-        .ifLet(card.accessibility?.label ?? card.leadingImage?.accessibility?.label ?? card.title?.model?.text) {
-            $0.accessibilityLabel(Text($1))
-        }
-        .ifLet(card.accessibility?.hint) { $0.accessibilityHint(Text($1)) }
     }
 }
 
@@ -258,7 +261,9 @@ private struct NativeNavigationHeaderButton: View {
             let model = state.presentable
             if model.style == nil && model.width == nil && model.height == nil && model.spacing == nil {
                 SwiftUI.Button {
-                    model.onPress?()
+                    // A toolbar can retain its rendered action across push/pop.
+                    // Resolve the current Output callback instead of a revoked model snapshot.
+                    state.presentable.onPress?()
                 } label: {
                     if let image = model.image {
                         SwiftUIImage(image: image)
@@ -281,7 +286,7 @@ private struct NativeNavigationHeaderButton: View {
             } else {
                 SUIButtonView(
                     model: model,
-                    onPress: model.onPress,
+                    onPress: model.onPress.map { _ in { state.presentable.onPress?() } },
                     isEnabled: state.isEnabled,
                     fillsAvailableWidth: false,
                     fillsAvailableHeight: false

@@ -9,6 +9,47 @@
     final class SUINavigationBarParityTests: XCTestCase {
         private let containerWidth: CGFloat = 390
 
+        func test_primaryActionSurvivesRefreshAndHeaderRemountWithSameButtonAppearance() throws {
+            let adapter = HeaderOutputSwiftUIAdapter()
+            adapter.display(model: .init(centerView: .keyValue(.init(.text("Plans"), nil))))
+            var calls: [Int] = []
+            var firstStateModel: SUINavigationBarStateModel? = .init(adapter: adapter)
+
+            adapter.display(primeTrailingImage: .init(title: "Search", onPress: { calls.append(1) }))
+            try XCTUnwrap(firstStateModel?.primeTrailingButtonStateModel.presentable.onPress)()
+            adapter.display(primeTrailingImage: .init(title: "Search", onPress: { calls.append(2) }))
+            try XCTUnwrap(firstStateModel?.primeTrailingButtonStateModel.presentable.onPress)()
+
+            var secondStateModel: SUINavigationBarStateModel? = .init(adapter: adapter)
+            firstStateModel = nil
+            try XCTUnwrap(secondStateModel?.primeTrailingButtonStateModel.presentable.onPress)()
+            adapter.display(primeTrailingImage: .init(title: "Search", onPress: { calls.append(3) }))
+            try XCTUnwrap(secondStateModel?.primeTrailingButtonStateModel.presentable.onPress)()
+
+            secondStateModel = nil
+            let returnedStateModel = SUINavigationBarStateModel(adapter: adapter)
+            try XCTUnwrap(returnedStateModel.primeTrailingButtonStateModel.presentable.onPress)()
+
+            XCTAssertEqual(calls, [1, 2, 2, 3, 3])
+            XCTAssertTrue(returnedStateModel.primeTrailingButtonStateModel.isEnabled)
+            XCTAssertFalse(returnedStateModel.primeTrailingButtonStateModel.isHidden)
+        }
+
+        func test_primaryActionUpdatedWhileHeaderUnmountedSurvivesRemount() throws {
+            let adapter = HeaderOutputSwiftUIAdapter()
+            var calls: [String] = []
+            adapter.display(primeTrailingImage: .init(title: "Search", onPress: { calls.append("initial") }))
+            var firstStateModel: SUINavigationBarStateModel? = .init(adapter: adapter)
+            try XCTUnwrap(firstStateModel?.primeTrailingButtonStateModel.presentable.onPress)()
+            firstStateModel = nil
+
+            adapter.display(primeTrailingImage: .init(title: "Search", onPress: { calls.append("latest") }))
+            let returnedStateModel = SUINavigationBarStateModel(adapter: adapter)
+            try XCTUnwrap(returnedStateModel.primeTrailingButtonStateModel.presentable.onPress)()
+
+            XCTAssertEqual(calls, ["initial", "latest"])
+        }
+
         func test_granularThenFullModelBeforeMount_replaysLatestValuesInPresenterOrder() {
             let adapter = HeaderOutputSwiftUIAdapter()
             adapter.display(style: makeStyle(horizontalSpacing: 4))

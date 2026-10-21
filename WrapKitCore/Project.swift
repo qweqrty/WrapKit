@@ -40,7 +40,20 @@ let project = Project(
             deploymentTargets: .iOS("15.0"),
             infoPlist: .extendingDefault(with: ["UILaunchScreen": .dictionary([:])]),
             sources: ["TestHost/**"],
-            dependencies: []
+            dependencies: [.target(name: wrapKit.name)]
+        ),
+        .target(
+            name: "WrapKitUITests",
+            destinations: [.iPhone, .iPad],
+            product: .uiTests,
+            bundleId: bundleId(for: "WrapKitUITests"),
+            deploymentTargets: .iOS("15.0"),
+            infoPlist: .default,
+            sources: ["UITests/**"],
+            dependencies: [
+                .target(name: "WrapKitTestHost"),
+                .xctest
+            ]
         ),
         .target(
             name: "\(wrapKit.name)Tests",
@@ -55,6 +68,14 @@ let project = Project(
                 .target(name: "WrapKitTestHost"),
                 .xctest
             ]
+        )
+    ],
+    schemes: [
+        .scheme(
+            name: "WrapKitUITests",
+            shared: true,
+            buildAction: .buildAction(targets: [.target("WrapKitTestHost")]),
+            testAction: .targets([.testableTarget(target: .target("WrapKitUITests"))])
         )
     ]
 )
