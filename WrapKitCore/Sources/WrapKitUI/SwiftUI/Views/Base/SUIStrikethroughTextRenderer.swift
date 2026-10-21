@@ -2,52 +2,50 @@
 import SwiftUI
 import CoreText
 
-/// Text.LineStyle has no thickness or by-word options. Carry those options to
-/// the renderer without changing the text's native SwiftUI layout.
-@available(iOS 18, macOS 15, tvOS 18, watchOS 11, *)
-struct SUIStrikethroughAttribute: TextAttribute {
+@available(iOS 15, macOS 12, tvOS 15, watchOS 8, *)
+struct SUIStrikethroughAttribute {
     let style: UnderlineStyle
     let color: SwiftUIColor
     let baselineOffset: CGFloat
     let thickness: CGFloat
 
-    init(style: UnderlineStyle, font: Font, color: Color) {
+    init(style: UnderlineStyle, font: Font, color: SwiftUIColor) {
         self.style = style
-        self.color = SwiftUIColor(color)
+        self.color = color
         self.baselineOffset = font.xHeight / 2
         let ctFont = font as CTFont
         self.thickness = max(1, CTFontGetUnderlineThickness(ctFont))
     }
 }
 
-@available(iOS 18, macOS 15, tvOS 18, watchOS 11, *)
-struct SUIStrikethroughTextRenderer: TextRenderer {
-    func draw(layout: Text.Layout, in context: inout GraphicsContext) {
-        for line in layout {
-            for run in line {
-                guard let attribute = run[SUIStrikethroughAttribute.self] else { continue }
-                let bounds = run.typographicBounds
-                guard bounds.width > 0 else { continue }
-                let y = bounds.origin.y - attribute.baselineOffset
-                let baseStyle = attribute.style.rawValue & 0x0F
-                let width = attribute.thickness * (baseStyle == UnderlineStyle.thick.rawValue ? 2 : 1)
-                let offsets: [CGFloat] = baseStyle == UnderlineStyle.double.rawValue
-                    ? [-attribute.thickness, attribute.thickness]
-                    : [0]
-                var path = Path()
-                for offset in offsets {
-                    path.move(to: CGPoint(x: bounds.origin.x, y: y + offset))
-                    path.addLine(to: CGPoint(x: bounds.origin.x + bounds.width, y: y + offset))
-                }
-                context.stroke(path, with: .color(attribute.color), style: StrokeStyle(
-                    lineWidth: width,
-                    dash: dash(for: attribute.style, thickness: width)
-                ))
-            }
+@available(iOS 15, macOS 12, tvOS 15, watchOS 8, *)
+enum SUIStrikethroughTextRenderer {
+    static func draw(
+        _ attribute: SUIStrikethroughAttribute,
+        from minX: CGFloat,
+        to maxX: CGFloat,
+        baselineY: CGFloat,
+        in context: inout GraphicsContext
+    ) {
+        guard maxX > minX else { return }
+        let y = baselineY - attribute.baselineOffset
+        let baseStyle = attribute.style.rawValue & 0x0F
+        let width = attribute.thickness * (baseStyle == UnderlineStyle.thick.rawValue ? 2 : 1)
+        let offsets: [CGFloat] = baseStyle == UnderlineStyle.double.rawValue
+            ? [-attribute.thickness, attribute.thickness]
+            : [0]
+        var path = Path()
+        for offset in offsets {
+            path.move(to: CGPoint(x: minX, y: y + offset))
+            path.addLine(to: CGPoint(x: maxX, y: y + offset))
         }
+        context.stroke(path, with: .color(attribute.color), style: StrokeStyle(
+            lineWidth: width,
+            dash: dash(for: attribute.style, thickness: width)
+        ))
     }
 
-    private func dash(for style: UnderlineStyle, thickness: CGFloat) -> [CGFloat] {
+    private static func dash(for style: UnderlineStyle, thickness: CGFloat) -> [CGFloat] {
         switch style.rawValue & 0x0F00 {
         case UnderlineStyle.patternDot.rawValue:
             return [thickness, thickness]

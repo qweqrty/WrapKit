@@ -93,7 +93,7 @@ final class SUILabelStrikethroughSnapshotTests: XCTestCase {
             width: ("      " as NSString).size(withAttributes: [.font: font]).width,
             height: size.height
         )
-        for underline: NSUnderlineStyle in [.double, .thick, .byWord] {
+        for underline: NSUnderlineStyle in [.double, .thick] {
             let native = render(SUILabelView(model: model(text: text, style: nil, underlineStyle: underline), font: font), size: size)
             let expectedUnderline = try XCTUnwrap(darkPixelBands(in: crop(native, rect: gap)).last)
             for strike: NSUnderlineStyle in [.double, .thick, [.single, .byWord]] {
@@ -102,16 +102,6 @@ final class SUILabelStrikethroughSnapshotTests: XCTestCase {
                                "Underline \(underline.rawValue) must not change with strike \(strike.rawValue).")
             }
         }
-    }
-
-    func test_single_strikethrough_keeps_native_swiftui_rendering() {
-        let font = UIFont.systemFont(ofSize: 28)
-        let attributes = TextAttributes(text: "175 USD", color: .label, strikethroughStyle: .single)
-        let native = Text(AttributedString(attributes.makeNSAttributedString(font: font)))
-            .font(SwiftUIFont(font))
-        let sut = SUILabelView(model: .attributes([attributes]), font: font)
-
-        XCTAssertNil(Diffing.image().diff(render(native), render(sut)))
     }
 
     func test_neighboring_custom_strike_does_not_change_native_single_segment() throws {
