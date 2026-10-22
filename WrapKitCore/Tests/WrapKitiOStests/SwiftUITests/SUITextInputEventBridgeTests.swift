@@ -129,6 +129,19 @@
             XCTAssertTrue(textField.pasteDelegate === originalDelegate)
         }
 
+        func test_unchangedUserText_doesNotCallDidChangeTextLikeUITextFieldEditingChanged() {
+            let adapter = TextInputOutputSwiftUIAdapter()
+            var received: [String?] = []
+            adapter.display(model: .init(text: "1234", didChangeText: [{ received.append($0) }]))
+            let sut = SUITextInputStateModel(adapter: adapter)
+
+            sut.applyUserText("1234")
+            sut.applyUserText("12345")
+            sut.applyUserText("12345")
+
+            XCTAssertEqual(received, ["12345"], "SwiftUI rewrites the binding on focus loss; that is not an edit")
+        }
+
         func test_trailingSymbolWithoutMask_doesNotAlterUserTextLikeUIKit() {
             let adapter = TextInputOutputSwiftUIAdapter()
             adapter.display(model: .init(text: "10", trailingSymbol: "%"))
