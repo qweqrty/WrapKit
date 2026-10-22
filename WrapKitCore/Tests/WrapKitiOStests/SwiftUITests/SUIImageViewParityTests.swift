@@ -944,7 +944,13 @@ private final class AppearanceRenderHost {
         let root = ImageAppearanceHarness(adapter: adapter, appearance: appearance)
             .frame(width: 32, height: 32)
             .accentColor(tint)
-        controller = UIHostingController(rootView: root)
+        let hostingController = UIHostingController(rootView: root)
+        // The probe window sits under the status bar; on Dynamic Island devices the hosting view
+        // would inset the 32×32 content by the status bar height and the probed pixel would miss it.
+        if #available(iOS 16.4, *) {
+            hostingController.safeAreaRegions = []
+        }
+        controller = hostingController
         window = UIWindow(frame: CGRect(x: 0, y: 0, width: 32, height: 32))
         window.rootViewController = controller
         window.isHidden = false
