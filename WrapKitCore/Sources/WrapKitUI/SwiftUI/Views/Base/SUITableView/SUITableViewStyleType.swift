@@ -5,6 +5,9 @@ public enum SUITableViewStyleType {
     /// A native SwiftUI `List`. Supports row taps, swipe actions, deletion, and reordering.
     case list
 
+    /// A native grouped `List` whose section headers scroll with their rows.
+    case groupedList
+
     /// A lightweight layout for sections and row taps. List-only editing and swipe APIs are unavailable.
     case lazyVStack(scrollable: Bool = false)
     
@@ -18,8 +21,8 @@ public enum SUITableViewStyleType {
         listFooterContent: ListFooterContent
     ) -> some View {
         switch self {
-        case .list:
-            SUITableListView().makeBody(
+        case .list, .groupedList:
+            SUITableListView(isGrouped: isGroupedList).makeBody(
                 stateModel: stateModel,
                 cellContent: cellContent,
                 headerContent: headerContent,
@@ -37,6 +40,11 @@ public enum SUITableViewStyleType {
                 listFooterContent: listFooterContent
             )
         }
+    }
+
+    private var isGroupedList: Bool {
+        if case .groupedList = self { return true }
+        return false
     }
 }
 #endif

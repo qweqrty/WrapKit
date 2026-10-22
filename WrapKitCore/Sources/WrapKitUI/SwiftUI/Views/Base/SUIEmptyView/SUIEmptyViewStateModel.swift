@@ -81,28 +81,34 @@ public final class SUIEmptyViewStateModel: ObservableObject {
             .compactMap { $0 }
             .sink { [weak self] value in
                 guard let self else { return }
-                self.applyVisibility(
-                    isHidden: value.model == nil,
-                    animationConfig: value.model?.animationConfig
-                        ?? EmptyViewAnimationConfig(isAnimated: true, duration: 0.3),
-                    outputSequence: value.outputSequence
-                )
-                self.applyTitle(
-                    value.model?.title,
-                    outputSequence: value.outputSequence
-                )
-                self.applySubtitle(
-                    value.model?.subTitle,
-                    outputSequence: value.outputSequence
-                )
-                self.applyButton(
-                    value.model?.button,
-                    outputSequence: value.outputSequence
-                )
-                self.applyImage(
-                    value.model?.image,
-                    outputSequence: value.outputSequence
-                )
+                // UIKit clears all content synchronously before hiding the container.
+                // A removal transaction must not keep its old text or image alive.
+                var transaction = Transaction()
+                transaction.disablesAnimations = value.model == nil
+                withTransaction(transaction) {
+                    self.applyVisibility(
+                        isHidden: value.model == nil,
+                        animationConfig: value.model?.animationConfig
+                            ?? EmptyViewAnimationConfig(isAnimated: true, duration: 0.3),
+                        outputSequence: value.outputSequence
+                    )
+                    self.applyTitle(
+                        value.model?.title,
+                        outputSequence: value.outputSequence
+                    )
+                    self.applySubtitle(
+                        value.model?.subTitle,
+                        outputSequence: value.outputSequence
+                    )
+                    self.applyButton(
+                        value.model?.button,
+                        outputSequence: value.outputSequence
+                    )
+                    self.applyImage(
+                        value.model?.image,
+                        outputSequence: value.outputSequence
+                    )
+                }
             }
             .store(in: &cancellables)
 

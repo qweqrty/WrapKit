@@ -32,6 +32,7 @@ public struct SUIImageView: View {
     @State private var activeRequestID = UUID()
 
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.displayScale) private var displayScale
 
     public init(
         adapter: ImageViewOutputSwiftUIAdapter,
@@ -187,8 +188,15 @@ public struct SUIImageView: View {
     @ViewBuilder
     private func contentView(_ image: Image) -> some View {
         #if canImport(UIKit) && !os(watchOS)
-        if shouldRasterizeAssetSymbol {
-            resizableContentView(SUIVectorImageRasterCache.shared.image(for: image))
+        if shouldRasterizeAsset {
+            resizableContentView(SUIVectorImageRasterCache.shared.image(
+                for: image,
+                traits: UITraitCollection(traitsFrom: [
+                    UITraitCollection.current,
+                    UITraitCollection(userInterfaceStyle: colorScheme == .dark ? .dark : .light),
+                    UITraitCollection(displayScale: displayScale)
+                ])
+            ))
         } else if shouldPrepareWrongURLPlaceholder, image.isSymbolImage {
             preparedWrongURLPlaceholder(image)
         } else {
@@ -199,7 +207,7 @@ public struct SUIImageView: View {
         #endif
     }
 
-    private var shouldRasterizeAssetSymbol: Bool {
+    private var shouldRasterizeAsset: Bool {
         guard case .asset = model.image else { return false }
         return true
     }
@@ -640,7 +648,7 @@ private extension ImageEnum {
 private final class SUIVectorImageRasterCache {
     static let shared = SUIVectorImageRasterCache()
 
-    private let images = NSCache<UIImage, UIImage>()
+    private let images = NSCache<SUIAssetRasterKey, UIImage>()
     private let placeholderImages = NSCache<SUIPlaceholderRasterKey, UIImage>()
     private let maximumPixelDimension: CGFloat = 1_024
 
@@ -651,9 +659,13 @@ private final class SUIVectorImageRasterCache {
         placeholderImages.totalCostLimit = 32 * 1_024 * 1_024
     }
 
-    func image(for image: UIImage) -> UIImage {
-        guard image.isSymbolImage else { return image }
-        if let cachedImage = images.object(forKey: image) {
+    func image(for image: UIImage, traits: UITraitCollection) -> UIImage {
+        // Do not replace animated/CI-backed images with a single raster frame.
+        guard image.images == nil,
+              image.imageAsset != nil || image.isSymbolImage,
+              image.cgImage != nil || image.isSymbolImage else { return image }
+        let key = SUIAssetRasterKey(image: image, traits: traits)
+        if let cachedImage = images.object(forKey: key) {
             return cachedImage
         }
 
@@ -661,17 +673,32 @@ private final class SUIVectorImageRasterCache {
         guard longestDimension > 0 else { return image }
         let format = UIGraphicsImageRendererFormat()
         format.opaque = false
-        format.scale = maximumPixelDimension / longestDimension
+        format.scale = image.isSymbolImage ? maximumPixelDimension / longestDimension : image.scale
         format.preferredRange = .extended
-        let sourceImage = image.withRenderingMode(.alwaysOriginal)
         let rasterizedImage = UIGraphicsImageRenderer(
             size: image.size,
             format: format
-        ).image { _ in
-            sourceImage.draw(at: .zero)
+        ).image { context in
+            traits.performAsCurrent {
+                // SwiftUI can resolve a named UIImage through its original imageAsset,
+                // discarding a baked withTintColor. UIImageView preserves that tint and
+                // resolves dynamic catalog variants; UIImage.draw keeps the initially selected variant.
+                if image.isSymbolImage {
+                    image.draw(at: .zero)
+                } else {
+                    let imageView = UIImageView()
+                    imageView.overrideUserInterfaceStyle = traits.userInterfaceStyle
+                    imageView.bounds = CGRect(origin: .zero, size: image.size)
+                    imageView.contentMode = .scaleToFill
+                    imageView.layer.contentsScale = format.scale
+                    imageView.image = image
+                    imageView.layoutIfNeeded()
+                    imageView.layer.render(in: context.cgContext)
+                }
+            }
         }.withRenderingMode(image.renderingMode)
-        let pixelCount = Int(maximumPixelDimension * maximumPixelDimension)
-        images.setObject(rasterizedImage, forKey: image, cost: pixelCount * 4)
+        let byteCount = rasterizedImage.cgImage.map { $0.bytesPerRow * $0.height } ?? 0
+        images.setObject(rasterizedImage, forKey: key, cost: byteCount)
         return rasterizedImage
     }
 
@@ -710,6 +737,28 @@ private final class SUIVectorImageRasterCache {
         let pixelCount = Int(size.width * format.scale * size.height * format.scale)
         placeholderImages.setObject(rasterizedImage, forKey: cacheKey, cost: pixelCount * 4)
         return rasterizedImage
+    }
+}
+
+private final class SUIAssetRasterKey: NSObject {
+    let image: UIImage
+    let traits: UITraitCollection
+
+    init(image: UIImage, traits: UITraitCollection) {
+        self.image = image
+        self.traits = traits
+    }
+
+    override var hash: Int {
+        var hasher = Hasher()
+        hasher.combine(ObjectIdentifier(image))
+        hasher.combine(traits.hash)
+        return hasher.finalize()
+    }
+
+    override func isEqual(_ object: Any?) -> Bool {
+        guard let key = object as? SUIAssetRasterKey else { return false }
+        return image === key.image && traits.isEqual(key.traits)
     }
 }
 

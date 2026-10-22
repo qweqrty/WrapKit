@@ -29,7 +29,7 @@ public class {{ type.name }}SwiftUIAdapter{% for associatedType in type.associat
 {% if type.name == "ButtonOutput" or type.name == "DatePickerViewOutput" or type.name == "PickerViewOutput" or type.name == "EmptyViewOutput" or type.name == "TitledOutput" or type.name == "RefreshControlOutput" or type.name == "KeyValueFieldViewOutput" or type.name == "ImageViewOutput" or type.name == "SwitchCotrolOutput" or type.name == "TextOutput" or type.name == "TextInputOutput" or type.name == "CardViewOutput" or type.name == "HeaderOutput" or type.name == "SearchBarOutput" or type.name == "ExpandableCardViewOutput" %}
     private let outputReplayClosureStore = SwiftUIOutputReplayClosureStore()
 {% endif %}
-{% if type.name == "PickerViewOutput" or type.name == "RefreshControlOutput" %}
+{% if type.name == "PickerViewOutput" %}
     private var isSynchronizingOutputClosureProperties = false
 
     private func synchronizeOutputClosureProperties(_ update: () -> Void) {
@@ -38,14 +38,35 @@ public class {{ type.name }}SwiftUIAdapter{% for associatedType in type.associat
         update()
     }
 {% endif %}
+{% if type.name == "RefreshControlOutput" %}
+    private var currentRefreshCallbacks: [(() -> Void)?] = []
+
+    func refreshCallbacks(consumer: OutputReplayConsumer?) -> [(() -> Void)?] {
+        requireMainOutputReplayQueue()
+        guard isActiveOutputReplayConsumer(consumer) else { return [] }
+        return currentRefreshCallbacks
+    }
+
+    func invokeRefreshCallbacks(consumer: OutputReplayConsumer?) {
+        requireMainOutputReplayQueue()
+        guard isActiveOutputReplayConsumer(consumer) else { return }
+        // A handler may mutate the collection; UIKit finishes the current raw snapshot.
+        let callbacks = onRefresh ?? []
+        callbacks.forEach { $0?() }
+    }
+{% endif %}
     {% for variable in type.variables %}
         {% if type.name == "RefreshControlOutput" and variable.name == "onRefresh" %}
         @Published public var {{ variable.name }}: {{ variable.typeName }} = []{% if type.name == "ButtonOutput" or type.name == "DatePickerViewOutput" or type.name == "PickerViewOutput" or type.name == "EmptyViewOutput" or type.name == "TitledOutput" or type.name == "RefreshControlOutput" or type.name == "KeyValueFieldViewOutput" or type.name == "ImageViewOutput" or type.name == "ProgressBarOutput" or type.name == "StackViewOutput" or type.name == "SwitchCotrolOutput" or type.name == "TextOutput" or type.name == "TextInputOutput" or type.name == "CardViewOutput" or type.name == "HeaderOutput" or type.name == "SearchBarOutput" %} {
             willSet {
                 dispatchPrecondition(condition: .onQueue(.main))
-                if !isSynchronizingOutputClosureProperties {
-                    outputReplayClosureStore.invalidate(prefix: "onRefresh")
-                }
+            }
+            didSet {
+                // Keep UIKit's raw mutable array separate from revocable UI/replay copies.
+                currentRefreshCallbacks = outputReplayClosureStore.sanitizeRefreshActionsReplacement(
+                    {{ variable.name }} ?? [],
+                    path: "onRefresh"
+                )
             }
         }{% endif %}
         {% elif variable.isOptional %}
@@ -361,12 +382,15 @@ public class {{ type.name }}SwiftUIAdapter{% for associatedType in type.associat
         {% if type.name == "ButtonOutput" or type.name == "DatePickerViewOutput" or type.name == "PickerViewOutput" or type.name == "EmptyViewOutput" or type.name == "TitledOutput" or type.name == "RefreshControlOutput" or type.name == "KeyValueFieldViewOutput" or type.name == "ImageViewOutput" or type.name == "ProgressBarOutput" or type.name == "StackViewOutput" or type.name == "SwitchCotrolOutput" or type.name == "TextOutput" or type.name == "TextInputOutput" or type.name == "CardViewOutput" or type.name == "HeaderOutput" or type.name == "SearchBarOutput" %}
         requireMainOutputReplayQueue()
         {% endif %}
-        let {{ method.parameters.first.name }} = outputReplayClosureStore.sanitize(
-            {{ method.parameters.first.name }},
-            path: "model"
-        )
-        synchronizeOutputClosureProperties {
+        if self.onRefresh != nil {
             self.onRefresh = [{{ method.parameters.first.name }}?.onRefresh]
+        }
+        let {{ method.parameters.first.name }} = {{ method.parameters.first.name }}.map {
+            RefreshControlPresentableModel(
+                style: $0.style,
+                onRefresh: currentRefreshCallbacks.first ?? nil,
+                isLoading: $0.isLoading
+            )
         }
         if let isLoading = {{ method.parameters.first.name }}?.isLoading {
             self.isLoading = isLoading
@@ -401,14 +425,10 @@ public class {{ type.name }}SwiftUIAdapter{% for associatedType in type.associat
         {% if type.name == "ButtonOutput" or type.name == "DatePickerViewOutput" or type.name == "PickerViewOutput" or type.name == "EmptyViewOutput" or type.name == "TitledOutput" or type.name == "RefreshControlOutput" or type.name == "KeyValueFieldViewOutput" or type.name == "ImageViewOutput" or type.name == "ProgressBarOutput" or type.name == "StackViewOutput" or type.name == "SwitchCotrolOutput" or type.name == "TextOutput" or type.name == "TextInputOutput" or type.name == "CardViewOutput" or type.name == "HeaderOutput" or type.name == "SearchBarOutput" %}
         requireMainOutputReplayQueue()
         {% endif %}
-        let callbacks = outputReplayClosureStore.sanitizeRefreshActionsReplacement(
-            [{{ method.parameters.first.name }}],
-            path: "onRefresh"
-        )
-        let {{ method.parameters.first.name }} = callbacks[0]
-        synchronizeOutputClosureProperties {
-            self.onRefresh = callbacks
+        if self.onRefresh != nil {
+            self.onRefresh = [{{ method.parameters.first.name }}]
         }
+        let {{ method.parameters.first.name }} = currentRefreshCallbacks.first ?? nil
         nextOutputSequence &+= 1
         {{ method.callName }}{% for param in method.parameters %}{{ param.name|upperFirstLetter }}{% endfor %}State = .init(
             outputSequence: nextOutputSequence,
@@ -424,22 +444,8 @@ public class {{ type.name }}SwiftUIAdapter{% for associatedType in type.associat
         {% if type.name == "ButtonOutput" or type.name == "DatePickerViewOutput" or type.name == "PickerViewOutput" or type.name == "EmptyViewOutput" or type.name == "TitledOutput" or type.name == "RefreshControlOutput" or type.name == "KeyValueFieldViewOutput" or type.name == "ImageViewOutput" or type.name == "ProgressBarOutput" or type.name == "StackViewOutput" or type.name == "SwitchCotrolOutput" or type.name == "TextOutput" or type.name == "TextInputOutput" or type.name == "CardViewOutput" or type.name == "HeaderOutput" or type.name == "SearchBarOutput" %}
         requireMainOutputReplayQueue()
         {% endif %}
-        let callbackIndex = self.onRefresh?.count ?? 0
-        let rawAppendingOnRefresh = appendingOnRefresh
-        let {{ method.parameters.first.name }}: (() -> Void)?
-        if var callbacks = self.onRefresh {
-            {{ method.parameters.first.name }} = outputReplayClosureStore.sanitizeRefreshAppendingAction(
-                rawAppendingOnRefresh,
-                path: "onRefresh",
-                index: callbackIndex
-            )
-            callbacks.append({{ method.parameters.first.name }})
-            synchronizeOutputClosureProperties {
-                self.onRefresh = callbacks
-            }
-        } else {
-            {{ method.parameters.first.name }} = nil
-        }
+        self.onRefresh?.append({{ method.parameters.first.name }})
+        let {{ method.parameters.first.name }} = currentRefreshCallbacks.last ?? nil
         nextOutputSequence &+= 1
         {{ method.callName }}{% for param in method.parameters %}{{ param.name|upperFirstLetter }}{% endfor %}State = .init(
             outputSequence: nextOutputSequence,

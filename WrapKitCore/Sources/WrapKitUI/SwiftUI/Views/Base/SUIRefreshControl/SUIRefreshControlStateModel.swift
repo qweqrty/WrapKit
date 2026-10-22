@@ -24,7 +24,9 @@ public final class SUIRefreshControlStateModel: ObservableObject {
     }
     @Published var tintColor: Color? = nil
     @Published var zPosition: CGFloat = -1
-    @Published var onRefreshCallbacks: [(() -> Void)?] = []
+    var onRefreshCallbacks: [(() -> Void)?] {
+        adapter.refreshCallbacks(consumer: outputReplayConsumer)
+    }
 
     private let adapter: RefreshControlOutputSwiftUIAdapter
     private var isAwaitingRefreshOutput = false
@@ -116,25 +118,13 @@ public final class SUIRefreshControlStateModel: ObservableObject {
             }
             .store(in: &cancellables)
 
-        onRefreshCallbacks = adapter.onRefresh ?? []
-
-        adapter.activeOutputReplayPublisher(
-            adapter.$onRefresh,
-            consumer: outputReplayConsumer,
-            dropFirst: true
-        )
-            .sink { [weak self] callbacks in
-                self?.onRefreshCallbacks = callbacks ?? []
-                self?.persistReplayCheckpoint()
-            }
-            .store(in: &cancellables)
-
         persistReplayCheckpoint()
     }
     
     func triggerRefresh() {
+        guard adapter.isActiveOutputReplayConsumer(outputReplayConsumer) else { return }
         isAwaitingRefreshOutput = true
-        onRefreshCallbacks.forEach { $0?() }
+        adapter.invokeRefreshCallbacks(consumer: outputReplayConsumer)
     }
 
     private func persistReplayCheckpoint() {

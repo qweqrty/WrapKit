@@ -8,6 +8,75 @@ import XCTest
 @available(iOS 17.0, *)
 @MainActor
 final class NativeNavigationHeaderUpdateSnapshotTests: XCTestCase {
+    func test_nilTextCenterThenDeferredTitle_hasVisibleNativeTitle() throws {
+        try assertDeferredTitleAfterEmptyText(nil, name: "nil_text")
+    }
+
+    func test_emptyTextCenterThenDeferredTitle_hasVisibleNativeTitle() throws {
+        try assertDeferredTitleAfterEmptyText("", name: "empty_text")
+    }
+
+    func test_deferredCenterAfterLeadingOnlyModel_hasVisibleNativeTitle() throws {
+        let leading = CardViewPresentableModel(
+            leadingImage: .init(image: .asset(UIImage(systemName: "chevron.left"))),
+            onPress: {}
+        )
+        let live = makeHeader(leading: leading, title: nil)
+        XCTAssertNil(live.host.element(withIdentifier: "native.header.title"))
+
+        let title = "Для школьников"
+        live.adapter.display(centerView: .keyValue(.init(
+            .text(accessibilityIdentifier: "native.header.title", title), nil
+        )))
+        let frame = try capture(live, named: "native_deferred_center_title")
+        let expectedWidth = (title as NSString).size(withAttributes: [
+            .font: UIFont.systemFont(ofSize: 17, weight: .semibold)
+        ]).width
+        XCTAssertGreaterThanOrEqual(frame.width + 0.5, ceil(expectedWidth))
+        XCTAssertGreaterThan(frame.height, 0)
+        let bar = try XCTUnwrap(live.host.firstSubview(of: UINavigationBar.self))
+        let barFrame = bar.convert(bar.bounds, to: nil)
+        XCTAssertGreaterThanOrEqual(frame.minY, barFrame.minY - 0.5)
+        XCTAssertLessThanOrEqual(frame.maxY, barFrame.maxY + 0.5)
+    }
+
+    func test_centerClearedAndTypeChanged_restoresVisibleNativeTitle() throws {
+        let leading = CardViewPresentableModel(
+            accessibilityIdentifier: "native.header.back",
+            leadingImage: .init(image: .asset(UIImage(systemName: "chevron.left"))),
+            onPress: {}
+        )
+        let live = makeHeader(leading: leading)
+        XCTAssertGreaterThan(try capture(live, named: "native_center_key_initial").height, 0)
+
+        live.adapter.display(centerView: nil)
+        for _ in 0..<3 { live.host.settle() }
+        XCTAssertNil(live.host.element(withIdentifier: "native.header.title"))
+        XCTAssertNotNil(live.host.element(withIdentifier: "native.header.back"))
+
+        live.adapter.display(centerView: .titledImage(.init(
+            .init(accessibilityIdentifier: "native.header.image", size: .init(width: 20, height: 20),
+                  image: .asset(UIImage(systemName: "star.fill"))),
+            .text(accessibilityIdentifier: "native.header.title", "Image title")
+        )))
+        XCTAssertGreaterThan(try capture(live, named: "native_center_image_after_clear").height, 0)
+        let image = try XCTUnwrap(live.host.element(withIdentifier: "native.header.image"))
+        XCTAssertGreaterThan(image.accessibilityFrame.height, 0)
+
+        live.adapter.display(centerView: .keyValue(.init(
+            .text(accessibilityIdentifier: "native.header.title", "Restored title"), nil
+        )))
+        XCTAssertGreaterThan(try capture(live, named: "native_center_key_after_image").height, 0)
+        XCTAssertNil(live.host.element(withIdentifier: "native.header.image"))
+
+        live.adapter.display(isHidden: true)
+        for _ in 0..<3 { live.host.settle() }
+        XCTAssertNil(live.host.element(withIdentifier: "native.header.title"))
+        live.adapter.display(isHidden: false)
+        XCTAssertGreaterThan(try capture(live, named: "native_center_key_after_header_reshown").height, 0)
+        XCTAssertNotNil(live.host.element(withIdentifier: "native.header.back"))
+    }
+
     func test_trailingActionsOffAndOn_matchesFreshNativeToolbarAtEachStep() throws {
         let leading = CardViewPresentableModel(
             title: .text("Back to screen"),
@@ -76,9 +145,32 @@ final class NativeNavigationHeaderUpdateSnapshotTests: XCTestCase {
         let host: SwiftUIAccessibilityTestHost
     }
 
+    private func assertDeferredTitleAfterEmptyText(_ initial: String?, name: String) throws {
+        let leading = CardViewPresentableModel(
+            leadingImage: .init(image: .asset(UIImage(systemName: "chevron.left"))),
+            onPress: {}
+        )
+        let live = makeHeader(leading: leading, title: nil, center: .keyValue(.init(
+            .text(accessibilityIdentifier: "native.header.title", initial), nil
+        )))
+        _ = try capture(live, named: "native_center_\(name)_initial", requiresAccessibleTitle: false)
+        let title = "Для школьников"
+        live.adapter.display(centerView: .keyValue(.init(
+            .text(accessibilityIdentifier: "native.header.title", title), nil
+        )))
+        let frame = try capture(live, named: "native_center_\(name)_deferred_title")
+        let expectedWidth = (title as NSString).size(withAttributes: [
+            .font: UIFont.systemFont(ofSize: 17, weight: .semibold)
+        ]).width
+        XCTAssertGreaterThanOrEqual(frame.width + 0.5, ceil(expectedWidth))
+        XCTAssertGreaterThan(frame.height, 0)
+    }
+
     private func makeHeader(
         leading: CardViewPresentableModel?,
-        trailing: ButtonPresentableModel? = nil
+        trailing: ButtonPresentableModel? = nil,
+        title: String? = "Navigation title",
+        center: HeaderPresentableModel.CenterView? = nil
     ) -> LiveHeader {
         let adapter = HeaderOutputSwiftUIAdapter()
         adapter.display(model: .init(
@@ -90,7 +182,7 @@ final class NativeNavigationHeaderUpdateSnapshotTests: XCTestCase {
                 secondaryFont: .systemFont(ofSize: 12),
                 secondaryColor: .secondaryLabel
             ),
-            centerView: .keyValue(.init(.text(accessibilityIdentifier: "native.header.title", "Navigation title"), nil)),
+            centerView: center ?? title.map { .keyValue(.init(.text(accessibilityIdentifier: "native.header.title", $0), nil)) },
             leadingCard: leading,
             primeTrailingImage: trailing,
             secondaryTrailingImage: trailing,
@@ -153,7 +245,9 @@ final class NativeNavigationHeaderUpdateSnapshotTests: XCTestCase {
     private func render(_ view: UIView) throws -> UIImage {
         XCTAssertGreaterThan(view.bounds.width, 0)
         XCTAssertGreaterThan(view.bounds.height, 0)
-        return UIGraphicsImageRenderer(bounds: view.bounds).image { _ in
+        return UIGraphicsImageRenderer(bounds: view.bounds).image { context in
+            UIColor.systemGroupedBackground.setFill()
+            context.fill(view.bounds)
             XCTAssertTrue(view.drawHierarchy(in: view.bounds, afterScreenUpdates: true))
         }
     }

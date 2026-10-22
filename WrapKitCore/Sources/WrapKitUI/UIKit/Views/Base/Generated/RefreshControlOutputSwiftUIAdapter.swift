@@ -25,19 +25,31 @@ import UIKit
 #endif
 public class RefreshControlOutputSwiftUIAdapter: ObservableObject, RefreshControlOutput, LoadingOutput {
     private let outputReplayClosureStore = SwiftUIOutputReplayClosureStore()
-    private var isSynchronizingOutputClosureProperties = false
+    private var currentRefreshCallbacks: [(() -> Void)?] = []
 
-    private func synchronizeOutputClosureProperties(_ update: () -> Void) {
-        isSynchronizingOutputClosureProperties = true
-        defer { isSynchronizingOutputClosureProperties = false }
-        update()
+    func refreshCallbacks(consumer: OutputReplayConsumer?) -> [(() -> Void)?] {
+        requireMainOutputReplayQueue()
+        guard isActiveOutputReplayConsumer(consumer) else { return [] }
+        return currentRefreshCallbacks
+    }
+
+    func invokeRefreshCallbacks(consumer: OutputReplayConsumer?) {
+        requireMainOutputReplayQueue()
+        guard isActiveOutputReplayConsumer(consumer) else { return }
+        // A handler may mutate the collection; UIKit finishes the current raw snapshot.
+        let callbacks = onRefresh ?? []
+        callbacks.forEach { $0?() }
     }
         @Published public var onRefresh: [(() -> Void)?]? = [] {
             willSet {
                 dispatchPrecondition(condition: .onQueue(.main))
-                if !isSynchronizingOutputClosureProperties {
-                    outputReplayClosureStore.invalidate(prefix: "onRefresh")
-                }
+            }
+            didSet {
+                // Keep UIKit's raw mutable array separate from revocable UI/replay copies.
+                currentRefreshCallbacks = outputReplayClosureStore.sanitizeRefreshActionsReplacement(
+                    onRefresh ?? [],
+                    path: "onRefresh"
+                )
             }
         }
 
@@ -245,12 +257,15 @@ public class RefreshControlOutputSwiftUIAdapter: ObservableObject, RefreshContro
     }
     public func display(model: RefreshControlPresentableModel?) {
         requireMainOutputReplayQueue()
-        let model = outputReplayClosureStore.sanitize(
-            model,
-            path: "model"
-        )
-        synchronizeOutputClosureProperties {
+        if self.onRefresh != nil {
             self.onRefresh = [model?.onRefresh]
+        }
+        let model = model.map {
+            RefreshControlPresentableModel(
+                style: $0.style,
+                onRefresh: currentRefreshCallbacks.first ?? nil,
+                isLoading: $0.isLoading
+            )
         }
         if let isLoading = model?.isLoading {
             self.isLoading = isLoading
@@ -299,14 +314,10 @@ public class RefreshControlOutputSwiftUIAdapter: ObservableObject, RefreshContro
     }
     public func display(onRefresh: (() -> Void)?) {
         requireMainOutputReplayQueue()
-        let callbacks = outputReplayClosureStore.sanitizeRefreshActionsReplacement(
-            [onRefresh],
-            path: "onRefresh"
-        )
-        let onRefresh = callbacks[0]
-        synchronizeOutputClosureProperties {
-            self.onRefresh = callbacks
+        if self.onRefresh != nil {
+            self.onRefresh = [onRefresh]
         }
+        let onRefresh = currentRefreshCallbacks.first ?? nil
         nextOutputSequence &+= 1
         displayOnRefreshState = .init(
             outputSequence: nextOutputSequence,
@@ -329,22 +340,8 @@ public class RefreshControlOutputSwiftUIAdapter: ObservableObject, RefreshContro
     }
     public func display(appendingOnRefresh: (() -> Void)?) {
         requireMainOutputReplayQueue()
-        let callbackIndex = self.onRefresh?.count ?? 0
-        let rawAppendingOnRefresh = appendingOnRefresh
-        let appendingOnRefresh: (() -> Void)?
-        if var callbacks = self.onRefresh {
-            appendingOnRefresh = outputReplayClosureStore.sanitizeRefreshAppendingAction(
-                rawAppendingOnRefresh,
-                path: "onRefresh",
-                index: callbackIndex
-            )
-            callbacks.append(appendingOnRefresh)
-            synchronizeOutputClosureProperties {
-                self.onRefresh = callbacks
-            }
-        } else {
-            appendingOnRefresh = nil
-        }
+        self.onRefresh?.append(appendingOnRefresh)
+        let appendingOnRefresh = currentRefreshCallbacks.last ?? nil
         nextOutputSequence &+= 1
         displayAppendingOnRefreshState = .init(
             outputSequence: nextOutputSequence,

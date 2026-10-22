@@ -33,8 +33,14 @@ final class SUITextInputVisibilityView: UIView {
     private var isInputFocused = false
     private weak var scrollView: UIScrollView?
     private var boundsObservation: NSKeyValueObservation?
+    private var lastViewportSize: CGSize?
+    private var lastControlSize: CGSize?
+    private var needsReveal = false
 
     func configure(isFocused: Bool) {
+        if isFocused, !isInputFocused {
+            needsReveal = true
+        }
         isInputFocused = isFocused
         attachToScrollView()
         revealIfNeeded()
@@ -65,6 +71,8 @@ final class SUITextInputVisibilityView: UIView {
     func detach() {
         boundsObservation = nil
         scrollView = nil
+        lastViewportSize = nil
+        lastControlSize = nil
     }
 
     private func attachToScrollView() {
@@ -84,16 +92,23 @@ final class SUITextInputVisibilityView: UIView {
     }
 
     private func revealIfNeeded() {
-        guard isInputFocused,
-              window != nil,
+        guard window != nil,
               let scrollView,
-              !scrollView.isDragging,
-              !scrollView.isDecelerating,
               !bounds.isEmpty else { return }
-        let control = convert(bounds, to: scrollView)
         let viewport = scrollView.bounds.inset(by: scrollView.adjustedContentInset)
-        guard viewport.height >= control.height,
-              control.minY < viewport.minY || control.maxY > viewport.maxY else { return }
+        if lastViewportSize != viewport.size || lastControlSize != bounds.size {
+            lastViewportSize = viewport.size
+            lastControlSize = bounds.size
+            needsReveal = true
+        }
+        // Origin-only scrolling is the user's choice, not a new reveal request.
+        guard isInputFocused, needsReveal,
+              !scrollView.isDragging,
+              !scrollView.isDecelerating else { return }
+        let control = convert(bounds, to: scrollView)
+        guard viewport.height >= control.height else { return }
+        needsReveal = false
+        guard control.minY < viewport.minY || control.maxY > viewport.maxY else { return }
         scrollView.scrollRectToVisible(control, animated: false)
     }
 }

@@ -6,6 +6,17 @@ import UIKit
 
 private let suiTableRowMoveTypeIdentifier = "com.wrapkit.table-row-move"
 
+private extension View {
+    @ViewBuilder
+    func suiTableListStyle(isGrouped: Bool) -> some View {
+        if isGrouped {
+            listStyle(.grouped).textCase(nil)
+        } else {
+            listStyle(.plain)
+        }
+    }
+}
+
 struct SUITableRowIdentity<Cell: Hashable>: Hashable {
     enum Base: Hashable {
         case accessibilityIdentifier(String)
@@ -69,7 +80,15 @@ func suiTableProgrammaticTrailingActions<Cell>(
 }
 
 public struct SUITableListView {
-    public init() {}
+    private let isGrouped: Bool
+
+    public init() {
+        isGrouped = false
+    }
+
+    init(isGrouped: Bool) {
+        self.isGrouped = isGrouped
+    }
 
     @ViewBuilder
     public func makeBody<Cell: Hashable, Header, Footer>(
@@ -111,7 +130,7 @@ public struct SUITableListView {
                 }
             }
         }
-        .listStyle(.plain)
+        .suiTableListStyle(isGrouped: isGrouped)
     }
 
     @ViewBuilder
@@ -142,6 +161,7 @@ public struct SUITableListView {
     ) -> some View {
         SUITableInteractiveListContent(
             stateModel: stateModel,
+            isGrouped: isGrouped,
             cellContent: cellContent,
             headerContent: headerContent,
             footerContent: footerContent,
@@ -162,6 +182,7 @@ private struct SUITableInteractiveListContent<
     ListFooterContent: View
 >: View {
     @ObservedObject private var stateModel: SUITableViewStateModel<Header, Cell, Footer>
+    private let isGrouped: Bool
 #if os(iOS)
     @Environment(\.editMode) private var editMode
 #endif
@@ -173,6 +194,7 @@ private struct SUITableInteractiveListContent<
 
     init(
         stateModel: SUITableViewStateModel<Header, Cell, Footer>,
+        isGrouped: Bool,
         @ViewBuilder cellContent: @escaping (Cell, IndexPath) -> CellContent,
         @ViewBuilder headerContent: @escaping (Header) -> HeaderContent,
         @ViewBuilder footerContent: @escaping (Footer) -> FooterContent,
@@ -180,6 +202,7 @@ private struct SUITableInteractiveListContent<
         listFooterContent: ListFooterContent
     ) {
         self.stateModel = stateModel
+        self.isGrouped = isGrouped
         self.cellContent = cellContent
         self.headerContent = headerContent
         self.footerContent = footerContent
@@ -274,7 +297,7 @@ private struct SUITableInteractiveListContent<
                 listAccessoryRow(listFooterContent)
             }
         }
-        .listStyle(.plain)
+        .suiTableListStyle(isGrouped: isGrouped)
     }
 
     private func listAccessoryRow<Content: View>(_ content: Content) -> some View {
@@ -750,7 +773,9 @@ private struct SUITableInteractiveRow<
     ) -> some View {
         ForEach(Array(actions.enumerated()), id: \.offset) { _, action in
             if action.title != nil || action.image != nil {
-                SwiftUI.Button(role: buttonRole(for: action.style)) {
+                // The Output handler may ask for confirmation or fail. The
+                // data source, not List's destructive-role animation, removes rows.
+                SwiftUI.Button {
                     stateModel.performSwipeAction(action, at: indexPath)
                 } label: {
                     contextualActionLabel(action)

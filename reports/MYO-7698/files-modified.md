@@ -13,4 +13,13 @@
 | Перенесён и обновлён | `reports/MYO-7698/files-modified.md` | Полная таблица девяти изменённых/добавленных source/test-файлов и отчётов |
 | Перенесён и обновлён | `reports/MYO-7698/how-to-check.md` | Фактические результаты, артефакты, повторные проверки и ограничения |
 
-Старый каталог `reports/MYO-7698-header-after-pop` больше не содержит файлов. Baseline-изображения и dependency manifests/pins не изменялись.
+Перечисленная выше первоначальная правка header/glass опубликована в 3.1.993. Дополнительный локальный refresh-фикс:
+
+| Действие | Файл | Причина |
+| --- | --- | --- |
+| Изменён | `Scripts/Sourcery/SwiftUIAdapter.stencil` | UIKit raw callbacks отдельно от отзываемых UI/replay copies; nil и batch-mutation parity |
+| Регенерирован | `WrapKitCore/Sources/WrapKitUI/UIKit/Views/Base/Generated/RefreshControlOutputSwiftUIAdapter.swift` | Штатный результат adapter generator |
+| Изменён | `WrapKitCore/Sources/WrapKitUI/SwiftUI/Views/Base/SUIRefreshControl/SUIRefreshControlStateModel.swift` | Актуальные callbacks без устаревающего кэша, guard неактивного consumer |
+| Изменён | `WrapKitCore/Tests/WrapKitiOStests/SwiftUITests/SUIRefreshControlStateModelTests.swift` | 8 регрессий смешанного API, nil/replacement/lifetime/remount и мутации во время refresh |
+
+Старый каталог `reports/MYO-7698-header-after-pop` больше не содержит файлов. Baseline-изображения и dependency manifests/pins не изменялись. Результаты нового прогона — в `done.md`, 177/177 на iOS 26.2 и 35/35 на iOS 18.5.

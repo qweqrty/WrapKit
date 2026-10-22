@@ -38,6 +38,17 @@ private struct NativeNavigationHeaderModifier: ViewModifier {
         return flags.map { $0 ? "1" : "0" }.joined()
     }
 
+    private var centerLayoutID: String {
+        switch state.model.centerView {
+        case .keyValue(let pair):
+            return "key-value-\(pair.first?.model?.hasNavigationHeaderContent == true)-\(pair.second?.model?.hasNavigationHeaderContent == true)"
+        case .titledImage(let pair):
+            return "titled-image-\(pair.first != nil)-\(pair.second?.model?.hasNavigationHeaderContent == true)"
+        case nil:
+            return "empty"
+        }
+    }
+
     func body(content: Content) -> some View {
         content
             .navigationTitle("")
@@ -57,7 +68,9 @@ private struct NativeNavigationHeaderModifier: ViewModifier {
                         }
                         .headerAxisBehavior(vertical: horizontalSizeClass != .regular && state.model.leadingCard?.isNativeHeaderAction == true)
                     }
-                    ToolbarItem(id: "header-title-\(toolbarLayoutID)", placement: .principal) {
+                    // An initially empty principal host otherwise keeps its zero height
+                    // when a presenter supplies the center after loading completes.
+                    ToolbarItem(id: "header-title-\(toolbarLayoutID)-\(centerLayoutID)", placement: .principal) {
                         NativeNavigationHeaderTitle(state: state, style: style)
                             .fixedSize(horizontal: false, vertical: true)
                     }
@@ -89,6 +102,23 @@ private struct NativeNavigationHeaderModifier: ViewModifier {
                     }
                 }
             }
+    }
+}
+
+private extension TextOutputPresentableModel.TextModel {
+    var hasNavigationHeaderContent: Bool {
+        switch self {
+        case .text(let text):
+            return text?.isEmpty == false
+        case .attributes(let attributes):
+            return attributes.contains { !$0.text.isEmpty || $0.leadingImage != nil || $0.trailingImage != nil }
+        case .attributedString(let text, _):
+            return text?.isEmpty == false
+        case .textStyled(let text, _, let insets, let height, let backgroundColor):
+            return text.hasNavigationHeaderContent || !insets.isZero || (height ?? 0) > 0 || backgroundColor != nil
+        case .animatedDecimal, .animated:
+            return true
+        }
     }
 }
 

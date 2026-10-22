@@ -66,6 +66,215 @@ final class SUIRefreshControlStateModelTests: XCTestCase {
         XCTAssertNil(callbacks[0])
     }
 
+    func test_mixedDirectAndDisplayAppendingPreservesAllCallbacksBeforeMountAfterMountAndRemount() {
+        for mountsBeforeRegistration in [false, true] {
+            let adapter = RefreshControlOutputSwiftUIAdapter()
+            let refreshOutput: any RefreshControlOutput = adapter
+            let output = refreshOutput.weakReferenced.mainQueueDispatched
+            var calls: [String] = []
+            let initialState = mountsBeforeRegistration ? SUIRefreshControlStateModel(adapter: adapter) : nil
+
+            output.onRefresh?.append { calls.append("main") }
+            output.display(appendingOnRefresh: { calls.append("update") })
+            output.onRefresh?.append { calls.append("options") }
+
+            let state = initialState ?? SUIRefreshControlStateModel(adapter: adapter)
+            state.triggerRefresh()
+            XCTAssertEqual(calls, ["main", "update", "options"])
+            calls.removeAll()
+
+            let remountedState = SUIRefreshControlStateModel(adapter: adapter)
+            remountedState.triggerRefresh()
+            XCTAssertEqual(calls, ["main", "update", "options"])
+            calls.removeAll()
+
+            adapter.onRefresh?.forEach { $0?() }
+            XCTAssertEqual(calls, ["main", "update", "options"])
+        }
+    }
+
+    func test_displayReplacementThenDirectAppendPreservesCallbacksAndRevokesOldEventCopy() throws {
+        let adapter = RefreshControlOutputSwiftUIAdapter()
+        let state = SUIRefreshControlStateModel(adapter: adapter)
+        var calls: [String] = []
+        adapter.display(onRefresh: { calls.append("first") })
+        let oldEventCallback = try XCTUnwrap(adapter.displayOnRefreshState?.onRefresh)
+
+        adapter.onRefresh?.append { calls.append("second") }
+        oldEventCallback()
+        XCTAssertTrue(calls.isEmpty)
+
+        state.triggerRefresh()
+        XCTAssertEqual(calls, ["first", "second"])
+        calls.removeAll()
+
+        let remountedState = SUIRefreshControlStateModel(adapter: adapter)
+        remountedState.triggerRefresh()
+        XCTAssertEqual(calls, ["first", "second"])
+    }
+
+    func test_nilCallbackStorageIgnoresDisplayWritesUntilDirectlyAllocatedLikeUIKit() {
+        let adapter = RefreshControlOutputSwiftUIAdapter()
+        let state = SUIRefreshControlStateModel(adapter: adapter)
+        var calls = 0
+        adapter.onRefresh = nil
+
+        adapter.display(onRefresh: { calls += 1 })
+        XCTAssertNil(adapter.onRefresh)
+        XCTAssertNil(adapter.displayOnRefreshState?.onRefresh)
+
+        adapter.display(appendingOnRefresh: { calls += 1 })
+        XCTAssertNil(adapter.onRefresh)
+        XCTAssertNil(adapter.displayAppendingOnRefreshState?.appendingOnRefresh)
+
+        adapter.display(model: .init(onRefresh: { calls += 1 }, isLoading: true))
+        XCTAssertNil(adapter.onRefresh)
+        XCTAssertNil(adapter.displayModelState?.model?.onRefresh)
+        XCTAssertTrue(state.isLoading)
+        state.triggerRefresh()
+        XCTAssertTrue(state.onRefreshCallbacks.isEmpty)
+        XCTAssertEqual(calls, 0)
+
+        adapter.onRefresh = []
+        adapter.display(appendingOnRefresh: { calls += 1 })
+        state.triggerRefresh()
+        XCTAssertEqual(calls, 1)
+
+        adapter.display(onRefresh: nil)
+        XCTAssertEqual(adapter.onRefresh?.count, 1)
+        XCTAssertNil(adapter.onRefresh?.first ?? nil)
+        adapter.display(appendingOnRefresh: nil)
+        XCTAssertEqual(adapter.onRefresh?.count, 2)
+        adapter.display(model: nil)
+        XCTAssertEqual(adapter.onRefresh?.count, 1)
+        XCTAssertNil(adapter.onRefresh?.first ?? nil)
+    }
+
+    func test_directReplacementWithLargerArrayRevokesOldUICallbacksAndReleasesOwner() throws {
+        final class CallbackOwner {}
+        let adapter = RefreshControlOutputSwiftUIAdapter()
+        let state = SUIRefreshControlStateModel(adapter: adapter)
+        var calls: [String] = []
+        weak var weakOwner: CallbackOwner?
+        do {
+            let owner = CallbackOwner()
+            weakOwner = owner
+            adapter.display(model: .init(onRefresh: {
+                _ = owner
+                calls.append("old")
+            }))
+        }
+        let oldUICallback = try XCTUnwrap(state.onRefreshCallbacks.first ?? nil)
+        let oldEventCallback = try XCTUnwrap(adapter.displayModelState?.model?.onRefresh)
+        XCTAssertNotNil(weakOwner)
+
+        let first = { calls.append("first") }
+        let second = { calls.append("second") }
+        adapter.onRefresh = [first, second]
+
+        XCTAssertNil(weakOwner)
+        oldUICallback()
+        oldEventCallback()
+        XCTAssertTrue(calls.isEmpty)
+        state.triggerRefresh()
+        XCTAssertEqual(calls, ["first", "second"])
+    }
+
+    func test_directRemovalReorderingAndDuplicatesKeepRawArraySemanticsAndRevokeOldUICopies() {
+        let adapter = RefreshControlOutputSwiftUIAdapter()
+        let state = SUIRefreshControlStateModel(adapter: adapter)
+        var calls: [String] = []
+        let first = { calls.append("first") }
+        let second = { calls.append("second") }
+        adapter.display(onRefresh: first)
+        adapter.display(appendingOnRefresh: second)
+        let oldUICallbacks = state.onRefreshCallbacks
+
+        adapter.onRefresh?.reverse()
+        oldUICallbacks.forEach { $0?() }
+        XCTAssertTrue(calls.isEmpty)
+        state.triggerRefresh()
+        XCTAssertEqual(calls, ["second", "first"])
+        calls.removeAll()
+
+        adapter.onRefresh?.removeFirst()
+        state.triggerRefresh()
+        XCTAssertEqual(calls, ["first"])
+        calls.removeAll()
+
+        adapter.onRefresh?.append(first)
+        state.triggerRefresh()
+        XCTAssertEqual(calls, ["first", "first"])
+        calls.removeAll()
+
+        adapter.onRefresh = []
+        state.triggerRefresh()
+        XCTAssertTrue(state.onRefreshCallbacks.isEmpty)
+        XCTAssertTrue(calls.isEmpty)
+    }
+
+    func test_remountPreventsOldConsumerFromReadingOrInvokingCurrentCallbacks() {
+        let adapter = RefreshControlOutputSwiftUIAdapter()
+        let oldState = SUIRefreshControlStateModel(adapter: adapter)
+        var calls: [String] = []
+        let latest = { calls.append("latest") }
+        adapter.display(onRefresh: latest)
+        let state = SUIRefreshControlStateModel(adapter: adapter)
+
+        XCTAssertTrue(oldState.onRefreshCallbacks.isEmpty)
+        oldState.triggerRefresh()
+        XCTAssertTrue(calls.isEmpty)
+        state.triggerRefresh()
+        XCTAssertEqual(calls, ["latest"])
+    }
+
+    func test_triggerFinishesCurrentRawSnapshotWhenFirstHandlerClearsCallbacksLikeUIKit() {
+        final class CallbackOwner {}
+        let adapter = RefreshControlOutputSwiftUIAdapter()
+        let state = SUIRefreshControlStateModel(adapter: adapter)
+        var calls: [String] = []
+        weak var weakOwner: CallbackOwner?
+        let first = { [weak adapter] in
+            calls.append("first")
+            adapter?.onRefresh = []
+            XCTAssertNotNil(weakOwner, "The current UIKit-style batch retains its remaining handlers")
+        }
+        adapter.onRefresh = [first]
+        do {
+            let owner = CallbackOwner()
+            weakOwner = owner
+            adapter.display(appendingOnRefresh: {
+                _ = owner
+                calls.append("second")
+            })
+        }
+        let oldUICallbacks = state.onRefreshCallbacks
+
+        state.triggerRefresh()
+
+        XCTAssertEqual(calls, ["first", "second"])
+        XCTAssertNil(weakOwner)
+        XCTAssertTrue(state.onRefreshCallbacks.isEmpty)
+        oldUICallbacks.forEach { $0?() }
+        state.triggerRefresh()
+        XCTAssertEqual(calls, ["first", "second"])
+    }
+
+    func test_publicRawCallbackCopyKeepsUIKitSemanticsWithoutKeepingOldUILeaseActive() throws {
+        let adapter = RefreshControlOutputSwiftUIAdapter()
+        let state = SUIRefreshControlStateModel(adapter: adapter)
+        var calls = 0
+        adapter.display(onRefresh: { calls += 1 })
+        let rawCallback = try XCTUnwrap(adapter.onRefresh?.first ?? nil)
+        let oldUICallback = try XCTUnwrap(state.onRefreshCallbacks.first ?? nil)
+
+        adapter.onRefresh = nil
+        oldUICallback()
+        XCTAssertEqual(calls, 0)
+        rawCallback()
+        XCTAssertEqual(calls, 1)
+    }
+
     func test_remountUsesCurrentNilDirectCallbacksAndReleasesCallbackOwner() throws {
         final class CallbackOwner {}
 

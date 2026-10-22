@@ -258,6 +258,9 @@ public struct SUITextInputView: View {
                 updateReportedFocus(focused)
             }
         }
+        .onChange(of: displayedNativeText) { value in
+            nativeTextHandle.replaceText(with: value)
+        }
         .onChange(of: isFocused) { focused in
             synchronizeExternalFocus(focused)
         }
@@ -482,7 +485,11 @@ public struct SUITextInputView: View {
                 } else {
                     value = candidate
                 }
-                text = normalizedText(value)
+                let normalizedValue = normalizedText(value)
+                // Native focus/configuration updates can echo the same value without a user edit.
+                if normalizedValue != text {
+                    text = normalizedValue
+                }
 
                 let displayed = displayedNativeText
                 guard displayed != candidate else { return }
