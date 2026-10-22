@@ -106,8 +106,20 @@ public struct SUITableViewLazyVStackStyle {
                     .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
+            .rowAccessibilityIdentifier(cellModel.accessibilityIdentifier)
         } else {
             content
+        }
+    }
+}
+
+private extension View {
+    @ViewBuilder
+    func rowAccessibilityIdentifier(_ identifier: String?) -> some View {
+        if let identifier {
+            accessibilityIdentifier(identifier)
+        } else {
+            self
         }
     }
 }
