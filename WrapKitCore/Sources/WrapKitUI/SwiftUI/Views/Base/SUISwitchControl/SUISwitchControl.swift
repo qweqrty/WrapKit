@@ -58,7 +58,6 @@ public struct SUISwitchControlView: View {
     
     public var body: some View {
         styledToggle
-            .opacity(isEnabled ? 1 : 0.5)
             .onAppear { internalIsOn = isOn }
             .onChange(of: isOn) { newValue in
                 internalIsOn = newValue
@@ -130,6 +129,7 @@ public struct SUISwitchControlView: View {
             }
         ))
         .labelsHidden()
+        .opacity(isEnabled ? 1 : 0.5)
     }
 
     private var shimmerAlignmentOutsetWidth: CGFloat {

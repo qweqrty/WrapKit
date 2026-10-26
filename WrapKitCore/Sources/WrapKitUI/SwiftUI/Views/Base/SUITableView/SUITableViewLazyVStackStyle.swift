@@ -98,14 +98,19 @@ public struct SUITableViewLazyVStackStyle {
         content: Content
     ) -> some View {
         if let onTap = cellModel.onTap {
-            SwiftUI.Button {
-                onTap(indexPath, cellModel.cell)
-            } label: {
-                content
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .contentShape(Rectangle())
-            }
-            .buttonStyle(.plain)
+            content
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    onTap(indexPath, cellModel.cell)
+                }
+                .accessibilityElement(children: .contain)
+                .accessibilityAction {
+                    onTap(indexPath, cellModel.cell)
+                }
+                .ifLet(cellModel.accessibilityIdentifier) { row, identifier in
+                    row.accessibilityIdentifier(identifier)
+                }
         } else {
             content
         }
