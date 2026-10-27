@@ -4,6 +4,25 @@ import XCTest
 import UIKit
 
 class NavigationBarSnapshotTests: XCTestCase {
+    func test_navigationBar_glassButton_keepsSettledColorAcrossThemeChanges() throws {
+        guard #available(iOS 26, *) else { throw XCTSkip("Native button glass requires iOS 26") }
+        let (sut, container) = makeSUT()
+        sut.display(style: Self.headerStyle(backgroundColor: .red))
+        sut.display(tertiaryTrailingImage: .init(
+            title: "Image", image: UIImage(systemName: "star.fill"), onPress: { [weak sut] in
+                sut?.display(style: Self.headerStyle(backgroundColor: .yellow))
+            }
+        ))
+        findView(Button.self, in: sut.topItem?.rightBarButtonItems?.first?.customView)?.onPress?()
+
+        for _ in 0..<10 {
+            for (style, theme) in [(UIUserInterfaceStyle.light, "LIGHT"), (.dark, "DARK")] {
+                assert(snapshot: container.snapshot(for: .iPhone(style: style)),
+                       named: "iOS26_NAVBAR_WITH_TERTIARY_TRAILINGIMAGE_ONPRESS_\(theme)")
+            }
+        }
+    }
+
     func test_navigationBar_defaul_state() {
         let snapshotName = "NAVBAR_DEFAULT_STATE"
         

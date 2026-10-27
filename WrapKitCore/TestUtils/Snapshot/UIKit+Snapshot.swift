@@ -107,15 +107,20 @@ private final class SnapshotWindow: UIWindow {
         if #available(iOS 26, *), windowScene != nil {
             makeKeyAndVisible()
             layoutIfNeeded()
-            if containsGlassEffect() {
-                RunLoop.current.run(until: Date().addingTimeInterval(0.6))
-            }
-            removeAllLayerAnimations()
-            RunLoop.current.run(until: Date().addingTimeInterval(0.05))
             let format = UIGraphicsImageRendererFormat(for: traitCollection)
             format.scale = traitCollection.displayScale
             format.preferredRange = .extended
             format.opaque = false
+            if containsGlassEffect() {
+                // Glass resolves its foreground against the first composited backdrop.
+                // Capture that pass before waiting, rather than recording its initial tint.
+                _ = UIGraphicsImageRenderer(bounds: bounds, format: format).image { _ in
+                    drawHierarchy(in: bounds, afterScreenUpdates: true)
+                }
+                RunLoop.current.run(until: Date().addingTimeInterval(0.6))
+            }
+            removeAllLayerAnimations()
+            RunLoop.current.run(until: Date().addingTimeInterval(0.05))
             image = UIGraphicsImageRenderer(bounds: bounds, format: format).image { _ in
                 drawHierarchy(in: bounds, afterScreenUpdates: true)
             }
@@ -136,6 +141,9 @@ private final class SnapshotWindow: UIWindow {
     private func containsGlassEffect() -> Bool {
         func walk(_ v: UIView) -> Bool {
             if v is UIVisualEffectView { return true }
+            // UIButton.Configuration does not expose its glass style publicly.
+            // Configured buttons can render effects without a UIVisualEffectView.
+            if let button = v as? UIButton, button.configuration != nil { return true }
             for s in v.subviews where walk(s) { return true }
             return false
         }
