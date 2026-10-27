@@ -11,11 +11,11 @@ import WrapKit
 #if canImport(Foundation)
 import Foundation
 #endif
-#if canImport(UIKit)
-import UIKit
-#endif
 #if canImport(SwiftUI)
 import SwiftUI
+#endif
+#if canImport(UIKit)
+import UIKit
 #endif
 
 public final class HeaderOutputSpy: HeaderOutput {
