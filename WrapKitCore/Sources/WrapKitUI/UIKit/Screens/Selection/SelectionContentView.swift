@@ -13,9 +13,15 @@ public class SelectionContentView: UIView {
     static let searchBarHeight: CGFloat = 44
     static let maxSearchBarTopSpacing: CGFloat = 8
     private let buttonHeight: CGFloat
+    private var navigationBarHeightConstraint: NSLayoutConstraint?
     
     public lazy var lineView = ViewUIKit(backgroundColor: config.content.lineColor)
-    public lazy var navigationBar = NavigationBar()
+    // This custom bottom sheet is presented without a navigation controller.
+    public lazy var navigationBar: UINavigationBar = {
+        let bar = UINavigationBar()
+        bar.setItems([UINavigationItem()], animated: false)
+        return bar
+    }()
     public lazy var tableStackView = StackView(axis: .vertical)
     public lazy var emptyView = {
         let view = EmptyView()
@@ -47,6 +53,12 @@ public class SelectionContentView: UIView {
     
     public override func layoutSubviews() {
         super.layoutSubviews()
+        let barHeight = navigationBar.sizeThatFits(
+            CGSize(width: safeAreaLayoutGuide.layoutFrame.width, height: .greatestFiniteMagnitude)
+        ).height
+        if navigationBarHeightConstraint?.constant != barHeight {
+            navigationBarHeightConstraint?.constant = barHeight
+        }
         
         applyCornerStyle(.corners(.init(top: 12)))
     }
@@ -71,40 +83,44 @@ extension SelectionContentView {
     func setupConstraints() {
         lineView.anchor(
             .height(4),
-            .widthTo(widthAnchor, 40/375),
-            .top(topAnchor, constant: 12),
-            .centerX(centerXAnchor)
+            .widthTo(safeAreaLayoutGuide.widthAnchor, 40/375),
+            .top(safeAreaLayoutGuide.topAnchor, constant: 12),
+            .centerX(safeAreaLayoutGuide.centerXAnchor)
         )
         navigationBar.anchor(
             .top(lineView.bottomAnchor, constant: 8),
-            .leading(leadingAnchor),
-            .trailing(trailingAnchor)
+            .leading(safeAreaLayoutGuide.leadingAnchor),
+            .trailing(safeAreaLayoutGuide.trailingAnchor)
         )
+        navigationBarHeightConstraint = navigationBar.heightAnchor.constraint(
+            equalToConstant: navigationBar.sizeThatFits(.zero).height
+        )
+        navigationBarHeightConstraint?.isActive = true
         resetButton.anchor(
             .height(buttonHeight),
-            .widthTo(widthAnchor, 133/375, priority: .defaultHigh)
+            .widthTo(safeAreaLayoutGuide.widthAnchor, 133/375, priority: .defaultHigh)
         )
         selectButton.anchor(.height(buttonHeight))
         searchBarConstraints = searchBar.anchor(
             .top(navigationBar.bottomAnchor, constant: Self.maxSearchBarTopSpacing),
-            .leading(leadingAnchor, constant: 12),
-            .trailing(trailingAnchor, constant: 12),
+            .leading(safeAreaLayoutGuide.leadingAnchor, constant: 12),
+            .trailing(safeAreaLayoutGuide.trailingAnchor, constant: 12),
             .height(Self.searchBarHeight)
         )
         tableStackViewConstraints = tableStackView.anchor(
             .top(searchBar.bottomAnchor, constant: 16),
-            .leading(leadingAnchor, constant: 12),
-            .trailing(trailingAnchor, constant: 12)
+            .leading(safeAreaLayoutGuide.leadingAnchor, constant: 12),
+            .trailing(safeAreaLayoutGuide.trailingAnchor, constant: 12)
         )
         spacerView.anchor(
             .top(tableStackView.bottomAnchor),
-            .leading(leadingAnchor),
-            .trailing(trailingAnchor)
+            .leading(safeAreaLayoutGuide.leadingAnchor),
+            .trailing(safeAreaLayoutGuide.trailingAnchor)
         )
         buttonsStackView.anchor(
             .top(spacerView.bottomAnchor),
-            .leading(leadingAnchor, constant: 12),
-            .trailing(trailingAnchor, constant: 12),
+            .leading(safeAreaLayoutGuide.leadingAnchor, constant: 12),
+            .trailing(safeAreaLayoutGuide.trailingAnchor, constant: 12),
             .bottom(safeAreaLayoutGuide.bottomAnchor)
         )
     }
@@ -136,5 +152,3 @@ private extension SelectionContentView {
     }
 }
 #endif
-
-
