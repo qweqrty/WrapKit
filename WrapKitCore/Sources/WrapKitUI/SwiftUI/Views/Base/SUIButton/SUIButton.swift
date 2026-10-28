@@ -51,6 +51,7 @@ public struct SUIButtonView: View {
     let fillsAvailableWidth: Bool
     let fillsAvailableHeight: Bool
     let contentInsets: SwiftUI.EdgeInsets
+    let allowsGlassEffect: Bool
     
     @State private var isPressed: Bool = false
     @State private var isGlassPressed: Bool = false
@@ -65,7 +66,8 @@ public struct SUIButtonView: View {
         fillsAvailableWidth: Bool = true,
         fillsAvailableHeight: Bool = true,
         contentInsets: SwiftUI.EdgeInsets = .init(),
-        disabledTitleOpacity: Double = 0.5
+        disabledTitleOpacity: Double = 0.5,
+        allowsGlassEffect: Bool = true
     ) {
         self.model = model
         self.onPress = onPress
@@ -76,6 +78,7 @@ public struct SUIButtonView: View {
         self.fillsAvailableWidth = fillsAvailableWidth
         self.fillsAvailableHeight = fillsAvailableHeight
         self.contentInsets = contentInsets
+        self.allowsGlassEffect = allowsGlassEffect
     }
     
     @ViewBuilder
@@ -233,7 +236,7 @@ public struct SUIButtonView: View {
     }
 
     private var isLiquidGlassAvailable: Bool {
-        isAvailableOS26 && isLiquidGlassEnabled
+        allowsGlassEffect && isAvailableOS26 && isLiquidGlassEnabled
     }
 
     private var usesLiquidGlassConfiguration: Bool {

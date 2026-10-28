@@ -10,6 +10,9 @@ struct WrapKitTestHostApp: App {
             } else if #available(iOS 16.0, *),
                       ProcessInfo.processInfo.arguments.contains("--header-after-pop") {
                 HeaderAfterPopFixture().ignoresSafeArea()
+            } else if #available(iOS 16.0, *),
+                      let mode = KeyboardAccessoryFixture.Mode(launchArguments: ProcessInfo.processInfo.arguments) {
+                KeyboardAccessoryFixture(mode: mode)
             } else {
                 EmptyView()
             }

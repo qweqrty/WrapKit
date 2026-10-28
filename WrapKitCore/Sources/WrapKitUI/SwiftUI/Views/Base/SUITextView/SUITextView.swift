@@ -229,7 +229,7 @@ public struct SUITextViewContent: View {
         )
         .animation(.easeInOut(duration: 0.1), value: isValid)
         .modifier(
-            SUITextViewAccessoryModifier(
+            SUITextInputKeyboardAccessoryModifier(
                 model: hasInputView ? nil : inputAccessoryView,
                 isFocused: isFocused,
                 onPress: performKeyboardAccessoryAction
@@ -573,39 +573,6 @@ private struct SUITextViewAccessoryContent: View {
         .padding(.horizontal, 16)
         .frame(height: model.style.height)
         .background(SwiftUIColor(model.style.backgroundColor))
-    }
-}
-
-private struct SUITextViewAccessoryModifier: ViewModifier {
-    let model: TextInputPresentableModel.AccessoryViewPresentableModel?
-    let isFocused: Bool
-    let onPress: (ButtonPresentableModel) -> Void
-
-    @ViewBuilder
-    func body(content: Content) -> some View {
-#if os(iOS)
-        if let model {
-            if #available(iOS 16.0, *) {
-                content.toolbar {
-                    if isFocused {
-                        ToolbarItem(placement: .keyboard) {
-                            SUITextViewAccessoryContent(model: model, onPress: onPress)
-                        }
-                    }
-                }
-            } else {
-                content.toolbar {
-                    ToolbarItem(placement: .keyboard) {
-                        SUITextViewAccessoryContent(model: model, onPress: onPress)
-                    }
-                }
-            }
-        } else {
-            content
-        }
-#else
-        content
-#endif
     }
 }
 
