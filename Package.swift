@@ -31,7 +31,8 @@ let package = Package(
                 "Kingfisher",
                 .product(name: "Lottie", package: "lottie-spm"),
             ],
-            path: "WrapKitCore/Sources"
+            path: "WrapKitCore/Sources",
+            resources: [.process("Resources/PrivacyInfo.xcprivacy")]
         ),
         .target(
             name: "WrapKitGame",
@@ -39,7 +40,8 @@ let package = Package(
                 "WrapKit",
                 .product(name: "Lottie", package: "lottie-spm"),
             ],
-            path: "WrapKitGame/Sources"
+            path: "WrapKitGame/Sources",
+            resources: [.process("Resources/PrivacyInfo.xcprivacy")]
         ),
         .target(
             name: "WrapKitTestUtils",
@@ -53,6 +55,7 @@ let package = Package(
             name: "WrapKitTests",
             dependencies: [
                 "WrapKit",
+                "WrapKitGame",
                 "WrapKitTestUtils",
                 "Kingfisher",
                 .product(name: "Lottie", package: "lottie-spm")

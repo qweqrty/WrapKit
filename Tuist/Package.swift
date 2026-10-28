@@ -4,13 +4,20 @@ import PackageDescription
 #if TUIST
     import ProjectDescription
 
+    let dependencySettings = Settings.settings(base: [
+        "IPHONEOS_DEPLOYMENT_TARGET": "15.0",
+        "MACOSX_DEPLOYMENT_TARGET": "12.0"
+    ])
+    let dependencyTargets = ["Kingfisher", "_LottieStub"]
+
     let packageSettings = PackageSettings(
-        // Customize the product types for specific package product
-        // Default is .staticFramework
-        // productTypes: ["Alamofire": .framework,] 
+        // Synthesized resource bundles do not inherit targetSettings in Tuist.
+        // Keep resources in frameworks to avoid deployment targets rejected by Xcode 27.
         productTypes: [
-            :
-        ]
+            "Kingfisher": .framework
+        ],
+        baseSettings: dependencySettings,
+        targetSettings: Dictionary(uniqueKeysWithValues: dependencyTargets.map { ($0, dependencySettings) })
     )
 #endif
 
