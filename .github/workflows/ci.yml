@@ -52,6 +52,7 @@ jobs:
 
           sudo xcode-select -s "$xcode_path"
           xcodebuild -version
+          xcrun --sdk iphonesimulator --show-sdk-version
 
       - name: Configure Cache Paths
         shell: bash
@@ -105,8 +106,6 @@ jobs:
           xcrun simctl list devices
       # -----------------------------
       # Run Tests
-      # macOS 15 image: https://github.com/actions/runner-images/blob/main/images/macos/macos-15-arm64-Readme.md
-      # macOS 26 image: https://github.com/actions/runner-images/blob/main/images/macos/macos-26-arm64-Readme.md
       # -----------------------------
       - name: Run Tests on iOS ${{ matrix.test_destination.ios_version }}
         run: |
