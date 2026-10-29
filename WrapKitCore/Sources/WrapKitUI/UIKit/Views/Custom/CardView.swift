@@ -626,8 +626,8 @@ open class CardView: ViewUIKit {
     
     public let titleViewsWrapperView = UIView(isHidden: true)
     public let titleViews = VKeyValueFieldView(
-        keyLabel: CardViewMultilineLabel(font: .systemFont(ofSize: 16), textColor: .black),
-        valueLabel: CardViewMultilineLabel(isHidden: true, font: .systemFont(ofSize: 16), textColor: .black),
+        keyLabel: Label(font: .systemFont(ofSize: 16), textColor: .black),
+        valueLabel: Label(isHidden: true, font: .systemFont(ofSize: 16), textColor: .black),
         spacing: 0
     )
     
@@ -852,19 +852,6 @@ extension CardView {
         )
         
         bottomSeparatorViewConstraints = bottomSeparatorView.anchor(.height(1))
-    }
-}
-
-private final class CardViewMultilineLabel: Label {
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        guard !isHidden, numberOfLines != 1, bounds.width > 0 else { return }
-
-        let pixel = 1 / max(traitCollection.displayScale, 1)
-        guard abs(preferredMaxLayoutWidth - bounds.width) >= pixel else { return }
-
-        preferredMaxLayoutWidth = bounds.width
-        invalidateIntrinsicContentSize()
     }
 }
 
