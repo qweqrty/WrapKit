@@ -8,6 +8,18 @@
 import Foundation
 
 public extension Double {
+    func toAmountString(
+        minimumFractionDigits: Int = 0,
+        maximumFractionDigits: Int = 2
+    ) -> String {
+        asString(
+            minimumFractionDigits: minimumFractionDigits,
+            maximumFractionDigits: maximumFractionDigits,
+            decimalSeparator: ",",
+            groupingSeparator: " "
+        )
+    }
+
     /*
      Decimal.asString(withDecimalPlaces:decimalSeparator:groupingSeparator:locale:)",
          message: "Double gives inaccurate floating point for large numbers or large fraction parts. Use Decimal instead."
@@ -91,7 +103,7 @@ public extension Double {
             formattedInteger = intPartRaw
         }
 
-        let decimalSeparator = locale.decimalSeparator ?? "."
+        let decimalSeparator = decimalSeparator ?? locale.decimalSeparator ?? "."
 
         var result: String
         if count > 0 {

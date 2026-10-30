@@ -125,7 +125,7 @@ private extension SplashPresenter {
 //            
 //        }))
 //        textOutput?.display(model: .animated(123, 456, mapToString: { value in
-//                .text(value.asString(withDecimalPlaces: 2) + " som")
+//                .text(value.toAmountString(minimumFractionDigits: 2) + " som")
 //        }, animationStyle: .circle(lineColor: Color.blue), duration: 5, completion: {
 //            
 //        }))

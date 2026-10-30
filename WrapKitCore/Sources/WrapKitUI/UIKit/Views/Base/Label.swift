@@ -68,9 +68,9 @@ public struct TextOutputPresentableModel: HashableWithReflection {
             case .attributedString(let text, _):
                 return text
             case .animatedDecimal(_, _, let to, _, _, _, _):
-                return to.asString()
+                return to.toAmountString()
             case .animated(_, _, let to, _, _, _, _):
-                return to.asString()
+                return to.toAmountString()
             case .textStyled(let model, _, _, _, _):
                 return model.text
             }
