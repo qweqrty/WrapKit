@@ -20,6 +20,9 @@ import UIKit
 #if canImport(SwiftUI)
 import SwiftUI
 #endif
+#if canImport(CoreGraphics)
+import CoreGraphics
+#endif
 public class ButtonOutputSwiftUIAdapter: ObservableObject, ButtonOutput {
 
     // Initializer
@@ -57,6 +60,15 @@ public class ButtonOutputSwiftUIAdapter: ObservableObject, ButtonOutput {
     public func display(image: Image?) {
         displayImageState = .init(
             image: image
+        )
+    }
+    @Published public var displayContentInsetState: DisplayContentInsetState? = nil
+    public struct DisplayContentInsetState {
+        public let contentInset: EdgeInsets
+    }
+    public func display(contentInset: EdgeInsets) {
+        displayContentInsetState = .init(
+            contentInset: contentInset
         )
     }
     @Published public var displayStyleState: DisplayStyleState? = nil

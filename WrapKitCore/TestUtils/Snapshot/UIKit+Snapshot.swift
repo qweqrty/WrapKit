@@ -68,6 +68,11 @@ private final class SnapshotWindow: UIWindow {
     convenience init(configuration: SnapshotConfiguration, root: UIViewController) {
         self.init(frame: CGRect(origin: .zero, size: configuration.size))
         self.configuration = configuration
+        if #available(iOS 26, *) {
+            windowScene = UIApplication.shared.connectedScenes
+                .compactMap({ $0 as? UIWindowScene }).first
+            overrideUserInterfaceStyle = configuration.traitCollection.userInterfaceStyle
+        }
         self.layoutMargins = configuration.layoutMargins
         self.rootViewController = root
         self.isHidden = false
@@ -99,26 +104,29 @@ private final class SnapshotWindow: UIWindow {
     
     public func snapshot() -> UIImage {
         let image: UIImage
-        if #available(iOS 26, *) {
-            if let scene = UIApplication.shared.connectedScenes
-                .compactMap({ $0 as? UIWindowScene }).first {
-                windowScene = scene
-            }
+        if #available(iOS 26, *), windowScene != nil {
             makeKeyAndVisible()
             layoutIfNeeded()
-            if containsGlassEffect() {
-                RunLoop.current.run(until: Date().addingTimeInterval(0.6))
-            }
-            removeAllLayerAnimations()
-            RunLoop.current.run(until: Date().addingTimeInterval(0.05))
             let format = UIGraphicsImageRendererFormat(for: traitCollection)
             format.scale = traitCollection.displayScale
             format.preferredRange = .extended
             format.opaque = false
+            if containsGlassEffect() {
+                // Glass resolves its foreground against the first composited backdrop.
+                // Capture that pass before waiting, rather than recording its initial tint.
+                _ = UIGraphicsImageRenderer(bounds: bounds, format: format).image { _ in
+                    drawHierarchy(in: bounds, afterScreenUpdates: true)
+                }
+                RunLoop.current.run(until: Date().addingTimeInterval(0.6))
+            }
+            removeAllLayerAnimations()
+            RunLoop.current.run(until: Date().addingTimeInterval(0.05))
             image = UIGraphicsImageRenderer(bounds: bounds, format: format).image { _ in
                 drawHierarchy(in: bounds, afterScreenUpdates: true)
             }
         } else {
+            // Unhosted SwiftPM tests have no UIWindowScene; drawHierarchy would
+            // return an empty image there. Plain UIKit layers can render offscreen.
             image = asImage(scale: traitCollection.displayScale)
         }
 
@@ -133,6 +141,9 @@ private final class SnapshotWindow: UIWindow {
     private func containsGlassEffect() -> Bool {
         func walk(_ v: UIView) -> Bool {
             if v is UIVisualEffectView { return true }
+            // UIButton.Configuration does not expose its glass style publicly.
+            // Configured buttons can render effects without a UIVisualEffectView.
+            if let button = v as? UIButton, button.configuration != nil { return true }
             for s in v.subviews where walk(s) { return true }
             return false
         }

@@ -34,12 +34,15 @@ open class ViewController<ContentView: UIView>: UIViewController, LifeCycleViewO
     public let contentView: ContentView
     public var removingNavStackCountOnAppear: Int = 0
     public var interactivePopGestureRecognizer: UIGestureRecognizerDelegate?
+    open var shouldForceInitialLayoutBeforeAppearance = true
+    private var needsInitialLayoutPass = true
 
     public init(contentView: ContentView, lifeCycleViewOutput: LifeCycleViewOutput? = nil, applicationLifecycleOutput: ApplicationLifecycleOutput? = nil) {
         self.contentView = contentView
         self.LifeCycleViewOutput = lifeCycleViewOutput
         self.ApplicationLifecycleOutput = applicationLifecycleOutput
         super.init(nibName: nil, bundle: nil)
+        extendedLayoutIncludesOpaqueBars = true
         registerForAppLifecycleNotifications()
     }
 
@@ -51,15 +54,15 @@ open class ViewController<ContentView: UIView>: UIViewController, LifeCycleViewO
     // MARK: - View Controller Lifecycle
     open override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        navigationController?.setNavigationBarHidden(true, animated: false)
         interactivePopGestureRecognizer = navigationController?.interactivePopGestureRecognizer?.delegate
         navigationController?.interactivePopGestureRecognizer?.delegate = nil
+        activateNavigationHeader(animated: animated)
         LifeCycleViewOutput?.viewWillAppear()
+        performInitialLayoutPassIfNeeded()
     }
 
     open override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        navigationController?.setNavigationBarHidden(true, animated: false)
         navigationController?.interactivePopGestureRecognizer?.delegate = interactivePopGestureRecognizer
         LifeCycleViewOutput?.viewWillDisappear()
     }
@@ -84,6 +87,15 @@ open class ViewController<ContentView: UIView>: UIViewController, LifeCycleViewO
     
     open override func loadView() {
         self.view = contentView
+    }
+
+    private func performInitialLayoutPassIfNeeded() {
+        guard shouldForceInitialLayoutBeforeAppearance, needsInitialLayoutPass else { return }
+        needsInitialLayoutPass = false
+        UIView.performWithoutAnimation {
+            view.setNeedsLayout()
+            view.layoutIfNeeded()
+        }
     }
 
     open override func viewDidAppear(_ animated: Bool) {

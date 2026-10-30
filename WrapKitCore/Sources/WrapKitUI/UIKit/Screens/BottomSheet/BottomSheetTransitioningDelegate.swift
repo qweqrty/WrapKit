@@ -2,9 +2,9 @@
 import UIKit
 
 final public class BottomSheetTransitioningDelegate: NSObject, UIViewControllerTransitioningDelegate {
-    
+
     private weak var bottomSheetPresentationController: BottomSheetPresentationController?
-    
+
     public var preferredSheetTopInset: CGFloat
     public var preferredSheetLeftInset: CGFloat
     public var preferredSheetRightInset: CGFloat
@@ -12,19 +12,37 @@ final public class BottomSheetTransitioningDelegate: NSObject, UIViewControllerT
     public var preferredSheetCornerRadius: CGFloat
     public var preferredSheetSizingFactor: CGFloat
     public var preferredSheetBackdropColor: UIColor
-    
+
     public var tapToDismissEnabled: Bool = true {
         didSet {
             bottomSheetPresentationController?.tapGestureRecognizer.isEnabled = tapToDismissEnabled
         }
     }
-    
+
     public var panToDismissEnabled: Bool = true {
         didSet {
             bottomSheetPresentationController?.panToDismissEnabled = panToDismissEnabled
         }
     }
-    
+
+    var onTapOutside: (() -> Void)? {
+        didSet {
+            bottomSheetPresentationController?.onTapOutside = onTapOutside
+        }
+    }
+
+    var onPanToDismiss: (() -> Void)? {
+        didSet {
+            bottomSheetPresentationController?.onPanToDismiss = onPanToDismiss
+        }
+    }
+
+    var highlightedSourceViewIdentifier: String? {
+        didSet {
+            bottomSheetPresentationController?.highlightedSourceViewIdentifier = highlightedSourceViewIdentifier
+        }
+    }
+
     public init(
         preferredSheetTopInset: CGFloat,
         preferredSheetLeftInset: CGFloat,
@@ -43,7 +61,7 @@ final public class BottomSheetTransitioningDelegate: NSObject, UIViewControllerT
         self.preferredSheetBackdropColor = preferredSheetBackdropColor
         super.init()
     }
-    
+
     public func presentationController(
         forPresented presented: UIViewController,
         presenting: UIViewController?,
@@ -64,12 +82,15 @@ final public class BottomSheetTransitioningDelegate: NSObject, UIViewControllerT
         )
         bottomSheetPresentationController.tapGestureRecognizer.isEnabled = tapToDismissEnabled
         bottomSheetPresentationController.panToDismissEnabled = panToDismissEnabled
-        
+        bottomSheetPresentationController.onTapOutside = onTapOutside
+        bottomSheetPresentationController.onPanToDismiss = onPanToDismiss
+        bottomSheetPresentationController.highlightedSourceViewIdentifier = highlightedSourceViewIdentifier
+
         self.bottomSheetPresentationController = bottomSheetPresentationController
-        
+
         return bottomSheetPresentationController
     }
-    
+
     public func animationController(
         forDismissed dismissed: UIViewController
     ) -> UIViewControllerAnimatedTransitioning? {
@@ -79,10 +100,10 @@ final public class BottomSheetTransitioningDelegate: NSObject, UIViewControllerT
         else {
             return nil
         }
-        
+
         return bottomSheetPresentationController.bottomSheetInteractiveDismissalTransition
     }
-    
+
     public func interactionControllerForDismissal(
         using animator: UIViewControllerAnimatedTransitioning
     ) -> UIViewControllerInteractiveTransitioning? {

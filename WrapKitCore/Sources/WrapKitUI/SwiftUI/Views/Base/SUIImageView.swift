@@ -68,14 +68,14 @@ public struct SUIImageView: View {
                 }
                 .onReceive(adapter.$displaySizeState) { newState in
                     if let size = newState?.size {
-                        model = model.updated(size: size)
+                        model = model.updated(layout: .fixed(size))
                         loadImage(for: colorScheme)
                     }
                 }
                 .onReceive(adapter.$displayModelState) { newState in
                     if let adapterModel = newState?.model {
                         model = model.updated(
-                            size: adapterModel.size,
+                            layout: adapterModel.layout,
                             image: adapterModel.image,
                             onPress: adapterModel.onPress,
                             onLongPress: adapterModel.onLongPress,
@@ -247,7 +247,7 @@ public struct SUIImageView: View {
 // MARK: - Model Extensions
 private extension ImageViewPresentableModel {
     func updated(
-        size: CGSize? = nil,
+        layout: ImageViewPresentableModel.Layout? = nil,
         image: ImageEnum? = nil,
         onPress: (() -> Void)? = nil,
         onLongPress: (() -> Void)? = nil,
@@ -258,7 +258,7 @@ private extension ImageViewPresentableModel {
         alpha: CGFloat? = nil
     ) -> ImageViewPresentableModel {
         ImageViewPresentableModel(
-            size: size ?? self.size,
+            layout: layout ?? self.layout,
             image: image ?? self.image,
             onPress: onPress ?? self.onPress,
             onLongPress: onLongPress ?? self.onLongPress,
