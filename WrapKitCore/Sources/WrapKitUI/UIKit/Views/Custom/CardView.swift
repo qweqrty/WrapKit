@@ -702,7 +702,7 @@ open class CardView: ViewUIKit {
     
     private func setupPriorities() {
         subtitleLabel.setContentHuggingPriority(.required, for: .horizontal)
-        subtitleLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
+        subtitleLabel.setContentCompressionResistancePriority(UILayoutPriority(751), for: .horizontal)
         subtitleLabel.setContentCompressionResistancePriority(.required, for: .vertical)
         
         titleViews.keyLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
