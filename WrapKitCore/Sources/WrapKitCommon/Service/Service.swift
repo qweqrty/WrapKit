@@ -20,6 +20,7 @@ public protocol Service<Request, Response> {
 
 public enum ServiceError: Encodable, Error, Equatable {
     case message(String)
+    case titleMessage(String?, String?)
     case `internal`
     case connectivity
     case cancelled
