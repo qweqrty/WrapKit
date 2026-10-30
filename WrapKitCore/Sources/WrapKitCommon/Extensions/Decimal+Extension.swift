@@ -44,6 +44,18 @@ public extension Decimal {
         return rounded
     }
     
+    func toAmountString(
+        minimumFractionDigits: Int = 0,
+        maximumFractionDigits: Int = 2
+    ) -> String {
+        asString(
+            minimumFractionDigits: minimumFractionDigits,
+            maximumFractionDigits: maximumFractionDigits,
+            decimalSeparator: ",",
+            groupingSeparator: " "
+        )
+    }
+
     func asString(
         withDecimalPlaces count: Int,
         decimalSeparator: String? = nil,

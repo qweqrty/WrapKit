@@ -1,5 +1,6 @@
 import Foundation
 import XCTest
+import WrapKit
 
 final class DecimalFormattingTests: XCTestCase {
     func testOne() {
