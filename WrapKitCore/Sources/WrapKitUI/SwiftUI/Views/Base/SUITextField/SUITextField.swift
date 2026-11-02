@@ -820,6 +820,13 @@ private struct SUITextInputAccessoryContent: View {
                             height: buttonModel.height ?? 36
                         )
                 }
+                .if(true) { view in
+                    if #available(iOS 26.0, *) {
+                        view.buttonStyle(.plain)
+                    } else {
+                        view
+                    }
+                }
                 .disabled(buttonModel.enabled == false)
                 .accessibilityIdentifier(buttonModel.accessibilityIdentifier ?? "")
             }
@@ -841,8 +848,15 @@ private struct SUITextInputAccessoryModifier: ViewModifier {
         if #available(iOS 16.0, *) {
             content.toolbar {
                 if isFocused, let model {
-                    ToolbarItem(placement: .keyboard) {
-                        SUITextInputAccessoryContent(model: model, onPress: onPress)
+                    if #available(iOS 26.0, *) {
+                        ToolbarItem(placement: .keyboard) {
+                            SUITextInputAccessoryContent(model: model, onPress: onPress)
+                        }
+                        .sharedBackgroundVisibility(.hidden)
+                    } else {
+                        ToolbarItem(placement: .keyboard) {
+                            SUITextInputAccessoryContent(model: model, onPress: onPress)
+                        }
                     }
                 }
             }

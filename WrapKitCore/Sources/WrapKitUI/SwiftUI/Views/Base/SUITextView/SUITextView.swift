@@ -588,8 +588,15 @@ private struct SUITextViewAccessoryModifier: ViewModifier {
             if #available(iOS 16.0, *) {
                 content.toolbar {
                     if isFocused {
-                        ToolbarItem(placement: .keyboard) {
-                            SUITextViewAccessoryContent(model: model, onPress: onPress)
+                        if #available(iOS 26.0, *) {
+                            ToolbarItem(placement: .keyboard) {
+                                SUITextViewAccessoryContent(model: model, onPress: onPress)
+                            }
+                            .sharedBackgroundVisibility(.hidden)
+                        } else {
+                            ToolbarItem(placement: .keyboard) {
+                                SUITextViewAccessoryContent(model: model, onPress: onPress)
+                            }
                         }
                     }
                 }
