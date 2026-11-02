@@ -3,9 +3,41 @@ import XCTest
 import WrapKit
 
 final class DecimalFormattingTests: XCTestCase {
-    func testOne() {
+    func testNan() {
         assertDecimal(Decimal.leastNonzeroMagnitude, "0.00")
         assertDecimal(Decimal.nan, "nan")
+    }
+    
+    func testOne_Decimal_default() {
+        XCTAssertEqual(Decimal(1).toAmountString(minimumFractionDigits: 0), "1")
+        XCTAssertEqual(Decimal(1.1).toAmountString(minimumFractionDigits: 0), "1,1")
+        XCTAssertEqual(Decimal(1.11).toAmountString(minimumFractionDigits: 0), "1,11")
+        XCTAssertEqual(Decimal(1.111).toAmountString(minimumFractionDigits: 0), "1,11")
+    }
+    
+    func testOne_Decimal_fixedDigits() {
+        XCTAssertEqual(Decimal(1).toAmountString(minimumFractionDigits: 2), "1.00")
+        XCTAssertEqual(Decimal(1.1).toAmountString(minimumFractionDigits: 2), "1,10")
+        XCTAssertEqual(Decimal(1.11).toAmountString(minimumFractionDigits: 2), "1,11")
+        XCTAssertEqual(Decimal(1.111).toAmountString(minimumFractionDigits: 2), "1,11")
+    }
+    
+    func testOne_Double_default() {
+        XCTAssertEqual(Double(0).toAmountString(minimumFractionDigits: 0), "0")
+        XCTAssertEqual(Double(0.0).toAmountString(minimumFractionDigits: 0), "0")
+        XCTAssertEqual(Double(1).toAmountString(minimumFractionDigits: 0), "1")
+        XCTAssertEqual(Double(1.1).toAmountString(minimumFractionDigits: 0), "1,1")
+        XCTAssertEqual(Double(1.11).toAmountString(minimumFractionDigits: 0), "1,11")
+        XCTAssertEqual(Double(1.111).toAmountString(minimumFractionDigits: 0), "1,11")
+    }
+    
+    func testOne_Double_fixedDigits() {
+        XCTAssertEqual(Double(0).toAmountString(minimumFractionDigits: 2), "0,00")
+        XCTAssertEqual(Double(0.0).toAmountString(minimumFractionDigits: 2), "0,00")
+        XCTAssertEqual(Double(1).toAmountString(minimumFractionDigits: 2), "1,00")
+        XCTAssertEqual(Double(1.1).toAmountString(minimumFractionDigits: 2), "1,10")
+        XCTAssertEqual(Double(1.11).toAmountString(minimumFractionDigits: 2), "1,11")
+        XCTAssertEqual(Double(1.111).toAmountString(minimumFractionDigits: 2), "1,11")
     }
     
     func assertDecimal(
