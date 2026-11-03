@@ -16,7 +16,7 @@ final class DecimalFormattingTests: XCTestCase {
     }
     
     func testOne_Decimal_fixedDigits() {
-        XCTAssertEqual(Decimal(1).toAmountString(minimumFractionDigits: 2), "1.00")
+        XCTAssertEqual(Decimal(1).toAmountString(minimumFractionDigits: 2), "1,00")
         XCTAssertEqual(Decimal(1.1).toAmountString(minimumFractionDigits: 2), "1,10")
         XCTAssertEqual(Decimal(1.11).toAmountString(minimumFractionDigits: 2), "1,11")
         XCTAssertEqual(Decimal(1.111).toAmountString(minimumFractionDigits: 2), "1,11")
