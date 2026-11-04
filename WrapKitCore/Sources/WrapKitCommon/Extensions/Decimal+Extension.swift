@@ -100,7 +100,7 @@ public extension Decimal {
         if formatted.hasPrefix("-") {
             // Detect: "-0", "-0.0", "-0.00", "-0.000000"
             let noMinus = String(formatted.dropFirst())
-            if let numeric = Decimal(string: noMinus), numeric == 0 {
+            if let numeric = formatter.number(from: formatted)?.decimalValue, numeric == 0 {
                 return noMinus // return "0.xx" without minus
             }
         }
