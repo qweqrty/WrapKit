@@ -120,6 +120,8 @@ private extension UINavigationItem {
 }
 
 public final class NavigationItemHeaderOutput: HeaderOutput {
+    private var interfaceStyle: UIUserInterfaceStyle = .unspecified
+    
     weak var viewController: UIViewController?
     weak var navigationBar: UINavigationBar?
     private weak var item: UINavigationItem?
@@ -205,6 +207,7 @@ public final class NavigationItemHeaderOutput: HeaderOutput {
         #endif
         button.isHidden = true
         button.tintColor = primeColor
+        button.overrideUserInterfaceStyle = interfaceStyle
         buttons[index] = button
         return button
     }
@@ -301,7 +304,16 @@ public final class NavigationItemHeaderOutput: HeaderOutput {
         titles.keyLabel.numberOfLines = style.numberOfLines
         titledImage.closingTitleVFieldView.keyLabel.font = style.secondaryFont
         titledImage.closingTitleVFieldView.keyLabel.textColor = style.secondaryColor
+        
+        interfaceStyle = style.fixedInterfaceStyle?.uiKit ?? .unspecified
+        applyInterfaceStyle()
         invalidateLayout()
+    }
+    
+    /// Only views owned by this item, so other screens sharing the bar keep the system theme.
+    private func applyInterfaceStyle() {
+        leadingSizedHost.overrideUserInterfaceStyle = interfaceStyle   // card + glass
+        buttons.compactMap { $0 }.forEach { $0.overrideUserInterfaceStyle = interfaceStyle }
     }
 
     public func display(centerView: HeaderPresentableModel.CenterView?) {
@@ -390,6 +402,7 @@ public final class NavigationItemHeaderOutput: HeaderOutput {
         card.removeFromSuperview()
         glass.removeFromSuperview()
         let interactive = !(card.gestureRecognizers?.isEmpty ?? true)
+
         let parent: UIView
         if interactive {
             leadingHost.addSubview(glass)
@@ -818,5 +831,15 @@ private final class NativeHeaderContentView: UIView {
     }
 
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
+}
+
+private extension UserInterfaceStyle {
+    var uiKit: UIUserInterfaceStyle {
+        switch self {
+        case .light: return .light
+        case .dark: return .dark
+        case .unspecified: return .unspecified
+        }
+    }
 }
 #endif

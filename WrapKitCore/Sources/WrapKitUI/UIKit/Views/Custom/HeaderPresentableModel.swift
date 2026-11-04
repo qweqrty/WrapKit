@@ -20,6 +20,9 @@ public struct HeaderPresentableModel: HashableWithReflection {
         public let secondaryFont: Font
         public let secondaryColor: Color
         public let numberOfLines: Int
+        /// Fixed light/dark appearance of header controls (glass, buttons).
+        /// `nil` follows the system theme.
+        public let fixedInterfaceStyle: UserInterfaceStyle?
 
         public init(
             backgroundColor: Color,
@@ -28,7 +31,8 @@ public struct HeaderPresentableModel: HashableWithReflection {
             primeColor: Color,
             secondaryFont: Font,
             secondaryColor: Color,
-            numberOfLines: Int = 1
+            numberOfLines: Int = 1,
+            fixedInterfaceStyle: UserInterfaceStyle? = nil
         ) {
             self.backgroundColor = backgroundColor
             self.horizontalSpacing = horizontalSpacing
@@ -37,6 +41,7 @@ public struct HeaderPresentableModel: HashableWithReflection {
             self.secondaryFont = secondaryFont
             self.secondaryColor = secondaryColor
             self.numberOfLines = numberOfLines
+            self.fixedInterfaceStyle = fixedInterfaceStyle
         }
     }
 
