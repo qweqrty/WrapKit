@@ -49,7 +49,7 @@ public struct SplashContentView: View {
                     Spacer()
                     
                     ZStack {
-                        Color.white
+//                        Color.white
                         SUIImageView(adapter: imageViewAdapter)
                     }
                 }

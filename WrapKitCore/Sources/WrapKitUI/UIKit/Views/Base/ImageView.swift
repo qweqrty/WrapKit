@@ -33,26 +33,48 @@ public extension ImageViewOutput {
 }
 
 public struct ImageViewPresentableModel: HashableWithReflection {
+    public enum Layout: HashableWithReflection {
+        case fixed(CGSize)
+        case fillWidth(heightByWidthRatio: CGFloat?)
+    }
+
     public let accessibility: Accessibility?
-    public let size: CGSize?
+    public let layout: Layout?
     public let image: ImageEnum?
     public let onPress: (() -> Void)?
     public let onLongPress: (() -> Void)?
     public let contentModeIsFit: Bool?
+    public let contentInsets: EdgeInsets?
     public let borderWidth: CGFloat?
     public let borderColor: Color?
     public let cornerRadius: CGFloat?
     public let alpha: CGFloat?
     public let accessibilityIdentifier: String?
 
+    public var size: CGSize? {
+        guard case let .fixed(size) = layout else { return nil }
+        return size
+    }
+
+    public var stretchToContainerWidth: Bool? {
+        guard case .fillWidth = layout else { return nil }
+        return true
+    }
+
+    public var heightByWidthRatio: CGFloat? {
+        guard case let .fillWidth(heightByWidthRatio) = layout else { return nil }
+        return heightByWidthRatio
+    }
+
     public init(
         accessibilityIdentifier: String? = nil,
         accessibility: Accessibility? = nil,
-        size: CGSize? = nil,
+        layout: Layout? = nil,
         image: ImageEnum? = nil,
         onPress: (() -> Void)? = nil,
         onLongPress: (() -> Void)? = nil,
         contentModeIsFit: Bool? = nil,
+        contentInsets: EdgeInsets? = nil,
         borderWidth: CGFloat? = nil,
         borderColor: Color? = nil,
         cornerRadius: CGFloat? = nil,
@@ -60,15 +82,110 @@ public struct ImageViewPresentableModel: HashableWithReflection {
     ) {
         self.accessibilityIdentifier = accessibilityIdentifier
         self.accessibility = accessibility
-        self.size = size
+        self.layout = layout
         self.image = image
         self.onPress = onPress
         self.onLongPress = onLongPress
         self.contentModeIsFit = contentModeIsFit
+        self.contentInsets = contentInsets
         self.borderWidth = borderWidth
         self.borderColor = borderColor
         self.cornerRadius = cornerRadius
         self.alpha = alpha
+    }
+
+    public init(
+        accessibilityIdentifier: String? = nil,
+        accessibility: Accessibility? = nil,
+        size: CGSize?,
+        image: ImageEnum? = nil,
+        onPress: (() -> Void)? = nil,
+        onLongPress: (() -> Void)? = nil,
+        contentModeIsFit: Bool? = nil,
+        contentInsets: EdgeInsets? = nil,
+        borderWidth: CGFloat? = nil,
+        borderColor: Color? = nil,
+        cornerRadius: CGFloat? = nil,
+        alpha: CGFloat? = nil
+    ) {
+        self.init(
+            accessibilityIdentifier: accessibilityIdentifier,
+            accessibility: accessibility,
+            layout: size.map(Layout.fixed),
+            image: image,
+            onPress: onPress,
+            onLongPress: onLongPress,
+            contentModeIsFit: contentModeIsFit,
+            contentInsets: contentInsets,
+            borderWidth: borderWidth,
+            borderColor: borderColor,
+            cornerRadius: cornerRadius,
+            alpha: alpha
+        )
+    }
+
+    public init(
+        accessibilityIdentifier: String? = nil,
+        accessibility: Accessibility? = nil,
+        image: ImageEnum? = nil,
+        onPress: (() -> Void)? = nil,
+        onLongPress: (() -> Void)? = nil,
+        contentModeIsFit: Bool? = nil,
+        stretchToContainerWidth: Bool,
+        heightByWidthRatio: CGFloat? = nil,
+        contentInsets: EdgeInsets? = nil,
+        borderWidth: CGFloat? = nil,
+        borderColor: Color? = nil,
+        cornerRadius: CGFloat? = nil,
+        alpha: CGFloat? = nil
+    ) {
+        let layout: Layout? = stretchToContainerWidth || heightByWidthRatio != nil
+            ? .fillWidth(heightByWidthRatio: heightByWidthRatio)
+            : nil
+        self.init(
+            accessibilityIdentifier: accessibilityIdentifier,
+            accessibility: accessibility,
+            layout: layout,
+            image: image,
+            onPress: onPress,
+            onLongPress: onLongPress,
+            contentModeIsFit: contentModeIsFit,
+            contentInsets: contentInsets,
+            borderWidth: borderWidth,
+            borderColor: borderColor,
+            cornerRadius: cornerRadius,
+            alpha: alpha
+        )
+    }
+
+    public init(
+        accessibilityIdentifier: String? = nil,
+        accessibility: Accessibility? = nil,
+        image: ImageEnum? = nil,
+        onPress: (() -> Void)? = nil,
+        onLongPress: (() -> Void)? = nil,
+        contentModeIsFit: Bool? = nil,
+        heightByWidthRatio: CGFloat,
+        contentInsets: EdgeInsets? = nil,
+        borderWidth: CGFloat? = nil,
+        borderColor: Color? = nil,
+        cornerRadius: CGFloat? = nil,
+        alpha: CGFloat? = nil
+    ) {
+        self.init(
+            accessibilityIdentifier: accessibilityIdentifier,
+            accessibility: accessibility,
+            layout: .fillWidth(heightByWidthRatio: heightByWidthRatio),
+            image: image,
+            onPress: onPress,
+            onLongPress: onLongPress,
+            contentModeIsFit: contentModeIsFit,
+            contentInsets: contentInsets,
+            borderWidth: borderWidth,
+            borderColor: borderColor,
+            cornerRadius: cornerRadius,
+            alpha: alpha
+        )
     }
 }
 

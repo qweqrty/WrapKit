@@ -1,4 +1,4 @@
-// Generated using Sourcery 2.3.0 — https://github.com/krzysztofzablocki/Sourcery
+// Generated using Sourcery — https://github.com/krzysztofzablocki/Sourcery
 // DO NOT EDIT
 // swiftlint:disable:this file_name
 // swiftlint:disable all
@@ -19,6 +19,9 @@ import UIKit
 #endif
 #if canImport(SwiftUI)
 import SwiftUI
+#endif
+#if canImport(CoreGraphics)
+import CoreGraphics
 #endif
 public class TextOutputSwiftUIAdapter: ObservableObject, TextOutput {
 
