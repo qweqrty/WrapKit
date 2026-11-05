@@ -130,35 +130,6 @@ newDescriptor = newDescriptor.withSymbolicTraits(traits)
     }
 }
 
-public extension String {
-    func asDate(withFormat format: String) -> Date? {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = format
-        return dateFormatter.date(from: self)
-    }
-}
-
-public extension String {
-    func numberFormatted(numberStyle: NumberFormatter.Style, groupingSeparator: String?, maxDigits: Int = 12) -> String {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = numberStyle
-        formatter.groupingSeparator = groupingSeparator ?? Locale.current.groupingSeparator
-        formatter.locale = Locale.current
-        
-        guard let digits = Double(self.replacingOccurrences(of: formatter.groupingSeparator, with: "").prefix(maxDigits)) else { return "" }
-        let number = NSNumber(value: digits)
-        return formatter.string(from: number) ?? ""
-    }
-    
-    func toIntFromFormatted(groupingSeparator: String? = nil) -> Int? {
-        let formatter = NumberFormatter()
-        formatter.groupingSeparator = groupingSeparator ?? Locale.current.groupingSeparator
-        
-        let cleanString = self.replacingOccurrences(of: formatter.groupingSeparator, with: "")
-        return Int(cleanString)
-    }
-}
-
 public extension Int {
     /// Converts milliseconds to Date
     var toDateFromMilliseconds: Date {
