@@ -124,7 +124,7 @@ private final class SnapshotWindow: UIWindow {
         defer { UIView.setAnimationsEnabled(animationsWereEnabled) }
 
         let image: UIImage
-        if #available(iOS 26, *) {
+        if #available(iOS 26, *), windowScene != nil {
             makeKeyAndVisible()
             layoutSnapshotHierarchy()
             let needsGlassWarmup = containsGlassEffect()
@@ -151,6 +151,8 @@ private final class SnapshotWindow: UIWindow {
                 image = asImage(scale: traitCollection.displayScale)
             }
         } else {
+            // Unhosted SwiftPM tests have no UIWindowScene; drawHierarchy would
+            // return an empty image there. Plain UIKit layers can render offscreen.
             layoutSnapshotHierarchy()
             removeAllLayerAnimations()
             image = asImage(scale: traitCollection.displayScale)
@@ -177,6 +179,9 @@ private final class SnapshotWindow: UIWindow {
     private func containsGlassEffect() -> Bool {
         func walk(_ v: UIView) -> Bool {
             if v is UIVisualEffectView { return true }
+            // UIButton.Configuration does not expose its glass style publicly.
+            // Configured buttons can render effects without a UIVisualEffectView.
+            if let button = v as? UIButton, button.configuration != nil { return true }
             for s in v.subviews where walk(s) { return true }
             return false
         }

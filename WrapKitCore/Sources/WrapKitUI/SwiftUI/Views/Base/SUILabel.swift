@@ -686,6 +686,7 @@ struct CoreTextAttributedLabel: View {
                         )
                     }
 #endif
+                    drawStrikethrough(in: layout, canvasHeight: size.height, context: &context)
                 }
 
                 ForEach(tapRegions(in: geometry.size, attributedText: attributedText)) { region in
@@ -889,6 +890,8 @@ struct CoreTextAttributedLabel: View {
 #endif
         }
 
+        mutable.removeAttribute(.strikethroughStyle, range: wholeRange)
+
         return mutable
     }
 
@@ -953,6 +956,67 @@ struct CoreTextAttributedLabel: View {
             drawUnderlineSegments(for: line, at: origin, in: context, scale: scale)
 #endif
         }
+    }
+
+    private func drawStrikethrough(
+        in layout: LayoutResult,
+        canvasHeight: CGFloat,
+        context: inout GraphicsContext
+    ) {
+        let lines = CTFrameGetLines(layout.frame) as? [CTLine] ?? []
+        guard !lines.isEmpty else { return }
+
+        var lineOrigins = Array(repeating: CGPoint.zero, count: lines.count)
+        CTFrameGetLineOrigins(layout.frame, CFRange(location: 0, length: 0), &lineOrigins)
+
+        for (lineIndex, line) in lines.enumerated() {
+            let lineRange = CTLineGetStringRange(line)
+            guard lineRange.location != kCFNotFound, lineRange.length > 0 else { continue }
+            let origin = lineOrigins[lineIndex]
+            let baselineY = canvasHeight - layout.verticalInset - origin.y
+            let visibleWidth = CGFloat(
+                CTLineGetTypographicBounds(line, nil, nil, nil) - CTLineGetTrailingWhitespaceWidth(line)
+            )
+
+            attributedText.enumerateAttributes(
+                in: NSRange(location: lineRange.location, length: lineRange.length)
+            ) { attributes, range, _ in
+                guard let rawValue = (attributes[.strikethroughStyle] as? NSNumber)?.intValue,
+                      let font = attributes[.font] as? Font
+                else { return }
+                let style = UnderlineStyle(rawValue: rawValue)
+                guard style.hasLine else { return }
+
+                let strikethrough = SUIStrikethroughAttribute(
+                    style: style,
+                    font: font,
+                    color: strikethroughColor(from: attributes)
+                )
+                let segments = underlineSegments(
+                    for: style,
+                    line: line,
+                    stringRange: CFRange(location: range.location, length: range.length)
+                )
+                for segment in segments {
+                    SUIStrikethroughTextRenderer.draw(
+                        strikethrough,
+                        from: origin.x + segment.lowerBound,
+                        to: origin.x + min(segment.upperBound, visibleWidth),
+                        baselineY: baselineY,
+                        in: &context
+                    )
+                }
+            }
+        }
+    }
+
+    private func strikethroughColor(from attributes: [NSAttributedString.Key: Any]) -> SwiftUIColor {
+        let color = attributes[.strikethroughColor] ?? attributes[.foregroundColor]
+#if canImport(UIKit) && !os(watchOS)
+        return SwiftUIColor(resolvedUIKitColor(from: color ?? UIColor.label))
+#else
+        return (color as? Color).map { SwiftUIColor($0) } ?? .primary
+#endif
     }
 
 #if canImport(UIKit) && !os(watchOS)
@@ -1203,9 +1267,13 @@ extension NSTextAlignment {
 }
 
 extension NSUnderlineStyle {
+    fileprivate var hasLine: Bool {
+        contains(.single) || contains(.thick) || contains(.double)
+    }
+
     @available(iOS 15, macOS 12, tvOS 15, watchOS 8, *)
     var suiStyle: SwiftUI.Text.LineStyle.Pattern {
-        switch self {
+        switch intersection([.patternDot, .patternDash, .patternDashDot, .patternDashDotDot]) {
         case .patternDash: return .dash
         case .patternDashDot: return .dashDot
         case .patternDashDotDot: return .dashDotDot
@@ -1290,6 +1358,12 @@ extension NSUnderlineStyle {
                         font: .systemFont(ofSize: 16, weight: Font.Weight(rawValue: 200)),
                         underlineStyle: .patternDot,
                         onTap: { print("didTap: patternDot ") }
+                    ),
+                    .init(
+                        text: "red 18 (strikethrough .single) \n\n",
+                        color: .red,
+                        font: .systemFont(ofSize: 18),
+                        strikethroughStyle: .single
                     ),
                     .init(
                         text: "The quick brown fox ",

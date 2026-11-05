@@ -25,6 +25,11 @@ final class CardViewSnapshotTests: XCTestCase {
         XCTAssertEqual(cardView.trailingTitleViews.keyLabel.font, trailingFont)
     }
 
+    
+    private let image = Image(systemName: "star.fill")
+    private let secondImage = Image(systemName: "star")
+    private let backgroundImage = makeSnapshotBackgroundImage()
+    
     func test_CardView_default_state() {
         let snapshotName = "CARDVIEW_DEFAULT_STATE"
 
@@ -147,6 +152,46 @@ final class CardViewSnapshotTests: XCTestCase {
         }
     }
 
+    func test_CardView_withStyledSubtitle_shouldApplyInsetsOnce() {
+        let snapshotName = "CARDVIEW_WITH_STYLED_SUBTITLE"
+
+        // GIVEN
+        let (sut, container) = makeSUT()
+
+        // WHEN
+        sut.display(model: .init(
+            style: makeDefaultStyle(
+                backgroundColor: .systemBackground,
+                vStacklayoutMargins: .init(top: 16, leading: 16, bottom: 16, trailing: 16),
+                hStackViewDistribution: .fill,
+                titleKeyTextColor: .label,
+                titleKeyLabelFont: .systemFont(ofSize: 16, weight: .semibold),
+                subTitleLabelFont: .systemFont(ofSize: 13, weight: .medium),
+                cornerRadius: 16,
+                hStackViewSpacing: 12,
+                titleKeyNumberOfLines: 1,
+                borderColor: .clear,
+                borderWidth: 0
+            ),
+            title: .text("Title"),
+            subTitle: .textStyled(
+                text: .text("Subtitle"),
+                cornerStyle: .fixed(10),
+                insets: .init(top: 2, leading: 8, bottom: 4, trailing: 8),
+                backgroundColor: .systemGreen
+            )
+        ))
+
+        // THEN
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS18.5_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
+    }
+
     func test_CardView_with_backgroundImage() {
         let snapshotName = "CARDVIEW_WITH_BACKGROUNDIMAGE"
 
@@ -155,8 +200,8 @@ final class CardViewSnapshotTests: XCTestCase {
 
         // WHEN
         sut.display(style: makeDefaultStyle())
-        sut.display(backgroundImage: .systemSymbol("star.fill"))
-
+        sut.display(backgroundImage: .init(image: .asset(backgroundImage)))
+        
         // THEN
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -195,8 +240,8 @@ final class CardViewSnapshotTests: XCTestCase {
 
         // WHEN
         sut.display(style: makeDefaultStyle())
-        sut.display(backgroundImage: .systemSymbol("star.fill", contentModeIsFit: false))
-
+        sut.display(backgroundImage: .init(image: .asset(backgroundImage), contentModeIsFit: false))
+        
         // THEN
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -215,8 +260,8 @@ final class CardViewSnapshotTests: XCTestCase {
 
         // WHEN
         sut.display(style: makeDefaultStyle())
-        sut.display(backgroundImage: .systemSymbol("star.fill", contentModeIsFit: true))
-
+        sut.display(backgroundImage: .init(image: .asset(backgroundImage), contentModeIsFit: true))
+        
         // THEN
         if #available(iOS 26, *) {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -234,13 +279,10 @@ final class CardViewSnapshotTests: XCTestCase {
         let (sut, container) = makeSUT()
 
         // WHEN
-        sut.display(backgroundImage: .systemSymbol(
-            "star.fill",
-            size: .init(width: 24, height: 24),
-            borderWidth: 4,
-            borderColor: .black
-        ))
-
+        sut.display(backgroundImage: .init(image: .asset(backgroundImage),
+                                           borderWidth: 4,
+                                           borderColor: .black))
+        
         // THEN
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -258,13 +300,10 @@ final class CardViewSnapshotTests: XCTestCase {
         let (sut, container) = makeSUT()
 
         // WHEN
-        sut.display(backgroundImage: .systemSymbol(
-            "star.fill",
-            size: .init(width: 24, height: 24),
-            borderWidth: 3,
-            borderColor: .black
-        ))
-
+        sut.display(backgroundImage: .init(image: .asset(backgroundImage),
+                                           borderWidth: 3,
+                                           borderColor: .black))
+        
         // THEN
         if #available(iOS 26, *) {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -306,14 +345,12 @@ final class CardViewSnapshotTests: XCTestCase {
         let (sut, container) = makeSUT()
 
         // WHEN
-        sut.display(backgroundImage: .systemSymbol(
-            "star.fill",
-            size: .init(width: 24, height: 24),
-            borderWidth: 4,
-            borderColor: .black,
-            cornerRadius: 20
-        ))
-
+        sut.display(backgroundImage: .init(image: .asset(backgroundImage),
+                                           borderWidth: 4,
+                                           borderColor: .black,
+                                           cornerRadius: 20,
+                                          ))
+        
         // THEN
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -331,14 +368,12 @@ final class CardViewSnapshotTests: XCTestCase {
         let (sut, container) = makeSUT()
 
         // WHEN
-        sut.display(backgroundImage: .systemSymbol(
-            "star.fill",
-            size: .init(width: 24, height: 24),
-            borderWidth: 4,
-            borderColor: .black,
-            cornerRadius: 21
-        ))
-
+        sut.display(backgroundImage: .init(image: .asset(backgroundImage),
+                                           borderWidth: 4,
+                                           borderColor: .black,
+                                           cornerRadius: 21,
+                                          ))
+        
         // THEN
         if #available(iOS 26, *) {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -356,15 +391,13 @@ final class CardViewSnapshotTests: XCTestCase {
         let (sut, container) = makeSUT()
 
         // WHEN
-        sut.display(backgroundImage: .systemSymbol(
-            "star.fill",
-            size: .init(width: 24, height: 24),
-            borderWidth: 4,
-            borderColor: .black,
-            cornerRadius: 20,
-            alpha: 0.3
-        ))
-
+        sut.display(backgroundImage: .init(image: .asset(backgroundImage),
+                                           borderWidth: 4,
+                                           borderColor: .black,
+                                           cornerRadius: 20,
+                                           alpha: 0.3
+                                          ))
+        
         // THEN
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -382,15 +415,13 @@ final class CardViewSnapshotTests: XCTestCase {
         let (sut, container) = makeSUT()
 
         // WHEN
-        sut.display(backgroundImage: .systemSymbol(
-            "star.fill",
-            size: .init(width: 24, height: 24),
-            borderWidth: 4,
-            borderColor: .black,
-            cornerRadius: 20,
-            alpha: 0.4
-        ))
-
+        sut.display(backgroundImage: .init(image: .asset(backgroundImage),
+                                           borderWidth: 4,
+                                           borderColor: .black,
+                                           cornerRadius: 20,
+                                           alpha: 0.4
+                                          ))
+        
         // THEN
         if #available(iOS 26, *) {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -953,6 +984,20 @@ final class CardViewSnapshotTests: XCTestCase {
         }
     }
 
+    func test_CardView_accessibilityIdentifier_isAppliedToInteractiveElement() {
+        let (sut, container) = makeSUT()
+        let accessibilityIdentifier = "CardView.backButton"
+
+        sut.display(model: .init(
+            accessibilityIdentifier: accessibilityIdentifier,
+            onPress: {}
+        ))
+        container.layoutIfNeeded()
+
+        let interactiveElement = sut.accessibilityElement(at: 0) as? UIAccessibilityElement
+        XCTAssertEqual(interactiveElement?.accessibilityIdentifier, accessibilityIdentifier)
+    }
+    
     func test_fail_CardView_onPress() {
         let snapshotName = "CARDVIEW_WITH_ONPRESS"
 
@@ -1349,11 +1394,11 @@ extension CardViewSnapshotTests {
         )
 
         stackView.addArrangedSubview(makeWrappedTitleMarginsWrapperView(
-            title: "Короткий пример текста для проверки отступов",
+            title: "Короткий текст с отступами",
             horizontalMargin: horizontalMargin
         ))
         stackView.addArrangedSubview(makeWrappedTitleMarginsWrapperView(
-            title: "Длинный пример текста для проверки переноса на вторую строку внутри карточки",
+            title: "Длинный текст с отступами и переносом на вторую строку внутри карточки",
             horizontalMargin: horizontalMargin
         ))
         stackView.addArrangedSubview(UIView())
@@ -1401,7 +1446,12 @@ extension CardViewSnapshotTests {
             borderColor: .clear,
             borderWidth: 0
         ))
-        cardView.display(title: .text(title))
+        cardView.display(title: .textStyled(
+            text: .text(title),
+            cornerStyle: .fixed(12),
+            insets: .init(horizontal: 6, vertical: 4),
+            backgroundColor: .systemGreen
+        ))
 
         return cardView
     }

@@ -23,6 +23,9 @@ import Foundation
 #if canImport(SwiftUI)
 import SwiftUI
 #endif
+#if canImport(CoreGraphics)
+import CoreGraphics
+#endif
 #if canImport(UIKit)
 import UIKit
 #endif

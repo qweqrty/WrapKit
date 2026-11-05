@@ -83,6 +83,25 @@ class NavigationBarSnapshotTests: XCTestCase {
         XCTAssertEqual(titles.valueLabel.numberOfLines, 3)
     }
 
+    func test_navigationBar_glassButton_keepsSettledColorAcrossThemeChanges() throws {
+        guard #available(iOS 26, *) else { throw XCTSkip("Native button glass requires iOS 26") }
+        let (sut, container) = makeSUT()
+        sut.display(style: Self.headerStyle(backgroundColor: .red))
+        sut.display(tertiaryTrailingImage: .init(
+            title: "Image", image: UIImage(systemName: "star.fill"), onPress: { [weak sut] in
+                sut?.display(style: Self.headerStyle(backgroundColor: .yellow))
+            }
+        ))
+        findView(Button.self, in: sut.topItem?.rightBarButtonItems?.first?.customView)?.onPress?()
+
+        for _ in 0..<10 {
+            for (style, theme) in [(UIUserInterfaceStyle.light, "LIGHT"), (.dark, "DARK")] {
+                assert(snapshot: container.snapshot(for: .iPhone(style: style)),
+                       named: "iOS26_NAVBAR_WITH_TERTIARY_TRAILINGIMAGE_ONPRESS_\(theme)")
+            }
+        }
+    }
+
     func test_navigationBar_defaul_state() {
         let snapshotName = "NAVBAR_DEFAULT_STATE"
 
@@ -135,6 +154,58 @@ class NavigationBarSnapshotTests: XCTestCase {
         }
     }
 
+    func test_navigationBar_syncNavigationItemTitle_whenNavigationItemTitleIsEmpty() {
+        // GIVEN
+        let viewController = UIViewController()
+        let sut = viewController.headerOutput
+        viewController.navigationItem.title = nil
+
+        // WHEN
+        sut.display(centerView: .keyValue(.init(.text("Header title"), nil)))
+
+        // THEN
+        XCTAssertEqual(viewController.navigationItem.title, "Header title")
+    }
+
+    func test_navigationBar_syncNavigationItemTitle_whenNavigationItemTitleIsNotEmpty() {
+        // GIVEN
+        let viewController = UIViewController()
+        let sut = viewController.headerOutput
+        viewController.navigationItem.title = "Native title"
+
+        // WHEN
+        sut.display(centerView: .keyValue(.init(.text("Header title"), nil)))
+
+        // THEN
+        XCTAssertEqual(viewController.navigationItem.title, "Native title")
+    }
+
+    func test_navigationBar_syncNavigationItemTitle_whenCenterViewIsNil() {
+        // GIVEN
+        let viewController = UIViewController()
+        let sut = viewController.headerOutput
+        sut.display(centerView: .keyValue(.init(.text("Header title"), nil)))
+
+        // WHEN
+        sut.display(centerView: nil)
+
+        // THEN
+        XCTAssertNil(viewController.navigationItem.title)
+    }
+
+    func test_navigationBar_syncNavigationItemTitle_whenCenterViewIsNilAndNavigationItemTitleIsNotSynced() {
+        // GIVEN
+        let viewController = UIViewController()
+        let sut = viewController.headerOutput
+        viewController.navigationItem.title = "Native title"
+
+        // WHEN
+        sut.display(centerView: nil)
+
+        // THEN
+        XCTAssertEqual(viewController.navigationItem.title, "Native title")
+    }
+    
     func test_navigationBar_with_centerView_keyValue() {
         let snapshotName = "NAVBAR_WITH_CENTERVIEW_KEYVALUE"
 
@@ -272,9 +343,13 @@ class NavigationBarSnapshotTests: XCTestCase {
             secondaryFont: .systemFont(ofSize: 14),
             secondaryColor: .green)
         )
-
-        sut.display(leadingCard: .init(backgroundImage: .init(size: .init(width: 120, height: 44), image: .asset(Image(systemName: "star.fill"))), title: .text("Title")))
-
+        
+        sut.display(leadingCard: .init(
+            backgroundImage: .init(image: .asset(makeSnapshotBackgroundImage())),
+            title: .text("Title"),
+            onPress: { }
+        ))
+        
         // THEN
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -331,10 +406,13 @@ class NavigationBarSnapshotTests: XCTestCase {
 
         sut.display(
             leadingCard: .init(
+                backgroundImage: .init(
+                    image: .asset(makeSnapshotBackgroundImage())),
                 trailingTitles: .init(.text("Title"), .text("Subtitle")),
                 leadingImage: .init(
                     size: CGSize(width: 24, height: 24),
-                    image: .asset(Image(systemName: "star.fill")))
+                    image: .asset(Image(systemName: "star.fill"))),
+                onPress: { }
             ))
 
         // THEN
@@ -365,10 +443,14 @@ class NavigationBarSnapshotTests: XCTestCase {
 
         sut.display(
             leadingCard: .init(
+                backgroundImage: .init(
+                    image: .asset(makeSnapshotBackgroundImage())),
                 trailingTitles: .init(.text("Title."), .text("Subtitle.")),
                 leadingImage: .init(
                     size: CGSize(width: 24, height: 24),
-                    image: .asset(Image(systemName: "star.fill")))))
+                    image: .asset(Image(systemName: "star.fill"))),
+                onPress: { }
+            ))
 
         // THEN
         if #available(iOS 26, *) {
@@ -410,6 +492,55 @@ class NavigationBarSnapshotTests: XCTestCase {
         }
     }
 
+    func test_navigationBar_with_secondaryTrailingImage_withText() {
+        let snapshotName = "NAVBAR_WITH_SECONDARY_TRAILING_IMAGE_WITH_TEXT"
+
+        // GIVEN
+        let (sut, container) = makeSUT()
+
+        // WHEN
+        sut.display(style: .init(
+            backgroundColor: .clear,
+            horizontalSpacing: 12.0,
+            primeFont: .boldSystemFont(ofSize: 18),
+            primeColor: .black,
+            secondaryFont: .systemFont(ofSize: 14),
+            secondaryColor: .darkGray
+        ))
+
+        let image = Image(systemName: "gift.fill")
+        sut.display(secondaryTrailingImage: .some(.init(
+            title: "+1",
+            image: image,
+            spacing: 2,
+            contentInset: .init(top: 4, leading: 8, bottom: 4, trailing: 8),
+            isGlassEffectEnabled: false,
+            height: 28,
+            style: .init(
+                backgroundColor: .gradient(.init(colors: [.systemPink, .systemPink.withAlphaComponent(0.75)])),
+                titleColor: .white,
+                imageTintColor: .white,
+                pressedColor: .systemPink,
+                font: .systemFont(ofSize: 17, weight: .semibold),
+                cornerRadius: 14
+            )
+        )))
+
+        // THEN
+        if #available(iOS 26, *) {
+            assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS26_\(snapshotName)_DARK")
+        } else {
+            assert(
+                snapshot: container.snapshot(for: .iPhone(style: .light)),
+                named: "iOS18.5_\(snapshotName)_LIGHT",
+                precision: 0.999,
+                perceptualPrecision: 0.98
+            )
+            assert(snapshot: container.snapshot(for: .iPhone(style: .dark)), named: "iOS18.5_\(snapshotName)_DARK")
+        }
+    }
+    
     func test_fail_navigationBar_with_secondaryTrailingImage() {
         let snapshotName = "NAVBAR_WITH_SECONDARY_TRAILING_IMAGE"
 

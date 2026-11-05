@@ -26,6 +26,9 @@ import UIKit
 #if canImport(SwiftUI)
 import SwiftUI
 #endif
+#if canImport(CoreGraphics)
+import CoreGraphics
+#endif
 public class TextOutputSwiftUIAdapter: ObservableObject, TextOutput {
     private let outputReplayClosureStore = SwiftUIOutputReplayClosureStore()
 

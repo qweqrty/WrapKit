@@ -39,6 +39,8 @@ open class ViewController<ContentView: UIView>: UIViewController, LifeCycleViewO
     public let contentView: ContentView
     public var removingNavStackCountOnAppear: Int = 0
     public var interactivePopGestureRecognizer: UIGestureRecognizerDelegate?
+    open var shouldForceInitialLayoutBeforeAppearance = true
+    private var needsInitialLayoutPass = true
 
     public init(contentView: ContentView, lifeCycleViewOutput: LifeCycleViewOutput? = nil, applicationLifecycleOutput: ApplicationLifecycleOutput? = nil) {
         self.contentView = contentView
@@ -63,6 +65,7 @@ open class ViewController<ContentView: UIView>: UIViewController, LifeCycleViewO
         #endif
         activateNavigationHeader(animated: animated)
         LifeCycleViewOutput?.viewWillAppear()
+        performInitialLayoutPassIfNeeded()
     }
 
     open override func viewWillDisappear(_ animated: Bool) {
@@ -95,6 +98,15 @@ open class ViewController<ContentView: UIView>: UIViewController, LifeCycleViewO
         self.view = contentView
         if let styleProvider = contentView as? any NavigationBarStyleProviding {
             headerOutput.display(style: styleProvider.navigationBarStyle)
+        }
+    }
+
+    private func performInitialLayoutPassIfNeeded() {
+        guard shouldForceInitialLayoutBeforeAppearance, needsInitialLayoutPass else { return }
+        needsInitialLayoutPass = false
+        UIView.performWithoutAnimation {
+            view.setNeedsLayout()
+            view.layoutIfNeeded()
         }
     }
 

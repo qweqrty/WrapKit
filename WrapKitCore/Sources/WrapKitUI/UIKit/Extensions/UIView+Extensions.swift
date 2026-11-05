@@ -211,6 +211,7 @@ public extension UIView {
         heightMultiplier: CGFloat? = nil,
         widthMultiplier: CGFloat? = nil
     ) {
+        guard subviews.contains(where: { $0.tag == Self.shimmerViewTag }) == false else { return }
         let bgColor = shimmerView == nil ? .clear : (firstNonClearBackgroundColor ?? .clear)
         let emptyView = UIView(backgroundColor: bgColor)
         let shimmerContent: ShimmerView
@@ -273,8 +274,9 @@ public extension UIView {
     }
     
     func hideShimmer() {
-        guard let shimmerContent = viewWithTag(Self.shimmerViewTag) else { return }
-        shimmerContent.removeFromSuperview()
+        subviews
+            .filter { $0.tag == Self.shimmerViewTag }
+            .forEach { $0.removeFromSuperview() }
     }
     
     var firstNonClearBackgroundColor: UIColor? {

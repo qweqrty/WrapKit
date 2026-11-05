@@ -1,15 +1,8 @@
-//
-//  GameStorage.swift
-//  WrapKitGame
-//
-//  Created by Stanislav Li on 10/5/25.
-//
-
 import Foundation
 import WrapKit
 
 public class GameStorages {
-    public let shared = GameStorages()
+    public static let shared = GameStorages()
     
     private init() {}
     
@@ -18,7 +11,11 @@ public class GameStorages {
     public lazy var languageStorage = UserDefaultsStorage<[String]>(
         key: "AppleLanguages",
         getLogic: { userDefaults in
-            return userDefaults.stringArray(forKey: "AppleLanguages")
+            if let appDomain = Bundle.main.bundleIdentifier,
+               let languages = userDefaults.persistentDomain(forName: appDomain)?["AppleLanguages"] as? [String] {
+                return languages
+            }
+            return Locale.preferredLanguages
         },
         setLogic: { userDefaults, model in
             userDefaults.setValue(model, forKey: "AppleLanguages")

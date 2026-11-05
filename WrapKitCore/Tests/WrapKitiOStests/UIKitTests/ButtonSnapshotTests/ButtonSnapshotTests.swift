@@ -47,8 +47,8 @@ final class ButtonSnapshotTests: XCTestCase {
 
         // WHEN
         sut.display(title: "Default")
-        sut.display(style: .init(backgroundColor: .cyan))
-
+        sut.display(style: .init(backgroundColor: .solid(.cyan)))
+        
         // THEN
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -67,8 +67,8 @@ final class ButtonSnapshotTests: XCTestCase {
 
         // WHEN
         sut.display(title: "Default.")
-        sut.display(style: .init(backgroundColor: .cyan))
-
+        sut.display(style: .init(backgroundColor: .solid(.cyan)))
+        
         // THEN
         if #available(iOS 26, *) {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -88,8 +88,8 @@ final class ButtonSnapshotTests: XCTestCase {
         // WHEN
         sut.display(title: "Enabled")
         sut.display(enabled: false)
-        sut.display(style: .init(backgroundColor: .cyan))
-
+        sut.display(style: .init(backgroundColor: .solid(.cyan)))
+        
         // THEN
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -109,8 +109,8 @@ final class ButtonSnapshotTests: XCTestCase {
         // WHEN
         sut.display(title: "Enabled")
         sut.display(enabled: true)
-        sut.display(style: .init(backgroundColor: .cyan))
-
+        sut.display(style: .init(backgroundColor: .solid(.cyan)))
+        
         // THEN
         if #available(iOS 26, *) {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -130,8 +130,8 @@ final class ButtonSnapshotTests: XCTestCase {
         // WHEN
         let image =  UIImage(systemName: "star.fill")
         sut.display(image: image)
-        sut.display(style: .init(backgroundColor: .cyan))
-
+        sut.display(style: .init(backgroundColor: .solid(.cyan)))
+        
         // THEN
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -142,6 +142,191 @@ final class ButtonSnapshotTests: XCTestCase {
         }
     }
 
+    func test_buttonOutput_removingImageTint_restoresLegacyImageAppearance() {
+        let (sut, _) = makeSUT()
+        let normalImage = UIImage(systemName: "star.fill")!.withRenderingMode(.alwaysOriginal)
+        let highlightedImage = UIImage(systemName: "star")!.withRenderingMode(.alwaysOriginal)
+        let originalTintColor = UIColor.systemGreen
+        let originalSymbolConfiguration = UIImage.SymbolConfiguration(pointSize: 11, weight: .bold)
+
+        if #available(iOS 15.0, *) {
+            sut.configuration = nil
+        }
+        sut.tintColor = originalTintColor
+        sut.setImage(normalImage, for: .normal)
+        sut.setImage(highlightedImage, for: .highlighted)
+        sut.setPreferredSymbolConfiguration(originalSymbolConfiguration, forImageIn: .normal)
+
+        sut.display(style: .init(imageTintColor: .systemRed))
+
+        XCTAssertEqual(sut.image(for: .normal)?.renderingMode, .alwaysTemplate)
+        XCTAssertEqual(sut.image(for: .highlighted)?.renderingMode, .alwaysTemplate)
+
+        sut.display(style: .init(imageTintColor: nil))
+
+        XCTAssertTrue(sut.image(for: .normal) === normalImage)
+        XCTAssertTrue(sut.image(for: .highlighted) === highlightedImage)
+        XCTAssertEqual(sut.image(for: .normal)?.renderingMode, .alwaysOriginal)
+        XCTAssertEqual(sut.image(for: .highlighted)?.renderingMode, .alwaysOriginal)
+        XCTAssertEqual(sut.tintColor, originalTintColor)
+        XCTAssertEqual(
+            sut.preferredSymbolConfigurationForImage(in: .normal),
+            originalSymbolConfiguration
+        )
+    }
+
+    func test_buttonOutput_imageTint_preservesStateSpecificImages() {
+        let (sut, _) = makeSUT()
+        let normalImage = makeImage(width: 11)
+        let highlightedImage = makeImage(width: 12)
+        let selectedImage = makeImage(width: 13)
+        let disabledImage = makeImage(width: 14)
+
+        if #available(iOS 15.0, *) {
+            sut.configuration = nil
+        }
+        sut.setImage(normalImage, for: .normal)
+        sut.setImage(highlightedImage, for: .highlighted)
+        sut.setImage(selectedImage, for: .selected)
+        sut.setImage(disabledImage, for: .disabled)
+
+        sut.display(style: .init(imageTintColor: .systemRed))
+
+        XCTAssertEqual(sut.image(for: .normal)?.size, normalImage.size)
+        XCTAssertEqual(sut.image(for: .highlighted)?.size, highlightedImage.size)
+        XCTAssertEqual(sut.image(for: .selected)?.size, selectedImage.size)
+        XCTAssertEqual(sut.image(for: .disabled)?.size, disabledImage.size)
+        XCTAssertEqual(sut.image(for: .normal)?.renderingMode, .alwaysTemplate)
+        XCTAssertEqual(sut.image(for: .highlighted)?.renderingMode, .alwaysTemplate)
+        XCTAssertEqual(sut.image(for: .selected)?.renderingMode, .alwaysTemplate)
+        XCTAssertEqual(sut.image(for: .disabled)?.renderingMode, .alwaysTemplate)
+
+        sut.display(style: .init(imageTintColor: nil))
+
+        XCTAssertTrue(sut.image(for: .normal) === normalImage)
+        XCTAssertTrue(sut.image(for: .highlighted) === highlightedImage)
+        XCTAssertTrue(sut.image(for: .selected) === selectedImage)
+        XCTAssertTrue(sut.image(for: .disabled) === disabledImage)
+    }
+
+    @available(iOS 15.0, *)
+    func test_buttonOutput_imageTint_updatesConfigurationWithStateSpecificImages() {
+        let (sut, _) = makeSUT()
+        let normalImage = makeImage(width: 11)
+        let highlightedImage = makeImage(width: 12)
+        let selectedImage = makeImage(width: 13)
+        let disabledImage = makeImage(width: 14)
+        var configuration = UIButton.Configuration.plain()
+        configuration.image = normalImage
+        sut.configuration = configuration
+        sut.setImage(normalImage, for: .normal)
+        sut.setImage(highlightedImage, for: .highlighted)
+        sut.setImage(selectedImage, for: .selected)
+        sut.setImage(disabledImage, for: .disabled)
+
+        sut.display(style: .init(imageTintColor: .systemRed))
+
+        XCTAssertEqual(sut.configuration?.image?.size, normalImage.size)
+        XCTAssertEqual(sut.configuration?.image?.renderingMode, .alwaysTemplate)
+
+        sut.isHighlighted = true
+        sut.updateConfiguration()
+        XCTAssertEqual(sut.configuration?.image?.size, highlightedImage.size)
+
+        sut.isHighlighted = false
+        sut.isSelected = true
+        sut.updateConfiguration()
+        XCTAssertEqual(sut.configuration?.image?.size, selectedImage.size)
+
+        sut.isSelected = false
+        sut.isEnabled = false
+        sut.updateConfiguration()
+        XCTAssertEqual(sut.configuration?.image?.size, disabledImage.size)
+
+        sut.display(style: .init(imageTintColor: nil))
+
+        XCTAssertTrue(sut.image(for: .normal) === normalImage)
+        XCTAssertTrue(sut.image(for: .highlighted) === highlightedImage)
+        XCTAssertTrue(sut.image(for: .selected) === selectedImage)
+        XCTAssertTrue(sut.image(for: .disabled) === disabledImage)
+        XCTAssertTrue(sut.configuration?.image === normalImage)
+    }
+
+    @available(iOS 15.0, *)
+    func test_buttonOutput_removingImageTint_restoresConfigurationImageAppearance() {
+        let (sut, _) = makeSUT()
+        let originalImage = UIImage(systemName: "star.fill")!.withRenderingMode(.alwaysOriginal)
+        let originalTintColor = UIColor.systemGreen
+        let originalSymbolConfiguration = UIImage.SymbolConfiguration(pointSize: 13, weight: .semibold)
+        let originalColorTransformer = UIConfigurationColorTransformer { _ in .systemBlue }
+        var configuration = UIButton.Configuration.plain()
+        configuration.image = originalImage
+        configuration.imageColorTransformer = originalColorTransformer
+        configuration.preferredSymbolConfigurationForImage = originalSymbolConfiguration
+        sut.configuration = configuration
+        sut.tintColor = originalTintColor
+
+        sut.display(style: .init(imageTintColor: .systemRed))
+
+        XCTAssertEqual(sut.configuration?.image?.renderingMode, .alwaysTemplate)
+        XCTAssertEqual(sut.configuration?.imageColorTransformer?(.black), .systemRed)
+
+        sut.display(style: .init(imageTintColor: nil))
+
+        XCTAssertTrue(sut.configuration?.image === originalImage)
+        XCTAssertEqual(sut.configuration?.image?.renderingMode, .alwaysOriginal)
+        XCTAssertEqual(sut.configuration?.imageColorTransformer?(.black), .systemBlue)
+        XCTAssertEqual(
+            sut.configuration?.preferredSymbolConfigurationForImage,
+            originalSymbolConfiguration
+        )
+        XCTAssertEqual(sut.tintColor, originalTintColor)
+    }
+
+    func test_buttonOutput_replacingImageWhileTinted_restoresLatestOriginalImage() {
+        let (sut, _) = makeSUT()
+        let firstImage = UIImage(systemName: "star")!.withRenderingMode(.alwaysOriginal)
+        let replacementImage = UIImage(systemName: "heart.fill")!.withRenderingMode(.alwaysOriginal)
+
+        if #available(iOS 15.0, *) {
+            sut.configuration = nil
+        }
+        sut.display(image: firstImage)
+        sut.display(style: .init(imageTintColor: .systemRed))
+        sut.display(image: replacementImage)
+
+        XCTAssertEqual(sut.image(for: .normal)?.renderingMode, .alwaysTemplate)
+
+        sut.display(style: .init(imageTintColor: nil))
+
+        XCTAssertTrue(sut.image(for: .normal) === replacementImage)
+        XCTAssertEqual(sut.image(for: .normal)?.renderingMode, .alwaysOriginal)
+    }
+
+    func test_buttonOutput_leavingGlassStyle_restoresUnderlyingOriginalImage() throws {
+        guard #available(iOS 26.0, *) else {
+            throw XCTSkip("Liquid Glass is available on iOS 26 and newer")
+        }
+        let (sut, _) = makeSUT()
+        let originalImage = UIImage(systemName: "star.fill")!.withRenderingMode(.alwaysOriginal)
+
+        sut.configuration = nil
+        sut.setImage(originalImage, for: .normal)
+        sut.display(style: .init(
+            imageTintColor: .systemRed,
+            glassConfiguration: .glass
+        ))
+
+        XCTAssertNotNil(sut.configuration)
+        XCTAssertEqual(sut.configuration?.image?.renderingMode, .alwaysTemplate)
+
+        sut.display(style: .init(imageTintColor: nil))
+
+        XCTAssertNil(sut.configuration)
+        XCTAssertTrue(sut.image(for: .normal) === originalImage)
+        XCTAssertEqual(sut.image(for: .normal)?.renderingMode, .alwaysOriginal)
+    }
+    
     func test_fail_buttonOutput_image_state() {
         let snapshotName = "BUTTON_IMAGE_STATE"
 
@@ -151,8 +336,8 @@ final class ButtonSnapshotTests: XCTestCase {
         // WHEN
         let image =  UIImage(systemName: "star")
         sut.display(image: image)
-        sut.display(style: .init(backgroundColor: .cyan))
-
+        sut.display(style: .init(backgroundColor: .solid(.cyan)))
+        
         // THEN
         if #available(iOS 26, *) {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -173,8 +358,8 @@ final class ButtonSnapshotTests: XCTestCase {
 
         // WHEN
         let image = UIImage(systemName: "star.fill")
-        sut.display(style: .init(backgroundColor: .cyan))
-
+        sut.display(style: .init(backgroundColor: .solid(.cyan)))
+        
         sut.setImage(.asset(image)) { _ in
             exp.fulfill()
         }
@@ -198,8 +383,8 @@ final class ButtonSnapshotTests: XCTestCase {
 
         // WHEN
         let image = UIImage(systemName: "star")
-        sut.display(style: .init(backgroundColor: .cyan))
-
+        sut.display(style: .init(backgroundColor: .solid(.cyan)))
+        
         sut.setImage(.asset(image)) { _ in
             exp.fulfill()
         }
@@ -223,8 +408,8 @@ final class ButtonSnapshotTests: XCTestCase {
 
         // WHEN
         let light = ImageSnapshotFixture.light.url
-        sut.display(style: .init(backgroundColor: .cyan))
-
+        sut.display(style: .init(backgroundColor: .solid(.cyan)))
+        
         sut.setImage(.url(light, light)) { _ in
             exp.fulfill()
         }
@@ -323,8 +508,8 @@ final class ButtonSnapshotTests: XCTestCase {
 
         // WHEN
         let light = ImageSnapshotFixture.light.urlString
-        sut.display(style: .init(backgroundColor: .cyan))
-
+        sut.display(style: .init(backgroundColor: .solid(.cyan)))
+        
         sut.setImage(.urlString(light, light)) { _ in
             exp.fulfill()
         }
@@ -373,8 +558,8 @@ final class ButtonSnapshotTests: XCTestCase {
 
         // WHEN
         let dark = ImageSnapshotFixture.dark.urlString
-        sut.display(style: .init(backgroundColor: .cyan))
-
+        sut.display(style: .init(backgroundColor: .solid(.cyan)))
+        
         sut.setImage(.urlString(dark, dark)) { _ in
             exp.fulfill()
         }
@@ -421,9 +606,9 @@ final class ButtonSnapshotTests: XCTestCase {
         let (sut, container) = makeSUT()
 
         // WHEN
-        sut.display(style: .init(backgroundColor: .cyan))
         sut.setImage(.url(nil, nil), completion: nil)
-
+        sut.display(style: .init(backgroundColor: .solid(.cyan)))
+        
         // THEN
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -446,7 +631,8 @@ final class ButtonSnapshotTests: XCTestCase {
             wrongUrlPlaceholderImage: UIImage(systemName: "xmark")!
         ))
         sut.setImage(.url(nil, nil), completion: nil)
-
+        sut.display(style: .init(backgroundColor: .solid(.blue)))
+        
         // THEN
         if #available(iOS 26, *) {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -464,9 +650,9 @@ final class ButtonSnapshotTests: XCTestCase {
         let (sut, container) = makeSUT()
 
         // WHEN
-        sut.display(style: .init(backgroundColor: .cyan))
         sut.setImage(.urlString(nil, nil), completion: nil)
-
+        sut.display(style: .init(backgroundColor: .solid(.cyan)))
+        
         // THEN
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -489,7 +675,8 @@ final class ButtonSnapshotTests: XCTestCase {
             wrongUrlPlaceholderImage: UIImage(systemName: "xmark")!
         ))
         sut.setImage(.urlString(nil, nil), completion: nil)
-
+        sut.display(style: .init(backgroundColor: .solid(.blue)))
+        
         // THEN
         if #available(iOS 26, *) {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -511,9 +698,9 @@ final class ButtonSnapshotTests: XCTestCase {
             title: "BUTTON WITH SPACING",
             image: UIImage(systemName: "star"),
             spacing: 50,
-            style: .init(backgroundColor: .red)
+            style: .init(backgroundColor: .solid(.red))
         ))
-        sut.display(style: .init(backgroundColor: .cyan))
+        sut.display(style: .init(backgroundColor: .solid(.cyan)))
 
         // THEN
         if #available(iOS 26, *) {
@@ -536,9 +723,9 @@ final class ButtonSnapshotTests: XCTestCase {
             title: "BUTTON WITH SPACING",
             image: UIImage(systemName: "star"),
             spacing: 40,
-            style: .init(backgroundColor: .red)
+            style: .init(backgroundColor: .solid(.red))
         ))
-        sut.display(style: .init(backgroundColor: .cyan))
+        sut.display(style: .init(backgroundColor: .solid(.cyan)))
 
         // THEN
         if #available(iOS 26, *) {
@@ -612,9 +799,9 @@ final class ButtonSnapshotTests: XCTestCase {
             image: UIImage(systemName: "star"),
             spacing: 50,
             height: 100,
-            style: .init(backgroundColor: .red),
+            style: .init(backgroundColor: .solid(.red)),
         ))
-        sut.display(style: .init(backgroundColor: .cyan))
+        sut.display(style: .init(backgroundColor: .solid(.cyan)))
 
         // THEN
         if #available(iOS 26, *) {
@@ -638,9 +825,9 @@ final class ButtonSnapshotTests: XCTestCase {
             image: UIImage(systemName: "star"),
             spacing: 50,
             height: 0,
-            style: .init(backgroundColor: .red),
+            style: .init(backgroundColor: .solid(.red)),
         ))
-        sut.display(style: .init(backgroundColor: .cyan))
+        sut.display(style: .init(backgroundColor: .solid(.cyan)))
 
         // THEN
         if #available(iOS 26, *) {
@@ -660,7 +847,7 @@ final class ButtonSnapshotTests: XCTestCase {
 
         // WHEN
         sut.display(title: "BUTTON IS HIDDEN")
-        sut.display(style: .init(backgroundColor: .cyan))
+        sut.display(style: .init(backgroundColor: .solid(.cyan)))
         sut.display(isHidden: false)
 
         // THEN
@@ -681,7 +868,7 @@ final class ButtonSnapshotTests: XCTestCase {
 
         // WHEN
         sut.display(title: "BUTTON IS HIDDEN")
-        sut.display(style: .init(backgroundColor: .cyan))
+        sut.display(style: .init(backgroundColor: .solid(.cyan)))
         sut.display(isHidden: true)
 
         // THEN
@@ -702,8 +889,8 @@ final class ButtonSnapshotTests: XCTestCase {
         let (sut, container) = makeSUT()
 
         // WHEN
-        sut.display(style: .init(backgroundColor: .systemRed))
-
+        sut.display(style: .init(backgroundColor: .solid(.systemRed)))
+        
         // THEN
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -721,8 +908,8 @@ final class ButtonSnapshotTests: XCTestCase {
         let (sut, container) = makeSUT()
 
         // WHEN
-        sut.display(style: .init(backgroundColor: .red))
-
+        sut.display(style: .init(backgroundColor: .solid(.red)))
+        
         // THEN
         if #available(iOS 26, *) {
             assertFail(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -741,8 +928,8 @@ final class ButtonSnapshotTests: XCTestCase {
 
         // WHEN
         sut.display(title: "TITLE WITH COLOR")
-        sut.display(style: .init(backgroundColor: .cyan, titleColor: .red))
-
+        sut.display(style: .init(backgroundColor: .solid(.cyan), titleColor: .red))
+        
         // THEN
         if #available(iOS 26, *) {
             assert(snapshot: container.snapshot(for: .iPhone(style: .light)), named: "iOS26_\(snapshotName)_LIGHT")
@@ -781,7 +968,7 @@ final class ButtonSnapshotTests: XCTestCase {
 
         // WHEN
         sut.display(style: .init(
-            backgroundColor: .cyan,
+            backgroundColor: .solid(.cyan),
             borderWidth: 4.0,
             borderColor: .red
         ))
@@ -806,7 +993,7 @@ final class ButtonSnapshotTests: XCTestCase {
 
         // WHEN
         sut.display(style: .init(
-            backgroundColor: .cyan,
+            backgroundColor: .solid(.cyan),
             borderWidth: 5.0,
             borderColor: .red
         ))
@@ -831,7 +1018,7 @@ final class ButtonSnapshotTests: XCTestCase {
 
         // WHEN
         sut.display(style: .init(
-            backgroundColor: .blue,
+            backgroundColor: .solid(.blue),
             pressedColor: .red,
         ))
 
@@ -855,7 +1042,7 @@ final class ButtonSnapshotTests: XCTestCase {
 
         // WHEN
         sut.display(style: .init(
-            backgroundColor: .blue,
+            backgroundColor: .solid(.blue),
             pressedColor: .systemRed,
         ))
 
@@ -879,7 +1066,7 @@ final class ButtonSnapshotTests: XCTestCase {
 
         // WHEN
         sut.display(style: .init(
-            backgroundColor: .white,
+            backgroundColor: .solid(.white),
             titleColor: .blue,
             pressedTintColor: .red,
         ))
@@ -905,7 +1092,7 @@ final class ButtonSnapshotTests: XCTestCase {
 
         // WHEN
         sut.display(style: .init(
-            backgroundColor: .white,
+            backgroundColor: .solid(.white),
             titleColor: .blue,
             pressedTintColor: .systemRed,
         ))
@@ -930,7 +1117,7 @@ final class ButtonSnapshotTests: XCTestCase {
         let (sut, container) = makeSUT()
 
         // WHEN
-        sut.display(style: .init(backgroundColor: .cyan, font: .systemFont(ofSize: 24, weight: .bold)))
+        sut.display(style: .init(backgroundColor: .solid(.cyan), font: .systemFont(ofSize: 24, weight: .bold)))
         sut.display(title: "BUTTON WITH FONT")
 
         // THEN
@@ -950,7 +1137,7 @@ final class ButtonSnapshotTests: XCTestCase {
         let (sut, container) = makeSUT()
 
         // WHEN
-        sut.display(style: .init(backgroundColor: .cyan, font: .systemFont(ofSize: 25, weight: .bold)))
+        sut.display(style: .init(backgroundColor: .solid(.cyan), font: .systemFont(ofSize: 25, weight: .bold)))
         sut.display(title: "BUTTON WITH FONT")
 
         // THEN
@@ -971,7 +1158,7 @@ final class ButtonSnapshotTests: XCTestCase {
 
         // WHEN
         sut.display(title: "BUTTON WITH CORNER RADIUS")
-        sut.display(style: .init(backgroundColor: .cyan, cornerRadius: 40))
+        sut.display(style: .init(backgroundColor: .solid(.cyan), cornerRadius: 40))
 
         // THEN
         if #available(iOS 26, *) {
@@ -991,7 +1178,7 @@ final class ButtonSnapshotTests: XCTestCase {
 
         // WHEN
         sut.display(title: "BUTTON WITH CORNER RADIUS")
-        sut.display(style: .init(backgroundColor: .cyan, cornerRadius: 41))
+        sut.display(style: .init(backgroundColor: .solid(.cyan), cornerRadius: 41))
 
         // THEN
         if #available(iOS 26, *) {
@@ -1057,7 +1244,7 @@ final class ButtonSnapshotTests: XCTestCase {
 
         // WHEN
         let style = ButtonStyle(
-            backgroundColor: .systemBlue,
+            backgroundColor: .solid(.systemBlue),
             loadingIndicatorColor: .red
         )
 
@@ -1083,7 +1270,7 @@ final class ButtonSnapshotTests: XCTestCase {
 
         // WHEN
         let style = ButtonStyle(
-            backgroundColor: .systemBlue,
+            backgroundColor: .solid(.systemBlue),
             loadingIndicatorColor: .red
         )
 
@@ -1109,7 +1296,7 @@ final class ButtonSnapshotTests: XCTestCase {
 
         // WHEN
         let style = ButtonStyle(
-            backgroundColor: .systemBlue,
+            backgroundColor: .solid(.systemBlue),
             loadingIndicatorColor: .red
         )
 
@@ -1243,6 +1430,14 @@ final class ButtonSnapshotTests: XCTestCase {
 }
 
 extension ButtonSnapshotTests {
+    func makeImage(width: CGFloat) -> UIImage {
+        UIGraphicsImageRenderer(size: .init(width: width, height: 10)).image { context in
+            UIColor.black.setFill()
+            context.fill(.init(x: 0, y: 0, width: width, height: 10))
+        }
+        .withRenderingMode(.alwaysOriginal)
+    }
+
     func makeSUT(
         height: CGFloat = 60,
         file: StaticString = #file,

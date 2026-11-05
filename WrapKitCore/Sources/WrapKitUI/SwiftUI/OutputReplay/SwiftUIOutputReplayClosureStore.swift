@@ -963,6 +963,7 @@ extension SwiftUIOutputReplayClosureStore {
                 font: attribute.font,
                 lineSpacing: attribute.lineSpacing,
                 underlineStyle: attribute.underlineStyle,
+                strikethroughStyle: attribute.strikethroughStyle,
                 textAlignment: attribute.textAlignment,
                 leadingImage: attribute.leadingImage,
                 leadingImageBounds: attribute.leadingImageBounds,

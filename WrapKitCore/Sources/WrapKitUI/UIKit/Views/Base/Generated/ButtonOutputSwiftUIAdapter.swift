@@ -26,6 +26,9 @@ import UIKit
 #if canImport(SwiftUI)
 import SwiftUI
 #endif
+#if canImport(CoreGraphics)
+import CoreGraphics
+#endif
 public class ButtonOutputSwiftUIAdapter: ObservableObject, ButtonOutput {
     private let outputReplayClosureStore = SwiftUIOutputReplayClosureStore()
 
@@ -36,6 +39,7 @@ public class ButtonOutputSwiftUIAdapter: ObservableObject, ButtonOutput {
         case displayModel(DisplayModelState)
         case displayEnabled(DisplayEnabledState)
         case displayImage(DisplayImageState)
+        case displayContentInset(DisplayContentInsetState)
         case displayStyle(DisplayStyleState)
         case displayTitle(DisplayTitleState)
         case displaySpacing(DisplaySpacingState)
@@ -129,6 +133,8 @@ public class ButtonOutputSwiftUIAdapter: ObservableObject, ButtonOutput {
         case .displayEnabled(let state):
             outputReplayStateDelivery.send(state)
         case .displayImage(let state):
+            outputReplayStateDelivery.send(state)
+        case .displayContentInset(let state):
             outputReplayStateDelivery.send(state)
         case .displayStyle(let state):
             outputReplayStateDelivery.send(state)
@@ -303,6 +309,32 @@ public class ButtonOutputSwiftUIAdapter: ObservableObject, ButtonOutput {
         displayImageState = .init(
             outputSequence: nextOutputSequence,
             image: image
+        )
+    }
+    @Published public var displayContentInsetState: DisplayContentInsetState? = nil {
+        willSet {
+            guard let state = newValue else { return }
+            beginOutputReplayDelivery(.displayContentInset(state))
+        }
+        didSet {
+            guard displayContentInsetState != nil else { return }
+            finishOutputReplayDelivery()
+        }
+    }
+    public struct DisplayContentInsetState {
+        let outputSequence: UInt64
+        public let contentInset: EdgeInsets
+    }
+    public func display(contentInset: EdgeInsets) {
+        requireMainOutputReplayQueue()
+        let contentInset = outputReplayClosureStore.sanitize(
+            contentInset,
+            path: "contentInset"
+        )
+        nextOutputSequence &+= 1
+        displayContentInsetState = .init(
+            outputSequence: nextOutputSequence,
+            contentInset: contentInset
         )
     }
     @Published public var displayStyleState: DisplayStyleState? = nil {

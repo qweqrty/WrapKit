@@ -96,7 +96,7 @@ final class EmptyViewSnapshotTests: XCTestCase {
 
         let image = Image(systemName: "star.fill")
         let buttonStyle = ButtonStyle(
-            backgroundColor: .systemBlue,
+            backgroundColor: .solid(.systemBlue),
             titleColor: .black,
             borderWidth: 2,
             borderColor: .red,
@@ -138,7 +138,7 @@ final class EmptyViewSnapshotTests: XCTestCase {
 
         let image = Image(systemName: "star.fill")
         let buttonStyle = ButtonStyle(
-            backgroundColor: .blue,
+            backgroundColor: .solid(UIColor.blue),
             titleColor: .black,
             borderWidth: 2,
             borderColor: .red,
@@ -266,7 +266,7 @@ final class EmptyViewSnapshotTests: XCTestCase {
         let imageModel = ImageViewPresentableModel(image: .asset(image))
 
         let buttonStyle = ButtonStyle(
-            backgroundColor: .systemBlue,
+            backgroundColor: .solid(.systemBlue),
             titleColor: .black,
             borderWidth: 2,
             borderColor: .red,
@@ -317,7 +317,7 @@ final class EmptyViewSnapshotTests: XCTestCase {
         let imageModel = ImageViewPresentableModel(image: .asset(image))
 
         let buttonStyle = ButtonStyle(
-            backgroundColor: .systemBlue,
+            backgroundColor: .solid(.systemBlue),
             titleColor: .black,
             borderWidth: 2,
             borderColor: .red,

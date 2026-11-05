@@ -595,7 +595,7 @@ extension ImageViewPresentableModel {
     }
 
     func updated(
-        size: CGSize? = nil,
+        layout: ImageViewPresentableModel.Layout? = nil,
         image: ImageEnum? = nil,
         onPress: (() -> Void)? = nil,
         onLongPress: (() -> Void)? = nil,
@@ -608,7 +608,7 @@ extension ImageViewPresentableModel {
         ImageViewPresentableModel(
             accessibilityIdentifier: accessibilityIdentifier,
             accessibility: accessibility,
-            size: size ?? self.size,
+            layout: layout ?? self.layout,
             image: image ?? self.image,
             onPress: onPress ?? self.onPress,
             onLongPress: onLongPress ?? self.onLongPress,

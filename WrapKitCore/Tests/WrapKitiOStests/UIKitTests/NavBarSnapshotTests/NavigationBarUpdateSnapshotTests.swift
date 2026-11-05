@@ -6,6 +6,59 @@ import UIKit
 /// Keep the same window alive between updates, as on the navigation demo screen.
 /// Recreating a snapshot window for each display call can hide invalidation bugs.
 final class NavigationBarUpdateSnapshotTests: XCTestCase {
+    func test_titleSync_updatesCaptionAndClearsOnlyOwnedTitle() {
+        let controller = UIViewController()
+        let output = controller.headerOutput
+        output.display(centerView: .keyValue(.init(.text("First title"), nil)))
+        XCTAssertEqual(controller.navigationItem.title, "First title")
+
+        output.display(centerView: .titledImage(.init(nil, .text("Logo caption"))))
+        XCTAssertEqual(controller.navigationItem.title, "Logo caption")
+
+        output.display(model: nil)
+        XCTAssertNil(controller.navigationItem.title)
+
+        output.display(centerView: .keyValue(.init(.text("Second title"), nil)))
+        controller.navigationItem.title = "External title"
+        output.display(centerView: .titledImage(.init(nil, .text("Another caption"))))
+        output.display(model: nil)
+        XCTAssertEqual(controller.navigationItem.title, "External title")
+    }
+
+    func test_nativeTrailingButtons_restoreDefaultGlassAfterOptOut() throws {
+        guard #available(iOS 26, *) else { throw XCTSkip("Native button glass requires iOS 26") }
+        let sut = try makeLiveHeader()
+        for enabled in [false, true, nil] as [Bool?] {
+            for slot in 0..<3 {
+                display(.init(image: UIImage(systemName: "xmark"), isGlassEffectEnabled: enabled), at: slot, on: sut.output)
+            }
+            let items = try XCTUnwrap(sut.root.navigationItem.rightBarButtonItems)
+            XCTAssertEqual(items.count, 3)
+            for item in items {
+                XCTAssertNil(item.customView)
+                XCTAssertEqual(item.hidesSharedBackground, enabled == false)
+            }
+        }
+    }
+
+    func test_customTrailingButtons_restoreDefaultGlassAfterOptOut() throws {
+        guard #available(iOS 26, *) else { throw XCTSkip("Custom button glass requires iOS 26") }
+        let sut = try makeLiveHeader()
+        for enabled in [false, true, nil] as [Bool?] {
+            for slot in 0..<3 {
+                display(.init(title: "Done", image: UIImage(systemName: "checkmark"), isGlassEffectEnabled: enabled),
+                        at: slot, on: sut.output)
+            }
+            let items = try XCTUnwrap(sut.root.navigationItem.rightBarButtonItems)
+            XCTAssertEqual(items.count, 3)
+            for item in items {
+                let button = try XCTUnwrap(findView(Button.self, in: item.customView))
+                XCTAssertEqual(button.configuration != nil, enabled != false)
+                XCTAssertTrue(item.hidesSharedBackground, "A custom button must not receive a second glass background")
+            }
+        }
+    }
+
     func test_titledImage_keepsLogoAndCaptionInsideBarAfterUpdates() throws {
         let sut = try makeLiveHeader()
         let logo = UIGraphicsImageRenderer(size: CGSize(width: 32, height: 32)).image { context in

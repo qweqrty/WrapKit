@@ -401,6 +401,22 @@ private final class TextOutputCatalogPresenter: LifeCycleViewOutput {
                 lineSpacing: 8,
                 trailingImage: ImageFactory.systemImage(named: "hand.tap.fill"),
                 trailingImageBounds: .init(x: 4, y: -2, width: 18, height: 18)
+            ),
+            .init(
+                text: "\nPrice: ",
+                color: .secondaryLabel,
+                font: .systemFont(ofSize: 16)
+            ),
+            .init(
+                text: "175 USD",
+                color: .secondaryLabel,
+                font: .systemFont(ofSize: 16),
+                strikethroughStyle: .single
+            ),
+            .init(
+                text: " 35 USD",
+                color: .label,
+                font: .systemFont(ofSize: 16, weight: .semibold)
             )
         ]
     }
@@ -422,6 +438,25 @@ private final class TextOutputCatalogPresenter: LifeCycleViewOutput {
                 color: .systemRed,
                 font: .systemFont(ofSize: 16),
                 underlineStyle: .double
+            ),
+            .init(
+                text: " · strikethrough",
+                color: .systemTeal,
+                font: .systemFont(ofSize: 16),
+                strikethroughStyle: .single
+            ),
+            .init(
+                text: " · double dashed strikethrough by word",
+                color: .systemPink,
+                font: .systemFont(ofSize: 16),
+                strikethroughStyle: [.double, .patternDash, .byWord]
+            ),
+            .init(
+                text: " · underline and thick strikethrough",
+                color: .systemBrown,
+                font: .systemFont(ofSize: 16),
+                underlineStyle: .single,
+                strikethroughStyle: .thick
             ),
             .init(
                 text: " · another tappable fragment",

@@ -178,6 +178,7 @@ public final class NavigationItemHeaderOutput: HeaderOutput {
     #endif
     private weak var item: UINavigationItem?
     private(set) var hidden = false
+    private var syncedNavigationItemTitle: String?
 
     private let titles = VKeyValueFieldView(
         keyLabel: Label(font: .systemFont(ofSize: 18), textColor: .black, textAlignment: .center, numberOfLines: 1),
@@ -305,7 +306,10 @@ public final class NavigationItemHeaderOutput: HeaderOutput {
 
     public func display(model: HeaderPresentableModel?) {
         display(isHidden: model == nil)
-        guard let model else { return }
+        guard let model else {
+            syncNavigationItemTitle(nil)
+            return
+        }
         isUpdatingModel = true
         defer {
             isUpdatingModel = false
@@ -365,20 +369,31 @@ public final class NavigationItemHeaderOutput: HeaderOutput {
     public func display(centerView: HeaderPresentableModel.CenterView?) {
         switch centerView {
         case .keyValue(let pair):
+            syncNavigationItemTitle(pair.first?.model?.text)
             titles.display(model: pair)
             item?.titleView = pair.first == nil && pair.second == nil ? nil : titleHost
         case .titledImage(let pair):
+            syncNavigationItemTitle(pair.second?.model?.text)
             titledImage.closingTitleVFieldView.keyLabel.display(model: pair.second)
             titledImage.contentView.contentView.display(model: pair.first)
             // In compact bars, shrink the logo before clipping the caption.
             titledImage.contentView.contentView.anchoredConstraints?.height?.priority = .defaultHigh
             item?.titleView = pair.first == nil && pair.second == nil ? nil : imageHost
         case nil:
+            syncNavigationItemTitle(nil)
             item?.titleView = nil
         }
         // An empty custom title suppresses fallback to the controller's title.
         if item?.titleView == nil { item?.titleView = UIView() }
         invalidateLayout()
+    }
+
+    private func syncNavigationItemTitle(_ title: String?) {
+        guard let item else { return }
+        let currentTitle = item.title
+        guard currentTitle?.isEmpty ?? true || currentTitle == syncedNavigationItemTitle else { return }
+        item.title = title
+        syncedNavigationItemTitle = title
     }
 
     public func display(leadingCard: CardViewPresentableModel?) {
@@ -520,6 +535,16 @@ public final class NavigationItemHeaderOutput: HeaderOutput {
             barItem = native
         } else {
             let custom = customButton(at: index)
+            #if os(iOS)
+            if #available(iOS 26, *) {
+                if button.isGlassEffectEnabled == false {
+                    custom.configuration = nil
+                } else if custom.configuration == nil {
+                    custom.configuration = .glass()
+                    custom.configuration?.cornerStyle = .capsule
+                }
+            }
+            #endif
             custom.display(model: button)
             if let color = buttonTitleColors[index] ?? primeColor {
                 custom.textColor = color
@@ -548,7 +573,11 @@ public final class NavigationItemHeaderOutput: HeaderOutput {
         barItem.title = button.title ?? button.accessibility?.label
         barItem.accessibilityIdentifier = button.accessibilityIdentifier
         #if os(iOS)
-        if #available(iOS 26, *) { barItem.sharesBackground = false }
+        if #available(iOS 26, *) {
+            barItem.sharesBackground = false
+            // Custom controls supply their own glass; native items can opt out.
+            barItem.hidesSharedBackground = barItem.customView != nil || button.isGlassEffectEnabled == false
+        }
         #endif
         #if os(iOS) && compiler(>=6.4)
         if #available(iOS 27.1, *) {

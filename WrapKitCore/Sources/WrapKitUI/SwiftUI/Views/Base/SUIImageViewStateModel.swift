@@ -385,7 +385,7 @@ public final class SUIImageViewStateModel: ObservableObject {
     private func apply(size: CGSize, outputSequence: UInt64) {
         guard outputSequence >= latestSizeOutputSequence else { return }
         latestSizeOutputSequence = outputSequence
-        model = model.updated(size: size)
+        model = model.updated(layout: .fixed(size))
         persistReplayCheckpoint()
     }
 
