@@ -8,14 +8,14 @@ import WrapKit
 enum CommonToastCatalogSceneFactory {
     static func make(
         onBack: @escaping () -> Void,
-        selectionFlow: any SelectionFlow
+        optionPicker: any CatalogOptionPicking
     ) -> AnyView {
         #if !os(tvOS) && !os(watchOS)
         let chrome = CatalogChromeAdapters()
         let adapters = CommonToastCatalogAdapters()
         let presenter = CommonToastCatalogPresenter(
             onBack: onBack,
-            selectionFlow: selectionFlow,
+            optionPicker: optionPicker,
             switchStyle: ControlsCatalogViewConfiguration.appleDefault.switchStyle
         )
 
@@ -82,7 +82,7 @@ private final class CommonToastCatalogPresenter: LifeCycleViewOutput {
     var settingOutputs: [ToastCatalogSetting: CardViewOutput] = [:]
 
     private let onBack: () -> Void
-    private let selectionFlow: any SelectionFlow
+    private let optionPicker: any CatalogOptionPicking
     private let switchStyle: SwitchControlPresentableModel.Style
     private var didLoad = false
     private var selectedKind: ToastKind = .success
@@ -109,11 +109,11 @@ private final class CommonToastCatalogPresenter: LifeCycleViewOutput {
 
     init(
         onBack: @escaping () -> Void,
-        selectionFlow: any SelectionFlow,
+        optionPicker: any CatalogOptionPicking,
         switchStyle: SwitchControlPresentableModel.Style
     ) {
         self.onBack = onBack
-        self.selectionFlow = selectionFlow
+        self.optionPicker = optionPicker
         self.switchStyle = switchStyle
     }
 
@@ -162,31 +162,22 @@ private extension CommonToastCatalogPresenter {
     }
 
     func showKindSelection() {
-        selectionFlow.showSelection(model: .init(
+        optionPicker.pickOption(
             title: "Toast type",
-            isMultipleSelectionEnabled: false,
-            items: ToastKind.allCases.map { kind in
+            options: ToastKind.allCases.map { kind in
                 .init(
                     id: kind.rawValue,
                     title: kind.title,
-                    isSelected: kind == selectedKind,
-                    configuration: CatalogSelectionAppearance.cell
+                    isSelected: kind == selectedKind
                 )
             },
-            callback: { [weak self] result in
-                guard
-                    case let .singleSelection(item) = result,
-                    let kind = ToastKind(rawValue: item.id)
-                else { return }
+            onSelect: { [weak self] id in
+                guard let kind = ToastKind(rawValue: id) else { return }
                 self?.selectedKind = kind
                 self?.configureKindRow()
                 self?.showStatus("Toast type: \(kind.title)")
-            },
-            emptyViewPresentableModel: .init(
-                title: .text("No toast types"),
-                subTitle: .text("There are no available display variants.")
-            )
-        ))
+            }
+        )
     }
 
     func configureSettingRows() {

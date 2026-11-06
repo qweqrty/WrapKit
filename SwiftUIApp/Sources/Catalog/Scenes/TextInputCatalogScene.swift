@@ -5,13 +5,13 @@ import WrapKit
 enum TextInputCatalogSceneFactory {
     static func make(
         onBack: @escaping () -> Void,
-        selectionFlow: any SelectionFlow
+        optionPicker: any CatalogOptionPicking
     ) -> AnyView {
         #if !os(tvOS) && !os(macOS) && !os(watchOS)
         let adapters = TextInputCatalogSceneAdapters()
         let presenter = TextInputCatalogPresenter(
             onBack: onBack,
-            selectionFlow: selectionFlow
+            optionPicker: optionPicker
         )
 
         presenter.headerOutput = adapters.chrome.header.weakReferenced.mainQueueDispatched
@@ -79,7 +79,7 @@ private final class TextInputCatalogPresenter: LifeCycleViewOutput {
     var statusOutput: TextOutput?
 
     private let onBack: () -> Void
-    private let selectionFlow: any SelectionFlow
+    private let optionPicker: any CatalogOptionPicking
     private var didLoad = false
     private var settingStates = Dictionary(
         uniqueKeysWithValues: TextInputCatalogSetting.allCases.map { ($0, false) }
@@ -101,10 +101,10 @@ private final class TextInputCatalogPresenter: LifeCycleViewOutput {
 
     init(
         onBack: @escaping () -> Void,
-        selectionFlow: any SelectionFlow
+        optionPicker: any CatalogOptionPicking
     ) {
         self.onBack = onBack
-        self.selectionFlow = selectionFlow
+        self.optionPicker = optionPicker
     }
 
     func viewDidLoad() {
@@ -294,25 +294,20 @@ private extension TextInputCatalogPresenter {
     }
 
     func showMaskSelection() {
-        let items = TextInputMaskPreset.allCases.map { preset in
-            SelectionType.SelectionCellPresentableModel(
-                id: preset.rawValue,
-                title: preset.title,
-                isSelected: preset == maskPreset,
-                trailingTitle: preset.example,
-                configuration: CatalogSelectionAppearance.cell
-            )
-        }
-        selectionFlow.showSelection(model: .init(
+        optionPicker.pickOption(
             title: "Choose a mask",
-            isMultipleSelectionEnabled: false,
-            items: items,
-            callback: { [weak self] result in
-                guard case let .singleSelection(item)? = result,
-                      let preset = TextInputMaskPreset(rawValue: item.id) else { return }
+            options: TextInputMaskPreset.allCases.map { preset in
+                .init(
+                    id: preset.rawValue,
+                    title: "\(preset.title) — \(preset.example)",
+                    isSelected: preset == maskPreset
+                )
+            },
+            onSelect: { [weak self] id in
+                guard let preset = TextInputMaskPreset(rawValue: id) else { return }
                 self?.selectMaskPreset(preset)
             }
-        ))
+        )
     }
 
     func selectMaskPreset(_ preset: TextInputMaskPreset) {

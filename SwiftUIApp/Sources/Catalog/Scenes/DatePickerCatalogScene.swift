@@ -5,13 +5,13 @@ import WrapKit
 enum DatePickerCatalogSceneFactory {
     static func make(
         onBack: @escaping () -> Void,
-        selectionFlow: any SelectionFlow
+        optionPicker: any CatalogOptionPicking
     ) -> AnyView {
         #if !os(macOS) && !os(watchOS) && !os(tvOS)
         let adapters = DatePickerCatalogSceneAdapters()
         let presenter = DatePickerCatalogPresenter(
             onBack: onBack,
-            selectionFlow: selectionFlow
+            optionPicker: optionPicker
         )
 
         presenter.headerOutput = adapters.chrome.header.weakReferenced.mainQueueDispatched
@@ -60,7 +60,7 @@ private final class DatePickerCatalogPresenter: LifeCycleViewOutput {
     var statusOutput: TextOutput?
 
     private let onBack: () -> Void
-    private let selectionFlow: any SelectionFlow
+    private let optionPicker: any CatalogOptionPicking
     private var didLoad = false
     private var selectedDate = Date()
     private var selectedMode: DatePickerCatalogMode = .date
@@ -71,10 +71,10 @@ private final class DatePickerCatalogPresenter: LifeCycleViewOutput {
 
     init(
         onBack: @escaping () -> Void,
-        selectionFlow: any SelectionFlow
+        optionPicker: any CatalogOptionPicking
     ) {
         self.onBack = onBack
-        self.selectionFlow = selectionFlow
+        self.optionPicker = optionPicker
     }
 
     func viewDidLoad() {
@@ -120,24 +120,20 @@ private extension DatePickerCatalogPresenter {
     }
 
     func showModeSelection() {
-        selectionFlow.showSelection(model: .init(
+        optionPicker.pickOption(
             title: "Choose a date picker mode",
-            isMultipleSelectionEnabled: false,
-            items: DatePickerCatalogMode.allCases.map { mode in
+            options: DatePickerCatalogMode.allCases.map { mode in
                 .init(
                     id: mode.rawValue,
                     title: mode.title,
-                    isSelected: mode == selectedMode,
-                    configuration: CatalogSelectionAppearance.cell
+                    isSelected: mode == selectedMode
                 )
             },
-            callback: { [weak self] result in
-                guard case let .singleSelection(item)? = result,
-                      let mode = DatePickerCatalogMode(rawValue: item.id)
-                else { return }
+            onSelect: { [weak self] id in
+                guard let mode = DatePickerCatalogMode(rawValue: id) else { return }
                 self?.selectMode(mode)
             }
-        ))
+        )
     }
 
     func selectMode(_ mode: DatePickerCatalogMode) {

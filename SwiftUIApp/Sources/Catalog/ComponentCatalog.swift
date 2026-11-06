@@ -44,7 +44,6 @@ enum CatalogOutputDestination: CaseIterable {
     case tableOutput
     case keyValueFieldViewOutput
     case headerOutput
-    case selectionFlow
 
     var id: String {
         switch self {
@@ -70,7 +69,6 @@ enum CatalogOutputDestination: CaseIterable {
         case .tableOutput: return "layout.tableOutput"
         case .keyValueFieldViewOutput: return "layout.keyValueFieldViewOutput"
         case .headerOutput: return "navigation.header"
-        case .selectionFlow: return "flow.selection"
         }
     }
 
@@ -98,7 +96,6 @@ enum CatalogOutputDestination: CaseIterable {
         case .tableOutput: return "TableOutput"
         case .keyValueFieldViewOutput: return "KeyValueFieldViewOutput"
         case .headerOutput: return "HeaderOutput"
-        case .selectionFlow: return "SelectionFlow"
         }
     }
 
@@ -211,7 +208,7 @@ private final class ComponentCatalogPresenter: LifeCycleViewOutput {
 }
 
 struct ComponentCatalogSceneFactory {
-    let selectionFlow: any SelectionFlow
+    let optionPicker: any CatalogOptionPicking
 
     func makeScene(
         for output: CatalogOutputDestination,
@@ -221,7 +218,7 @@ struct ComponentCatalogSceneFactory {
         case .textOutput:
             return TextOutputCatalogSceneFactory.make(
                 onBack: onBack,
-                selectionFlow: selectionFlow
+                optionPicker: optionPicker
             )
         case .imageViewOutput: return ImageViewOutputCatalogSceneFactory.make(onBack: onBack)
         case .cardViewOutput: return CardViewOutputCatalogSceneFactory.make(onBack: onBack)
@@ -230,7 +227,7 @@ struct ComponentCatalogSceneFactory {
         case .emptyViewOutput:
             return EmptyViewOutputCatalogSceneFactory.make(
                 onBack: onBack,
-                selectionFlow: selectionFlow
+                optionPicker: optionPicker
             )
         case .buttonOutput: return ButtonCatalogSceneFactory.make(onBack: onBack)
         case .switchControlOutput: return SwitchControlCatalogSceneFactory.make(onBack: onBack)
@@ -240,65 +237,47 @@ struct ComponentCatalogSceneFactory {
         case .lottieViewOutput:
             return LottieCatalogSceneFactory.make(
                 onBack: onBack,
-                selectionFlow: selectionFlow
+                optionPicker: optionPicker
             )
         case .refreshControlOutput: return RefreshControlCatalogSceneFactory.make(onBack: onBack)
         case .commonToastOutput:
             return CommonToastCatalogSceneFactory.make(
                 onBack: onBack,
-                selectionFlow: selectionFlow
+                optionPicker: optionPicker
             )
         case .searchBarOutput: return SearchBarCatalogSceneFactory.make(onBack: onBack)
         case .textInputOutput:
             return TextInputCatalogSceneFactory.make(
                 onBack: onBack,
-                selectionFlow: selectionFlow
+                optionPicker: optionPicker
             )
         case .datePickerViewOutput:
             return DatePickerCatalogSceneFactory.make(
                 onBack: onBack,
-                selectionFlow: selectionFlow
+                optionPicker: optionPicker
             )
         case .pickerViewOutput: return PickerCatalogSceneFactory.make(onBack: onBack)
         case .stackViewOutput:
             return StackViewCatalogSceneFactory.make(
                 onBack: onBack,
-                selectionFlow: selectionFlow
+                optionPicker: optionPicker
             )
         case .tableOutput: return TableCatalogSceneFactory.make(onBack: onBack)
         case .keyValueFieldViewOutput: return KeyValueFieldCatalogSceneFactory.make(onBack: onBack)
         case .headerOutput: return HeaderCatalogSceneFactory.make(onBack: onBack)
-        case .selectionFlow:
-            return SelectionFlowCatalogSceneFactory.make(
-                onBack: onBack,
-                selectionFlow: selectionFlow
-            )
         }
     }
 }
 
-#if os(iOS)
-typealias CatalogSelectionFlow = SelectionFlowSwiftUI
-#else
-final class CatalogSelectionFlow: ObservableObject, SelectionFlow {
-    init(configuration: SelectionFlow.Model) {}
-
-    func showSelection(model: SelectionPresenterModel) {}
-    func showSelection<Request, Response>(model: ServicedSelectionModel<Request, Response>) {}
-    func close(with result: SelectionType?) {}
-}
-#endif
-
 struct ComponentCatalogFactory {
     func makeCatalog(
-        selectionFlow injectedSelectionFlow: CatalogSelectionFlow? = nil,
         initialDestination: CatalogOutputDestination? = nil
     ) -> AnyView {
         let outputs = CatalogOutputData.outputs
         let adapters = ComponentCatalogAdapters(outputs: outputs)
-        let selectionFlow = injectedSelectionFlow ?? CatalogSelectionFlow(configuration: CatalogSelectionAppearance.configuration)
+        let optionPicker = CatalogOptionPicker()
         let flow = ComponentCatalogFlow(factory: ComponentCatalogSceneFactory(
-            selectionFlow: selectionFlow.mainQueueDispatched
+            optionPicker: optionPicker
         ))
         let presenter = ComponentCatalogPresenter(outputs: outputs, flow: flow)
 
@@ -321,7 +300,7 @@ struct ComponentCatalogFactory {
                 presenter: presenter,
                 flow: flow,
                 adapters: adapters,
-                selectionFlow: selectionFlow
+                optionPicker: optionPicker
             )
         )
     }
@@ -331,28 +310,24 @@ private struct ComponentCatalogView: View {
     private let presenter: ComponentCatalogPresenter
     private let adapters: ComponentCatalogAdapters
     @StateObject private var flow: ComponentCatalogFlow
-    @StateObject private var selectionFlow: CatalogSelectionFlow
+    @StateObject private var optionPicker: CatalogOptionPicker
 
     init(
         presenter: ComponentCatalogPresenter,
         flow: ComponentCatalogFlow,
         adapters: ComponentCatalogAdapters,
-        selectionFlow: CatalogSelectionFlow
+        optionPicker: CatalogOptionPicker
     ) {
         self.presenter = presenter
         _flow = StateObject(wrappedValue: flow)
-        _selectionFlow = StateObject(wrappedValue: selectionFlow)
+        _optionPicker = StateObject(wrappedValue: optionPicker)
         self.adapters = adapters
     }
 
     var body: some View {
-        #if os(iOS)
-        SUISelectionSheetHost(flow: selectionFlow) {
+        CatalogOptionPickerHost(picker: optionPicker) {
             catalog
         }
-        #else
-        catalog
-        #endif
     }
 
     private var catalog: some View {

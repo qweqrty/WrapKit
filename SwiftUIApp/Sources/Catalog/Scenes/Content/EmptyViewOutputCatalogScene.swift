@@ -5,14 +5,14 @@ import WrapKit
 enum EmptyViewOutputCatalogSceneFactory {
     static func make(
         onBack: @escaping () -> Void,
-        selectionFlow: any SelectionFlow
+        optionPicker: any CatalogOptionPicking
     ) -> AnyView {
         #if !os(tvOS)
         let adapters = EmptyViewOutputCatalogAdapters()
         let chrome = CatalogChromeAdapters()
         let presenter = EmptyViewOutputCatalogPresenter(
             onBack: onBack,
-            selectionFlow: selectionFlow
+            optionPicker: optionPicker
         )
 
         presenter.headerOutput = chrome.header.weakReferenced.mainQueueDispatched
@@ -45,7 +45,7 @@ private final class EmptyViewOutputCatalogPresenter: LifeCycleViewOutput {
     var settingOutputs: [EmptyCatalogSetting: CardViewOutput] = [:]
 
     private let onBack: () -> Void
-    private let selectionFlow: any SelectionFlow
+    private let optionPicker: any CatalogOptionPicking
     private var didLoad = false
     private var preset: EmptyCatalogPreset = .noResults
     private var settingStates = Dictionary(
@@ -56,10 +56,10 @@ private final class EmptyViewOutputCatalogPresenter: LifeCycleViewOutput {
 
     init(
         onBack: @escaping () -> Void,
-        selectionFlow: any SelectionFlow
+        optionPicker: any CatalogOptionPicking
     ) {
         self.onBack = onBack
-        self.selectionFlow = selectionFlow
+        self.optionPicker = optionPicker
     }
 
     func viewDidLoad() {
@@ -98,28 +98,20 @@ private final class EmptyViewOutputCatalogPresenter: LifeCycleViewOutput {
     }
 
     private func showPresetSelection() {
-        selectionFlow.showSelection(model: .init(
+        optionPicker.pickOption(
             title: "Empty state example",
-            isMultipleSelectionEnabled: false,
-            items: EmptyCatalogPreset.allCases.map { preset in
+            options: EmptyCatalogPreset.allCases.map { preset in
                 .init(
                     id: preset.rawValue,
                     title: preset.title,
-                    isSelected: preset == self.preset,
-                    configuration: CatalogSelectionAppearance.cell
+                    isSelected: preset == self.preset
                 )
             },
-            callback: { [weak self] result in
-                guard case let .singleSelection(item) = result,
-                      let preset = EmptyCatalogPreset(rawValue: item.id)
-                else { return }
+            onSelect: { [weak self] id in
+                guard let preset = EmptyCatalogPreset(rawValue: id) else { return }
                 self?.show(preset)
-            },
-            emptyViewPresentableModel: .init(
-                title: .text("No examples"),
-                subTitle: .text("EmptyViewOutput has no available presets.")
-            )
-        ))
+            }
+        )
     }
 
     private var currentTitle: TextOutputPresentableModel {

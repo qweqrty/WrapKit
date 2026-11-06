@@ -337,7 +337,7 @@ private final class StackViewCatalogPresenter: LifeCycleViewOutput {
     var settingOutputs: [StackCatalogSetting: CardViewOutput] = [:]
 
     private let onBack: () -> Void
-    private let selectionFlow: any SelectionFlow
+    private let optionPicker: any CatalogOptionPicking
     private var usesVerticalAxis = false
     private var usesWideSpacing = false
     private var usesWideMargins = false
@@ -348,10 +348,10 @@ private final class StackViewCatalogPresenter: LifeCycleViewOutput {
 
     init(
         onBack: @escaping () -> Void,
-        selectionFlow: any SelectionFlow
+        optionPicker: any CatalogOptionPicking
     ) {
         self.onBack = onBack
-        self.selectionFlow = selectionFlow
+        self.optionPicker = optionPicker
     }
 
     func viewDidLoad() {
@@ -437,49 +437,43 @@ private final class StackViewCatalogPresenter: LifeCycleViewOutput {
     }
 
     private func showDistributionSelection() {
-        selectionFlow.showSelection(model: .init(
+        optionPicker.pickOption(
             title: "Choose distribution",
-            isMultipleSelectionEnabled: false,
-            items: StackDistributionPreset.allCases.map { preset in
+            options: StackDistributionPreset.allCases.map { preset in
                 .init(
                     id: preset.rawValue,
                     title: preset.title,
-                    isSelected: preset == distribution,
-                    configuration: CatalogSelectionAppearance.cell
+                    isSelected: preset == distribution
                 )
             },
-            callback: { [weak self] result in
-                guard case let .singleSelection(item)? = result,
-                      let preset = StackDistributionPreset(rawValue: item.id) else { return }
+            onSelect: { [weak self] id in
+                guard let preset = StackDistributionPreset(rawValue: id) else { return }
                 self?.distribution = preset
                 self?.stackOutput?.display(distribution: preset.value)
                 self?.displayDistributionSelection()
                 self?.showStatus("Distribution: \(preset.title)")
             }
-        ))
+        )
     }
 
     private func showAlignmentSelection() {
-        selectionFlow.showSelection(model: .init(
+        optionPicker.pickOption(
             title: "Choose alignment",
-            isMultipleSelectionEnabled: false,
-            items: StackAlignmentPreset.allCases.map { preset in
+            options: StackAlignmentPreset.allCases.map { preset in
                 .init(
                     id: preset.rawValue,
                     title: preset.title,
-                    isSelected: preset == alignment,
-                    configuration: CatalogSelectionAppearance.cell
+                    isSelected: preset == alignment
                 )
             },
-            callback: { [weak self] result in
-                guard case let .singleSelection(item)? = result,
-                      let preset = StackAlignmentPreset(rawValue: item.id) else { return }
+            onSelect: { [weak self] id in
+                guard let preset = StackAlignmentPreset(rawValue: id) else { return }
                 self?.alignment = preset
                 self?.stackOutput?.display(alignment: preset.value)
                 self?.displayAlignmentSelection()
                 self?.showStatus("Alignment: \(preset.title)")
             }
-        ))
+        )
     }
 
     private func displayModel() {
@@ -510,14 +504,14 @@ private final class StackViewCatalogPresenter: LifeCycleViewOutput {
 enum StackViewCatalogSceneFactory {
     static func make(
         onBack: @escaping () -> Void,
-        selectionFlow: any SelectionFlow
+        optionPicker: any CatalogOptionPicking
     ) -> AnyView {
         #if !os(tvOS)
         let adapters = StackViewCatalogAdapters()
         let chrome = CatalogChromeAdapters()
         let presenter = StackViewCatalogPresenter(
             onBack: onBack,
-            selectionFlow: selectionFlow
+            optionPicker: optionPicker
         )
 
         presenter.headerOutput = chrome.header.weakReferenced.mainQueueDispatched

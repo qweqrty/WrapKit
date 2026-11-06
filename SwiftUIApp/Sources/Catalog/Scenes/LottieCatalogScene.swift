@@ -38,14 +38,14 @@ private enum LottieLoopPreset: String, CaseIterable, Hashable {
 enum LottieCatalogSceneFactory {
     static func make(
         onBack: @escaping () -> Void,
-        selectionFlow: any SelectionFlow
+        optionPicker: any CatalogOptionPicking
     ) -> AnyView {
         #if !os(tvOS) && canImport(Lottie)
         let chrome = CatalogChromeAdapters()
         let adapters = LottieCatalogAdapters()
         let presenter = LottieCatalogPresenter(
             onBack: onBack,
-            selectionFlow: selectionFlow,
+            optionPicker: optionPicker,
             animationBundle: .main
         )
 
@@ -96,7 +96,7 @@ private final class LottieCatalogPresenter: LifeCycleViewOutput {
     var settingOutputs: [LottieCatalogSetting: CardViewOutput] = [:]
 
     private let onBack: () -> Void
-    private let selectionFlow: any SelectionFlow
+    private let optionPicker: any CatalogOptionPicking
     private let animationBundle: Bundle
     private var didLoad = false
     private var isFastPlaybackEnabled = false
@@ -104,11 +104,11 @@ private final class LottieCatalogPresenter: LifeCycleViewOutput {
 
     init(
         onBack: @escaping () -> Void,
-        selectionFlow: any SelectionFlow,
+        optionPicker: any CatalogOptionPicking,
         animationBundle: Bundle
     ) {
         self.onBack = onBack
-        self.selectionFlow = selectionFlow
+        self.optionPicker = optionPicker
         self.animationBundle = animationBundle
     }
 
@@ -172,26 +172,23 @@ private extension LottieCatalogPresenter {
     }
 
     func showLoopSelection() {
-        selectionFlow.showSelection(model: .init(
+        optionPicker.pickOption(
             title: "Choose a loop mode",
-            isMultipleSelectionEnabled: false,
-            items: LottieLoopPreset.allCases.map { preset in
+            options: LottieLoopPreset.allCases.map { preset in
                 .init(
                     id: preset.rawValue,
                     title: preset.title,
-                    isSelected: preset == loopPreset,
-                    configuration: CatalogSelectionAppearance.cell
+                    isSelected: preset == loopPreset
                 )
             },
-            callback: { [weak self] result in
-                guard case let .singleSelection(item)? = result,
-                      let preset = LottieLoopPreset(rawValue: item.id) else { return }
+            onSelect: { [weak self] id in
+                guard let preset = LottieLoopPreset(rawValue: id) else { return }
                 self?.loopPreset = preset
                 self?.configureLoopSelection()
                 self?.displayAnimation()
                 self?.showStatus("Loop mode: \(preset.title)")
             }
-        ))
+        )
     }
 
     func settingValue(for setting: LottieCatalogSetting) -> String {

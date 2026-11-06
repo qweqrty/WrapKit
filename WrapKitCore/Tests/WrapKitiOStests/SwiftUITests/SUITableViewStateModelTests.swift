@@ -157,18 +157,14 @@ final class SUITableViewStateModelTests: XCTestCase {
     }
 
     func test_rowIdentity_fromAccessibilityIdentifierSurvivesMutableCellHash() {
-        let selection = SelectionType.SelectionCellPresentableModel(
-            id: "compact",
-            title: "Compact",
-            configuration: selectionCellConfiguration
-        )
+        let cell = MutableHashCell(id: "compact")
         let before = suiTableIdentifiedCells([
-            CellModel(accessibilityIdentifier: selection.id, cell: selection)
+            CellModel(accessibilityIdentifier: cell.id, cell: cell)
         ])
 
-        selection.isSelected.set(model: true)
+        cell.isSelected = true
         let after = suiTableIdentifiedCells([
-            CellModel(accessibilityIdentifier: selection.id, cell: selection)
+            CellModel(accessibilityIdentifier: cell.id, cell: cell)
         ])
 
         XCTAssertEqual(before[0].id, after[0].id)
@@ -886,14 +882,22 @@ final class SUITableViewStateModelTests: XCTestCase {
         TableOutputSwiftUIAdapter<String, Void, Void>()
     }
 
-    private var selectionCellConfiguration: SelectionConfiguration.Cell {
-        .init(
-            titleFont: .systemFont(ofSize: 16),
-            trailingFont: .systemFont(ofSize: 14),
-            titleColor: .label,
-            trailingColor: .secondaryLabel,
-            lineColor: .separator
-        )
+    private final class MutableHashCell: Hashable {
+        let id: String
+        var isSelected = false
+
+        init(id: String) {
+            self.id = id
+        }
+
+        static func == (lhs: MutableHashCell, rhs: MutableHashCell) -> Bool {
+            lhs.id == rhs.id && lhs.isSelected == rhs.isSelected
+        }
+
+        func hash(into hasher: inout Hasher) {
+            hasher.combine(id)
+            hasher.combine(isSelected)
+        }
     }
 
     private func makeSections(_ cells: [String]) -> [TableSection<Void, String, Void>] {

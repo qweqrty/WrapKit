@@ -4,14 +4,14 @@ import WrapKit
 enum TextOutputCatalogSceneFactory {
     static func make(
         onBack: @escaping () -> Void,
-        selectionFlow: any SelectionFlow
+        optionPicker: any CatalogOptionPicking
     ) -> AnyView {
         #if !os(tvOS)
         let adapters = TextOutputCatalogAdapters()
         let chrome = CatalogChromeAdapters()
         let presenter = TextOutputCatalogPresenter(
             onBack: onBack,
-            selectionFlow: selectionFlow
+            optionPicker: optionPicker
         )
 
         presenter.headerOutput = chrome.header.weakReferenced.mainQueueDispatched
@@ -50,7 +50,7 @@ private final class TextOutputCatalogPresenter: LifeCycleViewOutput {
     var actionOutputs: [TextOutputCatalogAction: ButtonOutput] = [:]
 
     private let onBack: () -> Void
-    private let selectionFlow: any SelectionFlow
+    private let optionPicker: any CatalogOptionPicking
     private var didLoad = false
     private var mode: LabelCatalogMode = .attributes
     private var attributes: [TextAttributes] = []
@@ -62,10 +62,10 @@ private final class TextOutputCatalogPresenter: LifeCycleViewOutput {
 
     init(
         onBack: @escaping () -> Void,
-        selectionFlow: any SelectionFlow
+        optionPicker: any CatalogOptionPicking
     ) {
         self.onBack = onBack
-        self.selectionFlow = selectionFlow
+        self.optionPicker = optionPicker
     }
 
     func viewDidLoad() {
@@ -121,28 +121,20 @@ private final class TextOutputCatalogPresenter: LifeCycleViewOutput {
     }
 
     private func showModeSelection() {
-        selectionFlow.showSelection(model: .init(
+        optionPicker.pickOption(
             title: "TextOutput display mode",
-            isMultipleSelectionEnabled: false,
-            items: LabelCatalogMode.allCases.map { mode in
+            options: LabelCatalogMode.allCases.map { mode in
                 .init(
                     id: mode.rawValue,
                     title: mode.title,
-                    isSelected: mode == self.mode,
-                    configuration: CatalogSelectionAppearance.cell
+                    isSelected: mode == self.mode
                 )
             },
-            callback: { [weak self] result in
-                guard case let .singleSelection(item) = result,
-                      let mode = LabelCatalogMode(rawValue: item.id)
-                else { return }
+            onSelect: { [weak self] id in
+                guard let mode = LabelCatalogMode(rawValue: id) else { return }
                 self?.display(mode)
-            },
-            emptyViewPresentableModel: .init(
-                title: .text("No display modes"),
-                subTitle: .text("TextOutput has no available examples.")
-            )
-        ))
+            }
+        )
     }
 
     private func display(_ mode: LabelCatalogMode) {
