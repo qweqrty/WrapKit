@@ -24,8 +24,13 @@ public protocol ApplicationLifecycleOutput: AnyObject {
     func applicationDidChange(userInterfaceStyle: UserInterfaceStyle)
 }
 
-#if canImport(UIKit)
+#if canImport(UIKit) && !os(watchOS)
 import UIKit
+
+@MainActor
+public protocol NavigationBarStyleProviding {
+    var navigationBarStyle: HeaderPresentableModel.Style { get }
+}
 
 open class ViewController<ContentView: UIView>: UIViewController, LifeCycleViewOutput, ApplicationLifecycleOutput {
     private let LifeCycleViewOutput: LifeCycleViewOutput?
@@ -54,8 +59,10 @@ open class ViewController<ContentView: UIView>: UIViewController, LifeCycleViewO
     // MARK: - View Controller Lifecycle
     open override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        #if !os(tvOS)
         interactivePopGestureRecognizer = navigationController?.interactivePopGestureRecognizer?.delegate
         navigationController?.interactivePopGestureRecognizer?.delegate = nil
+        #endif
         activateNavigationHeader(animated: animated)
         LifeCycleViewOutput?.viewWillAppear()
         performInitialLayoutPassIfNeeded()
@@ -63,7 +70,9 @@ open class ViewController<ContentView: UIView>: UIViewController, LifeCycleViewO
 
     open override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
+        #if !os(tvOS)
         navigationController?.interactivePopGestureRecognizer?.delegate = interactivePopGestureRecognizer
+        #endif
         LifeCycleViewOutput?.viewWillDisappear()
     }
     
@@ -87,6 +96,9 @@ open class ViewController<ContentView: UIView>: UIViewController, LifeCycleViewO
     
     open override func loadView() {
         self.view = contentView
+        if let styleProvider = contentView as? any NavigationBarStyleProviding {
+            headerOutput.display(style: styleProvider.navigationBarStyle)
+        }
     }
 
     private func performInitialLayoutPassIfNeeded() {

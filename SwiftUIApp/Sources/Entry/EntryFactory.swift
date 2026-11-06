@@ -7,31 +7,22 @@
 
 import Foundation
 import SwiftUI
-import WrapKit
-import Combine
 
 public protocol EntryViewFactory<T> {
     associatedtype T
-    func makeSplashScreen() -> T
+    func makeCatalogScreen() -> T
 }
 
 struct EntryViewSwiftUIFactory: EntryViewFactory {
     typealias T = AnyView
+
+    let initialDestination: CatalogOutputDestination?
+
+    init(initialDestination: CatalogOutputDestination? = nil) {
+        self.initialDestination = initialDestination
+    }
     
-    func makeSplashScreen() -> AnyView {
-        let presenter = SplashPresenter()
-        let contentView = SplashContentView(
-            lifeCycleOutput: presenter,
-            applicationLifecycleOutput: presenter
-        )
-        presenter.textOutput = contentView
-            .adapter
-            .weakReferenced
-            .mainQueueDispatched
-        presenter.imageViewOutput = contentView
-            .imageViewAdapter
-            .weakReferenced
-            .mainQueueDispatched
-        return AnyView(contentView)
+    func makeCatalogScreen() -> AnyView {
+        ComponentCatalogFactory().makeCatalog(initialDestination: initialDestination)
     }
 }

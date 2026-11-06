@@ -5,7 +5,7 @@
 //  Created by Daniiar Erkinov on 17/4/25.
 //
 
-#if canImport(UIKit)
+#if canImport(UIKit) && !os(watchOS)
 import UIKit
 
 open class TableViewHeaderFooterView<ContentView: UIView>: UITableViewHeaderFooterView {

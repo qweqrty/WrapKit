@@ -42,7 +42,7 @@ public struct SearchBarPresentableModel {
     }
 }
 
-#if canImport(UIKit)
+#if canImport(UIKit) && !os(watchOS)
 import UIKit
 
 public final class SearchBar: ViewUIKit {
@@ -54,12 +54,16 @@ public final class SearchBar: ViewUIKit {
     
     private var modelGlassTintColor: UIColor?
     
+    /// `contentInsets` inset the complete row of side controls and text field.
+    /// The text field keeps managing its own internal text padding independently.
     public init(
         textfield: Textfield,
-        spacing: CGFloat = 8
+        spacing: CGFloat = 8,
+        contentInsets: EdgeInsets = .zero
     ) {
         self.textfield = textfield
         self.stackView.spacing = spacing
+        self.stackView.layoutMargins = contentInsets.asUIEdgeInsets
         
         super.init(frame: .zero)
 
@@ -114,6 +118,9 @@ public final class SearchBar: ViewUIKit {
 
 private extension SearchBar {
     func makeGlassEffectView() -> UIVisualEffectView? {
+        #if os(visionOS)
+        return nil
+        #else
         if #available(iOS 26, macOS 26, watchOS 26, tvOS 26, *), isLiquidGlassEnabled {
             let glassEffectView = UIVisualEffectView(effect: makeGlassEffect(tintColor: modelGlassTintColor))
             glassEffectView.cornerConfiguration = .capsule()
@@ -121,8 +128,10 @@ private extension SearchBar {
         } else {
             return nil
         }
+        #endif
     }
 
+    #if !os(visionOS)
     @available(iOS 26, macOS 26, watchOS 26, tvOS 26, *)
     func makeGlassEffect(tintColor: UIColor?) -> UIGlassEffect {
         let glassEffect = UIGlassEffect(style: .regular)
@@ -130,10 +139,11 @@ private extension SearchBar {
 //        glassEffect.isInteractive = true
         return glassEffect
     }
+    #endif
 
     func setupGlassTraitObserving() {
         guard glassEffectView != nil else { return }
-        if #available(iOS 17.0, *) {
+        if #available(iOS 17.0, tvOS 17.0, *) {
             registerForTraitChanges([UITraitUserInterfaceStyle.self]) { (searchBar: SearchBar, _) in
                 searchBar.applyGlassTint()
             }
@@ -141,11 +151,13 @@ private extension SearchBar {
     }
 
     func applyGlassTint() {
+        #if !os(visionOS)
         guard let glassEffectView else { return }
         if #available(iOS 26, macOS 26, watchOS 26, tvOS 26, *) {
             // UIVisualEffectView.effect объявлен как @NSCopying — вью хранит копию эффекта
             glassEffectView.effect = makeGlassEffect(tintColor: modelGlassTintColor)
         }
+        #endif
     }
 
     func updateGlassTint(_ color: UIColor?) {

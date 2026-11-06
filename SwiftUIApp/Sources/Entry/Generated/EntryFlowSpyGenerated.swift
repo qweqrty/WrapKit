@@ -23,19 +23,19 @@ public final class EntryFlowSpy: EntryFlow {
     public init() {}
 
     public enum Message: HashableWithReflection {
-        case showSplash
+        case showCatalog
     }
 
     public private(set) var messages: [Message] = []
 
     // MARK: - Captured values
-    public private(set) var capturedShowSplashCallCount = 0
+    public private(set) var capturedShowCatalogCallCount = 0
 
 
     // MARK: - EntryFlow methods
-    public func showSplash() {
-        capturedShowSplashCallCount += 1
-        messages.append(.showSplash)
+    public func showCatalog() {
+        capturedShowCatalogCallCount += 1
+        messages.append(.showCatalog)
     }
 
     // MARK: - Properties

@@ -5,7 +5,7 @@
 //  Created by Stas Lee on 5/8/23.
 //
 
-#if canImport(UIKit)
+#if canImport(UIKit) && !os(watchOS)
 import UIKit
 
 open class ScrollableContentView: UIScrollView {
@@ -42,7 +42,9 @@ extension ScrollableContentView {
     }
     
     private func setupUI() {
+        #if !os(visionOS)
         keyboardDismissMode = .onDrag
+        #endif
         showsVerticalScrollIndicator = false
         addSubview(contentView)
     }

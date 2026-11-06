@@ -74,8 +74,9 @@ final class NavigationBarUpdateSnapshotTests: XCTestCase {
             sut.output.display(primeTrailingImage: trailing)
             attach(sut.snapshot(), named: "logo_caption_fits_\(index)")
             let host = try XCTUnwrap(sut.root.navigationItem.titleView)
-            let image = try XCTUnwrap(findView(ImageView.self, in: host))
-            let caption = try XCTUnwrap(findView(TitledView<WrapperView<ImageView>>.self, in: host)?.closingTitleVFieldView.keyLabel)
+            let titledImage = try XCTUnwrap(findView(TitledView<WrapperView<ImageView>>.self, in: host))
+            let image = titledImage.contentView.contentView
+            let caption = titledImage.closingTitleVFieldView.keyLabel
             let bar = sut.navigation.navigationBar
             for view in [image, caption] as [UIView] {
                 let frame = view.convert(view.bounds, to: host)

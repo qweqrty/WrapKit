@@ -1,3 +1,4 @@
+#if os(iOS) || targetEnvironment(macCatalyst)
 //
 //  HtmlExamples.swift
 //  WrapKitTests
@@ -28,6 +29,21 @@ enum HtmlTestCases {
       <span style="font-size:12px; font-weight:400;">small text</span>
     </p>
     
+    <p>
+      <span style="color:#FF0000;">Red</span>,
+      <span style="color:rgb(0,128,0);">Green</span>,
+      <span style="color:blue;">Blue</span>
+    </p>
+    """
+
+    static let inlineSizeWeight = """
+    <p>
+      <span style="font-size:22px; font-weight:700;">Hello</span> world
+      <span style="font-size:12px; font-weight:400;">small text</span>
+    </p>
+    """
+
+    static let inlineColors = """
     <p>
       <span style="color:#FF0000;">Red</span>,
       <span style="color:rgb(0,128,0);">Green</span>,
@@ -108,3 +124,4 @@ enum HtmlTestCases {
     <p> • Оплачивая услуги О! вы получаете кешбэк 1%.</p>
     """
 }
+#endif

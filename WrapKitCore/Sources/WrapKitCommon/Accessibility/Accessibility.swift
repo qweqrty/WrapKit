@@ -23,7 +23,7 @@ public extension StringProtocol {
     }
 }
 
-#if canImport(UIKit)
+#if canImport(UIKit) && !os(watchOS)
 import UIKit
 
 public extension String {
@@ -34,7 +34,7 @@ public extension String {
 }
 #endif
 
-#if canImport(UIKit)
+#if canImport(UIKit) && !os(watchOS)
 import UIKit
 
 final class A11yProxy: UIAccessibilityElement {

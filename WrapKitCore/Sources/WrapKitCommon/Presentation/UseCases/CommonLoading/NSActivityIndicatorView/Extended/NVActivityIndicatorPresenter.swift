@@ -25,7 +25,7 @@
 // SOFTWARE.
 //
 
-#if canImport(UIKit)
+#if canImport(UIKit) && !os(watchOS) && !os(visionOS)
 import UIKit
 
 /// Class packages information used to display UI blocker.

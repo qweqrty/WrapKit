@@ -1,3 +1,5 @@
+// Тест опирается на семантические цвета/изображения UIKit (.darkText, .systemBackground, .strokedCheckmark)
+#if canImport(UIKit) && !os(watchOS)
 import XCTest
 import Foundation
 import WrapKit
@@ -92,12 +94,12 @@ final class CardViewOutputHashableTests: XCTestCase {
         XCTAssertEqual(attr1, attr2)
         XCTAssertEqual([attr1], [attr2])
     }
-
+    
     func test_TextAttributes_strikethroughStyle() {
         let plain = TextAttributes(text: "175")
         let struck = TextAttributes(text: "175", strikethroughStyle: .single)
         let struckAgain = TextAttributes(text: "175", strikethroughStyle: .single)
-
+        
         XCTAssertNil(plain.strikethroughStyle)
         XCTAssertNotEqual(plain, struck)
         XCTAssertEqual(struck, struckAgain)
@@ -153,3 +155,4 @@ fileprivate extension CardViewPresentableModel.Style {
         )
     }
 }
+#endif

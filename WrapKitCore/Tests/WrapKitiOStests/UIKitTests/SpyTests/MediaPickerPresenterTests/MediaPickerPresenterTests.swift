@@ -1,3 +1,4 @@
+#if os(iOS) || targetEnvironment(macCatalyst)
 //
 //  MediaPickerPresenterTests.swift
 //  WrapKit
@@ -276,3 +277,4 @@ extension MediaPickerPresenterTests {
         return SUTComponents(sut: sut, flowSpy: flow, alertSpy: alertViewSpy)
     }
 }
+#endif

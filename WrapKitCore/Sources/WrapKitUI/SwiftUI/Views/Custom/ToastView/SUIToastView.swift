@@ -1,0 +1,163 @@
+import Foundation
+
+#if canImport(SwiftUI) && !os(tvOS) && !os(watchOS)
+import SwiftUI
+
+public struct SUIToastView: View {
+    @StateObject private var stateModel: SUIToastViewStateModel
+    private let borderColor: SwiftUIColor
+
+    /// - Parameter borderColor: mirrors `ToastView.layer.borderColor` in UIKit.
+    public init(adapter: CommonToastOutputSwiftUIAdapter, borderColor: SwiftUIColor = .black) {
+        _stateModel = .init(wrappedValue: .init(adapter: adapter))
+        self.borderColor = borderColor
+    }
+
+    public var body: some View {
+        GeometryReader { proxy in
+            ZStack(alignment: .top) {
+                SwiftUIColor.clear
+                if let item = stateModel.currentItem {
+                    positionedToast(item, proxy: proxy)
+                        .transition(transition(for: item.position))
+                }
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+        // The keyboard offset is applied from `keyboardHeight`; the keyboard safe area would count it twice.
+        .ignoresSafeArea(.keyboard)
+    }
+
+    @ViewBuilder
+    private func positionedToast(_ item: SUIToastViewStateModel.ToastItem, proxy: GeometryProxy) -> some View {
+        toastContent(item)
+            .alignmentGuide(.top) { dimensions in
+                -verticalOrigin(
+                    for: item.position,
+                    toastHeight: dimensions.height,
+                    proxy: proxy
+                )
+            }
+    }
+
+    private func toastContent(_ item: SUIToastViewStateModel.ToastItem) -> some View {
+        toastCardView
+            .frame(maxWidth: .infinity, alignment: .center)
+            .fixedSize(horizontal: false, vertical: true)
+            .background(SwiftUIColor.clear)
+            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .strokeBorder(borderColor, lineWidth: 1)
+            )
+            .shadow(
+                color: shadowColor(item.shadowColor),
+                radius: item.shadowColor == nil ? 0 : 4,
+                x: -0.5,
+                y: -0.5
+            )
+            .padding(.horizontal, 8)
+            .offset(stateModel.dragOffset)
+            .scaleEffect(stateModel.scale)
+            .opacity(stateModel.opacity)
+            .contentShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+            .zIndex(100)
+            .simultaneousGesture(dragGesture)
+            .onLongPressGesture(
+                minimumDuration: 0.5,
+                pressing: { isPressing in
+                    isPressing ? stateModel.beginLongPress() : stateModel.endLongPress()
+                },
+                perform: {}
+            )
+            .onAppear {
+                stateModel.displayCurrentCardModel()
+            }
+    }
+
+    @ViewBuilder
+    private var toastCardView: some View {
+        VStack(spacing: 0) {
+            SUICardView(adapter: stateModel.cardAdapter)
+
+            if !stateModel.currentButtons.isEmpty {
+                VStack(spacing: 0) {
+                    ForEach(stateModel.currentButtons.indices, id: \.self) { index in
+                        if let model = stateModel.actionButtonModel(at: index) {
+                            SUIButtonView(
+                                model: model,
+                                onPress: model.onPress,
+                                isEnabled: model.enabled ?? true,
+                                fillsAvailableHeight: false,
+                                contentInsets: CommonToastActionButtonAppearance.contentInsets.asSUIEdgeInsets
+                            )
+                        }
+                    }
+                }
+                .background(SwiftUIColor(stateModel.actionBackgroundColor))
+            }
+        }
+        .if(!stateModel.currentButtons.isEmpty) { content in
+            content.background(SwiftUIColor(stateModel.actionBackgroundColor))
+        }
+    }
+
+    private var dragGesture: some Gesture {
+        DragGesture(minimumDistance: 8)
+            .onChanged { value in
+                stateModel.pauseTimer()
+                stateModel.updateDrag(value.translation)
+            }
+            .onEnded { value in
+                stateModel.finishDrag(
+                    value.translation,
+                    velocity: .init(width: value.predictedEndTranslation.width, height: value.predictedEndTranslation.height)
+                )
+            }
+    }
+
+    private func bottomPadding(for position: CommonToast.Position, proxy: GeometryProxy) -> CGFloat {
+        switch position {
+        case .top:
+            return 0
+        case .bottom(let additionalBottomPadding):
+            // The keyboard covers the bottom safe area (home indicator), so they don't add up.
+            return max(proxy.safeAreaInsets.bottom, stateModel.keyboardHeight) + additionalBottomPadding + 24
+        }
+    }
+
+    private func verticalOrigin(
+        for position: CommonToast.Position,
+        toastHeight: CGFloat,
+        proxy: GeometryProxy
+    ) -> CGFloat {
+        switch position {
+        case .top:
+            return proxy.safeAreaInsets.top + 20
+        case .bottom:
+            return proxy.size.height - bottomPadding(for: position, proxy: proxy) - toastHeight
+        }
+    }
+
+    private func transition(for position: CommonToast.Position) -> AnyTransition {
+        switch position {
+        case .top:
+            return .move(edge: .top).combined(with: .opacity)
+        case .bottom:
+            return .move(edge: .bottom).combined(with: .opacity)
+        }
+    }
+
+    private func shadowColor(_ color: Color?) -> SwiftUIColor {
+        guard let color else { return .clear }
+        return SwiftUIColor(color).opacity(0.07)
+    }
+}
+
+public extension View {
+    func toastView(adapter: CommonToastOutputSwiftUIAdapter, borderColor: SwiftUIColor = .black) -> some View {
+        overlay(SUIToastView(adapter: adapter, borderColor: borderColor))
+    }
+}
+
+#endif
