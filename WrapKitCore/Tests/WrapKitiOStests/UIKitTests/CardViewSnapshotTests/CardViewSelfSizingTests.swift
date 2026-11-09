@@ -23,6 +23,9 @@ extension CardViewSnapshotTests {
             ]
             let cards = models.map { title, subtitle in
                 let card = CardView()
+                card.titleViews.keyLabel.automaticallyUpdatesPreferredMaxLayoutWidth = true
+                card.titleViews.valueLabel.automaticallyUpdatesPreferredMaxLayoutWidth = true
+                card.subtitleLabel.automaticallyUpdatesPreferredMaxLayoutWidth = true
                 card.display(model: .init(
                     style: makeDefaultStyle(
                         backgroundColor: .white,
