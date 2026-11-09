@@ -21,6 +21,9 @@ extension ChunkedTextField: TextInputOutput {
     public func display(model: TextInputPresentableModel?) {
         isHidden = model == nil
         guard let model = model else { return }
+        if let identifier = model.accessibilityIdentifier {
+            input.accessibilityIdentifier = identifier
+        }
         display(text: model.text)
         if let isValid = model.isValid { display(isValid: isValid) }
     }

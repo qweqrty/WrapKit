@@ -297,6 +297,20 @@ open class Label: UILabel {
         }
     }
     public var cornerStyle: CornerStyle?
+
+    /// Updates multiline measurement from the label's laid-out width.
+    /// Leave disabled when preferredMaxLayoutWidth is managed by the caller.
+    /// Disabling preserves the last width until the caller changes it.
+    public var automaticallyUpdatesPreferredMaxLayoutWidth = false {
+        didSet {
+            guard automaticallyUpdatesPreferredMaxLayoutWidth != oldValue else { return }
+            if automaticallyUpdatesPreferredMaxLayoutWidth {
+                preferredMaxLayoutWidth = 0
+            }
+            invalidateIntrinsicContentSize()
+            setNeedsLayout()
+        }
+    }
     
     let layoutManager = NSLayoutManager()
     let textContainer = NSTextContainer(size: CGSize.zero)
@@ -314,10 +328,12 @@ open class Label: UILabel {
         adjustsFontSizeToFitWidth: Bool = false,
         isUserInteractionEnabled: Bool = true,
         cornerStyle: CornerStyle? = nil,
-        textInsets: UIEdgeInsets = .zero
+        textInsets: UIEdgeInsets = .zero,
+        automaticallyUpdatesPreferredMaxLayoutWidth: Bool = false
     ) {
         super.init(frame: .zero)
 
+        self.automaticallyUpdatesPreferredMaxLayoutWidth = automaticallyUpdatesPreferredMaxLayoutWidth
         self.isHidden = isHidden
         self.backgroundColor = backgroundColor
         if let font = font { self.font = font }
@@ -361,6 +377,15 @@ open class Label: UILabel {
         super.layoutSubviews()
 
         textContainer.size = bounds.inset(by: textInsets).size
+
+        guard automaticallyUpdatesPreferredMaxLayoutWidth,
+              !isHidden, numberOfLines != 1, bounds.width > 0 else { return }
+
+        let pixel = 1 / max(traitCollection.displayScale, 1)
+        guard abs(preferredMaxLayoutWidth - bounds.width) >= pixel else { return }
+
+        preferredMaxLayoutWidth = bounds.width
+        invalidateIntrinsicContentSize()
     }
 
     open override func textRect(forBounds bounds: CGRect, limitedToNumberOfLines numberOfLines: Int) -> CGRect {
@@ -394,7 +419,18 @@ open class Label: UILabel {
 
     public override var text: String? {
         didSet {
+            if automaticallyUpdatesPreferredMaxLayoutWidth {
+                preferredMaxLayoutWidth = 0
+            }
             self.invalidateIntrinsicContentSize()
+        }
+    }
+
+    public override var attributedText: NSAttributedString? {
+        didSet {
+            if automaticallyUpdatesPreferredMaxLayoutWidth {
+                preferredMaxLayoutWidth = 0
+            }
         }
     }
     
