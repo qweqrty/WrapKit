@@ -32,6 +32,7 @@ public struct TextAttributes: HashableWithReflection, Equatable {
         font: Font? = nil,
         lineSpacing: CGFloat = 4,
         underlineStyle: UnderlineStyle? = nil,
+        strikethroughStyle: UnderlineStyle? = nil,
         textAlignment: TextAlignment? = nil,
         leadingImage: Image? = nil,
         leadingImageBounds: CGRect = .zero,
@@ -47,6 +48,7 @@ public struct TextAttributes: HashableWithReflection, Equatable {
         self.onTap = onTap
         self.range = nil
         self.underlineStyle = underlineStyle
+        self.strikethroughStyle = strikethroughStyle
         self.textAlignment = textAlignment
         self.leadingImage = leadingImage
         self.leadingImageBounds = leadingImageBounds
@@ -60,6 +62,7 @@ public struct TextAttributes: HashableWithReflection, Equatable {
     public let font: Font?
     public let lineSpacing: CGFloat
     public let underlineStyle: UnderlineStyle?
+    public let strikethroughStyle: UnderlineStyle?
     public let textAlignment: TextAlignment?
     public let leadingImage: Image?
     public let leadingImageBounds: CGRect
@@ -74,6 +77,7 @@ public struct TextAttributes: HashableWithReflection, Equatable {
         && lhs.font == rhs.font
         && lhs.lineSpacing == rhs.lineSpacing
         && lhs.underlineStyle == rhs.underlineStyle
+        && lhs.strikethroughStyle == rhs.strikethroughStyle
         && lhs.textAlignment == rhs.textAlignment
         && lhs.leadingImage == rhs.leadingImage
         && lhs.leadingImageBounds == rhs.leadingImageBounds
@@ -96,6 +100,7 @@ public extension TextAttributes {
             color: self.color ?? textColor,
             lineSpacing: self.lineSpacing,
             underlineStyle: underlineStyle,
+            strikethroughStyle: strikethroughStyle,
             textAlignment: self.textAlignment ?? textAlignment,
             leadingImage: self.leadingImage,
             leadingImageBounds: self.leadingImageBounds,

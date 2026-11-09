@@ -12,7 +12,6 @@ import WebKit
 
 open class WebViewContentView: UIView {
     lazy var contentStackView = StackView(axis: .vertical)
-    public lazy var navigationBar = NavigationBar()
     public lazy var progressBarView = ProgressBarView()
     public lazy var webView = makeWebView()
     public lazy var refreshControl = RefreshControl()
@@ -32,12 +31,17 @@ open class WebViewContentView: UIView {
 private extension WebViewContentView {
     func setupViews() {
         addSubviews(contentStackView)
-        contentStackView.addArrangedSubviews(navigationBar, progressBarView, webView)
+        contentStackView.addArrangedSubviews(progressBarView, webView)
     }
     
     func setupConstraints() {
         progressBarView.constrainHeight(2)
-        contentStackView.fillSuperview()
+        contentStackView.anchor(
+            .top(safeAreaLayoutGuide.topAnchor),
+            .leading(safeAreaLayoutGuide.leadingAnchor),
+            .trailing(safeAreaLayoutGuide.trailingAnchor),
+            .bottom(bottomAnchor)
+        )
     }
 }
 

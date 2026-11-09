@@ -34,12 +34,21 @@ open class ViewController<ContentView: UIView>: UIViewController, LifeCycleViewO
     public let contentView: ContentView
     public var removingNavStackCountOnAppear: Int = 0
     public var interactivePopGestureRecognizer: UIGestureRecognizerDelegate?
+    /// Called once when this controller leaves its parent or is dismissed.
+    /// Pushing another controller or cancelling an interactive transition does not trigger it.
+    public var onNavigationExit: (() -> Void)?
+    open var shouldForceInitialLayoutBeforeAppearance = true
+    private var needsInitialLayoutPass = true
+    private var hadParentViewController = false
+    private var isLeavingNavigationStack = false
+    private var didReportNavigationExit = false
 
     public init(contentView: ContentView, lifeCycleViewOutput: LifeCycleViewOutput? = nil, applicationLifecycleOutput: ApplicationLifecycleOutput? = nil) {
         self.contentView = contentView
         self.LifeCycleViewOutput = lifeCycleViewOutput
         self.ApplicationLifecycleOutput = applicationLifecycleOutput
         super.init(nibName: nil, bundle: nil)
+        extendedLayoutIncludesOpaqueBars = true
         registerForAppLifecycleNotifications()
     }
 
@@ -49,17 +58,31 @@ open class ViewController<ContentView: UIView>: UIViewController, LifeCycleViewO
     }
 
     // MARK: - View Controller Lifecycle
+    open override func didMove(toParent parent: UIViewController?) {
+        super.didMove(toParent: parent)
+        if parent != nil {
+            hadParentViewController = true
+            return
+        }
+        guard hadParentViewController else { return }
+        reportNavigationExitIfNeeded()
+    }
+
     open override func viewWillAppear(_ animated: Bool) {
+        isLeavingNavigationStack = false
         super.viewWillAppear(animated)
-        navigationController?.setNavigationBarHidden(true, animated: false)
         interactivePopGestureRecognizer = navigationController?.interactivePopGestureRecognizer?.delegate
         navigationController?.interactivePopGestureRecognizer?.delegate = nil
+        activateNavigationHeader(animated: animated)
         LifeCycleViewOutput?.viewWillAppear()
+        performInitialLayoutPassIfNeeded()
     }
 
     open override func viewWillDisappear(_ animated: Bool) {
+        isLeavingNavigationStack = isMovingFromParent
+            || isBeingDismissed
+            || navigationController?.isBeingDismissed == true
         super.viewWillDisappear(animated)
-        navigationController?.setNavigationBarHidden(true, animated: false)
         navigationController?.interactivePopGestureRecognizer?.delegate = interactivePopGestureRecognizer
         LifeCycleViewOutput?.viewWillDisappear()
     }
@@ -84,6 +107,15 @@ open class ViewController<ContentView: UIView>: UIViewController, LifeCycleViewO
     
     open override func loadView() {
         self.view = contentView
+    }
+
+    private func performInitialLayoutPassIfNeeded() {
+        guard shouldForceInitialLayoutBeforeAppearance, needsInitialLayoutPass else { return }
+        needsInitialLayoutPass = false
+        UIView.performWithoutAnimation {
+            view.setNeedsLayout()
+            view.layoutIfNeeded()
+        }
     }
 
     open override func viewDidAppear(_ animated: Bool) {
@@ -118,6 +150,17 @@ open class ViewController<ContentView: UIView>: UIViewController, LifeCycleViewO
     open override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         LifeCycleViewOutput?.viewDidDisappear()
+        let wasRemovedFromNavigationStack = navigationController.map {
+            !$0.viewControllers.contains(self)
+        } ?? isLeavingNavigationStack
+        guard isLeavingNavigationStack || wasRemovedFromNavigationStack else { return }
+        reportNavigationExitIfNeeded()
+    }
+
+    private func reportNavigationExitIfNeeded() {
+        guard !didReportNavigationExit else { return }
+        didReportNavigationExit = true
+        onNavigationExit?()
     }
     
     open override func viewDidLayoutSubviews() {
