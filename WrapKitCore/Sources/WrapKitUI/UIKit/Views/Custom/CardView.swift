@@ -626,13 +626,13 @@ open class CardView: ViewUIKit {
     
     public let titleViewsWrapperView = UIView(isHidden: true)
     public let titleViews = VKeyValueFieldView(
-        keyLabel: Label(font: .systemFont(ofSize: 16), textColor: .black),
-        valueLabel: Label(isHidden: true, font: .systemFont(ofSize: 16), textColor: .black),
+        keyLabel: CardViewMultilineLabel(font: .systemFont(ofSize: 16), textColor: .black),
+        valueLabel: CardViewMultilineLabel(isHidden: true, font: .systemFont(ofSize: 16), textColor: .black),
         spacing: 0
     )
     
     public let subtitleLabelWrapperView = UIView(isHidden: true)
-    public let subtitleLabel = Label(font: .systemFont(ofSize: 16), textColor: .gray)
+    public let subtitleLabel: Label = CardViewMultilineLabel(font: .systemFont(ofSize: 16), textColor: .gray)
     
     public let trailingImageWrapperView = ViewUIKit(isHidden: true)
     public private(set) var trailingImageView = ImageView(image: UIImage(named: "rightArrow"), tintColor: .black)
@@ -702,7 +702,7 @@ open class CardView: ViewUIKit {
     
     private func setupPriorities() {
         subtitleLabel.setContentHuggingPriority(.required, for: .horizontal)
-        subtitleLabel.setContentCompressionResistancePriority(UILayoutPriority(751), for: .horizontal)
+        subtitleLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
         subtitleLabel.setContentCompressionResistancePriority(.required, for: .vertical)
         
         titleViews.keyLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
@@ -852,6 +852,28 @@ extension CardView {
         )
         
         bottomSeparatorViewConstraints = bottomSeparatorView.anchor(.height(1))
+    }
+}
+
+// Self-sizing stacks assign the label width after CardView's layout pass.
+private final class CardViewMultilineLabel: Label {
+    override var text: String? {
+        didSet { preferredMaxLayoutWidth = 0 }
+    }
+
+    override var attributedText: NSAttributedString? {
+        didSet { preferredMaxLayoutWidth = 0 }
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        guard !isHidden, numberOfLines != 1, bounds.width > 0 else { return }
+
+        let pixel = 1 / max(traitCollection.displayScale, 1)
+        guard abs(preferredMaxLayoutWidth - bounds.width) >= pixel else { return }
+
+        preferredMaxLayoutWidth = bounds.width
+        invalidateIntrinsicContentSize()
     }
 }
 
