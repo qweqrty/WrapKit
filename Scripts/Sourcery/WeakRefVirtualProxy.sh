@@ -27,6 +27,7 @@ sourcery \
     --sources "$SOURCES_PATH" \
     --templates "$TEMPLATE_PATH" \
     --output "$PROJECT_ROOT/scripts/Sourcery/Derived" \
+    --hideVersionHeader \
     $EXCLUDE_ARGS
 
 echo "Sourcery completed successfully."
