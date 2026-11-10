@@ -15,22 +15,28 @@ public struct SUIChunkedTextField: View {
     private let adapter: TextInputOutputSwiftUIAdapter
     let count: Int
     let appearance: TextfieldAppearance
+    let accessibilityIdentifier: String?
 
+    /// - Parameter accessibilityIdentifier: The counterpart of `ChunkedTextField.input.accessibilityIdentifier`,
+    ///   which `display(model:)` does not set either. The cell at `index` gets `"<accessibilityIdentifier>.<index>"`.
     public init(
         adapter: TextInputOutputSwiftUIAdapter,
         count: Int,
-        appearance: TextfieldAppearance
+        appearance: TextfieldAppearance,
+        accessibilityIdentifier: String? = nil
     ) {
         self.adapter = adapter
         self.count = count
         self.appearance = appearance
+        self.accessibilityIdentifier = accessibilityIdentifier
     }
 
     public var body: some View {
         SUIOwnedChunkedTextFieldStateView(
             adapter: adapter,
             count: count,
-            appearance: appearance
+            appearance: appearance,
+            accessibilityIdentifier: accessibilityIdentifier
         )
     }
 }
@@ -39,11 +45,13 @@ private struct SUIOwnedChunkedTextFieldStateView: View {
     @StateObject private var stateModel: SUITextInputStateModel
     let count: Int
     let appearance: TextfieldAppearance
+    let accessibilityIdentifier: String?
 
     init(
         adapter: TextInputOutputSwiftUIAdapter,
         count: Int,
-        appearance: TextfieldAppearance
+        appearance: TextfieldAppearance,
+        accessibilityIdentifier: String?
     ) {
         _stateModel = .init(wrappedValue: .init(
             adapter: adapter,
@@ -52,13 +60,15 @@ private struct SUIOwnedChunkedTextFieldStateView: View {
         ))
         self.count = count
         self.appearance = appearance
+        self.accessibilityIdentifier = accessibilityIdentifier
     }
 
     var body: some View {
         SUIChunkedTextFieldStateView(
             stateModel: stateModel,
             count: count,
-            appearance: appearance
+            appearance: appearance,
+            accessibilityIdentifier: accessibilityIdentifier
         )
     }
 }
@@ -67,6 +77,7 @@ private struct SUIChunkedTextFieldStateView: View {
     @ObservedObject var stateModel: SUITextInputStateModel
     let count: Int
     let appearance: TextfieldAppearance
+    let accessibilityIdentifier: String?
 
     @ViewBuilder
     var body: some View {
@@ -90,7 +101,7 @@ private struct SUIChunkedTextFieldStateView: View {
                     onBecomeFirstResponder: stateModel.onBecomeFirstResponder,
                     onResignFirstResponder: stateModel.onResignFirstResponder,
                     onTapBackspace: stateModel.onTapBackspace,
-                    accessibilityIdentifier: stateModel.accessibilityIdentifier,
+                    accessibilityIdentifier: accessibilityIdentifier ?? stateModel.accessibilityIdentifier,
                     onUserCharactersChange: stateModel.applyChunkedUserCharacters
                 )
             }
