@@ -215,6 +215,7 @@ public final class NavigationItemHeaderOutput: HeaderOutput {
     private var primeColor: UIColor?
     private var hasCustomLeadingStyle = false
     private var hasCustomButtonStyle = [false, false, false]
+    private var primeTrailingTextPresentation: TextOnlyButtonPresentation?
 
     private var cardConstraints: [NSLayoutConstraint] = []
     private lazy var titleHost = makeTitleHost(titles)
@@ -442,6 +443,10 @@ public final class NavigationItemHeaderOutput: HeaderOutput {
     }
 
     private func display(button: ButtonPresentableModel?, at index: Int) {
+        let textPresentation = index == 0 ? button.flatMap(TextOnlyButtonPresentation.init) : nil
+        defer {
+            if index == 0 { primeTrailingTextPresentation = textPresentation }
+        }
         visibleButtons[index] = button != nil
         buttonImages[index] = button?.image
         if let style = button?.style {
@@ -455,9 +460,25 @@ public final class NavigationItemHeaderOutput: HeaderOutput {
             invalidateLayout()
             return
         }
+        if let textPresentation, textPresentation == primeTrailingTextPresentation,
+           let barItem = renderedTrailingItems[index] {
+            UIView.performWithoutAnimation {
+                if barItem.customView != nil {
+                    buttons[index]?.displayTitleWithoutAnimation(button.title)
+                    barItem.customView?.invalidateIntrinsicContentSize()
+                } else {
+                    let action = UIAction(title: button.title ?? "") { _ in }
+                    primeTrailingAction = action
+                    if primeTrailingMenu == nil { barItem.primaryAction = action }
+                }
+                barItem.title = button.title
+                navigationBar?.layoutIfNeeded()
+            }
+            return
+        }
         if let enabled = button.enabled { buttonEnabled[index] = enabled }
         let barItem: UIBarButtonItem
-        if !hasCustomButtonStyle[index], button.height == nil, button.width == nil, button.spacing == nil,
+        if !hasCustomButtonStyle[index], button.height == nil, button.width == nil, button.spacing == nil, button.contentInset == nil,
            button.image == nil || button.title == nil {
             let model = button
             let action = UIAction(title: model.title ?? model.accessibility?.label ?? "", image: model.image) { _ in
@@ -475,7 +496,9 @@ public final class NavigationItemHeaderOutput: HeaderOutput {
             let custom = customButton(at: index)
             #if os(iOS)
             if #available(iOS 26, *) {
-                if button.isGlassEffectEnabled == false {
+                let isGlassEffectEnabled = button.isGlassEffectEnabled
+                    ?? (index == 0 ? button.style.map { $0.glassConfiguration != nil } : nil)
+                if isGlassEffectEnabled == false {
                     custom.configuration = nil
                 } else if custom.configuration == nil {
                     custom.configuration = .glass()
@@ -571,6 +594,31 @@ public final class NavigationItemHeaderOutput: HeaderOutput {
 
     private func makeTitleHost(_ content: UIView) -> UIView {
         NativeHeaderTitleView(content: content)
+    }
+
+    private struct TextOnlyButtonPresentation: Equatable {
+        let accessibilityIdentifier: String?
+        let accessibility: Accessibility?
+        let spacing: CGFloat?
+        let contentInset: EdgeInsets?
+        let isGlassEffectEnabled: Bool?
+        let height: CGFloat?
+        let width: CGFloat?
+        let style: ButtonStyle?
+        let enabled: Bool?
+
+        init?(_ model: ButtonPresentableModel) {
+            guard model.title != nil, model.image == nil, model.onPress == nil else { return nil }
+            accessibilityIdentifier = model.accessibilityIdentifier
+            accessibility = model.accessibility
+            spacing = model.spacing
+            contentInset = model.contentInset
+            isGlassEffectEnabled = model.isGlassEffectEnabled
+            height = model.height
+            width = model.width
+            style = model.style
+            enabled = model.enabled
+        }
     }
 
     private func makeBarItem(_ view: UIView) -> UIBarButtonItem {

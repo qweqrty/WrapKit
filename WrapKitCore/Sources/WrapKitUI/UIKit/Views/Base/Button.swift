@@ -302,7 +302,7 @@ extension Button: ButtonOutput {
     
     public func display(style: ButtonStyle?) {
         guard let style else { return }
-        
+
         configuredImageTintColor = style.imageTintColor
         applyImageTintColor(style.imageTintColor)
         textColor = style.titleColor ?? .white
@@ -314,7 +314,7 @@ extension Button: ButtonOutput {
         self.loadingIndicatorColor = style.loadingIndicatorColor
         displayGlass(style: style)
     }
-    
+
     private func displayGlass(style: ButtonStyle) {
         guard let glassConfiguration = style.glassConfiguration else {
             resetGlassConfigurationIfNeeded()
@@ -432,6 +432,17 @@ extension Button: ButtonOutput {
         self.setTitle(title?.removingPercentEncoding ?? title, for: .normal)
     }
     
+    func displayTitleWithoutAnimation(_ title: String?) {
+        let resolvedTitle = title?.removingPercentEncoding ?? title
+        guard self.title(for: .normal) != resolvedTitle else { return }
+
+        UIView.performWithoutAnimation {
+            self.setTitle(resolvedTitle, for: .normal)
+            self.layoutIfNeeded()
+        }
+        applyInteractivityAndAccessibility()
+    }
+
     public func display(spacing: CGFloat) {
         self.spacing = spacing
     }

@@ -126,6 +126,96 @@ class NavigationBarSnapshotTests: XCTestCase {
         // THEN
         XCTAssertEqual(viewController.navigationItem.title, "Native title")
     }
+
+    func test_navigationBar_primeTrailingText_updatesContentInset() throws {
+        // GIVEN
+        let controller = UIViewController()
+        let sut = controller.headerOutput
+        sut.display(primeTrailingImage: .init(
+            title: "Title",
+            contentInset: .init(top: 1, leading: 2, bottom: 3, trailing: 4)
+        ))
+
+        // WHEN
+        sut.display(primeTrailingImage: .init(
+            title: "Title",
+            contentInset: .init(top: 5, leading: 6, bottom: 7, trailing: 8)
+        ))
+
+        // THEN
+        let button = try XCTUnwrap(findView(Button.self, in: controller.navigationItem.rightBarButtonItem?.customView))
+        XCTAssertEqual(
+            button.contentInset,
+            UIEdgeInsets(top: 5, left: 6, bottom: 7, right: 8)
+        )
+    }
+
+    func test_navigationBar_primeTrailingText_updatesGlassEffect() throws {
+        guard #available(iOS 26, *) else {
+            throw XCTSkip("Liquid Glass is available on iOS 26 and newer")
+        }
+
+        // GIVEN
+        let controller = UIViewController()
+        let sut = controller.headerOutput
+        let style = ButtonStyle(titleColor: .systemBlue)
+        sut.display(primeTrailingImage: .init(title: "Title", isGlassEffectEnabled: false, style: style))
+        let button = try XCTUnwrap(findView(Button.self, in: controller.navigationItem.rightBarButtonItem?.customView))
+        XCTAssertNil(button.configuration)
+
+        // WHEN
+        sut.display(primeTrailingImage: .init(title: "Title", isGlassEffectEnabled: true, style: style))
+
+        // THEN
+        XCTAssertNotNil(button.configuration)
+
+        // WHEN
+        sut.display(primeTrailingImage: .init(title: "Title", isGlassEffectEnabled: false, style: style))
+
+        // THEN
+        XCTAssertNil(button.configuration)
+    }
+
+    func test_navigationBar_primeTrailingText_withoutExplicitGlassFlag_preservesNonGlassStyle() throws {
+        // GIVEN
+        let controller = UIViewController()
+        let sut = controller.headerOutput
+
+        // WHEN
+        sut.display(primeTrailingImage: .init(title: "00:30", style: .init(titleColor: .systemBlue)))
+
+        // THEN
+        let button = try XCTUnwrap(findView(Button.self, in: controller.navigationItem.rightBarButtonItem?.customView))
+        XCTAssertNil(button.configuration)
+        XCTAssertEqual(button.title(for: .normal), "00:30")
+    }
+
+    func test_navigationBar_primeTrailingText_preservesConfiguration_whenOnlyTitleChanges() throws {
+        guard #available(iOS 26, *) else {
+            throw XCTSkip("Liquid Glass is available on iOS 26 and newer")
+        }
+
+        // GIVEN
+        let controller = UIViewController()
+        let sut = controller.headerOutput
+        let style = ButtonStyle(titleColor: .systemBlue)
+        sut.display(primeTrailingImage: .init(title: "First", isGlassEffectEnabled: true, style: style))
+        let item = try XCTUnwrap(controller.navigationItem.rightBarButtonItem)
+        let button = try XCTUnwrap(findView(Button.self, in: item.customView))
+        var configuration = try XCTUnwrap(button.configuration)
+        configuration.cornerStyle = .large
+        configuration.imagePadding = 23
+        button.configuration = configuration
+
+        // WHEN
+        sut.display(primeTrailingImage: .init(title: "Second", isGlassEffectEnabled: true, style: style))
+
+        // THEN
+        XCTAssertEqual(button.configuration?.title, "Second")
+        XCTAssertEqual(button.configuration?.cornerStyle, .large)
+        XCTAssertEqual(button.configuration?.imagePadding, 23)
+        XCTAssertTrue(controller.navigationItem.rightBarButtonItem === item)
+    }
     
     func test_navigationBar_with_centerView_keyValue() {
         let snapshotName = "NAVBAR_WITH_CENTERVIEW_KEYVALUE"
