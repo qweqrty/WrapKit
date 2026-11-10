@@ -17,8 +17,6 @@ public struct SUIChunkedTextField: View {
     let appearance: TextfieldAppearance
     let accessibilityIdentifier: String?
 
-    /// - Parameter accessibilityIdentifier: The counterpart of `ChunkedTextField.input.accessibilityIdentifier`,
-    ///   which `display(model:)` does not set either. The cell at `index` gets `"<accessibilityIdentifier>.<index>"`.
     public init(
         adapter: TextInputOutputSwiftUIAdapter,
         count: Int,
