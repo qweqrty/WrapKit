@@ -1,10 +1,43 @@
 import Foundation
 import XCTest
+import WrapKit
 
 final class DecimalFormattingTests: XCTestCase {
-    func testOne() {
+    func testNan() {
         assertDecimal(Decimal.leastNonzeroMagnitude, "0.00")
         assertDecimal(Decimal.nan, "nan")
+    }
+    
+    func testOne_Decimal_default() {
+        XCTAssertEqual(Decimal(1).toAmountString(minimumFractionDigits: 0), "1")
+        XCTAssertEqual(Decimal(1.1).toAmountString(minimumFractionDigits: 0), "1,1")
+        XCTAssertEqual(Decimal(1.11).toAmountString(minimumFractionDigits: 0), "1,11")
+        XCTAssertEqual(Decimal(1.111).toAmountString(minimumFractionDigits: 0), "1,11")
+    }
+    
+    func testOne_Decimal_fixedDigits() {
+        XCTAssertEqual(Decimal(1).toAmountString(minimumFractionDigits: 2), "1,00")
+        XCTAssertEqual(Decimal(1.1).toAmountString(minimumFractionDigits: 2), "1,10")
+        XCTAssertEqual(Decimal(1.11).toAmountString(minimumFractionDigits: 2), "1,11")
+        XCTAssertEqual(Decimal(1.111).toAmountString(minimumFractionDigits: 2), "1,11")
+    }
+    
+    func testOne_Double_default() {
+        XCTAssertEqual(Double(0).toAmountString(minimumFractionDigits: 0), "0")
+        XCTAssertEqual(Double(0.0).toAmountString(minimumFractionDigits: 0), "0")
+        XCTAssertEqual(Double(1).toAmountString(minimumFractionDigits: 0), "1")
+        XCTAssertEqual(Double(1.1).toAmountString(minimumFractionDigits: 0), "1,1")
+        XCTAssertEqual(Double(1.11).toAmountString(minimumFractionDigits: 0), "1,11")
+        XCTAssertEqual(Double(1.111).toAmountString(minimumFractionDigits: 0), "1,11")
+    }
+    
+    func testOne_Double_fixedDigits() {
+        XCTAssertEqual(Double(0).toAmountString(minimumFractionDigits: 2), "0,00")
+        XCTAssertEqual(Double(0.0).toAmountString(minimumFractionDigits: 2), "0,00")
+        XCTAssertEqual(Double(1).toAmountString(minimumFractionDigits: 2), "1,00")
+        XCTAssertEqual(Double(1.1).toAmountString(minimumFractionDigits: 2), "1,10")
+        XCTAssertEqual(Double(1.11).toAmountString(minimumFractionDigits: 2), "1,11")
+        XCTAssertEqual(Double(1.111).toAmountString(minimumFractionDigits: 2), "1,11")
     }
     
     func assertDecimal(
@@ -131,6 +164,68 @@ final class DecimalFormattingTests: XCTestCase {
     func testNegativeValue() {
         let value = "-123.456"
         assertDecimal(value, withDecimalPlaces: 2, locale: Locale(identifier: "en_US"), "-123.45")
+    }
+
+    func testNegativeAmountsPreserveSignWithCustomSeparators() throws {
+        let cases = [
+            ("-0.01", "-0,01"),
+            ("-0.12", "-0,12"),
+            ("-0.99", "-0,99"),
+            ("-1234.56", "-1 234,56")
+        ]
+
+        for identifier in ["en_US", "ru_RU", "ky_KG", "zh_CN"] {
+            for (input, expected) in cases {
+                let value = try XCTUnwrap(Decimal(string: input))
+                XCTAssertEqual(
+                    value.asString(
+                        withDecimalPlaces: 2,
+                        decimalSeparator: ",",
+                        groupingSeparator: " ",
+                        locale: Locale(identifier: identifier)
+                    ),
+                    expected,
+                    "\(input), locale: \(identifier)"
+                )
+            }
+        }
+    }
+
+    func testTruncatedNegativeZeroDropsSignWithCustomSeparators() throws {
+        let cases = [
+            ("-0.001", 2, "0,00"),
+            ("-0.009", 2, "0,00"),
+            ("-0.9", 0, "0")
+        ]
+
+        for identifier in ["en_US", "ru_RU", "ky_KG", "zh_CN"] {
+            for (input, digits, expected) in cases {
+                let value = try XCTUnwrap(Decimal(string: input))
+                XCTAssertEqual(
+                    value.asString(
+                        withDecimalPlaces: digits,
+                        decimalSeparator: ",",
+                        groupingSeparator: " ",
+                        locale: Locale(identifier: identifier)
+                    ),
+                    expected,
+                    "\(input), locale: \(identifier)"
+                )
+            }
+        }
+    }
+
+    func testAmountStringPreservesNegativeBalanceAndNormalizesZero() throws {
+        let cases = [
+            ("-0.12", "-0,12"),
+            ("-1234.56", "-1 234,56"),
+            ("-0.001", "0,00")
+        ]
+
+        for (input, expected) in cases {
+            let value = try XCTUnwrap(Decimal(string: input))
+            XCTAssertEqual(value.toAmountString(minimumFractionDigits: 2), expected)
+        }
     }
     
     // Test: Large number with grouping separator for the US locale
