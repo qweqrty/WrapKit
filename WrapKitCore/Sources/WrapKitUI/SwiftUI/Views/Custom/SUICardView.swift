@@ -165,7 +165,7 @@ public struct SUICardView: View {
             }
         }
         if stateModel.secondaryTrailingImage != nil {
-            arrangedContainer(style: style, leadingSpacing: stateModel.secondaryTrailingImageLeadingSpacing) {
+            arrangedContainer(style: style, leadingSpacing: leadingSpacing(before: .secondaryTrailingImage)) {
                 imageView(
                     stateModel.secondaryTrailingImage,
                     adapter: stateModel.secondaryTrailingImageAdapter,
@@ -174,7 +174,7 @@ public struct SUICardView: View {
             }
         }
         if stateModel.trailingImage != nil {
-            arrangedContainer(style: style, leadingSpacing: stateModel.trailingImageLeadingSpacing) {
+            arrangedContainer(style: style, leadingSpacing: leadingSpacing(before: .trailingImage)) {
                 imageView(stateModel.trailingImage, adapter: stateModel.trailingImageAdapter)
                     .modifier(CardImagePressFeedback(shrinks: trailingImagePressAnimations.contains(.shrink)))
             }
@@ -184,6 +184,7 @@ public struct SUICardView: View {
             // Keep the semantic viewport for layout, but leave the physical overhang visible.
             arrangedContainer(
                 style: style,
+                leadingSpacing: fillLayoutLeadingSpacing(before: .switchControl, style: style),
                 fillEquallyAlignment: .leading,
                 clipsViewport: false
             ) {
@@ -193,12 +194,44 @@ public struct SUICardView: View {
         if stateModel.trailingTitles != nil {
             arrangedContainer(
                 style: style,
+                leadingSpacing: fillLayoutLeadingSpacing(before: .trailingTitles, style: style),
                 fillRole: hasCircularCountingAnimation(stateModel.trailingTitles) ? .fixed : .auxiliaryText,
                 clipsViewport: !hasCircularCountingAnimation(stateModel.trailingTitles)
             ) {
                 trailingTitlesView(style: style)
             }
         }
+    }
+
+    /// Views without their own spacing get the inherited custom spacing only in the fill layout,
+    /// where it replaces the stack spacing. Other distributions add a leading spacing to the stack spacing.
+    private func fillLayoutLeadingSpacing(
+        before item: CardStackCustomSpacing.Item,
+        style: CardViewPresentableModel.Style
+    ) -> CGFloat? {
+        style.hStackViewDistribution == .fill ? leadingSpacing(before: item) : nil
+    }
+
+    /// The gap `CardView` gets before an arranged view: see `CardStackCustomSpacing`.
+    private func leadingSpacing(before item: CardStackCustomSpacing.Item) -> CGFloat? {
+        var visibleItems = Set<CardStackCustomSpacing.Item>()
+        if stateModel.leadingTitles != nil { visibleItems.insert(.leadingTitles) }
+        if stateModel.leadingImage != nil { visibleItems.insert(.leadingImage) }
+        if stateModel.secondaryLeadingImage != nil { visibleItems.insert(.secondaryLeadingImage) }
+        if isVisibleTextModel(stateModel.title) || isVisibleTextModel(stateModel.valueTitle) {
+            visibleItems.insert(.titles)
+        }
+        if isVisibleTextModel(stateModel.subTitle) { visibleItems.insert(.subtitle) }
+        if stateModel.secondaryTrailingImage != nil { visibleItems.insert(.secondaryTrailingImage) }
+        if stateModel.trailingImage != nil { visibleItems.insert(.trailingImage) }
+        if stateModel.switchControl != nil { visibleItems.insert(.switchControl) }
+        if stateModel.trailingTitles != nil { visibleItems.insert(.trailingTitles) }
+        return CardStackCustomSpacing.leadingSpacing(
+            before: item,
+            visibleItems: visibleItems,
+            secondaryTrailingImageLeadingSpacing: stateModel.secondaryTrailingImageLeadingSpacing,
+            trailingImageLeadingSpacing: stateModel.trailingImageLeadingSpacing
+        )
     }
 
     @ViewBuilder
@@ -490,6 +523,45 @@ struct CardFillItemMetadata: Equatable {
     let leadingSpacing: CGFloat?
 
     static let fixed = Self(role: .fixed, leadingSpacing: nil)
+}
+
+/// `CardView` sets its trailing spacings with `UIStackView.setCustomSpacing(_:after:)` on the arranged view
+/// before each image: `secondaryTrailingImageLeadingSpacing` after the subtitle and `trailingImageLeadingSpacing`
+/// after the secondary trailing image. A stack view ignores the custom spacing of a hidden view, so the gap
+/// before a view is the custom spacing of the nearest visible view before it, or the default spacing.
+enum CardStackCustomSpacing {
+    /// The arranged views of `CardView.hStackView`, in order.
+    enum Item: CaseIterable {
+        case leadingTitles
+        case leadingImage
+        case secondaryLeadingImage
+        case titles
+        case subtitle
+        case secondaryTrailingImage
+        case trailingImage
+        case switchControl
+        case trailingTitles
+    }
+
+    /// The gap before `item`; nil means the default stack spacing.
+    static func leadingSpacing(
+        before item: Item,
+        visibleItems: Set<Item>,
+        secondaryTrailingImageLeadingSpacing: CGFloat?,
+        trailingImageLeadingSpacing: CGFloat?
+    ) -> CGFloat? {
+        let previousVisibleItem = Item.allCases
+            .prefix { $0 != item }
+            .last { visibleItems.contains($0) }
+        switch previousVisibleItem {
+        case .subtitle:
+            return secondaryTrailingImageLeadingSpacing
+        case .secondaryTrailingImage:
+            return trailingImageLeadingSpacing
+        default:
+            return nil
+        }
+    }
 }
 
 struct CardFillHorizontalResolution: Equatable {

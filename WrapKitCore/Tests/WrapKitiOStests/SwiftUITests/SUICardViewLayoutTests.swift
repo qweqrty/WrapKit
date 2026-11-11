@@ -2,6 +2,7 @@
 import CoreGraphics
 import SwiftUI
 @testable import WrapKit
+import WrapKitTestUtils
 import UIKit
 import XCTest
 
@@ -648,6 +649,131 @@ final class SUICardViewLayoutTests: XCTestCase {
         XCTAssertLessThan(size.height, 50)
     }
 
+    func test_attributedLabelMetrics_lineLimitKeepsWholeFirstLines() {
+        let text = NSAttributedString(
+            string: "First line\nSecond line\nThird line",
+            attributes: [.font: UIFont.systemFont(ofSize: 16)]
+        )
+
+        XCTAssertEqual(
+            CoreTextAttributedLabelMetrics.lineLimitedText(text, lineLimit: 2, width: 300).string,
+            "First line\nSecond line"
+        )
+        XCTAssertEqual(CoreTextAttributedLabelMetrics.lineLimitedText(text, lineLimit: nil, width: 300).string, text.string)
+        XCTAssertEqual(CoreTextAttributedLabelMetrics.lineLimitedText(text, lineLimit: 3, width: 300).string, text.string)
+        XCTAssertEqual(CoreTextAttributedLabelMetrics.lineLimitedText(text, lineLimit: 1, width: nil).string, "First line")
+    }
+
+    func test_attributedLabelMetrics_lineLimitCutsWrappedTextAtWordLikeUILabel() {
+        let font = UIFont.systemFont(ofSize: 16)
+        let firstLine = "alpha beta gamma"
+        let text = NSAttributedString(string: "\(firstLine) delta", attributes: [.font: font])
+        let width = ceil((firstLine as NSString).size(withAttributes: [.font: font]).width) + 4
+
+        let visibleText = CoreTextAttributedLabelMetrics.lineLimitedText(text, lineLimit: 1, width: width).string
+
+        // `UILabel` with `numberOfLines = 1` cuts word-wrapped attributed text without an ellipsis.
+        XCTAssertEqual(visibleText.trimmingCharacters(in: .whitespaces), firstLine)
+    }
+
+    func test_attributedLabel_lineLimitKeepsOneLineHeight() throws {
+        guard #available(iOS 16.0, tvOS 16.0, watchOS 9.0, *) else {
+            throw XCTSkip("Requires iOS 16 or newer")
+        }
+
+        let font = UIFont.systemFont(ofSize: 16)
+        let label = SUILabelView(
+            model: .attributes([.init(
+                text: "A long attributed title must stay on one line when the line limit is one",
+                font: font
+            )])
+        )
+        .lineLimit(1)
+        .fixedSize(horizontal: false, vertical: true)
+        let host = UIHostingController(rootView: label)
+        host.loadViewIfNeeded()
+
+        let size = host.sizeThatFits(in: CGSize(width: 180, height: 1_000))
+
+        XCTAssertEqual(size.height, font.lineHeight, accuracy: 1)
+    }
+
+    func test_stackCustomSpacing_comesFromNearestVisibleViewLikeUIStackView() {
+        func gap(
+            before item: CardStackCustomSpacing.Item,
+            visible: Set<CardStackCustomSpacing.Item>
+        ) -> CGFloat? {
+            CardStackCustomSpacing.leadingSpacing(
+                before: item,
+                visibleItems: visible,
+                secondaryTrailingImageLeadingSpacing: 4,
+                trailingImageLeadingSpacing: 8
+            )
+        }
+
+        // The spacing of a hidden secondary trailing image is dropped.
+        XCTAssertNil(gap(before: .trailingImage, visible: [.titles, .trailingImage]))
+        XCTAssertEqual(gap(before: .trailingImage, visible: [.titles, .secondaryTrailingImage, .trailingImage]), 8)
+        // The subtitle carries the secondary trailing image spacing even when that image is hidden.
+        XCTAssertEqual(gap(before: .trailingImage, visible: [.titles, .subtitle, .trailingImage]), 4)
+        XCTAssertEqual(gap(before: .secondaryTrailingImage, visible: [.subtitle, .secondaryTrailingImage]), 4)
+        XCTAssertNil(gap(before: .secondaryTrailingImage, visible: [.titles, .secondaryTrailingImage]))
+        XCTAssertEqual(gap(before: .switchControl, visible: [.titles, .secondaryTrailingImage, .switchControl]), 8)
+        XCTAssertNil(gap(before: .titles, visible: [.leadingImage, .titles]))
+    }
+
+    func test_uiKitCard_dropsTrailingImageSpacingWhenSecondaryImageIsHidden() {
+        let style = makeTrailingSpacingCardStyle()
+        let image = ImageViewPresentableModel(size: .init(width: 16, height: 16), image: .symbolName("chevron.right"))
+        let sut = CardView(frame: CGRect(x: 0, y: 0, width: 320, height: 56))
+
+        sut.display(model: .init(style: style, title: .text("Title"), trailingImage: image, subTitle: .text("Value")))
+        sut.layoutIfNeeded()
+
+        // `trailingImageLeadingSpacing` (8) is set after the hidden secondary trailing image, so the stack spacing wins.
+        XCTAssertEqual(
+            sut.trailingImageWrapperView.frame.minX - sut.subtitleLabelWrapperView.frame.maxX,
+            style.hStackViewSpacing,
+            accuracy: 0.5
+        )
+    }
+
+    @available(iOS 17.0, *)
+    func test_cardBackgroundImage_stretchesLikeUIKitScaleToFill() {
+        let size = CGSize(width: 200, height: 50)
+        let narrowRedImage = UIGraphicsImageRenderer(size: CGSize(width: 10, height: 40)).image { context in
+            UIColor.red.setFill()
+            context.fill(CGRect(x: 0, y: 0, width: 10, height: 40))
+        }
+        let edgePoint = CGPoint(x: 4, y: 25)
+
+        for contentModeIsFit in [nil, true] as [Bool?] {
+            let model = CardViewPresentableModel(
+                style: makeTrailingSpacingCardStyle(backgroundColor: .white),
+                backgroundImage: .init(image: .asset(narrowRedImage), contentModeIsFit: contentModeIsFit)
+            )
+            let context = "contentModeIsFit=\(String(describing: contentModeIsFit))"
+            // A fitted 10 pt wide image stays in the middle; a stretched one reaches the edges.
+            let isStretched = contentModeIsFit == nil
+
+            let uiKitCard = CardView(frame: CGRect(origin: .zero, size: size))
+            uiKitCard.display(model: model)
+            uiKitCard.layoutIfNeeded()
+            let format = UIGraphicsImageRendererFormat()
+            format.scale = 1
+            let uiKitImage = UIGraphicsImageRenderer(bounds: uiKitCard.bounds, format: format).image {
+                uiKitCard.layer.render(in: $0.cgContext)
+            }
+            XCTAssertEqual(isRed(uiKitImage, at: edgePoint), isStretched, "UIKit, \(context)")
+
+            let adapter = CardViewOutputSwiftUIAdapter()
+            adapter.display(model: model)
+            let swiftUIImage = renderSnapshot(SUICardView(adapter: adapter), size: size)
+            XCTAssertEqual(isRed(swiftUIImage, at: edgePoint), isStretched, "SwiftUI, \(context)")
+            XCTAssertTrue(isRed(swiftUIImage, at: CGPoint(x: size.width / 2, y: 25)), "SwiftUI, \(context)")
+        }
+    }
+
     @available(iOS 17.0, *)
     func test_swiftUICard_exposesBackgroundImageAsAccessibleChildWithActions() throws {
         let adapter = CardViewOutputSwiftUIAdapter()
@@ -849,6 +975,60 @@ final class SUICardViewLayoutTests: XCTestCase {
             titleKeyNumberOfLines: 1,
             titleValueNumberOfLines: 1
         )
+    }
+
+    /// The spacing setup of a card with a value before the chevron: stack spacing 12, image spacing 8.
+    private func makeTrailingSpacingCardStyle(
+        backgroundColor: UIColor = .systemBackground
+    ) -> CardViewPresentableModel.Style {
+        .init(
+            backgroundColor: backgroundColor,
+            vStacklayoutMargins: .zero,
+            hStacklayoutMargins: .init(horizontal: 12, vertical: 0),
+            hStackViewDistribution: .fill,
+            leadingTitleKeyTextColor: .label,
+            titleKeyTextColor: .label,
+            trailingTitleKeyTextColor: .label,
+            titleValueTextColor: .secondaryLabel,
+            subTitleTextColor: .secondaryLabel,
+            leadingTitleKeyLabelFont: .systemFont(ofSize: 16),
+            titleKeyLabelFont: .systemFont(ofSize: 16),
+            trailingTitleKeyLabelFont: .systemFont(ofSize: 16),
+            titleValueLabelFont: .systemFont(ofSize: 14),
+            subTitleLabelFont: .systemFont(ofSize: 14),
+            cornerRadius: 0,
+            stackSpace: 0,
+            hStackViewSpacing: 12,
+            titleKeyNumberOfLines: 1,
+            titleValueNumberOfLines: 1,
+            trailingImageLeadingSpacing: 8
+        )
+    }
+
+    /// Renders like `SUIImageViewParityTests`: the image of an asset loads after a run loop turn.
+    @available(iOS 17.0, *)
+    private func renderSnapshot(_ view: some View, size: CGSize) -> UIImage {
+        let rootView = view
+            .frame(width: size.width, height: size.height)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+            .snapshotEnvironment(configuration: .iPhone(style: .light))
+            .ignoresSafeArea(.all)
+        let controller = UIHostingController(rootView: rootView)
+        controller.view.backgroundColor = .clear
+        controller.view.frame = CGRect(origin: .zero, size: SnapshotConfiguration.size)
+        RunLoop.main.run(until: Date().addingTimeInterval(0.12))
+        controller.view.setNeedsLayout()
+        controller.view.layoutIfNeeded()
+        RunLoop.main.run(until: Date().addingTimeInterval(0.12))
+        return controller.snapshot(for: SnapshotAppearance.light.uiKitConfiguration)
+    }
+
+    private func isRed(_ image: UIImage, at point: CGPoint) -> Bool {
+        let pixels = image.rgbaPixels
+        let pixelWidth = Int(image.size.width * image.scale)
+        let index = (Int(point.y * image.scale) * pixelWidth + Int(point.x * image.scale)) * 4
+        guard pixels.indices.contains(index + 2) else { return false }
+        return pixels[index] > 200 && pixels[index + 1] < 60 && pixels[index + 2] < 60
     }
 
     private func assertNativeSwitch(

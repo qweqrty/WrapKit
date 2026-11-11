@@ -567,6 +567,7 @@ private struct LabelAccessibilityModifier: ViewModifier {
 struct CoreTextAttributedLabel: View {
     @Environment(\.displayScale) private var displayScale
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.lineLimit) private var lineLimit
 
     private struct AttachmentPlacement {
         let image: Image
@@ -605,7 +606,8 @@ struct CoreTextAttributedLabel: View {
                 CoreTextAttributedLabelSizingLayout(
                     attributedText: preparedAttributedText,
                     usesFoundationLayoutMetrics: usesFoundationLayoutMetrics,
-                    displayScale: displayScale
+                    displayScale: displayScale,
+                    lineLimit: lineLimit
                 ) {
                     drawing(attributedText: preparedAttributedText)
                 }
@@ -621,9 +623,18 @@ struct CoreTextAttributedLabel: View {
 
     private func drawing(attributedText: NSAttributedString) -> some View {
         GeometryReader { geometry in
+            // `lineLimit` works like `UILabel.numberOfLines`: only the first lines are laid out.
+            let visibleLength = CoreTextAttributedLabelMetrics.visibleLength(
+                of: attributedText,
+                lineLimit: lineLimit,
+                width: geometry.size.width
+            )
+            let visibleText = visibleLength < attributedText.length
+                ? attributedText.attributedSubstring(from: NSRange(location: 0, length: visibleLength))
+                : attributedText
             ZStack(alignment: .topLeading) {
                 Canvas(opaque: false, colorMode: .linear, rendersAsynchronously: false) { context, size in
-                    guard let layout = makeLayout(in: size, attributedText: attributedText) else { return }
+                    guard let layout = makeLayout(in: size, attributedText: visibleText) else { return }
 
                     let scale = max(displayScale, 1)
                     let pixelWidth = max(Int(ceil(size.width * scale)), 1)
@@ -677,6 +688,7 @@ struct CoreTextAttributedLabel: View {
 
 #if canImport(UIKit) && !os(watchOS)
                     if let underlineImage = rasterizedUIKitUnderlineDecoration(
+                        visibleLength: visibleLength,
                         canvasSize: size,
                         scale: scale
                     ) {
@@ -689,7 +701,7 @@ struct CoreTextAttributedLabel: View {
                     drawStrikethrough(in: layout, canvasHeight: size.height, context: &context)
                 }
 
-                ForEach(tapRegions(in: geometry.size, attributedText: attributedText)) { region in
+                ForEach(tapRegions(in: geometry.size, attributedText: visibleText)) { region in
                     SwiftUIColor.clear
                         .frame(width: region.rect.width, height: region.rect.height)
                         .contentShape(Rectangle())
@@ -1034,10 +1046,11 @@ struct CoreTextAttributedLabel: View {
     }
 
     private func rasterizedUIKitUnderlineDecoration(
+        visibleLength: Int,
         canvasSize: CGSize,
         scale: CGFloat
     ) -> UIImage? {
-        guard let decoration = underlineDecorationAttributedString() else { return nil }
+        guard let decoration = underlineDecorationAttributedString(visibleLength: visibleLength) else { return nil }
 
         let textStorage = NSTextStorage(attributedString: decoration)
         let layoutManager = NSLayoutManager()
@@ -1063,8 +1076,10 @@ struct CoreTextAttributedLabel: View {
         }
     }
 
-    private func underlineDecorationAttributedString() -> NSAttributedString? {
-        let mutable = NSMutableAttributedString(attributedString: attributedText)
+    /// The underlines of the visible part of the text: `visibleLength` comes from the same text without underlines.
+    private func underlineDecorationAttributedString(visibleLength: Int) -> NSAttributedString? {
+        let visibleRange = NSRange(location: 0, length: min(visibleLength, attributedText.length))
+        let mutable = NSMutableAttributedString(attributedString: attributedText.attributedSubstring(from: visibleRange))
         let wholeRange = NSRange(location: 0, length: mutable.length)
         var containsUnderline = false
 

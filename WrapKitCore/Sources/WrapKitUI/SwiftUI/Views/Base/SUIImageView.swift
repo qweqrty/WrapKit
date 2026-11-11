@@ -240,15 +240,22 @@ public struct SUIImageView: View {
             SwiftUIImage(image: image)
                 .renderingMode(.template)
                 .resizable()
-                .modifier(OptionalAspectRatio(contentModeIsFit: model.contentModeIsFit ?? true))
+                .modifier(OptionalAspectRatio(contentModeIsFit: resolvedContentModeIsFit))
                 .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity, alignment: .center)
                 .foregroundColor(SwiftUI.Color.accentColor)
         } else {
             SwiftUIImage(image: image)
                 .resizable()
-                .modifier(OptionalAspectRatio(contentModeIsFit: model.contentModeIsFit ?? true))
+                .modifier(OptionalAspectRatio(contentModeIsFit: resolvedContentModeIsFit))
                 .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity, alignment: .center)
         }
+    }
+
+    /// nil stretches the image. `CardView` creates its background image view with `.scaleToFill`, and `ImageView`
+    /// changes the mode only when the model sets `contentModeIsFit`; other image views fit by default.
+    private var resolvedContentModeIsFit: Bool? {
+        if let contentModeIsFit = model.contentModeIsFit { return contentModeIsFit }
+        return containerPresentation == .cardBackground ? nil : true
     }
 
     private var loadingView: some View {
@@ -1044,10 +1051,16 @@ private struct OptionalFrame: ViewModifier {
 }
 
 private struct OptionalAspectRatio: ViewModifier {
-    let contentModeIsFit: Bool
+    /// nil keeps the resizable image stretched, like `UIView.ContentMode.scaleToFill`.
+    let contentModeIsFit: Bool?
 
+    @ViewBuilder
     func body(content: Content) -> some View {
-        content.aspectRatio(contentMode: contentModeIsFit ? .fit : .fill)
+        if let contentModeIsFit {
+            content.aspectRatio(contentMode: contentModeIsFit ? .fit : .fill)
+        } else {
+            content
+        }
     }
 }
 

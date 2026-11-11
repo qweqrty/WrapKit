@@ -13,6 +13,7 @@ struct CoreTextAttributedLabelSizingLayout: Layout, @unchecked Sendable {
     let attributedText: NSAttributedString
     let usesFoundationLayoutMetrics: Bool
     let displayScale: CGFloat
+    var lineLimit: Int?
 
     func sizeThatFits(
         proposal: ProposedViewSize,
@@ -46,6 +47,11 @@ struct CoreTextAttributedLabelSizingLayout: Layout, @unchecked Sendable {
         let constraint = CGSize(
             width: proposedWidth ?? .greatestFiniteMagnitude,
             height: .greatestFiniteMagnitude
+        )
+        let attributedText = CoreTextAttributedLabelMetrics.lineLimitedText(
+            self.attributedText,
+            lineLimit: lineLimit,
+            width: proposedWidth
         )
         var measured: CGSize
         if usesFoundationLayoutMetrics {
@@ -82,6 +88,44 @@ struct CoreTextAttributedLabelSizingLayout: Layout, @unchecked Sendable {
 }
 
 enum CoreTextAttributedLabelMetrics {
+    /// The text `UILabel` shows with `numberOfLines`: the first `lineLimit` lines at `width`.
+    /// The attributed strings wrap by word, so the rest is cut without an ellipsis, as in `UILabel`.
+    static func lineLimitedText(
+        _ attributedText: NSAttributedString,
+        lineLimit: Int?,
+        width: CGFloat?
+    ) -> NSAttributedString {
+        let length = visibleLength(of: attributedText, lineLimit: lineLimit, width: width)
+        guard length < attributedText.length else { return attributedText }
+        return attributedText.attributedSubstring(from: NSRange(location: 0, length: length))
+    }
+
+    static func visibleLength(
+        of attributedText: NSAttributedString,
+        lineLimit: Int?,
+        width: CGFloat?
+    ) -> Int {
+        guard let lineLimit, lineLimit > 0, attributedText.length > 0 else { return attributedText.length }
+        let layoutSide: CGFloat = 1_000_000
+        let layoutWidth = width.flatMap { $0.isFinite && $0 > 0 ? $0 : nil } ?? layoutSide
+        let framesetter = CTFramesetterCreateWithAttributedString(attributedText as CFAttributedString)
+        let path = CGPath(rect: CGRect(x: 0, y: 0, width: layoutWidth, height: layoutSide), transform: nil)
+        let frame = CTFramesetterCreateFrame(framesetter, CFRange(location: 0, length: 0), path, nil)
+        let lines = CTFrameGetLines(frame) as? [CTLine] ?? []
+        guard lines.count > lineLimit else { return attributedText.length }
+
+        let lastVisibleLine = CTLineGetStringRange(lines[lineLimit - 1])
+        var length = lastVisibleLine.location + lastVisibleLine.length
+        // A line break that ends the last visible line would add an empty line.
+        let string = attributedText.string as NSString
+        while length > 0,
+              let scalar = UnicodeScalar(string.character(at: length - 1)),
+              CharacterSet.newlines.contains(scalar) {
+            length -= 1
+        }
+        return length
+    }
+
     static func drawingHeight(
         in attributedText: NSAttributedString,
         width: CGFloat,
