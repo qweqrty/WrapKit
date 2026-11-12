@@ -11,6 +11,102 @@ import XCTest
 import WrapKitTestUtils
 
 final class LabelSnapshotTests: XCTestCase {
+
+    func test_labelOutput_defaultWidth_preservesCallerMeasurementAcrossTextAndLayoutChanges() {
+        let label = Label(font: .systemFont(ofSize: 18))
+        XCTAssertFalse(label.automaticallyUpdatesPreferredMaxLayoutWidth)
+        label.preferredMaxLayoutWidth = 74
+        label.text = "ДҮЙНӨ аймагы боюнча ылдамдык"
+        label.frame = CGRect(x: 0, y: 0, width: 160, height: 120)
+        label.layoutIfNeeded()
+        XCTAssertEqual(label.preferredMaxLayoutWidth, 74)
+
+        label.attributedText = NSAttributedString(string: "A longer attributed label", attributes: [.font: UIFont.systemFont(ofSize: 18)])
+        label.frame.size.width = 240
+        label.layoutIfNeeded()
+        XCTAssertEqual(label.preferredMaxLayoutWidth, 74)
+
+        label.attributedText = nil
+        label.text = "Short"
+        label.layoutIfNeeded()
+        XCTAssertEqual(label.preferredMaxLayoutWidth, 74)
+    }
+
+    func test_labelOutput_automaticWidth_followsResizingAndResetsReusedText() {
+        let label = Label(font: .systemFont(ofSize: 18), automaticallyUpdatesPreferredMaxLayoutWidth: true)
+        XCTAssertTrue(label.automaticallyUpdatesPreferredMaxLayoutWidth)
+        label.text = "ДҮЙНӨ аймагы боюнча ылдамдык"
+        label.frame = CGRect(x: 0, y: 0, width: 140, height: 140)
+        label.layoutIfNeeded()
+        XCTAssertEqual(label.preferredMaxLayoutWidth, 140)
+        let narrowHeight = label.intrinsicContentSize.height
+
+        label.frame.size.width = 280
+        label.layoutIfNeeded()
+        XCTAssertEqual(label.preferredMaxLayoutWidth, 280)
+        XCTAssertLessThan(label.intrinsicContentSize.height, narrowHeight)
+
+        label.text = "Short"
+        XCTAssertEqual(label.preferredMaxLayoutWidth, 0)
+        label.setNeedsLayout()
+        label.layoutIfNeeded()
+        XCTAssertEqual(label.preferredMaxLayoutWidth, 280)
+        XCTAssertLessThan(label.intrinsicContentSize.height, narrowHeight)
+
+        label.attributedText = NSAttributedString(string: "KG аймагы боюнча ылдамдык", attributes: [.font: UIFont.systemFont(ofSize: 18)])
+        XCTAssertEqual(label.preferredMaxLayoutWidth, 0)
+        label.frame.size.width = 140
+        label.layoutIfNeeded()
+        XCTAssertEqual(label.preferredMaxLayoutWidth, 140)
+
+        label.automaticallyUpdatesPreferredMaxLayoutWidth = false
+        XCTAssertEqual(label.preferredMaxLayoutWidth, 140)
+        label.preferredMaxLayoutWidth = 74
+        label.text = "Restored caller width"
+        label.frame.size.width = 240
+        label.layoutIfNeeded()
+        XCTAssertEqual(label.preferredMaxLayoutWidth, 74)
+    }
+
+    func test_labelOutput_automaticWidth_addsInsetsOnce() {
+        let container = UIView(frame: CGRect(x: 0, y: 0, width: 350, height: 230))
+        container.backgroundColor = .white
+        let plain = Label(font: .systemFont(ofSize: 18), textColor: .black, automaticallyUpdatesPreferredMaxLayoutWidth: true)
+        let inset = Label(font: .systemFont(ofSize: 18), textColor: .black, textInsets: .init(top: 4, left: 8, bottom: 6, right: 8), automaticallyUpdatesPreferredMaxLayoutWidth: true)
+        for (offset, label) in [plain, inset].enumerated() {
+            label.text = "ДҮЙНӨ аймагы боюнча ылдамдык"
+            label.frame = CGRect(x: 16, y: 16 + offset * 90, width: offset == 0 ? 150 : 166, height: 80)
+            container.addSubview(label)
+            label.layoutIfNeeded()
+        }
+        XCTAssertEqual(inset.intrinsicContentSize.height, plain.intrinsicContentSize.height + 10, accuracy: 0.001)
+        XCTAssertEqual(inset.sizeThatFits(.init(width: 166, height: 500)).height, plain.sizeThatFits(.init(width: 150, height: 500)).height + 10, accuracy: 0.001)
+        let attachment = XCTAttachment(image: container.snapshot(for: .iPhone(style: .light)))
+        attachment.name = "automatic_width_multiline_plain_and_insets"
+        attachment.lifetime = .keepAlways
+        add(attachment)
+    }
+
+    func test_labelOutput_automaticWidth_doesNotOverrideSingleLineOrHiddenMeasurement() {
+        let label = Label(font: .systemFont(ofSize: 18), numberOfLines: 1, automaticallyUpdatesPreferredMaxLayoutWidth: true)
+        label.text = "Single line"
+        label.preferredMaxLayoutWidth = 74
+        label.frame = CGRect(x: 0, y: 0, width: 200, height: 60)
+        label.layoutIfNeeded()
+        XCTAssertEqual(label.preferredMaxLayoutWidth, 74)
+
+        label.numberOfLines = 0
+        label.isHidden = true
+        label.setNeedsLayout()
+        label.layoutIfNeeded()
+        XCTAssertEqual(label.preferredMaxLayoutWidth, 74)
+
+        label.isHidden = false
+        label.setNeedsLayout()
+        label.layoutIfNeeded()
+        XCTAssertEqual(label.preferredMaxLayoutWidth, 200)
+    }
+
     func test_labelOutput_textInsets_areAddedOnceToIntrinsicContentSize() {
         // GIVEN
         let text = "Sample text"

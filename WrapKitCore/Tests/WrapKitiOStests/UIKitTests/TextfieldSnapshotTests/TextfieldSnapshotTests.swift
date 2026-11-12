@@ -12,6 +12,22 @@ import WrapKitTestUtils
 import XCTest
 
 final class TextfieldSnapshotTests: XCTestCase {
+    func test_chunkedField_modelIdentifierReachesEditableInputOnRedisplay() {
+        let (textField, _) = makeSUT()
+        let sut = ChunkedTextField(count: 6, appearance: textField.appearance)
+
+        sut.display(model: .init(accessibilityIdentifier: "otp.initial", text: "123456"))
+
+        XCTAssertEqual(sut.input.accessibilityIdentifier, "otp.initial")
+        XCTAssertEqual(sut.otpText, "123456")
+
+        sut.display(model: .init(accessibilityIdentifier: "otp.reused", text: ""))
+
+        XCTAssertEqual(sut.input.accessibilityIdentifier, "otp.reused")
+        XCTAssertEqual(sut.otpText, "")
+        XCTAssertNil(sut.accessibilityIdentifier, "Only the editable input exposes the field identifier")
+    }
+
     func test_Textfield_default_state() {
         let snapshotName = "TEXTFIELD_DEFAULT_STATE"
 
