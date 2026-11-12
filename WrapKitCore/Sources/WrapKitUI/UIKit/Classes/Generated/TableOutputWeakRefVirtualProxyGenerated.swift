@@ -52,6 +52,9 @@ extension WeakRefVirtualProxy: TableOutput where T: TableOutput {
     public func displayHideRefreshControl() {
         object?.displayHideRefreshControl()
     }
+    public func displayShowRefreshControl() {
+        object?.displayShowRefreshControl()
+    }
 
 }
 #endif
