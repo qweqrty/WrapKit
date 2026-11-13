@@ -1,3 +1,4 @@
+#if os(iOS) || targetEnvironment(macCatalyst)
 //
 //  HangingHTTPServer.swift
 //  WrapKit
@@ -210,3 +211,4 @@ final class HangingHTTPServer {
         observer?(url)
     }
 }
+#endif

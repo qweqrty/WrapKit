@@ -63,7 +63,7 @@ public struct StackViewPresentableModel {
     }
 }
 
-#if canImport(UIKit)
+#if canImport(UIKit) && !os(watchOS)
 import UIKit
 
 open class StackView: UIStackView {

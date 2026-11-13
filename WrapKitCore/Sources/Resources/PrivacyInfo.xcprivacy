@@ -15,7 +15,17 @@
             <string>NSPrivacyAccessedAPICategoryUserDefaults</string>
             <key>NSPrivacyAccessedAPITypeReasons</key>
             <array>
+                <!-- UserDefaultsStorage accesses preferences only through caller-provided get/set closures. -->
                 <string>C56D.1</string>
+            </array>
+        </dict>
+        <dict>
+            <key>NSPrivacyAccessedAPIType</key>
+            <string>NSPrivacyAccessedAPICategorySystemBootTime</string>
+            <key>NSPrivacyAccessedAPITypeReasons</key>
+            <array>
+                <!-- The watchOS display-link replacement uses systemUptime to calculate animation progress. -->
+                <string>35F9.1</string>
             </array>
         </dict>
     </array>

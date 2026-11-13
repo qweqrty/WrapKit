@@ -43,7 +43,20 @@ final class SUIDisplayLinkManager: ObservableObject {
 import QuartzCore
 
 final class DisplayLinkManager {
+    private static var currentMediaTime: TimeInterval {
+        #if os(watchOS)
+        return ProcessInfo.processInfo.systemUptime
+        #else
+        return CACurrentMediaTime()
+        #endif
+    }
+
+    #if os(macOS) || os(watchOS)
+    private var timer: Timer?
+    #else
     private var displayLink: CADisplayLink?
+    #endif
+    
     private var startTime: TimeInterval = .zero
     private var animationDuration: TimeInterval = .zero
     
@@ -58,14 +71,24 @@ final class DisplayLinkManager {
         self.animationDuration = duration
         self.onUpdateProgress = onUpdateProgress
         self.completion = completion
+        
+        #if os(macOS) || os(watchOS)
+        timer?.invalidate()
+        startTime = Self.currentMediaTime
+        timer = Timer.scheduledTimer(withTimeInterval: 1.0/60.0, repeats: true) { [weak self] _ in
+            self?.tick()
+        }
+        #else
         displayLink?.invalidate()
         displayLink = CADisplayLink(target: self, selector: #selector(updateAnimation))
         displayLink?.add(to: .main, forMode: .common)
-        startTime = CACurrentMediaTime()
+        startTime = Self.currentMediaTime
+        #endif
     }
-
-    @objc private func updateAnimation(displayLink: CADisplayLink) {
-        let elapsedTime = CACurrentMediaTime() - startTime
+    
+    #if os(macOS) || os(watchOS)
+    private func tick() {
+        let elapsedTime = Self.currentMediaTime - startTime
         if elapsedTime < animationDuration {
             onUpdateProgress?(Decimal(min(1.0, elapsedTime / animationDuration)))
         } else {
@@ -74,17 +97,39 @@ final class DisplayLinkManager {
             stopAnimation()
         }
     }
+    #else
+    @objc private func updateAnimation(displayLink: CADisplayLink) {
+        let elapsedTime = Self.currentMediaTime - startTime
+        if elapsedTime < animationDuration {
+            onUpdateProgress?(Decimal(min(1.0, elapsedTime / animationDuration)))
+        } else {
+            onUpdateProgress?(1.0)
+            completion?()
+            stopAnimation()
+        }
+    }
+    #endif
 
     func stopAnimation() {
+    #if os(macOS) || os(watchOS)
+        timer?.invalidate()
+        timer = nil
+    #else
         displayLink?.invalidate()
         displayLink = nil
+    #endif
         startTime = .zero
         animationDuration = .zero
     }
+        
     
     deinit {
+    #if os(macOS) || os(watchOS)
+        timer?.invalidate()
+    #else
         displayLink?.invalidate()
         displayLink = nil
+    #endif
     }
 }
 

@@ -10,7 +10,7 @@ import Combine
 import SwiftUI
 
 public protocol EntryFlow: AnyObject {
-    func showSplash()
+    func showCatalog()
 }
 
 public class EntrySwiftUIFlow: ObservableObject, EntryFlow {
@@ -21,7 +21,7 @@ public class EntrySwiftUIFlow: ObservableObject, EntryFlow {
         self.factory = factory
     }
 
-    public func showSplash() {
-        currentView = factory.makeSplashScreen()
+    public func showCatalog() {
+        currentView = factory.makeCatalogScreen()
     }
 }

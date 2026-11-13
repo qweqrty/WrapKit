@@ -1,4 +1,4 @@
-#if canImport(UIKit)
+#if canImport(UIKit) && !os(watchOS)
 import UIKit
 
 final public class BottomSheetTransitioningDelegate: NSObject, UIViewControllerTransitioningDelegate {

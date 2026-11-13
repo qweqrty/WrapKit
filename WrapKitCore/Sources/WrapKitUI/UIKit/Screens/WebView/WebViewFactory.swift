@@ -17,7 +17,7 @@ public protocol WebViewFactory<Controller> {
     ) -> Controller
 }
 
-#if canImport(UIKit)
+#if canImport(WebKit) && canImport(UIKit) && !os(watchOS)
 import UIKit
 
 public class WebViewFactoryiOS: WebViewFactory {

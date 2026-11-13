@@ -47,7 +47,7 @@ private enum EndlessEdge {
     case end
 }
 
-#if canImport(UIKit)
+#if canImport(UIKit) && !os(watchOS)
 import UIKit
 
 public final class DiffableCollectionViewDataSource<Header, Cell: Hashable, Footer>:

@@ -1,10 +1,4 @@
-//
-//  File.swift
-//  WrapKit
-//
-//  Created by Gulzat Zheenbek kyzy on 16/6/25.
-//
-
+#if os(iOS) || targetEnvironment(macCatalyst)
 import Foundation
 import UniformTypeIdentifiers
 import Combine
@@ -82,4 +76,5 @@ extension URL {
         return type.conforms(to: .audiovisualContent) && type.conforms(to: .movie)
     }
 }
+#endif
 #endif

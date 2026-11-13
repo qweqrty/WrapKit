@@ -25,9 +25,9 @@ extension EntryFlow {
 
 extension MainQueueDispatchDecorator: EntryFlow where T: EntryFlow {
 
-    public func showSplash() {
+    public func showCatalog() {
         dispatch { [weak self] in
-            self?.decoratee.showSplash()
+            self?.decoratee.showCatalog()
         }
     }
 

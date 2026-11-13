@@ -5,7 +5,7 @@
 //  Created by Stas Lee on 6/8/23.
 //
 
-#if canImport(UIKit)
+#if canImport(UIKit) && !os(watchOS)
 import UIKit
 
 open class Textview: UITextView, UITextViewDelegate {
@@ -80,6 +80,7 @@ open class Textview: UITextView, UITextViewDelegate {
     
     public func textViewDidChange(_ textView: UITextView) {
         placeholderLabel.isHidden = !textView.text.isEmpty
+        didChangeText.forEach { $0(textView.text) }
         textDidChange?()
         applyAccessibility()
     }
@@ -95,6 +96,10 @@ open class Textview: UITextView, UITextViewDelegate {
     }
     
     open override func paste(_ sender: Any?) {
+        #if os(tvOS)
+        super.paste(sender)
+        applyAccessibility()
+        #else
         if let onPaste {
             onPaste(UIPasteboard.general.string)
             applyAccessibility()
@@ -102,6 +107,7 @@ open class Textview: UITextView, UITextViewDelegate {
             super.paste(sender)
             applyAccessibility()
         }
+        #endif
     }
     
     @discardableResult
@@ -156,7 +162,7 @@ public extension Textview {
         let container = UIView(frame: CGRect(
             x: 0,
             y: 0,
-            width: UIScreen.main.bounds.width,
+            width: Self.accessoryWidth,
             height: model.style.height
         ))
         container.backgroundColor = model.style.backgroundColor
@@ -167,9 +173,11 @@ public extension Textview {
         let trailingButton = Button()
         trailingButton.display(model: toolbarModel)
         trailingButton.onPress = { [weak self] in
+            #if !os(tvOS)
             if let date = (self?.inputView as? UIDatePicker)?.date {
                 onDoneTapped?(date)
             }
+            #endif
             toolbarModel.onPress?()
             self?.endEditing(true)
         }
@@ -230,12 +238,16 @@ public extension Textview {
 extension Textview: TextInputOutput {
     public func display(inputAccessoryView: TextInputPresentableModel.AccessoryViewPresentableModel?) {
         guard let inputAccessoryView else {
+            #if !os(visionOS)
             self.inputAccessoryView = nil
+            #endif
             self.reloadInputViews()
             applyAccessibility()
             return
         }
+        #if !os(visionOS)
         self.inputAccessoryView = makeAccessoryView(model: inputAccessoryView)
+        #endif
         self.reloadInputViews()
         applyAccessibility()
     }
@@ -249,6 +261,9 @@ extension Textview: TextInputOutput {
         }
         switch inputView {
         case .date(let model):
+            #if os(tvOS)
+            break
+            #else
             let picker = DatePickerView()
             picker.datePickerMode = picker.mapMode(model.mode)
             picker.date = model.value
@@ -261,15 +276,24 @@ extension Textview: TextInputOutput {
             self.inputView = picker
             
             guard let accessoryView = model.accessoryView else {
+                #if !os(visionOS)
                 self.inputAccessoryView = nil
+                #endif
                 applyAccessibility()
                 return
             }
+            #if !os(visionOS)
             self.inputAccessoryView = makeAccessoryView(model: accessoryView, onDoneTapped: model.onDoneTapped)
+            #endif
+            #endif
         case .custom(let model):
+            #if os(tvOS)
+            break
+            #else
             let pickerView = PickerView()
             pickerView.display(model: model)
             self.inputView = pickerView
+            #endif
         }
         self.reloadInputViews()
         applyAccessibility()
@@ -289,7 +313,6 @@ extension Textview: TextInputOutput {
         display(text: model.text)
         if let isValid = model.isValid {
             display(isValid: isValid)
-            updateAppearance(isValid: isValid)
         }
         if let isEnabledForEditing = model.isEnabledForEditing { display(isEnabledForEditing: isEnabledForEditing) }
         if let isTextSelectionDisabled = model.isTextSelectionDisabled { display(isTextSelectionDisabled: isTextSelectionDisabled) }
@@ -321,9 +344,22 @@ extension Textview: TextInputOutput {
     }
     
     public func display(mask: TextInputPresentableModel.Mask) { }
-    public func display(isValid: Bool) { isValidState = isValid; applyAccessibility() }
-    public func display(isEnabledForEditing: Bool) { applyAccessibility() }
-    public func display(isTextSelectionDisabled: Bool) { applyAccessibility() }
+    public func display(isValid: Bool) {
+        isValidState = isValid
+        updateAppearance(isValid: isValid)
+        applyAccessibility()
+    }
+    public func display(isEnabledForEditing: Bool) {
+        #if !os(tvOS)
+        isEditable = isEnabledForEditing
+        #endif
+        applyAccessibility()
+    }
+
+    public func display(isTextSelectionDisabled: Bool) {
+        isSelectable = !isTextSelectionDisabled
+        applyAccessibility()
+    }
     
     public func display(placeholder: String?) {
         self.placeholderLabel.text = placeholder
@@ -451,4 +487,16 @@ private extension Textview {
         return true
     }
 }
+
+private extension Textview {
+    /// UIScreen недоступен на visionOS — берём ширину из активной сцены/трейтов.
+    static var accessoryWidth: CGFloat {
+        #if os(visionOS)
+        return 1280
+        #else
+        return UIScreen.main.bounds.width
+        #endif
+    }
+}
+
 #endif
