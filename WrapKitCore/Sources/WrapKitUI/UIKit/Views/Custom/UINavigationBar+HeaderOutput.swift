@@ -146,7 +146,9 @@ public final class NavigationItemHeaderOutput: HeaderOutput {
         let view = TitledView(contentView: WrapperView(
             contentView: ImageView(),
             contentViewConstraints: { contentView, _ in contentView.centerInSuperview() }
-        ))
+        ), spacing: 0)
+        view.titlesView.isHidden = true
+        view.stackView.layoutMargins.top = 8
         view.closingTitleVFieldView.keyLabel.textAlignment = .center
         view.closingTitleVFieldView.keyLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
         view.closingTitleVFieldView.keyLabel.setContentCompressionResistancePriority(.required, for: .vertical)
