@@ -9,28 +9,55 @@ import Foundation
 
 public class CompositeHTTPClientTask: HTTPClientTask {
     private var tasks: [HTTPClientTask]
-    private let queue = DispatchQueue(label: "com.compositeHTTPClientTask.queue", attributes: .concurrent) // Concurrent queue
+    private let lock = NSLock()
+    private var cancelled = false
+    private var resumed = false
+    private var finished = false
+
+    public var isCancelled: Bool {
+        lock.lock()
+        defer { lock.unlock() }
+        return cancelled
+    }
 
     public init(tasks: [HTTPClientTask] = []) {
         self.tasks = tasks
     }
 
     public func add(_ task: HTTPClientTask) {
-        queue.async(flags: .barrier) { // Barrier to ensure exclusive write access
-            self.tasks.append(task)
-        }
+        lock.lock()
+        let shouldCancel = cancelled || finished
+        let shouldResume = resumed
+        if !shouldCancel { tasks.append(task) }
+        lock.unlock()
+        if shouldCancel { task.cancel() }
+        else if shouldResume { task.resume() }
     }
 
     public func resume() {
-        queue.sync { // Sync read for thread safety
-            self.tasks.forEach { $0.resume() }
-        }
+        lock.lock()
+        guard !cancelled, !resumed else { lock.unlock(); return }
+        resumed = true
+        let pending = tasks
+        lock.unlock()
+        pending.forEach { $0.resume() }
     }
 
     public func cancel() {
-        queue.sync { // Sync read for thread safety
-            self.tasks.forEach { $0.cancel() }
-        }
+        lock.lock()
+        guard !cancelled else { lock.unlock(); return }
+        cancelled = true
+        let pending = tasks
+        tasks.removeAll()
+        lock.unlock()
+        pending.forEach { $0.cancel() }
+    }
+
+    func finish() {
+        lock.lock()
+        finished = true
+        tasks.removeAll()
+        lock.unlock()
     }
 }
 
