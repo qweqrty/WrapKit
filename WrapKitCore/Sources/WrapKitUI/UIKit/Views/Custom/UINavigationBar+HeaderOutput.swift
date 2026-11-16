@@ -146,9 +146,7 @@ public final class NavigationItemHeaderOutput: HeaderOutput {
         let view = TitledView(contentView: WrapperView(
             contentView: ImageView(),
             contentViewConstraints: { contentView, _ in contentView.centerInSuperview() }
-        ), spacing: 0)
-        view.titlesView.isHidden = true
-        view.stackView.layoutMargins.top = 8
+        ))
         view.closingTitleVFieldView.keyLabel.textAlignment = .center
         view.closingTitleVFieldView.keyLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
         view.closingTitleVFieldView.keyLabel.setContentCompressionResistancePriority(.required, for: .vertical)
@@ -302,6 +300,9 @@ public final class NavigationItemHeaderOutput: HeaderOutput {
         titles.keyLabel.numberOfLines = style.numberOfLines
         titledImage.closingTitleVFieldView.keyLabel.font = style.secondaryFont
         titledImage.closingTitleVFieldView.keyLabel.textColor = style.secondaryColor
+        titledImage.titlesView.isHidden = style.usesCompactImageTitleLayout
+        titledImage.stackView.spacing = style.usesCompactImageTitleLayout ? 0 : 4
+        titledImage.stackView.layoutMargins.top = style.usesCompactImageTitleLayout ? 8 : 0
         invalidateLayout()
     }
 
