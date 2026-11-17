@@ -14,6 +14,8 @@ import WebKit
 open class WebViewVC: ViewController<WebViewContentView> {
     private let presenter: WebViewInput
     private let onBackSwipeStateChange: ((Bool) -> Void)?
+    private weak var backSwipeGestureRecognizer: UIGestureRecognizer?
+    private var wasBackSwipeEnabled = true
     private static let estimatedProgressKeyPath = #keyPath(WKWebView.estimatedProgress)
     
     public init(
@@ -36,6 +38,11 @@ open class WebViewVC: ViewController<WebViewContentView> {
 
     open override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
+        if backSwipeGestureRecognizer == nil {
+            backSwipeGestureRecognizer = navigationController?.interactivePopGestureRecognizer
+            wasBackSwipeEnabled = backSwipeGestureRecognizer?.isEnabled ?? true
+        }
+        backSwipeGestureRecognizer?.isEnabled = true
         onBackSwipeStateChange?(true)
         navigationController?.interactivePopGestureRecognizer?.delegate = self
     }
@@ -43,6 +50,8 @@ open class WebViewVC: ViewController<WebViewContentView> {
     open override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         onBackSwipeStateChange?(false)
+        backSwipeGestureRecognizer?.isEnabled = wasBackSwipeEnabled
+        backSwipeGestureRecognizer = nil
     }
     
     deinit {
