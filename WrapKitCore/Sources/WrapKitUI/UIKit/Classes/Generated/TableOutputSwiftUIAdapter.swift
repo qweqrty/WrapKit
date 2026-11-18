@@ -103,11 +103,4 @@ public class TableOutputSwiftUIAdapter<Cell: Hashable,Footer: Any,Header: Any>: 
         displayHideRefreshControlState = .init(
         )
     }
-    @Published public var displayShowRefreshControlState: DisplayShowRefreshControlState? = nil
-    public struct DisplayShowRefreshControlState {
-    }
-    public func displayShowRefreshControl() {
-        displayShowRefreshControlState = .init(
-        )
-    }
 }

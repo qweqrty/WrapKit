@@ -70,11 +70,6 @@ extension MainQueueDispatchDecorator: TableOutput where T: TableOutput {
             self?.decoratee.displayHideRefreshControl()
         }
     }
-    public func displayShowRefreshControl() {
-        dispatch { [weak self] in
-            self?.decoratee.displayShowRefreshControl()
-        }
-    }
 
 }
 #endif

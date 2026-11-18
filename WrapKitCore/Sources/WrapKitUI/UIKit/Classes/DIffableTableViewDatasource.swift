@@ -89,7 +89,6 @@ public protocol TableOutput<Header, Cell, Footer>: AnyObject {
     func display(canEdit: ((IndexPath) -> Bool)?)
     func display(commitEditing: ((TableEditingStyle, IndexPath) -> Void)?)
     func displayHideRefreshControl()
-    func displayShowRefreshControl()
 }
 
 #if canImport(UIKit)
@@ -112,7 +111,6 @@ public final class DiffableTableViewDataSource<Header, Cell: Hashable, Footer>: 
     public var loadNextPage: (() -> Void)?
     
     private weak var tableView: UITableView?
-    private weak var refreshControl: UIRefreshControl?
     
     private var moveHandler: ((IndexPath, IndexPath) -> Void)?
     private var canMoveHandler: ((IndexPath) -> Bool)?
@@ -272,15 +270,7 @@ public final class DiffableTableViewDataSource<Header, Cell: Hashable, Footer>: 
 // MARK: - TableOutput Conformance
 extension DiffableTableViewDataSource: TableOutput & HiddableOutput {
     public func displayHideRefreshControl() {
-        if let control = tableView?.refreshControl {
-            self.refreshControl = control
-        }
         tableView?.refreshControl = nil
-    }
-    
-    public func displayShowRefreshControl() {
-        guard tableView?.refreshControl == nil, let refreshControl else { return }
-        tableView?.refreshControl = refreshControl
     }
     
     public func display(expandTrailingActionsAt indexPath: IndexPath) {
