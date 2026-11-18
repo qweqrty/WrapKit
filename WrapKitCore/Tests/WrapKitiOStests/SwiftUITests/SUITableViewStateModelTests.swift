@@ -345,6 +345,46 @@ final class SUITableViewStateModelTests: XCTestCase {
     }
 
     @available(iOS 17.0, *)
+    func test_rowTap_keepsNestedButtonActionSeparateInRenderedLazyVStack() throws {
+        let adapter = makeAdapter()
+        var rowTapCount = 0
+        var nestedTapCount = 0
+        adapter.display(sections: [
+            .init(cells: [
+                .init(cell: "Row with nested action") { _, _ in rowTapCount += 1 }
+            ])
+        ])
+
+        let host = SwiftUIAccessibilityTestHost(
+            rootView: SUITableView(
+                adapter: adapter,
+                style: .lazyVStack(scrollable: true),
+                cellContent: { cell, _ in
+                    HStack {
+                        SwiftUI.Text(cell)
+                        SwiftUI.Button("Nested action") { nestedTapCount += 1 }
+                    }
+                    .frame(maxWidth: .infinity, minHeight: 56, alignment: .leading)
+                },
+                headerContent: { _ in SwiftUI.EmptyView() },
+                footerContent: { _ in SwiftUI.EmptyView() }
+            ),
+            size: CGSize(width: 390, height: 240)
+        )
+        let nested = try XCTUnwrap(host.element(withLabel: "Nested action"))
+
+        XCTAssertTrue(nested.accessibilityActivate())
+        XCTAssertEqual(nestedTapCount, 1)
+        XCTAssertEqual(rowTapCount, 0)
+
+        let row = try XCTUnwrap(host.element(withLabel: "Row with nested action"))
+
+        XCTAssertTrue(row.accessibilityActivate())
+        XCTAssertEqual(rowTapCount, 1)
+        XCTAssertEqual(nestedTapCount, 1)
+    }
+
+    @available(iOS 17.0, *)
     func test_insertControl_isVisibleAndInteractiveOnlyInActiveEditMode() throws {
         let adapter = makeAdapter()
         var capturedIndexPath: IndexPath?

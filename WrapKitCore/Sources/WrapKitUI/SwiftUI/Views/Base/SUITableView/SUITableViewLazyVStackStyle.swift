@@ -104,7 +104,8 @@ public struct SUITableViewLazyVStackStyle {
                 .onTapGesture {
                     onTap(indexPath, cellModel.cell)
                 }
-                .accessibilityElement(children: .contain)
+                .accessibilityElement(children: .combine)
+                .accessibilityAddTraits(.isButton)
                 .accessibilityAction {
                     onTap(indexPath, cellModel.cell)
                 }

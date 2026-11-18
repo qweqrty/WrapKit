@@ -658,6 +658,46 @@ final class SUICardViewSnapshotTests: XCTestCase {
         }
     }
 
+    func test_CardView_withStyledSubtitle_shouldApplyInsetsOnce() {
+        let snapshotName = "CARDVIEW_WITH_STYLED_SUBTITLE"
+
+        // GIVEN
+        let sut = makeSUT()
+
+        // WHEN
+        sut.display(model: .init(
+            style: makeDefaultStyle(
+                backgroundColor: .systemBackground,
+                vStacklayoutMargins: .init(top: 16, leading: 16, bottom: 16, trailing: 16),
+                hStackViewDistribution: .fill,
+                titleKeyTextColor: .label,
+                titleKeyLabelFont: .systemFont(ofSize: 16, weight: .semibold),
+                subTitleLabelFont: .systemFont(ofSize: 13, weight: .medium),
+                cornerRadius: 16,
+                hStackViewSpacing: 12,
+                titleKeyNumberOfLines: 1,
+                borderColor: .clear,
+                borderWidth: 0
+            ),
+            title: .text("Title"),
+            subTitle: .textStyled(
+                text: .text("Subtitle"),
+                cornerStyle: .fixed(10),
+                insets: .init(top: 2, leading: 8, bottom: 4, trailing: 8),
+                backgroundColor: .systemGreen
+            )
+        ))
+
+        // THEN
+        if #available(iOS 26, *) {
+            assert(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS26_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
+            assert(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS26_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.standard)
+        } else {
+            assert(snapshot: sut.swiftUISnapshot(for: .light), named: "SwiftUI_iOS18.5_\(snapshotName)_LIGHT", precision: SwiftUISnapshotPrecision.standard)
+            assert(snapshot: sut.swiftUISnapshot(for: .dark), named: "SwiftUI_iOS18.5_\(snapshotName)_DARK", precision: SwiftUISnapshotPrecision.standard)
+        }
+    }
+
     func test_CardView_with_valueTitle() {
         let snapshotName = "CARDVIEW_WITH_VALUETITLE"
 

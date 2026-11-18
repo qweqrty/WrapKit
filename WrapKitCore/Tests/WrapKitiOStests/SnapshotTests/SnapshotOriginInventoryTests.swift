@@ -381,6 +381,10 @@ private extension SnapshotOriginInventoryTests {
             // pressed phase. Released interaction and accessibility actions are covered.
             "ImageView|IMAGE_VIEW_ONPRESS",
 
+            // SUIButton does not render a gradient ButtonStyle.backgroundStyle yet, and iOS 26
+            // wraps toolbar items in system glass. Add the SwiftUI origin together with that support.
+            "NavigationBar|NAVBAR_WITH_SECONDARY_TRAILING_IMAGE_WITH_TEXT",
+
             // These mutate UIKit view/layer internals and have no shared Output-model input.
             "ProgressBar|PROGRESSBAR_WITH_GRADIENT",
             "TextView|TEXTVIEW_MASKED_INPUT",
