@@ -20,6 +20,7 @@ public struct HeaderPresentableModel: HashableWithReflection {
         public let secondaryFont: Font
         public let secondaryColor: Color
         public let numberOfLines: Int
+        public let usesCompactImageTitleLayout: Bool
 
         public init(
             backgroundColor: Color,
@@ -28,7 +29,8 @@ public struct HeaderPresentableModel: HashableWithReflection {
             primeColor: Color,
             secondaryFont: Font,
             secondaryColor: Color,
-            numberOfLines: Int = 1
+            numberOfLines: Int = 1,
+            usesCompactImageTitleLayout: Bool = false
         ) {
             self.backgroundColor = backgroundColor
             self.horizontalSpacing = horizontalSpacing
@@ -37,6 +39,7 @@ public struct HeaderPresentableModel: HashableWithReflection {
             self.secondaryFont = secondaryFont
             self.secondaryColor = secondaryColor
             self.numberOfLines = numberOfLines
+            self.usesCompactImageTitleLayout = usesCompactImageTitleLayout
         }
     }
 

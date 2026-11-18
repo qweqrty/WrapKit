@@ -75,7 +75,21 @@ extension UIViewController: AlertOutput {
                     alert.addAction(UIAlertAction(title: cancelText, style: .cancel, handler: nil))
                 }
                 
-                self?.present(alert, animated: true, completion: nil)
+                self?.present(alert, animated: true) {
+                    guard let container = alert.presentationController?.containerView,
+                          let presentedView = alert.presentationController?.presentedView else { return }
+                    let background = UIControl(frame: container.bounds)
+                    background.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+                    background.accessibilityElementsHidden = true
+                    background.addAction(UIAction { [weak alert] _ in
+                        alert?.dismiss(animated: true) {
+                            let cancel = model.actions.first { $0.style == .cancel }
+                            cancel?.inputHandler?("")
+                            cancel?.handler?()
+                        }
+                    }, for: .touchUpInside)
+                    container.insertSubview(background, belowSubview: presentedView)
+                }
             }
         }
     
@@ -106,7 +120,17 @@ extension UIViewController: AlertOutput {
                 alert.addAction(UIAlertAction(title: cancelText, style: .cancel, handler: nil))
             }
             
-            self?.present(alert, animated: true, completion: nil)
+            self?.present(alert, animated: true) {
+                guard let container = alert.presentationController?.containerView,
+                      let presentedView = alert.presentationController?.presentedView else { return }
+                let background = UIControl(frame: container.bounds)
+                background.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+                background.accessibilityElementsHidden = true
+                background.addAction(UIAction { [weak alert] _ in
+                    alert?.dismiss(animated: true, completion: model.actions.first { $0.style == .cancel }?.handler)
+                }, for: .touchUpInside)
+                container.insertSubview(background, belowSubview: presentedView)
+            }
         }
     }
     

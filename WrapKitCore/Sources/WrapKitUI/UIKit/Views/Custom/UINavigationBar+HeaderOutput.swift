@@ -300,6 +300,9 @@ public final class NavigationItemHeaderOutput: HeaderOutput {
         titles.keyLabel.numberOfLines = style.numberOfLines
         titledImage.closingTitleVFieldView.keyLabel.font = style.secondaryFont
         titledImage.closingTitleVFieldView.keyLabel.textColor = style.secondaryColor
+        titledImage.titlesView.isHidden = style.usesCompactImageTitleLayout
+        titledImage.stackView.spacing = style.usesCompactImageTitleLayout ? 0 : 4
+        titledImage.stackView.layoutMargins.top = style.usesCompactImageTitleLayout ? 8 : 0
         invalidateLayout()
     }
 

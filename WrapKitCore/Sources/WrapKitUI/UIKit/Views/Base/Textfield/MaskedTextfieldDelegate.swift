@@ -89,7 +89,6 @@ public class MaskedTextfieldDelegate: NSObject, UITextFieldDelegate {
         } else {
             let maxSpecifiersLength = format.mask.maxSpecifiersLength()
             let currentUserInput = format.mask.extractUserInput(from: fullText)
-            let availablePositions = maxSpecifiersLength - currentUserInput.count
             
             let cleanString = format.mask.removeLiterals(from: string.replacingOccurrences(of: " ", with: ""))
             
@@ -97,15 +96,40 @@ public class MaskedTextfieldDelegate: NSObject, UITextFieldDelegate {
                 onPaste(cleanString)
             }
             
-            else if cleanString.count > availablePositions {
-                let combinedInput = currentUserInput + cleanString
-                onPaste(combinedInput)
-            } else {
+            else {
                 if string.isEmpty {
-                    setupMask(mask: format.mask.removeCharacters(from: fullText, in: range))
+                    var deletionRange = range
+                    if range.length == 1 {
+                        while deletionRange.location > 0,
+                              format.mask.isLiteralCharacter(at: deletionRange.location) {
+                            deletionRange.location -= 1
+                        }
+                    }
+                    setupMask(mask: format.mask.removeCharacters(from: fullText, in: deletionRange))
+                    isUpdatingSelection = true
+                    let prefixLength = format.mask.applied(to: "").input.utf16.count
+                    let offset = min(max(deletionRange.location, prefixLength), fullText.utf16.count)
+                    if let position = textField.position(from: textField.beginningOfDocument, offset: offset) {
+                        textField.selectedTextRange = textField.textRange(from: position, to: position)
+                    }
+                    isUpdatingSelection = false
                 } else {
-                    let newInput = currentUserInput + string
-                    setupMask(mask: format.mask.applied(to: newInput))
+                    let text = fullText as NSString
+                    let start = text.substring(to: min(range.location, text.length)).count
+                    let end = text.substring(to: min(NSMaxRange(range), text.length)).count
+                    let inputStart = min((0..<start).filter { !format.mask.isLiteralCharacter(at: $0) }.count, currentUserInput.count)
+                    let inputEnd = min((0..<end).filter { !format.mask.isLiteralCharacter(at: $0) }.count, currentUserInput.count)
+                    let capacity = maxSpecifiersLength - currentUserInput.count + inputEnd - inputStart
+                    let inserted = String(cleanString.prefix(max(0, capacity)))
+                    var newInput = Array(currentUserInput)
+                    newInput.replaceSubrange(inputStart..<inputEnd, with: inserted)
+                    setupMask(mask: format.mask.applied(to: String(newInput)))
+                    let prefix = format.mask.applied(to: String(newInput.prefix(inputStart + inserted.count))).input
+                    isUpdatingSelection = true
+                    if let position = textField.position(from: textField.beginningOfDocument, offset: prefix.utf16.count) {
+                        textField.selectedTextRange = textField.textRange(from: position, to: position)
+                    }
+                    isUpdatingSelection = false
                 }
             }
         }

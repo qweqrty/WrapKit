@@ -84,22 +84,18 @@ public struct Mask: Masking {
             return (updatedText, "")
         }
 
-        guard range.location >= 0, range.length > 0, range.location <= text.count else {
-            return (text, format[max(text.count - 1, 0)...].map { $0.mask }.joined())
+        guard range.length > 0, let selection = Range(range, in: text) else {
+            return applied(to: text)
         }
-        
-        var removeCount = range.length
-        var index = text.count - 1
-        while index >= 0 {
-            if format.indices.contains(index), case .literal = format.item(at: index) {
-                removeCount += 1
-            } else {
-                break
-            }
-            index -= 1
+        let start = text.distance(from: text.startIndex, to: selection.lowerBound)
+        let end = text.distance(from: text.startIndex, to: selection.upperBound)
+        var removedIndices = Set((start..<end).filter { !isLiteralCharacter(at: $0) })
+        if removedIndices.isEmpty, range.length == 1,
+           let previous = (0..<start).last(where: { !isLiteralCharacter(at: $0) }) {
+            removedIndices.insert(previous)
         }
-        let input = String(text.dropLast(removeCount))
-        return (input, format[input.count...].map { $0.mask }.joined())
+        let remaining = text.enumerated().filter { !removedIndices.contains($0.offset) }.map(\.element)
+        return applied(to: String(remaining))
     }
 
     public func extractUserInput(from text: String) -> String {
