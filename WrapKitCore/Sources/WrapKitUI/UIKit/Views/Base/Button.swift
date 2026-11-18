@@ -316,6 +316,10 @@ extension Button: ButtonOutput {
     }
     
     private func displayGlass(style: ButtonStyle) {
+        if let previousMasksToBounds = masksToBoundsBeforeProminentGlass {
+            layer.masksToBounds = previousMasksToBounds
+            masksToBoundsBeforeProminentGlass = nil
+        }
         guard let glassConfiguration = style.glassConfiguration else {
             resetGlassConfigurationIfNeeded()
             if let textColor = style.titleColor { self.setTitleColor(textColor, for: .normal) }
@@ -329,7 +333,7 @@ extension Button: ButtonOutput {
         
         let previousConfiguration = configuration
         if #available(iOS 26, macOS 26, watchOS 26, tvOS 26, *), isLiquidGlassEnabled {
-            self.usesLiquidGlassConfiguration = true
+            self.activeGlassConfiguration = glassConfiguration
             var config: UIButton.Configuration = switch glassConfiguration {
             case .glass: .glass()
             case .clearGlass: .clearGlass()
@@ -339,7 +343,7 @@ extension Button: ButtonOutput {
             config.background.strokeColor = style.borderColor
             config.background.strokeWidth = style.borderWidth
             
-            config.background.backgroundColor = style.backgroundStyle?.solidColor
+            applyConfigurationBackgroundColor(style.backgroundStyle?.solidColor, to: &config)
             config.baseForegroundColor = style.titleColor ?? .white
             if let imageTintColor = style.imageTintColor {
                 config.imageColorTransformer = UIConfigurationColorTransformer { _ in
@@ -368,6 +372,13 @@ extension Button: ButtonOutput {
                     applyCornerStyle(style.cornerStyle)
                 }
 //            }
+
+            if config.cornerStyle == .capsule,
+               glassConfiguration == .prominentGlass || glassConfiguration == .prominentClearGlass {
+                // The native capsule owns its shape; clipping here cuts off its rim and shadow.
+                masksToBoundsBeforeProminentGlass = layer.masksToBounds
+                layer.masksToBounds = false
+            }
             
             self.configuration = config
             self.backgroundColor = .clear
@@ -378,7 +389,7 @@ extension Button: ButtonOutput {
 
                 if button.isHighlighted {
                     isPreviouslyHighlighted = true
-                    updated.background.backgroundColor = pressedBackgroundColor ?? textBackgroundColor
+                    self.applyConfigurationBackgroundColor(pressedBackgroundColor ?? textBackgroundColor, to: &updated)
                     let baseForegroundColor = pressedTextColor ?? textColor ?? button.currentTitleColor
                     updated.baseForegroundColor = baseForegroundColor
                     updated.imageColorTransformer = .init { _ in baseForegroundColor }
@@ -393,7 +404,7 @@ extension Button: ButtonOutput {
                 } else {
                     if isPreviouslyHighlighted {
                         UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 0.4, initialSpringVelocity: 6, options: .allowUserInteraction) { [unowned self] in
-                            updated.background.backgroundColor = self.textBackgroundColor
+                            self.applyConfigurationBackgroundColor(self.textBackgroundColor, to: &updated)
                             updated.baseForegroundColor = self.textColor
                             updated.imageColorTransformer = self.configuredImageTintColor.map { imageTintColor in
                                 UIConfigurationColorTransformer { _ in imageTintColor }
@@ -401,7 +412,7 @@ extension Button: ButtonOutput {
                             button.transform = .identity
                         }
                     } else {
-                        updated.background.backgroundColor = self.textBackgroundColor
+                        self.applyConfigurationBackgroundColor(self.textBackgroundColor, to: &updated)
                         updated.baseForegroundColor = self.textColor
                         updated.imageColorTransformer = self.configuredImageTintColor.map { imageTintColor in
                             UIConfigurationColorTransformer { _ in imageTintColor }
@@ -504,7 +515,8 @@ open class Button: UIButton {
         didSet { updateSpacings() }
     }
 
-    private var usesLiquidGlassConfiguration = false
+    private var activeGlassConfiguration: ButtonStyle.GlassConfiguration?
+    private var masksToBoundsBeforeProminentGlass: Bool?
 
     private var hasCustomContentInset: Bool {
         return contentInset.top != .zero
@@ -521,7 +533,7 @@ open class Button: UIButton {
     public var textBackgroundColor: UIColor? {
         didSet {
             if #available(iOS 15.0, *), var configuration {
-                configuration.background.backgroundColor = textBackgroundColor
+                applyConfigurationBackgroundColor(textBackgroundColor, to: &configuration)
                 self.configuration = configuration
             } else {
                 backgroundColor = textBackgroundColor
@@ -1029,13 +1041,25 @@ private extension Button {
         setNeedsLayout()
     }
 
+    @available(iOS 15.0, *)
+    func applyConfigurationBackgroundColor(_ color: UIColor?, to configuration: inout UIButton.Configuration) {
+        switch activeGlassConfiguration {
+        case .prominentGlass?, .prominentClearGlass?:
+            // Tint the native material instead of replacing it with a solid fill.
+            configuration.baseBackgroundColor = color
+        default:
+            // Preserve existing fills for ordinary glass and non-glass configurations.
+            configuration.background.backgroundColor = color
+        }
+    }
+
     func resetGlassConfigurationIfNeeded() {
-        guard usesLiquidGlassConfiguration else { return }
+        guard activeGlassConfiguration != nil else { return }
         configurationUpdateHandler = nil
         if #available(iOS 15.0, *) {
             configuration = nil
         }
-        usesLiquidGlassConfiguration = false
+        activeGlassConfiguration = nil
     }
     
     func applyButtonCornerStyle(_ cornerStyle: CornerStyle) {

@@ -95,7 +95,7 @@ public protocol TableOutput<Header, Cell, Footer>: AnyObject {
 import Foundation
 import UIKit
 
-public class DiffableTableViewDataSource<Header, Cell: Hashable, Footer>: NSObject, UITableViewDataSource, UITableViewDelegate {
+public final class DiffableTableViewDataSource<Header, Cell: Hashable, Footer>: NSObject, UITableViewDataSource, UITableViewDelegate {
     // MARK: - Properties
     public var configureCell: ((UITableView, IndexPath, Cell) -> UITableViewCell)?
     public var viewForHeaderInSection: ((UITableView, _ atSection: Int, _ header: Header) -> UIView)?
@@ -111,6 +111,7 @@ public class DiffableTableViewDataSource<Header, Cell: Hashable, Footer>: NSObje
     public var loadNextPage: (() -> Void)?
     
     private weak var tableView: UITableView?
+    
     private var moveHandler: ((IndexPath, IndexPath) -> Void)?
     private var canMoveHandler: ((IndexPath) -> Bool)?
     private var canEditHandler: ((IndexPath) -> Bool)?
