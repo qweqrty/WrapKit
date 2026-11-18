@@ -14,8 +14,6 @@ import WebKit
 open class WebViewVC: ViewController<WebViewContentView> {
     private let presenter: WebViewInput
     private let onBackSwipeStateChange: ((Bool) -> Void)?
-    private weak var backSwipeGestureRecognizer: UIGestureRecognizer?
-    private var wasBackSwipeEnabled = true
     private static let estimatedProgressKeyPath = #keyPath(WKWebView.estimatedProgress)
     
     public init(
@@ -38,46 +36,17 @@ open class WebViewVC: ViewController<WebViewContentView> {
 
     open override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        if backSwipeGestureRecognizer == nil {
-            backSwipeGestureRecognizer = navigationController?.interactivePopGestureRecognizer
-            wasBackSwipeEnabled = backSwipeGestureRecognizer?.isEnabled ?? true
-        }
-        backSwipeGestureRecognizer?.isEnabled = true
         onBackSwipeStateChange?(true)
-        navigationController?.interactivePopGestureRecognizer?.delegate = self
     }
 
     open override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         onBackSwipeStateChange?(false)
-        backSwipeGestureRecognizer?.isEnabled = wasBackSwipeEnabled
-        backSwipeGestureRecognizer = nil
     }
     
     deinit {
         guard contentView.webView.observationInfo != nil else { return }
         contentView.webView.removeObserver(self, forKeyPath: Self.estimatedProgressKeyPath)
-    }
-}
-
-extension WebViewVC: UIGestureRecognizerDelegate {
-    public func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
-        guard let navigationController,
-              gestureRecognizer === navigationController.interactivePopGestureRecognizer else {
-            return true
-        }
-        return navigationController.topViewController === self
-            && navigationController.viewControllers.count > 1
-            && !contentView.webView.canGoBack
-    }
-
-    public func gestureRecognizer(
-        _ gestureRecognizer: UIGestureRecognizer,
-        shouldBeRequiredToFailBy otherGestureRecognizer: UIGestureRecognizer
-    ) -> Bool {
-        guard gestureRecognizer === navigationController?.interactivePopGestureRecognizer,
-              let view = otherGestureRecognizer.view else { return false }
-        return view.isDescendant(of: contentView.webView)
     }
 }
 

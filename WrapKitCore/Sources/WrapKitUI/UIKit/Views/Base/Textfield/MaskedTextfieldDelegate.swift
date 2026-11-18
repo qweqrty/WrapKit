@@ -107,7 +107,8 @@ public class MaskedTextfieldDelegate: NSObject, UITextFieldDelegate {
                     }
                     setupMask(mask: format.mask.removeCharacters(from: fullText, in: deletionRange))
                     isUpdatingSelection = true
-                    let offset = min(deletionRange.location, fullText.utf16.count)
+                    let prefixLength = format.mask.applied(to: "").input.utf16.count
+                    let offset = min(max(deletionRange.location, prefixLength), fullText.utf16.count)
                     if let position = textField.position(from: textField.beginningOfDocument, offset: offset) {
                         textField.selectedTextRange = textField.textRange(from: position, to: position)
                     }
