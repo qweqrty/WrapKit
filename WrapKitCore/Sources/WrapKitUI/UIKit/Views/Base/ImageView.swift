@@ -94,6 +94,35 @@ public struct ImageViewPresentableModel: HashableWithReflection {
         self.alpha = alpha
     }
 
+    /// Convenience for the semantic `ImageEnum.symbolName` source.
+    public static func systemSymbol(
+        _ name: String,
+        accessibilityIdentifier: String? = nil,
+        accessibility: Accessibility? = nil,
+        size: CGSize? = nil,
+        onPress: (() -> Void)? = nil,
+        onLongPress: (() -> Void)? = nil,
+        contentModeIsFit: Bool? = nil,
+        borderWidth: CGFloat? = nil,
+        borderColor: Color? = nil,
+        cornerRadius: CGFloat? = nil,
+        alpha: CGFloat? = nil
+    ) -> Self {
+        .init(
+            accessibilityIdentifier: accessibilityIdentifier,
+            accessibility: accessibility,
+            size: size,
+            image: .symbolName(name),
+            onPress: onPress,
+            onLongPress: onLongPress,
+            contentModeIsFit: contentModeIsFit,
+            borderWidth: borderWidth,
+            borderColor: borderColor,
+            cornerRadius: cornerRadius,
+            alpha: alpha
+        )
+    }
+
     public init(
         accessibilityIdentifier: String? = nil,
         accessibility: Accessibility? = nil,
@@ -189,7 +218,7 @@ public struct ImageViewPresentableModel: HashableWithReflection {
     }
 }
 
-#if canImport(UIKit)
+#if canImport(UIKit) && !os(watchOS)
 import UIKit
 import Kingfisher
 
@@ -214,6 +243,11 @@ public extension ImageView {
         switch image {
         case .asset(let image):
             cancelDownloadTask()
+            self.animatedSet(image)
+            closure?(image)
+        case .symbolName(let name):
+            cancelDownloadTask()
+            let image = ImageFactory.systemImage(named: name)
             self.animatedSet(image)
             closure?(image)
         case .url(let lightUrl, let darkUrl):
@@ -291,7 +325,7 @@ public extension ImageView {
         case .urlString(let lightString, let darkString):
             let currentString = traitCollection.userInterfaceStyle == .dark ? darkString : lightString
             return URL(string: currentString ?? "") == url
-        case .asset, .data, nil:
+        case .asset, .symbolName, .data, nil:
             return false
         }
     }
@@ -351,6 +385,7 @@ open class ImageView: UIImageView {
     public var currentAnimator: UIViewPropertyAnimator?
     public var currentImageEnum: ImageEnum?
     internal var downloadTask: DownloadTask?
+    private var restingAlpha: CGFloat = 1
 
     open override var image: UIImage? {
         get {
@@ -415,7 +450,11 @@ open class ImageView: UIImageView {
         didSet {
             if let image = self.image {
                 if #available(iOS 13.0, *) {
-                    self.setImage(.asset(image.withTintColor(tintColor)))
+                    if case .symbolName = currentImageEnum {
+                        super.image = image.withRenderingMode(.alwaysTemplate)
+                    } else {
+                        self.setImage(.asset(image.withTintColor(tintColor)))
+                    }
                 }
                 super.tintColor = tintColor
             }
@@ -456,6 +495,8 @@ open class ImageView: UIImageView {
             if light == dark {
                 return
             }
+            setImage(currentImageEnum)
+        case .symbolName:
             setImage(currentImageEnum)
         case .asset, .data:
             if #available(iOS 13.0, *), let image = self.image, image.renderingMode == .alwaysTemplate {
@@ -508,6 +549,7 @@ open class ImageView: UIImageView {
         layoutIfNeeded()
         super.touchesBegan(touches, with: event)
         guard onLongPress != nil || onPress != nil else { return }
+        restingAlpha = alpha
         self.alpha = 0.5
     }
 
@@ -518,8 +560,9 @@ open class ImageView: UIImageView {
         super.touchesEnded(touches, with: event)
         guard onLongPress != nil || onPress != nil else { return }
 
-        UIView.animate(withDuration: 0.3, delay: 0, options: [.allowUserInteraction]) {
-            self.alpha = 1.0
+        UIView.animate(withDuration: 0.3, delay: 0, options: [.allowUserInteraction]) { [weak self] in
+            guard let self else { return }
+            alpha = restingAlpha
         }
     }
 
@@ -530,8 +573,9 @@ open class ImageView: UIImageView {
         super.touchesCancelled(touches, with: event)
         guard onLongPress != nil || onPress != nil else { return }
 
-        UIView.animate(withDuration: 0.3, delay: 0, options: [.allowUserInteraction]) {
-            self.alpha = 1.0
+        UIView.animate(withDuration: 0.3, delay: 0, options: [.allowUserInteraction]) { [weak self] in
+            guard let self else { return }
+            alpha = restingAlpha
         }
     }
 }
@@ -553,6 +597,8 @@ extension ImageView: ImageViewOutput {
         switch model?.image {
         case .asset(let image) where model?.size == nil:
             display(size: image?.size)
+        case .symbolName(let name) where model?.size == nil:
+            display(size: ImageFactory.systemImage(named: name)?.size)
         default:
             break
         }
@@ -622,6 +668,7 @@ extension ImageView: ImageViewOutput {
 
     public func display(alpha: CGFloat?) {
         guard let alpha else { return }
+        restingAlpha = alpha
         self.alpha = alpha
     }
 

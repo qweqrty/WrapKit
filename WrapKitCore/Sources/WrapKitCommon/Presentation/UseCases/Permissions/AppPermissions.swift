@@ -27,7 +27,7 @@ import UserNotifications
 public final class AppPermissions {
     // MARK: - Camera Permission
     public static func requestCameraAccess(permissionCallback: @escaping ((Bool) -> Void)) {
-        #if canImport(AVFoundation)
+        #if canImport(AVFoundation) && !os(watchOS) && !os(tvOS)
         let status = AVCaptureDevice.authorizationStatus(for: .video)
         switch status {
         case .authorized:
@@ -182,7 +182,7 @@ public final class AppPermissions {
 
     // MARK: - Microphone Permission
     public static func requestMicrophoneAccess(permissionCallback: @escaping ((Bool) -> Void)) {
-        #if canImport(AVFoundation)
+        #if canImport(AVFoundation) && !os(watchOS) && !os(tvOS)
         let status = AVCaptureDevice.authorizationStatus(for: .audio)
         switch status {
         case .authorized:

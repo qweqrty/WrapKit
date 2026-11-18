@@ -5,7 +5,7 @@
 //  Created by Stas Lee on 5/8/23.
 //
 
-#if canImport(UIKit)
+#if canImport(UIKit) && !os(watchOS)
 import UIKit
 
 open class CollectionViewDatasource<Model>: NSObject, UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {

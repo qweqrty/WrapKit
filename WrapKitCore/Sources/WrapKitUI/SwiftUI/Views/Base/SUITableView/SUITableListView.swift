@@ -1,0 +1,873 @@
+#if !os(tvOS) && !os(macOS) && !os(watchOS)
+import SwiftUI
+#if canImport(UIKit)
+import UIKit
+#endif
+
+private let suiTableRowMoveTypeIdentifier = "com.wrapkit.table-row-move"
+
+private extension View {
+    @ViewBuilder
+    func suiTableListStyle(isGrouped: Bool) -> some View {
+        if isGrouped {
+            listStyle(.grouped).textCase(nil)
+        } else {
+            listStyle(.plain)
+        }
+    }
+}
+
+struct SUITableRowIdentity<Cell: Hashable>: Hashable {
+    enum Base: Hashable {
+        case accessibilityIdentifier(String)
+        case cell(Cell)
+    }
+
+    let base: Base
+    let occurrence: Int
+}
+
+struct SUITableIdentifiedCell<Cell: Hashable> {
+    let id: SUITableRowIdentity<Cell>
+    let rowIndex: Int
+    let model: CellModel<Cell>
+}
+
+func suiTableIdentifiedCells<Cell: Hashable>(
+    _ cells: [CellModel<Cell>]
+) -> [SUITableIdentifiedCell<Cell>] {
+    var occurrences: [SUITableRowIdentity<Cell>.Base: Int] = [:]
+
+    return cells.enumerated().map { rowIndex, model in
+        let base: SUITableRowIdentity<Cell>.Base
+        if let accessibilityIdentifier = model.accessibilityIdentifier {
+            base = .accessibilityIdentifier(accessibilityIdentifier)
+        } else {
+            base = .cell(model.cell)
+        }
+        let occurrence = occurrences[base, default: 0]
+        occurrences[base] = occurrence + 1
+        return .init(
+            id: .init(base: base, occurrence: occurrence),
+            rowIndex: rowIndex,
+            model: model
+        )
+    }
+}
+
+func suiTableAllowsRowTap(
+    editingStyle _: TableEditingStyle,
+    isEditing: Bool
+) -> Bool {
+    // UITableView keeps allowsSelectionDuringEditing disabled by default.
+    // The shared TableOutput contract does not expose an override, so every
+    // row style must preserve that default while edit mode is active.
+    !isEditing
+}
+
+struct SUITableIndexedSwipeAction<Cell> {
+    let sourceIndex: Int
+    let action: TableContextualAction<Cell>
+}
+
+func suiTableProgrammaticTrailingActions<Cell>(
+    _ actions: [TableContextualAction<Cell>]
+) -> [SUITableIndexedSwipeAction<Cell>] {
+    actions.enumerated().reversed().compactMap { sourceIndex, action in
+        guard action.hasVisibleContent else { return nil }
+        return .init(sourceIndex: sourceIndex, action: action)
+    }
+}
+
+public struct SUITableListView {
+    private let isGrouped: Bool
+
+    public init() {
+        isGrouped = false
+    }
+
+    init(isGrouped: Bool) {
+        self.isGrouped = isGrouped
+    }
+
+    @ViewBuilder
+    public func makeBody<Cell: Hashable, Header, Footer>(
+        sections: [TableSection<Header, Cell, Footer>],
+        cellContent: @escaping (Cell, IndexPath) -> some View,
+        headerContent: @escaping (Header) -> some View,
+        footerContent: @escaping (Footer) -> some View
+    ) -> some View {
+        List {
+            ForEach(sections.indices, id: \.self) { sectionIndex in
+                let section = sections[sectionIndex]
+                Section {
+                    ForEach(suiTableIdentifiedCells(section.cells), id: \.id) { row in
+                        let rowIndex = row.rowIndex
+                        let cellModel = row.model
+                        cellContent(cellModel.cell, IndexPath(row: rowIndex, section: sectionIndex))
+                            .onTapGesture {
+                                cellModel.onTap?(IndexPath(row: rowIndex, section: sectionIndex), cellModel.cell)
+                            }
+                            .suiTableCellAccessibilityIdentifier(cellModel.accessibilityIdentifier)
+                            .listRowInsets(SwiftUI.EdgeInsets())
+                            .listRowBackground(SwiftUI.Color.clear)
+                            .if(true) { view in
+                                if #available(iOS 15.0, *) {
+                                    view.listRowSeparator(.hidden)
+                                } else {
+                                    view
+                                }
+                            }
+                    }
+                } header: {
+                    if let header = section.header {
+                        headerContent(header)
+                    }
+                } footer: {
+                    if let footer = section.footer {
+                        footerContent(footer)
+                    }
+                }
+            }
+        }
+        .suiTableListStyle(isGrouped: isGrouped)
+    }
+
+    @ViewBuilder
+    public func makeBody<Cell: Hashable, Header, Footer>(
+        stateModel: SUITableViewStateModel<Header, Cell, Footer>,
+        cellContent: @escaping (Cell, IndexPath) -> some View,
+        headerContent: @escaping (Header) -> some View,
+        footerContent: @escaping (Footer) -> some View
+    ) -> some View {
+        makeBody(
+            stateModel: stateModel,
+            cellContent: cellContent,
+            headerContent: headerContent,
+            footerContent: footerContent,
+            listHeaderContent: SwiftUI.EmptyView(),
+            listFooterContent: SwiftUI.EmptyView()
+        )
+    }
+
+    @ViewBuilder
+    public func makeBody<Cell: Hashable, Header, Footer, ListHeaderContent: View, ListFooterContent: View>(
+        stateModel: SUITableViewStateModel<Header, Cell, Footer>,
+        cellContent: @escaping (Cell, IndexPath) -> some View,
+        headerContent: @escaping (Header) -> some View,
+        footerContent: @escaping (Footer) -> some View,
+        listHeaderContent: ListHeaderContent,
+        listFooterContent: ListFooterContent
+    ) -> some View {
+        SUITableInteractiveListContent(
+            stateModel: stateModel,
+            isGrouped: isGrouped,
+            cellContent: cellContent,
+            headerContent: headerContent,
+            footerContent: footerContent,
+            listHeaderContent: listHeaderContent,
+            listFooterContent: listFooterContent
+        )
+    }
+}
+
+private struct SUITableInteractiveListContent<
+    Header,
+    Cell: Hashable,
+    Footer,
+    CellContent: View,
+    HeaderContent: View,
+    FooterContent: View,
+    ListHeaderContent: View,
+    ListFooterContent: View
+>: View {
+    @ObservedObject private var stateModel: SUITableViewStateModel<Header, Cell, Footer>
+    private let isGrouped: Bool
+#if os(iOS)
+    @Environment(\.editMode) private var editMode
+#endif
+    private let cellContent: (Cell, IndexPath) -> CellContent
+    private let headerContent: (Header) -> HeaderContent
+    private let footerContent: (Footer) -> FooterContent
+    private let listHeaderContent: ListHeaderContent
+    private let listFooterContent: ListFooterContent
+
+    init(
+        stateModel: SUITableViewStateModel<Header, Cell, Footer>,
+        isGrouped: Bool,
+        @ViewBuilder cellContent: @escaping (Cell, IndexPath) -> CellContent,
+        @ViewBuilder headerContent: @escaping (Header) -> HeaderContent,
+        @ViewBuilder footerContent: @escaping (Footer) -> FooterContent,
+        listHeaderContent: ListHeaderContent,
+        listFooterContent: ListFooterContent
+    ) {
+        self.stateModel = stateModel
+        self.isGrouped = isGrouped
+        self.cellContent = cellContent
+        self.headerContent = headerContent
+        self.footerContent = footerContent
+        self.listHeaderContent = listHeaderContent
+        self.listFooterContent = listFooterContent
+    }
+
+    @ViewBuilder
+    var body: some View {
+        let sections = stateModel.sections
+        List {
+            if ListHeaderContent.self != SwiftUI.EmptyView.self {
+                listAccessoryRow(listHeaderContent)
+            }
+            ForEach(sections.indices, id: \.self) { sectionIndex in
+                let section = sections[sectionIndex]
+                Section {
+                    ForEach(suiTableIdentifiedCells(section.cells), id: \.id) { row in
+                        let rowIndex = row.rowIndex
+                        let cellModel = row.model
+                        let indexPath = IndexPath(row: rowIndex, section: sectionIndex)
+                        tableRow(
+                            cellModel: cellModel,
+                            indexPath: indexPath,
+                            isEditing: isEditing
+                        )
+                            .deleteDisabled(!stateModel.isDeletable(at: indexPath))
+                            .moveDisabled(!stateModel.isMovable(at: indexPath))
+                            .suiTableRowDragSource(
+                                stateModel: stateModel,
+                                indexPath: indexPath,
+                                isEnabled: isEditing && stateModel.isMovable(at: indexPath)
+                            )
+                            .suiTableRowDropTarget(
+                                stateModel: stateModel,
+                                indexPath: indexPath,
+                                isEnabled: isEditing && stateModel.canReceiveRowDrop(at: indexPath)
+                            )
+                            .onTapGesture {
+                                stateModel.collapseTrailingActions()
+                                guard suiTableAllowsRowTap(
+                                    editingStyle: cellModel.editingStyle,
+                                    isEditing: isEditing
+                                ) else { return }
+                                cellModel.onTap?(indexPath, cellModel.cell)
+                            }
+                            .suiTableCellAccessibilityIdentifier(cellModel.accessibilityIdentifier)
+                            .listRowInsets(SwiftUI.EdgeInsets())
+                            .listRowBackground(SwiftUI.Color.clear)
+                            .if(true) { view in
+                                if #available(iOS 15.0, *) {
+                                    view.listRowSeparator(.hidden)
+                                } else {
+                                    view
+                                }
+                            }
+                    }
+                    .onDelete(perform: stateModel.deleteAction(
+                        in: sectionIndex,
+                        isEditing: isEditing
+                    ))
+                    .onMove(perform: stateModel.moveAction(in: sectionIndex))
+
+                    #if os(iOS)
+                    if section.cells.isEmpty, isEditing, stateModel.supportsMoving {
+                        SUITableEmptySectionDropTarget(
+                            stateModel: stateModel,
+                            destination: IndexPath(row: 0, section: sectionIndex)
+                        )
+                        .listRowInsets(SwiftUI.EdgeInsets())
+                        .listRowBackground(SwiftUI.Color.clear)
+                        .if(true) { view in
+                            if #available(iOS 15.0, *) {
+                                view.listRowSeparator(.hidden)
+                            } else {
+                                view
+                            }
+                        }
+                    }
+                    #endif
+                } header: {
+                    if let header = section.header {
+                        headerContent(header)
+                    }
+                } footer: {
+                    if let footer = section.footer {
+                        footerContent(footer)
+                    }
+                }
+            }
+            if ListFooterContent.self != SwiftUI.EmptyView.self {
+                listAccessoryRow(listFooterContent)
+            }
+        }
+        .suiTableListStyle(isGrouped: isGrouped)
+    }
+
+    private func listAccessoryRow<Content: View>(_ content: Content) -> some View {
+        content
+            .deleteDisabled(true)
+            .moveDisabled(true)
+            .listRowInsets(SwiftUI.EdgeInsets())
+            .listRowBackground(SwiftUI.Color.clear)
+            .if(true) { view in
+                if #available(iOS 15.0, *) {
+                    view.listRowSeparator(.hidden)
+                } else {
+                    view
+                }
+            }
+    }
+
+    @ViewBuilder
+    private func tableRow(
+        cellModel: CellModel<Cell>,
+        indexPath: IndexPath,
+        isEditing: Bool
+    ) -> some View {
+        SUITableInteractiveRow(
+            stateModel: stateModel,
+            indexPath: indexPath,
+            isEditing: isEditing,
+            cellContent: cellContent(cellModel.cell, indexPath),
+            onAccessibilityActivate: suiTableAllowsRowTap(
+                editingStyle: cellModel.editingStyle,
+                isEditing: isEditing
+            ) ? {
+                stateModel.collapseTrailingActions()
+                cellModel.onTap?(indexPath, cellModel.cell)
+            } : nil
+        )
+    }
+
+    private var isEditing: Bool {
+#if os(iOS)
+        editMode?.wrappedValue.isEditing == true
+#else
+        true
+#endif
+    }
+}
+
+private extension View {
+    @ViewBuilder
+    func suiTableCellAccessibilityIdentifier(_ identifier: String?) -> some View {
+#if os(iOS)
+        if let identifier {
+            background(SUITableCellAccessibilityIdentifierProbe(identifier: identifier))
+        } else {
+            self
+        }
+#else
+        self
+#endif
+    }
+
+    @ViewBuilder
+    func suiTableActionAccessibility(title: String?) -> some View {
+        if let title {
+            accessibilityLabel(SwiftUI.Text(title))
+        } else {
+            self
+        }
+    }
+
+    @ViewBuilder
+    func suiTableRowDragSource<Header, Cell: Hashable, Footer>(
+        stateModel: SUITableViewStateModel<Header, Cell, Footer>,
+        indexPath: IndexPath,
+        isEnabled: Bool
+    ) -> some View {
+#if os(iOS)
+        if isEnabled {
+            onDrag {
+                guard stateModel.beginDragging(at: indexPath) else {
+                    return NSItemProvider()
+                }
+                let provider = NSItemProvider()
+                provider.registerDataRepresentation(
+                    forTypeIdentifier: suiTableRowMoveTypeIdentifier,
+                    visibility: .ownProcess
+                ) { completion in
+                    completion(Data(), nil)
+                    return nil
+                }
+                return provider
+            }
+        } else {
+            self
+        }
+#else
+        self
+#endif
+    }
+
+    @ViewBuilder
+    func suiTableRowDropTarget<Header, Cell: Hashable, Footer>(
+        stateModel: SUITableViewStateModel<Header, Cell, Footer>,
+        indexPath: IndexPath,
+        isEnabled: Bool
+    ) -> some View {
+#if os(iOS)
+        modifier(SUITableRowDropTargetModifier(
+            stateModel: stateModel,
+            indexPath: indexPath,
+            isEnabled: isEnabled
+        ))
+#else
+        self
+#endif
+    }
+}
+
+#if os(iOS)
+private struct SUITableCellAccessibilityIdentifierProbe: UIViewRepresentable {
+    let identifier: String
+
+    func makeUIView(context: Context) -> SUITableCellAccessibilityIdentifierProbeView {
+        let view = SUITableCellAccessibilityIdentifierProbeView()
+        view.identifier = identifier
+        return view
+    }
+
+    func updateUIView(_ uiView: SUITableCellAccessibilityIdentifierProbeView, context: Context) {
+        uiView.identifier = identifier
+    }
+}
+
+private final class SUITableCellAccessibilityIdentifierProbeView: UIView {
+    var identifier: String? {
+        didSet { applyIdentifier() }
+    }
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        isUserInteractionEnabled = false
+        accessibilityElementsHidden = true
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    override func didMoveToWindow() {
+        super.didMoveToWindow()
+        applyIdentifier()
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        applyIdentifier()
+    }
+
+    private func applyIdentifier() {
+        var ancestor = superview
+        while let view = ancestor {
+            if view is UICollectionViewCell || view is UITableViewCell {
+                if view.accessibilityIdentifier != identifier {
+                    view.accessibilityIdentifier = identifier
+                }
+                return
+            }
+            ancestor = view.superview
+        }
+    }
+}
+#endif
+
+#if os(iOS)
+private struct SUITableRowDropTargetModifier<
+    Header,
+    Cell: Hashable,
+    Footer
+>: ViewModifier {
+    @ObservedObject var stateModel: SUITableViewStateModel<Header, Cell, Footer>
+    let indexPath: IndexPath
+    let isEnabled: Bool
+
+    @State private var targetHeight: CGFloat = 0
+
+    @ViewBuilder
+    func body(content: Content) -> some View {
+        if isEnabled {
+            content
+                .background {
+                    GeometryReader { geometry in
+                        SwiftUI.Color.clear
+                            .onAppear { targetHeight = geometry.size.height }
+                            .onChange(of: geometry.size.height) { targetHeight = $0 }
+                            .allowsHitTesting(false)
+                    }
+                }
+                .onDrop(
+                    of: [suiTableRowMoveTypeIdentifier],
+                    delegate: SUITableRowDropDelegate(
+                        stateModel: stateModel,
+                        target: indexPath,
+                        targetHeight: targetHeight
+                    )
+                )
+        } else {
+            content
+        }
+    }
+}
+
+private struct SUITableRowDropDelegate<Header, Cell: Hashable, Footer>: DropDelegate {
+    let stateModel: SUITableViewStateModel<Header, Cell, Footer>
+    let target: IndexPath
+    let targetHeight: CGFloat
+
+    func validateDrop(info: DropInfo) -> Bool {
+        destination(for: info) != nil
+    }
+
+    func dropUpdated(info: DropInfo) -> DropProposal? {
+        DropProposal(operation: destination(for: info) == nil ? .forbidden : .move)
+    }
+
+    func performDrop(info: DropInfo) -> Bool {
+        guard let destination = destination(for: info) else { return false }
+        return stateModel.performDrop(at: destination)
+    }
+
+    private func destination(for info: DropInfo) -> IndexPath? {
+        let isInsertControl: Bool
+        if case .insert = stateModel.editingStyle(at: target) {
+            isInsertControl = true
+        } else {
+            isInsertControl = false
+        }
+
+        return stateModel.dropDestination(
+            relativeTo: target,
+            placeAfterTarget: !isInsertControl && info.location.y >= targetHeight / 2
+        )
+    }
+}
+
+private struct SUITableEmptySectionDropTarget<Header, Cell: Hashable, Footer>: View {
+    @ObservedObject var stateModel: SUITableViewStateModel<Header, Cell, Footer>
+    let destination: IndexPath
+
+    var body: some View {
+        RoundedRectangle(cornerRadius: 8, style: .continuous)
+            .fill(SwiftUI.Color.accentColor.opacity(0.08))
+            .overlay {
+                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                    .strokeBorder(
+                        SwiftUI.Color.accentColor.opacity(0.35),
+                        style: StrokeStyle(lineWidth: 1, dash: [5, 4])
+                    )
+            }
+            .frame(height: 44)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 4)
+            .contentShape(Rectangle())
+            .onDrop(
+                of: [suiTableRowMoveTypeIdentifier],
+                delegate: SUITableEmptySectionDropDelegate(
+                    stateModel: stateModel,
+                    destination: destination
+                )
+            )
+    }
+}
+
+private struct SUITableEmptySectionDropDelegate<Header, Cell: Hashable, Footer>: DropDelegate {
+    let stateModel: SUITableViewStateModel<Header, Cell, Footer>
+    let destination: IndexPath
+
+    func validateDrop(info _: DropInfo) -> Bool {
+        stateModel.canDrop(at: destination)
+    }
+
+    func dropUpdated(info _: DropInfo) -> DropProposal? {
+        DropProposal(
+            operation: stateModel.canDrop(at: destination) ? .move : .forbidden
+        )
+    }
+
+    func performDrop(info _: DropInfo) -> Bool {
+        stateModel.performDrop(at: destination)
+    }
+}
+#endif
+
+private struct SUITableTrailingActionsWidthPreferenceKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = max(value, nextValue())
+    }
+}
+
+private struct SUITableInteractiveRow<
+    Header,
+    Cell: Hashable,
+    Footer,
+    CellContent: View
+>: View {
+    @ObservedObject private var stateModel: SUITableViewStateModel<Header, Cell, Footer>
+    @State private var trailingActionsWidth: CGFloat = 0
+    private let indexPath: IndexPath
+    private let isEditing: Bool
+    private let cellContent: CellContent
+    private let onAccessibilityActivate: (() -> Void)?
+
+    init(
+        stateModel: SUITableViewStateModel<Header, Cell, Footer>,
+        indexPath: IndexPath,
+        isEditing: Bool,
+        cellContent: CellContent,
+        onAccessibilityActivate: (() -> Void)?
+    ) {
+        self.stateModel = stateModel
+        self.indexPath = indexPath
+        self.isEditing = isEditing
+        self.cellContent = cellContent
+        self.onAccessibilityActivate = onAccessibilityActivate
+    }
+
+    @ViewBuilder
+    var body: some View {
+#if os(iOS)
+        switch stateModel.editingStyle(at: indexPath) {
+        case .insert:
+            insertionRowContent
+        case .delete, .none:
+            if stateModel.isEditable(at: indexPath) {
+                programmaticRevealContent
+                    .swipeActions(
+                        edge: .leading,
+                        allowsFullSwipe: SUITableSwipeConfiguration.allowsFullSwipe
+                    ) {
+                        nativeContextualActions(
+                            stateModel.swipeActions(at: indexPath, edge: .leading)
+                        )
+                    }
+                    .swipeActions(
+                        edge: .trailing,
+                        allowsFullSwipe: SUITableSwipeConfiguration.allowsFullSwipe
+                    ) {
+                        nativeContextualActions(trailingActions)
+                    }
+            } else if trailingActions.contains(where: \.hasVisibleContent) {
+                programmaticRevealContent
+            } else {
+                accessibleCellContent
+            }
+        }
+#else
+        accessibleCellContent
+#endif
+    }
+
+    @ViewBuilder
+    private var accessibleCellContent: some View {
+        if let onAccessibilityActivate {
+            cellContent.accessibilityAction {
+                onAccessibilityActivate()
+            }
+        } else {
+            cellContent
+        }
+    }
+
+#if os(iOS)
+    @ViewBuilder
+    private var insertionRowContent: some View {
+        if isEditing, stateModel.isInsertable(at: indexPath) {
+            HStack(spacing: 0) {
+                SwiftUI.Button {
+                    stateModel.performInsertion(at: indexPath)
+                } label: {
+                    SwiftUI.Image(systemName: "plus.circle.fill")
+                        .font(.system(size: 22))
+                        .foregroundColor(SwiftUIColor(.systemGreen))
+                        .frame(width: 44, height: 44)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(SwiftUI.Text("Insert row"))
+                .accessibilityIdentifier(
+                    "wrapkit.table.insert.\(indexPath.section).\(indexPath.row)"
+                )
+
+                accessibleCellContent
+            }
+        } else {
+            accessibleCellContent
+        }
+    }
+
+    @ViewBuilder
+    private var programmaticRevealContent: some View {
+        ZStack(alignment: .trailing) {
+            if showsProgrammaticTrailingActions {
+                programmaticTrailingActions
+            }
+
+            accessibleCellContent
+                .offset(x: showsProgrammaticTrailingActions ? -trailingActionsWidth : 0)
+        }
+        .simultaneousGesture(
+            DragGesture(minimumDistance: 4)
+                .onChanged { _ in
+                    stateModel.collapseTrailingActions(at: indexPath)
+                },
+            including: showsProgrammaticTrailingActions ? .all : .none
+        )
+        .animation(.easeInOut(duration: 0.2), value: showsProgrammaticTrailingActions)
+        .animation(.easeInOut(duration: 0.2), value: trailingActionsWidth)
+    }
+
+    private var programmaticTrailingActions: some View {
+        let appearance = SUITableProgrammaticActionAppearance.current
+        return HStack(spacing: appearance.spacing) {
+            ForEach(
+                suiTableProgrammaticTrailingActions(trailingActions),
+                id: \.sourceIndex
+            ) { indexedAction in
+                let action = indexedAction.action
+                SwiftUI.Button(role: buttonRole(for: action.style)) {
+                    stateModel.performSwipeAction(action, at: indexPath)
+                } label: {
+                    contextualActionLabel(action)
+                        .font(appearance.font)
+                        .foregroundColor(.white)
+                        .padding(.horizontal, appearance.titleHorizontalPadding)
+                        .padding(.vertical, 10)
+                        .frame(
+                            minWidth: SUITableSwipeConfiguration.minimumProgrammaticActionWidth,
+                            maxHeight: .infinity
+                        )
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .background(
+                    programmaticBackgroundColor(for: action),
+                    in: RoundedRectangle(cornerRadius: appearance.cornerRadius, style: .continuous)
+                )
+                .suiTableActionAccessibility(title: action.title)
+                .accessibilityIdentifier(
+                    "wrapkit.table.trailing.\(indexPath.section).\(indexPath.row).\(indexedAction.sourceIndex)"
+                )
+            }
+        }
+        .padding(.vertical, appearance.verticalInset)
+        .padding(.horizontal, appearance.horizontalInset)
+        .fixedSize(horizontal: true, vertical: false)
+        .background {
+            GeometryReader { geometry in
+                SwiftUI.Color.clear.preference(
+                    key: SUITableTrailingActionsWidthPreferenceKey.self,
+                    value: geometry.size.width
+                )
+            }
+        }
+        .onPreferenceChange(SUITableTrailingActionsWidthPreferenceKey.self) { width in
+            trailingActionsWidth = width
+        }
+    }
+
+    @ViewBuilder
+    private func nativeContextualActions(
+        _ actions: [TableContextualAction<Cell>]
+    ) -> some View {
+        ForEach(Array(actions.enumerated()), id: \.offset) { _, action in
+            if action.title != nil || action.image != nil {
+                // The Output handler may ask for confirmation or fail. The
+                // data source, not List's destructive-role animation, removes rows.
+                SwiftUI.Button {
+                    stateModel.performSwipeAction(action, at: indexPath)
+                } label: {
+                    contextualActionLabel(action)
+                }
+                .tint(contextualActionColor(for: action))
+            }
+        }
+    }
+
+    private var trailingActions: [TableContextualAction<Cell>] {
+        stateModel.revealableSwipeActions(at: indexPath, edge: .trailing)
+    }
+
+    private var showsProgrammaticTrailingActions: Bool {
+        stateModel.areTrailingActionsExpanded(at: indexPath) &&
+            trailingActions.contains(where: \.hasVisibleContent)
+    }
+
+    private func programmaticBackgroundColor(
+        for action: TableContextualAction<Cell>
+    ) -> SwiftUI.Color {
+        contextualActionColor(for: action)
+    }
+
+    private func contextualActionColor(
+        for action: TableContextualAction<Cell>
+    ) -> SwiftUI.Color {
+        if let backgroundColor = action.backgroundColor {
+            return SwiftUIColor(backgroundColor)
+        }
+        switch action.style {
+        case .destructive:
+            return .red
+        case .normal:
+            return .gray
+        }
+    }
+
+    @ViewBuilder
+    private func contextualActionLabel(_ action: TableContextualAction<Cell>) -> some View {
+        if let title = action.title, let image = action.image {
+            SwiftUI.Label {
+                SwiftUI.Text(title)
+            } icon: {
+                SwiftUIImage(image: image)
+            }
+        } else if let image = action.image {
+            SwiftUIImage(image: image)
+        } else if let title = action.title {
+            SwiftUI.Text(title)
+        }
+    }
+
+    private func buttonRole(for style: TableContextualAction<Cell>.Style) -> SwiftUI.ButtonRole? {
+        switch style {
+        case .destructive:
+            return .destructive
+        case .normal:
+            return nil
+        }
+    }
+#endif
+}
+
+private struct SUITableProgrammaticActionAppearance {
+    let font: SwiftUI.Font
+    let titleHorizontalPadding: CGFloat
+    let cornerRadius: CGFloat
+    let verticalInset: CGFloat
+    let horizontalInset: CGFloat
+    let spacing: CGFloat
+
+    static var current: SUITableProgrammaticActionAppearance {
+        isAvailableOS26 && isLiquidGlassEnabled ? .liquidGlass : .classic
+    }
+
+    static let liquidGlass = SUITableProgrammaticActionAppearance(
+        font: .footnote,
+        titleHorizontalPadding: 12,
+        cornerRadius: 16,
+        verticalInset: 4,
+        horizontalInset: 10,
+        spacing: 10
+    )
+
+    static let classic = SUITableProgrammaticActionAppearance(
+        font: .subheadline.weight(.medium),
+        titleHorizontalPadding: 6,
+        cornerRadius: 0,
+        verticalInset: 0,
+        horizontalInset: 0,
+        spacing: 0
+    )
+}
+#endif

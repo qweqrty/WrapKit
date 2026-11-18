@@ -15,7 +15,9 @@ let project = Project(
             scripts: [Scripts.swiftlint],
             dependencies: [
                 .external(name: "Kingfisher"),
-                .external(name: "Lottie")
+                .external(name: "PhoneNumberKit"),
+                .external(name: "DeviceKit"),
+                .external(name: "Lottie", condition: .when([.ios, .macos, .tvos, .visionos, .catalyst]))
             ]
         ),
         .target(
@@ -39,7 +41,20 @@ let project = Project(
             deploymentTargets: .iOS("15.0"),
             infoPlist: .extendingDefault(with: ["UILaunchScreen": .dictionary([:])]),
             sources: ["TestHost/**"],
-            dependencies: []
+            dependencies: [.target(name: wrapKit.name)]
+        ),
+        .target(
+            name: "WrapKitUITests",
+            destinations: [.iPhone, .iPad],
+            product: .uiTests,
+            bundleId: bundleId(for: "WrapKitUITests"),
+            deploymentTargets: .iOS("15.0"),
+            infoPlist: .default,
+            sources: ["UITests/**"],
+            dependencies: [
+                .target(name: "WrapKitTestHost"),
+                .xctest
+            ]
         ),
         .target(
             name: "\(wrapKit.name)Tests",
@@ -55,6 +70,14 @@ let project = Project(
                 .project(target: wrapKitGame.name, path: wrapKitGame.path),
                 .xctest
             ]
+        )
+    ],
+    schemes: [
+        .scheme(
+            name: "WrapKitUITests",
+            shared: true,
+            buildAction: .buildAction(targets: [.target("WrapKitTestHost")]),
+            testAction: .targets([.testableTarget(target: .target("WrapKitUITests"))])
         )
     ]
 )

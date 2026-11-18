@@ -35,13 +35,13 @@ public struct LifeCycleView<Content: View>: View {
     public var body: some View {
         content()
             .onAppear {
-                lifeCycleOutput?.viewWillAppear()
                 if !didAppear {
-                    lifeCycleOutput?.viewDidLoad()
                     didAppear = true
+                    lifeCycleOutput?.viewDidLoad()
                     // Initial check of the color scheme
                     checkColorSchemeChange()
                 }
+                lifeCycleOutput?.viewWillAppear()
                 lifeCycleOutput?.viewDidAppear()
             }
             .onDisappear {
@@ -113,7 +113,7 @@ struct ColorSchemePreferenceKey: PreferenceKey {
     }
 }
 
-#if canImport(UIKit)
+#if canImport(UIKit) && !os(watchOS)
 import UIKit
 
 extension ViewUIKit: HiddableOutput {
@@ -164,6 +164,7 @@ open class ViewUIKit: UIView {
     private var tooltipEditMenuInteraction: NSObject?
     var tooltipEditMenuPresentation: (NSObject, NSString, CGPoint) -> Void = {
         interaction, identifier, point in
+        #if !os(tvOS)
         guard #available(iOS 16.0, *),
               let interaction = interaction as? UIEditMenuInteraction else { return }
         let configuration = UIEditMenuConfiguration(
@@ -171,6 +172,7 @@ open class ViewUIKit: UIView {
             sourcePoint: point
         )
         interaction.presentEditMenu(with: configuration)
+        #endif
     }
     private var tooltipDidDismiss: (() -> Void)?
     private var isTooltipItemActionTriggered = false
@@ -402,6 +404,10 @@ open class ViewUIKit: UIView {
               !model.items.isEmpty,
               let tooltipPresentationIdentifier,
               window != nil else { return }
+        #if os(tvOS)
+        // Edit menus (UIEditMenuInteraction / UIMenuController) do not exist on tvOS.
+        return
+        #else
         if #available(iOS 16.0, *) {
             let interaction: UIEditMenuInteraction
             if let tooltipEditMenuInteraction = tooltipEditMenuInteraction as? UIEditMenuInteraction {
@@ -431,6 +437,7 @@ open class ViewUIKit: UIView {
         isTooltipMenuPresented = true
         registerTooltipMenuObserver(for: tooltipPresentationIdentifier)
         menuController.showMenu(from: self, rect: CGRect(origin: anchorPoint, size: .zero))
+        #endif
     }
 
     private func presentPendingTooltipIfNeeded(identifier: NSString? = nil) {
@@ -442,6 +449,7 @@ open class ViewUIKit: UIView {
         showTooltip(at: pendingTooltipImmediatePresentation.point)
     }
 
+    #if !os(tvOS)
     func makeLegacyTooltipMenuItems() -> [UIMenuItem] {
         guard let model = tooltipModel else { return [] }
         return model.items.enumerated().compactMap { index, item -> UIMenuItem? in
@@ -466,6 +474,7 @@ open class ViewUIKit: UIView {
             self.handleTooltipDidDismiss()
         }
     }
+    #endif
 
     private func unregisterTooltipMenuObserver() {
         if let tooltipMenuDidHideObserver {
@@ -490,11 +499,13 @@ open class ViewUIKit: UIView {
         isTooltipMenuPresented = false
         Self.tooltipLegacyMenuOwnership.release(self)
         unregisterTooltipMenuObserver()
+        #if !os(tvOS)
         if #available(iOS 16.0, *) {
             (tooltipEditMenuInteraction as? UIEditMenuInteraction)?.dismissMenu()
         } else {
             UIMenuController.shared.hideMenu()
         }
+        #endif
     }
 
     private func removeTooltipGestures() {
@@ -514,7 +525,9 @@ extension ViewUIKit: TooltipLegacyMenuOwner {
         guard isTooltipMenuPresented else { return }
         isTooltipMenuPresented = false
         unregisterTooltipMenuObserver()
+        #if !os(tvOS)
         UIMenuController.shared.hideMenu()
+        #endif
         handleTooltipDidDismiss()
     }
 }
@@ -560,6 +573,7 @@ extension ViewUIKit: TooltipViewOutput {
     }
 }
 
+#if !os(tvOS)
 @available(iOS 16.0, *)
 extension ViewUIKit: UIEditMenuInteractionDelegate {
     public func editMenuInteraction(
@@ -591,6 +605,7 @@ extension ViewUIKit: UIEditMenuInteractionDelegate {
         handleTooltipDidDismiss()
     }
 }
+#endif
 
 // Animation: Gradient border
 extension ViewUIKit {

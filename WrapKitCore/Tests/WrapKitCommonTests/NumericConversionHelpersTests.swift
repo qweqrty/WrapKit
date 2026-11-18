@@ -6,7 +6,7 @@
 //
 
 import XCTest
-@testable import WrapKit
+import WrapKit
 import WrapKitTestUtils
 
 class NumericExtensionsTests: XCTestCase {

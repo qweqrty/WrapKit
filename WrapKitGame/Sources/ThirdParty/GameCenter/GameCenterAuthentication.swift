@@ -6,11 +6,12 @@ import SwiftUI
 #if os(macOS)
 typealias ViewController = NSViewController
 typealias ViewControllerRepresentable = NSViewControllerRepresentable
-#elseif os(iOS)
+#elseif os(iOS) || os(tvOS) || os(visionOS)
 typealias ViewController = UIViewController
 typealias ViewControllerRepresentable = UIViewControllerRepresentable
 #endif
 
+#if !os(watchOS)
 extension View {
     public func enableGameCenter() -> some View {
         self
@@ -80,6 +81,10 @@ private struct OpenGameCenterModifier: ViewModifier {
     }
 }
 
+#endif
+
+// ViewControllerRepresentable существует только там, где есть UIKit/AppKit-контроллеры
+#if !os(watchOS)
 private struct GameCenterAuthenticationView: ViewControllerRepresentable {
 
     typealias Coordinator = Void
@@ -88,7 +93,7 @@ private struct GameCenterAuthenticationView: ViewControllerRepresentable {
 
     func makeCoordinator() -> Coordinator { Void() }
 
-#if os(iOS)
+#if os(iOS) || os(tvOS) || os(visionOS)
     func makeUIViewController(context: Context) -> ViewController { viewController }
     func updateUIViewController(_ uiViewController: ViewController, context: Context) {}
 #elseif os(macOS)
@@ -155,3 +160,4 @@ private class GameKitAuthenticationController: ObservableObject {
             }
     }
 }
+#endif

@@ -1,3 +1,4 @@
+#if os(iOS) || targetEnvironment(macCatalyst)
 ////
 ////  WebViewPresenterTests.swift
 ////  WrapKit
@@ -236,3 +237,4 @@ private final class WebViewNavigationPolicySpy: WebViewNavigationPolicy {
         return decisionToReturn
     }
 }
+#endif

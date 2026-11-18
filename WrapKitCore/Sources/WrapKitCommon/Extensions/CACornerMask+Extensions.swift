@@ -1,3 +1,4 @@
+#if canImport(QuartzCore) && !os(watchOS)
 import QuartzCore
 
 public extension CACornerMask {
@@ -5,3 +6,4 @@ public extension CACornerMask {
     static let topCorners: CACornerMask = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
     static let bottomCorners: CACornerMask = [.layerMinXMaxYCorner, .layerMaxXMaxYCorner]
 }
+#endif

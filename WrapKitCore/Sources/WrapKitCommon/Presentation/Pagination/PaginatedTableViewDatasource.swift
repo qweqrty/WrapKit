@@ -5,7 +5,7 @@
 //  Created by Stas Lee on 5/8/23.
 //
 
-#if canImport(UIKit)
+#if canImport(UIKit) && !os(watchOS)
 import UIKit
 
 open class TableViewDatasource<Model>: NSObject, UITableViewDelegate, UITableViewDataSource {
@@ -24,7 +24,11 @@ open class TableViewDatasource<Model>: NSObject, UITableViewDelegate, UITableVie
             loadingControl.startAnimating()
             return loadingControl
         } else {
+            #if os(visionOS)
+            let loadingControl = UIActivityIndicatorView(style: .medium)
+            #else
             let loadingControl = UIActivityIndicatorView(style: .white)
+            #endif
             loadingControl.hidesWhenStopped = false
             loadingControl.startAnimating()
             return loadingControl

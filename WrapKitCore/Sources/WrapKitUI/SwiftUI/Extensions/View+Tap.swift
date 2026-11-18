@@ -1,3 +1,4 @@
+#if !os(tvOS)
 //
 //  View+Tap.swift
 //  WrapKit
@@ -78,3 +79,4 @@ struct ClickGesture: Gesture {
 //        }
 //    }
 //}
+#endif

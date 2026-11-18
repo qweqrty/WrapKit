@@ -6,6 +6,43 @@ import UIKit
 /// Keep the same window alive between updates, as on the navigation demo screen.
 /// Recreating a snapshot window for each display call can hide invalidation bugs.
 final class NavigationBarUpdateSnapshotTests: XCTestCase {
+    func test_primeTrailingTimer_updatesWithoutReplacingItemOrAddingGlass() throws {
+        let sut = try makeLiveHeader()
+        sut.output.display(centerView: .keyValue(.init(.text("OTP"), nil)))
+        let style = ButtonStyle(titleColor: .secondaryLabel)
+        sut.output.display(primeTrailingImage: .init(title: "00:30", style: style))
+        let item = try XCTUnwrap(sut.root.navigationItem.rightBarButtonItem)
+        let button = try XCTUnwrap(findView(Button.self, in: item.customView))
+        attach(sut.snapshot(), named: "otp_timer_before")
+
+        for title in ["00:29", "00:28"] {
+            sut.output.display(primeTrailingImage: .init(title: title, style: style))
+            XCTAssertTrue(sut.root.navigationItem.rightBarButtonItem === item)
+            XCTAssertEqual(button.title(for: .normal), title)
+            XCTAssertNil(button.configuration)
+            XCTAssertTrue(button.layer.animationKeys()?.isEmpty ?? true)
+        }
+        attach(sut.snapshot(), named: "otp_timer_after")
+
+        sut.output.display(primeTrailingImage: nil)
+        XCTAssertNil(sut.root.navigationItem.rightBarButtonItem)
+        sut.output.display(primeTrailingImage: .init(title: "Resend", style: style, onPress: {}))
+        XCTAssertNotNil(button.onPress)
+    }
+
+    func test_nativePrimeTrailingText_updatesWithoutReplacingItem() throws {
+        let sut = try makeLiveHeader()
+        sut.output.display(primeTrailingImage: .init(title: "00:30"))
+        let item = try XCTUnwrap(sut.root.navigationItem.rightBarButtonItem)
+        XCTAssertNil(item.customView)
+
+        sut.output.display(primeTrailingImage: .init(title: "00:29"))
+
+        XCTAssertTrue(sut.root.navigationItem.rightBarButtonItem === item)
+        XCTAssertEqual(item.title, "00:29")
+        XCTAssertEqual(item.primaryAction?.title, "00:29")
+    }
+
     func test_titleSync_updatesCaptionAndClearsOnlyOwnedTitle() {
         let controller = UIViewController()
         let output = controller.headerOutput
@@ -74,8 +111,9 @@ final class NavigationBarUpdateSnapshotTests: XCTestCase {
             sut.output.display(primeTrailingImage: trailing)
             attach(sut.snapshot(), named: "logo_caption_fits_\(index)")
             let host = try XCTUnwrap(sut.root.navigationItem.titleView)
-            let image = try XCTUnwrap(findView(ImageView.self, in: host))
-            let caption = try XCTUnwrap(findView(TitledView<WrapperView<ImageView>>.self, in: host)?.closingTitleVFieldView.keyLabel)
+            let titledImage = try XCTUnwrap(findView(TitledView<WrapperView<ImageView>>.self, in: host))
+            let image = titledImage.contentView.contentView
+            let caption = titledImage.closingTitleVFieldView.keyLabel
             let bar = sut.navigation.navigationBar
             for view in [image, caption] as [UIView] {
                 let frame = view.convert(view.bounds, to: host)

@@ -90,7 +90,7 @@ public struct TextAttributes: HashableWithReflection, Equatable {
 public extension TextAttributes {
     func makeNSAttributedString(
         font: Font = .systemFont(ofSize: 20),
-        textColor: Color = .label,
+        textColor: Color = .defaultLabel,
         textAlignment: TextAlignment? = nil,
         link: URL? = nil // needed for onTap in SwiftUI
     ) -> NSAttributedString {
@@ -114,7 +114,7 @@ public extension TextAttributes {
 public extension [TextAttributes] {
     mutating func makeNSAttributedString(
         font: Font,
-        textColor: Color = .label,
+        textColor: Color = .defaultLabel,
         textAlignment: TextAlignment? = nil
     ) -> NSAttributedString {
         let combinedAttributedString = NSMutableAttributedString()
@@ -130,5 +130,43 @@ public extension [TextAttributes] {
             self[index].range = NSRange(location: currentLocation, length: attrString.length)
         }
         return combinedAttributedString
+    }
+}
+
+public extension Color {
+    static var defaultLabel: Color {
+        #if os(macOS)
+        return .labelColor
+        #elseif os(watchOS)
+        return .white
+        #else
+        return .label
+        #endif
+    }
+
+    static var defaultSecondaryLabel: Color {
+        #if os(macOS)
+        return .secondaryLabelColor
+        #elseif os(watchOS)
+        return .lightGray
+        #else
+        return .secondaryLabel
+        #endif
+    }
+
+    static var defaultSystemBlue: Color {
+        #if os(watchOS)
+        return .blue
+        #else
+        return .systemBlue
+        #endif
+    }
+
+    static var defaultSystemRed: Color {
+        #if os(watchOS)
+        return .red
+        #else
+        return .systemRed
+        #endif
     }
 }

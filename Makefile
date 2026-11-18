@@ -54,7 +54,10 @@ endif
 project: package-locks tuist-check run-sourcery tuist-setup tuist-generate
 build: package-locks tuist-check run-sourcery tuist-setup
 
-.PHONY: project build ci-project package-locks update-package-locks tuist-download tuist-check tuist-install tuist-setup tuist-generate
+.PHONY: project build codegen ci-project package-locks update-package-locks tuist-download tuist-check tuist-install tuist-setup tuist-generate
+
+# Only code generation, without Tuist setup.
+codegen: run-sourcery
 
 ci-project: tuist-download
 	@$(MAKE) --no-print-directory \

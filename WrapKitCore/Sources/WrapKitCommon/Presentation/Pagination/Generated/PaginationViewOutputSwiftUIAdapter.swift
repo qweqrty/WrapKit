@@ -19,6 +19,10 @@ import Combine
 #endif
 public class PaginationViewOutputSwiftUIAdapter<PresentableItem: Any>: ObservableObject, PaginationViewOutput {
 
+
+
+
+
     // Initializer
     public init(
     ) {

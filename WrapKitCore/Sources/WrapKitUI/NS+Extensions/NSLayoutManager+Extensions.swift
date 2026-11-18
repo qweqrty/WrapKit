@@ -1,3 +1,4 @@
+#if !os(watchOS)
 //
 //  UITapGestureRecognizer+Extensions.swift
 //  WrapKit
@@ -64,3 +65,4 @@ public extension NSLayoutManager {
         }
     }
 }
+#endif

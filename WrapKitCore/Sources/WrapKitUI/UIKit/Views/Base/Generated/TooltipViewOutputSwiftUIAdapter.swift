@@ -16,6 +16,10 @@ import Foundation
 #endif
 public class TooltipViewOutputSwiftUIAdapter: ObservableObject, TooltipViewOutput {
 
+
+
+
+
     // Initializer
     public init(
     ) {
