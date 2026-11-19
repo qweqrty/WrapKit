@@ -54,6 +54,8 @@ final class ButtonSnapshotTests: XCTestCase {
 
     func test_buttonOutput_alignment_styleTransitions_preserveContentAlignment() throws {
         let (container, buttons) = makeAlignmentSUT(alignments: Array(buttonAlignments.prefix(3)))
+        let title = "Подробнее"
+        let image = UIImage(systemName: "star")
         let styles: [ButtonStyle.GlassConfiguration?] = [
             nil, .glass, .clearGlass, .prominentGlass, .prominentClearGlass, nil, .glass
         ]
@@ -62,15 +64,25 @@ final class ButtonSnapshotTests: XCTestCase {
             button.contentHorizontalAlignment = alignment.value
             for glassStyle in styles {
                 button.display(model: .init(
-                    title: "Подробнее",
-                    image: UIImage(systemName: "star"),
+                    title: title,
+                    image: image,
                     spacing: 8,
                     contentInset: .init(top: 0, leading: 16, bottom: 0, trailing: 16),
                     height: 48,
                     style: alignmentStyle(glassStyle)
                 ))
                 assertConfiguredAlignment(of: button, matches: alignment, expectsGlass: glassStyle != nil)
+                button.display(style: alignmentStyle(glassStyle))
+                assertDisplayedContent(title: title, image: image, of: button)
+                assertConfiguredAlignment(of: button, matches: alignment, expectsGlass: glassStyle != nil)
             }
+
+            button.display(title: nil)
+            button.display(image: nil)
+            button.display(style: alignmentStyle(.glass))
+            assertDisplayedContent(title: nil, image: nil, of: button)
+            button.display(title: title)
+            button.display(image: image)
 
             button.isHighlighted = true
             if #available(iOS 15.0, *) { button.updateConfiguration() }
@@ -1504,6 +1516,22 @@ final class ButtonSnapshotTests: XCTestCase {
 }
 
 extension ButtonSnapshotTests {
+    private func assertDisplayedContent(
+        title: String?,
+        image: UIImage?,
+        of button: Button,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        if let configuration = button.configuration {
+            XCTAssertEqual(configuration.title, title, file: file, line: line)
+            XCTAssertEqual(configuration.image, image, file: file, line: line)
+        } else {
+            XCTAssertEqual(button.title(for: .normal), title, file: file, line: line)
+            XCTAssertEqual(button.image(for: .normal), image, file: file, line: line)
+        }
+    }
+
     private struct ButtonAlignmentCase {
         let name: String
         let value: UIControl.ContentHorizontalAlignment
