@@ -355,14 +355,20 @@ extension Button: ButtonOutput {
                 config.image = image(for: .normal) ?? imageView?.image
             }
             if let font = style.font {
-                config.titleTextAttributesTransformer = .init { container in
+                config.titleTextAttributesTransformer = .init { [weak self] container in
                     var updated = container
                     updated.font = font
-                    updated.foregroundColor = self.textColor ?? .white
+                    updated.foregroundColor = self?.textColor ?? .white
                     return updated
                 }
             }
             config.titleLineBreakMode = .byTruncatingTail
+            config.titleAlignment = switch contentHorizontalAlignment {
+            case .center, .fill: .center
+            case .leading, .left: .leading
+            case .trailing, .right: .trailing
+            @unknown default: .center
+            }
 //            if usesLiquidGlassConfiguration {
 //                applyCornerStyle(.automatic)
 //            } else {

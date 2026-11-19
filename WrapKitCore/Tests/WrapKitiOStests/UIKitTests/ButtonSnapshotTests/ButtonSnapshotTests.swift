@@ -10,6 +10,83 @@ import XCTest
 import WrapKitTestUtils
 
 final class ButtonSnapshotTests: XCTestCase {
+    func test_buttonOutput_alignment_initialGlassConfiguration_respectsContentAlignment() throws {
+        let (container, buttons) = makeAlignmentSUT()
+
+        for (alignment, button) in buttons {
+            button.contentHorizontalAlignment = alignment.value
+            button.display(contentInset: .init(top: 0, leading: 16, bottom: 0, trailing: 16))
+            button.display(style: alignmentStyle(.glass))
+            button.display(title: "Подробнее")
+
+            assertConfiguredAlignment(of: button, matches: alignment)
+        }
+
+        try assertAlignmentSnapshots(container: container, buttons: buttons, named: "BUTTON_ALIGNMENT_INITIAL_GLASS")
+    }
+
+    func test_buttonOutput_alignment_repeatedDisplay_preservesContentAlignment() throws {
+        let (container, buttons) = makeAlignmentSUT()
+
+        for (alignment, button) in buttons {
+            button.contentHorizontalAlignment = alignment.value
+            let model = ButtonPresentableModel(
+                title: "Подробнее",
+                contentInset: .init(top: 0, leading: 16, bottom: 0, trailing: 16),
+                height: 48,
+                style: alignmentStyle(.glass)
+            )
+            button.display(model: model)
+            assertConfiguredAlignment(of: button, matches: alignment)
+
+            button.display(model: nil)
+            XCTAssertTrue(button.isHidden)
+            button.display(model: model)
+            button.display(model: model)
+
+            XCTAssertFalse(button.isHidden)
+            XCTAssertEqual(button.configuration?.title ?? button.currentTitle, model.title)
+            assertConfiguredAlignment(of: button, matches: alignment)
+        }
+
+        try assertAlignmentSnapshots(container: container, buttons: buttons, named: "BUTTON_ALIGNMENT_REPEATED_DISPLAY")
+    }
+
+    func test_buttonOutput_alignment_styleTransitions_preserveContentAlignment() throws {
+        let (container, buttons) = makeAlignmentSUT(alignments: Array(buttonAlignments.prefix(3)))
+        let styles: [ButtonStyle.GlassConfiguration?] = [
+            nil, .glass, .clearGlass, .prominentGlass, .prominentClearGlass, nil, .glass
+        ]
+
+        for (alignment, button) in buttons {
+            button.contentHorizontalAlignment = alignment.value
+            for glassStyle in styles {
+                button.display(model: .init(
+                    title: "Подробнее",
+                    image: UIImage(systemName: "star"),
+                    spacing: 8,
+                    contentInset: .init(top: 0, leading: 16, bottom: 0, trailing: 16),
+                    height: 48,
+                    style: alignmentStyle(glassStyle)
+                ))
+                assertConfiguredAlignment(of: button, matches: alignment, expectsGlass: glassStyle != nil)
+            }
+
+            button.isHighlighted = true
+            if #available(iOS 15.0, *) { button.updateConfiguration() }
+            assertConfiguredAlignment(of: button, matches: alignment)
+            button.isHighlighted = false
+            button.display(enabled: false)
+            if #available(iOS 15.0, *) { button.updateConfiguration() }
+            assertConfiguredAlignment(of: button, matches: alignment)
+            button.display(enabled: true)
+            if #available(iOS 15.0, *) { button.updateConfiguration() }
+            assertConfiguredAlignment(of: button, matches: alignment)
+        }
+
+        try assertAlignmentSnapshots(container: container, buttons: buttons, named: "BUTTON_ALIGNMENT_STYLE_TRANSITIONS")
+    }
+
     func test_buttonOutput_default_state() {
         let snapshotName = "BUTTON_DEFAULT_STATE"
         
@@ -1427,6 +1504,126 @@ final class ButtonSnapshotTests: XCTestCase {
 }
 
 extension ButtonSnapshotTests {
+    private struct ButtonAlignmentCase {
+        let name: String
+        let value: UIControl.ContentHorizontalAlignment
+        let titleAlignment: UIButton.Configuration.TitleAlignment
+    }
+
+    private var buttonAlignments: [ButtonAlignmentCase] {
+        [
+            .init(name: "leading", value: .leading, titleAlignment: .leading),
+            .init(name: "center", value: .center, titleAlignment: .center),
+            .init(name: "trailing", value: .trailing, titleAlignment: .trailing),
+            .init(name: "left", value: .left, titleAlignment: .leading),
+            .init(name: "right", value: .right, titleAlignment: .trailing),
+            .init(name: "fill", value: .fill, titleAlignment: .center)
+        ]
+    }
+
+    private func alignmentStyle(_ glassStyle: ButtonStyle.GlassConfiguration?) -> ButtonStyle {
+        .init(
+            backgroundColor: .solid(.secondarySystemBackground),
+            titleColor: .label,
+            font: .systemFont(ofSize: 17),
+            cornerStyle: .fixed(12),
+            glassConfiguration: glassStyle
+        )
+    }
+
+    private func makeAlignmentSUT(
+        alignments: [ButtonAlignmentCase]? = nil,
+        file: StaticString = #file,
+        line: UInt = #line
+    ) -> (UIView, [(ButtonAlignmentCase, Button)]) {
+        let container = UIView(frame: CGRect(x: 0, y: 0, width: 390, height: 700))
+        container.backgroundColor = .systemBackground
+        let buttons = (alignments ?? buttonAlignments).enumerated().map { index, alignment in
+            let top = CGFloat(index) * 104 + 24
+            let label = UILabel(frame: CGRect(x: 24, y: top, width: 342, height: 20))
+            label.font = .systemFont(ofSize: 14)
+            label.textColor = .secondaryLabel
+            label.text = alignment.name
+            container.addSubview(label)
+
+            let button = Button()
+            container.addSubview(button)
+            button.anchor(
+                .top(container.topAnchor, constant: top + 28),
+                .leading(container.leadingAnchor, constant: 24),
+                .trailing(container.trailingAnchor, constant: 24),
+                .height(48)
+            )
+            checkForMemoryLeaks(button, file: file, line: line)
+            return (alignment, button)
+        }
+        container.layoutIfNeeded()
+        return (container, buttons)
+    }
+
+    private func assertConfiguredAlignment(
+        of button: Button,
+        matches alignment: ButtonAlignmentCase,
+        expectsGlass: Bool = true,
+        file: StaticString = #file,
+        line: UInt = #line
+    ) {
+        XCTAssertEqual(button.contentHorizontalAlignment, alignment.value, alignment.name, file: file, line: line)
+        if #available(iOS 26.0, *), expectsGlass {
+            XCTAssertEqual(button.configuration?.titleAlignment, alignment.titleAlignment, alignment.name, file: file, line: line)
+            if let transformer = button.configuration?.titleTextAttributesTransformer {
+                let attributes = transformer(AttributeContainer())
+                XCTAssertEqual(attributes.font, UIFont.systemFont(ofSize: 17), alignment.name, file: file, line: line)
+                XCTAssertEqual(attributes.foregroundColor, button.textColor, alignment.name, file: file, line: line)
+            } else {
+                XCTFail("The configured font must have a title transformer", file: file, line: line)
+            }
+        } else {
+            XCTAssertNil(button.configuration, alignment.name, file: file, line: line)
+        }
+    }
+
+    private func assertAlignmentSnapshots(
+        container: UIView,
+        buttons: [(ButtonAlignmentCase, Button)],
+        named name: String,
+        file: StaticString = #file,
+        line: UInt = #line
+    ) throws {
+        let os = if #available(iOS 26.0, *) { "iOS26" } else { "iOS18.5" }
+        for (style, suffix) in [(UIUserInterfaceStyle.light, "LIGHT"), (.dark, "DARK")] {
+            assert(snapshot: container.snapshot(for: .iPhone(style: style)), named: "\(os)_\(name)_\(suffix)")
+
+            for (alignment, button) in buttons {
+                assertConfiguredAlignment(of: button, matches: alignment, file: file, line: line)
+                let title = try XCTUnwrap(button.titleLabel, file: file, line: line)
+                let titleFrame = button.convert(title.bounds, from: title)
+                var contentFrame = titleFrame
+                let hasImage = button.imageView?.image != nil
+                XCTAssertGreaterThan(contentFrame.width, 0, alignment.name, file: file, line: line)
+                if let image = button.imageView, hasImage {
+                    let imageFrame = button.convert(image.bounds, from: image)
+                    XCTAssertLessThanOrEqual(imageFrame.maxX, titleFrame.minX + 1, alignment.name, file: file, line: line)
+                    contentFrame = contentFrame.union(imageFrame)
+                }
+                XCTAssertTrue(button.bounds.insetBy(dx: -1, dy: -1).contains(contentFrame), alignment.name, file: file, line: line)
+
+                switch alignment.value {
+                case .center, .fill:
+                    if !hasImage {
+                        XCTAssertEqual(contentFrame.midX, button.bounds.midX, accuracy: 2, alignment.name, file: file, line: line)
+                    }
+                case .leading, .left:
+                    XCTAssertLessThan(contentFrame.maxX, button.bounds.midX, alignment.name, file: file, line: line)
+                case .trailing, .right:
+                    XCTAssertGreaterThan(contentFrame.minX, button.bounds.midX, alignment.name, file: file, line: line)
+                @unknown default:
+                    XCTFail("Unsupported alignment", file: file, line: line)
+                }
+            }
+        }
+    }
+
     @available(iOS 26.0, *)
     private func withLiveGlassButton(_ body: (Button) -> Void) throws {
         try autoreleasepool {
