@@ -356,6 +356,7 @@ open class Label: UILabel {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
+        configuredTextAlignment = super.textAlignment
         
         self.backgroundColor = .clear
         self.isHidden = false
@@ -417,8 +418,23 @@ open class Label: UILabel {
         return CGSize(width: max(animatedWidth, base.width), height: base.height)
     }
 
+    open override var textAlignment: NSTextAlignment {
+        get { super.textAlignment }
+        set {
+            if !isApplyingAttributedText {
+                configuredTextAlignment = newValue
+            }
+            super.textAlignment = newValue
+        }
+    }
+
     public override var text: String? {
-        didSet {
+        get { super.text }
+        set {
+            if !isApplyingAttributedText {
+                super.textAlignment = configuredTextAlignment
+            }
+            super.text = newValue
             if automaticallyUpdatesPreferredMaxLayoutWidth {
                 preferredMaxLayoutWidth = 0
             }
@@ -427,12 +443,21 @@ open class Label: UILabel {
     }
 
     public override var attributedText: NSAttributedString? {
-        didSet {
+        get { super.attributedText }
+        set {
+            let wasApplyingAttributedText = isApplyingAttributedText
+            isApplyingAttributedText = true
+            defer { isApplyingAttributedText = wasApplyingAttributedText }
+            super.attributedText = newValue
             if automaticallyUpdatesPreferredMaxLayoutWidth {
                 preferredMaxLayoutWidth = 0
             }
         }
     }
+
+    // UILabel adopts alignment from attributed text; keep the caller's configuration separately.
+    private var configuredTextAlignment: NSTextAlignment = .natural
+    private var isApplyingAttributedText = false
     
     private var animation: CountingLabelAnimation?
     private var currentAnimatedTarget: Decimal?
@@ -450,7 +475,7 @@ open class Label: UILabel {
                 attributedText = nil
                 return
             }
-            let combinedAttributedString = attributes.makeNSAttributedString(font: font, textColor: textColor, textAlignment: textAlignment)
+            let combinedAttributedString = attributes.makeNSAttributedString(font: font, textColor: textColor, textAlignment: configuredTextAlignment)
             attributedText = combinedAttributedString
             self.textStorage = NSTextStorage(attributedString: combinedAttributedString)
             self.textStorage.addLayoutManager(layoutManager)
@@ -463,6 +488,7 @@ open class Label: UILabel {
     
     public required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
+        configuredTextAlignment = super.textAlignment
     }
     
     deinit {
@@ -505,7 +531,7 @@ extension Label: UIGestureRecognizerDelegate {
                 layoutManager: layoutManager,
                 textStorage: textStorage,
                 textContainer: textContainer,
-                textAlignment: attribute.textAlignment ?? textAlignment,
+                textAlignment: attribute.textAlignment ?? configuredTextAlignment,
                 inRange: range
             ), let onTap = attribute.onTap {
                 onTap()

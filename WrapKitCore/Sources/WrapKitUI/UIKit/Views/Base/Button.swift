@@ -278,7 +278,7 @@ extension Button: ButtonOutput {
         if #available(iOS 15.0, *) {
             if var config = configuration {
                 config.image = image
-                configuration = config
+                applyConfiguration(config)
             }
         }
         applyImageTintColor(configuredImageTintColor)
@@ -348,7 +348,14 @@ extension Button: ButtonOutput {
                     imageTintColor
                 }
             }
-            if previousConfiguration == nil {
+            if let previousConfiguration {
+                if let attributedTitle = previousConfiguration.attributedTitle {
+                    config.attributedTitle = attributedTitle
+                } else {
+                    config.title = previousConfiguration.title
+                }
+                config.image = previousConfiguration.image
+            } else {
                 config.title = title(for: .normal) ?? titleLabel?.text
                 config.image = image(for: .normal) ?? imageView?.image
             }
@@ -361,6 +368,13 @@ extension Button: ButtonOutput {
                 }
             }
             config.titleLineBreakMode = .byTruncatingTail
+            config.titleAlignment = switch contentHorizontalAlignment {
+                case .center, .fill: .center
+                case .leading, .left: .leading
+                case .trailing, .right: .trailing
+                @unknown default: .center
+            }
+
             config.background.cornerRadius = style.cornerStyle.value ?? ButtonStyle.defaultCornerRadius
             if case .automatic = style.cornerStyle {
                 config.cornerStyle = .capsule
@@ -370,9 +384,6 @@ extension Button: ButtonOutput {
                 config.cornerStyle = .fixed
                 applyCornerStyle(style.cornerStyle)
             }
-            
-            self.configuration = config
-            self.backgroundColor = .clear
 
             var isPreviouslyHighlighted = false
             configurationUpdateHandler = { [weak self] button in
@@ -419,6 +430,9 @@ extension Button: ButtonOutput {
                 }
                 button.configuration = updated
             }
+
+            applyConfiguration(config)
+            self.backgroundColor = .clear
             updateSpacings()
         }
 
@@ -528,7 +542,7 @@ open class Button: UIButton {
         didSet {
             if #available(iOS 15.0, *), var configuration {
                 applyConfigurationBackgroundColor(textBackgroundColor, to: &configuration)
-                self.configuration = configuration
+                applyConfiguration(configuration)
                 if !isEnabled, activeGlassConfiguration != nil { setNeedsUpdateConfiguration() }
             } else {
                 backgroundColor = textBackgroundColor
@@ -553,10 +567,10 @@ open class Button: UIButton {
         if #available(iOS 15.0, *), var configuration {
             if imageTintAppearance != nil {
                 configuration.image = tintedImageForCurrentState()
-                self.configuration = configuration
+                applyConfiguration(configuration)
             } else if state == .normal || state == imageStateForCurrentControlState {
                 configuration.image = image
-                self.configuration = configuration
+                applyConfiguration(configuration)
             }
         }
     }
@@ -571,8 +585,12 @@ open class Button: UIButton {
 
     open override func setTitle(_ title: String?, for state: UIControl.State) {
         if #available(iOS 15.0, *), var configuration {
+            if activeGlassConfiguration != nil, title == nil {
+                // UIKit otherwise restores the legacy title during a configuration update.
+                super.setTitle(nil, for: state)
+            }
             configuration.title = title
-            self.configuration = configuration
+            applyConfiguration(configuration)
         } else {
             super.setTitle(title, for: state)
         }
@@ -581,7 +599,7 @@ open class Button: UIButton {
     open override func setTitleColor(_ color: UIColor?, for state: UIControl.State) {
         if #available(iOS 15.0, *), var configuration {
             configuration.baseForegroundColor = color
-            self.configuration = configuration
+            applyConfiguration(configuration)
         } else {
             super.setTitleColor(color, for: state)
         }
@@ -596,7 +614,7 @@ open class Button: UIButton {
                 case .trailing, .right: .trailing
                 @unknown default: .center
                 }
-                self.configuration = configuration
+                applyConfiguration(configuration)
             } else {
                 super.contentHorizontalAlignment = contentHorizontalAlignment
             }
@@ -634,7 +652,7 @@ open class Button: UIButton {
                 trailing: contentInset.right
             )
             configuration.imagePadding = spacing
-            self.configuration = configuration
+            applyConfiguration(configuration)
             return
         }
         let isRTL = UIView.userInterfaceLayoutDirection(for: self.semanticContentAttribute) == .rightToLeft
@@ -911,6 +929,18 @@ open class Button: UIButton {
 }
 
 private extension Button {
+    @available(iOS 15.0, *)
+    func applyConfiguration(_ configuration: UIButton.Configuration) {
+        guard activeGlassConfiguration != nil else {
+            self.configuration = configuration
+            return
+        }
+        UIView.performWithoutAnimation {
+            self.configuration = configuration
+            layoutIfNeeded()
+        }
+    }
+
     func applyImageTintColor(_ imageTintColor: UIColor?) {
         guard let imageTintColor else {
             restoreImageTintAppearance()
