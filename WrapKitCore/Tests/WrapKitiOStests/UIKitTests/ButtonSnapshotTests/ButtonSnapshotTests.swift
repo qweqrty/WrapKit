@@ -302,37 +302,50 @@ final class ButtonSnapshotTests: XCTestCase {
         guard #available(iOS 26.0, *) else {
             throw XCTSkip("Liquid Glass is available on iOS 26 and newer")
         }
-        try withLiveGlassButton { sut in
-            let normalColor = UIColor.systemGreen
-            let pressedColor = UIColor.systemTeal
-            let nativeBackground = UIButton.Configuration.prominentGlass().background
-            sut.display(style: .init(
-                backgroundColor: .solid(normalColor),
-                titleColor: .white,
-                pressedColor: pressedColor,
-                glassConfiguration: .prominentGlass
-            ))
-
-            for (highlighted, expectedColor) in [(false, normalColor), (true, pressedColor), (false, normalColor)] {
-                sut.isHighlighted = highlighted
+        for glassConfiguration in [ButtonStyle.GlassConfiguration.prominentGlass, .prominentClearGlass] {
+            try withLiveGlassButton { sut in
+                let normalColor = UIColor(red: 0.21, green: 0.46, blue: 0.73, alpha: 1)
+                let pressedColor = UIColor.systemTeal
+                let nativeBackground = glassConfiguration == .prominentGlass ? UIButton.Configuration.prominentGlass().background : UIButton.Configuration.prominentClearGlass().background
+                sut.display(style: .init(
+                    backgroundColor: .solid(normalColor),
+                    titleColor: .white,
+                    pressedColor: pressedColor,
+                    glassConfiguration: glassConfiguration
+                ))
+                for (highlighted, expectedColor) in [(false, normalColor), (true, pressedColor), (false, normalColor)] {
+                    sut.isHighlighted = highlighted
+                    flushConfigurationUpdates(of: sut)
+                    XCTAssertEqual(sut.configuration?.baseBackgroundColor, expectedColor)
+                    XCTAssertEqual(sut.configuration?.background.backgroundColor, nativeBackground.backgroundColor)
+                    XCTAssertEqual(sut.backgroundColor, .clear)
+                }
+                sut.display(enabled: false)
                 flushConfigurationUpdates(of: sut)
-
-                XCTAssertEqual(sut.configuration?.baseBackgroundColor, expectedColor)
+                XCTAssertEqual(sut.configuration?.background.backgroundColor, normalColor)
+                sut.display(enabled: true)
+                flushConfigurationUpdates(of: sut)
                 XCTAssertEqual(sut.configuration?.background.backgroundColor, nativeBackground.backgroundColor)
-                XCTAssertEqual(sut.backgroundColor, .clear)
+
+                sut.textBackgroundColor = .systemRed
+                flushConfigurationUpdates(of: sut)
+                XCTAssertEqual(sut.configuration?.baseBackgroundColor, .systemRed)
+                XCTAssertEqual(sut.configuration?.background.backgroundColor, nativeBackground.backgroundColor)
+                sut.display(enabled: false)
+                sut.isHighlighted = true
+                flushConfigurationUpdates(of: sut)
+                XCTAssertEqual(sut.configuration?.background.backgroundColor, .systemRed, "Disabled fill must use the current normal color even when highlighted")
+                sut.textBackgroundColor = .systemPurple
+                flushConfigurationUpdates(of: sut)
+                XCTAssertEqual(sut.configuration?.background.backgroundColor, .systemPurple)
+                sut.display(enabled: true)
+                for (highlighted, expectedColor) in [(false, UIColor.systemPurple), (true, pressedColor), (false, UIColor.systemPurple)] {
+                    sut.isHighlighted = highlighted
+                    flushConfigurationUpdates(of: sut)
+                    XCTAssertEqual(sut.configuration?.baseBackgroundColor, expectedColor)
+                    XCTAssertEqual(sut.configuration?.background.backgroundColor, nativeBackground.backgroundColor)
+                }
             }
-
-            sut.textBackgroundColor = .systemRed
-            flushConfigurationUpdates(of: sut)
-            XCTAssertEqual(sut.configuration?.baseBackgroundColor, .systemRed)
-            XCTAssertEqual(sut.configuration?.background.backgroundColor, nativeBackground.backgroundColor)
-
-            sut.isHighlighted = true
-            flushConfigurationUpdates(of: sut)
-            sut.isHighlighted = false
-            flushConfigurationUpdates(of: sut)
-            XCTAssertEqual(sut.configuration?.baseBackgroundColor, .systemRed)
-            XCTAssertEqual(sut.configuration?.background.backgroundColor, nativeBackground.backgroundColor)
         }
     }
 
@@ -409,44 +422,91 @@ final class ButtonSnapshotTests: XCTestCase {
         XCTAssertEqual(sut.configuration?.baseBackgroundColor, .systemYellow)
     }
 
-    func test_buttonOutput_prominentCapsule_preservesShadowAndRestoresPreviousClipping() throws {
-        guard #available(iOS 26.0, *) else {
-            throw XCTSkip("Liquid Glass is available on iOS 26 and newer")
-        }
-        let prominent = ButtonStyle(backgroundColor: .solid(.systemGreen), cornerStyle: .automatic, glassConfiguration: .prominentGlass)
-        let neutral = ButtonStyle(backgroundColor: .solid(.clear), cornerStyle: .automatic, glassConfiguration: .glass)
-
-        for originalClipping in [true, false] {
-            let (sut, _) = makeSUT()
-            sut.clipsToBounds = originalClipping
-            sut.display(style: prominent)
-            XCTAssertFalse(sut.clipsToBounds, "The capsule's native glass shadow must extend outside the button")
-
-            sut.display(style: prominent)
-            XCTAssertFalse(sut.clipsToBounds)
-            sut.display(style: neutral)
-            XCTAssertEqual(sut.clipsToBounds, originalClipping, "Neutral glass must retain the caller's original clipping")
-
-            sut.display(style: prominent)
-            sut.display(style: .init(backgroundColor: .solid(.systemOrange), cornerStyle: .automatic))
-            XCTAssertTrue(sut.clipsToBounds, "A non-glass automatic corner style must regain its own clipping")
+    func test_buttonOutput_glassCapsules_resetClippingAcrossStyleReuse() throws {
+        guard #available(iOS 26.0, *) else { throw XCTSkip("Liquid Glass requires iOS 26") }
+        let plain = ButtonStyle(backgroundColor: .solid(.systemOrange), cornerStyle: .automatic)
+        for factory in [ButtonStyle.GlassConfiguration.glass, .clearGlass, .prominentGlass, .prominentClearGlass] {
+            for color in [UIColor.clear, .systemGreen] {
+                let style = ButtonStyle(backgroundColor: .solid(color), cornerStyle: .automatic, glassConfiguration: factory)
+                let (sut, _) = makeSUT(button: Button(style: style, title: "Native"))
+                XCTAssertFalse(sut.clipsToBounds, "A native capsule must not inherit clipping during initialization")
+                sut.display(style: plain)
+                XCTAssertTrue(sut.clipsToBounds)
+                sut.display(style: style)
+                XCTAssertFalse(sut.clipsToBounds)
+                sut.clipsToBounds = true
+                sut.display(style: style)
+                XCTAssertFalse(sut.clipsToBounds, "Reapplying a native capsule resets clipping regardless of its fill")
+                sut.display(style: plain)
+                XCTAssertTrue(sut.clipsToBounds, "Plain automatic corners recompute their own clipping")
+            }
         }
     }
 
-    func test_buttonOutput_prominentGlass_explicitCornersRetainClipping() throws {
-        guard #available(iOS 26.0, *) else {
-            throw XCTSkip("Liquid Glass is available on iOS 26 and newer")
+    func test_buttonOutput_glass_explicitCornersRetainClipping() throws {
+        guard #available(iOS 26.0, *) else { throw XCTSkip("Liquid Glass requires iOS 26") }
+        for factory in [ButtonStyle.GlassConfiguration.glass, .clearGlass, .prominentGlass, .prominentClearGlass] {
+            let fixed = ButtonStyle(backgroundColor: .solid(.systemGreen), cornerStyle: .fixed(12), glassConfiguration: factory)
+            let automatic = ButtonStyle(backgroundColor: .solid(.systemGreen), cornerStyle: .automatic, glassConfiguration: factory)
+            let (sut, _) = makeSUT(button: Button(style: fixed))
+            XCTAssertTrue(sut.clipsToBounds)
+            sut.display(style: automatic)
+            XCTAssertFalse(sut.clipsToBounds)
+            sut.display(style: fixed)
+            XCTAssertTrue(sut.clipsToBounds)
+            sut.display(style: automatic)
+            sut.display(style: .init(backgroundColor: .solid(.systemGreen), cornerStyle: .corners(.init(top: 12)), glassConfiguration: factory))
+            XCTAssertTrue(sut.clipsToBounds)
         }
-        let (sut, _) = makeSUT()
-        sut.display(style: .init(backgroundColor: .solid(.systemGreen), cornerStyle: .automatic, glassConfiguration: .prominentGlass))
-        XCTAssertFalse(sut.clipsToBounds)
+    }
 
-        sut.display(style: .init(backgroundColor: .solid(.systemGreen), cornerStyle: .fixed(12), glassConfiguration: .prominentGlass))
-        XCTAssertTrue(sut.clipsToBounds)
-
-        sut.display(style: .init(backgroundColor: .solid(.systemGreen), cornerStyle: .automatic, glassConfiguration: .prominentGlass))
-        sut.display(style: .init(backgroundColor: .solid(.systemGreen), cornerStyle: .corners(.init(top: 12)), glassConfiguration: .prominentGlass))
-        XCTAssertTrue(sut.clipsToBounds)
+    func test_buttonOutput_styleInitializer_preservesContentBackgroundAndDisabledAppearance() throws {
+        guard #available(iOS 26.0, *) else { throw XCTSkip("Live configuration updates require iOS 26") }
+        let gradient = ColorStyle.gradient(.init(colors: [.red, .blue]))
+        let styles = [
+            ButtonStyle(backgroundColor: .solid(.systemBlue), titleColor: .systemYellow, font: .systemFont(ofSize: 18), cornerStyle: .fixed(12)),
+            ButtonStyle(backgroundColor: gradient, titleColor: .systemYellow, font: .systemFont(ofSize: 18), cornerStyle: .fixed(12)),
+            ButtonStyle(backgroundColor: .solid(.systemBlue), titleColor: .systemYellow, font: .systemFont(ofSize: 18), glassConfiguration: .prominentGlass)
+        ]
+        for style in styles {
+            try withLiveGlassButton(makeButton: { Button(style: style, title: "Initialized", enabled: false) }) { sut in
+                flushConfigurationUpdates(of: sut)
+                XCTAssertFalse(sut.isEnabled)
+                XCTAssertEqual(sut.alpha, 0.5)
+                XCTAssertTrue(sut.isAccessibilityElement)
+                XCTAssertTrue(sut.accessibilityTraits.contains(.notEnabled))
+                XCTAssertEqual(sut.contentHorizontalAlignment, .center)
+                XCTAssertEqual(sut.titleLabel?.lineBreakMode, .byTruncatingTail)
+                XCTAssertEqual(sut.titleLabel?.font, style.font)
+                XCTAssertEqual(sut.textColor, .systemYellow)
+                XCTAssertEqual(sut.normalBackgroundStyle, style.backgroundStyle)
+                if let configuration = sut.configuration {
+                    XCTAssertEqual(configuration.title, "Initialized")
+                    XCTAssertEqual(configuration.background.backgroundColor, .systemBlue)
+                    XCTAssertEqual(configuration.contentInsets, .zero)
+                    XCTAssertEqual(configuration.imagePadding, 0)
+                } else {
+                    XCTAssertEqual(sut.title(for: .normal), "Initialized")
+                    XCTAssertEqual(sut.accessibilityLabel, "Initialized")
+                    let gradients = sut.layer.sublayers?.compactMap { $0 as? CAGradientLayer } ?? []
+                    if style.backgroundStyle == gradient {
+                        XCTAssertEqual(gradients.count, 1)
+                        XCTAssertEqual(gradients.first?.colors as? [CGColor], [UIColor.red.cgColor, UIColor.blue.cgColor])
+                        XCTAssertEqual(gradients.first?.frame, sut.bounds)
+                    } else {
+                        XCTAssertTrue(gradients.isEmpty)
+                        XCTAssertEqual(sut.backgroundColor, .systemBlue)
+                    }
+                }
+                sut.display(enabled: true)
+                flushConfigurationUpdates(of: sut)
+                XCTAssertTrue(sut.isEnabled)
+                XCTAssertEqual(sut.alpha, 1)
+                if sut.configuration != nil {
+                    XCTAssertEqual(sut.configuration?.background.backgroundColor, UIButton.Configuration.prominentGlass().background.backgroundColor)
+                }
+            }
+        }
     }
 
     func test_fail_buttonOutput_image_state() {
@@ -1428,14 +1488,14 @@ final class ButtonSnapshotTests: XCTestCase {
 
 extension ButtonSnapshotTests {
     @available(iOS 26.0, *)
-    private func withLiveGlassButton(_ body: (Button) -> Void) throws {
+    private func withLiveGlassButton(makeButton: (() -> Button)? = nil, _ body: (Button) -> Void) throws {
         try autoreleasepool {
             let scene = try XCTUnwrap(UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }.first)
             let previousKeyWindow = scene.windows.first(where: \.isKeyWindow)
             let window = UIWindow(windowScene: scene)
             let root = UIViewController()
             root.view.backgroundColor = .systemBackground
-            let (sut, container) = makeSUT()
+            let (sut, container) = makeSUT(button: makeButton?())
             root.view.addSubview(container)
             window.rootViewController = root
             window.makeKeyAndVisible()
@@ -1474,11 +1534,12 @@ extension ButtonSnapshotTests {
     }
 
     func makeSUT(
+        button: Button? = nil,
         height: CGFloat = 60,
         file: StaticString = #file,
         line: UInt = #line
     ) -> (sut: Button, container: UIView) {
-        let sut = Button()
+        let sut = button ?? Button()
         let container = makeContainer()
         
         container.addSubview(sut)

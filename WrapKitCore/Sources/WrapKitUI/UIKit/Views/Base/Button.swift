@@ -316,10 +316,6 @@ extension Button: ButtonOutput {
     }
     
     private func displayGlass(style: ButtonStyle) {
-        if let previousMasksToBounds = masksToBoundsBeforeProminentGlass {
-            layer.masksToBounds = previousMasksToBounds
-            masksToBoundsBeforeProminentGlass = nil
-        }
         guard let glassConfiguration = style.glassConfiguration else {
             resetGlassConfigurationIfNeeded()
             if let textColor = style.titleColor { self.setTitleColor(textColor, for: .normal) }
@@ -340,11 +336,13 @@ extension Button: ButtonOutput {
             case .prominentGlass: .prominentGlass()
             case .prominentClearGlass: .prominentClearGlass()
             }
+            let usesProminentGlass = glassConfiguration == .prominentGlass || glassConfiguration == .prominentClearGlass
+            let nativeBackgroundColor = config.background.backgroundColor
             config.background.strokeColor = style.borderColor
             config.background.strokeWidth = style.borderWidth
             
-            applyConfigurationBackgroundColor(style.backgroundStyle?.solidColor, to: &config)
-            config.baseForegroundColor = style.titleColor ?? .white
+            applyConfigurationBackgroundColor(textBackgroundColor, to: &config)
+            config.baseForegroundColor = textColor ?? .white
             if let imageTintColor = style.imageTintColor {
                 config.imageColorTransformer = UIConfigurationColorTransformer { _ in
                     imageTintColor
@@ -355,29 +353,22 @@ extension Button: ButtonOutput {
                 config.image = image(for: .normal) ?? imageView?.image
             }
             if let font = style.font {
-                config.titleTextAttributesTransformer = .init { container in
+                config.titleTextAttributesTransformer = .init { [weak self] container in
                     var updated = container
                     updated.font = font
-                    updated.foregroundColor = self.textColor ?? .white
+                    updated.foregroundColor = self?.textColor ?? .white
                     return updated
                 }
             }
             config.titleLineBreakMode = .byTruncatingTail
-//            if usesLiquidGlassConfiguration {
-//                applyCornerStyle(.automatic)
-//            } else {
-                config.cornerStyle = style.cornerStyle.cornerConfiguation == .capsule() ? .capsule : .fixed
-                config.background.cornerRadius = style.cornerStyle.cornerConfiguation == .capsule() ? ButtonStyle.defaultCornerRadius : (style.cornerStyle.value ?? ButtonStyle.defaultCornerRadius)
-                if style.cornerStyle.cornerConfiguation != .capsule() {
-                    applyCornerStyle(style.cornerStyle)
-                }
-//            }
-
-            if config.cornerStyle == .capsule,
-               glassConfiguration == .prominentGlass || glassConfiguration == .prominentClearGlass {
-                // The native capsule owns its shape; clipping here cuts off its rim and shadow.
-                masksToBoundsBeforeProminentGlass = layer.masksToBounds
+            config.background.cornerRadius = style.cornerStyle.value ?? ButtonStyle.defaultCornerRadius
+            if case .automatic = style.cornerStyle {
+                config.cornerStyle = .capsule
+                // A previous style may have clipped the native capsule's rim and shadow.
                 layer.masksToBounds = false
+            } else {
+                config.cornerStyle = .fixed
+                applyCornerStyle(style.cornerStyle)
             }
             
             self.configuration = config
@@ -387,7 +378,7 @@ extension Button: ButtonOutput {
             configurationUpdateHandler = { [weak self] button in
                 guard let self = self, var updated = button.configuration else { return }
 
-                if button.isHighlighted {
+                if button.isHighlighted && button.isEnabled {
                     isPreviouslyHighlighted = true
                     self.applyConfigurationBackgroundColor(pressedBackgroundColor ?? textBackgroundColor, to: &updated)
                     let baseForegroundColor = pressedTextColor ?? textColor ?? button.currentTitleColor
@@ -422,6 +413,10 @@ extension Button: ButtonOutput {
                     isPreviouslyHighlighted = false
                 }
 
+                if usesProminentGlass {
+                    // UIKit desaturates the prominent tint when disabled. Use the current fill with the button's disabled opacity.
+                    updated.background.backgroundColor = button.isEnabled ? nativeBackgroundColor : (self.textBackgroundColor ?? nativeBackgroundColor)
+                }
                 button.configuration = updated
             }
             updateSpacings()
@@ -516,7 +511,6 @@ open class Button: UIButton {
     }
 
     private var activeGlassConfiguration: ButtonStyle.GlassConfiguration?
-    private var masksToBoundsBeforeProminentGlass: Bool?
 
     private var hasCustomContentInset: Bool {
         return contentInset.top != .zero
@@ -535,6 +529,7 @@ open class Button: UIButton {
             if #available(iOS 15.0, *), var configuration {
                 applyConfigurationBackgroundColor(textBackgroundColor, to: &configuration)
                 self.configuration = configuration
+                if !isEnabled, activeGlassConfiguration != nil { setNeedsUpdateConfiguration() }
             } else {
                 backgroundColor = textBackgroundColor
             }
