@@ -81,7 +81,7 @@ extension SimulatedCameraContentView {
         
         cancelButton.anchor(
             .centerY(shutterButton.centerYAnchor),
-            .leading(leadingAnchor, constant: 16),
+            .leading(safeAreaLayoutGuide.leadingAnchor, constant: 16),
             .height(32)
         )
     }

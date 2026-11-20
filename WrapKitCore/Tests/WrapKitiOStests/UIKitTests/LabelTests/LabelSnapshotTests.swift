@@ -11,6 +11,115 @@ import WrapKitTestUtils
 
 final class LabelSnapshotTests: XCTestCase {
 
+    func test_labelOutput_alignment_centerThenUnspecified_usesConfiguredAlignment() throws {
+        let alignments: [(String, NSTextAlignment)] = [("natural", .natural), ("left", .left), ("center", .center), ("right", .right)]
+        let rows = try alignments.map { name, alignment -> (String, Label) in
+            let label = makeAlignmentLabel(alignment: alignment)
+            label.display(model: .attributes([.init(text: "Centered button", textAlignment: .center)]))
+            try assertAlignment(.center, in: label)
+
+            label.display(model: .attributes([.init(text: "1 080 с / 1 календарный месяц")]))
+            try assertAlignment(alignment, in: label)
+            return ("Base \(name): center → unspecified", label)
+        }
+        assertAlignmentSnapshots(rows, named: "LABEL_ALIGNMENT_CENTER_TO_DEFAULT")
+    }
+
+    func test_labelOutput_alignment_callerChangesAlignment_afterInitializationAndContent() throws {
+        let configuredBeforeContent = makeAlignmentLabel(alignment: .natural)
+        configuredBeforeContent.textAlignment = .right
+        configuredBeforeContent.display(model: .attributes([.init(text: "Centered button", textAlignment: .center)]))
+        configuredBeforeContent.display(model: .attributes([.init(text: "Caller configured right")]))
+        try assertAlignment(.right, in: configuredBeforeContent)
+
+        let configuredAfterContent = makeAlignmentLabel(alignment: .left)
+        configuredAfterContent.display(model: .attributes([.init(text: "Centered button", textAlignment: .center)]))
+        configuredAfterContent.textAlignment = .right
+        configuredAfterContent.display(model: .attributes([.init(text: "Caller changed alignment to right")]))
+        try assertAlignment(.right, in: configuredAfterContent)
+
+        assertAlignmentSnapshots([
+            ("Caller sets right before centered content", configuredBeforeContent),
+            ("Caller sets right after centered content", configuredAfterContent)
+        ], named: "LABEL_ALIGNMENT_CALLER_CONFIGURED_RIGHT")
+    }
+
+    func test_labelOutput_alignment_repeatedDisplayAndNil_keepExplicitAndDefaultAlignment() throws {
+        let centered = makeAlignmentLabel(alignment: .left)
+        let model = TextOutputPresentableModel.attributes([.init(text: "Repeated centered button", textAlignment: .center)])
+        centered.display(model: model)
+        centered.display(model: model)
+        try assertAlignment(.center, in: centered)
+
+        let restored = makeAlignmentLabel(alignment: .right)
+        restored.display(model: model)
+        restored.display(model: model)
+        restored.display(model: nil)
+        XCTAssertTrue(restored.isHidden)
+        restored.display(model: .attributes([.init(text: "Right alignment after nil")]))
+        restored.display(model: .attributes([.init(text: "Right alignment after repeated display")]))
+        XCTAssertFalse(restored.isHidden)
+        try assertAlignment(.right, in: restored)
+
+        assertAlignmentSnapshots([
+            ("Explicit center survives repeated display", centered),
+            ("Base right survives center → nil → unspecified", restored)
+        ], named: "LABEL_ALIGNMENT_REPEATED_DISPLAY_AND_NIL")
+    }
+
+    func test_labelOutput_alignment_centerThenPlainText_restoresConfiguredAlignment() {
+        let throughDisplay = makeAlignmentLabel(alignment: .left)
+        throughDisplay.display(model: .attributes([.init(text: "Centered button", textAlignment: .center)]))
+        throughDisplay.display(model: .text("Plain text through display: left"))
+        XCTAssertEqual(throughDisplay.textAlignment, .left)
+
+        let directText = makeAlignmentLabel(alignment: .right)
+        directText.display(model: .attributes([.init(text: "Centered button", textAlignment: .center)]))
+        directText.text = "Plain text through property: right"
+        XCTAssertEqual(directText.textAlignment, .right)
+
+        assertAlignmentSnapshots([
+            ("Base left: attributes → display plain text", throughDisplay),
+            ("Base right: attributes → direct text assignment", directText)
+        ], named: "LABEL_ALIGNMENT_CENTER_TO_PLAIN_TEXT")
+    }
+
+    func test_labelOutput_alignment_externalContentAndMixedParagraphs_doNotLeakAlignment() throws {
+        let html = makeAlignmentLabel(alignment: .right)
+        html.display(htmlString: "<p>Centered HTML</p>", config: .init(textAlignment: .center))
+        try assertAlignment(.center, in: html)
+        html.display(model: .attributes([.init(text: "Right alignment after HTML", color: .label, font: .systemFont(ofSize: 18))]))
+        try assertAlignment(.right, in: html)
+
+        let directAttributedText = makeAlignmentLabel(alignment: .left)
+        let paragraph = NSMutableParagraphStyle()
+        paragraph.alignment = .center
+        directAttributedText.attributedText = NSAttributedString(string: "Centered attributed text", attributes: [
+            .font: UIFont.systemFont(ofSize: 18),
+            .paragraphStyle: paragraph
+        ])
+        directAttributedText.display(model: .attributes([.init(text: "Left alignment after attributed text")]))
+        try assertAlignment(.left, in: directAttributedText)
+
+        let mixed = makeAlignmentLabel(alignment: .left)
+        let mixedModel = TextOutputPresentableModel.attributes([
+            .init(text: "Centered paragraph\n", textAlignment: .center),
+            .init(text: "Right paragraph\n", textAlignment: .right),
+            .init(text: "Unspecified paragraph")
+        ])
+        mixed.display(model: mixedModel)
+        mixed.display(model: mixedModel)
+        try assertAlignment(.center, in: mixed, containing: "Centered paragraph")
+        try assertAlignment(.right, in: mixed, containing: "Right paragraph")
+        try assertAlignment(.left, in: mixed, containing: "Unspecified paragraph")
+
+        assertAlignmentSnapshots([
+            ("Base right: centered HTML → unspecified", html),
+            ("Base left: attributed text → unspecified", directAttributedText),
+            ("Mixed paragraphs retain their own alignment", mixed)
+        ], named: "LABEL_ALIGNMENT_EXTERNAL_CONTENT_AND_PARAGRAPHS")
+    }
+
     func test_labelOutput_defaultWidth_preservesCallerMeasurementAcrossTextAndLayoutChanges() {
         let label = Label(font: .systemFont(ofSize: 18))
         XCTAssertFalse(label.automaticallyUpdatesPreferredMaxLayoutWidth)
@@ -1483,6 +1592,72 @@ final class LabelSnapshotTests: XCTestCase {
 }
 
 extension LabelSnapshotTests {
+    private func makeAlignmentLabel(alignment: NSTextAlignment) -> Label {
+        Label(font: .systemFont(ofSize: 18), textColor: .label, textAlignment: alignment)
+    }
+
+    private func assertAlignment(
+        _ expected: NSTextAlignment,
+        in label: Label,
+        containing text: String? = nil,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) throws {
+        let attributedText = try XCTUnwrap(label.attributedText, file: file, line: line)
+        let range = text.map { (attributedText.string as NSString).range(of: $0) } ?? NSRange(location: 0, length: 0)
+        guard range.location != NSNotFound else {
+            XCTFail("Expected paragraph was not found: \(text ?? "")", file: file, line: line)
+            return
+        }
+        let paragraph = try XCTUnwrap(
+            attributedText.attribute(.paragraphStyle, at: range.location, effectiveRange: nil) as? NSParagraphStyle,
+            file: file,
+            line: line
+        )
+        XCTAssertEqual(paragraph.alignment, expected, file: file, line: line)
+    }
+
+    private func assertAlignmentSnapshots(
+        _ rows: [(String, Label)],
+        named name: String,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        let container = UIView(frame: CGRect(x: 0, y: 0, width: 390, height: 16 + rows.count * 140))
+        container.backgroundColor = .systemBackground
+        for (index, row) in rows.enumerated() {
+            let caption = UILabel(frame: CGRect(x: 16, y: 16 + index * 140, width: 358, height: 32))
+            caption.text = row.0
+            caption.font = .systemFont(ofSize: 12, weight: .medium)
+            caption.textColor = .secondaryLabel
+            caption.numberOfLines = 0
+            container.addSubview(caption)
+
+            let label = row.1
+            label.translatesAutoresizingMaskIntoConstraints = true
+            label.frame = CGRect(x: 16, y: 52 + index * 140, width: 358, height: 92)
+            label.backgroundColor = .secondarySystemBackground
+            container.addSubview(label)
+        }
+
+        let os = if #available(iOS 26, *) { "iOS26" } else { "iOS18.5" }
+        for (theme, style) in [("LIGHT", UIUserInterfaceStyle.light), ("DARK", UIUserInterfaceStyle.dark)] {
+            let configuration = SnapshotConfiguration(
+                size: container.bounds.size,
+                safeAreaInsets: .zero,
+                layoutMargins: .zero,
+                traitCollection: SnapshotConfiguration.iPhone(style: style).traitCollection
+            )
+            let snapshot = container.snapshot(for: configuration)
+            let snapshotName = "\(os)_\(name)_\(theme)"
+            let attachment = XCTAttachment(image: snapshot)
+            attachment.name = snapshotName
+            attachment.lifetime = .keepAlways
+            add(attachment)
+            assert(snapshot: snapshot, named: snapshotName, file: file, line: line)
+        }
+    }
+
     func makeSUT(
         file: StaticString = #file,
         line: UInt = #line

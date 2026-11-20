@@ -278,7 +278,7 @@ extension Button: ButtonOutput {
         if #available(iOS 15.0, *) {
             if var config = configuration {
                 config.image = image
-                configuration = config
+                applyConfiguration(config)
             }
         }
         applyImageTintColor(configuredImageTintColor)
@@ -329,56 +329,69 @@ extension Button: ButtonOutput {
         
         let previousConfiguration = configuration
         if #available(iOS 26, macOS 26, watchOS 26, tvOS 26, *), isLiquidGlassEnabled {
-            self.usesLiquidGlassConfiguration = true
+            self.activeGlassConfiguration = glassConfiguration
             var config: UIButton.Configuration = switch glassConfiguration {
             case .glass: .glass()
             case .clearGlass: .clearGlass()
             case .prominentGlass: .prominentGlass()
             case .prominentClearGlass: .prominentClearGlass()
             }
+            let usesProminentGlass = glassConfiguration == .prominentGlass || glassConfiguration == .prominentClearGlass
+            let nativeBackgroundColor = config.background.backgroundColor
             config.background.strokeColor = style.borderColor
             config.background.strokeWidth = style.borderWidth
             
-            config.background.backgroundColor = style.backgroundStyle?.solidColor
-            config.baseForegroundColor = style.titleColor ?? .white
+            applyConfigurationBackgroundColor(textBackgroundColor, to: &config)
+            config.baseForegroundColor = textColor ?? .white
             if let imageTintColor = style.imageTintColor {
                 config.imageColorTransformer = UIConfigurationColorTransformer { _ in
                     imageTintColor
                 }
             }
-            if previousConfiguration == nil {
+            if let previousConfiguration {
+                if let attributedTitle = previousConfiguration.attributedTitle {
+                    config.attributedTitle = attributedTitle
+                } else {
+                    config.title = previousConfiguration.title
+                }
+                config.image = previousConfiguration.image
+            } else {
                 config.title = title(for: .normal) ?? titleLabel?.text
                 config.image = image(for: .normal) ?? imageView?.image
             }
             if let font = style.font {
-                config.titleTextAttributesTransformer = .init { container in
+                config.titleTextAttributesTransformer = .init { [weak self] container in
                     var updated = container
                     updated.font = font
-                    updated.foregroundColor = self.textColor ?? .white
+                    updated.foregroundColor = self?.textColor ?? .white
                     return updated
                 }
             }
             config.titleLineBreakMode = .byTruncatingTail
-//            if usesLiquidGlassConfiguration {
-//                applyCornerStyle(.automatic)
-//            } else {
-                config.cornerStyle = style.cornerStyle.cornerConfiguation == .capsule() ? .capsule : .fixed
-                config.background.cornerRadius = style.cornerStyle.cornerConfiguation == .capsule() ? ButtonStyle.defaultCornerRadius : (style.cornerStyle.value ?? ButtonStyle.defaultCornerRadius)
-                if style.cornerStyle.cornerConfiguation != .capsule() {
-                    applyCornerStyle(style.cornerStyle)
-                }
-//            }
-            
-            self.configuration = config
-            self.backgroundColor = .clear
+            config.titleAlignment = switch contentHorizontalAlignment {
+                case .center, .fill: .center
+                case .leading, .left: .leading
+                case .trailing, .right: .trailing
+                @unknown default: .center
+            }
+
+            config.background.cornerRadius = style.cornerStyle.value ?? ButtonStyle.defaultCornerRadius
+            if case .automatic = style.cornerStyle {
+                config.cornerStyle = .capsule
+                // A previous style may have clipped the native capsule's rim and shadow.
+                layer.masksToBounds = false
+            } else {
+                config.cornerStyle = .fixed
+                applyCornerStyle(style.cornerStyle)
+            }
 
             var isPreviouslyHighlighted = false
             configurationUpdateHandler = { [weak self] button in
                 guard let self = self, var updated = button.configuration else { return }
 
-                if button.isHighlighted {
+                if button.isHighlighted && button.isEnabled {
                     isPreviouslyHighlighted = true
-                    updated.background.backgroundColor = pressedBackgroundColor ?? textBackgroundColor
+                    self.applyConfigurationBackgroundColor(pressedBackgroundColor ?? textBackgroundColor, to: &updated)
                     let baseForegroundColor = pressedTextColor ?? textColor ?? button.currentTitleColor
                     updated.baseForegroundColor = baseForegroundColor
                     updated.imageColorTransformer = .init { _ in baseForegroundColor }
@@ -393,7 +406,7 @@ extension Button: ButtonOutput {
                 } else {
                     if isPreviouslyHighlighted {
                         UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 0.4, initialSpringVelocity: 6, options: .allowUserInteraction) { [unowned self] in
-                            updated.background.backgroundColor = self.textBackgroundColor
+                            self.applyConfigurationBackgroundColor(self.textBackgroundColor, to: &updated)
                             updated.baseForegroundColor = self.textColor
                             updated.imageColorTransformer = self.configuredImageTintColor.map { imageTintColor in
                                 UIConfigurationColorTransformer { _ in imageTintColor }
@@ -401,7 +414,7 @@ extension Button: ButtonOutput {
                             button.transform = .identity
                         }
                     } else {
-                        updated.background.backgroundColor = self.textBackgroundColor
+                        self.applyConfigurationBackgroundColor(self.textBackgroundColor, to: &updated)
                         updated.baseForegroundColor = self.textColor
                         updated.imageColorTransformer = self.configuredImageTintColor.map { imageTintColor in
                             UIConfigurationColorTransformer { _ in imageTintColor }
@@ -411,8 +424,15 @@ extension Button: ButtonOutput {
                     isPreviouslyHighlighted = false
                 }
 
+                if usesProminentGlass {
+                    // UIKit desaturates the prominent tint when disabled. Use the current fill with the button's disabled opacity.
+                    updated.background.backgroundColor = button.isEnabled ? nativeBackgroundColor : (self.textBackgroundColor ?? nativeBackgroundColor)
+                }
                 button.configuration = updated
             }
+
+            applyConfiguration(config)
+            self.backgroundColor = .clear
             updateSpacings()
         }
 
@@ -504,7 +524,7 @@ open class Button: UIButton {
         didSet { updateSpacings() }
     }
 
-    private var usesLiquidGlassConfiguration = false
+    private var activeGlassConfiguration: ButtonStyle.GlassConfiguration?
 
     private var hasCustomContentInset: Bool {
         return contentInset.top != .zero
@@ -521,8 +541,9 @@ open class Button: UIButton {
     public var textBackgroundColor: UIColor? {
         didSet {
             if #available(iOS 15.0, *), var configuration {
-                configuration.background.backgroundColor = textBackgroundColor
-                self.configuration = configuration
+                applyConfigurationBackgroundColor(textBackgroundColor, to: &configuration)
+                applyConfiguration(configuration)
+                if !isEnabled, activeGlassConfiguration != nil { setNeedsUpdateConfiguration() }
             } else {
                 backgroundColor = textBackgroundColor
             }
@@ -546,10 +567,10 @@ open class Button: UIButton {
         if #available(iOS 15.0, *), var configuration {
             if imageTintAppearance != nil {
                 configuration.image = tintedImageForCurrentState()
-                self.configuration = configuration
+                applyConfiguration(configuration)
             } else if state == .normal || state == imageStateForCurrentControlState {
                 configuration.image = image
-                self.configuration = configuration
+                applyConfiguration(configuration)
             }
         }
     }
@@ -564,8 +585,12 @@ open class Button: UIButton {
 
     open override func setTitle(_ title: String?, for state: UIControl.State) {
         if #available(iOS 15.0, *), var configuration {
+            if activeGlassConfiguration != nil, title == nil {
+                // UIKit otherwise restores the legacy title during a configuration update.
+                super.setTitle(nil, for: state)
+            }
             configuration.title = title
-            self.configuration = configuration
+            applyConfiguration(configuration)
         } else {
             super.setTitle(title, for: state)
         }
@@ -574,7 +599,7 @@ open class Button: UIButton {
     open override func setTitleColor(_ color: UIColor?, for state: UIControl.State) {
         if #available(iOS 15.0, *), var configuration {
             configuration.baseForegroundColor = color
-            self.configuration = configuration
+            applyConfiguration(configuration)
         } else {
             super.setTitleColor(color, for: state)
         }
@@ -589,7 +614,7 @@ open class Button: UIButton {
                 case .trailing, .right: .trailing
                 @unknown default: .center
                 }
-                self.configuration = configuration
+                applyConfiguration(configuration)
             } else {
                 super.contentHorizontalAlignment = contentHorizontalAlignment
             }
@@ -627,7 +652,7 @@ open class Button: UIButton {
                 trailing: contentInset.right
             )
             configuration.imagePadding = spacing
-            self.configuration = configuration
+            applyConfiguration(configuration)
             return
         }
         let isRTL = UIView.userInterfaceLayoutDirection(for: self.semanticContentAttribute) == .rightToLeft
@@ -904,6 +929,18 @@ open class Button: UIButton {
 }
 
 private extension Button {
+    @available(iOS 15.0, *)
+    func applyConfiguration(_ configuration: UIButton.Configuration) {
+        guard activeGlassConfiguration != nil else {
+            self.configuration = configuration
+            return
+        }
+        UIView.performWithoutAnimation {
+            self.configuration = configuration
+            layoutIfNeeded()
+        }
+    }
+
     func applyImageTintColor(_ imageTintColor: UIColor?) {
         guard let imageTintColor else {
             restoreImageTintAppearance()
@@ -1029,13 +1066,25 @@ private extension Button {
         setNeedsLayout()
     }
 
+    @available(iOS 15.0, *)
+    func applyConfigurationBackgroundColor(_ color: UIColor?, to configuration: inout UIButton.Configuration) {
+        switch activeGlassConfiguration {
+        case .prominentGlass?, .prominentClearGlass?:
+            // Tint the native material instead of replacing it with a solid fill.
+            configuration.baseBackgroundColor = color
+        default:
+            // Preserve existing fills for ordinary glass and non-glass configurations.
+            configuration.background.backgroundColor = color
+        }
+    }
+
     func resetGlassConfigurationIfNeeded() {
-        guard usesLiquidGlassConfiguration else { return }
+        guard activeGlassConfiguration != nil else { return }
         configurationUpdateHandler = nil
         if #available(iOS 15.0, *) {
             configuration = nil
         }
-        usesLiquidGlassConfiguration = false
+        activeGlassConfiguration = nil
     }
     
     func applyButtonCornerStyle(_ cornerStyle: CornerStyle) {

@@ -313,8 +313,8 @@ open class ToastView: UIView {
             bottomConstraint = topAnchor.constraint(equalTo: window.bottomAnchor, constant: 0)
             bottomConstraint?.isActive = true
         }
-        centerXAnchor.constraint(equalTo: window.centerXAnchor).isActive = true
-        widthAnchor.constraint(equalTo: window.widthAnchor, constant: -spacing * 2).isActive = true
+        leadingAnchor.constraint(equalTo: window.safeAreaLayoutGuide.leadingAnchor, constant: spacing).isActive = true
+        trailingAnchor.constraint(equalTo: window.safeAreaLayoutGuide.trailingAnchor, constant: -spacing).isActive = true
 
         layoutIfNeeded()
         window.layoutIfNeeded()
