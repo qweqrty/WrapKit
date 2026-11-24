@@ -1,0 +1,47 @@
+// Generated using Sourcery — https://github.com/krzysztofzablocki/Sourcery
+// DO NOT EDIT
+// swiftlint:disable:this file_name
+// swiftlint:disable all
+// swift-format-ignore-file
+// swiftformat:disable all
+
+import WrapKit
+// Preserve WrapKit's type names when this spy is compiled outside its module.
+import typealias WrapKit.Image
+import typealias WrapKit.Color
+import struct WrapKit.EdgeInsets
+#if canImport(UIKit)
+import struct WrapKit.ButtonStyle
+#endif
+#if canImport(SwiftUI)
+import SwiftUI
+#endif
+#if canImport(CoreGraphics)
+import CoreGraphics
+#endif
+#if canImport(UIKit)
+import UIKit
+#endif
+
+public final class HiddableOutputSpy: HiddableOutput {
+
+    public init() {}
+
+    public enum Message: HashableWithReflection {
+        case displayIsHidden(isHidden: Bool)
+    }
+
+    public private(set) var messages: [Message] = []
+
+    // MARK: - Captured values
+    public private(set) var capturedDisplayIsHidden: [Bool] = []
+
+
+    // MARK: - HiddableOutput methods
+    public func display(isHidden: Bool) {
+        capturedDisplayIsHidden.append(isHidden)
+        messages.append(.displayIsHidden(isHidden: isHidden))
+    }
+
+    // MARK: - Properties
+}

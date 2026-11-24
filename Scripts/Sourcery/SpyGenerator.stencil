@@ -1,13 +1,32 @@
 {% for type in types.protocols where type.name|hasSuffix:"Output" or type.name|hasSuffix:"Flow" %}
+{% if type.path|contains:"WrapKitCore/Sources/" %}
+// sourcery:file:{{ argument.testUtilsSpiesPath }}/{{ type.name }}SpyGenerated.swift
+{% else %}
 // sourcery:file:{{ type.path|dirname }}/Generated/{{ type.name }}SpyGenerated.swift
+{% endif %}
 // swiftlint:disable:this file_name
 // swiftlint:disable all
 // swift-format-ignore-file
 // swiftformat:disable all
 
+{% if type.path|contains:"WrapKitCore/Sources/" %}
+import WrapKit
+{% for importName in type.allImports %}
+{% if importName.path == "SwiftUI" %}
+// Preserve WrapKit's type names when this spy is compiled outside its module.
+import typealias WrapKit.Image
+import typealias WrapKit.Color
+import struct WrapKit.EdgeInsets
+#if canImport(UIKit)
+import struct WrapKit.ButtonStyle
+#endif
+{% endif %}
+{% endfor %}
+{% else %}
 #if canImport(WrapKit)
 import WrapKit
 #endif
+{% endif %}
 {% for importName in type.allImports %}
 #if canImport({{ importName }})
 import {{ importName }}

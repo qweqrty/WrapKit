@@ -1,0 +1,86 @@
+// Generated using Sourcery — https://github.com/krzysztofzablocki/Sourcery
+// DO NOT EDIT
+// swiftlint:disable:this file_name
+// swiftlint:disable all
+// swift-format-ignore-file
+// swiftformat:disable all
+
+import WrapKit
+// Preserve WrapKit's type names when this spy is compiled outside its module.
+import typealias WrapKit.Image
+import typealias WrapKit.Color
+import struct WrapKit.EdgeInsets
+#if canImport(UIKit)
+import struct WrapKit.ButtonStyle
+#endif
+#if canImport(Foundation)
+import Foundation
+#endif
+#if canImport(UIKit)
+import UIKit
+#endif
+#if canImport(SwiftUI)
+import SwiftUI
+#endif
+#if canImport(CoreGraphics)
+import CoreGraphics
+#endif
+
+public final class TextOutputSpy: TextOutput {
+
+    public init() {}
+
+    public enum Message: HashableWithReflection {
+        case displayModel(model: TextOutputPresentableModel?)
+        case displayTextModel(textModel: TextOutputPresentableModel.TextModel?)
+        case displayText(text: String?)
+        case displayAttributes(attributes: [TextAttributes])
+        case displayHtmlString(htmlString: String?, config: HTMLAttributedStringConfig?)
+        case displayId(id: String?, from: Decimal, to: Decimal, mapToString: ((Decimal) -> TextOutputPresentableModel.TextModel)?, animationStyle: LabelAnimationStyle, duration: TimeInterval, completion: (() -> Void)?)
+        case displayIsHidden(isHidden: Bool)
+    }
+
+    public private(set) var messages: [Message] = []
+
+    // MARK: - Captured values
+    public private(set) var capturedDisplayModel: [TextOutputPresentableModel?] = []
+    public private(set) var capturedDisplayTextModel: [TextOutputPresentableModel.TextModel?] = []
+    public private(set) var capturedDisplayText: [String?] = []
+    public private(set) var capturedDisplayAttributes: [[TextAttributes]] = []
+    public private(set) var capturedDisplayHtmlString: [(htmlString: String?, config: HTMLAttributedStringConfig?)] = []
+    public private(set) var capturedDisplayId: [(id: String?, from: Decimal, to: Decimal, mapToString: ((Decimal) -> TextOutputPresentableModel.TextModel)?, animationStyle: LabelAnimationStyle, duration: TimeInterval, completion: (() -> Void)?)] = []
+    public private(set) var capturedDisplayIsHidden: [Bool] = []
+
+
+    // MARK: - TextOutput methods
+    public func display(model: TextOutputPresentableModel?) {
+        capturedDisplayModel.append(model)
+        messages.append(.displayModel(model: model))
+    }
+    public func display(textModel: TextOutputPresentableModel.TextModel?) {
+        capturedDisplayTextModel.append(textModel)
+        messages.append(.displayTextModel(textModel: textModel))
+    }
+    public func display(text: String?) {
+        capturedDisplayText.append(text)
+        messages.append(.displayText(text: text))
+    }
+    public func display(attributes: [TextAttributes]) {
+        capturedDisplayAttributes.append(attributes)
+        messages.append(.displayAttributes(attributes: attributes))
+    }
+    public func display(htmlString: String?, config: HTMLAttributedStringConfig?) {
+        capturedDisplayHtmlString.append((htmlString: htmlString, config: config))
+        messages.append(.displayHtmlString(htmlString: htmlString, config: config))
+    }
+    public func display(id: String?, from startAmount: Decimal, to endAmount: Decimal, mapToString: ((Decimal) -> TextOutputPresentableModel.TextModel)?, animationStyle: LabelAnimationStyle, duration: TimeInterval, completion: (() -> Void)?) {
+        capturedDisplayId.append((id: id, from: startAmount, to: endAmount, mapToString: mapToString, animationStyle: animationStyle, duration: duration, completion: completion))
+        messages.append(.displayId(id: id, from: startAmount, to: endAmount, mapToString: mapToString, animationStyle: animationStyle, duration: duration, completion: completion))
+    }
+    public func display(isHidden: Bool) {
+        capturedDisplayIsHidden.append(isHidden)
+        messages.append(.displayIsHidden(isHidden: isHidden))
+    }
+
+    // MARK: - Properties
+}

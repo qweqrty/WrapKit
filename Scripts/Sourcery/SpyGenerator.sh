@@ -9,6 +9,7 @@ PROJECT_ROOT=$(git rev-parse --show-toplevel)
 SOURCES_PATH="$PROJECT_ROOT"
 TEMPLATE_PATH="$PROJECT_ROOT/Scripts/Sourcery/SpyGenerator.stencil"
 OUTPUT_DIR="$PROJECT_ROOT"
+TEST_UTILS_SPIES_PATH="$PROJECT_ROOT/WrapKitCore/TestUtils/Generated"
 
 # Exclude paths
 EXCLUDED_DIRS=(".build" "Pods" "Carthage" ".git" "playgrounds" "Tuist")
@@ -26,6 +27,7 @@ sourcery \
     --sources "$SOURCES_PATH" \
     --templates "$TEMPLATE_PATH" \
     --output "$PROJECT_ROOT/scripts/Sourcery/Derived" \
+    --args "testUtilsSpiesPath=$TEST_UTILS_SPIES_PATH" \
     --hideVersionHeader \
     $EXCLUDE_ARGS
 

@@ -1,5 +1,6 @@
 import UIKit
 import WrapKit
+import WrapKitTestUtils
 import XCTest
 
 final class ViewControllerNavigationExitTests: XCTestCase {
