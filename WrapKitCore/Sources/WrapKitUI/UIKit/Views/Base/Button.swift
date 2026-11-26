@@ -18,6 +18,8 @@ public struct ButtonStyle: HashableWithReflection {
     public let borderColor: Color?
     public let pressedColor: Color?
     public let pressedTintColor: Color?
+    public let disabledTextColor: Color?
+    public let disabledBackgroundColor: Color?
     public let font: Font?
     public let cornerStyle: CornerStyle
     public let wrongUrlPlaceholderImage: Image?
@@ -32,6 +34,8 @@ public struct ButtonStyle: HashableWithReflection {
         borderColor: Color? = nil,
         pressedColor: Color? = nil,
         pressedTintColor: Color? = nil,
+        disabledTextColor: Color? = nil,
+        disabledBackgroundColor: Color? = nil,
         font: Font? = nil,
         cornerRadius: CGFloat,
         glassConfiguration: GlassConfiguration? = nil,
@@ -46,6 +50,8 @@ public struct ButtonStyle: HashableWithReflection {
             borderColor: borderColor,
             pressedColor: pressedColor,
             pressedTintColor: pressedTintColor,
+            disabledTextColor: disabledTextColor,
+            disabledBackgroundColor: disabledBackgroundColor,
             font: font,
             cornerStyle: .fixed(cornerRadius),
             glassConfiguration: glassConfiguration,
@@ -62,6 +68,8 @@ public struct ButtonStyle: HashableWithReflection {
         borderColor: Color? = nil,
         pressedColor: Color? = nil,
         pressedTintColor: Color? = nil,
+        disabledTextColor: Color? = nil,
+        disabledBackgroundColor: Color? = nil,
         font: Font? = nil,
         cornerRadius: CGFloat,
         glassConfiguration: GlassConfiguration? = nil,
@@ -76,6 +84,8 @@ public struct ButtonStyle: HashableWithReflection {
             borderColor: borderColor,
             pressedColor: pressedColor,
             pressedTintColor: pressedTintColor,
+            disabledTextColor: disabledTextColor,
+            disabledBackgroundColor: disabledBackgroundColor,
             font: font,
             cornerStyle: .fixed(cornerRadius),
             glassConfiguration: glassConfiguration,
@@ -92,6 +102,8 @@ public struct ButtonStyle: HashableWithReflection {
         borderColor: Color? = nil,
         pressedColor: Color? = nil,
         pressedTintColor: Color? = nil,
+        disabledTextColor: Color? = nil,
+        disabledBackgroundColor: Color? = nil,
         font: Font? = nil,
         cornerStyle: CornerStyle = isAvailableOS26 && isLiquidGlassEnabled ? .automatic : .fixed(ButtonStyle.defaultCornerRadius),
         glassConfiguration: GlassConfiguration? = nil,
@@ -107,6 +119,8 @@ public struct ButtonStyle: HashableWithReflection {
             borderColor: borderColor,
             pressedColor: pressedColor,
             pressedTintColor: pressedTintColor,
+            disabledTextColor: disabledTextColor,
+            disabledBackgroundColor: disabledBackgroundColor,
             font: font,
             cornerStyle: cornerStyle,
             glassConfiguration: glassConfiguration,
@@ -123,6 +137,8 @@ public struct ButtonStyle: HashableWithReflection {
         borderColor: Color? = nil,
         pressedColor: Color? = nil,
         pressedTintColor: Color? = nil,
+        disabledTextColor: Color? = nil,
+        disabledBackgroundColor: Color? = nil,
         font: Font? = nil,
         cornerStyle: CornerStyle = isAvailableOS26 && isLiquidGlassEnabled ? .automatic : .fixed(ButtonStyle.defaultCornerRadius),
         glassConfiguration: GlassConfiguration? = nil,
@@ -142,6 +158,8 @@ public struct ButtonStyle: HashableWithReflection {
             borderColor: borderColor,
             pressedColor: pressedColor,
             pressedTintColor: pressedTintColor,
+            disabledTextColor: disabledTextColor,
+            disabledBackgroundColor: disabledBackgroundColor,
             font: font,
             cornerStyle: cornerStyle,
             glassConfiguration: glassConfiguration,
@@ -159,6 +177,8 @@ public struct ButtonStyle: HashableWithReflection {
         borderColor: Color?,
         pressedColor: Color?,
         pressedTintColor: Color?,
+        disabledTextColor: Color?,
+        disabledBackgroundColor: Color?,
         font: Font?,
         cornerStyle: CornerStyle,
         glassConfiguration: GlassConfiguration?,
@@ -172,6 +192,8 @@ public struct ButtonStyle: HashableWithReflection {
         self.borderColor = borderColor
         self.pressedColor = pressedColor
         self.pressedTintColor = pressedTintColor
+        self.disabledTextColor = disabledTextColor ?? titleColor?.withAlphaComponent(0.5)
+        self.disabledBackgroundColor = disabledBackgroundColor ?? legacyBackgroundColor?.withAlphaComponent(0.5)
         self.font = font
         self.borderWidth = borderWidth
         self.cornerStyle = cornerStyle
@@ -309,6 +331,8 @@ extension Button: ButtonOutput {
         textBackgroundColor = style.backgroundStyle?.solidColor
         normalBackgroundStyle = style.backgroundStyle
         self.pressedTextColor = style.pressedTintColor
+        self.disabledTextColor = style.disabledTextColor ?? textColor?.withAlphaComponent(0.5)
+        self.disabledBackgroundColor = style.disabledBackgroundColor
         self.pressedBackgroundColor = style.pressedColor
         self.wrongUrlPlaceholderImage = style.wrongUrlPlaceholderImage
         self.loadingIndicatorColor = style.loadingIndicatorColor
@@ -324,6 +348,7 @@ extension Button: ButtonOutput {
             self.layer.borderWidth = style.borderWidth
             applyButtonCornerStyle(style.cornerStyle)
             applyBackgroundStyle(style.backgroundStyle)
+            applyStateBackground()
             return
         }
         
@@ -363,7 +388,11 @@ extension Button: ButtonOutput {
                 config.titleTextAttributesTransformer = .init { [weak self] container in
                     var updated = container
                     updated.font = font
-                    updated.foregroundColor = self?.textColor ?? .white
+                    // Prominent glass gets its title color in configurationUpdateHandler.
+                    if !usesProminentGlass {
+                        let isEnabled = self?.isEnabled ?? true
+                        updated.foregroundColor = (isEnabled ? self?.textColor : self?.disabledTextColor) ?? .white
+                    }
                     return updated
                 }
             }
@@ -404,9 +433,10 @@ extension Button: ButtonOutput {
                         }
                     }
                 } else {
+                    let stateBackgroundColor = button.isEnabled ? self.textBackgroundColor : (self.disabledBackgroundColor ?? self.textBackgroundColor)
                     if isPreviouslyHighlighted {
                         UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 0.4, initialSpringVelocity: 6, options: .allowUserInteraction) { [unowned self] in
-                            self.applyConfigurationBackgroundColor(self.textBackgroundColor, to: &updated)
+                            self.applyConfigurationBackgroundColor(stateBackgroundColor, to: &updated)
                             updated.baseForegroundColor = self.textColor
                             updated.imageColorTransformer = self.configuredImageTintColor.map { imageTintColor in
                                 UIConfigurationColorTransformer { _ in imageTintColor }
@@ -414,7 +444,7 @@ extension Button: ButtonOutput {
                             button.transform = .identity
                         }
                     } else {
-                        self.applyConfigurationBackgroundColor(self.textBackgroundColor, to: &updated)
+                        self.applyConfigurationBackgroundColor(stateBackgroundColor, to: &updated)
                         updated.baseForegroundColor = self.textColor
                         updated.imageColorTransformer = self.configuredImageTintColor.map { imageTintColor in
                             UIConfigurationColorTransformer { _ in imageTintColor }
@@ -425,8 +455,24 @@ extension Button: ButtonOutput {
                 }
 
                 if usesProminentGlass {
-                    // UIKit desaturates the prominent tint when disabled. Use the current fill with the button's disabled opacity.
-                    updated.background.backgroundColor = button.isEnabled ? nativeBackgroundColor : (self.textBackgroundColor ?? nativeBackgroundColor)
+                    if button.isEnabled {
+                        updated.background.backgroundColor = nativeBackgroundColor
+                    } else {
+                        // UIKit desaturates the prominent tint when disabled. Draw the disabled color as a fill over untinted glass.
+                        updated.baseBackgroundColor = .clear
+                        updated.background.backgroundColor = self.disabledBackgroundColor ?? self.textBackgroundColor ?? nativeBackgroundColor
+                    }
+
+                    // Prominent glass blends a single-color title into the material. A second color object
+                    // with the same value on the first character makes UIKit draw the title as is.
+                    if let color = button.isEnabled ? updated.baseForegroundColor : self.disabledTextColor,
+                       var title = updated.attributedTitle ?? updated.title.map({ AttributedString($0) }),
+                       !title.characters.isEmpty {
+                        title.uiKit.foregroundColor = color
+                        let first = title.startIndex..<title.index(afterCharacter: title.startIndex)
+                        title[first].uiKit.foregroundColor = UIColor { color.resolvedColor(with: $0) }
+                        updated.attributedTitle = title
+                    }
                 }
                 button.configuration = updated
             }
@@ -445,9 +491,10 @@ extension Button: ButtonOutput {
             self.layer.borderColor = style.borderColor?.cgColor
             self.layer.borderWidth = style.borderWidth
             applyButtonCornerStyle(style.cornerStyle)
+            applyStateBackground()
         }
     }
-    
+
     public func display(title: String?) {
         self.setTitle(title?.removingPercentEncoding ?? title, for: .normal)
     }
@@ -589,8 +636,12 @@ open class Button: UIButton {
                 // UIKit otherwise restores the legacy title during a configuration update.
                 super.setTitle(nil, for: state)
             }
-            configuration.title = title
+            var attrs = AttributeContainer()
+            attrs.font = titleLabel?.font
+            attrs.foregroundColor = textColor
+            configuration.attributedTitle = title ??= { .init($0, attributes: attrs) }
             applyConfiguration(configuration)
+            if activeGlassConfiguration != nil { setNeedsUpdateConfiguration() }
         } else {
             super.setTitle(title, for: state)
         }
@@ -600,6 +651,7 @@ open class Button: UIButton {
         if #available(iOS 15.0, *), var configuration {
             configuration.baseForegroundColor = color
             applyConfiguration(configuration)
+            if activeGlassConfiguration != nil { setNeedsUpdateConfiguration() }
         } else {
             super.setTitleColor(color, for: state)
         }
@@ -624,6 +676,16 @@ open class Button: UIButton {
     public var isLoading: Bool?
     public var loadingIndicatorColor: UIColor?
     public var pressedTextColor: UIColor?
+    /// Title color for the disabled state; replaces dimming the title label.
+    public var disabledTextColor: UIColor? {
+        didSet {
+            super.setTitleColor(disabledTextColor, for: .disabled)
+            if #available(iOS 15.0, *), activeGlassConfiguration != nil { setNeedsUpdateConfiguration() }
+        }
+    }
+    public var disabledBackgroundColor: UIColor? {
+        didSet { applyStateBackground() }
+    }
     public var pressedBackgroundColor: UIColor?
     public var pressAnimations = Set<PressAnimation>()
     public var wrongUrlPlaceholderImage: UIImage?
@@ -860,8 +922,7 @@ open class Button: UIButton {
     
     open func updateAppearance(enabled: Bool) {
         isEnabled = enabled
-        alpha = enabled ? 1.0 : 0.5
-        titleLabel?.alpha = enabled ? 1.0 : 0.5
+        applyStateBackground()
     }
     
     open override func accessibilityActivate() -> Bool {
@@ -875,6 +936,23 @@ open class Button: UIButton {
             return true
         }
         return super.accessibilityActivate()
+    }
+
+    /// Shows disabledBackgroundColor while disabled; glass buttons get it from configurationUpdateHandler.
+    private func applyStateBackground() {
+        if #available(iOS 15.0, *), configuration != nil {
+            if activeGlassConfiguration != nil { setNeedsUpdateConfiguration() }
+            return
+        }
+        guard normalBackgroundStyle != nil else { return }
+        if !isEnabled, let disabledBackgroundColor {
+            removeBackgroundGradient()
+            backgroundColor = disabledBackgroundColor
+            return
+        }
+        applyBackgroundStyle(normalBackgroundStyle)
+        // A gradient has no single color to derive a disabled color from.
+        backgroundGradientLayer?.opacity = isEnabled ? 1 : 0.5
     }
 
     private func applyBackgroundStyle(_ style: ColorStyle?) {

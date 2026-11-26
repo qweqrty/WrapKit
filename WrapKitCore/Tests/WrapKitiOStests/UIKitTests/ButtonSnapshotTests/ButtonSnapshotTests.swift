@@ -71,10 +71,10 @@ final class ButtonSnapshotTests: XCTestCase {
                     height: 48,
                     style: alignmentStyle(glassStyle)
                 ))
-                assertConfiguredAlignment(of: button, matches: alignment, expectsGlass: glassStyle != nil)
+                assertConfiguredAlignment(of: button, matches: alignment, glass: glassStyle)
                 button.display(style: alignmentStyle(glassStyle))
                 assertDisplayedContent(title: title, image: image, of: button)
-                assertConfiguredAlignment(of: button, matches: alignment, expectsGlass: glassStyle != nil)
+                assertConfiguredAlignment(of: button, matches: alignment, glass: glassStyle)
             }
 
             button.display(title: nil)
@@ -409,11 +409,17 @@ final class ButtonSnapshotTests: XCTestCase {
                     XCTAssertEqual(sut.configuration?.background.backgroundColor, nativeBackground.backgroundColor)
                     XCTAssertEqual(sut.backgroundColor, .clear)
                 }
+                // Disabled: the style's disabledBackgroundColor (normalColor at 50%) as a fill over untinted glass.
+                let disabledColor = sut.disabledBackgroundColor
+                XCTAssertEqual(rgba(disabledColor), rgba(normalColor.withAlphaComponent(0.5)))
                 sut.display(enabled: false)
                 flushConfigurationUpdates(of: sut)
-                XCTAssertEqual(sut.configuration?.background.backgroundColor, normalColor)
+                XCTAssertEqual(sut.configuration?.baseBackgroundColor, .clear)
+                XCTAssertEqual(sut.configuration?.background.backgroundColor, disabledColor)
+                XCTAssertEqual(sut.alpha, 1)
                 sut.display(enabled: true)
                 flushConfigurationUpdates(of: sut)
+                XCTAssertEqual(sut.configuration?.baseBackgroundColor, normalColor)
                 XCTAssertEqual(sut.configuration?.background.backgroundColor, nativeBackground.backgroundColor)
 
                 sut.textBackgroundColor = .systemRed
@@ -423,10 +429,13 @@ final class ButtonSnapshotTests: XCTestCase {
                 sut.display(enabled: false)
                 sut.isHighlighted = true
                 flushConfigurationUpdates(of: sut)
-                XCTAssertEqual(sut.configuration?.background.backgroundColor, .systemRed, "Disabled fill must use the current normal color even when highlighted")
+                XCTAssertEqual(sut.configuration?.background.backgroundColor, disabledColor, "Disabled fill must use disabledBackgroundColor even when highlighted")
+                sut.disabledBackgroundColor = .systemOrange
+                flushConfigurationUpdates(of: sut)
+                XCTAssertEqual(sut.configuration?.background.backgroundColor, .systemOrange)
                 sut.textBackgroundColor = .systemPurple
                 flushConfigurationUpdates(of: sut)
-                XCTAssertEqual(sut.configuration?.background.backgroundColor, .systemPurple)
+                XCTAssertEqual(sut.configuration?.background.backgroundColor, .systemOrange)
                 sut.display(enabled: true)
                 for (highlighted, expectedColor) in [(false, UIColor.systemPurple), (true, pressedColor), (false, UIColor.systemPurple)] {
                     sut.isHighlighted = highlighted
@@ -486,6 +495,138 @@ final class ButtonSnapshotTests: XCTestCase {
             sut.isHighlighted = false
             flushConfigurationUpdates(of: sut)
             XCTAssertEqual(sut.configuration?.background.backgroundColor, .systemRed)
+        }
+    }
+
+    func test_buttonStyle_disabledTextColor_defaultsToHalfTransparentTitleColor() {
+        XCTAssertEqual(ButtonStyle(titleColor: .red).disabledTextColor, UIColor.red.withAlphaComponent(0.5))
+        XCTAssertEqual(ButtonStyle(backgroundColor: .solid(.cyan), titleColor: .red, cornerRadius: 8).disabledTextColor, UIColor.red.withAlphaComponent(0.5))
+        XCTAssertEqual(ButtonStyle(titleColor: .red, disabledTextColor: .blue).disabledTextColor, .blue)
+        XCTAssertNil(ButtonStyle().disabledTextColor)
+
+        let themed = UIColor { $0.userInterfaceStyle == .dark ? .yellow : .white }
+        let disabled = ButtonStyle(titleColor: themed).disabledTextColor
+        XCTAssertEqual(rgba(disabled, in: .light), rgba(UIColor.white.withAlphaComponent(0.5)))
+        XCTAssertEqual(rgba(disabled, in: .dark), rgba(UIColor.yellow.withAlphaComponent(0.5)))
+
+        XCTAssertEqual(ButtonStyle(backgroundColor: .cyan).disabledBackgroundColor, UIColor.cyan.withAlphaComponent(0.5))
+        XCTAssertEqual(ButtonStyle(backgroundColor: .solid(.cyan), cornerRadius: 8).disabledBackgroundColor, UIColor.cyan.withAlphaComponent(0.5))
+        XCTAssertEqual(ButtonStyle(backgroundColor: .cyan, disabledBackgroundColor: .gray).disabledBackgroundColor, .gray)
+        XCTAssertNil(ButtonStyle(backgroundColor: .gradient(.init(colors: [.red, .blue]))).disabledBackgroundColor)
+        XCTAssertNil(ButtonStyle().disabledBackgroundColor)
+    }
+
+    func test_buttonOutput_disabledTitle_usesDisabledTextColorInsteadOfDimmingLabel() {
+        let (sut, _) = makeSUT()
+        sut.display(title: "Disabled")
+        sut.display(style: .init(backgroundColor: .solid(.cyan), titleColor: .red, disabledTextColor: .blue))
+        sut.display(enabled: false)
+
+        XCTAssertEqual(sut.disabledTextColor, .blue)
+        XCTAssertEqual(sut.titleColor(for: .disabled), .blue)
+        XCTAssertEqual(sut.titleLabel?.alpha, 1)
+        XCTAssertEqual(sut.alpha, 1)
+        XCTAssertEqual(sut.backgroundColor, UIColor.cyan.withAlphaComponent(0.5))
+
+        sut.display(style: .init(backgroundColor: .solid(.cyan), titleColor: .red, disabledBackgroundColor: .gray))
+        XCTAssertEqual(sut.titleColor(for: .disabled), UIColor.red.withAlphaComponent(0.5))
+        XCTAssertEqual(sut.backgroundColor, .gray)
+        sut.display(enabled: true)
+        XCTAssertEqual(sut.titleLabel?.alpha, 1)
+        XCTAssertEqual(sut.alpha, 1)
+        XCTAssertEqual(sut.backgroundColor, .cyan)
+
+        let gradient = ColorStyle.gradient(.init(colors: [.red, .blue]))
+        sut.display(style: .init(backgroundColor: gradient, titleColor: .red))
+        sut.display(enabled: false)
+        let gradientLayer = sut.layer.sublayers?.compactMap { $0 as? CAGradientLayer }.first
+        XCTAssertEqual(gradientLayer?.opacity, 0.5)
+        sut.display(enabled: true)
+        XCTAssertEqual(gradientLayer?.opacity, 1)
+
+        // The label itself is never dimmed, including when the style arrives after disabling.
+        let (disabledFirst, _) = makeSUT()
+        disabledFirst.display(title: "Disabled first")
+        disabledFirst.display(enabled: false)
+        XCTAssertEqual(disabledFirst.titleLabel?.alpha, 1)
+        disabledFirst.display(style: .init(backgroundColor: .solid(.cyan), titleColor: .red))
+        XCTAssertEqual(disabledFirst.titleLabel?.alpha, 1)
+        XCTAssertEqual(disabledFirst.titleColor(for: .disabled), UIColor.red.withAlphaComponent(0.5))
+
+        // Without titleColor the button falls back to its white title color.
+        disabledFirst.display(style: .init(backgroundColor: .solid(.cyan)))
+        XCTAssertEqual(disabledFirst.disabledTextColor, UIColor.white.withAlphaComponent(0.5))
+    }
+
+    func test_buttonOutput_glassDisabledTitle_usesDisabledTextColor() throws {
+        guard #available(iOS 26.0, *) else {
+            throw XCTSkip("Liquid Glass is available on iOS 26 and newer")
+        }
+        try withLiveGlassButton { sut in
+            sut.display(style: .init(
+                backgroundColor: .solid(.systemGreen),
+                titleColor: .red,
+                disabledTextColor: .blue,
+                font: .systemFont(ofSize: 17),
+                glassConfiguration: .glass
+            ))
+            sut.display(title: "Glass")
+            guard let transformer = sut.configuration?.titleTextAttributesTransformer else {
+                return XCTFail("The configured font must have a title transformer")
+            }
+            XCTAssertEqual(transformer(AttributeContainer()).uiKit.foregroundColor, .red)
+
+            sut.display(enabled: false)
+            flushPendingLayout(of: sut)
+            XCTAssertEqual(transformer(AttributeContainer()).uiKit.foregroundColor, .blue)
+            XCTAssertEqual(sut.titleLabel?.alpha, 1)
+            XCTAssertEqual(sut.alpha, 1)
+            XCTAssertEqual(sut.configuration?.background.backgroundColor, sut.disabledBackgroundColor)
+
+            sut.display(enabled: true)
+            flushPendingLayout(of: sut)
+            XCTAssertEqual(transformer(AttributeContainer()).uiKit.foregroundColor, .red)
+            XCTAssertEqual(sut.configuration?.background.backgroundColor, .systemGreen)
+        }
+    }
+
+    func test_buttonOutput_prominentGlassTitle_keepsExactColorInEveryState() throws {
+        guard #available(iOS 26.0, *) else {
+            throw XCTSkip("Liquid Glass is available on iOS 26 and newer")
+        }
+        for glassConfiguration in [ButtonStyle.GlassConfiguration.prominentGlass, .prominentClearGlass] {
+            let style = ButtonStyle(
+                backgroundColor: .solid(.systemGreen),
+                titleColor: .white,
+                pressedTintColor: .yellow,
+                disabledTextColor: .blue,
+                font: .systemFont(ofSize: 17),
+                glassConfiguration: glassConfiguration
+            )
+            try withLiveGlassButton(makeButton: { Button(style: style, title: "Продолжить") }) { sut in
+                // No explicit setNeedsUpdateConfiguration(): Button must request the update itself.
+                flushPendingLayout(of: sut)
+                assertProminentGlassTitle(of: sut, equals: "Продолжить", color: .white)
+                XCTAssertNil(sut.configuration?.titleTextAttributesTransformer?(AttributeContainer()).uiKit.foregroundColor)
+
+                for (highlighted, enabled, expectedColor) in [
+                    (false, true, UIColor.white), (true, true, .yellow), (false, false, .blue), (false, true, .white)
+                ] {
+                    sut.display(enabled: enabled)
+                    sut.isHighlighted = highlighted
+                    flushPendingLayout(of: sut)
+                    assertProminentGlassTitle(of: sut, equals: "Продолжить", color: expectedColor)
+                    XCTAssertEqual(sut.titleLabel?.alpha, 1)
+                }
+
+                sut.display(title: "Готово")
+                flushPendingLayout(of: sut)
+                assertProminentGlassTitle(of: sut, equals: "Готово", color: .white)
+
+                sut.textColor = .red
+                flushPendingLayout(of: sut)
+                assertProminentGlassTitle(of: sut, equals: "Готово", color: .red)
+            }
         }
     }
 
@@ -561,7 +702,7 @@ final class ButtonSnapshotTests: XCTestCase {
             try withLiveGlassButton(makeButton: { Button(style: style, title: "Initialized", enabled: false) }) { sut in
                 flushConfigurationUpdates(of: sut)
                 XCTAssertFalse(sut.isEnabled)
-                XCTAssertEqual(sut.alpha, 0.5)
+                XCTAssertEqual(sut.alpha, 1)
                 XCTAssertTrue(sut.isAccessibilityElement)
                 XCTAssertTrue(sut.accessibilityTraits.contains(.notEnabled))
                 XCTAssertEqual(sut.contentHorizontalAlignment, .center)
@@ -571,7 +712,8 @@ final class ButtonSnapshotTests: XCTestCase {
                 XCTAssertEqual(sut.normalBackgroundStyle, style.backgroundStyle)
                 if let configuration = sut.configuration {
                     XCTAssertEqual(configuration.title, "Initialized")
-                    XCTAssertEqual(configuration.background.backgroundColor, .systemBlue)
+                    XCTAssertEqual(configuration.baseBackgroundColor, .clear)
+                    XCTAssertEqual(configuration.background.backgroundColor, style.disabledBackgroundColor)
                     XCTAssertEqual(configuration.contentInsets, .zero)
                     XCTAssertEqual(configuration.imagePadding, 0)
                 } else {
@@ -582,9 +724,10 @@ final class ButtonSnapshotTests: XCTestCase {
                         XCTAssertEqual(gradients.count, 1)
                         XCTAssertEqual(gradients.first?.colors as? [CGColor], [UIColor.red.cgColor, UIColor.blue.cgColor])
                         XCTAssertEqual(gradients.first?.frame, sut.bounds)
+                        XCTAssertEqual(gradients.first?.opacity, 0.5)
                     } else {
                         XCTAssertTrue(gradients.isEmpty)
-                        XCTAssertEqual(sut.backgroundColor, .systemBlue)
+                        XCTAssertEqual(sut.backgroundColor, style.disabledBackgroundColor)
                     }
                 }
                 sut.display(enabled: true)
@@ -1652,17 +1795,23 @@ extension ButtonSnapshotTests {
     private func assertConfiguredAlignment(
         of button: Button,
         matches alignment: ButtonAlignmentCase,
-        expectsGlass: Bool = true,
+        glass: ButtonStyle.GlassConfiguration? = .glass,
         file: StaticString = #file,
         line: UInt = #line
     ) {
         XCTAssertEqual(button.contentHorizontalAlignment, alignment.value, alignment.name, file: file, line: line)
-        if #available(iOS 26.0, *), expectsGlass {
+        if #available(iOS 26.0, *), let glass {
             XCTAssertEqual(button.configuration?.titleAlignment, alignment.titleAlignment, alignment.name, file: file, line: line)
             if let transformer = button.configuration?.titleTextAttributesTransformer {
                 let attributes = transformer(AttributeContainer())
                 XCTAssertEqual(attributes.font, UIFont.systemFont(ofSize: 17), alignment.name, file: file, line: line)
-                XCTAssertEqual(attributes.foregroundColor, button.textColor, alignment.name, file: file, line: line)
+                if glass == .prominentGlass || glass == .prominentClearGlass {
+                    // Prominent glass keeps the title color in the attributed title runs.
+                    XCTAssertNil(attributes.uiKit.foregroundColor, alignment.name, file: file, line: line)
+                } else {
+                    let expectedColor = button.isEnabled ? button.textColor : button.disabledTextColor
+                    XCTAssertEqual(attributes.foregroundColor, expectedColor, alignment.name, file: file, line: line)
+                }
             } else {
                 XCTFail("The configured font must have a title transformer", file: file, line: line)
             }
@@ -1748,6 +1897,42 @@ extension ButtonSnapshotTests {
         button.window?.layoutIfNeeded()
         RunLoop.current.run(until: Date().addingTimeInterval(0.05))
         button.window?.layoutIfNeeded()
+    }
+
+    /// Runs only the updates the button scheduled itself, without forcing a configuration update.
+    private func flushPendingLayout(of button: UIButton) {
+        button.window?.layoutIfNeeded()
+        RunLoop.current.run(until: Date().addingTimeInterval(0.05))
+        button.window?.layoutIfNeeded()
+    }
+
+    @available(iOS 15.0, *)
+    private func assertProminentGlassTitle(
+        of button: Button,
+        equals text: String,
+        color: UIColor,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        guard let title = button.configuration?.attributedTitle else {
+            return XCTFail("Prominent glass must keep an attributed title", file: file, line: line)
+        }
+        XCTAssertEqual(String(title.characters), text, file: file, line: line)
+        let colors = title.runs.map { $0.uiKit.foregroundColor }
+        // UIKit draws a single-color title through prominent glass; a second color object keeps the title as is.
+        XCTAssertEqual(colors.count, 2, file: file, line: line)
+        if colors.count == 2 { XCTAssertFalse(colors[0] === colors[1], file: file, line: line) }
+        for style in [UIUserInterfaceStyle.light, .dark] {
+            for runColor in colors {
+                XCTAssertEqual(rgba(runColor, in: style), rgba(color, in: style), file: file, line: line)
+            }
+        }
+    }
+
+    private func rgba(_ color: UIColor?, in style: UIUserInterfaceStyle = .light) -> [CGFloat] {
+        var red: CGFloat = 0, green: CGFloat = 0, blue: CGFloat = 0, alpha: CGFloat = 0
+        color?.resolvedColor(with: UITraitCollection(userInterfaceStyle: style)).getRed(&red, green: &green, blue: &blue, alpha: &alpha)
+        return [red, green, blue, alpha].map { ($0 * 1000).rounded() / 1000 }
     }
 
     func makeImage(width: CGFloat) -> UIImage {
