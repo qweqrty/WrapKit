@@ -70,17 +70,7 @@ final class BottomSheetPresentationControllerTests: XCTestCase {
     }
 
     func test_updateBackdropMask_cutsOutHighlightedSourceContainer() throws {
-        let presentingViewController = UIViewController()
-        presentingViewController.loadViewIfNeeded()
-        presentingViewController.view.frame = CGRect(x: 0, y: 0, width: 390, height: 844)
-
-        let sourceContainer = UIView(frame: CGRect(x: 24, y: 80, width: 64, height: 48))
-        sourceContainer.layer.cornerRadius = 12
-        let sourceView = UIView(frame: CGRect(x: 20, y: 12, width: 24, height: 24))
-        sourceView.accessibilityIdentifier = "source"
-        sourceContainer.addSubview(sourceView)
-        presentingViewController.view.addSubview(sourceContainer)
-
+        let presentingViewController = makePresentingViewControllerWithHighlightSource()
         let sut = makeSUT(presentingViewController: presentingViewController)
         sut.highlightedSourceViewIdentifier = "source"
         sut.backdropView.frame = presentingViewController.view.bounds
@@ -91,6 +81,22 @@ final class BottomSheetPresentationControllerTests: XCTestCase {
         let mask = try XCTUnwrap(sut.backdropView.layer.mask as? CAShapeLayer)
         let path = try XCTUnwrap(mask.path)
         XCTAssertEqual(mask.fillRule, .evenOdd)
+        XCTAssertTrue(path.contains(CGPoint(x: 10, y: 10), using: .evenOdd))
+        XCTAssertFalse(path.contains(CGPoint(x: 56, y: 104), using: .evenOdd))
+    }
+
+    func test_firstContainerLayoutPass_cutsOutHighlightedSourceContainer() throws {
+        let presentingViewController = makePresentingViewControllerWithHighlightSource()
+        let sut = makeSUT(presentingViewController: presentingViewController)
+        sut.highlightedSourceViewIdentifier = "source"
+        presentingViewController.view.addSubview(sut.backdropView)
+
+        sut.containerViewWillLayoutSubviews()
+        sut.backdropView.frame = presentingViewController.view.bounds
+        sut.containerViewDidLayoutSubviews()
+
+        let mask = try XCTUnwrap(sut.backdropView.layer.mask as? CAShapeLayer)
+        let path = try XCTUnwrap(mask.path)
         XCTAssertTrue(path.contains(CGPoint(x: 10, y: 10), using: .evenOdd))
         XCTAssertFalse(path.contains(CGPoint(x: 56, y: 104), using: .evenOdd))
     }
@@ -135,6 +141,20 @@ final class BottomSheetPresentationControllerTests: XCTestCase {
         presentationController.beginDismissal(reason: .tapOutside)
         presentationController.dismissalTransitionDidEnd(true)
         XCTAssertEqual(tapCount, 1)
+    }
+
+    private func makePresentingViewControllerWithHighlightSource() -> UIViewController {
+        let presentingViewController = UIViewController()
+        presentingViewController.loadViewIfNeeded()
+        presentingViewController.view.frame = CGRect(x: 0, y: 0, width: 390, height: 844)
+
+        let sourceContainer = UIView(frame: CGRect(x: 24, y: 80, width: 64, height: 48))
+        sourceContainer.layer.cornerRadius = 12
+        let sourceView = UIView(frame: CGRect(x: 20, y: 12, width: 24, height: 24))
+        sourceView.accessibilityIdentifier = "source"
+        sourceContainer.addSubview(sourceView)
+        presentingViewController.view.addSubview(sourceContainer)
+        return presentingViewController
     }
 
     private func makeSUT(
