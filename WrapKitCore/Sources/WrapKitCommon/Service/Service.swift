@@ -23,6 +23,7 @@ public enum ServiceError: Encodable, Error, Equatable {
     case `internal`
     case connectivity
     case cancelled
+    case parsingError
 }
 
 // MARK: - Service abstraction helper
