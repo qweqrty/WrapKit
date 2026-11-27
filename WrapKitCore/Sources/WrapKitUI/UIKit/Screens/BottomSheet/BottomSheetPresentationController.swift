@@ -156,8 +156,8 @@ final public class BottomSheetPresentationController: UIPresentationController {
         }
     }
 
-    public override func containerViewWillLayoutSubviews() {
-        super.containerViewWillLayoutSubviews()
+    public override func containerViewDidLayoutSubviews() {
+        super.containerViewDidLayoutSubviews()
         updateBackdropMask()
     }
 
