@@ -54,7 +54,7 @@ final class CountingLabelAnimation {
         self.lastUpdate = Date.timeIntervalSinceReferenceDate
 
         if let label {
-            let initialText = mapToString?(fromValue).text ?? fromValue.asString()
+            let initialText = mapToString?(fromValue).text ?? fromValue.toAmountString()
             label.display(text: initialText)
         }
 

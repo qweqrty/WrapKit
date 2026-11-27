@@ -138,27 +138,6 @@ public extension String {
     }
 }
 
-public extension String {
-    func numberFormatted(numberStyle: NumberFormatter.Style, groupingSeparator: String?, maxDigits: Int = 12) -> String {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = numberStyle
-        formatter.groupingSeparator = groupingSeparator ?? Locale.current.groupingSeparator
-        formatter.locale = Locale.current
-        
-        guard let digits = Double(self.replacingOccurrences(of: formatter.groupingSeparator, with: "").prefix(maxDigits)) else { return "" }
-        let number = NSNumber(value: digits)
-        return formatter.string(from: number) ?? ""
-    }
-    
-    func toIntFromFormatted(groupingSeparator: String? = nil) -> Int? {
-        let formatter = NumberFormatter()
-        formatter.groupingSeparator = groupingSeparator ?? Locale.current.groupingSeparator
-        
-        let cleanString = self.replacingOccurrences(of: formatter.groupingSeparator, with: "")
-        return Int(cleanString)
-    }
-}
-
 public extension Int {
     /// Converts milliseconds to Date
     var toDateFromMilliseconds: Date {
@@ -197,7 +176,6 @@ public extension Float {
         return date.toString(format: format, locale: locale)
     }
 }
-
 
 /// UIKit/AppKit differences)
 private func extractWeight(from descriptor: FontDescriptor) -> Font.Weight? {

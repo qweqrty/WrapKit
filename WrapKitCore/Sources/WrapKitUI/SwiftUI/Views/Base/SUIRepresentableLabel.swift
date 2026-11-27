@@ -66,7 +66,7 @@ public struct SUIRepresentableLabel: UIViewRepresentable {
             SUIRepresentableLabel(
                 model: .animated(
                     1.2, 225,
-                    mapToString: { .text($0.asString()) },
+                    mapToString: { .text($0.toAmountString()) },
                     animationStyle: .circle(lineColor: .red),
                     duration: 5,
                     completion: { print("completed") }
