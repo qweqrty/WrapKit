@@ -148,7 +148,7 @@ public extension UIView {
             loadingContainerView.addSubview(loadingView)
 
             loadingView.anchor(
-                .centerX(loadingContainerView.centerXAnchor, constant: contentInset.left - contentInset.right),
+                .centerX(loadingContainerView.safeAreaLayoutGuide.centerXAnchor, constant: contentInset.left - contentInset.right),
                 .centerY(loadingContainerView.centerYAnchor, constant: contentInset.top - contentInset.bottom)
             )
 

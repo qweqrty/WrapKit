@@ -2,6 +2,13 @@
 import UIKit
 
 open class BottomSheetController<View: UIView>: ViewController<View> {
+    #if compiler(>=6.4)
+    @available(iOS 27.1, tvOS 27.1, visionOS 27.1, *)
+    open override var preferredVerticalBarBehavior: UIVerticalBarBehavior {
+        return .disabled
+    }
+    #endif
+
     private lazy var bottomSheetTransitioningDelegate = BottomSheetTransitioningDelegate(
         preferredSheetTopInset: preferredSheetTopInset,
         preferredSheetLeftInset: preferredSheetLeftInset,

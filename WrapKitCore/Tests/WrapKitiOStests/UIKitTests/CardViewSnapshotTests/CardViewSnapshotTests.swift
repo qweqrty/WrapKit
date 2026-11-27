@@ -10,6 +10,38 @@ import WrapKitTestUtils
 import XCTest
 
 final class CardViewSnapshotTests: XCTestCase {
+
+    func test_CardView_reusedCenteredTitle_restoresDefaultAlignment() {
+        let (sut, container) = makeSUT()
+        let configuredAlignment = sut.titleViews.keyLabel.textAlignment
+        sut.subtitleLabel.textAlignment = .right
+        let style = makeDefaultStyle()
+        sut.display(model: .init(
+            style: style,
+            title: .attributes([.init(text: "Centered button", textAlignment: .center)])
+        ))
+        XCTAssertEqual(sut.titleViews.keyLabel.textAlignment, .center)
+
+        sut.display(title: nil)
+        sut.display(model: .init(
+            style: style,
+            title: .attributes([.init(text: "1 080 / 1 calendar month")]),
+            subTitle: .text("Right-aligned subtitle")
+        ))
+        XCTAssertEqual(sut.titleViews.keyLabel.textAlignment, configuredAlignment)
+        XCTAssertEqual(sut.subtitleLabel.textAlignment, .right)
+
+        let os = if #available(iOS 26, *) { "iOS26" } else { "iOS18.5" }
+        for (theme, style) in [("LIGHT", UIUserInterfaceStyle.light), ("DARK", .dark)] {
+            let snapshot = container.snapshot(for: .iPhone(style: style))
+            let name = "\(os)_CARDVIEW_REUSED_CENTERED_TITLE_\(theme)"
+            let attachment = XCTAttachment(image: snapshot)
+            attachment.name = name
+            attachment.lifetime = .keepAlways
+            add(attachment)
+            assert(snapshot: snapshot, named: name)
+        }
+    }
     
     private let image = Image(systemName: "star.fill")
     private let secondImage = Image(systemName: "star")

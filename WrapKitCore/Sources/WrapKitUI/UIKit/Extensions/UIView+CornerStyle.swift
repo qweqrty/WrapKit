@@ -10,7 +10,7 @@ import UIKit
 
 public extension UIView {
     func applyCornerStyle(_ cornerStyle: CornerStyle) {
-        if #available(iOS 26, tvOS 26, visionOS 26, *) {
+        if #available(iOS 26, tvOS 26, visionOS 26, macOS 26, *) {
             let previousConfiguration = cornerConfiguration
             let previousCornerRadius = layer.cornerRadius
             let previousMaskedCorners = layer.maskedCorners
